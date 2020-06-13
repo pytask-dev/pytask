@@ -63,7 +63,7 @@ class PythonFunctionTask(MetaTask):
         )
 
     def execute(self):
-        self.session.hook.pytask_execute_task_pyfunc(function=self.function)
+        self.function()
 
     def state(self):
         return str(self.path.stat().st_mtime)

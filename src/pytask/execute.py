@@ -120,11 +120,6 @@ def pytask_execute_task_log_end(result):
         click.secho("F", fg="red", nl=False)
 
 
-@pytask.hookimpl(trylast=True)
-def pytask_execute_task_pyfunc(function):
-    function()
-
-
 @pytask.hookimpl
 def pytask_execute_log_end(session, reports):
     session.execution_end = time.time()

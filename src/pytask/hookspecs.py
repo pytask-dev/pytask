@@ -156,8 +156,3 @@ def pytask_execute_task_log_end(session, task, result):
 @hookspec
 def pytask_execute_log_end(session, reports):
     """End logging execution."""
-
-
-@hookspec(firstresult=True)
-def pytask_execute_task_pyfunc(function):
-    """Call a pytask test function."""
