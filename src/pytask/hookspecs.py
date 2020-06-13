@@ -1,0 +1,163 @@
+import click
+import pluggy
+
+hookspec = pluggy.HookspecMarker("pytask")
+
+
+# Hooks for the command-line interface.
+
+
+@hookspec
+def pytask_add_parameters_to_cli(command: click.Command):
+    """Add parameter to :class:`click.Command`."""
+
+
+# Hooks for the configuration.
+
+
+@hookspec(firstresult=True)
+def pytask_configure(pm, config_from_cli):
+    """Configure pytask."""
+
+
+@hookspec
+def pytask_parse_config(config, config_from_cli, config_from_file):
+    """Parse configuration from the CLI or from file."""
+
+
+# Hooks for the collection.
+
+
+@hookspec(firstresult=True)
+def pytask_collect(session):
+    """Collect tasks from paths."""
+
+
+@hookspec(firstresult=True)
+def pytask_ignore_collect(path, config):
+    """Ignore collected path."""
+
+
+@hookspec(firstresult=True)
+def pytask_collect_log(reports, config):
+    """Log errors during the collection."""
+
+
+@hookspec
+def pytask_collect_modify_tasks(tasks, config):
+    """Modify tasks after they have been collected for filtering, re-ordering, etc..
+
+    Resource: https://github.com/pytest-dev/pytest/blob/master/src/_pytest/main.py#L326
+
+    """
+
+
+@hookspec
+def pytask_collect_file_protocol(session, path):
+    """Start protocol to collect files."""
+
+
+@hookspec
+def pytask_collect_file(session, path):
+    """Collect tasks from files."""
+
+
+@hookspec(firstresult=True)
+def pytask_collect_task_protocol(session, path, name, obj):
+    """Start protocol to collect tasks."""
+
+
+@hookspec(firstresult=True)
+def pytask_collect_task(session, path, name, obj):
+    """Collect a single task."""
+
+
+@hookspec(firstresult=True)
+def pytask_collect_node(path, node):
+    """Collect a single node which is a dependency or a product."""
+
+
+# Hooks for resolving dependencies.
+
+
+@hookspec(firstresult=True)
+def pytask_resolve_dependencies(session):
+    """Resolve dependencies."""
+
+
+@hookspec(firstresult=True)
+def pytask_resolve_dependencies_create_dag(tasks):
+    """Create the dag."""
+
+
+@hookspec(firstresult=True)
+def pytask_resolve_dependencies_select_execution_dag(dag):
+    """Select the subgraph which needs to be executed."""
+
+
+@hookspec(firstresult=True)
+def pytask_resolve_dependencies_validate_dag(dag):
+    """Validate the dag."""
+
+
+# Hooks for running tasks.
+
+
+@hookspec(firstresult=True)
+def pytask_execute(session):
+    """Loop over all tasks for the execution."""
+
+
+@hookspec
+def pytask_execute_log_start(session):
+    """Start logging of execution."""
+
+
+@hookspec(firstresult=True)
+def pytask_execute_create_scheduler(session):
+    """Create a scheduler for the execution."""
+
+
+@hookspec(firstresult=True)
+def pytask_execute_build(session):
+    """Execute the build."""
+
+
+@hookspec(firstresult=True)
+def pytask_execute_task_protocol(session, task):
+    """Run the protocol for executing a test."""
+
+
+@hookspec
+def pytask_execute_task_log_start(session, task):
+    """Start logging of task execution."""
+
+
+@hookspec
+def pytask_execute_task_setup(session, task):
+    """Set up the task execution."""
+
+
+@hookspec
+def pytask_execute_task(task):
+    """ called to execute the task `item`."""
+
+
+@hookspec
+def pytask_execute_task_teardown(session, task):
+    """Tear down task execution."""
+
+
+@hookspec(firstresult=True)
+def pytask_execute_task_log_end(session, task, result):
+    """End logging of task execution."""
+
+
+@hookspec
+def pytask_execute_log_end(session, reports):
+    """End logging execution."""
+
+
+@hookspec(firstresult=True)
+def pytask_execute_task_pyfunc(function):
+    """Call a pytask test function."""

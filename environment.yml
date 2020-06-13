@@ -1,0 +1,29 @@
+name: pytask
+channels:
+  - conda-forge
+dependencies:
+  - python=3.7
+  - pip
+
+  # Conda
+  - anaconda-client
+  - conda-build
+  - conda-verify
+
+  # Package dependencies
+  - click
+  - networkx
+  - pluggy
+  - pony
+  - pytest
+
+  # Misc
+  - jupyterlab
+  - matplotlib
+  - pdbpp
+  - pre-commit<2.4
+  - pydot
+
+  # Documentation
+  - nbsphinx
+  - sphinx

@@ -1,0 +1,45 @@
+{% set data = load_setup_py_data() %}
+
+package:
+  name: pytask
+  version: {{ data.get('version') }}
+
+source:
+  # git_url is nice in that it won't capture devenv stuff.  However, it only captures
+  # committed code, so pay attention.
+  git_url: ../
+
+build:
+  noarch: python
+  number: 0
+  entry_points:
+    - pytask = pytask.cli:cli
+
+requirements:
+  host:
+    - python
+    - setuptools
+
+  run:
+    - python >=3.6,<3.8
+    - attrs >=17.4.0
+    - click
+    - networkx
+    - pony >=0.7.13
+    - pytest
+
+test:
+  requires:
+    - pytest
+  source_files:
+    - tox.ini
+    - testing
+  commands:
+    - pytask --version
+    - pytask --help
+
+about:
+  home: https://github.com/pytask/pytask
+  license: BSD
+  license_file: LICENSE
+  summary: Build system.

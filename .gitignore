@@ -1,0 +1,12 @@
+# Files
+.coverage
+coverage.*
+
+# Folders
+.idea
+.ipynb_checkpoints
+.tox
+_build
+__pycache__
+
+*.egg-info
