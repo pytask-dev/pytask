@@ -7,5 +7,8 @@ class ExitCode(enum.IntEnum):
     # Tasks were executed successfully.
     OK = 0
 
-    # An error occurred while executing tasks.
+    # Failed while executing tasks.
     FAILED = 1
+
+    # Failed while collecting tasks.
+    COLLECTION_FAILED = 2

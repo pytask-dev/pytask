@@ -1,6 +1,6 @@
 import pytask
 import pytest
-from pytask.nodes import extract_nodes_from_mark
+from pytask.nodes import extract_nodes_from_function_markers
 from pytask.nodes import MetaNode
 from pytask.nodes import MetaTask
 
@@ -14,7 +14,7 @@ def test_extract_dependencies_from_mark():
     def dummy_function():
         pass
 
-    result = list(extract_nodes_from_mark(dummy_function, "depends_on"))
+    result = list(extract_nodes_from_function_markers(dummy_function, "depends_on"))
 
     assert list("abcdef") == sorted(result)
 
@@ -28,7 +28,7 @@ def test_extract_products_from_mark():
     def dummy_function():
         pass
 
-    result = list(extract_nodes_from_mark(dummy_function, "produces"))
+    result = list(extract_nodes_from_function_markers(dummy_function, "produces"))
 
     assert list("abcdef") == sorted(result)
 

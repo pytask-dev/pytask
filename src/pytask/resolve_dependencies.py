@@ -1,12 +1,12 @@
 import networkx as nx
 import pytask
 from pony import orm
-from pytask import mark
 from pytask.dag import node_and_neigbors
 from pytask.dag import sort_tasks_topologically
 from pytask.dag import task_and_descending_tasks
 from pytask.database import State
 from pytask.exceptions import NodeNotFoundError
+from pytask.mark import Mark
 
 
 @pytask.hookimpl
@@ -57,8 +57,8 @@ def pytask_resolve_dependencies_select_execution_dag(dag):
                     visited_nodes.append(name)
             else:
                 dag.nodes[task_name]["active"] = False
-                dag.nodes[task_name]["task"].function = mark.skip_unchanged(
-                    dag.nodes[task_name]["task"].function
+                dag.nodes[task_name]["task"].markers.append(
+                    Mark("skip_unchanged", (), {})
                 )
 
 

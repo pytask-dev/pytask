@@ -12,3 +12,7 @@ class NodeNotCollectedError(PytaskError):
 
 class CollectionError(PytaskError):
     """Exception during collection."""
+
+
+class TaskDuplicatedError(PytaskError):
+    """Exception for duplicated task during collection."""

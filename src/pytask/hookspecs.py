@@ -1,6 +1,7 @@
 import click
 import pluggy
 
+
 hookspec = pluggy.HookspecMarker("pytask")
 
 
@@ -23,6 +24,11 @@ def pytask_configure(pm, config_from_cli):
 @hookspec
 def pytask_parse_config(config, config_from_cli, config_from_file):
     """Parse configuration from the CLI or from file."""
+
+
+@hookspec
+def pytask_post_parse(config):
+    """Post parsing."""
 
 
 # Hooks for the collection.
@@ -65,6 +71,11 @@ def pytask_collect_file(session, path):
 @hookspec(firstresult=True)
 def pytask_collect_task_protocol(session, path, name, obj):
     """Start protocol to collect tasks."""
+
+
+@hookspec
+def pytask_collect_task_setup(session, path, name, obj):
+    """Steps before collecting a task."""
 
 
 @hookspec(firstresult=True)

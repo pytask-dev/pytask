@@ -32,6 +32,7 @@ class Node(MetaNode):
             raise NodeNotFoundError
 
 
+@pytest.mark.unit
 def test_create_dag():
     task = Task(name="task", depends_on=[Node(name="node_1"), Node(name="node_2")])
 
@@ -40,6 +41,7 @@ def test_create_dag():
     assert sorted(dag.nodes) == ["node_1", "node_2", "task"]
 
 
+@pytest.mark.unit
 def test_check_if_root_nodes_are_available():
     dag = nx.DiGraph()
 

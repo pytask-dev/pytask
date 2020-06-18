@@ -28,30 +28,21 @@ class PythonFunctionTask(MetaTask):
     depends_on = attr.ib(converter=to_list)
     produces = attr.ib(converter=to_list)
     session = attr.ib()
+    markers = attr.ib()
 
     @classmethod
     def from_path_name_function_session(cls, path, name, function, session):
-        depends_on = []
-        for node in extract_nodes_from_mark(function, "depends_on"):
-            collected_node = session.hook.pytask_collect_node(path=path, node=node)
-            if collected_node is None:
-                raise NodeNotCollectedError(
-                    f"Dependency {node} could not be collected from path {path} and "
-                    f"function {name}."
-                )
-            else:
-                depends_on.append(collected_node)
+        depends_on_nodes = extract_nodes_from_function_markers(function, "depends_on")
+        depends_on = collect_nodes(session, path, name, depends_on_nodes)
 
-        produces = []
-        for node in extract_nodes_from_mark(function, "produces"):
-            collected_node = session.hook.pytask_collect_node(path=path, node=node)
-            if collected_node is None:
-                raise NodeNotCollectedError(
-                    f"Product {node} could not be collected from path {path} and "
-                    f"function {name}."
-                )
-            else:
-                produces.append(collected_node)
+        produces_nodes = extract_nodes_from_function_markers(function, "produces")
+        produces = collect_nodes(session, path, name, produces_nodes)
+
+        markers = [
+            marker
+            for marker in getattr(function, "pytestmark", [])
+            if marker.name not in ["depends_on", "produces"]
+        ]
 
         return cls(
             path=path,
@@ -60,6 +51,7 @@ class PythonFunctionTask(MetaTask):
             depends_on=depends_on,
             produces=produces,
             session=session,
+            markers=markers,
         )
 
     def execute(self):
@@ -97,7 +89,21 @@ class FilePathNode(MetaNode):
             return str(self.path.stat().st_mtime)
 
 
-def extract_nodes_from_mark(function, marker_name):
+def collect_nodes(session, path, name, nodes):
+    collect_nodes = []
+    for node in nodes:
+        collected_node = session.hook.pytask_collect_node(path=path, node=node)
+        if collected_node is None:
+            raise NodeNotCollectedError(
+                f"'{node}' could not be collected from path '{path}' and task '{name}'."
+            )
+        else:
+            collect_nodes.append(collected_node)
+
+    return collect_nodes
+
+
+def extract_nodes_from_function_markers(function, marker_name):
     for marker in getattr(function, "pytestmark", []):
         for args in marker.args:
             for arg in to_list(args):

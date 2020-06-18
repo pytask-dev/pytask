@@ -36,6 +36,8 @@ def pytask_configure(pm, config_from_cli):
         config_from_file=config_from_file,
     )
 
+    config["pm"].hook.pytask_post_parse(config=config)
+
     return config
 
 

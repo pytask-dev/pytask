@@ -17,11 +17,15 @@ def pytask_add_parameters_to_cli(command):
 @pytask.hookimpl
 def pytask_parse_config(config, config_from_cli):
     config["pdb"] = _get_first_not_none_value(config_from_cli, key="pdb", default=False)
-    if config["pdb"]:
-        config["pm"].register(_debugging)
-
     config["trace"] = _get_first_not_none_value(
         config_from_cli, key="trace", default=False
     )
+
+
+@pytask.hookimpl
+def pytask_post_parse(config):
+    if config["pdb"]:
+        config["pm"].register(_debugging)
+
     if config["trace"]:
         config["pm"].register(_trace)

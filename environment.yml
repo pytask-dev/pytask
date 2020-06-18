@@ -23,6 +23,7 @@ dependencies:
   - pdbpp
   - pre-commit<2.4
   - pydot
+  - pytest-cov
 
   # Documentation
   - nbsphinx

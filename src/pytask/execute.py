@@ -6,12 +6,12 @@ import traceback
 import click
 import pytask
 from pytask import hookimpl
-from pytask import mark
 from pytask.dag import node_and_neigbors
 from pytask.dag import sort_tasks_topologically
 from pytask.dag import task_and_descending_tasks
 from pytask.database import create_or_update_state
 from pytask.exceptions import NodeNotFoundError
+from pytask.mark import Mark
 from pytask.report import format_execute_footer
 
 
@@ -74,6 +74,12 @@ def pytask_execute_task_protocol(session, task):
 
 @hookimpl
 def pytask_execute_task_setup(session, task):
+    """Set up the execution of a task.
+
+    1. Check whether all dependencies of a task are available.
+    2. Create the directory where the product will be placed.
+
+    """
     for dependency in session.dag.predecessors(task.name):
         node = session.dag.nodes[dependency]["node"]
         try:
@@ -83,9 +89,15 @@ def pytask_execute_task_setup(session, task):
                 f"{node.name} is missing and required for {task.name}."
             )
 
+    # Create directory for product if it does not exist.
+    for product in session.dag.successors(task.name):
+        node = session.dag.nodes[product]["node"]
+        node.path.parent.mkdir(parents=True, exist_ok=True)
+
 
 @hookimpl
 def pytask_execute_task(task):
+    # Make task attributes available in task function.
     task.execute()
 
 
@@ -107,8 +119,8 @@ def pytask_execute_task_process_result(session, result):
         for task_name in task_and_descending_tasks(result["task"].name, session.dag):
             session.dag.nodes[task_name]["active"] = False
             task = session.dag.nodes[task_name]["task"]
-            task.function = mark.skip_ancestor_failed(reason="Previous task failed.")(
-                task.function
+            task.markers.append(
+                Mark("skip_ancestor_failed", (), {"reason": "Previous task failed."})
             )
 
 
@@ -142,8 +154,7 @@ def pytask_execute_log_end(session, reports):
             click.echo("=" * tm_width)
 
     duration = math.ceil(session.execution_end - session.execution_start)
-    message = format_execute_footer(n_successful, n_failed, duration, tm_width)
-    click.echo(message)
+    click.echo(format_execute_footer(n_successful, n_failed, duration, tm_width))
 
     return True
 

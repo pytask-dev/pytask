@@ -26,7 +26,7 @@ def main(config_from_cli):
         session.execute()
 
     except CollectionError:
-        session.exit_code = ExitCode.FAILED
+        session.exit_code = ExitCode.COLLECTION_FAILED
 
     except Exception:
         session.exit_code = ExitCode.FAILED

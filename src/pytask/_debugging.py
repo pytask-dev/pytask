@@ -14,9 +14,9 @@ def pytask_execute_task(task):
 
 def wrap_function_for_post_mortem_debugging(function):
     @functools.wraps(function)
-    def wrapper():
+    def wrapper(*args, **kwargs):
         try:
-            function()
+            function(*args, **kwargs)
         except Exception as e:
             traceback.print_exc()
             pdb.post_mortem()

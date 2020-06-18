@@ -13,7 +13,7 @@ def pytask_execute_task(task):
 
 def wrap_function_for_tracing(function):
     @functools.wraps(function)
-    def wrapper():
-        pdb.runcall(function)
+    def wrapper(*args, **kwargs):
+        pdb.runcall(function, *args, **kwargs)
 
     return wrapper

@@ -1,7 +1,49 @@
 import math
 import re
+from pathlib import Path
 
+import attr
 import click
+
+
+@attr.s
+class CollectionReportTask:
+    path = attr.ib(type=Path)
+    name = attr.ib(type=str)
+    task = attr.ib(default=None)
+    exc_info = attr.ib(default=None)
+
+    @classmethod
+    def from_task(cls, task):
+        return cls(path=task.path, name=task.name, task=task)
+
+    @classmethod
+    def from_exception(cls, path, name, exc_info):
+        return cls(path=path, name=name, exc_info=exc_info)
+
+    @property
+    def successful(self):
+        return self.exc_info is None
+
+    def format_title(self):
+        return f" Collection of task '{self.name}' in '{self.path}' failed "
+
+
+@attr.s
+class CollectionReportFile:
+    path = attr.ib(type=Path)
+    exc_info = attr.ib(default=None)
+
+    @classmethod
+    def from_exception(cls, path, exc_info):
+        return cls(path, exc_info=exc_info)
+
+    @property
+    def successful(self):
+        return self.exc_info is None
+
+    def format_title(self):
+        return f" Collection of file '{self.path}' failed "
 
 
 def format_execute_footer(n_successful, n_failed, duration, terminal_width):
