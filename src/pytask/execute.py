@@ -12,6 +12,7 @@ from pytask.dag import task_and_descending_tasks
 from pytask.database import create_or_update_state
 from pytask.exceptions import NodeNotFoundError
 from pytask.mark import Mark
+from pytask.nodes import FilePathNode
 from pytask.report import format_execute_footer
 
 
@@ -89,10 +90,12 @@ def pytask_execute_task_setup(session, task):
                 f"{node.name} is missing and required for {task.name}."
             )
 
-    # Create directory for product if it does not exist.
+    # Create directory for product if it does not exist. Maybe this should be a `setup`
+    # method for the node classes.
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
-        node.path.parent.mkdir(parents=True, exist_ok=True)
+        if isinstance(node, FilePathNode):
+            node.path.parent.mkdir(parents=True, exist_ok=True)
 
 
 @hookimpl

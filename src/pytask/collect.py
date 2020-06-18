@@ -1,5 +1,7 @@
 import fnmatch
 import glob
+import importlib
+import inspect
 import sys
 import traceback
 from pathlib import Path
@@ -58,10 +60,15 @@ def pytask_collect_file_protocol(session, path):
 @pytask.hookimpl
 def pytask_collect_file(session, path):
     if path.name.startswith("task_") and path.suffix == ".py":
-        globals_ = {"__file__": path.as_posix()}
-        exec(compile(path.read_text(), path.as_posix(), "exec"), globals_)
+        spec = importlib.util.spec_from_file_location(path.stem, str(path))
 
-        for name, obj in globals_.items():
+        if spec is None:
+            raise ImportError(f"Can't find module {path.stem} at location {path}.")
+
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+
+        for name, obj in inspect.getmembers(mod):
             session.hook.pytask_collect_task_protocol(
                 session=session, path=path, name=name, obj=obj
             )
