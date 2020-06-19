@@ -142,12 +142,13 @@ def pytask_collect_node(path, node):
         handled by this function.
 
     """
+    original_value = node
     if isinstance(node, str):
         node = Path(node)
     if isinstance(node, Path):
         if not node.is_absolute():
             node = path.parent.joinpath(node)
-        return FilePathNode.from_path(node)
+        return FilePathNode.from_path_and_original_value(node, original_value)
 
 
 def valid_paths(paths, session):

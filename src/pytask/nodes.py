@@ -1,4 +1,5 @@
 import functools
+import inspect
 from abc import ABCMeta
 from abc import abstractmethod
 from pathlib import Path
@@ -55,13 +56,44 @@ class PythonFunctionTask(MetaTask):
         )
 
     def execute(self):
-        self.function()
+        kwargs = self._get_kwargs_from_task_for_function()
+        self.function(**kwargs)
 
     def state(self):
         return str(self.path.stat().st_mtime)
 
+    def _get_kwargs_from_task_for_function(self):
+        func_arg_names = set(inspect.signature(self.function).parameters)
+        kwargs = {}
+        if "depends_on" in func_arg_names:
+            kwargs["depends_on"] = (
+                self.depends_on[0].original_value
+                if len(self.depends_on) == 1
+                else [node.original_value for node in self.depends_on]
+            )
+        if "produces" in func_arg_names:
+            kwargs["produces"] = (
+                self.produces[0].original_value
+                if len(self.produces) == 1
+                else [node.original_value for node in self.produces]
+            )
+
+        return kwargs
+
 
 class MetaNode(metaclass=ABCMeta):
+    """Meta class for nodes.
+
+    Attributes
+    ----------
+    name : str
+        Name of the node which makes it identifiable in the DAG.
+    original_value : any
+        Original value passed to the decorator which can be requested inside the
+        function.
+
+    """
+
     @abstractmethod
     def state(self):
         pass
@@ -71,16 +103,17 @@ class MetaNode(metaclass=ABCMeta):
 class FilePathNode(MetaNode):
     name = attr.ib()
     path = attr.ib()
+    original_value = attr.ib()
 
     @classmethod
     @functools.lru_cache()
-    def from_path(cls, path):
+    def from_path_and_original_value(cls, path, original_value):
         """Instantiate class from path to file.
 
         The `lru_cache` decorator ensures that the same object is not collected twice.
 
         """
-        return cls(path.name, path)
+        return cls(path.name, path, original_value)
 
     def state(self):
         if not self.path.exists():

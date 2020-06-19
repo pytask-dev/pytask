@@ -3,11 +3,12 @@ import pdb
 import traceback
 
 import pytask
+from pytask.nodes import PythonFunctionTask
 
 
 @pytask.hookimpl(hookwrapper=True)
 def pytask_execute_task(task):
-    if hasattr(task, "function"):
+    if isinstance(task, PythonFunctionTask):
         task.function = wrap_function_for_post_mortem_debugging(task.function)
     yield
 
