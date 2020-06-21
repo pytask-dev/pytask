@@ -2,15 +2,16 @@ import fnmatch
 import glob
 import importlib
 import inspect
+import itertools
 import sys
 import traceback
 from pathlib import Path
-from types import FunctionType
 
 import click
 import pytask
 from pytask.exceptions import CollectionError
 from pytask.exceptions import TaskDuplicatedError
+from pytask.mark import has_marker
 from pytask.nodes import FilePathNode
 from pytask.nodes import PythonFunctionTask
 from pytask.report import CollectionReportFile
@@ -69,9 +70,18 @@ def pytask_collect_file(session, path):
         spec.loader.exec_module(mod)
 
         for name, obj in inspect.getmembers(mod):
-            session.hook.pytask_collect_task_protocol(
-                session=session, path=path, name=name, obj=obj
-            )
+            if has_marker(obj, "parametrize"):
+                names_and_objects = session.hook.pytask_generate_tasks(
+                    session=session, name=name, obj=obj
+                )
+                names_and_objects = itertools.chain.from_iterable(names_and_objects)
+            else:
+                names_and_objects = [(name, obj)]
+
+            for name_, obj_ in names_and_objects:
+                session.hook.pytask_collect_task_protocol(
+                    session=session, path=path, name=name_, obj=obj_
+                )
 
 
 @pytask.hookimpl
@@ -116,7 +126,7 @@ def pytask_collect_task(session, path, name, obj):
     detect built-ins which is not possible anyway.
 
     """
-    if name.startswith("task_") and isinstance(obj, FunctionType):
+    if name.startswith("task_") and callable(obj):
         return PythonFunctionTask.from_path_name_function_session(
             path, name, obj, session
         )

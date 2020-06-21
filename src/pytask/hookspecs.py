@@ -68,6 +68,11 @@ def pytask_collect_file(session, path):
     """Collect tasks from files."""
 
 
+@hookspec
+def pytask_generate_tasks(session, name, obj):
+    """Generate multiple tasks from name and object with parametrization."""
+
+
 @hookspec(firstresult=True)
 def pytask_collect_task_protocol(session, path, name, obj):
     """Start protocol to collect tasks."""

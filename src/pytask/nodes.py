@@ -113,7 +113,7 @@ class FilePathNode(MetaNode):
         The `lru_cache` decorator ensures that the same object is not collected twice.
 
         """
-        return cls(path.name, path, original_value)
+        return cls(path.name, path, path)
 
     def state(self):
         if not self.path.exists():
