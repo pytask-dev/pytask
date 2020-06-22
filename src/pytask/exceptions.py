@@ -14,5 +14,9 @@ class CollectionError(PytaskError):
     """Exception during collection."""
 
 
+class ResolvingDependenciesError(PytaskError):
+    """Exception during resolving dependencies."""
+
+
 class TaskDuplicatedError(PytaskError):
     """Exception for duplicated task during collection."""

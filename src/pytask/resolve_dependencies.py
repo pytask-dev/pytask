@@ -1,3 +1,8 @@
+import pprint
+import sys
+import traceback
+
+import click
 import networkx as nx
 import pytask
 from pony import orm
@@ -6,6 +11,7 @@ from pytask.dag import sort_tasks_topologically
 from pytask.dag import task_and_descending_tasks
 from pytask.database import State
 from pytask.exceptions import NodeNotFoundError
+from pytask.exceptions import ResolvingDependenciesError
 from pytask.mark import Mark
 
 
@@ -19,11 +25,15 @@ def pytask_resolve_dependencies(session):
         Dictionary containing tasks.
 
     """
-    session.dag = session.hook.pytask_resolve_dependencies_create_dag(
-        tasks=session.tasks
-    )
-    session.hook.pytask_resolve_dependencies_validate_dag(dag=session.dag)
-    session.hook.pytask_resolve_dependencies_select_execution_dag(dag=session.dag)
+    try:
+        session.dag = session.hook.pytask_resolve_dependencies_create_dag(
+            tasks=session.tasks
+        )
+        session.hook.pytask_resolve_dependencies_validate_dag(dag=session.dag)
+        session.hook.pytask_resolve_dependencies_select_execution_dag(dag=session.dag)
+    except Exception:
+        report = {"exc_info": sys.exc_info()}
+        session.hook.pytask_resolve_dependencies_log(session=session, report=report)
 
 
 @pytask.hookimpl
@@ -53,10 +63,8 @@ def pytask_resolve_dependencies_select_execution_dag(dag):
             have_changed = _have_task_or_neighbors_changed(task_name, dag)
             if have_changed:
                 for name in task_and_descending_tasks(task_name, dag):
-                    dag.nodes[name]["active"] = True
                     visited_nodes.append(name)
             else:
-                dag.nodes[task_name]["active"] = False
                 dag.nodes[task_name]["task"].markers.append(
                     Mark("skip_unchanged", (), {})
                 )
@@ -64,6 +72,7 @@ def pytask_resolve_dependencies_select_execution_dag(dag):
 
 @pytask.hookimpl
 def pytask_resolve_dependencies_validate_dag(dag):
+    _check_if_dag_has_cycles(dag)
     _check_if_root_nodes_are_available(dag)
 
 
@@ -89,6 +98,20 @@ def _has_node_changed(task_name, node_dict):
     return not state == state_in_db
 
 
+def _check_if_dag_has_cycles(dag):
+    try:
+        cycles = nx.algorithms.cycles.find_cycle(dag)
+    except nx.NetworkXNoCycle:
+        pass
+    else:
+        raise ResolvingDependenciesError(
+            "The DAG contains cycles which means a dependency is directly or "
+            "implicitly a product of the same task. See the following tuples "
+            "(from a to b) to see the path in the graph which defines the cycle."
+            f"\n\n{pprint.pformat(cycles)}"
+        )
+
+
 def _check_if_root_nodes_are_available(dag):
     for node in dag.nodes:
         is_node = "node" in dag.nodes[node]
@@ -101,3 +124,16 @@ def _check_if_root_nodes_are_available(dag):
                 raise NodeNotFoundError(
                     f"{node} is missing and a dependency of {successors}."
                 )
+
+
+@pytask.hookimpl
+def pytask_resolve_dependencies_log(session, report):
+    tm_width = session.config["terminal_width"]
+    click.echo(f"{{:=^{tm_width}}}".format(" Errors during resolving dependencies "))
+
+    traceback.print_exception(*report["exc_info"])
+
+    click.echo("")
+    click.echo("=" * tm_width)
+
+    raise ResolvingDependenciesError

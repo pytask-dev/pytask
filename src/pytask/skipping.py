@@ -1,12 +1,14 @@
 import click
 import pytask
+from pytask.dag import task_and_descending_tasks
 from pytask.mark import get_markers_from_task
+from pytask.mark import Mark
 from pytask.outcomes import Skipped
 from pytask.outcomes import SkippedAncestorFailed
 from pytask.outcomes import SkippedUnchanged
 
 
-@pytask.hookimpl(tryfirst=True)
+@pytask.hookimpl
 def pytask_execute_task_setup(task):
     markers = get_markers_from_task(task, "skip_unchanged")
     if markers:
@@ -14,27 +16,47 @@ def pytask_execute_task_setup(task):
 
     markers = get_markers_from_task(task, "skip_ancestor_failed")
     if markers:
-        raise SkippedAncestorFailed
+        message = "\n".join([marker.kwargs["reason"] for marker in markers])
+        raise SkippedAncestorFailed(message)
 
     markers = get_markers_from_task(task, "skip")
     if markers:
         raise Skipped
 
 
-@pytask.hookimpl(tryfirst=True)
+@pytask.hookimpl
+def pytask_execute_task_process_result(session, result):
+    if isinstance(result["value"], SkippedUnchanged):
+        result["success"] = True
+
+    elif isinstance(result["value"], Skipped):
+        result["success"] = True
+        for descending_task_name in task_and_descending_tasks(
+            result["task"].name, session.dag
+        ):
+            descending_task = session.dag.nodes[descending_task_name]["task"]
+            descending_task.markers.append(Mark("skip", (), {},))
+
+    elif isinstance(result["value"], SkippedAncestorFailed):
+        result["success"] = False
+        result["traceback"] = None
+
+    if isinstance(result["value"], (Skipped, SkippedUnchanged, SkippedAncestorFailed)):
+        return True
+
+
+@pytask.hookimpl
 def pytask_execute_task_log_end(result):
-    if not result["success"]:
-        if isinstance(result["value"], Skipped):
+    value = result["value"]
+    if result["success"]:
+        if isinstance(value, Skipped):
             click.secho("s", fg="yellow", nl=False)
-        elif isinstance(result["value"], SkippedUnchanged):
+        elif isinstance(value, SkippedUnchanged):
             click.secho("s", fg="green", nl=False)
-            # `success = True` prevents error from being printed.
-            result["success"] = True
-        elif isinstance(result["value"], SkippedAncestorFailed):
+    else:
+        if isinstance(value, SkippedAncestorFailed):
             click.secho("s", fg="red", nl=False)
 
-        if isinstance(
-            result["value"], (Skipped, SkippedUnchanged, SkippedAncestorFailed)
-        ):
-            # Return non-None value so that the task is not logged again.
-            return True
+    if isinstance(value, (Skipped, SkippedUnchanged, SkippedAncestorFailed)):
+        # Return non-None value so that the task is not logged again.
+        return True

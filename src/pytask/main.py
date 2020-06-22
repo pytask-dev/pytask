@@ -5,6 +5,7 @@ import attr
 from pytask.database import create_database
 from pytask.enums import ExitCode
 from pytask.exceptions import CollectionError
+from pytask.exceptions import ResolvingDependenciesError
 from pytask.pluginmanager import get_plugin_manager
 from pytask.pluginmanager import register_default_plugins
 
@@ -16,6 +17,7 @@ def main(config_from_cli):
         register_default_plugins(pm)
 
         config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+
         create_database(**config["database"])
 
         session = Session.from_config(config)
@@ -27,6 +29,9 @@ def main(config_from_cli):
 
     except CollectionError:
         session.exit_code = ExitCode.COLLECTION_FAILED
+
+    except ResolvingDependenciesError:
+        session.exit_code = ExitCode.RESOLVING_DEPENDENCIES_FAILED
 
     except Exception:
         session.exit_code = ExitCode.FAILED

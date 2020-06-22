@@ -116,6 +116,11 @@ def pytask_resolve_dependencies_validate_dag(dag):
     """Validate the dag."""
 
 
+@hookspec
+def pytask_resolve_dependencies_log(session, report):
+    """Log errors during resolving dependencies."""
+
+
 # Hooks for running tasks.
 
 
@@ -162,6 +167,11 @@ def pytask_execute_task(task):
 @hookspec
 def pytask_execute_task_teardown(session, task):
     """Tear down task execution."""
+
+
+@hookspec(firstresult=True)
+def pytask_execute_task_process_result(session, result):
+    """Process the result of a task."""
 
 
 @hookspec(firstresult=True)

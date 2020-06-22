@@ -33,7 +33,11 @@ def pytask_collect(session):
 def _collect_tasks_and_reports(session):
     session.collection_reports = []
     for path in session.config["paths"]:
-        paths = path.rglob("*") if path.is_dir() else [Path(p) for p in glob.glob(path)]
+        paths = (
+            path.rglob("*")
+            if path.is_dir()
+            else [Path(p) for p in glob.glob(path.as_posix())]
+        )
 
         for p in paths:
             ignored = session.hook.pytask_ignore_collect(path=p, config=session.config)
@@ -108,7 +112,9 @@ def pytask_collect_task_protocol(session, path, name, obj):
 @pytask.hookimpl(trylast=True)
 def pytask_collect_task_setup(session, path, name):
     paths_to_tasks_w_ident_name = [
-        i.path.as_posix() for i in session.collection_reports if i.name == name
+        i.path.as_posix()
+        for i in session.collection_reports
+        if not isinstance(i, CollectionReportFile) and i.name == name
     ]
     if paths_to_tasks_w_ident_name:
         formatted = ",\n    ".join(paths_to_tasks_w_ident_name)

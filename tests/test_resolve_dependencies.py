@@ -60,3 +60,8 @@ def test_check_if_root_nodes_are_available():
 
     with pytest.raises(NodeNotFoundError):
         _check_if_root_nodes_are_available(dag)
+
+
+@pytest.mark.xfail
+def test_cycle_in_dag():
+    raise NotImplementedError

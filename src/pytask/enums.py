@@ -12,3 +12,6 @@ class ExitCode(enum.IntEnum):
 
     # Failed while collecting tasks.
     COLLECTION_FAILED = 2
+
+    # Failed while resolving dependencies.
+    RESOLVING_DEPENDENCIES_FAILED = 3

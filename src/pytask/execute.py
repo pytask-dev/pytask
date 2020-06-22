@@ -29,7 +29,7 @@ def pytask_execute_log_start(session):
     session.execution_start = time.time()
 
     tm_width = session.config["terminal_width"]
-    click.echo(f"{{:=^{tm_width}}}".format(" Start Execution "))
+    click.echo(f"{{:=^{tm_width}}}".format(" Start Execution "), nl=False)
 
 
 @hookimpl
@@ -60,20 +60,19 @@ def pytask_execute_task_protocol(session, task):
         etype, value, tb = sys.exc_info()
         result = {
             "task": task,
-            "success": False,
-            "type": etype,
+            "etype": etype,
             "value": value,
             "traceback": tb,
         }
     else:
-        result = {"task": task, "success": True}
+        result = {"task": task, "value": None}
     session.hook.pytask_execute_task_process_result(session=session, result=result)
     session.hook.pytask_execute_task_log_end(session=session, task=task, result=result)
 
     return result
 
 
-@hookimpl
+@hookimpl(trylast=True)
 def pytask_execute_task_setup(session, task):
     """Set up the execution of a task.
 
@@ -114,25 +113,35 @@ def pytask_execute_task_teardown(session, task):
             raise NodeNotFoundError(f"{node.name} was not produced by {task.name}.")
 
 
-@hookimpl
+@hookimpl(trylast=True)
 def pytask_execute_task_process_result(session, result):
-    if result["success"]:
-        _update_states_in_database(session.dag, result["task"].name)
+    task = result["task"]
+    if result["value"] is None:
+        result["success"] = True
+        _update_states_in_database(session.dag, task.name)
     else:
-        for task_name in task_and_descending_tasks(result["task"].name, session.dag):
-            session.dag.nodes[task_name]["active"] = False
-            task = session.dag.nodes[task_name]["task"]
-            task.markers.append(
-                Mark("skip_ancestor_failed", (), {"reason": "Previous task failed."})
+        result["success"] = False
+        for descending_task_name in task_and_descending_tasks(task.name, session.dag):
+            descending_task = session.dag.nodes[descending_task_name]["task"]
+            descending_task.markers.append(
+                Mark(
+                    "skip_ancestor_failed",
+                    (),
+                    {"reason": f"Previous task '{task.name}' failed."},
+                )
             )
 
+    return True
 
-@hookimpl
+
+@hookimpl(trylast=True)
 def pytask_execute_task_log_end(result):
     if result["success"]:
         click.secho(".", fg="green", nl=False)
     else:
         click.secho("F", fg="red", nl=False)
+
+    return True
 
 
 @pytask.hookimpl
@@ -151,13 +160,15 @@ def pytask_execute_log_end(session, reports):
             )
             click.echo("")
             traceback.print_exception(
-                report["type"], report["value"], report["traceback"]
+                report["etype"], report["value"], report["traceback"]
             )
             click.echo("")
             click.echo("=" * tm_width)
 
     duration = math.ceil(session.execution_end - session.execution_start)
-    click.echo(format_execute_footer(n_successful, n_failed, duration, tm_width))
+    click.echo(
+        format_execute_footer(n_successful, n_failed, duration, tm_width), nl=False
+    )
 
     return True
 

@@ -108,10 +108,10 @@ def test_if_skip_decorator_is_applied(tmp_path):
     os.chdir(tmp_path)
     session = main({"paths": tmp_path})
 
-    assert not session.results[0]["success"]
-    assert isinstance(session.results[0]["value"], Exception)
-    assert not session.results[1]["success"]
-    assert isinstance(session.results[1]["value"], SkippedAncestorFailed)
+    assert session.results[0]["success"]
+    assert isinstance(session.results[0]["value"], Skipped)
+    assert session.results[1]["success"]
+    assert isinstance(session.results[1]["value"], Skipped)
 
 
 @pytest.mark.unit
@@ -129,7 +129,8 @@ def test_pytask_execute_task_setup(marker_name, expectation):
         pass
 
     task = Task()
-    task.markers = [Mark(marker_name, (), {})]
+    kwargs = {"reason": ""} if marker_name == "skip_ancestor_failed" else {}
+    task.markers = [Mark(marker_name, (), kwargs)]
 
     with expectation:
         pytask_execute_task_setup(task)
@@ -146,15 +147,17 @@ def test_pytask_execute_task_setup(marker_name, expectation):
     ],
 )
 def test_pytask_execute_task_log_end(capsys, exception, character):
-    if exception:
+    if isinstance(exception, (Skipped, SkippedUnchanged)):
         result = {"success": False, "value": exception()}
+    elif isinstance(exception, SkippedAncestorFailed):
+        result = {"success": True, "value": SkippedAncestorFailed(), "reason": ""}
     else:
         result = {"success": True, "value": None}
 
     out = pytask_execute_task_log_end(result)
 
     captured = capsys.readouterr()
-    if exception:
+    if isinstance(exception, (Skipped, SkippedUnchanged)):
         assert out
         assert captured.out == character
     else:

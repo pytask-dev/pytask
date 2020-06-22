@@ -107,7 +107,12 @@ def _find_project_root_and_ini(paths):
                 config_path = path
                 break
 
-    return common_ancestor, config_path
+    if config_path is not None:
+        root = config_path.parent
+    else:
+        root = common_ancestor
+
+    return root, config_path
 
 
 def _read_config(path):
