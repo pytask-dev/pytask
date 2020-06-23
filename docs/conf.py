@@ -14,12 +14,12 @@ sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information ---------------------------------------------------------------
 
-project = "pipeline"
+project = "pytask"
 copyright = "2020, Tobias Raabe"  # noqa: A001
 author = "Tobias Raabe"
 
 # The full version, including alpha/beta/rc tags
-release = "0.0.5"
+release = "0.0.1"
 
 
 # -- General configuration -------------------------------------------------------------
@@ -32,6 +32,7 @@ extensions = [
     "numpydoc",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
+    "sphinx_copybutton",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -49,14 +50,15 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # Configuration for autodoc
 autosummary_generate = True
 
+copybutton_prompt_text = r"\\$ |>>> "
+copybutton_prompt_is_regexp = True
+
 extlinks = {
     "ghuser": ("https://github.com/%s", "@"),
-    "gh": ("https://github.com/OpenSourceEconomics/pipeline/pulls/%s", "#"),
+    "gh": ("https://github.com/pytask/pytask/pull/%s", "#"),
 }
 
 intersphinx_mapping = {
-    "numpy": ("https://docs.scipy.org/doc/numpy", None),
-    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
     "python": ("https://docs.python.org/3.7", None),
 }
 
@@ -80,5 +82,5 @@ html_css_files = ["css/custom.css"]
 html_static_path = ["_static"]
 
 html_theme_options = {
-    "github_url": "https://github.com/OpenSourceEconomics/pipeline",
+    "github_url": "https://github.com/pytask/pytask",
 }

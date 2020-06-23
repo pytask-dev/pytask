@@ -12,7 +12,6 @@ Glossary
         - applies to many areas including research projects.
 
     DAG
-        A `directed acyclic graph (DAG)
-        <https://en.wikipedia.org/wiki/Directed_acyclic_graph>`_  is a graph with a
-        finite amount of vertices and edges which are connected such that no circles
-        exist.
+        A `directed acyclic graph (DAG) <https://en.wikipedia.org/wiki/
+        Directed_acyclic_graph>`_  is a graph with a finite amount of vertices and edges
+        which are connected such that no circles exist.

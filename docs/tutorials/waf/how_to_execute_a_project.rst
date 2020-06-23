@@ -14,10 +14,9 @@ folder. If you want to clean the project, run
 
     $ python waf.py distclean
 
-Similar commands are available for pipeline. Remember that the ``configure`` step is
+Similar commands are available for pytask. Remember that the ``configure`` step is
 unnecessary and, thus, we have the following two commands.
 
 .. code-block:: bash
 
-    $ pipeline build
-    $ pipeline clean
+    $ pytask

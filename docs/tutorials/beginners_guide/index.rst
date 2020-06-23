@@ -14,3 +14,4 @@ A Beginner's Guide to pipeline
    :maxdepth: 1
 
    10_minutes_guide
+   how_to_debug

@@ -23,8 +23,6 @@ Here is the content of the tutorial.
    :numbered:
 
    how_to_install
-   how_to_specify_a_task_part_1
    how_to_write_a_task_part_1
-   how_to_specify_a_task_part_2
    how_to_write_a_task_part_2
    how_to_execute_a_project

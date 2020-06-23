@@ -1,55 +1,42 @@
-How to write a task - Part 2
-============================
+How to specify a task - Part 2
+==============================
 
-The second task written for Waf looks like this:
+Now, we are going to specify a second task which depends on the first task. It will read
+the content  in ``hello_earth.txt``, add ``"Hello, Moon!"``, and write the text to
+``hello_moon.txt``.
 
-.. code-block:: python
-
-    # Content of hello_moon.py
-
-    from pathlib import Path
-    from bld.project_paths import project_paths_join as ppj
-
-
-    def main():
-        dependency = Path(ppj("BLD", "hello_earth.txt"))
-        target = Path(ppj("BLD", "hello_moon.txt"))
-
-        target.write_text(dependency.read_text() + "\n\n" + "Hello, Moon!")
-
-
-    if __name__ == "__main__":
-        main()
-
-
-The second task file for pipeline becomes
+The ``wscript`` for the second tasks contains the following code.
 
 .. code-block:: python
 
-    # Content of hello_moon.py
-
-    from pathlib import Path
+    # Content of wscript.
 
 
-    def main():
-        dependency = Path("{{ build_directory }}", "hello_earth.txt")
-        target = Path("{{ build_directory }}", "hello_moon.txt")
+    def build(ctx):
 
-        target.write_text(dependency.read_text() + "\n\n" + "Hello, Moon!")
+        ctx(
+            features="run_py_script",
+            source="hello_moon.py",
+            deps=ctx.path_to(ctx, "BLD", "hello_earth.txt"),
+            targets=ctx.path_to(ctx, "BLD", "hello_moon.txt"),
+            name="hello_moon",
+        )
 
-
-    if __name__ == "__main__":
-        main()
-
-You can also replace the whole path with the keyword from the task specification.
+The same specification for the second task with pytask is
 
 .. code-block:: python
+    :linenos:
 
-    ...
-
-
-    def main():
-        target = Path("{{ depends_on }}")
+    # Additional content of task_hello.py.
 
 
-    ...
+    @pytask.mark.depends_on(BLD, "hello_earth.txt")
+    @pytask.mark.produces(BLD, "hello_moon.txt")
+    def task_hello_moon(depends_on, produces):
+        produces.write_text(depends_on.read_text() + " Hello, moon!")
+
+* In line 3, the dependency of the task is specified in the same way a product is
+  declared.
+
+* In line 5, the value of the ``pytask.mark.depends_on`` decorator can also be requested
+  inside the task function by using the argument name ``depends_on``.

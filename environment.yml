@@ -27,4 +27,7 @@ dependencies:
 
   # Documentation
   - nbsphinx
+  - numpydoc
+  - pydata-sphinx-theme
   - sphinx
+  - sphinx-copybutton

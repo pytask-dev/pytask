@@ -11,7 +11,7 @@ repos:
         exclude: (_debugging\.py|_trace\.py|main\.py)
     -   id: end-of-file-fixer
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.4.3
+    rev: v2.6.1
     hooks:
     -   id: pyupgrade
         args: [--py36-plus]
@@ -29,7 +29,7 @@ repos:
     -   id: blacken-docs
         additional_dependencies: [black]
 -   repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.1
+    rev: 3.8.3
     hooks:
     -   id: flake8
         types: [python]
@@ -53,7 +53,7 @@ repos:
     hooks:
     -   id: doc8
 - repo: https://github.com/codespell-project/codespell
-  rev: v1.16.0
+  rev: v1.17.1
   hooks:
     - id: codespell
 -   repo: meta
