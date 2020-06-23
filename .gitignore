@@ -6,7 +6,10 @@ coverage.*
 .idea
 .ipynb_checkpoints
 .tox
+.vscode
 _build
 __pycache__
 
 *.egg-info
+
+.pytask.sqlite3
