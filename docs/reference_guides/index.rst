@@ -8,8 +8,9 @@ Reference Guides
     request.
 
 Reference guides are articles which can be read alongside the code and provide
-additional details on the inner workings of pipeline.
+additional details on the inner workings of pytask.
 
 .. toctree::
+   :maxdepth: 1
 
    summary

@@ -45,7 +45,7 @@ def pytask_ignore_collect(path, config):
 
 
 @hookspec(firstresult=True)
-def pytask_collect_log(reports, config):
+def pytask_collect_log(reports, tasks, config):
     """Log errors during the collection."""
 
 
@@ -58,13 +58,13 @@ def pytask_collect_modify_tasks(tasks, config):
     """
 
 
-@hookspec
-def pytask_collect_file_protocol(session, path):
+@hookspec(firstresult=True)
+def pytask_collect_file_protocol(session, path, reports):
     """Start protocol to collect files."""
 
 
-@hookspec
-def pytask_collect_file(session, path):
+@hookspec(firstresult=True)
+def pytask_collect_file(session, path, reports):
     """Collect tasks from files."""
 
 
@@ -74,12 +74,12 @@ def pytask_generate_tasks(session, name, obj):
 
 
 @hookspec(firstresult=True)
-def pytask_collect_task_protocol(session, path, name, obj):
+def pytask_collect_task_protocol(session, reports, path, name, obj):
     """Start protocol to collect tasks."""
 
 
 @hookspec
-def pytask_collect_task_setup(session, path, name, obj):
+def pytask_collect_task_setup(session, reports, path, name, obj):
     """Steps before collecting a task."""
 
 
@@ -182,3 +182,11 @@ def pytask_execute_task_log_end(session, task, result):
 @hookspec
 def pytask_execute_log_end(session, reports):
     """End logging execution."""
+
+
+# Hooks for general logging.
+
+
+@hookspec
+def pytask_log_session_header(session):
+    """Log session information at the begin of a run."""

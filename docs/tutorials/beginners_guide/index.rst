@@ -1,7 +1,7 @@
 .. _beginners_guide:
 
-A Beginner's Guide to pipeline
-==============================
+A Beginner's Guide to pytask
+============================
 
 .. note::
 
@@ -13,5 +13,8 @@ A Beginner's Guide to pipeline
 .. toctree::
    :maxdepth: 1
 
-   10_minutes_guide
+   how_to_write_a_task
+   how_to_define_dependencies_products
    how_to_debug
+   how_to_parametrize_a_task
+   how_to_set_up_a_project

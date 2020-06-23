@@ -29,7 +29,7 @@ This is the documentation of pytask. You can install the package from `Anaconda.
     $ conda config --add channels conda-forge
     $ conda install -c pytask pytask
 
-The documentation is structured into four parts.
+The documentation has currently one of four planned parts.
 
 .. raw:: html
 
@@ -52,6 +52,7 @@ The documentation is structured into four parts.
                     </div>
                 </a>
             </div>
+            <!--
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 d-flex">
                 <a href="how_to_guides/index.html" id="index-link">
                     <div class="card text-center intro-card shadow">
@@ -101,6 +102,7 @@ The documentation is structured into four parts.
                     </div>
                  </a>
             </div>
+            -->
         </div>
     </div>
 

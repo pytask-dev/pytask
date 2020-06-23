@@ -1,5 +1,4 @@
 import pdb
-import traceback
 
 import attr
 from pytask.database import create_database
@@ -11,7 +10,6 @@ from pytask.pluginmanager import register_default_plugins
 
 
 def main(config_from_cli):
-
     try:
         pm = get_plugin_manager()
         register_default_plugins(pm)
@@ -23,6 +21,11 @@ def main(config_from_cli):
         session = Session.from_config(config)
         session.exit_code = ExitCode.OK
 
+    except Exception as e:
+        raise Exception("Error while configuring pytask.") from e
+
+    try:
+        session.log_session_header()
         session.collect()
         session.resolve_dependencies()
         session.execute()
@@ -33,12 +36,12 @@ def main(config_from_cli):
     except ResolvingDependenciesError:
         session.exit_code = ExitCode.RESOLVING_DEPENDENCIES_FAILED
 
-    except Exception:
+    except Exception as e:
         session.exit_code = ExitCode.FAILED
         if config["pdb"]:
             pdb.post_mortem()
         else:
-            traceback.print_exc()
+            raise e
 
     return session
 
@@ -47,10 +50,15 @@ def main(config_from_cli):
 class Session:
     config = attr.ib()
     hook = attr.ib()
+    collection_reports = attr.ib(default=[])
+    tasks = attr.ib(default=[])
 
     @classmethod
     def from_config(cls, config):
         return cls(config, config["pm"].hook)
+
+    def log_session_header(self):
+        self.hook.pytask_log_session_header(session=self)
 
     def collect(self):
         self.hook.pytask_collect(session=self)

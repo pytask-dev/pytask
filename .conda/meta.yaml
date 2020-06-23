@@ -21,10 +21,11 @@ requirements:
     - setuptools
 
   run:
-    - python >=3.6,<3.8
+    - python >=3.6
     - attrs >=17.4.0
     - click
     - networkx
+    - pluggy
     - pony >=0.7.13
     - pytest
 

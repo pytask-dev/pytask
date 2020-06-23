@@ -29,6 +29,8 @@ master_doc = "index"
 # Add any Sphinx extension module names here, as strings. They can be extensions coming
 # with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
+    "IPython.sphinxext.ipython_console_highlighting",
+    "IPython.sphinxext.ipython_directive",
     "numpydoc",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
@@ -55,7 +57,7 @@ copybutton_prompt_is_regexp = True
 
 extlinks = {
     "ghuser": ("https://github.com/%s", "@"),
-    "gh": ("https://github.com/pytask/pytask/pull/%s", "#"),
+    "gh": ("https://github.com/pytask-dev/pytask/pull/%s", "#"),
 }
 
 intersphinx_mapping = {
@@ -79,8 +81,14 @@ html_theme = "pydata_sphinx_theme"
 # "default.css" will overwrite the built-in "default.css".
 html_css_files = ["css/custom.css"]
 
+html_logo = "_static/images/pytask_w_text.svg"
+
+# The name of an image file (within the static path) to use as favicon of the docs.
+# This file should be a Windows icon file (.ico) being 16x16 or 32x32 pixels large.
+# html_favicon = "_static/images/pytask.ico"  # noqa: E800
+
 html_static_path = ["_static"]
 
 html_theme_options = {
-    "github_url": "https://github.com/pytask/pytask",
+    "github_url": "https://github.com/pytask-dev/pytask",
 }

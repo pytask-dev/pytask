@@ -21,7 +21,7 @@ def pytask_resolve_dependencies(session):
 
     Parameters
     ----------
-    tasks : dict
+    session : session
         Dictionary containing tasks.
 
     """

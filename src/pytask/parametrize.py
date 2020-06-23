@@ -32,8 +32,10 @@ def pytask_generate_tasks(name, obj):
         obj, markers = _remove_parametrize_markers_from_func(obj)
         base_arg_names, arg_names, arg_values = _parse_parametrize_markers(markers)
 
-        diff_arg_names = set(itertools.chain.from_iterable(base_arg_names)) - set(
-            inspect.getfullargspec(obj).args
+        diff_arg_names = (
+            set(itertools.chain.from_iterable(base_arg_names))
+            - set(inspect.getfullargspec(obj).args)
+            - {"depends_on", "produces"}
         )
         if diff_arg_names:
             raise ValueError(

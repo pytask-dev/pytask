@@ -28,8 +28,8 @@ def pytask_execute(session):
 def pytask_execute_log_start(session):
     session.execution_start = time.time()
 
-    tm_width = session.config["terminal_width"]
-    click.echo(f"{{:=^{tm_width}}}".format(" Start Execution "), nl=False)
+    # New line to separate note on collected items from task statuses.
+    click.echo("")
 
 
 @hookimpl
@@ -167,7 +167,7 @@ def pytask_execute_log_end(session, reports):
 
     duration = math.ceil(session.execution_end - session.execution_start)
     click.echo(
-        format_execute_footer(n_successful, n_failed, duration, tm_width), nl=False
+        format_execute_footer(n_successful, n_failed, duration, tm_width), nl=True
     )
 
     return True

@@ -43,6 +43,7 @@ def test_collect_filepathnode_with_unknown_type(tmp_path):
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
+    os.chdir(tmp_path)
     session = main({"paths": tmp_path})
 
     assert session.exit_code == 2

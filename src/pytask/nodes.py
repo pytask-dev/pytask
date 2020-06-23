@@ -28,7 +28,6 @@ class PythonFunctionTask(MetaTask):
     function = attr.ib()
     depends_on = attr.ib(converter=to_list)
     produces = attr.ib(converter=to_list)
-    session = attr.ib()
     markers = attr.ib()
 
     @classmethod
@@ -51,7 +50,6 @@ class PythonFunctionTask(MetaTask):
             function=function,
             depends_on=depends_on,
             produces=produces,
-            session=session,
             markers=markers,
         )
 

@@ -3,6 +3,7 @@ import glob
 import importlib
 import inspect
 import itertools
+import pprint
 import sys
 import traceback
 from pathlib import Path
@@ -20,18 +21,19 @@ from pytask.report import CollectionReportTask
 
 @pytask.hookimpl
 def pytask_collect(session):
-    _collect_tasks_and_reports(session)
-    _extract_tasks_from_reports(session)
-    session.hook.pytask_collect_modify_tasks(tasks=session.tasks, config=session.config)
-    session.hook.pytask_collect_log(
-        reports=session.collection_reports, config=session.config
-    )
+    reports = _collect_from_paths(session)
+    tasks = _extract_tasks_from_reports(reports)
+    session.hook.pytask_collect_modify_tasks(tasks=tasks, config=session.config)
+    session.hook.pytask_collect_log(reports=reports, tasks=tasks, config=session.config)
+
+    session.collection_reports = reports
+    session.tasks = tasks
 
     return True
 
 
-def _collect_tasks_and_reports(session):
-    session.collection_reports = []
+def _collect_from_paths(session):
+    collected_reports = []
     for path in session.config["paths"]:
         paths = (
             path.rglob("*")
@@ -43,7 +45,13 @@ def _collect_tasks_and_reports(session):
             ignored = session.hook.pytask_ignore_collect(path=p, config=session.config)
 
             if not ignored:
-                session.hook.pytask_collect_file_protocol(session=session, path=p)
+                reports = session.hook.pytask_collect_file_protocol(
+                    session=session, path=p, reports=collected_reports
+                )
+                if reports is not None:
+                    collected_reports.extend(reports)
+
+    return collected_reports
 
 
 @pytask.hookimpl
@@ -53,17 +61,20 @@ def pytask_ignore_collect(path, config):
 
 
 @pytask.hookimpl
-def pytask_collect_file_protocol(session, path):
+def pytask_collect_file_protocol(session, path, reports):
     try:
-        session.hook.pytask_collect_file(session=session, path=path)
+        reports = session.hook.pytask_collect_file(
+            session=session, path=path, reports=reports
+        )
     except Exception:
         exc_info = sys.exc_info()
-        out = CollectionReportFile.from_exception(path, exc_info)
-        session.collection_reports.append(out)
+        reports = [CollectionReportFile.from_exception(path, exc_info)]
+
+    return reports
 
 
 @pytask.hookimpl
-def pytask_collect_file(session, path):
+def pytask_collect_file(session, path, reports):
     if path.name.startswith("task_") and path.suffix == ".py":
         spec = importlib.util.spec_from_file_location(path.stem, str(path))
 
@@ -73,6 +84,7 @@ def pytask_collect_file(session, path):
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
 
+        collected_reports = []
         for name, obj in inspect.getmembers(mod):
             if has_marker(obj, "parametrize"):
                 names_and_objects = session.hook.pytask_generate_tasks(
@@ -83,43 +95,45 @@ def pytask_collect_file(session, path):
                 names_and_objects = [(name, obj)]
 
             for name_, obj_ in names_and_objects:
-                session.hook.pytask_collect_task_protocol(
-                    session=session, path=path, name=name_, obj=obj_
+                report = session.hook.pytask_collect_task_protocol(
+                    session=session, reports=reports, path=path, name=name_, obj=obj_
                 )
+                if report is not None:
+                    collected_reports.append(report)
+
+        return collected_reports
 
 
 @pytask.hookimpl
-def pytask_collect_task_protocol(session, path, name, obj):
+def pytask_collect_task_protocol(session, reports, path, name, obj):
     try:
         session.hook.pytask_collect_task_setup(
-            session=session, path=path, name=name, obj=obj
+            session=session, reports=reports, path=path, name=name, obj=obj
         )
         task = session.hook.pytask_collect_task(
             session=session, path=path, name=name, obj=obj
         )
+        if task is not None:
+            return CollectionReportTask.from_task(task)
+
     except Exception:
         exc_info = sys.exc_info()
-        report = CollectionReportTask.from_exception(path, name, exc_info)
-        session.collection_reports.append(report)
-        return True
-    else:
-        if task is not None:
-            report = CollectionReportTask.from_task(task)
-            session.collection_reports.append(report)
-            return True
+        return CollectionReportTask.from_exception(path, name, exc_info)
 
 
 @pytask.hookimpl(trylast=True)
-def pytask_collect_task_setup(session, path, name):
+def pytask_collect_task_setup(session, reports, path, name):
     paths_to_tasks_w_ident_name = [
         i.path.as_posix()
-        for i in session.collection_reports
+        for i in reports
         if not isinstance(i, CollectionReportFile) and i.name == name
     ]
     if paths_to_tasks_w_ident_name:
-        formatted = ",\n    ".join(paths_to_tasks_w_ident_name)
+        formatted = pprint.pformat(
+            paths_to_tasks_w_ident_name, width=session.config["terminal_width"]
+        )
         raise TaskDuplicatedError(
-            f"Task {name} in {path} has the same name as task(s) in:\n   {formatted}"
+            f"Task '{name}' in '{path}' has the same name as task(s):\n   {formatted}"
         )
 
 
@@ -191,12 +205,13 @@ def valid_paths(paths, session):
                 yield path
 
 
-def _extract_tasks_from_reports(session):
-    session.tasks = [i.task for i in session.collection_reports if i.successful]
+def _extract_tasks_from_reports(reports):
+    return [i.task for i in reports if i.successful]
 
 
 @pytask.hookimpl
-def pytask_collect_log(reports, config):
+def pytask_collect_log(reports, tasks, config):
+    click.echo(f"Collected {len(tasks)} task(s).")
     failed_reports = [i for i in reports if not i.successful]
     if failed_reports:
         tm_width = config["terminal_width"]
