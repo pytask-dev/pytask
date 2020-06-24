@@ -94,7 +94,7 @@ def pytask_execute_task_setup(session, task):
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
         if isinstance(node, FilePathNode):
-            node.path.parent.mkdir(parents=True, exist_ok=True)
+            node.value.parent.mkdir(parents=True, exist_ok=True)
 
 
 @hookimpl

@@ -64,6 +64,6 @@ def pytask_add_parameters_to_cli(command):
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.version_option()
 def pytask(**config_from_cli):
-    """Command-line interface for pipeline."""
+    """Command-line interface for pytask."""
     session = main(config_from_cli)
     sys.exit(session.exit_code)

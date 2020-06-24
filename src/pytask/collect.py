@@ -29,6 +29,10 @@ def pytask_collect(session):
     session.collection_reports = reports
     session.tasks = tasks
 
+    failed_reports = [i for i in reports if not i.successful]
+    if failed_reports:
+        raise CollectionError
+
     return True
 
 
@@ -172,13 +176,12 @@ def pytask_collect_node(path, node):
         handled by this function.
 
     """
-    original_value = node
     if isinstance(node, str):
         node = Path(node)
     if isinstance(node, Path):
         if not node.is_absolute():
             node = path.parent.joinpath(node)
-        return FilePathNode.from_path_and_original_value(node, original_value)
+        return FilePathNode.from_path(node)
 
 
 def valid_paths(paths, session):
@@ -211,10 +214,12 @@ def _extract_tasks_from_reports(reports):
 
 @pytask.hookimpl
 def pytask_collect_log(reports, tasks, config):
+    tm_width = config["terminal_width"]
+
     click.echo(f"Collected {len(tasks)} task(s).")
+
     failed_reports = [i for i in reports if not i.successful]
     if failed_reports:
-        tm_width = config["terminal_width"]
         click.echo(f"{{:=^{tm_width}}}".format(" Errors during collection "))
 
         for report in failed_reports:
@@ -222,5 +227,3 @@ def pytask_collect_log(reports, tasks, config):
             traceback.print_exception(*report.exc_info)
             click.echo("")
             click.echo("=" * tm_width)
-
-        raise CollectionError

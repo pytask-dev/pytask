@@ -65,15 +65,15 @@ class PythonFunctionTask(MetaTask):
         kwargs = {}
         if "depends_on" in func_arg_names:
             kwargs["depends_on"] = (
-                self.depends_on[0].original_value
+                self.depends_on[0].value
                 if len(self.depends_on) == 1
-                else [node.original_value for node in self.depends_on]
+                else [node.value for node in self.depends_on]
             )
         if "produces" in func_arg_names:
             kwargs["produces"] = (
-                self.produces[0].original_value
+                self.produces[0].value
                 if len(self.produces) == 1
-                else [node.original_value for node in self.produces]
+                else [node.value for node in self.produces]
             )
 
         return kwargs
@@ -86,9 +86,9 @@ class MetaNode(metaclass=ABCMeta):
     ----------
     name : str
         Name of the node which makes it identifiable in the DAG.
-    original_value : any
-        Original value passed to the decorator which can be requested inside the
-        function.
+    value : any
+        Processed value passed to the decorator which can be requested inside the
+        function. Is required.
 
     """
 
@@ -100,24 +100,23 @@ class MetaNode(metaclass=ABCMeta):
 @attr.s
 class FilePathNode(MetaNode):
     name = attr.ib()
-    path = attr.ib()
-    original_value = attr.ib()
+    value = attr.ib()
 
     @classmethod
     @functools.lru_cache()
-    def from_path_and_original_value(cls, path, original_value):
+    def from_path(cls, path):
         """Instantiate class from path to file.
 
         The `lru_cache` decorator ensures that the same object is not collected twice.
 
         """
-        return cls(path.as_posix(), path, path)
+        return cls(path.as_posix(), path)
 
     def state(self):
-        if not self.path.exists():
+        if not self.value.exists():
             raise NodeNotFoundError
         else:
-            return str(self.path.stat().st_mtime)
+            return str(self.value.stat().st_mtime)
 
 
 def collect_nodes(session, path, name, nodes):
@@ -126,7 +125,8 @@ def collect_nodes(session, path, name, nodes):
         collected_node = session.hook.pytask_collect_node(path=path, node=node)
         if collected_node is None:
             raise NodeNotCollectedError(
-                f"'{node}' could not be collected from path '{path}' and task '{name}'."
+                f"'{node}' cannot be parsed as a dependency or product for task "
+                f"'{name}' in '{path}'."
             )
         else:
             collect_nodes.append(collected_node)

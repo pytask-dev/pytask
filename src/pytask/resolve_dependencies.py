@@ -13,6 +13,7 @@ from pytask.database import State
 from pytask.exceptions import NodeNotFoundError
 from pytask.exceptions import ResolvingDependenciesError
 from pytask.mark import Mark
+from pytask.report import ResolvingDependenciesReport
 
 
 @pytask.hookimpl
@@ -32,8 +33,14 @@ def pytask_resolve_dependencies(session):
         session.hook.pytask_resolve_dependencies_validate_dag(dag=session.dag)
         session.hook.pytask_resolve_dependencies_select_execution_dag(dag=session.dag)
     except Exception:
-        report = {"exc_info": sys.exc_info()}
+        report = ResolvingDependenciesReport(sys.exc_info())
         session.hook.pytask_resolve_dependencies_log(session=session, report=report)
+        session.resolving_dependencies_report = report
+
+        raise ResolvingDependenciesError
+
+    else:
+        return True
 
 
 @pytask.hookimpl
@@ -129,11 +136,10 @@ def _check_if_root_nodes_are_available(dag):
 @pytask.hookimpl
 def pytask_resolve_dependencies_log(session, report):
     tm_width = session.config["terminal_width"]
+
     click.echo(f"{{:=^{tm_width}}}".format(" Errors during resolving dependencies "))
 
-    traceback.print_exception(*report["exc_info"])
+    traceback.print_exception(*report.exc_info)
 
     click.echo("")
     click.echo("=" * tm_width)
-
-    raise ResolvingDependenciesError

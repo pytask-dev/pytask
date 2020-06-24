@@ -7,6 +7,11 @@ import click
 
 
 @attr.s
+class ResolvingDependenciesReport:
+    exc_info = attr.ib()
+
+
+@attr.s
 class CollectionReportTask:
     path = attr.ib(type=Path)
     name = attr.ib(type=str)

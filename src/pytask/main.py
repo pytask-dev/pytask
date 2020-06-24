@@ -52,6 +52,7 @@ class Session:
     hook = attr.ib()
     collection_reports = attr.ib(default=[])
     tasks = attr.ib(default=[])
+    resolving_dependencies_report = attr.ib(default=None)
 
     @classmethod
     def from_config(cls, config):
