@@ -13,7 +13,7 @@ build:
   noarch: python
   number: 0
   entry_points:
-    - pytask = pytask.cli:cli
+    - pytask = pytask.cli:pytask
 
 requirements:
   host:
@@ -30,6 +30,9 @@ requirements:
     - pytest
 
 test:
+  requires:
+    - pexpect
+    - pytest
   source_files:
     - tox.ini
     - tests
@@ -41,6 +44,5 @@ test:
 
 about:
   home: https://github.com/pytask-dev/pytask
-  license: BSD
-  license_file: LICENSE
+  license: none
   summary: Build system.
