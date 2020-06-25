@@ -1,7 +1,7 @@
 .. raw:: html
 
     <img src="docs/_static/images/pytask_w_text.png" alt="pytask"
-         width="10%">
+         width="50%">
 
 ------
 
