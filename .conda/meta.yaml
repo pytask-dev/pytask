@@ -30,17 +30,17 @@ requirements:
     - pytest
 
 test:
-  requires:
-    - pytest
   source_files:
     - tox.ini
-    - testing
+    - tests
   commands:
     - pytask --version
     - pytask --help
 
+    - pytest tests
+
 about:
-  home: https://github.com/pytask/pytask
+  home: https://github.com/pytask-dev/pytask
   license: BSD
   license_file: LICENSE
   summary: Build system.
