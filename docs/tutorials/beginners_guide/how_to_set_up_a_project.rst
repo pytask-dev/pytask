@@ -1,3 +1,5 @@
+.. _how_to_set_up_a_project:
+
 How to set up a project
 =======================
 

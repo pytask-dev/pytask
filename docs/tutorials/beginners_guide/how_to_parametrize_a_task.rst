@@ -63,8 +63,8 @@ mapped to the argument ``produces`` and ``i`` receives the number.
 
     If you use ``produces`` or ``depends_on`` in the signature of the parametrize
     decorator, the values are automatically treated as if they were added with the
-    ``@pytask.mark.depends_on`` or ``@pytask.mark.produces``. For example, the iteration
-    of the task in which ``i = 1`` is the same as
+    ``@pytask.mark.depends_on`` or ``@pytask.mark.produces``. For example, the generated
+    task in which ``i = 1`` can be thought of as the following function.
 
     .. code-block:: python
 
@@ -88,9 +88,10 @@ example is equivalent to the former example.
 
 .. important::
 
-    This example illustrates that it is only important to use ``"produces"`` inside the
-    signature to make pytask aware that the task produces a file. It is not necessary to
-    use the argument as an argument to the function.
+    This example illustrates that it is only important to use ``"produces"`` and
+    ``depends_on`` as well inside the signature to make pytask aware that the task
+    produces or depends on a file. It is not necessary to use the argument inside
+    the function.
 
 
 Un-parametrized dependencies

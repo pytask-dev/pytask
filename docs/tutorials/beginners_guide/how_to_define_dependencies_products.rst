@@ -36,5 +36,6 @@ In this example, we have three different ways to specify a dependency or product
    It is also interpreted relatively to the file where the task is defined.
 
 3. The second dependency is an absolute path and is not interpreted or altered in any
-   way. This pattern might be more common in bigger projects where PARENT_DIRECTORY can
-   be an imported variable which points to the source or build directory of a project.
+   way. This pattern might be more common in bigger projects where ``PARENT_DIRECTORY``
+   can be an imported variable which points to the source or build directory of a
+   project.

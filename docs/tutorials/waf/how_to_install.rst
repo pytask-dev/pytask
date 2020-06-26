@@ -11,12 +11,12 @@ To install pytask, type
 
 .. code-block:: bash
 
-    $ conda install -c pytask pytask
+    $ conda config --add channels conda-forge --add channels pytask
+    $ conda install pytask
 
 To indicate the root of the project, place a ``pytask.ini``, ``tox.ini`` or
 ``setup.cfg`` with a ``[pytask]`` section in the directory. You can leave
-the file empty and use the default configuration. Here is a sample of the default
-configuration.
+the file empty and use the default configuration.
 
 .. code-block:: ini
 
@@ -24,9 +24,6 @@ configuration.
 
     [pytask]
 
-The configuration file indicates the root the project. In the same directory, a database
-will be saved called ``.pytask.sqlite3``. The database keeps track of whether files
-change in the project and whether steps need to be re-executed. It is recommended to
-create such a file.
-
-pytask needs no ``configure`` because the configuration is created dynamically.
+The configuration file indicates the root the project. In the same directory, pytask
+will store information across executions in ``.pytask.sqlite3``. The database keeps
+track of whether files change in the project and whether steps need to be re-executed.
