@@ -1,12 +1,16 @@
 import sys
 import textwrap
 
-import pexpect
 import pytest
+
+try:
+    import pexpect
+except ModuleNotFoundError:
+    pytestmark = pytest.mark.skip(reason="pexpect is not installed.")
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(sys.platform == "win32", reason="Cannot spawn on Windows.")
+@pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_post_mortem_on_error(tmp_path):
     source = """
     def task_dummy():
@@ -24,7 +28,7 @@ def test_post_mortem_on_error(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(sys.platform == "win32", reason="Cannot spawn on Windows.")
+@pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_post_mortem_on_error_w_kwargs(tmp_path):
     source = """
     import pytask
@@ -46,7 +50,7 @@ def test_post_mortem_on_error_w_kwargs(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(sys.platform == "win32", reason="Cannot spawn on Windows.")
+@pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_trace(tmp_path):
     source = """
     def task_dummy():
@@ -63,7 +67,7 @@ def test_trace(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(sys.platform == "win32", reason="Cannot spawn on Windows.")
+@pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_trace_w_kwargs(tmp_path):
     source = """
     import pytask
