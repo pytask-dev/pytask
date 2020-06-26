@@ -73,14 +73,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up Python 3.7
         uses: actions/setup-python@v1
         with:
           python-version: 3.7
+
       - name: Install dependencies
-        run: pip install pre-commit
+        run: pip install tox
+
       - name: Run pre-commit
-        run: pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
+        run: tox -e pre-commit
 
 
   docs:
@@ -93,7 +96,7 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.7
 
       - name: Install core dependencies.
         shell: bash -l {0}
