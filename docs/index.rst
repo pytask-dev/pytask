@@ -7,14 +7,11 @@ pytask
 .. image:: https://anaconda.org/pytask/pytask/badges/platforms.svg
     :target: https://anaconda.org/pytask/pytask
 
-.. image:: https://readthedocs.org/projects/pytask-wp/badge/?version=latest
-    :target: https://pytask.readthedocs.io/en/latest
+.. image:: https://readthedocs.org/projects/pytask-dev/badge/?version=latest
+    :target: https://pytask-dev.readthedocs.io/en/latest
 
 .. image:: https://codecov.io/gh/pytask/pytask/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/pytask/pytask
-
-.. image:: https://img.shields.io/badge/License-BSD-yellow.svg
-    :target: https://opensource.org/licenses/BSD
+    :target: https://codecov.io/gh/pytask/pytask
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
@@ -26,8 +23,8 @@ This is the documentation of pytask. You can install the package from `Anaconda.
 
 .. code-block:: bash
 
-    $ conda config --add channels conda-forge
-    $ conda install -c pytask pytask
+    $ conda config --add channels conda-forge --add channels pytask
+    $ conda install pytask
 
 The documentation has currently one of four planned parts.
 
@@ -120,4 +117,4 @@ The documentation has currently one of four planned parts.
    :maxdepth: 1
 
    glossary
-   release_notes
+   changes

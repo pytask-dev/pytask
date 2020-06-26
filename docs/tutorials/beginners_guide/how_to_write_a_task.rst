@@ -19,7 +19,7 @@ To execute the task, type the following command on the command-line
 
 .. code-block::
 
-    $ pytask
+    $ pytask task_hello.py
     =============================== Start pytask session ===============================
     Platform: linux -- Python 3.x.y, pytask 0.x.y, pluggy 0.x.y
     Root: xxx
@@ -27,3 +27,11 @@ To execute the task, type the following command on the command-line
 
     s
     ============================ 1 succeeded in 1 second(s) ============================
+
+Executing
+
+.. code-block:: bash
+
+    $ pytask
+
+would collect all tasks in the current working directory and in all folders below.

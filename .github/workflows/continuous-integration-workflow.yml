@@ -55,14 +55,14 @@ jobs:
         shell: bash -l {0}
         run: bash <(curl -s https://codecov.io/bash) -F unit -c
 
-      # - name: Run integration tests.
-      #   shell: bash -l {0}
-      #   run: tox -e pytest -- -m integration --cov=./ --cov-report=xml
+      - name: Run integration tests.
+        shell: bash -l {0}
+        run: tox -e pytest -- -m integration --cov=./ --cov-report=xml
 
-      # - name: Upload coverage reports of integration tests.
-      #   if: runner.os == 'Linux' && matrix.python-version == '3.7'
-      #   shell: bash -l {0}
-      #   run: bash <(curl -s https://codecov.io/bash) -F integration -c
+      - name: Upload coverage reports of integration tests.
+        if: runner.os == 'Linux' && matrix.python-version == '3.7'
+        shell: bash -l {0}
+        run: bash <(curl -s https://codecov.io/bash) -F integration -c
 
       - name: Run end-to-end tests.
         shell: bash -l {0}
@@ -73,42 +73,38 @@ jobs:
         shell: bash -l {0}
         run: bash <(curl -s https://codecov.io/bash) -F end_to_end -c
 
+
   pre-commit:
 
     name: Run pre-commit.
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.7
-    - name: Install dependencies
-      run: |
-        conda install -c conda-forge pre-commit -y
-    - name: Run pre-commit
-      run: |
-        pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Install dependencies
+        run: conda install -c conda-forge pre-commit -y
+      - name: Run pre-commit
+        run: pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
 
 
   docs:
 
     name: Check documentation.
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: 3.7
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
-        environment-file: docs/rtd_environment.yml
-    - name: Build docs
-      run: |
-        cd docs
-        make html
-        make linkcheck
+      - uses: actions/checkout@v2
+      - uses: goanpeca/setup-miniconda@v1
+        with:
+          auto-update-conda: true
+          python-version: 3.7
+          environment-file: docs/rtd_environment.yml
+      - name: Build docs
+        run: |
+          cd docs
+          make html
+          make linkcheck

@@ -21,7 +21,7 @@ dependencies:
   - jupyterlab
   - matplotlib
   - pdbpp
-  - pre-commit<2.4
+  - pre-commit
   - pydot
   - pytest-cov
 

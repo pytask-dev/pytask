@@ -18,3 +18,4 @@ A Beginner's Guide to pytask
    how_to_debug
    how_to_parametrize_a_task
    how_to_set_up_a_project
+   how_to_select_tasks

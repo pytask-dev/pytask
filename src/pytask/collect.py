@@ -180,7 +180,7 @@ def pytask_collect_node(path, node):
         node = Path(node)
     if isinstance(node, Path):
         if not node.is_absolute():
-            node = path.parent.joinpath(node)
+            node = path.parent.joinpath(node).resolve()
         return FilePathNode.from_path(node)
 
 

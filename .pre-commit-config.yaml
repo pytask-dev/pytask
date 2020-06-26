@@ -11,7 +11,7 @@ repos:
         exclude: (_debugging\.py|_trace\.py|main\.py)
     -   id: end-of-file-fixer
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.6.1
+    rev: v2.6.2
     hooks:
     -   id: pyupgrade
         args: [--py36-plus]
@@ -51,7 +51,12 @@ repos:
 -   repo: https://github.com/PyCQA/doc8
     rev: 0.8.1rc3
     hooks:
-    -   id: doc8
+    - id: doc8
+      name: doc8
+      description: This hook runs doc8 for linting docs
+      entry: python -m doc8
+      language: python
+      files: \.rst$
 - repo: https://github.com/codespell-project/codespell
   rev: v1.17.1
   hooks:
@@ -60,4 +65,4 @@ repos:
     hooks:
     -   id: check-hooks-apply
     -   id: check-useless-excludes
-    # -   id: identity  # Prints all files passed to pre-commits. Debugging.
+    -   id: identity  # Prints all files passed to pre-commits. Debugging.

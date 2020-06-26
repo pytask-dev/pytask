@@ -39,7 +39,8 @@ the package with
 
 .. code-block:: bash
 
-    $ conda install -c pytask pytask
+    $ conda config --add channels conda-forge --add channels pytask
+    $ conda install pytask
 
 
 Usage

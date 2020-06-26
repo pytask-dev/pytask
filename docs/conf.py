@@ -85,10 +85,8 @@ html_logo = "_static/images/pytask_w_text.svg"
 
 # The name of an image file (within the static path) to use as favicon of the docs.
 # This file should be a Windows icon file (.ico) being 16x16 or 32x32 pixels large.
-# html_favicon = "_static/images/pytask.ico"  # noqa: E800
+html_favicon = "_static/images/pytask.ico"  # noqa: E800
 
 html_static_path = ["_static"]
 
-html_theme_options = {
-    "github_url": "https://github.com/pytask-dev/pytask",
-}
+html_theme_options = {"github_url": "https://github.com/pytask-dev/pytask"}
