@@ -65,4 +65,4 @@ repos:
     hooks:
     -   id: check-hooks-apply
     -   id: check-useless-excludes
-    -   id: identity  # Prints all files passed to pre-commits. Debugging.
+    # -   id: identity  # Prints all files passed to pre-commits. Debugging.
