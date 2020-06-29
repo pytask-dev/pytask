@@ -10,10 +10,10 @@ coverage:
         threshold: 1%
         flags:
           - unit
-      # integration:
-      #   threshold: 1%
-      #   flags:
-      #     - integration
+      integration:
+        threshold: 1%
+        flags:
+          - integration
       end_to_end:
         threshold: 1%
         flags:
