@@ -14,8 +14,8 @@
 .. image:: https://readthedocs.org/projects/pytask-dev/badge/?version=latest
     :target: https://pytask-dev.readthedocs.io/en/latest
 
-.. image:: https://codecov.io/gh/pytask/pytask/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/pytask/pytask
+.. image:: https://codecov.io/gh/pytask-dev/pytask/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/pytask-dev/pytask
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
@@ -25,18 +25,19 @@ Features
 --------
 
 In its highest aspirations, **pytask** tries to be pytest as a build system. Its
-features includes:
+features include:
 
 - Automatic discovery of tasks.
 
-- It tracks dependencies and products of a task to evaluate whether it needs to be
-  re-executed.
+- It tracks dependencies and products as well as the source file of a task to evaluate
+  whether it needs to be re-executed.
 
 - pytask does not stop if one task fails, but continues execution for all collected
   tasks. Tasks which depend on failed tasks are automatically skipped.
 
-- Easily extensible due to plugin management provided by `pluggy
-  <https://pluggy.readthedocs.io/en/latest/>`_.
+- Easily extensible since its architecture is based on `pluggy
+  <https://pluggy.readthedocs.io/en/latest/>`_, a plugin management and hook calling
+  framework.
 
 
 Installation
@@ -54,7 +55,7 @@ the package with
 Usage
 -----
 
-A task is a function and is detected if the module and the function name are prefixed
+A task is a function which is detected if the module and the function name are prefixed
 with ``task_``. Here is an example.
 
 .. code-block:: python
@@ -68,6 +69,9 @@ with ``task_``. Here is an example.
     def task_hello_earth(produces):
         produces.write_text("Hello, earth!")
 
+Dependencies and products of a task are tracked via markers. For dependencies use
+``@pytask.mark.depends_on`` and for products use ``@pytask.mark.produces``.
+
 To execute the task, type the following command on the command-line
 
 .. code-block::
@@ -80,3 +84,17 @@ To execute the task, type the following command on the command-line
 
     s
     ============================ 1 succeeded in 1 second(s) ============================
+
+
+Documentation
+-------------
+
+The documentation can be found under https://pytask-dev.readthedocs.io/en/latest and
+tutorials and explanations.
+
+
+Changes
+-------
+
+Consult the `release notes <https://pytask-dev.readthedocs.io/en/latest/changes.html>`_
+to find out about what is new.

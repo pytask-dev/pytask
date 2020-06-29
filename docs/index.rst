@@ -10,8 +10,8 @@ pytask
 .. image:: https://readthedocs.org/projects/pytask-dev/badge/?version=latest
     :target: https://pytask-dev.readthedocs.io/en/latest
 
-.. image:: https://codecov.io/gh/pytask/pytask/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/pytask/pytask
+.. image:: https://codecov.io/gh/pytask-dev/pytask/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/pytask-dev/pytask
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
