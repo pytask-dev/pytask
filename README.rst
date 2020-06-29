@@ -24,11 +24,19 @@
 Features
 --------
 
-In its highest aspiration, **pytask** tries to be pytest as a build system. It offers
+In its highest aspiration, **pytask** tries to be pytest as a build system. Its features
+includes:
 
 - Automatic discovery of tasks.
 
-- Easily extensible due to plug-in architecture.
+- It tracks dependencies and products of a task to evaluate whether it needs to be
+  re-executed.
+
+- pytask does not stop if one task fails, but continues execution for all collected
+  tasks. Tasks which depend on failed tasks are automatically skipped.
+
+- Easily extensible due to plugin management provided by `pluggy
+  <https://pluggy.readthedocs.io/en/latest/>`_.
 
 
 Installation

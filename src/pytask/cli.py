@@ -12,7 +12,7 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 
 def add_parameters(func):
-    """Add parameters from plug-ins to the commandline interface."""
+    """Add parameters from plugins to the commandline interface."""
     pm = get_plugin_manager()
     pm.register(sys.modules[__name__])
     pm.register(debugging)

@@ -164,8 +164,8 @@ def pytask_collect_node(path, node):
     hook is attempted at last and possible errors will be shown, it is reasonable and
     unproblematic.
 
-    `trylast=True` might be necessary if other plug-ins try to parse strings themselves
-    like a plug-in for downloading files which depends on URLs given as strings.
+    `trylast=True` might be necessary if other plugins try to parse strings themselves
+    like a plugin for downloading files which depends on URLs given as strings.
 
     Parameters
     ----------

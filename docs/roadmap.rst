@@ -27,7 +27,7 @@ More executors or builders
 * Julia based on `pyjulia <https://github.com/JuliaPy/pyjulia>`_.
 
 These two examples can make use of the APIs which are provided for Python. Thus, it
-is not strictly necessary to immediately write a plug-in for them :). It would be
+is not strictly necessary to immediately write a plugin for them :). It would be
 extremely useful if debugging would work seamlessly - a debug statement in a Julia
 script trickles down to Python, etc..
 
@@ -53,7 +53,7 @@ this.
 
 The download marker passes information about the remote files. There might be other
 decorators as well for directories and so on. The function is only a dummy function
-since it will be replaced by the plug-in. This would allow the plug-in to handle many
+since it will be replaced by the plugin. This would allow the plugin to handle many
 things without having the user to know about.
 
 * Checking whether the remote file has changed and needs to be re-downloaded.
