@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+dependencies:
+  - python=3.7
+  - ipython
+  - numpydoc
+  - pydata-sphinx-theme
+  - sphinx
+  - sphinx-copybutton
