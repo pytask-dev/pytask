@@ -153,10 +153,14 @@ def _get_first_not_none_value(*configs, key, default=None, callback=None):
 
 
 def _get_terminal_width() -> int:
+    """Get the window width of the terminal."""
     width, _ = shutil.get_terminal_size(fallback=(80, 24))
 
     # The Windows get_terminal_size may be bogus, let's sanify a bit.
     if width < 40:
         width = 80
+
+    # Delete one character which prevents accidental line breaks.
+    width -= 1
 
     return width

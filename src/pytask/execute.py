@@ -32,7 +32,7 @@ def pytask_execute_log_start(session):
     click.echo("")
 
 
-@hookimpl
+@hookimpl(trylast=True)
 def pytask_execute_create_scheduler(session):
     for node in sort_tasks_topologically(session.dag):
         task = session.dag.nodes[node]["task"]

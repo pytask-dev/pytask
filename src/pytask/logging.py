@@ -18,5 +18,7 @@ def pytask_log_session_header(session):
     )
     click.echo(f"Root: {session.config['root'].as_posix()}")
 
-    plugininfo = session.config["pm"].list_plugin_distinfo()
-    click.echo("Plugins: {}".format(", ".join(_plugin_nameversions(plugininfo))))
+    plugin_info = session.config["pm"].list_plugin_distinfo()
+    if plugin_info:
+        formatted_plugins_w_versions = ", ".join(_plugin_nameversions(plugin_info))
+        click.echo(f"Plugins: {formatted_plugins_w_versions}")
