@@ -24,8 +24,8 @@
 Features
 --------
 
-In its highest aspiration, **pytask** tries to be pytest as a build system. Its features
-includes:
+In its highest aspirations, **pytask** tries to be pytest as a build system. Its
+features includes:
 
 - Automatic discovery of tasks.
 
