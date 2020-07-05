@@ -1,6 +1,6 @@
 import os
 import textwrap
-from contextlib import contextmanager
+from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
 from pytask.main import main
@@ -8,13 +8,9 @@ from pytask.mark import Mark
 from pytask.outcomes import Skipped
 from pytask.outcomes import SkippedAncestorFailed
 from pytask.outcomes import SkippedUnchanged
+from pytask.report import ExecutionReport
 from pytask.skipping import pytask_execute_task_log_end
 from pytask.skipping import pytask_execute_task_setup
-
-
-@contextmanager
-def does_not_raise():
-    yield
 
 
 @pytest.mark.end_to_end
@@ -26,10 +22,10 @@ def test_skip_unchanged(tmp_path):
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
-    assert session.results[0]["success"]
+    assert session.execution_reports[0].success
 
     session = main({"paths": tmp_path})
-    assert isinstance(session.results[0]["value"], SkippedUnchanged)
+    assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
 
 
 @pytest.mark.end_to_end
@@ -51,12 +47,12 @@ def test_skip_unchanged_w_dependencies_and_products(tmp_path):
     os.chdir(tmp_path)
     session = main({"paths": tmp_path})
 
-    assert session.results[0]["success"]
+    assert session.execution_reports[0].success
     assert tmp_path.joinpath("out.txt").read_text() == "Original content of in.txt."
 
     session = main({"paths": tmp_path})
 
-    assert isinstance(session.results[0]["value"], SkippedUnchanged)
+    assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
     assert tmp_path.joinpath("out.txt").read_text() == "Original content of in.txt."
 
 
@@ -81,10 +77,10 @@ def test_skip_if_ancestor_failed(tmp_path):
     os.chdir(tmp_path)
     session = main({"paths": tmp_path})
 
-    assert not session.results[0]["success"]
-    assert isinstance(session.results[0]["value"], Exception)
-    assert not session.results[1]["success"]
-    assert isinstance(session.results[1]["value"], SkippedAncestorFailed)
+    assert not session.execution_reports[0].success
+    assert isinstance(session.execution_reports[0].exc_info[1], Exception)
+    assert not session.execution_reports[1].success
+    assert isinstance(session.execution_reports[1].exc_info[1], SkippedAncestorFailed)
 
 
 def test_if_skip_decorator_is_applied(tmp_path):
@@ -108,10 +104,10 @@ def test_if_skip_decorator_is_applied(tmp_path):
     os.chdir(tmp_path)
     session = main({"paths": tmp_path})
 
-    assert session.results[0]["success"]
-    assert isinstance(session.results[0]["value"], Skipped)
-    assert session.results[1]["success"]
-    assert isinstance(session.results[1]["value"], Skipped)
+    assert session.execution_reports[0].success
+    assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
+    assert session.execution_reports[1].success
+    assert isinstance(session.execution_reports[1].exc_info[1], Skipped)
 
 
 @pytest.mark.unit
@@ -148,13 +144,15 @@ def test_pytask_execute_task_setup(marker_name, expectation):
 )
 def test_pytask_execute_task_log_end(capsys, exception, character):
     if isinstance(exception, (Skipped, SkippedUnchanged)):
-        result = {"success": False, "value": exception()}
+        report = ExecutionReport.from_task_and_exception((), exception())
+        report.success = True
     elif isinstance(exception, SkippedAncestorFailed):
-        result = {"success": True, "value": SkippedAncestorFailed(), "reason": ""}
+        report = ExecutionReport.from_task_and_exception((), SkippedAncestorFailed)
+        report.success = True
     else:
-        result = {"success": True, "value": None}
+        report = ExecutionReport.from_task(())
 
-    out = pytask_execute_task_log_end(result)
+    out = pytask_execute_task_log_end(report)
 
     captured = capsys.readouterr()
     if isinstance(exception, (Skipped, SkippedUnchanged)):

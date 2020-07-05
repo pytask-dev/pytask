@@ -7,11 +7,6 @@ import click
 
 
 @attr.s
-class ResolvingDependenciesReport:
-    exc_info = attr.ib()
-
-
-@attr.s
 class CollectionReportTask:
     path = attr.ib(type=Path)
     name = attr.ib(type=str)
@@ -49,6 +44,26 @@ class CollectionReportFile:
 
     def format_title(self):
         return f" Collection of file '{self.path}' failed "
+
+
+@attr.s
+class ResolvingDependenciesReport:
+    exc_info = attr.ib()
+
+
+@attr.s
+class ExecutionReport:
+    task = attr.ib()
+    success = attr.ib(type=bool)
+    exc_info = attr.ib(default=None)
+
+    @classmethod
+    def from_task_and_exception(cls, task, exc_info):
+        return cls(task, False, exc_info)
+
+    @classmethod
+    def from_task(cls, task):
+        return cls(task, True)
 
 
 def format_execute_footer(n_successful, n_failed, duration, terminal_width):
