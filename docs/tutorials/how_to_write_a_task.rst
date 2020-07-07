@@ -25,7 +25,7 @@ To execute the task, type the following command on the command-line
     Root: xxx
     Collected 1 task(s).
 
-    s
+    .
     ============================ 1 succeeded in 1 second(s) ============================
 
 Executing

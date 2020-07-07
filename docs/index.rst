@@ -42,8 +42,7 @@ The documentation has currently one of four planned parts.
                             <h5 class="card-title">Tutorials</h5>
                             <p class="card-text">
                                 Tutorials help you to get started. If you do not know
-                                what a build system is or you migrate from Waf or a
-                                similar framework, start here.
+                                what a build system or pytask is, start here.
                             </p>
                         </div>
                     </div>
