@@ -4,6 +4,7 @@ import pytest
 from pytask.config import _find_project_root_and_ini
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "in_ini, paths, expected_root, expected_ini",
     [
@@ -38,6 +39,7 @@ def test_find_project_root_and_ini(
         assert ini == tmp_path.joinpath(expected_ini)
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize("paths", [None, ["/mnt/home/", "C:/Users/"]])
 def test_find_project_root_and_ini_raise_warning(paths):
     with pytest.warns(UserWarning, match="A common path for all passed path"):
