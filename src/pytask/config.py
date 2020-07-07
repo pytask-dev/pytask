@@ -95,8 +95,13 @@ def _find_project_root_and_ini(paths):
         common_ancestor = Path.cwd()
 
     config_path = None
+    parent_directories = (
+        common_ancestor.parents
+        if common_ancestor.is_file()
+        else [common_ancestor] + list(common_ancestor.parents)
+    )
     for parent, config_name in itertools.product(
-        common_ancestor.parents, ["pytask.ini", "tox.ini", "setup.cfg"]
+        parent_directories, ["pytask.ini", "tox.ini", "setup.cfg"]
     ):
         path = parent.joinpath(config_name)
 

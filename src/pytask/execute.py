@@ -57,7 +57,7 @@ def pytask_execute_task_protocol(session, task):
     session.hook.pytask_execute_task_log_start(session=session, task=task)
     try:
         session.hook.pytask_execute_task_setup(session=session, task=task)
-        session.hook.pytask_execute_task(task=task)
+        session.hook.pytask_execute_task(session=session, task=task)
         session.hook.pytask_execute_task_teardown(session=session, task=task)
     except Exception:
         report = ExecutionReport.from_task_and_exception(task, sys.exc_info())

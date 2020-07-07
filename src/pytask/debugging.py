@@ -1,8 +1,11 @@
+import functools
+import pdb
+import traceback
+
 import click
 import pytask
-from pytask import _debugging
-from pytask import _trace
 from pytask.config import _get_first_not_none_value
+from pytask.nodes import PythonFunctionTask
 
 
 @pytask.hookimpl
@@ -25,7 +28,46 @@ def pytask_parse_config(config, config_from_cli):
 @pytask.hookimpl
 def pytask_post_parse(config):
     if config["pdb"]:
-        config["pm"].register(_debugging)
+        config["pm"].register(PdbDebugger)
 
     if config["trace"]:
-        config["pm"].register(_trace)
+        config["pm"].register(PdbTrace)
+
+
+class PdbDebugger:
+    @staticmethod
+    @pytask.hookimpl(hookwrapper=True)
+    def pytask_execute_task(task):
+        if isinstance(task, PythonFunctionTask):
+            task.function = wrap_function_for_post_mortem_debugging(task.function)
+        yield
+
+
+def wrap_function_for_post_mortem_debugging(function):
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        try:
+            function(*args, **kwargs)
+        except Exception as e:
+            traceback.print_exc()
+            pdb.post_mortem()
+            raise e
+
+    return wrapper
+
+
+class PdbTrace:
+    @staticmethod
+    @pytask.hookimpl(hookwrapper=True)
+    def pytask_execute_task(task):
+        if isinstance(task, PythonFunctionTask):
+            task.function = wrap_function_for_tracing(task.function)
+        yield
+
+
+def wrap_function_for_tracing(function):
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        pdb.runcall(function, *args, **kwargs)
+
+    return wrapper
