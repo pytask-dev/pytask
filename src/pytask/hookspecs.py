@@ -159,8 +159,8 @@ def pytask_execute_task_setup(session, task):
     """Set up the task execution."""
 
 
-@hookspec
-def pytask_execute_task(task):
+@hookspec(firstresult=True)
+def pytask_execute_task(session, task):
     """ called to execute the task `item`."""
 
 

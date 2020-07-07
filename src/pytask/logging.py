@@ -17,6 +17,8 @@ def pytask_log_session_header(session):
         f"pytask {pytask.__version__}, pluggy {pluggy.__version__}"
     )
     click.echo(f"Root: {session.config['root'].as_posix()}")
+    if session.config["ini"] is not None:
+        click.echo(f"Configuration: {session.config['ini'].as_posix()}")
 
     plugin_info = session.config["pm"].list_plugin_distinfo()
     if plugin_info:

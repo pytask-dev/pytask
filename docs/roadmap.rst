@@ -13,10 +13,10 @@ Parallelization
 * A `WIP PR <https://github.com/pytest-dev/pytest-xdist/pull/479>`_ which tries to
   replace ``execnet`` with ``multiprocessing`` in ``pytest-xdist``.
 
-* ```pytest-concurrent`` <https://github.com/reverbc/pytest-concurrent>`_, but seems
+* `pytest-concurrent <https://github.com/reverbc/pytest-concurrent>`_, but seems
   fundamentally broken when it comes to fixtures, etc..
 
-* ```pytest-mp`` <https://github.com/ansible/pytest-mp>`_
+* `pytest-mp <https://github.com/ansible/pytest-mp>`_
 
 
 More executors or builders
