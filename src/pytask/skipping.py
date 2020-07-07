@@ -25,38 +25,45 @@ def pytask_execute_task_setup(task):
 
 
 @pytask.hookimpl
-def pytask_execute_task_process_result(session, result):
-    if isinstance(result["value"], SkippedUnchanged):
-        result["success"] = True
+def pytask_execute_task_process_report(session, report):
+    if report.exc_info and isinstance(report.exc_info[1], SkippedUnchanged):
+        report.success = True
 
-    elif isinstance(result["value"], Skipped):
-        result["success"] = True
+    elif report.exc_info and isinstance(report.exc_info[1], Skipped):
+        report.success = True
         for descending_task_name in task_and_descending_tasks(
-            result["task"].name, session.dag
+            report.task.name, session.dag
         ):
             descending_task = session.dag.nodes[descending_task_name]["task"]
             descending_task.markers.append(Mark("skip", (), {},))
 
-    elif isinstance(result["value"], SkippedAncestorFailed):
-        result["success"] = False
-        result["traceback"] = None
+    elif report.exc_info and isinstance(report.exc_info[1], SkippedAncestorFailed):
+        report.success = False
+        report.exc_info = _remove_traceback_from_exc_info(report.exc_info)
 
-    if isinstance(result["value"], (Skipped, SkippedUnchanged, SkippedAncestorFailed)):
+    if report.exc_info and isinstance(
+        report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)
+    ):
         return True
 
 
 @pytask.hookimpl
-def pytask_execute_task_log_end(result):
-    value = result["value"]
-    if result["success"]:
-        if isinstance(value, Skipped):
+def pytask_execute_task_log_end(report):
+    if report.success:
+        if report.exc_info and isinstance(report.exc_info[1], Skipped):
             click.secho("s", fg="yellow", nl=False)
-        elif isinstance(value, SkippedUnchanged):
+        elif report.exc_info and isinstance(report.exc_info[1], SkippedUnchanged):
             click.secho("s", fg="green", nl=False)
     else:
-        if isinstance(value, SkippedAncestorFailed):
+        if report.exc_info and isinstance(report.exc_info[1], SkippedAncestorFailed):
             click.secho("s", fg="red", nl=False)
 
-    if isinstance(value, (Skipped, SkippedUnchanged, SkippedAncestorFailed)):
+    if report.exc_info and isinstance(
+        report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)
+    ):
         # Return non-None value so that the task is not logged again.
         return True
+
+
+def _remove_traceback_from_exc_info(exc_info):
+    return (*exc_info[:2], None)

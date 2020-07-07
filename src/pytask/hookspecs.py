@@ -170,12 +170,12 @@ def pytask_execute_task_teardown(session, task):
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task_process_result(session, result):
-    """Process the result of a task."""
+def pytask_execute_task_process_report(session, report):
+    """Process the report of a task."""
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task_log_end(session, task, result):
+def pytask_execute_task_log_end(session, task, report):
     """End logging of task execution."""
 
 
