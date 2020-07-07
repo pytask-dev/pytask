@@ -7,7 +7,7 @@ import warnings
 from pathlib import Path
 
 import click
-from pytask import hookimpl
+import pytask
 from pytask.shared import to_list
 
 
@@ -19,7 +19,7 @@ IGNORED_FILES_AND_FOLDERS = [
 ]
 
 
-@hookimpl
+@pytask.hookimpl
 def pytask_configure(pm, config_from_cli):
     config = {"pm": pm, "terminal_width": _get_terminal_width()}
 
@@ -41,7 +41,7 @@ def pytask_configure(pm, config_from_cli):
     return config
 
 
-@hookimpl
+@pytask.hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
     config["ignore"] = (
         _get_first_not_none_value(
