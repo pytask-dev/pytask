@@ -3,12 +3,12 @@ repos:
     rev: v3.1.0
     hooks:
     -   id: check-added-large-files
-        args: ['--maxkb=100']
+        args: ['--maxkb=10']
     -   id: check-merge-conflict
     -   id: check-yaml
         exclude: meta.yaml
     -   id: debug-statements
-        exclude: (_debugging\.py|_trace\.py|main\.py)
+        exclude: (debugging\.py)
     -   id: end-of-file-fixer
 -   repo: https://github.com/asottile/pyupgrade
     rev: v2.6.2
