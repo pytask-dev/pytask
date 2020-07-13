@@ -1,18 +1,43 @@
 import pdb
+import sys
 
 import attr
+import pytask
 from pytask.database import create_database
 from pytask.enums import ExitCode
 from pytask.exceptions import CollectionError
 from pytask.exceptions import ResolvingDependenciesError
 from pytask.pluginmanager import get_plugin_manager
-from pytask.pluginmanager import register_default_plugins
+
+
+@pytask.hookimpl
+def pytask_add_hooks(pm):
+    from pytask import cli
+    from pytask import collect
+    from pytask import config
+    from pytask import debugging
+    from pytask import execute
+    from pytask import logging
+    from pytask import parametrize
+    from pytask import resolve_dependencies
+    from pytask import skipping
+
+    pm.register(cli)
+    pm.register(collect)
+    pm.register(config)
+    pm.register(debugging)
+    pm.register(execute)
+    pm.register(logging)
+    pm.register(parametrize)
+    pm.register(resolve_dependencies)
+    pm.register(skipping)
 
 
 def main(config_from_cli):
     try:
         pm = get_plugin_manager()
-        register_default_plugins(pm)
+        pm.register(sys.modules[__name__])
+        pm.hook.pytask_add_hooks(pm=pm)
 
         config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
 

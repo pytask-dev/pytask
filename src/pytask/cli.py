@@ -2,8 +2,8 @@ import sys
 from pathlib import Path
 
 import click
+import pytask
 from pytask import debugging
-from pytask import hookimpl
 from pytask.main import main
 from pytask.pluginmanager import get_plugin_manager
 
@@ -15,17 +15,22 @@ def add_parameters(func):
     """Add parameters from plugins to the commandline interface."""
     pm = get_plugin_manager()
     pm.register(sys.modules[__name__])
-    pm.register(debugging)
+    pm.hook.pytask_add_hooks(pm=pm)
     pm.hook.pytask_add_parameters_to_cli(command=func)
 
     return func
+
+
+@pytask.hookimpl
+def pytask_add_hooks(pm):
+    pm.register(debugging)
 
 
 def _to_path(ctx, param, value):  # noqa: U100
     return [Path(i).resolve() for i in value]
 
 
-@hookimpl
+@pytask.hookimpl
 def pytask_add_parameters_to_cli(command):
     additional_parameters = [
         click.Argument(
