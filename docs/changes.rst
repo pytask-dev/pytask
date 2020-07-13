@@ -11,6 +11,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 
 - :gh:`2` provided multiple small changes.
 - :gh:`3` implements a class which holds the execution report of one task.
+- :gh:`4` makes adjustments after moving to ``main`` as the default branch.
 
 
 0.0.1 - 2020-06-29

@@ -14,7 +14,10 @@
 .. image:: https://readthedocs.org/projects/pytask-dev/badge/?version=latest
     :target: https://pytask-dev.readthedocs.io/en/latest
 
-.. image:: https://codecov.io/gh/pytask-dev/pytask/branch/master/graph/badge.svg
+.. image:: https://github.com/pytask-dev/pytask/workflows/Continuous%20Integration%20Workflow/badge.svg?branch=main
+    :target: https://github.com/pytask-dev/pytask/actions?query=branch%3Amain
+
+.. image:: https://codecov.io/gh/pytask-dev/pytask/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/pytask-dev/pytask
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
