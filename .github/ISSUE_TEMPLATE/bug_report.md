@@ -11,7 +11,7 @@ labels: "bug"
 
 - [ ] I have confirmed this bug exists on the latest version of pytask.
 
-- [ ] (optional) I have confirmed this bug exists on the master branch of pytask.
+- [ ] (optional) I have confirmed this bug exists on the `main` branch of pytask.
 
 ---
 
