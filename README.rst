@@ -46,8 +46,8 @@ include:
 Installation
 ------------
 
-**pytask** is available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_. Install
-the package with
+pytask is available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_. Install the
+package with
 
 .. code-block:: bash
 
