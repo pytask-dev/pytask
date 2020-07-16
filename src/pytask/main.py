@@ -15,6 +15,7 @@ def pytask_add_hooks(pm):
     from pytask import cli
     from pytask import collect
     from pytask import config
+    from pytask import database
     from pytask import debugging
     from pytask import execute
     from pytask import logging
@@ -25,6 +26,7 @@ def pytask_add_hooks(pm):
     pm.register(cli)
     pm.register(collect)
     pm.register(config)
+    pm.register(database)
     pm.register(debugging)
     pm.register(execute)
     pm.register(logging)

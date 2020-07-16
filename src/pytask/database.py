@@ -1,5 +1,8 @@
-from pony import orm
+from pathlib import Path
 
+import pytask
+from pony import orm
+from pytask.shared import get_first_not_none_value
 
 db = orm.Database()
 
@@ -28,3 +31,32 @@ def create_or_update_state(first_key, second_key, state):
         State(task=first_key, node=second_key, state=state)
     else:
         state_in_db.state = state
+
+
+@pytask.hookimpl
+def pytask_parse_config(config, config_from_cli, config_from_file):
+    provider = get_first_not_none_value(
+        config_from_cli, config_from_file, key="database_provider", default="sqlite"
+    )
+    filename = get_first_not_none_value(
+        config_from_cli,
+        config_from_file,
+        key="database_filename",
+        default=".pytask.sqlite3",
+    )
+    filename = Path(filename)
+    if not filename.is_absolute():
+        filename = Path(config["root"], filename).resolve().as_posix()
+
+    create_db = get_first_not_none_value(
+        config_from_cli, config_from_file, key="database_create_db", default=True
+    )
+    create_tables = get_first_not_none_value(
+        config_from_cli, config_from_file, key="database_create_tables", default=True
+    )
+    config["database"] = {
+        "provider": provider,
+        "filename": filename,
+        "create_db": create_db,
+        "create_tables": create_tables,
+    }

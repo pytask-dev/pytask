@@ -46,7 +46,7 @@ def pytask_add_parameters_to_cli(command):
         click.Option(
             ["--database-provider"],
             type=click.Choice(["sqlite", "postgres", "mysql", "oracle", "cockroach"]),
-            help="Database provider.",
+            help="Database provider.  [default: sqlite]",
         ),
         click.Option(
             ["--database-filename"], type=click.Path(), help="Path to database.",
