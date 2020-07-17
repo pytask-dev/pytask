@@ -3,7 +3,6 @@ from pathlib import Path
 
 import click
 import pytask
-from pytask import debugging
 from pytask.main import main
 from pytask.pluginmanager import get_plugin_manager
 
@@ -23,6 +22,10 @@ def add_parameters(func):
 
 @pytask.hookimpl
 def pytask_add_hooks(pm):
+    from pytask import database
+    from pytask import debugging
+
+    pm.register(database)
     pm.register(debugging)
 
 
@@ -43,24 +46,6 @@ def pytask_add_parameters_to_cli(command):
             help="Ignore path (globs and multi allowed).",
         ),
         click.Option(["--debug-pytask"], is_flag=True, help="Debug pytask."),
-        click.Option(
-            ["--database-provider"],
-            type=click.Choice(["sqlite", "postgres", "mysql", "oracle", "cockroach"]),
-            help="Database provider.  [default: sqlite]",
-        ),
-        click.Option(
-            ["--database-filename"], type=click.Path(), help="Path to database.",
-        ),
-        click.Option(
-            ["--database-create-db"],
-            type=bool,
-            help="Create database if it does not exist.",
-        ),
-        click.Option(
-            ["--database-create-tables"],
-            type=bool,
-            help="Create tables if they do not exist.",
-        ),
     ]
     command.params.extend(additional_parameters)
 

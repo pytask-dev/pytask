@@ -16,7 +16,7 @@ def pytask_add_parameters_to_cli(command):
         ),
         click.Option(
             ["--trace"],
-            help="Enter debugger at test start.",
+            help="Enter debugger when starting each task.",
             is_flag=True,
             default=None,
         ),

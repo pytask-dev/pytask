@@ -1,8 +1,10 @@
 from pathlib import Path
 
+import click
 import pytask
 from pony import orm
 from pytask.shared import get_first_not_none_value
+
 
 db = orm.Database()
 
@@ -31,6 +33,31 @@ def create_or_update_state(first_key, second_key, state):
         State(task=first_key, node=second_key, state=state)
     else:
         state_in_db.state = state
+
+
+@pytask.hookimpl
+def pytask_add_parameters_to_cli(command):
+    additional_parameters = [
+        click.Option(
+            ["--database-provider"],
+            type=click.Choice(["sqlite", "postgres", "mysql", "oracle", "cockroach"]),
+            help="Database provider.  [default: sqlite]",
+        ),
+        click.Option(
+            ["--database-filename"], type=click.Path(), help="Path to database.",
+        ),
+        click.Option(
+            ["--database-create-db"],
+            type=bool,
+            help="Create database if it does not exist.",
+        ),
+        click.Option(
+            ["--database-create-tables"],
+            type=bool,
+            help="Create tables if they do not exist.",
+        ),
+    ]
+    command.params.extend(additional_parameters)
 
 
 @pytask.hookimpl
