@@ -4,24 +4,33 @@ import traceback
 
 import click
 import pytask
-from pytask.config import _get_first_not_none_value
 from pytask.nodes import PythonFunctionTask
+from pytask.shared import get_first_not_none_value
 
 
 @pytask.hookimpl
 def pytask_add_parameters_to_cli(command):
     additional_parameters = [
-        click.Option(["--pdb"], help="Enter debugger on errors.", is_flag=True),
-        click.Option(["--trace"], help="Enter debugger at test start.", is_flag=True),
+        click.Option(
+            ["--pdb"], help="Enter debugger on errors.", is_flag=True, default=None
+        ),
+        click.Option(
+            ["--trace"],
+            help="Enter debugger when starting each task.",
+            is_flag=True,
+            default=None,
+        ),
     ]
     command.params.extend(additional_parameters)
 
 
 @pytask.hookimpl
-def pytask_parse_config(config, config_from_cli):
-    config["pdb"] = _get_first_not_none_value(config_from_cli, key="pdb", default=False)
-    config["trace"] = _get_first_not_none_value(
-        config_from_cli, key="trace", default=False
+def pytask_parse_config(config, config_from_cli, config_from_file):
+    config["pdb"] = get_first_not_none_value(
+        config_from_cli, config_from_file, key="pdb", default=False
+    )
+    config["trace"] = get_first_not_none_value(
+        config_from_cli, config_from_file, key="trace", default=False
     )
 
 

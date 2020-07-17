@@ -166,5 +166,5 @@ def pytask_execute_log_end(session, reports):
 
 def _update_states_in_database(dag, task_name):
     for name in node_and_neigbors(dag, task_name):
-        node = dag.nodes[name].get("task", None) or dag.nodes[name]["node"]
+        node = dag.nodes[name].get("task") or dag.nodes[name]["node"]
         create_or_update_state(task_name, node.name, node.state())

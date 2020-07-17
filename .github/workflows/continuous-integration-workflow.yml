@@ -35,7 +35,7 @@ jobs:
 
       - name: Run unit tests and doctests.
         shell: bash -l {0}
-        run: tox -e pytest -- -m "unit or (not integration and not end_to_end)" --cov=./ --cov-report=xml
+        run: tox -e pytest -- -m "unit or (not integration and not end_to_end)" --cov=./ --cov-report=xml -n auto
 
       - name: Upload coverage report for unit tests and doctests.
         if: runner.os == 'Linux' && matrix.python-version == '3.8'
@@ -44,7 +44,7 @@ jobs:
 
       - name: Run integration tests.
         shell: bash -l {0}
-        run: tox -e pytest -- -m integration --cov=./ --cov-report=xml
+        run: tox -e pytest -- -m integration --cov=./ --cov-report=xml -n auto
 
       - name: Upload coverage reports of integration tests.
         if: runner.os == 'Linux' && matrix.python-version == '3.8'
@@ -53,7 +53,7 @@ jobs:
 
       - name: Run end-to-end tests.
         shell: bash -l {0}
-        run: tox -e pytest -- -m end_to_end --cov=./ --cov-report=xml
+        run: tox -e pytest -- -m end_to_end --cov=./ --cov-report=xml -n auto
 
       - name: Upload coverage reports of end-to-end tests.
         if: runner.os == 'Linux' && matrix.python-version == '3.8'

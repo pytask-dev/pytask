@@ -18,6 +18,7 @@ dependencies:
   - pytest
 
   # Misc
+  - bump2version
   - jupyterlab
   - matplotlib
   - pdbpp

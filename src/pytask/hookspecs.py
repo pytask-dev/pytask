@@ -5,6 +5,11 @@ import pluggy
 hookspec = pluggy.HookspecMarker("pytask")
 
 
+@hookspec
+def pytask_add_hooks(pm):
+    """Add hooks to the pluginmanager."""
+
+
 # Hooks for the command-line interface.
 
 

@@ -2,8 +2,7 @@ import sys
 from pathlib import Path
 
 import click
-from pytask import debugging
-from pytask import hookimpl
+import pytask
 from pytask.main import main
 from pytask.pluginmanager import get_plugin_manager
 
@@ -15,17 +14,26 @@ def add_parameters(func):
     """Add parameters from plugins to the commandline interface."""
     pm = get_plugin_manager()
     pm.register(sys.modules[__name__])
-    pm.register(debugging)
+    pm.hook.pytask_add_hooks(pm=pm)
     pm.hook.pytask_add_parameters_to_cli(command=func)
 
     return func
+
+
+@pytask.hookimpl
+def pytask_add_hooks(pm):
+    from pytask import database
+    from pytask import debugging
+
+    pm.register(database)
+    pm.register(debugging)
 
 
 def _to_path(ctx, param, value):  # noqa: U100
     return [Path(i).resolve() for i in value]
 
 
-@hookimpl
+@pytask.hookimpl
 def pytask_add_parameters_to_cli(command):
     additional_parameters = [
         click.Argument(
@@ -38,24 +46,6 @@ def pytask_add_parameters_to_cli(command):
             help="Ignore path (globs and multi allowed).",
         ),
         click.Option(["--debug-pytask"], is_flag=True, help="Debug pytask."),
-        click.Option(
-            ["--database-provider"],
-            type=click.Choice(["sqlite", "postgres", "mysql", "oracle", "cockroach"]),
-            help="Database provider.",
-        ),
-        click.Option(
-            ["--database-filename"], type=click.Path(), help="Path to database.",
-        ),
-        click.Option(
-            ["--database-create-db"],
-            type=bool,
-            help="Create database if it does not exist.",
-        ),
-        click.Option(
-            ["--database-create-tables"],
-            type=bool,
-            help="Create tables if they do not exist.",
-        ),
     ]
     command.params.extend(additional_parameters)
 

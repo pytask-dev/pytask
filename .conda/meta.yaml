@@ -18,10 +18,12 @@ build:
 requirements:
   host:
     - python
+    - pip
     - setuptools
 
   run:
     - python >=3.6
+    - setuptools
     - attrs >=17.4.0
     - click
     - networkx
@@ -30,6 +32,8 @@ requirements:
     - pytest
 
 test:
+  imports:
+    - pytask
   requires:
     - pexpect
     - pytest
@@ -45,6 +49,6 @@ test:
 about:
   home: https://github.com/pytask-dev/pytask
   license: none
-  summary: In its highest aspirations, **pytask** tries to be pytest as a build system.
+  summary: In its highest aspirations, pytask tries to be pytest as a build system.
   doc_url: https://pytask-dev.readthedocs.io/en/latest
   dev_url: https://github.com/pytask-dev/pytask/

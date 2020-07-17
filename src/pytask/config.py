@@ -8,8 +8,8 @@ from pathlib import Path
 
 import click
 import pytask
+from pytask.shared import get_first_not_none_value
 from pytask.shared import to_list
-
 
 IGNORED_FILES_AND_FOLDERS = [
     "*/.git/*",
@@ -23,7 +23,7 @@ IGNORED_FILES_AND_FOLDERS = [
 def pytask_configure(pm, config_from_cli):
     config = {"pm": pm, "terminal_width": _get_terminal_width()}
 
-    paths = _get_first_not_none_value(config_from_cli, key="paths", callback=to_list)
+    paths = get_first_not_none_value(config_from_cli, key="paths", callback=to_list)
     paths = [Path(p).resolve() for path in paths for p in glob.glob(path.as_posix())]
     config["paths"] = paths if paths else [Path.cwd().resolve()]
 
@@ -44,7 +44,7 @@ def pytask_configure(pm, config_from_cli):
 @pytask.hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
     config["ignore"] = (
-        _get_first_not_none_value(
+        get_first_not_none_value(
             config_from_cli,
             config_from_file,
             key="ignore",
@@ -54,34 +54,12 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         + IGNORED_FILES_AND_FOLDERS
     )
 
-    config["debug_pytask"] = _get_first_not_none_value(
+    config["debug_pytask"] = get_first_not_none_value(
         config_from_cli, config_from_file, key="debug_pytask", default=False
     )
     if config["debug_pytask"]:
         config["pm"].trace.root.setwriter(click.echo)
         config["pm"].enable_tracing()
-
-    provider = _get_first_not_none_value(
-        config_from_cli, config_from_file, key="database_provider", default="sqlite"
-    )
-    filename = _get_first_not_none_value(
-        config_from_cli,
-        config_from_file,
-        key="database_filename",
-        default=".pytask.sqlite3",
-    )
-    create_db = _get_first_not_none_value(
-        config_from_cli, config_from_file, key="database_create_db", default=True
-    )
-    create_tables = _get_first_not_none_value(
-        config_from_cli, config_from_file, key="database_create_tables", default=True
-    )
-    config["database"] = {
-        "provider": provider,
-        "filename": Path(config["root"], filename).resolve().as_posix(),
-        "create_db": create_db,
-        "create_tables": create_tables,
-    }
 
 
 def _find_project_root_and_ini(paths):
@@ -126,42 +104,11 @@ def _read_config(path):
     return dict(config["pytask"])
 
 
-def _get_first_not_none_value(*configs, key, default=None, callback=None):
-    """Get the first non-None value for a key from a list of dictionaries.
-
-    This function allows to prioritize information from many configurations by changing
-    the order of the inputs while also providing a default.
-
-    Examples
-    --------
-    >>> _get_first_not_none_value({"a": None}, {"a": 1}, key="a")
-    1
-
-    >>> _get_first_not_none_value({"a": None}, {"a": None}, key="a", default="default")
-    'default'
-
-    >>> _get_first_not_none_value({}, {}, key="a", default="default")
-    'default'
-
-    >>> _get_first_not_none_value({"a": None}, {"a": "b"}, key="a", callback=to_list)
-    ['b']
-
-    """
-    return next(
-        (
-            config[key] if callback is None else callback(config[key])
-            for config in configs
-            if config.get(key, None) is not None
-        ),
-        default,
-    )
-
-
 def _get_terminal_width() -> int:
     """Get the window width of the terminal."""
     width, _ = shutil.get_terminal_size(fallback=(80, 24))
 
-    # The Windows get_terminal_size may be bogus, let's sanify a bit.
+    # The Windows get_terminal_size may be bogus, let's sanitize a bit.
     if width < 40:
         width = 80
 
