@@ -29,6 +29,7 @@ setup(
         "pony >= 0.7.13",
         "pytest",
     ],
+    tests_requires=["pexpect"],
     url=PROJECT_URLS["Documentation"],
     project_urls=PROJECT_URLS,
     license="None",
