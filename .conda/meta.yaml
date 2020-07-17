@@ -36,6 +36,7 @@ test:
     - pytask
   requires:
     - pexpect
+    - pytest
   source_files:
     - tox.ini
     - tests
