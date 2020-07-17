@@ -6,13 +6,14 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
 
 
-0.0.2 - 2020-xx-xx
+0.0.2 - 2020-07-17
 ------------------
 
 - :gh:`2` provided multiple small changes.
 - :gh:`3` implements a class which holds the execution report of one task.
 - :gh:`4` makes adjustments after moving to ``main`` as the default branch.
 - :gh:`5` adds ``pytask_add_hooks`` to add more hook specifications and register hooks.
+- :gh:`6` releases v0.0.2.
 
 
 0.0.1 - 2020-06-29
