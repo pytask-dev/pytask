@@ -12,6 +12,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`7` makes pytask exit with code 1 if a task failed and the
   ``skip_ancestor_failed`` decorator is only applied to descendant tasks not the task
   itself.
+- :gh:`8` releases v0.0.3
 
 
 0.0.2 - 2020-07-17
