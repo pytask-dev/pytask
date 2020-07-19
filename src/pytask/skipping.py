@@ -1,6 +1,6 @@
 import click
 import pytask
-from pytask.dag import task_and_descending_tasks
+from pytask.dag import descending_tasks
 from pytask.mark import get_markers_from_task
 from pytask.mark import Mark
 from pytask.outcomes import Skipped
@@ -26,16 +26,20 @@ def pytask_execute_task_setup(task):
 
 @pytask.hookimpl
 def pytask_execute_task_process_report(session, report):
+    task = report.task
+
     if report.exc_info and isinstance(report.exc_info[1], SkippedUnchanged):
         report.success = True
 
     elif report.exc_info and isinstance(report.exc_info[1], Skipped):
         report.success = True
-        for descending_task_name in task_and_descending_tasks(
-            report.task.name, session.dag
-        ):
+        for descending_task_name in descending_tasks(report.task.name, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]
-            descending_task.markers.append(Mark("skip", (), {},))
+            descending_task.markers.append(
+                Mark(
+                    "skip", (), {"reason": f"Previous task '{task.name}' was skipped."},
+                )
+            )
 
     elif report.exc_info and isinstance(report.exc_info[1], SkippedAncestorFailed):
         report.success = False

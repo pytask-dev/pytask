@@ -6,6 +6,7 @@ import pytask
 from pytask.database import create_database
 from pytask.enums import ExitCode
 from pytask.exceptions import CollectionError
+from pytask.exceptions import ExecutionError
 from pytask.exceptions import ResolvingDependenciesError
 from pytask.pluginmanager import get_plugin_manager
 
@@ -63,8 +64,10 @@ def main(config_from_cli):
     except ResolvingDependenciesError:
         session.exit_code = ExitCode.RESOLVING_DEPENDENCIES_FAILED
 
-    except Exception as e:
+    except ExecutionError:
         session.exit_code = ExitCode.FAILED
+
+    except Exception as e:
         if config["pdb"]:
             pdb.post_mortem()
         else:

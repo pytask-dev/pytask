@@ -9,11 +9,15 @@ def sort_tasks_topologically(dag):
             yield node
 
 
-def task_and_descending_tasks(task_name, dag):
-    yield task_name
+def descending_tasks(task_name, dag):
     for descendant in nx.descendants(dag, task_name):
         if "task" in dag.nodes[descendant]:
             yield descendant
+
+
+def task_and_descending_tasks(task_name, dag):
+    yield task_name
+    yield from descending_tasks(task_name, dag)
 
 
 def node_and_neigbors(dag, node):
