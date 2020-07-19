@@ -164,7 +164,7 @@ def _generate_product_of_names_and_functions(
         )
 
         # Convert parametrized dependencies and products to decorator.
-        func = copy.deepcopy(_copy_func(obj))
+        func = _copy_func(obj)
         func.pytestmark = copy.deepcopy(obj.pytestmark)
 
         for marker_name in ["depends_on", "produces"]:
@@ -188,7 +188,7 @@ def _to_tuple(x):
 
 
 def _copy_func(f):
-    """Based on http://stackoverflow.com/a/6528148/190597 (Glenn Maynard)"""
+    """Based on https://stackoverflow.com/a/13503277/7523785."""
     g = types.FunctionType(
         f.__code__,
         f.__globals__,

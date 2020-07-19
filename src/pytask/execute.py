@@ -6,10 +6,11 @@ import traceback
 import click
 import pytask
 from pytask import hookimpl
+from pytask.dag import descending_tasks
 from pytask.dag import node_and_neigbors
 from pytask.dag import sort_tasks_topologically
-from pytask.dag import task_and_descending_tasks
 from pytask.database import create_or_update_state
+from pytask.exceptions import ExecutionError
 from pytask.exceptions import NodeNotFoundError
 from pytask.mark import Mark
 from pytask.nodes import FilePathNode
@@ -116,7 +117,7 @@ def pytask_execute_task_process_report(session, report):
     if report.success:
         _update_states_in_database(session.dag, task.name)
     else:
-        for descending_task_name in task_and_descending_tasks(task.name, session.dag):
+        for descending_task_name in descending_tasks(task.name, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]
             descending_task.markers.append(
                 Mark(
@@ -125,7 +126,6 @@ def pytask_execute_task_process_report(session, report):
                     {"reason": f"Previous task '{task.name}' failed."},
                 )
             )
-
     return True
 
 
@@ -160,6 +160,9 @@ def pytask_execute_log_end(session, reports):
     click.echo(
         format_execute_footer(n_successful, n_failed, duration, tm_width), nl=True
     )
+
+    if n_failed:
+        raise ExecutionError
 
     return True
 
