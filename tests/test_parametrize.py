@@ -8,15 +8,31 @@ from pytask.mark import Mark
 from pytask.parametrize import _parse_arg_names
 from pytask.parametrize import _parse_parametrize_markers
 from pytask.parametrize import pytask_generate_tasks
+from pytask.pluginmanager import get_plugin_manager
+
+
+class DummySession:
+    pass
+
+
+@pytest.fixture(scope="module")
+def session():
+    pm = get_plugin_manager()
+    pm.register(pytask.parametrize)
+
+    session = DummySession()
+    session.hook = pm.hook
+
+    return session
 
 
 @pytest.mark.integration
-def test_pytask_generate_tasks_0():
+def test_pytask_generate_tasks_0(session):
     @pytask.mark.parametrize("i", range(2))
     def func(i):
         pass
 
-    names_and_objs = pytask_generate_tasks("func", func)
+    names_and_objs = pytask_generate_tasks(session, "func", func)
 
     assert [i[0] for i in names_and_objs] == ["func[i0]", "func[i1]"]
     assert names_and_objs[0][1].keywords["i"] == 0
@@ -24,13 +40,13 @@ def test_pytask_generate_tasks_0():
 
 
 @pytest.mark.integration
-def test_pytask_generate_tasks_1():
+def test_pytask_generate_tasks_1(session):
     @pytask.mark.parametrize("j", range(2))
     @pytask.mark.parametrize("i", range(2))
     def func(i, j):
         pass
 
-    names_and_objs = pytask_generate_tasks("func", func)
+    names_and_objs = pytask_generate_tasks(session, "func", func)
 
     for (name, func), values in zip(
         names_and_objs, itertools.product(range(2), range(2))
@@ -41,13 +57,13 @@ def test_pytask_generate_tasks_1():
 
 
 @pytest.mark.integration
-def test_pytask_generate_tasks_2():
+def test_pytask_generate_tasks_2(session):
     @pytask.mark.parametrize("j, k", itertools.product(range(2), range(2)))
     @pytask.mark.parametrize("i", range(2))
     def func(i, j, k):
         pass
 
-    names_and_objs = pytask_generate_tasks("func", func)
+    names_and_objs = pytask_generate_tasks(session, "func", func)
 
     for (name, func), arg_names, values in zip(
         names_and_objs,
@@ -61,13 +77,13 @@ def test_pytask_generate_tasks_2():
 
 
 @pytest.mark.integration
-def test_pytask_parametrize_missing_func_args():
+def test_pytask_parametrize_missing_func_args(session):
     @pytask.mark.parametrize("i", range(2))
     def func():
         pass
 
     with pytest.raises(ValueError, match="Parametrized function"):
-        pytask_generate_tasks("func", func)
+        pytask_generate_tasks(session, "func", func)
 
 
 @pytest.mark.unit
