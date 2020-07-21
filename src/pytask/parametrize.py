@@ -15,7 +15,7 @@ def parametrize(arg_names, arg_values):
     ----------
     arg_names : str, tuple of str, list of str
         The names of the arguments.
-    arg_values : list, list of iterables
+    arg_values : iterable
         The values which correspond to names in ``arg_names``.
 
     This functions is more a helper function to parse the arguments of the decorator and
@@ -228,15 +228,15 @@ def _to_tuple(x):
     return (x,) if not isinstance(x, Iterable) or isinstance(x, str) else tuple(x)
 
 
-def _copy_func(f):
+def _copy_func(func):
     """Based on https://stackoverflow.com/a/13503277/7523785."""
-    g = types.FunctionType(
-        f.__code__,
-        f.__globals__,
-        name=f.__name__,
-        argdefs=f.__defaults__,
-        closure=f.__closure__,
+    new_func = types.FunctionType(
+        func.__code__,
+        func.__globals__,
+        name=func.__name__,
+        argdefs=func.__defaults__,
+        closure=func.__closure__,
     )
-    g = functools.update_wrapper(g, f)
-    g.__kwdefaults__ = f.__kwdefaults__
-    return g
+    new_func = functools.update_wrapper(new_func, func)
+    new_func.__kwdefaults__ = func.__kwdefaults__
+    return new_func
