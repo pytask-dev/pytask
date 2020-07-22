@@ -10,7 +10,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 
 - :gh:`9` adds hook specifications to the parametrization of tasks which allows
   ``pytask-latex`` and ``pytask-r`` to pass different command line arguments to a
-  parametrized task and its script.
+  parametrized task and its script. Also, it prepares the release of 0.0.4.
 
 
 0.0.3 - 2020-07-19
