@@ -78,12 +78,16 @@ def test_pytask_generate_tasks_2(session):
 
 @pytest.mark.integration
 def test_pytask_parametrize_missing_func_args(session):
+    """Missing function args with parametrized tasks raise an error during execution."""
+
     @pytask.mark.parametrize("i", range(2))
     def func():
         pass
 
-    with pytest.raises(ValueError, match="Parametrized function"):
-        pytask_generate_tasks(session, "func", func)
+    names_and_functions = pytask_generate_tasks(session, "func", func)
+    for _, func in names_and_functions:
+        with pytest.raises(TypeError):
+            func()
 
 
 @pytest.mark.unit

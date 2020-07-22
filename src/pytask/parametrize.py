@@ -1,6 +1,5 @@
 import copy
 import functools
-import inspect
 import itertools
 import types
 from collections.abc import Iterable
@@ -30,17 +29,6 @@ def pytask_generate_tasks(session, name, obj):
     if callable(obj):
         obj, markers = _remove_parametrize_markers_from_func(obj)
         base_arg_names, arg_names, arg_values = _parse_parametrize_markers(markers)
-
-        diff_arg_names = (
-            set(itertools.chain.from_iterable(base_arg_names))
-            - set(inspect.getfullargspec(obj).args)
-            - {"depends_on", "produces"}
-        )
-        if diff_arg_names:
-            raise ValueError(
-                f"Parametrized function '{name}' does not have the following "
-                f"parametrized arguments: {diff_arg_names}."
-            )
 
         names_and_functions = session.hook.generate_product_of_names_and_functions(
             session=session,
@@ -204,7 +192,6 @@ def generate_product_of_names_and_functions(
 
             # Convert parametrized dependencies and products to decorator.
             session.hook.pytask_generate_tasks_add_marker(obj=func, kwargs=kwargs)
-
             # Attach remaining parametrized arguments to the function.
             partialed_func = functools.partial(func, **kwargs)
             wrapped_func = functools.update_wrapper(partialed_func, func)
