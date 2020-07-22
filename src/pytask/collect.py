@@ -2,7 +2,6 @@ import fnmatch
 import glob
 import importlib
 import inspect
-import itertools
 import pprint
 import sys
 import traceback
@@ -94,7 +93,6 @@ def pytask_collect_file(session, path, reports):
                 names_and_objects = session.hook.pytask_generate_tasks(
                     session=session, name=name, obj=obj
                 )
-                names_and_objects = itertools.chain.from_iterable(names_and_objects)
             else:
                 names_and_objects = [(name, obj)]
 

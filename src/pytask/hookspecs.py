@@ -73,9 +73,21 @@ def pytask_collect_file(session, path, reports):
     """Collect tasks from files."""
 
 
-@hookspec
+@hookspec(firstresult=True)
 def pytask_generate_tasks(session, name, obj):
     """Generate multiple tasks from name and object with parametrization."""
+
+
+@hookspec(firstresult=True)
+def generate_product_of_names_and_functions(
+    session, name, obj, base_arg_names, arg_names, arg_values
+):
+    """Generate names and functions from Cartesian product."""
+
+
+@hookspec
+def pytask_generate_tasks_add_marker(obj, kwargs):
+    """Add some keyword arguments as markers to task."""
 
 
 @hookspec(firstresult=True)
