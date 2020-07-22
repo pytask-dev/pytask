@@ -5,6 +5,13 @@ This is a record of all past pytask releases and what went into them in reverse
 chronological order. Releases follow `semantic versioning <https://semver.org/>`_ and
 all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
 
+0.0.4 - 2020-07-20
+------------------
+
+- :gh:`9` adds hook specifications to the parametrization of tasks which allows
+  ``pytask-latex`` and ``pytask-r`` to pass different command line arguments to a
+  parametrized task and its script.
+
 
 0.0.3 - 2020-07-19
 ------------------
