@@ -61,7 +61,7 @@ jobs:
         run: bash <(curl -s https://codecov.io/bash) -F end_to_end -c
 
       - name: Validate codecov.yml
-        if: runner.os == 'Linux' && matrix.python-version == '3.7'
+        if: runner.os == 'Linux' && matrix.python-version == '3.8'
         shell: bash -l {0}
         run: cat codecov.yml | curl --data-binary @- https://codecov.io/validate
 
