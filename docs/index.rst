@@ -52,7 +52,6 @@ The documentation has currently one of four planned parts.
                     </div>
                 </a>
             </div>
-            <!--
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 d-flex">
                 <a href="how_to_guides/index.html" id="index-link">
                     <div class="card text-center intro-card shadow">
@@ -69,6 +68,7 @@ The documentation has currently one of four planned parts.
                     </div>
                 </a>
             </div>
+            <!--
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 d-flex">
                 <a href="explanations/index.html" id="index-link">
                     <div class="card text-center intro-card shadow">
@@ -85,6 +85,7 @@ The documentation has currently one of four planned parts.
                     </div>
                 </a>
             </div>
+            -->
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 d-flex">
                 <a href="reference_guides/index.html" id="index-link">
                     <div class="card text-center intro-card shadow">
@@ -102,7 +103,6 @@ The documentation has currently one of four planned parts.
                     </div>
                  </a>
             </div>
-            -->
         </div>
     </div>
 
