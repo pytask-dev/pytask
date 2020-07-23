@@ -74,23 +74,6 @@ def pytask_collect_file(session, path, reports):
 
 
 @hookspec(firstresult=True)
-def pytask_generate_tasks(session, name, obj):
-    """Generate multiple tasks from name and object with parametrization."""
-
-
-@hookspec(firstresult=True)
-def generate_product_of_names_and_functions(
-    session, name, obj, base_arg_names, arg_names, arg_values
-):
-    """Generate names and functions from Cartesian product."""
-
-
-@hookspec
-def pytask_generate_tasks_add_marker(obj, kwargs):
-    """Add some keyword arguments as markers to task."""
-
-
-@hookspec(firstresult=True)
 def pytask_collect_task_protocol(session, reports, path, name, obj):
     """Start protocol to collect tasks."""
 
@@ -108,6 +91,19 @@ def pytask_collect_task(session, path, name, obj):
 @hookspec(firstresult=True)
 def pytask_collect_node(path, node):
     """Collect a single node which is a dependency or a product."""
+
+
+# Hooks to parametrize tasks.
+
+
+@hookspec(firstresult=True)
+def pytask_parametrize_task(session, name, obj):
+    """Generate multiple tasks from name and object with parametrization."""
+
+
+@hookspec
+def pytask_parametrize_kwarg_to_marker(obj, kwargs):
+    """Add some keyword arguments as markers to object."""
 
 
 # Hooks for resolving dependencies.
