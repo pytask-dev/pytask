@@ -40,10 +40,10 @@ def pytask_parametrize_task(session, name, obj):
         obj, markers = _remove_parametrize_markers_from_func(obj)
         base_arg_names, arg_names, arg_values = _parse_parametrize_markers(markers)
 
-        names_and_functions = []
         product_arg_names = list(itertools.product(*arg_names))
         product_arg_values = list(itertools.product(*arg_values))
 
+        names_and_functions = []
         for names, values in zip(product_arg_names, product_arg_values):
             kwargs = dict(
                 zip(
@@ -196,11 +196,34 @@ def pytask_parametrize_kwarg_to_marker(obj, kwargs):
 
 
 def _to_tuple(x):
+    """Convert object to tuple.
+
+    Example
+    -------
+    >>> _to_tuple(list("ab"))
+    ('a', 'b')
+    >>> _to_tuple("a")
+    ('a',)
+    >>> _to_tuple("ab")
+    ('ab',)
+
+    """
     return (x,) if not isinstance(x, Iterable) or isinstance(x, str) else tuple(x)
 
 
 def _copy_func(func):
-    """Based on https://stackoverflow.com/a/13503277/7523785."""
+    """Create a copy of a function.
+
+    Based on https://stackoverflow.com/a/13503277/7523785.
+
+    Example
+    -------
+    >>> def func(): pass
+    >>> copied_func = _copy_func(func)
+    >>> func == copied_func
+    False
+
+    """
     new_func = types.FunctionType(
         func.__code__,
         func.__globals__,
