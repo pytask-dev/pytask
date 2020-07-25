@@ -7,7 +7,12 @@ hookspec = pluggy.HookspecMarker("pytask")
 
 @hookspec
 def pytask_add_hooks(pm):
-    """Add hooks to the pluginmanager."""
+    """Add hook specifications and implementations to the plugin manager.
+
+    This hook is called very early in the application to load the base functionality
+    from plugins.
+
+    """
 
 
 # Hooks for the command-line interface.
@@ -15,7 +20,13 @@ def pytask_add_hooks(pm):
 
 @hookspec
 def pytask_add_parameters_to_cli(command: click.Command):
-    """Add parameter to :class:`click.Command`."""
+    """Add parameter to :class:`click.Command`.
+
+    Use this hook if you want to add more command line arguments to the interface. Do it
+    by extending `command.params` attribute of the command with other options and
+    arguments. See :func:`pytask.cli.pytask_add_parameters_to_cli` as an example.
+
+    """
 
 
 # Hooks for the configuration.

@@ -3,13 +3,43 @@ import inspect
 from abc import ABCMeta
 from abc import abstractmethod
 from pathlib import Path
+from typing import Any
+from typing import Iterable
 from typing import Type
 from typing import TypeVar
+from typing import Union
 
 import attr
 from pytask.exceptions import NodeNotCollectedError
 from pytask.exceptions import NodeNotFoundError
+from pytask.mark import get_marks_from_obj
 from pytask.shared import to_list
+
+
+def depends_on(objects: Union[Any, Iterable[Any]]) -> Union[Any, Iterable[Any]]:
+    """Specify a dependency of a task.
+
+    Parameters
+    ----------
+    objects : Any, Iterable[Any]
+        Can be any valid Python object or an iterable of any Python objects. To be
+        valid, it must be parsed by some hook implementation.
+
+    """
+    return objects
+
+
+def produces(objects: Union[Any, Iterable[Any]]) -> Union[Any, Iterable[Any]]:
+    """Specify a product of a task.
+
+    Parameters
+    ----------
+    objects : Any, Iterable[Any]
+        Can be any valid Python object or an iterable of any Python objects. To be
+        valid, it must be parsed by some hook implementation.
+
+    """
+    return objects
 
 
 class MetaTask(metaclass=ABCMeta):
@@ -34,11 +64,11 @@ class PythonFunctionTask(MetaTask):
 
     @classmethod
     def from_path_name_function_session(cls, path, name, function, session):
-        depends_on_nodes = extract_nodes_from_function_markers(function, "depends_on")
-        depends_on = collect_nodes(session, path, name, depends_on_nodes)
+        objects = extract_nodes_from_function_markers(function, depends_on)
+        dependencies = collect_nodes(session, path, name, objects)
 
-        produces_nodes = extract_nodes_from_function_markers(function, "produces")
-        produces = collect_nodes(session, path, name, produces_nodes)
+        objects = extract_nodes_from_function_markers(function, produces)
+        products = collect_nodes(session, path, name, objects)
 
         markers = [
             marker
@@ -50,8 +80,8 @@ class PythonFunctionTask(MetaTask):
             path=path,
             name=name,
             function=function,
-            depends_on=depends_on,
-            produces=produces,
+            depends_on=dependencies,
+            produces=products,
             markers=markers,
         )
 
@@ -139,9 +169,7 @@ def collect_nodes(session, path, name, nodes):
     return collect_nodes
 
 
-def extract_nodes_from_function_markers(function, marker_name):
-    for marker in getattr(function, "pytestmark", []):
-        for args in marker.args:
-            for arg in to_list(args):
-                if marker.name == marker_name:
-                    yield arg
+def extract_nodes_from_function_markers(function, parser):
+    marker_name = parser.__name__
+    for marker in get_marks_from_obj(function, marker_name):
+        yield from to_list(parser(*marker.args, **marker.kwargs))

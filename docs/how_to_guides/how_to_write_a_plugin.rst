@@ -3,9 +3,8 @@ How to write a plugin
 
 Since pytask is built using pluggy, it is easily extensible. In this section, you will
 learn some key concepts you need to know to write a plugin. It won't deal with pluggy in
-detail, but if you are interested feel free to read
-:ref:`../reference_guides/pluggy.rst`. A quick look at the first paragraphs might be
-useful nonetheless.
+detail, but if you are interested feel free to read :ref:`pluggy`. A quick look at the
+first paragraphs might be useful nonetheless.
 
 
 Preparation
@@ -21,7 +20,7 @@ steps.
 
 - Make a list of hooks you want to implement. Think about how this plugin relates to
   functionality defined in pytask and other plugins. Maybe skim the documentation on
-  :ref:`pluggy <../reference_guides/pluggy.rst` to see whether there is advanced pattern
+  :ref:`pluggy` to see whether there is advanced pattern
   which makes your implementation easier.
 
 - You may file an issue on `Github <https://github.com/pytask-dev/pytask>`_ and propose
@@ -49,6 +48,8 @@ pytask discovers plugins via ``setuptools`` entry-points. This is specified in
         name="pytask-plugin",
         version="0.0.1",
         entry_points={"pytask": ["pytask_plugin = pytask_plugin.plugin"]},
+        # PyPI classifier for pytask plugins
+        classifiers=["Framework :: pytask"],
     )
 
 The entry-point for pytask is also called ``"pytask"`` and you point to a module called

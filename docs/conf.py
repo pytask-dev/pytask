@@ -34,6 +34,7 @@ extensions = [
     "numpydoc",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.viewcode",
     "sphinx_copybutton",
 ]
 
@@ -63,6 +64,7 @@ extlinks = {
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.8", None),
+    "click": ("https://click.palletsprojects.com/en/7.x", None),
 }
 
 # Configuration for numpydoc
