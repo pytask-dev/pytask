@@ -121,4 +121,3 @@ The documentation has currently one of four planned parts.
 
    glossary
    changes
-   roadmap
