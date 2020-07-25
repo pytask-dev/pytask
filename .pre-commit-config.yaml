@@ -11,12 +11,12 @@ repos:
         exclude: (debugging\.py|main\.py)
     -   id: end-of-file-fixer
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.7.1
+    rev: v2.7.2
     hooks:
     -   id: pyupgrade
         args: [--py36-plus]
 -   repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.3.0
+    rev: v2.3.2
     hooks:
     -   id: reorder-python-imports
 -   repo: https://github.com/psf/black

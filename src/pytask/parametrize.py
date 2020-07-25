@@ -2,42 +2,72 @@ import copy
 import functools
 import itertools
 import types
-from collections.abc import Iterable
+from typing import Iterable
+from typing import List
+from typing import Tuple
+from typing import Union
 
 import pytask
 
 
-def parametrize(arg_names, arg_values):
-    """Parametrize task function.
+def parametrize(arg_names: Union[str, Tuple[str], List[str]], arg_values: Iterable):
+    """Parametrize a task function.
+
+    Parametrizing a task allows to execute the same task with different arguments.
 
     Parameters
     ----------
-    arg_names : str, tuple of str, list of str
-        The names of the arguments.
-    arg_values : iterable
-        The values which correspond to names in ``arg_names``.
-
-    This functions is more a helper function to parse the arguments of the decorator and
-    to document the marker than a real function.
+    arg_names : str, Tuple[str], List[str]
+        The names of the arguments which can either be given as a comma-separated
+        string, a tuple of strings, or a list of strings.
+    arg_values : Iterable
+        The values which correspond to names in ``arg_names``. For one argument, it is a
+        single iterable. For multiple argument names it is an iterable of iterables.
 
     """
     return arg_names, arg_values
 
 
 @pytask.hookimpl
-def pytask_generate_tasks(session, name, obj):
+def pytask_parametrize_task(session, name, obj):
+    """Parametrize a task.
+
+    This function takes a single Python function and all parametrize decorators and
+    generates multiple instances of the same task with different arguments.
+
+    Note that, while a single ``@pytask.mark.parametrize`` is handled like a loop or a
+    :func:`zip`, multiple ``@pytask.mark.parametrize`` decorators form a Cartesian
+    product.
+
+    """
     if callable(obj):
         obj, markers = _remove_parametrize_markers_from_func(obj)
         base_arg_names, arg_names, arg_values = _parse_parametrize_markers(markers)
 
-        names_and_functions = session.hook.generate_product_of_names_and_functions(
-            session=session,
-            name=name,
-            obj=obj,
-            base_arg_names=base_arg_names,
-            arg_names=arg_names,
-            arg_values=arg_values,
-        )
+        product_arg_names = list(itertools.product(*arg_names))
+        product_arg_values = list(itertools.product(*arg_values))
+
+        names_and_functions = []
+        for names, values in zip(product_arg_names, product_arg_values):
+            kwargs = dict(
+                zip(
+                    itertools.chain.from_iterable(base_arg_names),
+                    itertools.chain.from_iterable(values),
+                )
+            )
+
+            # Copy function and attributes to allow in-place changes.
+            func = _copy_func(obj)
+            func.pytestmark = copy.deepcopy(obj.pytestmark)
+
+            # Convert parametrized dependencies and products to decorator.
+            session.hook.pytask_parametrize_kwarg_to_marker(obj=func, kwargs=kwargs)
+            # Attach remaining parametrized arguments to the function.
+            partialed_func = functools.partial(func, **kwargs)
+            wrapped_func = functools.update_wrapper(partialed_func, func)
+
+            name_ = f"{name}[{'-'.join(itertools.chain.from_iterable(names))}]"
+            names_and_functions.append((name_, wrapped_func))
 
         return names_and_functions
 
@@ -161,49 +191,7 @@ def _expand_arg_names(arg_names, n_runs):
 
 
 @pytask.hookimpl
-def generate_product_of_names_and_functions(
-    session, name, obj, base_arg_names, arg_names, arg_values
-):
-    """Generate product of names and functions.
-
-    This function takes all ``@pytask.mark.parametrize`` decorators applied to a
-    function and generates all combinations of parametrized arguments.
-
-    Note that, while a single :func:`parametrize` is handled like a loop or a
-    :func:`zip`, two :func:`parametrize` decorators form a Cartesian product.
-
-    """
-    if callable(obj):
-        names_and_functions = []
-        product_arg_names = list(itertools.product(*arg_names))
-        product_arg_values = list(itertools.product(*arg_values))
-
-        for names, values in zip(product_arg_names, product_arg_values):
-            kwargs = dict(
-                zip(
-                    itertools.chain.from_iterable(base_arg_names),
-                    itertools.chain.from_iterable(values),
-                )
-            )
-
-            # Copy function and attributes to allow in-place changes.
-            func = _copy_func(obj)
-            func.pytestmark = copy.deepcopy(obj.pytestmark)
-
-            # Convert parametrized dependencies and products to decorator.
-            session.hook.pytask_generate_tasks_add_marker(obj=func, kwargs=kwargs)
-            # Attach remaining parametrized arguments to the function.
-            partialed_func = functools.partial(func, **kwargs)
-            wrapped_func = functools.update_wrapper(partialed_func, func)
-
-            name_ = f"{name}[{'-'.join(itertools.chain.from_iterable(names))}]"
-            names_and_functions.append((name_, wrapped_func))
-
-        return names_and_functions
-
-
-@pytask.hookimpl
-def pytask_generate_tasks_add_marker(obj, kwargs):
+def pytask_parametrize_kwarg_to_marker(obj, kwargs):
     """Add some parametrized keyword arguments as decorator."""
     if callable(obj):
         for marker_name in ["depends_on", "produces"]:
@@ -212,11 +200,34 @@ def pytask_generate_tasks_add_marker(obj, kwargs):
 
 
 def _to_tuple(x):
+    """Convert object to tuple.
+
+    Example
+    -------
+    >>> _to_tuple(list("ab"))
+    ('a', 'b')
+    >>> _to_tuple("a")
+    ('a',)
+    >>> _to_tuple("ab")
+    ('ab',)
+
+    """
     return (x,) if not isinstance(x, Iterable) or isinstance(x, str) else tuple(x)
 
 
 def _copy_func(func):
-    """Based on https://stackoverflow.com/a/13503277/7523785."""
+    """Create a copy of a function.
+
+    Based on https://stackoverflow.com/a/13503277/7523785.
+
+    Example
+    -------
+    >>> def func(): pass
+    >>> copied_func = _copy_func(func)
+    >>> func == copied_func
+    False
+
+    """
     new_func = types.FunctionType(
         func.__code__,
         func.__globals__,
