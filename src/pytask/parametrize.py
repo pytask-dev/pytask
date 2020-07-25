@@ -2,23 +2,27 @@ import copy
 import functools
 import itertools
 import types
-from collections.abc import Iterable
+from typing import Iterable
+from typing import List
+from typing import Tuple
+from typing import Union
 
 import pytask
 
 
-def parametrize(arg_names, arg_values):
-    """Parametrize task function.
+def parametrize(arg_names: Union[str, Tuple[str], List[str]], arg_values: Iterable):
+    """Parametrize a task function.
+
+    Parametrizing a task allows to execute the same task with different arguments.
 
     Parameters
     ----------
-    arg_names : str, tuple of str, list of str
-        The names of the arguments.
-    arg_values : iterable
-        The values which correspond to names in ``arg_names``.
-
-    This functions is more a helper function to parse the arguments of the decorator and
-    to document the marker than a real function.
+    arg_names : str, Tuple[str], List[str]
+        The names of the arguments which can either be given as a comma-separated
+        string, a tuple of strings, or a list of strings.
+    arg_values : Iterable
+        The values which correspond to names in ``arg_names``. For one argument, it is a
+        single iterable. For multiple argument names it is an iterable of iterables.
 
     """
     return arg_names, arg_values

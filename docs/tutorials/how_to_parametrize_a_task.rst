@@ -1,8 +1,8 @@
 How to parametrize a task
 =========================
 
-Often times, you define a task which should be repeated over a range of inputs. Just
-like pytest, pytask has a parametrize decorator for this reason.
+Often times, you define a task which should be repeated over a range of inputs. pytask
+has a parametrize decorator for this reason.
 
 Since pytask needs to track dependencies and products of tasks, there is a little bit
 more logic bound to the parametrize decorator which is explained in this section.
@@ -20,10 +20,9 @@ First, we write the task for one number.
 .. code-block:: python
 
     import pytask
-    from pathlib import Path
 
 
-    @pytask.mark.produces(Path("0.txt"))
+    @pytask.mark.produces("0.txt")
     def task_save_number(produces, i=0):
         produces.write_text(str(i))
 
@@ -32,10 +31,9 @@ In the next step, we parametrize the task.
 .. code-block:: python
 
     import pytask
-    from pathlib import pathlib
 
 
-    @pytask.mark.parametrize("produces, i", [(Path(f"{i}.txt"), i) for i in range(5)])
+    @pytask.mark.parametrize("produces, i", [(f"{i}.txt", i) for i in range(5)])
     def task_save_number(produces, i):
         produces.write_text(str(i))
 
@@ -68,7 +66,7 @@ mapped to the argument ``produces`` and ``i`` receives the number.
 
     .. code-block:: python
 
-        @pytask.mark.produces(Path("1.txt"))
+        @pytask.mark.produces("1.txt")
         def task_save_number(produces, i=1):
             produces.write_text(str(i))
 
@@ -82,7 +80,10 @@ example is equivalent to the former example.
 
 .. code-block:: python
 
-    @pytask.mark.parametrize("produces, i", [(Path(f"{i}.txt"), i) for i in range(5)])
+    from pathlib import Path
+
+
+    @pytask.mark.parametrize("produces, i", [(f"{i}.txt", i) for i in range(5)])
     def task_save_number(i):
         Path(__file__).parent.joinpath(f"{i}.txt").write_text(str(i))
 
@@ -107,7 +108,7 @@ all generated tasks and save it along a generated number to a file.
 .. code-block:: python
 
     @pytask.mark.depends_on(Path("additional_text.txt"))
-    @pytask.mark.parametrize("produces, i", [(Path(f"{i}.txt"), i) for i in range(5)])
+    @pytask.mark.parametrize("produces, i", [(f"{i}.txt", i) for i in range(5)])
     def task_save_number(depends_on, produces, i):
         additional_text = depends_on.read_text()
         produces.write_text(additional_text + str(i))

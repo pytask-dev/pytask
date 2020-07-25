@@ -14,3 +14,4 @@ additional details on the inner workings of pytask.
    :maxdepth: 1
 
    summary
+   marks

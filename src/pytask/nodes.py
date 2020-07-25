@@ -3,6 +3,8 @@ import inspect
 from abc import ABCMeta
 from abc import abstractmethod
 from pathlib import Path
+from typing import Type
+from typing import TypeVar
 
 import attr
 from pytask.exceptions import NodeNotCollectedError
@@ -97,6 +99,9 @@ class MetaNode(metaclass=ABCMeta):
         pass
 
 
+_FilePathNodeType = TypeVar("_FilePathNodeType", bound="FilePathNode")
+
+
 @attr.s
 class FilePathNode(MetaNode):
     name = attr.ib()
@@ -104,7 +109,7 @@ class FilePathNode(MetaNode):
 
     @classmethod
     @functools.lru_cache()
-    def from_path(cls, path):
+    def from_path(cls: "Type[_FilePathNodeType]", path: Path) -> _FilePathNodeType:
         """Instantiate class from path to file.
 
         The `lru_cache` decorator ensures that the same object is not collected twice.
