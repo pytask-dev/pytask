@@ -36,13 +36,31 @@ def pytask_add_hooks(pm):
     pm.register(skipping)
 
 
-def main(config_from_cli):
+def main(kwargs):
+    """Run pytask.
+
+    This is the main command to run pytask which usually receives kwargs from the
+    command line interface. It can also be used to run pytask interactively. Pass
+    configuration in a dictionary.
+
+    Parameters
+    ----------
+    kwargs : dict
+        A dictionary with options passed to pytask. In general, this dictionary holds
+        the information passed via the command line interface.
+
+    Returns
+    -------
+    session : pytask.main.Session
+        The session captures all the information of the current run.
+
+    """
     try:
         pm = get_plugin_manager()
         pm.register(sys.modules[__name__])
         pm.hook.pytask_add_hooks(pm=pm)
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, config_from_cli=kwargs)
 
         create_database(**config["database"])
 
@@ -53,10 +71,10 @@ def main(config_from_cli):
         raise Exception("Error while configuring pytask.") from e
 
     try:
-        session.log_session_header()
-        session.collect()
-        session.resolve_dependencies()
-        session.execute()
+        session.hook.pytask_log_session_header(session=session)
+        session.hook.pytask_collect(session=session)
+        session.hook.pytask_resolve_dependencies(session=session)
+        session.hook.pytask_execute(session=session)
 
     except CollectionError:
         session.exit_code = ExitCode.COLLECTION_FAILED
@@ -78,24 +96,39 @@ def main(config_from_cli):
 
 @attr.s
 class Session:
-    config = attr.ib()
+    """The session of pytask.
+
+    Attributes
+    ----------
+    config : dict
+        A dictionary containing the configuration of the session
+    hook : pluggy.hooks._HookRelay
+        Hook holder object for performing 1:N hook calls where N is the number of
+        registered hook implementations.
+    collection_reports : List[pytask.report.CollectionReport], default None
+        Reports collected while collecting tasks.
+    tasks : List[pytask.nodes.MetaTask], default None
+        Tasks collected
+    resolving_dependencies_report : pytask.report.ResolvingDependenciesReport
+    execution_reports : List[pytask.report.ExecutionReport], default None
+
+    """
+
+    config = attr.ib(type=dict)
     hook = attr.ib()
-    collection_reports = attr.ib(default=[])
-    tasks = attr.ib(default=[])
+    collection_reports = attr.ib(default=None)
+    tasks = attr.ib(default=None)
     resolving_dependencies_report = attr.ib(default=None)
+    execution_reports = attr.ib(default=None)
 
     @classmethod
     def from_config(cls, config):
+        """Construct the class from a config.
+
+        Parameters
+        ----------
+        config : dict
+            A dictionary with the parsed configuration.
+
+        """
         return cls(config, config["pm"].hook)
-
-    def log_session_header(self):
-        self.hook.pytask_log_session_header(session=self)
-
-    def collect(self):
-        self.hook.pytask_collect(session=self)
-
-    def resolve_dependencies(self):
-        self.hook.pytask_resolve_dependencies(session=self)
-
-    def execute(self):
-        self.hook.pytask_execute(session=self)

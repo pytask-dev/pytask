@@ -9,6 +9,7 @@ coverage.*
 .vscode
 _build
 __pycache__
+_generated
 
 *.egg-info
 

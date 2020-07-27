@@ -65,6 +65,7 @@ extlinks = {
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.8", None),
     "click": ("https://click.palletsprojects.com/en/7.x", None),
+    "pluggy": ("https://pluggy.readthedocs.io/en/latest", None),
 }
 
 # Configuration for numpydoc

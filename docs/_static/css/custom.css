@@ -3,25 +3,6 @@ div.prompt {
     display: none;
 }
 
-/* General options */
-
-h1, h2, h3, h4, h5, h6 {
-    color: #547482 !important;
-}
-
-a {
-    color: #547482;
-}
-
-a.headerlink {
-    color: #C87259 !important;
-}
-
-a.headerlink:hover {
-    color: #fff !important;
-    background-color: #C87259 !important;
-}
-
 /* Getting started index page */
 
 .intro-card {
@@ -70,7 +51,7 @@ a#index-link {
 
 .gs-torefguide a:hover {
     margin-left: 5px;
-    color: grey;
+    color: #333;
     text-decoration: none;
     border-bottom: 1px solid #b2ff80f3;
     box-shadow: 0px -10px 0px #b2ff80f3 inset;

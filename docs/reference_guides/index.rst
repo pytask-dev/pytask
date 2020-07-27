@@ -7,6 +7,6 @@ additional details on the inner workings of pytask.
 .. toctree::
    :maxdepth: 1
 
-   summary
    pluggy
+   hookspecs
    api
