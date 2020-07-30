@@ -2,7 +2,8 @@ Tutorials
 =========
 
 Tutorials are written for new users and help them to get started. First, you learn some
-basics of pytask's interface. The last sections provide you with the information to organize and start your own project.
+basics of pytask's interface. The last sections provide you with the information to
+organize and start your own project.
 
 .. toctree::
    :maxdepth: 1
