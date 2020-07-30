@@ -32,7 +32,6 @@ repos:
     rev: 3.8.3
     hooks:
     -   id: flake8
-        types: [python]
         additional_dependencies: [
             flake8-alfred,
             flake8-bugbear,
@@ -55,12 +54,10 @@ repos:
       name: doc8
       description: This hook runs doc8 for linting docs
       entry: python -m doc8
-      language: python
-      files: \.rst$
-- repo: https://github.com/codespell-project/codespell
-  rev: v1.17.1
-  hooks:
-    - id: codespell
+-   repo: https://github.com/codespell-project/codespell
+    rev: v1.17.1
+    hooks:
+    -   id: codespell
 -   repo: meta
     hooks:
     -   id: check-hooks-apply

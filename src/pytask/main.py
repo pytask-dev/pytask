@@ -105,12 +105,12 @@ class Session:
     hook : pluggy.hooks._HookRelay
         Hook holder object for performing 1:N hook calls where N is the number of
         registered hook implementations.
-    collection_reports : List[pytask.report.CollectionReport], default None
+    collection_reports
         Reports collected while collecting tasks.
-    tasks : List[pytask.nodes.MetaTask], default None
+    tasks : Optional[List[pytask.nodes.MetaTask]]
         Tasks collected
     resolving_dependencies_report : pytask.report.ResolvingDependenciesReport
-    execution_reports : List[pytask.report.ExecutionReport], default None
+    execution_reports : Optional[List[pytask.report.ExecutionReport]]
 
     """
 

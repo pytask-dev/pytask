@@ -7,3 +7,5 @@ dependencies:
   - pydata-sphinx-theme
   - sphinx
   - sphinx-copybutton
+  - sphinx-autodoc-typehints
+  - sphinx-autoapi

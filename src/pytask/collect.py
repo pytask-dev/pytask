@@ -156,20 +156,20 @@ def pytask_collect_task(session, path, name, obj):
 
 @pytask.hookimpl(trylast=True)
 def pytask_collect_node(path, node):
-    """Collect a node of a task as a :class:`FilePathNode`.
+    """Collect a node of a task as a :class:`pytask.nodes.FilePathNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
     hook is attempted at last and possible errors will be shown, it is reasonable and
     unproblematic.
 
-    `trylast=True` might be necessary if other plugins try to parse strings themselves
+    ``trylast=True`` might be necessary if other plugins try to parse strings themselves
     like a plugin for downloading files which depends on URLs given as strings.
 
     Parameters
     ----------
-    path : str or pathlib.Path
+    path : Union[str, pathlib.Path]
         The path to file where the task and node are specified.
-    node : str or pathlib.Path
+    node : Union[str, pathlib.Path]
         The value of the node which can be a str, a path or anything which cannot be
         handled by this function.
 
@@ -191,10 +191,10 @@ def valid_paths(paths, session):
 
     Parameters
     ----------
-    paths : list of pathlib.Path
+    paths : List[pathlib.Path]
         List of paths from which tasks are collected.
     session : pytask.main.Session
-        The session is explained in :ref:`session`.
+        The session.
 
     """
     for path in paths:

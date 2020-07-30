@@ -1,12 +1,11 @@
 import functools
 import inspect
+import pathlib
 from abc import ABCMeta
 from abc import abstractmethod
 from pathlib import Path
 from typing import Any
 from typing import Iterable
-from typing import Type
-from typing import TypeVar
 from typing import Union
 
 import attr
@@ -21,7 +20,7 @@ def depends_on(objects: Union[Any, Iterable[Any]]) -> Union[Any, Iterable[Any]]:
 
     Parameters
     ----------
-    objects : Any, Iterable[Any]
+    objects : Union[Any, Iterable[Any]]
         Can be any valid Python object or an iterable of any Python objects. To be
         valid, it must be parsed by some hook implementation.
 
@@ -34,7 +33,7 @@ def produces(objects: Union[Any, Iterable[Any]]) -> Union[Any, Iterable[Any]]:
 
     Parameters
     ----------
-    objects : Any, Iterable[Any]
+    objects : Union[Any, Iterable[Any]]
         Can be any valid Python object or an iterable of any Python objects. To be
         valid, it must be parsed by some hook implementation.
 
@@ -118,7 +117,7 @@ class MetaNode(metaclass=ABCMeta):
     ----------
     name : str
         Name of the node which makes it identifiable in the DAG.
-    value : any
+    value : Any
         Processed value passed to the decorator which can be requested inside the
         function. Is required.
 
@@ -129,9 +128,6 @@ class MetaNode(metaclass=ABCMeta):
         pass
 
 
-_FilePathNodeType = TypeVar("_FilePathNodeType", bound="FilePathNode")
-
-
 @attr.s
 class FilePathNode(MetaNode):
     name = attr.ib()
@@ -139,7 +135,7 @@ class FilePathNode(MetaNode):
 
     @classmethod
     @functools.lru_cache()
-    def from_path(cls: "Type[_FilePathNodeType]", path: Path) -> _FilePathNodeType:
+    def from_path(cls, path: pathlib.Path):
         """Instantiate class from path to file.
 
         The `lru_cache` decorator ensures that the same object is not collected twice.

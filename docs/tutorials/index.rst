@@ -1,13 +1,8 @@
 Tutorials
 =========
 
-.. note::
-
-    Unfortunately, this section is still under development. If you want to contribute to
-    the documentation, please file an issue to start a conversation or create a pull
-    request.
-
-Tutorials help you to get started with pytask.
+Tutorials are written for new users and help them to get started. First, you learn some
+basics of pytask's interface. The last sections provide you with the information to organize and start your own project.
 
 .. toctree::
    :maxdepth: 1

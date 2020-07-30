@@ -17,7 +17,7 @@ def parametrize(arg_names: Union[str, Tuple[str], List[str]], arg_values: Iterab
 
     Parameters
     ----------
-    arg_names : str, Tuple[str], List[str]
+    arg_names : Union[str, Tuple[str], List[str]]
         The names of the arguments which can either be given as a comma-separated
         string, a tuple of strings, or a list of strings.
     arg_values : Iterable
@@ -85,17 +85,17 @@ def _parse_parametrize_marker(marker):
 
     Parameters
     ----------
-    marker : pytask.mark.Mark
+    marker
         A parametrize mark.
 
     Returns
     -------
-    base_arg_names : tuple of str
+    base_arg_names : Tuple[str]
         Contains the names of the arguments.
-    processed_arg_names : list of tuple of str
+    processed_arg_names : List[Tuple[str]]
         Each tuple in the list represents the processed names of the arguments suffixed
         with a number indicating the iteration.
-    processed_arg_values : list of tuple of obj
+    processed_arg_values : List[Tuple[Any]]
         Each tuple in the list represents the values of the arguments for each
         iteration.
 
@@ -127,12 +127,12 @@ def _parse_arg_names(arg_names):
 
     Parameters
     ----------
-    arg_names : str, tuple of str, list or str
+    arg_names : Union[str, Tuple[str], List[str]]
         The names of the arguments which are parametrized.
 
     Returns
     -------
-    out : str, tuples of str
+    out : Union[str, Tuple[str]]
         The parse arg_names.
 
     Example
@@ -173,7 +173,7 @@ def _expand_arg_names(arg_names, n_runs):
 
     Parameters
     ----------
-    arg_names : str, list of str
+    arg_names : Union[str, List[str]]
         The names of the arguments of the parametrized function.
     n_runs : int
         How many argument values are passed to the function.

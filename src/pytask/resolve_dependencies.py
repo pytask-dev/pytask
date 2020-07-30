@@ -22,7 +22,7 @@ def pytask_resolve_dependencies(session):
 
     Parameters
     ----------
-    session : session
+    session : pytask.main.Session
         Dictionary containing tasks.
 
     """
