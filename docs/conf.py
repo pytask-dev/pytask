@@ -83,6 +83,7 @@ intersphinx_mapping = {
 # Configuration for autoapi
 autoapi_type = "python"
 autoapi_dirs = ["../src/pytask"]
+autoapi_keep_files = False
 
 
 # -- Options for HTML output -----------------------------------------------------------

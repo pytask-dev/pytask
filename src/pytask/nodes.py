@@ -111,17 +111,7 @@ class PythonFunctionTask(MetaTask):
 
 
 class MetaNode(metaclass=ABCMeta):
-    """Meta class for nodes.
-
-    Attributes
-    ----------
-    name : str
-        Name of the node which makes it identifiable in the DAG.
-    value : Any
-        Processed value passed to the decorator which can be requested inside the
-        function. Is required.
-
-    """
+    """Meta class for nodes."""
 
     @abstractmethod
     def state(self):
@@ -131,7 +121,10 @@ class MetaNode(metaclass=ABCMeta):
 @attr.s
 class FilePathNode(MetaNode):
     name = attr.ib()
+    """str: Name of the node which makes it identifiable in the DAG."""
+
     value = attr.ib()
+    """Any: Value passed to the decorator which can be requested inside the function."""
 
     @classmethod
     @functools.lru_cache()

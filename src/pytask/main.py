@@ -96,39 +96,35 @@ def main(kwargs):
 
 @attr.s
 class Session:
-    """The session of pytask.
+    """The session of pytask."""
 
-    Attributes
-    ----------
-    config : dict
-        A dictionary containing the configuration of the session
-    hook : pluggy.hooks._HookRelay
-        Hook holder object for performing 1:N hook calls where N is the number of
-        registered hook implementations.
-    collection_reports
-        Reports collected while collecting tasks.
-    tasks : Optional[List[pytask.nodes.MetaTask]]
-        Tasks collected
-    resolving_dependencies_report : pytask.report.ResolvingDependenciesReport
-    execution_reports : Optional[List[pytask.report.ExecutionReport]]
+    config = attr.ib(type=dict)
+    """dict: A dictionary containing the configuration of the session."""
+
+    hook = attr.ib()
+    """pluggy.hooks._HookRelay: Holds all hooks collected by pytask."""
+
+    collection_reports = attr.ib(default=None)
+    """Optional[List[pytask.report.ExecutionReport]]: Reports for collected items.
+
+    The reports capture errors which happened while collecting tasks.
 
     """
 
-    config = attr.ib(type=dict)
-    hook = attr.ib()
-    collection_reports = attr.ib(default=None)
     tasks = attr.ib(default=None)
+    """Optional[List[pytask.nodes.MetaTask]]: List of collected tasks."""
+
     resolving_dependencies_report = attr.ib(default=None)
+    """Optional[pytask.report.ResolvingDependenciesReport]: A report.
+
+    Report when resolving dependencies failed.
+
+    """
+
     execution_reports = attr.ib(default=None)
+    """Optional[List[pytask.report.ExecutionReport]]: Reports for executed tasks."""
 
     @classmethod
     def from_config(cls, config):
-        """Construct the class from a config.
-
-        Parameters
-        ----------
-        config : dict
-            A dictionary with the parsed configuration.
-
-        """
+        """Construct the class from a config."""
         return cls(config, config["pm"].hook)

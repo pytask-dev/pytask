@@ -2,7 +2,10 @@ How to write a task
 ===================
 
 A task is a function and is detected if the module and the function name are prefixed
-with ``task_``. Here is an example.
+with ``task_``.
+
+The following task :func:`task_hello_earth` lies in ``task_hello.py``. Its purpose is to
+save the string ``"Hello, earth!"`` into a file called ``hello_earth.txt``.
 
 .. code-block:: python
 
@@ -14,6 +17,8 @@ with ``task_``. Here is an example.
     @pytask.mark.produces("hello_earth.txt")
     def task_hello_earth(produces):
         produces.write_text("Hello, earth!")
+
+To let pytask track dependencies and products of tasks, you need to use the ``@pytask.mark.produces`` decorator :func:`pytask.nodes.produces`.
 
 To execute the task, type the following command on the command-line
 
