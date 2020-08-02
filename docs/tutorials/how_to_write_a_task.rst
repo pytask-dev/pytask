@@ -5,7 +5,7 @@ A task is a function and is detected if the module and the function name are pre
 with ``task_``.
 
 The following task :func:`task_hello_earth` lies in ``task_hello.py``. Its purpose is to
-save the string ``"Hello, earth!"`` into a file called ``hello_earth.txt``.
+save the string ``"Hello, earth!"`` to a file called ``hello_earth.txt``.
 
 .. code-block:: python
 
@@ -18,7 +18,9 @@ save the string ``"Hello, earth!"`` into a file called ``hello_earth.txt``.
     def task_hello_earth(produces):
         produces.write_text("Hello, earth!")
 
-To let pytask track dependencies and products of tasks, you need to use the ``@pytask.mark.produces`` decorator :func:`pytask.nodes.produces`.
+To let pytask track dependencies and products of tasks, you need to use the
+``@pytask.mark.produces`` decorator. You learn how to add dependencies and products to a
+task in the next :doc:`tutorial <how_to_define_dependencies_products>`.
 
 To execute the task, type the following command on the command-line
 

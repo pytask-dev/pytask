@@ -13,7 +13,7 @@ Glossary
 
     DAG
         A `directed acyclic graph (DAG) <https://en.wikipedia.org/wiki/
-        Directed_acyclic_graph>`_  is a graph with a finite amount of vertices and edges
+        Directed_acyclic_graph>`_  is a graph with a finite amount of nodes and edges
         which are connected such that no circles exist.
 
     host
@@ -29,10 +29,11 @@ Glossary
         of one or more :term:`hook implementations <hook implementation>`.
 
     hooking
-        See `hooking on Wikipedia <https://en.wikipedia.org/wiki/Hooking>`_.
+        See the reference guide on :ref:`pluggy` or the more general explanation on
+        `Wikipedia <https://en.wikipedia.org/wiki/Hooking>`_.
 
     hook specification
-        Another term for :term:`entry-point`.
+        Another term for :term:`entry-point` when talking about hooking and pluggy.
 
     hook implementation
         A part of the plugin which intercepts the message at one specific entry-point.

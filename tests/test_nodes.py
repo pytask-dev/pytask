@@ -1,7 +1,7 @@
 import pytask
 import pytest
+from pytask.nodes import _extract_nodes_from_function_markers
 from pytask.nodes import depends_on
-from pytask.nodes import extract_nodes_from_function_markers
 from pytask.nodes import MetaNode
 from pytask.nodes import MetaTask
 from pytask.nodes import produces
@@ -18,7 +18,7 @@ def test_extract_args_from_mark(decorator, values, expected):
         pass
 
     parser = depends_on if decorator.name == "depends_on" else produces
-    result = list(extract_nodes_from_function_markers(task_dummy, parser))
+    result = list(_extract_nodes_from_function_markers(task_dummy, parser))
     assert result == expected
 
 
@@ -38,7 +38,7 @@ def test_extract_kwargs_from_mark(decorator, values, expected):
         pass
 
     parser = depends_on if decorator.name == "depends_on" else produces
-    result = list(extract_nodes_from_function_markers(task_dummy, parser))
+    result = list(_extract_nodes_from_function_markers(task_dummy, parser))
     assert result == expected
 
 
@@ -56,7 +56,7 @@ def test_raise_error_for_invalid_args_to_depends_on_and_produces(
 
     parser = depends_on if decorator.name == "depends_on" else produces
     with pytest.raises(TypeError):
-        list(extract_nodes_from_function_markers(task_dummy, parser))
+        list(_extract_nodes_from_function_markers(task_dummy, parser))
 
 
 @pytest.mark.unit

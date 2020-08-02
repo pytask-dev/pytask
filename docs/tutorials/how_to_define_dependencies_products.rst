@@ -1,41 +1,87 @@
 How to define dependencies and products
 =======================================
 
-Task have dependencies and products. Both can be attached to a task function by using
+Task have dependencies and products. Both can be attached to a task function with
 decorators. This is necessary so that pytask knows when a task is able to run, needs to
 be run again or has produced the desired outcome.
 
-Let us have a look at an exemplary task.
+Let us have a look at some examples.
+
+
+Products
+--------
+
+We take the task from the previous tutorial.
 
 .. code-block:: python
 
     import pytask
-    from pathlib import Path
-
-    PARENT_DIRECTORY = Path(__file__).parent
 
 
-    @pytask.mark.depends_on([Path("in_1.txt"), PARENT_DIRECTORY / "in_2.txt"])
-    @pytask.mark.produces("out.txt")
-    def task_combine_files(depends_on, produces):
-        in_1 = depends_on[0].read_text()
-        in_2 = depends_on[1].read_text()
-        produces.write_text(in_1 + in_2)
+    @pytask.mark.produces("hello_earth.txt")
+    def task_hello_earth(produces):
+        produces.write_text("Hello, earth!")
 
-In this example, we have three different ways to specify a dependency or product.
+The ``@pytask.mark.produces`` decorator attaches a product to a task. The string
+``"hello_earth.txt"`` is converted to a :class:`pathlib.Path`.
 
-1. Let us start with the product. The value in the decorator is ``"out.txt"``. Strings
-   are interpreted as paths. If paths are not absolute, meaning ``"/home/out.txt"``,
-   paths are assumed to be relative to the directory in which the task is defined.
+.. note::
 
-   If you specify ``produces`` as an argument of the function, the function receives the
-   path to the product, the interpreted value, and not the original string. This is
-   often times more useful and allows to inspect how pytask interprets the value.
+    If you do not know about :mod:`pathlib` check out [1]_ and [2]_.
 
-2. The first dependency is also a relative path, but given as a :class:`pathlib.Path`.
-   It is also interpreted relatively to the file where the task is defined.
+.. important::
 
-3. The second dependency is an absolute path and is not interpreted or altered in any
-   way. This pattern might be more common in bigger projects where ``PARENT_DIRECTORY``
-   can be an imported variable which points to the source or build directory of a
-   project.
+    Here are the rules to parse a path.
+
+    1. Paths can either be strings or :class:`pathlib.Path`.
+    2. A string is converted to :class:`pathlib.Path`.
+    3. If the path is relative, it is assumed to be relative to the directory where the
+       task is defined.
+
+
+Optional usage in signature
+---------------------------
+
+If you have a task with products (or dependencies), you can use ``produces``
+(``depends_on``) as a function argument and receive the path or list of paths inside the
+functions. It helps to avoid repetition.
+
+
+Dependencies
+------------
+
+Most tasks have dependencies. Similar to products, you can use the
+``@pytask.mark.depends_on`` decorator to attach a dependency to a task.
+
+.. code-block:: python
+
+    @pytask.mark.depends_on("text.txt")
+    @pytask.mark.produces("bold_text.txt")
+    def task_make_text_bold(depends_on, produces):
+        text = depends_on.read_text()
+        bold_text = f"**{text}**"
+        produces.write_text(bold_text)
+
+
+Multiple dependencies and products
+----------------------------------
+
+If you have multiple dependencies or products, pass a list to the decorator. Inside the
+function you receive a list of :class:`pathlib.Path` as well.
+
+.. code-block:: python
+
+    @pytask.mark.depends_on(["text_a.txt", "text_b.txt"])
+    @pytask.mark.produces(["bold_text_a.txt", "bold_text_b.txt"])
+    def task_make_text_bold(depends_on, produces):
+        for dependency, product in zip(depends_on, produces):
+            text = dependency.read_text()
+            bold_text = f"**{text}**"
+            product.write_text(bold_text)
+
+
+.. rubric:: References
+
+.. [1] The official documentation for :mod:`pathlib`.
+.. [2] Another guide for pathlib at `RealPython <https://realpython.com/
+       python-pathlib/>`_.

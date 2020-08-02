@@ -46,7 +46,7 @@ def pytask_main(config_from_cli):
 
     Parameters
     ----------
-    kwargs : dict
+    config_from_cli : dict
         A dictionary with options passed to pytask. In general, this dictionary holds
         the information passed via the command line interface.
 

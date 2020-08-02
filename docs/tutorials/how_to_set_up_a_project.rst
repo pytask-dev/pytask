@@ -64,7 +64,7 @@ The following directory tree is an example of how a project can be set up.
       BLD = SRC.joinpath("..", "bld").resolve()
 
 * The build directory ``bld`` is used to store products of tasks. This makes it easy to
-  rerun the whole project by just deleting the build directory.
+  rerun the whole project by just deleting the entire build directory.
 
 
 setup.py
@@ -82,7 +82,7 @@ Here is the content of the file.
     from setuptools import setup
 
 
-    setup(name="my_project", version="0.0.0")
+    setup(name="my_project", version="0.0.1")
 
 Then, install the package into your environment with
 
