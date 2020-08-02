@@ -1,13 +1,16 @@
 How to configure pytask
 =======================
 
-pytask can be configured via the command-line interface or permanently with a configuration file.
+pytask can be configured via the command-line interface or permanently with a
+configuration file.
 
 
 The configuration file
 ----------------------
 
-pytask accepts configurations in three files which are ``pytask.ini``, ``tox.ini`` and ``setup.cfg``. Place a ``[pytask]`` section in those files and add your configuration below.
+pytask accepts configurations in three files which are ``pytask.ini``, ``tox.ini`` and
+``setup.cfg``. Place a ``[pytask]`` section in those files and add your configuration
+below.
 
 .. code-block:: ini
 
@@ -27,7 +30,8 @@ the same directory as the configuration file.
 markers
 -------
 
-pytask uses markers to attach additional information to task functions. To see which markers are available, type
+pytask uses markers to attach additional information to task functions. To see which
+markers are available, type
 
 .. code-block:: bash
 

@@ -34,8 +34,8 @@ def pytask_configure(pm, config_from_cli):
     config_from_file = _read_config(config["ini"]) if config["ini"] is not None else {}
 
     config["markers"] = {
-        "depends_on": "depends_on(obj): Attach a dependency/dependencies to a task.",
-        "produces": "produces(obj): Attach a product/products to a task.",
+        "depends_on": "Attach a dependency/dependencies to a task.",
+        "produces": "Attach a product/products to a task.",
     }
 
     config["pm"].hook.pytask_parse_config(

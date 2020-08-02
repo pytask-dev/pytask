@@ -32,10 +32,10 @@ def pytask_main(config_from_cli: dict) -> int:
         except Exception as e:
             raise Exception("Error while configuring pytask.") from e
 
-        for description in config["markers"].values():
+        for name, description in config["markers"].items():
             click.echo(
                 textwrap.fill(
-                    f"pytask.mark.{description}", width=config["terminal_width"]
+                    f"pytask.mark.{name}: {description}", width=config["terminal_width"]
                 )
             )
             click.echo("")

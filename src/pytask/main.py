@@ -22,6 +22,7 @@ def pytask_add_hooks(pm):
     from pytask import parametrize
     from pytask import resolve_dependencies
     from pytask import skipping
+    from pytask.mark import config as mark_config
 
     pm.register(collect)
     pm.register(config)
@@ -32,6 +33,7 @@ def pytask_add_hooks(pm):
     pm.register(parametrize)
     pm.register(resolve_dependencies)
     pm.register(skipping)
+    pm.register(mark_config)
 
 
 @pytask.hookimpl
