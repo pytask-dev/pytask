@@ -40,7 +40,7 @@ class PythonFunctionTask(MetaTask):
 
         markers = [
             marker
-            for marker in getattr(function, "pytestmark", [])
+            for marker in getattr(function, "pytaskmark", [])
             if marker.name not in ["depends_on", "produces"]
         ]
 
@@ -135,7 +135,7 @@ def collect_nodes(session, path, name, nodes):
 
 
 def extract_nodes_from_function_markers(function, marker_name):
-    for marker in getattr(function, "pytestmark", []):
+    for marker in getattr(function, "pytaskmark", []):
         for args in marker.args:
             for arg in to_list(args):
                 if marker.name == marker_name:

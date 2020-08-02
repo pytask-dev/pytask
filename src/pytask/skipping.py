@@ -1,11 +1,23 @@
 import click
 import pytask
 from pytask.dag import descending_tasks
-from pytask.mark import get_markers_from_task
-from pytask.mark import Mark
+from pytask.mark.structures import get_markers_from_task
+from pytask.mark.structures import Mark
 from pytask.outcomes import Skipped
 from pytask.outcomes import SkippedAncestorFailed
 from pytask.outcomes import SkippedUnchanged
+
+
+@pytask.hookimpl
+def pytask_parse_config(config):
+    markers = {
+        "skip": "skip: Skip task and all its succeeding tasks automatically as well.",
+        "skip_ancestor_failed": "skip_ancestor_failed: Internal decorator applied to "
+        "tasks whose ancestor failed.",
+        "skip_unchanged": "skip_unchanged: Internal decorator applied to tasks which "
+        "have already been executed and have not been changed.",
+    }
+    config["markers"] = {**config["markers"], **markers}
 
 
 @pytask.hookimpl

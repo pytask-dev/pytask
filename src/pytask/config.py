@@ -8,6 +8,7 @@ from pathlib import Path
 
 import click
 import pytask
+from pytask.mark.structures import MARK_GEN
 from pytask.shared import get_first_not_none_value
 from pytask.shared import to_list
 
@@ -23,12 +24,19 @@ IGNORED_FILES_AND_FOLDERS = [
 def pytask_configure(pm, config_from_cli):
     config = {"pm": pm, "terminal_width": _get_terminal_width()}
 
-    paths = get_first_not_none_value(config_from_cli, key="paths", callback=to_list)
+    paths = get_first_not_none_value(
+        config_from_cli, key="paths", default=[Path.cwd()], callback=to_list
+    )
     paths = [Path(p).resolve() for path in paths for p in glob.glob(path.as_posix())]
     config["paths"] = paths if paths else [Path.cwd().resolve()]
 
     config["root"], config["ini"] = _find_project_root_and_ini(config["paths"])
     config_from_file = _read_config(config["ini"]) if config["ini"] is not None else {}
+
+    config["markers"] = {
+        "depends_on": "Attach a dependency/dependencies to a task.",
+        "produces": "Attach a product/products to a task.",
+    }
 
     config["pm"].hook.pytask_parse_config(
         config=config,
@@ -37,6 +45,8 @@ def pytask_configure(pm, config_from_cli):
     )
 
     config["pm"].hook.pytask_post_parse(config=config)
+
+    MARK_GEN.config = config
 
     return config
 
