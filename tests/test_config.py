@@ -2,6 +2,8 @@ import os
 
 import pytest
 from pytask.config import _find_project_root_and_ini
+from pytask.config import _get_terminal_width
+from pytask.main import pytask_main
 
 
 @pytest.mark.unit
@@ -44,3 +46,30 @@ def test_find_project_root_and_ini(
 def test_find_project_root_and_ini_raise_warning(paths):
     with pytest.warns(UserWarning, match="A common path for all passed path"):
         _find_project_root_and_ini(paths)
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("mock_value, expected", [(100, 99), (40, 39), (39, 79)])
+def test_get_terminal_width(monkeypatch, mock_value, expected):
+    def mock(**kwargs):
+        return mock_value, None
+
+    monkeypatch.setattr("pytask.config.shutil.get_terminal_size", mock)
+
+    assert _get_terminal_width() == expected
+
+
+@pytest.mark.end_to_end
+def test_debug_pytask(capsys, tmp_path):
+    session = pytask_main({"paths": tmp_path, "debug_pytask": True})
+
+    assert session.exit_code == 0
+
+    captured = capsys.readouterr()
+
+    # The first hooks which will be displayed.
+    assert "pytask_post_parse [hook]" in captured.out
+    assert "finish pytask_post_parse --> [] [hook]" in captured.out
+    # The last hooks which will be displayed.
+    assert "finish pytask_execute_log_end --> [True] [hook]" in captured.out
+    assert "finish pytask_execute --> None [hook]" in captured.out

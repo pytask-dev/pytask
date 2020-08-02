@@ -3,8 +3,8 @@ import textwrap
 
 import pytask
 import pytest
-from pytask.main import main
-from pytask.mark import Mark
+from pytask.main import pytask_main
+from pytask.mark.structures import Mark
 from pytask.parametrize import _parse_arg_names
 from pytask.parametrize import _parse_parametrize_markers
 from pytask.parametrize import pytask_parametrize_task
@@ -149,7 +149,7 @@ def test_parametrizing_tasks(tmp_path):
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = pytask_main({"paths": tmp_path})
 
     assert session.exit_code == 0
     for i in range(1, 3):
@@ -177,6 +177,6 @@ def test_parametrizing_dependencies_and_targets(tmp_path):
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = pytask_main({"paths": tmp_path})
 
     assert session.exit_code == 0

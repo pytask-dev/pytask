@@ -4,7 +4,7 @@ import textwrap
 import pytest
 from pytask.exceptions import NodeNotCollectedError
 from pytask.exceptions import TaskDuplicatedError
-from pytask.main import main
+from pytask.main import pytask_main
 
 
 @pytest.mark.end_to_end
@@ -25,7 +25,7 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
     tmp_path.joinpath("in.txt").write_text("Relative paths work.")
 
     os.chdir(tmp_path)
-    session = main({"paths": tmp_path})
+    session = pytask_main({"paths": tmp_path})
 
     assert session.collection_reports[0].successful
     assert tmp_path.joinpath("out.txt").read_text() == "Relative paths work."
@@ -44,7 +44,7 @@ def test_collect_filepathnode_with_unknown_type(tmp_path):
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
     os.chdir(tmp_path)
-    session = main({"paths": tmp_path})
+    session = pytask_main({"paths": tmp_path})
 
     assert session.exit_code == 2
     assert isinstance(session.collection_reports[0].exc_info[1], NodeNotCollectedError)
@@ -65,7 +65,7 @@ def test_collect_duplicate_tasks(tmp_path):
     """
     tmp_path.joinpath("task_1.py").write_text(textwrap.dedent(source_1))
 
-    session = main({"paths": tmp_path})
+    session = pytask_main({"paths": tmp_path})
 
     assert session.exit_code == 2
     assert isinstance(session.collection_reports[1].exc_info[1], TaskDuplicatedError)
@@ -99,7 +99,7 @@ def test_collect_nodes_with_the_same_name(tmp_path):
     tmp_path.joinpath("sub", "text.txt").write_text("in sub")
 
     os.chdir(tmp_path)
-    session = main({"paths": tmp_path})
+    session = pytask_main({"paths": tmp_path})
 
     assert session.exit_code == 0
     assert tmp_path.joinpath("out_0.txt").read_text() == "in root"

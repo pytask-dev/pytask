@@ -11,7 +11,7 @@ import click
 import pytask
 from pytask.exceptions import CollectionError
 from pytask.exceptions import TaskDuplicatedError
-from pytask.mark import has_marker
+from pytask.mark.structures import has_marker
 from pytask.nodes import FilePathNode
 from pytask.nodes import PythonFunctionTask
 from pytask.report import CollectionReportFile
