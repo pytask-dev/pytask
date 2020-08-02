@@ -24,7 +24,9 @@ IGNORED_FILES_AND_FOLDERS = [
 def pytask_configure(pm, config_from_cli):
     config = {"pm": pm, "terminal_width": _get_terminal_width()}
 
-    paths = get_first_not_none_value(config_from_cli, key="paths", callback=to_list)
+    paths = get_first_not_none_value(
+        config_from_cli, key="paths", default=[Path.cwd()], callback=to_list
+    )
     paths = [Path(p).resolve() for path in paths for p in glob.glob(path.as_posix())]
     config["paths"] = paths if paths else [Path.cwd().resolve()]
 

@@ -193,7 +193,7 @@ def valid_paths(paths, session):
     ----------
     paths : list of pathlib.Path
         List of paths from which tasks are collected.
-    session : pytask.pytask_main.Session
+    session : pytask.main.Session
         The session is explained in :ref:`session`.
 
     """
