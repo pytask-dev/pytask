@@ -17,7 +17,7 @@ def test_extract_args_from_mark(decorator, values, expected):
     def task_dummy():
         pass
 
-    parser = depends_on if decorator.markname == "depends_on" else produces
+    parser = depends_on if decorator.name == "depends_on" else produces
     result = list(extract_nodes_from_function_markers(task_dummy, parser))
     assert result == expected
 
@@ -37,7 +37,7 @@ def test_extract_kwargs_from_mark(decorator, values, expected):
     def task_dummy():
         pass
 
-    parser = depends_on if decorator.markname == "depends_on" else produces
+    parser = depends_on if decorator.name == "depends_on" else produces
     result = list(extract_nodes_from_function_markers(task_dummy, parser))
     assert result == expected
 
@@ -54,7 +54,7 @@ def test_raise_error_for_invalid_args_to_depends_on_and_produces(
     def task_dummy():
         pass
 
-    parser = depends_on if decorator.markname == "depends_on" else produces
+    parser = depends_on if decorator.name == "depends_on" else produces
     with pytest.raises(TypeError):
         list(extract_nodes_from_function_markers(task_dummy, parser))
 

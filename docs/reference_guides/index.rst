@@ -9,3 +9,4 @@ additional details on the inner workings of pytask.
 
    pluggy
    hookspecs
+   marks

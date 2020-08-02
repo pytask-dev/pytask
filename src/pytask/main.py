@@ -13,7 +13,6 @@ from pytask.pluginmanager import get_plugin_manager
 
 @pytask.hookimpl
 def pytask_add_hooks(pm):
-    from pytask import cli
     from pytask import collect
     from pytask import config
     from pytask import database
@@ -23,8 +22,8 @@ def pytask_add_hooks(pm):
     from pytask import parametrize
     from pytask import resolve_dependencies
     from pytask import skipping
+    from pytask.mark import config as mark_config
 
-    pm.register(cli)
     pm.register(collect)
     pm.register(config)
     pm.register(database)
@@ -34,9 +33,11 @@ def pytask_add_hooks(pm):
     pm.register(parametrize)
     pm.register(resolve_dependencies)
     pm.register(skipping)
+    pm.register(mark_config)
 
 
-def main(kwargs):
+@pytask.hookimpl
+def pytask_main(config_from_cli):
     """Run pytask.
 
     This is the main command to run pytask which usually receives kwargs from the
@@ -60,7 +61,7 @@ def main(kwargs):
         pm.register(sys.modules[__name__])
         pm.hook.pytask_add_hooks(pm=pm)
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=kwargs)
+        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
 
         create_database(**config["database"])
 

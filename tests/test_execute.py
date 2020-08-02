@@ -1,7 +1,7 @@
 import os
 import textwrap
 
-from pytask.main import main
+from pytask.main import pytask_main
 
 
 def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
@@ -21,7 +21,7 @@ def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
     tmp_path.joinpath("in.txt").write_text("Here I am. Once again.")
 
     os.chdir(tmp_path)
-    session = main({"paths": tmp_path})
+    session = pytask_main({"paths": tmp_path})
 
     assert session.exit_code == 0
     assert tmp_path.joinpath("out.txt").read_text() == "Here I am. Once again."

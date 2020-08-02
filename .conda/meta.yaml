@@ -29,7 +29,6 @@ requirements:
     - networkx
     - pluggy
     - pony >=0.7.13
-    - pytest
 
 test:
   imports:
@@ -41,8 +40,9 @@ test:
     - tox.ini
     - tests
   commands:
-    - pytask --version
     - pytask --help
+    - pytask --markers
+    - pytask --version
 
     - pytest tests
 

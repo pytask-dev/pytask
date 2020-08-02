@@ -5,7 +5,7 @@ import networkx as nx
 import pytest
 from pytask.exceptions import NodeNotFoundError
 from pytask.exceptions import ResolvingDependenciesError
-from pytask.main import main
+from pytask.main import pytask_main
 from pytask.nodes import MetaNode
 from pytask.nodes import MetaTask
 from pytask.resolve_dependencies import _check_if_root_nodes_are_available
@@ -84,7 +84,7 @@ def test_cycle_in_dag(tmp_path):
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = pytask_main({"paths": tmp_path})
 
     assert session.exit_code == 3
     assert isinstance(

@@ -11,7 +11,7 @@ from typing import Union
 import attr
 from pytask.exceptions import NodeNotCollectedError
 from pytask.exceptions import NodeNotFoundError
-from pytask.mark import get_marks_from_obj
+from pytask.mark.structures import get_marks_from_obj
 from pytask.shared import to_list
 
 
@@ -71,7 +71,7 @@ class PythonFunctionTask(MetaTask):
 
         markers = [
             marker
-            for marker in getattr(function, "pytestmark", [])
+            for marker in getattr(function, "pytaskmark", [])
             if marker.name not in ["depends_on", "produces"]
         ]
 
