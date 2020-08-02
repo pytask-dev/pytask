@@ -9,7 +9,7 @@ import os
 import sys
 
 
-sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath("../src"))
 
 
 # -- Project information ---------------------------------------------------------------
@@ -51,6 +51,8 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # Configuration for autodoc
 autosummary_generate = True
+add_module_names = False
+autodoc_mock_imports = ["attr", "click", "networkx", "pluggy", "pony"]
 
 copybutton_prompt_text = r"\\$ |>>> "
 copybutton_prompt_is_regexp = True
@@ -61,12 +63,12 @@ extlinks = {
 }
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.7", None),
+    "python": ("https://docs.python.org/3.8", None),
 }
 
 # Configuration for numpydoc
 numpydoc_xref_param_type = True
-numpydoc_xref_ignore = {"type", "optional", "default"}
+numpydoc_xref_ignore = {"type", "optional", "default", "of"}
 
 
 # -- Options for HTML output -----------------------------------------------------------

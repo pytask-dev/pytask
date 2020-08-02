@@ -90,7 +90,7 @@ def pytask_collect_file(session, path, reports):
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
             if has_marker(obj, "parametrize"):
-                names_and_objects = session.hook.pytask_generate_tasks(
+                names_and_objects = session.hook.pytask_parametrize_task(
                     session=session, name=name, obj=obj
                 )
             else:

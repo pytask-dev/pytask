@@ -7,7 +7,7 @@ from pytask.main import pytask_main
 from pytask.mark.structures import Mark
 from pytask.parametrize import _parse_arg_names
 from pytask.parametrize import _parse_parametrize_markers
-from pytask.parametrize import pytask_generate_tasks
+from pytask.parametrize import pytask_parametrize_task
 from pytask.pluginmanager import get_plugin_manager
 
 
@@ -32,7 +32,7 @@ def test_pytask_generate_tasks_0(session):
     def func(i):
         pass
 
-    names_and_objs = pytask_generate_tasks(session, "func", func)
+    names_and_objs = pytask_parametrize_task(session, "func", func)
 
     assert [i[0] for i in names_and_objs] == ["func[i0]", "func[i1]"]
     assert names_and_objs[0][1].keywords["i"] == 0
@@ -46,7 +46,7 @@ def test_pytask_generate_tasks_1(session):
     def func(i, j):
         pass
 
-    names_and_objs = pytask_generate_tasks(session, "func", func)
+    names_and_objs = pytask_parametrize_task(session, "func", func)
 
     for (name, func), values in zip(
         names_and_objs, itertools.product(range(2), range(2))
@@ -63,7 +63,7 @@ def test_pytask_generate_tasks_2(session):
     def func(i, j, k):
         pass
 
-    names_and_objs = pytask_generate_tasks(session, "func", func)
+    names_and_objs = pytask_parametrize_task(session, "func", func)
 
     for (name, func), arg_names, values in zip(
         names_and_objs,
@@ -84,7 +84,7 @@ def test_pytask_parametrize_missing_func_args(session):
     def func():
         pass
 
-    names_and_functions = pytask_generate_tasks(session, "func", func)
+    names_and_functions = pytask_parametrize_task(session, "func", func)
     for _, func in names_and_functions:
         with pytest.raises(TypeError):
             func()

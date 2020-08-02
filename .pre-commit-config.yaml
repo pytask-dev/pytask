@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.1.0
+    rev: v3.2.0
     hooks:
     -   id: check-added-large-files
         args: ['--maxkb=10']
@@ -11,12 +11,12 @@ repos:
         exclude: (debugging\.py|main\.py)
     -   id: end-of-file-fixer
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.7.1
+    rev: v2.7.2
     hooks:
     -   id: pyupgrade
         args: [--py36-plus]
 -   repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.3.0
+    rev: v2.3.5
     hooks:
     -   id: reorder-python-imports
 -   repo: https://github.com/psf/black
