@@ -6,9 +6,9 @@ import shutil
 import warnings
 from pathlib import Path
 
+import click
 import pytask
 from pytask.mark.structures import MARK_GEN
-from pytask.pluginmanager import activate_tracing_for_pluggy
 from pytask.shared import get_first_not_none_value
 from pytask.shared import to_list
 
@@ -68,7 +68,8 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         config_from_cli, config_from_file, key="debug_pytask", default=False
     )
     if config["debug_pytask"]:
-        activate_tracing_for_pluggy(config["pm"])
+        config["pm"].trace.root.setwriter(click.echo)
+        config["pm"].enable_tracing()
 
 
 def _find_project_root_and_ini(paths):
