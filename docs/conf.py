@@ -52,6 +52,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # Configuration for autodoc
 autosummary_generate = True
 add_module_names = False
+autodoc_mock_imports = ["attr", "click", "networkx", "pluggy", "pony"]
 
 copybutton_prompt_text = r"\\$ |>>> "
 copybutton_prompt_is_regexp = True
