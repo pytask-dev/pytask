@@ -6,8 +6,9 @@ import shutil
 import warnings
 from pathlib import Path
 
-import click
 import pytask
+from pytask.mark.structures import MARK_GEN
+from pytask.pluginmanager import activate_tracing_for_pluggy
 from pytask.shared import get_first_not_none_value
 from pytask.shared import to_list
 
@@ -30,6 +31,11 @@ def pytask_configure(pm, config_from_cli):
     config["root"], config["ini"] = _find_project_root_and_ini(config["paths"])
     config_from_file = _read_config(config["ini"]) if config["ini"] is not None else {}
 
+    config["markers"] = {
+        "depends_on": "depends_on(obj): Attach a dependency/dependencies to a task.",
+        "produces": "produces(obj): Attach a product/products to a task.",
+    }
+
     config["pm"].hook.pytask_parse_config(
         config=config,
         config_from_cli=config_from_cli,
@@ -37,6 +43,8 @@ def pytask_configure(pm, config_from_cli):
     )
 
     config["pm"].hook.pytask_post_parse(config=config)
+
+    MARK_GEN.config = config
 
     return config
 
@@ -58,8 +66,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         config_from_cli, config_from_file, key="debug_pytask", default=False
     )
     if config["debug_pytask"]:
-        config["pm"].trace.root.setwriter(click.echo)
-        config["pm"].enable_tracing()
+        activate_tracing_for_pluggy(config["pm"])
 
 
 def _find_project_root_and_ini(paths):

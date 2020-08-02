@@ -2,8 +2,7 @@ import sys
 from pathlib import Path
 
 import click
-import pytask
-from pytask.main import main
+import pytask.mark.cli
 from pytask.pluginmanager import get_plugin_manager
 
 
@@ -17,19 +16,33 @@ def add_parameters(func):
     pm.hook.pytask_add_hooks(pm=pm)
     pm.hook.pytask_add_parameters_to_cli(command=func)
 
+    # Hack to pass the plugin manager via a hidden option to the ``config_from_cli``.
+    func.params.append(click.Option(["--pm"], default=pm, hidden=True))
+
     return func
 
 
 @pytask.hookimpl
 def pytask_add_hooks(pm):
+    """Add some hooks and plugins.
+
+    This hook implementation registers only plugins which extend the command line
+    interface or patch the main entry-point :func:`pytask.hookspecs.pytask_main`.
+
+    """
     from pytask import database
     from pytask import debugging
+    from pytask import main
+    from pytask.mark import cli as mark_cli
 
     pm.register(database)
     pm.register(debugging)
+    pm.register(main)
+    pm.register(mark_cli)
 
 
 def _to_path(ctx, param, value):  # noqa: U100
+    """Callback for :class:`click.Argument` or :class:`click.Option`."""
     return [Path(i).resolve() for i in value]
 
 
@@ -45,7 +58,11 @@ def pytask_add_parameters_to_cli(command):
             multiple=True,
             help="Ignore path (globs and multi allowed).",
         ),
-        click.Option(["--debug-pytask"], is_flag=True, help="Debug pytask."),
+        click.Option(
+            ["--debug-pytask"],
+            is_flag=True,
+            help="Debug pytask by tracing all hook calls.",
+        ),
     ]
     command.params.extend(additional_parameters)
 
@@ -55,5 +72,6 @@ def pytask_add_parameters_to_cli(command):
 @click.version_option()
 def pytask(**config_from_cli):
     """Command-line interface for pytask."""
-    session = main(config_from_cli)
+    pm = config_from_cli["pm"]
+    session = pm.hook.pytask_main(config_from_cli=config_from_cli)
     sys.exit(session.exit_code)

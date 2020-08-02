@@ -13,7 +13,6 @@ from pytask.pluginmanager import get_plugin_manager
 
 @pytask.hookimpl
 def pytask_add_hooks(pm):
-    from pytask import cli
     from pytask import collect
     from pytask import config
     from pytask import database
@@ -24,7 +23,6 @@ def pytask_add_hooks(pm):
     from pytask import resolve_dependencies
     from pytask import skipping
 
-    pm.register(cli)
     pm.register(collect)
     pm.register(config)
     pm.register(database)
@@ -36,7 +34,8 @@ def pytask_add_hooks(pm):
     pm.register(skipping)
 
 
-def main(config_from_cli):
+@pytask.hookimpl
+def pytask_main(config_from_cli):
     try:
         pm = get_plugin_manager()
         pm.register(sys.modules[__name__])

@@ -25,6 +25,20 @@ def parametrize(arg_names, arg_values):
 
 
 @pytask.hookimpl
+def pytask_parse_config(config):
+    config["markers"]["parametrize"] = (
+        "parametrize(arg_names, arg_values): Call a task function multiple times "
+        "passing in different arguments in turn. arg_values generally needs to be a "
+        "list of values if arg_names specifies only one name or a list of tuples of "
+        "values if arg_names specifies multiple names."
+        "Example: @pytask.mark.parametrize('arg1', [1,2]) would lead to two calls of "
+        "the decorated task function, one with arg1=1 and another with arg1=2. See "
+        "https://pytask-dev.rtfd.io/en/latest/tutorials/how_to_parametrize_a_task.html "
+        "for more info and examples."
+    )
+
+
+@pytask.hookimpl
 def pytask_generate_tasks(session, name, obj):
     if callable(obj):
         obj, markers = _remove_parametrize_markers_from_func(obj)
@@ -43,9 +57,9 @@ def pytask_generate_tasks(session, name, obj):
 
 
 def _remove_parametrize_markers_from_func(obj):
-    parametrize = [i for i in obj.pytestmark if i.name == "parametrize"]
-    others = [i for i in obj.pytestmark if i.name != "parametrize"]
-    obj.pytestmark = others
+    parametrize = [i for i in obj.pytaskmark if i.name == "parametrize"]
+    others = [i for i in obj.pytaskmark if i.name != "parametrize"]
+    obj.pytaskmark = others
 
     return obj, parametrize
 
@@ -188,7 +202,7 @@ def generate_product_of_names_and_functions(
 
             # Copy function and attributes to allow in-place changes.
             func = _copy_func(obj)
-            func.pytestmark = copy.deepcopy(obj.pytestmark)
+            func.pytaskmark = copy.deepcopy(obj.pytaskmark)
 
             # Convert parametrized dependencies and products to decorator.
             session.hook.pytask_generate_tasks_add_marker(obj=func, kwargs=kwargs)

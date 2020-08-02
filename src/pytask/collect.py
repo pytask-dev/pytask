@@ -11,7 +11,7 @@ import click
 import pytask
 from pytask.exceptions import CollectionError
 from pytask.exceptions import TaskDuplicatedError
-from pytask.mark import has_marker
+from pytask.mark.structures import has_marker
 from pytask.nodes import FilePathNode
 from pytask.nodes import PythonFunctionTask
 from pytask.report import CollectionReportFile
@@ -193,7 +193,7 @@ def valid_paths(paths, session):
     ----------
     paths : list of pathlib.Path
         List of paths from which tasks are collected.
-    session : pytask.main.Session
+    session : pytask.pytask_main.Session
         The session is explained in :ref:`session`.
 
     """

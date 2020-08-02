@@ -12,7 +12,7 @@ from pytask.dag import task_and_descending_tasks
 from pytask.database import State
 from pytask.exceptions import NodeNotFoundError
 from pytask.exceptions import ResolvingDependenciesError
-from pytask.mark import Mark
+from pytask.mark.structures import Mark
 from pytask.report import ResolvingDependenciesReport
 
 
