@@ -49,7 +49,7 @@ Pros
 Cons
 
 - Need to learn snakemake's syntax which is a mixture of Make and Python.
-- Has not plugin architecture.
+- Seems to have no plugin system.
 
 
 `Waf <https://waf.io>`_
@@ -75,7 +75,7 @@ Pros
 
 Cons
 
-- No plugin system.
+- Seems to have no plugin system.
 
 
 `cook <https://github.com/jachris/cook>`_

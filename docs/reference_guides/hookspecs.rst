@@ -28,13 +28,11 @@ General
    :noindex:
 
 
-
 Command Line Interface
 ----------------------
 
 .. autofunction:: pytask_add_parameters_to_cli
    :noindex:
-
 
 
 Configuration
@@ -48,7 +46,6 @@ Configuration
 
 .. autofunction:: pytask_post_parse
    :noindex:
-
 
 
 Collection
@@ -85,13 +82,12 @@ Collection
    :noindex:
 
 
-
 Parametrization
 ---------------
 
 The hooks to parametrize a task are called during the collection when a function is
 collected. Then, the function is duplicated according to the parametrization and the
-duplicates are collect in :func:`pytask_collect_task`.
+duplicates are collected with :func:`pytask_collect_task`.
 
 .. autofunction:: pytask_parametrize_task
    :noindex:
