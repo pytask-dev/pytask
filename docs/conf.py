@@ -31,10 +31,15 @@ master_doc = "index"
 extensions = [
     "IPython.sphinxext.ipython_console_highlighting",
     "IPython.sphinxext.ipython_directive",
-    "numpydoc",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
     "sphinx_copybutton",
+    "autoapi.extension",
+    "sphinx_autodoc_typehints",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -45,7 +50,6 @@ extensions = [
 # ignore when looking for source files. This pattern also affects html_static_path and
 # html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
-
 
 # -- Extensions configuration ----------------------------------------------------------
 
@@ -64,11 +68,14 @@ extlinks = {
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.8", None),
+    "click": ("https://click.palletsprojects.com/en/7.x", None),
+    "pluggy": ("https://pluggy.readthedocs.io/en/latest", None),
 }
 
-# Configuration for numpydoc
-numpydoc_xref_param_type = True
-numpydoc_xref_ignore = {"type", "optional", "default", "of"}
+# Configuration for autoapi
+autoapi_type = "python"
+autoapi_dirs = ["../src/pytask"]
+autoapi_keep_files = False
 
 
 # -- Options for HTML output -----------------------------------------------------------

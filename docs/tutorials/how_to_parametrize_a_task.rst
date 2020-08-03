@@ -1,19 +1,15 @@
 How to parametrize a task
 =========================
 
-Often times, you define a task which should be repeated over a range of inputs. pytask
-has a parametrize decorator for this reason.
-
-Since pytask needs to track dependencies and products of tasks, there is a little bit
-more logic bound to the parametrize decorator which is explained in this section.
-
+Often, you want to define a task which should be repeated over a range of inputs. pytask
+allows to parametrize task functions to accomplish this behavior.
 
 A simple example
 ----------------
 
 Let us focus on a simple example. In this setting, we want to define a task which
-receives a number and saves it to a file. And, this task should be done for the numbers
-from 0 to 4.
+receives a number and saves it to a file. And, this task should be repeated for the
+numbers from 0 to 4.
 
 First, we write the task for one number.
 
@@ -26,7 +22,7 @@ First, we write the task for one number.
     def task_save_number(produces, i=0):
         produces.write_text(str(i))
 
-In the next step, we parametrize the task.
+In the next step, we parametrize the task by varying ``i``.
 
 .. code-block:: python
 
@@ -38,15 +34,16 @@ In the next step, we parametrize the task.
         produces.write_text(str(i))
 
 The parametrize decorator receives two arguments. The first argument is the signature
-which defines the names of the elements in the second argument which is a list.
+which defines the names of the elements in the second argument. ``"produces, i"``
+indicates that the second argument is an iterable with two elements.
 
 The names in the signature can be passed in three different formats which are explained
 :ref:`below <parametrize_signature>`. Here we use a comma-separated string. Thus, the
 first argument is called ``"produces"`` and the second ``"i"``.
 
-The second argument of the parametrize decorator is the iterable which is a list. Each
-entry in the list has to provide one value for each argument name in the signature. In
-the example, the iterable is constructed by a list comprehension which expands to
+The second argument of the parametrize decorator is the iterable. Each entry in the list
+has to provide one value for each argument name in the signature. In the example, the
+iterable is constructed by a list comprehension which expands to
 
 .. ipython::
 
@@ -60,9 +57,9 @@ mapped to the argument ``produces`` and ``i`` receives the number.
 .. important::
 
     If you use ``produces`` or ``depends_on`` in the signature of the parametrize
-    decorator, the values are automatically treated as if they were added with the
-    ``@pytask.mark.depends_on`` or ``@pytask.mark.produces``. For example, the generated
-    task in which ``i = 1`` can be thought of as the following function.
+    decorator, the values are automatically treated as if they were attached to the
+    function with ``@pytask.mark.depends_on`` or ``@pytask.mark.produces``. For
+    example, the generated task in which ``i = 1`` is identical to
 
     .. code-block:: python
 

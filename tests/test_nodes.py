@@ -1,36 +1,62 @@
 import pytask
 import pytest
-from pytask.nodes import extract_nodes_from_function_markers
+from pytask.nodes import _extract_nodes_from_function_markers
+from pytask.nodes import depends_on
 from pytask.nodes import MetaNode
 from pytask.nodes import MetaTask
+from pytask.nodes import produces
 
 
 @pytest.mark.unit
-def test_extract_dependencies_from_mark():
-    @pytask.mark.depends_on("a")
-    @pytask.mark.depends_on(["b"])
-    @pytask.mark.depends_on("c", "d")
-    @pytask.mark.depends_on(["e", "f"])
-    def dummy_function():
+@pytest.mark.parametrize("decorator", [pytask.mark.depends_on, pytask.mark.produces])
+@pytest.mark.parametrize(
+    "values, expected", [("a", ["a"]), (["b"], ["b"]), (["e", "f"], ["e", "f"])]
+)
+def test_extract_args_from_mark(decorator, values, expected):
+    @decorator(values)
+    def task_dummy():
         pass
 
-    result = list(extract_nodes_from_function_markers(dummy_function, "depends_on"))
-
-    assert list("abcdef") == sorted(result)
+    parser = depends_on if decorator.name == "depends_on" else produces
+    result = list(_extract_nodes_from_function_markers(task_dummy, parser))
+    assert result == expected
 
 
 @pytest.mark.unit
-def test_extract_products_from_mark():
-    @pytask.mark.produces("a")
-    @pytask.mark.produces(["b"])
-    @pytask.mark.produces("c", "d")
-    @pytask.mark.produces(["e", "f"])
-    def dummy_function():
+@pytest.mark.parametrize("decorator", [pytask.mark.depends_on, pytask.mark.produces])
+@pytest.mark.parametrize(
+    "values, expected",
+    [
+        ({"objects": "a"}, ["a"]),
+        ({"objects": ["b"]}, ["b"]),
+        ({"objects": ["e", "f"]}, ["e", "f"]),
+    ],
+)
+def test_extract_kwargs_from_mark(decorator, values, expected):
+    @decorator(**values)
+    def task_dummy():
         pass
 
-    result = list(extract_nodes_from_function_markers(dummy_function, "produces"))
+    parser = depends_on if decorator.name == "depends_on" else produces
+    result = list(_extract_nodes_from_function_markers(task_dummy, parser))
+    assert result == expected
 
-    assert list("abcdef") == sorted(result)
+
+@pytest.mark.unit
+@pytest.mark.parametrize("decorator", [pytask.mark.depends_on, pytask.mark.produces])
+@pytest.mark.parametrize(
+    "args, kwargs", [(["a", "b"], {"objects": "a"}), (("a"), {"objects": "a"})]
+)
+def test_raise_error_for_invalid_args_to_depends_on_and_produces(
+    decorator, args, kwargs
+):
+    @decorator(*args, **kwargs)
+    def task_dummy():
+        pass
+
+    parser = depends_on if decorator.name == "depends_on" else produces
+    with pytest.raises(TypeError):
+        list(_extract_nodes_from_function_markers(task_dummy, parser))
 
 
 @pytest.mark.unit

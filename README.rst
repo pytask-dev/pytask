@@ -99,7 +99,7 @@ To execute the task, type the following command on the command-line
 Documentation
 -------------
 
-The documentation can be found under https://pytask-dev.readthedocs.io/en/latest and
+The documentation can be found under https://pytask-dev.readthedocs.io/en/latest with
 tutorials and explanations.
 
 

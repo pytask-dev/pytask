@@ -1,11 +1,11 @@
 Explanations
 ============
 
-.. note::
+Explanations provide background information and historical context on pytask and build
+systems in general as well as its design.
 
-    Unfortunately, this section is still under development. If you want to contribute to
-    the documentation, please file an issue to start a conversation or create a pull
-    request.
+.. toctree::
+   :maxdepth: 1
 
-Explanations offer background information on the software, discuss design decisions and
-alternative implementations.
+   why_another_build_system
+   design
