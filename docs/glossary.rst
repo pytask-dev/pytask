@@ -3,7 +3,7 @@ Glossary
 
 .. glossary::
 
-    Build system
+    build system
         A build system is a tool for developing software which manages the process from
         compiling the source code to binary code, packaging the binary code and running
         tests.

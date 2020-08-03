@@ -27,7 +27,8 @@ The ``@pytask.mark.produces`` decorator attaches a product to a task. The string
 
 .. note::
 
-    If you do not know about :mod:`pathlib` check out [1]_ and [2]_.
+    If you do not know about :mod:`pathlib` check out [1]_ and [2]_. The module is very
+    useful to handle paths conveniently and cross-platform.
 
 .. important::
 
@@ -42,9 +43,9 @@ The ``@pytask.mark.produces`` decorator attaches a product to a task. The string
 Optional usage in signature
 ---------------------------
 
-If you have a task with products (or dependencies), you can use ``produces``
-(``depends_on``) as a function argument and receive the path or list of paths inside the
-functions. It helps to avoid repetition.
+As seen before, if you have a task with products (or dependencies), you can use
+``produces`` (``depends_on``) as a function argument and receive the path or list of
+paths inside the functions. It helps to avoid repetition.
 
 
 Dependencies
@@ -79,9 +80,14 @@ function you receive a list of :class:`pathlib.Path` as well.
             bold_text = f"**{text}**"
             product.write_text(bold_text)
 
+The last task is overly complex since it is the same operation performed for two
+independent dependencies and products. There must be a better way |tm|, right? Check out
+the :doc:`tutorial on parametrization <how_to_parametrize_a_task>`.
+
+.. |tm| unicode:: U+2122
+
 
 .. rubric:: References
 
 .. [1] The official documentation for :mod:`pathlib`.
-.. [2] Another guide for pathlib at `RealPython <https://realpython.com/
-       python-pathlib/>`_.
+.. [2] A guide for pathlib at `RealPython <https://realpython.com/python-pathlib/>`_.
