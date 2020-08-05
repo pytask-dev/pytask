@@ -4,7 +4,7 @@ import textwrap
 import pytask
 import pytest
 from pytask.main import pytask_main
-from pytask.mark.structures import Mark
+from pytask.mark_ import Mark
 from pytask.parametrize import _parse_arg_names
 from pytask.parametrize import _parse_parametrize_markers
 from pytask.parametrize import pytask_parametrize_task

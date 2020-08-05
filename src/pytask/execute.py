@@ -12,7 +12,7 @@ from pytask.dag import sort_tasks_topologically
 from pytask.database import create_or_update_state
 from pytask.exceptions import ExecutionError
 from pytask.exceptions import NodeNotFoundError
-from pytask.mark.structures import Mark
+from pytask.mark_ import Mark
 from pytask.nodes import FilePathNode
 from pytask.report import ExecutionReport
 from pytask.report import format_execute_footer

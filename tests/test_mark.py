@@ -4,7 +4,7 @@ import textwrap
 import pytask
 import pytest
 from pytask.main import pytask_main
-from pytask.mark.structures import MarkGenerator as Mark
+from pytask.mark_ import MarkGenerator
 
 
 @pytest.mark.unit
@@ -15,9 +15,9 @@ def test_mark_exists_in_pytask_namespace(attribute):
 
 @pytest.mark.unit
 def test_pytask_mark_notcallable() -> None:
-    mark = Mark()
+    mark = MarkGenerator()
     with pytest.raises(TypeError):
-        mark()  # type: ignore[operator]
+        mark()
 
 
 @pytest.mark.unit
@@ -39,7 +39,7 @@ def test_mark_with_param():
 
 @pytest.mark.unit
 def test_pytask_mark_name_starts_with_underscore():
-    mark = Mark()
+    mark = MarkGenerator()
     with pytest.raises(AttributeError):
         mark._some_name
 

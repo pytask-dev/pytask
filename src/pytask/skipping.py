@@ -1,8 +1,8 @@
 import click
 import pytask
 from pytask.dag import descending_tasks
-from pytask.mark.structures import get_markers_from_task
-from pytask.mark.structures import Mark
+from pytask.mark_ import get_specific_markers_from_task
+from pytask.mark_ import Mark
 from pytask.outcomes import Skipped
 from pytask.outcomes import SkippedAncestorFailed
 from pytask.outcomes import SkippedUnchanged
@@ -22,16 +22,16 @@ def pytask_parse_config(config):
 
 @pytask.hookimpl
 def pytask_execute_task_setup(task):
-    markers = get_markers_from_task(task, "skip_unchanged")
+    markers = get_specific_markers_from_task(task, "skip_unchanged")
     if markers:
         raise SkippedUnchanged
 
-    markers = get_markers_from_task(task, "skip_ancestor_failed")
+    markers = get_specific_markers_from_task(task, "skip_ancestor_failed")
     if markers:
         message = "\n".join([marker.kwargs["reason"] for marker in markers])
         raise SkippedAncestorFailed(message)
 
-    markers = get_markers_from_task(task, "skip")
+    markers = get_specific_markers_from_task(task, "skip")
     if markers:
         raise Skipped
 

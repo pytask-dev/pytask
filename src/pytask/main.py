@@ -1,39 +1,14 @@
 import pdb
-import sys
 
-import attr
-import pytask
+import pytask.pluginmanager
+from pytask import cli
 from pytask.database import create_database
 from pytask.enums import ExitCode
 from pytask.exceptions import CollectionError
 from pytask.exceptions import ExecutionError
 from pytask.exceptions import ResolvingDependenciesError
 from pytask.pluginmanager import get_plugin_manager
-
-
-@pytask.hookimpl
-def pytask_add_hooks(pm):
-    from pytask import collect
-    from pytask import config
-    from pytask import database
-    from pytask import debugging
-    from pytask import execute
-    from pytask import logging
-    from pytask import parametrize
-    from pytask import resolve_dependencies
-    from pytask import skipping
-    from pytask.mark import config as mark_config
-
-    pm.register(collect)
-    pm.register(config)
-    pm.register(database)
-    pm.register(debugging)
-    pm.register(execute)
-    pm.register(logging)
-    pm.register(parametrize)
-    pm.register(resolve_dependencies)
-    pm.register(skipping)
-    pm.register(mark_config)
+from pytask.session import Session
 
 
 @pytask.hookimpl
@@ -52,13 +27,13 @@ def pytask_main(config_from_cli):
 
     Returns
     -------
-    session : pytask.main.Session
+    session : pytask.session.Session
         The session captures all the information of the current run.
 
     """
     try:
         pm = get_plugin_manager()
-        pm.register(sys.modules[__name__])
+        pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
         config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
@@ -93,39 +68,3 @@ def pytask_main(config_from_cli):
             raise e
 
     return session
-
-
-@attr.s
-class Session:
-    """The session of pytask."""
-
-    config = attr.ib(type=dict)
-    """dict: A dictionary containing the configuration of the session."""
-
-    hook = attr.ib()
-    """pluggy.hooks._HookRelay: Holds all hooks collected by pytask."""
-
-    collection_reports = attr.ib(default=None)
-    """Optional[List[pytask.report.ExecutionReport]]: Reports for collected items.
-
-    The reports capture errors which happened while collecting tasks.
-
-    """
-
-    tasks = attr.ib(default=None)
-    """Optional[List[pytask.nodes.MetaTask]]: List of collected tasks."""
-
-    resolving_dependencies_report = attr.ib(default=None)
-    """Optional[pytask.report.ResolvingDependenciesReport]: A report.
-
-    Report when resolving dependencies failed.
-
-    """
-
-    execution_reports = attr.ib(default=None)
-    """Optional[List[pytask.report.ExecutionReport]]: Reports for executed tasks."""
-
-    @classmethod
-    def from_config(cls, config):
-        """Construct the class from a config."""
-        return cls(config, config["pm"].hook)

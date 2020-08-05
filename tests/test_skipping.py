@@ -4,7 +4,7 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
 from pytask.main import pytask_main
-from pytask.mark.structures import Mark
+from pytask.mark_ import Mark
 from pytask.outcomes import Skipped
 from pytask.outcomes import SkippedAncestorFailed
 from pytask.outcomes import SkippedUnchanged

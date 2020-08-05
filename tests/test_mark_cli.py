@@ -1,7 +1,7 @@
 import textwrap
 
 import pytest
-from pytask.mark.cli import pytask_main
+from pytask.mark_ import pytask_main
 
 
 @pytest.mark.end_to_end

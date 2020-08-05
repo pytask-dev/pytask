@@ -104,7 +104,7 @@ def pytask_ignore_collect(path, config):
 
 
 @hookspec
-def pytask_collect_modify_tasks(tasks, config):
+def pytask_collect_modify_tasks(session, tasks):
     """Modify tasks after they have been collected.
 
     This hook can be used to deselect tasks when they match a certain keyword or mark.
@@ -161,7 +161,7 @@ def pytask_collect_node(path, node):
 
 
 @hookspec(firstresult=True)
-def pytask_collect_log(reports, tasks, config):
+def pytask_collect_log(session, reports, tasks):
     """Log errors occurring during the collection.
 
     This hook reports errors during the collection.

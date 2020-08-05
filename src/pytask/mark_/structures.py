@@ -11,7 +11,7 @@ from typing import Union
 import attr
 
 
-def get_markers_from_task(task, marker_name):
+def get_specific_markers_from_task(task, marker_name):
     return [marker for marker in task.markers if marker.name == marker_name]
 
 
@@ -172,7 +172,7 @@ def normalize_mark_list(mark_list: Iterable[Union[Mark, MarkDecorator]]) -> List
 
     Parameters
     ----------
-    mark_list : List[Union[Mark, Markdecorator]]
+    mark_list : List[Union[Mark, MarkDecorator]]
 
     Returns
     -------
@@ -224,7 +224,7 @@ class MarkGenerator:
             raise AttributeError("Marker name must NOT start with underscore")
 
         if self.config is not None:
-            # We store a set of markers as a performance optimisation - if a mark
+            # We store a set of markers as a performance optimization - if a mark
             # name is in the set we definitely know it, but a mark may be known and
             # not in the set.  We therefore start by updating the set!
             if name not in self.markers:

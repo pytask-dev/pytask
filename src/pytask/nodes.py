@@ -12,7 +12,7 @@ from typing import Union
 import attr
 from pytask.exceptions import NodeNotCollectedError
 from pytask.exceptions import NodeNotFoundError
-from pytask.mark.structures import get_marks_from_obj
+from pytask.mark_ import get_marks_from_obj
 from pytask.shared import to_list
 
 
