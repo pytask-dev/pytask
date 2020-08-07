@@ -1,14 +1,15 @@
 import itertools
 import textwrap
 
+import _pytask.parametrize
 import pytask
 import pytest
-from pytask.cli import main
-from pytask.mark_ import Mark
-from pytask.parametrize import _parse_arg_names
-from pytask.parametrize import _parse_parametrize_markers
-from pytask.parametrize import pytask_parametrize_task
-from pytask.pluginmanager import get_plugin_manager
+from _pytask.mark import Mark
+from _pytask.parametrize import _parse_arg_names
+from _pytask.parametrize import _parse_parametrize_markers
+from _pytask.parametrize import pytask_parametrize_task
+from _pytask.pluginmanager import get_plugin_manager
+from pytask import main
 
 
 class DummySession:
@@ -18,7 +19,7 @@ class DummySession:
 @pytest.fixture(scope="module")
 def session():
     pm = get_plugin_manager()
-    pm.register(pytask.parametrize)
+    pm.register(_pytask.parametrize)
 
     session = DummySession()
     session.hook = pm.hook

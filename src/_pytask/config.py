@@ -8,8 +8,8 @@ from pathlib import Path
 
 import click
 import pluggy
-from pytask.shared import get_first_not_none_value
-from pytask.shared import to_list
+from _pytask.shared import get_first_not_none_value
+from _pytask.shared import to_list
 
 
 hookimpl = pluggy.HookimplMarker("pytask")

@@ -1,12 +1,12 @@
 import textwrap
 
 import pytest
-from pytask.mark_ import pytask_main
+from pytask import main
 
 
 @pytest.mark.end_to_end
 def test_show_markers(capsys):
-    session = pytask_main({"markers": True})
+    session = main({"markers": True})
 
     assert session.exit_code == 0
 
@@ -37,7 +37,7 @@ def test_markers_option(capsys, tmp_path, config_name):
             """
         )
     )
-    session = pytask_main({"paths": tmp_path, "markers": True})
+    session = main({"paths": tmp_path, "markers": True})
 
     assert session.exit_code == 0
 
@@ -59,4 +59,4 @@ def test_marker_names(tmp_path, marker_name, config_name):
         )
     )
     with pytest.raises(Exception, match="Error while configuring pytask."):
-        pytask_main({"paths": tmp_path, "markers": True})
+        main({"paths": tmp_path, "markers": True})

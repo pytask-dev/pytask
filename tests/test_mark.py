@@ -3,9 +3,8 @@ import textwrap
 
 import pytask
 import pytest
-from pytask.cli import main
-from pytask.main import pytask_main
-from pytask.mark_ import MarkGenerator
+from _pytask.mark import MarkGenerator
+from pytask import main
 
 
 @pytest.mark.unit
@@ -59,7 +58,7 @@ def test_ini_markers(tmp_path, config_name):
         )
     )
 
-    session = pytask_main({"paths": tmp_path})
+    session = main({"paths": tmp_path})
 
     assert session.exit_code == 0
     assert "a1" in session.config["markers"]

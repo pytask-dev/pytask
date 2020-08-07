@@ -1,8 +1,8 @@
 from typing import Callable
 
 import pytest
-from pytask.mark_.expression import Expression
-from pytask.mark_.expression import ParseError
+from _pytask.mark.expression import Expression
+from _pytask.mark.expression import ParseError
 
 
 def evaluate(input_: str, matcher: Callable[[str], bool]) -> bool:

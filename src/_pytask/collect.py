@@ -8,18 +8,18 @@ import traceback
 from pathlib import Path
 
 import click
-import pytask
-from pytask.exceptions import CollectionError
-from pytask.exceptions import TaskDuplicatedError
-from pytask.mark_ import has_marker
-from pytask.nodes import FilePathNode
-from pytask.nodes import PythonFunctionTask
-from pytask.report import CollectionReport
-from pytask.report import CollectionReportFile
-from pytask.report import CollectionReportTask
+from _pytask.config import hookimpl
+from _pytask.exceptions import CollectionError
+from _pytask.exceptions import TaskDuplicatedError
+from _pytask.mark import has_marker
+from _pytask.nodes import FilePathNode
+from _pytask.nodes import PythonFunctionTask
+from _pytask.report import CollectionReport
+from _pytask.report import CollectionReportFile
+from _pytask.report import CollectionReportTask
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_collect(session):
     reports = _collect_from_paths(session)
     tasks = _extract_tasks_from_reports(reports)
@@ -66,13 +66,13 @@ def _collect_from_paths(session):
     return collected_reports
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_ignore_collect(path, config):
     ignored = any(fnmatch.fnmatch(path, pattern) for pattern in config["ignore"])
     return ignored
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_collect_file_protocol(session, path, reports):
     try:
         reports = session.hook.pytask_collect_file(
@@ -85,7 +85,7 @@ def pytask_collect_file_protocol(session, path, reports):
     return reports
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_collect_file(session, path, reports):
     if path.name.startswith("task_") and path.suffix == ".py":
         spec = importlib.util.spec_from_file_location(path.stem, str(path))
@@ -115,7 +115,7 @@ def pytask_collect_file(session, path, reports):
         return collected_reports
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_collect_task_protocol(session, reports, path, name, obj):
     try:
         session.hook.pytask_collect_task_setup(
@@ -132,7 +132,7 @@ def pytask_collect_task_protocol(session, reports, path, name, obj):
         return CollectionReportTask.from_exception(path, name, exc_info)
 
 
-@pytask.hookimpl(trylast=True)
+@hookimpl(trylast=True)
 def pytask_collect_task_setup(session, reports, path, name):
     paths_to_tasks_w_ident_name = [
         i.path.as_posix()
@@ -148,7 +148,7 @@ def pytask_collect_task_setup(session, reports, path, name):
         )
 
 
-@pytask.hookimpl(trylast=True)
+@hookimpl(trylast=True)
 def pytask_collect_task(session, path, name, obj):
     """Collect a task which is a function.
 
@@ -163,7 +163,7 @@ def pytask_collect_task(session, path, name, obj):
         )
 
 
-@pytask.hookimpl(trylast=True)
+@hookimpl(trylast=True)
 def pytask_collect_node(path, node):
     """Collect a node of a task as a :class:`pytask.nodes.FilePathNode`.
 
@@ -219,7 +219,7 @@ def _extract_tasks_from_reports(reports):
     return [i.task for i in reports if i.successful]
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_collect_log(session, reports, tasks):
     tm_width = session.config["terminal_width"]
 

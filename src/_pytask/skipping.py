@@ -1,14 +1,14 @@
 import click
-import pytask
-from pytask.dag import descending_tasks
-from pytask.mark_ import get_specific_markers_from_task
-from pytask.mark_ import Mark
-from pytask.outcomes import Skipped
-from pytask.outcomes import SkippedAncestorFailed
-from pytask.outcomes import SkippedUnchanged
+from _pytask.config import hookimpl
+from _pytask.dag import descending_tasks
+from _pytask.mark import get_specific_markers_from_task
+from _pytask.mark import Mark
+from _pytask.outcomes import Skipped
+from _pytask.outcomes import SkippedAncestorFailed
+from _pytask.outcomes import SkippedUnchanged
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_parse_config(config):
     markers = {
         "skip": "skip: Skip task and all its succeeding tasks automatically as well.",
@@ -20,7 +20,7 @@ def pytask_parse_config(config):
     config["markers"] = {**config["markers"], **markers}
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_execute_task_setup(task):
     markers = get_specific_markers_from_task(task, "skip_unchanged")
     if markers:
@@ -36,7 +36,7 @@ def pytask_execute_task_setup(task):
         raise Skipped
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_execute_task_process_report(session, report):
     task = report.task
 
@@ -63,7 +63,7 @@ def pytask_execute_task_process_report(session, report):
         return True
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_execute_task_log_end(report):
     if report.success:
         if report.exc_info and isinstance(report.exc_info[1], Skipped):

@@ -1,5 +1,5 @@
 import pluggy
-from pytask import hookspecs
+from _pytask import hookspecs
 
 
 def get_plugin_manager():

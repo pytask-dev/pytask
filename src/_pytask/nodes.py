@@ -10,10 +10,10 @@ from typing import Iterable
 from typing import Union
 
 import attr
-from pytask.exceptions import NodeNotCollectedError
-from pytask.exceptions import NodeNotFoundError
-from pytask.mark_ import get_marks_from_obj
-from pytask.shared import to_list
+from _pytask.exceptions import NodeNotCollectedError
+from _pytask.exceptions import NodeNotFoundError
+from _pytask.mark import get_marks_from_obj
+from _pytask.shared import to_list
 
 
 def depends_on(objects: Union[Any, Iterable[Any]]) -> Union[Any, Iterable[Any]]:

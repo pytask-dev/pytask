@@ -7,7 +7,8 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
-import pytask
+from _pytask.config import hookimpl
+from _pytask.mark import MARK_GEN as mark  # noqa: N811
 
 
 def parametrize(arg_names: Union[str, Tuple[str], List[str]], arg_values: Iterable):
@@ -28,7 +29,7 @@ def parametrize(arg_names: Union[str, Tuple[str], List[str]], arg_values: Iterab
     return arg_names, arg_values
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_parse_config(config):
     config["markers"]["parametrize"] = (
         "Call a task function multiple times passing in different arguments in turn. "
@@ -41,7 +42,7 @@ def pytask_parse_config(config):
     )
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_parametrize_task(session, name, obj):
     """Parametrize a task.
 
@@ -203,13 +204,13 @@ def _expand_arg_names(arg_names, n_runs):
     return [tuple(name + str(i) for name in arg_names) for i in range(n_runs)]
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_parametrize_kwarg_to_marker(obj, kwargs):
     """Add some parametrized keyword arguments as decorator."""
     if callable(obj):
         for marker_name in ["depends_on", "produces"]:
             if marker_name in kwargs:
-                pytask.mark.__getattr__(marker_name)(kwargs.pop(marker_name))(obj)
+                mark.__getattr__(marker_name)(kwargs.pop(marker_name))(obj)
 
 
 def _to_tuple(x):
