@@ -7,10 +7,13 @@ import warnings
 from pathlib import Path
 
 import click
-import pytask
-from pytask.mark.structures import MARK_GEN
+import pluggy
 from pytask.shared import get_first_not_none_value
 from pytask.shared import to_list
+
+
+hookimpl = pluggy.HookimplMarker("pytask")
+
 
 IGNORED_FILES_AND_FOLDERS = [
     "*/.git/*",
@@ -20,7 +23,7 @@ IGNORED_FILES_AND_FOLDERS = [
 ]
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_configure(pm, config_from_cli):
     config = {"pm": pm, "terminal_width": _get_terminal_width()}
 
@@ -38,20 +41,18 @@ def pytask_configure(pm, config_from_cli):
         "produces": "Attach a product/products to a task.",
     }
 
-    config["pm"].hook.pytask_parse_config(
+    pm.hook.pytask_parse_config(
         config=config,
         config_from_cli=config_from_cli,
         config_from_file=config_from_file,
     )
 
-    config["pm"].hook.pytask_post_parse(config=config)
-
-    MARK_GEN.config = config
+    pm.hook.pytask_post_parse(config=config)
 
     return config
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
     config["ignore"] = (
         get_first_not_none_value(

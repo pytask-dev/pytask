@@ -1,17 +1,81 @@
 How to select tasks
 ===================
 
-If you want to run only a subset of tasks, there exists currently one option.
+If you want to run only a subset of tasks, there exist multiple options.
 
 
-Selecting tasks via paths
--------------------------
+Paths
+-----
 
-You can run all tasks in one file by passing the path to the file to pytask. The same
-can be done for multiple paths
+You can run all tasks in one file or one directory by passing the corresponding path to
+pytask. The same can be done for multiple paths.
 
 .. code-block:: bash
 
-    $ pytask path/to/task_1.py
+    $ pytask src/task_1.py
 
-    $ pytask path/to/task_1.py path/to/task_2.py
+    $ pytask src
+
+    $ pytask src/task_1.py src/task_2.py
+
+
+Markers
+-------
+
+If you assign markers to task functions, you can use marker expressions to select tasks.
+For example, here is a task with the ``wip`` marker which indicates work-in-progress.
+
+.. code-block:: python
+
+    @pytask.mark.wip
+    def task_1():
+        pass
+
+To execute only tasks with the ``wip`` marker, use
+
+.. code-block:: bash
+
+    $ pytask -m wip
+
+You can pass more complex expressions to ``-m`` by using multiple markers and ``and``,
+``or``, ``not``, and brackets (``()``). The following pattern selects all tasks which
+belong to the data management, but not the ones which produce plots and plots produced
+for the analysis.
+
+.. code-block:: bash
+
+    $ pytask -m "(data_management and not plots) or (analysis and plots)"
+
+
+Expressions
+-----------
+
+Expressions are similar to markers and offer the same syntax but target the task ids.
+Assume you have the following tasks.
+
+.. code-block:: python
+
+    def task_1():
+        pass
+
+
+    def task_2():
+        pass
+
+
+    def task_12():
+        pass
+
+Then,
+
+.. code-block:: bash
+
+    $ pytask -k 1
+
+will execute the first and third task and
+
+.. code-block:: bash
+
+    $ pytask -k "1 and not 2"
+
+executes only the first task.

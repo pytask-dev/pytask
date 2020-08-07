@@ -12,6 +12,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`10` turns parametrization into a plugin.
 - :gh:`11` extends the documentation.
 - :gh:`12` replaces ``pytest.mark`` with ``pytask.mark``.
+- :gh:`13` implements selecting tasks via expressions or marker expressions.
 
 
 0.0.4 - 2020-07-22

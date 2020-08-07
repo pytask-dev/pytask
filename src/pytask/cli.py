@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 import click
-import pytask.mark.cli
+from pytask.config import hookimpl
 from pytask.pluginmanager import get_plugin_manager
 
 
@@ -11,34 +11,46 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 def add_parameters(func):
     """Add parameters from plugins to the commandline interface."""
-    pm = get_plugin_manager()
-    pm.register(sys.modules[__name__])
-    pm.hook.pytask_add_hooks(pm=pm)
+    pm = _prepare_plugin_manager()
     pm.hook.pytask_add_parameters_to_cli(command=func)
-
     # Hack to pass the plugin manager via a hidden option to the ``config_from_cli``.
     func.params.append(click.Option(["--pm"], default=pm, hidden=True))
 
     return func
 
 
-@pytask.hookimpl
+def _prepare_plugin_manager():
+    pm = get_plugin_manager()
+    pm.register(sys.modules[__name__])
+    pm.hook.pytask_add_hooks(pm=pm)
+    return pm
+
+
+@hookimpl
 def pytask_add_hooks(pm):
-    """Add some hooks and plugins.
-
-    This hook implementation registers only plugins which extend the command line
-    interface or patch the main entry-point :func:`pytask.hookspecs.pytask_main`.
-
-    """
+    from pytask import collect
+    from pytask import config
     from pytask import database
     from pytask import debugging
+    from pytask import execute
+    from pytask import logging
     from pytask import main
-    from pytask.mark import cli as mark_cli
+    from pytask import parametrize
+    from pytask import resolve_dependencies
+    from pytask import skipping
+    from pytask import mark_
 
+    pm.register(collect)
+    pm.register(config)
     pm.register(database)
     pm.register(debugging)
+    pm.register(execute)
+    pm.register(logging)
     pm.register(main)
-    pm.register(mark_cli)
+    pm.register(parametrize)
+    pm.register(resolve_dependencies)
+    pm.register(skipping)
+    pm.register(mark_)
 
 
 def _to_path(ctx, param, value):  # noqa: U100
@@ -46,7 +58,7 @@ def _to_path(ctx, param, value):  # noqa: U100
     return [Path(i).resolve() for i in value]
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_add_parameters_to_cli(command):
     additional_parameters = [
         click.Argument(
@@ -72,6 +84,12 @@ def pytask_add_parameters_to_cli(command):
 @click.version_option()
 def pytask(**config_from_cli):
     """Command-line interface for pytask."""
-    pm = config_from_cli["pm"]
-    session = pm.hook.pytask_main(config_from_cli=config_from_cli)
+    session = main(config_from_cli)
     sys.exit(session.exit_code)
+
+
+def main(config_from_cli):
+    pm = config_from_cli.get("pm", _prepare_plugin_manager())
+    session = pm.hook.pytask_main(config_from_cli=config_from_cli)
+
+    return session

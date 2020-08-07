@@ -11,9 +11,10 @@ import click
 import pytask
 from pytask.exceptions import CollectionError
 from pytask.exceptions import TaskDuplicatedError
-from pytask.mark.structures import has_marker
+from pytask.mark_ import has_marker
 from pytask.nodes import FilePathNode
 from pytask.nodes import PythonFunctionTask
+from pytask.report import CollectionReport
 from pytask.report import CollectionReportFile
 from pytask.report import CollectionReportTask
 
@@ -22,8 +23,16 @@ from pytask.report import CollectionReportTask
 def pytask_collect(session):
     reports = _collect_from_paths(session)
     tasks = _extract_tasks_from_reports(reports)
-    session.hook.pytask_collect_modify_tasks(tasks=tasks, config=session.config)
-    session.hook.pytask_collect_log(reports=reports, tasks=tasks, config=session.config)
+
+    try:
+        session.hook.pytask_collect_modify_tasks(session=session, tasks=tasks)
+    except Exception:
+        report = CollectionReport(
+            " Modification of collected tasks failed ", sys.exc_info()
+        )
+        reports.append(report)
+
+    session.hook.pytask_collect_log(session=session, reports=reports, tasks=tasks)
 
     session.collection_reports = reports
     session.tasks = tasks
@@ -211,10 +220,13 @@ def _extract_tasks_from_reports(reports):
 
 
 @pytask.hookimpl
-def pytask_collect_log(reports, tasks, config):
-    tm_width = config["terminal_width"]
+def pytask_collect_log(session, reports, tasks):
+    tm_width = session.config["terminal_width"]
 
-    click.echo(f"Collected {len(tasks)} task(s).")
+    message = f"Collected {len(tasks)} task(s)."
+    if session.deselected:
+        message += f" Deselected {len(session.deselected)} task(s)."
+    click.echo(message)
 
     failed_reports = [i for i in reports if not i.successful]
     if failed_reports:

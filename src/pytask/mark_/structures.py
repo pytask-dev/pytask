@@ -11,7 +11,7 @@ from typing import Union
 import attr
 
 
-def get_markers_from_task(task, marker_name):
+def get_specific_markers_from_task(task, marker_name):
     return [marker for marker in task.markers if marker.name == marker_name]
 
 
@@ -172,7 +172,7 @@ def normalize_mark_list(mark_list: Iterable[Union[Mark, MarkDecorator]]) -> List
 
     Parameters
     ----------
-    mark_list : List[Union[Mark, Markdecorator]]
+    mark_list : List[Union[Mark, MarkDecorator]]
 
     Returns
     -------
@@ -224,20 +224,17 @@ class MarkGenerator:
             raise AttributeError("Marker name must NOT start with underscore")
 
         if self.config is not None:
-            # We store a set of markers as a performance optimisation - if a mark
+            # We store a set of markers as a performance optimization - if a mark
             # name is in the set we definitely know it, but a mark may be known and
             # not in the set.  We therefore start by updating the set!
             if name not in self.markers:
-                for line in self.config["markers"]:
-                    # example lines: "skipif(condition): skip the given task if..."
-                    # or "hypothesis: tasks which use Hypothesis", so to get the
-                    # marker name we split on both `:` and `(`.
-                    marker = line.split(":")[0].split("(")[0].strip()
-                    self.markers.add(marker)
+                self.markers.update(self.config["markers"])
 
             # If the name is not in the set of known marks after updating,
             # then it really is time to issue a warning or an error.
             if name not in self.markers:
+                if self.config["strict_markers"]:
+                    raise ValueError(f"Unknown pytask.mark.{name}.")
                 # Raise a specific error for common misspellings of "parametrize".
                 if name in ["parameterize", "parametrise", "parameterise"]:
                     warnings.warn(f"Unknown '{name}' mark, did you mean 'parametrize'?")

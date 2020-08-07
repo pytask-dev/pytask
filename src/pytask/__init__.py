@@ -1,8 +1,5 @@
-import pluggy
-from pytask.mark.structures import MARK_GEN as mark  # noqa: F401, N811
+from pytask.config import hookimpl
+from pytask.mark_ import MARK_GEN as mark  # noqa: N811
 
-hookimpl = pluggy.HookimplMarker("pytask")
-
-
-__all__ = ["hookimpl", "mark"]
+__all__ = ["hookimpl", "main", "mark"]
 __version__ = "0.0.4"
