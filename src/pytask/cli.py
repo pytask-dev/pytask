@@ -11,15 +11,19 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 def add_parameters(func):
     """Add parameters from plugins to the commandline interface."""
-    pm = get_plugin_manager()
-    pm.register(sys.modules[__name__])
-    pm.hook.pytask_add_hooks(pm=pm)
+    pm = _prepare_plugin_manager()
     pm.hook.pytask_add_parameters_to_cli(command=func)
-
     # Hack to pass the plugin manager via a hidden option to the ``config_from_cli``.
     func.params.append(click.Option(["--pm"], default=pm, hidden=True))
 
     return func
+
+
+def _prepare_plugin_manager():
+    pm = get_plugin_manager()
+    pm.register(sys.modules[__name__])
+    pm.hook.pytask_add_hooks(pm=pm)
+    return pm
 
 
 @hookimpl
@@ -80,6 +84,12 @@ def pytask_add_parameters_to_cli(command):
 @click.version_option()
 def pytask(**config_from_cli):
     """Command-line interface for pytask."""
-    pm = config_from_cli["pm"]
-    session = pm.hook.pytask_main(config_from_cli=config_from_cli)
+    session = main(config_from_cli)
     sys.exit(session.exit_code)
+
+
+def main(config_from_cli):
+    pm = config_from_cli.get("pm", _prepare_plugin_manager())
+    session = pm.hook.pytask_main(config_from_cli=config_from_cli)
+
+    return session

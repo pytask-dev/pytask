@@ -16,6 +16,7 @@ from pytask.mark_.structures import MarkDecorator
 from pytask.mark_.structures import MarkGenerator
 from pytask.pluginmanager import get_plugin_manager
 from pytask.session import Session
+from pytask.shared import get_first_not_none_value
 
 
 __all__ = [
@@ -36,6 +37,9 @@ def pytask_add_parameters_to_cli(command: click.Command) -> None:
     additional_parameters = [
         click.Option(["--markers"], is_flag=True, help="Show available markers."),
         click.Option(
+            ["--strict-markers"], is_flag=True, help="Raise errors for unknown marks."
+        ),
+        click.Option(
             ["-m", "marker_expression"],
             metavar="MARKER_EXPRESSION",
             type=str,
@@ -55,6 +59,9 @@ def pytask_add_parameters_to_cli(command: click.Command) -> None:
 def pytask_parse_config(config, config_from_cli, config_from_file):
     markers = _read_marker_mapping_from_ini(config_from_file.get("markers", ""))
     config["markers"] = {**markers, **config["markers"]}
+    config["strict_markers"] = get_first_not_none_value(
+        config, config_from_file, config_from_cli, key="strict_markers", default=False
+    )
 
     config["expression"] = config_from_cli.get("expression")
     config["marker_expression"] = config_from_cli.get("marker_expression")
@@ -119,7 +126,7 @@ class KeywordMatcher:
     Given a list of names, matches any substring of one of these names. The string
     inclusion check is case-insensitive.
 
-    Will match on the name of colitem, including the names of its parents. Only matches
+    Will match on the name of the task, including the names of its parents. Only matches
     names of items which are either a :class:`Class` or :class:`Function`.
 
     Additionally, matches on names in the 'extra_keyword_matches' set of any task, as
