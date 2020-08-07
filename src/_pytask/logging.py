@@ -2,9 +2,9 @@ import platform
 import sys
 from typing import List
 
+import _pytask
 import click
 import pluggy
-import pytask
 from _pytask.config import hookimpl
 
 
@@ -15,7 +15,7 @@ def pytask_log_session_header(session):
     click.echo(f"{{:=^{tm_width}}}".format(" Start pytask session "), nl=True)
     click.echo(
         f"Platform: {sys.platform} -- Python {platform.python_version()}, "
-        f"pytask {pytask.__version__}, pluggy {pluggy.__version__}"
+        f"pytask {_pytask.__version__}, pluggy {pluggy.__version__}"
     )
     click.echo(f"Root: {session.config['root'].as_posix()}")
     if session.config["ini"] is not None:
