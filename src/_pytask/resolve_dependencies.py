@@ -4,19 +4,19 @@ import traceback
 
 import click
 import networkx as nx
-import pytask
+from _pytask.config import hookimpl
+from _pytask.dag import node_and_neigbors
+from _pytask.dag import sort_tasks_topologically
+from _pytask.dag import task_and_descending_tasks
+from _pytask.database import State
+from _pytask.exceptions import NodeNotFoundError
+from _pytask.exceptions import ResolvingDependenciesError
+from _pytask.mark import Mark
+from _pytask.report import ResolvingDependenciesReport
 from pony import orm
-from pytask.dag import node_and_neigbors
-from pytask.dag import sort_tasks_topologically
-from pytask.dag import task_and_descending_tasks
-from pytask.database import State
-from pytask.exceptions import NodeNotFoundError
-from pytask.exceptions import ResolvingDependenciesError
-from pytask.mark_ import Mark
-from pytask.report import ResolvingDependenciesReport
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_resolve_dependencies(session):
     """Create a directed acyclic graph (DAG) capturing dependencies between functions.
 
@@ -43,7 +43,7 @@ def pytask_resolve_dependencies(session):
         return True
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_resolve_dependencies_create_dag(tasks):
     dag = nx.DiGraph()
 
@@ -61,7 +61,7 @@ def pytask_resolve_dependencies_create_dag(tasks):
     return dag
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_resolve_dependencies_select_execution_dag(dag):
     tasks = list(sort_tasks_topologically(dag))
     visited_nodes = []
@@ -77,7 +77,7 @@ def pytask_resolve_dependencies_select_execution_dag(dag):
                 )
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_resolve_dependencies_validate_dag(dag):
     _check_if_dag_has_cycles(dag)
     _check_if_root_nodes_are_available(dag)
@@ -133,7 +133,7 @@ def _check_if_root_nodes_are_available(dag):
                 )
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_resolve_dependencies_log(session, report):
     tm_width = session.config["terminal_width"]
 

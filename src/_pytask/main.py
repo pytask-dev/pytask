@@ -1,17 +1,17 @@
 import pdb
 
-import pytask.pluginmanager
-from pytask import cli
-from pytask.database import create_database
-from pytask.enums import ExitCode
-from pytask.exceptions import CollectionError
-from pytask.exceptions import ExecutionError
-from pytask.exceptions import ResolvingDependenciesError
-from pytask.pluginmanager import get_plugin_manager
-from pytask.session import Session
+from _pytask import cli
+from _pytask.config import hookimpl
+from _pytask.database import create_database
+from _pytask.enums import ExitCode
+from _pytask.exceptions import CollectionError
+from _pytask.exceptions import ExecutionError
+from _pytask.exceptions import ResolvingDependenciesError
+from _pytask.pluginmanager import get_plugin_manager
+from _pytask.session import Session
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_main(config_from_cli):
     """Run pytask.
 

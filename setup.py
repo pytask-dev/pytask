@@ -36,7 +36,7 @@ setup(
         "Programming Language :: Python :: 3.8",
     ],
     platforms="any",
-    entry_points={"console_scripts": ["pytask=pytask.cli:pytask"]},
+    entry_points={"console_scripts": ["pytask=pytask:pytask"]},
     packages=find_packages(where="src"),
     package_dir={"": "src"},
 )

@@ -4,18 +4,17 @@ import time
 import traceback
 
 import click
-import pytask
-from pytask import hookimpl
-from pytask.dag import descending_tasks
-from pytask.dag import node_and_neigbors
-from pytask.dag import sort_tasks_topologically
-from pytask.database import create_or_update_state
-from pytask.exceptions import ExecutionError
-from pytask.exceptions import NodeNotFoundError
-from pytask.mark_ import Mark
-from pytask.nodes import FilePathNode
-from pytask.report import ExecutionReport
-from pytask.report import format_execute_footer
+from _pytask.config import hookimpl
+from _pytask.dag import descending_tasks
+from _pytask.dag import node_and_neigbors
+from _pytask.dag import sort_tasks_topologically
+from _pytask.database import create_or_update_state
+from _pytask.exceptions import ExecutionError
+from _pytask.exceptions import NodeNotFoundError
+from _pytask.mark import Mark
+from _pytask.nodes import FilePathNode
+from _pytask.report import ExecutionReport
+from _pytask.report import format_execute_footer
 
 
 @hookimpl
@@ -139,7 +138,7 @@ def pytask_execute_task_log_end(report):
     return True
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_execute_log_end(session, reports):
     session.execution_end = time.time()
     click.echo("")

@@ -3,20 +3,20 @@ from typing import AbstractSet
 
 import attr
 import click
-from pytask.config import hookimpl
-from pytask.enums import ExitCode
-from pytask.mark_.expression import Expression
-from pytask.mark_.expression import ParseError
-from pytask.mark_.structures import get_marks_from_obj
-from pytask.mark_.structures import get_specific_markers_from_task
-from pytask.mark_.structures import has_marker
-from pytask.mark_.structures import Mark
-from pytask.mark_.structures import MARK_GEN
-from pytask.mark_.structures import MarkDecorator
-from pytask.mark_.structures import MarkGenerator
-from pytask.pluginmanager import get_plugin_manager
-from pytask.session import Session
-from pytask.shared import get_first_not_none_value
+from _pytask.config import hookimpl
+from _pytask.enums import ExitCode
+from _pytask.mark.expression import Expression
+from _pytask.mark.expression import ParseError
+from _pytask.mark.structures import get_marks_from_obj
+from _pytask.mark.structures import get_specific_markers_from_task
+from _pytask.mark.structures import has_marker
+from _pytask.mark.structures import Mark
+from _pytask.mark.structures import MARK_GEN
+from _pytask.mark.structures import MarkDecorator
+from _pytask.mark.structures import MarkGenerator
+from _pytask.pluginmanager import get_plugin_manager
+from _pytask.session import Session
+from _pytask.shared import get_first_not_none_value
 
 
 __all__ = [
@@ -95,7 +95,7 @@ def pytask_main(config_from_cli: dict) -> int:
         try:
             # Duplication of the same mechanism in :func:`pytask.main.pytask_main`.
             pm = get_plugin_manager()
-            from pytask import cli
+            from _pytask import cli
 
             pm.register(cli)
             pm.hook.pytask_add_hooks(pm=pm)

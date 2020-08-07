@@ -1,9 +1,9 @@
 from pathlib import Path
 
 import click
-import pytask
+from _pytask.config import hookimpl
+from _pytask.shared import get_first_not_none_value
 from pony import orm
-from pytask.shared import get_first_not_none_value
 
 
 db = orm.Database()
@@ -35,7 +35,7 @@ def create_or_update_state(first_key, second_key, state):
         state_in_db.state = state
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_add_parameters_to_cli(command):
     additional_parameters = [
         click.Option(
@@ -60,7 +60,7 @@ def pytask_add_parameters_to_cli(command):
     command.params.extend(additional_parameters)
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
     provider = get_first_not_none_value(
         config_from_cli, config_from_file, key="database_provider", default="sqlite"

@@ -1,10 +1,10 @@
 import pytask
 import pytest
-from pytask.nodes import _extract_nodes_from_function_markers
-from pytask.nodes import depends_on
-from pytask.nodes import MetaNode
-from pytask.nodes import MetaTask
-from pytask.nodes import produces
+from _pytask.nodes import _extract_nodes_from_function_markers
+from _pytask.nodes import depends_on
+from _pytask.nodes import MetaNode
+from _pytask.nodes import MetaTask
+from _pytask.nodes import produces
 
 
 @pytest.mark.unit

@@ -2,8 +2,8 @@ import sys
 from pathlib import Path
 
 import click
-from pytask.config import hookimpl
-from pytask.pluginmanager import get_plugin_manager
+from _pytask.config import hookimpl
+from _pytask.pluginmanager import get_plugin_manager
 
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
@@ -28,17 +28,17 @@ def _prepare_plugin_manager():
 
 @hookimpl
 def pytask_add_hooks(pm):
-    from pytask import collect
-    from pytask import config
-    from pytask import database
-    from pytask import debugging
-    from pytask import execute
-    from pytask import logging
-    from pytask import main
-    from pytask import parametrize
-    from pytask import resolve_dependencies
-    from pytask import skipping
-    from pytask import mark_
+    from _pytask import collect
+    from _pytask import config
+    from _pytask import database
+    from _pytask import debugging
+    from _pytask import execute
+    from _pytask import logging
+    from _pytask import main
+    from _pytask import parametrize
+    from _pytask import resolve_dependencies
+    from _pytask import skipping
+    from _pytask import mark
 
     pm.register(collect)
     pm.register(config)
@@ -50,7 +50,7 @@ def pytask_add_hooks(pm):
     pm.register(parametrize)
     pm.register(resolve_dependencies)
     pm.register(skipping)
-    pm.register(mark_)
+    pm.register(mark)
 
 
 def _to_path(ctx, param, value):  # noqa: U100

@@ -1,9 +1,9 @@
 import os
 
 import pytest
-from pytask.config import _find_project_root_and_ini
-from pytask.config import _get_terminal_width
-from pytask.main import pytask_main
+from _pytask.config import _find_project_root_and_ini
+from _pytask.config import _get_terminal_width
+from pytask import main
 
 
 @pytest.mark.unit
@@ -54,14 +54,14 @@ def test_get_terminal_width(monkeypatch, mock_value, expected):
     def mock(**kwargs):
         return mock_value, None
 
-    monkeypatch.setattr("pytask.config.shutil.get_terminal_size", mock)
+    monkeypatch.setattr("_pytask.config.shutil.get_terminal_size", mock)
 
     assert _get_terminal_width() == expected
 
 
 @pytest.mark.end_to_end
 def test_debug_pytask(capsys, tmp_path):
-    session = pytask_main({"paths": tmp_path, "debug_pytask": True})
+    session = main({"paths": tmp_path, "debug_pytask": True})
 
     assert session.exit_code == 0
 

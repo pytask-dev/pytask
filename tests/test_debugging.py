@@ -6,7 +6,7 @@ import pytest
 try:
     import pexpect
 except ModuleNotFoundError:
-    pytaskmark = pytest.mark.skip(reason="pexpect is not installed.")
+    pytestmark = pytest.mark.skip(reason="pexpect is not installed.")
 
 
 @pytest.mark.end_to_end

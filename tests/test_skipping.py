@@ -3,14 +3,14 @@ import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
-from pytask.main import pytask_main
-from pytask.mark_ import Mark
-from pytask.outcomes import Skipped
-from pytask.outcomes import SkippedAncestorFailed
-from pytask.outcomes import SkippedUnchanged
-from pytask.report import ExecutionReport
-from pytask.skipping import pytask_execute_task_log_end
-from pytask.skipping import pytask_execute_task_setup
+from _pytask.mark import Mark
+from _pytask.outcomes import Skipped
+from _pytask.outcomes import SkippedAncestorFailed
+from _pytask.outcomes import SkippedUnchanged
+from _pytask.report import ExecutionReport
+from _pytask.skipping import pytask_execute_task_log_end
+from _pytask.skipping import pytask_execute_task_setup
+from pytask import main
 
 
 @pytest.mark.end_to_end
@@ -21,10 +21,10 @@ def test_skip_unchanged(tmp_path):
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
-    session = pytask_main({"paths": tmp_path})
+    session = main({"paths": tmp_path})
     assert session.execution_reports[0].success
 
-    session = pytask_main({"paths": tmp_path})
+    session = main({"paths": tmp_path})
     assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
 
 
@@ -45,12 +45,12 @@ def test_skip_unchanged_w_dependencies_and_products(tmp_path):
     tmp_path.joinpath("in.txt").write_text("Original content of in.txt.")
 
     os.chdir(tmp_path)
-    session = pytask_main({"paths": tmp_path})
+    session = main({"paths": tmp_path})
 
     assert session.execution_reports[0].success
     assert tmp_path.joinpath("out.txt").read_text() == "Original content of in.txt."
 
-    session = pytask_main({"paths": tmp_path})
+    session = main({"paths": tmp_path})
 
     assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
     assert tmp_path.joinpath("out.txt").read_text() == "Original content of in.txt."
@@ -75,7 +75,7 @@ def test_skip_if_ancestor_failed(tmp_path):
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
     os.chdir(tmp_path)
-    session = pytask_main({"paths": tmp_path})
+    session = main({"paths": tmp_path})
 
     assert not session.execution_reports[0].success
     assert isinstance(session.execution_reports[0].exc_info[1], Exception)
@@ -102,7 +102,7 @@ def test_if_skip_decorator_is_applied(tmp_path):
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
     os.chdir(tmp_path)
-    session = pytask_main({"paths": tmp_path})
+    session = main({"paths": tmp_path})
 
     assert session.execution_reports[0].success
     assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
