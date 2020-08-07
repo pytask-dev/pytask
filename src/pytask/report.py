@@ -7,6 +7,19 @@ import click
 
 
 @attr.s
+class CollectionReport:
+    title = attr.ib(type=str)
+    exc_info = attr.ib(type=tuple)
+
+    def format_title(self):
+        return self.title
+
+    @property
+    def successful(self):
+        return self.exc_info is None
+
+
+@attr.s
 class CollectionReportTask:
     path = attr.ib(type=Path)
     name = attr.ib(type=str)

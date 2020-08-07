@@ -212,3 +212,45 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
 
     tasks_that_run = [report.task.name for report in session.execution_reports]
     assert set(tasks_that_run) == set(expected_passed)
+
+
+@pytest.mark.parametrize(
+    ("expr", "expected_error"),
+    [
+        (
+            "foo or",
+            "at column 7: expected not OR left parenthesis OR identifier; got end of "
+            "input",
+        ),
+        (
+            "foo or or",
+            "at column 8: expected not OR left parenthesis OR identifier; got or",
+        ),
+        ("(foo", "at column 5: expected right parenthesis; got end of input",),
+        ("foo bar", "at column 5: expected end of input; got identifier",),
+        (
+            "or or",
+            "at column 1: expected not OR left parenthesis OR identifier; got or",
+        ),
+        (
+            "not or",
+            "at column 5: expected not OR left parenthesis OR identifier; got or",
+        ),
+    ],
+)
+def test_keyword_option_wrong_arguments(
+    tmp_path, capsys, expr: str, expected_error: str
+) -> None:
+    tmp_path.joinpath("task_dummy.py").write_text(
+        textwrap.dedent(
+            """
+            def task_func(arg):
+                pass
+            """
+        )
+    )
+    session = main({"paths": tmp_path, "expression": expr})
+    assert session.exit_code == 2
+
+    err = capsys.readouterr().err
+    assert expected_error in err

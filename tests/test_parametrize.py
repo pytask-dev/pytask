@@ -3,7 +3,7 @@ import textwrap
 
 import pytask
 import pytest
-from pytask.main import pytask_main
+from pytask.cli import main
 from pytask.mark_ import Mark
 from pytask.parametrize import _parse_arg_names
 from pytask.parametrize import _parse_parametrize_markers
@@ -149,7 +149,7 @@ def test_parametrizing_tasks(tmp_path):
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
-    session = pytask_main({"paths": tmp_path})
+    session = main({"paths": tmp_path})
 
     assert session.exit_code == 0
     for i in range(1, 3):
@@ -177,6 +177,28 @@ def test_parametrizing_dependencies_and_targets(tmp_path):
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
-    session = pytask_main({"paths": tmp_path})
+    session = main({"paths": tmp_path})
 
     assert session.exit_code == 0
+
+
+@pytest.mark.end_to_end
+def test_parametrize_iterator(tmp_path):
+    """`parametrize` should work with generators."""
+    tmp_path.joinpath("task_dummy.py").write_text(
+        textwrap.dedent(
+            """
+            import pytask
+            def gen():
+                yield 1
+                yield 2
+                yield 3
+            @pytask.mark.parametrize('a', gen())
+            def task_func(a):
+                assert a >= 1
+            """
+        )
+    )
+    session = main({"paths": tmp_path})
+    assert session.exit_code == 0
+    assert len(session.execution_reports) == 3
