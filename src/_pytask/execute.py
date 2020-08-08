@@ -9,6 +9,7 @@ from _pytask.dag import descending_tasks
 from _pytask.dag import node_and_neigbors
 from _pytask.dag import sort_tasks_topologically
 from _pytask.database import create_or_update_state
+from _pytask.enums import ColorCode
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
@@ -131,9 +132,9 @@ def pytask_execute_task_process_report(session, report):
 @hookimpl(trylast=True)
 def pytask_execute_task_log_end(report):
     if report.success:
-        click.secho(".", fg="green", nl=False)
+        click.secho(".", fg=ColorCode.SUCCESS.value, nl=False)
     else:
-        click.secho("F", fg="red", nl=False)
+        click.secho("F", fg=ColorCode.FAILED.value, nl=False)
 
     return True
 

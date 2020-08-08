@@ -1,6 +1,7 @@
 import click
 from _pytask.config import hookimpl
 from _pytask.dag import descending_tasks
+from _pytask.enums import ColorCode
 from _pytask.mark import get_specific_markers_from_task
 from _pytask.mark import Mark
 from _pytask.outcomes import Skipped
@@ -67,12 +68,12 @@ def pytask_execute_task_process_report(session, report):
 def pytask_execute_task_log_end(report):
     if report.success:
         if report.exc_info and isinstance(report.exc_info[1], Skipped):
-            click.secho("s", fg="yellow", nl=False)
+            click.secho("s", fg=ColorCode.SKIPPED.value, nl=False)
         elif report.exc_info and isinstance(report.exc_info[1], SkippedUnchanged):
-            click.secho("s", fg="green", nl=False)
+            click.secho("s", fg=ColorCode.SUCCESS.value, nl=False)
     else:
         if report.exc_info and isinstance(report.exc_info[1], SkippedAncestorFailed):
-            click.secho("s", fg="red", nl=False)
+            click.secho("s", fg=ColorCode.FAILED.value, nl=False)
 
     if report.exc_info and isinstance(
         report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)
