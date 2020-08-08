@@ -66,7 +66,7 @@ class PythonFunctionTask(MetaTask):
     """str: The unique identifier for a task."""
     path = attr.ib(type=Path)
     """pathlib.Path: Path to the file where the task was defined."""
-    function = attr.ib()
+    function = attr.ib(type=callable)
     """callable: The task function."""
     depends_on = attr.ib(converter=to_list)
     """Optional[List[MetaNode]]: A list of dependencies of task."""
@@ -92,7 +92,7 @@ class PythonFunctionTask(MetaTask):
 
         return cls(
             path=path,
-            name=name,
+            name=path.as_posix() + "::" + name,
             function=function,
             depends_on=dependencies,
             produces=products,

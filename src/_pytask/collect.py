@@ -2,7 +2,6 @@ import fnmatch
 import glob
 import importlib
 import inspect
-import pprint
 import sys
 import traceback
 from pathlib import Path
@@ -10,7 +9,6 @@ from pathlib import Path
 import click
 from _pytask.config import hookimpl
 from _pytask.exceptions import CollectionError
-from _pytask.exceptions import TaskDuplicatedError
 from _pytask.mark import has_marker
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import PythonFunctionTask
@@ -130,22 +128,6 @@ def pytask_collect_task_protocol(session, reports, path, name, obj):
     except Exception:
         exc_info = sys.exc_info()
         return CollectionReportTask.from_exception(path, name, exc_info)
-
-
-@hookimpl(trylast=True)
-def pytask_collect_task_setup(session, reports, path, name):
-    paths_to_tasks_w_ident_name = [
-        i.path.as_posix()
-        for i in reports
-        if not isinstance(i, CollectionReportFile) and i.name == name
-    ]
-    if paths_to_tasks_w_ident_name:
-        formatted = pprint.pformat(
-            paths_to_tasks_w_ident_name, width=session.config["terminal_width"]
-        )
-        raise TaskDuplicatedError(
-            f"Task '{name}' in '{path}' has the same name as task(s):\n   {formatted}"
-        )
 
 
 @hookimpl(trylast=True)

@@ -79,3 +79,9 @@ will execute the first and third task and
     $ pytask -k "1 and not 2"
 
 executes only the first task.
+
+To execute a single task, say ``task_run_this_one``, in ``task_example.py``, use
+
+.. code-block:: bash
+
+    $ pytask -k task_example.py::task_run_this_one
