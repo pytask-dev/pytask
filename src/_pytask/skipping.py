@@ -7,6 +7,7 @@ from _pytask.mark import Mark
 from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
+from _pytask.shared import remove_traceback_from_exc_info
 
 
 @hookimpl
@@ -56,7 +57,7 @@ def pytask_execute_task_process_report(session, report):
 
     elif report.exc_info and isinstance(report.exc_info[1], SkippedAncestorFailed):
         report.success = False
-        report.exc_info = _remove_traceback_from_exc_info(report.exc_info)
+        report.exc_info = remove_traceback_from_exc_info(report.exc_info)
 
     if report.exc_info and isinstance(
         report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)
@@ -80,7 +81,3 @@ def pytask_execute_task_log_end(report):
     ):
         # Return non-None value so that the task is not logged again.
         return True
-
-
-def _remove_traceback_from_exc_info(exc_info):
-    return (*exc_info[:2], None)

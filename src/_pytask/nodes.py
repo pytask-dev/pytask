@@ -118,7 +118,7 @@ class PythonFunctionTask(MetaTask):
                 kwargs[name] = (
                     attribute[0].value
                     if len(attribute) == 1
-                    else [node.value for node in self.depends_on]
+                    else [node.value for node in attribute]
                 )
 
         return kwargs
@@ -151,6 +151,7 @@ class FilePathNode(MetaNode):
         The `lru_cache` decorator ensures that the same object is not collected twice.
 
         """
+        path = path.resolve()
         return cls(path.as_posix(), path)
 
     def state(self):

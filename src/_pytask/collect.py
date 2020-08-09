@@ -169,7 +169,7 @@ def pytask_collect_node(path, node):
         node = Path(node)
     if isinstance(node, Path):
         if not node.is_absolute():
-            node = path.parent.joinpath(node).resolve()
+            node = path.parent.joinpath(node)
         return FilePathNode.from_path(node)
 
 
@@ -184,7 +184,7 @@ def valid_paths(paths, session):
     ----------
     paths : List[pathlib.Path]
         List of paths from which tasks are collected.
-    session : pytask.main.Session
+    session : _pytask.session.Session
         The session.
 
     """

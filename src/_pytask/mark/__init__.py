@@ -141,7 +141,7 @@ class KeywordMatcher:
         mapped_names = {task.name}
 
         # Add the names attached to the current function through direct assignment.
-        function_obj = getattr(task, "function", None)
+        function_obj = task.function
         if function_obj:
             mapped_names.update(function_obj.__dict__)
 

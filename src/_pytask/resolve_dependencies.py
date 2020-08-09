@@ -13,6 +13,7 @@ from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
 from _pytask.report import ResolvingDependenciesReport
+from _pytask.shared import remove_traceback_from_exc_info
 from pony import orm
 
 
@@ -22,7 +23,7 @@ def pytask_resolve_dependencies(session):
 
     Parameters
     ----------
-    session : pytask.main.Session
+    session : _pytask.session.Session
         Dictionary containing tasks.
 
     """
@@ -32,6 +33,7 @@ def pytask_resolve_dependencies(session):
         )
         session.hook.pytask_resolve_dependencies_validate_dag(dag=session.dag)
         session.hook.pytask_resolve_dependencies_select_execution_dag(dag=session.dag)
+
     except Exception:
         report = ResolvingDependenciesReport(sys.exc_info())
         session.hook.pytask_resolve_dependencies_log(session=session, report=report)
@@ -92,7 +94,7 @@ def _have_task_or_neighbors_changed(task_name, dag):
 
 @orm.db_session
 def _has_node_changed(task_name, node_dict):
-    node = node_dict.get("task", None) or node_dict["node"]
+    node = node_dict.get("task") or node_dict["node"]
     try:
         state = node.state()
     except NodeNotFoundError:
@@ -126,11 +128,12 @@ def _check_if_root_nodes_are_available(dag):
         if is_node and is_without_parents:
             try:
                 dag.nodes[node]["node"].state()
-            except NodeNotFoundError:
+            except NodeNotFoundError as e:
                 successors = list(dag.successors(node))
                 raise NodeNotFoundError(
-                    f"{node} is missing and a dependency of {successors}."
-                )
+                    f"{node} is missing and a dependency of the following tasks: "
+                    f"{successors}."
+                ) from e
 
 
 @hookimpl
@@ -139,7 +142,7 @@ def pytask_resolve_dependencies_log(session, report):
 
     click.echo(f"{{:=^{tm_width}}}".format(" Errors during resolving dependencies "))
 
-    traceback.print_exception(*report.exc_info)
+    traceback.print_exception(*remove_traceback_from_exc_info(report.exc_info))
 
     click.echo("")
     click.echo("=" * tm_width)

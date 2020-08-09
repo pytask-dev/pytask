@@ -52,7 +52,12 @@ def get_first_not_none_value(*configs, key, default=None, callback=None):
         (
             config[key] if callback is None else callback(config[key])
             for config in configs
-            if config.get(key, None) is not None
+            if config.get(key) is not None
         ),
         default,
     )
+
+
+def remove_traceback_from_exc_info(exc_info):
+    """Remove traceback from exception."""
+    return (*exc_info[:2], None)
