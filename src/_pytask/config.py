@@ -56,7 +56,7 @@ def pytask_configure(pm, config_from_cli):
 @hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
     config_from_file["ignore"] = parse_value_or_multiline_option(
-        config_from_file["ignore"]
+        config_from_file.get("ignore")
     )
     config["ignore"] = (
         get_first_not_none_value(
