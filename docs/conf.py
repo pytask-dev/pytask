@@ -51,6 +51,8 @@ extensions = [
 # html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+suppress_warnings = ["ref.python"]
+
 # -- Extensions configuration ----------------------------------------------------------
 
 # Configuration for autodoc
@@ -74,8 +76,9 @@ intersphinx_mapping = {
 
 # Configuration for autoapi
 autoapi_type = "python"
-autoapi_dirs = ["../src/pytask"]
+autoapi_dirs = ["../src"]
 autoapi_keep_files = False
+autoapi_add_toctree_entry = False
 
 
 # -- Options for HTML output -----------------------------------------------------------
