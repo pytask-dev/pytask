@@ -1,4 +1,5 @@
 import os
+import textwrap
 
 import pytest
 from _pytask.config import _find_project_root_and_ini
@@ -73,3 +74,22 @@ def test_debug_pytask(capsys, tmp_path):
     # The last hooks which will be displayed.
     assert "finish pytask_execute_log_end --> [True] [hook]" in captured.out
     assert "finish pytask_execute --> None [hook]" in captured.out
+
+
+@pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
+@pytest.mark.parametrize("ignore", ["", "*task_dummy.py"])
+@pytest.mark.parametrize("sep", [True, False])
+def test_ignore_paths(tmp_path, config_path, ignore, sep):
+    source = """
+    def task_dummy():
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    config = (
+        f"[pytask]\nignore =\n\t{ignore}" if sep else f"[pytask]\nignore = {ignore}"
+    )
+    tmp_path.joinpath(config_path).write_text(config)
+
+    session = main({"paths": tmp_path})
+    assert session.exit_code == 0
+    assert len(session.tasks) == 0 if ignore else len(session.tasks) == 1

@@ -9,6 +9,7 @@ from pathlib import Path
 import click
 import pluggy
 from _pytask.shared import get_first_not_none_value
+from _pytask.shared import parse_value_or_multiline_option
 from _pytask.shared import to_list
 
 
@@ -54,6 +55,9 @@ def pytask_configure(pm, config_from_cli):
 
 @hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
+    config_from_file["ignore"] = parse_value_or_multiline_option(
+        config_from_file["ignore"]
+    )
     config["ignore"] = (
         get_first_not_none_value(
             config_from_cli,

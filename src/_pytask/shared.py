@@ -61,3 +61,9 @@ def get_first_not_none_value(*configs, key, default=None, callback=None):
 def remove_traceback_from_exc_info(exc_info):
     """Remove traceback from exception."""
     return (*exc_info[:2], None)
+
+
+def parse_value_or_multiline_option(value):
+    if isinstance(value, str) and "\n" in value:
+        value = [v.strip() for v in value.split("\n") if v.strip()]
+    return value
