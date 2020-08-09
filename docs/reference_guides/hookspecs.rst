@@ -1,7 +1,7 @@
 Hook Specifications
 ===================
 
-.. currentmodule:: pytask.hookspecs
+.. currentmodule:: _pytask.hookspecs
 
 Hook specifications are the :term:`entry-points <entry-point>` provided by pytask to
 change the behavior of the program.

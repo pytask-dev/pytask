@@ -8,19 +8,19 @@ in the host or in plugins. The following marks are available by default.
 pytask.mark.depends_on
 ----------------------
 
-.. autofunction:: pytask.nodes.depends_on
+.. autofunction:: _pytask.nodes.depends_on
    :noindex:
 
 
 pytask.mark.produces
 --------------------
 
-.. autofunction:: pytask.nodes.produces
+.. autofunction:: _pytask.nodes.produces
    :noindex:
 
 
 pytask.mark.parametrize
 -----------------------
 
-.. autofunction:: pytask.parametrize.parametrize
+.. autofunction:: _pytask.parametrize.parametrize
    :noindex:

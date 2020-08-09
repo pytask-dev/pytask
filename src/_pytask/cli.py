@@ -9,14 +9,14 @@ from _pytask.pluginmanager import get_plugin_manager
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 
-def add_parameters(func):
+def add_parameters(command):
     """Add parameters from plugins to the commandline interface."""
     pm = _prepare_plugin_manager()
-    pm.hook.pytask_add_parameters_to_cli(command=func)
+    pm.hook.pytask_add_parameters_to_cli(command=command)
     # Hack to pass the plugin manager via a hidden option to the ``config_from_cli``.
-    func.params.append(click.Option(["--pm"], default=pm, hidden=True))
+    command.params.append(click.Option(["--pm"], default=pm, hidden=True))
 
-    return func
+    return command
 
 
 def _prepare_plugin_manager():
