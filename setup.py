@@ -25,7 +25,7 @@ setup(
     url=PROJECT_URLS["Documentation"],
     project_urls=PROJECT_URLS,
     license="None",
-    keywords=["Economics", " Discrete Choice Dynamic Programming Model"],
+    keywords=["Build System"],
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Framework :: pytask",
