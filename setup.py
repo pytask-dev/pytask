@@ -21,7 +21,7 @@ setup(
     long_description_content_type="text/x-rst",
     author="Tobias Raabe",
     author_email="raabe@posteo.de",
-    python_requires=">=3.6.0",
+    python_requires=">=3.6",
     url=PROJECT_URLS["Documentation"],
     project_urls=PROJECT_URLS,
     license="None",
@@ -36,7 +36,7 @@ setup(
         "Programming Language :: Python :: 3.8",
     ],
     platforms="any",
-    entry_points={"console_scripts": ["pytask=pytask:pytask"]},
+    entry_points={"console_scripts": ["pytask=_pytask.cli:pytask"]},
     packages=find_packages(where="src"),
     package_dir={"": "src"},
 )
