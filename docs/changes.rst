@@ -6,13 +6,15 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
 
 
-0.0.5 - 2020-xx-xx
+0.0.5 - 2020-08-12
 ------------------
 
 - :gh:`10` turns parametrization into a plugin.
 - :gh:`11` extends the documentation.
 - :gh:`12` replaces ``pytest.mark`` with ``pytask.mark``.
 - :gh:`13` implements selecting tasks via expressions or marker expressions.
+- :gh:`14` separates the namespace of pytask to ``pytask`` and ``_pytask``.
+- :gh:`15` implements better tasks ids which allow and releases 0.0.5.
 
 
 0.0.4 - 2020-07-22
