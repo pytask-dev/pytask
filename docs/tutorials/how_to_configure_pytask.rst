@@ -47,3 +47,29 @@ configuration file.
 
     markers =
         wip: Work-in-progress. These are tasks which I am currently working on.
+
+
+ignore
+------
+
+pytask can ignore files and directories and exclude some tasks or reduce the duration of
+the collection.
+
+To ignore some file/folder via the command line, use the ``--ignore`` flag multiple
+times.
+
+.. code-block:: bash
+
+    $ pytask --ignore */some_file.py --ignore */some_directory/*
+
+Or, use the configuration file:
+
+.. code-block:: ini
+
+    # For single entries only.
+    ignore = */some_file.py
+
+    # Or single and multiple entries.
+    ignore =
+        */some_directory/*
+        */some_file.py

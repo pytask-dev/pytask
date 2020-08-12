@@ -146,7 +146,9 @@ def test_mark_option(tmp_path, expr: str, expected_passed: str) -> None:
     )
     session = main({"paths": tmp_path, "marker_expression": expr})
 
-    tasks_that_run = [report.task.name for report in session.execution_reports]
+    tasks_that_run = [
+        report.task.name.rsplit("::")[1] for report in session.execution_reports
+    ]
     assert set(tasks_that_run) == set(expected_passed)
 
 
@@ -154,12 +156,15 @@ def test_mark_option(tmp_path, expr: str, expected_passed: str) -> None:
     ("expr", "expected_passed"),
     [
         ("interface", ["task_interface"]),
-        ("not interface", ["task_nointer", "task_pass", "task_1", "task_2"]),
+        ("not interface", ["task_nointer", "task_pass", "task_no_1", "task_no_2"]),
         ("pass", ["task_pass"]),
-        ("not pass", ["task_interface", "task_nointer", "task_1", "task_2"]),
-        ("not not not (pass)", ["task_interface", "task_nointer", "task_1", "task_2"]),
-        ("1 or 2", ["task_1", "task_2"]),
-        ("not (1 or 2)", ["task_interface", "task_nointer", "task_pass"]),
+        ("not pass", ["task_interface", "task_nointer", "task_no_1", "task_no_2"]),
+        (
+            "not not not (pass)",
+            ["task_interface", "task_nointer", "task_no_1", "task_no_2"],
+        ),
+        ("no_1 or no_2", ["task_no_1", "task_no_2"]),
+        ("not (no_1 or no_2)", ["task_interface", "task_nointer", "task_pass"]),
     ],
 )
 def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> None:
@@ -172,9 +177,9 @@ def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> Non
                 pass
             def task_pass():
                 pass
-            def task_1():
+            def task_no_1():
                 pass
-            def task_2():
+            def task_no_2():
                 pass
             """
         )
@@ -182,7 +187,9 @@ def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> Non
     session = main({"paths": tmp_path, "expression": expr})
     assert session.exit_code == 0
 
-    tasks_that_run = [report.task.name for report in session.execution_reports]
+    tasks_that_run = [
+        report.task.name.rsplit("::")[1] for report in session.execution_reports
+    ]
     assert set(tasks_that_run) == set(expected_passed)
 
 
@@ -209,7 +216,9 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
     session = main({"paths": tmp_path, "expression": expr})
     assert session.exit_code == 0
 
-    tasks_that_run = [report.task.name for report in session.execution_reports]
+    tasks_that_run = [
+        report.task.name.rsplit("::")[1] for report in session.execution_reports
+    ]
     assert set(tasks_that_run) == set(expected_passed)
 
 

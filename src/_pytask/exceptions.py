@@ -20,7 +20,3 @@ class ResolvingDependenciesError(PytaskError):
 
 class ExecutionError(PytaskError):
     """Exception during execution."""
-
-
-class TaskDuplicatedError(PytaskError):
-    """Exception for duplicated task during collection."""

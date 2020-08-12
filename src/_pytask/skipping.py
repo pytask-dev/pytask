@@ -1,11 +1,13 @@
 import click
 from _pytask.config import hookimpl
 from _pytask.dag import descending_tasks
+from _pytask.enums import ColorCode
 from _pytask.mark import get_specific_markers_from_task
 from _pytask.mark import Mark
 from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
+from _pytask.shared import remove_traceback_from_exc_info
 
 
 @hookimpl
@@ -55,7 +57,7 @@ def pytask_execute_task_process_report(session, report):
 
     elif report.exc_info and isinstance(report.exc_info[1], SkippedAncestorFailed):
         report.success = False
-        report.exc_info = _remove_traceback_from_exc_info(report.exc_info)
+        report.exc_info = remove_traceback_from_exc_info(report.exc_info)
 
     if report.exc_info and isinstance(
         report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)
@@ -67,19 +69,15 @@ def pytask_execute_task_process_report(session, report):
 def pytask_execute_task_log_end(report):
     if report.success:
         if report.exc_info and isinstance(report.exc_info[1], Skipped):
-            click.secho("s", fg="yellow", nl=False)
+            click.secho("s", fg=ColorCode.SKIPPED.value, nl=False)
         elif report.exc_info and isinstance(report.exc_info[1], SkippedUnchanged):
-            click.secho("s", fg="green", nl=False)
+            click.secho("s", fg=ColorCode.SUCCESS.value, nl=False)
     else:
         if report.exc_info and isinstance(report.exc_info[1], SkippedAncestorFailed):
-            click.secho("s", fg="red", nl=False)
+            click.secho("s", fg=ColorCode.FAILED.value, nl=False)
 
     if report.exc_info and isinstance(
         report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)
     ):
         # Return non-None value so that the task is not logged again.
         return True
-
-
-def _remove_traceback_from_exc_info(exc_info):
-    return (*exc_info[:2], None)

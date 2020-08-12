@@ -4,6 +4,7 @@ from pathlib import Path
 
 import attr
 import click
+from _pytask.enums import ColorCode
 
 
 @attr.s
@@ -82,12 +83,14 @@ class ExecutionReport:
 def format_execute_footer(n_successful, n_failed, duration, terminal_width):
     message = []
     if n_successful:
-        message.append(click.style(f"{n_successful} succeeded", fg="green"))
+        message.append(
+            click.style(f"{n_successful} succeeded", fg=ColorCode.SUCCESS.value)
+        )
     if n_failed:
-        message.append(click.style(f"{n_failed} failed", fg="red"))
+        message.append(click.style(f"{n_failed} failed", fg=ColorCode.FAILED.value))
     message = " " + ", ".join(message) + " "
 
-    color = "red" if n_failed else "green"
+    color = ColorCode.FAILED.value if n_failed else ColorCode.SUCCESS.value
     message += click.style(f"in {duration} second(s) ", fg=color)
 
     formatted_message = _wrap_string_ignoring_ansi_colors(

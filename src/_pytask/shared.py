@@ -52,7 +52,18 @@ def get_first_not_none_value(*configs, key, default=None, callback=None):
         (
             config[key] if callback is None else callback(config[key])
             for config in configs
-            if config.get(key, None) is not None
+            if config.get(key) is not None
         ),
         default,
     )
+
+
+def remove_traceback_from_exc_info(exc_info):
+    """Remove traceback from exception."""
+    return (*exc_info[:2], None)
+
+
+def parse_value_or_multiline_option(value):
+    if isinstance(value, str) and "\n" in value:
+        value = [v.strip() for v in value.split("\n") if v.strip()]
+    return value

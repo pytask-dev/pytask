@@ -3,7 +3,6 @@ import textwrap
 
 import pytest
 from _pytask.exceptions import NodeNotCollectedError
-from _pytask.exceptions import TaskDuplicatedError
 from pytask import main
 
 
@@ -48,27 +47,6 @@ def test_collect_filepathnode_with_unknown_type(tmp_path):
 
     assert session.exit_code == 2
     assert isinstance(session.collection_reports[0].exc_info[1], NodeNotCollectedError)
-
-
-@pytest.mark.end_to_end
-def test_collect_duplicate_tasks(tmp_path):
-    """Tasks with the same name result in an error."""
-    source_0 = """
-    def task_0():
-        pass
-    """
-    tmp_path.joinpath("task_0.py").write_text(textwrap.dedent(source_0))
-
-    source_1 = """
-    def task_0():
-        pass
-    """
-    tmp_path.joinpath("task_1.py").write_text(textwrap.dedent(source_1))
-
-    session = main({"paths": tmp_path})
-
-    assert session.exit_code == 2
-    assert isinstance(session.collection_reports[1].exc_info[1], TaskDuplicatedError)
 
 
 @pytest.mark.end_to_end

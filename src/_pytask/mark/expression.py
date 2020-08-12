@@ -2,11 +2,11 @@ r"""Evaluate match expressions, as used by `-k` and `-m`.
 
 The grammar is:
 
-expression: expr? EOF
-expr:       and_expr ('or' and_expr)*
-and_expr:   not_expr ('and' not_expr)*
-not_expr:   'not' not_expr | '(' expr ')' | ident
-ident:      (\w|:|\+|-|\.|\[|\])+
+| expression | expr? EOF                  |                                  |
+| expr       | and_expr ('or' and_expr)*  |                                  |
+| and_expr   | not_expr ('and' not_expr)* |                                  |
+| not_expr   | 'not' not_expr             | '(' expr ')' or ident            |
+| ident      | (\w                        | : or \+ or - or \. or \[ or \])+ |
 
 The semantics are:
 
@@ -51,8 +51,12 @@ class Token:
 class ParseError(Exception):
     """The expression contains invalid syntax.
 
-    :param column: The column in the line where the error occurred (1-based).
-    :param message: A description of the error.
+    Attributes
+    ----------
+    column : int
+        The column in the line where the error occurred (1-based).
+    message : str
+        A description of the error.
 
     """
 
@@ -121,9 +125,9 @@ class Scanner:
         )
 
 
-# True, False and None are legal match expression identifiers,
-# but illegal as Python identifiers. To fix this, this prefix
-# is added to identifiers in the conversion to Python AST.
+# True, False and None are legal match expression identifiers, but illegal as Python
+# identifiers. To fix this, this prefix is added to identifiers in the conversion to
+# Python AST.
 IDENT_PREFIX = "$"
 
 
@@ -208,11 +212,17 @@ class Expression:
     def evaluate(self, matcher: Callable[[str], bool]) -> bool:
         """Evaluate the match expression.
 
-        :param matcher:
-            Given an identifier, should return whether it matches or not.
-            Should be prepared to handle arbitrary strings as input.
+        Parameters
+        ----------
+        matcher : Callable[[str], bool]
+            Given an identifier, should return whether it matches or not. Should be
+            prepared to handle arbitrary strings as input.
 
-        :returns: Whether the expression matches or not.
+        Returns
+        -------
+        bool
+            Whether the expression matches or not.
+
         """
         ret = eval(
             self.code, {"__builtins__": {}}, MatcherAdapter(matcher)

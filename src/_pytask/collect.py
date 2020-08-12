@@ -2,7 +2,6 @@ import fnmatch
 import glob
 import importlib
 import inspect
-import pprint
 import sys
 import traceback
 from pathlib import Path
@@ -10,7 +9,6 @@ from pathlib import Path
 import click
 from _pytask.config import hookimpl
 from _pytask.exceptions import CollectionError
-from _pytask.exceptions import TaskDuplicatedError
 from _pytask.mark import has_marker
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import PythonFunctionTask
@@ -133,22 +131,6 @@ def pytask_collect_task_protocol(session, reports, path, name, obj):
 
 
 @hookimpl(trylast=True)
-def pytask_collect_task_setup(session, reports, path, name):
-    paths_to_tasks_w_ident_name = [
-        i.path.as_posix()
-        for i in reports
-        if not isinstance(i, CollectionReportFile) and i.name == name
-    ]
-    if paths_to_tasks_w_ident_name:
-        formatted = pprint.pformat(
-            paths_to_tasks_w_ident_name, width=session.config["terminal_width"]
-        )
-        raise TaskDuplicatedError(
-            f"Task '{name}' in '{path}' has the same name as task(s):\n   {formatted}"
-        )
-
-
-@hookimpl(trylast=True)
 def pytask_collect_task(session, path, name, obj):
     """Collect a task which is a function.
 
@@ -187,7 +169,7 @@ def pytask_collect_node(path, node):
         node = Path(node)
     if isinstance(node, Path):
         if not node.is_absolute():
-            node = path.parent.joinpath(node).resolve()
+            node = path.parent.joinpath(node)
         return FilePathNode.from_path(node)
 
 
@@ -202,7 +184,7 @@ def valid_paths(paths, session):
     ----------
     paths : List[pathlib.Path]
         List of paths from which tasks are collected.
-    session : pytask.main.Session
+    session : _pytask.session.Session
         The session.
 
     """
