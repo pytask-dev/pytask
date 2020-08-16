@@ -63,7 +63,7 @@ jobs:
       - name: Validate codecov.yml
         if: runner.os == 'Linux' && matrix.python-version == '3.8'
         shell: bash -l {0}
-        run: cat codecov.yml | curl --data-binary @- https://codecov.io/validate
+        run: curl -m 10 --data-binary @codecov.yml https://codecov.io/validate
 
 
   pre-commit:
