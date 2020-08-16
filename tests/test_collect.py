@@ -82,3 +82,18 @@ def test_collect_nodes_with_the_same_name(tmp_path):
     assert session.exit_code == 0
     assert tmp_path.joinpath("out_0.txt").read_text() == "in root"
     assert tmp_path.joinpath("out_1.txt").read_text() == "in sub"
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("path_extension", ["", "task_dummy.py"])
+def test_collect_same_test_different_ways(tmp_path, path_extension):
+    source = """
+    def task_dummy():
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path.joinpath(path_extension)})
+
+    assert session.exit_code == 0
+    assert len(session.tasks) == 1
