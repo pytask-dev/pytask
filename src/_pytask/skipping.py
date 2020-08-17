@@ -10,6 +10,10 @@ from _pytask.outcomes import SkippedUnchanged
 from _pytask.shared import remove_traceback_from_exc_info
 
 
+def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
+    return reason
+
+
 @hookimpl
 def pytask_parse_config(config):
     markers = {
@@ -30,7 +34,9 @@ def pytask_execute_task_setup(task):
 
     markers = get_specific_markers_from_task(task, "skip_ancestor_failed")
     if markers:
-        message = "\n".join([marker.kwargs["reason"] for marker in markers])
+        message = "\n".join(
+            [skip_ancestor_failed(*marker.args, **marker.kwargs) for marker in markers]
+        )
         raise SkippedAncestorFailed(message)
 
     markers = get_specific_markers_from_task(task, "skip")

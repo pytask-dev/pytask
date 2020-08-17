@@ -240,7 +240,7 @@ class MarkGenerator:
                     warnings.warn(f"Unknown '{name}' mark, did you mean 'parametrize'?")
 
                 warnings.warn(
-                    f"Unknown pytask.mark.{name} - is this a typo?  You can register "
+                    f"Unknown pytask.mark.{name} - is this a typo? You can register "
                     "custom marks to avoid this warning.",
                     stacklevel=2,
                 )

@@ -5,6 +5,7 @@ from pathlib import Path
 import attr
 import click
 from _pytask.enums import ColorCode
+from _pytask.shared import remove_internal_traceback_frames_from_exc_info
 
 
 @attr.s
@@ -73,6 +74,7 @@ class ExecutionReport:
 
     @classmethod
     def from_task_and_exception(cls, task, exc_info):
+        exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(task, False, exc_info)
 
     @classmethod

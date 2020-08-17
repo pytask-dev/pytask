@@ -150,11 +150,10 @@ def pytask_execute_log_end(session, reports):
 
     for report in reports:
         if not report.success:
-            click.echo(f"{{:=^{tm_width}}}".format(f" Task {report.task.name} failed "))
+            click.echo(f"{{:_^{tm_width}}}".format(f" Task {report.task.name} failed "))
             click.echo("")
             traceback.print_exception(*report.exc_info)
             click.echo("")
-            click.echo("=" * tm_width)
 
     duration = math.ceil(session.execution_end - session.execution_start)
     click.echo(
