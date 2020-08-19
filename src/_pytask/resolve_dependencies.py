@@ -93,7 +93,7 @@ def _have_task_or_neighbors_changed(task_name, dag):
 
 
 @orm.db_session
-def _has_node_changed(task_name, node_dict):
+def _has_node_changed(task_name: str, node_dict):
     node = node_dict.get("task") or node_dict["node"]
     try:
         state = node.state()
@@ -104,7 +104,7 @@ def _has_node_changed(task_name, node_dict):
     except orm.ObjectNotFound:
         return True
 
-    return not state == state_in_db
+    return state != state_in_db
 
 
 def _check_if_dag_has_cycles(dag):

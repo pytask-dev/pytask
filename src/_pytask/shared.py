@@ -80,7 +80,7 @@ def parse_value_or_multiline_option(value):
 def is_internal_traceback_frame(frame):
     """Returns ``True`` if traceback frame belongs to internal packages.
 
-    Internal packages are ``pytask``, ``_pytask`` and ``pluggy``.
+    Internal packages are ``_pytask`` and ``pluggy``.
 
     """
     path = Path(frame.tb_frame.f_code.co_filename)
@@ -88,10 +88,13 @@ def is_internal_traceback_frame(frame):
 
 
 def filter_internal_traceback_frames(frame):
+    """Filter internal traceback frames from traceback.
+
+    If the first external frame is visited, return the frame. Else return ``None``.
+
+    """
     for frame in yield_traceback_frames(frame):
-        if frame is None:
-            return None
-        elif not is_internal_traceback_frame(frame):
+        if frame is None or not is_internal_traceback_frame(frame):
             return frame
 
 
@@ -104,10 +107,10 @@ def remove_internal_traceback_frames_from_exc_info(exc_info):
     """
     if exc_info is not None:
         filtered_traceback = filter_internal_traceback_frames(exc_info[2])
-        if filtered_traceback is None:
-            return exc_info
-        else:
-            return (*exc_info[:2], filtered_traceback)
+        if filtered_traceback is not None:
+            exc_info = (*exc_info[:2], filtered_traceback)
+
+    return exc_info
 
 
 def yield_traceback_frames(frame):

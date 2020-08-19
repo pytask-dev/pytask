@@ -48,22 +48,25 @@ def pytask_execute_task_setup(task):
 def pytask_execute_task_process_report(session, report):
     task = report.task
 
-    if report.exc_info and isinstance(report.exc_info[1], SkippedUnchanged):
-        report.success = True
+    if report.exc_info:
+        if isinstance(report.exc_info[1], SkippedUnchanged):
+            report.success = True
 
-    elif report.exc_info and isinstance(report.exc_info[1], Skipped):
-        report.success = True
-        for descending_task_name in descending_tasks(report.task.name, session.dag):
-            descending_task = session.dag.nodes[descending_task_name]["task"]
-            descending_task.markers.append(
-                Mark(
-                    "skip", (), {"reason": f"Previous task '{task.name}' was skipped."},
+        elif isinstance(report.exc_info[1], Skipped):
+            report.success = True
+            for descending_task_name in descending_tasks(report.task.name, session.dag):
+                descending_task = session.dag.nodes[descending_task_name]["task"]
+                descending_task.markers.append(
+                    Mark(
+                        "skip",
+                        (),
+                        {"reason": f"Previous task '{task.name}' was skipped."},
+                    )
                 )
-            )
 
-    elif report.exc_info and isinstance(report.exc_info[1], SkippedAncestorFailed):
-        report.success = False
-        report.exc_info = remove_traceback_from_exc_info(report.exc_info)
+        elif isinstance(report.exc_info[1], SkippedAncestorFailed):
+            report.success = False
+            report.exc_info = remove_traceback_from_exc_info(report.exc_info)
 
     if report.exc_info and isinstance(
         report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)
@@ -74,10 +77,11 @@ def pytask_execute_task_process_report(session, report):
 @hookimpl
 def pytask_execute_task_log_end(report):
     if report.success:
-        if report.exc_info and isinstance(report.exc_info[1], Skipped):
-            click.secho("s", fg=ColorCode.SKIPPED.value, nl=False)
-        elif report.exc_info and isinstance(report.exc_info[1], SkippedUnchanged):
-            click.secho("s", fg=ColorCode.SUCCESS.value, nl=False)
+        if report.exc_info:
+            if isinstance(report.exc_info[1], Skipped):
+                click.secho("s", fg=ColorCode.SKIPPED.value, nl=False)
+            elif isinstance(report.exc_info[1], SkippedUnchanged):
+                click.secho("s", fg=ColorCode.SUCCESS.value, nl=False)
     else:
         if report.exc_info and isinstance(report.exc_info[1], SkippedAncestorFailed):
             click.secho("s", fg=ColorCode.FAILED.value, nl=False)

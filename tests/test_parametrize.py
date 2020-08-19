@@ -1,5 +1,6 @@
 import itertools
 import textwrap
+from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import _pytask.parametrize
 import pytask
@@ -105,6 +106,24 @@ def test_pytask_parametrize_missing_func_args(session):
 def test_parse_argnames(arg_names, expected):
     parsed_argnames = _parse_arg_names(arg_names)
     assert parsed_argnames == expected
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "arg_names, expectation",
+    [
+        ("i", does_not_raise()),
+        ("i, j", does_not_raise()),
+        (("i", "j"), does_not_raise()),
+        (["i", "j"], does_not_raise()),
+        (range(1, 2), pytest.raises(ValueError)),
+        ({"i": None, "j": None}, pytest.raises(ValueError)),
+        ({"i", "j"}, pytest.raises(ValueError)),
+    ],
+)
+def test_parse_argnames_raise_error(arg_names, expectation):
+    with expectation:
+        _parse_arg_names(arg_names)
 
 
 @pytest.mark.integration
