@@ -222,3 +222,23 @@ def test_parametrize_iterator(tmp_path):
     session = main({"paths": tmp_path})
     assert session.exit_code == 0
     assert len(session.execution_reports) == 3
+
+
+@pytest.mark.end_to_end
+def test_raise_error_if_function_does_not_use_parametrized_arguments(tmp_path):
+    tmp_path.joinpath("task_dummy.py").write_text(
+        textwrap.dedent(
+            """
+            import pytask
+
+            @pytask.mark.parametrize('i', range(2))
+            def task_func():
+                pass
+            """
+        )
+    )
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 1
+    assert isinstance(session.execution_reports[0].exc_info[1], TypeError)
+    assert isinstance(session.execution_reports[1].exc_info[1], TypeError)
