@@ -6,6 +6,13 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
 
 
+0.0.6 - 2020-08-22
+------------------
+
+- :gh:`16` reduces the traceback generated from tasks, failure section in report, fix
+  error passing a file path to pytask, add demo to README.
+
+
 0.0.5 - 2020-08-12
 ------------------
 
