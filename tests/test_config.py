@@ -12,7 +12,8 @@ from pytask import main
     "in_ini, paths, expected_root, expected_ini",
     [
         ("pytask.ini", ["src/a", "src/b"], ".", "pytask.ini"),
-        ("tox.ini", ".", None, "tox.ini"),
+        ("tox.ini", ["."], None, "tox.ini"),
+        (None, ["task_dummy.py"], "", None),
     ],
 )
 def test_find_project_root_and_ini(
@@ -29,9 +30,11 @@ def test_find_project_root_and_ini(
 
     paths = [tmp_path.joinpath(path).resolve() for path in paths]
     for path in paths:
-        path.mkdir(exist_ok=True, parents=True) if path.is_dir() else path.parent.mkdir(
-            exist_ok=True, parents=True
-        )
+        if path.is_dir():
+            path.mkdir(exist_ok=True, parents=True)
+        else:
+            path.parent.mkdir(exist_ok=True, parents=True)
+            path.touch()
 
     root, ini = _find_project_root_and_ini(paths)
 

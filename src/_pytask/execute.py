@@ -142,19 +142,22 @@ def pytask_execute_task_log_end(report):
 @hookimpl
 def pytask_execute_log_end(session, reports):
     session.execution_end = time.time()
-    click.echo("")
 
     n_successful = sum(report.success for report in reports)
     n_failed = len(reports) - n_successful
     tm_width = session.config["terminal_width"]
 
+    any_failure = any(not report.success for report in reports)
+    if any_failure:
+        click.echo("\n")
+        click.echo(f"{{:=^{tm_width}}}".format(" Failures "))
+
     for report in reports:
         if not report.success:
-            click.echo(f"{{:=^{tm_width}}}".format(f" Task {report.task.name} failed "))
+            click.echo(f"{{:_^{tm_width}}}".format(f" Task {report.task.name} failed "))
             click.echo("")
             traceback.print_exception(*report.exc_info)
             click.echo("")
-            click.echo("=" * tm_width)
 
     duration = math.ceil(session.execution_end - session.execution_start)
     click.echo(

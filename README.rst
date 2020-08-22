@@ -96,6 +96,22 @@ To execute the task, type the following command on the command-line
     ============================ 1 succeeded in 1 second(s) ============================
 
 
+Demo
+----
+
+The demo walks you through the following steps.
+
+1. Write an executable script which produces a text file like you would normally do
+   without pytask.
+2. Rewrite the script to a pytask task.
+3. Execute the task.
+4. Add a task which produces a second text file and another task which merges both text
+   files.
+5. Execute all three tasks.
+
+.. image:: https://github.com/pytask-dev/misc/raw/main/gif/workflow.gif
+
+
 Documentation
 -------------
 

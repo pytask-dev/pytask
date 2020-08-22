@@ -1,5 +1,6 @@
 import itertools
 import textwrap
+from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import _pytask.parametrize
 import pytask
@@ -107,6 +108,24 @@ def test_parse_argnames(arg_names, expected):
     assert parsed_argnames == expected
 
 
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "arg_names, expectation",
+    [
+        ("i", does_not_raise()),
+        ("i, j", does_not_raise()),
+        (("i", "j"), does_not_raise()),
+        (["i", "j"], does_not_raise()),
+        (range(1, 2), pytest.raises(ValueError)),
+        ({"i": None, "j": None}, pytest.raises(ValueError)),
+        ({"i", "j"}, pytest.raises(ValueError)),
+    ],
+)
+def test_parse_argnames_raise_error(arg_names, expectation):
+    with expectation:
+        _parse_arg_names(arg_names)
+
+
 @pytest.mark.integration
 @pytest.mark.parametrize(
     "markers, exp_base_arg_names, exp_arg_names, exp_arg_values",
@@ -203,3 +222,23 @@ def test_parametrize_iterator(tmp_path):
     session = main({"paths": tmp_path})
     assert session.exit_code == 0
     assert len(session.execution_reports) == 3
+
+
+@pytest.mark.end_to_end
+def test_raise_error_if_function_does_not_use_parametrized_arguments(tmp_path):
+    tmp_path.joinpath("task_dummy.py").write_text(
+        textwrap.dedent(
+            """
+            import pytask
+
+            @pytask.mark.parametrize('i', range(2))
+            def task_func():
+                pass
+            """
+        )
+    )
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 1
+    assert isinstance(session.execution_reports[0].exc_info[1], TypeError)
+    assert isinstance(session.execution_reports[1].exc_info[1], TypeError)

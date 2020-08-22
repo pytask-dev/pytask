@@ -108,7 +108,7 @@ def _find_project_root_and_ini(paths):
     if config_path is not None:
         root = config_path.parent
     else:
-        root = common_ancestor
+        root = common_ancestor if common_ancestor.is_dir() else common_ancestor.parent
 
     return root, config_path
 

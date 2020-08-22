@@ -50,10 +50,7 @@ repos:
 -   repo: https://github.com/PyCQA/doc8
     rev: 0.8.1rc3
     hooks:
-    - id: doc8
-      name: doc8
-      description: This hook runs doc8 for linting docs
-      entry: python -m doc8
+    -   id: doc8
 -   repo: https://github.com/codespell-project/codespell
     rev: v1.17.1
     hooks:

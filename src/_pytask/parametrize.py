@@ -161,6 +161,11 @@ def _parse_arg_names(arg_names):
         out = tuple(i.strip() for i in arg_names.split(","))
     elif isinstance(arg_names, (tuple, list)):
         out = tuple(arg_names)
+    else:
+        raise ValueError(
+            "The argument 'arg_names' accepts comma-separated strings, tuples and lists"
+            f" of strings. It cannot accept {arg_names} with type {type(arg_names)}."
+        )
 
     return out
 
