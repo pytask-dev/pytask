@@ -239,6 +239,6 @@ def test_raise_error_if_function_does_not_use_parametrized_arguments(tmp_path):
     )
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 2
+    assert session.exit_code == 1
     assert isinstance(session.execution_reports[0].exc_info[1], TypeError)
     assert isinstance(session.execution_reports[1].exc_info[1], TypeError)
