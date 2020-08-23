@@ -36,7 +36,7 @@ def create_or_update_state(first_key, second_key, state):
 
 
 @hookimpl
-def pytask_add_parameters_to_cli(command):
+def pytask_extend_command_line_interface(cli):
     additional_parameters = [
         click.Option(
             ["--database-provider"],
@@ -57,7 +57,7 @@ def pytask_add_parameters_to_cli(command):
             help="Create tables if they do not exist.",
         ),
     ]
-    command.commands["build"].params.extend(additional_parameters)
+    cli.commands["build"].params.extend(additional_parameters)
 
 
 @hookimpl

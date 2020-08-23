@@ -65,7 +65,7 @@ def markers(**config_from_cli):
 
 
 @hookimpl
-def pytask_add_parameters_to_cli(command: click.Command) -> None:
+def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_build_parameters = [
         click.Option(
             ["--strict-markers"], is_flag=True, help="Raise errors for unknown marks."
@@ -83,8 +83,8 @@ def pytask_add_parameters_to_cli(command: click.Command) -> None:
             help="Expression for selecting tasks with substrings.",
         ),
     ]
-    command.commands["build"].params.extend(additional_build_parameters)
-    command.add_command(markers)
+    cli.commands["build"].params.extend(additional_build_parameters)
+    cli.add_command(markers)
 
 
 @hookimpl

@@ -31,7 +31,7 @@ General
 Command Line Interface
 ----------------------
 
-.. autofunction:: pytask_add_parameters_to_cli
+.. autofunction:: pytask_extend_command_line_interface
    :noindex:
 
 

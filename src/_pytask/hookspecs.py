@@ -22,12 +22,15 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
 
 
 @hookspec
-def pytask_add_parameters_to_cli(command: click.Command) -> None:
+def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Add parameter to :class:`click.Command`.
 
-    Use this hook if you want to add more command line arguments to the interface. Do it
-    by extending `command.params` attribute, a list, of the command with other options
-    and arguments. See :func:`pytask.cli.pytask_add_parameters_to_cli` as an example.
+    Use this hook if you want to add more commands, options or arguments to the
+    interface.
+
+    - Add subcommands via ``cli.add_command``
+    - Add options and arguments by extending ``cli.params`` or
+      ``cli.commands["<name>"].params``.
 
     """
 

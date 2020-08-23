@@ -19,8 +19,8 @@ def _to_path(ctx, param, value):  # noqa: U100
 
 
 @hookimpl(tryfirst=True)
-def pytask_add_parameters_to_cli(command):
-    command.add_command(build)
+def pytask_extend_command_line_interface(cli):
+    cli.add_command(build)
 
 
 def main(config_from_cli):

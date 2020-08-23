@@ -25,8 +25,8 @@ IGNORED_FILES_AND_FOLDERS = [
 
 
 @hookimpl
-def pytask_add_parameters_to_cli(command):
-    command.commands["build"].params.append(
+def pytask_extend_command_line_interface(cli):
+    cli.commands["build"].params.append(
         click.Option(
             ["-c", "--config"],
             type=click.Path(exists=True),

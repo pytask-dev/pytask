@@ -9,7 +9,7 @@ from _pytask.shared import get_first_not_none_value
 
 
 @hookimpl
-def pytask_add_parameters_to_cli(command):
+def pytask_extend_command_line_interface(cli):
     additional_parameters = [
         click.Option(
             ["--pdb"], help="Enter debugger on errors.", is_flag=True, default=None
@@ -21,7 +21,7 @@ def pytask_add_parameters_to_cli(command):
             default=None,
         ),
     ]
-    command.commands["build"].params.extend(additional_parameters)
+    cli.commands["build"].params.extend(additional_parameters)
 
 
 @hookimpl
