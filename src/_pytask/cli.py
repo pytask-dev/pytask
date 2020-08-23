@@ -33,7 +33,7 @@ def pytask_add_hooks(pm):
     from _pytask import debugging
     from _pytask import execute
     from _pytask import logging
-    from _pytask import main
+    from _pytask import build
     from _pytask import mark
     from _pytask import parametrize
     from _pytask import resolve_dependencies
@@ -46,7 +46,7 @@ def pytask_add_hooks(pm):
     pm.register(debugging)
     pm.register(execute)
     pm.register(logging)
-    pm.register(main)
+    pm.register(build)
     pm.register(parametrize)
     pm.register(resolve_dependencies)
     pm.register(skipping)
