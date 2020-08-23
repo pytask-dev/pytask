@@ -25,6 +25,17 @@ IGNORED_FILES_AND_FOLDERS = [
 
 
 @hookimpl
+def pytask_add_parameters_to_cli(command):
+    command.commands["build"].params.append(
+        click.Option(
+            ["-c", "--config"],
+            type=click.Path(exists=True),
+            help="Path to configuration file.",
+        )
+    )
+
+
+@hookimpl
 def pytask_configure(pm, config_from_cli):
     config = {"pm": pm, "terminal_width": _get_terminal_width()}
 
@@ -34,7 +45,11 @@ def pytask_configure(pm, config_from_cli):
     paths = [Path(p).resolve() for path in paths for p in glob.glob(path.as_posix())]
     config["paths"] = paths if paths else [Path.cwd().resolve()]
 
-    config["root"], config["ini"] = _find_project_root_and_ini(config["paths"])
+    if config_from_cli.get("config"):
+        config["ini"] = Path(config_from_cli.pop("config"))
+        config["root"] = config["ini"].parent
+    else:
+        config["root"], config["ini"] = _find_project_root_and_ini(config["paths"])
     config_from_file = _read_config(config["ini"]) if config["ini"] is not None else {}
 
     config["markers"] = {

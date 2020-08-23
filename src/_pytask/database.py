@@ -57,7 +57,7 @@ def pytask_add_parameters_to_cli(command):
             help="Create tables if they do not exist.",
         ),
     ]
-    command.params.extend(additional_parameters)
+    command.commands["build"].params.extend(additional_parameters)
 
 
 @hookimpl

@@ -32,14 +32,6 @@ def pytask_add_parameters_to_cli(command: click.Command) -> None:
     """
 
 
-# Hooks for the pytask_main interface.
-
-
-@hookspec(firstresult=True)
-def pytask_main(config_from_cli: dict):
-    """Take the cli config, create the configuration and start the session."""
-
-
 # Hooks for the configuration.
 
 

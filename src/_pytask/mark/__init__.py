@@ -32,10 +32,41 @@ __all__ = [
 ]
 
 
+@click.command()
+@click.option(
+    "-c", "--config", type=click.Path(exists=True), help="Path to configuration file."
+)
+def markers(**config_from_cli):
+    try:
+        # Duplication of the same mechanism in :func:`pytask.main.main`.
+        pm = get_plugin_manager()
+        from _pytask import cli
+
+        pm.register(cli)
+        pm.hook.pytask_add_hooks(pm=pm)
+
+        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+
+        session = Session.from_config(config)
+        session.exit_code = ExitCode.OK
+
+    except Exception as e:
+        raise Exception("Error while configuring pytask.") from e
+
+    for name, description in config["markers"].items():
+        click.echo(
+            textwrap.fill(
+                f"pytask.mark.{name}: {description}", width=config["terminal_width"]
+            )
+        )
+        click.echo("")
+
+    return session
+
+
 @hookimpl
 def pytask_add_parameters_to_cli(command: click.Command) -> None:
-    additional_parameters = [
-        click.Option(["--markers"], is_flag=True, help="Show available markers."),
+    additional_build_parameters = [
         click.Option(
             ["--strict-markers"], is_flag=True, help="Raise errors for unknown marks."
         ),
@@ -52,7 +83,8 @@ def pytask_add_parameters_to_cli(command: click.Command) -> None:
             help="Expression for selecting tasks with substrings.",
         ),
     ]
-    command.params.extend(additional_parameters)
+    command.commands["build"].params.extend(additional_build_parameters)
+    command.add_command(markers)
 
 
 @hookimpl
@@ -87,36 +119,6 @@ def _read_marker_mapping_from_ini(string: str) -> dict:
         mapping[key] = value
 
     return mapping
-
-
-@hookimpl(tryfirst=True)
-def pytask_main(config_from_cli: dict) -> int:
-    if config_from_cli.get("markers", False):
-        try:
-            # Duplication of the same mechanism in :func:`pytask.main.pytask_main`.
-            pm = get_plugin_manager()
-            from _pytask import cli
-
-            pm.register(cli)
-            pm.hook.pytask_add_hooks(pm=pm)
-
-            config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
-
-            session = Session.from_config(config)
-            session.exit_code = ExitCode.OK
-
-        except Exception as e:
-            raise Exception("Error while configuring pytask.") from e
-
-        for name, description in config["markers"].items():
-            click.echo(
-                textwrap.fill(
-                    f"pytask.mark.{name}: {description}", width=config["terminal_width"]
-                )
-            )
-            click.echo("")
-
-        return session
 
 
 @attr.s(slots=True)

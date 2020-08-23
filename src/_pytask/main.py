@@ -1,6 +1,8 @@
 import pdb
+import sys
+from pathlib import Path
 
-from _pytask import cli
+import click
 from _pytask.config import hookimpl
 from _pytask.database import create_database
 from _pytask.enums import ExitCode
@@ -11,8 +13,17 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 
 
-@hookimpl
-def pytask_main(config_from_cli):
+def _to_path(ctx, param, value):  # noqa: U100
+    """Callback for :class:`click.Argument` or :class:`click.Option`."""
+    return [Path(i).resolve() for i in value]
+
+
+@hookimpl(tryfirst=True)
+def pytask_add_parameters_to_cli(command):
+    command.add_command(build)
+
+
+def main(config_from_cli):
     """Run pytask.
 
     This is the main command to run pytask which usually receives kwargs from the
@@ -33,6 +44,8 @@ def pytask_main(config_from_cli):
     """
     try:
         pm = get_plugin_manager()
+        from _pytask import cli
+
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
@@ -68,3 +81,20 @@ def pytask_main(config_from_cli):
             raise e
 
     return session
+
+
+@click.command()
+@click.argument("paths", nargs=-1, type=click.Path(exists=True), callback=_to_path)
+@click.option(
+    "--ignore", type=str, multiple=True, help="Ignore path (globs and multi allowed)."
+)
+@click.option(
+    "--debug-pytask", is_flag=True, help="Debug pytask by tracing all hook calls."
+)
+@click.option(
+    "-c", "--config", type=click.Path(exists=True), help="Path to configuration file."
+)
+def build(**config_from_cli):
+    """Collect and execute tasks."""
+    session = main(config_from_cli)
+    sys.exit(session.exit_code)

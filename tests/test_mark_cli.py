@@ -1,18 +1,18 @@
 import textwrap
 
 import pytest
+from click.testing import CliRunner
+from pytask import cli
 from pytask import main
 
 
 @pytest.mark.end_to_end
-def test_show_markers(capsys):
-    session = main({"markers": True})
+def test_show_markers():
+    runner = CliRunner()
+    result = runner.invoke(cli, ["markers"])
 
-    assert session.exit_code == 0
-
-    captured = capsys.readouterr()
     assert all(
-        marker in captured.out
+        marker in result.output
         for marker in [
             "depends_on",
             "produces",
@@ -25,8 +25,9 @@ def test_show_markers(capsys):
 
 @pytest.mark.end_to_end
 @pytest.mark.parametrize("config_name", ["pytask.ini", "tox.ini", "setup.cfg"])
-def test_markers_option(capsys, tmp_path, config_name):
-    tmp_path.joinpath(config_name).write_text(
+def test_markers_option(tmp_path, config_name):
+    config_path = tmp_path.joinpath(config_name)
+    config_path.write_text(
         textwrap.dedent(
             """
             [pytask]
@@ -37,12 +38,11 @@ def test_markers_option(capsys, tmp_path, config_name):
             """
         )
     )
-    session = main({"paths": tmp_path, "markers": True})
 
-    assert session.exit_code == 0
+    runner = CliRunner()
+    result = runner.invoke(cli, ["markers", "-c", config_path.as_posix()])
 
-    captured = capsys.readouterr()
-    assert all(marker in captured.out for marker in ["a1", "a1some", "nodescription"])
+    assert all(marker in result.output for marker in ["a1", "a1some", "nodescription"])
 
 
 @pytest.mark.end_to_end

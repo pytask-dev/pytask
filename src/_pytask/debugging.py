@@ -21,7 +21,7 @@ def pytask_add_parameters_to_cli(command):
             default=None,
         ),
     ]
-    command.params.extend(additional_parameters)
+    command.commands["build"].params.extend(additional_parameters)
 
 
 @hookimpl
