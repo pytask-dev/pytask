@@ -140,7 +140,7 @@ def _check_if_root_nodes_are_available(dag):
 def pytask_resolve_dependencies_log(session, report):
     tm_width = session.config["terminal_width"]
 
-    click.echo(f"{{:=^{tm_width}}}".format(" Errors during resolving dependencies "))
+    click.echo(f"{{:=^{tm_width}}}".format(" Errors while resolving dependencies "))
 
     traceback.print_exception(*remove_traceback_from_exc_info(report.exc_info))
 
