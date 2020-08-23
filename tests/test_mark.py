@@ -119,6 +119,7 @@ def test_ini_markers_whitespace(tmp_path, config_name):
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
 
 
+@pytest.mark.end_to_end
 @pytest.mark.filterwarnings("ignore:Unknown pytask.mark.")
 @pytest.mark.parametrize(
     ("expr", "expected_passed"),
@@ -153,6 +154,7 @@ def test_mark_option(tmp_path, expr: str, expected_passed: str) -> None:
     assert set(tasks_that_run) == set(expected_passed)
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("expr", "expected_passed"),
     [
@@ -194,6 +196,7 @@ def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> Non
     assert set(tasks_that_run) == set(expected_passed)
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("expr", "expected_passed"),
     [
@@ -223,6 +226,7 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
     assert set(tasks_that_run) == set(expected_passed)
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("expr", "expected_error"),
     [
