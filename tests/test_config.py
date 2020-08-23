@@ -97,3 +97,42 @@ def test_ignore_paths(tmp_path, config_path, ignore, sep):
     session = main({"paths": tmp_path})
     assert session.exit_code == 0
     assert len(session.tasks) == 0 if ignore else len(session.tasks) == 1
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
+def test_pass_config_to_cli(tmp_path, config_path):
+    config = """
+    [pytask]
+    markers =
+      elton: Can you feel the love tonight?
+    """
+    tmp_path.joinpath(config_path).write_text(textwrap.dedent(config))
+
+    os.chdir(tmp_path)
+    session = main({"config": tmp_path.joinpath(config_path).as_posix()})
+
+    assert session.exit_code == 0
+    assert "elton" in session.config["markers"]
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
+def test_prioritize_given_config_over_others(tmp_path, config_path):
+    config = """
+    [pytask]
+    markers =
+      kylie: I just can't get you out of my head.
+    """
+    tmp_path.joinpath(config_path).write_text(textwrap.dedent(config))
+
+    for config_name in ["pytask.ini", "tox.ini", "setup.cfg"]:
+        if config_name != config_path:
+            config = "[pytask]\nmarkers=bad_config: Wrong config loaded"
+            tmp_path.joinpath(config_name).write_text(textwrap.dedent(config))
+
+    os.chdir(tmp_path)
+    session = main({"config": tmp_path.joinpath(config_path).as_posix()})
+
+    assert session.exit_code == 0
+    assert "kylie" in session.config["markers"]
