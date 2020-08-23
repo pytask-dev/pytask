@@ -10,10 +10,12 @@ class ExitCode(enum.IntEnum):
     FAILED = 1
     """Failed while executing tasks."""
 
-    COLLECTION_FAILED = 2
+    CONFIGURATION_FAILED = 2
+
+    COLLECTION_FAILED = 3
     """Failed while collecting tasks."""
 
-    RESOLVING_DEPENDENCIES_FAILED = 3
+    RESOLVING_DEPENDENCIES_FAILED = 4
     """Failed while resolving dependencies."""
 
 

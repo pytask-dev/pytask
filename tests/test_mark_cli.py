@@ -58,5 +58,5 @@ def test_marker_names(tmp_path, marker_name, config_name):
             """
         )
     )
-    with pytest.raises(Exception, match="Error while configuring pytask."):
-        main({"paths": tmp_path, "markers": True})
+    session = main({"paths": tmp_path, "markers": True})
+    assert session.exit_code == 2

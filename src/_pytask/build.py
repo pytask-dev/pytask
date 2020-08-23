@@ -1,5 +1,6 @@
 import pdb
 import sys
+import traceback
 from pathlib import Path
 
 import click
@@ -56,29 +57,32 @@ def main(config_from_cli):
         session = Session.from_config(config)
         session.exit_code = ExitCode.OK
 
-    except Exception as e:
-        raise Exception("Error while configuring pytask.") from e
+    except Exception:
+        traceback.print_exception(*sys.exc_info())
+        session = Session({}, None)
+        session.exit_code = ExitCode.CONFIGURATION_FAILED
 
-    try:
-        session.hook.pytask_log_session_header(session=session)
-        session.hook.pytask_collect(session=session)
-        session.hook.pytask_resolve_dependencies(session=session)
-        session.hook.pytask_execute(session=session)
+    else:
+        try:
+            session.hook.pytask_log_session_header(session=session)
+            session.hook.pytask_collect(session=session)
+            session.hook.pytask_resolve_dependencies(session=session)
+            session.hook.pytask_execute(session=session)
 
-    except CollectionError:
-        session.exit_code = ExitCode.COLLECTION_FAILED
+        except CollectionError:
+            session.exit_code = ExitCode.COLLECTION_FAILED
 
-    except ResolvingDependenciesError:
-        session.exit_code = ExitCode.RESOLVING_DEPENDENCIES_FAILED
+        except ResolvingDependenciesError:
+            session.exit_code = ExitCode.RESOLVING_DEPENDENCIES_FAILED
 
-    except ExecutionError:
-        session.exit_code = ExitCode.FAILED
+        except ExecutionError:
+            session.exit_code = ExitCode.FAILED
 
-    except Exception as e:
-        if config["pdb"]:
-            pdb.post_mortem()
-        else:
-            raise e
+        except Exception as e:
+            if config["pdb"]:
+                pdb.post_mortem()
+            else:
+                raise e
 
     return session
 

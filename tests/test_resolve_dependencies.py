@@ -87,7 +87,7 @@ def test_cycle_in_dag(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 3
+    assert session.exit_code == 4
     assert isinstance(
         session.resolving_dependencies_report.exc_info[1], ResolvingDependenciesError,
     )

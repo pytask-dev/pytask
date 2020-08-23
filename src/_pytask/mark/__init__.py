@@ -1,4 +1,6 @@
+import sys
 import textwrap
+import traceback
 from typing import AbstractSet
 
 import attr
@@ -50,16 +52,19 @@ def markers(**config_from_cli):
         session = Session.from_config(config)
         session.exit_code = ExitCode.OK
 
-    except Exception as e:
-        raise Exception("Error while configuring pytask.") from e
+    except Exception:
+        traceback.print_exception(*sys.exc_info())
+        session = Session({}, None)
+        session.exit_code = ExitCode.CONFIGURATION_FAILED
 
-    for name, description in config["markers"].items():
-        click.echo(
-            textwrap.fill(
-                f"pytask.mark.{name}: {description}", width=config["terminal_width"]
+    else:
+        for name, description in config["markers"].items():
+            click.echo(
+                textwrap.fill(
+                    f"pytask.mark.{name}: {description}", width=config["terminal_width"]
+                )
             )
-        )
-        click.echo("")
+            click.echo("")
 
     return session
 

@@ -115,7 +115,7 @@ def test_ini_markers_whitespace(tmp_path, config_name):
     )
 
     session = main({"paths": tmp_path, "strict_markers": True})
-    assert session.exit_code == 2
+    assert session.exit_code == 3
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
 
 
@@ -263,7 +263,7 @@ def test_keyword_option_wrong_arguments(
         )
     )
     session = main({"paths": tmp_path, "expression": expr})
-    assert session.exit_code == 2
+    assert session.exit_code == 3
 
     err = capsys.readouterr().err
     assert expected_error in err
