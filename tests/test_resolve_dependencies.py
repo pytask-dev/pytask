@@ -66,6 +66,7 @@ def test_check_if_root_nodes_are_available():
         _check_if_root_nodes_are_available(dag)
 
 
+@pytest.mark.end_to_end
 def test_cycle_in_dag(tmp_path):
     source = """
     import pytask

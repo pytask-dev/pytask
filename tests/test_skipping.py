@@ -83,6 +83,7 @@ def test_skip_if_ancestor_failed(tmp_path):
     assert isinstance(session.execution_reports[1].exc_info[1], SkippedAncestorFailed)
 
 
+@pytest.mark.end_to_end
 def test_if_skip_decorator_is_applied(tmp_path):
     source = """
     import pytask

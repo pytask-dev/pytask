@@ -79,6 +79,7 @@ def test_debug_pytask(capsys, tmp_path):
     assert "finish pytask_execute --> None [hook]" in captured.out
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
 @pytest.mark.parametrize("ignore", ["", "*task_dummy.py"])
 @pytest.mark.parametrize("sep", [True, False])

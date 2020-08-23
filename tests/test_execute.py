@@ -6,6 +6,7 @@ import pytest
 from pytask import main
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "dependencies, products",
     itertools.product(
@@ -35,6 +36,7 @@ def test_execution_w_varying_dependencies_products(tmp_path, dependencies, produ
     assert session.exit_code == 0
 
 
+@pytest.mark.end_to_end
 def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
     source = """
     import pytask

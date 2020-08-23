@@ -9,6 +9,7 @@ class DummyDist:
     version = attr.ib()
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "plugins, expected",
     [

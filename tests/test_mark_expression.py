@@ -9,6 +9,7 @@ def evaluate(input_: str, matcher: Callable[[str], bool]) -> bool:
     return Expression.compile_(input_).evaluate(matcher)
 
 
+@pytest.mark.unit
 def test_empty_is_false() -> None:
     assert not evaluate("", lambda ident: False)
     assert not evaluate("", lambda ident: True)
@@ -16,6 +17,7 @@ def test_empty_is_false() -> None:
     assert not evaluate("\t", lambda ident: False)
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("expr", "expected"),
     [
@@ -49,6 +51,7 @@ def test_basic(expr: str, expected: bool) -> None:
     assert evaluate(expr, matcher) is expected
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("expr", "expected"),
     [
@@ -65,6 +68,7 @@ def test_syntax_oddeties(expr: str, expected: bool) -> None:
     assert evaluate(expr, matcher) is expected
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("expr", "column", "message"),
     [
@@ -108,6 +112,7 @@ def test_syntax_errors(expr: str, column: int, message: str) -> None:
     assert excinfo.value.message == message
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "ident",
     [
@@ -139,6 +144,7 @@ def test_valid_idents(ident: str) -> None:
     assert evaluate(ident, {ident: True}.__getitem__)
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "ident",
     [
