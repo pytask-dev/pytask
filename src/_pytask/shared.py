@@ -35,6 +35,11 @@ def to_list(scalar_or_iter):
     )
 
 
+def to_path(ctx, param, value):  # noqa: U100
+    """Callback for :class:`click.Argument` or :class:`click.Option`."""
+    return [Path(i).resolve() for i in value]
+
+
 def get_first_not_none_value(*configs, key, default=None, callback=None):
     """Get the first non-None value for a key from a list of dictionaries.
 

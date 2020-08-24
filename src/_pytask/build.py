@@ -1,7 +1,6 @@
 import pdb
 import sys
 import traceback
-from pathlib import Path
 
 import click
 from _pytask.config import hookimpl
@@ -12,11 +11,7 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-
-
-def _to_path(ctx, param, value):  # noqa: U100
-    """Callback for :class:`click.Argument` or :class:`click.Option`."""
-    return [Path(i).resolve() for i in value]
+from _pytask.shared import to_path
 
 
 @hookimpl(tryfirst=True)
@@ -88,7 +83,7 @@ def main(config_from_cli):
 
 
 @click.command()
-@click.argument("paths", nargs=-1, type=click.Path(exists=True), callback=_to_path)
+@click.argument("paths", nargs=-1, type=click.Path(exists=True), callback=to_path)
 @click.option(
     "--ignore", type=str, multiple=True, help="Ignore path (globs and multi allowed)."
 )

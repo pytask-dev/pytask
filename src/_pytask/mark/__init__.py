@@ -39,6 +39,7 @@ __all__ = [
     "-c", "--config", type=click.Path(exists=True), help="Path to configuration file."
 )
 def markers(**config_from_cli):
+    """Show all registered markers."""
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
         pm = get_plugin_manager()

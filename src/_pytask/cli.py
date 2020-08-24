@@ -26,29 +26,31 @@ def _prepare_plugin_manager():
 
 @hookimpl
 def pytask_add_hooks(pm):
+    from _pytask import build
+    from _pytask import clean
     from _pytask import collect
     from _pytask import config
     from _pytask import database
     from _pytask import debugging
     from _pytask import execute
     from _pytask import logging
-    from _pytask import build
     from _pytask import mark
     from _pytask import parametrize
     from _pytask import resolve_dependencies
     from _pytask import skipping
 
+    pm.register(build)
+    pm.register(clean)
     pm.register(collect)
     pm.register(config)
     pm.register(database)
     pm.register(debugging)
     pm.register(execute)
     pm.register(logging)
-    pm.register(build)
+    pm.register(mark)
     pm.register(parametrize)
     pm.register(resolve_dependencies)
     pm.register(skipping)
-    pm.register(mark)
 
 
 @click.group(

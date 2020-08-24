@@ -62,7 +62,7 @@ def pytask_extend_command_line_interface(cli):
 
 @hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
-    provider = get_first_not_none_value(
+    config["database_provider"] = get_first_not_none_value(
         config_from_cli, config_from_file, key="database_provider", default="sqlite"
     )
     filename = get_first_not_none_value(
@@ -73,17 +73,18 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
     )
     filename = Path(filename)
     if not filename.is_absolute():
-        filename = Path(config["root"], filename).resolve().as_posix()
+        filename = Path(config["root"], filename).resolve()
+    config["database_filename"] = filename
 
-    create_db = get_first_not_none_value(
+    config["database_create_db"] = get_first_not_none_value(
         config_from_cli, config_from_file, key="database_create_db", default=True
     )
-    create_tables = get_first_not_none_value(
+    config["database_create_tables"] = get_first_not_none_value(
         config_from_cli, config_from_file, key="database_create_tables", default=True
     )
     config["database"] = {
-        "provider": provider,
-        "filename": filename,
-        "create_db": create_db,
-        "create_tables": create_tables,
+        "provider": config["database_provider"],
+        "filename": config["database_filename"].as_posix(),
+        "create_db": config["database_create_db"],
+        "create_tables": config["database_create_tables"],
     }
