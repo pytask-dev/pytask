@@ -8,7 +8,6 @@ from _pytask.nodes import MetaNode
 from _pytask.nodes import MetaTask
 from _pytask.resolve_dependencies import _check_if_root_nodes_are_available
 from _pytask.resolve_dependencies import pytask_resolve_dependencies_create_dag
-from click.testing import CliRunner
 from pytask import cli
 
 
@@ -67,7 +66,7 @@ def test_check_if_root_nodes_are_available():
 
 
 @pytest.mark.end_to_end
-def test_cycle_in_dag(tmp_path):
+def test_cycle_in_dag(tmp_path, runner):
     source = """
     import pytask
     from pathlib import Path
@@ -85,7 +84,6 @@ def test_cycle_in_dag(tmp_path):
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
-    runner = CliRunner()
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == 4

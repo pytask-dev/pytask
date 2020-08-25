@@ -4,7 +4,6 @@ import textwrap
 import pytask
 import pytest
 from _pytask.mark import MarkGenerator
-from click.testing import CliRunner
 from pytask import cli
 from pytask import main
 
@@ -69,7 +68,7 @@ def test_ini_markers(tmp_path, config_name):
 
 @pytest.mark.end_to_end
 @pytest.mark.parametrize("config_name", ["pytask.ini", "tox.ini", "setup.cfg"])
-def test_markers_command(tmp_path, config_name):
+def test_markers_command(tmp_path, runner, config_name):
     config_path = tmp_path.joinpath(config_name)
     config_path.write_text(
         textwrap.dedent(
@@ -83,7 +82,6 @@ def test_markers_command(tmp_path, config_name):
         )
     )
 
-    runner = CliRunner()
     result = runner.invoke(cli, ["markers", "-c", config_path.as_posix()])
 
     for out in ["pytask.mark.a1", "pytask.mark.a2", "pytask.mark.nodescription"]:

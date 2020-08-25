@@ -211,7 +211,12 @@ class RecursivePathNode:
 
     @classmethod
     def from_path(cls, path: Path, known_paths: list):
-        """Create a node from a path."""
+        """Create a node from a path.
+
+        While instantiating the class, subordinate nodes are spawned for all paths
+        inside a directory.
+
+        """
         sub_nodes = (
             [RecursivePathNode.from_path(p, known_paths) for p in path.glob("*")]
             if path.is_dir()
