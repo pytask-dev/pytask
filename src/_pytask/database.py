@@ -1,3 +1,4 @@
+"""Implement the database managed with pony."""
 from pathlib import Path
 
 import click
@@ -10,6 +11,8 @@ db = orm.Database()
 
 
 class State(db.Entity):
+    """Represent the state of a node in relation to a task."""
+
     task = orm.Required(str)
     node = orm.Required(str)
     state = orm.Required(str)
@@ -18,6 +21,14 @@ class State(db.Entity):
 
 
 def create_database(provider, filename, create_db, create_tables):
+    """Create the database.
+
+    Exceptions
+    ----------
+    orm.BindingError
+        Raise if database is already bound.
+
+    """
     try:
         db.bind(provider=provider, filename=filename, create_db=create_db)
         db.generate_mapping(create_tables=create_tables)
@@ -27,6 +38,7 @@ def create_database(provider, filename, create_db, create_tables):
 
 @orm.db_session
 def create_or_update_state(first_key, second_key, state):
+    """Create or update a state."""
     try:
         state_in_db = State[first_key, second_key]
     except orm.ObjectNotFound:
@@ -37,6 +49,7 @@ def create_or_update_state(first_key, second_key, state):
 
 @hookimpl
 def pytask_extend_command_line_interface(cli):
+    """Extend command line interface."""
     additional_parameters = [
         click.Option(
             ["--database-provider"],
@@ -62,6 +75,7 @@ def pytask_extend_command_line_interface(cli):
 
 @hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
+    """Parse the configuration."""
     config["database_provider"] = get_first_not_none_value(
         config_from_cli, config_from_file, key="database_provider", default="sqlite"
     )

@@ -1,3 +1,9 @@
+"""Implement hook specifications or entry-points for pytask.
+
+At each of the entry-points, a plugin can register a hook implementation which receives
+the message send by the host and may send a response.
+
+"""
 import click
 import pluggy
 

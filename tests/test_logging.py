@@ -1,6 +1,6 @@
 import attr
 import pytest
-from _pytask.logging import _plugin_nameversions
+from _pytask.logging import _format_plugin_names_and_versions
 
 
 @attr.s
@@ -17,5 +17,5 @@ class DummyDist:
         ([(None, DummyDist("plugin", "1.0.0"))], ["plugin-1.0.0"]),
     ],
 )
-def test_plugin_nameversions(plugins, expected):
-    assert _plugin_nameversions(plugins) == expected
+def test_format_plugin_names_and_versions(plugins, expected):
+    assert _format_plugin_names_and_versions(plugins) == expected

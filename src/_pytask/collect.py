@@ -1,3 +1,4 @@
+"""Implement functionality to collect tasks."""
 import fnmatch
 import glob
 import importlib
@@ -19,6 +20,7 @@ from _pytask.report import CollectionReportTask
 
 @hookimpl
 def pytask_collect(session):
+    """Collect tasks."""
     reports = _collect_from_paths(session)
     tasks = _extract_tasks_from_reports(reports)
 
@@ -43,6 +45,11 @@ def pytask_collect(session):
 
 
 def _collect_from_paths(session):
+    """Collect tasks from paths.
+
+    Go through all paths, check if the path is ignored, and collect the file if not.
+
+    """
     collected_reports = []
     for path in session.config["paths"]:
         paths = (
@@ -66,6 +73,7 @@ def _collect_from_paths(session):
 
 @hookimpl
 def pytask_ignore_collect(path, config):
+    """Ignore a path during the collection."""
     ignored = any(fnmatch.fnmatch(path, pattern) for pattern in config["ignore"])
     return ignored
 

@@ -10,6 +10,7 @@ from _pytask.shared import get_first_not_none_value
 
 @hookimpl
 def pytask_extend_command_line_interface(cli):
+    """Extend command line interface."""
     additional_parameters = [
         click.Option(
             ["--pdb"], help="Enter debugger on errors.", is_flag=True, default=None
@@ -26,6 +27,7 @@ def pytask_extend_command_line_interface(cli):
 
 @hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
+    """Parse the configuration."""
     config["pdb"] = get_first_not_none_value(
         config_from_cli, config_from_file, key="pdb", default=False
     )
@@ -44,6 +46,8 @@ def pytask_post_parse(config):
 
 
 class PdbDebugger:
+    """Namespace for debugging."""
+
     @staticmethod
     @hookimpl(hookwrapper=True)
     def pytask_execute_task(task):
@@ -66,6 +70,8 @@ def wrap_function_for_post_mortem_debugging(function):
 
 
 class PdbTrace:
+    """Namespace for tracing."""
+
     @staticmethod
     @hookimpl(hookwrapper=True)
     def pytask_execute_task(task):

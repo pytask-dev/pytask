@@ -1,3 +1,4 @@
+"""Implements the command line interface."""
 import sys
 
 import click
@@ -18,6 +19,7 @@ def _extend_command_line_interface(cli):
 
 
 def _prepare_plugin_manager():
+    """Prepare the plugin manager."""
     pm = get_plugin_manager()
     pm.register(sys.modules[__name__])
     pm.hook.pytask_add_hooks(pm=pm)
@@ -26,6 +28,7 @@ def _prepare_plugin_manager():
 
 @hookimpl
 def pytask_add_hooks(pm):
+    """Add hooks."""
     from _pytask import build
     from _pytask import clean
     from _pytask import collect
@@ -61,6 +64,7 @@ def pytask_add_hooks(pm):
 )
 @click.version_option()
 def cli():
+    """The command line interface of pytask."""
     pass
 
 

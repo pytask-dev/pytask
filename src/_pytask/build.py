@@ -1,3 +1,4 @@
+"""Implement the build command."""
 import pdb
 import sys
 import traceback
@@ -16,6 +17,7 @@ from _pytask.shared import to_path
 
 @hookimpl(tryfirst=True)
 def pytask_extend_command_line_interface(cli):
+    """Extend the command line interface."""
     cli.add_command(build)
 
 

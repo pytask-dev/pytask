@@ -1,3 +1,4 @@
+"""Add a command to clean the project from files unknown to pytask."""
 import itertools
 import shutil
 import sys
@@ -24,11 +25,13 @@ HELP_TEXT_MODE = (
 
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group):
+    """Extend the command line interface."""
     cli.add_command(clean)
 
 
 @hookimpl
 def pytask_parse_config(config, config_from_cli):
+    """Parse the configuration."""
     config["mode"] = get_first_not_none_value(
         config_from_cli, key="mode", default="dry-run"
     )
