@@ -82,16 +82,15 @@ def test_debug_pytask(capsys, tmp_path):
 @pytest.mark.end_to_end
 @pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
 @pytest.mark.parametrize("ignore", ["", "*task_dummy.py"])
-@pytest.mark.parametrize("sep", [True, False])
-def test_ignore_paths(tmp_path, config_path, ignore, sep):
+@pytest.mark.parametrize("new_line", [True, False])
+def test_ignore_paths(tmp_path, config_path, ignore, new_line):
     source = """
     def task_dummy():
         pass
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
-    config = (
-        f"[pytask]\nignore =\n\t{ignore}" if sep else f"[pytask]\nignore = {ignore}"
-    )
+    entry = f"ignore =\n\t{ignore}" if new_line else f"ignore = {ignore}"
+    config = f"[pytask]\n{entry}" if ignore else "[pytask]"
     tmp_path.joinpath(config_path).write_text(config)
 
     session = main({"paths": tmp_path})

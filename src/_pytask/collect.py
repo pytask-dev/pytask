@@ -1,5 +1,4 @@
 """Implement functionality to collect tasks."""
-import fnmatch
 import glob
 import importlib
 import inspect
@@ -74,7 +73,7 @@ def _collect_from_paths(session):
 @hookimpl
 def pytask_ignore_collect(path, config):
     """Ignore a path during the collection."""
-    ignored = any(fnmatch.fnmatch(path, pattern) for pattern in config["ignore"])
+    ignored = any(path.match(pattern) for pattern in config["ignore"])
     return ignored
 
 

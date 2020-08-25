@@ -87,7 +87,11 @@ def main(config_from_cli):
 @click.command()
 @click.argument("paths", nargs=-1, type=click.Path(exists=True), callback=to_path)
 @click.option(
-    "--ignore", type=str, multiple=True, help="Ignore path (globs and multi allowed)."
+    "--ignore",
+    type=str,
+    multiple=True,
+    help="Ignore path (globs and multi allowed).",
+    default=None,
 )
 @click.option(
     "--debug-pytask", is_flag=True, help="Debug pytask by tracing all hook calls."
