@@ -79,7 +79,8 @@ def test_clean_interactive(sample_project_path, runner):
     result = runner.invoke(
         cli,
         ["clean", "-m", "interactive", sample_project_path.as_posix()],
-        input="y\ny",
+        # Three instead of two because the compiled .pyc file is also present.
+        input="y\ny\ny",
     )
 
     assert "Remove" in result.output
@@ -96,7 +97,8 @@ def test_clean_interactive_w_directories(sample_project_path, runner):
     result = runner.invoke(
         cli,
         ["clean", "-d", "-m", "interactive", sample_project_path.as_posix()],
-        input="y\ny",
+        # Three instead of two because the compiled .pyc file is also present.
+        input="y\ny\ny",
     )
 
     assert "Remove" in result.output
