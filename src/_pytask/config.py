@@ -25,17 +25,6 @@ IGNORED_FILES_AND_FOLDERS = [
 
 
 @hookimpl
-def pytask_extend_command_line_interface(cli):
-    cli.commands["build"].params.append(
-        click.Option(
-            ["-c", "--config"],
-            type=click.Path(exists=True),
-            help="Path to configuration file.",
-        )
-    )
-
-
-@hookimpl
 def pytask_configure(pm, config_from_cli):
     config = {"pm": pm, "terminal_width": _get_terminal_width()}
 

@@ -23,8 +23,8 @@ class State(db.Entity):
 def create_database(provider, filename, create_db, create_tables):
     """Create the database.
 
-    Exceptions
-    ----------
+    Raises
+    ------
     orm.BindingError
         Raise if database is already bound.
 

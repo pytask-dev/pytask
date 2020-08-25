@@ -46,15 +46,15 @@ def pytask_parse_config(config, config_from_cli):
 @click.command()
 @click.argument("paths", nargs=-1, type=click.Path(exists=True), callback=to_path)
 @click.option(
-    "-q", "--quiet", is_flag=True, help="Do not print the names of the removed paths."
-)
-@click.option(
     "-m",
     "--mode",
     type=click.Choice(["dry-run", "interactive", "force"]),
     help=HELP_TEXT_MODE,
 )
 @click.option("-d", "--directories", is_flag=True, help="Remove whole directories.")
+@click.option(
+    "-q", "--quiet", is_flag=True, help="Do not print the names of the removed paths."
+)
 @click.option(
     "-c", "--config", type=click.Path(exists=True), help="Path to configuration file."
 )
@@ -89,16 +89,17 @@ def clean(**config_from_cli):
                 session, known_paths, include_directories
             )
 
-            mode = session.config["mode"]
-
-            click.echo("\nFiles and directories which can be removed:\n")
+            targets = "Files"
+            if session.config["directories"]:
+                targets += " and directories"
+            click.echo(f"\n{targets} which can be removed:\n")
             for path in unknown_paths:
-                if mode == "dry-run":
+                if session.config["mode"] == "dry-run":
                     click.echo(f"Would remove {path}.")
                 else:
-                    should_be_deleted = mode == "force" or click.confirm(
-                        f"Would you like to remove {path}?"
-                    )
+                    should_be_deleted = session.config[
+                        "mode"
+                    ] == "force" or click.confirm(f"Would you like to remove {path}?")
                     if should_be_deleted:
                         if not session.config["quiet"]:
                             click.echo(f"Remove {path}.")

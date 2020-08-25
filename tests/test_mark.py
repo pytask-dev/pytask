@@ -249,8 +249,9 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
         ),
     ],
 )
+@pytest.mark.parametrize("option", ["expression", "marker_expression"])
 def test_keyword_option_wrong_arguments(
-    tmp_path, capsys, expr: str, expected_error: str
+    tmp_path, capsys, option: str, expr: str, expected_error: str
 ) -> None:
     tmp_path.joinpath("task_dummy.py").write_text(
         textwrap.dedent(
@@ -260,7 +261,7 @@ def test_keyword_option_wrong_arguments(
             """
         )
     )
-    session = main({"paths": tmp_path, "expression": expr})
+    session = main({"paths": tmp_path, option: expr})
     assert session.exit_code == 3
 
     err = capsys.readouterr().err
