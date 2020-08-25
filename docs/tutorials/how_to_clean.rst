@@ -1,8 +1,8 @@
 How to clean
 ============
 
-At some point, project are cluttered with obsolete files. For example, a product was
-renamed and the old version still exists.
+At some point, projects are cluttered with obsolete files. For example, a product of a
+task was renamed and the old version still exists.
 
 To clean some directory from files which are not known by pytask, enter the directory
 and type
@@ -21,7 +21,8 @@ and type
     Would remove C:\Users\project\obsolete_folder\obsolete_file_2.txt.
     Would remove C:\Users\project\obsolete_folder\obsolete_file_3.txt.
 
-By default, pytask performs a dry-run and only shows the files which could be removed.
+By default, pytask takes the current directory and performs a dry-run which shows only
+files which could be removed.
 
 If you want to remove the files, there exist two other modes for :option:`pytask clean
 -m`.
