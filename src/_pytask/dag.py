@@ -24,6 +24,11 @@ def task_and_descending_tasks(task_name, dag):
     yield from descending_tasks(task_name, dag)
 
 
-def node_and_neigbors(dag, node):
-    """Yield node and neighbors which are first degree predecessors and successors."""
-    return itertools.chain([node], dag.neighbors(node))
+def node_and_neighbors(dag, node):
+    """Yield node and neighbors which are first degree predecessors and successors.
+
+    We cannot use ``dag.neighbors`` as it only considers successors as neighbors in a
+    DAG.
+
+    """
+    return itertools.chain([node], dag.predecessors(node), dag.successors(node))

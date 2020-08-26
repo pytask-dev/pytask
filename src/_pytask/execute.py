@@ -6,7 +6,7 @@ import traceback
 import click
 from _pytask.config import hookimpl
 from _pytask.dag import descending_tasks
-from _pytask.dag import node_and_neigbors
+from _pytask.dag import node_and_neighbors
 from _pytask.dag import sort_tasks_topologically
 from _pytask.database import create_or_update_state
 from _pytask.enums import ColorCode
@@ -160,9 +160,9 @@ def pytask_execute_log_end(session, reports):
     n_failed = len(reports) - n_successful
     tm_width = session.config["terminal_width"]
 
+    click.echo("")
     any_failure = any(not report.success for report in reports)
     if any_failure:
-        click.echo("\n")
         click.echo(f"{{:=^{tm_width}}}".format(" Failures "))
 
     for report in reports:
@@ -185,6 +185,6 @@ def pytask_execute_log_end(session, reports):
 
 def _update_states_in_database(dag, task_name):
     """Update the state for each node of a task in the database."""
-    for name in node_and_neigbors(dag, task_name):
+    for name in node_and_neighbors(dag, task_name):
         node = dag.nodes[name].get("task") or dag.nodes[name]["node"]
         create_or_update_state(task_name, node.name, node.state())
