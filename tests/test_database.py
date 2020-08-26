@@ -7,7 +7,7 @@ from pony import orm
 from pytask import cli
 
 
-def test_hashes_in_db(tmp_path, runner):
+def test_existence_of_hashes_in_db(tmp_path, runner):
     """Modification dates of input and output files are stored in database."""
     source = """
     import pytask

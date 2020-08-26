@@ -1,10 +1,10 @@
-How to clean
-============
+How to clean a project
+======================
 
 At some point, projects are cluttered with obsolete files. For example, a product of a
 task was renamed and the old version still exists.
 
-To clean some directory from files which are not known by pytask, enter the directory
+To clean directories from files which are not recognized by pytask, enter the directory
 and type
 
 .. code-block::

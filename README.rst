@@ -30,17 +30,19 @@ Features
 In its highest aspirations, pytask tries to be pytest as a build system. Its features
 include:
 
-- Automatic discovery of tasks.
+- **Automatic discovery of tasks.**
 
-- It tracks dependencies and products as well as the source file of a task to evaluate
-  whether it needs to be re-executed.
+- **Lazy evaluation.** If a task or its dependencies have not changed, do not
+  execute it again.
 
-- pytask does not stop if one task fails, but continues execution for all collected
-  tasks. Tasks which depend on failed tasks are automatically skipped.
+- **Debug mode.** Jump into the debugger if a task fails and get quick feedback.
 
-- Easily extensible since its architecture is based on `pluggy
+- **Select tasks via expressions.** Run only a subset of tasks with expressions and
+  markers known from pytest.
+
+- **Easily extensible with plugins**. pytask's architecture is based on `pluggy
   <https://pluggy.readthedocs.io/en/latest/>`_, a plugin management and hook calling
-  framework.
+  framework which enables you to adjust pytask to your needs.
 
 
 Installation
