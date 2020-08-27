@@ -42,10 +42,6 @@ extensions = [
     "sphinx_autodoc_typehints",
 ]
 
-# Add any paths that contain templates here, relative to this directory.
-
-# templates_path = ["_templates"]  # noqa: E800
-
 # List of patterns, relative to source directory, that match files and directories to
 # ignore when looking for source files. This pattern also affects html_static_path and
 # html_extra_path.
@@ -86,14 +82,12 @@ autoapi_add_toctree_entry = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for a list of
 # built-in themes.
 
-html_theme = "pydata_sphinx_theme"
+html_theme = "alabaster"
 
 # Add any paths that contain custom static files (such as style sheets) here, relative
 # to this directory. They are copied after the built-in static files, so a file named
 # "default.css" will overwrite the built-in "default.css".
 html_css_files = ["css/custom.css"]
-
-html_logo = "_static/images/pytask_w_text.svg"
 
 # The name of an image file (within the static path) to use as favicon of the docs.
 # This file should be a Windows icon file (.ico) being 16x16 or 32x32 pixels large.
@@ -101,4 +95,13 @@ html_favicon = "_static/images/pytask.ico"  # noqa: E800
 
 html_static_path = ["_static"]
 
-html_theme_options = {"github_url": "https://github.com/pytask-dev/pytask"}
+html_theme_options = {
+    "extra_nav_links": {"On Github": "https://github.com/pytask-dev/pytask"},
+    "logo": "images/pytask_w_text.svg",
+    "logo_name": False,
+    "github_button": False,
+    "github_user": "pytask-dev",
+    "github_repo": "pytask",
+    "font_family": '"Avenir Next", Calibri, "PT Sans", sans-serif',
+    "head_font_family": '"Avenir Next", Calibri, "PT Sans", sans-serif',
+}
