@@ -97,13 +97,13 @@ To execute the task, type the following command on the command-line
 .. code-block::
 
     $ pytask
-    =============================== Start pytask session ===============================
+    ========================= Start pytask session =========================
     Platform: linux -- Python 3.x.y, pytask 0.x.y, pluggy 0.x.y
     Root: xxx
     Collected 1 task(s).
 
     .
-    ============================ 1 succeeded in 1 second(s) ============================
+    ====================== 1 succeeded in 1 second(s) ======================
 
 
 Demo
