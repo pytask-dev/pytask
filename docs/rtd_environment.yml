@@ -3,7 +3,6 @@ channels:
 dependencies:
   - python
   - ipython
-  - numpydoc
   - sphinx
   - sphinx-copybutton
   - sphinx-autodoc-typehints

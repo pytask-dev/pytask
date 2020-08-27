@@ -47,3 +47,7 @@ a#index-link {
 pre {
   padding-left: 20px
 }
+
+li pre {
+  padding-left: 20px
+}

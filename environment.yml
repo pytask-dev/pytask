@@ -29,7 +29,6 @@ dependencies:
 
   # Documentation
   - nbsphinx
-  - numpydoc
   - sphinx
   - sphinx-copybutton
   - sphinx-autodoc-typehints
