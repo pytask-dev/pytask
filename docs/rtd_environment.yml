@@ -4,7 +4,6 @@ dependencies:
   - python
   - ipython
   - numpydoc
-  - pydata-sphinx-theme
   - sphinx
   - sphinx-copybutton
   - sphinx-autodoc-typehints
