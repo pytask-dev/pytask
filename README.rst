@@ -45,6 +45,14 @@ include:
   framework which enables you to adjust pytask to your needs.
 
 
+Why do I need a build system?
+-----------------------------
+
+Read the `section in the documentation <https://pytask-dev.readthedocs.io/en/latest/
+explanations/why_do_i_need_a_build_system.html>`_ if you do not know or are not
+convinced that you need a build system.
+
+
 Installation
 ------------
 
