@@ -3,7 +3,7 @@
 pluggy and the Plugin Architecture
 ==================================
 
-pluggy ([1]_ [2]_) is at the heart of pytask and enables the plugin architecture. The
+pluggy ([1]_, [2]_) is at the heart of pytask and enables the plugin architecture. The
 mechanism to achieve extensibility is called :term:`hooking`.
 
 At certain points, pytask, or more generally the host, implements entry-points which are
