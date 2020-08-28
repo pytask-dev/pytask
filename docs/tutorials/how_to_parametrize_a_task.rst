@@ -49,7 +49,7 @@ iterable is constructed by a list comprehension which expands to
 
     In [1]: from pathlib import Path
 
-    In [2]: [(Path(f"{i}.txt"), i) for i in range(5)]
+    In [2]: [(f"{i}.txt", i) for i in range(5)]
 
 Putting all together, the task is run five times and each run the path from the list is
 mapped to the argument ``produces`` and ``i`` receives the number.
@@ -100,7 +100,7 @@ It is also possible to combine ``@pytask.mark.parametrize`` with
 tasks.
 
 In the following example, we read the content from a dependency which is the same for
-all generated tasks and save it along a generated number to a file.
+all generated tasks and save it to a file along a generated number.
 
 .. code-block:: python
 

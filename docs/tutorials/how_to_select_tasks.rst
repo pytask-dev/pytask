@@ -80,7 +80,7 @@ will execute the first and third task and
 
 executes only the first task.
 
-To execute a single task, say ``task_run_this_one``, in ``task_example.py``, use
+To execute a single task, say ``task_run_this_one`` in ``task_example.py``, use
 
 .. code-block:: bash
 
