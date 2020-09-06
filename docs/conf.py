@@ -51,12 +51,13 @@ suppress_warnings = ["ref.python"]
 
 # -- Extensions configuration ----------------------------------------------------------
 
-# Configuration for autodoc
+# Configuration for autodoc.
 autosummary_generate = True
 add_module_names = False
 autodoc_mock_imports = ["attr", "click", "networkx", "pluggy", "pony"]
 
-copybutton_prompt_text = r"\\$ |>>> "
+# Remove prefixed $ for bash, >>> for Python prompts, and In [1]: for IPython prompts.
+copybutton_prompt_text = r"\$ |>>> |In \[\d\]: "
 copybutton_prompt_is_regexp = True
 
 extlinks = {

@@ -16,6 +16,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
   project.
 - :gh:`18` changes the documentation theme to alabaster.
 - :gh:`19` adds some changes related to ignored folders.
+- :gh:`20` fixes copying code examples in the documentation.
 
 
 0.0.5 - 2020-08-12
