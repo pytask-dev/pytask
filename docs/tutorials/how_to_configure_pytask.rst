@@ -25,8 +25,6 @@ stable root and will store the information about tasks, dependencies, and produc
 the same directory as the configuration file.
 
 
-.. _tutorial_configure_markers:
-
 markers
 -------
 
@@ -67,9 +65,9 @@ Or, use the configuration file:
 .. code-block:: ini
 
     # For single entries only.
-    ignore = */some_file.py
+    ignore = some_file.py
 
     # Or single and multiple entries.
     ignore =
-        */some_directory/*
-        */some_file.py
+        some_directory/*
+        some_file.py
