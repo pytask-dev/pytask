@@ -137,8 +137,8 @@ def collect_all_paths_known_to_pytask(session):
 
     known_paths = known_files | known_directories
 
-    if session.config["ini"]:
-        known_paths.add(session.config["ini"])
+    if session.config["config"]:
+        known_paths.add(session.config["config"])
     known_paths.add(session.config["root"])
     known_paths.add(session.config["database_filename"])
 

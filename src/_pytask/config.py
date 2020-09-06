@@ -44,11 +44,13 @@ def pytask_configure(pm, config_from_cli):
     config["paths"] = paths if paths else [Path.cwd().resolve()]
 
     if config_from_cli.get("config"):
-        config["ini"] = Path(config_from_cli.pop("config"))
-        config["root"] = config["ini"].parent
+        config["config"] = Path(config_from_cli.pop("config"))
+        config["root"] = config["config"].parent
     else:
-        config["root"], config["ini"] = _find_project_root_and_ini(config["paths"])
-    config_from_file = _read_config(config["ini"]) if config["ini"] is not None else {}
+        config["root"], config["config"] = _find_project_root_and_ini(config["paths"])
+    config_from_file = (
+        _read_config(config["config"]) if config["config"] is not None else {}
+    )
 
     config["markers"] = {
         "depends_on": "Attach a dependency/dependencies to a task.",
