@@ -16,20 +16,20 @@ from _pytask.shared import to_list
 hookimpl = pluggy.HookimplMarker("pytask")
 
 
-IGNORED_FILES_AND_FOLDERS = [
-    "*/.git/*",
-    "*/.hg/*",
-    "*/.svn/*",
-    "*/.venv/*",
-    "*/*.egg-info/*",
-    "*/.ipynb_checkpoints/*",
-    "*/.mypy_cache/*",
-    "*/.nox/*",
-    "*/.tox/*",
-    "*/_build/*",
-    "*/__pycache__/*",
-    "*/build/*",
-    "*/dist/*",
+IGNORED_FOLDERS = [
+    ".git/*",
+    ".hg/*",
+    ".svn/*",
+    ".venv/*",
+    "*.egg-info/*",
+    ".ipynb_checkpoints/*",
+    ".mypy_cache/*",
+    ".nox/*",
+    ".tox/*",
+    "_build/*",
+    "__pycache__/*",
+    "build/*",
+    "dist/*",
 ]
 
 
@@ -80,7 +80,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
             default=[],
             callback=to_list,
         )
-        + IGNORED_FILES_AND_FOLDERS
+        + IGNORED_FOLDERS
     )
 
     config["debug_pytask"] = get_first_not_none_value(
