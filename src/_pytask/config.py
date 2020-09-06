@@ -18,9 +18,18 @@ hookimpl = pluggy.HookimplMarker("pytask")
 
 IGNORED_FILES_AND_FOLDERS = [
     "*/.git/*",
-    "*/__pycache__/*",
-    "*/.ipynb_checkpoints/*",
+    "*/.hg/*",
+    "*/.svn/*",
+    "*/.venv/*",
     "*/*.egg-info/*",
+    "*/.ipynb_checkpoints/*",
+    "*/.mypy_cache/*",
+    "*/.nox/*",
+    "*/.tox/*",
+    "*/_build/*",
+    "*/__pycache__/*",
+    "*/build/*",
+    "*/dist/*",
 ]
 
 
@@ -34,7 +43,11 @@ def pytask_configure(pm, config_from_cli):
     paths = [Path(p).resolve() for path in paths for p in glob.glob(path.as_posix())]
     config["paths"] = paths if paths else [Path.cwd().resolve()]
 
-    config["root"], config["ini"] = _find_project_root_and_ini(config["paths"])
+    if config_from_cli.get("config"):
+        config["ini"] = Path(config_from_cli.pop("config"))
+        config["root"] = config["ini"].parent
+    else:
+        config["root"], config["ini"] = _find_project_root_and_ini(config["paths"])
     config_from_file = _read_config(config["ini"]) if config["ini"] is not None else {}
 
     config["markers"] = {
@@ -58,6 +71,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
     config_from_file["ignore"] = parse_value_or_multiline_option(
         config_from_file.get("ignore")
     )
+
     config["ignore"] = (
         get_first_not_none_value(
             config_from_cli,

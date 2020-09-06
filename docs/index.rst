@@ -30,7 +30,7 @@ This is the documentation of pytask. You can install the package from `Anaconda.
     $ conda config --add channels conda-forge --add channels pytask
     $ conda install pytask
 
-The documentation has currently one of four planned parts.
+The documentation has four parts.
 
 .. raw:: html
 
@@ -38,13 +38,13 @@ The documentation has currently one of four planned parts.
         <div class="column">
             <a href="tutorials/index.html" id="index-link">
                 <div class="card">
-                    <img src="_static/images/light-bulb.svg" class="card-img-top"
+                    <img src="_static/images/light-bulb.svg"
                          alt="tutorials-icon" height="52"
                     >
                     <h5>Tutorials</h5>
                     <p>
-                        Tutorials help you to get started. If you do not know
-                        what a build system or pytask is, start here.
+                        Tutorials help you to get started with pytask, explain the
+                        interface and basic capabilities.
                     </p>
                 </div>
             </a>
@@ -52,7 +52,7 @@ The documentation has currently one of four planned parts.
         <div class="column">
             <a href="how_to_guides/index.html" id="index-link">
                 <div class="card">
-                    <img src="_static/images/book.svg" class="card-img-top"
+                    <img src="_static/images/book.svg"
                          alt="how-to guides icon" height="52"
                     >
                     <h5>How-to Guides</h5>
@@ -66,12 +66,12 @@ The documentation has currently one of four planned parts.
         <div class="column">
             <a href="explanations/index.html" id="index-link">
                 <div class="card">
-                    <img src="_static/images/books.svg" class="card-img-top"
+                    <img src="_static/images/books.svg"
                          alt="explanations icon" height="52"
                     >
                     <h5>Explanations</h5>
                     <p>
-                        Explanations give detailed information to key topics and
+                        Explanations give detailed information on key topics and
                         concepts which underlie the package.
                     </p>
                 </div>
@@ -80,12 +80,12 @@ The documentation has currently one of four planned parts.
         <div class="column">
             <a href="reference_guides/index.html" id="index-link">
                 <div class="card">
-                    <img src="_static/images/coding.svg" class="card-img-top"
+                    <img src="_static/images/coding.svg"
                          alt="reference guides icon" height="52"
                     >
                     <h5>Reference Guides</h5>
                     <p>
-                        Reference Guides explain the implementation and provide an
+                        Reference guides explain the implementation and provide an
                         entry-point for developers.
                     </p>
                 </div>

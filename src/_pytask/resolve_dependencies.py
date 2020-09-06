@@ -5,7 +5,7 @@ import traceback
 import click
 import networkx as nx
 from _pytask.config import hookimpl
-from _pytask.dag import node_and_neigbors
+from _pytask.dag import node_and_neighbors
 from _pytask.dag import sort_tasks_topologically
 from _pytask.dag import task_and_descending_tasks
 from _pytask.database import State
@@ -88,7 +88,7 @@ def pytask_resolve_dependencies_validate_dag(dag):
 def _have_task_or_neighbors_changed(task_name, dag):
     return any(
         _has_node_changed(task_name, dag.nodes[node])
-        for node in node_and_neigbors(dag, task_name)
+        for node in node_and_neighbors(dag, task_name)
     )
 
 
@@ -140,7 +140,7 @@ def _check_if_root_nodes_are_available(dag):
 def pytask_resolve_dependencies_log(session, report):
     tm_width = session.config["terminal_width"]
 
-    click.echo(f"{{:=^{tm_width}}}".format(" Errors during resolving dependencies "))
+    click.echo(f"{{:=^{tm_width}}}".format(" Errors while resolving dependencies "))
 
     traceback.print_exception(*remove_traceback_from_exc_info(report.exc_info))
 

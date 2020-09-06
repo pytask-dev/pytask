@@ -4,6 +4,7 @@ import textwrap
 import pytask
 import pytest
 from _pytask.mark import MarkGenerator
+from pytask import cli
 from pytask import main
 
 
@@ -67,8 +68,9 @@ def test_ini_markers(tmp_path, config_name):
 
 @pytest.mark.end_to_end
 @pytest.mark.parametrize("config_name", ["pytask.ini", "tox.ini", "setup.cfg"])
-def test_markers_option(capsys, tmp_path, config_name):
-    tmp_path.joinpath(config_name).write_text(
+def test_markers_command(tmp_path, runner, config_name):
+    config_path = tmp_path.joinpath(config_name)
+    config_path.write_text(
         textwrap.dedent(
             """
             [pytask]
@@ -80,13 +82,10 @@ def test_markers_option(capsys, tmp_path, config_name):
         )
     )
 
-    session = main({"paths": tmp_path, "markers": True})
+    result = runner.invoke(cli, ["markers", "-c", config_path.as_posix()])
 
-    assert session.exit_code == 0
-
-    captured = capsys.readouterr()
     for out in ["pytask.mark.a1", "pytask.mark.a2", "pytask.mark.nodescription"]:
-        assert out in captured.out
+        assert out in result.output
 
 
 @pytest.mark.end_to_end
@@ -114,10 +113,11 @@ def test_ini_markers_whitespace(tmp_path, config_name):
     )
 
     session = main({"paths": tmp_path, "strict_markers": True})
-    assert session.exit_code == 2
+    assert session.exit_code == 3
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
 
 
+@pytest.mark.end_to_end
 @pytest.mark.filterwarnings("ignore:Unknown pytask.mark.")
 @pytest.mark.parametrize(
     ("expr", "expected_passed"),
@@ -152,6 +152,7 @@ def test_mark_option(tmp_path, expr: str, expected_passed: str) -> None:
     assert set(tasks_that_run) == set(expected_passed)
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("expr", "expected_passed"),
     [
@@ -193,6 +194,7 @@ def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> Non
     assert set(tasks_that_run) == set(expected_passed)
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("expr", "expected_passed"),
     [
@@ -222,6 +224,7 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
     assert set(tasks_that_run) == set(expected_passed)
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("expr", "expected_error"),
     [
@@ -246,8 +249,9 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
         ),
     ],
 )
+@pytest.mark.parametrize("option", ["expression", "marker_expression"])
 def test_keyword_option_wrong_arguments(
-    tmp_path, capsys, expr: str, expected_error: str
+    tmp_path, capsys, option: str, expr: str, expected_error: str
 ) -> None:
     tmp_path.joinpath("task_dummy.py").write_text(
         textwrap.dedent(
@@ -257,8 +261,8 @@ def test_keyword_option_wrong_arguments(
             """
         )
     )
-    session = main({"paths": tmp_path, "expression": expr})
-    assert session.exit_code == 2
+    session = main({"paths": tmp_path, option: expr})
+    assert session.exit_code == 3
 
     err = capsys.readouterr().err
     assert expected_error in err

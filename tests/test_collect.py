@@ -45,7 +45,7 @@ def test_collect_filepathnode_with_unknown_type(tmp_path):
     os.chdir(tmp_path)
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 2
+    assert session.exit_code == 3
     assert isinstance(session.collection_reports[0].exc_info[1], NodeNotCollectedError)
 
 

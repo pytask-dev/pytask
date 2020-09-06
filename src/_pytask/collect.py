@@ -1,4 +1,4 @@
-import fnmatch
+"""Implement functionality to collect tasks."""
 import glob
 import importlib
 import inspect
@@ -19,6 +19,7 @@ from _pytask.report import CollectionReportTask
 
 @hookimpl
 def pytask_collect(session):
+    """Collect tasks."""
     reports = _collect_from_paths(session)
     tasks = _extract_tasks_from_reports(reports)
 
@@ -35,15 +36,19 @@ def pytask_collect(session):
     session.collection_reports = reports
     session.tasks = tasks
 
-    failed_reports = [i for i in reports if not i.successful]
-    if failed_reports:
+    if any(i for i in reports if not i.successful):
         raise CollectionError
 
     return True
 
 
 def _collect_from_paths(session):
-    collected_reports = []
+    """Collect tasks from paths.
+
+    Go through all paths, check if the path is ignored, and collect the file if not.
+
+    """
+    collected_reports = session.collection_reports
     for path in session.config["paths"]:
         paths = (
             path.rglob("*")
@@ -66,7 +71,8 @@ def _collect_from_paths(session):
 
 @hookimpl
 def pytask_ignore_collect(path, config):
-    ignored = any(fnmatch.fnmatch(path, pattern) for pattern in config["ignore"])
+    """Ignore a path during the collection."""
+    ignored = any(path.match(pattern) for pattern in config["ignore"])
     return ignored
 
 
@@ -215,7 +221,7 @@ def pytask_collect_log(session, reports, tasks):
         click.echo(f"{{:=^{tm_width}}}".format(" Errors during collection "))
 
         for report in failed_reports:
-            click.echo(f"{{:=^{tm_width}}}".format(report.format_title()))
+            click.echo(f"{{:_^{tm_width}}}".format(report.format_title()))
             traceback.print_exception(*report.exc_info)
             click.echo("")
             click.echo("=" * tm_width)

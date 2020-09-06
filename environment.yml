@@ -12,6 +12,7 @@ dependencies:
 
   # Package dependencies
   - click
+  - click-default-group
   - networkx
   - pluggy
   - pony

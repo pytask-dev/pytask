@@ -8,7 +8,7 @@ repos:
     -   id: check-yaml
         exclude: meta.yaml
     -   id: debug-statements
-        exclude: (debugging\.py|main\.py)
+        exclude: (debugging\.py|build\.py)
     -   id: end-of-file-fixer
 -   repo: https://github.com/asottile/pyupgrade
     rev: v2.7.2
@@ -51,6 +51,11 @@ repos:
     rev: 0.8.1rc3
     hooks:
     -   id: doc8
+-   repo: https://github.com/econchick/interrogate
+    rev: 1.2.0
+    hooks:
+    -   id: interrogate
+        args: [-v, --fail-under=40, src, tests]
 -   repo: https://github.com/codespell-project/codespell
     rev: v1.17.1
     hooks:

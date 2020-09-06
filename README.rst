@@ -1,7 +1,6 @@
 .. raw:: html
 
-    <img src="docs/_static/images/pytask_w_text.png" alt="pytask"
-         width="50%">
+    <img src="docs/_static/images/pytask_w_text.png" alt="pytask" width="50%">
 
 ------
 
@@ -30,17 +29,27 @@ Features
 In its highest aspirations, pytask tries to be pytest as a build system. Its features
 include:
 
-- Automatic discovery of tasks.
+- **Automatic discovery of tasks.**
 
-- It tracks dependencies and products as well as the source file of a task to evaluate
-  whether it needs to be re-executed.
+- **Lazy evaluation.** If a task or its dependencies have not changed, do not
+  execute it.
 
-- pytask does not stop if one task fails, but continues execution for all collected
-  tasks. Tasks which depend on failed tasks are automatically skipped.
+- **Debug mode.** Jump into the debugger if a task fails and get quick feedback.
 
-- Easily extensible since its architecture is based on `pluggy
+- **Select tasks via expressions.** Run only a subset of tasks with expressions and
+  marker expressions known from pytest.
+
+- **Easily extensible with plugins**. pytask's architecture is based on `pluggy
   <https://pluggy.readthedocs.io/en/latest/>`_, a plugin management and hook calling
-  framework.
+  framework which enables you to adjust pytask to your needs.
+
+
+Why do I need a build system?
+-----------------------------
+
+Read the `section in the documentation <https://pytask-dev.readthedocs.io/en/latest/
+explanations/why_do_i_need_a_build_system.html>`_ if you do not know or are not
+convinced that you need a build system.
 
 
 Installation
@@ -87,13 +96,13 @@ To execute the task, type the following command on the command-line
 .. code-block::
 
     $ pytask
-    =============================== Start pytask session ===============================
+    ========================= Start pytask session =========================
     Platform: linux -- Python 3.x.y, pytask 0.x.y, pluggy 0.x.y
     Root: xxx
     Collected 1 task(s).
 
     .
-    ============================ 1 succeeded in 1 second(s) ============================
+    ====================== 1 succeeded in 1 second(s) ======================
 
 
 Demo

@@ -1,3 +1,4 @@
+"""Implement the database managed with pony."""
 from pathlib import Path
 
 import click
@@ -10,6 +11,8 @@ db = orm.Database()
 
 
 class State(db.Entity):
+    """Represent the state of a node in relation to a task."""
+
     task = orm.Required(str)
     node = orm.Required(str)
     state = orm.Required(str)
@@ -18,6 +21,14 @@ class State(db.Entity):
 
 
 def create_database(provider, filename, create_db, create_tables):
+    """Create the database.
+
+    Raises
+    ------
+    orm.BindingError
+        Raise if database is already bound.
+
+    """
     try:
         db.bind(provider=provider, filename=filename, create_db=create_db)
         db.generate_mapping(create_tables=create_tables)
@@ -27,6 +38,7 @@ def create_database(provider, filename, create_db, create_tables):
 
 @orm.db_session
 def create_or_update_state(first_key, second_key, state):
+    """Create or update a state."""
     try:
         state_in_db = State[first_key, second_key]
     except orm.ObjectNotFound:
@@ -36,7 +48,8 @@ def create_or_update_state(first_key, second_key, state):
 
 
 @hookimpl
-def pytask_add_parameters_to_cli(command):
+def pytask_extend_command_line_interface(cli):
+    """Extend command line interface."""
     additional_parameters = [
         click.Option(
             ["--database-provider"],
@@ -57,12 +70,13 @@ def pytask_add_parameters_to_cli(command):
             help="Create tables if they do not exist.",
         ),
     ]
-    command.params.extend(additional_parameters)
+    cli.commands["build"].params.extend(additional_parameters)
 
 
 @hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
-    provider = get_first_not_none_value(
+    """Parse the configuration."""
+    config["database_provider"] = get_first_not_none_value(
         config_from_cli, config_from_file, key="database_provider", default="sqlite"
     )
     filename = get_first_not_none_value(
@@ -73,17 +87,18 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
     )
     filename = Path(filename)
     if not filename.is_absolute():
-        filename = Path(config["root"], filename).resolve().as_posix()
+        filename = Path(config["root"], filename).resolve()
+    config["database_filename"] = filename
 
-    create_db = get_first_not_none_value(
+    config["database_create_db"] = get_first_not_none_value(
         config_from_cli, config_from_file, key="database_create_db", default=True
     )
-    create_tables = get_first_not_none_value(
+    config["database_create_tables"] = get_first_not_none_value(
         config_from_cli, config_from_file, key="database_create_tables", default=True
     )
     config["database"] = {
-        "provider": provider,
-        "filename": filename,
-        "create_db": create_db,
-        "create_tables": create_tables,
+        "provider": config["database_provider"],
+        "filename": config["database_filename"].as_posix(),
+        "create_db": config["database_create_db"],
+        "create_tables": config["database_create_tables"],
     }

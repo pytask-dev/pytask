@@ -6,11 +6,14 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
 
 
-0.0.6 - 2020-08-22
+0.0.6 - 2020-xx-xx
 ------------------
 
 - :gh:`16` reduces the traceback generated from tasks, failure section in report, fix
   error passing a file path to pytask, add demo to README.
+- :gh:`17` changes the interface to subcommands, adds ``"-c/--config"`` option to pass a
+  path to a configuration file and adds ``pytask clean``, a command to clean your
+  project.
 
 
 0.0.5 - 2020-08-12

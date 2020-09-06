@@ -1,3 +1,9 @@
+"""Implement hook specifications or entry-points for pytask.
+
+At each of the entry-points, a plugin can register a hook implementation which receives
+the message send by the host and may send a response.
+
+"""
 import click
 import pluggy
 
@@ -22,22 +28,17 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
 
 
 @hookspec
-def pytask_add_parameters_to_cli(command: click.Command) -> None:
+def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Add parameter to :class:`click.Command`.
 
-    Use this hook if you want to add more command line arguments to the interface. Do it
-    by extending `command.params` attribute, a list, of the command with other options
-    and arguments. See :func:`pytask.cli.pytask_add_parameters_to_cli` as an example.
+    Use this hook if you want to add more commands, options or arguments to the
+    interface.
+
+    - Add subcommands via ``cli.add_command``
+    - Add options and arguments by extending ``cli.params`` or
+      ``cli.commands["<name>"].params``.
 
     """
-
-
-# Hooks for the pytask_main interface.
-
-
-@hookspec(firstresult=True)
-def pytask_main(config_from_cli: dict):
-    """Take the cli config, create the configuration and start the session."""
 
 
 # Hooks for the configuration.

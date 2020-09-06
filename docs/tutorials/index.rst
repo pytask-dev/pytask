@@ -15,3 +15,4 @@ organize and start your own project.
    how_to_set_up_a_project
    how_to_configure_pytask
    how_to_select_tasks
+   how_to_clean

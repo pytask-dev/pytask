@@ -79,20 +79,59 @@ def test_debug_pytask(capsys, tmp_path):
     assert "finish pytask_execute --> None [hook]" in captured.out
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
 @pytest.mark.parametrize("ignore", ["", "*task_dummy.py"])
-@pytest.mark.parametrize("sep", [True, False])
-def test_ignore_paths(tmp_path, config_path, ignore, sep):
+@pytest.mark.parametrize("new_line", [True, False])
+def test_ignore_paths(tmp_path, config_path, ignore, new_line):
     source = """
     def task_dummy():
         pass
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
-    config = (
-        f"[pytask]\nignore =\n\t{ignore}" if sep else f"[pytask]\nignore = {ignore}"
-    )
+    entry = f"ignore =\n\t{ignore}" if new_line else f"ignore = {ignore}"
+    config = f"[pytask]\n{entry}" if ignore else "[pytask]"
     tmp_path.joinpath(config_path).write_text(config)
 
     session = main({"paths": tmp_path})
     assert session.exit_code == 0
     assert len(session.tasks) == 0 if ignore else len(session.tasks) == 1
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
+def test_pass_config_to_cli(tmp_path, config_path):
+    config = """
+    [pytask]
+    markers =
+      elton: Can you feel the love tonight?
+    """
+    tmp_path.joinpath(config_path).write_text(textwrap.dedent(config))
+
+    os.chdir(tmp_path)
+    session = main({"config": tmp_path.joinpath(config_path).as_posix()})
+
+    assert session.exit_code == 0
+    assert "elton" in session.config["markers"]
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
+def test_prioritize_given_config_over_others(tmp_path, config_path):
+    config = """
+    [pytask]
+    markers =
+      kylie: I just can't get you out of my head.
+    """
+    tmp_path.joinpath(config_path).write_text(textwrap.dedent(config))
+
+    for config_name in ["pytask.ini", "tox.ini", "setup.cfg"]:
+        if config_name != config_path:
+            config = "[pytask]\nmarkers=bad_config: Wrong config loaded"
+            tmp_path.joinpath(config_name).write_text(textwrap.dedent(config))
+
+    os.chdir(tmp_path)
+    session = main({"config": tmp_path.joinpath(config_path).as_posix()})
+
+    assert session.exit_code == 0
+    assert "kylie" in session.config["markers"]

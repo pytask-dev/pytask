@@ -6,7 +6,7 @@ import traceback
 import click
 from _pytask.config import hookimpl
 from _pytask.dag import descending_tasks
-from _pytask.dag import node_and_neigbors
+from _pytask.dag import node_and_neighbors
 from _pytask.dag import sort_tasks_topologically
 from _pytask.database import create_or_update_state
 from _pytask.enums import ColorCode
@@ -20,6 +20,7 @@ from _pytask.report import format_execute_footer
 
 @hookimpl
 def pytask_execute(session):
+    """Execute tasks."""
     session.hook.pytask_execute_log_start(session=session)
     session.scheduler = session.hook.pytask_execute_create_scheduler(session=session)
     session.execution_reports = session.hook.pytask_execute_build(session=session)
@@ -30,6 +31,7 @@ def pytask_execute(session):
 
 @hookimpl
 def pytask_execute_log_start(session):
+    """Start logging."""
     session.execution_start = time.time()
 
     # New line to separate note on collected items from task statuses.
@@ -38,6 +40,7 @@ def pytask_execute_log_start(session):
 
 @hookimpl(trylast=True)
 def pytask_execute_create_scheduler(session):
+    """Create a scheduler based on topological sorting."""
     for node in sort_tasks_topologically(session.dag):
         task = session.dag.nodes[node]["task"]
         yield task
@@ -45,6 +48,7 @@ def pytask_execute_create_scheduler(session):
 
 @hookimpl
 def pytask_execute_build(session):
+    """Execute tasks."""
     reports = []
     for task in session.scheduler:
         report = session.hook.pytask_execute_task_protocol(session=session, task=task)
@@ -55,6 +59,7 @@ def pytask_execute_build(session):
 
 @hookimpl
 def pytask_execute_task_protocol(session, task):
+    """Follow the protocol to execute each task."""
     session.hook.pytask_execute_task_log_start(session=session, task=task)
     try:
         session.hook.pytask_execute_task_setup(session=session, task=task)
@@ -97,12 +102,13 @@ def pytask_execute_task_setup(session, task):
 
 @hookimpl
 def pytask_execute_task(task):
-    # Make task attributes available in task function.
+    """Execute task."""
     task.execute()
 
 
 @hookimpl
 def pytask_execute_task_teardown(session, task):
+    """Check if each produced node was indeed produced."""
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
         try:
@@ -113,6 +119,12 @@ def pytask_execute_task_teardown(session, task):
 
 @hookimpl(trylast=True)
 def pytask_execute_task_process_report(session, report):
+    """Process the execution report of a task.
+
+    If a task failed, skip all subsequent tasks. Else, update the states of related
+    nodes in the database.
+
+    """
     task = report.task
     if report.success:
         _update_states_in_database(session.dag, task.name)
@@ -131,6 +143,7 @@ def pytask_execute_task_process_report(session, report):
 
 @hookimpl(trylast=True)
 def pytask_execute_task_log_end(report):
+    """Log task outcome."""
     if report.success:
         click.secho(".", fg=ColorCode.SUCCESS.value, nl=False)
     else:
@@ -147,9 +160,9 @@ def pytask_execute_log_end(session, reports):
     n_failed = len(reports) - n_successful
     tm_width = session.config["terminal_width"]
 
+    click.echo("")
     any_failure = any(not report.success for report in reports)
     if any_failure:
-        click.echo("\n")
         click.echo(f"{{:=^{tm_width}}}".format(" Failures "))
 
     for report in reports:
@@ -171,6 +184,7 @@ def pytask_execute_log_end(session, reports):
 
 
 def _update_states_in_database(dag, task_name):
-    for name in node_and_neigbors(dag, task_name):
+    """Update the state for each node of a task in the database."""
+    for name in node_and_neighbors(dag, task_name):
         node = dag.nodes[name].get("task") or dag.nodes[name]["node"]
         create_or_update_state(task_name, node.name, node.state())
