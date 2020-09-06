@@ -14,6 +14,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`17` changes the interface to subcommands, adds ``"-c/--config"`` option to pass a
   path to a configuration file and adds ``pytask clean``, a command to clean your
   project.
+- :gh:`20` fixes copying code examples in the documentation.
 
 
 0.0.5 - 2020-08-12
