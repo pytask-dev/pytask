@@ -22,7 +22,8 @@ and type
     Would remove C:\Users\project\obsolete_folder\obsolete_file_3.txt.
 
 By default, pytask takes the current directory and performs a dry-run which shows only
-files which could be removed.
+files which could be removed. Pass other paths to the command if you want to inspect
+specific directories.
 
 If you want to remove the files, there exist two other modes for :option:`pytask clean
 -m`.
