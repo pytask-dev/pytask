@@ -18,9 +18,18 @@ hookimpl = pluggy.HookimplMarker("pytask")
 
 IGNORED_FILES_AND_FOLDERS = [
     "*/.git/*",
-    "*/__pycache__/*",
-    "*/.ipynb_checkpoints/*",
+    "*/.hg/*",
+    "*/.svn/*",
+    "*/.venv/*",
     "*/*.egg-info/*",
+    "*/.ipynb_checkpoints/*",
+    "*/.mypy_cache/*",
+    "*/.nox/*",
+    "*/.tox/*",
+    "*/_build/*",
+    "*/__pycache__/*",
+    "*/build/*",
+    "*/dist/*",
 ]
 
 

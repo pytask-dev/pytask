@@ -36,8 +36,7 @@ def pytask_collect(session):
     session.collection_reports = reports
     session.tasks = tasks
 
-    failed_reports = [i for i in reports if not i.successful]
-    if failed_reports:
+    if any(i for i in reports if not i.successful):
         raise CollectionError
 
     return True
@@ -49,7 +48,7 @@ def _collect_from_paths(session):
     Go through all paths, check if the path is ignored, and collect the file if not.
 
     """
-    collected_reports = []
+    collected_reports = session.collection_reports
     for path in session.config["paths"]:
         paths = (
             path.rglob("*")
@@ -222,7 +221,7 @@ def pytask_collect_log(session, reports, tasks):
         click.echo(f"{{:=^{tm_width}}}".format(" Errors during collection "))
 
         for report in failed_reports:
-            click.echo(f"{{:=^{tm_width}}}".format(report.format_title()))
+            click.echo(f"{{:_^{tm_width}}}".format(report.format_title()))
             traceback.print_exception(*report.exc_info)
             click.echo("")
             click.echo("=" * tm_width)

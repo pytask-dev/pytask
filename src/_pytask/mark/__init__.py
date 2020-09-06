@@ -237,5 +237,6 @@ def deselect_by_mark(session, tasks) -> None:
 
 @hookimpl
 def pytask_collect_modify_tasks(session, tasks):
+    raise NotImplementedError
     deselect_by_keyword(session, tasks)
     deselect_by_mark(session, tasks)

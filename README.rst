@@ -1,7 +1,6 @@
 .. raw:: html
 
-    <img src="docs/_static/images/pytask_w_text.png" alt="pytask"
-         width="50%">
+    <img src="docs/_static/images/pytask_w_text.png" alt="pytask" width="50%">
 
 ------
 
@@ -33,12 +32,12 @@ include:
 - **Automatic discovery of tasks.**
 
 - **Lazy evaluation.** If a task or its dependencies have not changed, do not
-  execute it again.
+  execute it.
 
 - **Debug mode.** Jump into the debugger if a task fails and get quick feedback.
 
 - **Select tasks via expressions.** Run only a subset of tasks with expressions and
-  markers known from pytest.
+  marker expressions known from pytest.
 
 - **Easily extensible with plugins**. pytask's architecture is based on `pluggy
   <https://pluggy.readthedocs.io/en/latest/>`_, a plugin management and hook calling
