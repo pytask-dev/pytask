@@ -12,8 +12,8 @@ from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
+from _pytask.shared import falsy_to_none_callback
 from _pytask.shared import get_first_not_none_value
-from _pytask.shared import to_path
 
 
 HELP_TEXT_MODE = (
@@ -44,7 +44,9 @@ def pytask_parse_config(config, config_from_cli):
 
 
 @click.command()
-@click.argument("paths", nargs=-1, type=click.Path(exists=True), callback=to_path)
+@click.argument(
+    "paths", nargs=-1, type=click.Path(exists=True), callback=falsy_to_none_callback
+)
 @click.option(
     "-m",
     "--mode",

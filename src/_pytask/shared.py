@@ -1,3 +1,4 @@
+import glob
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -35,9 +36,18 @@ def to_list(scalar_or_iter):
     )
 
 
-def to_path(ctx, param, value):  # noqa: U100
-    """Callback for :class:`click.Argument` or :class:`click.Option`."""
-    return [Path(i).resolve() for i in value]
+def parse_paths(x):
+    """Parse paths."""
+    if x is not None:
+        paths = [Path(p) for p in to_list(x)]
+        paths = [
+            Path(p).resolve() for path in paths for p in glob.glob(path.as_posix())
+        ]
+        return paths
+
+
+def falsy_to_none_callback(ctx, param, value):  # noqa: U100
+    return value if value else None
 
 
 def get_first_not_none_value(*configs, key, default=None, callback=None):

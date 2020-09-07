@@ -22,54 +22,67 @@ below.
 
 You can also leave the section empty. It will still have the benefit that pytask has a
 stable root and will store the information about tasks, dependencies, and products in
-the same directory as the configuration file.
+the same directory as the configuration file in a database called ``.pytask.sqlite3``.
 
 
-.. _tutorial_configure_markers:
+.. confval:: ignore
 
-markers
--------
+    pytask can ignore files and directories and exclude some tasks or reduce the
+    duration of the collection.
 
-pytask uses markers to attach additional information to task functions. To see which
-markers are available, type
+    To ignore some file/folder via the command line, use the ``--ignore`` flag multiple
+    times.
 
-.. code-block:: bash
+    .. code-block:: bash
 
-    $ pytask --markers
+        $ pytask --ignore */some_file.py --ignore */some_directory/*
 
-on the command-line interface.
+    Or, use the configuration file:
 
-If you use a marker which has not been configured, you will get a warning. To silence
-the warning and document the marker, provide the following information in your pytask
-configuration file.
+    .. code-block:: ini
 
-.. code-block:: ini
+        # For single entries only.
+        ignore = */some_file.py
 
-    markers =
-        wip: Work-in-progress. These are tasks which I am currently working on.
+        # Or single and multiple entries.
+        ignore =
+            */some_directory/*
+            */some_file.py
 
 
-ignore
-------
+.. confval:: markers
 
-pytask can ignore files and directories and exclude some tasks or reduce the duration of
-the collection.
+    pytask uses markers to attach additional information to task functions. To see which
+    markers are available, type
 
-To ignore some file/folder via the command line, use the ``--ignore`` flag multiple
-times.
+    .. code-block:: bash
 
-.. code-block:: bash
+        $ pytask --markers
 
-    $ pytask --ignore */some_file.py --ignore */some_directory/*
+    on the command-line interface.
 
-Or, use the configuration file:
+    If you use a marker which has not been configured, you will get a warning. To
+    silence the warning and document the marker, provide the following information in
+    your pytask configuration file.
 
-.. code-block:: ini
+    .. code-block:: ini
 
-    # For single entries only.
-    ignore = */some_file.py
+        markers =
+            wip: Work-in-progress. These are tasks which I am currently working on.
 
-    # Or single and multiple entries.
-    ignore =
-        */some_directory/*
-        */some_file.py
+
+.. confval:: paths
+
+    If you want to collect tasks from specific paths without passing the names via the
+    command line, you can add the paths to the configuration file. Paths passed via the
+    command line will overwrite the configuration value.
+
+    .. code-block:: ini
+
+        # For single entries only.
+        paths = src
+
+        # Or single and multiple entries.
+        paths =
+            folder_1
+            folder_2/task_2.py

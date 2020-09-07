@@ -1,14 +1,15 @@
 import configparser
-import glob
 import itertools
 import os
 import shutil
 import warnings
 from pathlib import Path
+from typing import List
 
 import click
 import pluggy
 from _pytask.shared import get_first_not_none_value
+from _pytask.shared import parse_paths
 from _pytask.shared import parse_value_or_multiline_option
 from _pytask.shared import to_list
 
@@ -37,19 +38,36 @@ IGNORED_FILES_AND_FOLDERS = [
 def pytask_configure(pm, config_from_cli):
     config = {"pm": pm, "terminal_width": _get_terminal_width()}
 
-    paths = get_first_not_none_value(
-        config_from_cli, key="paths", default=[Path.cwd()], callback=to_list
-    )
-    paths = [Path(p).resolve() for path in paths for p in glob.glob(path.as_posix())]
-    config["paths"] = paths if paths else [Path.cwd().resolve()]
-
+    # Either the path to the configuration is passed via the CLI or it needs to be
+    # detected from the paths passed to pytask.
     if config_from_cli.get("config"):
         config["config"] = Path(config_from_cli.pop("config"))
         config["root"] = config["config"].parent
     else:
-        config["root"], config["config"] = _find_project_root_and_ini(config["paths"])
+        paths = (
+            parse_paths(config_from_cli.get("paths"))
+            if config_from_cli.get("paths") is not None
+            else [Path.cwd()]
+        )
+        config["root"], config["config"] = _find_project_root_and_ini(paths)
+
     config_from_file = (
         _read_config(config["config"]) if config["config"] is not None else {}
+    )
+
+    # If paths are set in the configuration, process them.
+    if config_from_file.get("paths"):
+        paths_from_file = parse_value_or_multiline_option(config_from_file.get("paths"))
+        config_from_file["paths"] = [
+            config["config"].parent.joinpath(p).resolve() for p in paths_from_file
+        ]
+
+    config["paths"] = get_first_not_none_value(
+        config_from_cli,
+        config_from_file,
+        key="paths",
+        default=[Path.cwd()],
+        callback=parse_paths,
     )
 
     config["markers"] = {
@@ -93,7 +111,8 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         config["pm"].enable_tracing()
 
 
-def _find_project_root_and_ini(paths):
+def _find_project_root_and_ini(paths: List[Path]):
+    """Find the project root and configuration file from a list of paths."""
     try:
         common_ancestor = Path(os.path.commonpath(paths))
     except ValueError:

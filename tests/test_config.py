@@ -135,3 +135,30 @@ def test_prioritize_given_config_over_others(tmp_path, config_path):
 
     assert session.exit_code == 0
     assert "kylie" in session.config["markers"]
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
+@pytest.mark.parametrize(
+    "file_or_folder",
+    ["folder_a", "folder_a/task_a.py", "folder_b", "folder_b/task_b.py"],
+)
+def test_passing_paths_via_configuration_file(tmp_path, config_path, file_or_folder):
+    config = f"""
+    [pytask]
+    paths =
+      {file_or_folder}
+    """
+    tmp_path.joinpath(config_path).write_text(textwrap.dedent(config))
+
+    for letter in ["a", "b"]:
+        tmp_path.joinpath(f"folder_{letter}").mkdir()
+        tmp_path.joinpath(f"folder_{letter}", f"task_{letter}.py").write_text(
+            "def task_dummy(): pass"
+        )
+
+    os.chdir(tmp_path)
+    session = main({})
+
+    assert session.exit_code == 0
+    assert len(session.tasks) == 1

@@ -8,6 +8,8 @@
 import os
 import sys
 
+import sphinx
+
 
 sys.path.insert(0, os.path.abspath("../src"))
 
@@ -106,3 +108,12 @@ html_theme_options = {
     "font_family": '"Avenir Next", Calibri, "PT Sans", sans-serif',
     "head_font_family": '"Avenir Next", Calibri, "PT Sans", sans-serif',
 }
+
+
+def setup(app: "sphinx.application.Sphinx") -> None:
+    app.add_object_type(
+        "confval",
+        "confval",
+        objname="configuration value",
+        indextemplate="pair: %s; configuration value",
+    )

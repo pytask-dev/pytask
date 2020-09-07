@@ -12,7 +12,7 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from _pytask.shared import to_path
+from _pytask.shared import falsy_to_none_callback
 
 
 @hookimpl(tryfirst=True)
@@ -85,13 +85,15 @@ def main(config_from_cli):
 
 
 @click.command()
-@click.argument("paths", nargs=-1, type=click.Path(exists=True), callback=to_path)
+@click.argument(
+    "paths", nargs=-1, type=click.Path(exists=True), callback=falsy_to_none_callback
+)
 @click.option(
     "--ignore",
     type=str,
     multiple=True,
     help="Ignore path (globs and multi allowed).",
-    default=None,
+    callback=falsy_to_none_callback,
 )
 @click.option(
     "--debug-pytask", is_flag=True, help="Debug pytask by tracing all hook calls."
