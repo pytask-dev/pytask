@@ -8,3 +8,12 @@ dependencies:
   - sphinx-autodoc-typehints
   - sphinx-autoapi
   - sphinx-click
+
+  # Package dependencies necessary for sphinx-click
+  - attrs
+  - click
+  - click-default-group
+  - networkx
+  - pexpect
+  - pluggy
+  - pony >= 0.7.13
