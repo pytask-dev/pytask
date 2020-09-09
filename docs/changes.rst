@@ -17,7 +17,8 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`18` changes the documentation theme to alabaster.
 - :gh:`19` adds some changes related to ignored folders.
 - :gh:`20` fixes copying code examples in the documentation.
-- :gh:`23` allows to specify paths via the configuration file.
+- :gh:`23` allows to specify paths via the configuration file, documents the cli and
+  configuration options.
 
 
 0.0.5 - 2020-08-12

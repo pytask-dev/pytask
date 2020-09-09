@@ -102,7 +102,7 @@ def main(config_from_cli):
     "--debug-pytask",
     is_flag=True,
     default=None,
-    help="Trace all function calls in the plugin framework.",
+    help="Trace all function calls in the plugin framework.  [default: False]",
 )
 @click.option(
     "-c", "--config", type=click.Path(exists=True), help="Path to configuration file."
