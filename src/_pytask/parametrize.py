@@ -358,9 +358,9 @@ def _find_duplicates(x: Iterable[Any]):
     Examples
     --------
     >>> _find_duplicates(["a", "b", "a"])
-    {"a"}
+    {'a'}
     >>> _find_duplicates(["a", "b"])
-    {}
+    set()
 
     """
     seen = set()
