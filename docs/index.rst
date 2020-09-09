@@ -30,7 +30,7 @@ This is the documentation of pytask. You can install the package from `Anaconda.
     $ conda config --add channels conda-forge --add channels pytask
     $ conda install pytask
 
-The documentation has four main parts.
+The documentation has four central parts.
 
 .. raw:: html
 
