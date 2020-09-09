@@ -30,7 +30,7 @@ This is the documentation of pytask. You can install the package from `Anaconda.
     $ conda config --add channels conda-forge --add channels pytask
     $ conda install pytask
 
-The documentation has four parts.
+The documentation has four main parts.
 
 .. raw:: html
 
@@ -102,6 +102,8 @@ The documentation has four parts.
     how_to_guides/index
     reference_guides/index
 
+
+There are also some additional sections.
 
 .. toctree::
    :maxdepth: 1
