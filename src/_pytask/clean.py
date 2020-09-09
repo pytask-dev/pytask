@@ -179,7 +179,7 @@ def _find_all_unknown_paths(session, known_paths, include_directories):
 def _find_all_unkown_paths_per_recursive_node(node, include_directories):
     """Return unknown paths per recursive file node.
 
-    If ``"--directories"`` is given, take a short-cut and return only the path of the
+    If ``--directories`` is given, take a short-cut and return only the path of the
     directory and not the path of every single file in it.
 
     """
