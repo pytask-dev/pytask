@@ -6,6 +6,7 @@ import _pytask.parametrize
 import pytask
 import pytest
 from _pytask.mark import Mark
+from _pytask.parametrize import _arg_value_to_id_component
 from _pytask.parametrize import _parse_arg_names
 from _pytask.parametrize import _parse_parametrize_markers
 from _pytask.parametrize import pytask_parametrize_task
@@ -36,7 +37,7 @@ def test_pytask_generate_tasks_0(session):
 
     names_and_objs = pytask_parametrize_task(session, "func", func)
 
-    assert [i[0] for i in names_and_objs] == ["func[i0]", "func[i1]"]
+    assert [i[0] for i in names_and_objs] == ["func[0]", "func[1]"]
     assert names_and_objs[0][1].keywords["i"] == 0
     assert names_and_objs[1][1].keywords["i"] == 1
 
@@ -53,7 +54,7 @@ def test_pytask_generate_tasks_1(session):
     for (name, func), values in zip(
         names_and_objs, itertools.product(range(2), range(2))
     ):
-        assert name == f"func[i{values[0]}-j{values[1]}]"
+        assert name == f"func[{values[0]}-{values[1]}]"
         assert func.keywords["i"] == values[0]
         assert func.keywords["j"] == values[1]
 
@@ -67,12 +68,11 @@ def test_pytask_generate_tasks_2(session):
 
     names_and_objs = pytask_parametrize_task(session, "func", func)
 
-    for (name, func), arg_names, values in zip(
+    for (name, func), values in zip(
         names_and_objs,
-        itertools.product(range(2), range(4)),
-        itertools.product(range(2), range(2), range(2)),
+        [(i, j, k) for i in range(2) for j in range(2) for k in range(2)],
     ):
-        assert name == f"func[i{arg_names[0]}-j{arg_names[1]}-k{arg_names[1]}]"
+        assert name == f"func[{values[0]}-{values[1]}-{values[2]}]"
         assert func.keywords["i"] == values[0]
         assert func.keywords["j"] == values[1]
         assert func.keywords["k"] == values[2]
@@ -136,13 +136,13 @@ def test_parse_argnames_raise_error(arg_names, expectation):
                 Mark("parametrize", ("j", range(2)), {}),
             ],
             [("i",), ("j",)],
-            [[("i0",), ("i1",)], [("j0",), ("j1",)]],
+            [[("0",), ("1",)], [("0",), ("1",)]],
             [[(0,), (1,)], [(0,), (1,)]],
         ),
         (
             [Mark("parametrize", ("i", range(3)), {})],
             [("i",)],
-            [[("i0",), ("i1",), ("i2",)]],
+            [[("0",), ("1",), ("2",)]],
             [[(0,), (1,), (2,)]],
         ),
     ],
@@ -242,3 +242,114 @@ def test_raise_error_if_function_does_not_use_parametrized_arguments(tmp_path):
     assert session.exit_code == 1
     assert isinstance(session.execution_reports[0].exc_info[1], TypeError)
     assert isinstance(session.execution_reports[1].exc_info[1], TypeError)
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize(
+    "arg_values, ids",
+    [
+        (range(2), ["first_trial", "second_trial"]),
+        ([True, False], ["first_trial", "second_trial"]),
+    ],
+)
+def test_parametrize_w_ids(tmp_path, arg_values, ids):
+    tmp_path.joinpath("task_dummy.py").write_text(
+        textwrap.dedent(
+            f"""
+            import pytask
+
+            @pytask.mark.parametrize('i', {arg_values}, ids={ids})
+            def task_func(i):
+                pass
+            """
+        )
+    )
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 0
+    for task, id_ in zip(session.tasks, ids):
+        assert id_ in task.name
+
+
+@pytest.mark.end_to_end
+def test_two_parametrize_w_ids(tmp_path):
+    tmp_path.joinpath("task_dummy.py").write_text(
+        textwrap.dedent(
+            """
+            import pytask
+
+            @pytask.mark.parametrize('i', range(2), ids=["2.1", "2.2"])
+            @pytask.mark.parametrize('j', range(2), ids=["1.1", "1.2"])
+            def task_func(i, j):
+                pass
+            """
+        )
+    )
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 0
+    assert len(session.tasks) == 4
+    for task, id_ in zip(
+        session.tasks, ["[1.1-2.1]", "[1.1-2.2]", "[1.2-2.1]", "[1.2-2.2]"]
+    ):
+        assert id_ in task.name
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("ids", [["a"], list("abc"), ((1,), (2,)), ({0}, {1})])
+def test_raise_error_for_irregular_ids(tmp_path, ids):
+    tmp_path.joinpath("task_dummy.py").write_text(
+        textwrap.dedent(
+            f"""
+            import pytask
+
+            @pytask.mark.parametrize('i', range(2), ids={ids})
+            def task_func():
+                pass
+            """
+        )
+    )
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 3
+    assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "arg_name, arg_value, i, id_func, expected",
+    [
+        ("arg", 1, 0, None, "1"),
+        ("arg", True, 0, None, "True"),
+        ("arg", False, 0, None, "False"),
+        ("arg", 1.0, 0, None, "1.0"),
+        ("arg", None, 0, None, "arg0"),
+        ("arg", (1,), 0, None, "arg0"),
+        ("arg", [1], 0, None, "arg0"),
+        ("arg", {1, 2}, 0, None, "arg0"),
+        ("arg", 1, 0, lambda x: bool(x), "True"),
+        ("arg", 1, 1, lambda x: None, "1"),
+        ("arg", [1], 2, lambda x: None, "arg2"),
+    ],
+)
+def test_arg_value_to_id_component(arg_name, arg_value, i, id_func, expected):
+    result = _arg_value_to_id_component(arg_name, arg_value, i, id_func)
+    assert result == expected
+
+
+def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
+    tmp_path.joinpath("task_dummy.py").write_text(
+        textwrap.dedent(
+            """
+            import pytask
+
+            @pytask.mark.parametrize('i', [0, 0])
+            def task_func(i):
+                pass
+            """
+        )
+    )
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 3
+    assert isinstance(session.collection_reports[0].exc_info[1], ValueError)

@@ -140,3 +140,114 @@ The signature can be passed in three different formats.
    .. code-block:: python
 
        ["first_argument", "second_argument"]
+
+
+.. _how_to_parametrize_a_task_the_id:
+
+The id
+------
+
+Every task has a unique id which can be used to :doc:`select it <how_to_select_tasks>`.
+The normal id combines the path to the module where the task is defined, a double colon,
+and the name of the task function. Here is an example.
+
+.. code-block::
+
+    ../task_example.py::task_example
+
+This behavior would produce duplicate ids for parametrized tasks. Therefore, there exist
+multiple mechanisms to produce unique ids.
+
+
+Auto-generated ids
+~~~~~~~~~~~~~~~~~~
+
+To avoid duplicate task ids, the ids of parametrized tasks are extended with
+descriptions of the values they are parametrized with. Booleans, floats, integers and
+strings enter the task id directly. For example, a task function which receives four
+arguments, ``True``, ``1.0``, ``2``, and ``"hello"``, one of each dtype, has the
+following id.
+
+.. code-block::
+
+    task_example.py::task_example[True-1.0-2-hello]
+
+Arguments with other dtypes cannot be easily converted to strings and, thus, are
+replaced with a combination of the argument name and the iteration counter.
+
+For example, the following function is parametrized with tuples.
+
+.. code-block:: python
+
+    @pytask.mark.parametrized("i", [(0,), (1,)])
+    def task_example(i):
+        pass
+
+Since the tuples are not converted to strings, the ids of the two tasks are
+
+.. code-block::
+
+    task_example.py::task_example[i0]
+    task_example.py::task_example[i1]
+
+
+.. _how_to_parametrize_a_task_convert_other_objects:
+
+Convert other objects
+~~~~~~~~~~~~~~~~~~~~~
+
+To change the representation of tuples and other objects, you can pass a function to the
+``ids`` argument of the :func:`~_pytask.parametrize.parametrize` decorator. The function
+is called for every argument and may return a boolean, number, or string which will be
+integrated into the id. For every other return, the auto-generated value is used.
+
+To get a unique representation of a tuple, we can use the hash value.
+
+.. code-block:: python
+
+    def tuple_to_hash(value):
+        if isinstance(value, tuple):
+            return hash(a)
+
+
+    @pytask.mark.parametrized("i", [(0,), (1,)], ids=tuple_to_hash)
+    def task_example(i):
+        pass
+
+This produces the following ids:
+
+.. code-block::
+
+    task_example.py::task_example[3430018387555]  # (0,)
+    task_example.py::task_example[3430019387558]  # (1,)
+
+
+User-defined ids
+~~~~~~~~~~~~~~~~
+
+Instead of a function, you can also pass a list or another iterable of id values via
+``ids``.
+
+This code
+
+.. code-block:: python
+
+    @pytask.mark.parametrized("i", [(0,), (1,)], ids=["first", "second"])
+    def task_example(i):
+        pass
+
+produces these ids
+
+.. code-block::
+
+    task_example.py::task_example[first]  # (0,)
+    task_example.py::task_example[second]  # (1,)
+
+This is arguably the easiest way to change the representation of many objects at once
+while also producing ids which are easy to remember and type.
+
+
+Further reading
+---------------
+
+- :doc:`../how_to_guides/how_to_extend_parametrizations`.
