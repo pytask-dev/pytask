@@ -37,7 +37,7 @@ To execute the task, type the following command on the command-line
 
 Executing
 
-.. code-block:: bash
+.. code-block:: console
 
     $ pytask
 

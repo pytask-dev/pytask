@@ -25,7 +25,7 @@ pytask
 This is the documentation of pytask. You can install the package from `Anaconda.org
 <https://anaconda.org/pytask/pytask>`_ with
 
-.. code-block:: bash
+.. code-block:: console
 
     $ conda config --add channels conda-forge --add channels pytask
     $ conda install pytask

@@ -33,7 +33,7 @@ There are two ways to find the configuration file when invoking pytask.
 First, it is possible to pass the location of the configuration file via
 :option:`pytask build -c` like
 
-.. code-block:: bash
+.. code-block:: console
 
     $ pytask -c config/pytask.ini
 

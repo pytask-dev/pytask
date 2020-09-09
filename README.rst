@@ -58,7 +58,7 @@ Installation
 pytask is available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_. Install the
 package with
 
-.. code-block:: bash
+.. code-block:: console
 
     $ conda config --add channels conda-forge --add channels pytask
     $ conda install pytask

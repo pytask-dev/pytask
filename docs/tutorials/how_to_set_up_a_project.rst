@@ -86,7 +86,7 @@ Here is the content of the file.
 
 Then, install the package into your environment with
 
-.. code-block:: bash
+.. code-block:: console
 
     $ conda develop .
 

@@ -32,7 +32,7 @@ The options
     To ignore some file/folder via the command line, use the ``--ignore`` flag multiple
     times.
 
-    .. code-block:: bash
+    .. code-block:: console
 
         $ pytask --ignore some_file.py --ignore some_directory/*
 
@@ -54,7 +54,7 @@ The options
     pytask uses markers to attach additional information to task functions. To see which
     markers are available, type
 
-    .. code-block:: bash
+    .. code-block:: console
 
         $ pytask --markers
 
