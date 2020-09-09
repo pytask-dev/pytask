@@ -74,19 +74,19 @@ def markers(**config_from_cli):
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_build_parameters = [
         click.Option(
-            ["--strict-markers"], is_flag=True, help="Raise errors for unknown marks."
+            ["--strict-markers"], is_flag=True, help="Raise errors for unknown markers."
         ),
         click.Option(
             ["-m", "marker_expression"],
             metavar="MARKER_EXPRESSION",
             type=str,
-            help="Expression for selecting tasks with markers.",
+            help="Select tasks via marker expressions.",
         ),
         click.Option(
             ["-k", "expression"],
             metavar="EXPRESSION",
             type=str,
-            help="Expression for selecting tasks with substrings.",
+            help="Select tasks via expressions on task ids.",
         ),
     ]
     cli.commands["build"].params.extend(additional_build_parameters)

@@ -92,16 +92,26 @@ def main(config_from_cli):
     "--ignore",
     type=str,
     multiple=True,
-    help="Ignore path (globs and multi allowed).",
+    help=(
+        "A pattern to ignore files or directories. For example, ``task_example.py`` or "
+        "``src/*``."
+    ),
     callback=falsy_to_none_callback,
 )
 @click.option(
-    "--debug-pytask", is_flag=True, help="Debug pytask by tracing all hook calls."
+    "--debug-pytask",
+    is_flag=True,
+    help="Trace all function calls in the plugin framework.",
 )
 @click.option(
     "-c", "--config", type=click.Path(exists=True), help="Path to configuration file."
 )
 def build(**config_from_cli):
-    """Collect and execute tasks."""
+    """Collect and execute tasks and report the results.
+
+    This is the default command of pytask which searches given paths or the current
+    working directory for tasks to execute them. A report informs you on the results.
+
+    """
     session = main(config_from_cli)
     sys.exit(session.exit_code)

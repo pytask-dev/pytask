@@ -111,6 +111,11 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         config["pm"].enable_tracing()
 
 
+@hookimpl
+def pytask_post_parse(config):
+    config["markers"] = {k: config["markers"][k] for k in sorted(config["markers"])}
+
+
 def _find_project_root_and_ini(paths: List[Path]):
     """Find the project root and configuration file from a list of paths."""
     try:

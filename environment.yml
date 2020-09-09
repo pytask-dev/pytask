@@ -34,3 +34,4 @@ dependencies:
   - sphinx-copybutton
   - sphinx-autodoc-typehints
   - sphinx-autoapi
+  - sphinx-click

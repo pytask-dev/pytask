@@ -42,6 +42,7 @@ extensions = [
     "sphinx_copybutton",
     "autoapi.extension",
     "sphinx_autodoc_typehints",
+    "sphinx_click",
 ]
 
 # List of patterns, relative to source directory, that match files and directories to

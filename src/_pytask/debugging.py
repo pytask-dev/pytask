@@ -13,11 +13,14 @@ def pytask_extend_command_line_interface(cli):
     """Extend command line interface."""
     additional_parameters = [
         click.Option(
-            ["--pdb"], help="Enter debugger on errors.", is_flag=True, default=None
+            ["--pdb"],
+            help="Start the interactive debugger on errors.",
+            is_flag=True,
+            default=None,
         ),
         click.Option(
             ["--trace"],
-            help="Enter debugger when starting each task.",
+            help="Enter debugger in the beginning of each task.",
             is_flag=True,
             default=None,
         ),

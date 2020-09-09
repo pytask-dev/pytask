@@ -110,11 +110,6 @@ def pytask_collect_modify_tasks(session, tasks):
 
     This hook can be used to deselect tasks when they match a certain keyword or mark.
 
-    Warning
-    -------
-    This hook is a placeholder since selecting tasks via markers and keywords has not
-    been implemented yet. Also add an entry to the log.
-
     """
 
 

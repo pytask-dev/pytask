@@ -54,7 +54,10 @@ def pytask_extend_command_line_interface(cli):
         click.Option(
             ["--database-provider"],
             type=click.Choice(["sqlite", "postgres", "mysql", "oracle", "cockroach"]),
-            help="Database provider.  [default: sqlite]",
+            help=(
+                "Database provider. All providers except sqlite are considered "
+                "experimental.  [default: sqlite]"
+            ),
         ),
         click.Option(
             ["--database-filename"], type=click.Path(), help="Path to database.",

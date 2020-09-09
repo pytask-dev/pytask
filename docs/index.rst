@@ -108,4 +108,3 @@ The documentation has four parts.
 
    glossary
    changes
-   api
