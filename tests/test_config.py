@@ -4,7 +4,12 @@ import textwrap
 import pytest
 from _pytask.config import _find_project_root_and_ini
 from _pytask.config import _get_terminal_width
+from _pytask.config import IGNORED_FOLDERS
 from pytask import main
+
+
+_IGNORED_FOLDERS = [i.split("/")[0] for i in IGNORED_FOLDERS]
+_IGNORED_FOLDERS.remove("*.egg-info")
 
 
 @pytest.mark.unit
@@ -77,6 +82,23 @@ def test_debug_pytask(capsys, tmp_path):
     # The last hooks which will be displayed.
     assert "finish pytask_execute_log_end --> [True] [hook]" in captured.out
     assert "finish pytask_execute --> None [hook]" in captured.out
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("ignored_folder", _IGNORED_FOLDERS + ["pytask.egg-info"])
+def test_ignore_default_paths(tmp_path, ignored_folder):
+    source = """
+    def task_dummy():
+        pass
+    """
+    tmp_path.joinpath(ignored_folder).mkdir()
+    tmp_path.joinpath(ignored_folder, "task_dummy.py").write_text(
+        textwrap.dedent(source)
+    )
+
+    session = main({"paths": tmp_path})
+    assert session.exit_code == 0
+    assert len(session.tasks) == 0
 
 
 @pytest.mark.end_to_end

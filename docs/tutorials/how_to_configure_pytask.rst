@@ -35,19 +35,19 @@ the same directory as the configuration file in a database called ``.pytask.sqli
 
     .. code-block:: bash
 
-        $ pytask --ignore */some_file.py --ignore */some_directory/*
+        $ pytask --ignore some_file.py --ignore some_directory/*
 
     Or, use the configuration file:
 
     .. code-block:: ini
 
         # For single entries only.
-        ignore = */some_file.py
+        ignore = some_file.py
 
         # Or single and multiple entries.
         ignore =
-            */some_directory/*
-            */some_file.py
+            some_directory/*
+            some_file.py
 
 
 .. confval:: markers
