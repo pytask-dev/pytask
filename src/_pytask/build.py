@@ -101,6 +101,7 @@ def main(config_from_cli):
 @click.option(
     "--debug-pytask",
     is_flag=True,
+    default=None,
     help="Trace all function calls in the plugin framework.",
 )
 @click.option(

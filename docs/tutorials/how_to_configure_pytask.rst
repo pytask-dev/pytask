@@ -25,64 +25,35 @@ stable root and will store the information about tasks, dependencies, and produc
 the same directory as the configuration file in a database called ``.pytask.sqlite3``.
 
 
-.. confval:: ignore
+The location
+------------
 
-    pytask can ignore files and directories and exclude some tasks or reduce the
-    duration of the collection.
+There are two ways to find the configuration file when invoking pytask.
 
-    To ignore some file/folder via the command line, use the ``--ignore`` flag multiple
-    times.
+First, it is possible to pass the location of the configuration file via
+:option:`pytask build -c` like
 
-    .. code-block:: bash
+.. code-block:: bash
 
-        $ pytask --ignore some_file.py --ignore some_directory/*
+    $ pytask -c config/pytask.ini
 
-    Or, use the configuration file:
+The second option is to let pytask try to find the configuration itself. pytask will
+first look in the current working directory or the common ancestors of multiple paths to
+tasks. It will search for ``pytask.ini``, ``tox.ini`` and ``setup.cfg`` in this order.
+Whenever a ``[pytask]`` section is found, the search stops.
 
-    .. code-block:: ini
-
-        # For single entries only.
-        ignore = some_file.py
-
-        # Or single and multiple entries.
-        ignore =
-            some_directory/*
-            some_file.py
+If no file is found in the current directory, pytask will climb up the directory tree
+and search in parent directories.
 
 
-.. confval:: markers
+The options
+-----------
 
-    pytask uses markers to attach additional information to task functions. To see which
-    markers are available, type
-
-    .. code-block:: bash
-
-        $ pytask --markers
-
-    on the command-line interface.
-
-    If you use a marker which has not been configured, you will get a warning. To
-    silence the warning and document the marker, provide the following information in
-    your pytask configuration file.
-
-    .. code-block:: ini
-
-        markers =
-            wip: Work-in-progress. These are tasks which I am currently working on.
+You can find all possible configuration values in the :doc:`reference guide on the
+configuration <../reference_guides/configuration>`.
 
 
-.. confval:: paths
+Further reading
+---------------
 
-    If you want to collect tasks from specific paths without passing the names via the
-    command line, you can add the paths to the configuration file. Paths passed via the
-    command line will overwrite the configuration value.
-
-    .. code-block:: ini
-
-        # For single entries only.
-        paths = src
-
-        # Or single and multiple entries.
-        paths =
-            folder_1
-            folder_2/task_2.py
+- :doc:`../reference_guides/configuration`.

@@ -18,6 +18,7 @@ from _pytask.mark.structures import MarkDecorator
 from _pytask.mark.structures import MarkGenerator
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
+from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_not_none_value
 
 
@@ -74,7 +75,10 @@ def markers(**config_from_cli):
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_build_parameters = [
         click.Option(
-            ["--strict-markers"], is_flag=True, help="Raise errors for unknown markers."
+            ["--strict-markers"],
+            is_flag=True,
+            help="Raise errors for unknown markers.",
+            default=None,
         ),
         click.Option(
             ["-m", "marker_expression"],
@@ -98,7 +102,12 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
     markers = _read_marker_mapping_from_ini(config_from_file.get("markers", ""))
     config["markers"] = {**markers, **config["markers"]}
     config["strict_markers"] = get_first_not_none_value(
-        config, config_from_file, config_from_cli, key="strict_markers", default=False
+        config,
+        config_from_file,
+        config_from_cli,
+        key="strict_markers",
+        default=False,
+        callback=convert_truthy_or_falsy_to_bool,
     )
 
     config["expression"] = config_from_cli.get("expression")

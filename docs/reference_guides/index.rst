@@ -8,6 +8,7 @@ additional details on the inner workings of pytask.
    :maxdepth: 1
 
    command_line_interface
+   configuration
    hookspecs
    marks
 

@@ -41,7 +41,7 @@ def pytask_configure(pm, config_from_cli):
     # Either the path to the configuration is passed via the CLI or it needs to be
     # detected from the paths passed to pytask.
     if config_from_cli.get("config"):
-        config["config"] = Path(config_from_cli.pop("config"))
+        config["config"] = Path.cwd().joinpath(config_from_cli["config"])
         config["root"] = config["config"].parent
     else:
         paths = (
@@ -104,7 +104,11 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
     )
 
     config["debug_pytask"] = get_first_not_none_value(
-        config_from_cli, config_from_file, key="debug_pytask", default=False
+        config_from_cli,
+        config_from_file,
+        key="debug_pytask",
+        default=False,
+        callback=bool,
     )
     if config["debug_pytask"]:
         config["pm"].trace.root.setwriter(click.echo)

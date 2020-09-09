@@ -131,3 +131,18 @@ def remove_internal_traceback_frames_from_exc_info(exc_info):
 def yield_traceback_frames(frame):
     yield frame
     yield from yield_traceback_frames(frame.tb_next)
+
+
+def convert_truthy_or_falsy_to_bool(x):
+    """Convert truthy or falsy value in .ini to Python boolean."""
+    if x in [True, "True", "true", "1"]:
+        out = True
+    elif x in [False, "False", "false", "0"]:
+        out = False
+    elif x is None:
+        out = None
+    else:
+        raise ValueError(
+            f"Input {x} is neither truthy (True, true, 1) or falsy (False, false, 0)."
+        )
+    return out
