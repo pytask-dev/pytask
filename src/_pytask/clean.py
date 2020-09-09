@@ -219,7 +219,7 @@ class _RecursivePathNode:
 
         """
         sub_nodes = (
-            [_RecursivePathNode.from_path(p, known_paths) for p in path.glob("*")]
+            [_RecursivePathNode.from_path(p, known_paths) for p in path.iterdir()]
             if path.is_dir()
             else []
         )
