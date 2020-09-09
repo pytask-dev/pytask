@@ -40,9 +40,9 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
-    "autoapi.extension",
     "sphinx_autodoc_typehints",
     "sphinx_click",
+    "autoapi.extension",
 ]
 
 # List of patterns, relative to source directory, that match files and directories to
@@ -57,7 +57,14 @@ suppress_warnings = ["ref.python"]
 # Configuration for autodoc.
 autosummary_generate = True
 add_module_names = False
-autodoc_mock_imports = ["attr", "click", "networkx", "pluggy", "pony"]
+autodoc_mock_imports = [
+    "attr",
+    "click",
+    "click_default_group",
+    "networkx",
+    "pluggy",
+    "pony",
+]
 
 # Remove prefixed $ for bash, >>> for Python prompts, and In [1]: for IPython prompts.
 copybutton_prompt_text = r"\$ |>>> |In \[\d\]: "
