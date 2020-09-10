@@ -2,6 +2,7 @@ import pytest
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "value, expected",
     [
@@ -23,6 +24,7 @@ def test_convert_truthy_or_falsy_to_bool(value, expected):
     assert result == expected
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "value, expectation",
     [(2, pytest.raises(ValueError)), (-1, pytest.raises(ValueError))],

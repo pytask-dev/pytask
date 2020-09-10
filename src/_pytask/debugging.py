@@ -48,8 +48,14 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
     )
 
 
-@hookimpl
+@hookimpl(trylast=True)
 def pytask_post_parse(config):
+    """Post parse the configuration.
+
+    Register the plugins in this step to let other plugins influence the pdb or trace
+    option and may be disable it. Especially thinking about pytask-parallel.
+
+    """
     if config["pdb"]:
         config["pm"].register(PdbDebugger)
 
@@ -69,6 +75,8 @@ class PdbDebugger:
 
 
 def wrap_function_for_post_mortem_debugging(function):
+    """Wrap the function for post-mortem debugging."""
+
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
         try:
@@ -93,6 +101,8 @@ class PdbTrace:
 
 
 def wrap_function_for_tracing(function):
+    """Wrap the function for tracing."""
+
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
         pdb.runcall(function, *args, **kwargs)

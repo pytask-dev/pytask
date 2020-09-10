@@ -9,3 +9,4 @@ pytask.
    :maxdepth: 1
 
    how_to_write_a_plugin
+   how_to_extend_parametrizations

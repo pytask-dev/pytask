@@ -17,23 +17,27 @@ def dag():
     return dag
 
 
+@pytest.mark.unit
 def test_sort_tasks_topologically(dag):
     topo_ordering = list(sort_tasks_topologically(dag))
     assert topo_ordering == [str(i) for i in range(5)]
 
 
+@pytest.mark.unit
 def test_descending_tasks(dag):
     for i in range(5):
         descendants = sorted(descending_tasks(str(i), dag))
         assert descendants == [str(i) for i in range(i + 1, 5)]
 
 
+@pytest.mark.unit
 def test_task_and_descending_tasks(dag):
     for i in range(5):
         descendants = sorted(task_and_descending_tasks(str(i), dag))
         assert descendants == [str(i) for i in range(i, 5)]
 
 
+@pytest.mark.unit
 def test_node_and_neighbors(dag):
     for i in range(1, 4):
         nodes = sorted(node_and_neighbors(dag, str(i)))
