@@ -109,6 +109,6 @@ To run the task where ``i = 1``, type
 
     $ pytask -k task_parametrized[1]
 
-The general idea is that booleans, floats, integers, and strings are used in the task id
-as they are, but all other Python objects like tuples are replaced with a combination of
-the argument name and an iteration counter. Multiple arguments are separated via dashes.
+Booleans, floats, integers, and strings are used in the task id as they are, but all
+other Python objects like tuples are replaced with a combination of the argument name
+and an iteration counter. Multiple arguments are separated via dashes.

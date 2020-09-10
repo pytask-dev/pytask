@@ -20,8 +20,8 @@ If you do not know how ids for parametrized tasks are produced, read the followi
 :ref:`section in the tutorial about parametrization <how_to_parametrize_a_task_the_id>`.
 
 The problem is that argument values which are not booleans, numbers or strings produce
-positionally dependent ids. The position might be changed if you extend the
-parametrization and so a task is re-executed.
+positionally dependent ids. The position might change if you extend the parametrization
+which re-executes a task.
 
 To resolve the problem, you can choose one of the two solutions in the tutorial. Either
 pass a function to convert non-standard objects to suitable representations or pass your

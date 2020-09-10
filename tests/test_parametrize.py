@@ -337,6 +337,7 @@ def test_arg_value_to_id_component(arg_name, arg_value, i, id_func, expected):
     assert result == expected
 
 
+@pytest.mark.end_to_end
 def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
     tmp_path.joinpath("task_dummy.py").write_text(
         textwrap.dedent(
