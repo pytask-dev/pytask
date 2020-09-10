@@ -42,8 +42,9 @@ test:
     - tests
   commands:
     - pytask --help
-    - pytask --markers
     - pytask --version
+    - pytask clean
+    - pytask markers
 
     - pytest tests
 
