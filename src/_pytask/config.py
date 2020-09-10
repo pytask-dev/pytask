@@ -1,3 +1,4 @@
+"""Configure pytask."""
 import configparser
 import itertools
 import os
@@ -32,10 +33,12 @@ IGNORED_FOLDERS = [
     "build/*",
     "dist/*",
 ]
+"""List[str]: List of expressions to ignore folders."""
 
 
 @hookimpl
 def pytask_configure(pm, config_from_cli):
+    """Configure pytask."""
     config = {"pm": pm, "terminal_width": _get_terminal_width()}
 
     # Either the path to the configuration is passed via the CLI or it needs to be
@@ -88,6 +91,7 @@ def pytask_configure(pm, config_from_cli):
 
 @hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
+    """Parse the configuration."""
     config_from_file["ignore"] = parse_value_or_multiline_option(
         config_from_file.get("ignore")
     )
@@ -117,7 +121,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
 
 @hookimpl
 def pytask_post_parse(config):
-    # Sort markers alphabetically.
+    """Sort markers alphabetically."""
     config["markers"] = {k: config["markers"][k] for k in sorted(config["markers"])}
 
 
@@ -144,9 +148,11 @@ def _find_project_root_and_ini(paths: List[Path]):
         path = parent.joinpath(config_name)
 
         if path.exists():
-            config = configparser.ConfigParser()
-            config.read(path)
-            if "pytask" in config.sections():
+            try:
+                _read_config(path)
+            except Exception:
+                pass
+            else:
                 config_path = path
                 break
 
@@ -159,6 +165,7 @@ def _find_project_root_and_ini(paths: List[Path]):
 
 
 def _read_config(path):
+    """Read the configuration from a file with a [pytask] section."""
     config = configparser.ConfigParser()
     config.read(path)
     return dict(config["pytask"])
