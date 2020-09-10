@@ -57,10 +57,10 @@ def falsy_to_none_callback(ctx, param, value):  # noqa: U100
 
     Examples
     --------
-    >>> falsy_to_none_callback(None, None, (,))
-    None
-    >>> falsy_to_none_callback(None, None, [])
-    None
+    >>> falsy_to_none_callback(None, None, ()) is None
+    True
+    >>> falsy_to_none_callback(None, None, []) is None
+    True
     >>> falsy_to_none_callback(None, None, 1)
     1
 
