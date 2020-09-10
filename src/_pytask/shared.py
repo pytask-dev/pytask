@@ -52,7 +52,7 @@ def falsy_to_none_callback(ctx, param, value):  # noqa: U100
     Some click arguments accept multiple inputs and instead of ``None`` as a default if
     no information is passed, they return empty lists or tuples.
 
-    Since pytask uses ``None``s as a placeholder value for skippable inputs, convert the
+    Since pytask uses ``None`` as a placeholder value for skippable inputs, convert the
     values.
 
     Examples
