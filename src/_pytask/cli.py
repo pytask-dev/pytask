@@ -14,7 +14,7 @@ def _extend_command_line_interface(cli):
     """Add parameters from plugins to the commandline interface."""
     pm = _prepare_plugin_manager()
     pm.hook.pytask_extend_command_line_interface(cli=cli)
-
+    _sort_options_for_each_command_alphabetically(cli)
     return cli
 
 
@@ -24,6 +24,13 @@ def _prepare_plugin_manager():
     pm.register(sys.modules[__name__])
     pm.hook.pytask_add_hooks(pm=pm)
     return pm
+
+
+def _sort_options_for_each_command_alphabetically(cli):
+    for command in cli.commands:
+        cli.commands[command].params = sorted(
+            cli.commands[command].params, key=lambda x: x.name
+        )
 
 
 @hookimpl

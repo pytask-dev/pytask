@@ -22,54 +22,38 @@ below.
 
 You can also leave the section empty. It will still have the benefit that pytask has a
 stable root and will store the information about tasks, dependencies, and products in
-the same directory as the configuration file.
+the same directory as the configuration file in a database called ``.pytask.sqlite3``.
 
 
-.. _tutorial_configure_markers:
+The location
+------------
 
-markers
--------
+There are two ways to find the configuration file when invoking pytask.
 
-pytask uses markers to attach additional information to task functions. To see which
-markers are available, type
+First, it is possible to pass the location of the configuration file via
+:option:`pytask build -c` like
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ pytask --markers
+    $ pytask -c config/pytask.ini
 
-on the command-line interface.
+The second option is to let pytask try to find the configuration itself. pytask will
+first look in the current working directory or the common ancestors of multiple paths to
+tasks. It will search for ``pytask.ini``, ``tox.ini`` and ``setup.cfg`` in this order.
+Whenever a ``[pytask]`` section is found, the search stops.
 
-If you use a marker which has not been configured, you will get a warning. To silence
-the warning and document the marker, provide the following information in your pytask
-configuration file.
-
-.. code-block:: ini
-
-    markers =
-        wip: Work-in-progress. These are tasks which I am currently working on.
+If no file is found in the current directory, pytask will climb up the directory tree
+and search in parent directories.
 
 
-ignore
-------
+The options
+-----------
 
-pytask can ignore files and directories and exclude some tasks or reduce the duration of
-the collection.
+You can find all possible configuration values in the :doc:`reference guide on the
+configuration <../reference_guides/configuration>`.
 
-To ignore some file/folder via the command line, use the ``--ignore`` flag multiple
-times.
 
-.. code-block:: bash
+Further reading
+---------------
 
-    $ pytask --ignore */some_file.py --ignore */some_directory/*
-
-Or, use the configuration file:
-
-.. code-block:: ini
-
-    # For single entries only.
-    ignore = */some_file.py
-
-    # Or single and multiple entries.
-    ignore =
-        */some_directory/*
-        */some_file.py
+- :doc:`../reference_guides/configuration`.

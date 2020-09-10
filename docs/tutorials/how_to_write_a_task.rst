@@ -24,7 +24,7 @@ task in the next :doc:`tutorial <how_to_define_dependencies_products>`.
 
 To execute the task, type the following command on the command-line
 
-.. code-block::
+.. code-block:: console
 
     $ pytask task_hello.py
     ========================= Start pytask session =========================
@@ -37,7 +37,7 @@ To execute the task, type the following command on the command-line
 
 Executing
 
-.. code-block:: bash
+.. code-block:: console
 
     $ pytask
 

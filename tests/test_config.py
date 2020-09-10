@@ -4,7 +4,12 @@ import textwrap
 import pytest
 from _pytask.config import _find_project_root_and_ini
 from _pytask.config import _get_terminal_width
+from _pytask.config import IGNORED_FOLDERS
 from pytask import main
+
+
+_IGNORED_FOLDERS = [i.split("/")[0] for i in IGNORED_FOLDERS]
+_IGNORED_FOLDERS.remove("*.egg-info")
 
 
 @pytest.mark.unit
@@ -80,6 +85,23 @@ def test_debug_pytask(capsys, tmp_path):
 
 
 @pytest.mark.end_to_end
+@pytest.mark.parametrize("ignored_folder", _IGNORED_FOLDERS + ["pytask.egg-info"])
+def test_ignore_default_paths(tmp_path, ignored_folder):
+    source = """
+    def task_dummy():
+        pass
+    """
+    tmp_path.joinpath(ignored_folder).mkdir()
+    tmp_path.joinpath(ignored_folder, "task_dummy.py").write_text(
+        textwrap.dedent(source)
+    )
+
+    session = main({"paths": tmp_path})
+    assert session.exit_code == 0
+    assert len(session.tasks) == 0
+
+
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
 @pytest.mark.parametrize("ignore", ["", "*task_dummy.py"])
 @pytest.mark.parametrize("new_line", [True, False])
@@ -135,3 +157,30 @@ def test_prioritize_given_config_over_others(tmp_path, config_path):
 
     assert session.exit_code == 0
     assert "kylie" in session.config["markers"]
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
+@pytest.mark.parametrize(
+    "file_or_folder",
+    ["folder_a", "folder_a/task_a.py", "folder_b", "folder_b/task_b.py"],
+)
+def test_passing_paths_via_configuration_file(tmp_path, config_path, file_or_folder):
+    config = f"""
+    [pytask]
+    paths =
+      {file_or_folder}
+    """
+    tmp_path.joinpath(config_path).write_text(textwrap.dedent(config))
+
+    for letter in ["a", "b"]:
+        tmp_path.joinpath(f"folder_{letter}").mkdir()
+        tmp_path.joinpath(f"folder_{letter}", f"task_{letter}.py").write_text(
+            "def task_dummy(): pass"
+        )
+
+    os.chdir(tmp_path)
+    session = main({})
+
+    assert session.exit_code == 0
+    assert len(session.tasks) == 1

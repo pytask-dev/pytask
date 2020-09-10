@@ -98,6 +98,7 @@ def pytask_parametrize_task(session, name, obj):
 
             # Convert parametrized dependencies and products to decorator.
             session.hook.pytask_parametrize_kwarg_to_marker(obj=func, kwargs=kwargs)
+
             # Attach remaining parametrized arguments to the function.
             partialed_func = functools.partial(func, **kwargs)
             wrapped_func = functools.update_wrapper(partialed_func, func)

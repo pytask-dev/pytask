@@ -1,3 +1,4 @@
+import glob
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -35,12 +36,21 @@ def to_list(scalar_or_iter):
     )
 
 
-def to_path(ctx, param, value):  # noqa: U100
-    """Callback for :class:`click.Argument` or :class:`click.Option`."""
-    return [Path(i).resolve() for i in value]
+def parse_paths(x):
+    """Parse paths."""
+    if x is not None:
+        paths = [Path(p) for p in to_list(x)]
+        paths = [
+            Path(p).resolve() for path in paths for p in glob.glob(path.as_posix())
+        ]
+        return paths
 
 
-def get_first_not_none_value(*configs, key, default=None, callback=None):
+def falsy_to_none_callback(ctx, param, value):  # noqa: U100
+    return value if value else None
+
+
+def get_first_non_none_value(*configs, key, default=None, callback=None):
     """Get the first non-None value for a key from a list of dictionaries.
 
     This function allows to prioritize information from many configurations by changing
@@ -48,16 +58,16 @@ def get_first_not_none_value(*configs, key, default=None, callback=None):
 
     Examples
     --------
-    >>> get_first_not_none_value({"a": None}, {"a": 1}, key="a")
+    >>> get_first_non_none_value({"a": None}, {"a": 1}, key="a")
     1
 
-    >>> get_first_not_none_value({"a": None}, {"a": None}, key="a", default="default")
+    >>> get_first_non_none_value({"a": None}, {"a": None}, key="a", default="default")
     'default'
 
-    >>> get_first_not_none_value({}, {}, key="a", default="default")
+    >>> get_first_non_none_value({}, {}, key="a", default="default")
     'default'
 
-    >>> get_first_not_none_value({"a": None}, {"a": "b"}, key="a", callback=to_list)
+    >>> get_first_non_none_value({"a": None}, {"a": "b"}, key="a", callback=to_list)
     ['b']
 
     """
@@ -121,3 +131,18 @@ def remove_internal_traceback_frames_from_exc_info(exc_info):
 def yield_traceback_frames(frame):
     yield frame
     yield from yield_traceback_frames(frame.tb_next)
+
+
+def convert_truthy_or_falsy_to_bool(x):
+    """Convert truthy or falsy value in .ini to Python boolean."""
+    if x in [True, "True", "true", "1"]:
+        out = True
+    elif x in [False, "False", "false", "0"]:
+        out = False
+    elif x in [None, "None", "none"]:
+        out = None
+    else:
+        raise ValueError(
+            f"Input {x} is neither truthy (True, true, 1) or falsy (False, false, 0)."
+        )
+    return out

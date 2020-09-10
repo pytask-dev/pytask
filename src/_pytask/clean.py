@@ -12,11 +12,11 @@ from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from _pytask.shared import get_first_not_none_value
-from _pytask.shared import to_path
+from _pytask.shared import falsy_to_none_callback
+from _pytask.shared import get_first_non_none_value
 
 
-HELP_TEXT_MODE = (
+_HELP_TEXT_MODE = (
     "Choose 'dry-run' to print the paths of files/directories which would be removed, "
     "'interactive' for a confirmation prompt for every path, and 'force' to remove all "
     "unknown paths at once.  [default: dry-run]"
@@ -32,24 +32,26 @@ def pytask_extend_command_line_interface(cli: click.Group):
 @hookimpl
 def pytask_parse_config(config, config_from_cli):
     """Parse the configuration."""
-    config["mode"] = get_first_not_none_value(
+    config["mode"] = get_first_non_none_value(
         config_from_cli, key="mode", default="dry-run"
     )
-    config["quiet"] = get_first_not_none_value(
+    config["quiet"] = get_first_non_none_value(
         config_from_cli, key="quiet", default=False
     )
-    config["directories"] = get_first_not_none_value(
+    config["directories"] = get_first_non_none_value(
         config_from_cli, key="directories", default=False
     )
 
 
 @click.command()
-@click.argument("paths", nargs=-1, type=click.Path(exists=True), callback=to_path)
+@click.argument(
+    "paths", nargs=-1, type=click.Path(exists=True), callback=falsy_to_none_callback
+)
 @click.option(
     "-m",
     "--mode",
     type=click.Choice(["dry-run", "interactive", "force"]),
-    help=HELP_TEXT_MODE,
+    help=_HELP_TEXT_MODE,
 )
 @click.option("-d", "--directories", is_flag=True, help="Remove whole directories.")
 @click.option(
@@ -83,9 +85,9 @@ def clean(**config_from_cli):
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
 
-            known_paths = collect_all_paths_known_to_pytask(session)
+            known_paths = _collect_all_paths_known_to_pytask(session)
             include_directories = session.config["directories"]
-            unknown_paths = find_all_unknown_paths(
+            unknown_paths = _find_all_unknown_paths(
                 session, known_paths, include_directories
             )
 
@@ -120,7 +122,7 @@ def clean(**config_from_cli):
     return session
 
 
-def collect_all_paths_known_to_pytask(session):
+def _collect_all_paths_known_to_pytask(session):
     """Collect all paths from the session which are known to pytask.
 
     Paths belong to tasks and nodes and configuration values.
@@ -128,7 +130,7 @@ def collect_all_paths_known_to_pytask(session):
     """
     known_files = set()
     for task in session.tasks:
-        for path in yield_paths_from_task(task):
+        for path in _yield_paths_from_task(task):
             known_files.add(path)
 
     known_directories = set()
@@ -137,15 +139,15 @@ def collect_all_paths_known_to_pytask(session):
 
     known_paths = known_files | known_directories
 
-    if session.config["ini"]:
-        known_paths.add(session.config["ini"])
+    if session.config["config"]:
+        known_paths.add(session.config["config"])
     known_paths.add(session.config["root"])
     known_paths.add(session.config["database_filename"])
 
     return known_paths
 
 
-def yield_paths_from_task(task):
+def _yield_paths_from_task(task):
     """Yield all paths attached to a task."""
     yield task.path
     for attribute in ["depends_on", "produces"]:
@@ -154,21 +156,21 @@ def yield_paths_from_task(task):
                 yield node.value
 
 
-def find_all_unknown_paths(session, known_paths, include_directories):
+def _find_all_unknown_paths(session, known_paths, include_directories):
     """Find all unknown paths.
 
-    First, create a tree of :class:`RecursivePathNode`. Then, create a list of unknown
+    First, create a tree of :class:`_RecursivePathNode`. Then, create a list of unknown
     paths and potentially take short-cuts if complete directories can be deleted.
 
     """
     recursive_nodes = [
-        RecursivePathNode.from_path(path, known_paths)
+        _RecursivePathNode.from_path(path, known_paths)
         for path in session.config["paths"]
     ]
     unknown_paths = list(
         itertools.chain.from_iterable(
             [
-                find_all_unkown_paths_per_recursive_node(node, include_directories)
+                _find_all_unkown_paths_per_recursive_node(node, include_directories)
                 for node in recursive_nodes
             ]
         )
@@ -176,10 +178,10 @@ def find_all_unknown_paths(session, known_paths, include_directories):
     return unknown_paths
 
 
-def find_all_unkown_paths_per_recursive_node(node, include_directories):
+def _find_all_unkown_paths_per_recursive_node(node, include_directories):
     """Return unknown paths per recursive file node.
 
-    If ``"--directories"`` is given, take a short-cut and return only the path of the
+    If ``--directories`` is given, take a short-cut and return only the path of the
     directory and not the path of every single file in it.
 
     """
@@ -187,11 +189,11 @@ def find_all_unkown_paths_per_recursive_node(node, include_directories):
         yield node.path
     else:
         for n in node.sub_nodes:
-            yield from find_all_unkown_paths_per_recursive_node(n, include_directories)
+            yield from _find_all_unkown_paths_per_recursive_node(n, include_directories)
 
 
 @attr.s(repr=False)
-class RecursivePathNode:
+class _RecursivePathNode:
     """A class for a path to a file or directory which recursively instantiates itself.
 
     The problem is that we want to take a short-cut for unknown directories with only
@@ -219,7 +221,7 @@ class RecursivePathNode:
 
         """
         sub_nodes = (
-            [RecursivePathNode.from_path(p, known_paths) for p in path.glob("*")]
+            [_RecursivePathNode.from_path(p, known_paths) for p in path.iterdir()]
             if path.is_dir()
             else []
         )
