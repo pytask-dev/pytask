@@ -20,11 +20,11 @@ repos:
     hooks:
     -   id: reorder-python-imports
 -   repo: https://github.com/psf/black
-    rev: 19.10b0
+    rev: 20.8b1
     hooks:
     -   id: black
 -   repo: https://github.com/asottile/blacken-docs
-    rev: v1.7.0
+    rev: v1.8.0
     hooks:
     -   id: blacken-docs
         additional_dependencies: [black]
@@ -48,11 +48,11 @@ repos:
             Pygments,
         ]
 -   repo: https://github.com/PyCQA/doc8
-    rev: 0.8.1rc3
+    rev: 0.9.0a1
     hooks:
     -   id: doc8
 -   repo: https://github.com/econchick/interrogate
-    rev: 1.2.0
+    rev: 1.3.1
     hooks:
     -   id: interrogate
         args: [-v, --fail-under=40, src, tests]
