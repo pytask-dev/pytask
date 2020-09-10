@@ -12,8 +12,8 @@ from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from _pytask.shared import get_first_not_none_value
-from _pytask.shared import to_path
+from _pytask.shared import falsy_to_none_callback
+from _pytask.shared import get_first_non_none_value
 
 
 _HELP_TEXT_MODE = (
@@ -32,19 +32,21 @@ def pytask_extend_command_line_interface(cli: click.Group):
 @hookimpl
 def pytask_parse_config(config, config_from_cli):
     """Parse the configuration."""
-    config["mode"] = get_first_not_none_value(
+    config["mode"] = get_first_non_none_value(
         config_from_cli, key="mode", default="dry-run"
     )
-    config["quiet"] = get_first_not_none_value(
+    config["quiet"] = get_first_non_none_value(
         config_from_cli, key="quiet", default=False
     )
-    config["directories"] = get_first_not_none_value(
+    config["directories"] = get_first_non_none_value(
         config_from_cli, key="directories", default=False
     )
 
 
 @click.command()
-@click.argument("paths", nargs=-1, type=click.Path(exists=True), callback=to_path)
+@click.argument(
+    "paths", nargs=-1, type=click.Path(exists=True), callback=falsy_to_none_callback
+)
 @click.option(
     "-m",
     "--mode",
@@ -137,8 +139,8 @@ def _collect_all_paths_known_to_pytask(session):
 
     known_paths = known_files | known_directories
 
-    if session.config["ini"]:
-        known_paths.add(session.config["ini"])
+    if session.config["config"]:
+        known_paths.add(session.config["config"])
     known_paths.add(session.config["root"])
     known_paths.add(session.config["database_filename"])
 

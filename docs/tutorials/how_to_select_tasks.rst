@@ -10,7 +10,7 @@ Paths
 You can run all tasks in one file or one directory by passing the corresponding path to
 pytask. The same can be done for multiple paths.
 
-.. code-block:: bash
+.. code-block:: console
 
     $ pytask src/task_1.py
 
@@ -33,7 +33,7 @@ For example, here is a task with the ``wip`` marker which indicates work-in-prog
 
 To execute only tasks with the ``wip`` marker, use
 
-.. code-block:: bash
+.. code-block:: console
 
     $ pytask -m wip
 
@@ -42,7 +42,7 @@ You can pass more complex expressions to ``-m`` by using multiple markers and ``
 belong to the data management, but not the ones which produce plots and plots produced
 for the analysis.
 
-.. code-block:: bash
+.. code-block:: console
 
     $ pytask -m "(data_management and not plots) or (analysis and plots)"
 
@@ -68,13 +68,13 @@ Assume you have the following tasks.
 
 Then,
 
-.. code-block:: bash
+.. code-block:: console
 
     $ pytask -k 1
 
 will execute the first and third task and
 
-.. code-block:: bash
+.. code-block:: console
 
     $ pytask -k "1 and not 2"
 
@@ -82,6 +82,6 @@ executes only the first task.
 
 To execute a single task, say ``task_run_this_one`` in ``task_example.py``, use
 
-.. code-block:: bash
+.. code-block:: console
 
     $ pytask -k task_example.py::task_run_this_one

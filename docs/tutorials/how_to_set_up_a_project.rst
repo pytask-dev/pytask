@@ -86,10 +86,14 @@ Here is the content of the file.
 
 Then, install the package into your environment with
 
-.. code-block:: bash
+.. code-block:: console
 
     $ conda develop .
 
     # or
 
     $ pip install -e .
+
+Both commands will make an editable install of the project which means any changes in
+the source files of the package are directly reflected in the installed version of the
+package.

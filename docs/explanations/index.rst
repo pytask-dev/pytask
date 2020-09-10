@@ -10,3 +10,4 @@ systems in general as well as its design.
    why_do_i_need_a_build_system
    why_another_build_system
    design
+   pluggy

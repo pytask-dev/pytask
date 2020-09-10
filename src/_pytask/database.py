@@ -3,7 +3,8 @@ from pathlib import Path
 
 import click
 from _pytask.config import hookimpl
-from _pytask.shared import get_first_not_none_value
+from _pytask.shared import convert_truthy_or_falsy_to_bool
+from _pytask.shared import get_first_non_none_value
 from pony import orm
 
 
@@ -54,20 +55,29 @@ def pytask_extend_command_line_interface(cli):
         click.Option(
             ["--database-provider"],
             type=click.Choice(["sqlite", "postgres", "mysql", "oracle", "cockroach"]),
-            help="Database provider.  [default: sqlite]",
+            help=(
+                "Database provider. All providers except sqlite are considered "
+                "experimental.  [default: sqlite]"
+            ),
+            default=None,
         ),
         click.Option(
-            ["--database-filename"], type=click.Path(), help="Path to database.",
+            ["--database-filename"],
+            type=click.Path(),
+            help="Path to database relative to root.  [default: .pytask.sqlite3]",
+            default=None,
         ),
         click.Option(
             ["--database-create-db"],
             type=bool,
-            help="Create database if it does not exist.",
+            help="Create database if it does not exist.  [default: True]",
+            default=None,
         ),
         click.Option(
             ["--database-create-tables"],
             type=bool,
-            help="Create tables if they do not exist.",
+            help="Create tables if they do not exist.  [default: True]",
+            default=None,
         ),
     ]
     cli.commands["build"].params.extend(additional_parameters)
@@ -76,10 +86,10 @@ def pytask_extend_command_line_interface(cli):
 @hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
     """Parse the configuration."""
-    config["database_provider"] = get_first_not_none_value(
+    config["database_provider"] = get_first_non_none_value(
         config_from_cli, config_from_file, key="database_provider", default="sqlite"
     )
-    filename = get_first_not_none_value(
+    filename = get_first_non_none_value(
         config_from_cli,
         config_from_file,
         key="database_filename",
@@ -90,11 +100,19 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         filename = Path(config["root"], filename).resolve()
     config["database_filename"] = filename
 
-    config["database_create_db"] = get_first_not_none_value(
-        config_from_cli, config_from_file, key="database_create_db", default=True
+    config["database_create_db"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="database_create_db",
+        default=True,
+        callback=convert_truthy_or_falsy_to_bool,
     )
-    config["database_create_tables"] = get_first_not_none_value(
-        config_from_cli, config_from_file, key="database_create_tables", default=True
+    config["database_create_tables"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="database_create_tables",
+        default=True,
+        callback=convert_truthy_or_falsy_to_bool,
     )
     config["database"] = {
         "provider": config["database_provider"],

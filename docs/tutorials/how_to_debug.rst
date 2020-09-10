@@ -3,7 +3,7 @@ How to debug
 
 To facilitate debugging, pytask offers two command-line options.
 
-.. code-block:: bash
+.. code-block:: console
 
     $ pytask --pdb
 
@@ -17,6 +17,6 @@ prompt will enter the debugger.
 
 If you want to enter the debugger at the start of every task, use
 
-.. code-block:: bash
+.. code-block:: console
 
     $ pytask --trace

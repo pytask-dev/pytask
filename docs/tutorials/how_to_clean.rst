@@ -7,7 +7,7 @@ task was renamed and the old version still exists.
 To clean directories from files which are not recognized by pytask, enter the directory
 and type
 
-.. code-block::
+.. code-block:: console
 
     $ pytask clean
     =============================== Start pytask session ===============================
@@ -34,7 +34,7 @@ If you want to remove the files, there exist two other modes for :option:`pytask
 If you want to delete whole folders instead of only the files in them, use
 :option:`pytask clean -d`.
 
-.. code-block::
+.. code-block:: console
 
     $ pytask clean -d
     =============================== Start pytask session ===============================
@@ -51,26 +51,6 @@ If you want to delete whole folders instead of only the files in them, use
 Command line options
 --------------------
 
-.. program:: pytask clean
-
-To clean your project, pytask offers a clean command similar to ``git clean``.
-
-.. option:: pytask clean [OPTIONS] [PATHS]...
-
-The command line interface has the following options.
-
-.. option:: -m, --mode [dry-run|interactive|force]
-
-    The mode for the clean command.
-
-    - ``dry-run`` shows which files and directories would be removed.
-    - ``force`` removes all files and directories without further confirmation.
-    - ``interactive`` allows the user to choose for every file and directory.
-
-.. option:: -d, --directories
-
-    Allows to remove whole directories if all its content can be removed as well.
-
-.. option:: -q, --quiet
-
-    Do not show which files are removed.
+.. click:: _pytask.cli:cli
+    :commands: clean
+    :prog: pytask
