@@ -6,7 +6,7 @@ import click
 from _pytask.config import hookimpl
 from _pytask.nodes import PythonFunctionTask
 from _pytask.shared import convert_truthy_or_falsy_to_bool
-from _pytask.shared import get_first_not_none_value
+from _pytask.shared import get_first_non_none_value
 
 
 @hookimpl
@@ -32,14 +32,14 @@ def pytask_extend_command_line_interface(cli):
 @hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
     """Parse the configuration."""
-    config["pdb"] = get_first_not_none_value(
+    config["pdb"] = get_first_non_none_value(
         config_from_cli,
         config_from_file,
         key="pdb",
         default=False,
         callback=convert_truthy_or_falsy_to_bool,
     )
-    config["trace"] = get_first_not_none_value(
+    config["trace"] = get_first_non_none_value(
         config_from_cli,
         config_from_file,
         key="trace",

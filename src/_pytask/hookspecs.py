@@ -62,7 +62,7 @@ def pytask_parse_config(
 
     This hook can be used to unify the configuration from the command line interface,
     the configuration file and provided defaults. The function
-    :func:`pytask.shared.get_first_not_none_value` might be helpful for that.
+    :func:`pytask.shared.get_first_non_none_value` might be helpful for that.
 
     Note that, the configuration is changed in-place.
 

@@ -14,6 +14,8 @@ from _pytask.shared import convert_truthy_or_falsy_to_bool
         ("false", False),
         ("0", False),
         (None, None),
+        ("None", None),
+        ("none", None),
     ],
 )
 def test_convert_truthy_or_falsy_to_bool(value, expected):

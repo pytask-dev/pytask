@@ -8,7 +8,7 @@ from typing import List
 
 import click
 import pluggy
-from _pytask.shared import get_first_not_none_value
+from _pytask.shared import get_first_non_none_value
 from _pytask.shared import parse_paths
 from _pytask.shared import parse_value_or_multiline_option
 from _pytask.shared import to_list
@@ -62,7 +62,7 @@ def pytask_configure(pm, config_from_cli):
             config["config"].parent.joinpath(p).resolve() for p in paths_from_file
         ]
 
-    config["paths"] = get_first_not_none_value(
+    config["paths"] = get_first_non_none_value(
         config_from_cli,
         config_from_file,
         key="paths",
@@ -93,7 +93,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
     )
 
     config["ignore"] = (
-        get_first_not_none_value(
+        get_first_non_none_value(
             config_from_cli,
             config_from_file,
             key="ignore",
@@ -103,7 +103,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         + IGNORED_FOLDERS
     )
 
-    config["debug_pytask"] = get_first_not_none_value(
+    config["debug_pytask"] = get_first_non_none_value(
         config_from_cli,
         config_from_file,
         key="debug_pytask",
@@ -117,6 +117,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
 
 @hookimpl
 def pytask_post_parse(config):
+    # Sort markers alphabetically.
     config["markers"] = {k: config["markers"][k] for k in sorted(config["markers"])}
 
 

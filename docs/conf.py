@@ -57,6 +57,7 @@ suppress_warnings = ["ref.python"]
 # Configuration for autodoc.
 autosummary_generate = True
 add_module_names = False
+# Actually irrelevant since sphinx-click needs to import everything to build the cli.
 autodoc_mock_imports = [
     "attr",
     "click",

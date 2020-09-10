@@ -50,7 +50,7 @@ def falsy_to_none_callback(ctx, param, value):  # noqa: U100
     return value if value else None
 
 
-def get_first_not_none_value(*configs, key, default=None, callback=None):
+def get_first_non_none_value(*configs, key, default=None, callback=None):
     """Get the first non-None value for a key from a list of dictionaries.
 
     This function allows to prioritize information from many configurations by changing
@@ -58,16 +58,16 @@ def get_first_not_none_value(*configs, key, default=None, callback=None):
 
     Examples
     --------
-    >>> get_first_not_none_value({"a": None}, {"a": 1}, key="a")
+    >>> get_first_non_none_value({"a": None}, {"a": 1}, key="a")
     1
 
-    >>> get_first_not_none_value({"a": None}, {"a": None}, key="a", default="default")
+    >>> get_first_non_none_value({"a": None}, {"a": None}, key="a", default="default")
     'default'
 
-    >>> get_first_not_none_value({}, {}, key="a", default="default")
+    >>> get_first_non_none_value({}, {}, key="a", default="default")
     'default'
 
-    >>> get_first_not_none_value({"a": None}, {"a": "b"}, key="a", callback=to_list)
+    >>> get_first_non_none_value({"a": None}, {"a": "b"}, key="a", callback=to_list)
     ['b']
 
     """
@@ -139,7 +139,7 @@ def convert_truthy_or_falsy_to_bool(x):
         out = True
     elif x in [False, "False", "false", "0"]:
         out = False
-    elif x is None:
+    elif x in [None, "None", "none"]:
         out = None
     else:
         raise ValueError(

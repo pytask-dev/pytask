@@ -19,7 +19,7 @@ from _pytask.mark.structures import MarkGenerator
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
-from _pytask.shared import get_first_not_none_value
+from _pytask.shared import get_first_non_none_value
 
 
 __all__ = [
@@ -101,7 +101,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 def pytask_parse_config(config, config_from_cli, config_from_file):
     markers = _read_marker_mapping_from_ini(config_from_file.get("markers", ""))
     config["markers"] = {**markers, **config["markers"]}
-    config["strict_markers"] = get_first_not_none_value(
+    config["strict_markers"] = get_first_non_none_value(
         config,
         config_from_file,
         config_from_cli,

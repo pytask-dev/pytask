@@ -103,7 +103,7 @@ The documentation has four central parts.
     reference_guides/index
 
 
-There are also some additional sections.
+Here are some additional resources.
 
 .. toctree::
    :maxdepth: 1

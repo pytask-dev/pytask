@@ -20,6 +20,12 @@ the following values.
 - truthy: ``True``, ``true``, ``1``.
 - falsy: ``False``, ``false``, ``0``.
 
+Additionally, the following values are interpreted as None which is neither truthy or
+falsy.
+
+- ``None``
+- ``none``
+
 
 The options
 -----------
@@ -56,7 +62,7 @@ The options
 
     .. code-block:: console
 
-        $ pytask --markers
+        $ pytask markers
 
     on the command-line interface.
 
@@ -89,8 +95,14 @@ The options
 
 .. confval:: pdb
 
-    If you want to enter the interactive debugger when an error occurs, set this option
-    to a truthy value.
+    If you want to enter the interactive debugger whenever an error occurs, pass the
+    flag to the command line interface
+
+    .. code-block:: console
+
+        pytask --pdb
+
+    or use a truthy configuration value.
 
     .. code-block:: ini
 
@@ -99,8 +111,13 @@ The options
 
 .. confval:: strict_markers
 
-    If you want to raise an error for unregistered markers, set this option to a truthy
-    value.
+    If you want to raise an error for unregistered markers, pass
+
+    .. code-block:: console
+
+        pytask --strict-markers
+
+    or set the option to a truthy value.
 
     .. code-block:: ini
 
@@ -109,8 +126,13 @@ The options
 
 .. confval:: trace
 
-    If you want to enter the interactive debugger in the beginning of each task, set
-    this option to a truthy value.
+    If you want to enter the interactive debugger in the beginning of each task, use
+
+    .. code-block:: console
+
+        pytask --trace
+
+    or set this option to a truthy value.
 
     .. code-block:: ini
 
