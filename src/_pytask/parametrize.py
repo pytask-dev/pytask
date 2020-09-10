@@ -124,6 +124,7 @@ def pytask_parametrize_task(session, name, obj):
 
 
 def _remove_parametrize_markers_from_func(obj):
+    """Remove parametrize markers from the object."""
     parametrize = [i for i in obj.pytaskmark if i.name == "parametrize"]
     others = [i for i in obj.pytaskmark if i.name != "parametrize"]
     obj.pytaskmark = others
