@@ -50,6 +50,9 @@ for the analysis.
 Expressions
 -----------
 
+General
+~~~~~~~
+
 Expressions are similar to markers and offer the same syntax but target the task ids.
 Assume you have the following tasks.
 
@@ -85,3 +88,27 @@ To execute a single task, say ``task_run_this_one`` in ``task_example.py``, use
 .. code-block:: console
 
     $ pytask -k task_example.py::task_run_this_one
+
+
+.. _how_to_select_tasks_parametrization:
+
+Parametrization
+~~~~~~~~~~~~~~~
+
+If you have a task which is parametrized, you can select individual parametrizations.
+
+.. code-block:: python
+
+    @pytask.mark.parametrize("i", range(2))
+    def task_parametrized(i):
+        pass
+
+To run the task where ``i = 1``, type
+
+.. code-block:: bash
+
+    $ pytask -k task_parametrized[1]
+
+Booleans, floats, integers, and strings are used in the task id as they are, but all
+other Python objects like tuples are replaced with a combination of the argument name
+and an iteration counter. Multiple arguments are separated via dashes.

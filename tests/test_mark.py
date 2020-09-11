@@ -199,8 +199,8 @@ def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> Non
     ("expr", "expected_passed"),
     [
         ("arg0", ["task_func[arg0]"]),
-        ("arg1", ["task_func[arg1]"]),
-        ("arg2", ["task_func[arg2]"]),
+        ("1.3", ["task_func[1.3]"]),
+        ("2-3", ["task_func[2-3]"]),
     ],
 )
 def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -> None:

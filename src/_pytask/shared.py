@@ -40,6 +40,24 @@ def parse_paths(x):
 
 
 def falsy_to_none_callback(ctx, param, value):  # noqa: U100
+    """Convert falsy object to ``None``.
+
+    Some click arguments accept multiple inputs and instead of ``None`` as a default if
+    no information is passed, they return empty lists or tuples.
+
+    Since pytask uses ``None`` as a placeholder value for skippable inputs, convert the
+    values.
+
+    Examples
+    --------
+    >>> falsy_to_none_callback(None, None, ()) is None
+    True
+    >>> falsy_to_none_callback(None, None, []) is None
+    True
+    >>> falsy_to_none_callback(None, None, 1)
+    1
+
+    """
     return value if value else None
 
 
