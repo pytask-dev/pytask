@@ -5,7 +5,7 @@ from pathlib import Path
 import attr
 import click
 from _pytask.enums import ColorCode
-from _pytask.shared import remove_internal_traceback_frames_from_exc_info
+from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 
 
 @attr.s

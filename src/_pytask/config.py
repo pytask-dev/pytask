@@ -97,12 +97,13 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
     )
 
     config["ignore"] = (
-        get_first_non_none_value(
-            config_from_cli,
-            config_from_file,
-            key="ignore",
-            default=[],
-            callback=to_list,
+        to_list(
+            get_first_non_none_value(
+                config_from_cli,
+                config_from_file,
+                key="ignore",
+                default=[],
+            )
         )
         + IGNORED_FOLDERS
     )

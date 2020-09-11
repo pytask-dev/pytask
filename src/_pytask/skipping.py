@@ -7,7 +7,7 @@ from _pytask.mark import Mark
 from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
-from _pytask.shared import remove_traceback_from_exc_info
+from _pytask.traceback import remove_traceback_from_exc_info
 
 
 def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
