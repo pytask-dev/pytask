@@ -15,7 +15,7 @@ PROJECT_URLS = {
 
 setup(
     name="pytask",
-    version="0.0.5",
+    version="0.0.6",
     description=DESCRIPTION,
     long_description=DESCRIPTION + "\n\n" + README,
     long_description_content_type="text/x-rst",
@@ -37,15 +37,6 @@ setup(
     ],
     platforms="any",
     entry_points={"console_scripts": ["pytask=_pytask.cli:cli"]},
-    install_requires=[
-        "attrs>=17.4.0",
-        "click",
-        "click-default-group",
-        "networkx",
-        "pluggy",
-        "pony>=0.7.13",
-    ],
-    tests_require=["pexpect", "pytest"],
     packages=find_packages(where="src"),
     package_dir={"": "src"},
 )

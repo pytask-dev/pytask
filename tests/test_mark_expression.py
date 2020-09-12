@@ -73,7 +73,11 @@ def test_syntax_oddeties(expr: str, expected: bool) -> None:
     ("expr", "column", "message"),
     [
         ("(", 2, "expected not OR left parenthesis OR identifier; got end of input"),
-        (" (", 3, "expected not OR left parenthesis OR identifier; got end of input",),
+        (
+            " (",
+            3,
+            "expected not OR left parenthesis OR identifier; got end of input",
+        ),
         (
             ")",
             1,
@@ -84,7 +88,11 @@ def test_syntax_oddeties(expr: str, expected: bool) -> None:
             1,
             "expected not OR left parenthesis OR identifier; got right parenthesis",
         ),
-        ("not", 4, "expected not OR left parenthesis OR identifier; got end of input",),
+        (
+            "not",
+            4,
+            "expected not OR left parenthesis OR identifier; got end of input",
+        ),
         (
             "not not",
             8,
@@ -101,7 +109,11 @@ def test_syntax_oddeties(expr: str, expected: bool) -> None:
             10,
             "expected not OR left parenthesis OR identifier; got end of input",
         ),
-        ("ident and or", 11, "expected not OR left parenthesis OR identifier; got or",),
+        (
+            "ident and or",
+            11,
+            "expected not OR left parenthesis OR identifier; got or",
+        ),
         ("ident ident", 7, "expected end of input; got identifier"),
     ],
 )

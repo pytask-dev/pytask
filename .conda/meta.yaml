@@ -13,7 +13,7 @@ build:
   noarch: python
   number: 0
   entry_points:
-    - pytask = _pytask.cli:pytask
+    - pytask = _pytask.cli:cli
 
 requirements:
   host:
@@ -42,8 +42,9 @@ test:
     - tests
   commands:
     - pytask --help
-    - pytask --markers
     - pytask --version
+    - pytask clean
+    - pytask markers
 
     - pytest tests
 

@@ -13,7 +13,7 @@ from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
 from _pytask.report import ResolvingDependenciesReport
-from _pytask.shared import remove_traceback_from_exc_info
+from _pytask.traceback import remove_traceback_from_exc_info
 from pony import orm
 
 

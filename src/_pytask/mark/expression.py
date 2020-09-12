@@ -101,7 +101,8 @@ class Scanner:
                     pos += len(value)
                 else:
                     raise ParseError(
-                        pos + 1, 'unexpected character "{}"'.format(input_[pos]),
+                        pos + 1,
+                        'unexpected character "{}"'.format(input_[pos]),
                     )
         yield Token(TokenType.EOF, "", pos)
 
@@ -205,7 +206,9 @@ class Expression:
         """
         astexpr = expression(Scanner(input_))
         code = compile(
-            astexpr, filename="<pytest match expression>", mode="eval",
+            astexpr,
+            filename="<pytest match expression>",
+            mode="eval",
         )  # type: types.CodeType
         return cls(code)
 

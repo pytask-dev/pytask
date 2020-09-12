@@ -237,8 +237,14 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
             "foo or or",
             "at column 8: expected not OR left parenthesis OR identifier; got or",
         ),
-        ("(foo", "at column 5: expected right parenthesis; got end of input",),
-        ("foo bar", "at column 5: expected end of input; got identifier",),
+        (
+            "(foo",
+            "at column 5: expected right parenthesis; got end of input",
+        ),
+        (
+            "foo bar",
+            "at column 5: expected end of input; got identifier",
+        ),
         (
             "or or",
             "at column 1: expected not OR left parenthesis OR identifier; got or",
