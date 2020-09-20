@@ -91,7 +91,7 @@ def pytask_collect_file_protocol(session, path, reports):
 
 @hookimpl
 def pytask_collect_file(session, path, reports):
-    if path.name.startswith("task_") and path.suffix == ".py":
+    if any(path.match(pattern) for pattern in session.config["task_files"]):
         spec = importlib.util.spec_from_file_location(path.stem, str(path))
 
         if spec is None:

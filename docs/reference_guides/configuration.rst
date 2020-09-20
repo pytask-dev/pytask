@@ -124,6 +124,19 @@ The options
         strict_markers = True
 
 
+.. confval:: task_files
+
+    Change the pattern which identify task files.
+
+    .. code-block:: ini
+
+        task_files = task_*.py  # default
+
+        task_files =
+            task_*.py
+            tasks_*.py
+
+
 .. confval:: trace
 
     If you want to enter the interactive debugger in the beginning of each task, use
