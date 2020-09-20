@@ -100,7 +100,7 @@ The options
 
     .. code-block:: console
 
-        pytask --pdb
+        pytask build --pdb
 
     or use a truthy configuration value.
 
@@ -115,7 +115,7 @@ The options
 
     .. code-block:: console
 
-        pytask --strict-markers
+        pytask build --strict-markers
 
     or set the option to a truthy value.
 
@@ -143,7 +143,7 @@ The options
 
     .. code-block:: console
 
-        pytask --trace
+        pytask build --trace
 
     or set this option to a truthy value.
 
