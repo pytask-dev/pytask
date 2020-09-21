@@ -71,9 +71,7 @@ def clean(**config_from_cli):
         pm.hook.pytask_add_hooks(pm=pm)
 
         config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
-
         session = Session.from_config(config)
-        session.exit_code = ExitCode.OK
 
     except Exception:
         traceback.print_exception(*sys.exc_info())
@@ -119,7 +117,7 @@ def clean(**config_from_cli):
             traceback.print_exception(*sys.exc_info())
             session.exit_code = ExitCode.FAILED
 
-    return session
+    sys.exit(session.exit_code)
 
 
 def _collect_all_paths_known_to_pytask(session):

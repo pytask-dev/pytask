@@ -50,9 +50,7 @@ def markers(**config_from_cli):
         pm.hook.pytask_add_hooks(pm=pm)
 
         config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
-
         session = Session.from_config(config)
-        session.exit_code = ExitCode.OK
 
     except Exception:
         traceback.print_exception(*sys.exc_info())
@@ -68,7 +66,7 @@ def markers(**config_from_cli):
             )
             click.echo("")
 
-    return session
+    sys.exit(session.exit_code)
 
 
 @hookimpl

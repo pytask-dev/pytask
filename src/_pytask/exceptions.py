@@ -10,6 +10,10 @@ class NodeNotCollectedError(PytaskError):
     """Exception for nodes which could not be collected."""
 
 
+class ConfigurationError(PytaskError):
+    """Exception during the configuration."""
+
+
 class CollectionError(PytaskError):
     """Exception during collection."""
 
