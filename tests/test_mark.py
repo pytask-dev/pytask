@@ -272,3 +272,11 @@ def test_keyword_option_wrong_arguments(
 
     err = capsys.readouterr().err
     assert expected_error in err
+
+
+@pytest.mark.end_to_end
+def test_configuration_failed(runner, tmp_path):
+    result = runner.invoke(
+        cli, ["markers", "-c", tmp_path.joinpath("non_existent_path").as_posix()]
+    )
+    assert result.exit_code == 2

@@ -107,3 +107,22 @@ def test_clean_interactive_w_directories(sample_project_path, runner):
     assert "to_be_deleted_file_2.txt" not in result.output
     assert "to_be_deleted_folder_1" in result.output
     assert not sample_project_path.joinpath("to_be_deleted_folder_1").exists()
+
+
+@pytest.mark.end_to_end
+def test_configuration_failed(runner, tmp_path):
+    result = runner.invoke(
+        cli, ["clean", tmp_path.joinpath("non_existent_path").as_posix()]
+    )
+    assert result.exit_code == 2
+
+
+@pytest.mark.end_to_end
+def test_collection_failed(runner, tmp_path):
+    source = """
+    raise Exception
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["clean", tmp_path.as_posix()])
+    assert result.exit_code == 3
