@@ -10,6 +10,8 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 ------------------
 
 - :gh:`25` allows to customize the names of the task files.
+- :gh:`27` implements the ``pytask_collect_task_teardown`` hook specification to perform
+  checks after a task is collected.
 
 
 0.0.6 - 2020-09-12

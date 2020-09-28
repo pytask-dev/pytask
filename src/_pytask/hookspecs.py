@@ -151,6 +151,15 @@ def pytask_collect_task(session, path, name, obj):
     """Collect a single task."""
 
 
+@hookspec
+def pytask_collect_task_teardown(task):
+    """Perform tear-down operations when a task was collected.
+
+    Use this hook specification to, for example, perform checks on the collected task.
+
+    """
+
+
 @hookspec(firstresult=True)
 def pytask_collect_node(path, node):
     """Collect a node which is a dependency or a product of a task."""
