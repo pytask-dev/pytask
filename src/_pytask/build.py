@@ -56,6 +56,9 @@ def main(config_from_cli):
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
 
+        if config_from_cli.get("pdb"):
+            pdb.post_mortem()
+
     else:
         try:
             session.hook.pytask_log_session_header(session=session)

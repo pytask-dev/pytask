@@ -1,3 +1,4 @@
+"""Functions which are used across various modules."""
 import glob
 from collections.abc import Iterable
 from pathlib import Path
@@ -71,13 +72,10 @@ def get_first_non_none_value(*configs, key, default=None, callback=None):
     --------
     >>> get_first_non_none_value({"a": None}, {"a": 1}, key="a")
     1
-
     >>> get_first_non_none_value({"a": None}, {"a": None}, key="a", default="default")
     'default'
-
     >>> get_first_non_none_value({}, {}, key="a", default="default")
     'default'
-
     >>> get_first_non_none_value({"a": None}, {"a": "b"}, key="a")
     'b'
 
@@ -88,6 +86,7 @@ def get_first_non_none_value(*configs, key, default=None, callback=None):
 
 
 def parse_value_or_multiline_option(value):
+    """Parse option which can hold a single value or values separated by new lines."""
     if value in ["none", "None", None, ""]:
         value = None
     elif isinstance(value, str) and "\n" in value:
@@ -107,6 +106,6 @@ def convert_truthy_or_falsy_to_bool(x):
         out = None
     else:
         raise ValueError(
-            f"Input {x} is neither truthy (True, true, 1) or falsy (False, false, 0)."
+            f"Input '{x}' is neither truthy (True, true, 1) or falsy (False, false, 0)."
         )
     return out
