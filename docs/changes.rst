@@ -9,7 +9,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 0.0.7 - 2020-xx-xx
 ------------------
 
-- :gh:`26` implements the ``pytask_collect_task_teardown`` hook specification to perform
+- :gh:`27` implements the ``pytask_collect_task_teardown`` hook specification to perform
   checks after a task is collected.
 
 
