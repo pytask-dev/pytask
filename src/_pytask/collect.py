@@ -128,6 +128,7 @@ def pytask_collect_task_protocol(session, reports, path, name, obj):
         task = session.hook.pytask_collect_task(
             session=session, path=path, name=name, obj=obj
         )
+        session.hook.pytask_collect_task_teardown(session=session, task=task)
         if task is not None:
             return CollectionReportTask.from_task(task)
 

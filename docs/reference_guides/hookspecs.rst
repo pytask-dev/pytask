@@ -75,6 +75,9 @@ Collection
 .. autofunction:: pytask_collect_task
    :noindex:
 
+.. autofunction:: pytask_collect_task_teardown
+   :noindex:
+
 .. autofunction:: pytask_collect_node
    :noindex:
 
@@ -94,7 +97,6 @@ duplicates are collected with :func:`pytask_collect_task`.
 
 .. autofunction:: pytask_parametrize_kwarg_to_marker
    :noindex:
-
 
 
 Execution
