@@ -88,8 +88,12 @@ def get_first_non_none_value(*configs, key, default=None, callback=None):
 
 
 def parse_value_or_multiline_option(value):
-    if isinstance(value, str) and "\n" in value:
+    if value in ["none", "None", None, ""]:
+        value = None
+    elif isinstance(value, str) and "\n" in value:
         value = [v.strip() for v in value.split("\n") if v.strip()]
+    elif isinstance(value, str) and "n" not in value:
+        value = value.strip()
     return value
 
 

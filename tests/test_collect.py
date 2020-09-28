@@ -97,3 +97,44 @@ def test_collect_same_test_different_ways(tmp_path, path_extension):
 
     assert session.exit_code == 0
     assert len(session.tasks) == 1
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize(
+    "task_files, pattern, expected_collected_tasks",
+    [
+        (["dummy_task.py"], "*_task.py", 1),
+        (["tasks_dummy.py"], "tasks_*", 1),
+        (["dummy_tasks.py"], "*_tasks.py", 1),
+        (["task_dummy.py", "tasks_dummy.py"], "None", 1),
+        (["task_dummy.py", "tasks_dummy.py"], "tasks_*.py", 1),
+        (
+            ["task_dummy.py", "tasks_dummy.py"],
+            "\n            task_*.py\n             tasks_*.py",
+            2,
+        ),
+    ],
+)
+@pytest.mark.parametrize("config_name", ["pytask.ini", "tox.ini", "setup.cfg"])
+def test_collect_files_w_custom_file_name_pattern(
+    tmp_path, config_name, task_files, pattern, expected_collected_tasks
+):
+    config = textwrap.dedent(
+        f"""
+        [pytask]
+        task_files = {pattern}
+        """
+    )
+    tmp_path.joinpath(config_name).write_text(config)
+
+    source = """
+    def task_dummy():
+        pass
+    """
+    for file in task_files:
+        tmp_path.joinpath(file).write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 0
+    assert len(session.tasks) == expected_collected_tasks
