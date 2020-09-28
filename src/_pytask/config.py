@@ -95,7 +95,6 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
     config_from_file["ignore"] = parse_value_or_multiline_option(
         config_from_file.get("ignore")
     )
-
     config["ignore"] = (
         to_list(
             get_first_non_none_value(
@@ -118,6 +117,15 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
     if config["debug_pytask"]:
         config["pm"].trace.root.setwriter(click.echo)
         config["pm"].enable_tracing()
+
+    config_from_file["task_files"] = parse_value_or_multiline_option(
+        config_from_file.get("task_files")
+    )
+    config["task_files"] = to_list(
+        get_first_non_none_value(
+            config_from_file, key="task_files", default="task_*.py"
+        )
+    )
 
 
 @hookimpl

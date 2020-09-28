@@ -100,7 +100,7 @@ The options
 
     .. code-block:: console
 
-        pytask --pdb
+        pytask build --pdb
 
     or use a truthy configuration value.
 
@@ -115,7 +115,7 @@ The options
 
     .. code-block:: console
 
-        pytask --strict-markers
+        pytask build --strict-markers
 
     or set the option to a truthy value.
 
@@ -124,13 +124,26 @@ The options
         strict_markers = True
 
 
+.. confval:: task_files
+
+    Change the pattern which identify task files.
+
+    .. code-block:: ini
+
+        task_files = task_*.py  # default
+
+        task_files =
+            task_*.py
+            tasks_*.py
+
+
 .. confval:: trace
 
     If you want to enter the interactive debugger in the beginning of each task, use
 
     .. code-block:: console
 
-        pytask --trace
+        pytask build --trace
 
     or set this option to a truthy value.
 
