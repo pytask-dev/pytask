@@ -5,9 +5,9 @@ import traceback
 
 import click
 from _pytask.config import hookimpl
-from _pytask.database import create_database
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
+from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.pluginmanager import get_plugin_manager
@@ -49,15 +49,15 @@ def main(config_from_cli):
 
         config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
 
-        create_database(**config["database"])
-
         session = Session.from_config(config)
-        session.exit_code = ExitCode.OK
 
-    except Exception:
+    except (ConfigurationError, Exception):
         traceback.print_exception(*sys.exc_info())
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
+
+        if config_from_cli.get("pdb"):
+            pdb.post_mortem()
 
     else:
         try:

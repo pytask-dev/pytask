@@ -1,4 +1,5 @@
 import attr
+from _pytask.enums import ExitCode
 
 
 @attr.s
@@ -27,6 +28,7 @@ class Session:
     """
     execution_reports = attr.ib(factory=list)
     """Optional[List[pytask.report.ExecutionReport]]: Reports for executed tasks."""
+    exit_code = attr.ib(default=ExitCode.OK)
 
     @classmethod
     def from_config(cls, config):

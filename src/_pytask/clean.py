@@ -1,5 +1,6 @@
 """Add a command to clean the project from files unknown to pytask."""
 import itertools
+import pdb
 import shutil
 import sys
 import traceback
@@ -71,14 +72,15 @@ def clean(**config_from_cli):
         pm.hook.pytask_add_hooks(pm=pm)
 
         config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
-
         session = Session.from_config(config)
-        session.exit_code = ExitCode.OK
 
     except Exception:
         traceback.print_exception(*sys.exc_info())
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
+
+        if config_from_cli.get("pdb"):
+            pdb.post_mortem()
 
     else:
         try:
@@ -119,7 +121,7 @@ def clean(**config_from_cli):
             traceback.print_exception(*sys.exc_info())
             session.exit_code = ExitCode.FAILED
 
-    return session
+    sys.exit(session.exit_code)
 
 
 def _collect_all_paths_known_to_pytask(session):

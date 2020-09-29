@@ -1,3 +1,4 @@
+import pdb
 import sys
 import textwrap
 import traceback
@@ -50,9 +51,10 @@ def markers(**config_from_cli):
         pm.hook.pytask_add_hooks(pm=pm)
 
         config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
-
         session = Session.from_config(config)
-        session.exit_code = ExitCode.OK
+
+        if config_from_cli.get("pdb"):
+            pdb.post_mortem()
 
     except Exception:
         traceback.print_exception(*sys.exc_info())
@@ -68,7 +70,7 @@ def markers(**config_from_cli):
             )
             click.echo("")
 
-    return session
+    sys.exit(session.exit_code)
 
 
 @hookimpl

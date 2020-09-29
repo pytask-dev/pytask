@@ -120,3 +120,8 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         "create_db": config["database_create_db"],
         "create_tables": config["database_create_tables"],
     }
+
+
+@hookimpl
+def pytask_post_parse(config):
+    create_database(**config["database"])

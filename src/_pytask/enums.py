@@ -1,3 +1,4 @@
+"""Enumerations for pytask."""
 import enum
 
 
