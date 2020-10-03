@@ -1,4 +1,3 @@
-import os
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 
@@ -32,19 +31,15 @@ def test_skip_unchanged(tmp_path):
 def test_skip_unchanged_w_dependencies_and_products(tmp_path):
     source = """
     import pytask
-    from pathlib import Path
-
 
     @pytask.mark.depends_on("in.txt")
     @pytask.mark.produces("out.txt")
-    def task_dummy():
-        in_ = Path("in.txt").read_text()
-        Path("out.txt").write_text(in_)
+    def task_dummy(depends_on, produces):
+        produces.write_text(depends_on.read_text())
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Original content of in.txt.")
 
-    os.chdir(tmp_path)
     session = main({"paths": tmp_path})
 
     assert session.execution_reports[0].success
@@ -60,13 +55,10 @@ def test_skip_unchanged_w_dependencies_and_products(tmp_path):
 def test_skip_if_ancestor_failed(tmp_path):
     source = """
     import pytask
-    from pathlib import Path
-
 
     @pytask.mark.produces("out.txt")
     def task_first():
         assert 0
-
 
     @pytask.mark.depends_on("out.txt")
     def task_second():
@@ -74,7 +66,6 @@ def test_skip_if_ancestor_failed(tmp_path):
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
-    os.chdir(tmp_path)
     session = main({"paths": tmp_path})
 
     assert not session.execution_reports[0].success
@@ -87,14 +78,11 @@ def test_skip_if_ancestor_failed(tmp_path):
 def test_if_skip_decorator_is_applied(tmp_path):
     source = """
     import pytask
-    from pathlib import Path
-
 
     @pytask.mark.skip
     @pytask.mark.produces("out.txt")
     def task_first():
         assert 0
-
 
     @pytask.mark.depends_on("out.txt")
     def task_second():
@@ -102,7 +90,6 @@ def test_if_skip_decorator_is_applied(tmp_path):
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
-    os.chdir(tmp_path)
     session = main({"paths": tmp_path})
 
     assert session.execution_reports[0].success

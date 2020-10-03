@@ -16,3 +16,7 @@ class SkippedDependencyNotFound(PytaskOutcome):
 
 class SkippedUnchanged(PytaskOutcome):
     """Outcome if task has run before and is unchanged."""
+
+
+class Persisted(PytaskOutcome):
+    """Outcome if task should persist."""
