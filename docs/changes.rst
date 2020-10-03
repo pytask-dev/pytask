@@ -6,7 +6,7 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
 
 
-0.0.7 - 2020-xx-xx
+0.0.7 - 2020-10-03
 ------------------
 
 - :gh:`25` allows to customize the names of the task files.
@@ -14,6 +14,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`27` implements the ``pytask_collect_task_teardown`` hook specification to perform
   checks after a task is collected.
 - :gh:`28` implements the ``@pytask.mark.persist`` decorator.
+- :gh:`29` releases 0.0.7.
 
 
 0.0.6 - 2020-09-12
@@ -31,6 +32,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
   ``ids`` argument, and adds tutorials.
 - :gh:`23` allows to specify paths via the configuration file, documents the cli and
   configuration options.
+- :gh:`24` releases 0.0.6.
 
 
 0.0.5 - 2020-08-12
