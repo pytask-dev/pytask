@@ -4,8 +4,14 @@ import pytest
 from _pytask.database import create_database
 from _pytask.database import State
 from _pytask.outcomes import Persisted
+from _pytask.outcomes import SkippedUnchanged
+from _pytask.persist import pytask_execute_task_process_report
 from pony import orm
 from pytask import main
+
+
+class DummyClass:
+    pass
 
 
 @pytest.mark.end_to_end
@@ -21,6 +27,7 @@ def test_multiple_runs_with_persist(tmp_path):
     1. The product is missing which should result in a normal execution of the task.
     2. Change the product, check that run is successful and state in database has
        changed.
+    3. Run the task another time. Now, the task is skipped successfully.
 
     """
     source = """
@@ -65,6 +72,13 @@ def test_multiple_runs_with_persist(tmp_path):
 
     orm.db_session.__exit__()
 
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 0
+    assert len(session.execution_reports) == 1
+    assert session.execution_reports[0].success
+    assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
+
 
 @pytest.mark.end_to_end
 def test_migrating_a_whole_task_with_persist(tmp_path):
@@ -89,3 +103,23 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
     assert len(session.execution_reports) == 1
     assert session.execution_reports[0].success
     assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "exc_info, expected",
+    [
+        (None, None),
+        ((None, None, None), None),
+        ((None, Persisted(), None), True),
+    ],
+)
+def test_pytask_execute_task_process_report(exc_info, expected):
+    report = DummyClass()
+    report.exc_info = exc_info
+    result = pytask_execute_task_process_report(report)
+
+    if expected:
+        assert report.success
+    else:
+        assert result is None
