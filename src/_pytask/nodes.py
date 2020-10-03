@@ -166,7 +166,9 @@ def _collect_nodes(session, path, name, nodes):
     """Collect nodes for a task."""
     collect_nodes = []
     for node in nodes:
-        collected_node = session.hook.pytask_collect_node(path=path, node=node)
+        collected_node = session.hook.pytask_collect_node(
+            session=session, path=path, node=node
+        )
         if collected_node is None:
             raise NodeNotCollectedError(
                 f"'{node}' cannot be parsed as a dependency or product for task "

@@ -152,7 +152,7 @@ def pytask_collect_task(session, path, name, obj):
 
 
 @hookspec
-def pytask_collect_task_teardown(task):
+def pytask_collect_task_teardown(session, task):
     """Perform tear-down operations when a task was collected.
 
     Use this hook specification to, for example, perform checks on the collected task.
@@ -161,7 +161,7 @@ def pytask_collect_task_teardown(task):
 
 
 @hookspec(firstresult=True)
-def pytask_collect_node(path, node):
+def pytask_collect_node(session, path, node):
     """Collect a node which is a dependency or a product of a task."""
 
 
