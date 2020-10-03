@@ -31,8 +31,8 @@ include:
 
 - **Automatic discovery of tasks.**
 
-- **Lazy evaluation.** If a task or its dependencies have not changed, do not
-  execute it.
+- **Lazy evaluation.** If a task, its dependencies, and its products have not changed,
+  do not execute it.
 
 - **Debug mode.** Jump into the debugger if a task fails and get quick feedback.
 
