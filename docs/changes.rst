@@ -13,6 +13,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`26` makes commands return the correct exit codes.
 - :gh:`27` implements the ``pytask_collect_task_teardown`` hook specification to perform
   checks after a task is collected.
+- :gh:`28` implements the ``@pytask.mark.persist`` decorator.
 
 
 0.0.6 - 2020-09-12
