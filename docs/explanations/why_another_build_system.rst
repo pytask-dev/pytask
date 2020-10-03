@@ -66,6 +66,24 @@ Cons
 - Bus factor of 1.
 
 
+`Luigi <https://github.com/spotify/luigi>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A build system written by Spotify.
+
+Derivatives:
+
+- `sciluigi <https://github.com/pharmbio/sciluigi>`_
+
+
+`scipipe <https://github.com/scipipe/scipipe>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Cons
+
+- written in Go.
+
+
 `Scons <https://github.com/SCons/scons>`_
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
