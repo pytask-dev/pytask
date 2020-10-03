@@ -15,7 +15,7 @@ PROJECT_URLS = {
 
 setup(
     name="pytask",
-    version="0.0.7",
+    version="0.0.8",
     description=DESCRIPTION,
     long_description=DESCRIPTION + "\n\n" + README,
     long_description_content_type="text/x-rst",

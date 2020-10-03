@@ -6,6 +6,12 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
 
 
+0.0.8 - 2020-10-04
+------------------
+
+- :gh:`30` fixes or adds the session object to some hooks.
+
+
 0.0.7 - 2020-10-03
 ------------------
 
