@@ -29,10 +29,14 @@ def pytask_resolve_dependencies(session):
     """
     try:
         session.dag = session.hook.pytask_resolve_dependencies_create_dag(
-            tasks=session.tasks
+            session=session, tasks=session.tasks
         )
-        session.hook.pytask_resolve_dependencies_validate_dag(dag=session.dag)
-        session.hook.pytask_resolve_dependencies_select_execution_dag(dag=session.dag)
+        session.hook.pytask_resolve_dependencies_validate_dag(
+            session=session, dag=session.dag
+        )
+        session.hook.pytask_resolve_dependencies_select_execution_dag(
+            session=session, dag=session.dag
+        )
 
     except Exception:
         report = ResolvingDependenciesReport(sys.exc_info())
