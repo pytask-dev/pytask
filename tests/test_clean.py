@@ -6,6 +6,7 @@ from pytask import cli
 
 @pytest.fixture()
 def sample_project_path(tmp_path):
+    """Create a sample project to be cleaned."""
     source = """
     import pytask
 
@@ -22,6 +23,39 @@ def sample_project_path(tmp_path):
     tmp_path.joinpath("to_be_deleted_folder_1", "to_be_deleted_file_2.txt").touch()
 
     return tmp_path
+
+
+@pytest.mark.end_to_end
+def test_clean_with_ignored_file(sample_project_path, runner):
+    result = runner.invoke(
+        cli, ["clean", "--ignore", "*_1.txt", sample_project_path.as_posix()]
+    )
+
+    assert "to_be_deleted_file_1.txt" not in result.output
+    assert "to_be_deleted_file_2.txt" in result.output
+
+
+@pytest.mark.end_to_end
+def test_clean_with_ingored_directory(sample_project_path, runner):
+    result = runner.invoke(
+        cli,
+        [
+            "clean",
+            "--ignore",
+            "to_be_deleted_folder_1/*",
+            sample_project_path.as_posix(),
+        ],
+    )
+
+    assert "to_be_deleted_folder_1/" not in result.output
+    assert "to_be_deleted_file_1.txt" in result.output
+
+
+@pytest.mark.end_to_end
+def test_clean_with_nothing_to_remove(tmp_path, runner):
+    result = runner.invoke(cli, ["clean", "--ignore", "*", tmp_path.as_posix()])
+
+    assert "There are no files and directories which can be deleted." in result.output
 
 
 @pytest.mark.end_to_end

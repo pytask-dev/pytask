@@ -9,7 +9,6 @@ from pytask import main
 
 
 _IGNORED_FOLDERS = [i.split("/")[0] for i in IGNORED_FOLDERS]
-_IGNORED_FOLDERS.remove("*.egg-info")
 
 
 @pytest.mark.unit

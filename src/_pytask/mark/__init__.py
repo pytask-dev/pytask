@@ -42,6 +42,8 @@ __all__ = [
 )
 def markers(**config_from_cli):
     """Show all registered markers."""
+    config_from_cli["command"] = "markers"
+
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
         pm = get_plugin_manager()
@@ -96,7 +98,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         ),
     ]
     cli.commands["build"].params.extend(additional_build_parameters)
+    cli.commands["clean"].params.extend(additional_build_parameters)
     cli.commands["collect"].params.extend(additional_build_parameters)
+
     cli.add_command(markers)
 
 

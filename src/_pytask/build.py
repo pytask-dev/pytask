@@ -114,5 +114,6 @@ def build(**config_from_cli):
     working directory for tasks to execute them. A report informs you on the results.
 
     """
+    config_from_cli["command"] = "build"
     session = main(config_from_cli)
     sys.exit(session.exit_code)
