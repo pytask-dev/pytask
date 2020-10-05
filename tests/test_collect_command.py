@@ -1,7 +1,12 @@
 import textwrap
 
 import pytest
+from _pytask.collect_command import _organize_tasks
 from pytask import cli
+
+
+class DummyClass:
+    pass
 
 
 @pytest.mark.end_to_end
@@ -205,3 +210,22 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
     assert "in_1.txt>" in result.output
     assert "<Product" in result.output
     assert "out_1.txt>" in result.output
+
+
+@pytest.mark.unit
+def test_organize_tasks():
+    dependency = DummyClass()
+    dependency.name = "dependency"
+
+    task = DummyClass()
+    task.name = "prefix::task_dummy"
+    task.path = "task_path.py"
+    task.depends_on = [dependency]
+    task.produces = []
+
+    result = _organize_tasks([task])
+
+    assert "task_path.py" in result
+    assert "task_dummy" in result["task_path.py"]
+    assert "dependency" in result["task_path.py"]["task_dummy"]["depends_on"]
+    assert not result["task_path.py"]["task_dummy"]["produces"]
