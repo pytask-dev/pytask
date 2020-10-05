@@ -1,34 +1,14 @@
 pytask
 ======
 
-.. image:: https://anaconda.org/pytask/pytask/badges/version.svg
-    :target: https://anaconda.org/pytask/pytask
-
-.. image:: https://anaconda.org/pytask/pytask/badges/platforms.svg
-    :target: https://anaconda.org/pytask/pytask
-
-.. image:: https://readthedocs.org/projects/pytask-dev/badge/?version=latest
-    :target: https://pytask-dev.readthedocs.io/en/latest
-
-.. image:: https://github.com/pytask-dev/pytask/workflows/Continuous%20Integration%20Workflow/badge.svg?branch=main
-    :target: https://github.com/pytask-dev/pytask/actions?query=branch%3Amain
+.. include:: ../README.rst
+   :start-after: start-badges
+   :end-before: end-badges
 
 
-.. image:: https://codecov.io/gh/pytask-dev/pytask/branch/main/graph/badge.svg
-    :target: https://codecov.io/gh/pytask-dev/pytask
-
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/psf/black
-
-----
-
-This is the documentation of pytask. You can install the package from `Anaconda.org
-<https://anaconda.org/pytask/pytask>`_ with
-
-.. code-block:: console
-
-    $ conda config --add channels conda-forge --add channels pytask
-    $ conda install pytask
+.. include:: ../README.rst
+   :start-after: start-installation
+   :end-before: end-installation
 
 The documentation has four central parts.
 

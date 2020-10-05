@@ -97,11 +97,11 @@ def clean(**config_from_cli):
         session = Session.from_config(config)
 
     except Exception:
-        traceback.print_exception(*sys.exc_info())
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
 
         if config_from_cli.get("pdb"):
+            traceback.print_exception(*sys.exc_info())
             pdb.post_mortem()
 
     else:
@@ -139,13 +139,16 @@ def clean(**config_from_cli):
             else:
                 click.echo("\nThere are no files and directories which can be deleted.")
 
-            click.echo("")
+            click.echo("\n" + "=" * config["terminal_width"])
 
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
 
         except Exception:
             traceback.print_exception(*sys.exc_info())
+            if config["pdb"]:
+                pdb.post_mortem()
+
             session.exit_code = ExitCode.FAILED
 
     sys.exit(session.exit_code)

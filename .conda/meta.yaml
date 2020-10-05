@@ -5,7 +5,7 @@ package:
   version: {{ data.get('version') }}
 
 source:
-  # git_url is nice in that it won't capture devenv stuff.  However, it only captures
+  # git_url is nice in that it won't capture devenv stuff. However, it only captures
   # committed code, so pay attention.
   git_url: ../
 

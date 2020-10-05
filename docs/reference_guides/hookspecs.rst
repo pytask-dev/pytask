@@ -38,6 +38,10 @@ Command Line Interface
 Configuration
 -------------
 
+The following hooks are used to configure pytask with the information from the command
+line and the configuration file as well as making sure that all options play nicely
+together.
+
 .. autofunction:: pytask_configure
    :noindex:
 
@@ -50,6 +54,8 @@ Configuration
 
 Collection
 ----------
+
+The following hooks traverse directories and collect tasks from files.
 
 .. autofunction:: pytask_collect
    :noindex:
@@ -99,8 +105,40 @@ duplicates are collected with :func:`pytask_collect_task`.
    :noindex:
 
 
+Resolving Dependencies
+----------------------
+
+The following hooks are designed to build a DAG from tasks and dependencies and check
+which files have changed and need to be re-run.
+
+.. warning::
+
+   This step is still experimental and likely to change in the future. If you are
+   planning to write a plugin which extends pytask in this dimension, please, start a
+   discussion before writing a plugin. It may make your life easier if changes in pytask
+   anticipate your plugin.
+
+
+.. autofunction:: pytask_resolve_dependencies
+   :noindex:
+
+.. autofunction:: pytask_resolve_dependencies_create_dag
+   :noindex:
+
+.. autofunction:: pytask_resolve_dependencies_validate_dag
+   :noindex:
+
+.. autofunction:: pytask_resolve_dependencies_select_execution_dag
+   :noindex:
+
+.. autofunction:: pytask_resolve_dependencies_log
+   :noindex:
+
+
 Execution
 ---------
+
+The following hooks execute the tasks and log information on the result in the terminal.
 
 .. autofunction:: pytask_execute
    :noindex:

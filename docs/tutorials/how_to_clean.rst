@@ -10,7 +10,7 @@ and type
 .. code-block:: console
 
     $ pytask clean
-    =============================== Start pytask session ===============================
+    ========================= Start pytask session =========================
     Platform: win32 -- Python x.y.z, pytask x.y.z, pluggy x.y.z
     Root: .
     Collected 3 task(s).
@@ -37,7 +37,7 @@ If you want to delete whole folders instead of only the files in them, use
 .. code-block:: console
 
     $ pytask clean -d
-    =============================== Start pytask session ===============================
+    ========================= Start pytask session =========================
     Platform: win32 -- Python x.y.z, pytask x.y.z, pluggy x.y.z
     Root: .
     Collected 3 task(s).
@@ -48,9 +48,7 @@ If you want to delete whole folders instead of only the files in them, use
     Would remove C:\Users\project\obsolete_folder.
 
 
-Command line options
---------------------
+Further reading
+---------------
 
-.. click:: _pytask.cli:cli
-    :commands: clean
-    :prog: pytask
+- :program:`pytask clean` in :doc:`../reference_guides/command_line_interface`.
