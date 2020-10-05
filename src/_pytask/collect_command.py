@@ -109,18 +109,12 @@ def _print_collected_tasks(dictionary, config):
     click.echo("")
 
     for path in dictionary:
-        click.echo(path)
+        click.echo(f"<Module {path}>")
         for task in dictionary[path]:
-            click.echo(f"  {task}")
+            click.echo(f"  <Function {task}>")
             if config["nodes"]:
-                dependencies = dictionary[path][task]["depends_on"]
-                if dependencies:
-                    click.echo("    depends_on:")
-                for dependency in dependencies:
-                    click.echo(f"      {dependency}")
+                for dependency in dictionary[path][task]["depends_on"]:
+                    click.echo(f"      <Dependency {dependency}>")
 
-                products = dictionary[path][task]["produces"]
-                if products:
-                    click.echo("    produces:")
-                for product in products:
-                    click.echo(f"      {product}")
+                for product in dictionary[path][task]["produces"]:
+                    click.echo(f"      <Product {product}>")
