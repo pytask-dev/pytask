@@ -26,7 +26,7 @@ def pytask_parse_config(config, config_from_cli):
 @click.argument(
     "paths", nargs=-1, type=click.Path(exists=True), callback=falsy_to_none_callback
 )
-@click.option("--nodes", is_flag=True)
+@click.option("--nodes", is_flag=True, help="Show a task's dependencies and products.")
 @click.option(
     "--ignore",
     type=str,
