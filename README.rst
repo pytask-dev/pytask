@@ -2,9 +2,9 @@
 
     <img src="docs/_static/images/pytask_w_text.png" alt="pytask" width="50%">
 
-.. start-badges
-
 ------
+
+.. start-badges
 
 .. image:: https://anaconda.org/pytask/pytask/badges/version.svg
     :target: https://anaconda.org/pytask/pytask
