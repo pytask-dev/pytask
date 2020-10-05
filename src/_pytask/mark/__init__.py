@@ -96,6 +96,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         ),
     ]
     cli.commands["build"].params.extend(additional_build_parameters)
+    cli.commands["clean"].params.extend(additional_build_parameters)
     cli.add_command(markers)
 
 

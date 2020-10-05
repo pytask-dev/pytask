@@ -59,6 +59,16 @@ def pytask_parse_config(config, config_from_cli):
     "-q", "--quiet", is_flag=True, help="Do not print the names of the removed paths."
 )
 @click.option(
+    "--ignore",
+    type=str,
+    multiple=True,
+    help=(
+        "A pattern to ignore files or directories. For example, ``task_example.py`` or "
+        "``src/*``."
+    ),
+    callback=falsy_to_none_callback,
+)
+@click.option(
     "-c", "--config", type=click.Path(exists=True), help="Path to configuration file."
 )
 def clean(**config_from_cli):
@@ -166,8 +176,9 @@ def _find_all_unknown_paths(session, known_paths, include_directories):
 
     """
     recursive_nodes = [
-        _RecursivePathNode.from_path(path, known_paths)
+        _RecursivePathNode.from_path(path, known_paths, session)
         for path in session.config["paths"]
+        if not session.hook.pytask_ignore_collect(path=path, config=session.config)
     ]
     unknown_paths = list(
         itertools.chain.from_iterable(
@@ -215,7 +226,7 @@ class _RecursivePathNode:
     is_unknown = attr.ib(type=bool)
 
     @classmethod
-    def from_path(cls, path: Path, known_paths: list):
+    def from_path(cls, path: Path, known_paths: list, session):
         """Create a node from a path.
 
         While instantiating the class, subordinate nodes are spawned for all paths
@@ -223,8 +234,13 @@ class _RecursivePathNode:
 
         """
         sub_nodes = (
-            [_RecursivePathNode.from_path(p, known_paths) for p in path.iterdir()]
+            [
+                _RecursivePathNode.from_path(p, known_paths, session)
+                for p in path.iterdir()
+                if not session.hook.pytask_ignore_collect(path=p, config=session.config)
+            ]
             if path.is_dir()
+            and not session.hook.pytask_ignore_collect(path=path, config=session.config)
             else []
         )
         is_unknown = (path.is_file() and path not in known_paths) or (
