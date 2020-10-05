@@ -11,6 +11,8 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 
 - :gh:`30` fixes or adds the session object to some hooks which was missing from the
   previous release.
+- :gh:`31` adds ``pytask collect`` to show information on collected tasks.
+- :gh:`32` fixes ``pytask clean``.
 
 
 0.0.7 - 2020-10-03
