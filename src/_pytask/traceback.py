@@ -10,7 +10,7 @@ _PYTASK_DIRECTORY = Path(_pytask.__file__).parent
 
 def remove_traceback_from_exc_info(exc_info):
     """Remove traceback from exception."""
-    return *exc_info[:2], None
+    return (*exc_info[:2], None)
 
 
 def remove_internal_traceback_frames_from_exc_info(exc_info):

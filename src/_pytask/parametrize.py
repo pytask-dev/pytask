@@ -75,6 +75,9 @@ def pytask_parametrize_task(session, name, obj):
     :func:`zip`, multiple ``@pytask.mark.parametrize`` decorators form a Cartesian
     product.
 
+    We cannot raise an error if the function does not use parametrized arguments since
+    some plugins will replace functions with their own implementation like pytask-r.
+
     """
     if callable(obj):
         obj, markers = _remove_parametrize_markers_from_func(obj)
