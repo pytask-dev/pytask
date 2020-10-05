@@ -2,6 +2,8 @@
 
     <img src="docs/_static/images/pytask_w_text.png" alt="pytask" width="50%">
 
+.. start-badges
+
 ------
 
 .. image:: https://anaconda.org/pytask/pytask/badges/version.svg
@@ -21,6 +23,9 @@
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
+
+
+.. end-badges
 
 
 Features
@@ -52,6 +57,8 @@ explanations/why_do_i_need_a_build_system.html>`_ if you do not know or are not
 convinced that you need a build system.
 
 
+.. start-installation
+
 Installation
 ------------
 
@@ -63,6 +70,7 @@ package with
     $ conda config --add channels conda-forge --add channels pytask
     $ conda install pytask
 
+.. end-installation
 
 Usage
 -----
