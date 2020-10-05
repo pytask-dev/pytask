@@ -16,4 +16,5 @@ organize and start your own project.
    how_to_configure_pytask
    how_to_select_tasks
    how_to_clean
+   how_to_collect
    how_to_make_tasks_persist

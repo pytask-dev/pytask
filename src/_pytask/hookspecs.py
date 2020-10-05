@@ -15,11 +15,11 @@ hookspec = pluggy.HookspecMarker("pytask")
 def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     """Add hook specifications and implementations to the plugin manager.
 
-    This hook is called very early in the application to load the base functionality
-    from plugins.
+    This hook is the first to be called to let plugins register their hook
+    specifications and implementations.
 
     If you want to register plugins dynamically depending on the configuration, use
-    :func:`pytask_post_parse` instead.
+    :func:`pytask_post_parse` instead. See :mod:`_pytask.debugging` for an example.
 
     """
 
@@ -29,14 +29,15 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
 
 @hookspec
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
-    """Add parameter to :class:`click.Command`.
+    """Extend the command line interface.
 
-    Use this hook if you want to add more commands, options or arguments to the
-    interface.
+    The hook can be used to extend the command line interface either by providing new
+    commands or adding options and arguments to existing commands.
 
-    - Add subcommands via ``cli.add_command``
+    - Add commands via ``cli.add_command``.
     - Add options and arguments by extending ``cli.params`` or
-      ``cli.commands["<name>"].params``.
+      ``cli.commands["<name>"].params`` if the parameters only apply to a certain
+      command.
 
     """
 
