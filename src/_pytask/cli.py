@@ -10,12 +10,12 @@ from click_default_group import DefaultGroup
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 
-def _extend_command_line_interface(cli):
+def _extend_command_line_interface(command_line_interface):
     """Add parameters from plugins to the commandline interface."""
     pm = _prepare_plugin_manager()
-    pm.hook.pytask_extend_command_line_interface(cli=cli)
-    _sort_options_for_each_command_alphabetically(cli)
-    return cli
+    pm.hook.pytask_extend_command_line_interface(cli=command_line_interface)
+    _sort_options_for_each_command_alphabetically(command_line_interface)
+    return command_line_interface
 
 
 def _prepare_plugin_manager():
