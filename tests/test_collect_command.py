@@ -2,6 +2,7 @@ import textwrap
 
 import pytest
 from _pytask.collect_command import _organize_tasks
+from _pytask.collect_command import _print_collected_tasks
 from pytask import cli
 
 
@@ -229,3 +230,35 @@ def test_organize_tasks():
     assert "task_dummy" in result["task_path.py"]
     assert "dependency" in result["task_path.py"]["task_dummy"]["depends_on"]
     assert not result["task_path.py"]["task_dummy"]["produces"]
+
+
+@pytest.mark.unit
+def test_print_collected_tasks_without_nodes(capsys):
+    dictionary = {
+        "path.py": {"task_dummy": {"depends_on": ["in.txt"], "produces": ["out.txt"]}}
+    }
+
+    _print_collected_tasks(dictionary, False)
+
+    captured = capsys.readouterr().out
+
+    assert "<Module path.py>" in captured
+    assert "<Function task_dummy>" in captured
+    assert "<Dependency in.txt>" not in captured
+    assert "<Product out.txt>" not in captured
+
+
+@pytest.mark.unit
+def test_print_collected_tasks_with_nodes(capsys):
+    dictionary = {
+        "path.py": {"task_dummy": {"depends_on": ["in.txt"], "produces": ["out.txt"]}}
+    }
+
+    _print_collected_tasks(dictionary, True)
+
+    captured = capsys.readouterr().out
+
+    assert "<Module path.py>" in captured
+    assert "<Function task_dummy>" in captured
+    assert "<Dependency in.txt>" in captured
+    assert "<Product out.txt>" in captured

@@ -69,7 +69,7 @@ def collect(**config_from_cli):
             session.hook.pytask_collect(session=session)
 
             dictionary = _organize_tasks(session.tasks)
-            _print_collected_tasks(dictionary, session.config)
+            _print_collected_tasks(dictionary, session.config["nodes"])
 
             click.echo("\n" + "=" * config["terminal_width"])
 
@@ -110,14 +110,25 @@ def _organize_tasks(tasks):
     return dictionary
 
 
-def _print_collected_tasks(dictionary, config):
+def _print_collected_tasks(dictionary, show_nodes):
+    """Print the information on collected tasks.
+
+    Parameters
+    ----------
+    dictionary: dict
+        A dictionary with path on the first level, tasks on the second, dependencies and
+        products on the third.
+    show_nodes: bool
+        Indicator for whether dependencies and products should be displayed.
+
+    """
     click.echo("")
 
     for path in dictionary:
         click.echo(f"<Module {path}>")
         for task in dictionary[path]:
             click.echo(f"  <Function {task}>")
-            if config["nodes"]:
+            if show_nodes:
                 for dependency in dictionary[path][task]["depends_on"]:
                     click.echo(f"    <Dependency {dependency}>")
 
