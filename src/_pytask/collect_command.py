@@ -56,11 +56,11 @@ def collect(**config_from_cli):
         session = Session.from_config(config)
 
     except Exception:
-        traceback.print_exception(*sys.exc_info())
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
 
         if config_from_cli.get("pdb"):
+            traceback.print_exception(*sys.exc_info())
             pdb.post_mortem()
 
     else:
@@ -70,6 +70,8 @@ def collect(**config_from_cli):
 
             dictionary = _organize_tasks(session.tasks)
             _print_collected_tasks(dictionary, session.config)
+
+            click.echo("\n" + "=" * config["terminal_width"])
 
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
