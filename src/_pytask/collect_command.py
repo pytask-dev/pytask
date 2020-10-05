@@ -117,7 +117,7 @@ def _print_collected_tasks(dictionary, config):
             click.echo(f"  <Function {task}>")
             if config["nodes"]:
                 for dependency in dictionary[path][task]["depends_on"]:
-                    click.echo(f"      <Dependency {dependency}>")
+                    click.echo(f"    <Dependency {dependency}>")
 
                 for product in dictionary[path][task]["produces"]:
-                    click.echo(f"      <Product {product}>")
+                    click.echo(f"    <Product {product}>")
