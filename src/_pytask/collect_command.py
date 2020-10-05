@@ -42,6 +42,8 @@ def pytask_parse_config(config, config_from_cli):
 )
 def collect(**config_from_cli):
     """Collect tasks from paths."""
+    config_from_cli["command"] = "collect"
+
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
         pm = get_plugin_manager()
@@ -72,11 +74,12 @@ def collect(**config_from_cli):
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
 
-        except Exception as e:
+        except Exception:
+            traceback.print_exception(*sys.exc_info())
             if config["pdb"]:
                 pdb.post_mortem()
-            else:
-                raise e
+
+            session.exit_code = ExitCode.FAILED
 
     sys.exit(session.exit_code)
 
