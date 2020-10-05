@@ -18,12 +18,19 @@ from _pytask.shared import to_list
 
 hookimpl = pluggy.HookimplMarker("pytask")
 
-
 IGNORED_FOLDERS = [
     ".git/*",
     ".hg/*",
     ".svn/*",
     ".venv/*",
+]
+
+IGNORED_FILES = [".pre-commit-config.yaml", ".readthedocs.yml", ".codecov.yml"]
+
+
+IGNORED_FILES_AND_FOLDERS = IGNORED_FILES + IGNORED_FOLDERS
+
+IGNORED_TEMPORARY_FILES_AND_FOLDERS = [
     "*.egg-info/*",
     ".ipynb_checkpoints/*",
     ".mypy_cache/*",
@@ -33,8 +40,8 @@ IGNORED_FOLDERS = [
     "__pycache__/*",
     "build/*",
     "dist/*",
+    "pytest_cache/*",
 ]
-"""List[str]: List of expressions to ignore folders."""
 
 
 @hookimpl
@@ -93,6 +100,8 @@ def pytask_configure(pm, config_from_cli):
 @hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
     """Parse the configuration."""
+    config["command"] = config_from_cli.get("command", "build")
+
     config_from_file["ignore"] = parse_value_or_multiline_option(
         config_from_file.get("ignore")
     )
@@ -105,7 +114,8 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
                 default=[],
             )
         )
-        + IGNORED_FOLDERS
+        + IGNORED_FILES_AND_FOLDERS
+        + IGNORED_TEMPORARY_FILES_AND_FOLDERS
     )
 
     config["debug_pytask"] = get_first_non_none_value(

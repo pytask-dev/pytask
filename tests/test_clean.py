@@ -25,6 +25,39 @@ def sample_project_path(tmp_path):
 
 
 @pytest.mark.end_to_end
+def test_clean_ignores_some_folders(sample_project_path, runner):
+    result = runner.invoke(
+        cli, ["clean", "--ignore", "*_1.txt", sample_project_path.as_posix()]
+    )
+
+    assert "to_be_deleted_file_1.txt" not in result.output
+    assert "to_be_deleted_file_2.txt" in result.output
+
+
+@pytest.mark.end_to_end
+def test_clean_ignores_directory(sample_project_path, runner):
+    result = runner.invoke(
+        cli,
+        [
+            "clean",
+            "--ignore",
+            "to_be_deleted_folder_1/*",
+            sample_project_path.as_posix(),
+        ],
+    )
+
+    assert "to_be_deleted_folder_1/" not in result.output
+    assert "to_be_deleted_file_1.txt" in result.output
+
+
+@pytest.mark.end_to_end
+def test_clean_ignored_all(tmp_path, runner):
+    result = runner.invoke(cli, ["clean", "--ignore", "*", tmp_path.as_posix()])
+
+    assert "There are no files and directories which can be deleted." in result.output
+
+
+@pytest.mark.end_to_end
 def test_clean_dry_run(sample_project_path, runner):
     result = runner.invoke(cli, ["clean", sample_project_path.as_posix()])
 

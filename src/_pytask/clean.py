@@ -9,6 +9,7 @@ from pathlib import Path
 import attr
 import click
 from _pytask.config import hookimpl
+from _pytask.config import IGNORED_TEMPORARY_FILES_AND_FOLDERS
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.pluginmanager import get_plugin_manager
@@ -24,7 +25,7 @@ _HELP_TEXT_MODE = (
 )
 
 
-@hookimpl
+@hookimpl(tryfirst=True)
 def pytask_extend_command_line_interface(cli: click.Group):
     """Extend the command line interface."""
     cli.add_command(clean)
@@ -42,6 +43,15 @@ def pytask_parse_config(config, config_from_cli):
     config["directories"] = get_first_non_none_value(
         config_from_cli, key="directories", default=False
     )
+
+
+@hookimpl
+def pytask_post_parse(config):
+    """Correct ignore patterns such that caches, etc. will not be ignored."""
+    if config["command"] == "clean":
+        config["ignore"] = [
+            i for i in config["ignore"] if i not in IGNORED_TEMPORARY_FILES_AND_FOLDERS
+        ]
 
 
 @click.command()
@@ -73,6 +83,8 @@ def pytask_parse_config(config, config_from_cli):
 )
 def clean(**config_from_cli):
     """Clean provided paths by removing files unknown to pytask."""
+    config_from_cli["command"] = "clean"
+
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
         pm = get_plugin_manager()
@@ -103,24 +115,29 @@ def clean(**config_from_cli):
                 session, known_paths, include_directories
             )
 
-            targets = "Files"
-            if session.config["directories"]:
-                targets += " and directories"
-            click.echo(f"\n{targets} which can be removed:\n")
-            for path in unknown_paths:
-                if session.config["mode"] == "dry-run":
-                    click.echo(f"Would remove {path}.")
-                else:
-                    should_be_deleted = session.config[
-                        "mode"
-                    ] == "force" or click.confirm(f"Would you like to remove {path}?")
-                    if should_be_deleted:
-                        if not session.config["quiet"]:
-                            click.echo(f"Remove {path}.")
-                        if path.is_dir():
-                            shutil.rmtree(path)
-                        else:
-                            path.unlink()
+            if unknown_paths:
+                targets = "Files"
+                if session.config["directories"]:
+                    targets += " and directories"
+                click.echo(f"\n{targets} which can be removed:\n")
+                for path in unknown_paths:
+                    if session.config["mode"] == "dry-run":
+                        click.echo(f"Would remove {path}")
+                    else:
+                        should_be_deleted = session.config[
+                            "mode"
+                        ] == "force" or click.confirm(
+                            f"Would you like to remove {path}?"
+                        )
+                        if should_be_deleted:
+                            if not session.config["quiet"]:
+                                click.echo(f"Remove {path}")
+                            if path.is_dir():
+                                shutil.rmtree(path)
+                            else:
+                                path.unlink()
+            else:
+                click.echo("\nThere are no files and directories which can be deleted.")
 
             click.echo("")
 
@@ -178,7 +195,6 @@ def _find_all_unknown_paths(session, known_paths, include_directories):
     recursive_nodes = [
         _RecursivePathNode.from_path(path, known_paths, session)
         for path in session.config["paths"]
-        if not session.hook.pytask_ignore_collect(path=path, config=session.config)
     ]
     unknown_paths = list(
         itertools.chain.from_iterable(
@@ -237,15 +253,27 @@ class _RecursivePathNode:
             [
                 _RecursivePathNode.from_path(p, known_paths, session)
                 for p in path.iterdir()
-                if not session.hook.pytask_ignore_collect(path=p, config=session.config)
             ]
             if path.is_dir()
+            # Do not collect sub files and folders for ignored folders.
             and not session.hook.pytask_ignore_collect(path=path, config=session.config)
             else []
         )
-        is_unknown = (path.is_file() and path not in known_paths) or (
-            path.is_dir() and all(node.is_unknown for node in sub_nodes)
+
+        is_unknown_file = path.is_file() and not (
+            path in known_paths
+            # Ignored files are also known.
+            or session.hook.pytask_ignore_collect(path=path, config=session.config)
         )
+        is_unknown_directory = (
+            path.is_dir()
+            # True for folders and ignored folders without any sub nodes.
+            and all(node.is_unknown for node in sub_nodes)
+            # True for not ignored paths.
+            and not session.hook.pytask_ignore_collect(path=path, config=session.config)
+        )
+        is_unknown = is_unknown_file or is_unknown_directory
+
         return cls(path, sub_nodes, path.is_dir(), path.is_file(), is_unknown)
 
     def __repr__(self):
