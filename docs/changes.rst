@@ -11,6 +11,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 
 - :gh:`31` adds ``pytask collect`` to show information on collected tasks.
 - :gh:`32` fixes ``pytask clean``.
+- :gh:`33` adds a module to apply common parameters to the command line interface.
 - :gh:`34` skips ``pytask_collect_task_teardown`` if task is None.
 
 

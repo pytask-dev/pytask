@@ -8,7 +8,6 @@ from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from _pytask.shared import falsy_to_none_callback
 
 
 @hookimpl(tryfirst=True)
@@ -23,23 +22,7 @@ def pytask_parse_config(config, config_from_cli):
 
 
 @click.command()
-@click.argument(
-    "paths", nargs=-1, type=click.Path(exists=True), callback=falsy_to_none_callback
-)
 @click.option("--nodes", is_flag=True, help="Show a task's dependencies and products.")
-@click.option(
-    "--ignore",
-    type=str,
-    multiple=True,
-    help=(
-        "A pattern to ignore files or directories. For example, ``task_example.py`` or "
-        "``src/*``."
-    ),
-    callback=falsy_to_none_callback,
-)
-@click.option(
-    "-c", "--config", type=click.Path(exists=True), help="Path to configuration file."
-)
 def collect(**config_from_cli):
     """Collect tasks from paths."""
     config_from_cli["command"] = "collect"

@@ -10,12 +10,12 @@ from click_default_group import DefaultGroup
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 
-def _extend_command_line_interface(cli):
+def _extend_command_line_interface(command_line_interface):
     """Add parameters from plugins to the commandline interface."""
     pm = _prepare_plugin_manager()
-    pm.hook.pytask_extend_command_line_interface(cli=cli)
-    _sort_options_for_each_command_alphabetically(cli)
-    return cli
+    pm.hook.pytask_extend_command_line_interface(cli=command_line_interface)
+    _sort_options_for_each_command_alphabetically(command_line_interface)
+    return command_line_interface
 
 
 def _prepare_plugin_manager():
@@ -46,6 +46,7 @@ def pytask_add_hooks(pm):
     from _pytask import execute
     from _pytask import logging
     from _pytask import mark
+    from _pytask import parameters
     from _pytask import parametrize
     from _pytask import persist
     from _pytask import resolve_dependencies
@@ -61,6 +62,7 @@ def pytask_add_hooks(pm):
     pm.register(execute)
     pm.register(logging)
     pm.register(mark)
+    pm.register(parameters)
     pm.register(parametrize)
     pm.register(persist)
     pm.register(resolve_dependencies)

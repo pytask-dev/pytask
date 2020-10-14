@@ -46,7 +46,8 @@ def _filter_internal_traceback_frames(frame):
     """
     for frame in _yield_traceback_frames(frame):
         if frame is None or not _is_internal_traceback_frame(frame):
-            return frame
+            break
+    return frame
 
 
 def _yield_traceback_frames(frame):

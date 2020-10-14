@@ -161,9 +161,8 @@ def test_parse_parametrize_markers(
 def test_parametrizing_tasks(tmp_path):
     source = """
     import pytask
-    from pathlib import Path
 
-    @pytask.mark.parametrize('i, produces', [(1, Path("1.txt")), (2, Path("2.txt"))])
+    @pytask.mark.parametrize('i, produces', [(1, "1.txt"), (2, "2.txt")])
     def task_write_numbers_to_file(produces, i):
         produces.write_text(str(i))
     """
@@ -180,20 +179,16 @@ def test_parametrizing_tasks(tmp_path):
 def test_parametrizing_dependencies_and_targets(tmp_path):
     source = """
     import pytask
-    from pathlib import Path
 
-
-    @pytask.mark.parametrize('i, produces', [(1, Path("1.txt")), (2, Path("2.txt"))])
+    @pytask.mark.parametrize('i, produces', [(1, "1.txt"), (2, "2.txt")])
     def task_save_numbers(i, produces):
         produces.write_text(str(i))
 
-
     @pytask.mark.parametrize("depends_on, produces", [
-        (Path("1.txt"), Path("1_out.txt")), (Path("2.txt"), Path("2_out.txt"))
+        ("1.txt", "1_out.txt"), ("2.txt", "2_out.txt")
     ])
     def task_save_numbers_again(depends_on, produces):
         produces.write_text(depends_on.read_text())
-
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
@@ -205,20 +200,17 @@ def test_parametrizing_dependencies_and_targets(tmp_path):
 @pytest.mark.end_to_end
 def test_parametrize_iterator(tmp_path):
     """`parametrize` should work with generators."""
-    tmp_path.joinpath("task_dummy.py").write_text(
-        textwrap.dedent(
-            """
-            import pytask
-            def gen():
-                yield 1
-                yield 2
-                yield 3
-            @pytask.mark.parametrize('a', gen())
-            def task_func(a):
-                assert a >= 1
-            """
-        )
-    )
+    source = """
+    import pytask
+    def gen():
+        yield 1
+        yield 2
+        yield 3
+    @pytask.mark.parametrize('a', gen())
+    def task_func(a):
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
     session = main({"paths": tmp_path})
     assert session.exit_code == 0
     assert len(session.execution_reports) == 3
@@ -226,17 +218,14 @@ def test_parametrize_iterator(tmp_path):
 
 @pytest.mark.end_to_end
 def test_raise_error_if_function_does_not_use_parametrized_arguments(tmp_path):
-    tmp_path.joinpath("task_dummy.py").write_text(
-        textwrap.dedent(
-            """
-            import pytask
+    source = """
+    import pytask
 
-            @pytask.mark.parametrize('i', range(2))
-            def task_func():
-                pass
-            """
-        )
-    )
+    @pytask.mark.parametrize('i', range(2))
+    def task_func():
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
     session = main({"paths": tmp_path})
 
     assert session.exit_code == 1

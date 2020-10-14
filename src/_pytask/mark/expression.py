@@ -202,7 +202,11 @@ class Expression:
     def compile_(cls, input_: str) -> "Expression":
         """Compile a match expression.
 
-        :param input: The input expression - one line.
+        Parameters
+        ----------
+        input_: str
+            The input expression - one line.
+
         """
         astexpr = expression(Scanner(input_))
         code = compile(
