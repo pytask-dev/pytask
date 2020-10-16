@@ -75,6 +75,9 @@ def pytask_parametrize_task(session, name, obj):
     :func:`zip`, multiple ``@pytask.mark.parametrize`` decorators form a Cartesian
     product.
 
+    We cannot raise an error if the function does not use parametrized arguments since
+    some plugins will replace functions with their own implementation like pytask-r.
+
     """
     if callable(obj):
         obj, markers = _remove_parametrize_markers_from_func(obj)
@@ -125,11 +128,11 @@ def pytask_parametrize_task(session, name, obj):
 
 def _remove_parametrize_markers_from_func(obj):
     """Remove parametrize markers from the object."""
-    parametrize = [i for i in obj.pytaskmark if i.name == "parametrize"]
+    parametrize_markers = [i for i in obj.pytaskmark if i.name == "parametrize"]
     others = [i for i in obj.pytaskmark if i.name != "parametrize"]
     obj.pytaskmark = others
 
-    return obj, parametrize
+    return obj, parametrize_markers
 
 
 def _parse_parametrize_marker(marker):
@@ -336,9 +339,9 @@ def _copy_func(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
 
     Example
     -------
-    >>> def func(): pass
-    >>> copied_func = _copy_func(func)
-    >>> func == copied_func
+    >>> def _func(): pass
+    >>> copied_func = _copy_func(_func)
+    >>> _func == copied_func
     False
 
     """

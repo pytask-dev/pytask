@@ -12,7 +12,6 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from _pytask.shared import falsy_to_none_callback
 
 
 @hookimpl(tryfirst=True)
@@ -85,27 +84,11 @@ def main(config_from_cli):
 
 
 @click.command()
-@click.argument(
-    "paths", nargs=-1, type=click.Path(exists=True), callback=falsy_to_none_callback
-)
-@click.option(
-    "--ignore",
-    type=str,
-    multiple=True,
-    help=(
-        "A pattern to ignore files or directories. For example, ``task_example.py`` or "
-        "``src/*``."
-    ),
-    callback=falsy_to_none_callback,
-)
 @click.option(
     "--debug-pytask",
     is_flag=True,
     default=None,
     help="Trace all function calls in the plugin framework.  [default: False]",
-)
-@click.option(
-    "-c", "--config", type=click.Path(exists=True), help="Path to configuration file."
 )
 def build(**config_from_cli):
     """Collect and execute tasks and report the results.

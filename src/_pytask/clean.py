@@ -14,7 +14,6 @@ from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from _pytask.shared import falsy_to_none_callback
 from _pytask.shared import get_first_non_none_value
 
 
@@ -55,9 +54,6 @@ def pytask_post_parse(config):
 
 
 @click.command()
-@click.argument(
-    "paths", nargs=-1, type=click.Path(exists=True), callback=falsy_to_none_callback
-)
 @click.option(
     "-m",
     "--mode",
@@ -67,19 +63,6 @@ def pytask_post_parse(config):
 @click.option("-d", "--directories", is_flag=True, help="Remove whole directories.")
 @click.option(
     "-q", "--quiet", is_flag=True, help="Do not print the names of the removed paths."
-)
-@click.option(
-    "--ignore",
-    type=str,
-    multiple=True,
-    help=(
-        "A pattern to ignore files or directories. For example, ``task_example.py`` or "
-        "``src/*``."
-    ),
-    callback=falsy_to_none_callback,
-)
-@click.option(
-    "-c", "--config", type=click.Path(exists=True), help="Path to configuration file."
 )
 def clean(**config_from_cli):
     """Clean provided paths by removing files unknown to pytask."""

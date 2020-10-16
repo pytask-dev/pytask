@@ -37,9 +37,6 @@ __all__ = [
 
 
 @click.command()
-@click.option(
-    "-c", "--config", type=click.Path(exists=True), help="Path to configuration file."
-)
 def markers(**config_from_cli):
     """Show all registered markers."""
     config_from_cli["command"] = "markers"
