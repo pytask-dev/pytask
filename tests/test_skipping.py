@@ -12,6 +12,10 @@ from _pytask.skipping import pytask_execute_task_setup
 from pytask import main
 
 
+class DummyClass:
+    pass
+
+
 @pytest.mark.end_to_end
 def test_skip_unchanged(tmp_path):
     source = """
@@ -138,7 +142,9 @@ def test_pytask_execute_task_log_end(capsys, exception, character):
         report = ExecutionReport.from_task_and_exception((), SkippedAncestorFailed)
         report.success = True
     else:
-        report = ExecutionReport.from_task(())
+        dummy_task = DummyClass()
+        dummy_task._report_sections = None
+        report = ExecutionReport.from_task(dummy_task)
 
     out = pytask_execute_task_log_end(report)
 

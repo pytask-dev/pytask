@@ -1,4 +1,3 @@
-import math
 import sys
 import time
 import traceback
@@ -171,8 +170,14 @@ def pytask_execute_log_end(session, reports):
             click.echo("")
             traceback.print_exception(*report.exc_info)
             click.echo("")
+            if session.config["capture"] != "no":
+                for when, key, content in report.sections:
+                    click.echo(
+                        f"{{:-^{tm_width}}}".format(f" Captured {key} during {when} ")
+                    )
+                    click.echo(content)
 
-    duration = math.ceil(session.execution_end - session.execution_start)
+    duration = round(session.execution_end - session.execution_start, 2)
     click.echo(
         format_execute_footer(n_successful, n_failed, duration, tm_width), nl=True
     )

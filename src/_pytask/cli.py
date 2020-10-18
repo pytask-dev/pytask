@@ -37,6 +37,7 @@ def _sort_options_for_each_command_alphabetically(cli):
 def pytask_add_hooks(pm):
     """Add hooks."""
     from _pytask import build
+    from _pytask import capture
     from _pytask import clean
     from _pytask import collect
     from _pytask import collect_command
@@ -53,6 +54,7 @@ def pytask_add_hooks(pm):
     from _pytask import skipping
 
     pm.register(build)
+    pm.register(capture)
     pm.register(clean)
     pm.register(collect)
     pm.register(collect_command)

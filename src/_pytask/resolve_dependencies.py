@@ -39,7 +39,7 @@ def pytask_resolve_dependencies(session):
         )
 
     except Exception:
-        report = ResolvingDependenciesReport(sys.exc_info())
+        report = ResolvingDependenciesReport.from_exception(sys.exc_info())
         session.hook.pytask_resolve_dependencies_log(session=session, report=report)
         session.resolving_dependencies_report = report
 

@@ -65,21 +65,26 @@ class CollectionReportFile:
 class ResolvingDependenciesReport:
     exc_info = attr.ib()
 
+    @classmethod
+    def from_exception(cls, exc_info):
+        return cls(exc_info)
+
 
 @attr.s
 class ExecutionReport:
     task = attr.ib()
     success = attr.ib(type=bool)
     exc_info = attr.ib(default=None)
+    sections = attr.ib(factory=list)
 
     @classmethod
     def from_task_and_exception(cls, task, exc_info):
         exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
-        return cls(task, False, exc_info)
+        return cls(task, False, exc_info, task._report_sections)
 
     @classmethod
     def from_task(cls, task):
-        return cls(task, True)
+        return cls(task, True, None, task._report_sections)
 
 
 def format_execute_footer(n_successful, n_failed, duration, terminal_width):
@@ -93,7 +98,7 @@ def format_execute_footer(n_successful, n_failed, duration, terminal_width):
     message = " " + ", ".join(message) + " "
 
     color = ColorCode.FAILED.value if n_failed else ColorCode.SUCCESS.value
-    message += click.style(f"in {duration} second(s) ", fg=color)
+    message += click.style(f"in {duration}s ", fg=color)
 
     formatted_message = _wrap_string_ignoring_ansi_colors(
         message, color, terminal_width

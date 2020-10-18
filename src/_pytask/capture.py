@@ -1,6 +1,5 @@
 """Capture stdout and stderr during collection and execution.
 
-
 References
 ----------
 
@@ -11,41 +10,23 @@ References
 
 """
 import contextlib
-import functools
-import io
-import os
 import sys
-from io import UnsupportedOperation
-from tempfile import TemporaryFile
-from typing import Any
-from typing import AnyStr
 from typing import Generator
-from typing import Generic
-from typing import Iterator
-from typing import Optional
-from typing import TextIO
-from typing import Tuple
+from typing import Optional  # noqa: F401
 from typing import TYPE_CHECKING
 from typing import Union
 
 import click
 from _pytask.config import hookimpl
+from _pytask.nodes import MetaTask
 from _pytask.shared import get_first_non_none_value
 from _pytest.capture import _colorama_workaround
 from _pytest.capture import _get_multicapture
 from _pytest.capture import _py36_windowsconsoleio_workaround
 from _pytest.capture import _readline_workaround
-from _pytest.capture import CaptureIO
+from _pytest.capture import CaptureFixture  # noqa: F401
 from _pytest.capture import CaptureResult
-from _pytest.capture import DontReadFromInput
-from _pytest.capture import EncodedFile
-from _pytest.capture import FDCapture
-from _pytest.capture import FDCaptureBinary
-from _pytest.capture import MultiCapture
-from _pytest.capture import NoCapture
-from _pytest.capture import SysCapture
-from _pytest.capture import SysCaptureBinary
-from _pytest.capture import TeeCaptureIO
+from _pytest.capture import MultiCapture  # noqa: F401
 
 if TYPE_CHECKING:
     from typing_extensions import Literal
@@ -58,13 +39,12 @@ def pytask_extend_command_line_interface(cli):
     additional_parameters = [
         click.Option(
             ["--capture"],
-            metavar="METHOD",
             type=click.Choice(["fd", "no", "sys", "tee-sys"]),
             help="Per task capturing method.  [default: fd]",
         ),
         click.Option(["-s"], is_flag=True, help="Shortcut for --capture=no"),
     ]
-    click.commands["build"].params.extend(additional_parameters)
+    cli.commands["build"].params.extend(additional_parameters)
 
 
 @hookimpl
@@ -91,6 +71,9 @@ def pytask_post_parse(config):
     pluginmanager = config["pm"]
     capman = CaptureManager(config["capture"])
     pluginmanager.register(capman, "capturemanager")
+    capman.stop_global_capturing()
+    capman.start_global_capturing()
+    capman.suspend_global_capture()
 
 
 def _capture_callback(x):
@@ -105,37 +88,29 @@ def _capture_callback(x):
 class CaptureManager:
     """The capture plugin.
 
-    Manages that the appropriate capture method is enabled/disabled during
-    collection and each test phase (setup, call, teardown). After each of
-    those points, the captured output is obtained and attached to the
-    collection/runtest report.
+    Manages that the appropriate capture method is enabled/disabled during collection
+    and each test phase (setup, call, teardown). After each of those points, the
+    captured output is obtained and attached to the collection/runtest report.
 
     There are two levels of capture:
 
-    * global: enabled by default and can be suppressed by the ``-s``
-      option. This is always enabled/disabled during collection and each test
-      phase.
-    * fixture: when a test function or one of its fixture depend on the
-      ``capsys`` or ``capfd`` fixtures. In this case special handling is
-      needed to ensure the fixtures take precedence over the global capture.
+    * global: enabled by default and can be suppressed by the ``-s`` option. This is
+      always enabled/disabled during collection and each test phase.
 
     """
 
     def __init__(self, method: "_CaptureMethod") -> None:
         self._method = method
         self._global_capturing = None  # type: Optional[MultiCapture[str]]
-        self._capture_fixture = None  # type: Optional[CaptureFixture[Any]]
 
     def __repr__(self) -> str:
-        return "<CaptureManager _method={!r} _global_capturing={!r} _capture_fixture={!r}>".format(
-            self._method, self._global_capturing, self._capture_fixture
+        return ("<CaptureManager _method={!r} _global_capturing={!r} ").format(
+            self._method, self._global_capturing
         )
 
     def is_capturing(self) -> Union[str, bool]:
         if self.is_globally_capturing():
             return "global"
-        if self._capture_fixture:
-            return "fixture %s" % self._capture_fixture.request.fixturename
         return False
 
     # Global capturing control
@@ -166,57 +141,20 @@ class CaptureManager:
 
     def suspend(self, in_: bool = False) -> None:
         # Need to undo local capsys-et-al if it exists before disabling global capture.
-        self.suspend_fixture()
         self.suspend_global_capture(in_)
 
     def resume(self) -> None:
         self.resume_global_capture()
-        self.resume_fixture()
 
     def read_global_capture(self) -> CaptureResult[str]:
         assert self._global_capturing is not None
         return self._global_capturing.readouterr()
 
-    # Fixture Control
-
-    def set_fixture(self, capture_fixture: "CaptureFixture[Any]") -> None:
-        if self._capture_fixture:
-            current_fixture = self._capture_fixture.request.fixturename
-            requested_fixture = capture_fixture.request.fixturename
-            capture_fixture.request.raiseerror(
-                "cannot use {} and {} at the same time".format(
-                    requested_fixture, current_fixture
-                )
-            )
-        self._capture_fixture = capture_fixture
-
-    def unset_fixture(self) -> None:
-        self._capture_fixture = None
-
-    def activate_fixture(self) -> None:
-        """If the current item is using ``capsys`` or ``capfd``, activate
-        them so they take precedence over the global capture."""
-        if self._capture_fixture:
-            self._capture_fixture._start()
-
-    def deactivate_fixture(self) -> None:
-        """Deactivate the ``capsys`` or ``capfd`` fixture of this item, if any."""
-        if self._capture_fixture:
-            self._capture_fixture.close()
-
-    def suspend_fixture(self) -> None:
-        if self._capture_fixture:
-            self._capture_fixture._suspend()
-
-    def resume_fixture(self) -> None:
-        if self._capture_fixture:
-            self._capture_fixture._resume()
-
     # Helper context managers
 
     @contextlib.contextmanager
     def global_and_fixture_disabled(self) -> Generator[None, None, None]:
-        """Context manager to temporarily disable global and current fixture capturing."""
+        """Context manager to temporarily disable global capturing."""
         do_fixture = self._capture_fixture and self._capture_fixture._is_started()
         if do_fixture:
             self.suspend_fixture()
@@ -232,7 +170,7 @@ class CaptureManager:
                 self.resume_fixture()
 
     @contextlib.contextmanager
-    def item_capture(self, when: str, item: Item) -> Generator[None, None, None]:
+    def task_capture(self, when: str, task: MetaTask) -> Generator[None, None, None]:
         self.resume_global_capture()
         self.activate_fixture()
         try:
@@ -242,45 +180,24 @@ class CaptureManager:
             self.suspend_global_capture(in_=False)
 
         out, err = self.read_global_capture()
-        item.add_report_section(when, "stdout", out)
-        item.add_report_section(when, "stderr", err)
+        task.add_report_section(when, "stdout", out)
+        task.add_report_section(when, "stderr", err)
 
     # Hooks
 
     @hookimpl(hookwrapper=True)
-    def pytest_make_collect_report(self, collector: Collector):
-        if isinstance(collector, pytest.File):
-            self.resume_global_capture()
-            outcome = yield
-            self.suspend_global_capture()
-            out, err = self.read_global_capture()
-            rep = outcome.get_result()
-            if out:
-                rep.sections.append(("Captured stdout", out))
-            if err:
-                rep.sections.append(("Captured stderr", err))
-        else:
+    def pytask_execute_task_setup(self, task: MetaTask) -> Generator[None, None, None]:
+        with self.task_capture("setup", task):
             yield
 
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task_setup(self, item: Item) -> Generator[None, None, None]:
-        with self.item_capture("setup", item):
+    def pytask_execute_task(self, task: MetaTask) -> Generator[None, None, None]:
+        with self.task_capture("call", task):
             yield
 
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task(self, item: Item) -> Generator[None, None, None]:
-        with self.item_capture("call", item):
+    def pytask_execute_task_teardown(
+        self, task: MetaTask
+    ) -> Generator[None, None, None]:
+        with self.task_capture("teardown", task):
             yield
-
-    @hookimpl(hookwrapper=True)
-    def pytask_execute_task_teardown(self, item: Item) -> Generator[None, None, None]:
-        with self.item_capture("teardown", item):
-            yield
-
-    # @hookimpl(tryfirst=True)
-    # def pytest_keyboard_interrupt(self) -> None:
-    #     self.stop_global_capturing()
-
-    # @hookimpl(tryfirst=True)
-    # def pytest_internalerror(self) -> None:
-    #     self.stop_global_capturing()
