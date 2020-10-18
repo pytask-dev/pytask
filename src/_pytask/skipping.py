@@ -1,3 +1,4 @@
+"""This module contains everything related to skipping tasks."""
 import click
 from _pytask.config import hookimpl
 from _pytask.dag import descending_tasks
@@ -11,6 +12,7 @@ from _pytask.traceback import remove_traceback_from_exc_info
 
 
 def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
+    """Function to parse information in ``@pytask.mark.skip_ancestor_failed``."""
     return reason
 
 
@@ -28,6 +30,7 @@ def pytask_parse_config(config):
 
 @hookimpl
 def pytask_execute_task_setup(task):
+    """Take a short-cut for skipped tasks during setup with an exception."""
     markers = get_specific_markers_from_task(task, "skip_unchanged")
     if markers:
         raise SkippedUnchanged
@@ -46,6 +49,11 @@ def pytask_execute_task_setup(task):
 
 @hookimpl
 def pytask_execute_task_process_report(session, report):
+    """Process the execution reports for skipped tasks.
+
+    This functions allows to turn skipped tasks to successful tasks.
+
+    """
     task = report.task
 
     if report.exc_info:
@@ -76,6 +84,7 @@ def pytask_execute_task_process_report(session, report):
 
 @hookimpl
 def pytask_execute_task_log_end(report):
+    """Log the status of a skipped task."""
     if report.success:
         if report.exc_info:
             if isinstance(report.exc_info[1], Skipped):
