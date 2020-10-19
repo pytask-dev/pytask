@@ -1,3 +1,4 @@
+"""This module contains everything related to debugging."""
 import functools
 import pdb
 import sys
@@ -70,6 +71,7 @@ class PdbDebugger:
     @staticmethod
     @hookimpl(hookwrapper=True)
     def pytask_execute_task(session, task):
+        """Execute a task by wrapping the function with post-mortem debugger."""
         if isinstance(task, PythonFunctionTask):
             task.function = wrap_function_for_post_mortem_debugging(
                 session, task.function
@@ -119,6 +121,7 @@ class PdbTrace:
     @staticmethod
     @hookimpl(hookwrapper=True)
     def pytask_execute_task(session, task):
+        """Wrapping the task function with a tracer."""
         if isinstance(task, PythonFunctionTask):
             task.function = wrap_function_for_tracing(session, task.function)
         yield
