@@ -11,6 +11,8 @@ from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 
 @attr.s
 class CollectionReport:
+    """A general collection report."""
+
     title = attr.ib(type=str)
     exc_info = attr.ib(type=tuple)
 
@@ -24,6 +26,8 @@ class CollectionReport:
 
 @attr.s
 class CollectionReportTask:
+    """A collection report for a task."""
+
     path = attr.ib(type=Path)
     name = attr.ib(type=str)
     task = attr.ib(default=None)
@@ -47,6 +51,8 @@ class CollectionReportTask:
 
 @attr.s
 class CollectionReportFile:
+    """A collection report for a file."""
+
     path = attr.ib(type=Path)
     exc_info = attr.ib(default=None)
 
@@ -64,6 +70,8 @@ class CollectionReportFile:
 
 @attr.s
 class ResolvingDependenciesReport:
+    """A report for an error while resolving dependencies."""
+
     exc_info = attr.ib()
 
     @classmethod
@@ -73,6 +81,8 @@ class ResolvingDependenciesReport:
 
 @attr.s
 class ExecutionReport:
+    """A report for an executed task."""
+
     task = attr.ib()
     success = attr.ib(type=bool)
     exc_info = attr.ib(default=None)

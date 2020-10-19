@@ -118,17 +118,35 @@ class PdbTrace:
 
     @staticmethod
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task(task):
+    def pytask_execute_task(session, task):
         if isinstance(task, PythonFunctionTask):
-            task.function = wrap_function_for_tracing(task.function)
+            task.function = wrap_function_for_tracing(session, task.function)
         yield
 
 
-def wrap_function_for_tracing(function):
+def wrap_function_for_tracing(session, function):
     """Wrap the function for tracing."""
 
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
+        capman = session.config["pm"].get_plugin("capturemanager")
+        tm_width = session.config["terminal_width"]
+
+        capman.suspend_global_capture(in_=True)
+        out, err = capman.read_global_capture()
+
+        if out:
+            click.echo(f"{{:-^{tm_width}}}".format(" Captured stdout "))
+            sys.stdout.write(out)
+
+        if err:
+            click.echo(f"{{:-^{tm_width}}}".format(" Captured stderr "))
+            sys.stdout.write(err)
+
+        click.echo(f"{{:>^{tm_width}}}".format(" Entering debugger "))
+
         pdb.runcall(function, *args, **kwargs)
+
+        capman.resume_global_capture()
 
     return wrapper

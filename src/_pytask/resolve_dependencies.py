@@ -51,6 +51,7 @@ def pytask_resolve_dependencies(session):
 
 @hookimpl
 def pytask_resolve_dependencies_create_dag(tasks):
+    """Create the DAG from tasks, dependencies and products."""
     dag = nx.DiGraph()
 
     for task in tasks:
@@ -69,6 +70,7 @@ def pytask_resolve_dependencies_create_dag(tasks):
 
 @hookimpl
 def pytask_resolve_dependencies_select_execution_dag(dag):
+    """Select the tasks which need to be executed."""
     tasks = list(sort_tasks_topologically(dag))
     visited_nodes = []
     for task_name in tasks:
@@ -85,11 +87,13 @@ def pytask_resolve_dependencies_select_execution_dag(dag):
 
 @hookimpl
 def pytask_resolve_dependencies_validate_dag(dag):
+    """Validate the DAG."""
     _check_if_dag_has_cycles(dag)
     _check_if_root_nodes_are_available(dag)
 
 
 def _have_task_or_neighbors_changed(task_name, dag):
+    """Indicate whether dependencies or products of a task have changed."""
     return any(
         _has_node_changed(task_name, dag.nodes[node])
         for node in node_and_neighbors(dag, task_name)
@@ -98,6 +102,7 @@ def _have_task_or_neighbors_changed(task_name, dag):
 
 @orm.db_session
 def _has_node_changed(task_name: str, node_dict):
+    """Indicate whether a single dependency or product has changed."""
     node = node_dict.get("task") or node_dict["node"]
     try:
         state = node.state()
@@ -112,6 +117,7 @@ def _has_node_changed(task_name: str, node_dict):
 
 
 def _check_if_dag_has_cycles(dag):
+    """Check if DAG has cycles."""
     try:
         cycles = nx.algorithms.cycles.find_cycle(dag)
     except nx.NetworkXNoCycle:
@@ -142,6 +148,7 @@ def _check_if_root_nodes_are_available(dag):
 
 @hookimpl
 def pytask_resolve_dependencies_log(session, report):
+    """Log errors which happened while resolving dependencies."""
     tm_width = session.config["terminal_width"]
 
     click.echo(f"{{:=^{tm_width}}}".format(" Errors while resolving dependencies "))
