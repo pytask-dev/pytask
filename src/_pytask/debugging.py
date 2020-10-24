@@ -9,6 +9,7 @@ from _pytask.config import hookimpl
 from _pytask.nodes import PythonFunctionTask
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
+from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 
 
 @hookimpl
@@ -66,12 +67,19 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
 
 
 def _pdbcls_callack(x):
+    """Validate the debugger class string passed to pdbcls."""
+    message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
+
     if x in [None, "None", "none"]:
         x = None
     elif isinstance(x, str):
+        if len(x.split(":")) != 2:
+            raise ValueError(message)
         pass
     else:
-        raise ValueError("'pdbcls' must be like IPython.terminal.debugger:TerminalPdb")
+        raise ValueError(message)
+
+    return x
 
 
 @hookimpl(trylast=True)
@@ -320,18 +328,17 @@ def wrap_function_for_post_mortem_debugging(session, task):
 
             if out:
                 click.echo(f"{{:-^{tm_width}}}".format(" Captured stdout "))
-                sys.stdout.write(out)
+                click.echo(out)
 
             if err:
                 click.echo(f"{{:-^{tm_width}}}".format(" Captured stderr "))
-                sys.stdout.write(err)
+                click.echo(err)
 
-            click.echo(f"{{:>^{tm_width}}}".format(" Traceback: "))
-            traceback.print_exc()
+            exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
 
-            click.echo(f"{{:>^{tm_width}}}".format(" Entering debugger "))
+            click.echo(f"{{:>^{tm_width}}}".format(" Traceback "))
+            traceback.print_exception(*exc_info)
 
-            exc_info = sys.exc_info()
             tb = _postmortem_traceback(exc_info)
             post_mortem(tb)
 
@@ -373,13 +380,11 @@ def wrap_function_for_tracing(session, task):
 
         if out:
             click.echo(f"{{:-^{tm_width}}}".format(" Captured stdout "))
-            sys.stdout.write(out)
+            click.echo(out)
 
         if err:
             click.echo(f"{{:-^{tm_width}}}".format(" Captured stderr "))
-            sys.stdout.write(err)
-
-        click.echo(f"{{:>^{tm_width}}}".format(" Entering debugger "))
+            click.echo(err)
 
         _pdb.runcall(task_function, *args, **kwargs)
 
