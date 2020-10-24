@@ -75,7 +75,8 @@ def _pdbcls_callack(x):
     elif isinstance(x, str):
         if len(x.split(":")) != 2:
             raise ValueError(message)
-        pass
+        else:
+            x = x.split(":")
     else:
         raise ValueError(message)
 
@@ -147,7 +148,7 @@ class PytaskPDB:
             except Exception as exc:
                 value = ":".join((modname, classname))
                 raise ValueError(
-                    f"--pdbcls: could not import {value!r}: {exc}"
+                    f"--pdbcls: could not import {value!r}: {exc}."
                 ) from exc
         else:
             import pdb
