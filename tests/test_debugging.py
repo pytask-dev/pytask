@@ -88,6 +88,7 @@ def test_trace_w_kwargs(tmp_path):
 
 @pytest.mark.end_to_end
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
+@pytest.mark.skipif(sys.version_info < (3, 7), reason="breakpoint is Python 3.7+ only.")
 def test_breakpoint(tmp_path):
     source = """
     def task_dummy():
