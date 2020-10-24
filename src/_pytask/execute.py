@@ -166,10 +166,20 @@ def pytask_execute_log_end(session, reports):
 
     for report in reports:
         if not report.success:
-            click.echo(f"{{:_^{tm_width}}}".format(f" Task {report.task.name} failed "))
+
+            message = f" Task {report.task.name} failed "
+            if len(message) > tm_width:
+                click.echo("_" * tm_width)
+                click.echo(message)
+            else:
+                click.echo(f"{{:_^{tm_width}}}".format(message))
+
             click.echo("")
+
             traceback.print_exception(*report.exc_info)
+
             click.echo("")
+
             if session.config["capture"] != "no":
                 for when, key, content in report.sections:
                     click.echo(
