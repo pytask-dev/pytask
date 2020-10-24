@@ -247,7 +247,7 @@ def test_pdb_interaction_capturing_twice(tmp_path):
     child.expect("Pdb")
     child.sendline("c")
     child.expect(r"PDB continue \(IO-capturing resumed\)")
-    child.expect("task_1 failed _")
+    child.expect("task_1 failed")
     rest = child.read().decode("utf8")
     assert "Captured stdout during call" in rest
     assert "hello17" in rest  # out is captured
