@@ -10,6 +10,13 @@ except ModuleNotFoundError:
     pytestmark = pytest.mark.skip(reason="pexpect is not installed.")
 
 
+def _flush(child):
+    if child.isalive():
+        child.read()
+        child.wait()
+    assert not child.isalive()
+
+
 @pytest.mark.end_to_end
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_post_mortem_on_error(tmp_path):
@@ -26,6 +33,7 @@ def test_post_mortem_on_error(tmp_path):
     child.sendline("p a + b;; continue")
     rest = child.read().decode("utf-8")
     assert "'I am in the debugger. For real!'" in rest
+    _flush(child)
 
 
 @pytest.mark.end_to_end
@@ -48,6 +56,7 @@ def test_post_mortem_on_error_w_kwargs(tmp_path):
     child.sendline("p a;; continue")
     rest = child.read().decode("utf-8")
     assert "Stuck in the middle with you" in rest
+    _flush(child)
 
 
 @pytest.mark.end_to_end
@@ -64,6 +73,7 @@ def test_trace(tmp_path):
     child.sendline("n;; p i;; p i + 1;; p i + 2;; continue")
     rest = child.read().decode("utf-8")
     assert all(str(i) in rest for i in [32345434, 32345435, 32345436])
+    _flush(child)
 
 
 @pytest.mark.end_to_end
@@ -85,6 +95,7 @@ def test_trace_w_kwargs(tmp_path):
     child.sendline("n;; continue")
     rest = child.read().decode("utf-8")
     assert "I want you back." in rest
+    _flush(child)
 
 
 @pytest.mark.end_to_end
@@ -103,6 +114,7 @@ def test_breakpoint(tmp_path):
     child.sendline("p i;; p i + 1;; p i + 2;; continue")
     rest = child.read().decode("utf-8")
     assert all(str(i) in rest for i in [32345434, 32345435, 32345436])
+    _flush(child)
 
 
 @pytest.mark.end_to_end
@@ -121,6 +133,7 @@ def test_pdb_set_trace(tmp_path):
     child.sendline("p i;; p i + 1;; p i + 2;; continue")
     rest = child.read().decode("utf-8")
     assert all(str(i) in rest for i in [32345434, 32345435, 32345436])
+    _flush(child)
 
 
 @pytest.mark.end_to_end
@@ -147,6 +160,7 @@ def test_pdb_interaction_capturing_simple(tmp_path):
     assert "1 failed" in rest
     assert "task_1" in rest
     assert "hello17" in rest  # out is captured
+    _flush(child)
 
 
 @pytest.mark.end_to_end
@@ -172,6 +186,7 @@ def test_pdb_set_trace_kwargs(tmp_path):
     assert "1 failed" in rest
     assert "task_1" in rest
     assert "hello17" in rest  # out is captured
+    _flush(child)
 
 
 @pytest.mark.end_to_end
@@ -193,6 +208,7 @@ def test_pdb_set_trace_interception(tmp_path):
     assert "reading from stdin while output" not in rest
     assert "BdbQuit" not in rest
     assert "Quitting debugger" in rest
+    _flush(child)
 
 
 @pytest.mark.end_to_end
@@ -214,8 +230,7 @@ def test_set_trace_capturing_afterwards(tmp_path):
     child.expect("task_2")
     child.expect("Captured")
     child.expect("hello")
-    child.sendeof()
-    child.read()
+    _flush(child)
 
 
 @pytest.mark.end_to_end
@@ -253,6 +268,7 @@ def test_pdb_interaction_capturing_twice(tmp_path):
     assert "hello17" in rest  # out is captured
     assert "hello18" in rest  # out is captured
     assert "1 failed" in rest
+    _flush(child)
 
 
 @pytest.mark.end_to_end
@@ -331,6 +347,7 @@ def test_pdb_with_injected_do_debug(tmp_path):
     assert "hello18" in rest  # out is captured
     assert "1 failed" in rest
     assert "AssertionError: unexpected_failure" in rest
+    _flush(child)
 
 
 @pytest.mark.end_to_end
@@ -349,6 +366,7 @@ def test_pdb_without_capture(tmp_path):
     child.sendline("c")
     child.expect(r"PDB continue")
     child.expect("1 succeeded")
+    _flush(child)
 
 
 @pytest.mark.end_to_end
@@ -365,3 +383,4 @@ def test_pdb_used_outside_test(tmp_path):
     child.expect("x = 5")
     child.expect("Pdb")
     child.sendeof()
+    _flush(child)
