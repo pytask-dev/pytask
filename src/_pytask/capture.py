@@ -57,7 +57,7 @@ def pytask_extend_command_line_interface(cli):
             type=click.Choice(["fd", "no", "sys", "tee-sys"]),
             help="Per task capturing method.  [default: fd]",
         ),
-        click.Option(["-s"], is_flag=True, help="Shortcut for --capture=no"),
+        click.Option(["-s"], is_flag=True, help="Shortcut for --capture=no."),
     ]
     cli.commands["build"].params.extend(additional_parameters)
 

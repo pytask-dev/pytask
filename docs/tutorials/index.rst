@@ -18,3 +18,4 @@ organize and start your own project.
    how_to_clean
    how_to_collect
    how_to_make_tasks_persist
+   how_to_capture
