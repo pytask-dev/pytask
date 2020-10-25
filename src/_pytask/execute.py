@@ -179,7 +179,6 @@ def pytask_execute_log_end(session, reports):
             traceback.print_exception(*report.exc_info)
 
             click.echo("")
-
             if session.config["capture"] != "no":
                 for when, key, content in report.sections:
                     click.echo(

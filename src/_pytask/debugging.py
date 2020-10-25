@@ -340,8 +340,7 @@ def wrap_function_for_post_mortem_debugging(session, task):
             click.echo(f"{{:>^{tm_width}}}".format(" Traceback "))
             traceback.print_exception(*exc_info)
 
-            tb = _postmortem_traceback(exc_info)
-            post_mortem(tb)
+            post_mortem(exc_info[2])
 
             capman.resume_global_capture()
 
@@ -368,9 +367,9 @@ def wrap_function_for_tracing(session, task):
     _pdb = PytaskPDB._init_pdb("runcall")
     task_function = task.function
 
-    # We can't just return `partial(pdb.runcall, testfunction)` because (on python <
+    # We can't just return `partial(pdb.runcall, task_function)` because (on python <
     # 3.7.4) runcall's first param is `func`, which means we'd get an exception if one
-    # of the kwargs to testfunction was called `func`.
+    # of the kwargs to task_function was called `func`.
     @functools.wraps(task_function)
     def wrapper(*args, **kwargs):
         capman = session.config["pm"].get_plugin("capturemanager")
@@ -392,20 +391,6 @@ def wrap_function_for_tracing(session, task):
         capman.resume_global_capture()
 
     task.function = wrapper
-
-
-def _postmortem_traceback(exc_info):
-    from doctest import UnexpectedException
-
-    if isinstance(exc_info[1], UnexpectedException):
-        # A doctest.UnexpectedException is not useful for post_mortem.
-        # Use the underlying exception instead:
-        traceback = exc_info[1].exc_info[2]
-    else:
-        assert exc_info is not None
-        traceback = exc_info[2]
-
-    return traceback
 
 
 def post_mortem(t) -> None:
