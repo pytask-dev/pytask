@@ -58,6 +58,14 @@ def pytask_extend_command_line_interface(cli):
             help="Per task capturing method.  [default: fd]",
         ),
         click.Option(["-s"], is_flag=True, help="Shortcut for --capture=no."),
+        click.Option(
+            ["--show-capture"],
+            type=click.Choice(["no", "stdout", "stderr", "all"]),
+            help=(
+                "Choose which captured output should be shown for failed tasks.  "
+                "[default: all]"
+            ),
+        ),
     ]
     cli.commands["build"].params.extend(additional_parameters)
 
@@ -79,6 +87,14 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
             default="fd",
             callback=_capture_callback,
         )
+
+    config["show_capture"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="show_capture",
+        default="all",
+        callback=_show_capture_callback,
+    )
 
 
 @hookimpl
@@ -105,6 +121,22 @@ def _capture_callback(x):
         pass
     else:
         raise ValueError("'capture' can only be one of ['fd', 'no', 'sys', 'tee-sys'].")
+
+    return x
+
+
+def _show_capture_callback(x):
+    """Validate the passed options for showing captured output."""
+    if x in [None, "None", "none"]:
+        x = None
+    elif x in ["no", "stdout", "stderr", "all"]:
+        pass
+    else:
+        raise ValueError(
+            "'show_capture' must be one of ['no', 'stdout', 'stderr', 'all']."
+        )
+
+    return x
 
 
 # Copied from pytest.

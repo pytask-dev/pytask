@@ -21,7 +21,7 @@ from _pytask.report import CollectionReportTask
 def pytask_collect(session):
     """Collect tasks."""
     reports = _collect_from_paths(session)
-    tasks = _extract_tasks_from_reports(reports)
+    tasks = _extract_successful_tasks_from_reports(reports)
 
     try:
         session.hook.pytask_collect_modify_tasks(session=session, tasks=tasks)
@@ -91,6 +91,7 @@ def pytask_collect_file_protocol(session, path, reports):
 
 @hookimpl
 def pytask_collect_file(session, path, reports):
+    """Collect a file."""
     if any(path.match(pattern) for pattern in session.config["task_files"]):
         spec = importlib.util.spec_from_file_location(path.stem, str(path))
 
@@ -121,6 +122,7 @@ def pytask_collect_file(session, path, reports):
 
 @hookimpl
 def pytask_collect_task_protocol(session, reports, path, name, obj):
+    """Start protocol for collecting a task."""
     try:
         session.hook.pytask_collect_task_setup(
             session=session, reports=reports, path=path, name=name, obj=obj
@@ -204,12 +206,14 @@ def valid_paths(paths, session):
                 yield path
 
 
-def _extract_tasks_from_reports(reports):
+def _extract_successful_tasks_from_reports(reports):
+    """Extract successful tasks from reports."""
     return [i.task for i in reports if i.successful]
 
 
 @hookimpl
 def pytask_collect_log(session, reports, tasks):
+    """Log collection."""
     tm_width = session.config["terminal_width"]
 
     message = f"Collected {len(tasks)} task(s)."

@@ -62,11 +62,11 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         config_from_file,
         key="pdbcls",
         default=None,
-        callback=_pdbcls_callack,
+        callback=_pdbcls_callback,
     )
 
 
-def _pdbcls_callack(x):
+def _pdbcls_callback(x):
     """Validate the debugger class string passed to pdbcls."""
     message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
 
@@ -76,7 +76,7 @@ def _pdbcls_callack(x):
         if len(x.split(":")) != 2:
             raise ValueError(message)
         else:
-            x = x.split(":")
+            x = tuple(x.split(":"))
     else:
         raise ValueError(message)
 
