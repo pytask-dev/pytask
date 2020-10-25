@@ -74,6 +74,7 @@ def markers(**config_from_cli):
 
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
+    """Add marker related options."""
     additional_build_parameters = [
         click.Option(
             ["--strict-markers"],
@@ -103,6 +104,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(config, config_from_cli, config_from_file):
+    """Parse marker related options."""
     markers = _read_marker_mapping_from_ini(config_from_file.get("markers", ""))
     config["markers"] = {**markers, **config["markers"]}
     config["strict_markers"] = get_first_non_none_value(
@@ -121,6 +123,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
 
 
 def _read_marker_mapping_from_ini(string: str) -> dict:
+    """Read marker descriptions from configuration file."""
     # Split by newlines and remove empty strings.
     lines = filter(lambda x: bool(x), string.split("\n"))
     mapping = {}
@@ -182,6 +185,7 @@ class KeywordMatcher:
 
 
 def deselect_by_keyword(session, tasks) -> None:
+    """Deselect tests by keywords."""
     keywordexpr = session.config["expression"]
     if not keywordexpr:
         return
@@ -226,6 +230,7 @@ class MarkMatcher:
 
 
 def deselect_by_mark(session, tasks) -> None:
+    """Deselect tests by marks."""
     matchexpr = session.config["marker_expression"]
     if not matchexpr:
         return
@@ -250,5 +255,6 @@ def deselect_by_mark(session, tasks) -> None:
 
 @hookimpl
 def pytask_collect_modify_tasks(session, tasks):
+    """Modify the list of collected tasks with expressions and markers."""
     deselect_by_keyword(session, tasks)
     deselect_by_mark(session, tasks)

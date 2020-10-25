@@ -1,5 +1,7 @@
+"""This module contains everything related to debugging."""
 import functools
 import pdb
+import sys
 import traceback
 
 import click
@@ -68,22 +70,46 @@ class PdbDebugger:
 
     @staticmethod
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task(task):
+    def pytask_execute_task(session, task):
+        """Execute a task by wrapping the function with post-mortem debugger."""
         if isinstance(task, PythonFunctionTask):
-            task.function = wrap_function_for_post_mortem_debugging(task.function)
+            task.function = wrap_function_for_post_mortem_debugging(
+                session, task.function
+            )
         yield
 
 
-def wrap_function_for_post_mortem_debugging(function):
+def wrap_function_for_post_mortem_debugging(session, function):
     """Wrap the function for post-mortem debugging."""
 
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
+        capman = session.config["pm"].get_plugin("capturemanager")
+        tm_width = session.config["terminal_width"]
         try:
             function(*args, **kwargs)
+
         except Exception as e:
+            capman.suspend_global_capture(in_=True)
+            out, err = capman.read_global_capture()
+
+            if out:
+                click.echo(f"{{:-^{tm_width}}}".format(" Captured stdout "))
+                sys.stdout.write(out)
+
+            if err:
+                click.echo(f"{{:-^{tm_width}}}".format(" Captured stderr "))
+                sys.stdout.write(err)
+
+            click.echo(f"{{:>^{tm_width}}}".format(" Traceback: "))
             traceback.print_exc()
+
+            click.echo(f"{{:>^{tm_width}}}".format(" Entering debugger "))
+
             pdb.post_mortem()
+
+            capman.resume_global_capture()
+
             raise e
 
     return wrapper
@@ -94,17 +120,36 @@ class PdbTrace:
 
     @staticmethod
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task(task):
+    def pytask_execute_task(session, task):
+        """Wrapping the task function with a tracer."""
         if isinstance(task, PythonFunctionTask):
-            task.function = wrap_function_for_tracing(task.function)
+            task.function = wrap_function_for_tracing(session, task.function)
         yield
 
 
-def wrap_function_for_tracing(function):
+def wrap_function_for_tracing(session, function):
     """Wrap the function for tracing."""
 
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
+        capman = session.config["pm"].get_plugin("capturemanager")
+        tm_width = session.config["terminal_width"]
+
+        capman.suspend_global_capture(in_=True)
+        out, err = capman.read_global_capture()
+
+        if out:
+            click.echo(f"{{:-^{tm_width}}}".format(" Captured stdout "))
+            sys.stdout.write(out)
+
+        if err:
+            click.echo(f"{{:-^{tm_width}}}".format(" Captured stderr "))
+            sys.stdout.write(err)
+
+        click.echo(f"{{:>^{tm_width}}}".format(" Entering debugger "))
+
         pdb.runcall(function, *args, **kwargs)
+
+        capman.resume_global_capture()
 
     return wrapper

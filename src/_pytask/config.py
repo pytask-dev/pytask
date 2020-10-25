@@ -25,8 +25,13 @@ IGNORED_FOLDERS = [
     ".venv/*",
 ]
 
-IGNORED_FILES = [".pre-commit-config.yaml", ".readthedocs.yml", ".codecov.yml"]
-
+IGNORED_FILES = [
+    ".codecov.yml",
+    ".gitignore",
+    ".pre-commit-config.yaml",
+    ".readthedocs.yml",
+    "environment.yml",
+]
 
 IGNORED_FILES_AND_FOLDERS = IGNORED_FILES + IGNORED_FOLDERS
 

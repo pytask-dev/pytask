@@ -74,6 +74,7 @@ class PythonFunctionTask(MetaTask):
     """List[MetaNode]: A list of products of task."""
     markers = attr.ib()
     """Optional[List[Mark]]: A list of markers attached to the task function."""
+    _report_sections = attr.ib(factory=list)
 
     @classmethod
     def from_path_name_function_session(cls, path, name, function, session):
@@ -122,6 +123,10 @@ class PythonFunctionTask(MetaTask):
                 )
 
         return kwargs
+
+    def add_report_section(self, when: str, key: str, content: str):
+        if content:
+            self._report_sections.append((when, key, content))
 
 
 class MetaNode(metaclass=ABCMeta):

@@ -13,6 +13,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`32` fixes ``pytask clean``.
 - :gh:`33` adds a module to apply common parameters to the command line interface.
 - :gh:`34` skips ``pytask_collect_task_teardown`` if task is None.
+- :gh:`35` adds the ability to capture stdout and stderr with the CaptureManager.
 
 
 0.0.8 - 2020-10-04
