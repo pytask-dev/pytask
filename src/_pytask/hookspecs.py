@@ -134,17 +134,13 @@ def pytask_collect_file(session, path, reports):
 
 
 @hookspec(firstresult=True)
-def pytask_collect_task_protocol(session, reports, path, name, obj):
+def pytask_collect_task_protocol(session, path, name, obj):
     """Start protocol to collect tasks."""
 
 
 @hookspec
-def pytask_collect_task_setup(session, reports, path, name, obj):
-    """Steps before collecting a task.
-
-    For example, an error can be raised if two tasks with the same name are collected.
-
-    """
+def pytask_collect_task_setup(session, path, name, obj):
+    """Steps before collecting a task."""
 
 
 @hookspec(firstresult=True)
