@@ -121,11 +121,11 @@ def pytask_collect_file(session, path, reports):
 
 
 @hookimpl
-def pytask_collect_task_protocol(session, reports, path, name, obj):
+def pytask_collect_task_protocol(session, path, name, obj):
     """Start protocol for collecting a task."""
     try:
         session.hook.pytask_collect_task_setup(
-            session=session, reports=reports, path=path, name=name, obj=obj
+            session=session, path=path, name=name, obj=obj
         )
         task = session.hook.pytask_collect_task(
             session=session, path=path, name=name, obj=obj
