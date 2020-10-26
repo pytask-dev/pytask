@@ -20,3 +20,11 @@ If you want to enter the debugger at the start of every task, use
 .. code-block:: console
 
     $ pytask --trace
+
+If you want to use your custom debugger, make sure it is importable and use
+:option:`pytask build --pdbcls`. Here, we change from the standard ``pdb`` debugger to
+IPython's implementation.
+
+.. code-block:: console
+
+    $ pytask --pdbcls=IPython.terminal.debugger:TerminalPdb

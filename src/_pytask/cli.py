@@ -27,6 +27,7 @@ def _prepare_plugin_manager():
 
 
 def _sort_options_for_each_command_alphabetically(cli):
+    """Sort command line options and arguments for each command alphabetically."""
     for command in cli.commands:
         cli.commands[command].params = sorted(
             cli.commands[command].params, key=lambda x: x.name

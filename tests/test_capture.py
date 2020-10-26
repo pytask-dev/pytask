@@ -4,20 +4,105 @@ import os
 import subprocess
 import sys
 import textwrap
+from contextlib import ExitStack as does_not_raise  # noqa: N813
 from io import UnsupportedOperation
 from typing import BinaryIO
 from typing import Generator
 
 import pytest
 from _pytask import capture
+from _pytask.capture import _capture_callback
 from _pytask.capture import _get_multicapture
+from _pytask.capture import _show_capture_callback
 from _pytask.capture import CaptureManager
 from _pytask.capture import CaptureResult
 from _pytask.capture import MultiCapture
 from pytask import cli
 
-# note: py.io capture tests where copied from
-# pylib 1.4.20.dev2 (rev 13d9af95547e)
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "value, expected, expectation",
+    [
+        (None, None, does_not_raise()),
+        ("None", None, does_not_raise()),
+        ("none", None, does_not_raise()),
+        ("fd", "fd", does_not_raise()),
+        ("no", "no", does_not_raise()),
+        ("sys", "sys", does_not_raise()),
+        ("tee-sys", "tee-sys", does_not_raise()),
+        ("asd", None, pytest.raises(ValueError)),
+        (1, None, pytest.raises(ValueError)),
+    ],
+)
+def test_capture_callback(value, expected, expectation):
+    with expectation:
+        result = _capture_callback(value)
+        assert result == expected
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "value, expected, expectation",
+    [
+        (None, None, does_not_raise()),
+        ("None", None, does_not_raise()),
+        ("none", None, does_not_raise()),
+        ("no", "no", does_not_raise()),
+        ("stdout", "stdout", does_not_raise()),
+        ("stderr", "stderr", does_not_raise()),
+        ("all", "all", does_not_raise()),
+        ("asd", None, pytest.raises(ValueError)),
+        (1, None, pytest.raises(ValueError)),
+    ],
+)
+def test_show_capture_callback(value, expected, expectation):
+    with expectation:
+        result = _show_capture_callback(value)
+        assert result == expected
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("show_capture", ["no", "stdout", "stderr", "all"])
+def test_show_capture(tmp_path, runner, show_capture):
+    source = """
+    import sys
+
+    def task_show_capture():
+        sys.stdout.write("xxxx")
+        sys.stderr.write("zzzz")
+        raise Exception
+    """
+    tmp_path.joinpath("task_show_capture.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix(), f"--show-capture={show_capture}"])
+
+    assert result.exit_code == 1
+
+    if show_capture == "no":
+        assert "Captured" not in result.output
+    elif show_capture == "stdout":
+        assert "Captured stdout" in result.output
+        assert "xxxx" in result.output
+        assert "Captured stderr" not in result.output
+        assert "zzzz" not in result.output
+    elif show_capture == "stderr":
+        assert "Captured stdout" not in result.output
+        assert "xxxx" not in result.output
+        assert "Captured stderr" in result.output
+        assert "zzzz" in result.output
+    elif show_capture == "all":
+        assert "Captured stdout" in result.output
+        assert "xxxx" in result.output
+        assert "Captured stderr" in result.output
+        assert "zzzz" in result.output
+    else:
+        raise NotImplementedError
+
+
+# Following tests are copied from pytest.
+
+# note: py.io capture tests where copied from pylib 1.4.20.dev2 (rev 13d9af95547e)
 
 
 def StdCaptureFD(

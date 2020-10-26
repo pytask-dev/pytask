@@ -1,3 +1,4 @@
+"""This module contains the implementation of ``pytask collect``."""
 import pdb
 import sys
 import traceback
@@ -18,6 +19,7 @@ def pytask_extend_command_line_interface(cli: click.Group):
 
 @hookimpl
 def pytask_parse_config(config, config_from_cli):
+    """Parse configuration."""
     config["nodes"] = config_from_cli.get("nodes", False)
 
 

@@ -58,6 +58,14 @@ def pytask_extend_command_line_interface(cli):
             help="Per task capturing method.  [default: fd]",
         ),
         click.Option(["-s"], is_flag=True, help="Shortcut for --capture=no."),
+        click.Option(
+            ["--show-capture"],
+            type=click.Choice(["no", "stdout", "stderr", "all"]),
+            help=(
+                "Choose which captured output should be shown for failed tasks.  "
+                "[default: all]"
+            ),
+        ),
     ]
     cli.commands["build"].params.extend(additional_parameters)
 
@@ -79,6 +87,14 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
             default="fd",
             callback=_capture_callback,
         )
+
+    config["show_capture"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="show_capture",
+        default="all",
+        callback=_show_capture_callback,
+    )
 
 
 @hookimpl
@@ -106,6 +122,22 @@ def _capture_callback(x):
     else:
         raise ValueError("'capture' can only be one of ['fd', 'no', 'sys', 'tee-sys'].")
 
+    return x
+
+
+def _show_capture_callback(x):
+    """Validate the passed options for showing captured output."""
+    if x in [None, "None", "none"]:
+        x = None
+    elif x in ["no", "stdout", "stderr", "all"]:
+        pass
+    else:
+        raise ValueError(
+            "'show_capture' must be one of ['no', 'stdout', 'stderr', 'all']."
+        )
+
+    return x
+
 
 # Copied from pytest.
 
@@ -126,21 +158,22 @@ def _colorama_workaround() -> None:
 
 
 def _readline_workaround() -> None:
-    """Ensure readline is imported so that it attaches to the correct stdio
-    handles on Windows.
+    """Ensure readline is imported so that it attaches to the correct stdio handles on
+    Windows.
 
-    Pdb uses readline support where available--when not running from the Python
-    prompt, the readline module is not imported until running the pdb REPL.  If
-    running pytest with the --pdb option this means the readline module is not
-    imported until after I/O capture has been started.
+    Pdb uses readline support where available--when not running from the Python prompt,
+    the readline module is not imported until running the pdb REPL.  If running pytest
+    with the --pdb option this means the readline module is not imported until after I/O
+    capture has been started.
 
-    This is a problem for pyreadline, which is often used to implement readline
-    support on Windows, as it does not attach to the correct handles for stdout
-    and/or stdin if they have been redirected by the FDCapture mechanism.  This
-    workaround ensures that readline is imported before I/O capture is setup so
-    that it can attach to the actual stdin/out for the console.
+    This is a problem for pyreadline, which is often used to implement readline support
+    on Windows, as it does not attach to the correct handles for stdout and/or stdin if
+    they have been redirected by the FDCapture mechanism.  This workaround ensures that
+    readline is imported before I/O capture is setup so that it can attach to the actual
+    stdin/out for the console.
 
     See https://github.com/pytest-dev/pytest/pull/1281.
+
     """
     if sys.platform.startswith("win32"):
         try:
@@ -152,19 +185,17 @@ def _readline_workaround() -> None:
 def _py36_windowsconsoleio_workaround(stream: TextIO) -> None:
     """Workaround for Windows Unicode console handling on Python>=3.6.
 
-    Python 3.6 implemented Unicode console handling for Windows. This works
-    by reading/writing to the raw console handle using
-    ``{Read,Write}ConsoleW``.
+    Python 3.6 implemented Unicode console handling for Windows. This works by
+    reading/writing to the raw console handle using ``{Read,Write}ConsoleW``.
 
-    The problem is that we are going to ``dup2`` over the stdio file
-    descriptors when doing ``FDCapture`` and this will ``CloseHandle`` the
-    handles used by Python to write to the console. Though there is still some
-    weirdness and the console handle seems to only be closed randomly and not
-    on the first call to ``CloseHandle``, or maybe it gets reopened with the
-    same handle value when we suspend capturing.
+    The problem is that we are going to ``dup2`` over the stdio file descriptors when
+    doing ``FDCapture`` and this will ``CloseHandle`` the handles used by Python to
+    write to the console. Though there is still some weirdness and the console handle
+    seems to only be closed randomly and not on the first call to ``CloseHandle``, or
+    maybe it gets reopened with the same handle value when we suspend capturing.
 
-    The workaround in this case will reopen stdio with a different fd which
-    also means a different handle by replicating the logic in
+    The workaround in this case will reopen stdio with a different fd which also means a
+    different handle by replicating the logic in
     "Py_lifecycle.c:initstdio/create_stdio".
 
     :param stream:
@@ -384,6 +415,7 @@ class FDCaptureBinary:
     """Capture IO to/from a given OS-level file descriptor.
 
     snap() produces `bytes`.
+
     """
 
     EMPTY_BUFFER = b""
@@ -394,17 +426,17 @@ class FDCaptureBinary:
         try:
             os.fstat(targetfd)
         except OSError:
-            # FD capturing is conceptually simple -- create a temporary file,
-            # redirect the FD to it, redirect back when done. But when the
-            # target FD is invalid it throws a wrench into this loveley scheme.
-            #
-            # Tests themselves shouldn't care if the FD is valid, FD capturing
-            # should work regardless of external circumstances. So falling back
-            # to just sys capturing is not a good option.
-            #
+            # FD capturing is conceptually simple -- create a temporary file, redirect
+            # the FD to it, redirect back when done. But when the target FD is invalid
+            # it throws a wrench into this loveley scheme.
+
+            # Tests themselves shouldn't care if the FD is valid, FD capturing should
+            # work regardless of external circumstances. So falling back to just sys
+            # capturing is not a good option.
+
             # Further complications are the need to support suspend() and the
-            # possibility of FD reuse (e.g. the tmpfile getting the very same
-            # target FD). The following approach is robust, I believe.
+            # possibility of FD reuse (e.g. the tmpfile getting the very same target
+            # FD). The following approach is robust, I believe.
             self.targetfd_invalid: Optional[int] = os.open(os.devnull, os.O_RDWR)
             os.dup2(self.targetfd_invalid, targetfd)
         else:
@@ -524,11 +556,10 @@ class FDCapture(FDCaptureBinary):
 # MultiCapture
 
 
-# This class was a namedtuple, but due to mypy limitation[0] it could not be
-# made generic, so was replaced by a regular class which tries to emulate the
-# pertinent parts of a namedtuple. If the mypy limitation is ever lifted, can
-# make it a namedtuple again.
-# [0]: https://github.com/python/mypy/issues/685
+# This class was a namedtuple, but due to mypy limitation[0] it could not be made
+# generic, so was replaced by a regular class which tries to emulate the pertinent parts
+# of a namedtuple. If the mypy limitation is ever lifted, can make it a namedtuple
+# again. [0]: https://github.com/python/mypy/issues/685
 @final
 @functools.total_ordering
 class CaptureResult(Generic[AnyStr]):

@@ -30,7 +30,13 @@ IGNORED_FILES = [
     ".gitignore",
     ".pre-commit-config.yaml",
     ".readthedocs.yml",
+    ".readthedocs.yaml",
+    "readthedocs.yml",
+    "readthedocs.yaml",
     "environment.yml",
+    "pytask.ini",
+    "setup.cfg",
+    "tox.ini",
 ]
 
 IGNORED_FILES_AND_FOLDERS = IGNORED_FILES + IGNORED_FOLDERS
