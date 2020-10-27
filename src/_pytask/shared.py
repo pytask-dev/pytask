@@ -1,6 +1,6 @@
 """Functions which are used across various modules."""
 import glob
-from collections.abc import Iterable
+from collections.abc import Sequence
 from pathlib import Path
 
 
@@ -25,7 +25,7 @@ def to_list(scalar_or_iter):
     """
     return (
         [scalar_or_iter]
-        if isinstance(scalar_or_iter, str) or not isinstance(scalar_or_iter, Iterable)
+        if isinstance(scalar_or_iter, str) or not isinstance(scalar_or_iter, Sequence)
         else list(scalar_or_iter)
     )
 

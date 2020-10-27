@@ -195,4 +195,5 @@ def _extract_nodes_from_function_markers(function, parser):
     """
     marker_name = parser.__name__
     for marker in get_marks_from_obj(function, marker_name):
-        yield from to_list(parser(*marker.args, **marker.kwargs))
+        parsed = parser(*marker.args, **marker.kwargs)
+        yield from to_list(parsed)

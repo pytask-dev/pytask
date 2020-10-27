@@ -84,7 +84,7 @@ def test_clean_dry_run_w_directories(sample_project_path, runner):
 @pytest.mark.end_to_end
 def test_clean_force(sample_project_path, runner):
     result = runner.invoke(
-        cli, ["clean", "-m", "force", sample_project_path.as_posix()]
+        cli, ["clean", "--mode", "force", sample_project_path.as_posix()]
     )
 
     assert "Remove" in result.output
@@ -99,7 +99,7 @@ def test_clean_force(sample_project_path, runner):
 @pytest.mark.end_to_end
 def test_clean_force_w_directories(sample_project_path, runner):
     result = runner.invoke(
-        cli, ["clean", "-d", "-m", "force", sample_project_path.as_posix()]
+        cli, ["clean", "-d", "--mode", "force", sample_project_path.as_posix()]
     )
 
     assert "Remove" in result.output
@@ -112,7 +112,7 @@ def test_clean_force_w_directories(sample_project_path, runner):
 def test_clean_interactive(sample_project_path, runner):
     result = runner.invoke(
         cli,
-        ["clean", "-m", "interactive", sample_project_path.as_posix()],
+        ["clean", "--mode", "interactive", sample_project_path.as_posix()],
         # Three instead of two because the compiled .pyc file is also present.
         input="y\ny\ny",
     )
@@ -130,7 +130,7 @@ def test_clean_interactive(sample_project_path, runner):
 def test_clean_interactive_w_directories(sample_project_path, runner):
     result = runner.invoke(
         cli,
-        ["clean", "-d", "-m", "interactive", sample_project_path.as_posix()],
+        ["clean", "-d", "--mode", "interactive", sample_project_path.as_posix()],
         # Three instead of two because the compiled .pyc file is also present.
         input="y\ny\ny",
     )

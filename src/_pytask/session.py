@@ -30,6 +30,11 @@ class Session:
     """Optional[List[pytask.report.ExecutionReport]]: Reports for executed tasks."""
     exit_code = attr.ib(default=ExitCode.OK)
 
+    collection_start = attr.ib(default=None)
+    collection_end = attr.ib(default=None)
+    execution_start = attr.ib(default=None)
+    execution_end = attr.ib(default=None)
+
     @classmethod
     def from_config(cls, config):
         """Construct the class from a config."""
