@@ -6,7 +6,7 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
 
 
-0.0.9 - 2020-xx-xx
+0.0.9 - 2020-10-28
 ------------------
 
 - :gh:`31` adds ``pytask collect`` to show information on collected tasks.
@@ -18,6 +18,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`37` removes ``reports`` argument from hooks related to task collection.
 - :gh:`38` allows to pass dictionaries as dependencies and products and inside the
   function ``depends_on`` and ``produces`` become dictionaries.
+- :gh:`39` releases v0.0.9.
 
 
 0.0.8 - 2020-10-04
