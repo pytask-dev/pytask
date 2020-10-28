@@ -57,11 +57,11 @@ def pytask_resolve_dependencies_create_dag(tasks):
     for task in tasks:
         dag.add_node(task.name, task=task)
 
-        for dependency in task.depends_on:
+        for dependency in task.depends_on.values():
             dag.add_node(dependency.name, node=dependency)
             dag.add_edge(dependency.name, task.name)
 
-        for product in task.produces:
+        for product in task.produces.values():
             dag.add_node(product.name, node=product)
             dag.add_edge(task.name, product.name)
 
@@ -90,6 +90,7 @@ def pytask_resolve_dependencies_validate_dag(dag):
     """Validate the DAG."""
     _check_if_dag_has_cycles(dag)
     _check_if_root_nodes_are_available(dag)
+    _check_if_tasks_have_the_same_products(dag)
 
 
 def _have_task_or_neighbors_changed(task_name, dag):
@@ -132,18 +133,42 @@ def _check_if_dag_has_cycles(dag):
 
 
 def _check_if_root_nodes_are_available(dag):
+    missing_root_nodes = {}
+
     for node in dag.nodes:
         is_node = "node" in dag.nodes[node]
         is_without_parents = len(list(dag.predecessors(node))) == 0
         if is_node and is_without_parents:
             try:
                 dag.nodes[node]["node"].state()
-            except NodeNotFoundError as e:
-                successors = list(dag.successors(node))
-                raise NodeNotFoundError(
-                    f"{node} is missing and a dependency of the following tasks: "
-                    f"{successors}."
-                ) from e
+            except NodeNotFoundError:
+                missing_root_nodes[node] = list(dag.successors(node))
+
+    if missing_root_nodes:
+        raise ResolvingDependenciesError(
+            "There are some dependencies missing which do not exist and are not "
+            "produced by any task. See the following dictionary with missing nodes as "
+            "keys and dependent tasks as values."
+            f"\n\n{pprint.pformat(missing_root_nodes)}"
+        )
+
+
+def _check_if_tasks_have_the_same_products(dag):
+    nodes_created_by_multiple_tasks = {}
+
+    for node in dag.nodes:
+        is_node = "node" in dag.nodes[node]
+        if is_node:
+            parents = list(dag.predecessors(node))
+            if len(parents) > 1:
+                nodes_created_by_multiple_tasks[node] = parents
+
+    if nodes_created_by_multiple_tasks:
+        raise ResolvingDependenciesError(
+            "There are some tasks which produce the same output. See the following "
+            "dictionary with products as keys and their producing tasks as values."
+            f"\n\n{pprint.pformat(nodes_created_by_multiple_tasks)}"
+        )
 
 
 @hookimpl
@@ -151,7 +176,9 @@ def pytask_resolve_dependencies_log(session, report):
     """Log errors which happened while resolving dependencies."""
     tm_width = session.config["terminal_width"]
 
-    click.echo(f"{{:=^{tm_width}}}".format(" Errors while resolving dependencies "))
+    click.echo(f"{{:=^{tm_width}}}".format(" Failures during resolving dependencies "))
+
+    click.echo("")
 
     traceback.print_exception(*remove_traceback_from_exc_info(report.exc_info))
 

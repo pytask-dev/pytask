@@ -40,14 +40,6 @@ The ``@pytask.mark.produces`` decorator attaches a product to a task. The string
        task is defined.
 
 
-Optional usage in signature
----------------------------
-
-As seen before, if you have a task with products (or dependencies), you can use
-``produces`` (``depends_on``) as a function argument and receive the path or list of
-paths inside the functions. It helps to avoid repetition.
-
-
 Dependencies
 ------------
 
@@ -64,27 +56,77 @@ Most tasks have dependencies. Similar to products, you can use the
         produces.write_text(bold_text)
 
 
+Optional usage in signature
+---------------------------
+
+As seen before, if you have a task with products (or dependencies), you can use
+``produces`` (``depends_on``) as a function argument and receive the path or a
+dictionary of paths inside the functions. It helps to avoid repetition.
+
+
 Multiple dependencies and products
 ----------------------------------
 
-If you have multiple dependencies or products, pass a list to the decorator. Inside the
-function you receive a list of :class:`pathlib.Path` as well.
+Most tasks have multiple dependencies or products. The easiest way to attach multiple
+dependencies or products to a task is to pass a :class:`list`, :class:`tuple` or other
+iterator to the decorator which contains :class:`str` or :class:`pathlib.Path`.
 
 .. code-block:: python
 
-    @pytask.mark.depends_on(["text_a.txt", "text_b.txt"])
-    @pytask.mark.produces(["bold_text_a.txt", "bold_text_b.txt"])
-    def task_make_text_bold(depends_on, produces):
-        for dependency, product in zip(depends_on, produces):
-            text = dependency.read_text()
-            bold_text = f"**{text}**"
-            product.write_text(bold_text)
+    @pytask.mark.depends_on(["text_1.txt", "text_2.txt"])
+    def task_example(depends_on):
+        pass
 
-The last task is overly complex since it is the same operation performed for two
-independent dependencies and products. There must be a better way |tm|, right? Check out
-the :doc:`tutorial on parametrization <how_to_parametrize_a_task>`.
+The function argument ``depends_on`` or ``produces`` becomes a dictionary where keys are
+the positions in the list and values are :class:`pathlib.Path`.
 
-.. |tm| unicode:: U+2122
+.. code-block:: python
+
+    depends_on = {0: Path("text_1.txt"), 1: Path("text_2.txt")}
+
+Why dictionaries and not lists? First, dictionaries with positions as keys behave very
+similar to lists and conversion between both is easy.
+
+Secondly, dictionaries allow to access paths to dependencies and products via labels
+which is preferred over positional access when tasks become more complex and the order
+changes.
+
+To assign labels to dependencies or products, pass a dictionary or a list of tuples with
+the name in the first and the path in the second position to the decorator. For example,
+
+.. code-block:: python
+
+    @pytask.mark.depends_on({"first": "text_1.txt", "second": "text_2.txt"})
+    @pytask.mark.produces("out.txt")
+    def task_example(depends_on, produces):
+        text = depends_on["first"].read_text() + " " + depends_on["second"].read_text()
+        produces.write_text(text)
+
+or with tuples
+
+.. code-block:: python
+
+    @pytask.mark.depends_on([("first", "text_1.txt"), ("second", "text_2.txt")])
+    def task_example():
+        ...
+
+
+Multiple decorators
+-------------------
+
+You can also attach multiple decorators to a function which will be merged into a single
+dictionary. This might help you to group certain dependencies and apply them to multiple
+tasks.
+
+.. code-block:: python
+
+    common_dependencies = ["text_1.txt", "text_2.txt"]
+
+
+    @pytask.mark.depends_on(common_dependencies)
+    @pytask.mark.depends_on("text_3.txt")
+    def task_example():
+        ...
 
 
 .. rubric:: References

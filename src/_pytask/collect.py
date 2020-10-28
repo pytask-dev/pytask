@@ -3,6 +3,7 @@ import glob
 import importlib
 import inspect
 import sys
+import time
 import traceback
 from pathlib import Path
 
@@ -15,11 +16,14 @@ from _pytask.nodes import PythonFunctionTask
 from _pytask.report import CollectionReport
 from _pytask.report import CollectionReportFile
 from _pytask.report import CollectionReportTask
+from _pytask.report import format_collect_footer
 
 
 @hookimpl
 def pytask_collect(session):
     """Collect tasks."""
+    session.collection_start = time.time()
+
     reports = _collect_from_paths(session)
     tasks = _extract_successful_tasks_from_reports(reports)
 
@@ -31,13 +35,12 @@ def pytask_collect(session):
         )
         reports.append(report)
 
-    session.hook.pytask_collect_log(session=session, reports=reports, tasks=tasks)
-
     session.collection_reports = reports
     session.tasks = tasks
 
-    if any(i for i in reports if not i.successful):
-        raise CollectionError
+    session.hook.pytask_collect_log(
+        session=session, reports=session.collection_reports, tasks=session.tasks
+    )
 
     return True
 
@@ -214,19 +217,36 @@ def _extract_successful_tasks_from_reports(reports):
 @hookimpl
 def pytask_collect_log(session, reports, tasks):
     """Log collection."""
+    session.collection_end = time.time()
     tm_width = session.config["terminal_width"]
 
     message = f"Collected {len(tasks)} task(s)."
-    if session.deselected:
-        message += f" Deselected {len(session.deselected)} task(s)."
+
+    n_deselected = len(session.deselected)
+    if n_deselected:
+        message += f" Deselected {n_deselected} task(s)."
     click.echo(message)
 
     failed_reports = [i for i in reports if not i.successful]
     if failed_reports:
-        click.echo(f"{{:=^{tm_width}}}".format(" Errors during collection "))
+        click.echo("")
+        click.echo(f"{{:=^{tm_width}}}".format(" Failures during collection "))
 
         for report in failed_reports:
             click.echo(f"{{:_^{tm_width}}}".format(report.format_title()))
-            traceback.print_exception(*report.exc_info)
+
             click.echo("")
-            click.echo("=" * tm_width)
+
+            traceback.print_exception(*report.exc_info)
+
+            click.echo("")
+
+            duration = round(session.collection_end - session.collection_start, 2)
+            click.echo(
+                format_collect_footer(
+                    len(tasks), len(failed_reports), n_deselected, duration, tm_width
+                ),
+                nl=True,
+            )
+
+        raise CollectionError

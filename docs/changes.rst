@@ -15,7 +15,9 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`34` skips ``pytask_collect_task_teardown`` if task is None.
 - :gh:`35` adds the ability to capture stdout and stderr with the CaptureManager.
 - :gh:`36` reworks the debugger to make it work with the CaptureManager.
-- :gh:`37` removes reports argument from hooks related to task collection.
+- :gh:`37` removes ``reports`` argument from hooks related to task collection.
+- :gh:`38` allows to pass dictionaries as dependencies and products and inside the
+  function ``depends_on`` and ``produces`` become dictionaries.
 
 
 0.0.8 - 2020-10-04

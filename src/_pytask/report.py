@@ -39,6 +39,7 @@ class CollectionReportTask:
 
     @classmethod
     def from_exception(cls, path, name, exc_info):
+        exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(path=path, name=name, exc_info=exc_info)
 
     @property
@@ -76,6 +77,7 @@ class ResolvingDependenciesReport:
 
     @classmethod
     def from_exception(cls, exc_info):
+        exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(exc_info)
 
 
@@ -107,6 +109,31 @@ def format_execute_footer(n_successful, n_failed, duration, terminal_width):
         )
     if n_failed:
         message.append(click.style(f"{n_failed} failed", fg=ColorCode.FAILED.value))
+    message = " " + ", ".join(message) + " "
+
+    color = ColorCode.FAILED.value if n_failed else ColorCode.SUCCESS.value
+    message += click.style(f"in {duration}s ", fg=color)
+
+    formatted_message = _wrap_string_ignoring_ansi_colors(
+        message, color, terminal_width
+    )
+
+    return formatted_message
+
+
+def format_collect_footer(
+    n_successful, n_failed, n_deselected, duration, terminal_width
+):
+    """Format the footer of the execution."""
+    message = []
+    if n_successful:
+        message.append(
+            click.style(f"{n_successful} collected", fg=ColorCode.SUCCESS.value)
+        )
+    if n_failed:
+        message.append(click.style(f"{n_failed} failed", fg=ColorCode.FAILED.value))
+    if n_deselected:
+        message.append(click.style(f"{n_deselected} deselected", fg="white"))
     message = " " + ", ".join(message) + " "
 
     color = ColorCode.FAILED.value if n_failed else ColorCode.SUCCESS.value

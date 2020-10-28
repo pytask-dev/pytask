@@ -221,8 +221,8 @@ def test_organize_tasks():
     task = DummyClass()
     task.name = "prefix::task_dummy"
     task.path = "task_path.py"
-    task.depends_on = [dependency]
-    task.produces = []
+    task.depends_on = {0: dependency}
+    task.produces = {}
 
     result = _organize_tasks([task])
 

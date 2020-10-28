@@ -85,8 +85,8 @@ def _organize_tasks(tasks):
 
         task_dict = {
             task_name: {
-                "depends_on": [node.name for node in task.depends_on],
-                "produces": [node.name for node in task.produces],
+                "depends_on": [node.name for node in task.depends_on.values()],
+                "produces": [node.name for node in task.produces.values()],
             }
         }
 

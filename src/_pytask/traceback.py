@@ -17,13 +17,12 @@ def remove_internal_traceback_frames_from_exc_info(exc_info):
     """Remove internal traceback frames from exception info.
 
     If a non-internal traceback frame is found, return the traceback from the first
-    occurrence downwards. Otherwise, return the whole traceback.
+    occurrence downwards.
 
     """
     if exc_info is not None:
         filtered_traceback = _filter_internal_traceback_frames(exc_info[2])
-        if filtered_traceback is not None:
-            exc_info = (*exc_info[:2], filtered_traceback)
+        exc_info = (*exc_info[:2], filtered_traceback)
 
     return exc_info
 
