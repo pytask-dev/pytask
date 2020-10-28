@@ -165,7 +165,7 @@ def _yield_paths_from_task(task):
     """Yield all paths attached to a task."""
     yield task.path
     for attribute in ["depends_on", "produces"]:
-        for node in getattr(task, attribute):
+        for node in getattr(task, attribute).values():
             if isinstance(node.value, Path):
                 yield node.value
 

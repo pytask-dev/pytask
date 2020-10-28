@@ -57,11 +57,11 @@ def pytask_resolve_dependencies_create_dag(tasks):
     for task in tasks:
         dag.add_node(task.name, task=task)
 
-        for dependency in task.depends_on:
+        for dependency in task.depends_on.values():
             dag.add_node(dependency.name, node=dependency)
             dag.add_edge(dependency.name, task.name)
 
-        for product in task.produces:
+        for product in task.produces.values():
             dag.add_node(product.name, node=product)
             dag.add_edge(task.name, product.name)
 

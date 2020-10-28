@@ -13,6 +13,7 @@ from typing import Union
 
 from _pytask.config import hookimpl
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
+from _pytask.shared import find_duplicates
 
 
 def parametrize(
@@ -110,7 +111,7 @@ def pytask_parametrize_task(session, name, obj):
             names_and_functions.append((name_, wrapped_func))
 
         names = [i[0] for i in names_and_functions]
-        duplicates = _find_duplicates(names)
+        duplicates = find_duplicates(names)
         if duplicates:
             formatted = pprint.pformat(
                 duplicates, width=session.config["terminal_width"]
@@ -355,25 +356,3 @@ def _copy_func(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
     new_func = functools.update_wrapper(new_func, func)
     new_func.__kwdefaults__ = func.__kwdefaults__
     return new_func
-
-
-def _find_duplicates(x: Iterable[Any]):
-    """Find duplicated entries in iterable.
-
-    Examples
-    --------
-    >>> _find_duplicates(["a", "b", "a"])
-    {'a'}
-    >>> _find_duplicates(["a", "b"])
-    set()
-
-    """
-    seen = set()
-    duplicates = set()
-
-    for i in x:
-        if i in seen:
-            duplicates.add(i)
-        seen.add(i)
-
-    return duplicates

@@ -2,6 +2,8 @@
 import glob
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
+from typing import Iterable
 
 
 def to_list(scalar_or_iter):
@@ -109,3 +111,25 @@ def convert_truthy_or_falsy_to_bool(x):
             f"Input '{x}' is neither truthy (True, true, 1) or falsy (False, false, 0)."
         )
     return out
+
+
+def find_duplicates(x: Iterable[Any]):
+    """Find duplicated entries in iterable.
+
+    Examples
+    --------
+    >>> find_duplicates(["a", "b", "a"])
+    {'a'}
+    >>> find_duplicates(["a", "b"])
+    set()
+
+    """
+    seen = set()
+    duplicates = set()
+
+    for i in x:
+        if i in seen:
+            duplicates.add(i)
+        seen.add(i)
+
+    return duplicates

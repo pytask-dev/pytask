@@ -14,8 +14,8 @@ from pytask import cli
 @attr.s
 class Task(MetaTask):
     name = attr.ib(type=str)
-    depends_on = attr.ib(default=[])
-    produces = attr.ib(default=[])
+    depends_on = attr.ib(factory=dict)
+    produces = attr.ib(factory=dict)
 
     def execute(self):
         pass
@@ -37,7 +37,10 @@ class Node(MetaNode):
 
 @pytest.mark.unit
 def test_create_dag():
-    task = Task(name="task", depends_on=[Node(name="node_1"), Node(name="node_2")])
+    task = Task(
+        name="task",
+        depends_on={0: Node(name="node_1"), 1: Node(name="node_2")},
+    )
 
     dag = pytask_resolve_dependencies_create_dag([task])
 

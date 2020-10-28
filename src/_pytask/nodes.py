@@ -1,6 +1,7 @@
 """Deals with nodes which are dependencies or products of a task."""
 import functools
 import inspect
+import itertools
 import pathlib
 from abc import ABCMeta
 from abc import abstractmethod
@@ -13,7 +14,7 @@ import attr
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import get_marks_from_obj
-from _pytask.shared import to_list
+from _pytask.shared import find_duplicates
 
 
 def depends_on(objects: Union[Any, Iterable[Any]]) -> Union[Any, Iterable[Any]]:
@@ -68,11 +69,11 @@ class PythonFunctionTask(MetaTask):
     """pathlib.Path: Path to the file where the task was defined."""
     function = attr.ib(type=callable)
     """callable: The task function."""
-    depends_on = attr.ib(converter=to_list)
+    depends_on = attr.ib(factory=dict)
     """Optional[List[MetaNode]]: A list of dependencies of task."""
-    produces = attr.ib(converter=to_list)
+    produces = attr.ib(factory=dict)
     """List[MetaNode]: A list of products of task."""
-    markers = attr.ib()
+    markers = attr.ib(factory=list)
     """Optional[List[Mark]]: A list of markers attached to the task function."""
     _report_sections = attr.ib(factory=list)
 
@@ -80,10 +81,12 @@ class PythonFunctionTask(MetaTask):
     def from_path_name_function_session(cls, path, name, function, session):
         """Create a task from a path, name, function, and session."""
         objects = _extract_nodes_from_function_markers(function, depends_on)
-        dependencies = _collect_nodes(session, path, name, objects)
+        nodes = _convert_objects_to_node_dictionary(objects, "depends_on")
+        dependencies = _collect_nodes(session, path, name, nodes)
 
         objects = _extract_nodes_from_function_markers(function, produces)
-        products = _collect_nodes(session, path, name, objects)
+        nodes = _convert_objects_to_node_dictionary(objects, "produces")
+        products = _collect_nodes(session, path, name, nodes)
 
         markers = [
             marker
@@ -118,8 +121,10 @@ class PythonFunctionTask(MetaTask):
                 attribute = getattr(self, name)
                 kwargs[name] = (
                     attribute[0].value
-                    if len(attribute) == 1
-                    else [node.value for node in attribute]
+                    if len(attribute) == 1 and 0 in attribute
+                    else {
+                        node_name: node.value for node_name, node in attribute.items()
+                    }
                 )
 
         return kwargs
@@ -169,8 +174,9 @@ class FilePathNode(MetaNode):
 
 def _collect_nodes(session, path, name, nodes):
     """Collect nodes for a task."""
-    collect_nodes = []
-    for node in nodes:
+    collected_nodes = {}
+
+    for node_name, node in nodes.items():
         collected_node = session.hook.pytask_collect_node(
             session=session, path=path, node=node
         )
@@ -180,9 +186,9 @@ def _collect_nodes(session, path, name, nodes):
                 f"'{name}' in '{path}'."
             )
         else:
-            collect_nodes.append(collected_node)
+            collected_nodes[node_name] = collected_node
 
-    return collect_nodes
+    return collected_nodes
 
 
 def _extract_nodes_from_function_markers(function, parser):
@@ -196,4 +202,81 @@ def _extract_nodes_from_function_markers(function, parser):
     marker_name = parser.__name__
     for marker in get_marks_from_obj(function, marker_name):
         parsed = parser(*marker.args, **marker.kwargs)
-        yield from to_list(parsed)
+        yield parsed
+
+
+def _convert_objects_to_node_dictionary(objects, when):
+    list_of_tuples = _convert_objects_to_list_of_tuples(objects)
+    _check_that_names_are_not_used_multiple_times(list_of_tuples, when)
+    nodes = _convert_nodes_to_dictionary(list_of_tuples)
+    return nodes
+
+
+def _convert_objects_to_list_of_tuples(objects):
+    out = []
+    for obj in objects:
+        if isinstance(obj, dict):
+            obj = obj.items()
+
+        if isinstance(obj, Iterable) and not isinstance(obj, str):
+            for x in obj:
+                if isinstance(x, Iterable) and not isinstance(x, str):
+                    tuple_x = tuple(x)
+                    if len(tuple_x) in [1, 2]:
+                        out.append(tuple_x)
+                    else:
+                        raise ValueError("ERROR")
+                else:
+                    out.append((x,))
+        else:
+            out.append((obj,))
+
+    return out
+
+
+def _check_that_names_are_not_used_multiple_times(list_of_tuples, when):
+    """Check that names of nodes are not assigned multiple times.
+
+    Tuples in the list have either one or two elements. The first element in the two
+    element tuples is the name and cannot occur twice.
+
+    Examples
+    --------
+    >>> _check_that_names_are_not_used_multiple_times(
+    ...     [("a",), ("a", 1)], "depends_on"
+    ... )
+    >>> _check_that_names_are_not_used_multiple_times(
+    ...     [("a", 0), ("a", 1)], "produces"
+    ... )
+    Traceback (most recent call last):
+    ValueError: '@pytask.mark.produces' has nodes with the same name: {'a'}
+
+    """
+    names = [x[0] for x in list_of_tuples if len(x) == 2]
+    duplicated = find_duplicates(names)
+
+    if duplicated:
+        raise ValueError(
+            f"'@pytask.mark.{when}' has nodes with the same name: {duplicated}"
+        )
+
+
+def _convert_nodes_to_dictionary(list_of_tuples):
+    nodes = {}
+    counter = itertools.count()
+    names = [x[0] for x in list_of_tuples if len(x) == 2]
+
+    for tuple_ in list_of_tuples:
+        if len(tuple_) == 2:
+            node_name, node = tuple_
+            nodes[node_name] = node
+
+        else:
+            while True:
+                node_name = next(counter)
+                if node_name not in names:
+                    break
+
+            nodes[node_name] = tuple_[0]
+
+    return nodes
