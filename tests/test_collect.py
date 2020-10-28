@@ -58,16 +58,13 @@ def test_collect_nodes_with_the_same_name(tmp_path):
 
     @pytask.mark.depends_on("text.txt")
     @pytask.mark.produces("out_0.txt")
-    def task_0():
-        in_ = Path("text.txt").read_text()
-        print(Path("text.txt").resolve())
-        Path("out_0.txt").write_text(in_)
+    def task_0(depends_on, produces):
+        produces.write_text(depends_on.read_text())
 
     @pytask.mark.depends_on("sub/text.txt")
     @pytask.mark.produces("out_1.txt")
-    def task_1():
-        in_ = Path("sub/text.txt").read_text()
-        Path("out_1.txt").write_text(in_)
+    def task_1(depends_on, produces):
+        produces.write_text(depends_on.read_text())
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
