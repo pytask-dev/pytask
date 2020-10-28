@@ -1,9 +1,11 @@
 import textwrap
+from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import attr
 import networkx as nx
 import pytest
 from _pytask.exceptions import NodeNotFoundError
+from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.nodes import MetaNode
 from _pytask.nodes import MetaTask
 from _pytask.resolve_dependencies import _check_if_root_nodes_are_available
@@ -58,22 +60,39 @@ def test_check_if_root_nodes_are_available():
     dag.add_node(available_node.name, node=available_node)
     dag.add_edge(available_node.name, task.name)
 
-    _check_if_root_nodes_are_available(dag)
+    with does_not_raise():
+        _check_if_root_nodes_are_available(dag)
 
     missing_node = Node("missing")
     dag.add_node(missing_node.name, node=missing_node)
     dag.add_edge(missing_node.name, task.name)
 
-    with pytest.raises(NodeNotFoundError):
+    with pytest.raises(ResolvingDependenciesError):
         _check_if_root_nodes_are_available(dag)
+
+
+@pytest.mark.end_to_end
+def test_check_if_root_nodes_are_available_end_to_end(tmp_path, runner):
+    source = """
+    import pytask
+
+    @pytask.mark.depends_on("in.txt")
+    @pytask.mark.produces("out.txt")
+    def task_dummy(produces):
+        produces.write_text("1")
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == 4
+    assert "Failures during resolving dependencies" in result.output
 
 
 @pytest.mark.end_to_end
 def test_cycle_in_dag(tmp_path, runner):
     source = """
     import pytask
-    from pathlib import Path
-
 
     @pytask.mark.depends_on("out_2.txt")
     @pytask.mark.produces("out_1.txt")
@@ -90,4 +109,25 @@ def test_cycle_in_dag(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == 4
-    assert "Errors while resolving dependencies" in result.output
+    assert "Failures during resolving dependencies" in result.output
+
+
+@pytest.mark.end_to_end
+def test_two_tasks_have_the_same_product(tmp_path, runner):
+    source = """
+    import pytask
+
+    @pytask.mark.produces("out.txt")
+    def task_1(produces):
+        produces.write_text("1")
+
+    @pytask.mark.produces("out.txt")
+    def task_2(produces):
+        produces.write_text("2")
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == 4
+    assert "Failures during resolving dependencies" in result.output

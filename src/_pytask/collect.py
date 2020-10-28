@@ -230,7 +230,7 @@ def pytask_collect_log(session, reports, tasks):
     failed_reports = [i for i in reports if not i.successful]
     if failed_reports:
         click.echo("")
-        click.echo(f"{{:=^{tm_width}}}".format(" Failures "))
+        click.echo(f"{{:=^{tm_width}}}".format(" Failures during collection "))
 
         for report in failed_reports:
             click.echo(f"{{:_^{tm_width}}}".format(report.format_title()))
