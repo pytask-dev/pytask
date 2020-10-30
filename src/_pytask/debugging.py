@@ -236,7 +236,7 @@ class PytaskPDB:
                     # pdb.setup() returns True if the command wants to exit
                     # from the interaction: do not suspend capturing then.
                     if self._pytask_capman:
-                        self._pytask_capman.suspend_global_capture(in_=True)
+                        self._pytask_capman.suspend(in_=True)
                 return ret
 
             def get_stack(self, f, t):
@@ -324,8 +324,8 @@ def wrap_function_for_post_mortem_debugging(session, task):
             task_function(*args, **kwargs)
 
         except Exception as e:
-            capman.suspend_global_capture(in_=True)
-            out, err = capman.read_global_capture()
+            capman.suspend(in_=True)
+            out, err = capman.read()
 
             if out:
                 click.echo(f"{{:-^{tm_width}}}".format(" Captured stdout "))
@@ -342,7 +342,7 @@ def wrap_function_for_post_mortem_debugging(session, task):
 
             post_mortem(exc_info[2])
 
-            capman.resume_global_capture()
+            capman.resume()
 
             raise e
 
@@ -375,8 +375,8 @@ def wrap_function_for_tracing(session, task):
         capman = session.config["pm"].get_plugin("capturemanager")
         tm_width = session.config["terminal_width"]
 
-        capman.suspend_global_capture(in_=True)
-        out, err = capman.read_global_capture()
+        capman.suspend(in_=True)
+        out, err = capman.read()
 
         if out:
             click.echo(f"{{:-^{tm_width}}}".format(" Captured stdout "))
@@ -388,7 +388,7 @@ def wrap_function_for_tracing(session, task):
 
         _pdb.runcall(task_function, *args, **kwargs)
 
-        capman.resume_global_capture()
+        capman.resume()
 
     task.function = wrapper
 

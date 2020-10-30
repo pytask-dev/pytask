@@ -241,12 +241,12 @@ def pytask_collect_log(session, reports, tasks):
 
             click.echo("")
 
-            duration = round(session.collection_end - session.collection_start, 2)
-            click.echo(
-                format_collect_footer(
-                    len(tasks), len(failed_reports), n_deselected, duration, tm_width
-                ),
-                nl=True,
-            )
+        duration = round(session.collection_end - session.collection_start, 2)
+        click.echo(
+            format_collect_footer(
+                len(tasks), len(failed_reports), n_deselected, duration, tm_width
+            ),
+            nl=True,
+        )
 
         raise CollectionError

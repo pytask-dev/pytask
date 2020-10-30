@@ -45,6 +45,7 @@ test:
     - pytask --version
     - pytask clean
     - pytask markers
+    - pytask collect
 
     - pytest tests
 

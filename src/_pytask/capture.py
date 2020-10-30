@@ -1,8 +1,21 @@
 """Capture stdout and stderr during collection and execution.
 
+This module implements the :class:`CaptureManager` plugin which allows for capturing in
+three ways.
+
+- fd (file descriptor) level capturing (default): All writes going to the operating
+  system file descriptors 1 and 2 will be captured.
+- sys level capturing: Only writes to Python files sys.stdout and sys.stderr will be
+  captured. No capturing of writes to filedescriptors is performed.
+- tee-sys capturing: Python writes to sys.stdout and sys.stderr will be captured,
+  however the writes will also be passed-through to the actual sys.stdout and
+  sys.stderr. This allows output to be ‘live printed’ and captured for plugin use, such
+  as junitxml (new in pytest 5.4).
+
 References
 ----------
 
+- https://eli.thegreenplace.net/2015/redirecting-all-kinds-of-stdout-in-python
 - <capture module in pytest
   <https://github.com/pytest-dev/pytest/blob/master/src/_pytest/capture.py>`
 - <debugging module in pytest
@@ -108,9 +121,9 @@ def pytask_post_parse(config):
     pluginmanager = config["pm"]
     capman = CaptureManager(config["capture"])
     pluginmanager.register(capman, "capturemanager")
-    capman.stop_global_capturing()
-    capman.start_global_capturing()
-    capman.suspend_global_capture()
+    capman.stop_capturing()
+    capman.start_capturing()
+    capman.suspend()
 
 
 def _capture_callback(x):
@@ -149,6 +162,7 @@ def _colorama_workaround() -> None:
     colorama uses the terminal on import time. So if something does the
     first import of colorama while I/O capture is active, colorama will
     fail in various ways.
+
     """
     if sys.platform.startswith("win32"):
         try:
@@ -203,6 +217,7 @@ def _py36_windowsconsoleio_workaround(stream: TextIO) -> None:
         here as parameter for unittesting purposes.
 
     See https://github.com/pytest-dev/py/issues/103.
+
     """
     if not sys.platform.startswith("win32") or hasattr(sys, "pypy_version_info"):
         return
@@ -556,14 +571,19 @@ class FDCapture(FDCaptureBinary):
 # MultiCapture
 
 
-# This class was a namedtuple, but due to mypy limitation[0] it could not be made
-# generic, so was replaced by a regular class which tries to emulate the pertinent parts
-# of a namedtuple. If the mypy limitation is ever lifted, can make it a namedtuple
-# again. [0]: https://github.com/python/mypy/issues/685
 @final
 @functools.total_ordering
 class CaptureResult(Generic[AnyStr]):
-    """The result of ``CaptureFixture.readouterr``."""
+    """The result of ``CaptureFixture.readouterr``.
+
+    This class was a namedtuple, but due to mypy limitation [0]_ it could not be made
+    generic, so was replaced by a regular class which tries to emulate the pertinent
+    parts of a namedtuple. If the mypy limitation is ever lifted, can make it a
+    namedtuple again.
+
+    [0]: https://github.com/python/mypy/issues/685
+
+    """
 
     # Can't use slots in Python<3.5.3 due to https://bugs.python.org/issue31272
     if sys.version_info >= (3, 5, 3):
@@ -613,6 +633,8 @@ class CaptureResult(Generic[AnyStr]):
 
 
 class MultiCapture(Generic[AnyStr]):
+    """The class which manages the buffers connected to each stream."""
+
     _state = None
     _in_suspended = False
 
@@ -700,6 +722,7 @@ class MultiCapture(Generic[AnyStr]):
 
 
 def _get_multicapture(method: "_CaptureMethod") -> MultiCapture[str]:
+    """Set up the MultiCapture class with the passed method."""
     if method == "fd":
         return MultiCapture(in_=FDCapture(0), out=FDCapture(1), err=FDCapture(2))
     elif method == "sys":
@@ -719,14 +742,13 @@ def _get_multicapture(method: "_CaptureMethod") -> MultiCapture[str]:
 class CaptureManager:
     """The capture plugin.
 
-    Manages that the appropriate capture method is enabled/disabled during collection
-    and each test phase (setup, call, teardown). After each of those points, the
-    captured output is obtained and attached to the collection/runtest report.
+    Manages that the appropriate capture method is enabled/disabled during the
+    collection and execution phase (setup, call, teardown). After each of those
+    points, the captured output is obtained and attached to the collection or
+    execution report.
 
-    There are two levels of capture:
-
-    * global: enabled by default and can be suppressed by the ``-s`` option. This is
-      always enabled/disabled during collection and each test phase.
+    Capturing is enabled by default and can be suppressed by the ``-s`` option. This is
+    always enabled/disabled during collection and each execution phase.
 
     """
 
@@ -735,49 +757,35 @@ class CaptureManager:
         self._global_capturing = None  # type: Optional[MultiCapture[str]]
 
     def __repr__(self) -> str:
-        return ("<CaptureManager _method={!r} _global_capturing={!r} ").format(
+        return ("<CaptureManager _method={!r} _global_capturing={!r}>").format(
             self._method, self._global_capturing
         )
 
     def is_capturing(self) -> Union[str, bool]:
-        if self.is_globally_capturing():
-            return "global"
-        return False
-
-    # Global capturing control
-
-    def is_globally_capturing(self) -> bool:
         return self._method != "no"
 
-    def start_global_capturing(self) -> None:
+    def start_capturing(self) -> None:
         assert self._global_capturing is None
         self._global_capturing = _get_multicapture(self._method)
         self._global_capturing.start_capturing()
 
-    def stop_global_capturing(self) -> None:
+    def stop_capturing(self) -> None:
         if self._global_capturing is not None:
             self._global_capturing.pop_outerr_to_orig()
             self._global_capturing.stop_capturing()
             self._global_capturing = None
 
-    def resume_global_capture(self) -> None:
+    def resume(self) -> None:
         # During teardown of the python process, and on rare occasions, capture
         # attributes can be `None` while trying to resume global capture.
         if self._global_capturing is not None:
             self._global_capturing.resume_capturing()
 
-    def suspend_global_capture(self, in_: bool = False) -> None:
+    def suspend(self, in_: bool = False) -> None:
         if self._global_capturing is not None:
             self._global_capturing.suspend_capturing(in_=in_)
 
-    def suspend(self, in_: bool = False) -> None:
-        # Need to undo local capsys-et-al if it exists before disabling global capture.
-        self.suspend_global_capture(in_)
-
-    def resume(self) -> None:
-        self.resume_global_capture()
-
-    def read_global_capture(self) -> CaptureResult[str]:
+    def read(self) -> CaptureResult[str]:
         assert self._global_capturing is not None
         return self._global_capturing.readouterr()
 
@@ -786,13 +794,14 @@ class CaptureManager:
     @contextlib.contextmanager
     def task_capture(self, when: str, task: MetaTask) -> Generator[None, None, None]:
         """Pipe captured stdout and stderr into report sections."""
-        self.resume_global_capture()
+        self.resume()
+
         try:
             yield
         finally:
-            self.suspend_global_capture(in_=False)
+            self.suspend(in_=False)
 
-        out, err = self.read_global_capture()
+        out, err = self.read()
         task.add_report_section(when, "stdout", out)
         task.add_report_section(when, "stderr", err)
 
