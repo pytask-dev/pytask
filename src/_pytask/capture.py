@@ -5,21 +5,22 @@ three ways.
 
 - fd (file descriptor) level capturing (default): All writes going to the operating
   system file descriptors 1 and 2 will be captured.
-- sys level capturing: Only writes to Python files sys.stdout and sys.stderr will be
-  captured. No capturing of writes to filedescriptors is performed.
-- tee-sys capturing: Python writes to sys.stdout and sys.stderr will be captured,
-  however the writes will also be passed-through to the actual sys.stdout and
-  sys.stderr. This allows output to be ‘live printed’ and captured for plugin use, such
-  as junitxml (new in pytest 5.4).
+- sys level capturing: Only writes to Python files ``sys.stdout`` and ``sys.stderr``
+  will be captured. No capturing of writes to file descriptors is performed.
+- tee-sys capturing: Python writes to ``sys.stdout`` and ``sys.stderr`` will be
+  captured, however the writes will also be passed-through to the actual ``sys.stdout``
+  and ``sys.stderr``.
+
 
 References
 ----------
 
-- https://eli.thegreenplace.net/2015/redirecting-all-kinds-of-stdout-in-python
-- <capture module in pytest
-  <https://github.com/pytest-dev/pytest/blob/master/src/_pytest/capture.py>`
-- <debugging module in pytest
-  <https://github.com/pytest-dev/pytest/blob/master/src/_pytest/debugging.py>`
+- `Blog post on redirecting and file descriptors
+  <https://eli.thegreenplace.net/2015/redirecting-all-kinds-of-stdout-in-python>`_.
+- `The capture module in pytest
+  <https://github.com/pytest-dev/pytest/blob/master/src/_pytest/capture.py>`_.
+- `The debugging module in pytest
+  <https://github.com/pytest-dev/pytest/blob/master/src/_pytest/debugging.py>`_.
 
 """
 import contextlib
@@ -175,10 +176,10 @@ def _readline_workaround() -> None:
     """Ensure readline is imported so that it attaches to the correct stdio handles on
     Windows.
 
-    Pdb uses readline support where available--when not running from the Python prompt,
-    the readline module is not imported until running the pdb REPL.  If running pytest
-    with the --pdb option this means the readline module is not imported until after I/O
-    capture has been started.
+    Pdb uses readline support where available -- when not running from the Python
+    prompt, the readline module is not imported until running the pdb REPL.  If running
+    pytest with the ``--pdb`` option this means the readline module is not imported
+    until after I/O capture has been started.
 
     This is a problem for pyreadline, which is often used to implement readline support
     on Windows, as it does not attach to the correct handles for stdout and/or stdin if
@@ -259,14 +260,13 @@ class EncodedFile(io.TextIOWrapper):
 
     @property
     def name(self) -> str:
-        # Ensure that file.name is a string. Workaround for a Python bug
-        # fixed in >=3.7.4: https://bugs.python.org/issue36015
+        # Ensure that file.name is a string. Workaround for a Python bug fixed in
+        # >=3.7.4: https://bugs.python.org/issue36015
         return repr(self.buffer)
 
     @property
     def mode(self) -> str:
-        # TextIOWrapper doesn't expose a mode, but at least some of our
-        # tests check it.
+        # TextIOWrapper doesn't expose a mode, but at least some of our tests check it.
         return self.buffer.mode.replace("b", "")
 
 
@@ -290,6 +290,8 @@ class TeeCaptureIO(CaptureIO):
 
 
 class DontReadFromInput:
+    """Class to disable reading from stdin while capturing is activated."""
+
     encoding = None
 
     def read(self, *_args):  # noqa: U101
@@ -325,6 +327,8 @@ patchsysdict = {0: "stdin", 1: "stdout", 2: "stderr"}
 
 
 class NoCapture:
+    """Class for capturing not output and passing it through."""
+
     EMPTY_BUFFER = None
     __init__ = start = done = suspend = resume = lambda *_args: None  # noqa: U101
 
@@ -443,7 +447,7 @@ class FDCaptureBinary:
         except OSError:
             # FD capturing is conceptually simple -- create a temporary file, redirect
             # the FD to it, redirect back when done. But when the target FD is invalid
-            # it throws a wrench into this loveley scheme.
+            # it throws a wrench into this lovely scheme.
 
             # Tests themselves shouldn't care if the FD is valid, FD capturing should
             # work regardless of external circumstances. So falling back to just sys
@@ -581,7 +585,7 @@ class CaptureResult(Generic[AnyStr]):
     parts of a namedtuple. If the mypy limitation is ever lifted, can make it a
     namedtuple again.
 
-    [0]: https://github.com/python/mypy/issues/685
+    .. [0] https://github.com/python/mypy/issues/685
 
     """
 
