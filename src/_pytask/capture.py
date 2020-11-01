@@ -153,7 +153,7 @@ def _show_capture_callback(x):
     return x
 
 
-# Copied from pytest.
+# Copied from pytest with slightly modified docstrings.
 
 
 def _colorama_workaround() -> None:
@@ -326,16 +326,22 @@ class DontReadFromInput:
 
 
 patchsysdict = {0: "stdin", 1: "stdout", 2: "stderr"}
+"""Dict[int, str]: Map file descriptors to their names."""
 
 
 class NoCapture:
-    """Class for capturing not output and passing it through."""
+    """Dummy class when capturing is disabled."""
 
     EMPTY_BUFFER = None
     __init__ = start = done = suspend = resume = lambda *_args: None  # noqa: U101
 
 
 class SysCaptureBinary:
+    """Capture IO to/from Python's buffer for stdin, stdout, and stderr.
+
+    Instead of :class:`SysCapture`, this class produces bytes instead of text.
+
+    """
 
     EMPTY_BUFFER = b""
 
@@ -418,6 +424,12 @@ class SysCaptureBinary:
 
 
 class SysCapture(SysCaptureBinary):
+    """Capture IO to/from Python's buffer for stdin, stdout, and stderr.
+
+    Instead of :class:`SysCaptureBinary`, this class produces text instead of bytes.
+
+    """
+
     EMPTY_BUFFER = ""  # type: ignore[assignment]
 
     def snap(self):
@@ -580,7 +592,7 @@ class FDCapture(FDCaptureBinary):
 @final
 @functools.total_ordering
 class CaptureResult(Generic[AnyStr]):
-    """The result of ``CaptureFixture.readouterr``.
+    """The result of :meth:`MultiCapture.readouterr` which wraps stdout and stderr.
 
     This class was a namedtuple, but due to mypy limitation [0]_ it could not be made
     generic, so was replaced by a regular class which tries to emulate the pertinent
@@ -639,7 +651,13 @@ class CaptureResult(Generic[AnyStr]):
 
 
 class MultiCapture(Generic[AnyStr]):
-    """The class which manages the buffers connected to each stream."""
+    """The class which manages the buffers connected to each stream.
+
+    The class is instantiated with buffers for ``stdin``, ``stdout`` and ``stderr``.
+    Then, the instance provides convenient methods to control all buffers at once, like
+    start and stop capturing and reading the ``stdout`` and ``stderr``.
+
+    """
 
     _state = None
     _in_suspended = False
@@ -728,7 +746,12 @@ class MultiCapture(Generic[AnyStr]):
 
 
 def _get_multicapture(method: "_CaptureMethod") -> MultiCapture[str]:
-    """Set up the MultiCapture class with the passed method."""
+    """Set up the MultiCapture class with the passed method.
+
+    For each valid method, the function instantiates the :class:`MultiCapture` class
+    with the specified buffers for ``stdin``, ``stdout``, and ``stderr``.
+
+    """
     if method == "fd":
         return MultiCapture(in_=FDCapture(0), out=FDCapture(1), err=FDCapture(2))
     elif method == "sys":
@@ -748,13 +771,13 @@ def _get_multicapture(method: "_CaptureMethod") -> MultiCapture[str]:
 class CaptureManager:
     """The capture plugin.
 
-    Manages that the appropriate capture method is enabled/disabled during the
-    collection and execution phase (setup, call, teardown). After each of those
-    points, the captured output is obtained and attached to the collection or
-    execution report.
+    This class is the capture plugin which implements some hooks and provides an
+    interface around :func:`_get_multicapture` and :class:`MultiCapture` adjusted to
+    pytask.
 
-    Capturing is enabled by default and can be suppressed by the ``-s`` option. This is
-    always enabled/disabled during collection and each execution phase.
+    The class manages that the appropriate capture method is enabled/disabled during the
+    execution phase (setup, call, teardown). After each of those points, the captured
+    output is obtained and attached to the execution report.
 
     """
 
