@@ -213,9 +213,11 @@ def _py36_windowsconsoleio_workaround(stream: TextIO) -> None:
     different handle by replicating the logic in
     "Py_lifecycle.c:initstdio/create_stdio".
 
-    :param stream:
-        In practice ``sys.stdout`` or ``sys.stderr``, but given
-        here as parameter for unittesting purposes.
+    Parameters
+    ---------
+    stream
+        In practice ``sys.stdout`` or ``sys.stderr``, but given here as parameter for
+        unit testing purposes.
 
     See https://github.com/pytest-dev/py/issues/103.
 
@@ -296,7 +298,7 @@ class DontReadFromInput:
 
     def read(self, *_args):  # noqa: U101
         raise OSError(
-            "pytest: reading from stdin while output is captured!  Consider using `-s`."
+            "pytest: reading from stdin while output is captured! Consider using `-s`."
         )
 
     readline = read
