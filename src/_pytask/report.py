@@ -59,6 +59,7 @@ class CollectionReportFile:
 
     @classmethod
     def from_exception(cls, path, exc_info):
+        exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(path, exc_info=exc_info)
 
     @property

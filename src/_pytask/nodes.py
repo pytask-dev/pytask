@@ -14,6 +14,7 @@ import attr
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import get_marks_from_obj
+from _pytask.shared import create_task_name
 from _pytask.shared import find_duplicates
 
 
@@ -63,6 +64,8 @@ class MetaTask(metaclass=ABCMeta):
 class PythonFunctionTask(MetaTask):
     """The class for tasks which are Python functions."""
 
+    base_name = attr.ib(type=str)
+    """str: The base name of the task."""
     name = attr.ib(type=str)
     """str: The unique identifier for a task."""
     path = attr.ib(type=Path)
@@ -95,8 +98,9 @@ class PythonFunctionTask(MetaTask):
         ]
 
         return cls(
+            base_name=name,
+            name=create_task_name(path, name),
             path=path,
-            name=path.as_posix() + "::" + name,
             function=function,
             depends_on=dependencies,
             produces=products,

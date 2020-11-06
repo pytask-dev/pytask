@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 from typing import Iterable
+from typing import List
 
 
 def to_list(scalar_or_iter):
@@ -133,3 +134,102 @@ def find_duplicates(x: Iterable[Any]):
         seen.add(i)
 
     return duplicates
+
+
+def create_task_name(path: Path, base_name: str):
+    """Create the name of a task from a path and the task's base name.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> create_task_name(Path("module.py"), "task_dummy")
+    'module.py::task_dummy'
+
+    """
+    return path.as_posix() + "::" + base_name
+
+
+def relative_to(path: Path, source: Path, include_source: bool = True):
+    """Make a path relative to another path.
+
+    In contrast to :meth:`pathlib.Path.relative_to`, this function allows to keep the
+    name of the source path.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> relative_to(Path("folder", "file.py"), Path("folder")).as_posix()
+    'folder/file.py'
+    >>> relative_to(Path("folder", "file.py"), Path("folder"), False).as_posix()
+    'file.py'
+
+    """
+    return Path(source.name if include_source else "", path.relative_to(source))
+
+
+def find_closest_ancestor(path: Path, potential_ancestors: List[Path]):
+    """Find the closest ancestor of a path.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> find_closest_ancestor(Path("folder", "file.py"), [Path("folder")]).as_posix()
+    'folder'
+
+    >>> paths = [Path("folder"), Path("folder", "subfolder")]
+    >>> find_closest_ancestor(Path("folder", "subfolder", "file.py"), paths).as_posix()
+    'folder/subfolder'
+
+    """
+    closest_ancestor = None
+    for ancestor in potential_ancestors:
+        if ancestor == path:
+            closest_ancestor = path
+            break
+        if ancestor in path.parents:
+            if closest_ancestor is None or (
+                len(path.relative_to(ancestor).parts)
+                < len(path.relative_to(closest_ancestor).parts)
+            ):
+                closest_ancestor = ancestor
+
+    return closest_ancestor
+
+
+def shorten_task_name(task, paths: List[Path]):
+    """Shorten the task name.
+
+    By default, the whole task name is used in while reporting execution errors. This
+    leads to incomprehensible long names when using nested folder structures in bigger
+    projects. Thus, print a shorter name which uses only the path from the passed
+    'paths' down to the task file.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> class Task: pass
+    >>> task = Task()
+    >>> task.path = Path("/home/user/task_example.py")
+    >>> task.base_name = "task_example_function"
+
+    >>> shorten_task_name(task, [Path("/home/user")])
+    'user/task_example.py::task_example_function'
+
+    >>> shorten_task_name(task, [Path("/home/user/task_example.py")])
+    'task_example.py::task_example_function'
+
+    >>> shorten_task_name(task, [Path("/etc")])
+    Traceback (most recent call last):
+    ValueError: A task must be defined in one of 'paths'.
+
+    """
+    ancestor = find_closest_ancestor(task.path, paths)
+    if ancestor is None:
+        raise ValueError("A task must be defined in one of 'paths'.")
+    elif ancestor == task.path:
+        name = create_task_name(Path(task.path.name), task.base_name)
+    else:
+        shortened_path = relative_to(task.path, ancestor)
+        name = create_task_name(shortened_path, task.base_name)
+
+    return name
