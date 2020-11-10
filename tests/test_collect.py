@@ -84,11 +84,7 @@ def test_collect_nodes_with_the_same_name(tmp_path):
 @pytest.mark.end_to_end
 @pytest.mark.parametrize("path_extension", ["", "task_dummy.py"])
 def test_collect_same_test_different_ways(tmp_path, path_extension):
-    source = """
-    def task_dummy():
-        pass
-    """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_dummy.py").write_text("def task_dummy(): pass")
 
     session = main({"paths": tmp_path.joinpath(path_extension)})
 
@@ -116,20 +112,10 @@ def test_collect_same_test_different_ways(tmp_path, path_extension):
 def test_collect_files_w_custom_file_name_pattern(
     tmp_path, config_name, task_files, pattern, expected_collected_tasks
 ):
-    config = textwrap.dedent(
-        f"""
-        [pytask]
-        task_files = {pattern}
-        """
-    )
-    tmp_path.joinpath(config_name).write_text(config)
+    tmp_path.joinpath(config_name).write_text(f"[pytask]\ntask_files = {pattern}")
 
-    source = """
-    def task_dummy():
-        pass
-    """
     for file in task_files:
-        tmp_path.joinpath(file).write_text(textwrap.dedent(source))
+        tmp_path.joinpath(file).write_text("def task_dummy(): pass")
 
     session = main({"paths": tmp_path})
 
