@@ -41,7 +41,7 @@ def test_node_not_found_in_task_setup(tmp_path):
     session = main({"paths": tmp_path})
 
     assert session.exit_code == 1
-    assert sum(i.success for i in session.executation_reports) == 2
+    assert sum(i.success for i in session.execution_reports) == 2
 
     report = session.execution_reports[2]
     assert isinstance(report.exc_info[1], NodeNotFoundError)
