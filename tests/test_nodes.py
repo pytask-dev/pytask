@@ -239,8 +239,8 @@ class FalseNode:
             "src/module.py::task_func",
         ),
         (
-            FilePathNode.from_path(Path("top/src/module.py")),
-            [Path("top/src")],
+            FilePathNode.from_path(Path("top/src/module.py").resolve()),
+            [Path("top/src").resolve()],
             does_not_raise(),
             "src/module.py",
         ),
