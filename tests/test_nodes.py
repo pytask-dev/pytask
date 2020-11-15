@@ -1,15 +1,22 @@
 from contextlib import ExitStack as does_not_raise  # noqa: N813
+from pathlib import Path
 
+import attr
 import pytask
 import pytest
 from _pytask.nodes import _check_that_names_are_not_used_multiple_times
 from _pytask.nodes import _convert_nodes_to_dictionary
 from _pytask.nodes import _convert_objects_to_list_of_tuples
+from _pytask.nodes import _create_task_name
 from _pytask.nodes import _extract_nodes_from_function_markers
+from _pytask.nodes import _find_closest_ancestor
+from _pytask.nodes import _relative_to
 from _pytask.nodes import depends_on
+from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaNode
 from _pytask.nodes import MetaTask
 from _pytask.nodes import produces
+from _pytask.nodes import shorten_node_name
 
 
 @pytest.mark.unit
@@ -147,3 +154,99 @@ def test_check_that_names_are_not_used_multiple_times(x, expectation):
 def test_convert_nodes_to_dictionary(x, expected):
     result = _convert_nodes_to_dictionary(x)
     assert result == expected
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "path, name, expected",
+    [
+        (Path("hello.py"), "task_func", "hello.py::task_func"),
+        (Path("C:/data/module.py"), "task_func", "C:/data/module.py::task_func"),
+    ],
+)
+def test_create_task_name(path, name, expected):
+    result = _create_task_name(path, name)
+    assert result == expected
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "path, source, include_source, expected",
+    [
+        (Path("src/hello.py"), Path("src"), True, Path("src/hello.py")),
+        (Path("src/hello.py"), Path("src"), False, Path("hello.py")),
+    ],
+)
+def test_relative_to(path, source, include_source, expected):
+    result = _relative_to(path, source, include_source)
+    assert result == expected
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "path, potential_ancestors, expected",
+    [
+        (Path("src/task.py"), [Path("src"), Path("bld")], Path("src")),
+        (Path("tasks/task.py"), [Path("src"), Path("bld")], None),
+        (Path("src/tasks/task.py"), [Path("src"), Path("src/tasks")], Path("tasks")),
+    ],
+)
+def task_find_closest_ancestor(path, potential_ancestors, expected):
+    result = _find_closest_ancestor(path, potential_ancestors)
+    assert result == expected
+
+
+@attr.s
+class DummyTask(MetaTask):
+    path = attr.ib()
+    name = attr.ib()
+    base_name = attr.ib()
+
+    def state():
+        pass
+
+    def execute():
+        pass
+
+
+@attr.s
+class FalseNode:
+    path = attr.ib()
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "node, paths, expectation, expected",
+    [
+        (
+            FilePathNode.from_path(Path("src/module.py")),
+            [Path("src")],
+            pytest.raises(ValueError, match="A node must be"),
+            None,
+        ),
+        (
+            FalseNode(Path("src/module.py")),
+            [Path("src")],
+            pytest.raises(ValueError, match="Unknown node"),
+            None,
+        ),
+        (
+            DummyTask(
+                Path("top/src/module.py"), "top/src/module.py::task_func", "task_func"
+            ),
+            [Path("top/src")],
+            does_not_raise(),
+            "src/module.py::task_func",
+        ),
+        (
+            FilePathNode.from_path(Path("top/src/module.py")),
+            [Path("top/src")],
+            does_not_raise(),
+            "src/module.py",
+        ),
+    ],
+)
+def test_shorten_node_name(node, paths, expectation, expected):
+    with expectation:
+        result = shorten_node_name(node, paths)
+        assert result == expected

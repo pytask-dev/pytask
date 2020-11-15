@@ -363,8 +363,8 @@ def shorten_node_name(node, paths: List[Path]):
         else:
             shortened_path = _relative_to(node.path, ancestor)
             name = _create_task_name(shortened_path, node.base_name)
-    elif isinstance(node, FilePathNode):
-        name = _relative_to(node.path, ancestor)
+    elif isinstance(node, MetaNode):
+        name = _relative_to(node.path, ancestor).as_posix()
     else:
         raise ValueError(f"Unknown node {node} with type '{type(node)}'.")
 
