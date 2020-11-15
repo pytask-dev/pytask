@@ -8,13 +8,13 @@ from abc import abstractmethod
 from pathlib import Path
 from typing import Any
 from typing import Iterable
+from typing import List
 from typing import Union
 
 import attr
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import get_marks_from_obj
-from _pytask.shared import create_task_name
 from _pytask.shared import find_duplicates
 
 
@@ -46,17 +46,21 @@ def produces(objects: Union[Any, Iterable[Any]]) -> Union[Any, Iterable[Any]]:
     return objects
 
 
-class MetaTask(metaclass=ABCMeta):
+class MetaNode(metaclass=ABCMeta):
+    """Meta class for nodes."""
+
+    @abstractmethod
+    def state(self):
+        """Return a value which indicates whether a node has changed or not."""
+        pass
+
+
+class MetaTask(MetaNode):
     """The base class for tasks."""
 
     @abstractmethod
     def execute(self):
         """Execute the task."""
-        pass
-
-    @abstractmethod
-    def state(self):
-        """Return a value to check whether the task definition has changed."""
         pass
 
 
@@ -99,7 +103,7 @@ class PythonFunctionTask(MetaTask):
 
         return cls(
             base_name=name,
-            name=create_task_name(path, name),
+            name=_create_task_name(path, name),
             path=path,
             function=function,
             depends_on=dependencies,
@@ -138,15 +142,6 @@ class PythonFunctionTask(MetaTask):
             self._report_sections.append((when, key, content))
 
 
-class MetaNode(metaclass=ABCMeta):
-    """Meta class for nodes."""
-
-    @abstractmethod
-    def state(self):
-        """Return a value which indicates whether a node has changed or not."""
-        pass
-
-
 @attr.s
 class FilePathNode(MetaNode):
     """The class for a node which is a path."""
@@ -157,6 +152,9 @@ class FilePathNode(MetaNode):
     value = attr.ib()
     """Any: Value passed to the decorator which can be requested inside the function."""
 
+    path = attr.ib()
+    """pathlib.Path: Path to the FilePathNode."""
+
     @classmethod
     @functools.lru_cache()
     def from_path(cls, path: pathlib.Path):
@@ -166,7 +164,7 @@ class FilePathNode(MetaNode):
 
         """
         path = path.resolve()
-        return cls(path.as_posix(), path)
+        return cls(path.as_posix(), path, path)
 
     def state(self):
         """Return the last modified date for file path."""
@@ -284,3 +282,90 @@ def _convert_nodes_to_dictionary(list_of_tuples):
             nodes[node_name] = tuple_[0]
 
     return nodes
+
+
+def _create_task_name(path: Path, base_name: str):
+    """Create the name of a task from a path and the task's base name.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> _create_task_name(Path("module.py"), "task_dummy")
+    'module.py::task_dummy'
+
+    """
+    return path.as_posix() + "::" + base_name
+
+
+def _relative_to(path: Path, source: Path, include_source: bool = True):
+    """Make a path relative to another path.
+
+    In contrast to :meth:`pathlib.Path.relative_to`, this function allows to keep the
+    name of the source path.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> _relative_to(Path("folder", "file.py"), Path("folder")).as_posix()
+    'folder/file.py'
+    >>> _relative_to(Path("folder", "file.py"), Path("folder"), False).as_posix()
+    'file.py'
+
+    """
+    return Path(source.name if include_source else "", path.relative_to(source))
+
+
+def _find_closest_ancestor(path: Path, potential_ancestors: List[Path]):
+    """Find the closest ancestor of a path.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> _find_closest_ancestor(Path("folder", "file.py"), [Path("folder")]).as_posix()
+    'folder'
+
+    >>> paths = [Path("folder"), Path("folder", "subfolder")]
+    >>> _find_closest_ancestor(Path("folder", "subfolder", "file.py"), paths).as_posix()
+    'folder/subfolder'
+
+    """
+    closest_ancestor = None
+    for ancestor in potential_ancestors:
+        if ancestor == path:
+            closest_ancestor = path
+            break
+        if ancestor in path.parents:
+            if closest_ancestor is None or (
+                len(path.relative_to(ancestor).parts)
+                < len(path.relative_to(closest_ancestor).parts)
+            ):
+                closest_ancestor = ancestor
+
+    return closest_ancestor
+
+
+def shorten_node_name(node, paths: List[Path]):
+    """Shorten the node name.
+
+    The whole name of the node - which includes the drive letter - can be very long
+    when using nested folder structures in bigger projects.
+
+    Thus, the part of the name which contains the path is replace by the relative
+    path from one path in ``session.config["paths"]`` to the node.
+
+    """
+    ancestor = _find_closest_ancestor(node.path, paths)
+    if ancestor is None:
+        raise ValueError("A node must be defined in a child of 'paths'.")
+    elif isinstance(node, MetaTask):
+        if ancestor == node.path:
+            name = _create_task_name(Path(node.path.name), node.base_name)
+        else:
+            shortened_path = _relative_to(node.path, ancestor)
+            name = _create_task_name(shortened_path, node.base_name)
+    elif isinstance(node, FilePathNode):
+        name = _relative_to(node.path, ancestor)
+    else:
+        raise ValueError(f"Unknown node {node} with type '{type(node)}'.")
+
+    return name
