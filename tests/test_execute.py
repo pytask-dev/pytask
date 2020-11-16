@@ -2,7 +2,67 @@ import textwrap
 
 import pytest
 from pytask import cli
+from _pytask.exceptions import NodeNotFoundError
 from pytask import main
+
+
+@pytest.mark.end_to_end
+def test_task_did_not_produce_node(tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.produces("out.txt")
+    def task_dummy():
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 1
+    assert len(session.execution_reports) == 1
+    assert isinstance(session.execution_reports[0].exc_info[1], NodeNotFoundError)
+
+
+@pytest.mark.end_to_end
+def test_node_not_found_in_task_setup(tmp_path):
+    """Test for :class:`_pytask.exceptions.NodeNotFoundError` in task setup.
+
+    Before a task is executed, pytask checks whether all dependencies can be found.
+    Normally, missing dependencies are caught during resolving dependencies if they are
+    root nodes or when a task does not produce a node.
+
+    To force this error one task accidentally deletes the product of another task.
+
+    """
+    source = """
+    import pytask
+
+    @pytask.mark.produces(["out_1.txt", "deleted.txt"])
+    def task_1(produces):
+        for product in produces.values():
+            product.touch()
+
+    @pytask.mark.depends_on("out_1.txt")
+    @pytask.mark.produces("out_2.txt")
+    def task_2(depends_on, produces):
+        depends_on.with_name("deleted.txt").unlink()
+        produces.touch()
+
+    @pytask.mark.depends_on(["deleted.txt", "out_2.txt"])
+    def task_3(depends_on):
+        pass
+
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 1
+    assert sum(i.success for i in session.execution_reports) == 2
+
+    report = session.execution_reports[2]
+    assert isinstance(report.exc_info[1], NodeNotFoundError)
 
 
 @pytest.mark.end_to_end

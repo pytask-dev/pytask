@@ -2,15 +2,16 @@ from pathlib import Path
 
 import pytest
 from _pytask.collect import pytask_ignore_collect
-from _pytask.config import _IGNORED_FOLDERS
+from _pytask.config import IGNORED_FOLDERS
 from pytask import main
 
 
 @pytest.mark.end_to_end
-@pytest.mark.parametrize("ignored_folder", _IGNORED_FOLDERS + ["pytask.egg-info"])
+@pytest.mark.parametrize("ignored_folder", IGNORED_FOLDERS + ["pytask.egg-info"])
 def test_ignore_default_paths(tmp_path, ignored_folder):
-    tmp_path.joinpath(ignored_folder).mkdir()
-    tmp_path.joinpath(ignored_folder, "task_dummy.py").write_text("def task_d: pass")
+    folder = ignored_folder.split("/*")[0]
+    tmp_path.joinpath(folder).mkdir()
+    tmp_path.joinpath(folder, "task_dummy.py").write_text("def task_d(): pass")
 
     session = main({"paths": tmp_path})
     assert session.exit_code == 0
@@ -22,7 +23,7 @@ def test_ignore_default_paths(tmp_path, ignored_folder):
 @pytest.mark.parametrize("ignore", ["", "*task_dummy.py"])
 @pytest.mark.parametrize("new_line", [True, False])
 def test_ignore_paths(tmp_path, config_path, ignore, new_line):
-    tmp_path.joinpath("task_dummy.py").write_text("def task_dummy: pass")
+    tmp_path.joinpath("task_dummy.py").write_text("def task_dummy(): pass")
     entry = f"ignore =\n\t{ignore}" if new_line else f"ignore = {ignore}"
     config = f"[pytask]\n{entry}" if ignore else "[pytask]"
     tmp_path.joinpath(config_path).write_text(config)
