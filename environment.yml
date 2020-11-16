@@ -19,6 +19,7 @@ dependencies:
   - pytest
 
   # Misc
+  - black
   - bump2version
   - jupyterlab
   - matplotlib

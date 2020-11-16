@@ -1,7 +1,6 @@
 """This module contains everything related to reports."""
 import math
 import re
-from pathlib import Path
 
 import attr
 import click
@@ -11,62 +10,23 @@ from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 
 @attr.s
 class CollectionReport:
-    """A general collection report."""
-
-    title = attr.ib(type=str)
-    exc_info = attr.ib(type=tuple)
-
-    def format_title(self):
-        return self.title
-
-    @property
-    def successful(self):
-        return self.exc_info is None
-
-
-@attr.s
-class CollectionReportTask:
     """A collection report for a task."""
 
-    path = attr.ib(type=Path)
-    name = attr.ib(type=str)
-    task = attr.ib(default=None)
+    node = attr.ib(default=None)
     exc_info = attr.ib(default=None)
 
     @classmethod
-    def from_task(cls, task):
-        return cls(path=task.path, name=task.name, task=task)
+    def from_node(cls, node):
+        return cls(node=node)
 
     @classmethod
-    def from_exception(cls, path, name, exc_info):
+    def from_exception(cls, exc_info, node=None):
         exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
-        return cls(path=path, name=name, exc_info=exc_info)
+        return cls(exc_info=exc_info, node=node)
 
     @property
     def successful(self):
         return self.exc_info is None
-
-    def format_title(self):
-        return f" Collection of task '{self.name}' in '{self.path}' failed "
-
-
-@attr.s
-class CollectionReportFile:
-    """A collection report for a file."""
-
-    path = attr.ib(type=Path)
-    exc_info = attr.ib(default=None)
-
-    @classmethod
-    def from_exception(cls, path, exc_info):
-        return cls(path, exc_info=exc_info)
-
-    @property
-    def successful(self):
-        return self.exc_info is None
-
-    def format_title(self):
-        return f" Collection of file '{self.path}' failed "
 
 
 @attr.s
