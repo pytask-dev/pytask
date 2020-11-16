@@ -7,6 +7,24 @@ from pytask import main
 
 
 @pytest.mark.end_to_end
+def test_task_did_not_produce_node(tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.produces("out.txt")
+    def task_dummy():
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 1
+    assert len(session.execution_reports) == 1
+    assert isinstance(session.execution_reports[0].exc_info[1], NodeNotFoundError)
+
+
+@pytest.mark.end_to_end
 def test_node_not_found_in_task_setup(tmp_path):
     """Test for :class:`_pytask.exceptions.NodeNotFoundError` in task setup.
 
