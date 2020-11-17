@@ -1,8 +1,8 @@
 import textwrap
 
 import pytest
-from pytask import cli
 from _pytask.exceptions import NodeNotFoundError
+from pytask import cli
 from pytask import main
 
 
