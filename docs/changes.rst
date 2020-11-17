@@ -6,6 +6,14 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
 
 
+0.0.10 - 2020-11-18
+-------------------
+
+- :gh:`40` cleans up the capture manager and other parts of pytask.
+- :gh:`41` shortens the task ids in the error reports for better readability.
+- :gh:`43` releases v0.0.10
+
+
 0.0.9 - 2020-10-28
 ------------------
 
@@ -19,8 +27,6 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`38` allows to pass dictionaries as dependencies and products and inside the
   function ``depends_on`` and ``produces`` become dictionaries.
 - :gh:`39` releases v0.0.9.
-- :gh:`40` cleans up the capture manager and other parts of pytask.
-- :gh:`41` shortens the task ids in the error reports for better readability.
 
 
 0.0.8 - 2020-10-04
