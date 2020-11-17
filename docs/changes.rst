@@ -19,6 +19,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`38` allows to pass dictionaries as dependencies and products and inside the
   function ``depends_on`` and ``produces`` become dictionaries.
 - :gh:`39` releases v0.0.9.
+- :gh:`40` cleans up the capture manager and other parts of pytask.
 - :gh:`41` shortens the task ids in the error reports for better readability.
 
 
