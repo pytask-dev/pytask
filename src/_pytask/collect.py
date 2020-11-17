@@ -72,8 +72,8 @@ def _collect_from_paths(session):
 @hookimpl
 def pytask_ignore_collect(path, config):
     """Ignore a path during the collection."""
-    ignored = any(path.match(pattern) for pattern in config["ignore"])
-    return ignored
+    is_ignored = any(path.match(pattern) for pattern in config["ignore"])
+    return is_ignored
 
 
 @hookimpl

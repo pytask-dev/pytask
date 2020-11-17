@@ -106,6 +106,7 @@ def test_instantiation_of_metanode():
     assert isinstance(task, MetaNode)
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("x", "expected"),
     [
@@ -127,6 +128,7 @@ def test_convert_objects_to_list_of_tuples(x, expected):
 ERROR = "'@pytask.mark.depends_on' has nodes with the same name:"
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("x", "expectation"),
     [
@@ -144,6 +146,7 @@ def test_check_that_names_are_not_used_multiple_times(x, expectation):
         _check_that_names_are_not_used_multiple_times(x, "depends_on")
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("x", "expected"),
     [

@@ -19,7 +19,7 @@ def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
 @hookimpl
 def pytask_parse_config(config):
     markers = {
-        "skip": "Skip task and all its succeeding tasks automatically as well.",
+        "skip": "Skip a task and all its subsequent tasks as well.",
         "skip_ancestor_failed": "Internal decorator applied to tasks whose ancestor "
         "failed.",
         "skip_unchanged": "Internal decorator applied to tasks which have already been "

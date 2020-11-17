@@ -1,6 +1,5 @@
 """This module contains everything related to reports."""
 import math
-import re
 
 import attr
 import click
@@ -113,7 +112,7 @@ def _wrap_string_ignoring_ansi_colors(message, color, width):
     but will not show up in the printed string.
 
     """
-    n_characters = width - len(_remove_ansi_colors(message))
+    n_characters = width - len(click.unstyle(message))
     n_left, n_right = math.floor(n_characters / 2), math.ceil(n_characters / 2)
 
     return (
@@ -121,9 +120,3 @@ def _wrap_string_ignoring_ansi_colors(message, color, width):
         + message
         + click.style("=" * n_right, fg=color)
     )
-
-
-def _remove_ansi_colors(string):
-    """Remove ANSI colors from a string."""
-    ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
-    return ansi_escape.sub("", string)

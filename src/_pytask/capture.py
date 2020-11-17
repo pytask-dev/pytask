@@ -1,12 +1,26 @@
 """Capture stdout and stderr during collection and execution.
 
+This module implements the :class:`CaptureManager` plugin which allows for capturing in
+three ways.
+
+- fd (file descriptor) level capturing (default): All writes going to the operating
+  system file descriptors 1 and 2 will be captured.
+- sys level capturing: Only writes to Python files ``sys.stdout`` and ``sys.stderr``
+  will be captured. No capturing of writes to file descriptors is performed.
+- tee-sys capturing: Python writes to ``sys.stdout`` and ``sys.stderr`` will be
+  captured, however the writes will also be passed-through to the actual ``sys.stdout``
+  and ``sys.stderr``.
+
+
 References
 ----------
 
-- <capture module in pytest
-  <https://github.com/pytest-dev/pytest/blob/master/src/_pytest/capture.py>`
-- <debugging module in pytest
-  <https://github.com/pytest-dev/pytest/blob/master/src/_pytest/debugging.py>`
+- `Blog post on redirecting and file descriptors
+  <https://eli.thegreenplace.net/2015/redirecting-all-kinds-of-stdout-in-python>`_.
+- `The capture module in pytest
+  <https://github.com/pytest-dev/pytest/blob/master/src/_pytest/capture.py>`_.
+- `The debugging module in pytest
+  <https://github.com/pytest-dev/pytest/blob/master/src/_pytest/debugging.py>`_.
 
 """
 import contextlib
@@ -108,9 +122,9 @@ def pytask_post_parse(config):
     pluginmanager = config["pm"]
     capman = CaptureManager(config["capture"])
     pluginmanager.register(capman, "capturemanager")
-    capman.stop_global_capturing()
-    capman.start_global_capturing()
-    capman.suspend_global_capture()
+    capman.stop_capturing()
+    capman.start_capturing()
+    capman.suspend()
 
 
 def _capture_callback(x):
@@ -139,7 +153,7 @@ def _show_capture_callback(x):
     return x
 
 
-# Copied from pytest.
+# Copied from pytest with slightly modified docstrings.
 
 
 def _colorama_workaround() -> None:
@@ -149,6 +163,7 @@ def _colorama_workaround() -> None:
     colorama uses the terminal on import time. So if something does the
     first import of colorama while I/O capture is active, colorama will
     fail in various ways.
+
     """
     if sys.platform.startswith("win32"):
         try:
@@ -161,10 +176,10 @@ def _readline_workaround() -> None:
     """Ensure readline is imported so that it attaches to the correct stdio handles on
     Windows.
 
-    Pdb uses readline support where available--when not running from the Python prompt,
-    the readline module is not imported until running the pdb REPL.  If running pytest
-    with the --pdb option this means the readline module is not imported until after I/O
-    capture has been started.
+    Pdb uses readline support where available -- when not running from the Python
+    prompt, the readline module is not imported until running the pdb REPL.  If running
+    pytest with the ``--pdb`` option this means the readline module is not imported
+    until after I/O capture has been started.
 
     This is a problem for pyreadline, which is often used to implement readline support
     on Windows, as it does not attach to the correct handles for stdout and/or stdin if
@@ -198,11 +213,14 @@ def _py36_windowsconsoleio_workaround(stream: TextIO) -> None:
     different handle by replicating the logic in
     "Py_lifecycle.c:initstdio/create_stdio".
 
-    :param stream:
-        In practice ``sys.stdout`` or ``sys.stderr``, but given
-        here as parameter for unittesting purposes.
+    Parameters
+    ---------
+    stream
+        In practice ``sys.stdout`` or ``sys.stderr``, but given here as parameter for
+        unit testing purposes.
 
     See https://github.com/pytest-dev/py/issues/103.
+
     """
     if not sys.platform.startswith("win32") or hasattr(sys, "pypy_version_info"):
         return
@@ -244,14 +262,13 @@ class EncodedFile(io.TextIOWrapper):
 
     @property
     def name(self) -> str:
-        # Ensure that file.name is a string. Workaround for a Python bug
-        # fixed in >=3.7.4: https://bugs.python.org/issue36015
+        # Ensure that file.name is a string. Workaround for a Python bug fixed in
+        # >=3.7.4: https://bugs.python.org/issue36015
         return repr(self.buffer)
 
     @property
     def mode(self) -> str:
-        # TextIOWrapper doesn't expose a mode, but at least some of our
-        # tests check it.
+        # TextIOWrapper doesn't expose a mode, but at least some of our tests check it.
         return self.buffer.mode.replace("b", "")
 
 
@@ -275,11 +292,13 @@ class TeeCaptureIO(CaptureIO):
 
 
 class DontReadFromInput:
+    """Class to disable reading from stdin while capturing is activated."""
+
     encoding = None
 
     def read(self, *_args):  # noqa: U101
         raise OSError(
-            "pytest: reading from stdin while output is captured!  Consider using `-s`."
+            "pytest: reading from stdin while output is captured! Consider using `-s`."
         )
 
     readline = read
@@ -307,14 +326,22 @@ class DontReadFromInput:
 
 
 patchsysdict = {0: "stdin", 1: "stdout", 2: "stderr"}
+"""Dict[int, str]: Map file descriptors to their names."""
 
 
 class NoCapture:
+    """Dummy class when capturing is disabled."""
+
     EMPTY_BUFFER = None
     __init__ = start = done = suspend = resume = lambda *_args: None  # noqa: U101
 
 
 class SysCaptureBinary:
+    """Capture IO to/from Python's buffer for stdin, stdout, and stderr.
+
+    Instead of :class:`SysCapture`, this class produces bytes instead of text.
+
+    """
 
     EMPTY_BUFFER = b""
 
@@ -397,6 +424,12 @@ class SysCaptureBinary:
 
 
 class SysCapture(SysCaptureBinary):
+    """Capture IO to/from Python's buffer for stdin, stdout, and stderr.
+
+    Instead of :class:`SysCaptureBinary`, this class produces text instead of bytes.
+
+    """
+
     EMPTY_BUFFER = ""  # type: ignore[assignment]
 
     def snap(self):
@@ -428,7 +461,7 @@ class FDCaptureBinary:
         except OSError:
             # FD capturing is conceptually simple -- create a temporary file, redirect
             # the FD to it, redirect back when done. But when the target FD is invalid
-            # it throws a wrench into this loveley scheme.
+            # it throws a wrench into this lovely scheme.
 
             # Tests themselves shouldn't care if the FD is valid, FD capturing should
             # work regardless of external circumstances. So falling back to just sys
@@ -556,14 +589,19 @@ class FDCapture(FDCaptureBinary):
 # MultiCapture
 
 
-# This class was a namedtuple, but due to mypy limitation[0] it could not be made
-# generic, so was replaced by a regular class which tries to emulate the pertinent parts
-# of a namedtuple. If the mypy limitation is ever lifted, can make it a namedtuple
-# again. [0]: https://github.com/python/mypy/issues/685
 @final
 @functools.total_ordering
 class CaptureResult(Generic[AnyStr]):
-    """The result of ``CaptureFixture.readouterr``."""
+    """The result of :meth:`MultiCapture.readouterr` which wraps stdout and stderr.
+
+    This class was a namedtuple, but due to mypy limitation [0]_ it could not be made
+    generic, so was replaced by a regular class which tries to emulate the pertinent
+    parts of a namedtuple. If the mypy limitation is ever lifted, can make it a
+    namedtuple again.
+
+    .. [0] https://github.com/python/mypy/issues/685
+
+    """
 
     # Can't use slots in Python<3.5.3 due to https://bugs.python.org/issue31272
     if sys.version_info >= (3, 5, 3):
@@ -613,6 +651,14 @@ class CaptureResult(Generic[AnyStr]):
 
 
 class MultiCapture(Generic[AnyStr]):
+    """The class which manages the buffers connected to each stream.
+
+    The class is instantiated with buffers for ``stdin``, ``stdout`` and ``stderr``.
+    Then, the instance provides convenient methods to control all buffers at once, like
+    start and stop capturing and reading the ``stdout`` and ``stderr``.
+
+    """
+
     _state = None
     _in_suspended = False
 
@@ -700,6 +746,12 @@ class MultiCapture(Generic[AnyStr]):
 
 
 def _get_multicapture(method: "_CaptureMethod") -> MultiCapture[str]:
+    """Set up the MultiCapture class with the passed method.
+
+    For each valid method, the function instantiates the :class:`MultiCapture` class
+    with the specified buffers for ``stdin``, ``stdout``, and ``stderr``.
+
+    """
     if method == "fd":
         return MultiCapture(in_=FDCapture(0), out=FDCapture(1), err=FDCapture(2))
     elif method == "sys":
@@ -719,14 +771,13 @@ def _get_multicapture(method: "_CaptureMethod") -> MultiCapture[str]:
 class CaptureManager:
     """The capture plugin.
 
-    Manages that the appropriate capture method is enabled/disabled during collection
-    and each test phase (setup, call, teardown). After each of those points, the
-    captured output is obtained and attached to the collection/runtest report.
+    This class is the capture plugin which implements some hooks and provides an
+    interface around :func:`_get_multicapture` and :class:`MultiCapture` adjusted to
+    pytask.
 
-    There are two levels of capture:
-
-    * global: enabled by default and can be suppressed by the ``-s`` option. This is
-      always enabled/disabled during collection and each test phase.
+    The class manages that the appropriate capture method is enabled/disabled during the
+    execution phase (setup, call, teardown). After each of those points, the captured
+    output is obtained and attached to the execution report.
 
     """
 
@@ -735,49 +786,35 @@ class CaptureManager:
         self._global_capturing = None  # type: Optional[MultiCapture[str]]
 
     def __repr__(self) -> str:
-        return ("<CaptureManager _method={!r} _global_capturing={!r} ").format(
+        return ("<CaptureManager _method={!r} _global_capturing={!r}>").format(
             self._method, self._global_capturing
         )
 
     def is_capturing(self) -> Union[str, bool]:
-        if self.is_globally_capturing():
-            return "global"
-        return False
-
-    # Global capturing control
-
-    def is_globally_capturing(self) -> bool:
         return self._method != "no"
 
-    def start_global_capturing(self) -> None:
+    def start_capturing(self) -> None:
         assert self._global_capturing is None
         self._global_capturing = _get_multicapture(self._method)
         self._global_capturing.start_capturing()
 
-    def stop_global_capturing(self) -> None:
+    def stop_capturing(self) -> None:
         if self._global_capturing is not None:
             self._global_capturing.pop_outerr_to_orig()
             self._global_capturing.stop_capturing()
             self._global_capturing = None
 
-    def resume_global_capture(self) -> None:
+    def resume(self) -> None:
         # During teardown of the python process, and on rare occasions, capture
         # attributes can be `None` while trying to resume global capture.
         if self._global_capturing is not None:
             self._global_capturing.resume_capturing()
 
-    def suspend_global_capture(self, in_: bool = False) -> None:
+    def suspend(self, in_: bool = False) -> None:
         if self._global_capturing is not None:
             self._global_capturing.suspend_capturing(in_=in_)
 
-    def suspend(self, in_: bool = False) -> None:
-        # Need to undo local capsys-et-al if it exists before disabling global capture.
-        self.suspend_global_capture(in_)
-
-    def resume(self) -> None:
-        self.resume_global_capture()
-
-    def read_global_capture(self) -> CaptureResult[str]:
+    def read(self) -> CaptureResult[str]:
         assert self._global_capturing is not None
         return self._global_capturing.readouterr()
 
@@ -786,13 +823,14 @@ class CaptureManager:
     @contextlib.contextmanager
     def task_capture(self, when: str, task: MetaTask) -> Generator[None, None, None]:
         """Pipe captured stdout and stderr into report sections."""
-        self.resume_global_capture()
+        self.resume()
+
         try:
             yield
         finally:
-            self.suspend_global_capture(in_=False)
+            self.suspend(in_=False)
 
-        out, err = self.read_global_capture()
+        out, err = self.read()
         task.add_report_section(when, "stdout", out)
         task.add_report_section(when, "stderr", err)
 

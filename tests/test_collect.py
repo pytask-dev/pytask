@@ -75,11 +75,7 @@ def test_collect_nodes_with_the_same_name(tmp_path):
 @pytest.mark.end_to_end
 @pytest.mark.parametrize("path_extension", ["", "task_dummy.py"])
 def test_collect_same_test_different_ways(tmp_path, path_extension):
-    source = """
-    def task_dummy():
-        pass
-    """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_dummy.py").write_text("def task_dummy(): pass")
 
     session = main({"paths": tmp_path.joinpath(path_extension)})
 
