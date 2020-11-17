@@ -169,3 +169,32 @@ def test_assert_multiple_products_are_merged_to_dict(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == 0
+
+
+@pytest.mark.parametrize("input_type", ["list", "dict"])
+def test_preserve_input_for_dependencies_and_products(tmp_path, input_type):
+    """Input type for dependencies and products is preserved."""
+    path = tmp_path.joinpath("in.txt")
+    input_ = {0: path.as_posix()} if input_type == "dict" else [path.as_posix()]
+    path.touch()
+
+    path = tmp_path.joinpath("out.txt")
+    output = {0: path.as_posix()} if input_type == "dict" else [path.as_posix()]
+
+    source = f"""
+    import pytask
+    from pathlib import Path
+
+    @pytask.mark.depends_on({input_})
+    @pytask.mark.produces({output})
+    def task_dummy(depends_on, produces):
+        for nodes in [depends_on, produces]:
+            assert isinstance(nodes, dict)
+            assert len(nodes) == 1
+            assert 0 in nodes
+        produces[0].touch()
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+    assert session.exit_code == 0
