@@ -1,3 +1,4 @@
+import sys
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
@@ -222,33 +223,38 @@ class FalseNode:
     path = attr.ib()
 
 
+_ROOT = Path("C:/Users/user") if sys.platform == "win32" else Path("/home/user/")
+
+
 @pytest.mark.integration
 @pytest.mark.parametrize(
     "node, paths, expectation, expected",
     [
         (
-            FilePathNode.from_path(Path("src/module.py")),
-            [Path("src")],
+            FilePathNode.from_path(_ROOT.joinpath("src/module.py")),
+            [_ROOT.joinpath("alternative_src")],
             pytest.raises(ValueError, match="A node must be"),
             None,
         ),
         (
-            FalseNode(Path("src/module.py")),
-            [Path("src")],
+            FalseNode(_ROOT.joinpath("src/module.py")),
+            [_ROOT.joinpath("src")],
             pytest.raises(ValueError, match="Unknown node"),
             None,
         ),
         (
             DummyTask(
-                Path("top/src/module.py"), "top/src/module.py::task_func", "task_func"
+                _ROOT.joinpath("top/src/module.py"),
+                _ROOT.joinpath("top/src/module.py").as_posix() + "::task_func",
+                "task_func",
             ),
-            [Path("top/src")],
+            [_ROOT.joinpath("top/src")],
             does_not_raise(),
             "src/module.py::task_func",
         ),
         (
-            FilePathNode.from_path(Path("top/src/module.py").resolve()),
-            [Path("top/src").resolve()],
+            FilePathNode.from_path(_ROOT.joinpath("top/src/module.py")),
+            [_ROOT.joinpath("top/src")],
             does_not_raise(),
             "src/module.py",
         ),
