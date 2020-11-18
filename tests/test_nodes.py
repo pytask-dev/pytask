@@ -7,6 +7,7 @@ import pytest
 from _pytask.nodes import _check_that_names_are_not_used_multiple_times
 from _pytask.nodes import _convert_nodes_to_dictionary
 from _pytask.nodes import _convert_objects_to_list_of_tuples
+from _pytask.nodes import _convert_objects_to_node_dictionary
 from _pytask.nodes import _create_task_name
 from _pytask.nodes import _extract_nodes_from_function_markers
 from _pytask.nodes import _find_closest_ancestor
@@ -108,21 +109,25 @@ def test_instantiation_of_metanode():
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
-    ("x", "expected"),
+    ("x", "expected_lot", "expected_kd"),
     [
-        (["string"], [("string",)]),
-        (("string",), [("string",)]),
-        (range(2), [(0,), (1,)]),
-        ([{"a": 0, "b": 1}], [("a", 0), ("b", 1)]),
+        (["string"], [("string",)], False),
+        (("string",), [("string",)], False),
+        (range(2), [(0,), (1,)], False),
+        ([{"a": 0, "b": 1}], [("a", 0), ("b", 1)], False),
         (
             ["a", ("b", "c"), {"d": 1, "e": 1}],
             [("a",), ("b",), ("c",), ("d", 1), ("e", 1)],
+            False,
         ),
+        ([["string"]], [("string",)], True),
+        ([{0: "string"}], [(0, "string")], True),
     ],
 )
-def test_convert_objects_to_list_of_tuples(x, expected):
-    result = _convert_objects_to_list_of_tuples(x)
-    assert result == expected
+def test_convert_objects_to_list_of_tuples(x, expected_lot, expected_kd):
+    list_of_tuples, keep_dict = _convert_objects_to_list_of_tuples(x)
+    assert list_of_tuples == expected_lot
+    assert keep_dict is expected_kd
 
 
 ERROR = "'@pytask.mark.depends_on' has nodes with the same name:"
@@ -253,3 +258,30 @@ def test_shorten_node_name(node, paths, expectation, expected):
     with expectation:
         result = shorten_node_name(node, paths)
         assert result == expected
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("when", ["depends_on", "produces"])
+@pytest.mark.parametrize(
+    "objects, expectation, expected_dict, expected_kd",
+    [
+        ([0, 1], does_not_raise, {0: 0, 1: 1}, False),
+        ([{0: 0}, {1: 1}], does_not_raise, {0: 0, 1: 1}, False),
+        ([{0: 0}], does_not_raise, {0: 0}, True),
+        ([[0]], does_not_raise, {0: 0}, True),
+        ([((0, 0),), ((0, 1),)], ValueError, None, None),
+        ([{0: 0}, {0: 1}], ValueError, None, None),
+    ],
+)
+def test_convert_objects_to_node_dictionary(
+    objects, when, expectation, expected_dict, expected_kd
+):
+    expectation = (
+        pytest.raises(expectation, match=f"'@pytask.mark.{when}' has nodes")
+        if expectation == ValueError
+        else expectation()
+    )
+    with expectation:
+        node_dict, keep_dict = _convert_objects_to_node_dictionary(objects, when)
+        assert node_dict == expected_dict
+        assert keep_dict is expected_kd
