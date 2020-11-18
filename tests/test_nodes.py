@@ -1,4 +1,3 @@
-import sys
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
@@ -223,7 +222,7 @@ class FalseNode:
     path = attr.ib()
 
 
-_ROOT = Path("C:/Users/user") if sys.platform == "win32" else Path("/home/user/")
+_ROOT = Path.cwd()
 
 
 @pytest.mark.integration
