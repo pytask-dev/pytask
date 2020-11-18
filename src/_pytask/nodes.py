@@ -7,8 +7,10 @@ from abc import ABCMeta
 from abc import abstractmethod
 from pathlib import Path
 from typing import Any
+from typing import Dict
 from typing import Iterable
 from typing import List
+from typing import Tuple
 from typing import Union
 
 import attr
@@ -82,17 +84,22 @@ class PythonFunctionTask(MetaTask):
     """List[MetaNode]: A list of products of task."""
     markers = attr.ib(factory=list)
     """Optional[List[Mark]]: A list of markers attached to the task function."""
+    keep_dict = attr.ib(factory=dict)
     _report_sections = attr.ib(factory=list)
 
     @classmethod
     def from_path_name_function_session(cls, path, name, function, session):
         """Create a task from a path, name, function, and session."""
+        keep_dictionary = {}
+
         objects = _extract_nodes_from_function_markers(function, depends_on)
-        nodes = _convert_objects_to_node_dictionary(objects, "depends_on")
+        nodes, keep_dict = _convert_objects_to_node_dictionary(objects, "depends_on")
+        keep_dictionary["depends_on"] = keep_dict
         dependencies = _collect_nodes(session, path, name, nodes)
 
         objects = _extract_nodes_from_function_markers(function, produces)
-        nodes = _convert_objects_to_node_dictionary(objects, "produces")
+        nodes, keep_dict = _convert_objects_to_node_dictionary(objects, "produces")
+        keep_dictionary["produces"] = keep_dict
         products = _collect_nodes(session, path, name, nodes)
 
         markers = [
@@ -109,6 +116,7 @@ class PythonFunctionTask(MetaTask):
             depends_on=dependencies,
             produces=products,
             markers=markers,
+            keep_dict=keep_dictionary,
         )
 
     def execute(self):
@@ -124,15 +132,15 @@ class PythonFunctionTask(MetaTask):
         """Process dependencies and products to pass them as kwargs to the function."""
         func_arg_names = set(inspect.signature(self.function).parameters)
         kwargs = {}
-        for name in ["depends_on", "produces"]:
-            if name in func_arg_names:
-                attribute = getattr(self, name)
-                kwargs[name] = (
+        for arg_name in ["depends_on", "produces"]:
+            if arg_name in func_arg_names:
+                attribute = getattr(self, arg_name)
+                kwargs[arg_name] = (
                     attribute[0].value
-                    if len(attribute) == 1 and 0 in attribute
-                    else {
-                        node_name: node.value for node_name, node in attribute.items()
-                    }
+                    if len(attribute) == 1
+                    and 0 in attribute
+                    and not self.keep_dict[arg_name]
+                    else {name: node.value for name, node in attribute.items()}
                 )
 
         return kwargs
@@ -208,32 +216,49 @@ def _extract_nodes_from_function_markers(function, parser):
 
 
 def _convert_objects_to_node_dictionary(objects, when):
-    list_of_tuples = _convert_objects_to_list_of_tuples(objects)
+    """Convert objects to node dictionary."""
+    list_of_tuples, keep_dict = _convert_objects_to_list_of_tuples(objects)
     _check_that_names_are_not_used_multiple_times(list_of_tuples, when)
     nodes = _convert_nodes_to_dictionary(list_of_tuples)
-    return nodes
+    return nodes, keep_dict
 
 
 def _convert_objects_to_list_of_tuples(objects):
+    """Convert objects to list of tuples.
+
+    Examples
+    --------
+    _convert_objects_to_list_of_tuples([{0: 0}, [4, (3, 2)], ((1, 4),))
+    [(0, 0), (4,), (3, 2), (1, 4)], False
+
+    """
+    keep_dict = False
+
     out = []
     for obj in objects:
         if isinstance(obj, dict):
             obj = obj.items()
 
         if isinstance(obj, Iterable) and not isinstance(obj, str):
+            keep_dict = True
             for x in obj:
                 if isinstance(x, Iterable) and not isinstance(x, str):
                     tuple_x = tuple(x)
                     if len(tuple_x) in [1, 2]:
                         out.append(tuple_x)
                     else:
-                        raise ValueError("ERROR")
+                        raise ValueError(
+                            f"Element {x} can only have two elements at most."
+                        )
                 else:
                     out.append((x,))
         else:
             out.append((obj,))
 
-    return out
+    if len(out) > 1:
+        keep_dict = False
+
+    return out, keep_dict
 
 
 def _check_that_names_are_not_used_multiple_times(list_of_tuples, when):
@@ -263,7 +288,19 @@ def _check_that_names_are_not_used_multiple_times(list_of_tuples, when):
         )
 
 
-def _convert_nodes_to_dictionary(list_of_tuples):
+def _convert_nodes_to_dictionary(
+    list_of_tuples: List[Tuple[str]],
+) -> Dict[str, Union[str, Path]]:
+    """Convert nodes to dictionaries.
+
+    Examples
+    --------
+    >>> _convert_nodes_to_dictionary([(0,), (1,)])
+    {0: 0, 1: 1}
+    >>> _convert_nodes_to_dictionary([(1, 0), (1,)])
+    {1: 0, 0: 1}
+
+    """
     nodes = {}
     counter = itertools.count()
     names = [x[0] for x in list_of_tuples if len(x) == 2]

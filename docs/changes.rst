@@ -11,6 +11,9 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 
 - :gh:`40` cleans up the capture manager and other parts of pytask.
 - :gh:`41` shortens the task ids in the error reports for better readability.
+- :gh:`42` ensures that lists with one element and dictionaries with only a zero key as
+  input for ``@pytask.mark.depends_on`` and ``@pytask.mark.produces`` are preserved as a
+  dictionary inside the function.
 - :gh:`43` releases v0.0.10
 
 
