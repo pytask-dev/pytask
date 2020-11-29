@@ -6,6 +6,13 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
 
 
+0.0.11 - 2020-xx-xx
+-------------------
+
+- :gh:`45` adds the option to stop execution after a number of tasks has failed. Closes
+  :gh:`44`.
+
+
 0.0.10 - 2020-11-18
 -------------------
 
