@@ -19,7 +19,7 @@ def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
 @hookimpl
 def pytask_parse_config(config):
     markers = {
-        "skip": "Skip task and all its succeeding tasks automatically as well.",
+        "skip": "Skip a task and all its subsequent tasks as well.",
         "skip_ancestor_failed": "Internal decorator applied to tasks whose ancestor "
         "failed.",
         "skip_unchanged": "Internal decorator applied to tasks which have already been "
@@ -62,7 +62,7 @@ def pytask_execute_task_process_report(session, report):
 
         elif isinstance(report.exc_info[1], Skipped):
             report.success = True
-            for descending_task_name in descending_tasks(report.task.name, session.dag):
+            for descending_task_name in descending_tasks(task.name, session.dag):
                 descending_task = session.dag.nodes[descending_task_name]["task"]
                 descending_task.markers.append(
                     Mark(

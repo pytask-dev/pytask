@@ -13,9 +13,8 @@ from _pytask.exceptions import CollectionError
 from _pytask.mark import has_marker
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import PythonFunctionTask
+from _pytask.nodes import shorten_node_name
 from _pytask.report import CollectionReport
-from _pytask.report import CollectionReportFile
-from _pytask.report import CollectionReportTask
 from _pytask.report import format_collect_footer
 
 
@@ -30,9 +29,7 @@ def pytask_collect(session):
     try:
         session.hook.pytask_collect_modify_tasks(session=session, tasks=tasks)
     except Exception:
-        report = CollectionReport(
-            " Modification of collected tasks failed ", sys.exc_info()
-        )
+        report = CollectionReport.from_exception(exc_info=sys.exc_info())
         reports.append(report)
 
     session.collection_reports = reports
@@ -75,8 +72,8 @@ def _collect_from_paths(session):
 @hookimpl
 def pytask_ignore_collect(path, config):
     """Ignore a path during the collection."""
-    ignored = any(path.match(pattern) for pattern in config["ignore"])
-    return ignored
+    is_ignored = any(path.match(pattern) for pattern in config["ignore"])
+    return is_ignored
 
 
 @hookimpl
@@ -86,8 +83,8 @@ def pytask_collect_file_protocol(session, path, reports):
             session=session, path=path, reports=reports
         )
     except Exception:
-        exc_info = sys.exc_info()
-        reports = [CollectionReportFile.from_exception(path, exc_info)]
+        node = FilePathNode.from_path(path)
+        reports = [CollectionReport.from_exception(node=node, exc_info=sys.exc_info())]
 
     return reports
 
@@ -99,7 +96,7 @@ def pytask_collect_file(session, path, reports):
         spec = importlib.util.spec_from_file_location(path.stem, str(path))
 
         if spec is None:
-            raise ImportError(f"Can't find module {path.stem} at location {path}.")
+            raise ImportError(f"Can't find module '{path.stem}' at location {path}.")
 
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
@@ -135,11 +132,12 @@ def pytask_collect_task_protocol(session, path, name, obj):
         )
         if task is not None:
             session.hook.pytask_collect_task_teardown(session=session, task=task)
-            return CollectionReportTask.from_task(task)
+            return CollectionReport.from_node(task)
 
     except Exception:
-        exc_info = sys.exc_info()
-        return CollectionReportTask.from_exception(path, name, exc_info)
+        return CollectionReport.from_exception(
+            exc_info=sys.exc_info(), node=locals().get("task")
+        )
 
 
 @hookimpl(trylast=True)
@@ -211,7 +209,7 @@ def valid_paths(paths, session):
 
 def _extract_successful_tasks_from_reports(reports):
     """Extract successful tasks from reports."""
-    return [i.task for i in reports if i.successful]
+    return [i.node for i in reports if i.successful]
 
 
 @hookimpl
@@ -233,7 +231,13 @@ def pytask_collect_log(session, reports, tasks):
         click.echo(f"{{:=^{tm_width}}}".format(" Failures during collection "))
 
         for report in failed_reports:
-            click.echo(f"{{:_^{tm_width}}}".format(report.format_title()))
+            if report.node is None:
+                header = " Error "
+            else:
+                shortened_name = shorten_node_name(report.node, session.config["paths"])
+                header = f" Could not collect {shortened_name} "
+
+            click.echo(f"{{:_^{tm_width}}}".format(header))
 
             click.echo("")
 
@@ -241,12 +245,12 @@ def pytask_collect_log(session, reports, tasks):
 
             click.echo("")
 
-            duration = round(session.collection_end - session.collection_start, 2)
-            click.echo(
-                format_collect_footer(
-                    len(tasks), len(failed_reports), n_deselected, duration, tm_width
-                ),
-                nl=True,
-            )
+        duration = round(session.collection_end - session.collection_start, 2)
+        click.echo(
+            format_collect_footer(
+                len(tasks), len(failed_reports), n_deselected, duration, tm_width
+            ),
+            nl=True,
+        )
 
         raise CollectionError

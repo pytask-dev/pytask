@@ -1,8 +1,68 @@
-import os
 import textwrap
 
 import pytest
+from _pytask.exceptions import NodeNotFoundError
+from pytask import cli
 from pytask import main
+
+
+@pytest.mark.end_to_end
+def test_task_did_not_produce_node(tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.produces("out.txt")
+    def task_dummy():
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 1
+    assert len(session.execution_reports) == 1
+    assert isinstance(session.execution_reports[0].exc_info[1], NodeNotFoundError)
+
+
+@pytest.mark.end_to_end
+def test_node_not_found_in_task_setup(tmp_path):
+    """Test for :class:`_pytask.exceptions.NodeNotFoundError` in task setup.
+
+    Before a task is executed, pytask checks whether all dependencies can be found.
+    Normally, missing dependencies are caught during resolving dependencies if they are
+    root nodes or when a task does not produce a node.
+
+    To force this error one task accidentally deletes the product of another task.
+
+    """
+    source = """
+    import pytask
+
+    @pytask.mark.produces(["out_1.txt", "deleted.txt"])
+    def task_1(produces):
+        for product in produces.values():
+            product.touch()
+
+    @pytask.mark.depends_on("out_1.txt")
+    @pytask.mark.produces("out_2.txt")
+    def task_2(depends_on, produces):
+        depends_on.with_name("deleted.txt").unlink()
+        produces.touch()
+
+    @pytask.mark.depends_on(["deleted.txt", "out_2.txt"])
+    def task_3(depends_on):
+        pass
+
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 1
+    assert sum(i.success for i in session.execution_reports) == 2
+
+    report = session.execution_reports[2]
+    assert isinstance(report.exc_info[1], NodeNotFoundError)
 
 
 @pytest.mark.end_to_end
@@ -49,8 +109,92 @@ def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Here I am. Once again.")
 
-    os.chdir(tmp_path)
     session = main({"paths": tmp_path})
 
     assert session.exit_code == 0
     assert tmp_path.joinpath("out.txt").read_text() == "Here I am. Once again."
+
+
+@pytest.mark.end_to_end
+def test_assert_multiple_dependencies_are_merged_to_dict(tmp_path, runner):
+    source = """
+    import pytask
+    from pathlib import Path
+
+    @pytask.mark.depends_on([(5, "in_5.txt"), (6, "in_6.txt")])
+    @pytask.mark.depends_on({3: "in_3.txt", 4: "in_4.txt"})
+    @pytask.mark.depends_on(["in_1.txt", "in_2.txt"])
+    @pytask.mark.depends_on("in_0.txt")
+    @pytask.mark.produces("out.txt")
+    def task_dummy(depends_on, produces):
+        expected = {
+            i: Path(__file__).parent.joinpath(f"in_{i}.txt").resolve()
+            for i in range(7)
+        }
+        assert depends_on == expected
+        produces.touch()
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    for name in [f"in_{i}.txt" for i in range(7)]:
+        tmp_path.joinpath(name).touch()
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == 0
+
+
+@pytest.mark.end_to_end
+def test_assert_multiple_products_are_merged_to_dict(tmp_path, runner):
+    source = """
+    import pytask
+    from pathlib import Path
+
+    @pytask.mark.depends_on("in.txt")
+    @pytask.mark.produces([(5, "out_5.txt"), (6, "out_6.txt")])
+    @pytask.mark.produces({3: "out_3.txt", 4: "out_4.txt"})
+    @pytask.mark.produces(["out_1.txt", "out_2.txt"])
+    @pytask.mark.produces("out_0.txt")
+    def task_dummy(depends_on, produces):
+        expected = {
+            i: Path(__file__).parent.joinpath(f"out_{i}.txt").resolve()
+            for i in range(7)
+        }
+        assert produces == expected
+        for product in produces.values():
+            product.touch()
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.txt").touch()
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == 0
+
+
+@pytest.mark.parametrize("input_type", ["list", "dict"])
+def test_preserve_input_for_dependencies_and_products(tmp_path, input_type):
+    """Input type for dependencies and products is preserved."""
+    path = tmp_path.joinpath("in.txt")
+    input_ = {0: path.as_posix()} if input_type == "dict" else [path.as_posix()]
+    path.touch()
+
+    path = tmp_path.joinpath("out.txt")
+    output = {0: path.as_posix()} if input_type == "dict" else [path.as_posix()]
+
+    source = f"""
+    import pytask
+    from pathlib import Path
+
+    @pytask.mark.depends_on({input_})
+    @pytask.mark.produces({output})
+    def task_dummy(depends_on, produces):
+        for nodes in [depends_on, produces]:
+            assert isinstance(nodes, dict)
+            assert len(nodes) == 1
+            assert 0 in nodes
+        produces[0].touch()
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+    assert session.exit_code == 0

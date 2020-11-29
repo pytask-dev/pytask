@@ -14,9 +14,9 @@ def pytask_parse_config(config):
     config["markers"]["persist"] = (
         "Prevent execution of a task if all products exist and even if something has "
         "changed (dependencies, source file, products). This decorator might be useful "
-        "for expensive tasks where only the formatting of the has changed. The state "
-        "of the files which have changed will also be remembered and another run will "
-        "skip the task with success."
+        "for expensive tasks where only the formatting of the file has changed. The "
+        "state of the files which have changed will also be remembered and another run "
+        "will skip the task with success."
     )
 
 

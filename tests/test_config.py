@@ -84,42 +84,6 @@ def test_debug_pytask(capsys, tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.parametrize("ignored_folder", _IGNORED_FOLDERS + ["pytask.egg-info"])
-def test_ignore_default_paths(tmp_path, ignored_folder):
-    source = """
-    def task_dummy():
-        pass
-    """
-    tmp_path.joinpath(ignored_folder).mkdir()
-    tmp_path.joinpath(ignored_folder, "task_dummy.py").write_text(
-        textwrap.dedent(source)
-    )
-
-    session = main({"paths": tmp_path})
-    assert session.exit_code == 0
-    assert len(session.tasks) == 0
-
-
-@pytest.mark.end_to_end
-@pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
-@pytest.mark.parametrize("ignore", ["", "*task_dummy.py"])
-@pytest.mark.parametrize("new_line", [True, False])
-def test_ignore_paths(tmp_path, config_path, ignore, new_line):
-    source = """
-    def task_dummy():
-        pass
-    """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
-    entry = f"ignore =\n\t{ignore}" if new_line else f"ignore = {ignore}"
-    config = f"[pytask]\n{entry}" if ignore else "[pytask]"
-    tmp_path.joinpath(config_path).write_text(config)
-
-    session = main({"paths": tmp_path})
-    assert session.exit_code == 0
-    assert len(session.tasks) == 0 if ignore else len(session.tasks) == 1
-
-
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
 def test_pass_config_to_cli(tmp_path, config_path):
     config = """
