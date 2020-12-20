@@ -11,7 +11,7 @@ repos:
         exclude: (debugging\.py|build\.py|clean\.py|mark/__init__\.py|collect_command\.py)
     -   id: end-of-file-fixer
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.7.3
+    rev: v2.7.4
     hooks:
     -   id: pyupgrade
         args: [--py36-plus]
@@ -57,7 +57,7 @@ repos:
     -   id: interrogate
         args: [-v, --fail-under=40, src, tests]
 -   repo: https://github.com/codespell-project/codespell
-    rev: v1.17.1
+    rev: v2.0.0
     hooks:
     -   id: codespell
 -   repo: meta
