@@ -1,5 +1,6 @@
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
+from pathlib import Path
 
 import attr
 import networkx as nx
@@ -37,6 +38,10 @@ class Node(MetaNode):
             raise NodeNotFoundError
 
 
+class DummySession:
+    pass
+
+
 @pytest.mark.unit
 def test_create_dag():
     task = Task(
@@ -53,22 +58,30 @@ def test_create_dag():
 def test_check_if_root_nodes_are_available():
     dag = nx.DiGraph()
 
+    root = Path("directory")
+    session = DummySession()
+    session.config = {"paths": [root]}
+
     task = Task("task")
+    task.path = root.joinpath("task_dummy")
+    task.base_name = "task_dummy"
     dag.add_node(task.name, task=task)
 
     available_node = Node("available")
+    available_node.path = root.joinpath("available_node")
     dag.add_node(available_node.name, node=available_node)
     dag.add_edge(available_node.name, task.name)
 
     with does_not_raise():
-        _check_if_root_nodes_are_available(dag)
+        _check_if_root_nodes_are_available(dag, session)
 
     missing_node = Node("missing")
+    missing_node.path = root.joinpath("missing_node")
     dag.add_node(missing_node.name, node=missing_node)
     dag.add_edge(missing_node.name, task.name)
 
     with pytest.raises(ResolvingDependenciesError):
-        _check_if_root_nodes_are_available(dag)
+        _check_if_root_nodes_are_available(dag, session)
 
 
 @pytest.mark.end_to_end
@@ -78,15 +91,21 @@ def test_check_if_root_nodes_are_available_end_to_end(tmp_path, runner):
 
     @pytask.mark.depends_on("in.txt")
     @pytask.mark.produces("out.txt")
-    def task_dummy(produces):
+    def task_d(produces):
         produces.write_text("1")
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_d.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == 4
     assert "Failures during resolving dependencies" in result.output
+
+    # Ensure that node names are reduced.
+    assert tmp_path.joinpath("task_d.py").as_posix() + "::task_d" not in result.output
+    assert tmp_path.name + "/task_d.py::task_d" in result.output
+    assert tmp_path.joinpath("in.txt").as_posix() not in result.output
+    assert tmp_path.name + "/in.txt" in result.output
 
 
 @pytest.mark.end_to_end
@@ -125,9 +144,17 @@ def test_two_tasks_have_the_same_product(tmp_path, runner):
     def task_2(produces):
         produces.write_text("2")
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_d.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == 4
     assert "Failures during resolving dependencies" in result.output
+
+    # Ensure that nodes names are reduced.
+    assert tmp_path.joinpath("task_d.py").as_posix() + "::task_1" not in result.output
+    assert tmp_path.name + "/task_d.py::task_1" in result.output
+    assert tmp_path.joinpath("task_d.py").as_posix() + "::task_2" not in result.output
+    assert tmp_path.name + "/task_d.py::task_2" in result.output
+    assert tmp_path.joinpath("out.txt").as_posix() not in result.output
+    assert tmp_path.name + "/out.txt" in result.output
