@@ -17,7 +17,7 @@ from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaNode
 from _pytask.nodes import MetaTask
 from _pytask.nodes import produces
-from _pytask.nodes import shorten_node_name
+from _pytask.nodes import reduce_node_name
 
 
 @pytest.mark.unit
@@ -259,9 +259,9 @@ _ROOT = Path.cwd()
         ),
     ],
 )
-def test_shorten_node_name(node, paths, expectation, expected):
+def test_reduce_node_name(node, paths, expectation, expected):
     with expectation:
-        result = shorten_node_name(node, paths)
+        result = reduce_node_name(node, paths)
         assert result == expected
 
 

@@ -381,13 +381,13 @@ def _find_closest_ancestor(path: Path, potential_ancestors: List[Path]):
     return closest_ancestor
 
 
-def shorten_node_name(node, paths: List[Path]):
-    """Shorten the node name.
+def reduce_node_name(node, paths: List[Path]):
+    """Reduce the node name.
 
     The whole name of the node - which includes the drive letter - can be very long
     when using nested folder structures in bigger projects.
 
-    Thus, the part of the name which contains the path is replace by the relative
+    Thus, the part of the name which contains the path is replaced by the relative
     path from one path in ``session.config["paths"]`` to the node.
 
     """

@@ -12,7 +12,7 @@ from _pytask.database import State
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
-from _pytask.nodes import shorten_node_name
+from _pytask.nodes import reduce_node_name
 from _pytask.report import ResolvingDependenciesReport
 from _pytask.traceback import remove_traceback_from_exc_info
 from pony import orm
@@ -145,7 +145,7 @@ def _check_if_root_nodes_are_available(dag, session):
                 dag.nodes[node]["node"].state()
             except NodeNotFoundError:
                 # Shorten node names for better printing.
-                short_node_name = shorten_node_name(dag.nodes[node]["node"], paths)
+                short_node_name = reduce_node_name(dag.nodes[node]["node"], paths)
                 short_successors = _reduce_names_of_multiple_nodes(
                     dag.successors(node), dag, paths
                 )
@@ -170,7 +170,7 @@ def _check_if_tasks_have_the_same_products(dag, session):
             parents = list(dag.predecessors(node))
             if len(parents) > 1:
                 # Reduce node names for better printing.
-                short_node = shorten_node_name(dag.nodes[node]["node"], paths)
+                short_node = reduce_node_name(dag.nodes[node]["node"], paths)
                 short_parents = _reduce_names_of_multiple_nodes(parents, dag, paths)
                 nodes_created_by_multiple_tasks[short_node] = short_parents
 
@@ -200,6 +200,6 @@ def pytask_resolve_dependencies_log(session, report):
 def _reduce_names_of_multiple_nodes(names, dag, paths):
     """Reduce the names of multiple nodes in the DAG."""
     return [
-        shorten_node_name(dag.nodes[n].get("node") or dag.nodes[n].get("task"), paths)
+        reduce_node_name(dag.nodes[n].get("node") or dag.nodes[n].get("task"), paths)
         for n in names
     ]
