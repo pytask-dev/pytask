@@ -15,6 +15,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
   input for ``@pytask.mark.depends_on`` and ``@pytask.mark.produces`` are preserved as a
   dictionary inside the function.
 - :gh:`43` releases v0.0.10
+- :gh:`48` starts a style guide for pytask.
 
 
 0.0.9 - 2020-10-28

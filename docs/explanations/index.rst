@@ -11,3 +11,4 @@ systems in general as well as its design.
    why_another_build_system
    design
    pluggy
+   best_practices_guide
