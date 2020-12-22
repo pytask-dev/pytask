@@ -218,11 +218,11 @@ def pytask_collect_log(session, reports, tasks):
     session.collection_end = time.time()
     tm_width = session.config["terminal_width"]
 
-    message = f"Collected {len(tasks)} task(s)."
+    message = f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}."
 
     n_deselected = len(session.deselected)
     if n_deselected:
-        message += f" Deselected {n_deselected} task(s)."
+        message += f" Deselected {n_deselected} task{'' if n_deselected == 1 else 's'}."
     click.echo(message)
 
     failed_reports = [i for i in reports if not i.successful]
