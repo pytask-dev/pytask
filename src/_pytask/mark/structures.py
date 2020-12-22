@@ -69,7 +69,7 @@ class Mark:
         assert self.name == other.name
 
         # Remember source of ids with parametrize Marks.
-        param_ids_from = None  # type: Optional[Mark]
+        param_ids_from: Optional[Mark] = None
         if self.name == "parametrize":
             if other._has_param_ids():
                 param_ids_from = other

@@ -19,7 +19,14 @@ There are two entry-points to invoke pytask.
        $ pytask --version
        $ pytask -h | --help
 
-2. Invoke pytask programmatically with
+2. Invoke pytask via the Python interpreter which will add the current path to the
+   ``sys.path``.
+
+   .. code-block:: console
+
+       python -m pytask /some/task/dir
+
+3. Invoke pytask programmatically with
 
    .. code-block:: python
 

@@ -1,9 +1,17 @@
+import subprocess
 import textwrap
 
 import pytest
 from _pytask.exceptions import NodeNotFoundError
 from pytask import cli
 from pytask import main
+
+
+@pytest.mark.end_to_end
+def test_python_m_pytask(tmp_path):
+    source = "def task_dummy(): pass"
+    tmp_path.joinpath("task_dummy.py").write_text(source)
+    subprocess.run(["python", "-m", "pytask", tmp_path.as_posix()], check=True)
 
 
 @pytest.mark.end_to_end

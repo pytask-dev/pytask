@@ -13,6 +13,8 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
   :gh:`44`.
 - :gh:`47` reduce node names in error messages while resolving dependencies.
 - :gh:`50` implements correct usage of singular and plural in collection logs.
+- :gh:`51` allows to invoke pytask through the Python interpreter with ``python -m
+  pytask`` which will add the current path to ``sys.path``.
 
 
 0.0.10 - 2020-11-18
