@@ -356,7 +356,9 @@ def _find_closest_ancestor(path: Path, potential_ancestors: List[Path]):
     """Find the closest ancestor of a path.
 
     In case only a single path to a task file is passed, we take the parent folder of
-    this file.
+    this file. The check :meth:`pathlib.Path.is_file` only succeeds when the file
+    exists. This must be true as otherwise an error is raised by :obj:`click` right in
+    the beginning.
 
     Examples
     --------
