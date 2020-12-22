@@ -11,6 +11,8 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 
 - :gh:`45` adds the option to stop execution after a number of tasks has failed. Closes
   :gh:`44`.
+- :gh:`50` allows to invoke pytask through the Python interpreter with ``python -m
+  pytask`` which will add the current path to ``sys.path``.
 
 
 0.0.10 - 2020-11-18
