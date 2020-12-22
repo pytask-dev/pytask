@@ -355,6 +355,9 @@ def _relative_to(path: Path, source: Path, include_source: bool = True):
 def _find_closest_ancestor(path: Path, potential_ancestors: List[Path]):
     """Find the closest ancestor of a path.
 
+    In case only a single path to a task file is passed, we take the parent folder of
+    this file.
+
     Examples
     --------
     >>> from pathlib import Path
@@ -371,6 +374,11 @@ def _find_closest_ancestor(path: Path, potential_ancestors: List[Path]):
         if ancestor == path:
             closest_ancestor = path
             break
+
+        # Paths can also point to files in which case we want to take the parent folder.
+        if ancestor.is_file():
+            ancestor = ancestor.parent
+
         if ancestor in path.parents:
             if closest_ancestor is None or (
                 len(path.relative_to(ancestor).parts)

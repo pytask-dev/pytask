@@ -102,6 +102,8 @@ def test_check_if_root_nodes_are_available_end_to_end(tmp_path, runner):
     assert "Failures during resolving dependencies" in result.output
 
     # Ensure that node names are reduced.
+    assert "Failures during resolving dependencies" in result.output
+    assert "There are some dependencies missing which do not" in result.output
     assert tmp_path.joinpath("task_d.py").as_posix() + "::task_d" not in result.output
     assert tmp_path.name + "/task_d.py::task_d" in result.output
     assert tmp_path.joinpath("in.txt").as_posix() not in result.output
@@ -129,6 +131,7 @@ def test_cycle_in_dag(tmp_path, runner):
 
     assert result.exit_code == 4
     assert "Failures during resolving dependencies" in result.output
+    assert "The DAG contains cycles which means a dependency" in result.output
 
 
 @pytest.mark.end_to_end
@@ -150,6 +153,7 @@ def test_two_tasks_have_the_same_product(tmp_path, runner):
 
     assert result.exit_code == 4
     assert "Failures during resolving dependencies" in result.output
+    assert "There are some tasks which produce the same output." in result.output
 
     # Ensure that nodes names are reduced.
     assert tmp_path.joinpath("task_d.py").as_posix() + "::task_1" not in result.output
