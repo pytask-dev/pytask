@@ -90,6 +90,14 @@ def main(config_from_cli):
     default=None,
     help="Trace all function calls in the plugin framework.  [default: False]",
 )
+@click.option(
+    "-x",
+    "--stop-after-first-failure",
+    is_flag=True,
+    default=None,
+    help="Stop after the first failure.",
+)
+@click.option("--max-failures", default=None, help="Stop after some failures.")
 def build(**config_from_cli):
     """Collect and execute tasks and report the results.
 

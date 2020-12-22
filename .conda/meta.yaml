@@ -39,6 +39,7 @@ test:
     - pytest
   source_files:
     - tox.ini
+    - src
     - tests
   commands:
     - pytask --help

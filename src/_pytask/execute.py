@@ -23,7 +23,7 @@ def pytask_execute(session):
     """Execute tasks."""
     session.hook.pytask_execute_log_start(session=session)
     session.scheduler = session.hook.pytask_execute_create_scheduler(session=session)
-    session.execution_reports = session.hook.pytask_execute_build(session=session)
+    session.hook.pytask_execute_build(session=session)
     session.hook.pytask_execute_log_end(
         session=session, reports=session.execution_reports
     )
@@ -49,12 +49,13 @@ def pytask_execute_create_scheduler(session):
 @hookimpl
 def pytask_execute_build(session):
     """Execute tasks."""
-    reports = []
     for task in session.scheduler:
         report = session.hook.pytask_execute_task_protocol(session=session, task=task)
-        reports.append(report)
+        session.execution_reports.append(report)
+        if session.should_stop:
+            return True
 
-    return reports
+    return True
 
 
 @hookimpl
@@ -138,6 +139,11 @@ def pytask_execute_task_process_report(session, report):
                     {"reason": f"Previous task '{task.name}' failed."},
                 )
             )
+
+        session.n_tests_failed += 1
+        if session.n_tests_failed >= session.config["max_failures"]:
+            session.should_stop = True
+
     return True
 
 

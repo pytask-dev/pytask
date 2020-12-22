@@ -198,3 +198,35 @@ def test_preserve_input_for_dependencies_and_products(tmp_path, input_type):
 
     session = main({"paths": tmp_path})
     assert session.exit_code == 0
+
+
+@pytest.mark.parametrize("n_failures", [1, 2, 3])
+def test_execution_stops_after_n_failures(tmp_path, n_failures):
+    source = """
+    def task_1(): raise Exception
+    def task_2(): raise Exception
+    def task_3(): raise Exception
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path, "max_failures": n_failures})
+
+    assert len(session.tasks) == 3
+    assert len(session.execution_reports) == n_failures
+
+
+@pytest.mark.parametrize("stop_after_first_failure", [False, True])
+def test_execution_stop_after_first_failure(tmp_path, stop_after_first_failure):
+    source = """
+    def task_1(): raise Exception
+    def task_2(): raise Exception
+    def task_3(): raise Exception
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main(
+        {"paths": tmp_path, "stop_after_first_failure": stop_after_first_failure}
+    )
+
+    assert len(session.tasks) == 3
+    assert len(session.execution_reports) == 1 if stop_after_first_failure else 3

@@ -9,6 +9,8 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 0.0.11 - 2020-xx-xx
 -------------------
 
+- :gh:`45` adds the option to stop execution after a number of tasks has failed. Closes
+  :gh:`44`.
 - :gh:`47` reduce node names in error messages while resolving dependencies.
 - :gh:`50` implements correct usage of singular and plural in collection logs.
 
