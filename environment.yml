@@ -28,6 +28,7 @@ dependencies:
   - pydot
   - pytest-cov
   - tox-conda
+  - virtualenv=20.0.33
 
   # Documentation
   - nbsphinx
