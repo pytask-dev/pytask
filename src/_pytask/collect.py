@@ -13,7 +13,7 @@ from _pytask.exceptions import CollectionError
 from _pytask.mark import has_marker
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import PythonFunctionTask
-from _pytask.nodes import shorten_node_name
+from _pytask.nodes import reduce_node_name
 from _pytask.report import CollectionReport
 from _pytask.report import format_collect_footer
 
@@ -218,11 +218,11 @@ def pytask_collect_log(session, reports, tasks):
     session.collection_end = time.time()
     tm_width = session.config["terminal_width"]
 
-    message = f"Collected {len(tasks)} task(s)."
+    message = f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}."
 
     n_deselected = len(session.deselected)
     if n_deselected:
-        message += f" Deselected {n_deselected} task(s)."
+        message += f" Deselected {n_deselected} task{'' if n_deselected == 1 else 's'}."
     click.echo(message)
 
     failed_reports = [i for i in reports if not i.successful]
@@ -234,8 +234,8 @@ def pytask_collect_log(session, reports, tasks):
             if report.node is None:
                 header = " Error "
             else:
-                shortened_name = shorten_node_name(report.node, session.config["paths"])
-                header = f" Could not collect {shortened_name} "
+                short_name = reduce_node_name(report.node, session.config["paths"])
+                header = f" Could not collect {short_name} "
 
             click.echo(f"{{:_^{tm_width}}}".format(header))
 

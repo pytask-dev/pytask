@@ -11,7 +11,9 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 
 - :gh:`45` adds the option to stop execution after a number of tasks has failed. Closes
   :gh:`44`.
-- :gh:`50` allows to invoke pytask through the Python interpreter with ``python -m
+- :gh:`47` reduce node names in error messages while resolving dependencies.
+- :gh:`50` implements correct usage of singular and plural in collection logs.
+- :gh:`51` allows to invoke pytask through the Python interpreter with ``python -m
   pytask`` which will add the current path to ``sys.path``.
 
 
@@ -23,7 +25,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`42` ensures that lists with one element and dictionaries with only a zero key as
   input for ``@pytask.mark.depends_on`` and ``@pytask.mark.produces`` are preserved as a
   dictionary inside the function.
-- :gh:`43` releases v0.0.10
+- :gh:`43` releases v0.0.10.
 
 
 0.0.9 - 2020-10-28
