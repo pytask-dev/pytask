@@ -783,7 +783,7 @@ class CaptureManager:
 
     def __init__(self, method: "_CaptureMethod") -> None:
         self._method = method
-        self._global_capturing = None  # type: Optional[MultiCapture[str]]
+        self._global_capturing: Optional[MultiCapture[str]] = None
 
     def __repr__(self) -> str:
         return ("<CaptureManager _method={!r} _global_capturing={!r}>").format(

@@ -16,6 +16,7 @@ repos:
     -   id: python-check-blanket-noqa
     -   id: python-check-mock-methods
     -   id: python-no-eval
+        exclude: expression.py
     -   id: python-no-log-warn
     -   id: python-use-type-annotations
     -   id: rst-backticks
