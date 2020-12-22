@@ -10,6 +10,18 @@ repos:
     -   id: debug-statements
         exclude: (debugging\.py|build\.py|clean\.py|mark/__init__\.py|collect_command\.py)
     -   id: end-of-file-fixer
+-   repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.7.0  # Use the ref you want to point at
+    hooks:
+    -   id: python-check-blanket-noqa
+    -   id: python-check-mock-methods
+    -   id: python-no-eval
+    -   id: python-no-log-warn
+    -   id: python-use-type-annotations
+    -   id: rst-backticks
+    -   id: rst-directive-colons
+    -   id: rst-inline-touching-normal
+    -   id: text-unicode-replacement-char
 -   repo: https://github.com/asottile/pyupgrade
     rev: v2.7.4
     hooks:
