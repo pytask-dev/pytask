@@ -12,6 +12,7 @@ from _pytask.database import State
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
+from _pytask.nodes import reduce_node_name
 from _pytask.report import ResolvingDependenciesReport
 from _pytask.traceback import remove_traceback_from_exc_info
 from pony import orm
@@ -86,11 +87,11 @@ def pytask_resolve_dependencies_select_execution_dag(dag):
 
 
 @hookimpl
-def pytask_resolve_dependencies_validate_dag(dag):
+def pytask_resolve_dependencies_validate_dag(session, dag):
     """Validate the DAG."""
     _check_if_dag_has_cycles(dag)
-    _check_if_root_nodes_are_available(dag)
-    _check_if_tasks_have_the_same_products(dag)
+    _check_if_root_nodes_are_available(dag, session)
+    _check_if_tasks_have_the_same_products(dag, session)
 
 
 def _have_task_or_neighbors_changed(task_name, dag):
@@ -132,7 +133,8 @@ def _check_if_dag_has_cycles(dag):
         )
 
 
-def _check_if_root_nodes_are_available(dag):
+def _check_if_root_nodes_are_available(dag, session):
+    paths = session.config["paths"]
     missing_root_nodes = {}
 
     for node in dag.nodes:
@@ -142,7 +144,12 @@ def _check_if_root_nodes_are_available(dag):
             try:
                 dag.nodes[node]["node"].state()
             except NodeNotFoundError:
-                missing_root_nodes[node] = list(dag.successors(node))
+                # Shorten node names for better printing.
+                short_node_name = reduce_node_name(dag.nodes[node]["node"], paths)
+                short_successors = _reduce_names_of_multiple_nodes(
+                    dag.successors(node), dag, paths
+                )
+                missing_root_nodes[short_node_name] = short_successors
 
     if missing_root_nodes:
         raise ResolvingDependenciesError(
@@ -153,7 +160,8 @@ def _check_if_root_nodes_are_available(dag):
         )
 
 
-def _check_if_tasks_have_the_same_products(dag):
+def _check_if_tasks_have_the_same_products(dag, session):
+    paths = session.config["paths"]
     nodes_created_by_multiple_tasks = {}
 
     for node in dag.nodes:
@@ -161,7 +169,10 @@ def _check_if_tasks_have_the_same_products(dag):
         if is_node:
             parents = list(dag.predecessors(node))
             if len(parents) > 1:
-                nodes_created_by_multiple_tasks[node] = parents
+                # Reduce node names for better printing.
+                short_node = reduce_node_name(dag.nodes[node]["node"], paths)
+                short_parents = _reduce_names_of_multiple_nodes(parents, dag, paths)
+                nodes_created_by_multiple_tasks[short_node] = short_parents
 
     if nodes_created_by_multiple_tasks:
         raise ResolvingDependenciesError(
@@ -184,3 +195,11 @@ def pytask_resolve_dependencies_log(session, report):
 
     click.echo("")
     click.echo("=" * tm_width)
+
+
+def _reduce_names_of_multiple_nodes(names, dag, paths):
+    """Reduce the names of multiple nodes in the DAG."""
+    return [
+        reduce_node_name(dag.nodes[n].get("node") or dag.nodes[n].get("task"), paths)
+        for n in names
+    ]

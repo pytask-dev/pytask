@@ -17,7 +17,7 @@ from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaNode
 from _pytask.nodes import MetaTask
 from _pytask.nodes import produces
-from _pytask.nodes import shorten_node_name
+from _pytask.nodes import reduce_node_name
 
 
 @pytest.mark.unit
@@ -196,10 +196,13 @@ def test_relative_to(path, source, include_source, expected):
     [
         (Path("src/task.py"), [Path("src"), Path("bld")], Path("src")),
         (Path("tasks/task.py"), [Path("src"), Path("bld")], None),
-        (Path("src/tasks/task.py"), [Path("src"), Path("src/tasks")], Path("tasks")),
+        (Path("src/ts/task.py"), [Path("src"), Path("src/ts")], Path("src/ts")),
+        (Path("src/in.txt"), [Path("src/task_d.py")], Path("src")),
     ],
 )
-def task_find_closest_ancestor(path, potential_ancestors, expected):
+def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected):
+    # Ensures that files are detected by an existing suffix not if they also exist.
+    monkeypatch.setattr("_pytask.nodes.pathlib.Path.is_file", lambda x: bool(x.suffix))
     result = _find_closest_ancestor(path, potential_ancestors)
     assert result == expected
 
@@ -259,9 +262,9 @@ _ROOT = Path.cwd()
         ),
     ],
 )
-def test_shorten_node_name(node, paths, expectation, expected):
+def test_reduce_node_name(node, paths, expectation, expected):
     with expectation:
-        result = shorten_node_name(node, paths)
+        result = reduce_node_name(node, paths)
         assert result == expected
 
 

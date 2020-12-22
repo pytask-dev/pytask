@@ -13,7 +13,7 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.nodes import FilePathNode
-from _pytask.nodes import shorten_node_name
+from _pytask.nodes import reduce_node_name
 from _pytask.report import ExecutionReport
 from _pytask.report import format_execute_footer
 
@@ -168,7 +168,7 @@ def pytask_execute_log_end(session, reports):
     for report in reports:
         if not report.success:
 
-            task_name = shorten_node_name(report.task, session.config["paths"])
+            task_name = reduce_node_name(report.task, session.config["paths"])
             message = f" Task {task_name} failed "
             if len(message) > tm_width:
                 click.echo("_" * tm_width)
