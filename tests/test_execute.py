@@ -208,6 +208,7 @@ def test_preserve_input_for_dependencies_and_products(tmp_path, input_type):
     assert session.exit_code == 0
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("n_failures", [1, 2, 3])
 def test_execution_stops_after_n_failures(tmp_path, n_failures):
     source = """
@@ -223,6 +224,7 @@ def test_execution_stops_after_n_failures(tmp_path, n_failures):
     assert len(session.execution_reports) == n_failures
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("stop_after_first_failure", [False, True])
 def test_execution_stop_after_first_failure(tmp_path, stop_after_first_failure):
     source = """
