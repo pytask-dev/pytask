@@ -3,7 +3,7 @@
 pluggy and the Plugin Architecture
 ==================================
 
-pluggy ([1]_, [2]_) is at the heart of pytask and enables its plugin system. The
+pluggy ([1]_, [2]_, [3]_) is at the heart of pytask and enables its plugin system. The
 mechanism to achieve extensibility is called :term:`hooking`.
 
 At certain points, pytask, or more generally the host, implements entry-points which are
@@ -32,3 +32,6 @@ Thus, it is the host's responsibility to design the entry-points in such a way t
 
 .. [2] `A talk by Floris Bruynooghe about pluggy and pytest
        <https://youtu.be/zZsNPDfOoHU>`_.
+
+.. [3] `An introduction to pluggy by Kracekumar Ramaraju
+       <https://kracekumar.com/post/build_plugins_with_pluggy>`

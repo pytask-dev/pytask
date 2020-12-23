@@ -33,7 +33,7 @@ def pytask_log_session_header(session):
 
 def _format_plugin_names_and_versions(plugininfo) -> List[str]:
     """Format name and version of loaded plugins."""
-    values = []  # type: List[str]
+    values: List[str] = []
     for _, dist in plugininfo:
         # Gets us name and version!
         name = f"{dist.project_name}-{dist.version}"

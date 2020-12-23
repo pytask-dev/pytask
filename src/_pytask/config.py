@@ -149,6 +149,24 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         )
     )
 
+    config["stop_after_first_failure"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="stop_after_first_failure",
+        default=False,
+        callback=convert_truthy_or_falsy_to_bool,
+    )
+    if config["stop_after_first_failure"]:
+        config["max_failures"] = 1
+    else:
+        config["max_failures"] = get_first_non_none_value(
+            config_from_cli,
+            config_from_file,
+            key="max_failures",
+            default=float("inf"),
+            callback=lambda x: x if x is None else int(x),
+        )
+
 
 @hookimpl
 def pytask_post_parse(config):

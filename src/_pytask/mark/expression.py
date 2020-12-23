@@ -134,7 +134,7 @@ IDENT_PREFIX = "$"
 
 def expression(s: Scanner) -> ast.Expression:
     if s.accept(TokenType.EOF):
-        ret = ast.NameConstant(False)  # type: ast.expr
+        ret: ast.expr = ast.NameConstant(False)
     else:
         ret = expr(s)
         s.accept(TokenType.EOF, reject=True)
@@ -209,11 +209,11 @@ class Expression:
 
         """
         astexpr = expression(Scanner(input_))
-        code = compile(
+        code: types.CodeType = compile(
             astexpr,
             filename="<pytest match expression>",
             mode="eval",
-        )  # type: types.CodeType
+        )
         return cls(code)
 
     def evaluate(self, matcher: Callable[[str], bool]) -> bool:
@@ -231,7 +231,5 @@ class Expression:
             Whether the expression matches or not.
 
         """
-        ret = eval(
-            self.code, {"__builtins__": {}}, MatcherAdapter(matcher)
-        )  # type: bool
+        ret: bool = eval(self.code, {"__builtins__": {}}, MatcherAdapter(matcher))
         return ret
