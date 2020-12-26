@@ -6,7 +6,7 @@ import click
 import networkx as nx
 from _pytask.config import hookimpl
 from _pytask.dag import node_and_neighbors
-from _pytask.dag import sort_tasks_topologically
+from _pytask.dag import sort_tasks_topologically_w_priorities
 from _pytask.dag import task_and_descending_tasks
 from _pytask.database import State
 from _pytask.exceptions import NodeNotFoundError
@@ -72,7 +72,7 @@ def pytask_resolve_dependencies_create_dag(tasks):
 @hookimpl
 def pytask_resolve_dependencies_select_execution_dag(session, dag):
     """Select the tasks which need to be executed."""
-    tasks = list(sort_tasks_topologically(dag, session.tasks))
+    tasks = list(sort_tasks_topologically_w_priorities(dag, session.tasks))
     visited_nodes = []
     for task_name in tasks:
         if task_name not in visited_nodes:

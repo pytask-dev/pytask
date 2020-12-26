@@ -6,7 +6,7 @@ import click
 from _pytask.config import hookimpl
 from _pytask.dag import descending_tasks
 from _pytask.dag import node_and_neighbors
-from _pytask.dag import sort_tasks_topologically
+from _pytask.dag import sort_tasks_topologically_w_priorities
 from _pytask.database import create_or_update_state
 from _pytask.enums import ColorCode
 from _pytask.exceptions import ExecutionError
@@ -41,7 +41,7 @@ def pytask_execute_log_start(session):
 @hookimpl(trylast=True)
 def pytask_execute_create_scheduler(session):
     """Create a scheduler based on topological sorting."""
-    for node in sort_tasks_topologically(session.dag, session.tasks):
+    for node in sort_tasks_topologically_w_priorities(session.dag, session.tasks):
         task = session.dag.nodes[node]["task"]
         yield task
 
