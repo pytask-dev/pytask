@@ -41,7 +41,7 @@ def pytask_execute_log_start(session):
 @hookimpl(trylast=True)
 def pytask_execute_create_scheduler(session):
     """Create a scheduler based on topological sorting."""
-    for node in sort_tasks_topologically(session.dag):
+    for node in sort_tasks_topologically(session.dag, session.tasks):
         task = session.dag.nodes[node]["task"]
         yield task
 

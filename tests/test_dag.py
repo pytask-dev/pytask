@@ -2,8 +2,8 @@ import networkx as nx
 import pytest
 from _pytask.dag import descending_tasks
 from _pytask.dag import node_and_neighbors
-from _pytask.dag import sort_tasks_topologically
 from _pytask.dag import task_and_descending_tasks
+from _pytask.dag import TopologicalSorter
 
 
 @pytest.fixture()
@@ -19,7 +19,7 @@ def dag():
 
 @pytest.mark.unit
 def test_sort_tasks_topologically(dag):
-    topo_ordering = list(sort_tasks_topologically(dag))
+    topo_ordering = list(TopologicalSorter(dag).static_order())
     assert topo_ordering == [str(i) for i in range(5)]
 
 

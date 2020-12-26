@@ -70,9 +70,9 @@ def pytask_resolve_dependencies_create_dag(tasks):
 
 
 @hookimpl
-def pytask_resolve_dependencies_select_execution_dag(dag):
+def pytask_resolve_dependencies_select_execution_dag(session, dag):
     """Select the tasks which need to be executed."""
-    tasks = list(sort_tasks_topologically(dag))
+    tasks = list(sort_tasks_topologically(dag, session.tasks))
     visited_nodes = []
     for task_name in tasks:
         if task_name not in visited_nodes:
