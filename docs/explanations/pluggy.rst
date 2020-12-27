@@ -26,7 +26,8 @@ Thus, it is the host's responsibility to design the entry-points in such a way t
   the complexity of plugin's provided functionality.
 
 
-.. rubric:: References
+References
+----------
 
 .. [1] `pluggy's documentation <https://pluggy.readthedocs.io/en/latest/>`_.
 
@@ -34,4 +35,4 @@ Thus, it is the host's responsibility to design the entry-points in such a way t
        <https://youtu.be/zZsNPDfOoHU>`_.
 
 .. [3] `An introduction to pluggy by Kracekumar Ramaraju
-       <https://kracekumar.com/post/build_plugins_with_pluggy>`
+       <https://kracekumar.com/post/build_plugins_with_pluggy>`_.

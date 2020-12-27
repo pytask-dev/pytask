@@ -38,9 +38,9 @@ To execute only tasks with the ``wip`` marker, use
     $ pytask -m wip
 
 You can pass more complex expressions to ``-m`` by using multiple markers and ``and``,
-``or``, ``not``, and brackets (``()``). The following pattern selects all tasks which
-belong to the data management, but not the ones which produce plots and plots produced
-for the analysis.
+``or``, ``not``, and ``()``. The following pattern selects all tasks which belong to the
+data management, but not the ones which produce plots and plots produced for the
+analysis.
 
 .. code-block:: console
 

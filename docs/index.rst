@@ -10,7 +10,8 @@ pytask
    :start-after: start-installation
    :end-before: end-installation
 
-The documentation has four central parts.
+
+The documentation is build upon four pillars:
 
 
 .. panels::
@@ -31,17 +32,6 @@ The documentation has four central parts.
     capabilities.
 
     ---
-    :img-top: _static/images/books.svg
-
-    .. link-button:: explanations/index
-        :type: ref
-        :text: Explanations
-        :classes: stretched-link font-weight-bold
-
-    Explanations give detailed information on key topics and concepts which underlie the
-    package.
-
-    ---
     :img-top: _static/images/book.svg
 
     .. link-button:: how_to_guides/index
@@ -51,6 +41,17 @@ The documentation has four central parts.
 
     How-to guides are designed to provide detailed instructions for very specific and
     advanced tasks.
+
+    ---
+    :img-top: _static/images/books.svg
+
+    .. link-button:: explanations/index
+        :type: ref
+        :text: Explanations
+        :classes: stretched-link font-weight-bold
+
+    Explanations give detailed information on key topics and concepts which underlie the
+    package.
 
     ---
     :img-top: _static/images/coding.svg
@@ -73,7 +74,7 @@ The documentation has four central parts.
     reference_guides/index
 
 
-Here are some additional resources.
+Furthermore, the documentation includes the following topics.
 
 .. toctree::
    :maxdepth: 1

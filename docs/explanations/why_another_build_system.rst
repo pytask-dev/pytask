@@ -35,12 +35,14 @@ pytask.
 Pros
 
 - Mature library.
-- Is the build system for some research projects.
+- Is the build system for many research projects.
 - Can scale to clusters and use Docker images.
 - Supports Python and R.
+- Automatic test case generation.
 
 Cons
 
+- No debug modus.
 - Need to learn snakemake's syntax which is a mixture of Make and Python.
 - Seems to have no plugin system.
 
