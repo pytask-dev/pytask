@@ -37,22 +37,84 @@ def node_and_neighbors(dag: nx.DiGraph, node: str) -> Generator[str, None, None]
     return itertools.chain([node], dag.predecessors(node), dag.successors(node))
 
 
-def sort_tasks_topologically_w_priorities(
-    dag: nx.DiGraph, tasks: List[MetaTask]
-) -> Generator[str, None, None]:
-    """Sort tasks in topological order."""
-    priorities = _extract_priorities_from_tasks(tasks)
+@attr.s
+class TopologicalSorter:
+    """The topological sorter class.
 
-    scheduler = _TopologicalSorter.from_dag_and_tasks(dag, tasks)
-    scheduler.prepare()
-    all_nodes = []
-    while scheduler.is_active():
-        all_nodes = all_nodes + list(scheduler.get_ready())
-        all_nodes = sorted(all_nodes, key=priorities.get)
+    This class allows to perform a topological sort
 
-        new_task = all_nodes.pop()
-        yield new_task
-        scheduler.done(new_task)
+    """
+
+    dag = attr.ib(converter=nx.DiGraph)
+    priorities = attr.ib(factory=dict)
+    _dag_backup = attr.ib(default=None, converter=nx.DiGraph)
+    _is_prepared = attr.ib(default=False, type=bool)
+    _nodes_out = attr.ib(factory=set)
+
+    @classmethod
+    def from_dag_and_tasks(
+        cls, dag: nx.DiGraph, tasks: List[MetaTask]
+    ) -> "TopologicalSorter":
+        priorities = _extract_priorities_from_tasks(tasks)
+
+        task_names = {task.name for task in tasks}
+        task_dict = {name: nx.ancestors(dag, name) & task_names for name in task_names}
+        task_dag = nx.DiGraph(task_dict).reverse()
+
+        return cls(task_dag, priorities, task_dag.copy())
+
+    def prepare(self):
+        if not self.dag.is_directed():
+            raise ValueError("Only directed graphs have a topological order.")
+
+        try:
+            nx.algorithms.cycles.find_cycle(self.dag)
+        except nx.NetworkXNoCycle:
+            pass
+        else:
+            raise ValueError("The DAG contains cycles.")
+
+        self._is_prepared = True
+
+    def get_ready(self, n: int = 1):
+        """Get up to ``n`` tasks which are ready."""
+        if not self._is_prepared:
+            raise ValueError("The TopologicalSorter needs to be prepared.")
+        if not isinstance(n, int) or n < 1:
+            raise ValueError("'n' must be an integer greater or equal than 1.")
+
+        ready_nodes = {v for v, d in self.dag.in_degree() if d == 0} - self._nodes_out
+        prioritized_nodes = sorted(
+            ready_nodes, key=lambda x: self.priorities.get(x, 0)
+        )[-n:]
+
+        self._nodes_out.update(prioritized_nodes)
+
+        out = prioritized_nodes[0] if n == 1 else prioritized_nodes
+        return out
+
+    def is_active(self):
+        """Indicate whether there are still tasks left."""
+        return bool(self.dag.nodes)
+
+    def done(self, *nodes: Iterable[str]):
+        """Mark some tasks as done."""
+        self._nodes_out = self._nodes_out - set(nodes)
+        self.dag.remove_nodes_from(nodes)
+
+    def reset(self):
+        """Reset an exhausted topological sorter."""
+        self.dag = self._dag_backup.copy()
+        self._is_prepared = False
+        self._nodes_out = set()
+
+    def static_order(self) -> Generator[str, None, None]:
+        """Return a topological order of tasks as an iterable."""
+        self.prepare()
+        while self.is_active():
+            new_task = self.get_ready()
+            yield new_task
+            self.done(new_task)
 
 
 def _extract_priorities_from_tasks(tasks: List[MetaTask]) -> Dict[str, int]:
@@ -89,54 +151,3 @@ def _extract_priorities_from_tasks(tasks: List[MetaTask]) -> Dict[str, int]:
     }
 
     return numeric_priorities
-
-
-@attr.s
-class _TopologicalSorter:
-    """The topological sorter.
-
-    This class is an interactive version of a topological sorter which allows to request
-    new ready tasks and mark completed tasks.
-
-    """
-
-    dag = attr.ib(converter=nx.DiGraph)
-    _is_prepared = attr.ib(default=False, type=bool)
-    _nodes_out = attr.ib(factory=set)
-
-    @classmethod
-    def from_dag_and_tasks(
-        cls, dag: nx.DiGraph, tasks: List[MetaTask]
-    ) -> "_TopologicalSorter":
-        task_names = {task.name for task in tasks}
-        task_dict = {name: nx.ancestors(dag, name) & task_names for name in task_names}
-        task_dag = nx.DiGraph(task_dict).reverse()
-
-        return cls(task_dag)
-
-    def prepare(self):
-        if not self.dag.is_directed():
-            raise ValueError("Only directed graphs have a topological order.")
-
-        try:
-            nx.algorithms.cycles.find_cycle(self.dag)
-        except nx.NetworkXNoCycle:
-            pass
-        else:
-            raise ValueError("The DAG contains cycles.")
-
-        self._is_prepared = True
-
-    def get_ready(self):
-        if not self._is_prepared:
-            raise ValueError("The TopologicalSorter needs to be prepared.")
-        ready_nodes = {v for v, d in self.dag.in_degree() if d == 0} - self._nodes_out
-        self._nodes_out.update(ready_nodes)
-        return ready_nodes
-
-    def is_active(self):
-        return bool(self.dag.nodes)
-
-    def done(self, *nodes: Iterable[str]):
-        self._nodes_out = self._nodes_out - set(nodes)
-        self.dag.remove_nodes_from(nodes)

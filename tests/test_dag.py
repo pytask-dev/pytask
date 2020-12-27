@@ -6,8 +6,8 @@ import pytest
 from _pytask.dag import _extract_priorities_from_tasks
 from _pytask.dag import descending_tasks
 from _pytask.dag import node_and_neighbors
-from _pytask.dag import sort_tasks_topologically_w_priorities
 from _pytask.dag import task_and_descending_tasks
+from _pytask.dag import TopologicalSorter
 from _pytask.mark import Mark
 
 
@@ -31,7 +31,9 @@ def dag():
 @pytest.mark.unit
 def test_sort_tasks_topologically(dag):
     tasks = [dag.nodes[node]["task"] for node in dag.nodes]
-    topo_ordering = list(sort_tasks_topologically_w_priorities(dag, tasks))
+    topo_ordering = list(
+        TopologicalSorter.from_dag_and_tasks(dag, tasks).static_order()
+    )
     assert topo_ordering == [str(i) for i in range(5)]
 
 
