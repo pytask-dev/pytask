@@ -87,9 +87,8 @@ def test_extract_priorities_from_tasks(tasks, expectation, expected):
 @pytest.mark.unit
 def test_raise_error_for_undirected_graphs(dag):
     undirected_graph = dag.to_undirected()
-    scheduler = TopologicalSorter.from_dag(undirected_graph)
     with pytest.raises(ValueError, match="Only directed graphs have a"):
-        scheduler.prepare()
+        TopologicalSorter.from_dag(undirected_graph)
 
 
 @pytest.mark.unit
