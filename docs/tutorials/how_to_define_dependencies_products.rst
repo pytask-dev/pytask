@@ -129,7 +129,8 @@ tasks.
         ...
 
 
-.. rubric:: References
+References
+----------
 
 .. [1] The official documentation for :mod:`pathlib`.
 .. [2] A guide for pathlib at `RealPython <https://realpython.com/python-pathlib/>`_.

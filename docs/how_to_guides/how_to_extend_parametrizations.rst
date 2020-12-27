@@ -63,7 +63,9 @@ And change the task module to
 The key idea is to not reference the ``side_effect.py`` module as a dependency of the
 task. Now, you can extend the parametrization without re-executing former tasks.
 
-**Caveat**: Be careful, because pytask does not care about which object is passed to the
-parametrized function. Thus, it would be better to replace ``IDS`` with a function which
-hashes the tuples to recognize changes as shown in the :ref:`tutorial
-<how_to_parametrize_a_task_convert_other_objects>`.
+.. caution::
+
+    Be careful, because pytask does not care about which object is passed to the
+    parametrized function. Thus, it would be better to replace ``IDS`` with a function
+    which hashes the tuples to recognize changes as shown in the :ref:`tutorial
+    <how_to_parametrize_a_task_convert_other_objects>`.

@@ -42,6 +42,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_autodoc_typehints",
     "sphinx_click",
+    "sphinx_panels",
     "autoapi.extension",
 ]
 
@@ -51,6 +52,9 @@ extensions = [
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 suppress_warnings = ["ref.python"]
+
+pygments_style = "sphinx"
+pygments_dark_style = "monokai"
 
 # -- Extensions configuration ----------------------------------------------------------
 
@@ -93,8 +97,7 @@ autoapi_add_toctree_entry = False
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for a list of
 # built-in themes.
-
-html_theme = "alabaster"
+html_theme = "furo"
 
 # Add any paths that contain custom static files (such as style sheets) here, relative
 # to this directory. They are copied after the built-in static files, so a file named
@@ -103,19 +106,38 @@ html_css_files = ["css/custom.css"]
 
 # The name of an image file (within the static path) to use as favicon of the docs.
 # This file should be a Windows icon file (.ico) being 16x16 or 32x32 pixels large.
-html_favicon = "_static/images/pytask.ico"  # noqa: E800
+html_logo = "_static/images/pytask_w_text.svg"
 
+# The name of an image file (within the static path) to use as favicon of the docs.
+# This file should be a Windows icon file (.ico) being 16x16 or 32x32 pixels large.
+html_favicon = "_static/images/pytask.ico"
+
+# Add any paths that contain custom static files (such as style sheets) here, relative
+# to this directory. They are copied after the builtin static files, so a file named
+# "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
+# If false, no module index is generated.
+html_domain_indices = True
+
+# If false, no index is generated.
+html_use_index = True
+
+# If true, the index is split into individual pages for each letter.
+html_split_index = False
+
+# If true, links to the reST sources are added to the pages.
+html_show_sourcelink = False
+
+# If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
+html_show_sphinx = True
+
+# If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
+html_show_copyright = True
+
 html_theme_options = {
-    "extra_nav_links": {"On Github": "https://github.com/pytask-dev/pytask"},
-    "logo": "images/pytask_w_text.svg",
-    "logo_name": False,
-    "github_button": False,
-    "github_user": "pytask-dev",
-    "github_repo": "pytask",
-    "font_family": '"Avenir Next", Calibri, "PT Sans", sans-serif',
-    "head_font_family": '"Avenir Next", Calibri, "PT Sans", sans-serif',
+    "sidebar_hide_name": True,
+    "navigation_with_keys": True,
 }
 
 
