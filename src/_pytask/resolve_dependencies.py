@@ -6,15 +6,14 @@ import click
 import networkx as nx
 from _pytask.config import hookimpl
 from _pytask.dag import node_and_neighbors
-from _pytask.dag import sort_tasks_topologically
 from _pytask.dag import task_and_descending_tasks
+from _pytask.dag import TopologicalSorter
 from _pytask.database import State
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
 from _pytask.nodes import reduce_node_name
 from _pytask.report import ResolvingDependenciesReport
-from _pytask.traceback import remove_traceback_from_exc_info
 from pony import orm
 
 
@@ -72,14 +71,14 @@ def pytask_resolve_dependencies_create_dag(tasks):
 @hookimpl
 def pytask_resolve_dependencies_select_execution_dag(dag):
     """Select the tasks which need to be executed."""
-    tasks = list(sort_tasks_topologically(dag))
+    scheduler = TopologicalSorter.from_dag(dag)
     visited_nodes = []
-    for task_name in tasks:
+
+    for task_name in scheduler.static_order():
         if task_name not in visited_nodes:
             have_changed = _have_task_or_neighbors_changed(task_name, dag)
             if have_changed:
-                for name in task_and_descending_tasks(task_name, dag):
-                    visited_nodes.append(name)
+                visited_nodes += list(task_and_descending_tasks(task_name, dag))
             else:
                 dag.nodes[task_name]["task"].markers.append(
                     Mark("skip_unchanged", (), {})
@@ -191,7 +190,7 @@ def pytask_resolve_dependencies_log(session, report):
 
     click.echo("")
 
-    traceback.print_exception(*remove_traceback_from_exc_info(report.exc_info))
+    traceback.print_exception(*report.exc_info)
 
     click.echo("")
     click.echo("=" * tm_width)

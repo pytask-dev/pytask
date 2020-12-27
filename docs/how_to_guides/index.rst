@@ -10,3 +10,4 @@ pytask.
 
    how_to_write_a_plugin
    how_to_extend_parametrizations
+   how_to_influence_build_order

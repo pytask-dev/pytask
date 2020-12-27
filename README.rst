@@ -21,6 +21,10 @@
 .. image:: https://codecov.io/gh/pytask-dev/pytask/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/pytask-dev/pytask
 
+.. image:: https://results.pre-commit.ci/badge/github/pytask-dev/pytask/main.svg
+    :target: https://results.pre-commit.ci/latest/github/pytask-dev/pytask/main
+    :alt: pre-commit.ci status
+
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
 
@@ -31,8 +35,9 @@
 Features
 --------
 
-In its highest aspirations, pytask tries to be pytest as a build system. Its features
-include:
+In its highest aspirations, pytask tries to be pytest as a build system. It's main
+purpose is to facilitate reproducible research by automating workflows in research
+projects. Its features include:
 
 - **Automatic discovery of tasks.**
 
@@ -57,10 +62,10 @@ explanations/why_do_i_need_a_build_system.html>`_ if you do not know or are not
 convinced that you need a build system.
 
 
-.. start-installation
-
 Installation
 ------------
+
+.. start-installation
 
 pytask is available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_. Install the
 package with

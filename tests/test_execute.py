@@ -179,6 +179,7 @@ def test_assert_multiple_products_are_merged_to_dict(tmp_path, runner):
     assert result.exit_code == 0
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("input_type", ["list", "dict"])
 def test_preserve_input_for_dependencies_and_products(tmp_path, input_type):
     """Input type for dependencies and products is preserved."""
@@ -240,3 +241,32 @@ def test_execution_stop_after_first_failure(tmp_path, stop_after_first_failure):
 
     assert len(session.tasks) == 3
     assert len(session.execution_reports) == 1 if stop_after_first_failure else 3
+
+
+@pytest.mark.end_to_end
+def test_scheduling_w_priorities(tmp_path):
+    source = """
+    import pytask
+
+
+    @pytask.mark.try_first
+    def task_z():
+        pass
+
+
+    def task_x():
+        pass
+
+
+    @pytask.mark.try_last
+    def task_y():
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 0
+    assert session.execution_reports[0].task.name.endswith("task_z")
+    assert session.execution_reports[1].task.name.endswith("task_x")
+    assert session.execution_reports[2].task.name.endswith("task_y")

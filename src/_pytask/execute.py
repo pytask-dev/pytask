@@ -6,7 +6,7 @@ import click
 from _pytask.config import hookimpl
 from _pytask.dag import descending_tasks
 from _pytask.dag import node_and_neighbors
-from _pytask.dag import sort_tasks_topologically
+from _pytask.dag import TopologicalSorter
 from _pytask.database import create_or_update_state
 from _pytask.enums import ColorCode
 from _pytask.exceptions import ExecutionError
@@ -41,15 +41,16 @@ def pytask_execute_log_start(session):
 @hookimpl(trylast=True)
 def pytask_execute_create_scheduler(session):
     """Create a scheduler based on topological sorting."""
-    for node in sort_tasks_topologically(session.dag):
-        task = session.dag.nodes[node]["task"]
-        yield task
+    scheduler = TopologicalSorter.from_dag(session.dag)
+    scheduler.prepare()
+    return scheduler
 
 
 @hookimpl
 def pytask_execute_build(session):
     """Execute tasks."""
-    for task in session.scheduler:
+    for name in session.scheduler.static_order():
+        task = session.dag.nodes[name]["task"]
         report = session.hook.pytask_execute_task_protocol(session=session, task=task)
         session.execution_reports.append(report)
         if session.should_stop:
@@ -98,7 +99,7 @@ def pytask_execute_task_setup(session, task):
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
         if isinstance(node, FilePathNode):
-            node.value.parent.mkdir(parents=True, exist_ok=True)
+            node.path.parent.mkdir(parents=True, exist_ok=True)
 
 
 @hookimpl
@@ -140,8 +141,8 @@ def pytask_execute_task_process_report(session, report):
                 )
             )
 
-        session.n_tests_failed += 1
-        if session.n_tests_failed >= session.config["max_failures"]:
+        session.n_tasks_failed += 1
+        if session.n_tasks_failed >= session.config["max_failures"]:
             session.should_stop = True
 
     return True

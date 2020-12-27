@@ -2,12 +2,14 @@ channels:
   - conda-forge
 dependencies:
   - python=3.8
+  - furo
   - ipython
   - sphinx
   - sphinx-copybutton
   - sphinx-autodoc-typehints
   - sphinx-autoapi
   - sphinx-click
+  - sphinx-panels
 
   # Package dependencies necessary for sphinx-click
   - attrs
