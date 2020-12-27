@@ -24,7 +24,7 @@ The following directory tree is an example of how a project can be set up.
     └───bld
         └────...
 
-* The configuration file, ``pytask.ini``, ``tox.ini`` or ``setup.cfg``, should be placed
+- The configuration file, ``pytask.ini``, ``tox.ini`` or ``setup.cfg``, should be placed
   at the root of the project folder and should contain a ``[pytask]`` section even if it
   is empty.
 
@@ -45,7 +45,7 @@ The following directory tree is an example of how a project can be set up.
 
       [pytask]
 
-* Then, there exist two folders. The ``src`` directory contains the tasks and other data
+- Then, there exist two folders. The ``src`` directory contains the tasks and other data
   and code.
 
   It also contains a ``config.py`` or a similar module from where the project
@@ -63,7 +63,7 @@ The following directory tree is an example of how a project can be set up.
       SRC = Path(__file__).parent
       BLD = SRC.joinpath("..", "bld").resolve()
 
-* The build directory ``bld`` is used to store products of tasks. This makes it easy to
+- The build directory ``bld`` is used to store products of tasks. This makes it easy to
   rerun the whole project by just deleting the entire build directory.
 
 

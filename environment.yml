@@ -1,6 +1,8 @@
 name: pytask
+
 channels:
   - conda-forge
+
 dependencies:
   - python>=3.6
   - pip
@@ -31,9 +33,11 @@ dependencies:
   - virtualenv=20.0.33
 
   # Documentation
+  - furo
   - nbsphinx
   - sphinx
   - sphinx-copybutton
   - sphinx-autodoc-typehints
   - sphinx-autoapi
   - sphinx-click
+  - sphinx-panels

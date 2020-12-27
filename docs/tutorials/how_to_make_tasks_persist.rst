@@ -20,8 +20,8 @@ When is this useful?
 
 .. caution::
 
-    This feature can corrupt the integrity of your project. At best, document why you
-    have applied the decorator as a courtesy to yourself and your contributors.
+    This feature can corrupt the integrity of your project. Document why you
+    have applied the decorator out of consideration for yourself and other contributors.
 
 
 How to do it?

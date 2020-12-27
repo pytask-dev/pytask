@@ -82,6 +82,13 @@ def pytask_parametrize_task(session, name, obj):
     """
     if callable(obj):
         obj, markers = _remove_parametrize_markers_from_func(obj)
+
+        if len(markers) > 1:
+            raise NotImplementedError(
+                "Multiple parametrizations are currently not implemented since it is "
+                "not possible to define products for tasks from a cartesian product."
+            )
+
         base_arg_names, arg_names, arg_values = _parse_parametrize_markers(markers)
 
         product_arg_names = list(itertools.product(*arg_names))

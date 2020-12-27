@@ -51,4 +51,4 @@ If you want to delete whole folders instead of only the files in them, use
 Further reading
 ---------------
 
-- :program:`pytask clean` in :doc:`../reference_guides/command_line_interface`.
+- :doc:`../reference_guides/command_line_interface`.

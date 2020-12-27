@@ -1,6 +1,9 @@
 How to debug
 ============
 
+Debugging
+---------
+
 To facilitate debugging, pytask offers two command-line options.
 
 .. code-block:: console
@@ -10,10 +13,15 @@ To facilitate debugging, pytask offers two command-line options.
 enables the post-mortem debugger. Whenever an exception is raised inside a task, the
 prompt will enter the debugger.
 
-.. note::
+.. tip::
 
-    For a better debugging experience, test `pdb++ <https://github.com/pdbpp/pdbpp>`_
-    and try out the `sticky mode <https://github.com/pdbpp/pdbpp#sticky-mode>`_.
+    Instead of Python's :mod:`pdb`, use `pdb++ <https://github.com/pdbpp/pdbpp>`_ which
+    is more convenient, colorful has some useful features like the `sticky mode
+    <https://github.com/pdbpp/pdbpp#sticky-mode>`_.
+
+
+Tracing
+-------
 
 If you want to enter the debugger at the start of every task, use
 

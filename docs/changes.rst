@@ -17,6 +17,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
   pytask`` which will add the current path to ``sys.path``.
 - :gh:`52` allows to prioritize tasks with ``pytask.mark.try_last`` and
   ``pytask.mark.try_first``.
+- :gh:`53` changes the theme of the documentation to furo.
 
 
 0.0.10 - 2020-11-18
