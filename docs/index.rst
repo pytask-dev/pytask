@@ -69,8 +69,8 @@ The documentation is build upon four pillars:
     :hidden:
 
     tutorials/index
-    explanations/index
     how_to_guides/index
+    explanations/index
     reference_guides/index
 
 
@@ -79,5 +79,6 @@ Furthermore, the documentation includes the following topics.
 .. toctree::
    :maxdepth: 1
 
+   api
    glossary
    changes

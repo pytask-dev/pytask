@@ -35,8 +35,9 @@
 Features
 --------
 
-In its highest aspirations, pytask tries to be pytest as a build system. Its features
-include:
+In its highest aspirations, pytask tries to be pytest as a build system. It's main
+purpose is to facilitate reproducible research by automating workflows in research
+projects. Its features include:
 
 - **Automatic discovery of tasks.**
 
