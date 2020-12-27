@@ -95,6 +95,8 @@ def pytask_configure(pm, config_from_cli):
     config["markers"] = {
         "depends_on": "Attach a dependency/dependencies to a task.",
         "produces": "Attach a product/products to a task.",
+        "try_first": "Try to execute a task a early as possible.",
+        "try_last": "Try to execute a task a late as possible.",
     }
 
     pm.hook.pytask_parse_config(

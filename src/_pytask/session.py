@@ -35,7 +35,7 @@ class Session:
     execution_start = attr.ib(default=None)
     execution_end = attr.ib(default=None)
 
-    n_tests_failed = attr.ib(default=0)
+    n_tasks_failed = attr.ib(default=0)
     """Optional[int]: Number of tests which have failed."""
     should_stop = attr.ib(default=False)
     """Optional[bool]: Indicates whether the session should be stopped."""
