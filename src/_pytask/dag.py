@@ -47,14 +47,18 @@ class TopologicalSorter:
 
     dag = attr.ib(converter=nx.DiGraph)
     priorities = attr.ib(factory=dict)
-    _dag_backup = attr.ib(default=None, converter=nx.DiGraph)
+    _dag_backup = attr.ib(default=None)
     _is_prepared = attr.ib(default=False, type=bool)
     _nodes_out = attr.ib(factory=set)
 
     @classmethod
-    def from_dag_and_tasks(
-        cls, dag: nx.DiGraph, tasks: List[MetaTask]
-    ) -> "TopologicalSorter":
+    def from_dag(cls, dag: nx.DiGraph) -> "TopologicalSorter":
+        if not dag.is_directed():
+            raise ValueError("Only directed graphs have a topological order.")
+
+        tasks = [
+            dag.nodes[node]["task"] for node in dag.nodes if "task" in dag.nodes[node]
+        ]
         priorities = _extract_priorities_from_tasks(tasks)
 
         task_names = {task.name for task in tasks}
@@ -63,10 +67,8 @@ class TopologicalSorter:
 
         return cls(task_dag, priorities, task_dag.copy())
 
-    def prepare(self):
-        if not self.dag.is_directed():
-            raise ValueError("Only directed graphs have a topological order.")
-
+    def prepare(self) -> None:
+        """Perform some checks before creating a topological ordering."""
         try:
             nx.algorithms.cycles.find_cycle(self.dag)
         except nx.NetworkXNoCycle:
@@ -93,16 +95,16 @@ class TopologicalSorter:
         out = prioritized_nodes[0] if n == 1 else prioritized_nodes
         return out
 
-    def is_active(self):
+    def is_active(self) -> bool:
         """Indicate whether there are still tasks left."""
         return bool(self.dag.nodes)
 
-    def done(self, *nodes: Iterable[str]):
+    def done(self, *nodes: Iterable[str]) -> None:
         """Mark some tasks as done."""
         self._nodes_out = self._nodes_out - set(nodes)
         self.dag.remove_nodes_from(nodes)
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset an exhausted topological sorter."""
         self.dag = self._dag_backup.copy()
         self._is_prepared = False

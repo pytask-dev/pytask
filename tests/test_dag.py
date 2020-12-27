@@ -30,10 +30,7 @@ def dag():
 
 @pytest.mark.unit
 def test_sort_tasks_topologically(dag):
-    tasks = [dag.nodes[node]["task"] for node in dag.nodes]
-    topo_ordering = list(
-        TopologicalSorter.from_dag_and_tasks(dag, tasks).static_order()
-    )
+    topo_ordering = list(TopologicalSorter.from_dag(dag).static_order())
     assert topo_ordering == [str(i) for i in range(5)]
 
 
@@ -85,3 +82,50 @@ def test_extract_priorities_from_tasks(tasks, expectation, expected):
     with expectation:
         result = _extract_priorities_from_tasks(tasks)
         assert result == expected
+
+
+@pytest.mark.unit
+def test_raise_error_for_undirected_graphs(dag):
+    undirected_graph = dag.to_undirected()
+    scheduler = TopologicalSorter.from_dag(undirected_graph)
+    with pytest.raises(ValueError, match="Only directed graphs have a"):
+        scheduler.prepare()
+
+
+@pytest.mark.unit
+def test_raise_error_for_cycle_in_graph(dag):
+    dag.add_edge("4", "1")
+    scheduler = TopologicalSorter.from_dag(dag)
+    with pytest.raises(ValueError, match="The DAG contains cycles."):
+        scheduler.prepare()
+
+
+@pytest.mark.unit
+def test_raise_if_topological_sorter_is_not_prepared(dag):
+    scheduler = TopologicalSorter.from_dag(dag)
+    with pytest.raises(ValueError, match="The TopologicalSorter needs to be prepared."):
+        scheduler.get_ready(1)
+
+
+@pytest.mark.unit
+def test_ask_for_invalid_number_of_ready_tasks(dag):
+    scheduler = TopologicalSorter.from_dag(dag)
+    scheduler.prepare()
+    with pytest.raises(ValueError, match="'n' must be"):
+        scheduler.get_ready(0)
+
+
+@pytest.mark.unit
+def test_reset_topological_sorter(dag):
+    scheduler = TopologicalSorter.from_dag(dag)
+    scheduler.prepare()
+    name = scheduler.get_ready()
+    scheduler.done(name)
+
+    assert scheduler._is_prepared
+    assert name not in scheduler.dag.nodes
+
+    scheduler.reset()
+
+    assert not scheduler._is_prepared
+    assert name in scheduler.dag.nodes
