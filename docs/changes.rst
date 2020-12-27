@@ -6,7 +6,7 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
 
 
-0.0.11 - 2020-xx-xx
+0.0.11 - 2020-12-27
 -------------------
 
 - :gh:`45` adds the option to stop execution after a number of tasks has failed. Closes
@@ -19,6 +19,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`52` allows to prioritize tasks with ``pytask.mark.try_last`` and
   ``pytask.mark.try_first``.
 - :gh:`53` changes the theme of the documentation to furo.
+- :gh:`54` releases v0.0.11.
 
 
 0.0.10 - 2020-11-18
