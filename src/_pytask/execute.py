@@ -42,15 +42,15 @@ def pytask_execute_log_start(session):
 def pytask_execute_create_scheduler(session):
     """Create a scheduler based on topological sorting."""
     scheduler = TopologicalSorter.from_dag(session.dag)
-    for node in scheduler.static_order():
-        task = session.dag.nodes[node]["task"]
-        yield task
+    scheduler.prepare()
+    return scheduler
 
 
 @hookimpl
 def pytask_execute_build(session):
     """Execute tasks."""
-    for task in session.scheduler:
+    for name in session.scheduler.static_order():
+        task = session.dag.nodes[name]["task"]
         report = session.hook.pytask_execute_task_protocol(session=session, task=task)
         session.execution_reports.append(report)
         if session.should_stop:
@@ -141,8 +141,8 @@ def pytask_execute_task_process_report(session, report):
                 )
             )
 
-        session.n_tests_failed += 1
-        if session.n_tests_failed >= session.config["max_failures"]:
+        session.n_tasks_failed += 1
+        if session.n_tasks_failed >= session.config["max_failures"]:
             session.should_stop = True
 
     return True

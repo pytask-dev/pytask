@@ -92,8 +92,7 @@ class TopologicalSorter:
 
         self._nodes_out.update(prioritized_nodes)
 
-        out = prioritized_nodes[0] if n == 1 else prioritized_nodes
-        return out
+        return prioritized_nodes
 
     def is_active(self) -> bool:
         """Indicate whether there are still tasks left."""
@@ -114,7 +113,7 @@ class TopologicalSorter:
         """Return a topological order of tasks as an iterable."""
         self.prepare()
         while self.is_active():
-            new_task = self.get_ready()
+            new_task = self.get_ready()[0]
             yield new_task
             self.done(new_task)
 

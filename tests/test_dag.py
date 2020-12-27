@@ -118,7 +118,7 @@ def test_ask_for_invalid_number_of_ready_tasks(dag):
 def test_reset_topological_sorter(dag):
     scheduler = TopologicalSorter.from_dag(dag)
     scheduler.prepare()
-    name = scheduler.get_ready()
+    name = scheduler.get_ready()[0]
     scheduler.done(name)
 
     assert scheduler._is_prepared
