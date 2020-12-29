@@ -1,11 +1,12 @@
 """Implement functionality to collect tasks."""
-import glob
 import importlib
 import inspect
 import sys
 import time
 import traceback
 from pathlib import Path
+from typing import Generator
+from typing import List
 
 import click
 from _pytask.config import hookimpl
@@ -24,7 +25,7 @@ def pytask_collect(session):
     session.collection_start = time.time()
 
     reports = _collect_from_paths(session)
-    tasks = _extract_successful_tasks_from_reports(reports)
+    tasks = _extract_successfully_collected_tasks_from_reports(reports)
 
     try:
         session.hook.pytask_collect_modify_tasks(session=session, tasks=tasks)
@@ -49,22 +50,12 @@ def _collect_from_paths(session):
 
     """
     collected_reports = session.collection_reports
-    for path in session.config["paths"]:
-        paths = (
-            path.rglob("*")
-            if path.is_dir()
-            else [Path(p) for p in glob.glob(path.as_posix())]
+    for path in _not_ignored_paths(session.config["paths"], session):
+        reports = session.hook.pytask_collect_file_protocol(
+            session=session, path=path, reports=collected_reports
         )
-
-        for p in paths:
-            ignored = session.hook.pytask_ignore_collect(path=p, config=session.config)
-
-            if not ignored:
-                reports = session.hook.pytask_collect_file_protocol(
-                    session=session, path=p, reports=collected_reports
-                )
-                if reports is not None:
-                    collected_reports.extend(reports)
+        if reports is not None:
+            collected_reports.extend(reports)
 
     return collected_reports
 
@@ -183,8 +174,8 @@ def pytask_collect_node(path, node):
         return FilePathNode.from_path(node)
 
 
-def valid_paths(paths, session):
-    """Generate valid paths.
+def _not_ignored_paths(paths: List[Path], session) -> Generator[Path, None, None]:
+    """Traverse paths and yield not ignored paths.
 
     The paths passed by the user can either point to files or directories. For
     directories, all subsequent files and folders are considered, but one level after
@@ -197,18 +188,23 @@ def valid_paths(paths, session):
     session : _pytask.session.Session
         The session.
 
+    Yields
+    ------
+    path : pathlib.Path
+        A path which is not ignored.
+
     """
     for path in paths:
         if not session.hook.pytask_ignore_collect(path=path, config=session.config):
             if path.is_dir():
-                files_in_dir = path.glob("*")
-                yield from valid_paths(files_in_dir, session)
+                files_in_dir = path.iterdir()
+                yield from _not_ignored_paths(files_in_dir, session)
             else:
                 yield path
 
 
-def _extract_successful_tasks_from_reports(reports):
-    """Extract successful tasks from reports."""
+def _extract_successfully_collected_tasks_from_reports(reports):
+    """Extract successfully collected tasks from reports."""
     return [i.node for i in reports if i.successful]
 
 
