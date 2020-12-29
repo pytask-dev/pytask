@@ -1,5 +1,4 @@
 """Implement the build command."""
-import pdb
 import sys
 import traceback
 
@@ -55,9 +54,6 @@ def main(config_from_cli):
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
 
-        if config_from_cli.get("pdb"):
-            pdb.post_mortem()
-
     else:
         try:
             session.hook.pytask_log_session_header(session=session)
@@ -74,11 +70,9 @@ def main(config_from_cli):
         except ExecutionError:
             session.exit_code = ExitCode.FAILED
 
-        except Exception as e:
-            if config["pdb"]:
-                pdb.post_mortem()
-            else:
-                raise e
+        except Exception:
+            traceback.print_exception(*sys.exc_info())
+            session.exit_code = ExitCode.FAILED
 
     return session
 
