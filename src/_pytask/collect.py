@@ -10,13 +10,13 @@ from typing import List
 
 import click
 from _pytask.config import hookimpl
+from _pytask.enums import ColorCode
 from _pytask.exceptions import CollectionError
 from _pytask.mark import has_marker
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import PythonFunctionTask
 from _pytask.nodes import reduce_node_name
 from _pytask.report import CollectionReport
-from _pytask.report import format_collect_footer
 
 
 @hookimpl
@@ -241,12 +241,15 @@ def pytask_collect_log(session, reports, tasks):
 
             click.echo("")
 
-        duration = round(session.collection_end - session.collection_start, 2)
-        click.echo(
-            format_collect_footer(
-                len(tasks), len(failed_reports), n_deselected, duration, tm_width
-            ),
-            nl=True,
+        session.hook.pytask_log_session_footer(
+            session=session,
+            infos=[
+                (len(tasks), "collected", ColorCode.SUCCESS),
+                (len(failed_reports), "failed", ColorCode.FAILED),
+                (n_deselected, "deselected", ColorCode.NEUTRAL),
+            ],
+            duration=round(session.collection_end - session.collection_start, 2),
+            color=ColorCode.FAILED if len(failed_reports) else ColorCode.SUCCESS,
         )
 
         raise CollectionError

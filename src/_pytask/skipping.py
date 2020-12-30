@@ -88,12 +88,12 @@ def pytask_execute_task_log_end(report):
     if report.success:
         if report.exc_info:
             if isinstance(report.exc_info[1], Skipped):
-                click.secho("s", fg=ColorCode.SKIPPED.value, nl=False)
+                click.secho("s", fg=ColorCode.SKIPPED, nl=False)
             elif isinstance(report.exc_info[1], SkippedUnchanged):
-                click.secho("s", fg=ColorCode.SUCCESS.value, nl=False)
+                click.secho("s", fg=ColorCode.SUCCESS, nl=False)
     else:
         if report.exc_info and isinstance(report.exc_info[1], SkippedAncestorFailed):
-            click.secho("s", fg=ColorCode.FAILED.value, nl=False)
+            click.secho("s", fg=ColorCode.FAILED, nl=False)
 
     if report.exc_info and isinstance(
         report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)

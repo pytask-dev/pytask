@@ -61,5 +61,5 @@ def pytask_execute_task_log_end(report):
     if report.success:
         if report.exc_info:
             if isinstance(report.exc_info[1], Persisted):
-                click.secho("p", fg=ColorCode.SUCCESS.value, nl=False)
+                click.secho("p", fg=ColorCode.SUCCESS, nl=False)
                 return True
