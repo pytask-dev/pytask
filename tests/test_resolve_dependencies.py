@@ -162,3 +162,25 @@ def test_two_tasks_have_the_same_product(tmp_path, runner):
     assert tmp_path.name + "/task_d.py::task_2" in result.output
     assert tmp_path.joinpath("out.txt").as_posix() not in result.output
     assert tmp_path.name + "/out.txt" in result.output
+
+
+@pytest.mark.end_to_end
+def test_has_node_changed_catches_notnotfounderror(runner, tmp_path):
+    """Missing nodes raise NodeNotFoundError when they do not exist and their state is
+    requested."""
+    source = """
+    import pytask
+
+    @pytask.mark.produces("file.txt")
+    def task_example(produces):
+        produces.write_text("test")
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == 0
+
+    tmp_path.joinpath("file.txt").unlink()
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == 0

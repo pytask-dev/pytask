@@ -29,7 +29,7 @@ class ColorCode(str, enum.Enum):
 
     SKIPPED = "yellow"
 
-    NEUTRAL = "white"
+    NEUTRAL = None
 
     def __str__(self) -> str:
         """Allows to use a color code inside f-strings without the need for .value."""

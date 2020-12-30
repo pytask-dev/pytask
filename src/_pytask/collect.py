@@ -250,6 +250,7 @@ def pytask_collect_log(session, reports, tasks):
             ],
             duration=round(session.collection_end - session.collection_start, 2),
             color=ColorCode.FAILED if len(failed_reports) else ColorCode.SUCCESS,
+            terminal_width=session.config["terminal_width"],
         )
 
         raise CollectionError

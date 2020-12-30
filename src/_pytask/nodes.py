@@ -176,10 +176,10 @@ class FilePathNode(MetaNode):
 
     def state(self):
         """Return the last modified date for file path."""
-        if not self.value.exists():
+        if not self.path.exists():
             raise NodeNotFoundError
         else:
-            return str(self.value.stat().st_mtime)
+            return str(self.path.stat().st_mtime)
 
 
 def _collect_nodes(session, path, name, nodes):

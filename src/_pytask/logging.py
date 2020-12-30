@@ -51,11 +51,18 @@ def _format_plugin_names_and_versions(plugininfo) -> List[str]:
 
 @hookimpl
 def pytask_log_session_footer(
-    session, infos: List[Tuple[Any]], duration: float, color: str
+    infos: List[Tuple[Any]], duration: float, color: str, terminal_width: int
 ) -> str:
-    """Format the footer of the log message."""
-    terminal_width = session.config["terminal_width"]
+    """Format the footer of the log message.
 
+    Example
+    -------
+    >>> pytask_log_session_footer(
+    ...     [(1, "succeeded", "green"), (1, "failed", "red")], 1, "red", 40
+    ... )
+    ===== 1 succeeded, 1 failed in 1s ======
+
+    """
     message = _style_infos(infos)
     message += click.style(f" in {duration}s", fg=color)
     message = _wrap_string_ignoring_ansi_colors(f" {message} ", color, terminal_width)
@@ -64,7 +71,15 @@ def pytask_log_session_footer(
 
 
 def _style_infos(infos: List[Tuple[Any]]) -> str:
-    """Style infos."""
+    """Style infos.
+
+    Example
+    -------
+    >>> m = _style_infos([(1, "a", "green"), (2, "b", "red"), (0, "c", "yellow")])
+    >>> print(m)
+    \x1b[32m1 a\x1b[0m, \x1b[31m2 b\x1b[0m
+
+    """
     message = []
     for value, description, color in infos:
         if value:

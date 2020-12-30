@@ -203,6 +203,7 @@ def pytask_execute_log_end(session, reports):
         ],
         duration=round(session.execution_end - session.execution_start, 2),
         color=ColorCode.FAILED if n_failed else ColorCode.SUCCESS,
+        terminal_width=session.config["terminal_width"],
     )
 
     if n_failed:
