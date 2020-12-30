@@ -17,6 +17,7 @@ from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaNode
 from _pytask.nodes import MetaTask
 from _pytask.nodes import produces
+from _pytask.nodes import PythonFunctionTask
 from _pytask.nodes import reduce_node_name
 
 
@@ -109,25 +110,50 @@ def test_instantiation_of_metanode():
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
-    ("x", "expected_lot", "expected_kd"),
+    ("x", "when", "expectation", "expected_lot", "expected_kd"),
     [
-        (["string"], [("string",)], False),
-        (("string",), [("string",)], False),
-        (range(2), [(0,), (1,)], False),
-        ([{"a": 0, "b": 1}], [("a", 0), ("b", 1)], False),
+        (["string"], "depends_on", does_not_raise(), [("string",)], False),
+        (("string",), "depends_on", does_not_raise(), [("string",)], False),
+        (range(2), "depends_on", does_not_raise(), [(0,), (1,)], False),
+        (
+            [{"a": 0, "b": 1}],
+            "depends_on",
+            does_not_raise(),
+            [("a", 0), ("b", 1)],
+            False,
+        ),
         (
             ["a", ("b", "c"), {"d": 1, "e": 1}],
+            "depends_on",
+            does_not_raise(),
             [("a",), ("b",), ("c",), ("d", 1), ("e", 1)],
             False,
         ),
-        ([["string"]], [("string",)], True),
-        ([{0: "string"}], [(0, "string")], True),
+        ([["string"]], "depends_on", does_not_raise(), [("string",)], True),
+        ([{0: "string"}], "depends_on", does_not_raise(), [(0, "string")], True),
+        (
+            [((0, 1, 2),)],
+            "depends_on",
+            pytest.raises(ValueError, match="Dependencies in pytask.mark.depends_on"),
+            None,
+            None,
+        ),
+        (
+            [((0, 1, 2),)],
+            "produces",
+            pytest.raises(ValueError, match="Products in pytask.mark.produces"),
+            None,
+            None,
+        ),
     ],
 )
-def test_convert_objects_to_list_of_tuples(x, expected_lot, expected_kd):
-    list_of_tuples, keep_dict = _convert_objects_to_list_of_tuples(x)
-    assert list_of_tuples == expected_lot
-    assert keep_dict is expected_kd
+def test_convert_objects_to_list_of_tuples(
+    x, when, expectation, expected_lot, expected_kd
+):
+    with expectation:
+        list_of_tuples, keep_dict = _convert_objects_to_list_of_tuples(x, when)
+        assert list_of_tuples == expected_lot
+        assert keep_dict is expected_kd
 
 
 ERROR = "'@pytask.mark.depends_on' has nodes with the same name:"
@@ -198,6 +224,7 @@ def test_relative_to(path, source, include_source, expected):
         (Path("tasks/task.py"), [Path("src"), Path("bld")], None),
         (Path("src/ts/task.py"), [Path("src"), Path("src/ts")], Path("src/ts")),
         (Path("src/in.txt"), [Path("src/task_d.py")], Path("src")),
+        (Path("src/task.py"), [Path("src/task.py")], Path("src/task.py")),
     ],
 )
 def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected):
@@ -259,6 +286,17 @@ _ROOT = Path.cwd()
             [_ROOT.joinpath("top/src")],
             does_not_raise(),
             "src/module.py",
+        ),
+        (
+            PythonFunctionTask(
+                "task_d",
+                _ROOT.joinpath("top/src/module.py").as_posix() + "::task_d",
+                _ROOT.joinpath("top/src/module.py"),
+                lambda x: x,
+            ),
+            [_ROOT.joinpath("top/src/module.py")],
+            does_not_raise(),
+            "module.py::task_d",
         ),
     ],
 )

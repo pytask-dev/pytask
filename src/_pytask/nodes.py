@@ -217,13 +217,13 @@ def _extract_nodes_from_function_markers(function, parser):
 
 def _convert_objects_to_node_dictionary(objects, when):
     """Convert objects to node dictionary."""
-    list_of_tuples, keep_dict = _convert_objects_to_list_of_tuples(objects)
+    list_of_tuples, keep_dict = _convert_objects_to_list_of_tuples(objects, when)
     _check_that_names_are_not_used_multiple_times(list_of_tuples, when)
     nodes = _convert_nodes_to_dictionary(list_of_tuples)
     return nodes, keep_dict
 
 
-def _convert_objects_to_list_of_tuples(objects):
+def _convert_objects_to_list_of_tuples(objects, when: str):
     """Convert objects to list of tuples.
 
     Examples
@@ -247,8 +247,11 @@ def _convert_objects_to_list_of_tuples(objects):
                     if len(tuple_x) in [1, 2]:
                         out.append(tuple_x)
                     else:
+                        name = "Dependencies" if when == "depends_on" else "Products"
                         raise ValueError(
-                            f"Element {x} can only have two elements at most."
+                            f"{name} in pytask.mark.{when} can be given as a value or "
+                            "a name and a value which is 1 or 2 elements. The "
+                            f"following node has {len(tuple_x)} elements: {tuple_x}."
                         )
                 else:
                     out.append((x,))
@@ -355,10 +358,13 @@ def _relative_to(path: Path, source: Path, include_source: bool = True):
 def _find_closest_ancestor(path: Path, potential_ancestors: List[Path]):
     """Find the closest ancestor of a path.
 
-    In case only a single path to a task file is passed, we take the parent folder of
-    this file. The check :meth:`pathlib.Path.is_file` only succeeds when the file
-    exists. This must be true as otherwise an error is raised by :obj:`click` right in
-    the beginning.
+    In case a path is the path to the task file itself, we return the path.
+
+    .. note::
+
+        The check :meth:`pathlib.Path.is_file` only succeeds when the file exists. This
+        must be true as otherwise an error is raised by :obj:`click` while using the
+        cli.
 
     Examples
     --------
