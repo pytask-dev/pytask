@@ -6,6 +6,12 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
 
 
+0.0.12 - 2020-xx-xx
+-------------------
+
+- :gh:`55` implements miscellaneous fixes to improve error message, tests and coverage.
+
+
 0.0.11 - 2020-12-27
 -------------------
 
