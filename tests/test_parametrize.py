@@ -11,6 +11,7 @@ from _pytask.parametrize import _parse_arg_names
 from _pytask.parametrize import _parse_parametrize_markers
 from _pytask.parametrize import pytask_parametrize_task
 from _pytask.pluginmanager import get_plugin_manager
+from pytask import cli
 from pytask import main
 
 
@@ -152,7 +153,7 @@ def test_parse_argnames_raise_error(arg_names, expectation):
 def test_parse_parametrize_markers(
     markers, exp_base_arg_names, exp_arg_names, exp_arg_values
 ):
-    base_arg_names, arg_names, arg_values = _parse_parametrize_markers(markers)
+    base_arg_names, arg_names, arg_values = _parse_parametrize_markers(markers, "task_")
 
     assert base_arg_names == exp_base_arg_names
     assert arg_names == exp_arg_names
@@ -346,3 +347,55 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
 
     assert session.exit_code == 3
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize(
+    "arg_names, arg_values, content",
+    [
+        (
+            ("i", "j"),
+            [1, 2, 3],
+            [
+                "ValueError",
+                "'arg_names' ('i', 'j') with 2 elements",
+                "'arg_values' is 1.",
+            ],
+        ),
+        (
+            ("i", "j"),
+            [(1, 2, 3)],
+            [
+                "ValueError",
+                "'arg_names' ('i', 'j') with 2 elements",
+                "'arg_values' is 3.",
+            ],
+        ),
+        (
+            ("i", "j"),
+            [(1, 2), (1, 2, 3)],
+            [
+                "ValueError",
+                "'arg_names' ('i', 'j') with 2 elements",
+                "'arg_values' is in (2, 3).",
+            ],
+        ),
+    ],
+)
+def test_wrong_number_of_names_and_wrong_number_of_arguments(
+    tmp_path, runner, arg_names, arg_values, content
+):
+    source = f"""
+    import pytask
+
+    @pytask.mark.parametrize({arg_names}, {arg_values})
+    def task_func():
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == 3
+    for c in content:
+        assert c in result.output

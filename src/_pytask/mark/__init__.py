@@ -1,4 +1,3 @@
-import pdb
 import sys
 import textwrap
 import traceback
@@ -8,6 +7,7 @@ import attr
 import click
 from _pytask.config import hookimpl
 from _pytask.enums import ExitCode
+from _pytask.exceptions import ConfigurationError
 from _pytask.mark.expression import Expression
 from _pytask.mark.expression import ParseError
 from _pytask.mark.structures import get_marks_from_obj
@@ -52,10 +52,7 @@ def markers(**config_from_cli):
         config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
         session = Session.from_config(config)
 
-        if config_from_cli.get("pdb"):
-            pdb.post_mortem()
-
-    except Exception:
+    except (ConfigurationError, Exception):
         traceback.print_exception(*sys.exc_info())
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED

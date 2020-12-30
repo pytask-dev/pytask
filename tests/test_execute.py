@@ -9,8 +9,7 @@ from pytask import main
 
 @pytest.mark.end_to_end
 def test_python_m_pytask(tmp_path):
-    source = "def task_dummy(): pass"
-    tmp_path.joinpath("task_dummy.py").write_text(source)
+    tmp_path.joinpath("task_dummy.py").write_text("def task_dummy(): pass")
     subprocess.run(["python", "-m", "pytask", tmp_path.as_posix()], check=True)
 
 
@@ -60,7 +59,6 @@ def test_node_not_found_in_task_setup(tmp_path):
     @pytask.mark.depends_on(["deleted.txt", "out_2.txt"])
     def task_3(depends_on):
         pass
-
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 

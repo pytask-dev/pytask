@@ -63,7 +63,7 @@ def test_show_capture_callback(value, expected, expectation):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.parametrize("show_capture", ["no", "stdout", "stderr", "all"])
+@pytest.mark.parametrize("show_capture", ["s", "no", "stdout", "stderr", "all"])
 def test_show_capture(tmp_path, runner, show_capture):
     source = """
     import sys
@@ -75,11 +75,12 @@ def test_show_capture(tmp_path, runner, show_capture):
     """
     tmp_path.joinpath("task_show_capture.py").write_text(textwrap.dedent(source))
 
-    result = runner.invoke(cli, [tmp_path.as_posix(), f"--show-capture={show_capture}"])
+    cmd_arg = "-s" if show_capture == "s" else f"--show-capture={show_capture}"
+    result = runner.invoke(cli, [tmp_path.as_posix(), cmd_arg])
 
     assert result.exit_code == 1
 
-    if show_capture == "no":
+    if show_capture in ["no", "s"]:
         assert "Captured" not in result.output
     elif show_capture == "stdout":
         assert "Captured stdout" in result.output

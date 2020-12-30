@@ -1,6 +1,5 @@
 """Add a command to clean the project from files unknown to pytask."""
 import itertools
-import pdb
 import shutil
 import sys
 import traceback
@@ -81,10 +80,7 @@ def clean(**config_from_cli):
     except Exception:
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
-
-        if config_from_cli.get("pdb"):
-            traceback.print_exception(*sys.exc_info())
-            pdb.post_mortem()
+        traceback.print_exception(*sys.exc_info())
 
     else:
         try:
@@ -128,9 +124,6 @@ def clean(**config_from_cli):
 
         except Exception:
             traceback.print_exception(*sys.exc_info())
-            if config["pdb"]:
-                pdb.post_mortem()
-
             session.exit_code = ExitCode.FAILED
 
     sys.exit(session.exit_code)

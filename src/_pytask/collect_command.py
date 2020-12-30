@@ -1,5 +1,4 @@
 """This module contains the implementation of ``pytask collect``."""
-import pdb
 import sys
 import traceback
 
@@ -7,6 +6,7 @@ import click
 from _pytask.config import hookimpl
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
+from _pytask.exceptions import ConfigurationError
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 
@@ -40,13 +40,10 @@ def collect(**config_from_cli):
         config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
         session = Session.from_config(config)
 
-    except Exception:
+    except (ConfigurationError, Exception):
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
-
-        if config_from_cli.get("pdb"):
-            traceback.print_exception(*sys.exc_info())
-            pdb.post_mortem()
+        traceback.print_exception(*sys.exc_info())
 
     else:
         try:
@@ -62,11 +59,8 @@ def collect(**config_from_cli):
             session.exit_code = ExitCode.COLLECTION_FAILED
 
         except Exception:
-            traceback.print_exception(*sys.exc_info())
-            if config["pdb"]:
-                pdb.post_mortem()
-
             session.exit_code = ExitCode.FAILED
+            traceback.print_exception(*sys.exc_info())
 
     sys.exit(session.exit_code)
 

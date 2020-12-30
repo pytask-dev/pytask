@@ -20,7 +20,7 @@ class ExitCode(enum.IntEnum):
     """Failed while resolving dependencies."""
 
 
-class ColorCode(enum.Enum):
+class ColorCode(str, enum.Enum):
     """Color codes for pytask."""
 
     SUCCESS = "green"
@@ -28,3 +28,9 @@ class ColorCode(enum.Enum):
     FAILED = "red"
 
     SKIPPED = "yellow"
+
+    NEUTRAL = None
+
+    def __str__(self) -> str:
+        """Allows to use a color code inside f-strings without the need for .value."""
+        return str.__str__(self)

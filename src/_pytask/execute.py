@@ -15,7 +15,6 @@ from _pytask.mark import Mark
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import reduce_node_name
 from _pytask.report import ExecutionReport
-from _pytask.report import format_execute_footer
 
 
 @hookimpl
@@ -152,9 +151,9 @@ def pytask_execute_task_process_report(session, report):
 def pytask_execute_task_log_end(report):
     """Log task outcome."""
     if report.success:
-        click.secho(".", fg=ColorCode.SUCCESS.value, nl=False)
+        click.secho(".", fg=ColorCode.SUCCESS, nl=False)
     else:
-        click.secho("F", fg=ColorCode.FAILED.value, nl=False)
+        click.secho("F", fg=ColorCode.FAILED, nl=False)
 
     return True
 
@@ -196,9 +195,15 @@ def pytask_execute_log_end(session, reports):
                     )
                     click.echo(content)
 
-    duration = round(session.execution_end - session.execution_start, 2)
-    click.echo(
-        format_execute_footer(n_successful, n_failed, duration, tm_width), nl=True
+    session.hook.pytask_log_session_footer(
+        session=session,
+        infos=[
+            (n_successful, "succeeded", ColorCode.SUCCESS),
+            (n_failed, "failed", ColorCode.FAILED),
+        ],
+        duration=round(session.execution_end - session.execution_start, 2),
+        color=ColorCode.FAILED if n_failed else ColorCode.SUCCESS,
+        terminal_width=session.config["terminal_width"],
     )
 
     if n_failed:
