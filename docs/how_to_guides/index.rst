@@ -18,10 +18,10 @@ specific tasks with pytask.
    how_to_influence_build_order
 
 
-Best-Practices
---------------
+Best Practice Guides
+--------------------
 
-The second collection comprises best-practices guides for pytask. The guides combine
+The second collection comprises best practice guides for pytask. The guides combine
 experience with pytask and build systems in general, research projects, and software
 engineering to provide useful and easily understandable instructions.
 
