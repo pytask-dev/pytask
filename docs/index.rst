@@ -82,3 +82,4 @@ Furthermore, the documentation includes the following topics.
    api
    glossary
    changes
+   On Github <https://github.com/pytask-dev/pytask>
