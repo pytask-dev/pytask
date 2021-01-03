@@ -85,12 +85,14 @@ for the path and, secondly, the task.
 
 
    @pytask.mark.parametrize(
-       "depends_on",
-       "produces",
-       (
-           _create_path_to_simulated_data(mean, std),
-           _create_path_to_distribution_plot(mean, std),
-       ),
+       "depends_on, produces",
+       [
+           (
+               _create_path_to_simulated_data(mean, std),
+               _create_path_to_distribution_plot(mean, std),
+           )
+           for mean, std in CARTESIAN_PRODUCT
+       ],
    )
    def task_plot_distribution(depends_on, produces):
        data = np.load(depends_on)
