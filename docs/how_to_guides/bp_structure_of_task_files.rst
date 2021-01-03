@@ -14,7 +14,7 @@ TL;DR
 
   .. seealso::
 
-      The only exception might be for :doc:`parametrizations <bp_parametrizations.rst>`.
+      The only exception might be for :doc:`parametrizations <bp_parametrizations>`.
 
 - The purpose of the task function is to handle IO operations like loading and saving
   files and calling Python functions on the task's inputs. IO should not be handled in

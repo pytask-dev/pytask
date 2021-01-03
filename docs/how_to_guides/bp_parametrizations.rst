@@ -10,7 +10,7 @@ TL;DR
 - For very simple parametrizations, use parametrizations like with pytest.
 
 - For more complex cases, build the inputs values for the parametrization with a
-  function.
+  function. The function should be placed at the top of the task module.
 
 - If you are reusing a parametrization or parts of it for multiple tasks, code it as
   modular as possible. Separate the underlying Cartesian product from other values which
