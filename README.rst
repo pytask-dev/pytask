@@ -138,7 +138,9 @@ Documentation
 -------------
 
 The documentation can be found under https://pytask-dev.readthedocs.io/en/latest with
-tutorials and explanations.
+`tutorials <https://pytask-dev.readthedocs.io/en/latest/tutorials/index.html>`_ and
+guides for `best practices
+<https://pytask-dev.readthedocs.io/en/latest/how_to_guides/index.html>`_.
 
 
 Changes
