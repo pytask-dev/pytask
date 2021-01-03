@@ -26,5 +26,6 @@ Structure of guides
 2. The second section is a TL;DR (too long; did not read) which provides a short summary
    of the guide and its (five) most important messages.
 
-3. The third section provides the advice in detail. This section must be well
-   structured, concise, and easy to understand. Each tip is associated with an example.
+3. The third section, Best Practices, provides the advice in detail. This section must
+   be well structured, concise, and easy to understand. Each tip is associated with an
+   example.
