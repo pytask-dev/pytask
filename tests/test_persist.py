@@ -59,18 +59,15 @@ def test_multiple_runs_with_persist(tmp_path):
     assert session.execution_reports[0].success
     assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
 
-    orm.db_session.__enter__()
+    with orm.db_session:
+        create_database(
+            "sqlite", tmp_path.joinpath(".pytask.sqlite3").as_posix(), True, False
+        )
+        task_id = tmp_path.joinpath("task_dummy.py").as_posix() + "::task_dummy"
+        node_id = tmp_path.joinpath("out.txt").as_posix()
 
-    create_database(
-        "sqlite", tmp_path.joinpath(".pytask.sqlite3").as_posix(), True, False
-    )
-    task_id = tmp_path.joinpath("task_dummy.py").as_posix() + "::task_dummy"
-    node_id = tmp_path.joinpath("out.txt").as_posix()
-
-    state = State[task_id, node_id].state
-    assert float(state) == tmp_path.joinpath("out.txt").stat().st_mtime
-
-    orm.db_session.__exit__()
+        state = State[task_id, node_id].state
+        assert float(state) == tmp_path.joinpath("out.txt").stat().st_mtime
 
     session = main({"paths": tmp_path})
 
