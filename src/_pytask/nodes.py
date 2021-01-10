@@ -84,8 +84,12 @@ class PythonFunctionTask(MetaTask):
     """List[MetaNode]: A list of products of task."""
     markers = attr.ib(factory=list)
     """Optional[List[Mark]]: A list of markers attached to the task function."""
-    keep_dict = attr.ib(factory=dict)
+    keep_dict = attr.ib(default=False)
+    """Dict[str, bool]: Should dictionaries for single nodes be preserved?"""
     _report_sections = attr.ib(factory=list)
+    """List[Tuple[str]]: A list of reports with entries for when, what, and content."""
+    duration = attr.ib(default=None)
+    """Tuple[float]: Start and end dates of the task's execution in UNIX time."""
 
     @classmethod
     def from_path_name_function_session(cls, path, name, function, session):

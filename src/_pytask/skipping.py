@@ -47,7 +47,7 @@ def pytask_execute_task_setup(task):
         raise Skipped
 
 
-@hookimpl
+@hookimpl(tryfirst=True)
 def pytask_execute_task_process_report(session, report):
     """Process the execution reports for skipped tasks.
 

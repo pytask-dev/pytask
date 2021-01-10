@@ -44,7 +44,7 @@ def pytask_execute_task_setup(session, task):
             raise Persisted
 
 
-@hookimpl
+@hookimpl(tryfirst=True)
 def pytask_execute_task_process_report(report):
     """Set task status to success.
 

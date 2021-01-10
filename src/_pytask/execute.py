@@ -101,10 +101,11 @@ def pytask_execute_task_setup(session, task):
             node.path.parent.mkdir(parents=True, exist_ok=True)
 
 
-@hookimpl
+@hookimpl(trylast=True)
 def pytask_execute_task(task):
     """Execute task."""
     task.execute()
+    return True
 
 
 @hookimpl
