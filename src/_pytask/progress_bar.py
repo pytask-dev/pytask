@@ -16,13 +16,13 @@ class _Countdown(tqdm):
         super().__init__(**kwargs)
         self.bar_format = self._BAR_FORMAT_TEMPLATE + tqdm.format_interval(self.total)
 
-    def update_to(self, n=1):
+    def update_to(self):
         """Customly update."""
         if self.last_print_n < self.total:
             self.update()
         else:
-            self.n -= n
-            self.last_print_n -= n
+            self.n -= 1
+            self.last_print_n -= 1
             self.update()
 
 
