@@ -10,6 +10,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 -------------------
 
 - :gh:`55` implements miscellaneous fixes to improve error message, tests and coverage.
+- :gh:`59` adds a tutorial on using plugins and features plugins more prominently.
 
 
 0.0.11 - 2020-12-27
