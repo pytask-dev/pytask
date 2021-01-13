@@ -44,14 +44,20 @@ projects. Its features include:
 - **Lazy evaluation.** If a task, its dependencies, and its products have not changed,
   do not execute it.
 
-- **Debug mode.** Jump into the debugger if a task fails and get quick feedback.
+- **Debug mode.** `Jump into the debugger
+  <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_debug.html>`_ if a task
+  fails, get feedback quickly, and be more productive.
 
-- **Select tasks via expressions.** Run only a subset of tasks with expressions and
-  marker expressions known from pytest.
+- **Select tasks via expressions.** Run only a subset of tasks with `expressions and
+  marker expressions
+  <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_select_tasks.html>`_
+  known from pytest.
 
 - **Easily extensible with plugins**. pytask's architecture is based on `pluggy
   <https://pluggy.readthedocs.io/en/latest/>`_, a plugin management and hook calling
-  framework which enables you to adjust pytask to your needs.
+  framework which enables you to adjust pytask to your needs. Read `here
+  <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_use_plugins.html>`_ how
+  you can use plugins.
 
 
 Why do I need a build system?
