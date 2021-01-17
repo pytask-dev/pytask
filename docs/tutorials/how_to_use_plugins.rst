@@ -33,5 +33,5 @@ itself by using pytask's entry-point.
 How to implement your own plugin
 --------------------------------
 
-Follow the :doc:`guide on writing a plugin <../how_to_guides/how_to_write_a_plugin.rst>`
+Follow the :doc:`guide on writing a plugin <../how_to_guides/how_to_write_a_plugin>`
 to write your own plugin.
