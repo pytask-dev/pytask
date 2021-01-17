@@ -54,8 +54,12 @@ projects. Its features include:
   known from pytest.
 
 - **Easily extensible with plugins**. pytask's architecture is based on `pluggy
-  <https://pluggy.readthedocs.io/en/latest/>`_, a plugin management and hook calling
-  framework which enables you to adjust pytask to your needs. Read `here
+  <https://pluggy.readthedocs.io/en/latest/>`_, a plugin management framework, so that
+  you can adjust pytask to your needs. Plugins are, for example, available for
+  `parallelization <https://github.com/pytask-dev/pytask-parallel>`_, `LaTeX
+  <https://github.com/pytask-dev/pytask-latex>`_, `R
+  <https://github.com/pytask-dev/pytask-r>`_, and `Stata
+  <https://github.com/pytask-dev/pytask-stata>`_. Read `here
   <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_use_plugins.html>`_ how
   you can use plugins.
 
