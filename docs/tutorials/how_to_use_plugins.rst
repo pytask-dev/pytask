@@ -12,13 +12,15 @@ plugins.
 Where to find plugins
 ---------------------
 
-Plugins can be found in a variety of ways.
+Plugins can be found in many places.
 
 - Check out the repositories in the `pytask-dev <https://github.com/pytask-dev>`_ Github
   organization which includes a collection of officially supported plugins.
 
 - Check out the `pytask Github topic <https://github.com/topics/pytask>`_ which shows an
   overview of repositories linked to pytask.
+
+- Search on `anaconda.org <https://anaconda.org/search?q=pytask>`_ for related packages.
 
 
 How to use plugins
