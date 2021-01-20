@@ -158,3 +158,14 @@ Changes
 
 Consult the `release notes <https://pytask-dev.readthedocs.io/en/latest/changes.html>`_
 to find out about what is new.
+
+
+License
+-------
+
+pytask is distributed under the terms of the `MIT license <LICENSE>`_.
+
+The license also includes a copyright and permission notice from pytest since some
+modules, classes, and functions are copied from pytest. Not to mention how pytest has
+inspired the development pytask in general. Without the amazing work of Holger Krekel
+and pytest's many contributors, this project would not have been possible. Thank you!
