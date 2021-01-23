@@ -13,12 +13,12 @@ dependencies:
   - conda-verify
 
   # Package dependencies
+  - attrs >=17.4.0
   - click
   - click-default-group
   - networkx
   - pluggy
-  - pony
-  - pytest
+  - pony >=0.7.13
 
   # Misc
   - black
@@ -27,7 +27,7 @@ dependencies:
   - matplotlib
   - pdbpp
   - pre-commit
-  - pydot
+  - pytest
   - pytest-cov
   - tox-conda
   - virtualenv=20.0.33
@@ -36,8 +36,8 @@ dependencies:
   - furo
   - nbsphinx
   - sphinx
-  - sphinx-copybutton
-  - sphinx-autodoc-typehints
   - sphinx-autoapi
+  - sphinx-autodoc-typehints
   - sphinx-click
+  - sphinx-copybutton
   - sphinx-panels

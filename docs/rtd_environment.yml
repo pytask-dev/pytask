@@ -1,21 +1,26 @@
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
+  - python>=3.6
+
+  # Documentation
   - furo
   - ipython
+  - nbsphinx
   - sphinx
-  - sphinx-copybutton
-  - sphinx-autodoc-typehints
   - sphinx-autoapi
+  - sphinx-autodoc-typehints
   - sphinx-click
+  - sphinx-copybutton
   - sphinx-panels
 
   # Package dependencies necessary for sphinx-click
-  - attrs
+  - attrs >=17.4.0
   - click
   - click-default-group
   - networkx
-  - pexpect
   - pluggy
-  - pony >= 0.7.13
+  - pony >=0.7.13
+
+  # Testing dependencies necessary for sphinx-click
+  - pexpect
