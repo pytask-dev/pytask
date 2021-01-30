@@ -29,7 +29,8 @@ def pytask_parse_config(config):
         "failed.",
         "skip_unchanged": "Internal decorator applied to tasks which have already been "
         "executed and have not been changed.",
-        "skip_if": "Skip a task and all its subsequent tasks in case a condition is fulfilled.",
+        "skip_if": "Skip a task and all its subsequent tasks in case a condition is "
+        "fulfilled.",
     }
     config["markers"] = {**config["markers"], **markers}
 

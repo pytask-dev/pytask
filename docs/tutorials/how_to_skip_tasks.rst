@@ -6,12 +6,13 @@ changed and all products exist.
 
 In addition, you may want pytask to skip tasks either generally or if certain conditions
 are fulfilled. Skipping means the task itself and all tasks that depend on it will not
-be executed, even if the task file or their dependencies have changed or products are missing.
+be executed, even if the task file or their dependencies have changed or products are
+missing.
 
-This can be useful for example if you are working on a task that creates the dependency of
-a long running task and you are not interested in the long running task's product for the
-moment. In that case you can simply use `@pytask.mark.skip` in front of the long running task
-to stop it from running:
+This can be useful for example if you are working on a task that creates the dependency
+of a long running task and you are not interested in the long running task's product
+for the moment. In that case you can simply use ``@pytask.mark.skip`` in front of the
+long running task to stop it from running:
 
 .. code-block:: python
 
@@ -29,11 +30,12 @@ to stop it from running:
     def task_that_takes_really_long_to_run(depends_on):
 
 
-In large projects, you may have many long running tasks that you only want to execute
-sporadically, e.g. when you are not working locally but running the project on a server.
+In large projects, you may have many long running tasks that you only want to
+execute sporadically, e.g. when you are not working locally but running the project
+on a server.
 
-In that case, we recommend using `@pytask.mark.skip_if` which lets you supply a condition
-and a reason as arguments:
+In that case, we recommend using ``@pytask.mark.skip_if`` which lets you supply a
+condition and a reason as arguments:
 
 
 .. code-block:: python
