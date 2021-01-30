@@ -129,6 +129,7 @@ def test_if_skip_if_decorator_is_applied_skipping(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
     assert session.execution_reports[1].success
     assert isinstance(session.execution_reports[1].exc_info[1], Skipped)
+    assert session.execution_reports[0].exc_info[1].args[0] == "bla"
 
 
 @pytest.mark.end_to_end

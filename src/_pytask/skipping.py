@@ -16,6 +16,11 @@ def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
     return reason
 
 
+def skip_if(condition: bool, reason: str = "No reason provided.") -> tuple:
+    """Function to parse information in ``@pytask.mark.skip_if``."""
+    return condition, reason
+
+
 @hookimpl
 def pytask_parse_config(config):
     markers = {
@@ -24,6 +29,7 @@ def pytask_parse_config(config):
         "failed.",
         "skip_unchanged": "Internal decorator applied to tasks which have already been "
         "executed and have not been changed.",
+        "skip_if": "Skip a task and all its subsequent tasks in case a condition is fulfilled.",
     }
     config["markers"] = {**config["markers"], **markers}
 
@@ -45,6 +51,14 @@ def pytask_execute_task_setup(task):
     markers = get_specific_markers_from_task(task, "skip")
     if markers:
         raise Skipped
+
+    markers = get_specific_markers_from_task(task, "skip_if")
+    if markers:
+        marker_args = [skip_if(*marker.args, **marker.kwargs) for marker in markers]
+        message = "\n".join([arg[1] for arg in marker_args])
+        should_skip = all(arg[0] for arg in marker_args)
+        if should_skip:
+            raise Skipped(message)
 
 
 @hookimpl
