@@ -6,13 +6,26 @@ pytask
    :end-before: end-badges
 
 
+Features
+--------
+
+.. include:: ../README.rst
+   :start-after: start-features
+   :end-before: end-features
+
+
+Installation
+------------
+
 .. include:: ../README.rst
    :start-after: start-installation
    :end-before: end-installation
 
 
-The documentation is build upon four pillars:
+Documentation
+-------------
 
+If you want to know more about pytask, dive right into one the following topics.
 
 .. panels::
     :container: container pb-4
@@ -28,8 +41,7 @@ The documentation is build upon four pillars:
         :text: Tutorials
         :classes: stretched-link font-weight-bold
 
-    Tutorials help you to get started with pytask, explain the interface and basic
-    capabilities.
+    Tutorials help you to get started with pytask and how you manage your first project.
 
     ---
     :img-top: _static/images/book.svg
@@ -39,8 +51,8 @@ The documentation is build upon four pillars:
         :text: How-to Guides
         :classes: stretched-link font-weight-bold
 
-    How-to guides are designed to provide detailed instructions for very specific and
-    advanced tasks.
+    How-to guides provide instructions for very specific and advanced tasks and document
+    best-practices.
 
     ---
     :img-top: _static/images/books.svg
@@ -50,8 +62,7 @@ The documentation is build upon four pillars:
         :text: Explanations
         :classes: stretched-link font-weight-bold
 
-    Explanations give detailed information on key topics and concepts which underlie the
-    package.
+    Explanations deal with key topics and concepts which underlie the package.
 
     ---
     :img-top: _static/images/coding.svg

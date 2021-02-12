@@ -8,6 +8,5 @@ systems in general as well as its design.
    :maxdepth: 1
 
    why_do_i_need_a_build_system
-   why_another_build_system
-   design
+   build_systems
    pluggy

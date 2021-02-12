@@ -32,8 +32,7 @@
 .. end-badges
 
 
-Features
---------
+.. start-features
 
 In its highest aspirations, pytask tries to be pytest as a build system. It's main
 purpose is to facilitate reproducible research by automating workflows in research
@@ -62,6 +61,8 @@ projects. Its features include:
   <https://github.com/pytask-dev/pytask-stata>`_. Read `here
   <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_use_plugins.html>`_ how
   you can use plugins.
+
+.. end-features
 
 
 Why do I need a build system?
