@@ -93,3 +93,8 @@ Then, install the package into your environment with
 Both commands will make an editable install of the project which means any changes in
 the source files of the package are directly reflected in the installed version of the
 package.
+
+.. tip::
+
+    Do not forget to rerun the editable install every time you recreate your Python
+    environment.
