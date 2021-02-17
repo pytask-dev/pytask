@@ -29,6 +29,7 @@ dependencies:
   - pydot
   - pytest-cov
   - tox-conda
+  - versioneer
   - virtualenv=20.0.33
 
   # Documentation
