@@ -14,3 +14,6 @@ _generated
 *.egg-info
 
 .pytask.sqlite3
+
+build
+dist
