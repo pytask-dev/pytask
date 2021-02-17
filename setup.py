@@ -4,6 +4,8 @@ from pathlib import Path
 from setuptools import find_packages
 from setuptools import setup
 
+import versioneer
+
 
 DESCRIPTION = "In its highest aspirations, pytask tries to be pytest as a build system."
 README = Path("README.rst").read_text()
@@ -15,7 +17,8 @@ PROJECT_URLS = {
 
 setup(
     name="pytask",
-    version="0.0.11",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description=DESCRIPTION,
     long_description=DESCRIPTION + "\n\n" + README,
     long_description_content_type="text/x-rst",
