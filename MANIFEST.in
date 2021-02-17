@@ -1,2 +1,3 @@
 include versioneer.py
 include src/pytask/_version.py
+include src/_pytask/_version.py

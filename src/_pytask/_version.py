@@ -37,9 +37,9 @@ def get_config():
     cfg = VersioneerConfig()
     cfg.VCS = "git"
     cfg.style = "pep440"
-    cfg.tag_prefix = ""
+    cfg.tag_prefix = "v"
     cfg.parentdir_prefix = "pytask-"
-    cfg.versionfile_source = "src/pytask/_version.py"
+    cfg.versionfile_source = "src/_pytask/_version.py"
     cfg.verbose = False
     return cfg
 
