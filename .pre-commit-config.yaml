@@ -73,7 +73,7 @@ repos:
     rev: v2.0.0
     hooks:
     -   id: codespell
-        args: [-L hist]
+        args: [-L hist,-L unparseable]
 -   repo: meta
     hooks:
     -   id: check-hooks-apply

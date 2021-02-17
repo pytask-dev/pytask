@@ -22,7 +22,6 @@ dependencies:
 
   # Misc
   - black
-  - bump2version
   - jupyterlab
   - matplotlib
   - pdbpp
