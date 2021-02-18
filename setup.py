@@ -8,7 +8,10 @@ import versioneer
 
 
 DESCRIPTION = "In its highest aspirations, pytask tries to be pytest as a build system."
-README = Path("README.rst").read_text()
+
+# Remove the image from the README.rst since the raw directive is not allowed.
+README = "\n".join(Path("README.rst").read_text().split("\n")[5:])
+
 PROJECT_URLS = {
     "Documentation": "https://pytask-dev.readthedocs.io/en/latest",
     "Github": "https://github.com/pytask-dev/pytask",
