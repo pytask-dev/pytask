@@ -10,9 +10,9 @@ import versioneer
 DESCRIPTION = "In its highest aspirations, pytask tries to be pytest as a build system."
 README = Path("README.rst").read_text()
 PROJECT_URLS = {
-    "Bug Tracker": "https://github.com/pytask-dev/pytask/issues",
     "Documentation": "https://pytask-dev.readthedocs.io/en/latest",
-    "Source Code": "https://github.com/pytask-dev/pytask",
+    "Github": "https://github.com/pytask-dev/pytask",
+    "Tracker": "https://github.com/pytask-dev/pytask/issues",
 }
 
 setup(
@@ -20,26 +20,37 @@ setup(
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     description=DESCRIPTION,
-    long_description=DESCRIPTION + "\n\n" + README,
+    long_description=README,
     long_description_content_type="text/x-rst",
     author="Tobias Raabe",
     author_email="raabe@posteo.de",
-    python_requires=">=3.6",
-    url=PROJECT_URLS["Documentation"],
+    url=PROJECT_URLS["Github"],
     project_urls=PROJECT_URLS,
-    license="None",
-    keywords=["Build System"],
+    license="MIT",
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
-        "Framework :: pytask",
+        "Development Status :: 3 - Alpha",
+        "Environment :: Console",
         "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Software Development :: Build Tools",
     ],
-    platforms="any",
+    install_requires=[
+        "attrs >= 17.4.0",
+        "click",
+        "click-default-group",
+        "networkx",
+        "pluggy",
+        "pony >= 0.7.13",
+    ],
+    python_requires=">=3.6",
     entry_points={"console_scripts": ["pytask=_pytask.cli:cli"]},
     packages=find_packages(where="src"),
     package_dir={"": "src"},
+    platforms="any",
 )
