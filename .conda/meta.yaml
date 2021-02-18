@@ -23,7 +23,6 @@ requirements:
 
   run:
     - python >=3.6
-    - setuptools
     - attrs >=17.4.0
     - click
     - click-default-group
