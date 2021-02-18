@@ -20,7 +20,7 @@ PROJECT_URLS = {
 }
 
 # Each commit is uploaded to Test PyPI which does not allow for dirty commits.
-VERSION = versioneer.get_version()
+VERSION = versioneer.get_versions()
 if "CI" in os.environ:
     VERSION = VERSION.split("+")[0]
 
