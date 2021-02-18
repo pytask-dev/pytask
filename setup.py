@@ -1,5 +1,4 @@
 """The setup.py for pytask."""
-import os
 from pathlib import Path
 
 from setuptools import find_packages
@@ -19,15 +18,10 @@ PROJECT_URLS = {
     "Tracker": "https://github.com/pytask-dev/pytask/issues",
 }
 
-# Each commit is uploaded to Test PyPI which does not allow for dirty commits.
-VERSION = versioneer.get_version()
-if "CI" in os.environ:
-    VERSION = VERSION.split("+")[0]
-
 
 setup(
     name="pytask",
-    version=VERSION,
+    version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     description=DESCRIPTION,
     long_description=README,
