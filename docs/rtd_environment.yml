@@ -1,9 +1,9 @@
 channels:
   - conda-forge
-dependencies:
-  - python>=3.6
 
-  # Documentation
+dependencies:
+  - python >= 3.6
+  - pip
   - furo
   - ipython
   - nbsphinx
@@ -21,6 +21,7 @@ dependencies:
   - networkx
   - pluggy
   - pony >=0.7.13
-
-  # Testing dependencies necessary for sphinx-click
   - pexpect
+
+  - pip:
+    - -e ../
