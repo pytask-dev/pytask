@@ -49,8 +49,8 @@ To let pytask track the product of the task, you need to use the
 
 .. seealso::
 
-    You learn how to add dependencies and products to a task in the next :doc:`tutorial
-    <how_to_define_dependencies_products>`.
+    You learn more about adding dependencies and products to a task in the next
+    :doc:`tutorial <how_to_define_dependencies_products>`.
 
 To execute the task, type the following command in your shell.
 
@@ -75,8 +75,8 @@ would collect all tasks in the current working directory and in all subsequent f
 
 .. important::
 
-    By default, pytask recognizes tasks when they are functions in modules both prefixed
-    with ``task_``.
+    By default, pytask assumes that tasks are functions in modules whose names are both
+    prefixed with ``task_``.
 
     Use the configuration value :confval:`task_files` if you prefer a different naming
-    scheme.
+    scheme for the task modules.

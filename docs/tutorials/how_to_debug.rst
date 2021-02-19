@@ -5,13 +5,15 @@ The debug mode is one of pytask's biggest strength. Whenever you encounter an er
 one of your tasks, jump right into the code and inspect the cause of the exception.
 
 Quick and easy feedback through a debugger is immensely valuable because it helps you to
-be more productive and gain more confidence in your research code.
+be more productive and gain more confidence in your code.
 
 To facilitate debugging, pytask offers two command-line options.
 
 
 Debugging
 ---------
+
+Running
 
 .. code-block:: console
 

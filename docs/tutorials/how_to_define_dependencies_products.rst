@@ -1,19 +1,18 @@
 How to define dependencies and products
 =======================================
 
-Tasks may have dependencies, but they certainly have products. pytask needs the
-information to infer the order in which tasks are executed and whether a task must be
-executed at all.
+To make sure pytask executes all tasks in a correct order, we need to define which
+dependencies are required and which products are produced by a task.
 
 The information on dependencies and products can be attached to a task function with
-markers. Let us have a look at some examples.
+special markers. Let us have a look at some examples.
 
 
 Products
 --------
 
-We first focus on products which we have already seen in the previous tutorial. Let us
-take a look at the task from the previous tutorial.
+We first focus on products which we already encountered in the previous tutorial. Let us
+take the task from the previous tutorial.
 
 .. code-block:: python
 
@@ -24,14 +23,17 @@ take a look at the task from the previous tutorial.
     def task_create_random_data(produces):
         ...
 
-The ``@pytask.mark.produces`` marker attaches a product to a task which is in this case
-a :class:`pathlib.Path` to file. After the task has finished, pytask will check whether
+The ``@pytask.mark.produces`` marker attaches a product to a task which is a
+:class:`pathlib.Path` to file. After the task has finished, pytask will check whether
 the file exists.
+
+Optionally, you can use ``produces`` as an argument of the task function and get access
+to the same path inside the task function.
 
 .. tip::
 
     If you do not know about :mod:`pathlib` check out [1]_ and [2]_. The module is very
-    useful to handle paths conveniently and cross-platform.
+    useful to handle paths conveniently and across platforms.
 
 
 Dependencies
@@ -44,8 +46,11 @@ Most tasks have dependencies. Similar to products, you can use the
 
     @pytask.mark.depends_on(BLD / "data.pkl")
     @pytask.mark.produces(BLD / "plot.png")
-    def task_make_text_bold(depends_on, produces):
+    def task_plot_data(depends_on, produces):
         ...
+
+Use ``depends_on`` as a function argument to work with the path of the dependency and,
+for example, load the data.
 
 
 Conversion
@@ -68,19 +73,6 @@ have access to the paths of the targets as :class:`pathlib.Path` even if strings
 used before.
 
 
-Optional usage in signature
----------------------------
-
-The task function does not need to have ``depends_on`` and ``produces`` as arguments
-even though the corresponding markers were used like in the following example.
-
-.. code-block::
-
-    @pytask.mark.produces("../bld/data.pkl")
-    def task_create_random_data():
-        ...
-
-
 Multiple dependencies and products
 ----------------------------------
 
@@ -97,9 +89,10 @@ iterator to the marker containing the paths.
 Inside the function, the arguments ``depends_on`` or ``produces`` become a dictionary
 where keys are the positions in the list.
 
-.. code-block:: python
+.. code-block:: pycon
 
-    produces = {0: BLD / "data_0.pkl", 1: BLD / "data_1.pkl"}
+    >>> produces
+    {0: BLD / "data_0.pkl", 1: BLD / "data_1.pkl"}
 
 Why dictionaries and not lists? First, dictionaries with positions as keys behave very
 similar to lists and conversion between both is easy.
@@ -120,17 +113,17 @@ To assign labels to dependencies or products, pass a dictionary. For example,
     def task_create_random_data(produces):
         ...
 
-.. note::
+Then, use
 
-    Named dependencies and products can also be passed as a list of tuples where the
-    first element corresponds to the key and the second to the value See here an example
-    with a list of tuples.
+.. code-block:: pycon
 
-    .. code-block:: python
+    >>> produces["first"]
+    BLD / "data_0.pkl"
 
-        @pytask.mark.produces([("first", BLD / "data_0.pkl"), ("second", BLD / "data_1.pkl")])
-        def task_create_random_data(produces):
-            ...
+    >>> produces["second"]
+    BLD / "data_1.pkl"
+
+inside the task function.
 
 
 Multiple decorators

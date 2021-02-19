@@ -25,7 +25,7 @@ Installation
 Documentation
 -------------
 
-If you want to know more about pytask, dive right into one the following topics.
+If you want to know more about pytask, dive into one the following topics.
 
 .. panels::
     :container: container pb-4

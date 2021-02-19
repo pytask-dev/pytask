@@ -25,7 +25,7 @@ First, we write the task for one seed.
         ...
 
 In the next step, we repeat the same task over the numbers 0, 1, and 2 and pass them to
-the ``seed`` argument.
+the ``seed`` argument. We also vary the name of the produced file in every iteration.
 
 .. code-block:: python
 
@@ -45,8 +45,9 @@ name of a task function argument.
 
     The signature is explained in detail :ref:`below <parametrize_signature>`.
 
-The second argument of the parametrize decorator is an iterable. Each element of the
-iterable has to provide one value for each argument name in the signature.
+The second argument of the parametrize decorator is a list (or any iterable) which has
+as many elements as there are iterations over the task function. Each element has to
+provide one value for each argument name in the signature - two in this case.
 
 Putting all together, the task is executed three times and each run the path from the
 list is mapped to the argument ``produces`` and ``seed`` receives the seed.
