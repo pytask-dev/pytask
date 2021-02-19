@@ -1,2 +1,11 @@
+include LICENSE
 include versioneer.py
 include src/_pytask/_version.py
+
+exclude *.yaml
+exclude *.yml
+exclude tox.ini
+
+prune .conda
+prune docs
+prune tests
