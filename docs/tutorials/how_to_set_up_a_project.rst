@@ -3,8 +3,7 @@
 How to set up a project
 =======================
 
-The previous sections in the tutorial explained the basic capabilities of pytask, but
-how can we manage a bigger project with pytask?
+This tutorial shows you how to set up your project.
 
 
 The directory structure
@@ -25,8 +24,14 @@ The following directory tree is an example of how a project can be set up.
         └────...
 
 - The configuration file, ``pytask.ini``, ``tox.ini`` or ``setup.cfg``, should be placed
-  at the root of the project folder and should contain a ``[pytask]`` section even if it
-  is empty.
+  at the root of the project folder and should contain a ``[pytask]`` section which can
+  be left empty.
+
+  .. code-block:: ini
+
+      # Content of pytask.ini, tox.ini or setup.cfg.
+
+      [pytask]
 
   The file in combination with the section will indicate the root of the project. This
   has two benefits.
@@ -35,23 +40,14 @@ The following directory tree is an example of how a project can be set up.
      a ``.pytask.sqlite3`` database in the root folder.
 
   2. Even if you start pytask from a different location inside the project folder than
-     the root, the database will be found.
+     the root, the database will be found and pytask runs as if it is run in the project
+     root.
 
-  Here is a configuration file without any information except the section header.
+- The ``src`` directory contains the tasks and source files of the project.
 
-  .. code-block:: ini
-
-      # Content of pytask.ini, tox.ini or setup.cfg.
-
-      [pytask]
-
-- Then, there exist two folders. The ``src`` directory contains the tasks and other data
-  and code.
-
-  It also contains a ``config.py`` or a similar module from where the project
-  configuration is read. You can store paths and other information which can be imported
-  in other files to specify dependencies and targets. Here is an example of a
-  ``config.py``.
+  It also contains a ``config.py`` or a similar module to store the configuration of the
+  project. For example, you should define paths pointing to the source and build
+  directory of the project.
 
   .. code-block:: python
 
@@ -63,8 +59,9 @@ The following directory tree is an example of how a project can be set up.
       SRC = Path(__file__).parent
       BLD = SRC.joinpath("..", "bld").resolve()
 
-- The build directory ``bld`` is used to store products of tasks. This makes it easy to
-  rerun the whole project by just deleting the entire build directory.
+- The build directory ``bld`` is used to store products of tasks. The separation between
+  a source and build directory makes it easy to start from a clean project by deleting
+  the build directory.
 
 
 setup.py
@@ -95,5 +92,9 @@ Then, install the package into your environment with
     $ pip install -e .
 
 Both commands will make an editable install of the project which means any changes in
-the source files of the package are directly reflected in the installed version of the
-package.
+the source files of the package are reflected in the installed version of the package.
+
+.. tip::
+
+    Do not forget to rerun the editable install every time you recreate your Python
+    environment.

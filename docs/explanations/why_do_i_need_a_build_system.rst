@@ -7,8 +7,8 @@ TL;DR
 Research projects consists of complex workflows which handle data, employ models, and
 produce figures, tables, and reports.
 
-Making sure that all steps of the analysis are up-to-date should not be done by hand
-since this process is error-prone and time-consuming.
+Ensuring that all steps of the analysis are up-to-date should not be done by hand since
+this process is error-prone and time-consuming.
 
 Build systems like pytask provide an easy interface for researchers to express the
 relationships among the tasks in a research project and conveniently manage the
