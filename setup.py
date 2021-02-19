@@ -57,4 +57,5 @@ setup(
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     platforms="any",
+    include_package_data=True,
 )
