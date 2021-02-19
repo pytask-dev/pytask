@@ -51,7 +51,7 @@ iterable has to provide one value for each argument name in the signature.
 Putting all together, the task is executed three times and each run the path from the
 list is mapped to the argument ``produces`` and ``seed`` receives the seed.
 
-.. info::
+.. note::
 
     If you use ``produces`` or ``depends_on`` in the signature of the parametrize
     decorator, the values are treated as if they were attached to the function with
