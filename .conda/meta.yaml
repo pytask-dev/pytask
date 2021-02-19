@@ -16,14 +16,22 @@ build:
     - pytask = _pytask.cli:cli
 
 requirements:
+  # The package dependencies must be specified under 'host' and 'run'.
   host:
     - python
     - pip
     - setuptools
 
+    - attrs >=17.4.0
+    - click
+    - click-default-group
+    - networkx
+    - pluggy
+    - pony >=0.7.13
+
   run:
     - python >=3.6
-    - setuptools
+
     - attrs >=17.4.0
     - click
     - click-default-group

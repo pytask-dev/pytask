@@ -14,7 +14,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`60` adds the MIT license to the project and mentions pytest and its developers.
 - :gh:`65` adds versioneer to pytask and :gh:`66` corrects the coverage reports which
   were deflated due to the new files.
-
+- :gh:`67` prepares pytask to be published on PyPI.
 
 
 0.0.11 - 2020-12-27
