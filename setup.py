@@ -16,6 +16,7 @@ PROJECT_URLS = {
     "Documentation": "https://pytask-dev.readthedocs.io/en/latest",
     "Github": "https://github.com/pytask-dev/pytask",
     "Tracker": "https://github.com/pytask-dev/pytask/issues",
+    "Changelog": "https://pytask-dev.readthedocs.io/en/latest/changes.html",
 }
 
 
@@ -36,7 +37,11 @@ setup(
         "Environment :: Console",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
@@ -51,6 +56,7 @@ setup(
         "networkx",
         "pluggy",
         "pony >= 0.7.13",
+        "colorama;platform_system=='Windows'",
     ],
     python_requires=">=3.6",
     entry_points={"console_scripts": ["pytask=_pytask.cli:cli"]},
