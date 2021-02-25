@@ -6,11 +6,22 @@
 
 .. start-badges
 
+.. image:: https://img.shields.io/pypi/v/pytask?color=blue
+    :alt: PyPI
+    :target: https://pypi.org/project/pytask
+
+.. image:: https://img.shields.io/pypi/pyversions/pytask
+    :alt: PyPI - Python Version
+    :target: https://pypi.org/project/pytask
+
 .. image:: https://anaconda.org/pytask/pytask/badges/version.svg
     :target: https://anaconda.org/pytask/pytask
 
 .. image:: https://anaconda.org/pytask/pytask/badges/platforms.svg
     :target: https://anaconda.org/pytask/pytask
+
+.. image:: https://img.shields.io/pypi/l/pytask
+    :alt: PyPI - License
 
 .. image:: https://readthedocs.org/projects/pytask-dev/badge/?version=latest
     :target: https://pytask-dev.readthedocs.io/en/latest
@@ -78,10 +89,14 @@ Installation
 
 .. start-installation
 
-pytask is available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_. Install the
-package with
+pytask is available on `PyPI <https://pypi.org/project/pytask>`_ and on `Anaconda.org
+<https://anaconda.org/pytask/pytask>`_. Install the package with
 
 .. code-block:: console
+
+    $ pip install pytask
+
+    # or
 
     $ conda config --add channels conda-forge --add channels pytask
     $ conda install pytask

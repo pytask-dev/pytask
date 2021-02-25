@@ -3,10 +3,11 @@ Changes
 
 This is a record of all past pytask releases and what went into them in reverse
 chronological order. Releases follow `semantic versioning <https://semver.org/>`_ and
-all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
+all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
+`Anaconda.org <https://anaconda.org/pytask/pytask>`_.
 
 
-0.0.12 - 2020-xx-xx
+0.0.12 - 2020-02-25
 -------------------
 
 - :gh:`55` implements miscellaneous fixes to improve error message, tests and coverage.
@@ -16,6 +17,7 @@ all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>
 - :gh:`65` adds versioneer to pytask and :gh:`66` corrects the coverage reports which
   were deflated due to the new files.
 - :gh:`67` prepares pytask to be published on PyPI and :gh:`68` fixes the pipeline.
+- :gh:`68` adds new shields.
 
 
 0.0.11 - 2020-12-27
