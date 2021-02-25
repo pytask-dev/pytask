@@ -16,8 +16,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`61` adds many changes to the documentation.
 - :gh:`65` adds versioneer to pytask and :gh:`66` corrects the coverage reports which
   were deflated due to the new files.
-- :gh:`67` prepares pytask to be published on PyPI and :gh:`68` fixes the pipeline.
-- :gh:`68` adds new shields.
+- :gh:`67` prepares pytask to be published on PyPI and :gh:`68` fixes the pipeline, and
+  :gh:`69` adds new shields.
 
 
 0.0.11 - 2020-12-27
