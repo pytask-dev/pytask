@@ -7,7 +7,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
 
 
-0.0.12 - 2020-02-25
+0.0.12 - 2020-02-27
 -------------------
 
 - :gh:`55` implements miscellaneous fixes to improve error message, tests and coverage.
@@ -17,7 +17,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`65` adds versioneer to pytask and :gh:`66` corrects the coverage reports which
   were deflated due to the new files.
 - :gh:`67` prepares pytask to be published on PyPI and :gh:`68` fixes the pipeline, and
-  :gh:`69` adds new shields.
+  :gh:`69` prepares releasing v0.0.12 and adds new shields.
 
 
 0.0.11 - 2020-12-27
