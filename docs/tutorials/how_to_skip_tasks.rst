@@ -1,5 +1,5 @@
 How to skip tasks
-==================
+=================
 
 Tasks are skipped automatically if neither their file nor any of their dependencies have
 changed and all products exist.
@@ -10,13 +10,14 @@ be executed, even if the task file or their dependencies have changed or product
 missing.
 
 This can be useful for example if you are working on a task that creates the dependency
-of a long running task and you are not interested in the long running task's product
-for the moment. In that case you can simply use ``@pytask.mark.skip`` in front of the
-long running task to stop it from running:
+of a long running task and you are not interested in the long running task's product for
+the moment. In that case you can simply use ``@pytask.mark.skip`` in front of the long
+running task to stop it from running:
 
 .. code-block:: python
 
     # Content of task_create_dependency.py
+
 
     @pytask.mark.produces("dependency_of_long_running_task.md")
     def task_you_are_working_on(produces):
@@ -26,14 +27,15 @@ long running task to stop it from running:
 
     # Content of task_long_running.py
 
+
     @pytask.mark.skip
     @pytask.mark.depends_on("dependency_of_long_running_task.md")
     def task_that_takes_really_long_to_run(depends_on):
+        ...
 
 
-In large projects, you may have many long running tasks that you only want to
-execute sporadically, e.g. when you are not working locally but running the project
-on a server.
+In large projects, you may have many long running tasks that you only want to execute
+sporadically, e.g. when you are not working locally but running the project on a server.
 
 In that case, we recommend using ``@pytask.mark.skip_if`` which lets you supply a
 condition and a reason as arguments:
@@ -49,6 +51,7 @@ condition and a reason as arguments:
 
     # Content of task_create_dependency.py
 
+
     @pytask.mark.produces("run_always.md")
     def task_always(produces):
         ...
@@ -58,7 +61,8 @@ condition and a reason as arguments:
     # Content of task_long_running.py
 
     from config import NO_LONG_RUNNING_TASKS
-    
+
+
     @pytask.mark.skipif(NO_LONG_RUNNING_TASKS, "Skip long-running tasks.")
     @pytask.mark.depends_on("dependency_of_long_running_task.md")
     def task_that_takes_really_long_to_run(depends_on):
