@@ -22,6 +22,7 @@ long running task to stop it from running:
     def task_you_are_working_on(produces):
         ...
 
+.. code-block:: python
 
     # Content of task_long_running.py
 
@@ -42,7 +43,9 @@ condition and a reason as arguments:
 
     # Content of a config.py
 
-    FAST_FLAG = True
+    NO_LONG_RUNNING_TASKS = True
+
+.. code-block:: python
 
     # Content of task_create_dependency.py
 
@@ -50,10 +53,13 @@ condition and a reason as arguments:
     def task_always(produces):
         ...
 
+.. code-block:: python
+
     # Content of task_long_running.py
 
-    from config import FAST_FLAG
-
-    @pytask.mark.skipif(FAST_FLAG, "Fast Flag active")
+    from config import NO_LONG_RUNNING_TASKS
+    
+    @pytask.mark.skipif(NO_LONG_RUNNING_TASKS, "Skip long-running tasks.")
     @pytask.mark.depends_on("dependency_of_long_running_task.md")
     def task_that_takes_really_long_to_run(depends_on):
+        ...
