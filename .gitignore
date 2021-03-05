@@ -12,5 +12,9 @@ __pycache__
 _generated
 
 *.egg-info
+.eggs
 
 .pytask.sqlite3
+
+build
+dist

@@ -1,39 +1,69 @@
 How to write a task
 ===================
 
-A task is a function and is detected if the module and the function name are prefixed
-with ``task_``.
+Starting from the project structure in the :doc:`previous tutorial
+<how_to_set_up_a_project>`, this tutorial teaches you how to write your first task.
 
-The following task :func:`task_hello_earth` lies in ``task_hello.py``. Its purpose is to
-save the string ``"Hello, earth!"`` to a file called ``hello_earth.txt``.
+The task will be defined in ``src/task_data_preparation.py`` and it will generate
+artificial data which will be stored in ``bld/data.pkl``. We will call the function in
+the module :func:`task_create_random_data`.
+
+.. code-block::
+
+    my_project
+    ├───pytask.ini or tox.ini or setup.cfg
+    │
+    ├───src
+    │   ├────config.py
+    │   └────task_data_preparation.py
+    │
+    └───bld
+        └────data.pkl
+
+Here, we define the function
 
 .. code-block:: python
 
-    # Content of task_hello.py.
+    # Content of task_data_preparation.py.
 
     import pytask
+    import numpy as np
+    import pandas as np
+
+    from src.config import BLD
 
 
-    @pytask.mark.produces("hello_earth.txt")
-    def task_hello_earth(produces):
-        produces.write_text("Hello, earth!")
+    @pytask.mark.produces(BLD / "data.pkl")
+    def task_create_random_data(produces):
+        beta = 2
+        x = np.random.normal(loc=5, scale=10, size=1_000)
+        epsilon = np.random.standard_normal(1_000)
 
-To let pytask track dependencies and products of tasks, you need to use the
-``@pytask.mark.produces`` decorator. You learn how to add dependencies and products to a
-task in the next :doc:`tutorial <how_to_define_dependencies_products>`.
+        y = beta * x + epsilon
 
-To execute the task, type the following command on the command-line
+        df = pd.DataFrame({"x": x, "y": y})
+        df.to_pickle(produces)
+
+To let pytask track the product of the task, you need to use the
+``@pytask.mark.produces`` decorator.
+
+.. seealso::
+
+    You learn more about adding dependencies and products to a task in the next
+    :doc:`tutorial <how_to_define_dependencies_products>`.
+
+To execute the task, type the following command in your shell.
 
 .. code-block:: console
 
-    $ pytask task_hello.py
+    $ pytask task_data_preparation.py
     ========================= Start pytask session =========================
     Platform: linux -- Python 3.x.y, pytask 0.x.y, pluggy 0.x.y
     Root: xxx
     Collected 1 task(s).
 
     .
-    ====================== 1 succeeded in 1 second(s) ======================
+    ======================= 1 succeeded in 1 second ========================
 
 Executing
 
@@ -41,4 +71,12 @@ Executing
 
     $ pytask
 
-would collect all tasks in the current working directory and in all folders below.
+would collect all tasks in the current working directory and in all subsequent folders.
+
+.. important::
+
+    By default, pytask assumes that tasks are functions in modules whose names are both
+    prefixed with ``task_``.
+
+    Use the configuration value :confval:`task_files` if you prefer a different naming
+    scheme for the task modules.

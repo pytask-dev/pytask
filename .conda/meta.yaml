@@ -12,10 +12,12 @@ source:
 build:
   noarch: python
   number: 0
+  script: {{ PYTHON }} setup.py install --single-version-externally-managed --record record.txt
   entry_points:
     - pytask = _pytask.cli:cli
 
 requirements:
+  # The package dependencies must be specified under 'host' and 'run'.
   host:
     - python
     - pip
@@ -23,13 +25,14 @@ requirements:
 
   run:
     - python >=3.6
-    - setuptools
+
     - attrs >=17.4.0
     - click
     - click-default-group
     - networkx
     - pluggy
     - pony >=0.7.13
+    - colorama  # [win]
 
 test:
   imports:
@@ -52,7 +55,11 @@ test:
 
 about:
   home: https://github.com/pytask-dev/pytask
-  license: none
+  license: MIT
+  license_file: LICENSE
   summary: In its highest aspirations, pytask tries to be pytest as a build system.
+  description: |
+    pytask’s main purpose is to facilitate reproducible research by automating workflows
+    in research projects.
   doc_url: https://pytask-dev.readthedocs.io/en/latest
   dev_url: https://github.com/pytask-dev/pytask/

@@ -4,59 +4,59 @@ How to parametrize a task
 Often, you want to define a task which should be repeated over a range of inputs. pytask
 allows to parametrize task functions to accomplish this behavior.
 
+
 An example
 ----------
 
-Let us focus on a simple example. In this setting, we want to define a task which
-receives a number and saves it to a file. This task should be repeated for the numbers
-from 0 to 2.
+We reuse the previous example of a task which generates random data and repeat the same
+operation over a number of seeds to receive multiple, reproducible samples.
 
-First, we write the task for one number.
+First, we write the task for one seed.
 
 .. code-block:: python
 
+    import numpy as np
     import pytask
 
 
-    @pytask.mark.produces("0.txt")
-    def task_save_number(produces, i=0):
-        produces.write_text(str(i))
+    @pytask.mark.produces(BLD / "data_0.pkl")
+    def task_create_random_data(produces):
+        np.random.seed(0)
+        ...
 
-In the next step, we parametrize the task by varying ``i``.
+In the next step, we repeat the same task over the numbers 0, 1, and 2 and pass them to
+the ``seed`` argument. We also vary the name of the produced file in every iteration.
 
 .. code-block:: python
 
-    @pytask.mark.parametrize("produces, i", [("0.txt", 0), ("1.txt", 1), ("2.txt", 2)])
-    def task_save_number(produces, i):
-        produces.write_text(str(i))
+    @pytask.mark.parametrize(
+        "produces, seed",
+        [(BLD / "data_0.pkl", 0), (BLD / "data_1.pkl", 1), (BLD / "data_2.pkl", 2)],
+    )
+    def task_create_random_data(produces):
+        np.random.seed(0)
+        ...
 
-The parametrize decorator receives two arguments. The first argument is ``produces, i``
-- the signature. It is a comma-separated string where each value specifies the name of a
-task function argument.
+The parametrize decorator receives two arguments. The first argument is ``"produces,
+seed"`` - the signature. It is a comma-separated string where each value specifies the
+name of a task function argument.
 
 .. seealso::
 
     The signature is explained in detail :ref:`below <parametrize_signature>`.
 
-The second argument of the parametrize decorator is an iterable. Each entry in iterable
-has to provide one value for each argument name in the signature.
+The second argument of the parametrize decorator is a list (or any iterable) which has
+as many elements as there are iterations over the task function. Each element has to
+provide one value for each argument name in the signature - two in this case.
 
 Putting all together, the task is executed three times and each run the path from the
-list is mapped to the argument ``produces`` and ``i`` receives the number.
+list is mapped to the argument ``produces`` and ``seed`` receives the seed.
 
-.. important::
+.. note::
 
     If you use ``produces`` or ``depends_on`` in the signature of the parametrize
-    decorator, the values are automatically treated as if they were attached to the
-    function with ``@pytask.mark.depends_on`` or ``@pytask.mark.produces``. For
-    example, the generated task in which ``i = 1`` is identical to
-
-    .. code-block:: python
-
-        @pytask.mark.produces("1.txt")
-        def task_save_number(produces, i=1):
-            produces.write_text(str(i))
-
+    decorator, the values are treated as if they were attached to the function with
+    ``@pytask.mark.depends_on`` or ``@pytask.mark.produces``.
 
 Un-parametrized dependencies
 ----------------------------
@@ -66,11 +66,14 @@ To specify a dependency which is the same for all parametrizations, add it with
 
 .. code-block:: python
 
-    @pytask.mark.depends_on(Path("additional_text.txt"))
-    @pytask.mark.parametrize("produces, i", [("0.txt", 0), ("1.txt", 1), ("2.txt", 2)])
-    def task_save_number(depends_on, produces, i):
-        additional_text = depends_on.read_text()
-        produces.write_text(additional_text + str(i))
+    @pytask.mark.depends_on(SRC / "common_dependency.file")
+    @pytask.mark.parametrize(
+        "produces, seed",
+        [(BLD / "data_0.pkl", 0), (BLD / "data_1.pkl", 1), (BLD / "data_2.pkl", 2)],
+    )
+    def task_create_random_data(produces):
+        np.random.seed(0)
+        ...
 
 
 .. _parametrize_signature:

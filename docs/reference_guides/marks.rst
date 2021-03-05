@@ -24,3 +24,12 @@ pytask.mark.parametrize
 
 .. autofunction:: _pytask.parametrize.parametrize
    :noindex:
+
+
+pytask.mark.try_first
+---------------------
+
+.. function:: try_first
+    :noindex:
+
+    This
