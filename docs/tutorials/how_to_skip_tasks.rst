@@ -37,7 +37,7 @@ running task to stop it from running:
 In large projects, you may have many long running tasks that you only want to execute
 sporadically, e.g. when you are not working locally but running the project on a server.
 
-In that case, we recommend using ``@pytask.mark.skip_if`` which lets you supply a
+In that case, we recommend using ``@pytask.mark.skipif`` which lets you supply a
 condition and a reason as arguments:
 
 

@@ -56,7 +56,7 @@ def test_skip_unchanged_w_dependencies_and_products(tmp_path):
 
 
 @pytest.mark.end_to_end
-def test_skip_if_ancestor_failed(tmp_path):
+def test_skipif_ancestor_failed(tmp_path):
     source = """
     import pytask
 
@@ -103,11 +103,11 @@ def test_if_skip_decorator_is_applied(tmp_path):
 
 
 @pytest.mark.end_to_end
-def test_if_skip_if_decorator_is_applied_skipping(tmp_path):
+def test_if_skipif_decorator_is_applied_skipping(tmp_path):
     source = """
     import pytask
 
-    @pytask.mark.skip_if(condition=True, reason="bla")
+    @pytask.mark.skipif(condition=True, reason="bla")
     @pytask.mark.produces("out.txt")
     def task_first():
         assert False
@@ -121,7 +121,7 @@ def test_if_skip_if_decorator_is_applied_skipping(tmp_path):
     session = main({"paths": tmp_path})
     node = session.collection_reports[0].node
     assert len(node.markers) == 1
-    assert node.markers[0].name == "skip_if"
+    assert node.markers[0].name == "skipif"
     assert node.markers[0].args == ()
     assert node.markers[0].kwargs == {"condition": True, "reason": "bla"}
 
@@ -133,11 +133,11 @@ def test_if_skip_if_decorator_is_applied_skipping(tmp_path):
 
 
 @pytest.mark.end_to_end
-def test_if_skip_if_decorator_is_applied_execute(tmp_path):
+def test_if_skipif_decorator_is_applied_execute(tmp_path):
     source = """
     import pytask
 
-    @pytask.mark.skip_if(False)
+    @pytask.mark.skipif(False)
     @pytask.mark.produces("out.txt")
     def task_first(produces):
         with open(produces, "w") as f:
@@ -153,7 +153,7 @@ def test_if_skip_if_decorator_is_applied_execute(tmp_path):
     node = session.collection_reports[0].node
 
     assert len(node.markers) == 1
-    assert node.markers[0].name == "skip_if"
+    assert node.markers[0].name == "skipif"
     assert node.markers[0].args == (False,)
     assert node.markers[0].kwargs == {}
     assert session.execution_reports[0].success
