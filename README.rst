@@ -181,6 +181,10 @@ License
 
 pytask is distributed under the terms of the `MIT license <LICENSE>`_.
 
+
+Acknowledgment
+--------------
+
 The license also includes a copyright and permission notice from pytest since some
 modules, classes, and functions are copied from pytest. Not to mention how pytest has
 inspired the development pytask in general. Without the amazing work of Holger Krekel
