@@ -91,7 +91,7 @@ Installation
 .. start-installation
 
 pytask is available on `PyPI <https://pypi.org/project/pytask>`_ and on `Anaconda.org
-<https://anaconda.org/pytask/pytask>`_. Install the package with
+<https://anaconda.org/conda-forge/pytask>`_. Install the package with
 
 .. code-block:: console
 
@@ -99,8 +99,7 @@ pytask is available on `PyPI <https://pypi.org/project/pytask>`_ and on `Anacond
 
     # or
 
-    $ conda config --add channels conda-forge --add channels pytask
-    $ conda install pytask
+    $ conda install -c conda-forge pytask
 
 .. end-installation
 
