@@ -6,7 +6,7 @@ dependencies are required and which products are produced by a task.
 
 .. important::
 
-    If you do not specify all dependencies and products as explained below, pytask will
+    If you do not specify dependencies and products as explained below, pytask will
     not able to build a graph, a :term:`DAG`, and will not be able to execute all tasks
     in the project correctly!
 
@@ -61,7 +61,7 @@ for example, load the data.
 .. important::
 
     The two markers, ``pytask.mark.depends_on`` and ``pytask.mark.produces``, cannot be
-    used interchangeably!
+    used interchangeably! Use the first for dependencies and the latter for products.
 
 
 Conversion
