@@ -16,7 +16,7 @@ def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
     return reason
 
 
-def skipif(condition: bool, reason: str = "No reason provided.") -> tuple:
+def skipif(condition: bool, *, reason: str) -> tuple:
     """Function to parse information in ``@pytask.mark.skipif``."""
     return condition, reason
 

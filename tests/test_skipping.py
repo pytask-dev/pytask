@@ -137,7 +137,7 @@ def test_if_skipif_decorator_is_applied_execute(tmp_path):
     source = """
     import pytask
 
-    @pytask.mark.skipif(False)
+    @pytask.mark.skipif(False, reason="bla")
     @pytask.mark.produces("out.txt")
     def task_first(produces):
         with open(produces, "w") as f:
@@ -155,7 +155,7 @@ def test_if_skipif_decorator_is_applied_execute(tmp_path):
     assert len(node.markers) == 1
     assert node.markers[0].name == "skipif"
     assert node.markers[0].args == (False,)
-    assert node.markers[0].kwargs == {}
+    assert node.markers[0].kwargs == {"reason": "bla"}
     assert session.execution_reports[0].success
     assert session.execution_reports[0].exc_info is None
     assert session.execution_reports[1].success
