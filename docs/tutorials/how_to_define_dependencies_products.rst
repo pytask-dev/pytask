@@ -4,6 +4,12 @@ How to define dependencies and products
 To make sure pytask executes all tasks in a correct order, we need to define which
 dependencies are required and which products are produced by a task.
 
+.. important::
+
+    If you do not specify dependencies and products as explained below, pytask will
+    not able to build a graph, a :term:`DAG`, and will not be able to execute all tasks
+    in the project correctly!
+
 The information on dependencies and products can be attached to a task function with
 special markers. Let us have a look at some examples.
 
@@ -51,6 +57,11 @@ Most tasks have dependencies. Similar to products, you can use the
 
 Use ``depends_on`` as a function argument to work with the path of the dependency and,
 for example, load the data.
+
+.. important::
+
+    The two markers, ``pytask.mark.depends_on`` and ``pytask.mark.produces``, cannot be
+    used interchangeably! Use the first for dependencies and the latter for products.
 
 
 Conversion

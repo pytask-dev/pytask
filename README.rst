@@ -14,20 +14,21 @@
     :alt: PyPI - Python Version
     :target: https://pypi.org/project/pytask
 
-.. image:: https://anaconda.org/pytask/pytask/badges/version.svg
-    :target: https://anaconda.org/pytask/pytask
+.. image:: https://img.shields.io/conda/vn/conda-forge/pytask.svg
+    :target: https://anaconda.org/conda-forge/pytask
 
-.. image:: https://anaconda.org/pytask/pytask/badges/platforms.svg
-    :target: https://anaconda.org/pytask/pytask
+.. image:: https://img.shields.io/conda/pn/conda-forge/pytask.svg
+    :target: https://anaconda.org/conda-forge/pytask
 
 .. image:: https://img.shields.io/pypi/l/pytask
     :alt: PyPI - License
+    :target: https://pypi.org/project/pytask
 
 .. image:: https://readthedocs.org/projects/pytask-dev/badge/?version=latest
     :target: https://pytask-dev.readthedocs.io/en/latest
 
-.. image:: https://github.com/pytask-dev/pytask/workflows/Continuous%20Integration%20Workflow/badge.svg?branch=main
-    :target: https://github.com/pytask-dev/pytask/actions?query=branch%3Amain
+.. image:: https://img.shields.io/github/workflow/status/pytask-dev/pytask/Continuous%20Integration%20Workflow/main
+   :target: https://github.com/pytask-dev/pytask/actions?query=branch%3Amain
 
 .. image:: https://codecov.io/gh/pytask-dev/pytask/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/pytask-dev/pytask
@@ -90,7 +91,7 @@ Installation
 .. start-installation
 
 pytask is available on `PyPI <https://pypi.org/project/pytask>`_ and on `Anaconda.org
-<https://anaconda.org/pytask/pytask>`_. Install the package with
+<https://anaconda.org/conda-forge/pytask>`_. Install the package with
 
 .. code-block:: console
 
@@ -98,8 +99,7 @@ pytask is available on `PyPI <https://pypi.org/project/pytask>`_ and on `Anacond
 
     # or
 
-    $ conda config --add channels conda-forge --add channels pytask
-    $ conda install pytask
+    $ conda install -c conda-forge pytask
 
 .. end-installation
 
@@ -180,6 +180,10 @@ License
 -------
 
 pytask is distributed under the terms of the `MIT license <LICENSE>`_.
+
+
+Acknowledgment
+--------------
 
 The license also includes a copyright and permission notice from pytest since some
 modules, classes, and functions are copied from pytest. Not to mention how pytest has
