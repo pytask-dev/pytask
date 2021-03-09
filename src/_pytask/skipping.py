@@ -56,8 +56,8 @@ def pytask_execute_task_setup(task):
     markers = get_specific_markers_from_task(task, "skipif")
     if markers:
         marker_args = [skipif(*marker.args, **marker.kwargs) for marker in markers]
-        message = "\n".join([arg[1] for arg in marker_args])
-        should_skip = all(arg[0] for arg in marker_args)
+        message = "\n".join([arg[1] for arg in marker_args if arg[0]])
+        should_skip = any(arg[0] for arg in marker_args)
         if should_skip:
             raise Skipped(message)
 

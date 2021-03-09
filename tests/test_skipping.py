@@ -162,6 +162,41 @@ def test_if_skipif_decorator_is_applied_execute(tmp_path):
     assert session.execution_reports[1].exc_info is None
 
 
+@pytest.mark.end_to_end
+def test_if_skipif_decorator_is_applied_any_condition_matches(tmp_path):
+    """Any condition of skipif has to be True and only their message is shown."""
+    source = """
+    import pytask
+
+    @pytask.mark.skipif(condition=False, reason="I am fine")
+    @pytask.mark.skipif(condition=True, reason="No, I am not.")
+    @pytask.mark.produces("out.txt")
+    def task_first():
+        assert False
+
+    @pytask.mark.depends_on("out.txt")
+    def task_second():
+        assert False
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+    node = session.collection_reports[0].node
+    assert len(node.markers) == 2
+    assert node.markers[0].name == "skipif"
+    assert node.markers[0].args == ()
+    assert node.markers[0].kwargs == {"condition": True, "reason": "No, I am not."}
+    assert node.markers[1].name == "skipif"
+    assert node.markers[1].args == ()
+    assert node.markers[1].kwargs == {"condition": False, "reason": "I am fine"}
+
+    assert session.execution_reports[0].success
+    assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
+    assert session.execution_reports[1].success
+    assert isinstance(session.execution_reports[1].exc_info[1], Skipped)
+    assert session.execution_reports[0].exc_info[1].args[0] == "No, I am not."
+
+
 @pytest.mark.unit
 @pytest.mark.parametrize(
     ("marker_name", "expectation"),
