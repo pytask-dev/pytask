@@ -7,7 +7,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.0.13 - 2021-xx-xx
+0.0.13 - 2021-03-09
 -------------------
 
 - :gh:`72` adds conda-forge to the README and highlights importance of specifying
