@@ -7,11 +7,14 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.0.13 - 2021-xx-xx
+0.0.13 - 2021-03-09
 -------------------
 
 - :gh:`72` adds conda-forge to the README and highlights importance of specifying
   dependencies and products.
+- :gh:`62` implements the ``pytask.mark.skipif`` marker to conditionally skip tasks.
+  Many thanks to :ghuser:`roecla` for implementing this feature and a warm welcome since
+  she is the first pytask contributor!
 
 
 0.0.12 - 2021-02-27
