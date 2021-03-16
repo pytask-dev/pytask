@@ -230,28 +230,30 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
     [
         (
             "foo or",
-            "at column 7: expected not OR left parenthesis OR identifier; got end of "
-            "input",
+            [
+                "at column 7: expected not",
+                "OR left parenthesis OR identifier; got end of " "input",
+            ],
         ),
         (
             "foo or or",
-            "at column 8: expected not OR left parenthesis OR identifier; got or",
+            ["at column 8: expected", "not OR left parenthesis OR identifier; got or"],
         ),
         (
             "(foo",
-            "at column 5: expected right parenthesis; got end of input",
+            ["at column 5: expected right", "parenthesis; got end of input"],
         ),
         (
             "foo bar",
-            "at column 5: expected end of input; got identifier",
+            ["at column 5: expected end", "of input; got identifier"],
         ),
         (
             "or or",
-            "at column 1: expected not OR left parenthesis OR identifier; got or",
+            ["at column 1: expected not", "OR left parenthesis OR identifier; got or"],
         ),
         (
             "not or",
-            "at column 5: expected not OR left parenthesis OR identifier; got or",
+            ["at column 5: expected not", "OR left parenthesis OR identifier; got or"],
         ),
     ],
 )
@@ -270,8 +272,9 @@ def test_keyword_option_wrong_arguments(
     session = main({"paths": tmp_path, option: expr})
     assert session.exit_code == 3
 
-    err = capsys.readouterr().err
-    assert expected_error in err
+    outerr = capsys.readouterr()
+    for part_of_error_message in expected_error:
+        assert part_of_error_message in outerr.out
 
 
 @pytest.mark.end_to_end

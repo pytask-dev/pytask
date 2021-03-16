@@ -2,7 +2,6 @@
 import configparser
 import itertools
 import os
-import shutil
 import warnings
 from pathlib import Path
 from typing import List
@@ -58,7 +57,7 @@ IGNORED_TEMPORARY_FILES_AND_FOLDERS = [
 @hookimpl
 def pytask_configure(pm, config_from_cli):
     """Configure pytask."""
-    config = {"pm": pm, "terminal_width": _get_terminal_width()}
+    config = {"pm": pm}
 
     # Either the path to the configuration is passed via the CLI or it needs to be
     # detected from the paths passed to pytask.
@@ -220,17 +219,3 @@ def _read_config(path):
     config = configparser.ConfigParser()
     config.read(path)
     return dict(config["pytask"])
-
-
-def _get_terminal_width() -> int:
-    """Get the window width of the terminal."""
-    width, _ = shutil.get_terminal_size(fallback=(80, 24))
-
-    # The Windows get_terminal_size may be bogus, let's sanitize a bit.
-    if width < 40:
-        width = 80
-
-    # Delete one character which prevents accidental line breaks.
-    width -= 1
-
-    return width

@@ -3,7 +3,6 @@ import textwrap
 
 import pytest
 from _pytask.config import _find_project_root_and_ini
-from _pytask.config import _get_terminal_width
 from _pytask.config import IGNORED_FOLDERS
 from pytask import main
 
@@ -54,17 +53,6 @@ def test_find_project_root_and_ini(
 def test_find_project_root_and_ini_raise_warning(paths):
     with pytest.warns(UserWarning, match="A common path for all passed path"):
         _find_project_root_and_ini(paths)
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize("mock_value, expected", [(100, 99), (40, 39), (39, 79)])
-def test_get_terminal_width(monkeypatch, mock_value, expected):
-    def mock(**kwargs):
-        return mock_value, None
-
-    monkeypatch.setattr("_pytask.config.shutil.get_terminal_size", mock)
-
-    assert _get_terminal_width() == expected
 
 
 @pytest.mark.end_to_end

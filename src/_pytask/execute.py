@@ -1,9 +1,8 @@
 import sys
 import time
-import traceback
 
-import click
 from _pytask.config import hookimpl
+from _pytask.console import console
 from _pytask.dag import descending_tasks
 from _pytask.dag import node_and_neighbors
 from _pytask.dag import TopologicalSorter
@@ -15,6 +14,7 @@ from _pytask.mark import Mark
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import reduce_node_name
 from _pytask.report import ExecutionReport
+from rich.traceback import Traceback
 
 
 @hookimpl
@@ -34,7 +34,7 @@ def pytask_execute_log_start(session):
     session.execution_start = time.time()
 
     # New line to separate note on collected items from task statuses.
-    click.echo("")
+    console.print()
 
 
 @hookimpl(trylast=True)
@@ -151,9 +151,9 @@ def pytask_execute_task_process_report(session, report):
 def pytask_execute_task_log_end(report):
     """Log task outcome."""
     if report.success:
-        click.secho(".", fg=ColorCode.SUCCESS, nl=False)
+        console.print(".", style=ColorCode.SUCCESS, end="")
     else:
-        click.secho("F", fg=ColorCode.FAILED, nl=False)
+        console.print("F", style=ColorCode.FAILED, end="")
 
     return True
 
@@ -164,36 +164,33 @@ def pytask_execute_log_end(session, reports):
 
     n_successful = sum(report.success for report in reports)
     n_failed = len(reports) - n_successful
-    tm_width = session.config["terminal_width"]
 
-    click.echo("")
+    console.print()
     any_failure = any(not report.success for report in reports)
     if any_failure:
-        click.echo(f"{{:=^{tm_width}}}".format(" Failures "))
+        console.rule(f"[{ColorCode.FAILED}]Failures", style=ColorCode.FAILED)
+        console.print("")
 
     for report in reports:
         if not report.success:
 
             task_name = reduce_node_name(report.task, session.config["paths"])
-            message = f" Task {task_name} failed "
-            if len(message) > tm_width:
-                click.echo("_" * tm_width)
-                click.echo(message)
-            else:
-                click.echo(f"{{:_^{tm_width}}}".format(message))
+            if len(task_name) > console.width - 15:
+                task_name = report.task.base_name
+            console.rule(
+                f"[{ColorCode.FAILED}]Task {task_name} failed", style=ColorCode.FAILED
+            )
 
-            click.echo("")
+            console.print()
 
-            traceback.print_exception(*report.exc_info)
+            console.print(Traceback.from_exception(*report.exc_info))
 
-            click.echo("")
+            console.print()
             show_capture = session.config["show_capture"]
             for when, key, content in report.sections:
                 if key in ("stdout", "stderr") and show_capture in (key, "all"):
-                    click.echo(
-                        f"{{:-^{tm_width}}}".format(f" Captured {key} during {when} ")
-                    )
-                    click.echo(content)
+                    console.rule(f"Captured {key} during {when}", style=None)
+                    console.print(content)
 
     session.hook.pytask_log_session_footer(
         session=session,
@@ -203,7 +200,6 @@ def pytask_execute_log_end(session, reports):
         ],
         duration=round(session.execution_end - session.execution_start, 2),
         color=ColorCode.FAILED if n_failed else ColorCode.SUCCESS,
-        terminal_width=session.config["terminal_width"],
     )
 
     if n_failed:

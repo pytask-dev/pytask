@@ -1,20 +1,21 @@
 import pprint
 import sys
-import traceback
 
-import click
 import networkx as nx
 from _pytask.config import hookimpl
+from _pytask.console import console
 from _pytask.dag import node_and_neighbors
 from _pytask.dag import task_and_descending_tasks
 from _pytask.dag import TopologicalSorter
 from _pytask.database import State
+from _pytask.enums import ColorCode
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
 from _pytask.nodes import reduce_node_name
 from _pytask.report import ResolvingDependenciesReport
 from pony import orm
+from rich.traceback import Traceback
 
 
 @hookimpl
@@ -128,7 +129,7 @@ def _check_if_dag_has_cycles(dag):
             "The DAG contains cycles which means a dependency is directly or "
             "implicitly a product of the same task. See the following tuples "
             "(from a to b) to see the path in the graph which defines the cycle."
-            f"\n\n{pprint.pformat(cycles)}"
+            f"\n\n{cycles}"
         )
 
 
@@ -182,18 +183,19 @@ def _check_if_tasks_have_the_same_products(dag, session):
 
 
 @hookimpl
-def pytask_resolve_dependencies_log(session, report):
+def pytask_resolve_dependencies_log(report):
     """Log errors which happened while resolving dependencies."""
-    tm_width = session.config["terminal_width"]
+    console.print("")
+    console.rule(
+        f"[{ColorCode.FAILED}]Failures during resolving dependencies",
+        style=ColorCode.FAILED,
+    )
 
-    click.echo(f"{{:=^{tm_width}}}".format(" Failures during resolving dependencies "))
+    console.print("")
+    console.print(Traceback.from_exception(*report.exc_info))
 
-    click.echo("")
-
-    traceback.print_exception(*report.exc_info)
-
-    click.echo("")
-    click.echo("=" * tm_width)
+    console.print("")
+    console.rule(style=ColorCode.FAILED)
 
 
 def _reduce_names_of_multiple_nodes(names, dag, paths):

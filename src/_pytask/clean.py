@@ -2,18 +2,19 @@
 import itertools
 import shutil
 import sys
-import traceback
 from pathlib import Path
 
 import attr
 import click
 from _pytask.config import hookimpl
 from _pytask.config import IGNORED_TEMPORARY_FILES_AND_FOLDERS
+from _pytask.console import console
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
+from rich.traceback import Traceback
 
 
 _HELP_TEXT_MODE = (
@@ -80,7 +81,7 @@ def clean(**config_from_cli):
     except Exception:
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
-        traceback.print_exception(*sys.exc_info())
+        console.print(Traceback.from_exception(*sys.exc_info()))
 
     else:
         try:
@@ -97,10 +98,10 @@ def clean(**config_from_cli):
                 targets = "Files"
                 if session.config["directories"]:
                     targets += " and directories"
-                click.echo(f"\n{targets} which can be removed:\n")
+                console.print(f"\n{targets} which can be removed:\n")
                 for path in unknown_paths:
                     if session.config["mode"] == "dry-run":
-                        click.echo(f"Would remove {path}")
+                        console.print(f"Would remove {path}")
                     else:
                         should_be_deleted = session.config[
                             "mode"
@@ -109,21 +110,25 @@ def clean(**config_from_cli):
                         )
                         if should_be_deleted:
                             if not session.config["quiet"]:
-                                click.echo(f"Remove {path}")
+                                console.print(f"Remove {path}")
                             if path.is_dir():
                                 shutil.rmtree(path)
                             else:
                                 path.unlink()
             else:
-                click.echo("\nThere are no files and directories which can be deleted.")
+                console.print()
+                console.print(
+                    "There are no files and directories which can be deleted."
+                )
 
-            click.echo("\n" + "=" * config["terminal_width"])
+            console.print()
+            console.rule(style=None)
 
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
 
         except Exception:
-            traceback.print_exception(*sys.exc_info())
+            console.print(Traceback.from_exception(*sys.exc_info()))
             session.exit_code = ExitCode.FAILED
 
     sys.exit(session.exit_code)

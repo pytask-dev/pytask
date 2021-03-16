@@ -101,6 +101,10 @@ pytask is available on `PyPI <https://pypi.org/project/pytask>`_ and on `Anacond
 
     $ conda install -c conda-forge pytask
 
+Color support is automatically available on non-Windows platforms. On Windows, please,
+use `Windows Terminal <https://github.com/microsoft/terminal>`_ which can be easily
+installed via the `Microsoft Store <https://aka.ms/terminal>`_.
+
 .. end-installation
 
 Usage

@@ -12,6 +12,7 @@ from typing import Tuple
 from typing import Union
 
 from _pytask.config import hookimpl
+from _pytask.console import console
 from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
 from _pytask.shared import find_duplicates
@@ -61,8 +62,7 @@ def pytask_parse_config(config):
         "one name or a list of tuples of values if arg_names specifies multiple "
         "names.Example: @pytask.mark.parametrize('arg1', [1, 2]) would lead to two "
         "calls of the decorated task function, one with arg1=1 and another with "
-        "arg1=2. See https://pytask-dev.rtfd.io/en/latest/tutorials/"
-        "how_to_parametrize_a_task.html for more info and examples."
+        "arg1=2. See https://bit.ly/3vqyiAk for more info and examples."
     )
 
 
@@ -123,9 +123,7 @@ def pytask_parametrize_task(session, name, obj):
         names = [i[0] for i in names_and_functions]
         duplicates = find_duplicates(names)
         if duplicates:
-            formatted = pprint.pformat(
-                duplicates, width=session.config["terminal_width"]
-            )
+            formatted = pprint.pformat(duplicates, width=console.width)
             raise ValueError(
                 "The following ids are duplicated while parametrizing task "
                 f"{obj.__name__}.\n\n{formatted}\n\nIt might be caused by "

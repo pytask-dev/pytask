@@ -4,6 +4,7 @@ import traceback
 
 import click
 from _pytask.config import hookimpl
+from _pytask.console import console
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
@@ -43,7 +44,7 @@ def collect(**config_from_cli):
     except (ConfigurationError, Exception):
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
-        traceback.print_exception(*sys.exc_info())
+        console.print_exception()
 
     else:
         try:
@@ -53,7 +54,8 @@ def collect(**config_from_cli):
             dictionary = _organize_tasks(session.tasks)
             _print_collected_tasks(dictionary, session.config["nodes"])
 
-            click.echo("\n" + "=" * config["terminal_width"])
+            console.print("")
+            console.rule(style=None)
 
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
@@ -101,15 +103,15 @@ def _print_collected_tasks(dictionary, show_nodes):
         Indicator for whether dependencies and products should be displayed.
 
     """
-    click.echo("")
+    console.print("")
 
     for path in dictionary:
-        click.echo(f"<Module {path}>")
+        console.print(f"<Module {path}>")
         for task in dictionary[path]:
-            click.echo(f"  <Function {task}>")
+            console.print(f"  <Function {task}>")
             if show_nodes:
                 for dependency in dictionary[path][task]["depends_on"]:
-                    click.echo(f"    <Dependency {dependency}>")
+                    console.print(f"    <Dependency {dependency}>")
 
                 for product in dictionary[path][task]["produces"]:
-                    click.echo(f"    <Product {product}>")
+                    console.print(f"    <Product {product}>")
