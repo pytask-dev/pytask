@@ -50,16 +50,7 @@ def _format_plugin_names_and_versions(plugininfo) -> List[str]:
 def pytask_log_session_footer(
     infos: List[Tuple[Any]], duration: float, color: str
 ) -> str:
-    """Format the footer of the log message.
-
-    Example
-    -------
-    >>> pytask_log_session_footer(
-    ...     [(1, "succeeded", "green"), (1, "failed", "red")], 1, "red",
-    ... )
-    ───────────────────────── 1 succeeded, 1 failed in 1s ─────────────────────────
-
-    """
+    """Format the footer of the log message."""
     message = f"[{color}]"
     message += _style_infos(infos)
     message += f" in {duration}s"

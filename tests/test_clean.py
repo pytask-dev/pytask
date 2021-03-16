@@ -48,7 +48,7 @@ def test_clean_with_ingored_directory(sample_project_path, runner):
     )
 
     assert "to_be_deleted_folder_1/" not in result.output
-    assert "to_be_deleted_file_1.txt" in result.output
+    assert "to_be_deleted_file_1.txt" in result.output.replace("\n", "")
 
 
 @pytest.mark.end_to_end
@@ -75,10 +75,11 @@ def test_clean_dry_run(sample_project_path, runner):
 def test_clean_dry_run_w_directories(sample_project_path, runner):
     result = runner.invoke(cli, ["clean", "-d", sample_project_path.as_posix()])
 
-    assert "Would remove" in result.output
-    assert "to_be_deleted_file_1.txt" in result.output
-    assert "to_be_deleted_file_2.txt" not in result.output
-    assert "to_be_deleted_folder_1" in result.output
+    text_without_linebreaks = result.output.replace("\n", "")
+    assert "Would remove" in text_without_linebreaks
+    assert "to_be_deleted_file_1.txt" in text_without_linebreaks
+    assert "to_be_deleted_file_2.txt" not in text_without_linebreaks
+    assert "to_be_deleted_folder_1" in text_without_linebreaks
 
 
 @pytest.mark.end_to_end
@@ -102,10 +103,11 @@ def test_clean_force_w_directories(sample_project_path, runner):
         cli, ["clean", "-d", "--mode", "force", sample_project_path.as_posix()]
     )
 
-    assert "Remove" in result.output
-    assert "to_be_deleted_file_1.txt" in result.output
-    assert "to_be_deleted_file_2.txt" not in result.output
-    assert "to_be_deleted_folder_1" in result.output
+    text_without_linebreaks = result.output.replace("\n", "")
+    assert "Remove" in text_without_linebreaks
+    assert "to_be_deleted_file_1.txt" in text_without_linebreaks
+    assert "to_be_deleted_file_2.txt" not in text_without_linebreaks
+    assert "to_be_deleted_folder_1" in text_without_linebreaks
 
 
 @pytest.mark.end_to_end
