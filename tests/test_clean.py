@@ -31,8 +31,9 @@ def test_clean_with_ignored_file(sample_project_path, runner):
         cli, ["clean", "--ignore", "*_1.txt", sample_project_path.as_posix()]
     )
 
-    assert "to_be_deleted_file_1.txt" not in result.output
-    assert "to_be_deleted_file_2.txt" in result.output
+    text_without_linebreaks = result.output.replace("\n", "")
+    assert "to_be_deleted_file_1.txt" not in text_without_linebreaks
+    assert "to_be_deleted_file_2.txt" in text_without_linebreaks
 
 
 @pytest.mark.end_to_end
