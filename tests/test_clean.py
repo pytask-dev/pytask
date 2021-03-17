@@ -63,7 +63,7 @@ def test_clean_with_nothing_to_remove(tmp_path, runner):
 def test_clean_dry_run(sample_project_path, runner):
     result = runner.invoke(cli, ["clean", sample_project_path.as_posix()])
 
-    text_without_linebreaks = result.output.replace("\n" "")
+    text_without_linebreaks = result.output.replace("\n", "")
     assert "Would remove" in text_without_linebreaks
     assert "to_be_deleted_file_1.txt" in text_without_linebreaks
     assert sample_project_path.joinpath("to_be_deleted_file_1.txt").exists()
@@ -90,7 +90,7 @@ def test_clean_force(sample_project_path, runner):
         cli, ["clean", "--mode", "force", sample_project_path.as_posix()]
     )
 
-    text_without_linebreaks = result.output.replace("\n" "")
+    text_without_linebreaks = result.output.replace("\n", "")
     assert "Remove" in result.output
     assert "to_be_deleted_file_1.txt" in text_without_linebreaks
     assert not sample_project_path.joinpath("to_be_deleted_file_1.txt").exists()
