@@ -134,7 +134,6 @@ def test_cycle_in_dag(tmp_path, runner):
     assert "The DAG contains cycles which means a dependency" in result.output
 
 
-@pytest.mark.xfail
 @pytest.mark.end_to_end
 def test_two_tasks_have_the_same_product(tmp_path, runner):
     source = """

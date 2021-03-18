@@ -29,21 +29,19 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
 
     assert result.exit_code == 0
 
-    orm.db_session.__enter__()
+    with orm.db_session:
 
-    create_database(
-        "sqlite", tmp_path.joinpath(".pytask.sqlite3").as_posix(), True, False
-    )
+        create_database(
+            "sqlite", tmp_path.joinpath(".pytask.sqlite3").as_posix(), True, False
+        )
 
-    task_id = task_path.as_posix() + "::task_dummy"
-    out_path = tmp_path.joinpath("out.txt")
+        task_id = task_path.as_posix() + "::task_dummy"
+        out_path = tmp_path.joinpath("out.txt")
 
-    for id_, path in [
-        (task_id, task_path),
-        (in_path.as_posix(), in_path),
-        (out_path.as_posix(), out_path),
-    ]:
-        state = State[task_id, id_].state
-        assert float(state) == path.stat().st_mtime
-
-    orm.db_session.__exit__()
+        for id_, path in [
+            (task_id, task_path),
+            (in_path.as_posix(), in_path),
+            (out_path.as_posix(), out_path),
+        ]:
+            state = State[task_id, id_].state
+            assert float(state) == path.stat().st_mtime
