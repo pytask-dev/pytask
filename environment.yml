@@ -2,6 +2,7 @@ name: pytask
 
 channels:
   - conda-forge
+  - nodefaults
 
 dependencies:
   - python >=3.6
@@ -19,6 +20,7 @@ dependencies:
   - networkx
   - pluggy
   - pony >=0.7.13
+  - rich
 
   # Misc
   - black

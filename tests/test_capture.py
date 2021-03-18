@@ -265,7 +265,7 @@ def test_capturing_outerr(tmp_path, runner):
         "1",
         "──────────────────────── Captured stderr during call ────────────────────────",
         "2",
-        "────────────────────── 1 succeeded, 1 failed in 0.0",
+        "────────────────────── 1 succeeded, 1 failed in 0.",
     ]:
         assert content in result.output
 
