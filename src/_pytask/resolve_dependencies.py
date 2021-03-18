@@ -130,8 +130,8 @@ def _check_if_dag_has_cycles(dag):
     else:
         raise ResolvingDependenciesError(
             "The DAG contains cycles which means a dependency is directly or "
-            "implicitly a product of the same task. See the following tuples "
-            "(from a to b) to see the path in the graph which defines the cycle."
+            "indirectly a product of the same task. See the following the path of "
+            "nodes in the graph which forms the cycle."
             f"\n\n{_format_cycles(cycles)}"
         )
 
@@ -216,7 +216,7 @@ def _check_if_tasks_have_the_same_products(dag, session):
         )
         raise ResolvingDependenciesError(
             "There are some tasks which produce the same output. See the following "
-            "dictionary with products as keys and their producing tasks as values."
+            "tree which shows which products are produced by multiple tasks."
             f"\n\n{text}"
         )
 
