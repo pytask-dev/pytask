@@ -1,6 +1,6 @@
 import itertools
-import pprint
 import sys
+from typing import Dict
 from typing import List
 from typing import Tuple
 
@@ -143,7 +143,7 @@ def _format_cycles(cycles: List[Tuple[str]]) -> str:
 
     lines = chain[:1]
     for x in chain[1:]:
-        lines.append("    \u2B07")
+        lines.append("     ⬇")
         lines.append(x)
     text = "\n".join(lines)
 
@@ -169,12 +169,31 @@ def _check_if_root_nodes_are_available(dag, session):
                 missing_root_nodes[short_node_name] = short_successors
 
     if missing_root_nodes:
+        text = _format_dictionary_to_tree(missing_root_nodes, "Missing dependencies:")
         raise ResolvingDependenciesError(
-            "There are some dependencies missing which do not exist and are not "
-            "produced by any task. See the following dictionary with missing nodes as "
-            "keys and dependent tasks as values."
-            f"\n\n{pprint.pformat(missing_root_nodes)}"
+            "Some dependencies do not exist or are not produced by any task. See the "
+            "following tree which shows which dependencies are missing for which tasks."
+            f"\n\n{text}"
         )
+
+
+def _format_dictionary_to_tree(dict_: Dict[str, List[str]], title: str) -> str:
+    """Format missing root nodes."""
+    from rich.tree import Tree
+    from rich.text import Text
+
+    tree = Tree(title)
+
+    for node, tasks in dict_.items():
+        branch = tree.add(Text("📄 ") + node)
+        for task in tasks:
+            branch.add(Text("📝 ") + task)
+
+    text = "".join(
+        [x.text for x in tree.__rich_console__(console, console.options)][:-1]
+    )
+
+    return text
 
 
 def _check_if_tasks_have_the_same_products(dag, session):
@@ -192,10 +211,13 @@ def _check_if_tasks_have_the_same_products(dag, session):
                 nodes_created_by_multiple_tasks[short_node] = short_parents
 
     if nodes_created_by_multiple_tasks:
+        text = _format_dictionary_to_tree(
+            nodes_created_by_multiple_tasks, "Products from multiple tasks:"
+        )
         raise ResolvingDependenciesError(
             "There are some tasks which produce the same output. See the following "
             "dictionary with products as keys and their producing tasks as values."
-            f"\n\n{pprint.pformat(nodes_created_by_multiple_tasks)}"
+            f"\n\n{text}"
         )
 
 
