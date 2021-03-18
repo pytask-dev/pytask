@@ -6,6 +6,13 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
+0.0.14 - 2021-xx-xx
+-------------------
+
+- :gh:`74` reworks the formatting of the command line output by using ``rich``. Due to
+  the new dependency, support for pytask with Python <3.6.1 on PyPI and with Python <3.7
+  on Anaconda will end.
+
 
 0.0.13 - 2021-03-09
 -------------------
