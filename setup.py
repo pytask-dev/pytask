@@ -51,7 +51,6 @@ setup(
         "attrs >= 17.4.0",
         "click",
         "click-default-group",
-        "colorama;platform_system=='Windows'",
         "networkx",
         "pluggy",
         "pony >= 0.7.13",
