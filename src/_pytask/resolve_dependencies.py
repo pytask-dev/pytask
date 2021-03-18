@@ -1,5 +1,8 @@
+import itertools
 import pprint
 import sys
+from typing import List
+from typing import Tuple
 
 import networkx as nx
 from _pytask.config import hookimpl
@@ -129,8 +132,22 @@ def _check_if_dag_has_cycles(dag):
             "The DAG contains cycles which means a dependency is directly or "
             "implicitly a product of the same task. See the following tuples "
             "(from a to b) to see the path in the graph which defines the cycle."
-            f"\n\n{cycles}"
+            f"\n\n{_format_cycles(cycles)}"
         )
+
+
+def _format_cycles(cycles: List[Tuple[str]]) -> str:
+    """Format cycles as a paths connected by arrows."""
+    chain = [x for i, x in enumerate(itertools.chain(*cycles)) if i % 2 == 0]
+    chain += [cycles[-1][1]]
+
+    lines = chain[:1]
+    for x in chain[1:]:
+        lines.append("    \u2B07")
+        lines.append(x)
+    text = "\n".join(lines)
+
+    return text
 
 
 def _check_if_root_nodes_are_available(dag, session):
