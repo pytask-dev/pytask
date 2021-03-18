@@ -7,6 +7,7 @@ project. Start here if you are a new user.
 .. toctree::
    :maxdepth: 1
 
+   how_to_install
    how_to_set_up_a_project
    how_to_write_a_task
    how_to_define_dependencies_products

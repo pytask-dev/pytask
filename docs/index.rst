@@ -14,12 +14,7 @@ Features
    :end-before: end-features
 
 
-Installation
-------------
-
-.. include:: ../README.rst
-   :start-after: start-installation
-   :end-before: end-installation
+To install pytask, follow this :doc:`tutorial <tutorials/how_to_install>`.
 
 
 Documentation
