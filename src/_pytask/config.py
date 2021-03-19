@@ -16,14 +16,14 @@ from _pytask.shared import to_list
 
 hookimpl = pluggy.HookimplMarker("pytask")
 
-IGNORED_FOLDERS = [
+_IGNORED_FOLDERS = [
     ".git/*",
     ".hg/*",
     ".svn/*",
     ".venv/*",
 ]
 
-IGNORED_FILES = [
+_IGNORED_FILES = [
     ".codecov.yml",
     ".gitignore",
     ".pre-commit-config.yaml",
@@ -37,7 +37,7 @@ IGNORED_FILES = [
     "tox.ini",
 ]
 
-IGNORED_FILES_AND_FOLDERS = IGNORED_FILES + IGNORED_FOLDERS
+_IGNORED_FILES_AND_FOLDERS = _IGNORED_FILES + _IGNORED_FOLDERS
 
 IGNORED_TEMPORARY_FILES_AND_FOLDERS = [
     "*.egg-info/*",
@@ -125,7 +125,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
                 default=[],
             )
         )
-        + IGNORED_FILES_AND_FOLDERS
+        + _IGNORED_FILES_AND_FOLDERS
         + IGNORED_TEMPORARY_FILES_AND_FOLDERS
     )
 

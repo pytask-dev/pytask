@@ -6,7 +6,10 @@ from typing import Tuple
 
 import networkx as nx
 from _pytask.config import hookimpl
+from _pytask.console import ARROW_DOWN_ICON
 from _pytask.console import console
+from _pytask.console import FILE_ICON
+from _pytask.console import TASK_ICON
 from _pytask.dag import node_and_neighbors
 from _pytask.dag import task_and_descending_tasks
 from _pytask.dag import TopologicalSorter
@@ -19,6 +22,7 @@ from _pytask.nodes import reduce_node_name
 from _pytask.report import ResolvingDependenciesReport
 from pony import orm
 from rich.traceback import Traceback
+from rich.tree import Tree
 
 
 @hookimpl
@@ -143,7 +147,7 @@ def _format_cycles(cycles: List[Tuple[str]]) -> str:
 
     lines = chain[:1]
     for x in chain[1:]:
-        lines.append("     ⬇")
+        lines.append("     " + ARROW_DOWN_ICON)
         lines.append(x)
     text = "\n".join(lines)
 
@@ -179,15 +183,12 @@ def _check_if_root_nodes_are_available(dag, session):
 
 def _format_dictionary_to_tree(dict_: Dict[str, List[str]], title: str) -> str:
     """Format missing root nodes."""
-    from rich.tree import Tree
-    from rich.text import Text
-
     tree = Tree(title)
 
     for node, tasks in dict_.items():
-        branch = tree.add(Text("📄 ") + node)
+        branch = tree.add(FILE_ICON + node)
         for task in tasks:
-            branch.add(Text("📝 ") + task)
+            branch.add(TASK_ICON + task)
 
     text = "".join(
         [x.text for x in tree.__rich_console__(console, console.options)][:-1]

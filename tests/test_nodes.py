@@ -10,10 +10,10 @@ from _pytask.nodes import _convert_objects_to_list_of_tuples
 from _pytask.nodes import _convert_objects_to_node_dictionary
 from _pytask.nodes import _create_task_name
 from _pytask.nodes import _extract_nodes_from_function_markers
-from _pytask.nodes import _find_closest_ancestor
 from _pytask.nodes import _relative_to
 from _pytask.nodes import depends_on
 from _pytask.nodes import FilePathNode
+from _pytask.nodes import find_closest_ancestor
 from _pytask.nodes import MetaNode
 from _pytask.nodes import MetaTask
 from _pytask.nodes import produces
@@ -227,10 +227,10 @@ def test_relative_to(path, source, include_source, expected):
         (Path("src/task.py"), [Path("src/task.py")], Path("src/task.py")),
     ],
 )
-def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected):
+def testfind_closest_ancestor(monkeypatch, path, potential_ancestors, expected):
     # Ensures that files are detected by an existing suffix not if they also exist.
     monkeypatch.setattr("_pytask.nodes.pathlib.Path.is_file", lambda x: bool(x.suffix))
-    result = _find_closest_ancestor(path, potential_ancestors)
+    result = find_closest_ancestor(path, potential_ancestors)
     assert result == expected
 
 

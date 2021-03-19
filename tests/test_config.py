@@ -3,11 +3,7 @@ import textwrap
 
 import pytest
 from _pytask.config import _find_project_root_and_ini
-from _pytask.config import IGNORED_FOLDERS
 from pytask import main
-
-
-_IGNORED_FOLDERS = [i.split("/")[0] for i in IGNORED_FOLDERS]
 
 
 @pytest.mark.unit

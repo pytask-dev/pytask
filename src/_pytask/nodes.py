@@ -355,7 +355,7 @@ def _relative_to(path: Path, source: Path, include_source: bool = True):
     return Path(source.name if include_source else "", path.relative_to(source))
 
 
-def _find_closest_ancestor(path: Path, potential_ancestors: List[Path]):
+def find_closest_ancestor(path: Path, potential_ancestors: List[Path]) -> Path:
     """Find the closest ancestor of a path.
 
     In case a path is the path to the task file itself, we return the path.
@@ -369,11 +369,11 @@ def _find_closest_ancestor(path: Path, potential_ancestors: List[Path]):
     Examples
     --------
     >>> from pathlib import Path
-    >>> _find_closest_ancestor(Path("folder", "file.py"), [Path("folder")]).as_posix()
+    >>> find_closest_ancestor(Path("folder", "file.py"), [Path("folder")]).as_posix()
     'folder'
 
     >>> paths = [Path("folder"), Path("folder", "subfolder")]
-    >>> _find_closest_ancestor(Path("folder", "subfolder", "file.py"), paths).as_posix()
+    >>> find_closest_ancestor(Path("folder", "subfolder", "file.py"), paths).as_posix()
     'folder/subfolder'
 
     """
@@ -407,7 +407,7 @@ def reduce_node_name(node, paths: List[Path]):
     path from one path in ``session.config["paths"]`` to the node.
 
     """
-    ancestor = _find_closest_ancestor(node.path, paths)
+    ancestor = find_closest_ancestor(node.path, paths)
     if ancestor is None:
         raise ValueError("A node must be defined in a child of 'paths'.")
     elif isinstance(node, MetaTask):

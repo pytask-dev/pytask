@@ -1,15 +1,19 @@
 """This module contains the implementation of ``pytask collect``."""
 import sys
-import traceback
 
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.console import FILE_ICON
+from _pytask.console import PYTHON_ICON
+from _pytask.console import TASK_ICON
+from _pytask.enums import ColorCode
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
+from rich.tree import Tree
 
 
 @hookimpl(tryfirst=True)
@@ -62,7 +66,8 @@ def collect(**config_from_cli):
 
         except Exception:
             session.exit_code = ExitCode.FAILED
-            traceback.print_exception(*sys.exc_info())
+            console.print_exception()
+            console.rule(style=ColorCode.FAILED)
 
     sys.exit(session.exit_code)
 
@@ -76,11 +81,10 @@ def _organize_tasks(tasks):
     """
     dictionary = {}
     for task in tasks:
-        task_name = task.name.split("::")[1]
         dictionary[task.path] = dictionary.get(task.path, {})
 
         task_dict = {
-            task_name: {
+            task.name: {
                 "depends_on": [node.name for node in task.depends_on.values()],
                 "produces": [node.name for node in task.produces.values()],
             }
@@ -103,15 +107,19 @@ def _print_collected_tasks(dictionary, show_nodes):
         Indicator for whether dependencies and products should be displayed.
 
     """
+    # Have a new line between the number of collected tasks and this info.
     console.print("")
 
+    tree = Tree("Collected tasks:", highlight=True)
     for path in dictionary:
-        console.print(f"<Module {path}>")
+        module_branch = tree.add(PYTHON_ICON + f"<Module {path.as_posix()}>")
         for task in dictionary[path]:
-            console.print(f"  <Function {task}>")
+            task_branch = module_branch.add(TASK_ICON + f"<Function {task}>")
             if show_nodes:
                 for dependency in dictionary[path][task]["depends_on"]:
-                    console.print(f"    <Dependency {dependency}>")
+                    task_branch.add(FILE_ICON + f"<Dependency {dependency}>")
 
                 for product in dictionary[path][task]["produces"]:
-                    console.print(f"    <Product {product}>")
+                    task_branch.add(FILE_ICON + f"<Product {product}>")
+
+    console.print(tree)
