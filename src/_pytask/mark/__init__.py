@@ -58,7 +58,7 @@ def markers(**config_from_cli):
         session.exit_code = ExitCode.CONFIGURATION_FAILED
 
     else:
-        table = Table("Marker", "Description", title="Markers", leading=1)
+        table = Table("Marker", "Description", leading=1)
 
         for name, description in config["markers"].items():
             table.add_row(f"pytask.mark.{name}", description)
