@@ -112,7 +112,7 @@ def _print_collected_tasks(dictionary, show_nodes):
 
     tree = Tree("Collected tasks:", highlight=True)
     for path in dictionary:
-        module_branch = tree.add(PYTHON_ICON + f"<Module {path.as_posix()}>")
+        module_branch = tree.add(PYTHON_ICON + f"<Module {path}>")
         for task in dictionary[path]:
             task_branch = module_branch.add(TASK_ICON + f"<Function {task}>")
             if show_nodes:
