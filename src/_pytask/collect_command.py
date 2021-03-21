@@ -11,6 +11,9 @@ from _pytask.enums import ColorCode
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
+from _pytask.nodes import reduce_node_name
+from _pytask.path import find_common_ancestor
+from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from rich.tree import Tree
@@ -55,7 +58,10 @@ def collect(**config_from_cli):
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
 
-            dictionary = _organize_tasks(session.tasks)
+            common_ancestor = _find_common_ancestor_of_all_nodes(
+                session.tasks, session.config["paths"]
+            )
+            dictionary = _organize_tasks(session.tasks, common_ancestor)
             _print_collected_tasks(dictionary, session.config["nodes"])
 
             console.print("")
@@ -72,7 +78,22 @@ def collect(**config_from_cli):
     sys.exit(session.exit_code)
 
 
-def _organize_tasks(tasks):
+def _find_common_ancestor_of_all_nodes(tasks, paths):
+    """Find common ancestor from all nodes and passed paths."""
+    all_paths = []
+    for task in tasks:
+        all_paths += [task.path] + [
+            node.path
+            for attr in ("depends_on", "produces")
+            for node in getattr(task, attr).values()
+        ]
+
+    common_ancestor = find_common_ancestor(*all_paths, *paths)
+
+    return common_ancestor
+
+
+def _organize_tasks(tasks, common_ancestor):
     """Organize tasks in a dictionary.
 
     The dictionary has file names as keys and then a dictionary with task names and
@@ -81,16 +102,24 @@ def _organize_tasks(tasks):
     """
     dictionary = {}
     for task in tasks:
-        dictionary[task.path] = dictionary.get(task.path, {})
+        reduced_task_path = relative_to(task.path, common_ancestor)
+        reduced_task_name = reduce_node_name(task, [common_ancestor])
+        dictionary[reduced_task_path] = dictionary.get(reduced_task_path, {})
 
         task_dict = {
-            task.name: {
-                "depends_on": [node.name for node in task.depends_on.values()],
-                "produces": [node.name for node in task.produces.values()],
+            reduced_task_name: {
+                "depends_on": [
+                    relative_to(node.path, common_ancestor)
+                    for node in task.depends_on.values()
+                ],
+                "produces": [
+                    relative_to(node.path, common_ancestor)
+                    for node in task.produces.values()
+                ],
             }
         }
 
-        dictionary[task.path].update(task_dict)
+        dictionary[reduced_task_path].update(task_dict)
 
     return dictionary
 
