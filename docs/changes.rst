@@ -12,11 +12,6 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`74` reworks the formatting of the command line output by using ``rich``. Due to
   the new dependency, support for pytask with Python <3.6.1 on PyPI and with Python <3.7
   on Anaconda will end.
-
-
-0.0.14 - 2021-xx-xx
--------------------
-
 - :gh:`76` fixes :gh:`75` which reports a bug when a closest ancestor cannot be found to
   shorten node names in the CLI output. Instead a common ancestor is used.
 
