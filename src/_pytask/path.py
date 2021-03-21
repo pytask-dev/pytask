@@ -76,19 +76,17 @@ def find_closest_ancestor(
     return closest_ancestor
 
 
-def find_common_ancestor(path_1: Union[str, Path], path_2: Union[str, Path]) -> Path:
-    """Find a common ancestor of two paths."""
-    path_1 = path_1 if isinstance(path_1, PurePath) else Path(path_1)
-    path_2 = path_2 if isinstance(path_2, PurePath) else Path(path_2)
+def find_common_ancestor(*paths: Union[str, Path]) -> Path:
+    """Find a common ancestor of many paths."""
+    paths = [path if isinstance(path, PurePath) else Path(path) for path in paths]
 
-    for i, path in enumerate((path_1, path_2), 1):
+    for path in paths:
         if not path.is_absolute():
             raise ValueError(
-                f"Cannot find common ancestor for relative paths, but 'path_{i}' is "
-                f"{path}."
+                f"Cannot find common ancestor for relative paths. {path} is relative."
             )
 
-    common_parents = set(path_1.parents) & set(path_2.parents)
+    common_parents = set.intersection(*[set(path.parents) for path in paths])
 
     if len(common_parents) == 0:
         raise ValueError("Paths have no common ancestor.")
