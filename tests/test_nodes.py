@@ -10,8 +10,6 @@ from _pytask.nodes import _convert_objects_to_list_of_tuples
 from _pytask.nodes import _convert_objects_to_node_dictionary
 from _pytask.nodes import _create_task_name
 from _pytask.nodes import _extract_nodes_from_function_markers
-from _pytask.nodes import _find_closest_ancestor
-from _pytask.nodes import _relative_to
 from _pytask.nodes import depends_on
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaNode
@@ -200,37 +198,6 @@ def test_convert_nodes_to_dictionary(x, expected):
 )
 def test_create_task_name(path, name, expected):
     result = _create_task_name(path, name)
-    assert result == expected
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "path, source, include_source, expected",
-    [
-        (Path("src/hello.py"), Path("src"), True, Path("src/hello.py")),
-        (Path("src/hello.py"), Path("src"), False, Path("hello.py")),
-    ],
-)
-def test_relative_to(path, source, include_source, expected):
-    result = _relative_to(path, source, include_source)
-    assert result == expected
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "path, potential_ancestors, expected",
-    [
-        (Path("src/task.py"), [Path("src"), Path("bld")], Path("src")),
-        (Path("tasks/task.py"), [Path("src"), Path("bld")], None),
-        (Path("src/ts/task.py"), [Path("src"), Path("src/ts")], Path("src/ts")),
-        (Path("src/in.txt"), [Path("src/task_d.py")], Path("src")),
-        (Path("src/task.py"), [Path("src/task.py")], Path("src/task.py")),
-    ],
-)
-def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected):
-    # Ensures that files are detected by an existing suffix not if they also exist.
-    monkeypatch.setattr("_pytask.nodes.pathlib.Path.is_file", lambda x: bool(x.suffix))
-    result = _find_closest_ancestor(path, potential_ancestors)
     assert result == expected
 
 
