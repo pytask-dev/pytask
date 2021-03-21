@@ -218,7 +218,7 @@ def test_capturing_bytes_in_utf8_encoding(tmp_path, runner, method):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.xfail(reason="pytask cannot capture during collection.")
+@pytest.mark.xfail(strict=True, reason="pytask cannot capture during collection.")
 def test_collect_capturing(tmp_path, runner):
     source = """
     import sys

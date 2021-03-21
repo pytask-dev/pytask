@@ -111,6 +111,36 @@ def test_check_if_root_nodes_are_available_end_to_end(tmp_path, runner):
 
 
 @pytest.mark.end_to_end
+def test_check_if_root_nodes_are_available_with_separate_build_folder_end_to_end(
+    tmp_path, runner
+):
+    tmp_path.joinpath("src").mkdir()
+    tmp_path.joinpath("bld").mkdir()
+    source = """
+    import pytask
+
+    @pytask.mark.depends_on("../bld/in.txt")
+    @pytask.mark.produces("out.txt")
+    def task_d(produces):
+        produces.write_text("1")
+    """
+    tmp_path.joinpath("src", "task_d.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.joinpath("src").as_posix()])
+
+    assert result.exit_code == 4
+    assert "Failures during resolving dependencies" in result.output
+
+    # Ensure that node names are reduced.
+    assert "Failures during resolving dependencies" in result.output
+    assert "There are some dependencies missing which do not" in result.output
+    assert tmp_path.joinpath("task_d.py").as_posix() + "::task_d" not in result.output
+    assert "src/task_d.py::task_d" in result.output
+    assert tmp_path.joinpath("bld", "in.txt").as_posix() not in result.output
+    assert tmp_path.name + "/bld/in.txt" in result.output
+
+
+@pytest.mark.end_to_end
 def test_cycle_in_dag(tmp_path, runner):
     source = """
     import pytask
