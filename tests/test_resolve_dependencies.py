@@ -135,9 +135,9 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder_end_to_end
     assert "Failures during resolving dependencies" in result.output
     assert "There are some dependencies missing which do not" in result.output
     assert tmp_path.joinpath("task_d.py").as_posix() + "::task_d" not in result.output
-    assert tmp_path.name + "/task_d.py::task_d" in result.output
-    assert tmp_path.joinpath("in.txt").as_posix() not in result.output
-    assert tmp_path.name + "/in.txt" in result.output
+    assert "src/task_d.py::task_d" in result.output
+    assert tmp_path.joinpath("bld", "in.txt").as_posix() not in result.output
+    assert tmp_path.name + "/bld/in.txt" in result.output
 
 
 @pytest.mark.end_to_end

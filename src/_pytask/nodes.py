@@ -18,6 +18,7 @@ from _pytask.exceptions import NodeNotCollectedError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import get_marks_from_obj
 from _pytask.path import find_closest_ancestor
+from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.shared import find_duplicates
 
@@ -351,8 +352,12 @@ def reduce_node_name(node, paths: List[Path]):
     """
     ancestor = find_closest_ancestor(node.path, paths)
     if ancestor is None:
-        raise ValueError("A node must be defined in a child of 'paths'.")
-    elif isinstance(node, MetaTask):
+        try:
+            ancestor = find_common_ancestor(node.path, *paths)
+        except ValueError:
+            ancestor = node.path.parents[-1]
+
+    if isinstance(node, MetaTask):
         if ancestor == node.path:
             name = _create_task_name(Path(node.path.name), node.base_name)
         else:

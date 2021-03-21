@@ -226,19 +226,21 @@ _ROOT = Path.cwd()
 @pytest.mark.parametrize(
     "node, paths, expectation, expected",
     [
-        (
+        pytest.param(
             FilePathNode.from_path(_ROOT.joinpath("src/module.py")),
             [_ROOT.joinpath("alternative_src")],
-            pytest.raises(ValueError, match="A node must be"),
-            None,
+            does_not_raise(),
+            "pytask/src/module.py",
+            id="Common path found for FilePathNode not in 'paths' and 'paths'",
         ),
-        (
+        pytest.param(
             FalseNode(_ROOT.joinpath("src/module.py")),
             [_ROOT.joinpath("src")],
             pytest.raises(ValueError, match="Unknown node"),
             None,
+            id="throw error on unknown node type.",
         ),
-        (
+        pytest.param(
             DummyTask(
                 _ROOT.joinpath("top/src/module.py"),
                 _ROOT.joinpath("top/src/module.py").as_posix() + "::task_func",
@@ -247,14 +249,16 @@ _ROOT = Path.cwd()
             [_ROOT.joinpath("top/src")],
             does_not_raise(),
             "src/module.py::task_func",
+            id="make task name relative to 'paths'.",
         ),
-        (
+        pytest.param(
             FilePathNode.from_path(_ROOT.joinpath("top/src/module.py")),
             [_ROOT.joinpath("top/src")],
             does_not_raise(),
             "src/module.py",
+            id="make filepathnode relative to 'paths'.",
         ),
-        (
+        pytest.param(
             PythonFunctionTask(
                 "task_d",
                 _ROOT.joinpath("top/src/module.py").as_posix() + "::task_d",
@@ -264,6 +268,7 @@ _ROOT = Path.cwd()
             [_ROOT.joinpath("top/src/module.py")],
             does_not_raise(),
             "module.py::task_d",
+            id="shorten task name when task module is passed to 'paths'.",
         ),
     ],
 )
