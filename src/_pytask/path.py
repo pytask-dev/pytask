@@ -1,5 +1,6 @@
 """This module contains code to handle paths."""
 from pathlib import Path
+from pathlib import PurePath
 from typing import List
 from typing import Union
 
@@ -73,3 +74,25 @@ def find_closest_ancestor(
                 closest_ancestor = ancestor
 
     return closest_ancestor
+
+
+def find_common_ancestor(path_1: Union[str, Path], path_2: Union[str, Path]) -> Path:
+    """Find a common ancestor of two paths."""
+    path_1 = path_1 if isinstance(path_1, PurePath) else Path(path_1)
+    path_2 = path_2 if isinstance(path_2, PurePath) else Path(path_2)
+
+    for i, path in enumerate((path_1, path_2), 1):
+        if not path.is_absolute():
+            raise ValueError(
+                f"Cannot find common ancestor for relative paths, but 'path_{i}' is "
+                f"{path}."
+            )
+
+    common_parents = set(path_1.parents) & set(path_2.parents)
+
+    if len(common_parents) == 0:
+        raise ValueError("Paths have no common ancestor.")
+    else:
+        longest_parent = sorted(common_parents, key=lambda x: len(x.parts))[-1]
+
+    return longest_parent
