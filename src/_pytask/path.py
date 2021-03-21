@@ -1,8 +1,12 @@
+"""This module contains code to handle paths."""
 from pathlib import Path
 from typing import List
+from typing import Union
 
 
-def relative_to(path: Path, source: Path, include_source: bool = True):
+def relative_to(
+    path: Union[str, Path], source: Union[str, Path], include_source: bool = True
+) -> Union[str, Path]:
     """Make a path relative to another path.
 
     In contrast to :meth:`pathlib.Path.relative_to`, this function allows to keep the
@@ -10,17 +14,26 @@ def relative_to(path: Path, source: Path, include_source: bool = True):
 
     Examples
     --------
-    >>> from pathlib import Path
-    >>> relative_to(Path("folder", "file.py"), Path("folder")).as_posix()
-    'folder/file.py'
-    >>> relative_to(Path("folder", "file.py"), Path("folder"), False).as_posix()
+    The default behavior of :mod:`pathlib` is to exclude the source path from the
+    relative path.
+
+    >>> relative_to("folder/file.py", "folder", False).as_posix()
     'file.py'
 
+    To provide relative locations to users, it is sometimes more helpful to provide the
+    source as an orientation.
+
+    >>> relative_to("folder/file.py", "folder").as_posix()
+    'folder/file.py'
+
     """
-    return Path(source.name if include_source else "", path.relative_to(source))
+    source_name = Path(source).name if include_source else ""
+    return Path(source_name, Path(path).relative_to(source))
 
 
-def find_closest_ancestor(path: Path, potential_ancestors: List[Path]):
+def find_closest_ancestor(
+    path: Union[str, Path], potential_ancestors: List[Union[str, Path]]
+) -> Path:
     """Find the closest ancestor of a path.
 
     In case a path is the path to the task file itself, we return the path.
