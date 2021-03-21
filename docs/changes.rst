@@ -7,6 +7,13 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
+0.0.14 - 2021-xx-xx
+-------------------
+
+- :gh:`76` fixes :gh:`75` which reports a bug when a closest ancestor cannot be found to
+  shorten node names in the CLI output. Instead a common ancestor is used.
+
+
 0.0.13 - 2021-03-09
 -------------------
 
