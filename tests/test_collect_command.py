@@ -163,6 +163,8 @@ def test_collect_task_with_ignore_from_config(runner, tmp_path, config_name):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
 
+    print(result.output)
+
     captured = result.output.replace("\n", "")
     assert "<Module" in captured
     assert "task_dummy_1.py>" in captured
@@ -210,6 +212,8 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
     result = runner.invoke(
         cli, ["collect", tmp_path.as_posix(), "--ignore", "task_dummy_2.py"]
     )
+
+    print(result.output)
 
     captured = result.output.replace("\n", "")
     assert "<Module" in captured
