@@ -64,7 +64,7 @@ def collect(**config_from_cli):
             dictionary = _organize_tasks(session.tasks, common_ancestor)
             _print_collected_tasks(dictionary, session.config["nodes"])
 
-            console.print("")
+            console.print()
             console.rule(style=None)
 
         except CollectionError:
@@ -137,7 +137,7 @@ def _print_collected_tasks(dictionary, show_nodes):
 
     """
     # Have a new line between the number of collected tasks and this info.
-    console.print("")
+    console.print()
 
     tree = Tree("Collected tasks:", highlight=True)
     for path in dictionary:

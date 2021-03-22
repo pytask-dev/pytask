@@ -222,7 +222,7 @@ def pytask_collect_log(session, reports, tasks):
 
     failed_reports = [i for i in reports if not i.successful]
     if failed_reports:
-        console.print("")
+        console.print()
         console.rule(
             f"[{ColorCode.FAILED}]Failures during collection", style=ColorCode.FAILED
         )
@@ -236,11 +236,11 @@ def pytask_collect_log(session, reports, tasks):
 
             console.rule(f"[{ColorCode.FAILED}]{header}", style=ColorCode.FAILED)
 
-            console.print("")
+            console.print()
 
             console.print(Traceback.from_exception(*report.exc_info))
 
-            console.print("")
+            console.print()
 
         session.hook.pytask_log_session_footer(
             session=session,

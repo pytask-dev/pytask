@@ -169,7 +169,7 @@ def pytask_execute_log_end(session, reports):
     any_failure = any(not report.success for report in reports)
     if any_failure:
         console.rule(f"[{ColorCode.FAILED}]Failures", style=ColorCode.FAILED)
-        console.print("")
+        console.print()
 
     for report in reports:
         if not report.success:

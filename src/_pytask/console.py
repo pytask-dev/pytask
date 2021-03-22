@@ -1,3 +1,4 @@
+"""This module contains the code to format output on the command line."""
 import os
 import sys
 

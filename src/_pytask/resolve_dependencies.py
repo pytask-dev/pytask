@@ -246,16 +246,16 @@ def _check_if_tasks_have_the_same_products(dag):
 @hookimpl
 def pytask_resolve_dependencies_log(report):
     """Log errors which happened while resolving dependencies."""
-    console.print("")
+    console.print()
     console.rule(
         f"[{ColorCode.FAILED}]Failures during resolving dependencies",
         style=ColorCode.FAILED,
     )
 
-    console.print("")
+    console.print()
     console.print(Traceback.from_exception(*report.exc_info))
 
-    console.print("")
+    console.print()
     console.rule(style=ColorCode.FAILED)
 
 
