@@ -2,9 +2,10 @@ name: pytask
 
 channels:
   - conda-forge
+  - nodefaults
 
 dependencies:
-  - python>=3.6
+  - python >=3.7
   - pip
 
   # Conda
@@ -19,6 +20,7 @@ dependencies:
   - networkx
   - pluggy
   - pony >=0.7.13
+  - rich
 
   # Misc
   - black
@@ -29,8 +31,6 @@ dependencies:
   - pytest
   - pytest-cov
   - tox-conda
-  - versioneer
-  - virtualenv=20.0.33
 
   # Documentation
   - furo

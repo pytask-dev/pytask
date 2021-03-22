@@ -76,6 +76,11 @@ def find_closest_ancestor(
     return closest_ancestor
 
 
+def find_common_ancestor_of_nodes(*names: str) -> Path:
+    cleaned_names = [name.split("::")[0] for name in names]
+    return find_common_ancestor(*cleaned_names)
+
+
 def find_common_ancestor(*paths: Union[str, Path]) -> Path:
     """Find a common ancestor of many paths."""
     paths = [path if isinstance(path, PurePath) else Path(path) for path in paths]

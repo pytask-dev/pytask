@@ -358,11 +358,8 @@ def reduce_node_name(node, paths: List[Path]):
             ancestor = node.path.parents[-1]
 
     if isinstance(node, MetaTask):
-        if ancestor == node.path:
-            name = _create_task_name(Path(node.path.name), node.base_name)
-        else:
-            shortened_path = relative_to(node.path, ancestor)
-            name = _create_task_name(shortened_path, node.base_name)
+        shortened_path = relative_to(node.path, ancestor)
+        name = _create_task_name(shortened_path, node.base_name)
     elif isinstance(node, MetaNode):
         name = relative_to(node.path, ancestor).as_posix()
     else:

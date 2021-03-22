@@ -2,12 +2,12 @@ from pathlib import Path
 
 import pytest
 from _pytask.collect import pytask_ignore_collect
-from _pytask.config import IGNORED_FOLDERS
+from _pytask.config import _IGNORED_FOLDERS
 from pytask import main
 
 
 @pytest.mark.end_to_end
-@pytest.mark.parametrize("ignored_folder", IGNORED_FOLDERS + ["pytask.egg-info"])
+@pytest.mark.parametrize("ignored_folder", _IGNORED_FOLDERS + ["pytask.egg-info"])
 def test_ignore_default_paths(tmp_path, ignored_folder):
     folder = ignored_folder.split("/*")[0]
     tmp_path.joinpath(folder).mkdir()

@@ -2,12 +2,10 @@
 import configparser
 import itertools
 import os
-import shutil
 import warnings
 from pathlib import Path
 from typing import List
 
-import click
 import pluggy
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
@@ -18,14 +16,14 @@ from _pytask.shared import to_list
 
 hookimpl = pluggy.HookimplMarker("pytask")
 
-IGNORED_FOLDERS = [
+_IGNORED_FOLDERS = [
     ".git/*",
     ".hg/*",
     ".svn/*",
     ".venv/*",
 ]
 
-IGNORED_FILES = [
+_IGNORED_FILES = [
     ".codecov.yml",
     ".gitignore",
     ".pre-commit-config.yaml",
@@ -39,7 +37,7 @@ IGNORED_FILES = [
     "tox.ini",
 ]
 
-IGNORED_FILES_AND_FOLDERS = IGNORED_FILES + IGNORED_FOLDERS
+_IGNORED_FILES_AND_FOLDERS = _IGNORED_FILES + _IGNORED_FOLDERS
 
 IGNORED_TEMPORARY_FILES_AND_FOLDERS = [
     "*.egg-info/*",
@@ -58,7 +56,7 @@ IGNORED_TEMPORARY_FILES_AND_FOLDERS = [
 @hookimpl
 def pytask_configure(pm, config_from_cli):
     """Configure pytask."""
-    config = {"pm": pm, "terminal_width": _get_terminal_width()}
+    config = {"pm": pm}
 
     # Either the path to the configuration is passed via the CLI or it needs to be
     # detected from the paths passed to pytask.
@@ -127,7 +125,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
                 default=[],
             )
         )
-        + IGNORED_FILES_AND_FOLDERS
+        + _IGNORED_FILES_AND_FOLDERS
         + IGNORED_TEMPORARY_FILES_AND_FOLDERS
     )
 
@@ -139,7 +137,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         callback=convert_truthy_or_falsy_to_bool,
     )
     if config["debug_pytask"]:
-        config["pm"].trace.root.setwriter(click.echo)
+        config["pm"].trace.root.setwriter(print)  # noqa: T002
         config["pm"].enable_tracing()
 
     config_from_file["task_files"] = parse_value_or_multiline_option(
@@ -220,17 +218,3 @@ def _read_config(path):
     config = configparser.ConfigParser()
     config.read(path)
     return dict(config["pytask"])
-
-
-def _get_terminal_width() -> int:
-    """Get the window width of the terminal."""
-    width, _ = shutil.get_terminal_size(fallback=(80, 24))
-
-    # The Windows get_terminal_size may be bogus, let's sanitize a bit.
-    if width < 40:
-        width = 80
-
-    # Delete one character which prevents accidental line breaks.
-    width -= 1
-
-    return width

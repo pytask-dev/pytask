@@ -260,18 +260,15 @@ def test_keyword_option_wrong_arguments(
     tmp_path, capsys, option: str, expr: str, expected_error: str
 ) -> None:
     tmp_path.joinpath("task_dummy.py").write_text(
-        textwrap.dedent(
-            """
-            def task_func(arg):
-                pass
-            """
-        )
+        textwrap.dedent("def task_func(arg): pass")
     )
     session = main({"paths": tmp_path, option: expr})
     assert session.exit_code == 3
 
-    err = capsys.readouterr().err
-    assert expected_error in err
+    captured = capsys.readouterr()
+    assert expected_error in captured.out.replace(
+        "\n", " "
+    ) or expected_error in captured.out.replace("\n", "")
 
 
 @pytest.mark.end_to_end

@@ -77,21 +77,14 @@ projects. Its features include:
 .. end-features
 
 
-Why do I need a build system?
------------------------------
-
-Read the `section in the documentation <https://pytask-dev.readthedocs.io/en/latest/
-explanations/why_do_i_need_a_build_system.html>`_ if you do not know or are not
-convinced that you need a build system.
-
-
 Installation
 ------------
 
 .. start-installation
 
-pytask is available on `PyPI <https://pypi.org/project/pytask>`_ and on `Anaconda.org
-<https://anaconda.org/conda-forge/pytask>`_. Install the package with
+pytask is available on `PyPI <https://pypi.org/project/pytask>`_ for Python >= 3.6.1 and
+on `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_ for Python >= 3.7. Install
+the package with
 
 .. code-block:: console
 
@@ -100,6 +93,10 @@ pytask is available on `PyPI <https://pypi.org/project/pytask>`_ and on `Anacond
     # or
 
     $ conda install -c conda-forge pytask
+
+Color support is automatically available on non-Windows platforms. On Windows, please,
+use `Windows Terminal <https://github.com/microsoft/terminal>`_ which can be, for
+example, installed via the `Microsoft Store <https://aka.ms/terminal>`_.
 
 .. end-installation
 

@@ -1,11 +1,10 @@
 import sys
-import textwrap
-import traceback
 from typing import AbstractSet
 
 import attr
 import click
 from _pytask.config import hookimpl
+from _pytask.console import console
 from _pytask.enums import ExitCode
 from _pytask.exceptions import ConfigurationError
 from _pytask.mark.expression import Expression
@@ -21,6 +20,7 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
+from rich.table import Table
 
 
 __all__ = [
@@ -53,18 +53,17 @@ def markers(**config_from_cli):
         session = Session.from_config(config)
 
     except (ConfigurationError, Exception):
-        traceback.print_exception(*sys.exc_info())
+        console.print_exception()
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
 
     else:
+        table = Table("Marker", "Description", leading=1)
+
         for name, description in config["markers"].items():
-            click.echo(
-                textwrap.fill(
-                    f"pytask.mark.{name}: {description}", width=config["terminal_width"]
-                )
-            )
-            click.echo("")
+            table.add_row(f"pytask.mark.{name}", description)
+
+        console.print(table)
 
     sys.exit(session.exit_code)
 
