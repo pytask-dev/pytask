@@ -27,10 +27,6 @@ class Node(FilePathNode):
             raise NodeNotFoundError
 
 
-class DummySession:
-    pass
-
-
 @pytest.mark.unit
 def test_create_dag():
     root = Path.cwd() / "src"
@@ -57,8 +53,6 @@ def test_check_if_root_nodes_are_available():
     dag = nx.DiGraph()
 
     root = Path.cwd() / "src"
-    session = DummySession()
-    session.config = {"paths": [root]}
 
     path = root.joinpath("task_dummy")
     task = PythonFunctionTask("task", path.as_posix() + "::task", path, None)
@@ -71,14 +65,14 @@ def test_check_if_root_nodes_are_available():
     dag.add_edge(available_node.name, task.name)
 
     with does_not_raise():
-        _check_if_root_nodes_are_available(dag, session)
+        _check_if_root_nodes_are_available(dag)
 
     missing_node = Node.from_path(root.joinpath("missing_node"))
     dag.add_node(missing_node.name, node=missing_node)
     dag.add_edge(missing_node.name, task.name)
 
     with pytest.raises(ResolvingDependenciesError):
-        _check_if_root_nodes_are_available(dag, session)
+        _check_if_root_nodes_are_available(dag)
 
 
 @pytest.mark.end_to_end

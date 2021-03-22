@@ -95,11 +95,11 @@ def pytask_resolve_dependencies_select_execution_dag(dag):
 
 
 @hookimpl
-def pytask_resolve_dependencies_validate_dag(session, dag):
+def pytask_resolve_dependencies_validate_dag(dag):
     """Validate the DAG."""
     _check_if_dag_has_cycles(dag)
-    _check_if_root_nodes_are_available(dag, session)
-    _check_if_tasks_have_the_same_products(dag, session)
+    _check_if_root_nodes_are_available(dag)
+    _check_if_tasks_have_the_same_products(dag)
 
 
 def _have_task_or_neighbors_changed(task_name, dag):
