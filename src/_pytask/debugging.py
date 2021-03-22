@@ -323,6 +323,9 @@ def wrap_function_for_post_mortem_debugging(session, task):
             capman.suspend(in_=True)
             out, err = capman.read()
 
+            if out or err:
+                console.print()
+
             if out:
                 console.rule("Captured stdout", style=None)
                 console.print(out)
@@ -373,6 +376,9 @@ def wrap_function_for_tracing(session, task):
 
         capman.suspend(in_=True)
         out, err = capman.read()
+
+        if out or err:
+            console.print()
 
         if out:
             console.rule("Captured stdout", style=None)
