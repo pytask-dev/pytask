@@ -6,7 +6,7 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
-0.0.14 - 2021-xx-xx
+0.0.14 - 2021-03-23
 -------------------
 
 - :gh:`74` reworks the formatting of the command line output by using ``rich``. Due to
