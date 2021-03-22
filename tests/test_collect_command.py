@@ -23,7 +23,7 @@ def test_collect_task(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
 
-    captured = result.output.replace("\n", "")
+    captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_dummy.py>" in captured
     assert "<Function" in captured
@@ -31,7 +31,7 @@ def test_collect_task(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
 
-    captured = result.output.replace("\n", "")
+    captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_dummy.py>" in captured
     assert "<Function" in captured
@@ -61,7 +61,7 @@ def test_collect_task_with_expressions(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "-k", "_1"])
 
-    captured = result.output.replace("\n", "")
+    captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_dummy.py>" in captured
     assert "<Function" in captured
@@ -71,7 +71,7 @@ def test_collect_task_with_expressions(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "-k", "_1", "--nodes"])
 
-    captured = result.output.replace("\n", "")
+    captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_dummy.py>" in captured
     assert "<Function" in captured
@@ -110,7 +110,7 @@ def test_collect_task_with_marker(runner, tmp_path, config_name):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "-m", "wip"])
 
-    captured = result.output.replace("\n", "")
+    captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_dummy.py>" in captured
     assert "<Function" in captured
@@ -122,7 +122,7 @@ def test_collect_task_with_marker(runner, tmp_path, config_name):
         cli, ["collect", tmp_path.as_posix(), "-m", "wip", "--nodes"]
     )
 
-    captured = result.output.replace("\n", "")
+    captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_dummy.py>" in captured
     assert "<Function" in captured
@@ -163,9 +163,7 @@ def test_collect_task_with_ignore_from_config(runner, tmp_path, config_name):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
 
-    print(result.output)
-
-    captured = result.output.replace("\n", "")
+    captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_dummy_1.py>" in captured
     assert "task_dummy_2.py>" not in captured
@@ -176,7 +174,7 @@ def test_collect_task_with_ignore_from_config(runner, tmp_path, config_name):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
 
-    captured = result.output.replace("\n", "")
+    captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_dummy_1.py>" in captured
     assert "task_dummy_2.py>" not in captured
@@ -213,9 +211,7 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
         cli, ["collect", tmp_path.as_posix(), "--ignore", "task_dummy_2.py"]
     )
 
-    print(result.output)
-
-    captured = result.output.replace("\n", "")
+    captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_dummy_1.py>" in captured
     assert "task_dummy_2.py>" not in captured
@@ -228,7 +224,7 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
         cli, ["collect", tmp_path.as_posix(), "--ignore", "task_dummy_2.py", "--nodes"]
     )
 
-    captured = result.output.replace("\n", "")
+    captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_dummy_1.py>" in captured
     assert "task_dummy_2.py>" not in captured
