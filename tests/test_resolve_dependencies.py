@@ -7,34 +7,23 @@ import networkx as nx
 import pytest
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
-from _pytask.nodes import MetaNode
-from _pytask.nodes import MetaTask
+from _pytask.nodes import FilePathNode
+from _pytask.nodes import PythonFunctionTask
 from _pytask.resolve_dependencies import _check_if_root_nodes_are_available
 from _pytask.resolve_dependencies import pytask_resolve_dependencies_create_dag
 from pytask import cli
 
 
 @attr.s
-class Task(MetaTask):
-    name = attr.ib(type=str)
-    depends_on = attr.ib(factory=dict)
-    produces = attr.ib(factory=dict)
-
-    def execute(self):
-        pass
-
-    def state(self):
-        pass
-
-
-@attr.s
-class Node(MetaNode):
+class Node(FilePathNode):
     """See https://github.com/python-attrs/attrs/issues/293 for property hack."""
 
     name = attr.ib(type=str)
+    value = attr.ib()
+    path = attr.ib()
 
     def state(self):
-        if self.name == "missing":
+        if "missing" in self.name:
             raise NodeNotFoundError
 
 
@@ -44,39 +33,47 @@ class DummySession:
 
 @pytest.mark.unit
 def test_create_dag():
-    task = Task(
-        name="task",
-        depends_on={0: Node(name="node_1"), 1: Node(name="node_2")},
+    root = Path.cwd() / "src"
+    task = PythonFunctionTask(
+        "task_dummy",
+        root.as_posix() + "::task_dummy",
+        root,
+        None,
+        depends_on={
+            0: Node.from_path(root / "node_1"),
+            1: Node.from_path(root / "node_2"),
+        },
     )
 
     dag = pytask_resolve_dependencies_create_dag([task])
 
-    assert sorted(dag.nodes) == ["node_1", "node_2", "task"]
+    assert all(
+        any(i in node for i in ["node_1", "node_2", "task"]) for node in dag.nodes
+    )
 
 
 @pytest.mark.unit
 def test_check_if_root_nodes_are_available():
     dag = nx.DiGraph()
 
-    root = Path("directory")
+    root = Path.cwd() / "src"
     session = DummySession()
     session.config = {"paths": [root]}
 
-    task = Task("task")
-    task.path = root.joinpath("task_dummy")
+    path = root.joinpath("task_dummy")
+    task = PythonFunctionTask("task", path.as_posix() + "::task", path, None)
+    task.path = path
     task.base_name = "task_dummy"
     dag.add_node(task.name, task=task)
 
-    available_node = Node("available")
-    available_node.path = root.joinpath("available_node")
+    available_node = Node.from_path(root.joinpath("available_node"))
     dag.add_node(available_node.name, node=available_node)
     dag.add_edge(available_node.name, task.name)
 
     with does_not_raise():
         _check_if_root_nodes_are_available(dag, session)
 
-    missing_node = Node("missing")
-    missing_node.path = root.joinpath("missing_node")
+    missing_node = Node.from_path(root.joinpath("missing_node"))
     dag.add_node(missing_node.name, node=missing_node)
     dag.add_edge(missing_node.name, task.name)
 

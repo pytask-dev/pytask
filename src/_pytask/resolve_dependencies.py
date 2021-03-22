@@ -19,6 +19,7 @@ from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
 from _pytask.nodes import reduce_node_name
+from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import ResolvingDependenciesReport
 from pony import orm
 from rich.traceback import Traceback
@@ -154,9 +155,8 @@ def _format_cycles(cycles: List[Tuple[str]]) -> str:
     return text
 
 
-def _check_if_root_nodes_are_available(dag, session):
-    paths = session.config["paths"]
-    missing_root_nodes = {}
+def _check_if_root_nodes_are_available(dag):
+    missing_root_nodes = []
 
     for node in dag.nodes:
         is_node = "node" in dag.nodes[node]
@@ -166,14 +166,26 @@ def _check_if_root_nodes_are_available(dag, session):
                 dag.nodes[node]["node"].state()
             except NodeNotFoundError:
                 # Shorten node names for better printing.
-                short_node_name = reduce_node_name(dag.nodes[node]["node"], paths)
-                short_successors = _reduce_names_of_multiple_nodes(
-                    dag.successors(node), dag, paths
-                )
-                missing_root_nodes[short_node_name] = short_successors
+                missing_root_nodes.append(node)
 
     if missing_root_nodes:
-        text = _format_dictionary_to_tree(missing_root_nodes, "Missing dependencies:")
+        all_names = missing_root_nodes + [
+            successor
+            for node in missing_root_nodes
+            for successor in dag.successors(node)
+        ]
+        common_ancestor = find_common_ancestor_of_nodes(*all_names)
+        dictionary = {}
+        for node in missing_root_nodes:
+            short_node_name = reduce_node_name(
+                dag.nodes[node]["node"], [common_ancestor]
+            )
+            short_successors = _reduce_names_of_multiple_nodes(
+                dag.successors(node), dag, [common_ancestor]
+            )
+            dictionary[short_node_name] = short_successors
+
+        text = _format_dictionary_to_tree(dictionary, "Missing dependencies:")
         raise ResolvingDependenciesError(
             "Some dependencies do not exist or are not produced by any task. See the "
             "following tree which shows which dependencies are missing for which tasks."
@@ -197,24 +209,33 @@ def _format_dictionary_to_tree(dict_: Dict[str, List[str]], title: str) -> str:
     return text
 
 
-def _check_if_tasks_have_the_same_products(dag, session):
-    paths = session.config["paths"]
-    nodes_created_by_multiple_tasks = {}
+def _check_if_tasks_have_the_same_products(dag):
+    nodes_created_by_multiple_tasks = []
 
     for node in dag.nodes:
         is_node = "node" in dag.nodes[node]
         if is_node:
             parents = list(dag.predecessors(node))
             if len(parents) > 1:
-                # Reduce node names for better printing.
-                short_node = reduce_node_name(dag.nodes[node]["node"], paths)
-                short_parents = _reduce_names_of_multiple_nodes(parents, dag, paths)
-                nodes_created_by_multiple_tasks[short_node] = short_parents
+                nodes_created_by_multiple_tasks.append(node)
 
     if nodes_created_by_multiple_tasks:
-        text = _format_dictionary_to_tree(
-            nodes_created_by_multiple_tasks, "Products from multiple tasks:"
-        )
+        all_names = nodes_created_by_multiple_tasks + [
+            predecessor
+            for node in nodes_created_by_multiple_tasks
+            for predecessor in dag.predecessors(node)
+        ]
+        common_ancestor = find_common_ancestor_of_nodes(*all_names)
+        dictionary = {}
+        for node in nodes_created_by_multiple_tasks:
+            short_node_name = reduce_node_name(
+                dag.nodes[node]["node"], [common_ancestor]
+            )
+            short_predecessors = _reduce_names_of_multiple_nodes(
+                dag.predecessors(node), dag, [common_ancestor]
+            )
+            dictionary[short_node_name] = short_predecessors
+        text = _format_dictionary_to_tree(dictionary, "Products from multiple tasks:")
         raise ResolvingDependenciesError(
             "There are some tasks which produce the same output. See the following "
             "tree which shows which products are produced by multiple tasks."
