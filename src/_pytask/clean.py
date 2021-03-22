@@ -9,8 +9,11 @@ import click
 from _pytask.config import hookimpl
 from _pytask.config import IGNORED_TEMPORARY_FILES_AND_FOLDERS
 from _pytask.console import console
+from _pytask.enums import ColorCode
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
+from _pytask.path import find_common_ancestor
+from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
@@ -93,6 +96,9 @@ def clean(**config_from_cli):
             unknown_paths = _find_all_unknown_paths(
                 session, known_paths, include_directories
             )
+            common_ancestor = find_common_ancestor(
+                *unknown_paths, *session.config["paths"]
+            )
 
             if unknown_paths:
                 targets = "Files"
@@ -100,17 +106,18 @@ def clean(**config_from_cli):
                     targets += " and directories"
                 console.print(f"\n{targets} which can be removed:\n")
                 for path in unknown_paths:
+                    short_path = relative_to(path, common_ancestor)
                     if session.config["mode"] == "dry-run":
-                        console.print(f"Would remove {path}")
+                        console.print(f"Would remove {short_path}")
                     else:
                         should_be_deleted = session.config[
                             "mode"
                         ] == "force" or click.confirm(
-                            f"Would you like to remove {path}?"
+                            f"Would you like to remove {short_path}?"
                         )
                         if should_be_deleted:
                             if not session.config["quiet"]:
-                                console.print(f"Remove {path}")
+                                console.print(f"Remove {short_path}")
                             if path.is_dir():
                                 shutil.rmtree(path)
                             else:
@@ -126,9 +133,11 @@ def clean(**config_from_cli):
 
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
+            console.rule(style=ColorCode.FAILED)
 
         except Exception:
             console.print(Traceback.from_exception(*sys.exc_info()))
+            console.rule(style=ColorCode.FAILED)
             session.exit_code = ExitCode.FAILED
 
     sys.exit(session.exit_code)
