@@ -62,7 +62,8 @@ def collect(**config_from_cli):
                 session.tasks, session.config["paths"]
             )
             dictionary = _organize_tasks(session.tasks, common_ancestor)
-            _print_collected_tasks(dictionary, session.config["nodes"])
+            if dictionary:
+                _print_collected_tasks(dictionary, session.config["nodes"])
 
             console.print()
             console.rule(style=None)
