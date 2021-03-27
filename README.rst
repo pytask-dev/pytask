@@ -196,7 +196,7 @@ If you rely on pytask for your research, please cite it with
 .. code-block::
 
     @Unpublished{Raabe2020,
-        Title  = {A Python tool for managing scientific research workflows.},
+        Title  = {A Python tool for managing research workflows.},
         Author = {Tobias Raabe},
         Year   = {2020},
         Url    = {https://github.com/pytask-dev/pytask}
