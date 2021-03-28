@@ -3,13 +3,40 @@ Changes
 
 This is a record of all past pytask releases and what went into them in reverse
 chronological order. Releases follow `semantic versioning <https://semver.org/>`_ and
-all releases are available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_.
+all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
+`Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
+
+0.0.14 - 2021-03-23
+-------------------
+
+- :gh:`74` reworks the formatting of the command line output by using ``rich``. Due to
+  the new dependency, support for pytask with Python <3.6.1 on PyPI and with Python <3.7
+  on Anaconda will end.
+- :gh:`76` fixes :gh:`75` which reports a bug when a closest ancestor cannot be found to
+  shorten node names in the CLI output. Instead a common ancestor is used.
 
 
-0.0.12 - 2020-xx-xx
+0.0.13 - 2021-03-09
+-------------------
+
+- :gh:`72` adds conda-forge to the README and highlights importance of specifying
+  dependencies and products.
+- :gh:`62` implements the ``pytask.mark.skipif`` marker to conditionally skip tasks.
+  Many thanks to :ghuser:`roecla` for implementing this feature and a warm welcome since
+  she is the first pytask contributor!
+
+
+0.0.12 - 2021-02-27
 -------------------
 
 - :gh:`55` implements miscellaneous fixes to improve error message, tests and coverage.
+- :gh:`59` adds a tutorial on using plugins and features plugins more prominently.
+- :gh:`60` adds the MIT license to the project and mentions pytest and its developers.
+- :gh:`61` adds many changes to the documentation.
+- :gh:`65` adds versioneer to pytask and :gh:`66` corrects the coverage reports which
+  were deflated due to the new files.
+- :gh:`67` prepares pytask to be published on PyPI and :gh:`68` fixes the pipeline, and
+  :gh:`69` prepares releasing v0.0.12 and adds new shields.
 
 
 0.0.11 - 2020-12-27

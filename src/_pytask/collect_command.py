@@ -1,14 +1,22 @@
 """This module contains the implementation of ``pytask collect``."""
 import sys
-import traceback
 
 import click
 from _pytask.config import hookimpl
+from _pytask.console import console
+from _pytask.console import FILE_ICON
+from _pytask.console import PYTHON_ICON
+from _pytask.console import TASK_ICON
+from _pytask.enums import ColorCode
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
+from _pytask.nodes import reduce_node_name
+from _pytask.path import find_common_ancestor
+from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
+from rich.tree import Tree
 
 
 @hookimpl(tryfirst=True)
@@ -43,29 +51,50 @@ def collect(**config_from_cli):
     except (ConfigurationError, Exception):
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
-        traceback.print_exception(*sys.exc_info())
+        console.print_exception()
 
     else:
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
 
-            dictionary = _organize_tasks(session.tasks)
-            _print_collected_tasks(dictionary, session.config["nodes"])
+            common_ancestor = _find_common_ancestor_of_all_nodes(
+                session.tasks, session.config["paths"]
+            )
+            dictionary = _organize_tasks(session.tasks, common_ancestor)
+            if dictionary:
+                _print_collected_tasks(dictionary, session.config["nodes"])
 
-            click.echo("\n" + "=" * config["terminal_width"])
+            console.print()
+            console.rule(style=None)
 
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
 
         except Exception:
             session.exit_code = ExitCode.FAILED
-            traceback.print_exception(*sys.exc_info())
+            console.print_exception()
+            console.rule(style=ColorCode.FAILED)
 
     sys.exit(session.exit_code)
 
 
-def _organize_tasks(tasks):
+def _find_common_ancestor_of_all_nodes(tasks, paths):
+    """Find common ancestor from all nodes and passed paths."""
+    all_paths = []
+    for task in tasks:
+        all_paths += [task.path] + [
+            node.path
+            for attr in ("depends_on", "produces")
+            for node in getattr(task, attr).values()
+        ]
+
+    common_ancestor = find_common_ancestor(*all_paths, *paths)
+
+    return common_ancestor
+
+
+def _organize_tasks(tasks, common_ancestor):
     """Organize tasks in a dictionary.
 
     The dictionary has file names as keys and then a dictionary with task names and
@@ -74,17 +103,24 @@ def _organize_tasks(tasks):
     """
     dictionary = {}
     for task in tasks:
-        task_name = task.name.split("::")[1]
-        dictionary[task.path] = dictionary.get(task.path, {})
+        reduced_task_path = relative_to(task.path, common_ancestor)
+        reduced_task_name = reduce_node_name(task, [common_ancestor])
+        dictionary[reduced_task_path] = dictionary.get(reduced_task_path, {})
 
         task_dict = {
-            task_name: {
-                "depends_on": [node.name for node in task.depends_on.values()],
-                "produces": [node.name for node in task.produces.values()],
+            reduced_task_name: {
+                "depends_on": [
+                    relative_to(node.path, common_ancestor)
+                    for node in task.depends_on.values()
+                ],
+                "produces": [
+                    relative_to(node.path, common_ancestor)
+                    for node in task.produces.values()
+                ],
             }
         }
 
-        dictionary[task.path].update(task_dict)
+        dictionary[reduced_task_path].update(task_dict)
 
     return dictionary
 
@@ -101,15 +137,19 @@ def _print_collected_tasks(dictionary, show_nodes):
         Indicator for whether dependencies and products should be displayed.
 
     """
-    click.echo("")
+    # Have a new line between the number of collected tasks and this info.
+    console.print()
 
+    tree = Tree("Collected tasks:", highlight=True)
     for path in dictionary:
-        click.echo(f"<Module {path}>")
+        module_branch = tree.add(PYTHON_ICON + f"<Module {path}>")
         for task in dictionary[path]:
-            click.echo(f"  <Function {task}>")
+            task_branch = module_branch.add(TASK_ICON + f"<Function {task}>")
             if show_nodes:
                 for dependency in dictionary[path][task]["depends_on"]:
-                    click.echo(f"    <Dependency {dependency}>")
+                    task_branch.add(FILE_ICON + f"<Dependency {dependency}>")
 
                 for product in dictionary[path][task]["produces"]:
-                    click.echo(f"    <Product {product}>")
+                    task_branch.add(FILE_ICON + f"<Product {product}>")
+
+    console.print(tree)

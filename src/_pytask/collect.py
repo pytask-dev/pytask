@@ -3,13 +3,12 @@ import importlib
 import inspect
 import sys
 import time
-import traceback
 from pathlib import Path
 from typing import Generator
 from typing import List
 
-import click
 from _pytask.config import hookimpl
+from _pytask.console import console
 from _pytask.enums import ColorCode
 from _pytask.exceptions import CollectionError
 from _pytask.mark import has_marker
@@ -17,6 +16,7 @@ from _pytask.nodes import FilePathNode
 from _pytask.nodes import PythonFunctionTask
 from _pytask.nodes import reduce_node_name
 from _pytask.report import CollectionReport
+from rich.traceback import Traceback
 
 
 @hookimpl
@@ -212,34 +212,35 @@ def _extract_successfully_collected_tasks_from_reports(reports):
 def pytask_collect_log(session, reports, tasks):
     """Log collection."""
     session.collection_end = time.time()
-    tm_width = session.config["terminal_width"]
 
     message = f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}."
 
     n_deselected = len(session.deselected)
     if n_deselected:
         message += f" Deselected {n_deselected} task{'' if n_deselected == 1 else 's'}."
-    click.echo(message)
+    console.print(message)
 
     failed_reports = [i for i in reports if not i.successful]
     if failed_reports:
-        click.echo("")
-        click.echo(f"{{:=^{tm_width}}}".format(" Failures during collection "))
+        console.print()
+        console.rule(
+            f"[{ColorCode.FAILED}]Failures during collection", style=ColorCode.FAILED
+        )
 
         for report in failed_reports:
             if report.node is None:
-                header = " Error "
+                header = "Error"
             else:
                 short_name = reduce_node_name(report.node, session.config["paths"])
-                header = f" Could not collect {short_name} "
+                header = f"Could not collect {short_name}"
 
-            click.echo(f"{{:_^{tm_width}}}".format(header))
+            console.rule(f"[{ColorCode.FAILED}]{header}", style=ColorCode.FAILED)
 
-            click.echo("")
+            console.print()
 
-            traceback.print_exception(*report.exc_info)
+            console.print(Traceback.from_exception(*report.exc_info))
 
-            click.echo("")
+            console.print()
 
         session.hook.pytask_log_session_footer(
             session=session,
@@ -250,7 +251,6 @@ def pytask_collect_log(session, reports, tasks):
             ],
             duration=round(session.collection_end - session.collection_start, 2),
             color=ColorCode.FAILED if len(failed_reports) else ColorCode.SUCCESS,
-            terminal_width=session.config["terminal_width"],
         )
 
         raise CollectionError

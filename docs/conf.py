@@ -8,6 +8,7 @@
 import os
 import sys
 
+import pytask
 import sphinx
 
 
@@ -21,7 +22,8 @@ copyright = "2020, Tobias Raabe"  # noqa: A001
 author = "Tobias Raabe"
 
 # The full version, including alpha/beta/rc tags
-release = "0.0.11"
+version = pytask.__version__
+release = version
 
 
 # -- General configuration -------------------------------------------------------------

@@ -6,17 +6,29 @@
 
 .. start-badges
 
-.. image:: https://anaconda.org/pytask/pytask/badges/version.svg
-    :target: https://anaconda.org/pytask/pytask
+.. image:: https://img.shields.io/pypi/v/pytask?color=blue
+    :alt: PyPI
+    :target: https://pypi.org/project/pytask
 
-.. image:: https://anaconda.org/pytask/pytask/badges/platforms.svg
-    :target: https://anaconda.org/pytask/pytask
+.. image:: https://img.shields.io/pypi/pyversions/pytask
+    :alt: PyPI - Python Version
+    :target: https://pypi.org/project/pytask
+
+.. image:: https://img.shields.io/conda/vn/conda-forge/pytask.svg
+    :target: https://anaconda.org/conda-forge/pytask
+
+.. image:: https://img.shields.io/conda/pn/conda-forge/pytask.svg
+    :target: https://anaconda.org/conda-forge/pytask
+
+.. image:: https://img.shields.io/pypi/l/pytask
+    :alt: PyPI - License
+    :target: https://pypi.org/project/pytask
 
 .. image:: https://readthedocs.org/projects/pytask-dev/badge/?version=latest
     :target: https://pytask-dev.readthedocs.io/en/latest
 
-.. image:: https://github.com/pytask-dev/pytask/workflows/Continuous%20Integration%20Workflow/badge.svg?branch=main
-    :target: https://github.com/pytask-dev/pytask/actions?query=branch%3Amain
+.. image:: https://img.shields.io/github/workflow/status/pytask-dev/pytask/Continuous%20Integration%20Workflow/main
+   :target: https://github.com/pytask-dev/pytask/actions?query=branch%3Amain
 
 .. image:: https://codecov.io/gh/pytask-dev/pytask/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/pytask-dev/pytask
@@ -32,8 +44,7 @@
 .. end-badges
 
 
-Features
---------
+.. start-features
 
 In its highest aspirations, pytask tries to be pytest as a build system. It's main
 purpose is to facilitate reproducible research by automating workflows in research
@@ -44,22 +55,26 @@ projects. Its features include:
 - **Lazy evaluation.** If a task, its dependencies, and its products have not changed,
   do not execute it.
 
-- **Debug mode.** Jump into the debugger if a task fails and get quick feedback.
+- **Debug mode.** `Jump into the debugger
+  <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_debug.html>`_ if a task
+  fails, get feedback quickly, and be more productive.
 
-- **Select tasks via expressions.** Run only a subset of tasks with expressions and
-  marker expressions known from pytest.
+- **Select tasks via expressions.** Run only a subset of tasks with `expressions and
+  marker expressions
+  <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_select_tasks.html>`_
+  known from pytest.
 
 - **Easily extensible with plugins**. pytask's architecture is based on `pluggy
-  <https://pluggy.readthedocs.io/en/latest/>`_, a plugin management and hook calling
-  framework which enables you to adjust pytask to your needs.
+  <https://pluggy.readthedocs.io/en/latest/>`_, a plugin management framework, so that
+  you can adjust pytask to your needs. Plugins are, for example, available for
+  `parallelization <https://github.com/pytask-dev/pytask-parallel>`_, `LaTeX
+  <https://github.com/pytask-dev/pytask-latex>`_, `R
+  <https://github.com/pytask-dev/pytask-r>`_, and `Stata
+  <https://github.com/pytask-dev/pytask-stata>`_. Read `here
+  <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_use_plugins.html>`_ how
+  you can use plugins.
 
-
-Why do I need a build system?
------------------------------
-
-Read the `section in the documentation <https://pytask-dev.readthedocs.io/en/latest/
-explanations/why_do_i_need_a_build_system.html>`_ if you do not know or are not
-convinced that you need a build system.
+.. end-features
 
 
 Installation
@@ -67,13 +82,21 @@ Installation
 
 .. start-installation
 
-pytask is available on `Anaconda.org <https://anaconda.org/pytask/pytask>`_. Install the
-package with
+pytask is available on `PyPI <https://pypi.org/project/pytask>`_ for Python >= 3.6.1 and
+on `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_ for Python >= 3.7. Install
+the package with
 
 .. code-block:: console
 
-    $ conda config --add channels conda-forge --add channels pytask
-    $ conda install pytask
+    $ pip install pytask
+
+    # or
+
+    $ conda install -c conda-forge pytask
+
+Color support is automatically available on non-Windows platforms. On Windows, please,
+use `Windows Terminal <https://github.com/microsoft/terminal>`_ which can be, for
+example, installed via the `Microsoft Store <https://aka.ms/terminal>`_.
 
 .. end-installation
 
@@ -148,3 +171,18 @@ Changes
 
 Consult the `release notes <https://pytask-dev.readthedocs.io/en/latest/changes.html>`_
 to find out about what is new.
+
+
+License
+-------
+
+pytask is distributed under the terms of the `MIT license <LICENSE>`_.
+
+
+Acknowledgment
+--------------
+
+The license also includes a copyright and permission notice from pytest since some
+modules, classes, and functions are copied from pytest. Not to mention how pytest has
+inspired the development of pytask in general. Without the amazing work of Holger Krekel
+and pytest's many contributors, this project would not have been possible. Thank you!

@@ -44,7 +44,7 @@ def test_pytask_generate_tasks_0(session):
 
 
 @pytest.mark.integration
-@pytest.mark.xfail(reason="Cartesian task product is disabled.")
+@pytest.mark.xfail(strict=True, reason="Cartesian task product is disabled.")
 def test_pytask_generate_tasks_1(session):
     @pytask.mark.parametrize("j", range(2))
     @pytask.mark.parametrize("i", range(2))
@@ -62,7 +62,7 @@ def test_pytask_generate_tasks_1(session):
 
 
 @pytest.mark.integration
-@pytest.mark.xfail(reason="Cartesian task product is disabled.")
+@pytest.mark.xfail(strict=True, reason="Cartesian task product is disabled.")
 def test_pytask_generate_tasks_2(session):
     @pytask.mark.parametrize("j, k", itertools.product(range(2), range(2)))
     @pytask.mark.parametrize("i", range(2))
@@ -264,7 +264,7 @@ def test_parametrize_w_ids(tmp_path, arg_values, ids):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.xfail(reason="Cartesian task product is disabled.")
+@pytest.mark.xfail(strict=True, reason="Cartesian task product is disabled.")
 def test_two_parametrize_w_ids(tmp_path):
     tmp_path.joinpath("task_dummy.py").write_text(
         textwrap.dedent(
@@ -358,7 +358,7 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
             [1, 2, 3],
             [
                 "ValueError",
-                "'arg_names' ('i', 'j') with 2 elements",
+                "'arg_names' ('i', 'j') with 2",
                 "'arg_values' is 1.",
             ],
         ),
@@ -367,7 +367,7 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
             [(1, 2, 3)],
             [
                 "ValueError",
-                "'arg_names' ('i', 'j') with 2 elements",
+                "'arg_names' ('i', 'j') with 2",
                 "'arg_values' is 3.",
             ],
         ),
@@ -376,7 +376,7 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
             [(1, 2), (1, 2, 3)],
             [
                 "ValueError",
-                "'arg_names' ('i', 'j') with 2 elements",
+                "'arg_names' ('i', 'j') with 2",
                 "'arg_values' is in (2, 3).",
             ],
         ),

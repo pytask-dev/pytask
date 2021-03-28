@@ -56,7 +56,7 @@ def test_skip_unchanged_w_dependencies_and_products(tmp_path):
 
 
 @pytest.mark.end_to_end
-def test_skip_if_ancestor_failed(tmp_path):
+def test_skipif_ancestor_failed(tmp_path):
     source = """
     import pytask
 
@@ -100,6 +100,101 @@ def test_if_skip_decorator_is_applied(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
     assert session.execution_reports[1].success
     assert isinstance(session.execution_reports[1].exc_info[1], Skipped)
+
+
+@pytest.mark.end_to_end
+def test_if_skipif_decorator_is_applied_skipping(tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.skipif(condition=True, reason="bla")
+    @pytask.mark.produces("out.txt")
+    def task_first():
+        assert False
+
+    @pytask.mark.depends_on("out.txt")
+    def task_second():
+        assert False
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+    node = session.collection_reports[0].node
+    assert len(node.markers) == 1
+    assert node.markers[0].name == "skipif"
+    assert node.markers[0].args == ()
+    assert node.markers[0].kwargs == {"condition": True, "reason": "bla"}
+
+    assert session.execution_reports[0].success
+    assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
+    assert session.execution_reports[1].success
+    assert isinstance(session.execution_reports[1].exc_info[1], Skipped)
+    assert session.execution_reports[0].exc_info[1].args[0] == "bla"
+
+
+@pytest.mark.end_to_end
+def test_if_skipif_decorator_is_applied_execute(tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.skipif(False, reason="bla")
+    @pytask.mark.produces("out.txt")
+    def task_first(produces):
+        with open(produces, "w") as f:
+            f.write("hello world.")
+
+    @pytask.mark.depends_on("out.txt")
+    def task_second():
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+    node = session.collection_reports[0].node
+
+    assert len(node.markers) == 1
+    assert node.markers[0].name == "skipif"
+    assert node.markers[0].args == (False,)
+    assert node.markers[0].kwargs == {"reason": "bla"}
+    assert session.execution_reports[0].success
+    assert session.execution_reports[0].exc_info is None
+    assert session.execution_reports[1].success
+    assert session.execution_reports[1].exc_info is None
+
+
+@pytest.mark.end_to_end
+def test_if_skipif_decorator_is_applied_any_condition_matches(tmp_path):
+    """Any condition of skipif has to be True and only their message is shown."""
+    source = """
+    import pytask
+
+    @pytask.mark.skipif(condition=False, reason="I am fine")
+    @pytask.mark.skipif(condition=True, reason="No, I am not.")
+    @pytask.mark.produces("out.txt")
+    def task_first():
+        assert False
+
+    @pytask.mark.depends_on("out.txt")
+    def task_second():
+        assert False
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+    node = session.collection_reports[0].node
+    assert len(node.markers) == 2
+    assert node.markers[0].name == "skipif"
+    assert node.markers[0].args == ()
+    assert node.markers[0].kwargs == {"condition": True, "reason": "No, I am not."}
+    assert node.markers[1].name == "skipif"
+    assert node.markers[1].args == ()
+    assert node.markers[1].kwargs == {"condition": False, "reason": "I am fine"}
+
+    assert session.execution_reports[0].success
+    assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
+    assert session.execution_reports[1].success
+    assert isinstance(session.execution_reports[1].exc_info[1], Skipped)
+    assert session.execution_reports[0].exc_info[1].args[0] == "No, I am not."
 
 
 @pytest.mark.unit

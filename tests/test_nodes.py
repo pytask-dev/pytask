@@ -10,8 +10,6 @@ from _pytask.nodes import _convert_objects_to_list_of_tuples
 from _pytask.nodes import _convert_objects_to_node_dictionary
 from _pytask.nodes import _create_task_name
 from _pytask.nodes import _extract_nodes_from_function_markers
-from _pytask.nodes import _find_closest_ancestor
-from _pytask.nodes import _relative_to
 from _pytask.nodes import depends_on
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaNode
@@ -203,37 +201,6 @@ def test_create_task_name(path, name, expected):
     assert result == expected
 
 
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "path, source, include_source, expected",
-    [
-        (Path("src/hello.py"), Path("src"), True, Path("src/hello.py")),
-        (Path("src/hello.py"), Path("src"), False, Path("hello.py")),
-    ],
-)
-def test_relative_to(path, source, include_source, expected):
-    result = _relative_to(path, source, include_source)
-    assert result == expected
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "path, potential_ancestors, expected",
-    [
-        (Path("src/task.py"), [Path("src"), Path("bld")], Path("src")),
-        (Path("tasks/task.py"), [Path("src"), Path("bld")], None),
-        (Path("src/ts/task.py"), [Path("src"), Path("src/ts")], Path("src/ts")),
-        (Path("src/in.txt"), [Path("src/task_d.py")], Path("src")),
-        (Path("src/task.py"), [Path("src/task.py")], Path("src/task.py")),
-    ],
-)
-def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected):
-    # Ensures that files are detected by an existing suffix not if they also exist.
-    monkeypatch.setattr("_pytask.nodes.pathlib.Path.is_file", lambda x: bool(x.suffix))
-    result = _find_closest_ancestor(path, potential_ancestors)
-    assert result == expected
-
-
 @attr.s
 class DummyTask(MetaTask):
     path = attr.ib()
@@ -259,19 +226,21 @@ _ROOT = Path.cwd()
 @pytest.mark.parametrize(
     "node, paths, expectation, expected",
     [
-        (
+        pytest.param(
             FilePathNode.from_path(_ROOT.joinpath("src/module.py")),
             [_ROOT.joinpath("alternative_src")],
-            pytest.raises(ValueError, match="A node must be"),
-            None,
+            does_not_raise(),
+            "pytask/src/module.py",
+            id="Common path found for FilePathNode not in 'paths' and 'paths'",
         ),
-        (
+        pytest.param(
             FalseNode(_ROOT.joinpath("src/module.py")),
             [_ROOT.joinpath("src")],
             pytest.raises(ValueError, match="Unknown node"),
             None,
+            id="throw error on unknown node type.",
         ),
-        (
+        pytest.param(
             DummyTask(
                 _ROOT.joinpath("top/src/module.py"),
                 _ROOT.joinpath("top/src/module.py").as_posix() + "::task_func",
@@ -280,14 +249,16 @@ _ROOT = Path.cwd()
             [_ROOT.joinpath("top/src")],
             does_not_raise(),
             "src/module.py::task_func",
+            id="make task name relative to 'paths'.",
         ),
-        (
+        pytest.param(
             FilePathNode.from_path(_ROOT.joinpath("top/src/module.py")),
             [_ROOT.joinpath("top/src")],
             does_not_raise(),
             "src/module.py",
+            id="make filepathnode relative to 'paths'.",
         ),
-        (
+        pytest.param(
             PythonFunctionTask(
                 "task_d",
                 _ROOT.joinpath("top/src/module.py").as_posix() + "::task_d",
@@ -297,6 +268,7 @@ _ROOT = Path.cwd()
             [_ROOT.joinpath("top/src/module.py")],
             does_not_raise(),
             "module.py::task_d",
+            id="shorten task name when task module is passed to 'paths'.",
         ),
     ],
 )

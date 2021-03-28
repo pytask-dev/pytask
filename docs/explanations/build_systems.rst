@@ -1,5 +1,8 @@
+Build Systems
+=============
+
 Why another build system?
-=========================
+-------------------------
 
 There are a lot of build systems out there with existing communities who accumulated a
 lot of experience over time. So why bother creating another build system?
@@ -96,17 +99,3 @@ Pros
 Cons
 
 - Seems to have no plugin system.
-
-
-`cook <https://github.com/jachris/cook>`_
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Pros
-
-- Still simple, maybe useful for some quick inspirations.
-
-Cons
-
-- Development is paused.
-- Designed for compiling software.
-- No plugin system, but extensible interfaces.

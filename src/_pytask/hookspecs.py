@@ -358,5 +358,5 @@ def pytask_log_session_header(session):
 
 
 @hookspec
-def pytask_log_session_footer(session, infos, duration, color, terminal_width):
+def pytask_log_session_footer(session, infos, duration, color):
     """Log session information at the end of a run."""

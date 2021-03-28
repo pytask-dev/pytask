@@ -2,14 +2,15 @@
 import functools
 import pdb
 import sys
-import traceback
 
 import click
 from _pytask.config import hookimpl
+from _pytask.console import console
 from _pytask.nodes import PythonFunctionTask
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
+from rich.traceback import Traceback
 
 
 @hookimpl
@@ -177,29 +178,27 @@ class PytaskPDB:
                 ret = super().do_continue(arg)
                 if cls._recursive_debug == 0:
                     assert cls._config is not None
-                    tm_width = cls._config["terminal_width"]
-                    click.echo()
+                    console.print()
 
                     capman = self._pytask_capman
                     capturing = PytaskPDB._is_capturing(capman)
                     if capturing:
                         if capturing == "global":
-                            click.echo(
-                                f"{{:>^{tm_width}}}".format(
-                                    " PDB continue (IO-capturing resumed) "
-                                )
+                            console.rule(
+                                "PDB continue (IO-capturing resumed)",
+                                characters=">",
+                                style=None,
                             )
                         else:
-                            click.echo(
-                                f"{{:>^{tm_width}}}".format(
-                                    " PDB continue (IO-capturing resumed for "
-                                    f"{capturing}) "
-                                )
+                            console.rule(
+                                f"PDB continue (IO-capturing resumed for {capturing})",
+                                characters=">",
+                                style=None,
                             )
                         assert capman is not None
                         capman.resume()
                     else:
-                        click.echo(f"{{:>^{tm_width}}}".format(" PDB continue "))
+                        console.rule("PDB continue", characters=">", style=None)
                 assert cls._pluginmanager is not None
                 self._continued = True
                 return ret
@@ -261,31 +260,29 @@ class PytaskPDB:
             capman.suspend(in_=True)
 
         if cls._config:
-            click.echo()
+            console.print()
 
             if cls._recursive_debug == 0:
-                tm_width = cls._config["terminal_width"]
                 # Handle header similar to pdb.set_trace in py37+.
                 header = kwargs.pop("header", None)
                 if header is not None:
-                    click.echo(f"{{:>^{tm_width}}}".format(f" {header} "))
+                    console.rule(header, characters=">", style=None)
                 else:
                     capturing = cls._is_capturing(capman)
                     if capturing == "global":
-                        click.echo(
-                            f"{{:>^{tm_width}}}".format(
-                                f" PDB {method} (IO-capturing turned off) "
-                            )
+                        console.rule(
+                            f"PDB {method} (IO-capturing turned off)",
+                            characters=">",
+                            style=None,
                         )
                     elif capturing:
-                        click.echo(
-                            f"{{:>^{tm_width}}}".format(
-                                f" PDB {method} (IO-capturing turned off for "
-                                f"{capturing}) "
-                            )
+                        console.rule(
+                            f"PDB {method} (IO-capturing turned off for {capturing})",
+                            characters=">",
+                            style=None,
                         )
                     else:
-                        click.echo(f"{{:>^{tm_width}}}".format(f" PDB {method} "))
+                        console.rule(f"PDB {method}", characters=">", style=None)
 
         _pdb = cls._import_pdb_cls(capman)(**kwargs)
 
@@ -319,7 +316,6 @@ def wrap_function_for_post_mortem_debugging(session, task):
     @functools.wraps(task_function)
     def wrapper(*args, **kwargs):
         capman = session.config["pm"].get_plugin("capturemanager")
-        tm_width = session.config["terminal_width"]
         try:
             task_function(*args, **kwargs)
 
@@ -327,18 +323,22 @@ def wrap_function_for_post_mortem_debugging(session, task):
             capman.suspend(in_=True)
             out, err = capman.read()
 
+            if out or err:
+                console.print()
+
             if out:
-                click.echo(f"{{:-^{tm_width}}}".format(" Captured stdout "))
-                click.echo(out)
+                console.rule("Captured stdout", style=None)
+                console.print(out)
 
             if err:
-                click.echo(f"{{:-^{tm_width}}}".format(" Captured stderr "))
-                click.echo(err)
+                console.rule("Captured stderr", style=None)
+                console.print(err)
 
             exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
 
-            click.echo(f"{{:>^{tm_width}}}".format(" Traceback "))
-            traceback.print_exception(*exc_info)
+            console.print()
+            console.rule("Traceback", characters=">", style=None)
+            console.print(Traceback.from_exception(*exc_info))
 
             post_mortem(exc_info[2])
 
@@ -373,18 +373,20 @@ def wrap_function_for_tracing(session, task):
     @functools.wraps(task_function)
     def wrapper(*args, **kwargs):
         capman = session.config["pm"].get_plugin("capturemanager")
-        tm_width = session.config["terminal_width"]
 
         capman.suspend(in_=True)
         out, err = capman.read()
 
+        if out or err:
+            console.print()
+
         if out:
-            click.echo(f"{{:-^{tm_width}}}".format(" Captured stdout "))
-            click.echo(out)
+            console.rule("Captured stdout", style=None)
+            console.print(out)
 
         if err:
-            click.echo(f"{{:-^{tm_width}}}".format(" Captured stderr "))
-            click.echo(err)
+            console.rule("Captured stderr", style=None)
+            console.print(err)
 
         _pdb.runcall(task_function, *args, **kwargs)
 
