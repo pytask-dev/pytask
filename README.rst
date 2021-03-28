@@ -186,3 +186,18 @@ The license also includes a copyright and permission notice from pytest since so
 modules, classes, and functions are copied from pytest. Not to mention how pytest has
 inspired the development of pytask in general. Without the amazing work of Holger Krekel
 and pytest's many contributors, this project would not have been possible. Thank you!
+
+
+Citation
+--------
+
+If you rely on pytask to manage your research project, please cite it with
+
+.. code-block::
+
+    @Unpublished{Raabe2020,
+        Title  = {A Python tool for managing scientific workflows.},
+        Author = {Tobias Raabe},
+        Year   = {2020},
+        Url    = {https://github.com/pytask-dev/pytask}
+    }

@@ -1,0 +1,6 @@
+@Unpublished{Raabe2020,
+Title  = {A Python tool for managing scientific workflows.},
+Author = {Tobias Raabe},
+Year   = {2020},
+Url    = {https://github.com/pytask-dev/pytask}
+}
