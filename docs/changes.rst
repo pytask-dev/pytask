@@ -6,6 +6,13 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
+
+0.0.15 - 2021-xx-xx
+-------------------
+
+- :gh:`80` replaces some remaining formatting using ``pprint`` with ``rich``.
+
+
 0.0.14 - 2021-03-23
 -------------------
 

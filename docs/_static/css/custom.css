@@ -1,8 +1,3 @@
-/* Remove execution count for notebook cells. */
-div.prompt {
-    display: none;
-}
-
 img.card-img-top {
     height: 52px;
 }

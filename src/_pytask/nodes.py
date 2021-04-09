@@ -366,3 +366,11 @@ def reduce_node_name(node, paths: List[Path]):
         raise ValueError(f"Unknown node {node} with type '{type(node)}'.")
 
     return name
+
+
+def reduce_names_of_multiple_nodes(names, dag, paths):
+    """Reduce the names of multiple nodes in the DAG."""
+    return [
+        reduce_node_name(dag.nodes[n].get("node") or dag.nodes[n].get("task"), paths)
+        for n in names
+    ]
