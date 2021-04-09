@@ -9,12 +9,21 @@ from _pytask.dag import node_and_neighbors
 from _pytask.dag import task_and_descending_tasks
 from _pytask.dag import TopologicalSorter
 from _pytask.mark import Mark
+from _pytask.nodes import MetaTask
 
 
 @attr.s
-class _DummyTask:
+class _DummyTask(MetaTask):
     name = attr.ib(type=str, converter=str)
     markers = attr.ib(factory=list)
+    path = attr.ib(default=None)
+    base_name = ""
+
+    def execute(self):
+        pass
+
+    def state(self):
+        pass
 
 
 @pytest.fixture()
@@ -59,15 +68,32 @@ def test_node_and_neighbors(dag):
 @pytest.mark.parametrize(
     "tasks, expectation, expected",
     [
-        ([_DummyTask("1", [Mark("try_last", (), {})])], does_not_raise(), {"1": -1}),
-        ([_DummyTask("1", [Mark("try_first", (), {})])], does_not_raise(), {"1": 1}),
-        ([_DummyTask("1", [])], does_not_raise(), {"1": 0}),
-        (
-            [_DummyTask("1", [Mark("try_first", (), {}), Mark("try_last", (), {})])],
+        pytest.param(
+            [_DummyTask("1", [Mark("try_last", (), {})])],
+            does_not_raise(),
+            {"1": -1},
+            id="test try_last",
+        ),
+        pytest.param(
+            [_DummyTask("1", [Mark("try_first", (), {})])],
+            does_not_raise(),
+            {"1": 1},
+            id="test try_first",
+        ),
+        pytest.param(
+            [_DummyTask("1", [])], does_not_raise(), {"1": 0}, id="test no priority"
+        ),
+        pytest.param(
+            [
+                _DummyTask(
+                    "1", [Mark("try_first", (), {}), Mark("try_last", (), {})], ""
+                )
+            ],
             pytest.raises(ValueError, match="'try_first' and 'try_last' cannot be"),
             {"1": 1},
+            id="test mixed priorities",
         ),
-        (
+        pytest.param(
             [
                 _DummyTask("1", [Mark("try_first", (), {})]),
                 _DummyTask("2", []),
@@ -80,7 +106,7 @@ def test_node_and_neighbors(dag):
 )
 def test_extract_priorities_from_tasks(tasks, expectation, expected):
     with expectation:
-        result = _extract_priorities_from_tasks(tasks)
+        result = _extract_priorities_from_tasks(tasks, [])
         assert result == expected
 
 

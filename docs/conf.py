@@ -7,18 +7,22 @@
 # root, use os.path.abspath to make it absolute, like shown here.
 import os
 import sys
+from datetime import datetime
 
-import pytask
 import sphinx
 
 
 sys.path.insert(0, os.path.abspath("../src"))
 
 
+import pytask  # noqa: E402
+
+
 # -- Project information ---------------------------------------------------------------
 
 project = "pytask"
-copyright = "2020, Tobias Raabe"  # noqa: A001
+year = datetime.now().year
+copyright = f"2020-{year}, Tobias Raabe"  # noqa: A001
 author = "Tobias Raabe"
 
 # The full version, including alpha/beta/rc tags

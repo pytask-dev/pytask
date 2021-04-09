@@ -1,6 +1,6 @@
 """Implement some capabilities to deal with the DAG."""
 import itertools
-import pprint
+from pathlib import Path
 from typing import Dict
 from typing import Generator
 from typing import Iterable
@@ -8,8 +8,12 @@ from typing import List
 
 import attr
 import networkx as nx
+from _pytask.console import console
+from _pytask.console import TASK_ICON
 from _pytask.mark import get_specific_markers_from_task
 from _pytask.nodes import MetaTask
+from _pytask.nodes import reduce_node_name
+from rich.tree import Tree
 
 
 def descending_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, None]:
@@ -52,14 +56,17 @@ class TopologicalSorter:
     _nodes_out = attr.ib(factory=set)
 
     @classmethod
-    def from_dag(cls, dag: nx.DiGraph) -> "TopologicalSorter":
+    def from_dag(cls, dag: nx.DiGraph, paths: List[Path] = None) -> "TopologicalSorter":
+        if paths is None:
+            paths = []
+
         if not dag.is_directed():
             raise ValueError("Only directed graphs have a topological order.")
 
         tasks = [
             dag.nodes[node]["task"] for node in dag.nodes if "task" in dag.nodes[node]
         ]
-        priorities = _extract_priorities_from_tasks(tasks)
+        priorities = _extract_priorities_from_tasks(tasks, paths)
 
         task_names = {task.name for task in tasks}
         task_dict = {name: nx.ancestors(dag, name) & task_names for name in task_names}
@@ -118,7 +125,9 @@ class TopologicalSorter:
             self.done(new_task)
 
 
-def _extract_priorities_from_tasks(tasks: List[MetaTask]) -> Dict[str, int]:
+def _extract_priorities_from_tasks(
+    tasks: List[MetaTask], paths: List[Path]
+) -> Dict[str, int]:
     """Extract priorities from tasks.
 
     Priorities are set via the ``pytask.mark.try_first`` and ``pytask.mark.try_last``
@@ -138,10 +147,17 @@ def _extract_priorities_from_tasks(tasks: List[MetaTask]) -> Dict[str, int]:
     tasks_w_mixed_priorities = [
         name for name, p in priorities.items() if p["try_first"] and p["try_last"]
     ]
+
     if tasks_w_mixed_priorities:
+        name_to_task = {task.name: task for task in tasks}
+        reduced_names = [
+            reduce_node_name(name_to_task[name], paths)
+            for name in tasks_w_mixed_priorities
+        ]
+        text = format_list_of_tasks(reduced_names, "Tasks with mixed priorities:")
         raise ValueError(
             "'try_first' and 'try_last' cannot be applied on the same task. See the "
-            f"following tasks for errors:\n\n{pprint.pformat(tasks_w_mixed_priorities)}"
+            f"following tasks for errors:\n\n{text}"
         )
 
     # Recode to numeric values for sorting.
@@ -152,3 +168,15 @@ def _extract_priorities_from_tasks(tasks: List[MetaTask]) -> Dict[str, int]:
     }
 
     return numeric_priorities
+
+
+def format_list_of_tasks(names: List[str], title: str) -> str:
+    tree = Tree(title)
+    for name in names:
+        tree.add(TASK_ICON + name)
+
+    text = "".join(
+        [x.text for x in tree.__rich_console__(console, console.options)][:-1]
+    )
+
+    return text

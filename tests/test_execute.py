@@ -246,19 +246,13 @@ def test_scheduling_w_priorities(tmp_path):
     source = """
     import pytask
 
-
     @pytask.mark.try_first
-    def task_z():
-        pass
+    def task_z(): pass
 
-
-    def task_x():
-        pass
-
+    def task_x(): pass
 
     @pytask.mark.try_last
-    def task_y():
-        pass
+    def task_y(): pass
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
@@ -268,3 +262,19 @@ def test_scheduling_w_priorities(tmp_path):
     assert session.execution_reports[0].task.name.endswith("task_z")
     assert session.execution_reports[1].task.name.endswith("task_x")
     assert session.execution_reports[2].task.name.endswith("task_y")
+
+
+@pytest.mark.end_to_end
+def test_scheduling_w_mixed_priorities(tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.try_last
+    @pytask.mark.try_first
+    def task_mixed(): pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 4

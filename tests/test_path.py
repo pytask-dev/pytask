@@ -47,18 +47,14 @@ def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected)
         pytest.param(
             PurePosixPath("relative_1"),
             PurePosixPath("/home/relative_2"),
-            pytest.raises(
-                ValueError, match="Cannot find common ancestor for relative paths."
-            ),
+            pytest.raises(ValueError, match="Can't mix absolute and relative paths"),
             None,
             id="test path 1 is relative",
         ),
         pytest.param(
             PureWindowsPath("C:/home/relative_1"),
             PureWindowsPath("relative_2"),
-            pytest.raises(
-                ValueError, match="Cannot find common ancestor for relative paths."
-            ),
+            pytest.raises(ValueError, match="Can't mix absolute and relative paths"),
             None,
             id="test path 2 is relative",
         ),
@@ -66,7 +62,7 @@ def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected)
             PurePosixPath("/home/user/folder_a"),
             PurePosixPath("/home/user/folder_b/sub_folder"),
             does_not_raise(),
-            PurePosixPath("/home/user"),
+            Path("/home/user"),
             id="normal behavior with UNIX paths",
         ),
         pytest.param(
@@ -79,7 +75,7 @@ def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected)
         pytest.param(
             PureWindowsPath("C:\\home\\user\\folder_a"),
             PureWindowsPath("D:\\home\\user\\folder_b\\sub_folder"),
-            pytest.raises(ValueError, match="Paths have no common ancestor."),
+            pytest.raises(ValueError, match="Paths don't have the same drive"),
             None,
             id="no common ancestor",
         ),

@@ -18,6 +18,7 @@ from _pytask.enums import ColorCode
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
+from _pytask.nodes import reduce_names_of_multiple_nodes
 from _pytask.nodes import reduce_node_name
 from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import ResolvingDependenciesReport
@@ -180,7 +181,7 @@ def _check_if_root_nodes_are_available(dag):
             short_node_name = reduce_node_name(
                 dag.nodes[node]["node"], [common_ancestor]
             )
-            short_successors = _reduce_names_of_multiple_nodes(
+            short_successors = reduce_names_of_multiple_nodes(
                 dag.successors(node), dag, [common_ancestor]
             )
             dictionary[short_node_name] = short_successors
@@ -231,7 +232,7 @@ def _check_if_tasks_have_the_same_products(dag):
             short_node_name = reduce_node_name(
                 dag.nodes[node]["node"], [common_ancestor]
             )
-            short_predecessors = _reduce_names_of_multiple_nodes(
+            short_predecessors = reduce_names_of_multiple_nodes(
                 dag.predecessors(node), dag, [common_ancestor]
             )
             dictionary[short_node_name] = short_predecessors
@@ -257,11 +258,3 @@ def pytask_resolve_dependencies_log(report):
 
     console.print()
     console.rule(style=ColorCode.FAILED)
-
-
-def _reduce_names_of_multiple_nodes(names, dag, paths):
-    """Reduce the names of multiple nodes in the DAG."""
-    return [
-        reduce_node_name(dag.nodes[n].get("node") or dag.nodes[n].get("task"), paths)
-        for n in names
-    ]

@@ -24,6 +24,3 @@ dependencies:
   - pony >=0.7.13
   - pexpect
   - rich
-
-  - pip:
-    - -e ../
