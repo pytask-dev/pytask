@@ -8,12 +8,11 @@ from typing import List
 
 import attr
 import networkx as nx
-from _pytask.console import console
+from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import TASK_ICON
 from _pytask.mark import get_specific_markers_from_task
 from _pytask.nodes import MetaTask
 from _pytask.nodes import reduce_node_name
-from rich.tree import Tree
 
 
 def descending_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, None]:
@@ -154,7 +153,9 @@ def _extract_priorities_from_tasks(
             reduce_node_name(name_to_task[name], paths)
             for name in tasks_w_mixed_priorities
         ]
-        text = format_list_of_tasks(reduced_names, "Tasks with mixed priorities:")
+        text = format_strings_as_flat_tree(
+            reduced_names, "Tasks with mixed priorities", TASK_ICON
+        )
         raise ValueError(
             "'try_first' and 'try_last' cannot be applied on the same task. See the "
             f"following tasks for errors:\n\n{text}"
@@ -168,15 +169,3 @@ def _extract_priorities_from_tasks(
     }
 
     return numeric_priorities
-
-
-def format_list_of_tasks(names: List[str], title: str) -> str:
-    tree = Tree(title)
-    for name in names:
-        tree.add(TASK_ICON + name)
-
-    text = "".join(
-        [x.text for x in tree.__rich_console__(console, console.options)][:-1]
-    )
-
-    return text
