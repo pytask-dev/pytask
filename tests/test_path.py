@@ -1,3 +1,4 @@
+import sys
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 from pathlib import PurePosixPath
@@ -57,6 +58,7 @@ def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected)
             pytest.raises(ValueError, match="Can't mix absolute and relative paths"),
             None,
             id="test path 2 is relative",
+            marks=pytest.mark.skipif(sys.platform != "win32", reason="fails on UNIX."),
         ),
         pytest.param(
             PurePosixPath("/home/user/folder_a"),
@@ -71,6 +73,7 @@ def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected)
             does_not_raise(),
             PureWindowsPath("C:\\home\\user"),
             id="normal behavior with Windows paths",
+            marks=pytest.mark.skipif(sys.platform != "win32", reason="fails on UNIX."),
         ),
         pytest.param(
             PureWindowsPath("C:\\home\\user\\folder_a"),
@@ -78,6 +81,7 @@ def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected)
             pytest.raises(ValueError, match="Paths don't have the same drive"),
             None,
             id="no common ancestor",
+            marks=pytest.mark.skipif(sys.platform != "win32", reason="fails on UNIX."),
         ),
     ],
 )
