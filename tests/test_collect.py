@@ -173,5 +173,6 @@ def test_pytask_collect_node_does_not_raise_warning_if_path_is_not_normalized(tm
     Path(tmp_path, "exa.txt").touch()
 
     print(Path(tmp_path, "ExA.Txt").resolve())
+    print("exists:", Path(tmp_path, "ExA.Txt").exists())
 
     raise Exception
