@@ -1,6 +1,7 @@
 """Implement functionality to collect tasks."""
 import importlib
 import inspect
+import os
 import sys
 import time
 import warnings
@@ -9,6 +10,7 @@ from typing import Generator
 from typing import List
 
 from _pytask.config import hookimpl
+from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.enums import ColorCode
 from _pytask.exceptions import CollectionError
@@ -160,7 +162,7 @@ def pytask_collect_node(session, path, node):
     """Collect a node of a task as a :class:`pytask.nodes.FilePathNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
-    hook is attempted at last and possible errors will be shown, it is reasonable and
+    hook is executed at last and possible errors will be shown, it seems reasonable and
     unproblematic.
 
     ``trylast=True`` might be necessary if other plugins try to parse strings themselves
@@ -168,6 +170,8 @@ def pytask_collect_node(session, path, node):
 
     Parameters
     ----------
+    session : _pytask.session.Session
+        The session.
     path : Union[str, pathlib.Path]
         The path to file where the task and node are specified.
     node : Union[str, pathlib.Path]
@@ -179,11 +183,17 @@ def pytask_collect_node(session, path, node):
         node = Path(node)
     if isinstance(node, Path):
         if not node.is_absolute():
-            node = path.parent.joinpath(node)
+            # ``normpath`` removes ``../`` from the path which is necessary for the
+            # casing check which will fail since ``.resolves()`` also normalizes a path.
+            node = Path(os.path.normpath(path.parent.joinpath(node)))
 
-        if session.config["check_casing_of_paths"]:
+        if (
+            not IS_FILE_SYSTEM_CASE_SENSITIVE
+            and session.config["check_casing_of_paths"]
+        ):
             if str(node) != str(node.resolve()):
                 warnings.warn(_TEMPLATE_WARNING.format(node, node.resolve()))
+            node = node.resolve()
 
         return FilePathNode.from_path(node)
 

@@ -1,7 +1,12 @@
 import textwrap
+from contextlib import ExitStack as does_not_raise  # noqa: N813
+from pathlib import Path
 
 import pytest
+from _pytask.collect import pytask_collect_node
+from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.exceptions import NodeNotCollectedError
+from _pytask.session import Session
 from pytask import main
 
 
@@ -112,3 +117,52 @@ def test_collect_files_w_custom_file_name_pattern(
 
     assert session.exit_code == 0
     assert len(session.tasks) == expected_collected_tasks
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "session, path, node, expectation, expected",
+    [
+        pytest.param(
+            Session({"check_casing_of_paths": False}, None),
+            Path(),
+            Path.cwd() / "text.txt",
+            does_not_raise(),
+            Path.cwd() / "text.txt",
+            id="test with absolute string path",
+        ),
+    ],
+)
+def test_pytask_collect_node(session, path, node, expectation, expected):
+    with expectation:
+        result = pytask_collect_node(session, path, node)
+        assert str(result.path) == str(expected)
+
+
+@pytest.mark.unit
+@pytest.mark.skipif(
+    IS_FILE_SYSTEM_CASE_SENSITIVE, reason="Only works on case-insensitive file systems."
+)
+def test_pytask_collect_node_raises_warning_if_path_is_not_correctly_cased(tmp_path):
+    session = Session({"check_casing_of_paths": True}, None)
+    task_path = tmp_path / "task_example.py"
+    real_node = tmp_path / "text.txt"
+    real_node.touch()
+    collected_node = tmp_path / "TeXt.TxT"
+
+    with pytest.warns(UserWarning, match="The provided path of"):
+        result = pytask_collect_node(session, task_path, collected_node)
+        assert str(result.path) == str(real_node)
+
+
+@pytest.mark.unit
+def test_pytask_collect_node_does_not_raise_warning_if_path_is_not_normalized(tmp_path):
+    session = Session({"check_casing_of_paths": True}, None)
+    task_path = tmp_path / "task_example.py"
+    real_node = tmp_path / "text.txt"
+    collected_node = f"../{tmp_path.name}/text.txt"
+
+    with pytest.warns(None) as record:
+        result = pytask_collect_node(session, task_path, collected_node)
+        assert str(result.path) == str(real_node)
+        assert not record

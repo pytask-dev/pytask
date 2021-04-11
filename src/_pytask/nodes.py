@@ -186,8 +186,33 @@ class FilePathNode(MetaNode):
             return str(self.path.stat().st_mtime)
 
 
-def _collect_nodes(session, path, name, nodes):
-    """Collect nodes for a task."""
+def _collect_nodes(
+    session, path: Path, name: str, nodes: Dict[str, Union[str, Path]]
+) -> Dict[str, Path]:
+    """Collect nodes for a task.
+
+    Parameters
+    ----------
+    session : _pytask.session.Session
+        The session.
+    path : Path
+        The path to the task whose nodes are collected.
+    name : str
+        The name of the task.
+    nodes : Dict[str, Union[str, Path]]
+        A dictionary of nodes parsed from the ``depends_on`` or ``produces`` markers.
+
+    Returns
+    -------
+    Dict[str, Path]
+        A dictionary of node names and their paths.
+
+    Raises
+    ------
+    NodeNotCollectedError
+        If the node could not collected.
+
+    """
     collected_nodes = {}
 
     for node_name, node in nodes.items():

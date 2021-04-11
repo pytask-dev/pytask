@@ -2,6 +2,7 @@
 import configparser
 import itertools
 import os
+import tempfile
 import warnings
 from pathlib import Path
 from typing import List
@@ -16,12 +17,14 @@ from _pytask.shared import to_list
 
 hookimpl = pluggy.HookimplMarker("pytask")
 
+
 _IGNORED_FOLDERS = [
     ".git/*",
     ".hg/*",
     ".svn/*",
     ".venv/*",
 ]
+
 
 _IGNORED_FILES = [
     ".codecov.yml",
@@ -37,7 +40,9 @@ _IGNORED_FILES = [
     "tox.ini",
 ]
 
+
 _IGNORED_FILES_AND_FOLDERS = _IGNORED_FILES + _IGNORED_FOLDERS
+
 
 IGNORED_TEMPORARY_FILES_AND_FOLDERS = [
     "*.egg-info/*",
@@ -51,6 +56,15 @@ IGNORED_TEMPORARY_FILES_AND_FOLDERS = [
     "dist/*",
     "pytest_cache/*",
 ]
+
+
+def is_file_system_case_sensitive() -> bool:
+    """Check whether the file system is case-sensitive."""
+    with tempfile.NamedTemporaryFile(prefix="TmP") as tmp_file:
+        return not os.path.exists(tmp_file.name.lower())
+
+
+IS_FILE_SYSTEM_CASE_SENSITIVE = is_file_system_case_sensitive()
 
 
 @hookimpl
