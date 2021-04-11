@@ -174,7 +174,8 @@ class FilePathNode(MetaNode):
         The `lru_cache` decorator ensures that the same object is not collected twice.
 
         """
-        path = path.resolve()
+        if not path.is_absolute():
+            raise ValueError("FilePathNode must be instantiated from absolute path.")
         return cls(path.as_posix(), path, path)
 
     def state(self):

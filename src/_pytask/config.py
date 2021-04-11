@@ -167,6 +167,14 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
             callback=lambda x: x if x is None else int(x),
         )
 
+    config["check_casing_of_paths"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="check_casing_of_paths",
+        default=True,
+        callback=convert_truthy_or_falsy_to_bool,
+    )
+
 
 @hookimpl
 def pytask_post_parse(config):

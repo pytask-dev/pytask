@@ -3,6 +3,7 @@ import importlib
 import inspect
 import sys
 import time
+import warnings
 from pathlib import Path
 from typing import Generator
 from typing import List
@@ -146,8 +147,16 @@ def pytask_collect_task(session, path, name, obj):
         )
 
 
+_TEMPLATE_WARNING = (
+    "The provided path of the node is {}, although, the path of the file on disk is "
+    "{}. Case-sensitive file systems would raise an error. Either align the names to "
+    "be able to build your project even on case-sensitive file systems (like Linux) or "
+    "disable this warning with 'check_casing_of_paths = false'."
+)
+
+
 @hookimpl(trylast=True)
-def pytask_collect_node(path, node):
+def pytask_collect_node(session, path, node):
     """Collect a node of a task as a :class:`pytask.nodes.FilePathNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
@@ -171,6 +180,11 @@ def pytask_collect_node(path, node):
     if isinstance(node, Path):
         if not node.is_absolute():
             node = path.parent.joinpath(node)
+
+        if session.config["check_casing_of_paths"]:
+            if str(node) != str(node.resolve()):
+                warnings.warn(_TEMPLATE_WARNING.format(node, node.resolve()))
+
         return FilePathNode.from_path(node)
 
 
