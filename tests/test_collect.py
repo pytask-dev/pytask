@@ -166,3 +166,12 @@ def test_pytask_collect_node_does_not_raise_warning_if_path_is_not_normalized(tm
         result = pytask_collect_node(session, task_path, collected_node)
         assert str(result.path) == str(real_node)
         assert not record
+
+    print("is case-sesn", IS_FILE_SYSTEM_CASE_SENSITIVE)
+    print(Path(tmp_path, "ExA.Txt").resolve())
+
+    Path(tmp_path, "exa.txt").touch()
+
+    print(Path(tmp_path, "ExA.Txt").resolve())
+
+    raise Exception
