@@ -102,7 +102,7 @@ class Scanner:
                 else:
                     raise ParseError(
                         pos + 1,
-                        'unexpected character "{}"'.format(input_[pos]),
+                        f'unexpected character "{input_[pos]}"',
                     )
         yield Token(TokenType.EOF, "", pos)
 
