@@ -1,4 +1,3 @@
-import os
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
@@ -153,7 +152,8 @@ def test_pytask_collect_node_raises_warning_if_path_is_not_correctly_cased(tmp_p
 
     with pytest.warns(UserWarning, match="The provided path of"):
         result = pytask_collect_node(session, task_path, collected_node)
-        assert str(result.path) == str(real_node)
+
+    assert str(result.path) == str(real_node)
 
 
 @pytest.mark.unit
@@ -165,17 +165,6 @@ def test_pytask_collect_node_does_not_raise_warning_if_path_is_not_normalized(tm
 
     with pytest.warns(None) as record:
         result = pytask_collect_node(session, task_path, collected_node)
-        assert str(result.path) == str(real_node)
-        assert not record
 
-    print("is case-sesn", IS_FILE_SYSTEM_CASE_SENSITIVE)
-    print(Path(tmp_path, "ExA.Txt").resolve())
-
-    Path(tmp_path, "exa.txt").touch()
-
-    print(Path(tmp_path, "ExA.Txt").resolve())
-    print("exists:", Path(tmp_path, "ExA.Txt").exists())
-
-    print(os.listdir(tmp_path))
-
-    raise Exception
+    assert str(result.path) == str(real_node)
+    assert not record

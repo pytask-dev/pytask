@@ -1,7 +1,9 @@
 """Implement functionality to collect tasks."""
+import glob
 import importlib
 import inspect
 import os
+import re
 import sys
 import time
 import warnings
@@ -190,12 +192,24 @@ def pytask_collect_node(session, path, node):
         if (
             not IS_FILE_SYSTEM_CASE_SENSITIVE
             and session.config["check_casing_of_paths"]
+            and node.exists()
         ):
-            if str(node) != str(node.resolve()):
-                warnings.warn(_TEMPLATE_WARNING.format(node, node.resolve()))
-            node = node.resolve()
+            case_sensitive_path = _find_case_sensitive_path(node, sys.platform)
+            if str(node) != str(case_sensitive_path):
+                warnings.warn(_TEMPLATE_WARNING.format(node, case_sensitive_path))
+                node = case_sensitive_path
 
         return FilePathNode.from_path(node)
+
+
+def _find_case_sensitive_path(path, platform):
+    if platform == "win32":
+        out = path.resolve()
+    else:
+        r = glob.glob(re.sub(r"([^:/\\])(?=[/\\]|$)", r"[\1]", path))
+        out = Path(r and r[0] or path)
+
+    return out
 
 
 def _not_ignored_paths(paths: List[Path], session) -> Generator[Path, None, None]:
