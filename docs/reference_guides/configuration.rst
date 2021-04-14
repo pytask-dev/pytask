@@ -45,6 +45,11 @@ The options
 
         check_casing_of_paths = false
 
+    .. note::
+
+        An error is only raised on Windows when a case-insensitive path is used.
+        Contributions are welcome to also support macOS.
+
 
 .. confval:: ignore
 
