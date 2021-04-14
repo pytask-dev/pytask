@@ -6,6 +6,7 @@ from typing import Tuple
 
 import networkx as nx
 from _pytask.config import hookimpl
+from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import ARROW_DOWN_ICON
 from _pytask.console import console
 from _pytask.console import FILE_ICON
@@ -156,6 +157,14 @@ def _format_cycles(cycles: List[Tuple[str]]) -> str:
     return text
 
 
+_TEMPLATE_ERROR = (
+    "Some dependencies do not exist or are not produced by any task. See the following "
+    "tree which shows which dependencies are missing for which tasks.\n\n{}"
+)
+if IS_FILE_SYSTEM_CASE_SENSITIVE:
+    _TEMPLATE_ERROR += "\n\n(Hint: Sometimes case sensitivity is at fault.)"
+
+
 def _check_if_root_nodes_are_available(dag):
     missing_root_nodes = []
 
@@ -187,11 +196,7 @@ def _check_if_root_nodes_are_available(dag):
             dictionary[short_node_name] = short_successors
 
         text = _format_dictionary_to_tree(dictionary, "Missing dependencies:")
-        raise ResolvingDependenciesError(
-            "Some dependencies do not exist or are not produced by any task. See the "
-            "following tree which shows which dependencies are missing for which tasks."
-            f"\n\n{text}"
-        )
+        raise ResolvingDependenciesError(_TEMPLATE_ERROR.format(text))
 
 
 def _format_dictionary_to_tree(dict_: Dict[str, List[str]], title: str) -> str:
