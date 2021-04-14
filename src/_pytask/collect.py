@@ -153,7 +153,7 @@ _TEMPLATE_ERROR = (
     "The provided path of the dependency/product in the marker is {}, but the path of "
     "the file on disk is {}. Case-sensitive file systems would raise an error.\n\n"
     "Please, align the names to ensure reproducibility on case-sensitive file systems "
-    "(often Linux) or disable this error with 'check_casing_of_paths = false'."
+    "(often Linux or macOS) or disable this error with 'check_casing_of_paths = false'."
 )
 
 
