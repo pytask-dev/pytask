@@ -1,12 +1,9 @@
 """Implement functionality to collect tasks."""
-import glob
 import importlib
 import inspect
 import os
-import re
 import sys
 import time
-import warnings
 from pathlib import Path
 from typing import Generator
 from typing import List
@@ -17,9 +14,11 @@ from _pytask.console import console
 from _pytask.enums import ColorCode
 from _pytask.exceptions import CollectionError
 from _pytask.mark import has_marker
+from _pytask.nodes import create_task_name
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import PythonFunctionTask
 from _pytask.nodes import reduce_node_name
+from _pytask.path import find_case_sensitive_path
 from _pytask.report import CollectionReport
 from rich.traceback import Traceback
 
@@ -131,9 +130,8 @@ def pytask_collect_task_protocol(session, path, name, obj):
             return CollectionReport.from_node(task)
 
     except Exception:
-        return CollectionReport.from_exception(
-            exc_info=sys.exc_info(), node=locals().get("task")
-        )
+        task = PythonFunctionTask(name, create_task_name(path, name), path, None)
+        return CollectionReport.from_exception(exc_info=sys.exc_info(), node=task)
 
 
 @hookimpl(trylast=True)
@@ -151,11 +149,11 @@ def pytask_collect_task(session, path, name, obj):
         )
 
 
-_TEMPLATE_WARNING = (
-    "The provided path of the node is {}, although, the path of the file on disk is "
-    "{}. Case-sensitive file systems would raise an error. Either align the names to "
-    "be able to build your project even on case-sensitive file systems (like Linux) or "
-    "disable this warning with 'check_casing_of_paths = false'."
+_TEMPLATE_ERROR = (
+    "The provided path of the dependency/product in the marker is {}, but the path of "
+    "the file on disk is {}. Case-sensitive file systems would raise an error.\n\n"
+    "Please, align the names to ensure reproducibility on case-sensitive file systems "
+    "(often Linux) or disable this error with 'check_casing_of_paths = false'."
 )
 
 
@@ -192,24 +190,12 @@ def pytask_collect_node(session, path, node):
         if (
             not IS_FILE_SYSTEM_CASE_SENSITIVE
             and session.config["check_casing_of_paths"]
-            and node.exists()
         ):
-            case_sensitive_path = _find_case_sensitive_path(node, sys.platform)
+            case_sensitive_path = find_case_sensitive_path(node, sys.platform)
             if str(node) != str(case_sensitive_path):
-                warnings.warn(_TEMPLATE_WARNING.format(node, case_sensitive_path))
-                node = case_sensitive_path
+                raise Exception(_TEMPLATE_ERROR.format(node, case_sensitive_path))
 
         return FilePathNode.from_path(node)
-
-
-def _find_case_sensitive_path(path, platform):
-    if platform == "win32":
-        out = path.resolve()
-    else:
-        r = glob.glob(re.sub(r"([^:/\\])(?=[/\\]|$)", r"[\1]", path))
-        out = Path(r and r[0] or path)
-
-    return out
 
 
 def _not_ignored_paths(paths: List[Path], session) -> Generator[Path, None, None]:

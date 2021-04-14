@@ -1,5 +1,8 @@
 """This module contains code to handle paths."""
+import functools
+import glob
 import os
+import re
 from pathlib import Path
 from typing import List
 from typing import Union
@@ -86,3 +89,49 @@ def find_common_ancestor(*paths: Union[str, Path]) -> Path:
     path = os.path.commonpath(paths)
     path = Path(path)
     return path
+
+
+@functools.lru_cache()
+def find_case_sensitive_path(path: Path, platform: str) -> Path:
+    """Find the case-sensitive path.
+
+    On case-insensitive file systems (mostly Windows and Mac), a path like ``text.txt``
+    and ``TeXt.TxT`` would point to the same file but not on case-sensitive file
+    systems.
+
+    On Windows, we can use :meth:`pathlib.Path.resolve` to find the real path.
+
+    This does not work on POSIX systems since Python implements them as if they are
+    always case-sensitive. Some observations:
+
+    - On case-sensitive POSIX systems, :meth:`pathlib.Path.exists` fails with a
+      case-insensitive path.
+    - On case-insensitive POSIX systems, :meth:`pathlib.Path.exists` succeeds with a
+      case-insensitive path.
+    - On case-insensitive POSIX systems, :meth:`pathlib.Path.resolve` does not return
+      a case-sensitive path which it does on Windows.
+
+    """
+    if path.exists():
+        if platform == "win32":
+            out = path.resolve()
+        else:
+            out = _find_case_sensitive_path_on_posix(path)
+    else:
+        out = path
+    return out
+
+
+def _find_case_sensitive_path_on_posix(path: Path) -> Path:
+    """Find case-sensitive path on POSIX.
+
+    The :func:`glob.glob` correct the casing of the path even for all parent folders.
+
+    Compared to calling :meth:`pathlib.Path.resolve`, this function takes ~10 times
+    longer.
+
+    """
+    r = glob.glob(re.sub(r"([^:/\\])(?=[/\\]|$)", r"[\1]", str(path)))
+    out = r and r[0] or path
+    out = Path(out)
+    return out

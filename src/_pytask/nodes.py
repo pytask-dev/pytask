@@ -113,7 +113,7 @@ class PythonFunctionTask(MetaTask):
 
         return cls(
             base_name=name,
-            name=_create_task_name(path, name),
+            name=create_task_name(path, name),
             path=path,
             function=function,
             depends_on=dependencies,
@@ -353,13 +353,13 @@ def _convert_nodes_to_dictionary(
     return nodes
 
 
-def _create_task_name(path: Path, base_name: str):
+def create_task_name(path: Path, base_name: str):
     """Create the name of a task from a path and the task's base name.
 
     Examples
     --------
     >>> from pathlib import Path
-    >>> _create_task_name(Path("module.py"), "task_dummy")
+    >>> create_task_name(Path("module.py"), "task_dummy")
     'module.py::task_dummy'
 
     """
@@ -385,7 +385,7 @@ def reduce_node_name(node, paths: List[Path]):
 
     if isinstance(node, MetaTask):
         shortened_path = relative_to(node.path, ancestor)
-        name = _create_task_name(shortened_path, node.base_name)
+        name = create_task_name(shortened_path, node.base_name)
     elif isinstance(node, MetaNode):
         name = relative_to(node.path, ancestor).as_posix()
     else:
