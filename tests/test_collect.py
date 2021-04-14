@@ -1,10 +1,10 @@
+import sys
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
 import pytest
 from _pytask.collect import pytask_collect_node
-from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.session import Session
 from pytask import main
@@ -141,7 +141,7 @@ def test_pytask_collect_node(session, path, node, expectation, expected):
 
 @pytest.mark.unit
 @pytest.mark.skipif(
-    IS_FILE_SYSTEM_CASE_SENSITIVE, reason="Only works on case-insensitive file systems."
+    sys.platform != "win32", reason="Only works on case-insensitive file systems."
 )
 def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_path):
     session = Session({"check_casing_of_paths": True}, None)
