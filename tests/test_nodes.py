@@ -8,8 +8,8 @@ from _pytask.nodes import _check_that_names_are_not_used_multiple_times
 from _pytask.nodes import _convert_nodes_to_dictionary
 from _pytask.nodes import _convert_objects_to_list_of_tuples
 from _pytask.nodes import _convert_objects_to_node_dictionary
-from _pytask.nodes import _create_task_name
 from _pytask.nodes import _extract_nodes_from_function_markers
+from _pytask.nodes import create_task_name
 from _pytask.nodes import depends_on
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaNode
@@ -197,7 +197,7 @@ def test_convert_nodes_to_dictionary(x, expected):
     ],
 )
 def test_create_task_name(path, name, expected):
-    result = _create_task_name(path, name)
+    result = create_task_name(path, name)
     assert result == expected
 
 

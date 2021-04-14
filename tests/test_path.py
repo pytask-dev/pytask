@@ -5,6 +5,7 @@ from pathlib import PurePosixPath
 from pathlib import PureWindowsPath
 
 import pytest
+from _pytask.path import find_case_sensitive_path
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
@@ -89,3 +90,26 @@ def test_find_common_ancestor(path_1, path_2, expectation, expected):
     with expectation:
         result = find_common_ancestor(path_1, path_2)
         assert result == expected
+
+
+@pytest.mark.unit
+@pytest.mark.skipif(sys.platform != "win32", reason="Only works on Windows.")
+@pytest.mark.parametrize(
+    "path, existing_paths, expected",
+    [
+        pytest.param("text.txt", [], "text.txt", id="non-existing path stays the same"),
+        pytest.param("text.txt", ["text.txt"], "text.txt", id="existing path is same"),
+        pytest.param("Text.txt", ["text.txt"], "text.txt", id="correct path"),
+        pytest.param(
+            "d/text.txt", ["D/text.txt"], "D/text.txt", id="correct path in folder"
+        ),
+    ],
+)
+def test_find_case_sensitive_path(tmp_path, path, existing_paths, expected):
+    for p in [path] + existing_paths:
+        p = tmp_path / p
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.touch()
+
+    result = find_case_sensitive_path(tmp_path / path, sys.platform)
+    assert result == tmp_path / expected

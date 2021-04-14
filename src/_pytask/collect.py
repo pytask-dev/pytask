@@ -1,6 +1,7 @@
 """Implement functionality to collect tasks."""
 import importlib
 import inspect
+import os
 import sys
 import time
 from pathlib import Path
@@ -8,13 +9,16 @@ from typing import Generator
 from typing import List
 
 from _pytask.config import hookimpl
+from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.enums import ColorCode
 from _pytask.exceptions import CollectionError
 from _pytask.mark import has_marker
+from _pytask.nodes import create_task_name
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import PythonFunctionTask
 from _pytask.nodes import reduce_node_name
+from _pytask.path import find_case_sensitive_path
 from _pytask.report import CollectionReport
 from rich.traceback import Traceback
 
@@ -126,9 +130,8 @@ def pytask_collect_task_protocol(session, path, name, obj):
             return CollectionReport.from_node(task)
 
     except Exception:
-        return CollectionReport.from_exception(
-            exc_info=sys.exc_info(), node=locals().get("task")
-        )
+        task = PythonFunctionTask(name, create_task_name(path, name), path, None)
+        return CollectionReport.from_exception(exc_info=sys.exc_info(), node=task)
 
 
 @hookimpl(trylast=True)
@@ -146,12 +149,20 @@ def pytask_collect_task(session, path, name, obj):
         )
 
 
+_TEMPLATE_ERROR = (
+    "The provided path of the dependency/product in the marker is {}, but the path of "
+    "the file on disk is {}. Case-sensitive file systems would raise an error.\n\n"
+    "Please, align the names to ensure reproducibility on case-sensitive file systems "
+    "(often Linux or macOS) or disable this error with 'check_casing_of_paths = false'."
+)
+
+
 @hookimpl(trylast=True)
-def pytask_collect_node(path, node):
+def pytask_collect_node(session, path, node):
     """Collect a node of a task as a :class:`pytask.nodes.FilePathNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
-    hook is attempted at last and possible errors will be shown, it is reasonable and
+    hook is executed at last and possible errors will be shown, it seems reasonable and
     unproblematic.
 
     ``trylast=True`` might be necessary if other plugins try to parse strings themselves
@@ -159,6 +170,8 @@ def pytask_collect_node(path, node):
 
     Parameters
     ----------
+    session : _pytask.session.Session
+        The session.
     path : Union[str, pathlib.Path]
         The path to file where the task and node are specified.
     node : Union[str, pathlib.Path]
@@ -170,7 +183,19 @@ def pytask_collect_node(path, node):
         node = Path(node)
     if isinstance(node, Path):
         if not node.is_absolute():
-            node = path.parent.joinpath(node)
+            # ``normpath`` removes ``../`` from the path which is necessary for the
+            # casing check which will fail since ``.resolves()`` also normalizes a path.
+            node = Path(os.path.normpath(path.parent.joinpath(node)))
+
+        if (
+            not IS_FILE_SYSTEM_CASE_SENSITIVE
+            and session.config["check_casing_of_paths"]
+            and sys.platform == "win32"
+        ):
+            case_sensitive_path = find_case_sensitive_path(node, "win32")
+            if str(node) != str(case_sensitive_path):
+                raise Exception(_TEMPLATE_ERROR.format(node, case_sensitive_path))
+
         return FilePathNode.from_path(node)
 
 

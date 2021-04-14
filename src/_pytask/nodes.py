@@ -113,7 +113,7 @@ class PythonFunctionTask(MetaTask):
 
         return cls(
             base_name=name,
-            name=_create_task_name(path, name),
+            name=create_task_name(path, name),
             path=path,
             function=function,
             depends_on=dependencies,
@@ -174,7 +174,8 @@ class FilePathNode(MetaNode):
         The `lru_cache` decorator ensures that the same object is not collected twice.
 
         """
-        path = path.resolve()
+        if not path.is_absolute():
+            raise ValueError("FilePathNode must be instantiated from absolute path.")
         return cls(path.as_posix(), path, path)
 
     def state(self):
@@ -185,8 +186,33 @@ class FilePathNode(MetaNode):
             return str(self.path.stat().st_mtime)
 
 
-def _collect_nodes(session, path, name, nodes):
-    """Collect nodes for a task."""
+def _collect_nodes(
+    session, path: Path, name: str, nodes: Dict[str, Union[str, Path]]
+) -> Dict[str, Path]:
+    """Collect nodes for a task.
+
+    Parameters
+    ----------
+    session : _pytask.session.Session
+        The session.
+    path : Path
+        The path to the task whose nodes are collected.
+    name : str
+        The name of the task.
+    nodes : Dict[str, Union[str, Path]]
+        A dictionary of nodes parsed from the ``depends_on`` or ``produces`` markers.
+
+    Returns
+    -------
+    Dict[str, Path]
+        A dictionary of node names and their paths.
+
+    Raises
+    ------
+    NodeNotCollectedError
+        If the node could not collected.
+
+    """
     collected_nodes = {}
 
     for node_name, node in nodes.items():
@@ -327,13 +353,13 @@ def _convert_nodes_to_dictionary(
     return nodes
 
 
-def _create_task_name(path: Path, base_name: str):
+def create_task_name(path: Path, base_name: str):
     """Create the name of a task from a path and the task's base name.
 
     Examples
     --------
     >>> from pathlib import Path
-    >>> _create_task_name(Path("module.py"), "task_dummy")
+    >>> create_task_name(Path("module.py"), "task_dummy")
     'module.py::task_dummy'
 
     """
@@ -359,7 +385,7 @@ def reduce_node_name(node, paths: List[Path]):
 
     if isinstance(node, MetaTask):
         shortened_path = relative_to(node.path, ancestor)
-        name = _create_task_name(shortened_path, node.base_name)
+        name = create_task_name(shortened_path, node.base_name)
     elif isinstance(node, MetaNode):
         name = relative_to(node.path, ancestor).as_posix()
     else:

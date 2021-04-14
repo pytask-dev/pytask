@@ -11,6 +11,9 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 -------------------
 
 - :gh:`80` replaces some remaining formatting using ``pprint`` with ``rich``.
+- :gh:`81` adds a warning if a path is not correctly cased on a case-insensitive file
+  system. This facilitates cross-platform builds of projects. Deactivate the check by
+  setting ``check_casing_of_paths = false`` in the configuration file.
 
 
 0.0.14 - 2021-03-23

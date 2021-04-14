@@ -30,6 +30,27 @@ falsy.
 The options
 -----------
 
+.. confval:: check_casing_of_paths
+
+    Since pytask encourages platform-independent reproducibility, it will raise a
+    warning if you used a path with incorrect casing on a case-insensitive file system.
+    For example, the path ``TeXt.TxT`` will match the actual file ``text.txt`` on
+    case-insensitive file systems (usually Windows and macOS), but not on case-sensitive
+    systems (usually Linux).
+
+    If you have very strong reasons for relying on this inaccuracy, although, it is
+    strongly discouraged, you can deactivate the warning in the configuration file with
+
+    .. code-block:: ini
+
+        check_casing_of_paths = false
+
+    .. note::
+
+        An error is only raised on Windows when a case-insensitive path is used.
+        Contributions are welcome to also support macOS.
+
+
 .. confval:: ignore
 
     pytask can ignore files and directories and exclude some tasks or reduce the
