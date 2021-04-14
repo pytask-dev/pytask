@@ -190,8 +190,9 @@ def pytask_collect_node(session, path, node):
         if (
             not IS_FILE_SYSTEM_CASE_SENSITIVE
             and session.config["check_casing_of_paths"]
+            and sys.platform == "win32"
         ):
-            case_sensitive_path = find_case_sensitive_path(node, sys.platform)
+            case_sensitive_path = find_case_sensitive_path(node, "win32")
             if str(node) != str(case_sensitive_path):
                 raise Exception(_TEMPLATE_ERROR.format(node, case_sensitive_path))
 

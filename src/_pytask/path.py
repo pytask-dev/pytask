@@ -1,10 +1,6 @@
 """This module contains code to handle paths."""
 import functools
-import glob
 import os
-import re
-import sys
-import unicodedata
 from pathlib import Path
 from typing import List
 from typing import Union
@@ -114,57 +110,8 @@ def find_case_sensitive_path(path: Path, platform: str) -> Path:
       a case-sensitive path which it does on Windows.
 
     """
-    if path.exists():
-        if platform == "win32":
-            out = path.resolve()
-        else:
-            out = gettruecasepath(str(path))
-            out = Path(out)
+    if platform == "win32":
+        out = path.resolve()
     else:
         out = path
     return out
-
-
-def _find_case_sensitive_path_on_posix(path: Path) -> Path:
-    """Find case-sensitive path on POSIX.
-
-    The :func:`glob.glob` correct the casing of the path even for all parent folders.
-
-    Compared to calling :meth:`pathlib.Path.resolve`, this function takes ~10 times
-    longer.
-
-    """
-    r = glob.glob(re.sub(r"([^:/\\])(?=[/\\]|$)", r"[\1]", str(path)))
-    out = r and r[0] or path
-    out = Path(out)
-    return out
-
-
-def gettruecasepath(path):  # IMPORTANT: <path> must be a Unicode string
-    if not os.path.lexists(path):  # use lexists to also find broken symlinks
-        return path
-    isosx = sys.platform == "darwin"
-    if isosx:  # convert to NFD for comparison with os.listdir() results
-        path = unicodedata.normalize("NFD", path)
-    parentpath, leaf = os.path.split(path)
-    # find true case of leaf component
-    if leaf not in [".", ".."]:  # skip . and .. components
-        leaf_lower = leaf.lower()  # if you use Py3.3+: change .lower() to .casefold()
-        found = False
-        for leaf in os.listdir("." if parentpath == "" else parentpath):
-            if leaf_lower == leaf.lower():  # see .casefold() comment above
-                found = True
-                if isosx:
-                    leaf = unicodedata.normalize(
-                        "NFC", leaf
-                    )  # convert to NFC for return value
-                break
-        if not found:
-            # should only happen if the path was just deleted
-            raise OSError(2, "Unexpectedly not found in " + parentpath, leaf_lower)
-    # recurse on parent path
-    if parentpath not in ["", ".", "..", "/", "\\"] and not (
-        sys.platform == "win32" and os.path.splitdrive(parentpath)[1] in ["\\", "/"]
-    ):
-        parentpath = gettruecasepath(parentpath)  # recurse
-    return os.path.join(parentpath, leaf)
