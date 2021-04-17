@@ -18,3 +18,4 @@ _generated
 
 build
 dist
+src/_pytask/_version.py

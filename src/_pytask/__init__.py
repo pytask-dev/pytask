@@ -1,5 +1,8 @@
-from ._version import get_versions
+__all__ = ["__version__"]
 
-__version__ = get_versions()["version"]
-__git_version__ = get_versions()["full-revisionid"]
-del get_versions
+try:
+    from ._version import version as __version__
+except ImportError:
+    # broken installation, we don't even try unknown only works because we do poor mans
+    # version compare
+    __version__ = "unknown"
