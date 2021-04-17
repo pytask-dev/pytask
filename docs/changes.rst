@@ -14,6 +14,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`81` adds a warning if a path is not correctly cased on a case-insensitive file
   system. This facilitates cross-platform builds of projects. Deactivate the check by
   setting ``check_casing_of_paths = false`` in the configuration file.
+- :gh:`83` replaces ``versioneer`` with ``setuptools_scm``.
 
 
 0.0.14 - 2021-03-23

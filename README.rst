@@ -1,6 +1,8 @@
-.. raw:: html
-
-    <img src="docs/_static/images/pytask_w_text.png" alt="pytask" width="50%">
+.. image:: https://raw.githubusercontent.com/pytask-dev/pytask/main/docs/_static/images/pytask_w_text.png
+    :target: https://pytask-dev.readthedocs.io/en/latest
+    :align: center
+    :width: 50%
+    :alt: pytask
 
 ------
 
