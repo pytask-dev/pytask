@@ -183,9 +183,11 @@ def pytask_collect_node(session, path, node):
         node = Path(node)
     if isinstance(node, Path):
         if not node.is_absolute():
-            # ``normpath`` removes ``../`` from the path which is necessary for the
-            # casing check which will fail since ``.resolves()`` also normalizes a path.
-            node = Path(os.path.normpath(path.parent.joinpath(node)))
+            node = path.parent.joinpath(node)
+
+        # ``normpath`` removes ``../`` from the path which is necessary for the casing
+        # check which will fail since ``.resolves()`` also normalizes a path.
+        node = Path(os.path.normpath(node))
 
         if (
             not IS_FILE_SYSTEM_CASE_SENSITIVE

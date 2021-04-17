@@ -155,11 +155,17 @@ def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_pat
 
 
 @pytest.mark.unit
-def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(tmp_path):
+@pytest.mark.parametrize("is_absolute", [True, False])
+def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
+    tmp_path, is_absolute
+):
     session = Session({"check_casing_of_paths": True}, None)
     task_path = tmp_path / "task_example.py"
     real_node = tmp_path / "text.txt"
+
     collected_node = f"../{tmp_path.name}/text.txt"
+    if is_absolute:
+        collected_node = tmp_path / collected_node
 
     with pytest.warns(None) as record:
         result = pytask_collect_node(session, task_path, collected_node)
