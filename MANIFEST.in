@@ -1,7 +1,5 @@
 include CITATION
 include LICENSE
-include versioneer.py
-include src/_pytask/_version.py
 
 exclude *.yaml
 exclude *.yml
