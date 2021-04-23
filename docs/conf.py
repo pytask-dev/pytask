@@ -5,9 +5,9 @@
 # If extensions (or modules to document with autodoc) are in another directory, add
 # these directories to sys.path here. If the directory is relative to the documentation
 # root, use os.path.abspath to make it absolute, like shown here.
+import datetime as dt
 import os
 import sys
-from datetime import datetime
 
 import sphinx
 
@@ -21,9 +21,9 @@ import pytask  # noqa: E402
 # -- Project information ---------------------------------------------------------------
 
 project = "pytask"
-year = datetime.now().year
-copyright = f"2020-{year}, Tobias Raabe"  # noqa: A001
+year = dt.datetime.now().year
 author = "Tobias Raabe"
+copyright = f"2020-{year}, {author}"  # noqa: A001
 
 # The full version, including alpha/beta/rc tags
 version = pytask.__version__
