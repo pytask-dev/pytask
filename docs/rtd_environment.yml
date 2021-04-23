@@ -26,4 +26,4 @@ dependencies:
   - rich
 
   - pip:
-    - ../ --no-deps
+    - install ../ --no-deps
