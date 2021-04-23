@@ -5,6 +5,10 @@ channels:
 dependencies:
   - python >= 3.7
   - pip
+  - setuptools_scm
+  - toml
+
+  # Documentation
   - furo
   - ipython
   - nbsphinx
@@ -26,4 +30,4 @@ dependencies:
   - rich
 
   - pip:
-    - install ../ --no-deps
+    - ../
