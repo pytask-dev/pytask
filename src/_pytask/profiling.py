@@ -25,8 +25,9 @@ def pytask_execute_task(task):
 @hookimpl
 def pytask_execute_task_process_report(report):
     task = report.task
-    if report.success and task.attributes.get("duration") is not None:
-        _create_or_update_runtime(task.name, *task.attributes["duration"])
+    duration = task.attributes.get("duration")
+    if report.success and duration is not None:
+        _create_or_update_runtime(task.name, *duration)
 
 
 @orm.db_session
