@@ -6,16 +6,9 @@
 # these directories to sys.path here. If the directory is relative to the documentation
 # root, use os.path.abspath to make it absolute, like shown here.
 import datetime as dt
-import os
-import sys
 
 import sphinx
-
-
-sys.path.insert(0, os.path.abspath("../src"))
-
-
-import pytask  # noqa: E402
+from pkg_resources import get_distribution
 
 
 # -- Project information ---------------------------------------------------------------
@@ -25,10 +18,10 @@ year = dt.datetime.now().year
 author = "Tobias Raabe"
 copyright = f"2020-{year}, {author}"  # noqa: A001
 
-# The full version, including alpha/beta/rc tags
-version = pytask.__version__
-release = version
-
+# The version, including alpha/beta/rc tags, but not commit hash and datestamps
+release = get_distribution("pytask").version.split("+")[0]
+# The short X.Y version.
+version = release
 
 # -- General configuration -------------------------------------------------------------
 
