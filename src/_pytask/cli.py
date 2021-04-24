@@ -51,6 +51,7 @@ def pytask_add_hooks(pm):
     from _pytask import parameters
     from _pytask import parametrize
     from _pytask import persist
+    from _pytask import profiling
     from _pytask import resolve_dependencies
     from _pytask import skipping
 
@@ -68,6 +69,7 @@ def pytask_add_hooks(pm):
     pm.register(parameters)
     pm.register(parametrize)
     pm.register(persist)
+    pm.register(profiling)
     pm.register(resolve_dependencies)
     pm.register(skipping)
 
