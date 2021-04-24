@@ -2,7 +2,7 @@ import textwrap
 
 import pytest
 from _pytask.database import create_database
-from _pytask.profiling import Runtime
+from _pytask.profile import Runtime
 from pony import orm
 from pytask import main
 
