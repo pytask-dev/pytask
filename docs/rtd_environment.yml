@@ -5,6 +5,10 @@ channels:
 dependencies:
   - python >= 3.7
   - pip
+  - setuptools_scm
+  - toml
+
+  # Documentation
   - furo
   - ipython
   - nbsphinx
@@ -24,3 +28,6 @@ dependencies:
   - pony >=0.7.13
   - pexpect
   - rich
+
+  - pip:
+    - ../

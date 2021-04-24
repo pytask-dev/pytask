@@ -17,6 +17,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`83` replaces ``versioneer`` with ``setuptools_scm``.
 - :gh:`84` fixes an error in the path normalization introduced by :gh:`81`.
 - :gh:`85` sorts collected tasks, dependencies, and products by name.
+- :gh:`87` fixes that dirty versions are displayed in the documentation.
 
 
 0.0.14 - 2021-03-23
