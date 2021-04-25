@@ -7,7 +7,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.0.15 - 2021-xx-xx
+0.0.15 - 2021-04-25
 -------------------
 
 - :gh:`80` replaces some remaining formatting using ``pprint`` with ``rich``.
