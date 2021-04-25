@@ -91,17 +91,21 @@ def profile(**config_from_cli):
 
             runtimes = _collect_runtimes(list(tasks))
 
-            table = Table("Task")
-            table.add_column("Last Duration (in s)", justify="right")
-
-            for task_name, duration in runtimes.items():
-                reduced_name = reduce_node_name(
-                    tasks[task_name], session.config["paths"]
-                )
-                table.add_row(reduced_name, str(round(duration, 2)))
-
             console.print()
-            console.print(table)
+            if runtimes:
+                table = Table("Task")
+                table.add_column("Last Duration (in s)", justify="right")
+
+                for task_name, duration in runtimes.items():
+                    reduced_name = reduce_node_name(
+                        tasks[task_name], session.config["paths"]
+                    )
+                    table.add_row(reduced_name, str(round(duration, 2)))
+
+                console.print(table)
+            else:
+                console.print("No information is stored on the collected tasks.")
+
             console.rule(style=ColorCode.NEUTRAL)
 
         except CollectionError:
