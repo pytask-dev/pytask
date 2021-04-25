@@ -31,9 +31,9 @@ _PATH_ARGUMENT = click.Argument(
 @hookimpl(trylast=True)
 def pytask_extend_command_line_interface(cli):
     """Register general markers."""
-    for command in ["build", "clean", "collect", "markers"]:
+    for command in ["build", "clean", "collect", "markers", "profile"]:
         cli.commands[command].params.append(_CONFIG_OPTION)
-    for command in ["build", "clean", "collect"]:
+    for command in ["build", "clean", "collect", "profile"]:
         cli.commands[command].params.append(_IGNORE_OPTION)
-    for command in ["build", "clean", "collect"]:
+    for command in ["build", "clean", "collect", "profile"]:
         cli.commands[command].params.append(_PATH_ARGUMENT)
