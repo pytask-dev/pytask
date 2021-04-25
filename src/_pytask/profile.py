@@ -1,3 +1,4 @@
+"""This module contains the code to profile the execution."""
 import sys
 import time
 
