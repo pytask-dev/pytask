@@ -18,7 +18,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`84` fixes an error in the path normalization introduced by :gh:`81`.
 - :gh:`85` sorts collected tasks, dependencies, and products by name.
 - :gh:`87` fixes that dirty versions are displayed in the documentation.
-- :gh:`88` adds a ``profile`` command to show the last duration of a task.
+- :gh:`88` adds a ``profile`` command to show information on tasks like duration and
+  file size of products.
 
 
 0.0.14 - 2021-03-23
