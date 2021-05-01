@@ -64,6 +64,7 @@ def pytask_execute_task(task):
 
 @hookimpl
 def pytask_execute_task_process_report(report):
+    """Store runtime of successfully finishing tasks in database."""
     task = report.task
     duration = task.attributes.get("duration")
     if report.success and duration is not None:
@@ -139,6 +140,7 @@ def profile(**config_from_cli):
 
 
 def _print_profile_table(profile, tasks, paths):
+    """Print the profile table."""
     name_to_task = {task.name: task for task in tasks}
     info_names = _get_info_names(profile)
 
@@ -189,18 +191,21 @@ class FileSizeNameSpace:
                     except FileNotFoundError:
                         pass
 
-            profile[task.name]["Size of Products"] = human_size(sum_bytes)
+            profile[task.name]["Size of Products"] = _to_human_readable_size(sum_bytes)
 
 
-def human_size(bytes_, units=None):
-    """ Returns a human readable string representation of bytes """
+def _to_human_readable_size(bytes_, units=None):
+    """Convert bytes to a human readable size."""
     units = [" bytes", "KB", "MB", "GB", "TB"] if units is None else units
     return (
-        str(bytes_) + units[0] if bytes_ < 1024 else human_size(bytes_ >> 10, units[1:])
+        str(bytes_) + units[0]
+        if bytes_ < 1024
+        else _to_human_readable_size(bytes_ >> 10, units[1:])
     )
 
 
 def _process_profile(profile):
+    """Process profile to make it ready for printing and storing."""
     info_names = _get_info_names(profile)
     complete_profiles = {
         task_name: {
@@ -228,6 +233,7 @@ class ExportNameSpace:
 
 
 def _export_to_csv(profile):
+    """Export profile to csv."""
     info_names = _get_info_names(profile)
 
     with open(Path.cwd().joinpath("profile.csv"), "w", newline="") as file:
@@ -238,9 +244,11 @@ def _export_to_csv(profile):
 
 
 def _export_to_json(profile):
+    """Export profile to json."""
     json_ = json.dumps(profile)
     Path.cwd().joinpath("profile.json").write_text(json_)
 
 
 def _get_info_names(profile):
+    """Get names of infos of tasks."""
     return sorted(set().union(*[set(val) for val in profile.values()]))
