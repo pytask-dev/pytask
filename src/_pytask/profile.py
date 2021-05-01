@@ -13,6 +13,7 @@ from _pytask.enums import ColorCode
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
+from _pytask.nodes import FilePathNode
 from _pytask.nodes import reduce_node_name
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
@@ -48,7 +49,8 @@ def pytask_parse_config(config, config_from_cli):
 def pytask_post_parse(config):
     """Register the export option."""
     config["pm"].register(ExportNameSpace)
-    config["pm"].register(ProfileNameSpace)
+    config["pm"].register(DurationNameSpace)
+    config["pm"].register(FileSizeNameSpace)
 
 
 @hookimpl(hookwrapper=True)
@@ -111,6 +113,7 @@ def profile(**config_from_cli):
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
+            session.hook.pytask_resolve_dependencies(session=session)
 
             profile = {task.name: {} for task in session.tasks}
             session.hook.pytask_profile_add_info_on_task(
@@ -155,7 +158,7 @@ def _print_profile_table(profile, tasks, paths):
         console.print("No information is stored on the collected tasks.")
 
 
-class ProfileNameSpace:
+class DurationNameSpace:
     @staticmethod
     @hookimpl
     def pytask_profile_add_info_on_task(tasks, profile):
@@ -172,12 +175,38 @@ def _collect_runtimes(task_names):
     return {r.task: r.duration for r in runtimes}
 
 
+class FileSizeNameSpace:
+    @staticmethod
+    @hookimpl
+    def pytask_profile_add_info_on_task(session, tasks, profile):
+        for task in tasks:
+            sum_bytes = 0
+            for successor in session.dag.successors(task.name):
+                node = session.dag.nodes[successor]["node"]
+                if isinstance(node, FilePathNode):
+                    try:
+                        sum_bytes += node.path.stat().st_size
+                    except FileNotFoundError:
+                        pass
+
+            profile[task.name]["Size of Products"] = human_size(sum_bytes)
+
+
+def human_size(bytes_, units=None):
+    """ Returns a human readable string representation of bytes """
+    units = [" bytes", "KB", "MB", "GB", "TB"] if units is None else units
+    return (
+        str(bytes_) + units[0] if bytes_ < 1024 else human_size(bytes_ >> 10, units[1:])
+    )
+
+
 def _process_profile(profile):
     info_names = _get_info_names(profile)
     complete_profiles = {
-        task_name: {attr_name: profile[task_name].get(attr_name, "")}
+        task_name: {
+            attr_name: profile[task_name].get(attr_name, "") for attr_name in info_names
+        }
         for task_name in sorted(profile)
-        for attr_name in info_names
     }
     return complete_profiles
 
