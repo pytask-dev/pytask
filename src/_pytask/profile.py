@@ -1,5 +1,6 @@
 """This module contains the code to profile the execution."""
 import csv
+import json
 import sys
 import time
 from pathlib import Path
@@ -136,12 +137,12 @@ def profile(**config_from_cli):
 
 def _print_profile_table(profile, tasks, paths):
     name_to_task = {task.name: task for task in tasks}
-    column_names = list(list(profile.values())[0])
+    info_names = _get_info_names(profile)
 
     console.print()
     if profile:
         table = Table("Task")
-        for name in column_names:
+        for name in info_names:
             table.add_column(name, justify="right")
 
         for task_name, info in profile.items():
@@ -172,11 +173,11 @@ def _collect_runtimes(task_names):
 
 
 def _process_profile(profile):
-    sorted_attrs = sorted(set.union(*[set(val) for val in profile.values()]))
+    info_names = _get_info_names(profile)
     complete_profiles = {
         task_name: {attr_name: profile[task_name].get(attr_name, "")}
         for task_name in sorted(profile)
-        for attr_name in sorted_attrs
+        for attr_name in info_names
     }
     return complete_profiles
 
@@ -186,39 +187,31 @@ class ExportNameSpace:
     @hookimpl(trylast=True)
     def pytask_profile_export_profile(session, profile):
         extension = session.config["export"]
-        path = _create_path_for_profile_export(extension)
 
         if extension == "csv":
-            _export_to_csv(profile, path)
+            _export_to_csv(profile)
         elif extension == "json":
-            pass
-        elif extension == "html":
-            pass
+            _export_to_json(profile)
         elif extension is None:
             pass
         else:
             raise ValueError(f"The export option '{extension}' cannot be handled.")
 
 
-def _create_path_for_profile_export(suffix):
-    """Create a path where the profile can be exported."""
-    path = Path.cwd().joinpath(f"profile.{suffix}")
-    if path.exists():
-        for i in range(100):
-            path = Path.cwd().joinpath(f"profile_{i}.{suffix}")
-            if not path.exists():
-                return path
-        else:
-            raise ValueError("profile could not be stored.")
-    else:
-        return path
+def _export_to_csv(profile):
+    info_names = _get_info_names(profile)
 
-
-def _export_to_csv(profile, path):
-    column_names = list(list(profile.values())[0])
-
-    with open(path, "w") as file:
+    with open(Path.cwd().joinpath("profile.csv"), "w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(("Task", *column_names))
+        writer.writerow(("Task", *info_names))
         for task_name, info in profile.items():
             writer.writerow((task_name, *info.values()))
+
+
+def _export_to_json(profile):
+    json_ = json.dumps(profile)
+    Path.cwd().joinpath("profile.json").write_text(json_)
+
+
+def _get_info_names(profile):
+    return sorted(set().union(*[set(val) for val in profile.values()]))
