@@ -193,7 +193,7 @@ class FileSizeNameSpace:
 
 
 def human_size(bytes_, units=None):
-    """ Returns a human readable string representation of bytes """
+    """Returns a human readable string representation of bytes"""
     units = [" bytes", "KB", "MB", "GB", "TB"] if units is None else units
     return (
         str(bytes_) + units[0] if bytes_ < 1024 else human_size(bytes_ >> 10, units[1:])
