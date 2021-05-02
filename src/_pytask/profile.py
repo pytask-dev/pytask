@@ -182,16 +182,20 @@ class FileSizeNameSpace:
     @hookimpl
     def pytask_profile_add_info_on_task(session, tasks, profile):
         for task in tasks:
-            sum_bytes = 0
-            for successor in session.dag.successors(task.name):
-                node = session.dag.nodes[successor]["node"]
-                if isinstance(node, FilePathNode):
-                    try:
-                        sum_bytes += node.path.stat().st_size
-                    except FileNotFoundError:
-                        pass
+            successors = list(session.dag.successors(task.name))
+            if successors:
+                sum_bytes = 0
+                for successor in successors:
+                    node = session.dag.nodes[successor]["node"]
+                    if isinstance(node, FilePathNode):
+                        try:
+                            sum_bytes += node.path.stat().st_size
+                        except FileNotFoundError:
+                            pass
 
-            profile[task.name]["Size of Products"] = _to_human_readable_size(sum_bytes)
+                profile[task.name]["Size of Products"] = _to_human_readable_size(
+                    sum_bytes
+                )
 
 
 def _to_human_readable_size(bytes_, units=None):
@@ -207,12 +211,16 @@ def _to_human_readable_size(bytes_, units=None):
 def _process_profile(profile):
     """Process profile to make it ready for printing and storing."""
     info_names = _get_info_names(profile)
-    complete_profiles = {
-        task_name: {
-            attr_name: profile[task_name].get(attr_name, "") for attr_name in info_names
+    if info_names:
+        complete_profiles = {
+            task_name: {
+                attr_name: profile[task_name].get(attr_name, "")
+                for attr_name in info_names
+            }
+            for task_name in sorted(profile)
         }
-        for task_name in sorted(profile)
-    }
+    else:
+        complete_profiles = {}
     return complete_profiles
 
 

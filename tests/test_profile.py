@@ -56,9 +56,7 @@ def test_profile_if_there_is_no_information_on_collected_tasks(tmp_path, runner)
 
     assert result.exit_code == 0
     assert "Collected 1 task." in result.output
-    assert "No information is stored on the collected tasks.".replac(
-        " ", ""
-    ) in result.output.replace("\n", " ").replace(" ", "")
+    assert "No information is stored on the collected tasks." in result.output
 
 
 @pytest.mark.end_to_end
