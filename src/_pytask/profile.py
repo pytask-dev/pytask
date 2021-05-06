@@ -243,8 +243,9 @@ class ExportNameSpace:
 def _export_to_csv(profile):
     """Export profile to csv."""
     info_names = _get_info_names(profile)
+    path = Path.cwd().joinpath("profile.csv")
 
-    with open(Path.cwd().joinpath("profile.csv"), "w", newline="") as file:
+    with open(path, "w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(("Task", *info_names))
         for task_name, info in profile.items():
@@ -254,9 +255,11 @@ def _export_to_csv(profile):
 def _export_to_json(profile):
     """Export profile to json."""
     json_ = json.dumps(profile)
-    Path.cwd().joinpath("profile.json").write_text(json_)
+    path = Path.cwd().joinpath("profile.json")
+    path.write_text(json_)
 
 
 def _get_info_names(profile):
     """Get names of infos of tasks."""
-    return sorted(set().union(*[set(val) for val in profile.values()]))
+    info_names = sorted(set().union(*[set(val) for val in profile.values()]))
+    return info_names
