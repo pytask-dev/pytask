@@ -360,3 +360,22 @@ def pytask_log_session_header(session):
 @hookspec
 def pytask_log_session_footer(session, infos, duration, color):
     """Log session information at the end of a run."""
+
+
+# Hooks for profile.
+
+
+@hookspec
+def pytask_profile_add_info_on_task(session, tasks, profile):
+    """Add information on task for profile.
+
+    Hook implementations can add information to the ``profile`` dictionary. The
+    dictionary's keys are the task names. The value for each task is a dictionary itself
+    where keys correspond to columns of the profile table.
+
+    """
+
+
+@hookspec
+def pytask_profile_export_profile(session, profile):
+    """Export the profile."""

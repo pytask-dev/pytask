@@ -124,7 +124,7 @@ Here are some details:
 - Dependencies and products of a task are tracked via markers. For dependencies use
   ``@pytask.mark.depends_on`` and for products use ``@pytask.mark.produces``. Use
   strings and ``pathlib.Path`` to specify the location. Pass multiple dependencies or
-  products as a list.
+  products as a list or a dictionary for positional or key-based access.
 - With ``produces`` (and ``depends_on``) as function arguments, you get access to the
   dependencies and products inside the function via ``pathlib.Path`` objects. Here,
   ``produces`` holds the path to ``"hello_earth.txt"``.

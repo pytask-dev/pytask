@@ -66,7 +66,7 @@ def collect(**config_from_cli):
                 _print_collected_tasks(dictionary, session.config["nodes"])
 
             console.print()
-            console.rule(style=None)
+            console.rule(style=ColorCode.NEUTRAL)
 
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
