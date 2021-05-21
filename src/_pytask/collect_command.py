@@ -4,6 +4,7 @@ import sys
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.console import escape_squared_brackets
 from _pytask.console import FILE_ICON
 from _pytask.console import PYTHON_ICON
 from _pytask.console import TASK_ICON
@@ -17,7 +18,6 @@ from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from rich.tree import Tree
-from _pytask.console import escape_squared_brackets
 
 
 @hookimpl(tryfirst=True)
