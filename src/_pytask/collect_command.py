@@ -17,7 +17,6 @@ from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from rich.tree import Tree
-from _pytask.console import escape_squared_brackets
 
 
 @hookimpl(tryfirst=True)

@@ -14,6 +14,7 @@ from typing import Tuple
 from typing import Union
 
 import attr
+from _pytask.console import escape_squared_brackets
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import get_marks_from_obj
@@ -21,7 +22,6 @@ from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.shared import find_duplicates
-from _pytask.console import escape_squared_brackets
 
 
 def depends_on(objects: Union[Any, Iterable[Any]]) -> Union[Any, Iterable[Any]]:
@@ -397,7 +397,7 @@ def reduce_node_name(node, paths: List[Path]):
     else:
         raise ValueError(f"Unknown node {node} with type '{type(node)}'.")
 
-    return escaped_name
+    return name
 
 
 def reduce_names_of_multiple_nodes(names, dag, paths):
