@@ -4,6 +4,7 @@ import sys
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.console import escape_squared_brackets
 from _pytask.console import FILE_ICON
 from _pytask.console import PYTHON_ICON
 from _pytask.console import TASK_ICON
