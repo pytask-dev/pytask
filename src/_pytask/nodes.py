@@ -21,6 +21,7 @@ from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.shared import find_duplicates
+from _pytask.console import escape_squared_brackets
 
 
 def depends_on(objects: Union[Any, Iterable[Any]]) -> Union[Any, Iterable[Any]]:
@@ -389,13 +390,14 @@ def reduce_node_name(node, paths: List[Path]):
 
     if isinstance(node, MetaTask):
         shortened_path = relative_to(node.path, ancestor)
-        name = create_task_name(shortened_path, node.base_name)
+        raw_name = create_task_name(shortened_path, node.base_name)
+        name = escape_squared_brackets(raw_name)
     elif isinstance(node, MetaNode):
         name = relative_to(node.path, ancestor).as_posix()
     else:
         raise ValueError(f"Unknown node {node} with type '{type(node)}'.")
 
-    return name
+    return escaped_name
 
 
 def reduce_names_of_multiple_nodes(names, dag, paths):
