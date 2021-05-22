@@ -40,3 +40,20 @@ def format_strings_as_flat_tree(strings: List[str], title: str, icon: str) -> st
     )
 
     return text
+
+
+def escape_squared_brackets(string: str) -> str:
+    """Escape squared brackets which would be accidentally parsed by rich.
+
+    An example are the ids of parametrized tasks which are suffixed with squared
+    brackets surrounding string representations of the parametrized arguments.
+
+    Example
+    -------
+    >>> escape_squared_brackets("Hello!")
+    'Hello!'
+    >>> escape_squared_brackets("task_dummy[arg1-arg2]")
+    'task_dummy\\\\[arg1-arg2]'
+
+    """
+    return string.replace("[", "\\[")

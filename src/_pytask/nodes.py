@@ -14,6 +14,7 @@ from typing import Tuple
 from typing import Union
 
 import attr
+from _pytask.console import escape_squared_brackets
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import get_marks_from_obj
@@ -389,7 +390,8 @@ def reduce_node_name(node, paths: List[Path]):
 
     if isinstance(node, MetaTask):
         shortened_path = relative_to(node.path, ancestor)
-        name = create_task_name(shortened_path, node.base_name)
+        raw_name = create_task_name(shortened_path, node.base_name)
+        name = escape_squared_brackets(raw_name)
     elif isinstance(node, MetaNode):
         name = relative_to(node.path, ancestor).as_posix()
     else:
