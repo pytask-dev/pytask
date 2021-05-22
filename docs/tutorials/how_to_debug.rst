@@ -10,6 +10,17 @@ be more productive and gain more confidence in your code.
 To facilitate debugging, pytask offers two command-line options.
 
 
+Tracebacks
+----------
+
+You can enrich the display of tracebacks by show local variables in each stack frame.
+Just execute pytask with
+
+.. code-block:: console
+
+    $ pytask --show-locals
+
+
 Debugging
 ---------
 
