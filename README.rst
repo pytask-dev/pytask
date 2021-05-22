@@ -193,7 +193,8 @@ and pytest's many contributors, this project would not have been possible. Thank
 Citation
 --------
 
-If you rely on pytask to manage your research project, please cite it with
+If you rely on pytask to manage your research project, please cite it with the following
+key to help others to discover the tool.
 
 .. code-block::
 
