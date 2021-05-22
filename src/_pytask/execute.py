@@ -161,6 +161,7 @@ def pytask_execute_task_log_end(report):
 @hookimpl
 def pytask_execute_log_end(session, reports):
     session.execution_end = time.time()
+    show_locals = session.config["show_locals"]
 
     n_successful = sum(report.success for report in reports)
     n_failed = len(reports) - n_successful
@@ -183,7 +184,9 @@ def pytask_execute_log_end(session, reports):
 
             console.print()
 
-            console.print(Traceback.from_exception(*report.exc_info))
+            console.print(
+                Traceback.from_exception(*report.exc_info, show_locals=show_locals)
+            )
 
             console.print()
             show_capture = session.config["show_capture"]

@@ -21,6 +21,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`88` adds a ``profile`` command to show information on tasks like duration and
   file size of products.
 - :gh:`93` fixes the display of parametrized arguments in the console.
+- :gh:`94` adds ``--show-locals`` which allows to print local variables in tracebacks.
 
 
 0.0.14 - 2021-03-23

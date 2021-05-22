@@ -119,13 +119,16 @@ def _has_node_changed(task_name: str, node_dict):
     try:
         state = node.state()
     except NodeNotFoundError:
-        return True
-    try:
-        state_in_db = State[task_name, node.name].state
-    except orm.ObjectNotFound:
-        return True
+        out = True
+    else:
+        try:
+            state_in_db = State[task_name, node.name].state
+        except orm.ObjectNotFound:
+            out = True
+        else:
+            out = state != state_in_db
 
-    return state != state_in_db
+    return out
 
 
 def _check_if_dag_has_cycles(dag):

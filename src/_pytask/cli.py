@@ -43,6 +43,7 @@ def pytask_add_hooks(pm):
     from _pytask import collect
     from _pytask import collect_command
     from _pytask import config
+    from _pytask import console
     from _pytask import database
     from _pytask import debugging
     from _pytask import execute
@@ -61,6 +62,7 @@ def pytask_add_hooks(pm):
     pm.register(collect)
     pm.register(collect_command)
     pm.register(config)
+    pm.register(console)
     pm.register(database)
     pm.register(debugging)
     pm.register(execute)

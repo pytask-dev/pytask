@@ -130,6 +130,20 @@ The options
         pdb = True
 
 
+.. confval:: show_locals
+
+    If you want to print local variables of each stack frame in the tracebacks, set this
+    value to true.
+
+    .. code-block:: console
+
+        pytask build --show-locals
+
+    .. code-block:: ini
+
+        show_locals = True
+
+
 .. confval:: strict_markers
 
     If you want to raise an error for unregistered markers, pass
