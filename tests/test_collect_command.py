@@ -56,10 +56,7 @@ def test_collect_parametrized_tasks(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
 
-
-    captured = result.output.replace("\n", "").replace(" ", "")
-    print(result.output)
-    print(captured)
+    captured = result.output.replace("\n", "").replace(" ", "").replace("\u2502", "")
     assert "<Module" in captured
     assert "task_dummy.py>" in captured
     assert "<Function" in captured
