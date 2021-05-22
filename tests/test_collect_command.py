@@ -43,6 +43,28 @@ def test_collect_task(runner, tmp_path):
 
 
 @pytest.mark.end_to_end
+def test_collect_parametrized_tasks(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.depends_on("in.txt")
+    @pytask.mark.parametrize("arg, produces", [(0, "out_0.txt"), (1, "out_1.txt")])
+    def task_dummy(arg):
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
+
+    captured = result.output.replace("\n", "").replace(" ", "").replace("\u2502", "")
+    assert "<Module" in captured
+    assert "task_dummy.py>" in captured
+    assert "<Function" in captured
+    assert "[0-out_0.txt]>" in captured
+    assert "[1-out_1.txt]>" in captured
+
+
+@pytest.mark.end_to_end
 def test_collect_task_with_expressions(runner, tmp_path):
     source = """
     import pytask

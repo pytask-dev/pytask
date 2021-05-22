@@ -10,6 +10,17 @@ be more productive and gain more confidence in your code.
 To facilitate debugging, pytask offers two command-line options.
 
 
+Tracebacks
+----------
+
+You can enrich the display of tracebacks by show local variables in each stack frame.
+Just execute pytask with
+
+.. code-block:: console
+
+    $ pytask --show-locals
+
+
 Debugging
 ---------
 
@@ -30,7 +41,7 @@ prompt will enter the debugger enabling you to discover the source of the except
 .. tip::
 
     Instead of Python's :mod:`pdb`, use `pdb++ <https://github.com/pdbpp/pdbpp>`_ which
-    is more convenient, colorful has some useful features like the `sticky mode
+    is more convenient, colorful, and has some useful features like the `sticky mode
     <https://github.com/pdbpp/pdbpp#sticky-mode>`_.
 
 
