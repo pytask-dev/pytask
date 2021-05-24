@@ -45,7 +45,7 @@ def pytask_execute_task_setup(task):
     markers = get_specific_markers_from_task(task, "skip_ancestor_failed")
     if markers:
         message = "\n".join(
-            [skip_ancestor_failed(*marker.args, **marker.kwargs) for marker in markers]
+            skip_ancestor_failed(*marker.args, **marker.kwargs) for marker in markers
         )
         raise SkippedAncestorFailed(message)
 
@@ -56,7 +56,7 @@ def pytask_execute_task_setup(task):
     markers = get_specific_markers_from_task(task, "skipif")
     if markers:
         marker_args = [skipif(*marker.args, **marker.kwargs) for marker in markers]
-        message = "\n".join([arg[1] for arg in marker_args if arg[0]])
+        message = "\n".join(arg[1] for arg in marker_args if arg[0])
         should_skip = any(arg[0] for arg in marker_args)
         if should_skip:
             raise Skipped(message)
