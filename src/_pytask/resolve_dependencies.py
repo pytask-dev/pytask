@@ -19,10 +19,10 @@ from _pytask.enums import ColorCode
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
-from _pytask.nodes import reduce_names_of_multiple_nodes
-from _pytask.nodes import reduce_node_name
 from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import ResolvingDependenciesReport
+from _pytask.shared import reduce_names_of_multiple_nodes
+from _pytask.shared import reduce_node_name
 from pony import orm
 from rich.traceback import Traceback
 from rich.tree import Tree

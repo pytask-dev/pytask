@@ -28,6 +28,9 @@ _PATH_ARGUMENT = click.Argument(
 """click.Option: An general paths argument."""
 
 
+_VERBOSE_OPTION = click.Option(["-v", "--verbose"], count=True, default=None)
+
+
 @hookimpl(trylast=True)
 def pytask_extend_command_line_interface(cli):
     """Register general markers."""
@@ -37,3 +40,5 @@ def pytask_extend_command_line_interface(cli):
         cli.commands[command].params.append(_IGNORE_OPTION)
     for command in ["build", "clean", "collect", "profile"]:
         cli.commands[command].params.append(_PATH_ARGUMENT)
+    for command in ["build"]:
+        cli.commands[command].params.append(_VERBOSE_OPTION)

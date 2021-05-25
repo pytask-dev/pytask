@@ -193,8 +193,8 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         config_from_cli,
         config_from_file,
         key="verbose",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
+        default=0,
+        callback=lambda x: x if x is None else int(x),
     )
 
 

@@ -14,10 +14,10 @@ from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.nodes import FilePathNode
-from _pytask.nodes import reduce_node_name
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
+from _pytask.shared import reduce_node_name
 from pony import orm
 from rich.table import Table
 from rich.traceback import Traceback

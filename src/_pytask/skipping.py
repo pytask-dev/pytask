@@ -1,13 +1,13 @@
 """This module contains everything related to skipping tasks."""
 from _pytask.config import hookimpl
-from _pytask.console import console
 from _pytask.dag import descending_tasks
 from _pytask.enums import ColorCode
-from _pytask.mark import get_specific_markers_from_task
 from _pytask.mark import Mark
+from _pytask.mark_utils import get_specific_markers_from_task
 from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
+from _pytask.shared import log_task_outcome
 from _pytask.traceback import remove_traceback_from_exc_info
 
 
@@ -98,17 +98,17 @@ def pytask_execute_task_process_report(session, report):
 
 
 @hookimpl
-def pytask_execute_task_log_end(report):
+def pytask_execute_task_log_end(session, report):
     """Log the status of a skipped task."""
     if report.success:
         if report.exc_info:
             if isinstance(report.exc_info[1], Skipped):
-                console.print("s", style=ColorCode.SKIPPED, end="")
+                log_task_outcome(session, report, symbol="s", color=ColorCode.SKIPPED)
             elif isinstance(report.exc_info[1], SkippedUnchanged):
-                console.print("s", style=ColorCode.SUCCESS, end="")
+                log_task_outcome(session, report, symbol="s", color=ColorCode.SUCCESS)
     else:
         if report.exc_info and isinstance(report.exc_info[1], SkippedAncestorFailed):
-            console.print("s", style=ColorCode.FAILED, end="")
+            log_task_outcome(session, report, symbol="s", color=ColorCode.FAILED)
 
     if report.exc_info and isinstance(
         report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)

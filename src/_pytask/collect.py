@@ -13,13 +13,13 @@ from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.enums import ColorCode
 from _pytask.exceptions import CollectionError
-from _pytask.mark import has_marker
+from _pytask.mark_utils import has_marker
 from _pytask.nodes import create_task_name
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import PythonFunctionTask
-from _pytask.nodes import reduce_node_name
 from _pytask.path import find_case_sensitive_path
 from _pytask.report import CollectionReport
+from _pytask.shared import reduce_node_name
 from rich.traceback import Traceback
 
 

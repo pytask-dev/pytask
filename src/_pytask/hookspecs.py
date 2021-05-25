@@ -340,7 +340,7 @@ def pytask_execute_task_process_report(session, report):
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task_log_end(session, task, report):
+def pytask_execute_task_log_end(session, report):
     """Log the end of a task execution."""
 
 

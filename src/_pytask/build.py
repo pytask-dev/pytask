@@ -92,7 +92,6 @@ def main(config_from_cli):
     help="Stop after the first failure.",
 )
 @click.option("--max-failures", default=None, help="Stop after some failures.")
-@click.option("-v", "--verbose", is_flag=True, default=None, help="Set verbosity.")
 def build(**config_from_cli):
     """Collect and execute tasks and report the results.
 

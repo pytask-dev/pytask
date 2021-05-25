@@ -1,5 +1,6 @@
 import sys
 import time
+from contextlib import ExitStack
 
 from _pytask.config import hookimpl
 from _pytask.console import console
@@ -12,8 +13,11 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.nodes import FilePathNode
-from _pytask.nodes import reduce_node_name
 from _pytask.report import ExecutionReport
+from _pytask.shared import log_task_outcome
+from _pytask.shared import reduce_node_name
+from rich.live import Live
+from rich.table import Table
 from rich.traceback import Traceback
 
 
@@ -48,12 +52,22 @@ def pytask_execute_create_scheduler(session):
 @hookimpl
 def pytask_execute_build(session):
     """Execute tasks."""
-    for name in session.scheduler.static_order():
-        task = session.dag.nodes[name]["task"]
-        report = session.hook.pytask_execute_task_protocol(session=session, task=task)
-        session.execution_reports.append(report)
-        if session.should_stop:
-            return True
+    table = Table("Task", "Outcome")
+    session.config["table"] = table
+    if session.config["verbose"] >= 1:
+        ctx = Live(table, console=console, refresh_per_second=4)
+    else:
+        ctx = ExitStack()
+
+    with ctx:
+        for name in session.scheduler.static_order():
+            task = session.dag.nodes[name]["task"]
+            report = session.hook.pytask_execute_task_protocol(
+                session=session, task=task
+            )
+            session.execution_reports.append(report)
+            if session.should_stop:
+                return True
 
     return True
 
@@ -148,12 +162,12 @@ def pytask_execute_task_process_report(session, report):
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task_log_end(report):
+def pytask_execute_task_log_end(session, report):
     """Log task outcome."""
     if report.success:
-        console.print(".", style=ColorCode.SUCCESS, end="")
+        log_task_outcome(session, report, symbol=".", color=ColorCode.SUCCESS)
     else:
-        console.print("F", style=ColorCode.FAILED, end="")
+        log_task_outcome(session, report, symbol="F", color=ColorCode.FAILED)
 
     return True
 
