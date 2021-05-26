@@ -11,6 +11,7 @@ from typing import List
 from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
+from _pytask.console import generate_collection_status
 from _pytask.enums import ColorCode
 from _pytask.exceptions import CollectionError
 from _pytask.mark import has_marker
@@ -20,6 +21,7 @@ from _pytask.nodes import PythonFunctionTask
 from _pytask.nodes import reduce_node_name
 from _pytask.path import find_case_sensitive_path
 from _pytask.report import CollectionReport
+from rich.live import Live
 from rich.traceback import Traceback
 
 
@@ -28,17 +30,14 @@ def pytask_collect(session):
     """Collect tasks."""
     session.collection_start = time.time()
 
-    reports = _collect_from_paths(session)
-    tasks = _extract_successfully_collected_tasks_from_reports(reports)
+    with Live(generate_collection_status(0), console=console, transient=True) as live:
+        _collect_from_paths(session, live)
 
     try:
-        session.hook.pytask_collect_modify_tasks(session=session, tasks=tasks)
+        session.hook.pytask_collect_modify_tasks(session=session, tasks=session.tasks)
     except Exception:
         report = CollectionReport.from_exception(exc_info=sys.exc_info())
-        reports.append(report)
-
-    session.collection_reports = reports
-    session.tasks = tasks
+        session.collection_reports.append(report)
 
     session.hook.pytask_collect_log(
         session=session, reports=session.collection_reports, tasks=session.tasks
@@ -47,21 +46,21 @@ def pytask_collect(session):
     return True
 
 
-def _collect_from_paths(session):
+def _collect_from_paths(session, live=None):
     """Collect tasks from paths.
 
     Go through all paths, check if the path is ignored, and collect the file if not.
 
     """
-    collected_reports = session.collection_reports
     for path in _not_ignored_paths(session.config["paths"], session):
         reports = session.hook.pytask_collect_file_protocol(
-            session=session, path=path, reports=collected_reports
+            session=session, path=path, reports=session.collection_reports
         )
         if reports is not None:
-            collected_reports.extend(reports)
-
-    return collected_reports
+            session.collection_reports.extend(reports)
+            session.tasks.extend(i.node for i in reports if i.successful)
+            if live is not None:
+                live.update(generate_collection_status(len(session.tasks)))
 
 
 @hookimpl
@@ -228,11 +227,6 @@ def _not_ignored_paths(paths: List[Path], session) -> Generator[Path, None, None
                 yield from _not_ignored_paths(files_in_dir, session)
             else:
                 yield path
-
-
-def _extract_successfully_collected_tasks_from_reports(reports):
-    """Extract successfully collected tasks from reports."""
-    return [i.node for i in reports if i.successful]
 
 
 @hookimpl

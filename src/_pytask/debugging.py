@@ -37,6 +37,12 @@ def pytask_extend_command_line_interface(cli):
             ),
             metavar="module_name:class_name",
         ),
+        click.Option(
+            ["--show-locals"],
+            is_flag=True,
+            default=None,
+            help="Show local variables in tracebacks.",
+        ),
     ]
     cli.commands["build"].params.extend(additional_parameters)
 
@@ -64,6 +70,13 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         key="pdbcls",
         default=None,
         callback=_pdbcls_callback,
+    )
+    config["show_locals"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="show_locals",
+        default=False,
+        callback=convert_truthy_or_falsy_to_bool,
     )
 
 

@@ -1,19 +1,17 @@
 How to debug
 ============
 
-The debug mode is one of pytask's biggest strength. Whenever you encounter an error in
-one of your tasks, jump right into the code and inspect the cause of the exception.
+Whenever you encounter an error in one of your tasks, pytask offers multiple ways which
+help you to gain more information on the root cause.
 
-Quick and easy feedback through a debugger is immensely valuable because it helps you to
-be more productive and gain more confidence in your code.
-
-To facilitate debugging, pytask offers two command-line options.
+Through quick and easy feedback you are more productive and gain more confidence in your
+code.
 
 
 Tracebacks
 ----------
 
-You can enrich the display of tracebacks by show local variables in each stack frame.
+You can enrich the display of tracebacks by showing local variables in each stack frame.
 Just execute pytask with
 
 .. code-block:: console
