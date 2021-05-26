@@ -22,6 +22,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   file size of products.
 - :gh:`93` fixes the display of parametrized arguments in the console.
 - :gh:`94` adds ``--show-locals`` which allows to print local variables in tracebacks.
+- :gh:`96` implements a spinner to show the progress during the collection.
 
 
 0.0.14 - 2021-03-23

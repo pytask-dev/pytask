@@ -110,16 +110,12 @@ def _organize_tasks(tasks, common_ancestor):
         task_dict = {
             reduced_task_name: {
                 "depends_on": sorted(
-                    [
-                        relative_to(node.path, common_ancestor)
-                        for node in task.depends_on.values()
-                    ]
+                    relative_to(node.path, common_ancestor)
+                    for node in task.depends_on.values()
                 ),
                 "produces": sorted(
-                    [
-                        relative_to(node.path, common_ancestor)
-                        for node in task.produces.values()
-                    ]
+                    relative_to(node.path, common_ancestor)
+                    for node in task.produces.values()
                 ),
             }
         }
