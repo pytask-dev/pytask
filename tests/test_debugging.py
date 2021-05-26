@@ -5,6 +5,7 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
 from _pytask.debugging import _pdbcls_callback
+from pytask import cli
 
 try:
     import pexpect
@@ -422,3 +423,25 @@ def test_pdb_used_outside_test(tmp_path):
     child.expect("Pdb")
     child.sendeof()
     _flush(child)
+
+
+@pytest.mark.end_to_end
+def test_printing_of_local_variables(tmp_path, runner):
+    source = """
+    def task_dummy():
+        a = 1
+        helper()
+
+    def helper():
+        b = 2
+        raise Exception
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix(), "--show-locals"])
+    assert result.exit_code == 1
+
+    captured = result.output
+    assert " locals " in captured
+    assert "a = 1" in captured
+    assert "b = 2" in captured

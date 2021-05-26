@@ -3,10 +3,6 @@ import os
 import sys
 from typing import List
 
-import click
-from _pytask.config import hookimpl
-from _pytask.shared import convert_truthy_or_falsy_to_bool
-from _pytask.shared import get_first_non_none_value
 from rich.console import Console
 from rich.tree import Tree
 
@@ -32,28 +28,6 @@ TASK_ICON = "" if _IS_LEGACY_WINDOWS else "📝 "
 
 
 console = Console(color_system=_COLOR_SYSTEM)
-
-
-@hookimpl
-def pytask_extend_command_line_interface(cli):
-    show_locals_option = click.Option(
-        ["--show-locals"],
-        is_flag=True,
-        default=None,
-        help="Show local variables in tracebacks.",
-    )
-    cli.commands["build"].params.append(show_locals_option)
-
-
-@hookimpl
-def pytask_parse_config(config, config_from_file, config_from_cli):
-    config["show_locals"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_locals",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
 
 
 def format_strings_as_flat_tree(strings: List[str], title: str, icon: str) -> str:
