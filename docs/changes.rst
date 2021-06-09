@@ -23,6 +23,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`93` fixes the display of parametrized arguments in the console.
 - :gh:`94` adds ``--show-locals`` which allows to print local variables in tracebacks.
 - :gh:`96` implements a spinner to show the progress during the collection.
+- :gh:`99` enables color support for WSL in Windows Terminal and fixes ``show_locals``
+  in ``collect.py``.
 
 
 0.0.14 - 2021-03-23
