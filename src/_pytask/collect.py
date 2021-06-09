@@ -259,7 +259,7 @@ def pytask_collect_log(session, reports, tasks):
 
             console.print()
 
-            console.print(Traceback.from_exception(*report.exc_info, show_locals=True))
+            console.print(Traceback.from_exception(*report.exc_info, show_locals=session.config["show_locals"]))
 
             console.print()
 
