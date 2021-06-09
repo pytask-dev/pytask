@@ -39,7 +39,7 @@ def pytask_extend_command_line_interface(cli):
         ),
         click.Option(
             ["--show-locals"],
-            is_flag=True,
+            is_flag=False,
             default=None,
             help="Show local variables in tracebacks.",
         ),
