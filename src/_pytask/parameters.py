@@ -35,5 +35,5 @@ def pytask_extend_command_line_interface(cli):
         cli.commands[command].params.append(_CONFIG_OPTION)
     for command in ["build", "clean", "collect", "profile"]:
         cli.commands[command].params.append(_IGNORE_OPTION)
-    for command in ["build", "clean", "collect", "profile"]:
+    for command in ["build", "clean", "collect", "dag", "profile"]:
         cli.commands[command].params.append(_PATH_ARGUMENT)
