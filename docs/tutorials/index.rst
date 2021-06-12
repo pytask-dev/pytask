@@ -23,3 +23,4 @@ project. Start here if you are a new user.
    how_to_capture
    how_to_invoke_pytask
    how_to_use_plugins
+   how_to_visualize_the_dag
