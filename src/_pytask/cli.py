@@ -46,6 +46,7 @@ def pytask_add_hooks(pm):
     from _pytask import database
     from _pytask import debugging
     from _pytask import execute
+    from _pytask import graph
     from _pytask import logging
     from _pytask import mark
     from _pytask import parameters
@@ -64,6 +65,7 @@ def pytask_add_hooks(pm):
     pm.register(database)
     pm.register(debugging)
     pm.register(execute)
+    pm.register(graph)
     pm.register(logging)
     pm.register(mark)
     pm.register(parameters)
