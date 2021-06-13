@@ -1,6 +1,7 @@
 import copy
 import functools
 import itertools
+import pprint
 import types
 from typing import Any
 from typing import Callable
@@ -259,14 +260,22 @@ def _check_if_n_arg_names_matches_n_arg_values(
 ) -> None:
     """Check if the number of argument names matches the number of arguments."""
     n_names = len(arg_names)
-    n_values = tuple({len(i) for i in arg_values})
+    n_values = [len(i) for i in arg_values]
+    unique_n_values = set(n_values)
 
-    if not all(i == n_names for i in n_values):
-        pretty_arg_values = f"{n_values[0]}" if len(n_values) == 1 else f"in {n_values}"
+    if not all(i == n_names for i in unique_n_values):
+        pretty_arg_values = (
+            f"{unique_n_values[0]}"
+            if len(unique_n_values) == 1
+            else " or ".join(map(str, unique_n_values))
+        )
+        idx_example = [i == n_names for i in n_values].index(False)
+        formatted_example = pprint.pformat(arg_values[idx_example])
         raise ValueError(
-            f"Task '{name}' is parametrized with 'arg_names' {arg_names} with "
-            f"{n_names} elements, but the number of provided 'arg_values' is "
-            f"{pretty_arg_values}."
+            f"Task '{name}' is parametrized with {n_names} 'arg_names', {arg_names}, "
+            f"but the number of provided 'arg_values' is {pretty_arg_values}. For "
+            f"example, here are the values of parametrization no. {idx_example}:"
+            f"\n\n{formatted_example}"
         )
 
 

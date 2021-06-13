@@ -25,6 +25,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`96` implements a spinner to show the progress during the collection.
 - :gh:`99` enables color support in WSL and fixes ``show_locals`` during collection.
 - :gh:`101` allows to visualize the project's DAG.
+- :gh:`102` adds an example if a parametrization provides not the number of arguments
+  specified in the signature.
 
 
 0.0.14 - 2021-03-23
