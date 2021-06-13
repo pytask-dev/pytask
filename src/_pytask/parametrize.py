@@ -261,7 +261,7 @@ def _check_if_n_arg_names_matches_n_arg_values(
     """Check if the number of argument names matches the number of arguments."""
     n_names = len(arg_names)
     n_values = [len(i) for i in arg_values]
-    unique_n_values = set(n_values)
+    unique_n_values = tuple(set(n_values))
 
     if not all(i == n_names for i in unique_n_values):
         pretty_arg_values = (

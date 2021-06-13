@@ -358,8 +358,10 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
             [1, 2, 3],
             [
                 "ValueError",
-                "'arg_names' ('i', 'j') with 2",
+                "with 2 'arg_names', ('i', 'j'),",
                 "'arg_values' is 1.",
+                "parametrization no. 0:",
+                "(1,)",
             ],
         ),
         (
@@ -367,8 +369,10 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
             [(1, 2, 3)],
             [
                 "ValueError",
-                "'arg_names' ('i', 'j') with 2",
+                "with 2 'arg_names', ('i', 'j'),",
                 "'arg_values' is 3.",
+                "parametrization no. 0:",
+                "(1, 2, 3)",
             ],
         ),
         (
@@ -376,8 +380,10 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
             [(1, 2), (1, 2, 3)],
             [
                 "ValueError",
-                "'arg_names' ('i', 'j') with 2",
-                "'arg_values' is in (2, 3).",
+                "with 2 'arg_names', ('i', 'j'),",
+                "'arg_values' is 2 or 3.",
+                "parametrization no. 1:",
+                "(1, 2, 3)",
             ],
         ),
     ],
