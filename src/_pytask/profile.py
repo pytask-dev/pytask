@@ -261,5 +261,5 @@ def _export_to_json(profile):
 
 def _get_info_names(profile):
     """Get names of infos of tasks."""
-    info_names = sorted(set().union(*[set(val) for val in profile.values()]))
+    info_names = sorted(set().union(*(set(val) for val in profile.values())))
     return info_names

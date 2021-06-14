@@ -28,7 +28,7 @@ class Node(FilePathNode):
 
 
 @pytest.mark.unit
-def test_create_dag():
+def test_pytask_resolve_dependencies_create_dag():
     root = Path.cwd() / "src"
     task = PythonFunctionTask(
         "task_dummy",

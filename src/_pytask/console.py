@@ -12,7 +12,7 @@ _IS_WINDOWS_TERMINAL = "WT_SESSION" in os.environ
 _IS_WINDOWS = sys.platform == "win32"
 
 
-if (_IS_WINDOWS and not _IS_WINDOWS_TERMINAL) or _IS_WSL:
+if (_IS_WINDOWS or _IS_WSL) and not _IS_WINDOWS_TERMINAL:
     _IS_LEGACY_WINDOWS = True
 else:
     _IS_LEGACY_WINDOWS = False

@@ -1,9 +1,9 @@
 """Implement the build command."""
 import sys
-import traceback
 
 import click
 from _pytask.config import hookimpl
+from _pytask.console import console
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
@@ -50,7 +50,7 @@ def main(config_from_cli):
         session = Session.from_config(config)
 
     except (ConfigurationError, Exception):
-        traceback.print_exception(*sys.exc_info())
+        console.print_exception()
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
 
@@ -71,7 +71,7 @@ def main(config_from_cli):
             session.exit_code = ExitCode.FAILED
 
         except Exception:
-            traceback.print_exception(*sys.exc_info())
+            console.print_exception()
             session.exit_code = ExitCode.FAILED
 
     return session
