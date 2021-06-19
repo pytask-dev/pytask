@@ -14,10 +14,10 @@ from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
-from _pytask.nodes import reduce_names_of_multiple_nodes
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
+from _pytask.shared import reduce_names_of_multiple_nodes
 
 
 @hookimpl(tryfirst=True)

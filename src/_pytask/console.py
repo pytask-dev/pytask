@@ -65,3 +65,12 @@ def generate_collection_status(n_collected_tasks):
     return Status(
         f"Collected {n_collected_tasks} tasks.", refresh_per_second=4, spinner="dots"
     )
+
+
+def generate_execution_table(reports):
+    table = Table("Task", "Outcome")
+    for report in reports:
+        reduced_task_name = reduce_node_name(report.task, session.config["paths"])
+        table.add_row(reduced_task_name, Text(symbol, style=color))
+
+    return Table

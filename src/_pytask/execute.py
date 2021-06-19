@@ -4,6 +4,7 @@ from contextlib import ExitStack
 
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.console import generate_execution_table
 from _pytask.dag import descending_tasks
 from _pytask.dag import node_and_neighbors
 from _pytask.dag import TopologicalSorter
@@ -52,14 +53,14 @@ def pytask_execute_create_scheduler(session):
 @hookimpl
 def pytask_execute_build(session):
     """Execute tasks."""
-    table = Table("Task", "Outcome")
-    session.config["table"] = table
     if session.config["verbose"] >= 1:
-        ctx = Live(table, console=console, refresh_per_second=4)
+        live_context = Live(
+            generate_execution_table([]), console=console, refresh_per_second=4
+        )
     else:
-        ctx = ExitStack()
+        live_context = ExitStack()
 
-    with ctx:
+    with live_context as live:
         for name in session.scheduler.static_order():
             task = session.dag.nodes[name]["task"]
             report = session.hook.pytask_execute_task_protocol(
@@ -68,6 +69,9 @@ def pytask_execute_build(session):
             session.execution_reports.append(report)
             if session.should_stop:
                 return True
+
+            if session.config["verbose"] >= 1:
+                live.update(table)
 
     return True
 
