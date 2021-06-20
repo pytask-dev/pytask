@@ -5,7 +5,6 @@ from _pytask.enums import ColorCode
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark_utils import get_specific_markers_from_task
 from _pytask.outcomes import Persisted
-from _pytask.shared import log_task_outcome
 
 
 @hookimpl
@@ -53,13 +52,5 @@ def pytask_execute_task_process_report(report):
     """
     if report.exc_info and isinstance(report.exc_info[1], Persisted):
         report.success = True
-
-
-@hookimpl
-def pytask_execute_task_log_end(session, report):
-    """Log a persisting task with a green p."""
-    if report.success:
-        if report.exc_info:
-            if isinstance(report.exc_info[1], Persisted):
-                log_task_outcome(session, report, symbol="p", color=ColorCode.SUCCESS)
-                return True
+        report.symbol = "p"
+        report.color = ColorCode.SUCCESS

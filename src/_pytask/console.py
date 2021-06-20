@@ -4,7 +4,6 @@ import sys
 from typing import List
 
 from rich.console import Console
-from rich.status import Status
 from rich.tree import Tree
 
 _IS_WSL = "IS_WSL" in os.environ or "WSL_DISTRO_NAME" in os.environ
@@ -58,19 +57,3 @@ def escape_squared_brackets(string: str) -> str:
 
     """
     return string.replace("[", "\\[")
-
-
-def generate_collection_status(n_collected_tasks):
-    """Generate the status object to display the progress during collection."""
-    return Status(
-        f"Collected {n_collected_tasks} tasks.", refresh_per_second=4, spinner="dots"
-    )
-
-
-def generate_execution_table(reports):
-    table = Table("Task", "Outcome")
-    for report in reports:
-        reduced_task_name = reduce_node_name(report.task, session.config["paths"])
-        table.add_row(reduced_task_name, Text(symbol, style=color))
-
-    return Table

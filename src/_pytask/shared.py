@@ -4,16 +4,13 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import List
 
-from _pytask.console import console
 from _pytask.console import escape_squared_brackets
-from _pytask.enums import ColorCode
 from _pytask.nodes import create_task_name
 from _pytask.nodes import MetaNode
 from _pytask.nodes import MetaTask
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
-from rich.text import Text
 
 
 def to_list(scalar_or_iter):
@@ -121,18 +118,6 @@ def convert_truthy_or_falsy_to_bool(x):
             f"Input '{x}' is neither truthy (True, true, 1) or falsy (False, false, 0)."
         )
     return out
-
-
-def log_task_outcome(session, report, symbol: str, color: ColorCode) -> None:
-    verbose_mode = session.config["verbose"]
-
-    if verbose_mode == 0:
-        console.print(symbol, style=color, end="")
-    elif verbose_mode >= 1:
-        reduced_task_name = reduce_node_name(report.task, session.config["paths"])
-        session.config["table"].add_row(reduced_task_name, Text(symbol, style=color))
-    else:
-        raise ValueError(f"Unknown verbose mode {verbose_mode}.")
 
 
 def reduce_node_name(node, paths: List[Path]):

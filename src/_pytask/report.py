@@ -44,6 +44,8 @@ class ExecutionReport:
     success = attr.ib(type=bool)
     exc_info = attr.ib(default=None)
     sections = attr.ib(factory=list)
+    symbol = attr.ib(default="?")
+    color = attr.ib(default=None)
 
     @classmethod
     def from_task_and_exception(cls, task, exc_info):

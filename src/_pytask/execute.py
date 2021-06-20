@@ -1,10 +1,8 @@
 import sys
 import time
-from contextlib import ExitStack
 
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.console import generate_execution_table
 from _pytask.dag import descending_tasks
 from _pytask.dag import node_and_neighbors
 from _pytask.dag import TopologicalSorter
@@ -12,13 +10,12 @@ from _pytask.database import create_or_update_state
 from _pytask.enums import ColorCode
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
+from _pytask.live import generate_execution_table
+from _pytask.live import LiveWrapper
 from _pytask.mark import Mark
 from _pytask.nodes import FilePathNode
 from _pytask.report import ExecutionReport
-from _pytask.shared import log_task_outcome
 from _pytask.shared import reduce_node_name
-from rich.live import Live
-from rich.table import Table
 from rich.traceback import Traceback
 
 
@@ -53,25 +50,23 @@ def pytask_execute_create_scheduler(session):
 @hookimpl
 def pytask_execute_build(session):
     """Execute tasks."""
-    if session.config["verbose"] >= 1:
-        live_context = Live(
-            generate_execution_table([]), console=console, refresh_per_second=4
-        )
-    else:
-        live_context = ExitStack()
+    paths = session.config["paths"]
 
-    with live_context as live:
+    with LiveWrapper.from_verbose_and_live_kwargs(
+        verbose=session.config["verbose"], console=console, auto_refresh=False
+    ) as live:
         for name in session.scheduler.static_order():
             task = session.dag.nodes[name]["task"]
             report = session.hook.pytask_execute_task_protocol(
                 session=session, task=task
             )
             session.execution_reports.append(report)
+
+            live.update(generate_execution_table(session.execution_reports, paths))
+            live.refresh()
+
             if session.should_stop:
                 return True
-
-            if session.config["verbose"] >= 1:
-                live.update(table)
 
     return True
 
@@ -147,7 +142,11 @@ def pytask_execute_task_process_report(session, report):
     task = report.task
     if report.success:
         _update_states_in_database(session.dag, task.name)
+        report.symbol = "."
+        report.color = ColorCode.SUCCESS
     else:
+        report.symbol = "F"
+        report.color = ColorCode.FAILED
         for descending_task_name in descending_tasks(task.name, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]
             descending_task.markers.append(
@@ -168,12 +167,12 @@ def pytask_execute_task_process_report(session, report):
 @hookimpl(trylast=True)
 def pytask_execute_task_log_end(session, report):
     """Log task outcome."""
-    if report.success:
-        log_task_outcome(session, report, symbol=".", color=ColorCode.SUCCESS)
-    else:
-        log_task_outcome(session, report, symbol="F", color=ColorCode.FAILED)
+    verbose_mode = session.config["verbose"]
 
-    return True
+    if verbose_mode >= 1:
+        pass
+    else:
+        console.print(report.symbol, style=report.color, end="")
 
 
 @hookimpl
