@@ -27,7 +27,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`101` allows to visualize the project's DAG.
 - :gh:`102` adds an example if a parametrization provides not the number of arguments
   specified in the signature.
-- :gh:`104` simplifies the logging of the tasks.
+- :gh:`105` simplifies the logging of the tasks.
 
 
 0.0.14 - 2021-03-23
