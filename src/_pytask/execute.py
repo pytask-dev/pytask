@@ -129,7 +129,11 @@ def pytask_execute_task_process_report(session, report):
     task = report.task
     if report.success:
         _update_states_in_database(session.dag, task.name)
+        report.symbol = "."
+        report.color = ColorCode.SUCCESS
     else:
+        report.symbol = "F"
+        report.color = ColorCode.FAILED
         for descending_task_name in descending_tasks(task.name, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]
             descending_task.markers.append(
@@ -150,12 +154,7 @@ def pytask_execute_task_process_report(session, report):
 @hookimpl(trylast=True)
 def pytask_execute_task_log_end(report):
     """Log task outcome."""
-    if report.success:
-        console.print(".", style=ColorCode.SUCCESS, end="")
-    else:
-        console.print("F", style=ColorCode.FAILED, end="")
-
-    return True
+    console.print(report.symbol, style=report.color, end="")
 
 
 @hookimpl

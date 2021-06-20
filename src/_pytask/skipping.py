@@ -1,6 +1,5 @@
 """This module contains everything related to skipping tasks."""
 from _pytask.config import hookimpl
-from _pytask.console import console
 from _pytask.dag import descending_tasks
 from _pytask.enums import ColorCode
 from _pytask.mark import get_specific_markers_from_task
@@ -74,9 +73,14 @@ def pytask_execute_task_process_report(session, report):
     if report.exc_info:
         if isinstance(report.exc_info[1], SkippedUnchanged):
             report.success = True
+            report.symbol = "s"
+            report.color = ColorCode.SUCCESS
 
         elif isinstance(report.exc_info[1], Skipped):
             report.success = True
+            report.symbol = "s"
+            report.color = ColorCode.SKIPPED
+
             for descending_task_name in descending_tasks(task.name, session.dag):
                 descending_task = session.dag.nodes[descending_task_name]["task"]
                 descending_task.markers.append(
@@ -90,28 +94,10 @@ def pytask_execute_task_process_report(session, report):
         elif isinstance(report.exc_info[1], SkippedAncestorFailed):
             report.success = False
             report.exc_info = remove_traceback_from_exc_info(report.exc_info)
+            report.symbol = "s"
+            report.color = ColorCode.FAILED
 
     if report.exc_info and isinstance(
         report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)
     ):
-        return True
-
-
-@hookimpl
-def pytask_execute_task_log_end(report):
-    """Log the status of a skipped task."""
-    if report.success:
-        if report.exc_info:
-            if isinstance(report.exc_info[1], Skipped):
-                console.print("s", style=ColorCode.SKIPPED, end="")
-            elif isinstance(report.exc_info[1], SkippedUnchanged):
-                console.print("s", style=ColorCode.SUCCESS, end="")
-    else:
-        if report.exc_info and isinstance(report.exc_info[1], SkippedAncestorFailed):
-            console.print("s", style=ColorCode.FAILED, end="")
-
-    if report.exc_info and isinstance(
-        report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)
-    ):
-        # Return non-None value so that the task is not logged again.
         return True

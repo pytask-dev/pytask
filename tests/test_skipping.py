@@ -2,12 +2,12 @@ import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
+from _pytask.execute import pytask_execute_task_log_end
 from _pytask.mark import Mark
 from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.report import ExecutionReport
-from _pytask.skipping import pytask_execute_task_log_end
 from _pytask.skipping import pytask_execute_task_setup
 from pytask import main
 
