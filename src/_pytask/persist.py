@@ -1,6 +1,5 @@
 """Implement the ability for tasks to persist."""
 from _pytask.config import hookimpl
-from _pytask.console import console
 from _pytask.dag import node_and_neighbors
 from _pytask.enums import ColorCode
 from _pytask.exceptions import NodeNotFoundError
@@ -53,13 +52,5 @@ def pytask_execute_task_process_report(report):
     """
     if report.exc_info and isinstance(report.exc_info[1], Persisted):
         report.success = True
-
-
-@hookimpl
-def pytask_execute_task_log_end(report):
-    """Log a persisting task with a green p."""
-    if report.success:
-        if report.exc_info:
-            if isinstance(report.exc_info[1], Persisted):
-                console.print("p", style=ColorCode.SUCCESS, end="")
-                return True
+        report.symbol = "p"
+        report.color = ColorCode.SUCCESS

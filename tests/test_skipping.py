@@ -6,8 +6,6 @@ from _pytask.mark import Mark
 from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
-from _pytask.report import ExecutionReport
-from _pytask.skipping import pytask_execute_task_log_end
 from _pytask.skipping import pytask_execute_task_setup
 from pytask import main
 
@@ -217,36 +215,3 @@ def test_pytask_execute_task_setup(marker_name, expectation):
 
     with expectation:
         pytask_execute_task_setup(task)
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    ("exception", "character"),
-    [
-        (SkippedUnchanged, "s"),
-        (SkippedAncestorFailed, "s"),
-        (Skipped, "s"),
-        (None, ""),
-    ],
-)
-def test_pytask_execute_task_log_end(capsys, exception, character):
-    if isinstance(exception, (Skipped, SkippedUnchanged)):
-        report = ExecutionReport.from_task_and_exception((), exception())
-        report.success = True
-    elif isinstance(exception, SkippedAncestorFailed):
-        report = ExecutionReport.from_task_and_exception((), SkippedAncestorFailed)
-        report.success = True
-    else:
-        dummy_task = DummyClass()
-        dummy_task._report_sections = None
-        report = ExecutionReport.from_task(dummy_task)
-
-    out = pytask_execute_task_log_end(report)
-
-    captured = capsys.readouterr()
-    if isinstance(exception, (Skipped, SkippedUnchanged)):
-        assert out
-        assert captured.out == character
-    else:
-        assert out is None
-        assert captured.out == ""
