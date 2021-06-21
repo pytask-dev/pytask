@@ -119,6 +119,17 @@ def pytask_post_parse(config):
     PytaskPDB._config = config
 
 
+@hookimpl
+def pytask_unconfigure():
+    """Return the resources.
+
+    If the :func:`pdb.set_trace` function would not be returned, using breakpoints in
+    test functions with pytask would fail.
+
+    """
+    pdb.set_trace, _, _ = PytaskPDB._saved.pop()
+
+
 class PytaskPDB:
     """Pseudo PDB that defers to the real pdb."""
 
@@ -196,18 +207,11 @@ class PytaskPDB:
                     capman = self._pytask_capman
                     capturing = PytaskPDB._is_capturing(capman)
                     if capturing:
-                        if capturing == "global":
-                            console.rule(
-                                "PDB continue (IO-capturing resumed)",
-                                characters=">",
-                                style=None,
-                            )
-                        else:
-                            console.rule(
-                                f"PDB continue (IO-capturing resumed for {capturing})",
-                                characters=">",
-                                style=None,
-                            )
+                        console.rule(
+                            "PDB continue (IO-capturing resumed)",
+                            characters=">",
+                            style=None,
+                        )
                         assert capman is not None
                         capman.resume()
                     else:
@@ -282,15 +286,9 @@ class PytaskPDB:
                     console.rule(header, characters=">", style=None)
                 else:
                     capturing = cls._is_capturing(capman)
-                    if capturing == "global":
+                    if capturing:
                         console.rule(
                             f"PDB {method} (IO-capturing turned off)",
-                            characters=">",
-                            style=None,
-                        )
-                    elif capturing:
-                        console.rule(
-                            f"PDB {method} (IO-capturing turned off for {capturing})",
                             characters=">",
                             style=None,
                         )

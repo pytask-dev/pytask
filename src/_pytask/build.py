@@ -74,6 +74,8 @@ def main(config_from_cli):
             console.print_exception()
             session.exit_code = ExitCode.FAILED
 
+        session.hook.pytask_unconfigure(session=session)
+
     return session
 
 

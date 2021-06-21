@@ -28,6 +28,9 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`102` adds an example if a parametrization provides not the number of arguments
   specified in the signature.
 - :gh:`105` simplifies the logging of the tasks.
+- :gh:`107` adds and new hook ``pytask_unconfigure`` which makes pytask return
+  :func:`pdb.set_trace` at the end of a session which allows to use ``breakpoint()``
+  inside test functions using pytask.
 
 
 0.0.14 - 2021-03-23

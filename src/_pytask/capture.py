@@ -783,40 +783,40 @@ class CaptureManager:
 
     def __init__(self, method: "_CaptureMethod") -> None:
         self._method = method
-        self._global_capturing: Optional[MultiCapture[str]] = None
+        self._capturing: Optional[MultiCapture[str]] = None
 
     def __repr__(self) -> str:
-        return ("<CaptureManager _method={!r} _global_capturing={!r}>").format(
-            self._method, self._global_capturing
+        return ("<CaptureManager _method={!r} _capturing={!r}>").format(
+            self._method, self._capturing
         )
 
     def is_capturing(self) -> Union[str, bool]:
         return self._method != "no"
 
     def start_capturing(self) -> None:
-        assert self._global_capturing is None
-        self._global_capturing = _get_multicapture(self._method)
-        self._global_capturing.start_capturing()
+        assert self._capturing is None
+        self._capturing = _get_multicapture(self._method)
+        self._capturing.start_capturing()
 
     def stop_capturing(self) -> None:
-        if self._global_capturing is not None:
-            self._global_capturing.pop_outerr_to_orig()
-            self._global_capturing.stop_capturing()
-            self._global_capturing = None
+        if self._capturing is not None:
+            self._capturing.pop_outerr_to_orig()
+            self._capturing.stop_capturing()
+            self._capturing = None
 
     def resume(self) -> None:
         # During teardown of the python process, and on rare occasions, capture
         # attributes can be `None` while trying to resume global capture.
-        if self._global_capturing is not None:
-            self._global_capturing.resume_capturing()
+        if self._capturing is not None:
+            self._capturing.resume_capturing()
 
     def suspend(self, in_: bool = False) -> None:
-        if self._global_capturing is not None:
-            self._global_capturing.suspend_capturing(in_=in_)
+        if self._capturing is not None:
+            self._capturing.suspend_capturing(in_=in_)
 
     def read(self) -> CaptureResult[str]:
-        assert self._global_capturing is not None
-        return self._global_capturing.readouterr()
+        assert self._capturing is not None
+        return self._capturing.readouterr()
 
     # Helper context managers
 
