@@ -1,7 +1,15 @@
 How to visualize the DAG
 ========================
 
-pytask offers two interfaces to visualize the :term:`DAG` of your project.
+To visualize the :term:`DAG` of the project, first, install `pydot
+<https://github.com/pydot/pydot>`_ and `graphviz <https://graphviz.org/>`_. For example,
+you can both install with conda
+
+.. code-block:: console
+
+    $ conda install -c conda-forge pydot
+
+After that, pytask offers two interfaces to visualize the :term:`DAG` of your project.
 
 
 Command line interface

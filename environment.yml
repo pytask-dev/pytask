@@ -30,6 +30,7 @@ dependencies:
   - matplotlib
   - pdbpp
   - pre-commit
+  - pydot
   - pytest
   - pytest-cov
   - tox-conda

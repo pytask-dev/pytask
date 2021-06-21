@@ -24,7 +24,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`94` adds ``--show-locals`` which allows to print local variables in tracebacks.
 - :gh:`96` implements a spinner to show the progress during the collection.
 - :gh:`99` enables color support in WSL and fixes ``show_locals`` during collection.
-- :gh:`101` allows to visualize the project's DAG.
+- :gh:`101` implement to visualize the project's DAG. :gh:`108` refines the
+  implementation.
 - :gh:`102` adds an example if a parametrization provides not the number of arguments
   specified in the signature.
 - :gh:`105` simplifies the logging of the tasks.
