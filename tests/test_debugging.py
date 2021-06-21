@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
@@ -289,19 +290,19 @@ def test_pdb_interaction_capturing_twice(tmp_path):
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
-    child.expect(r"PDB set_trace \(IO-capturing turned off\)")
+    child.expect(["PDB", "set_trace", r"\(IO-capturing", "turned", r"off\)"])
     child.expect("task_1")
     child.expect("x = 3")
     child.expect("Pdb")
     child.sendline("c")
-    child.expect(r"PDB continue \(IO-capturing resumed\)")
-    child.expect(r"PDB set_trace \(IO-capturing turned off\)")
+    child.expect(["PDB", "continue", r"\(IO-capturing", r"resumed\)"])
+    child.expect(["PDB", "set_trace", r"\(IO-capturing", "turned", r"off\)"])
     child.expect("x = 4")
     child.expect("Pdb")
     child.sendline("c")
-    child.expect(r"PDB continue \(IO-capturing resumed\)")
+    child.expect(["PDB", "continue", r"\(IO-capturing", r"resumed\)"])
     child.expect("task_1 failed")
-    rest = child.read().decode("utf8")
+    rest = _escape_ansi(child.read().decode("utf8"))
     assert "Captured stdout during call" in rest
     assert "hello17" in rest  # out is captured
     assert "hello18" in rest  # out is captured
@@ -361,7 +362,7 @@ def test_pdb_with_injected_do_debug(tmp_path):
         env={"PATH": os.environ["PATH"], "PYTHONPATH": f"{tmp_path.as_posix()}"},
     )
 
-    child.expect(r"PDB set_trace \(IO-capturing turned off\)")
+    child.expect(["PDB", "set_trace", r"\(IO-capturing", "turned", r"off\)"])
     child.expect(r"\n\(Pdb")
     child.sendline("debug foo()")
     child.expect("ENTERING RECURSIVE DEBUGGER")
@@ -380,8 +381,8 @@ def test_pdb_with_injected_do_debug(tmp_path):
     assert b"Quitting debugger" not in child.before
 
     child.sendline("c")
-    child.expect(r"PDB continue \(IO-capturing resumed\)")
-    rest = child.read().decode("utf8")
+    child.expect(["PDB", "continue", r"\(IO-capturing", r"resumed\)"])
+    rest = _escape_ansi(child.read().decode("utf8"))
     assert "hello17" in rest  # out is captured
     assert "hello18" in rest  # out is captured
     assert "1 failed" in rest
@@ -405,7 +406,7 @@ def test_pdb_without_capture(tmp_path):
     child.expect("Pdb")
     child.sendline("c")
     child.expect(r"PDB continue")
-    child.expect("1 succeeded")
+    child.expect(["1", "succeeded"])
     _flush(child)
 
 
@@ -469,3 +470,9 @@ def test_set_trace_is_returned_after_pytask_finishes(tmp_path):
     rest = child.read().decode("utf8")
     assert "1 passed" in rest
     _flush(child)
+
+
+def _escape_ansi(line):
+    """Escape ANSI sequences produced by rich."""
+    ansi_escape = re.compile(r"(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]")
+    return ansi_escape.sub("", line)
