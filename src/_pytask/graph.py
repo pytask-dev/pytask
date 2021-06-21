@@ -191,12 +191,14 @@ def _write_graph(dag: nx.DiGraph, path: Path, layout: str) -> None:
     except ImportError:
         raise ImportError(
             "To visualize the project's DAG you need to install pydot which is "
-            "available with pip and conda."
+            "available with pip and conda. For example, use 'conda install -c "
+            "conda-forge pydot'."
         ) from None
     if shutil.which(layout) is None:
         raise RuntimeError(
-            "The layout program '{layout}' could not be found on your PATH. Please, "
-            "install graphviz. It is, for example, available with conda."
+            f"The layout program '{layout}' could not be found on your PATH. Please, "
+            "install graphviz. For example, use 'conda install -c conda-forge "
+            "graphivz'."
         )
 
     path.parent.mkdir(exist_ok=True, parents=True)
