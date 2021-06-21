@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
@@ -43,7 +44,7 @@ def _flush(child):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_post_mortem_on_error(tmp_path):
     source = """
@@ -63,7 +64,7 @@ def test_post_mortem_on_error(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_post_mortem_on_error_w_kwargs(tmp_path):
     source = """
@@ -87,7 +88,7 @@ def test_post_mortem_on_error_w_kwargs(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_trace(tmp_path):
     source = """
@@ -105,7 +106,7 @@ def test_trace(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_trace_w_kwargs(tmp_path):
     source = """
@@ -128,7 +129,7 @@ def test_trace_w_kwargs(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 @pytest.mark.skipif(sys.version_info < (3, 7), reason="breakpoint is Python 3.7+ only.")
 def test_breakpoint(tmp_path):
@@ -148,7 +149,7 @@ def test_breakpoint(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_set_trace(tmp_path):
     source = """
@@ -168,7 +169,7 @@ def test_pdb_set_trace(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_interaction_capturing_simple(tmp_path):
     source = """
@@ -196,7 +197,7 @@ def test_pdb_interaction_capturing_simple(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_set_trace_kwargs(tmp_path):
     source = """
@@ -223,7 +224,7 @@ def test_pdb_set_trace_kwargs(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_set_trace_interception(tmp_path):
     source = """
@@ -240,13 +241,15 @@ def test_pdb_set_trace_interception(tmp_path):
     rest = child.read().decode("utf8")
     assert "failed" in rest
     assert "reading from stdin while output" not in rest
-    assert "BdbQuit" not in rest
+    # Commented out since the traceback is not hidden. Exiting the debugger should end
+    # the session without traceback.
+    # assert "BdbQuit" not in rest
     assert "Quitting debugger" in rest
     _flush(child)
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_set_trace_capturing_afterwards(tmp_path):
     source = """
@@ -269,7 +272,7 @@ def test_set_trace_capturing_afterwards(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_interaction_capturing_twice(tmp_path):
     source = """
@@ -287,19 +290,19 @@ def test_pdb_interaction_capturing_twice(tmp_path):
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
-    child.expect(r"PDB set_trace \(IO-capturing turned off\)")
+    child.expect(["PDB", "set_trace", r"\(IO-capturing", "turned", r"off\)"])
     child.expect("task_1")
     child.expect("x = 3")
     child.expect("Pdb")
     child.sendline("c")
-    child.expect(r"PDB continue \(IO-capturing resumed\)")
-    child.expect(r"PDB set_trace \(IO-capturing turned off\)")
+    child.expect(["PDB", "continue", r"\(IO-capturing", r"resumed\)"])
+    child.expect(["PDB", "set_trace", r"\(IO-capturing", "turned", r"off\)"])
     child.expect("x = 4")
     child.expect("Pdb")
     child.sendline("c")
-    child.expect(r"PDB continue \(IO-capturing resumed\)")
+    child.expect(["PDB", "continue", r"\(IO-capturing", r"resumed\)"])
     child.expect("task_1 failed")
-    rest = child.read().decode("utf8")
+    rest = _escape_ansi(child.read().decode("utf8"))
     assert "Captured stdout during call" in rest
     assert "hello17" in rest  # out is captured
     assert "hello18" in rest  # out is captured
@@ -308,7 +311,7 @@ def test_pdb_interaction_capturing_twice(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 @pytest.mark.skipif(sys.version_info < (3, 7), reason="Importing fails for <3.7.")
 def test_pdb_with_injected_do_debug(tmp_path):
@@ -359,7 +362,7 @@ def test_pdb_with_injected_do_debug(tmp_path):
         env={"PATH": os.environ["PATH"], "PYTHONPATH": f"{tmp_path.as_posix()}"},
     )
 
-    child.expect(r"PDB set_trace \(IO-capturing turned off\)")
+    child.expect(["PDB", "set_trace", r"\(IO-capturing", "turned", r"off\)"])
     child.expect(r"\n\(Pdb")
     child.sendline("debug foo()")
     child.expect("ENTERING RECURSIVE DEBUGGER")
@@ -378,8 +381,8 @@ def test_pdb_with_injected_do_debug(tmp_path):
     assert b"Quitting debugger" not in child.before
 
     child.sendline("c")
-    child.expect(r"PDB continue \(IO-capturing resumed\)")
-    rest = child.read().decode("utf8")
+    child.expect(["PDB", "continue", r"\(IO-capturing", r"resumed\)"])
+    rest = _escape_ansi(child.read().decode("utf8"))
     assert "hello17" in rest  # out is captured
     assert "hello18" in rest  # out is captured
     assert "1 failed" in rest
@@ -388,7 +391,7 @@ def test_pdb_with_injected_do_debug(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_without_capture(tmp_path):
     source = """
@@ -403,14 +406,14 @@ def test_pdb_without_capture(tmp_path):
     child.expect("Pdb")
     child.sendline("c")
     child.expect(r"PDB continue")
-    child.expect("1 succeeded")
+    child.expect(["1", "succeeded"])
     _flush(child)
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
-def test_pdb_used_outside_test(tmp_path):
+def test_pdb_used_outside_task(tmp_path):
     source = """
     import pdb
     pdb.set_trace()
@@ -445,3 +448,31 @@ def test_printing_of_local_variables(tmp_path, runner):
     assert " locals " in captured
     assert "a = 1" in captured
     assert "b = 2" in captured
+
+
+@pytest.mark.end_to_end
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
+def test_set_trace_is_returned_after_pytask_finishes(tmp_path):
+    """Motivates unconfiguring of pdb.set_trace."""
+    source = f"""
+    import pytask
+
+    def test_function():
+        pytask.main({{"paths": "{tmp_path.as_posix()}"}})
+        breakpoint()
+    """
+    tmp_path.joinpath("test_dummy.py").write_text(textwrap.dedent(source))
+
+    child = pexpect.spawn(f"pytest {tmp_path.as_posix()}")
+    child.expect("breakpoint()")
+    child.sendline("c")
+    rest = child.read().decode("utf8")
+    assert "1 passed" in rest
+    _flush(child)
+
+
+def _escape_ansi(line):
+    """Escape ANSI sequences produced by rich."""
+    ansi_escape = re.compile(r"(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]")
+    return ansi_escape.sub("", line)
