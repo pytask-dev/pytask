@@ -52,6 +52,10 @@ together.
    :noindex:
 
 
+.. autofunction:: pytask_unconfigure
+   :noindex:
+
+
 Collection
 ----------
 

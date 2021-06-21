@@ -82,6 +82,16 @@ def pytask_post_parse(config: dict) -> None:
     """
 
 
+@hookspec
+def pytask_unconfigure(session):
+    """Unconfigure a pytask session before the process is exited.
+
+    The hook allows to return resources previously borrowed like :func:`pdb.set_trace`
+    by :class:`_pytask.debugging.PytaskPDB` and do other stuff at the end of a session.
+
+    """
+
+
 # Hooks for the collection.
 
 

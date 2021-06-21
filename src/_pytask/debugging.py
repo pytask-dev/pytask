@@ -119,6 +119,17 @@ def pytask_post_parse(config):
     PytaskPDB._config = config
 
 
+@hookimpl
+def pytask_unconfigure():
+    """Return the resources.
+
+    If the :func:`pdb.set_trace` function would not be returned, using breakpoints in
+    test functions with pytask would fail.
+
+    """
+    pdb.set_trace, _, _ = PytaskPDB._saved.pop()
+
+
 class PytaskPDB:
     """Pseudo PDB that defers to the real pdb."""
 
