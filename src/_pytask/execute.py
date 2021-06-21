@@ -53,7 +53,10 @@ def pytask_execute_build(session):
     paths = session.config["paths"]
 
     with LiveWrapper.from_verbose_and_live_kwargs(
-        verbose=session.config["verbose"], console=console, auto_refresh=False
+        verbose=session.config["verbose"],
+        renderable=generate_execution_table([], paths),
+        console=console,
+        auto_refresh=False,
     ) as live:
         for name in session.scheduler.static_order():
             task = session.dag.nodes[name]["task"]
