@@ -32,6 +32,9 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`107` adds and new hook ``pytask_unconfigure`` which makes pytask return
   :func:`pdb.set_trace` at the end of a session which allows to use ``breakpoint()``
   inside test functions using pytask.
+- :gh:`109` makes pytask require networkx>=2.4 since previous versions fail with Python
+  3.9.
+- :gh:`110` adds a "New Features" section to the ``README.rst``.
 
 
 0.0.14 - 2021-03-23
