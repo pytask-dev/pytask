@@ -83,8 +83,7 @@ New Features
 ------------
 
 - Create a visualization of the DAG with ``pytask dag``. (`Tutorial
-  <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_visualize_the_dag.html>`_
-  )
+  <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_visualize_the_dag.html>`_)
 - Show a profile of all tasks (duration, size of products) with ``pytask profile``.
 
 
