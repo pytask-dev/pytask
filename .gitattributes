@@ -1,2 +1,0 @@
-src/pytask/_version.py export-subst
-src/_pytask/_version.py export-subst
