@@ -62,7 +62,7 @@ class LiveExecution:
     def update_running_tasks(self, new_running_task):
         reduced_task_name = reduce_node_name(new_running_task, self._paths)
         self._running_tasks.add(reduced_task_name)
-        self.update_table()
+        self._update_table()
 
     def update_reports(self, new_report):
         reduced_task_name = reduce_node_name(new_report.task, self._paths)
@@ -74,9 +74,9 @@ class LiveExecution:
                 "color": new_report.color,
             }
         )
-        self.update_table()
+        self._update_table()
 
-    def update_table(self):
+    def _update_table(self):
         table = Table("Task", "Outcome")
         for report in self._reports:
             table.add_row(report["name"], Text(report["symbol"], style=report["color"]))

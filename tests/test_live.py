@@ -1,6 +1,9 @@
 import textwrap
 
 import pytest
+from _pytask.live import LiveExecution
+from _pytask.nodes import PythonFunctionTask
+from _pytask.report import ExecutionReport
 from pytask import cli
 
 
@@ -19,3 +22,37 @@ def test_verbose_mode_execution(tmp_path, runner, verbose):
     assert ("Outcome" in result.output) is verbose
     assert ("└──" in result.output) is verbose
     assert ("task_dummy.py::task_dummy" in result.output) is verbose
+
+
+@pytest.mark.unit
+def test_live_execution_sequentially(capsys, tmp_path):
+    path = tmp_path.joinpath("task_dummy.py")
+    task = PythonFunctionTask(
+        "task_dummy", path.as_posix() + "::task_dummy", path, None
+    )
+
+    live = LiveExecution()
+    live._paths = [tmp_path]
+
+    with live:
+        live.update_running_tasks(task)
+
+    captured = capsys.readouterr()
+    assert "Task" in captured.out
+    assert "Outcome" in captured.out
+    assert "task_dummy.py::task_dummy" in captured.out
+    assert "running" in captured.out
+
+    report = ExecutionReport(
+        task=task, success=True, exc_info=None, symbol="new_symbol", color="black"
+    )
+
+    with live:
+        live.update_reports(report)
+
+    captured = capsys.readouterr()
+    assert "Task" in captured.out
+    assert "Outcome" in captured.out
+    assert "task_dummy.py::task_dummy" in captured.out
+    assert "running" not in captured.out
+    assert "new_symbol" in captured.out
