@@ -10,8 +10,6 @@ from _pytask.database import create_or_update_state
 from _pytask.enums import ColorCode
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
-from _pytask.live import generate_execution_table
-from _pytask.live import LiveWrapper
 from _pytask.mark import Mark
 from _pytask.nodes import FilePathNode
 from _pytask.report import ExecutionReport
@@ -50,26 +48,13 @@ def pytask_execute_create_scheduler(session):
 @hookimpl
 def pytask_execute_build(session):
     """Execute tasks."""
-    paths = session.config["paths"]
+    for name in session.scheduler.static_order():
+        task = session.dag.nodes[name]["task"]
+        report = session.hook.pytask_execute_task_protocol(session=session, task=task)
+        session.execution_reports.append(report)
 
-    with LiveWrapper.from_verbose_and_live_kwargs(
-        verbose=session.config["verbose"],
-        renderable=generate_execution_table([], paths),
-        console=console,
-        auto_refresh=False,
-    ) as live:
-        for name in session.scheduler.static_order():
-            task = session.dag.nodes[name]["task"]
-            report = session.hook.pytask_execute_task_protocol(
-                session=session, task=task
-            )
-            session.execution_reports.append(report)
-
-            live.update(generate_execution_table(session.execution_reports, paths))
-            live.refresh()
-
-            if session.should_stop:
-                return True
+        if session.should_stop:
+            return True
 
     return True
 
@@ -168,14 +153,9 @@ def pytask_execute_task_process_report(session, report):
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task_log_end(session, report):
+def pytask_execute_task_log_end(report):
     """Log task outcome."""
-    verbose_mode = session.config["verbose"]
-
-    if verbose_mode >= 1:
-        pass
-    else:
-        console.print(report.symbol, style=report.color, end="")
+    console.print(report.symbol, style=report.color, end="")
 
 
 @hookimpl

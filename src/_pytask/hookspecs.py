@@ -301,7 +301,7 @@ def pytask_execute_task_protocol(session, task):
     """
 
 
-@hookspec
+@hookspec(firstresult=True)
 def pytask_execute_task_log_start(session, task):
     """Start logging of task execution.
 
