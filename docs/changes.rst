@@ -7,7 +7,14 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.0.15 - 2021-xx-xx
+0.0.16 - 2021-xx-xx
+-------------------
+
+- :gh:`111` fixes error when using ``pytask --version`` with click v8.
+
+
+
+0.0.15 - 2021-06-24
 -------------------
 
 - :gh:`80` replaces some remaining formatting using ``pprint`` with ``rich``.
