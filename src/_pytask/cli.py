@@ -5,9 +5,15 @@ import click
 from _pytask.config import hookimpl
 from _pytask.pluginmanager import get_plugin_manager
 from click_default_group import DefaultGroup
+from pkg_resources import packaging
 
 
-CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
+_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
+
+if packaging.version.parse(click.__version__) < packaging.version.parse("8"):
+    _VERSION_OPTION_KWARGS = {}
+else:
+    _VERSION_OPTION_KWARGS = {"package_name": "pytask"}
 
 
 def _extend_command_line_interface(command_line_interface):
@@ -80,11 +86,11 @@ def pytask_add_hooks(pm):
 
 @click.group(
     cls=DefaultGroup,
-    context_settings=CONTEXT_SETTINGS,
+    context_settings=_CONTEXT_SETTINGS,
     default="build",
     default_if_no_args=True,
 )
-@click.version_option()
+@click.version_option(**_VERSION_OPTION_KWARGS)
 def cli():
     """The command line interface of pytask."""
     pass
