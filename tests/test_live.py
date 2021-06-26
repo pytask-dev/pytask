@@ -31,11 +31,21 @@ def test_live_execution_sequentially(capsys, tmp_path):
         "task_dummy", path.as_posix() + "::task_dummy", path, None
     )
 
-    live = LiveExecution()
-    live._paths = [tmp_path]
+    live = LiveExecution(True, [tmp_path])
 
-    with live:
-        live.update_running_tasks(task)
+    live.start()
+    live.update_running_tasks(task)
+    live.pause()
+
+    captured = capsys.readouterr()
+    assert "Task" not in captured.out
+    assert "Outcome" not in captured.out
+    assert "task_dummy.py::task_dummy" not in captured.out
+    assert "running" not in captured.out
+
+    live.resume()
+    live.start()
+    live.stop()
 
     captured = capsys.readouterr()
     assert "Task" in captured.out
@@ -43,12 +53,15 @@ def test_live_execution_sequentially(capsys, tmp_path):
     assert "task_dummy.py::task_dummy" in captured.out
     assert "running" in captured.out
 
+    live.start()
+
     report = ExecutionReport(
         task=task, success=True, exc_info=None, symbol="new_symbol", color="black"
     )
 
-    with live:
-        live.update_reports(report)
+    live.resume()
+    live.update_reports(report)
+    live.stop()
 
     captured = capsys.readouterr()
     assert "Task" in captured.out
