@@ -37,6 +37,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
     live.update_running_tasks(task)
     live.pause()
 
+    # Test pause removes the table.
     captured = capsys.readouterr()
     assert "Task" not in captured.out
     assert "Outcome" not in captured.out
@@ -47,6 +48,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
     live.start()
     live.stop()
 
+    # Test table with running task.
     captured = capsys.readouterr()
     assert "Task" in captured.out
     assert "Outcome" in captured.out
@@ -63,6 +65,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
     live.update_reports(report)
     live.stop()
 
+    # Test final table with reported outcome.
     captured = capsys.readouterr()
     assert "Task" in captured.out
     assert "Outcome" in captured.out
