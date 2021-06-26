@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import attr
 from _pytask.config import hookimpl
 from _pytask.console import console
@@ -10,9 +12,9 @@ from rich.text import Text
 
 @hookimpl
 def pytask_post_parse(config):
-    if config["verbose"] >= 1:
-        config["pm"].register(ExecutionLiveNamespace)
-    LiveExecution._paths = config["paths"]
+    is_verbose = config["verbose"] >= 1
+    live_execution = LiveExecution(is_verbose, config["paths"])
+    config["pm"].register(live_execution, "live_execution")
 
 
 def generate_collection_status(n_collected_tasks):
@@ -22,42 +24,15 @@ def generate_collection_status(n_collected_tasks):
     )
 
 
-class ExecutionLiveNamespace:
-    """The namespace for a live display of the progress of the execution."""
-
-    @staticmethod
-    @hookimpl(hookwrapper=True)
-    def pytask_execute_build():
-        with live_execution:
-            yield
-
-    @staticmethod
-    @hookimpl(tryfirst=True)
-    def pytask_execute_task_log_start(task):
-        live_execution.update_running_tasks(task)
-        return True
-
-    @staticmethod
-    @hookimpl(tryfirst=True)
-    def pytask_execute_task_log_end(report):
-        live_execution.update_reports(report)
-        return True
-
-
-@attr.s
+@attr.s(eq=False)
 class LiveExecution:
     """A singleton for a live display of the execution as a table."""
 
+    _is_verbose = attr.ib(type=bool)
+    _paths = attr.ib(type=Path)
     _live = Live(renderable=None, console=console, auto_refresh=False)
-    _running_tasks = set()
-    _reports = []
-    _paths = None
-
-    def __enter__(self):
-        return self._live.__enter__()
-
-    def __exit__(self, exc_type, exc_value, exc_tb):
-        return self._live.__exit__(exc_type, exc_value, exc_tb)
+    _running_tasks = attr.ib(factory=set)
+    _reports = attr.ib(factory=list)
 
     def update_running_tasks(self, new_running_task):
         reduced_task_name = reduce_node_name(new_running_task, self._paths)
@@ -76,14 +51,58 @@ class LiveExecution:
         )
         self._update_table()
 
+    def start(self):
+        if self._is_verbose:
+            self._live.start()
+
+    def stop(self):
+        if self._is_verbose:
+            self._live.stop()
+
+    def pause(self):
+        self._live.transient = True
+        self.stop()
+
+    def resume(self):
+        self._live.transient = False
+        self.start()
+
+    def _generate_table(self):
+        if self._running_tasks or self._reports:
+            table = Table("Task", "Outcome")
+            for report in self._reports:
+                table.add_row(
+                    report["name"], Text(report["symbol"], style=report["color"])
+                )
+            for running_task in self._running_tasks:
+                table.add_row(running_task, "running")
+        else:
+            table = None
+
+        return table
+
     def _update_table(self):
-        table = Table("Task", "Outcome")
-        for report in self._reports:
-            table.add_row(report["name"], Text(report["symbol"], style=report["color"]))
-        for running_task in self._running_tasks:
-            table.add_row(running_task, "running")
+        table = self._generate_table()
         self._live.update(table)
         self._live.refresh()
 
+    @hookimpl(hookwrapper=True)
+    def pytask_execute_build(self):
+        if self._is_verbose:
+            self.start()
+            yield
+            self.stop()
+        else:
+            yield
 
-live_execution = LiveExecution()
+    @hookimpl(tryfirst=True)
+    def pytask_execute_task_log_start(self, task):
+        if self._is_verbose:
+            self.update_running_tasks(task)
+            return True
+
+    @hookimpl(tryfirst=True)
+    def pytask_execute_task_log_end(self, report):
+        if self._is_verbose:
+            self.update_reports(report)
+            return True

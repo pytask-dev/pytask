@@ -327,12 +327,17 @@ def wrap_function_for_post_mortem_debugging(session, task):
     @functools.wraps(task_function)
     def wrapper(*args, **kwargs):
         capman = session.config["pm"].get_plugin("capturemanager")
+        live_execution = session.config["pm"].get_plugin("live_execution")
         try:
             task_function(*args, **kwargs)
 
         except Exception as e:
+            # Order is important! Pausing the live object before the capturemanager
+            # would flush the table to stdout and it will be visible in the captured
+            # output.
             capman.suspend(in_=True)
             out, err = capman.read()
+            live_execution.pause()
 
             if out or err:
                 console.print()
@@ -353,6 +358,7 @@ def wrap_function_for_post_mortem_debugging(session, task):
 
             post_mortem(exc_info[2])
 
+            live_execution.resume()
             capman.resume()
 
             raise e
@@ -384,9 +390,13 @@ def wrap_function_for_tracing(session, task):
     @functools.wraps(task_function)
     def wrapper(*args, **kwargs):
         capman = session.config["pm"].get_plugin("capturemanager")
+        live_execution = session.config["pm"].get_plugin("live_execution")
 
+        # Order is important! Pausing the live object before the capturemanager would
+        # flush the table to stdout and it will be visible in the captured output.
         capman.suspend(in_=True)
         out, err = capman.read()
+        live_execution.stop()
 
         if out or err:
             console.print()
@@ -401,6 +411,7 @@ def wrap_function_for_tracing(session, task):
 
         _pdb.runcall(task_function, *args, **kwargs)
 
+        live_execution.start()
         capman.resume()
 
     task.function = wrapper
