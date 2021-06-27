@@ -143,6 +143,11 @@ def pytask_collect_file(session, path, reports):
     """
 
 
+@hookspec
+def pytask_collect_file_log(session, reports):
+    """Perform logging at the end of collecting a file."""
+
+
 @hookspec(firstresult=True)
 def pytask_collect_task_protocol(session, path, name, obj):
     """Start protocol to collect tasks."""

@@ -13,7 +13,6 @@ from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.enums import ColorCode
 from _pytask.exceptions import CollectionError
-from _pytask.live import generate_collection_status
 from _pytask.mark_utils import has_marker
 from _pytask.nodes import create_task_name
 from _pytask.nodes import FilePathNode
@@ -21,7 +20,6 @@ from _pytask.nodes import PythonFunctionTask
 from _pytask.path import find_case_sensitive_path
 from _pytask.report import CollectionReport
 from _pytask.shared import reduce_node_name
-from rich.live import Live
 from rich.traceback import Traceback
 
 
@@ -30,8 +28,7 @@ def pytask_collect(session):
     """Collect tasks."""
     session.collection_start = time.time()
 
-    with Live(generate_collection_status(0), console=console, transient=True) as live:
-        _collect_from_paths(session, live)
+    _collect_from_paths(session)
 
     try:
         session.hook.pytask_collect_modify_tasks(session=session, tasks=session.tasks)
@@ -46,7 +43,7 @@ def pytask_collect(session):
     return True
 
 
-def _collect_from_paths(session, live=None):
+def _collect_from_paths(session):
     """Collect tasks from paths.
 
     Go through all paths, check if the path is ignored, and collect the file if not.
@@ -59,8 +56,6 @@ def _collect_from_paths(session, live=None):
         if reports is not None:
             session.collection_reports.extend(reports)
             session.tasks.extend(i.node for i in reports if i.successful)
-            if live is not None:
-                live.update(generate_collection_status(len(session.tasks)))
 
 
 @hookimpl
@@ -79,6 +74,8 @@ def pytask_collect_file_protocol(session, path, reports):
     except Exception:
         node = FilePathNode.from_path(path)
         reports = [CollectionReport.from_exception(node=node, exc_info=sys.exc_info())]
+
+    session.hook.pytask_collect_file_log(session=session, reports=reports)
 
     return reports
 
