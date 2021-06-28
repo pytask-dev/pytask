@@ -77,7 +77,7 @@ def test_skipif_ancestor_failed(tmp_path):
 
 
 @pytest.mark.end_to_end
-def test_if_skip_decorator_is_applied(tmp_path):
+def test_if_skip_decorator_is_applied_to_following_tasks(tmp_path):
     source = """
     import pytask
 
@@ -98,6 +98,24 @@ def test_if_skip_decorator_is_applied(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
     assert session.execution_reports[1].success
     assert isinstance(session.execution_reports[1].exc_info[1], Skipped)
+
+
+@pytest.mark.end_to_end
+def test_skip_if_dependency_is_missing(tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.skip
+    @pytask.mark.depends_on("in.txt")
+    def task_first():
+        assert 0
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+
+    assert session.execution_reports[0].success
+    assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
 
 
 @pytest.mark.end_to_end
