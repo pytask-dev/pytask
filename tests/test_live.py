@@ -2,6 +2,7 @@ import textwrap
 
 import pytest
 from _pytask.live import LiveExecution
+from _pytask.live import LiveManager
 from _pytask.nodes import PythonFunctionTask
 from _pytask.report import ExecutionReport
 from pytask import cli
@@ -31,11 +32,12 @@ def test_live_execution_sequentially(capsys, tmp_path):
         "task_dummy", path.as_posix() + "::task_dummy", path, None
     )
 
-    live = LiveExecution(True, [tmp_path])
+    live_manager = LiveManager()
+    live = LiveExecution(live_manager, [tmp_path])
 
-    live.start()
+    live_manager.start()
     live.update_running_tasks(task)
-    live.pause()
+    live_manager.pause()
 
     # Test pause removes the table.
     captured = capsys.readouterr()
@@ -44,9 +46,9 @@ def test_live_execution_sequentially(capsys, tmp_path):
     assert "task_dummy.py::task_dummy" not in captured.out
     assert "running" not in captured.out
 
-    live.resume()
-    live.start()
-    live.stop()
+    live_manager.resume()
+    live_manager.start()
+    live_manager.stop()
 
     # Test table with running task.
     captured = capsys.readouterr()
@@ -55,15 +57,15 @@ def test_live_execution_sequentially(capsys, tmp_path):
     assert "task_dummy.py::task_dummy" in captured.out
     assert "running" in captured.out
 
-    live.start()
+    live_manager.start()
 
     report = ExecutionReport(
         task=task, success=True, exc_info=None, symbol="new_symbol", color="black"
     )
 
-    live.resume()
+    live_manager.resume()
     live.update_reports(report)
-    live.stop()
+    live_manager.stop()
 
     # Test final table with reported outcome.
     captured = capsys.readouterr()
