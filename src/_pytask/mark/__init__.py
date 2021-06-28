@@ -9,9 +9,6 @@ from _pytask.enums import ExitCode
 from _pytask.exceptions import ConfigurationError
 from _pytask.mark.expression import Expression
 from _pytask.mark.expression import ParseError
-from _pytask.mark.structures import get_marks_from_obj
-from _pytask.mark.structures import get_specific_markers_from_task
-from _pytask.mark.structures import has_marker
 from _pytask.mark.structures import Mark
 from _pytask.mark.structures import MARK_GEN
 from _pytask.mark.structures import MarkDecorator
@@ -24,9 +21,6 @@ from rich.table import Table
 
 
 __all__ = [
-    "get_specific_markers_from_task",
-    "get_marks_from_obj",
-    "has_marker",
     "Expression",
     "Mark",
     "MarkDecorator",

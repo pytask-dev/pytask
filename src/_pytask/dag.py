@@ -10,9 +10,9 @@ import attr
 import networkx as nx
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import TASK_ICON
-from _pytask.mark import get_specific_markers_from_task
+from _pytask.mark_utils import get_specific_markers_from_task
 from _pytask.nodes import MetaTask
-from _pytask.nodes import reduce_node_name
+from _pytask.shared import reduce_node_name
 
 
 def descending_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, None]:
