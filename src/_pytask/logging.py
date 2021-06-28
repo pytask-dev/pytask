@@ -6,9 +6,34 @@ from typing import List
 from typing import Tuple
 
 import _pytask
+import click
 import pluggy
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.shared import convert_truthy_or_falsy_to_bool
+from _pytask.shared import get_first_non_none_value
+
+
+@hookimpl
+def pytask_extend_command_line_interface(cli):
+    show_locals_option = click.Option(
+        ["--show-locals"],
+        is_flag=True,
+        default=None,
+        help="Show local variables in tracebacks.",
+    )
+    cli.commands["build"].params.append(show_locals_option)
+
+
+@hookimpl
+def pytask_parse_config(config, config_from_file, config_from_cli):
+    config["show_locals"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="show_locals",
+        default=False,
+        callback=convert_truthy_or_falsy_to_bool,
+    )
 
 
 @hookimpl

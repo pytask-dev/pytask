@@ -12,8 +12,8 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.nodes import FilePathNode
-from _pytask.nodes import reduce_node_name
 from _pytask.report import ExecutionReport
+from _pytask.shared import reduce_node_name
 from rich.traceback import Traceback
 
 
@@ -52,6 +52,7 @@ def pytask_execute_build(session):
         task = session.dag.nodes[name]["task"]
         report = session.hook.pytask_execute_task_protocol(session=session, task=task)
         session.execution_reports.append(report)
+
         if session.should_stop:
             return True
 

@@ -146,11 +146,11 @@ class PytaskPDB:
         return False
 
     @classmethod
-    def _import_pdb_cls(cls, capman):
+    def _import_pdb_cls(cls, capman, live_manager):
         if not cls._config:
             import pdb
 
-            # Happens when using pytest.set_trace outside of a test.
+            # Happens when using pytask.set_trace outside of a task.
             return pdb.Pdb
 
         usepdb_cls = cls._config["pdbcls"]
@@ -180,16 +180,17 @@ class PytaskPDB:
 
             pdb_cls = pdb.Pdb
 
-        wrapped_cls = cls._get_pdb_wrapper_class(pdb_cls, capman)
+        wrapped_cls = cls._get_pdb_wrapper_class(pdb_cls, capman, live_manager)
         cls._wrapped_pdb_cls = (usepdb_cls, wrapped_cls)
         return wrapped_cls
 
     @classmethod
-    def _get_pdb_wrapper_class(cls, pdb_cls, capman):
+    def _get_pdb_wrapper_class(cls, pdb_cls, capman, live_manager):
         # Type ignored because mypy doesn't support "dynamic"
         # inheritance like this.
         class PytaskPdbWrapper(pdb_cls):  # type: ignore[valid-type,misc]
             _pytask_capman = capman
+            _pytask_live_manager = live_manager
             _continued = False
 
             def do_debug(self, arg):
@@ -216,6 +217,10 @@ class PytaskPDB:
                         capman.resume()
                     else:
                         console.rule("PDB continue", characters=">", style=None)
+
+                    if not self._pytask_live_manager.is_started:
+                        self._pytask_live_manager.resume()
+
                 assert cls._pluginmanager is not None
                 self._continued = True
                 return ret
@@ -243,8 +248,7 @@ class PytaskPDB:
             def setup(self, f, tb):
                 """Suspend on setup().
 
-                Needed after do_continue resumed, and entering another
-                breakpoint again.
+                Needed after do_continue resumed, and entering another breakpoint again.
 
                 """
                 ret = super().setup(f, tb)
@@ -253,6 +257,8 @@ class PytaskPDB:
                     # from the interaction: do not suspend capturing then.
                     if self._pytask_capman:
                         self._pytask_capman.suspend(in_=True)
+                    if self._pytask_live_manager:
+                        self._pytask_live_manager.pause()
                 return ret
 
             def get_stack(self, f, t):
@@ -271,10 +277,14 @@ class PytaskPDB:
         """Initialize PDB debugging, dropping any IO capturing."""
         if cls._pluginmanager is None:
             capman = None
+            live_manager = None
         else:
             capman = cls._pluginmanager.get_plugin("capturemanager")
+            live_manager = cls._pluginmanager.get_plugin("live_manager")
         if capman:
             capman.suspend(in_=True)
+        if live_manager:
+            live_manager.pause()
 
         if cls._config:
             console.print()
@@ -295,7 +305,7 @@ class PytaskPDB:
                     else:
                         console.rule(f"PDB {method}", characters=">", style=None)
 
-        _pdb = cls._import_pdb_cls(capman)(**kwargs)
+        _pdb = cls._import_pdb_cls(capman, live_manager)(**kwargs)
 
         return _pdb
 
@@ -327,12 +337,17 @@ def wrap_function_for_post_mortem_debugging(session, task):
     @functools.wraps(task_function)
     def wrapper(*args, **kwargs):
         capman = session.config["pm"].get_plugin("capturemanager")
+        live_manager = session.config["pm"].get_plugin("live_manager")
         try:
             task_function(*args, **kwargs)
 
         except Exception as e:
+            # Order is important! Pausing the live object before the capturemanager
+            # would flush the table to stdout and it will be visible in the captured
+            # output.
             capman.suspend(in_=True)
             out, err = capman.read()
+            live_manager.pause()
 
             if out or err:
                 console.print()
@@ -353,6 +368,7 @@ def wrap_function_for_post_mortem_debugging(session, task):
 
             post_mortem(exc_info[2])
 
+            live_manager.resume()
             capman.resume()
 
             raise e
@@ -384,9 +400,13 @@ def wrap_function_for_tracing(session, task):
     @functools.wraps(task_function)
     def wrapper(*args, **kwargs):
         capman = session.config["pm"].get_plugin("capturemanager")
+        live_manager = session.config["pm"].get_plugin("live_manager")
 
+        # Order is important! Pausing the live object before the capturemanager would
+        # flush the table to stdout and it will be visible in the captured output.
         capman.suspend(in_=True)
         out, err = capman.read()
+        live_manager.stop()
 
         if out or err:
             console.print()
@@ -401,6 +421,7 @@ def wrap_function_for_tracing(session, task):
 
         _pdb.runcall(task_function, *args, **kwargs)
 
+        live_manager.resume()
         capman.resume()
 
     task.function = wrapper

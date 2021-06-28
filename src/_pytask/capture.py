@@ -855,3 +855,18 @@ class CaptureManager:
         """Capture output during teardown."""
         with self.task_capture("teardown", task):
             yield
+
+    @hookimpl(hookwrapper=True)
+    def pytask_collect_log(self):
+        """Suspend capturing at the end of the collection.
+
+        This hook needs to be here as long as the collection has no proper capturing. If
+        ``pdb.set_trace`` stops the collection, continuation in ``do_continue`` enables
+        the capture manager. Then, the collection status will be captured and displayed
+        in the output of the first task.
+
+        Here, we stop the capture manager before logging the final collection status.
+
+        """
+        self.suspend(in_=True)
+        yield

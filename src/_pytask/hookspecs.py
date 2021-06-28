@@ -143,6 +143,11 @@ def pytask_collect_file(session, path, reports):
     """
 
 
+@hookspec
+def pytask_collect_file_log(session, reports):
+    """Perform logging at the end of collecting a file."""
+
+
 @hookspec(firstresult=True)
 def pytask_collect_task_protocol(session, path, name, obj):
     """Start protocol to collect tasks."""
@@ -301,7 +306,7 @@ def pytask_execute_task_protocol(session, task):
     """
 
 
-@hookspec
+@hookspec(firstresult=True)
 def pytask_execute_task_log_start(session, task):
     """Start logging of task execution.
 
@@ -350,7 +355,7 @@ def pytask_execute_task_process_report(session, report):
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task_log_end(session, task, report):
+def pytask_execute_task_log_end(session, report):
     """Log the end of a task execution."""
 
 

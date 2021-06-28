@@ -2,8 +2,15 @@
 import glob
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
-from typing import Iterable
+from typing import List
+
+from _pytask.console import escape_squared_brackets
+from _pytask.nodes import create_task_name
+from _pytask.nodes import MetaNode
+from _pytask.nodes import MetaTask
+from _pytask.path import find_closest_ancestor
+from _pytask.path import find_common_ancestor
+from _pytask.path import relative_to
 
 
 def to_list(scalar_or_iter):
@@ -113,23 +120,38 @@ def convert_truthy_or_falsy_to_bool(x):
     return out
 
 
-def find_duplicates(x: Iterable[Any]):
-    """Find duplicated entries in iterable.
+def reduce_node_name(node, paths: List[Path]):
+    """Reduce the node name.
 
-    Examples
-    --------
-    >>> find_duplicates(["a", "b", "a"])
-    {'a'}
-    >>> find_duplicates(["a", "b"])
-    set()
+    The whole name of the node - which includes the drive letter - can be very long
+    when using nested folder structures in bigger projects.
+
+    Thus, the part of the name which contains the path is replaced by the relative
+    path from one path in ``session.config["paths"]`` to the node.
 
     """
-    seen = set()
-    duplicates = set()
+    ancestor = find_closest_ancestor(node.path, paths)
+    if ancestor is None:
+        try:
+            ancestor = find_common_ancestor(node.path, *paths)
+        except ValueError:
+            ancestor = node.path.parents[-1]
 
-    for i in x:
-        if i in seen:
-            duplicates.add(i)
-        seen.add(i)
+    if isinstance(node, MetaTask):
+        shortened_path = relative_to(node.path, ancestor)
+        raw_name = create_task_name(shortened_path, node.base_name)
+        name = escape_squared_brackets(raw_name)
+    elif isinstance(node, MetaNode):
+        name = relative_to(node.path, ancestor).as_posix()
+    else:
+        raise ValueError(f"Unknown node {node} with type '{type(node)}'.")
 
-    return duplicates
+    return name
+
+
+def reduce_names_of_multiple_nodes(names, dag, paths):
+    """Reduce the names of multiple nodes in the DAG."""
+    return [
+        reduce_node_name(dag.nodes[n].get("node") or dag.nodes[n].get("task"), paths)
+        for n in names
+    ]

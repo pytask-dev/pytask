@@ -189,6 +189,14 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         callback=convert_truthy_or_falsy_to_bool,
     )
 
+    config["verbose"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="verbose",
+        default=0,
+        callback=lambda x: x if x is None else int(x),
+    )
+
 
 @hookimpl
 def pytask_post_parse(config):
