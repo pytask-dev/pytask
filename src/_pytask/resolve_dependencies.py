@@ -18,6 +18,7 @@ from _pytask.database import State
 from _pytask.enums import ColorCode
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
+from _pytask.mark import get_specific_markers_from_task
 from _pytask.mark import Mark
 from _pytask.nodes import reduce_names_of_multiple_nodes
 from _pytask.nodes import reduce_node_name
@@ -174,7 +175,8 @@ def _check_if_root_nodes_are_available(dag):
     for node in dag.nodes:
         is_node = "node" in dag.nodes[node]
         is_without_parents = len(list(dag.predecessors(node))) == 0
-        if is_node and is_without_parents:
+        is_only_used_by_skipped_tasks = _check_if_used_by_non_skipped_task(node, dag)
+        if is_node and is_without_parents and not is_only_used_by_skipped_tasks:
             try:
                 dag.nodes[node]["node"].state()
             except NodeNotFoundError:
@@ -200,6 +202,32 @@ def _check_if_root_nodes_are_available(dag):
 
         text = _format_dictionary_to_tree(dictionary, "Missing dependencies:")
         raise ResolvingDependenciesError(_TEMPLATE_ERROR.format(text))
+
+
+def _check_if_used_by_non_skipped_task(node, dag):
+    for successor in dag.successors(node):
+        if "node" in dag.nodes[successor]:
+            return False
+
+        task = dag.nodes[successor]["task"]
+
+        skip_markers = get_specific_markers_from_task(task, "skip")
+        if skip_markers:
+            return True
+
+        skip_if_markers = get_specific_markers_from_task(task, "skip_if")
+        is_any_true = any(
+            _skipif(*marker.args, **marker.kwargs) for marker in skip_if_markers
+        )
+        if is_any_true:
+            return True
+
+    return False
+
+
+def _skipif(condition: bool, *, reason: str) -> tuple:
+    """Shameless copy to circumvent circular imports."""
+    return condition, reason
 
 
 def _format_dictionary_to_tree(dict_: Dict[str, List[str]], title: str) -> str:
