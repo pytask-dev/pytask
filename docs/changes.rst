@@ -11,7 +11,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 -------------------
 
 - :gh:`111` fixes error when using ``pytask --version`` with click v8.
-
+- :gh:`116` fixes :gh:`104` which prevented to skip tasks with missing dependencies.
 
 
 0.0.15 - 2021-06-24
