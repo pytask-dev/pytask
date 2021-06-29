@@ -7,6 +7,7 @@ from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.skipping import pytask_execute_task_setup
+from pytask import cli
 from pytask import main
 
 
@@ -116,6 +117,30 @@ def test_skip_if_dependency_is_missing(tmp_path):
 
     assert session.execution_reports[0].success
     assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
+
+
+@pytest.mark.end_to_end
+def test_skip_if_dependency_is_missing_only_for_one_task(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.skip
+    @pytask.mark.depends_on("in.txt")
+    def task_first():
+        assert 0
+
+    @pytask.mark.depends_on("in.txt")
+    def task_second():
+        assert 0
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == 4
+    assert "in.txt" in result.output
+    assert "task_first" not in result.output
+    assert "task_second" in result.output
 
 
 @pytest.mark.end_to_end
