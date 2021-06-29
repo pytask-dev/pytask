@@ -7,11 +7,20 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.0.16 - 2021-xx-xx
+0.1.0 - 2021-xx-xx
+------------------
+
+- :gh:`106` implements a verbose mode for the execution which is available with ``pytask
+  -v`` and shows a table with running and completed tasks. It also refines the
+  collection status.
+- :gh:`116` and :gh:`117` fix :gh:`104` which prevented to skip tasks with missing
+  dependencies.
+
+
+0.0.16 - 2021-06-25
 -------------------
 
 - :gh:`111` fixes error when using ``pytask --version`` with click v8.
-- :gh:`116` fixes :gh:`104` which prevented to skip tasks with missing dependencies.
 
 
 0.0.15 - 2021-06-24
