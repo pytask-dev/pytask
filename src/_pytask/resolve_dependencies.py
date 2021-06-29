@@ -18,8 +18,8 @@ from _pytask.database import State
 from _pytask.enums import ColorCode
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
-from _pytask.mark import get_specific_markers_from_task
 from _pytask.mark import Mark
+from _pytask.mark_utils import get_specific_markers_from_task
 from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import ResolvingDependenciesReport
 from _pytask.shared import reduce_names_of_multiple_nodes
@@ -171,23 +171,28 @@ if IS_FILE_SYSTEM_CASE_SENSITIVE:
 
 def _check_if_root_nodes_are_available(dag):
     missing_root_nodes = []
+    is_task_skipped = {}
 
     for node in dag.nodes:
         is_node = "node" in dag.nodes[node]
         is_without_parents = len(list(dag.predecessors(node))) == 0
-        is_only_used_by_skipped_tasks = _check_if_used_by_non_skipped_task(node, dag)
-        if is_node and is_without_parents and not is_only_used_by_skipped_tasks:
-            try:
-                dag.nodes[node]["node"].state()
-            except NodeNotFoundError:
-                # Shorten node names for better printing.
-                missing_root_nodes.append(node)
+        if is_node and is_without_parents:
+            are_all_tasks_skipped, is_task_skipped = _check_if_tasks_are_skipped(
+                node, dag, is_task_skipped
+            )
+            if not are_all_tasks_skipped:
+                try:
+                    dag.nodes[node]["node"].state()
+                except NodeNotFoundError:
+                    # Shorten node names for better printing.
+                    missing_root_nodes.append(node)
 
     if missing_root_nodes:
         all_names = missing_root_nodes + [
             successor
             for node in missing_root_nodes
             for successor in dag.successors(node)
+            if not is_task_skipped[successor]
         ]
         common_ancestor = find_common_ancestor_of_nodes(*all_names)
         dictionary = {}
@@ -195,8 +200,11 @@ def _check_if_root_nodes_are_available(dag):
             short_node_name = reduce_node_name(
                 dag.nodes[node]["node"], [common_ancestor]
             )
+            not_skipped_successors = [
+                task for task in dag.successors(node) if not is_task_skipped[task]
+            ]
             short_successors = reduce_names_of_multiple_nodes(
-                dag.successors(node), dag, [common_ancestor]
+                not_skipped_successors, dag, [common_ancestor]
             )
             dictionary[short_node_name] = short_successors
 
@@ -204,25 +212,28 @@ def _check_if_root_nodes_are_available(dag):
         raise ResolvingDependenciesError(_TEMPLATE_ERROR.format(text))
 
 
-def _check_if_used_by_non_skipped_task(node, dag):
+def _check_if_tasks_are_skipped(node, dag, is_task_skipped):
+    """Check for a given node whether it is only used by skipped tasks."""
+    are_all_tasks_skipped = []
     for successor in dag.successors(node):
-        if "node" in dag.nodes[successor]:
-            return False
+        if successor not in is_task_skipped:
+            is_task_skipped[successor] = _check_if_task_is_skipped(successor, dag)
+        are_all_tasks_skipped.append(is_task_skipped[successor])
 
-        task = dag.nodes[successor]["task"]
+    return all(are_all_tasks_skipped), is_task_skipped
 
-        skip_markers = get_specific_markers_from_task(task, "skip")
-        if skip_markers:
-            return True
 
-        skip_if_markers = get_specific_markers_from_task(task, "skip_if")
-        is_any_true = any(
-            _skipif(*marker.args, **marker.kwargs) for marker in skip_if_markers
-        )
-        if is_any_true:
-            return True
+def _check_if_task_is_skipped(task_name, dag):
+    task = dag.nodes[task_name]["task"]
+    is_skipped = get_specific_markers_from_task(task, "skip")
+    if is_skipped:
+        return True
 
-    return False
+    skip_if_markers = get_specific_markers_from_task(task, "skip_if")
+    is_any_true = any(
+        _skipif(*marker.args, **marker.kwargs) for marker in skip_if_markers
+    )
+    return is_any_true
 
 
 def _skipif(condition: bool, *, reason: str) -> tuple:
