@@ -16,6 +16,7 @@ from _pytask.outcomes import Persisted
 from _pytask.outcomes import Skipped
 from _pytask.report import ExecutionReport
 from _pytask.shared import reduce_node_name
+from _pytask.traceback import remove_traceback_from_exc_info
 from rich.traceback import Traceback
 
 
@@ -69,6 +70,10 @@ def pytask_execute_task_protocol(session, task):
         session.hook.pytask_execute_task_setup(session=session, task=task)
         session.hook.pytask_execute_task(session=session, task=task)
         session.hook.pytask_execute_task_teardown(session=session, task=task)
+    except KeyboardInterrupt:
+        short_exc_info = remove_traceback_from_exc_info(sys.exc_info())
+        report = ExecutionReport.from_task_and_exception(task, short_exc_info)
+        session.should_stop = True
     except Exception:
         report = ExecutionReport.from_task_and_exception(task, sys.exc_info())
     else:

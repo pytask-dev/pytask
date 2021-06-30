@@ -167,5 +167,4 @@ class LiveCollection:
         if self._n_errors > 0:
             msg += f" {self._n_errors} errors."
         status = Status(msg, spinner="dots")
-        status._name = "collection_status"
         return status
