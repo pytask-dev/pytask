@@ -97,4 +97,6 @@ def _style_infos(infos: List[Tuple[Any]]) -> str:
     for value, description, color in infos:
         if value:
             message.append(f"[{color}]{value} {description}[/]")
+    if not message:
+        message = ["nothing to report"]
     return ", ".join(message)

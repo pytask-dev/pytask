@@ -16,6 +16,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`116` and :gh:`117` fix :gh:`104` which prevented to skip tasks with missing
   dependencies.
 - :gh:`118` makes the path to the configuration in the session header os-specific.
+- :gh:`120` implements that a single ``KeyboardInterrupt`` stops the execution and
+  previously collected reports are shown.
 
 
 0.0.16 - 2021-06-25
