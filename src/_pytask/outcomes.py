@@ -10,10 +10,6 @@ class SkippedAncestorFailed(PytaskOutcome):
     """Outcome if an ancestor failed."""
 
 
-class SkippedDependencyNotFound(PytaskOutcome):
-    """Outcome if a dependency was not found."""
-
-
 class SkippedUnchanged(PytaskOutcome):
     """Outcome if task has run before and is unchanged."""
 

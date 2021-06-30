@@ -18,6 +18,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`118` makes the path to the configuration in the session header os-specific.
 - :gh:`119` changes that when marker or keyword expressions are used to select tasks,
   also the predecessors of the selected tasks will be executed.
+- :gh:`121` add skipped and persisted tasks to the execution footer.
 
 
 0.0.16 - 2021-06-25

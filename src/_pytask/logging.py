@@ -76,9 +76,8 @@ def pytask_log_session_footer(
     infos: List[Tuple[Any]], duration: float, color: str
 ) -> str:
     """Format the footer of the log message."""
-    message = f"[{color}]"
-    message += _style_infos(infos)
-    message += f" in {duration}s"
+    message = _style_infos(infos)
+    message += f"[{color}] in {duration}s"
 
     console.rule(message, style=color)
 
