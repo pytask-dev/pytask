@@ -43,6 +43,9 @@ def pytask_resolve_dependencies(session):
         session.dag = session.hook.pytask_resolve_dependencies_create_dag(
             session=session, tasks=session.tasks
         )
+        session.hook.pytask_resolve_dependencies_modify_dag(
+            session=session, dag=session.dag
+        )
         session.hook.pytask_resolve_dependencies_validate_dag(
             session=session, dag=session.dag
         )
@@ -77,6 +80,8 @@ def pytask_resolve_dependencies_create_dag(tasks):
             dag.add_node(product.name, node=product)
             dag.add_edge(task.name, product.name)
 
+    _check_if_dag_has_cycles(dag)
+
     return dag
 
 
@@ -100,7 +105,6 @@ def pytask_resolve_dependencies_select_execution_dag(dag):
 @hookimpl
 def pytask_resolve_dependencies_validate_dag(dag):
     """Validate the DAG."""
-    _check_if_dag_has_cycles(dag)
     _check_if_root_nodes_are_available(dag)
     _check_if_tasks_have_the_same_products(dag)
 

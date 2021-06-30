@@ -229,11 +229,11 @@ def pytask_resolve_dependencies_create_dag(session, tasks):
 
 
 @hookspec
-def pytask_resolve_dependencies_select_execution_dag(session, dag):
-    """Select the subgraph which needs to be executed.
+def pytask_resolve_dependencies_modify_dag(session, dag):
+    """Modify the DAG.
 
-    This hook determines which of the tasks have to be re-run because something has
-    changed.
+    This hook allows to make some changes to the DAG before it is validated and tasks
+    are selected.
 
     """
 
@@ -244,6 +244,16 @@ def pytask_resolve_dependencies_validate_dag(session, dag):
 
     This hook validates the DAG. For example, there can be cycles in the DAG if tasks,
     dependencies and products have been misspecified.
+
+    """
+
+
+@hookspec
+def pytask_resolve_dependencies_select_execution_dag(session, dag):
+    """Select the subgraph which needs to be executed.
+
+    This hook determines which of the tasks have to be re-run because something has
+    changed.
 
     """
 

@@ -241,7 +241,7 @@ def _deselect_others_with_mark(session, remaining, mark):
 
 
 @hookimpl
-def pytask_resolve_dependencies_select_execution_dag(session, dag):
+def pytask_resolve_dependencies_modify_dag(session, dag):
     """Modify the tasks which are executed with expressions and markers."""
     remaining = select_by_keyword(session, dag)
     if remaining is not None:
