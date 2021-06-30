@@ -46,7 +46,7 @@ def pytask_log_session_header(session):
     )
     console.print(f"Root: {session.config['root']}")
     if session.config["config"] is not None:
-        console.print(f"Configuration: {session.config['config'].as_posix()}")
+        console.print(f"Configuration: {session.config['config']}")
 
     plugin_info = session.config["pm"].list_plugin_distinfo()
     if plugin_info:

@@ -15,6 +15,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   collection status.
 - :gh:`116` and :gh:`117` fix :gh:`104` which prevented to skip tasks with missing
   dependencies.
+- :gh:`118` makes the path to the configuration in the session header os-specific.
 
 
 0.0.16 - 2021-06-25
