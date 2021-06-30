@@ -67,6 +67,9 @@ def pytask_execute_task_protocol(session, task):
         session.hook.pytask_execute_task_setup(session=session, task=task)
         session.hook.pytask_execute_task(session=session, task=task)
         session.hook.pytask_execute_task_teardown(session=session, task=task)
+    except KeyboardInterrupt:
+        report = ExecutionReport.from_task_and_exception(task, sys.exc_info())
+        session.should_stop = True
     except Exception:
         report = ExecutionReport.from_task_and_exception(task, sys.exc_info())
     else:
