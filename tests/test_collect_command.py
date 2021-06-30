@@ -20,6 +20,7 @@ def test_collect_task(runner, tmp_path):
         pass
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.txt").touch()
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
 
@@ -53,6 +54,7 @@ def test_collect_parametrized_tasks(runner, tmp_path):
         pass
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.txt").touch()
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
 
@@ -80,6 +82,8 @@ def test_collect_task_with_expressions(runner, tmp_path):
         pass
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in_1.txt").touch()
+    tmp_path.joinpath("in_2.txt").touch()
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "-k", "_1"])
 
@@ -122,6 +126,7 @@ def test_collect_task_with_marker(runner, tmp_path, config_name):
         pass
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in_1.txt").touch()
 
     config = """
     [pytask]
@@ -176,6 +181,7 @@ def test_collect_task_with_ignore_from_config(runner, tmp_path, config_name):
         pass
     """
     tmp_path.joinpath("task_dummy_2.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in_1.txt").touch()
 
     config = """
     [pytask]
@@ -220,6 +226,7 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
         pass
     """
     tmp_path.joinpath("task_dummy_1.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in_1.txt").touch()
 
     source = """
     @pytask.mark.depends_on("in_2.txt")

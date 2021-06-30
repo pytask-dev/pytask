@@ -30,6 +30,21 @@ def task_and_descending_tasks(
     yield from descending_tasks(task_name, dag)
 
 
+def preceding_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, None]:
+    """Yield only preceding tasks."""
+    for ancestor in nx.ancestors(dag, task_name):
+        if "task" in dag.nodes[ancestor]:
+            yield ancestor
+
+
+def task_and_preceding_tasks(
+    task_name: str, dag: nx.DiGraph
+) -> Generator[str, None, None]:
+    """Yield task and preceding tasks."""
+    yield task_name
+    yield from preceding_tasks(task_name, dag)
+
+
 def node_and_neighbors(dag: nx.DiGraph, node: str) -> Generator[str, None, None]:
     """Yield node and neighbors which are first degree predecessors and successors.
 

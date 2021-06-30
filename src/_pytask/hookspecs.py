@@ -228,7 +228,7 @@ def pytask_resolve_dependencies_create_dag(session, tasks):
     """
 
 
-@hookspec(firstresult=True)
+@hookspec
 def pytask_resolve_dependencies_select_execution_dag(session, dag):
     """Select the subgraph which needs to be executed.
 

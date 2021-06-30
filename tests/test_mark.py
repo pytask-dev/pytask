@@ -147,7 +147,9 @@ def test_mark_option(tmp_path, expr: str, expected_passed: str) -> None:
     session = main({"paths": tmp_path, "marker_expression": expr})
 
     tasks_that_run = [
-        report.task.name.rsplit("::")[1] for report in session.execution_reports
+        report.task.name.rsplit("::")[1]
+        for report in session.execution_reports
+        if not report.exc_info
     ]
     assert set(tasks_that_run) == set(expected_passed)
 
@@ -189,7 +191,9 @@ def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> Non
     assert session.exit_code == 0
 
     tasks_that_run = [
-        report.task.name.rsplit("::")[1] for report in session.execution_reports
+        report.task.name.rsplit("::")[1]
+        for report in session.execution_reports
+        if not report.exc_info
     ]
     assert set(tasks_that_run) == set(expected_passed)
 
@@ -219,7 +223,9 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
     assert session.exit_code == 0
 
     tasks_that_run = [
-        report.task.name.rsplit("::")[1] for report in session.execution_reports
+        report.task.name.rsplit("::")[1]
+        for report in session.execution_reports
+        if not report.exc_info
     ]
     assert set(tasks_that_run) == set(expected_passed)
 
@@ -263,7 +269,7 @@ def test_keyword_option_wrong_arguments(
         textwrap.dedent("def task_func(arg): pass")
     )
     session = main({"paths": tmp_path, option: expr})
-    assert session.exit_code == 3
+    assert session.exit_code == 4
 
     captured = capsys.readouterr()
     assert expected_error in captured.out.replace(
@@ -277,3 +283,88 @@ def test_configuration_failed(runner, tmp_path):
         cli, ["markers", "-c", tmp_path.joinpath("non_existent_path").as_posix()]
     )
     assert result.exit_code == 2
+
+
+@pytest.mark.end_to_end
+def test_selecting_task_with_keyword_should_run_predecessor(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.produces("first.txt")
+    def task_first(produces):
+        produces.touch()
+
+
+    @pytask.mark.depends_on("first.txt")
+    def task_second(depends_on):
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix(), "-k", "second"])
+
+    assert result.exit_code == 0
+    assert "2 succeeded" in result.output
+
+
+@pytest.mark.end_to_end
+def test_selecting_task_with_marker_should_run_predecessor(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.produces("first.txt")
+    def task_first(produces):
+        produces.touch()
+
+    @pytask.mark.wip
+    @pytask.mark.depends_on("first.txt")
+    def task_second(depends_on):
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
+
+    assert result.exit_code == 0
+    assert "2 succeeded" in result.output
+
+
+@pytest.mark.end_to_end
+def test_selecting_task_with_keyword_ignores_other_task(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.depends_on("first.txt")
+    def task_first():
+        pass
+
+    def task_second():
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix(), "-k", "second"])
+
+    assert result.exit_code == 0
+    assert "2 succeeded" in result.output
+
+
+@pytest.mark.end_to_end
+def test_selecting_task_with_marker_ignores_other_task(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.depends_on("first.txt")
+    def task_first():
+        pass
+
+    @pytask.mark.wip
+    def task_second():
+        pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
+
+    assert result.exit_code == 0
+    assert "2 succeeded" in result.output

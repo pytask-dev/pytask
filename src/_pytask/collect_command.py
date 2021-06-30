@@ -11,6 +11,9 @@ from _pytask.enums import ColorCode
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
+from _pytask.exceptions import ResolvingDependenciesError
+from _pytask.mark import select_by_keyword
+from _pytask.mark import select_by_mark
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
@@ -57,11 +60,14 @@ def collect(**config_from_cli):
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
+            session.hook.pytask_resolve_dependencies(session=session)
+
+            tasks = _select_tasks_by_expressions_and_marker(session)
 
             common_ancestor = _find_common_ancestor_of_all_nodes(
-                session.tasks, session.config["paths"]
+                tasks, session.config["paths"]
             )
-            dictionary = _organize_tasks(session.tasks, common_ancestor)
+            dictionary = _organize_tasks(tasks, common_ancestor)
             if dictionary:
                 _print_collected_tasks(dictionary, session.config["nodes"])
 
@@ -71,12 +77,24 @@ def collect(**config_from_cli):
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
 
+        except ResolvingDependenciesError:
+            session.exit_code = ExitCode.RESOLVING_DEPENDENCIES_FAILED
+
         except Exception:
             session.exit_code = ExitCode.FAILED
             console.print_exception()
             console.rule(style=ColorCode.FAILED)
 
     sys.exit(session.exit_code)
+
+
+def _select_tasks_by_expressions_and_marker(session):
+    all_tasks = {task.name for task in session.tasks}
+    remaining_by_mark = select_by_mark(session, session.dag) or all_tasks
+    remaining_by_keyword = select_by_keyword(session, session.dag) or all_tasks
+    remaining = remaining_by_mark & remaining_by_keyword
+
+    return [task for task in session.tasks if task.name in remaining]
 
 
 def _find_common_ancestor_of_all_nodes(tasks, paths):

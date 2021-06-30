@@ -55,7 +55,7 @@ def pytask_resolve_dependencies(session):
         session.hook.pytask_resolve_dependencies_log(session=session, report=report)
         session.resolving_dependencies_report = report
 
-        raise ResolvingDependenciesError
+        raise ResolvingDependenciesError from None
 
     else:
         return True
@@ -209,7 +209,7 @@ def _check_if_root_nodes_are_available(dag):
             dictionary[short_node_name] = short_successors
 
         text = _format_dictionary_to_tree(dictionary, "Missing dependencies:")
-        raise ResolvingDependenciesError(_TEMPLATE_ERROR.format(text))
+        raise ResolvingDependenciesError(_TEMPLATE_ERROR.format(text)) from None
 
 
 def _check_if_tasks_are_skipped(node, dag, is_task_skipped):

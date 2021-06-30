@@ -5,6 +5,7 @@ import attr
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.dag import task_and_preceding_tasks
 from _pytask.enums import ExitCode
 from _pytask.exceptions import ConfigurationError
 from _pytask.mark.expression import Expression
@@ -174,11 +175,11 @@ class KeywordMatcher:
         return False
 
 
-def deselect_by_keyword(session, tasks) -> None:
+def select_by_keyword(session, dag) -> set:
     """Deselect tests by keywords."""
     keywordexpr = session.config["expression"]
     if not keywordexpr:
-        return
+        return None
 
     try:
         expression = Expression.compile_(keywordexpr)
@@ -187,24 +188,19 @@ def deselect_by_keyword(session, tasks) -> None:
             f"Wrong expression passed to '-k': {keywordexpr}: {e}"
         ) from None
 
-    remaining = []
-    deselected = []
-    for task in tasks:
-        if keywordexpr and not expression.evaluate(KeywordMatcher.from_task(task)):
-            deselected.append(task)
-        else:
-            remaining.append(task)
+    remaining = set()
+    for task in session.tasks:
+        if keywordexpr and expression.evaluate(KeywordMatcher.from_task(task)):
+            remaining.update(task_and_preceding_tasks(task.name, dag))
 
-    if deselected:
-        session.deselected.extend(deselected)
-        tasks[:] = remaining
+    return remaining
 
 
 @attr.s(slots=True)
 class MarkMatcher:
     """A matcher for markers which are present.
 
-    Tries to match on any marker names, attached to the given colitem.
+    Tries to match on any marker names, attached to the given task.
 
     """
 
@@ -219,32 +215,41 @@ class MarkMatcher:
         return name in self.own_mark_names
 
 
-def deselect_by_mark(session, tasks) -> None:
+def select_by_mark(session, dag) -> set:
     """Deselect tests by marks."""
     matchexpr = session.config["marker_expression"]
     if not matchexpr:
-        return
+        return None
 
     try:
         expression = Expression.compile_(matchexpr)
     except ParseError as e:
         raise ValueError(f"Wrong expression passed to '-m': {matchexpr}: {e}") from None
 
-    remaining = []
-    deselected = []
-    for task in tasks:
+    remaining = set()
+    for task in session.tasks:
         if expression.evaluate(MarkMatcher.from_task(task)):
-            remaining.append(task)
-        else:
-            deselected.append(task)
+            remaining.update(task_and_preceding_tasks(task.name, dag))
 
-    if deselected:
-        session.deselected.extend(deselected)
-        tasks[:] = remaining
+    return remaining
+
+
+def _deselect_others_with_mark(session, remaining, mark):
+    for task in session.tasks:
+        if task.name not in remaining:
+            task.markers.append(mark)
 
 
 @hookimpl
-def pytask_collect_modify_tasks(session, tasks):
-    """Modify the list of collected tasks with expressions and markers."""
-    deselect_by_keyword(session, tasks)
-    deselect_by_mark(session, tasks)
+def pytask_resolve_dependencies_select_execution_dag(session, dag):
+    """Modify the tasks which are executed with expressions and markers."""
+    remaining = select_by_keyword(session, dag)
+    if remaining is not None:
+        _deselect_others_with_mark(
+            session, remaining, Mark("skip", (), {"reason": "Deselected by keyword."})
+        )
+    remaining = select_by_mark(session, dag)
+    if remaining is not None:
+        _deselect_others_with_mark(
+            session, remaining, Mark("skip", (), {"reason": "Deselected by mark."})
+        )
