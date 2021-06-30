@@ -18,8 +18,6 @@ class Session:
     """
     tasks = attr.ib(factory=list)
     """Optional[List[pytask.nodes.MetaTask]]: List of collected tasks."""
-    deselected = attr.ib(factory=list)
-    """Optional[List[pytask.nodes.MetaTask]]: list of deselected tasks."""
     resolving_dependencies_report = attr.ib(factory=list)
     """Optional[pytask.report.ResolvingDependenciesReport]: A report.
 

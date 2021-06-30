@@ -231,12 +231,7 @@ def pytask_collect_log(session, reports, tasks):
     """Log collection."""
     session.collection_end = time.time()
 
-    message = f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}."
-
-    n_deselected = len(session.deselected)
-    if n_deselected:
-        message += f" Deselected {n_deselected} task{'' if n_deselected == 1 else 's'}."
-    console.print(message)
+    console.print(f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}.")
 
     failed_reports = [i for i in reports if not i.successful]
     if failed_reports:
@@ -269,7 +264,6 @@ def pytask_collect_log(session, reports, tasks):
             infos=[
                 (len(tasks), "collected", ColorCode.SUCCESS),
                 (len(failed_reports), "failed", ColorCode.FAILED),
-                (n_deselected, "deselected", ColorCode.NEUTRAL),
             ],
             duration=round(session.collection_end - session.collection_start, 2),
             color=ColorCode.FAILED if len(failed_reports) else ColorCode.SUCCESS,
