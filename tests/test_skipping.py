@@ -102,11 +102,14 @@ def test_if_skip_decorator_is_applied_to_following_tasks(tmp_path):
 
 
 @pytest.mark.end_to_end
-def test_skip_if_dependency_is_missing(tmp_path):
-    source = """
+@pytest.mark.parametrize(
+    "mark_string", ["@pytask.mark.skip", "@pytask.mark.skipif(True, reason='bla')"]
+)
+def test_skip_if_dependency_is_missing(tmp_path, mark_string):
+    source = f"""
     import pytask
 
-    @pytask.mark.skip
+    {mark_string}
     @pytask.mark.depends_on("in.txt")
     def task_first():
         assert 0
@@ -120,11 +123,14 @@ def test_skip_if_dependency_is_missing(tmp_path):
 
 
 @pytest.mark.end_to_end
-def test_skip_if_dependency_is_missing_only_for_one_task(runner, tmp_path):
-    source = """
+@pytest.mark.parametrize(
+    "mark_string", ["@pytask.mark.skip", "@pytask.mark.skipif(True, reason='bla')"]
+)
+def test_skip_if_dependency_is_missing_only_for_one_task(runner, tmp_path, mark_string):
+    source = f"""
     import pytask
 
-    @pytask.mark.skip
+    {mark_string}
     @pytask.mark.depends_on("in.txt")
     def task_first():
         assert 0

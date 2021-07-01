@@ -230,12 +230,13 @@ def _check_if_tasks_are_skipped(node, dag, is_task_skipped):
 def _check_if_task_is_skipped(task_name, dag):
     task = dag.nodes[task_name]["task"]
     is_skipped = get_specific_markers_from_task(task, "skip")
+
     if is_skipped:
         return True
 
-    skip_if_markers = get_specific_markers_from_task(task, "skip_if")
+    skip_if_markers = get_specific_markers_from_task(task, "skipif")
     is_any_true = any(
-        _skipif(*marker.args, **marker.kwargs) for marker in skip_if_markers
+        _skipif(*marker.args, **marker.kwargs)[0] for marker in skip_if_markers
     )
     return is_any_true
 
