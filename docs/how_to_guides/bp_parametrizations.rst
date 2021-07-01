@@ -7,28 +7,61 @@ This section gives advice on how to use parametrizations.
 TL;DR
 -----
 
-- For very simple parametrizations, use parametrizations like with pytest.
+- For very, very simple parametrizations, use parametrizations similar to pytest.
 
-- For more complex cases, build the inputs values for the parametrization with a
-  function. The function should be placed at the top of the task module.
+- For the rest, build the signature, the parametrized arguments and ids with a function.
 
-- If you are reusing a parametrization or parts of it for multiple tasks, code it as
-  modular as possible. Separate the underlying Cartesian product from other values which
-  can be computed by functions on the Cartesian product.
+- Create functions to build intermediate objects like output paths which can be shared
+  more easily across tasks than the generated values.
 
 
-Best Practices
---------------
+Scalability
+-----------
 
-Reusing parametrizations
-~~~~~~~~~~~~~~~~~~~~~~~~
+Parametrizations allow to scale tasks from 1 to :math:`N` in a simple way. What is
+easily overlooked is that parametrizations usually trigger other parametrizations and
+the growth in tasks is more 1 to :math:`N * M` or 1 to :math:`N^M`.
 
-In some projects, you might want to reuse parametrizations or slight variations thereof
-for multiple tasks.
+To keep the resulting complexity as manageable as possible, this guide lays out a
+structure which is simple, modular, and scalable.
 
-To make the scenario more concrete, we want to simulate data by parametrizing a task
-with the mean and standard deviation of a normal distribution. Then, we want to reuse
-the parametrization to plot the simulated distributions.
+As an example, assume we have four datasets with one binary dependent variables and some
+independent variables. On each of the data sets, we fit three models, a linear model, a
+logistic model, and a decision tree. Finally, we visualize the performance of the models
+with ROC-AUC and Precision-Recall curves. We have :math:`4 * 3 * 2 = 12` tasks in total.
+
+First, let us take a look at the folder and file structure of such a project.
+
+.. code-block::
+
+    src
+    │   config.py
+    │
+    ├───data
+    │       data_0.csv
+    │       data_1.csv
+    │       data_2.csv
+    │       data_3.csv
+    │
+    ├───data_preparation
+    │       data_preparation_config.py
+    │       task_prepare_data.py
+    │
+    ├───estimation
+    │       estimation_config.py
+    │       task_estimate_models.py
+    │
+    └───plotting
+            plotting_config.py
+            task_plot_metrics.py
+
+The folder structure, the general ``config.py`` which holds ``SRC`` and ``BLD`` and the
+tasks follow the same structure which is advocated for throughout the tutorials.
+
+What is new are the local configuration files in each of the subfolders of ``src`` which
+are now explained.
+
+
 
 First, we define the core of the parametrization which is the Cartesian product of means
 and standard deviations.
