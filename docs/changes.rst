@@ -20,6 +20,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   also the predecessors of the selected tasks will be executed.
 - :gh:`120` implements that a single ``KeyboardInterrupt`` stops the execution and
   previously collected reports are shown.
+- :gh:`121` add skipped and persisted tasks to the execution footer.
 
 
 0.0.16 - 2021-06-25

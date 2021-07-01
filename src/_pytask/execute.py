@@ -12,6 +12,8 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.nodes import FilePathNode
+from _pytask.outcomes import Persisted
+from _pytask.outcomes import Skipped
 from _pytask.report import ExecutionReport
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import remove_traceback_from_exc_info
@@ -168,12 +170,19 @@ def pytask_execute_log_end(session, reports):
     session.execution_end = time.time()
     show_locals = session.config["show_locals"]
 
-    n_successful = sum(report.success for report in reports)
-    n_failed = len(reports) - n_successful
+    n_failed = len(reports) - sum(report.success for report in reports)
+    n_skipped = sum(
+        isinstance(report.exc_info[1], Skipped) for report in reports if report.exc_info
+    )
+    n_persisted = sum(
+        isinstance(report.exc_info[1], Persisted)
+        for report in reports
+        if report.exc_info
+    )
+    n_successful = len(reports) - n_failed - n_skipped - n_persisted
 
     console.print()
-    any_failure = any(not report.success for report in reports)
-    if any_failure:
+    if n_failed:
         console.rule(f"[{ColorCode.FAILED}]Failures", style=ColorCode.FAILED)
         console.print()
 
@@ -204,7 +213,9 @@ def pytask_execute_log_end(session, reports):
         session=session,
         infos=[
             (n_successful, "succeeded", ColorCode.SUCCESS),
+            (n_persisted, "persisted", ColorCode.SUCCESS),
             (n_failed, "failed", ColorCode.FAILED),
+            (n_skipped, "skipped", ColorCode.SKIPPED),
         ],
         duration=round(session.execution_end - session.execution_start, 2),
         color=ColorCode.FAILED if n_failed else ColorCode.SUCCESS,
