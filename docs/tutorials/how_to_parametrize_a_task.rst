@@ -4,6 +4,12 @@ How to parametrize a task
 Often, you want to define a task which should be repeated over a range of inputs. pytask
 allows to parametrize task functions to accomplish this behavior.
 
+.. seealso::
+
+    If you want to know more about best practices for parametrizations, check out this
+    :doc:`guide <../how_to_guides/bp_parametrizations>` after you made yourself familiar
+    this tutorial.
+
 
 An example
 ----------
@@ -55,7 +61,7 @@ list is mapped to the argument ``produces`` and ``seed`` receives the seed.
 .. note::
 
     If you use ``produces`` or ``depends_on`` in the signature of the parametrize
-    decorator, the values are treated as if they were attached to the function with
+    decorator, the values are handled as if they were attached to the function with
     ``@pytask.mark.depends_on`` or ``@pytask.mark.produces``.
 
 Un-parametrized dependencies
@@ -212,9 +218,3 @@ produces these ids
 
 This is arguably the easiest way to change the representation of many objects at once
 while also producing ids which are easy to remember and type.
-
-
-Further reading
----------------
-
-- :doc:`../how_to_guides/how_to_extend_parametrizations`.
