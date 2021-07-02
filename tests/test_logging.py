@@ -1,7 +1,10 @@
+import textwrap
+
 import attr
 import pytest
 from _pytask.logging import _format_plugin_names_and_versions
 from _pytask.logging import pytask_log_session_footer
+from pytask import cli
 
 
 @attr.s
@@ -44,3 +47,28 @@ def test_pytask_log_session_footer(capsys, infos, duration, color, expected):
     pytask_log_session_footer(infos, duration, color)
     captured = capsys.readouterr()
     assert expected in captured.out
+
+
+@pytest.mark.end_to_end
+def test_logging_of_outcomes(tmp_path, runner):
+    source = """
+    import pytask
+
+    @pytask.mark.skip
+    def task_skipped(): pass
+
+    @pytask.mark.persist
+    def task_persist(): pass
+
+    def task_failed(): raise Exception
+
+    def task_sc(): pass
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert "1 succeeded" in result.output
+    assert "1 persisted" in result.output
+    assert "1 skipped" in result.output
+    assert "1 failed" in result.output

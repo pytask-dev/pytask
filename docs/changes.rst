@@ -13,13 +13,14 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`106` implements a verbose mode for the execution which is available with ``pytask
   -v`` and shows a table with running and completed tasks. It also refines the
   collection status.
-- :gh:`116` and :gh:`117` fix :gh:`104` which prevented to skip tasks with missing
-  dependencies.
+- :gh:`116`, :gh:`117`, and :gh:`123` fix :gh:`104` which prevented to skip tasks with
+  missing dependencies.
 - :gh:`118` makes the path to the configuration in the session header os-specific.
 - :gh:`119` changes that when marker or keyword expressions are used to select tasks,
   also the predecessors of the selected tasks will be executed.
 - :gh:`120` implements that a single ``KeyboardInterrupt`` stops the execution and
   previously collected reports are shown.
+- :gh:`121` add skipped and persisted tasks to the execution footer.
 
 
 0.0.16 - 2021-06-25
