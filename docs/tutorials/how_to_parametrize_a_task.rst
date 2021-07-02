@@ -187,6 +187,8 @@ This produces the following ids:
     task_example.py::task_example[3430019387558]  # (1,)
 
 
+.. _ids:
+
 User-defined ids
 ~~~~~~~~~~~~~~~~
 

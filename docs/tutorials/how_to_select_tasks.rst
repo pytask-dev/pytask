@@ -47,6 +47,8 @@ analysis.
     $ pytask -m "(data_management and not plots) or (analysis and plots)"
 
 
+.. _expressions:
+
 Expressions
 -----------
 

@@ -18,9 +18,9 @@ TL;DR
 Scalability
 -----------
 
-Parametrizations allow to scale tasks from 1 to :math:`N` in a simple way. What is
-easily overlooked is that parametrizations usually trigger other parametrizations and
-the growth in tasks is more 1 to :math:`N * M` or 1 to :math:`N^M`.
+Parametrizations allow to scale tasks from :math:`1` to :math:`N` in a simple way. What
+is easily overlooked is that parametrizations usually trigger other parametrizations and
+the growth in tasks is more :math:`1` to :math:`N * M` or :math:`1` to :math:`N^M`.
 
 To keep the resulting complexity as manageable as possible, this guide lays out a
 structure which is simple, modular, and scalable.
@@ -61,76 +61,120 @@ tasks follow the same structure which is advocated for throughout the tutorials.
 What is new are the local configuration files in each of the subfolders of ``src`` which
 are now explained.
 
-
-
-First, we define the core of the parametrization which is the Cartesian product of means
-and standard deviations.
+First, we focus on the data preparation where the input data is prepared.
 
 .. code-block:: python
 
-   import pytask
+    # Content of data_preparation_config.py
+
+    from src.config import BLD
+    from src.config import SRC
 
 
-   MEANS = [0, 1]
-   STANDARD_DEVIATIONS = [1, 2]
-
-   CARTESIAN_PRODUCT = itertools.product(MEANS, STANDARD_DEVIATIONS)
-
-Secondly, we need a path where the simulated data is stored. We define it as a function
-on the values of the Cartesian product.
-
-.. code-block:: python
-
-   def _create_path_to_simulated_data(mean, standard_devation):
-       return f"simulated_data_mean_{mean}_std_{standard_deviation}.pkl"
-
-Thirdly, the complete task for the simulation is
-
-.. code-block:: python
-
-   import numpy as np
+    DATA = ["data_0", "data_1", "data_2", "data_3"]
 
 
-   N_SAMPLES = 100_000
+    def path_to_input_data(name):
+        return SRC / "data" / f"{name}.csv"
 
 
-   @pytask.mark.parametrize(
-       "mean, standard_deviation, produces",
-       [
-           (mean, std, _create_path_to_simulated_data(mean, std))
-           for mean, std in CARTESIAN_PRODUCT
-       ],
-   )
-   def task_simulate_data(mean, standard_deviation, produces):
-       data = np.random.normal(mean, standard_deviation, size=N_SAMPLES)
-       np.save(produces, data)
+    def path_to_processed_data(name):
+        return BLD / "data" / f"processed_{name}.pkl"
 
-Fourthly, we define the task to plot the distribution of the data. First, the function
-for the path and, secondly, the task.
+The local configuration contains objects which are shared across tasks. For example, the
+paths to the processed data are used in the data preparation and in the next step, the
+estimation.
 
 .. code-block:: python
 
-   import matplotlib.pyplot as plt
+    # Content of task_prepare_data.py
+
+    import pytask
+
+    from src.data_preparation.data_preparation_config import DATA
+    from src.data_preparation.data_preparation_config import path_to_input_data
+    from src.data_preparation.data_preparation_config import path_to_processed_data
 
 
-   def _create_path_to_distribution_plot(mean, std):
-       f"distribution_plot_mean_{mean}_standard_deviation_{std}.png"
+    def _create_parametrization(data):
+        parametrizations = []
+        ids = []
+        for data_name in data:
+            ids.append(data_name)
+            depends_on = path_to_input_data(data_name)
+            produces = path_to_processed_data(data_name)
+            parametrizations.append((depends_on, produces))
+
+        return "depends_on, produces", parametrizations, ids
 
 
-   @pytask.mark.parametrize(
-       "depends_on, produces",
-       [
-           (
-               _create_path_to_simulated_data(mean, std),
-               _create_path_to_distribution_plot(mean, std),
-           )
-           for mean, std in CARTESIAN_PRODUCT
-       ],
-   )
-   def task_plot_distribution(depends_on, produces):
-       data = np.load(depends_on)
+    _SIGNATURE, _PARAMETRIZATION, _IDS = _create_parametrization(DATA)
 
-       fig, ax = plt.subplots()
-       ax.hist(data)
 
-       plt.savefig(produces)
+    @pytask.mark.parametrize(_SIGNATURE, _PARAMETRIZATION, ids=_IDS)
+    def task_prepare_data(depends_on, produces):
+        ...
+
+All arguments for the ``parametrize`` decorator are built within a function to keep the
+logic in one place and the namespace of the module clean. Ids are used to make the task
+:ref:`ids <ids>` more descriptive and to simplify their selection with :ref:`expressions
+<expressions>`. Here is an example of the task ids with an explicit id.
+
+.. code-block::
+
+    # With id
+    .../src/data_preparation/task_prepare_data.py::task_prepare_data[data_0]
+
+Next, we move to the estimation.
+
+.. code-block:: python
+
+    # Content of estimation_config.py
+
+    from src.config import BLD
+
+
+    MODELS = ["linear_probability", "logistic_model", "decision_tree"]
+
+
+    def path_to_estimation_result(name):
+        return BLD / "estimation" / f"estimation_{name}.pkl"
+
+And, here is the task file.
+
+.. code-block:: python
+
+    # Content of task_estimate_models.py
+
+    import pytask
+
+    from src.data_preparation.data_preparation_config import DATA
+    from src.data_preparation.data_preparation_config import path_to_processed_data
+    from src.data_preparation.estimation_config import MODELS
+    from src.data_preparation.estimation_config import path_to_estimation_result
+
+
+    def _create_parametrization(data, models):
+        parametrizations = []
+        ids = []
+        for data_name in data:
+            for model_name in models:
+                id_ = f"{data_name}_{model_name}"
+                ids.append(id_)
+                depends_on = path_to_processed_data(data_name)
+                produces = path_to_estimation_result(id_)
+                parametrizations.append((depends_on, model_name, produces))
+
+        return "depends_on, model, produces", parametrizations, ids
+
+
+    _SIGNATURE, _PARAMETRIZATION, _IDS = _create_parametrization(DATA, MODELS)
+
+
+    @pytask.mark.parametrize(_SIGNATURE, _PARAMETRIZATION, ids=_IDS)
+    def task_estmate_models(depends_on, model, produces):
+        if model == "linear_probability":
+            ...
+        ...
+
+The remaining tasks for plotting the results are left out for brevity.
