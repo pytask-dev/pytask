@@ -1,7 +1,7 @@
 pytask
 ======
 
-.. include:: ../README.rst
+.. include:: ../../README.rst
    :start-after: start-badges
    :end-before: end-badges
 
@@ -9,7 +9,7 @@ pytask
 Features
 --------
 
-.. include:: ../README.rst
+.. include:: ../../README.rst
    :start-after: start-features
    :end-before: end-features
 
