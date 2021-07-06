@@ -20,15 +20,15 @@ Scalability
 
 Parametrizations allow to scale tasks from :math:`1` to :math:`N` in a simple way. What
 is easily overlooked is that parametrizations usually trigger other parametrizations and
-the growth in tasks is more :math:`1` to :math:`N * M` or :math:`1` to :math:`N^M`.
+the growth in tasks is more :math:`1` to :math:`N * M * \dots` or :math:`1` to
+:math:`N^{M * \dots}`.
 
 To keep the resulting complexity as manageable as possible, this guide lays out a
 structure which is simple, modular, and scalable.
 
 As an example, assume we have four datasets with one binary dependent variables and some
 independent variables. On each of the data sets, we fit three models, a linear model, a
-logistic model, and a decision tree. Finally, we visualize the performance of the models
-with ROC-AUC and Precision-Recall curves. We have :math:`4 * 3 * 2 = 12` tasks in total.
+logistic model, and a decision tree. In total, we have :math:`4 * 3 = 12` tasks.
 
 First, let us take a look at the folder and file structure of such a project.
 
@@ -47,13 +47,9 @@ First, let us take a look at the folder and file structure of such a project.
     │       data_preparation_config.py
     │       task_prepare_data.py
     │
-    ├───estimation
-    │       estimation_config.py
-    │       task_estimate_models.py
-    │
-    └───plotting
-            plotting_config.py
-            task_plot_metrics.py
+    └───estimation
+            estimation_config.py
+            task_estimate_models.py
 
 The folder structure, the general ``config.py`` which holds ``SRC`` and ``BLD`` and the
 tasks follow the same structure which is advocated for throughout the tutorials.
@@ -116,9 +112,11 @@ estimation.
         ...
 
 All arguments for the ``parametrize`` decorator are built within a function to keep the
-logic in one place and the namespace of the module clean. Ids are used to make the task
-:ref:`ids <ids>` more descriptive and to simplify their selection with :ref:`expressions
-<expressions>`. Here is an example of the task ids with an explicit id.
+logic in one place and the namespace of the module clean.
+
+Ids are used to make the task :ref:`ids <ids>` more descriptive and to simplify their
+selection with :ref:`expressions <expressions>`. Here is an example of the task ids with
+an explicit id.
 
 .. code-block::
 
@@ -132,13 +130,29 @@ Next, we move to the estimation.
     # Content of estimation_config.py
 
     from src.config import BLD
+    from src.data_preparation.data_preparation_config import DATA
 
 
-    MODELS = ["linear_probability", "logistic_model", "decision_tree"]
+    _MODELS = ["linear_probability", "logistic_model", "decision_tree"]
+
+    ESTIMATIONS = {
+        f"{data_name}_{model_name}": {"model": model_name, "data": data_name}
+        for model_name in _MODELS
+        for data_name in DATA
+    }
 
 
     def path_to_estimation_result(name):
         return BLD / "estimation" / f"estimation_{name}.pkl"
+
+In this module we define ``ESTIMATIONS`` which combines the information on data and
+model. The key of the dictionary can be used as a task id whenever the estimation is
+involved. This allows to trigger all tasks related to one estimation - estimation,
+figures, tables - with one command
+
+.. code-block:: console
+
+    pytask -k linear_probability_data_0
 
 And, here is the task file.
 
@@ -148,27 +162,24 @@ And, here is the task file.
 
     import pytask
 
-    from src.data_preparation.data_preparation_config import DATA
     from src.data_preparation.data_preparation_config import path_to_processed_data
-    from src.data_preparation.estimation_config import MODELS
+    from src.data_preparation.estimation_config import ESTIMATIONS
     from src.data_preparation.estimation_config import path_to_estimation_result
 
 
-    def _create_parametrization(data, models):
+    def _create_parametrization(estimations):
         parametrizations = []
         ids = []
-        for data_name in data:
-            for model_name in models:
-                id_ = f"{data_name}_{model_name}"
-                ids.append(id_)
-                depends_on = path_to_processed_data(data_name)
-                produces = path_to_estimation_result(id_)
-                parametrizations.append((depends_on, model_name, produces))
+        for name, config in estimations.items():
+            ids.append(name)
+            depends_on = path_to_processed_data(config["data"])
+            produces = path_to_estimation_result(name)
+            parametrizations.append((depends_on, config["model"], produces))
 
         return "depends_on, model, produces", parametrizations, ids
 
 
-    _SIGNATURE, _PARAMETRIZATION, _IDS = _create_parametrization(DATA, MODELS)
+    _SIGNATURE, _PARAMETRIZATION, _IDS = _create_parametrization(ESTIMATIONS)
 
 
     @pytask.mark.parametrize(_SIGNATURE, _PARAMETRIZATION, ids=_IDS)
@@ -176,5 +187,3 @@ And, here is the task file.
         if model == "linear_probability":
             ...
         ...
-
-The remaining tasks for plotting the results are left out for brevity.
