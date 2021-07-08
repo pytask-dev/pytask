@@ -20,15 +20,15 @@ Scalability
 
 Parametrizations allow to scale tasks from :math:`1` to :math:`N` in a simple way. What
 is easily overlooked is that parametrizations usually trigger other parametrizations and
-the growth in tasks is more :math:`1` to :math:`N * M * \dots` or :math:`1` to
-:math:`N^{M * \dots}`.
+the growth in tasks is more :math:`1` to :math:`N \cdot M \cdot \dots` or :math:`1` to
+:math:`N^{M \cdot \dots}`.
 
 To keep the resulting complexity as manageable as possible, this guide lays out a
 structure which is simple, modular, and scalable.
 
 As an example, assume we have four datasets with one binary dependent variables and some
 independent variables. On each of the data sets, we fit three models, a linear model, a
-logistic model, and a decision tree. In total, we have :math:`4 * 3 = 12` tasks.
+logistic model, and a decision tree. In total, we have :math:`4 \cdot 3 = 12` tasks.
 
 First, let us take a look at the folder and file structure of such a project.
 
@@ -55,9 +55,9 @@ The folder structure, the general ``config.py`` which holds ``SRC`` and ``BLD`` 
 tasks follow the same structure which is advocated for throughout the tutorials.
 
 What is new are the local configuration files in each of the subfolders of ``src`` which
-are now explained.
-
-First, we focus on the data preparation where the input data is prepared.
+contain objects which are shared across tasks. For example,
+``data_preparation_config.py`` holds the paths to the processed data and the names of
+the data sets.
 
 .. code-block:: python
 
@@ -77,9 +77,9 @@ First, we focus on the data preparation where the input data is prepared.
     def path_to_processed_data(name):
         return BLD / "data" / f"processed_{name}.pkl"
 
-The local configuration contains objects which are shared across tasks. For example, the
-paths to the processed data are used in the data preparation and in the next step, the
-estimation.
+
+In the task file ``task_prepare_data.py``, these objects are used to build the
+parametrization.
 
 .. code-block:: python
 
@@ -123,7 +123,8 @@ an explicit id.
     # With id
     .../src/data_preparation/task_prepare_data.py::task_prepare_data[data_0]
 
-Next, we move to the estimation.
+Next, we move to the estimation to see how we can build another parametrization upon the
+previous one.
 
 .. code-block:: python
 
@@ -135,6 +136,7 @@ Next, we move to the estimation.
 
     _MODELS = ["linear_probability", "logistic_model", "decision_tree"]
 
+
     ESTIMATIONS = {
         f"{data_name}_{model_name}": {"model": model_name, "data": data_name}
         for model_name in _MODELS
@@ -145,10 +147,10 @@ Next, we move to the estimation.
     def path_to_estimation_result(name):
         return BLD / "estimation" / f"estimation_{name}.pkl"
 
-In this module we define ``ESTIMATIONS`` which combines the information on data and
-model. The key of the dictionary can be used as a task id whenever the estimation is
-involved. This allows to trigger all tasks related to one estimation - estimation,
-figures, tables - with one command
+In the local configuration, we define ``ESTIMATIONS`` which combines the information on
+data and model. The key of the dictionary can be used as a task id whenever the
+estimation is involved. This allows to trigger all tasks related to one estimation -
+estimation, figures, tables - with one command
 
 .. code-block:: console
 
@@ -187,3 +189,16 @@ And, here is the task file.
         if model == "linear_probability":
             ...
         ...
+
+Replicating this pattern across a project allows for a clean way to define
+parametrizations.
+
+
+Extending parametrizations
+--------------------------
+
+Some parametrized tasks are extremely expensive to run - be it in terms of computing
+power, memory or time. On the other hand, parametrizations are often extended which
+could also trigger all parametrizations to be rerun. Thus, use the
+``@pytask.mark.persist`` decorator which is explained in more detail in this
+:doc:`tutorial <../tutorials/how_to_make_tasks_persist>`.
