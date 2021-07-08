@@ -29,7 +29,10 @@ _PATH_ARGUMENT = click.Argument(
 
 
 _VERBOSE_OPTION = click.Option(
-    ["-v", "--verbose"], count=True, default=None, help="Make pytask more verbose."
+    ["-v", "--verbose"],
+    type=int,
+    default=None,
+    help="Make pytask verbose (>= 0) or quiet (< 0) [default: 0]",
 )
 
 
