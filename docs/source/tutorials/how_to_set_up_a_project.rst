@@ -56,7 +56,7 @@ The following directory tree is an example of how a project can be set up.
       from pathlib import Path
 
 
-      SRC = Path(__file__).parent
+      SRC = Path(__file__).parent.resolve()
       BLD = SRC.joinpath("..", "bld").resolve()
 
 - The build directory ``bld`` is used to store products of tasks. The separation between
@@ -91,7 +91,7 @@ Then, install the package into your environment with
 
     $ pip install -e .
 
-Both commands will make an editable install of the project which means any changes in
+Both commands will produce an editable install of the project which means any changes in
 the source files of the package are reflected in the installed version of the package.
 
 .. tip::

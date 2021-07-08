@@ -124,8 +124,8 @@ Here is an example of a task module which conforms to all advices.
 .. seealso::
 
    The structure of the task module is greatly inspired by John Ousterhout's "A
-   Philosopy of Software Design" where he coins the name "deep modules". In short, deep
-   modules have simple interfaces which are defined by one or a few :term:`public
+   Philosopy of Software Design" in which he coins the name "deep modules". In short,
+   deep modules have simple interfaces which are defined by one or a few :term:`public
    functions <public function>` (or classes) which provide the functionality. The
    complexity is hidden inside the module in :term:`private functions <private
    function>` which are called by the :term:`public functions <public function>`.
