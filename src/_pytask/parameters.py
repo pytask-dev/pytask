@@ -28,7 +28,12 @@ _PATH_ARGUMENT = click.Argument(
 """click.Option: An general paths argument."""
 
 
-_VERBOSE_OPTION = click.Option(["-v", "--verbose"], count=True, default=None)
+_VERBOSE_OPTION = click.Option(
+    ["-v", "--verbose"],
+    type=int,
+    default=None,
+    help="Make pytask verbose (>= 0) or quiet (< 0) [default: 0]",
+)
 
 
 @hookimpl(trylast=True)
