@@ -256,7 +256,8 @@ def test_capturing_outerr(tmp_path, runner):
     tmp_path.joinpath("task_capturing_outerr.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert "F." in result.output or ".F" in result.output
+    assert "│ F" in result.output
+    assert "│ ." in result.output
     for content in [
         "───────────────────────────────── Failures ──────────────────────────────────",
         "task_capturing_error failed",

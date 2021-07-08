@@ -21,6 +21,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`120` implements that a single ``KeyboardInterrupt`` stops the execution and
   previously collected reports are shown.
 - :gh:`121` add skipped and persisted tasks to the execution footer.
+- :gh:`127` make the table during execution the default. Silence pytask with negative
+  verbose mode integers and increase verbosity with positive ones.
 
 
 0.0.16 - 2021-06-25

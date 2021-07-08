@@ -1,7 +1,7 @@
 How to make tasks persist
 =========================
 
-You are able to create persisting tasks with pytask. It means that if all dependencies
+Sometimes you want to skip the execution. It means that if all dependencies
 and products exist, the task will not be executed even though a dependency, the task's
 source file or a product has changed. Instead, the state of the dependencies, the source
 file and the products is updated in the database such that the next execution will skip
@@ -10,12 +10,13 @@ the task successfully.
 When is this useful?
 --------------------
 
-1. You ran a formatter like Black against your project and there are some expensive
-   tasks which should not be executed.
+- You ran a formatter like Black on the files in your project.
 
-2. You want to integrate a task which you have already run elsewhere. Place the
-   dependencies and products and the task definition in the correct place and make the
-   task persist.
+- You extend a parametrization, but do not want to rerun all tasks.
+
+- You want to integrate a task which you have already run elsewhere. Place the
+  dependencies and products and the task definition in the correct place and make the
+  task persist.
 
 
 .. caution::
