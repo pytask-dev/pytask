@@ -53,9 +53,7 @@ def _is_internal_or_hidden_traceback_frame(frame):
         return True
 
     path = Path(frame.tb_frame.f_code.co_filename)
-    return frame.tb_frame.f_locals.get("__tracebackhide__", False) or any(
-        root in path.parents for root in [_PLUGGY_DIRECTORY, _PYTASK_DIRECTORY]
-    )
+    return any(root in path.parents for root in [_PLUGGY_DIRECTORY, _PYTASK_DIRECTORY])
 
 
 def _filter_internal_traceback_frames(frame):
