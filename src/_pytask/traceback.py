@@ -27,12 +27,17 @@ def remove_internal_traceback_frames_from_exc_info(exc_info):
     return exc_info
 
 
-def _is_internal_traceback_frame(frame):
-    """Returns ``True`` if traceback frame belongs to internal packages.
+def _is_internal_or_hidden_traceback_frame(frame):
+    """Returns ``True`` if traceback frame belongs to internal packages or is hidden.
 
-    Internal packages are ``_pytask`` and ``pluggy``.
+    Internal packages are ``_pytask`` and ``pluggy``. A hidden frame is indicated by a
+    local variable called ``__tracebackhide__ = True``.
 
     """
+    is_hidden = frame.tb_frame.f_locals.get("__tracebackhide__", False)
+    if is_hidden:
+        return True
+
     path = Path(frame.tb_frame.f_code.co_filename)
     return any(root in path.parents for root in [_PLUGGY_DIRECTORY, _PYTASK_DIRECTORY])
 
@@ -44,7 +49,7 @@ def _filter_internal_traceback_frames(frame):
 
     """
     for frame in _yield_traceback_frames(frame):
-        if frame is None or not _is_internal_traceback_frame(frame):
+        if frame is None or not _is_internal_or_hidden_traceback_frame(frame):
             break
     return frame
 
