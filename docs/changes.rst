@@ -23,6 +23,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`121` add skipped and persisted tasks to the execution footer.
 - :gh:`127` make the table during execution the default. Silence pytask with negative
   verbose mode integers and increase verbosity with positive ones.
+- :gh:`129` allows to hide frames from the traceback by using ``__tracebackhide__ =
+  True``.
 
 
 0.0.16 - 2021-06-25
