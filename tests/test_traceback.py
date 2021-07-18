@@ -1,13 +1,15 @@
 import textwrap
 
+import pytest
 from pytask import cli
 
 
-def test_hide_traceback_from_error_report(runner, tmp_path):
-    source = """
+@pytest.mark.parametrize("is_hidden", [True, False])
+def test_hide_traceback_from_error_report(runner, tmp_path, is_hidden):
+    source = f"""
     def task_main():
         a = "This variable should not be shown."
-        __tracebackhide__ = True
+        __tracebackhide__ = {is_hidden}
 
 
         helper()
@@ -21,4 +23,4 @@ def test_hide_traceback_from_error_report(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix(), "--show-locals"])
 
     assert result.exit_code == 1
-    assert "This variable should not be shown." not in result.output
+    assert ("This variable should not be shown." in result.output) is not is_hidden
