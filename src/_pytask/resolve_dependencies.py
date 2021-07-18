@@ -24,8 +24,8 @@ from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import ResolvingDependenciesReport
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
+from _pytask.traceback import render_exc_info
 from pony import orm
-from rich.traceback import Traceback
 from rich.tree import Tree
 
 
@@ -297,7 +297,7 @@ def _check_if_tasks_have_the_same_products(dag):
 
 
 @hookimpl
-def pytask_resolve_dependencies_log(report):
+def pytask_resolve_dependencies_log(session, report):
     """Log errors which happened while resolving dependencies."""
     console.print()
     console.rule(
@@ -306,7 +306,7 @@ def pytask_resolve_dependencies_log(report):
     )
 
     console.print()
-    console.print(Traceback.from_exception(*report.exc_info))
+    console.print(render_exc_info(*report.exc_info, session.config["show_locals"]))
 
     console.print()
     console.rule(style=ColorCode.FAILED)

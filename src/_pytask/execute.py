@@ -17,7 +17,7 @@ from _pytask.outcomes import Skipped
 from _pytask.report import ExecutionReport
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import remove_traceback_from_exc_info
-from rich.traceback import Traceback
+from _pytask.traceback import render_exc_info
 
 
 @hookimpl
@@ -198,9 +198,7 @@ def pytask_execute_log_end(session, reports):
 
             console.print()
 
-            console.print(
-                Traceback.from_exception(*report.exc_info, show_locals=show_locals)
-            )
+            console.print(render_exc_info(*report.exc_info, show_locals))
 
             console.print()
             show_capture = session.config["show_capture"]

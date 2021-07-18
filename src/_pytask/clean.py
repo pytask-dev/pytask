@@ -17,7 +17,7 @@ from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
-from rich.traceback import Traceback
+from _pytask.traceback import render_exc_info
 
 
 _HELP_TEXT_MODE = (
@@ -84,7 +84,7 @@ def clean(**config_from_cli):
     except Exception:
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
-        console.print(Traceback.from_exception(*sys.exc_info()))
+        console.print(render_exc_info(*sys.exc_info(), config["show_locals"]))
 
     else:
         try:
@@ -136,7 +136,7 @@ def clean(**config_from_cli):
             console.rule(style=ColorCode.FAILED)
 
         except Exception:
-            console.print(Traceback.from_exception(*sys.exc_info()))
+            console.print(render_exc_info(*sys.exc_info(), config["show_locals"]))
             console.rule(style=ColorCode.FAILED)
             session.exit_code = ExitCode.FAILED
 

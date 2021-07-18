@@ -10,7 +10,7 @@ from _pytask.nodes import PythonFunctionTask
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
-from rich.traceback import Traceback
+from _pytask.traceback import render_exc_info
 
 
 @hookimpl
@@ -364,7 +364,7 @@ def wrap_function_for_post_mortem_debugging(session, task):
 
             console.print()
             console.rule("Traceback", characters=">", style=None)
-            console.print(Traceback.from_exception(*exc_info))
+            console.print(render_exc_info(*exc_info, session.config["show_locals"]))
 
             post_mortem(exc_info[2])
 
