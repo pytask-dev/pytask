@@ -25,6 +25,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   verbose mode integers and increase verbosity with positive ones.
 - :gh:`129` allows to hide frames from the traceback by using ``__tracebackhide__ =
   True``.
+- :gh:`130` enables rendering of tracebacks from subprocesses with rich.
 
 
 0.0.16 - 2021-06-25
