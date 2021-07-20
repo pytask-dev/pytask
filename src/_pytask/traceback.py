@@ -1,11 +1,24 @@
 """Process tracebacks."""
 from pathlib import Path
+from types import TracebackType
 
 import _pytask
 import pluggy
+from rich.traceback import Traceback
 
 _PLUGGY_DIRECTORY = Path(pluggy.__file__).parent
 _PYTASK_DIRECTORY = Path(_pytask.__file__).parent
+
+
+def render_exc_info(exc_type, exc_value, traceback, show_locals=False):
+    if isinstance(traceback, str):
+        renderable = traceback
+    else:
+        renderable = Traceback.from_exception(
+            exc_type, exc_value, traceback, show_locals=show_locals
+        )
+
+    return renderable
 
 
 def remove_traceback_from_exc_info(exc_info):
@@ -21,8 +34,9 @@ def remove_internal_traceback_frames_from_exc_info(exc_info):
 
     """
     if exc_info is not None:
-        filtered_traceback = _filter_internal_traceback_frames(exc_info[2])
-        exc_info = (*exc_info[:2], filtered_traceback)
+        if isinstance(exc_info[2], TracebackType):
+            filtered_traceback = _filter_internal_traceback_frames(exc_info[2])
+            exc_info = (*exc_info[:2], filtered_traceback)
 
     return exc_info
 

@@ -18,9 +18,9 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
 from _pytask.shared import reduce_node_name
+from _pytask.traceback import render_exc_info
 from pony import orm
 from rich.table import Table
-from rich.traceback import Traceback
 
 
 class Runtime(db.Entity):
@@ -108,7 +108,7 @@ def profile(**config_from_cli):
     except (ConfigurationError, Exception):
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
-        console.print(Traceback.from_exception(*sys.exc_info()))
+        console.print(render_exc_info(*sys.exc_info(), config["show_locals"]))
 
     else:
         try:

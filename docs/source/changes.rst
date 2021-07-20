@@ -7,7 +7,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.1.0 - 2021-xx-xx
+0.1.0 - 2021-07-20
 ------------------
 
 - :gh:`106` implements a verbose mode for the execution which is available with ``pytask
@@ -25,6 +25,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   verbose mode integers and increase verbosity with positive ones.
 - :gh:`129` allows to hide frames from the traceback by using ``__tracebackhide__ =
   True``.
+- :gh:`130` enables rendering of tracebacks from subprocesses with rich.
 
 
 0.0.16 - 2021-06-25

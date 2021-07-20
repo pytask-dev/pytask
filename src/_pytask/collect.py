@@ -20,7 +20,7 @@ from _pytask.nodes import PythonFunctionTask
 from _pytask.path import find_case_sensitive_path
 from _pytask.report import CollectionReport
 from _pytask.shared import reduce_node_name
-from rich.traceback import Traceback
+from _pytask.traceback import render_exc_info
 
 
 @hookimpl
@@ -252,9 +252,7 @@ def pytask_collect_log(session, reports, tasks):
             console.print()
 
             console.print(
-                Traceback.from_exception(
-                    *report.exc_info, show_locals=session.config["show_locals"]
-                )
+                render_exc_info(*report.exc_info, session.config["show_locals"])
             )
 
             console.print()
