@@ -7,7 +7,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.1.0 - 2021-xx-xx
+0.1.0 - 2021-07-20
 ------------------
 
 - :gh:`106` implements a verbose mode for the execution which is available with ``pytask
