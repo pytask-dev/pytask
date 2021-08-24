@@ -1,4 +1,4 @@
-.. image:: https://raw.githubusercontent.com/pytask-dev/pytask/main/docs/_static/images/pytask_w_text.png
+.. image:: https://raw.githubusercontent.com/pytask-dev/pytask/main/docs/source/_static/images/pytask_w_text.png
     :target: https://pytask-dev.readthedocs.io/en/latest
     :align: center
     :width: 50%
