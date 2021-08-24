@@ -16,7 +16,7 @@ def test_verbose_mode_execution(tmp_path, runner, verbose):
 
     args = [tmp_path.as_posix()]
     if not verbose:
-        args.append("-v -1")
+        args.append("-v 0")
     result = runner.invoke(cli, args)
 
     assert ("Task" in result.output) is verbose

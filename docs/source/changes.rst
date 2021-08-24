@@ -7,6 +7,13 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
+0.1.1 - 2021-xx-xx
+------------------
+
+- :gh:`138` changes the default verbosity to ``1`` which displays the live table during
+  execution and ``0`` display the symbols for outcomes (e.g. ``.``, ``F``, ``s``).
+
+
 0.1.0 - 2021-07-20
 ------------------
 
