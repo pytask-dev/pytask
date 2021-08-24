@@ -92,7 +92,9 @@ the package with
 
     $ pip install pytask
 
-    # or
+or
+
+.. code-block:: console
 
     $ conda install -c conda-forge pytask
 
