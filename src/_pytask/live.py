@@ -33,7 +33,7 @@ class LiveManager:
 
     """
 
-    _live = Live(renderable=None, console=console, auto_refresh=False)
+    _live = Live(renderable=None, console=console, auto_refresh=True)
 
     def start(self):
         self._live.start()
@@ -55,9 +55,6 @@ class LiveManager:
 
     def update(self, *args, **kwargs):
         self._live.update(*args, **kwargs)
-
-    def refresh(self):
-        self._live.refresh()
 
     @property
     def is_started(self):
@@ -105,7 +102,6 @@ class LiveExecution:
     def _update_table(self):
         table = self._generate_table()
         self._live_manager.update(table)
-        self._live_manager.refresh()
 
     def update_running_tasks(self, new_running_task):
         reduced_task_name = reduce_node_name(new_running_task, self._paths)
@@ -160,7 +156,6 @@ class LiveCollection:
     def _update_status(self):
         status = self._generate_status()
         self._live_manager.update(status)
-        self._live_manager.refresh()
 
     def _generate_status(self):
         msg = f"Collected {self._n_collected_tasks} tasks."
