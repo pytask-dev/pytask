@@ -15,7 +15,7 @@ def pytask_post_parse(config):
     live_manager = LiveManager()
     config["pm"].register(live_manager, "live_manager")
 
-    if config["verbose"] >= 0:
+    if config["verbose"] >= 1:
         live_execution = LiveExecution(live_manager, config["paths"])
         config["pm"].register(live_execution)
 
