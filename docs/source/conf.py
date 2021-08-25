@@ -19,7 +19,7 @@ author = "Tobias Raabe"
 copyright = f"2020-{year}, {author}"  # noqa: A001
 
 # The version, including alpha/beta/rc tags, but not commit hash and datestamps
-release = version("pytask")
+release = version("pytask").split("+")[0]
 # The short X.Y version.
 version = ".".join(release.split(".")[:2])
 
@@ -80,8 +80,8 @@ extlinks = {
 }
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.8", None),
-    "click": ("https://click.palletsprojects.com/en/7.x", None),
+    "python": ("https://docs.python.org/3.9", None),
+    "click": ("https://click.palletsprojects.com/en/8.0.x/", None),
     "pluggy": ("https://pluggy.readthedocs.io/en/latest", None),
 }
 
