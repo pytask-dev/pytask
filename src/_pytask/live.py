@@ -16,7 +16,7 @@ def pytask_post_parse(config):
     config["pm"].register(live_manager, "live_manager")
 
     if config["verbose"] >= 1:
-        live_execution = LiveExecution(live_manager, config["paths"])
+        live_execution = LiveExecution(live_manager, config["paths"], config["verbose"])
         config["pm"].register(live_execution)
 
     live_collection = LiveCollection(live_manager)
@@ -66,6 +66,7 @@ class LiveExecution:
 
     _live_manager = attr.ib(type=LiveManager)
     _paths = attr.ib(type=Path)
+    _verbose = attr.ib(type=int)
     _running_tasks = attr.ib(factory=set)
     _reports = attr.ib(factory=list)
 
@@ -89,9 +90,12 @@ class LiveExecution:
         if self._running_tasks or self._reports:
             table = Table("Task", "Outcome")
             for report in self._reports:
-                table.add_row(
-                    report["name"], Text(report["symbol"], style=report["color"])
-                )
+                if report["symbol"] in ("s", "p") and self._verbose < 2:
+                    pass
+                else:
+                    table.add_row(
+                        report["name"], Text(report["symbol"], style=report["color"])
+                    )
             for running_task in self._running_tasks:
                 table.add_row(running_task, "running")
         else:
