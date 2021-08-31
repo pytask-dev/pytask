@@ -7,6 +7,15 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
+0.1.1 - 2021-08-25
+------------------
+
+- :gh:`138` changes the default verbosity to ``1`` which displays the live table during
+  execution and ``0`` display the symbols for outcomes (e.g. ``.``, ``F``, ``s``).
+- :gh:`139` enables rich's auto-refresh mechanism for live objects which causes almost
+  no performance penalty for the live table compared to the symbolic output.
+
+
 0.1.0 - 2021-07-20
 ------------------
 
