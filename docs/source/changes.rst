@@ -7,6 +7,13 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
+0.1.2 - 2021-xx-xx
+------------------
+
+- :gh:`142` removes the display of skipped and persisted tasks from the live execution
+  table for the default verbosity level of 1. They are displayed at 2.
+
+
 0.1.1 - 2021-08-25
 ------------------
 
