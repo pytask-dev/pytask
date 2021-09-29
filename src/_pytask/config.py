@@ -229,7 +229,7 @@ def _find_project_root_and_ini(paths: List[Path]):
         if path.exists():
             try:
                 _read_config(path)
-            except Exception:
+            except KeyError:
                 pass
             else:
                 config_path = path
