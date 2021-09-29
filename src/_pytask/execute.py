@@ -96,10 +96,10 @@ def pytask_execute_task_setup(session, task):
         node = session.dag.nodes[dependency]["node"]
         try:
             node.state()
-        except NodeNotFoundError:
+        except NodeNotFoundError as e:
             raise NodeNotFoundError(
                 f"{node.name} is missing and required for {task.name}."
-            )
+            ) from e
 
     # Create directory for product if it does not exist. Maybe this should be a `setup`
     # method for the node classes.
@@ -122,8 +122,10 @@ def pytask_execute_task_teardown(session, task):
         node = session.dag.nodes[product]["node"]
         try:
             node.state()
-        except NodeNotFoundError:
-            raise NodeNotFoundError(f"{node.name} was not produced by {task.name}.")
+        except NodeNotFoundError as e:
+            raise NodeNotFoundError(
+                f"{node.name} was not produced by {task.name}."
+            ) from e
 
 
 @hookimpl(trylast=True)
