@@ -239,7 +239,7 @@ class PytaskPDB:
                 ret = super().do_quit(arg)
 
                 if cls._recursive_debug == 0:
-                    Exit("Quitting debugger")
+                    raise Exit("Quitting debugger")
 
                 return ret
 
@@ -433,4 +433,4 @@ def post_mortem(t) -> None:
     p.reset()
     p.interaction(None, t)
     if p.quitting:
-        Exit("Quitting debugger")
+        raise Exit("Quitting debugger")
