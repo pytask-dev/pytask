@@ -7,6 +7,7 @@ import click
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.nodes import PythonFunctionTask
+from _pytask.outcomes import Exit
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
@@ -238,7 +239,7 @@ class PytaskPDB:
                 ret = super().do_quit(arg)
 
                 if cls._recursive_debug == 0:
-                    raise Exception("Quitting debugger")
+                    Exit("Quitting debugger")
 
                 return ret
 
@@ -341,7 +342,7 @@ def wrap_function_for_post_mortem_debugging(session, task):
         try:
             task_function(*args, **kwargs)
 
-        except Exception as e:
+        except Exception:
             # Order is important! Pausing the live object before the capturemanager
             # would flush the table to stdout and it will be visible in the captured
             # output.
@@ -371,7 +372,7 @@ def wrap_function_for_post_mortem_debugging(session, task):
             live_manager.resume()
             capman.resume()
 
-            raise e
+            raise
 
     task.function = wrapper
 
@@ -432,4 +433,4 @@ def post_mortem(t) -> None:
     p.reset()
     p.interaction(None, t)
     if p.quitting:
-        raise Exception("Quitting debugger")
+        Exit("Quitting debugger")

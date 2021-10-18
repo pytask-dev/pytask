@@ -12,10 +12,12 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.nodes import FilePathNode
+from _pytask.outcomes import Exit
 from _pytask.outcomes import Persisted
 from _pytask.outcomes import Skipped
 from _pytask.report import ExecutionReport
 from _pytask.shared import reduce_node_name
+from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
 
@@ -158,6 +160,9 @@ def pytask_execute_task_process_report(session, report):
         if session.n_tasks_failed >= session.config["max_failures"]:
             session.should_stop = True
 
+        if report.exc_info and isinstance(report.exc_info[1], Exit):
+            session.should_stop = True
+
     return True
 
 
@@ -200,7 +205,10 @@ def pytask_execute_log_end(session, reports):
 
             console.print()
 
-            console.print(render_exc_info(*report.exc_info, show_locals))
+            if report.exc_info and isinstance(report.exc_info[1], Exit):
+                console.print(format_exception_without_traceback(report.exc_info))
+            else:
+                console.print(render_exc_info(*report.exc_info, show_locals))
 
             console.print()
             show_capture = session.config["show_capture"]

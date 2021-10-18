@@ -192,7 +192,7 @@ def pytask_collect_node(session, path, node):
         ):
             case_sensitive_path = find_case_sensitive_path(node, "win32")
             if str(node) != str(case_sensitive_path):
-                raise Exception(_TEMPLATE_ERROR.format(node, case_sensitive_path))
+                raise ValueError(_TEMPLATE_ERROR.format(node, case_sensitive_path))
 
         return FilePathNode.from_path(node)
 
