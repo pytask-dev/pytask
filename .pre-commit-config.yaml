@@ -90,6 +90,11 @@ repos:
     rev: "0.46"
     hooks:
     -   id: check-manifest
+-   repo: https://github.com/guilatrova/tryceratops
+    rev: v0.6.0
+    hooks:
+    -   id: tryceratops
+        exclude: (console\.py|test_mark_expression\.py)
 -   repo: meta
     hooks:
     -   id: check-hooks-apply

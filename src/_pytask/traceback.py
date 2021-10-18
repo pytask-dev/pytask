@@ -21,6 +21,11 @@ def render_exc_info(exc_type, exc_value, traceback, show_locals=False):
     return renderable
 
 
+def format_exception_without_traceback(exc_info):
+    """Format an exception without displaying the traceback."""
+    return f"[red bold]{exc_info[0].__name__}:[/] {exc_info[1]}"
+
+
 def remove_traceback_from_exc_info(exc_info):
     """Remove traceback from exception."""
     return (*exc_info[:2], None)
