@@ -1,8 +1,10 @@
 import os
 import textwrap
+from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
 from _pytask.config import _find_project_root_and_ini
+from _pytask.config import _read_config
 from pytask import main
 
 
@@ -131,3 +133,22 @@ def test_passing_paths_via_configuration_file(tmp_path, config_path, file_or_fol
 
     assert session.exit_code == 0
     assert len(session.tasks) == 1
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "file_exists, content, expectation, expected",
+    [
+        (False, None, pytest.raises(KeyError), None),
+        (True, "[pytask]", does_not_raise(), {}),
+        (True, "[pytask]\nvalue = 1", does_not_raise(), {"value": "1"}),
+    ],
+)
+def test_read_config(tmp_path, file_exists, content, expectation, expected):
+    path = tmp_path / "config.ini"
+    if file_exists:
+        path.write_text(content)
+
+    with expectation:
+        result = _read_config(path)
+        assert result == expected

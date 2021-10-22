@@ -1,3 +1,6 @@
+from typing import Optional
+
+
 class PytaskOutcome(Exception):
     """Base outcome of a task."""
 
@@ -16,3 +19,14 @@ class SkippedUnchanged(PytaskOutcome):
 
 class Persisted(PytaskOutcome):
     """Outcome if task should persist."""
+
+
+class Exit(Exception):
+    """Raised for immediate program exits (no tracebacks/summaries)."""
+
+    def __init__(
+        self, msg: str = "unknown reason", returncode: Optional[int] = None
+    ) -> None:
+        self.msg = msg
+        self.returncode = returncode
+        super().__init__(msg)
