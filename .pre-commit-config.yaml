@@ -32,7 +32,7 @@ repos:
     -   id: rst-inline-touching-normal
     -   id: text-unicode-replacement-char
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.25.0
+    rev: v2.29.0
     hooks:
     -   id: pyupgrade
         args: [--py36-plus]
@@ -41,11 +41,11 @@ repos:
     hooks:
     -   id: reorder-python-imports
 -   repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v1.17.0
+    rev: v1.18.0
     hooks:
     -   id: setup-cfg-fmt
 -   repo: https://github.com/psf/black
-    rev: 21.8b0
+    rev: 21.9b0
     hooks:
     -   id: black
 -   repo: https://github.com/asottile/blacken-docs
@@ -54,7 +54,7 @@ repos:
     -   id: blacken-docs
         additional_dependencies: [black]
 -   repo: https://github.com/PyCQA/flake8
-    rev: 3.9.2
+    rev: 4.0.1
     hooks:
     -   id: flake8
         additional_dependencies: [
@@ -73,11 +73,11 @@ repos:
             Pygments,
         ]
 -   repo: https://github.com/PyCQA/doc8
-    rev: 0.9.0
+    rev: 0.9.1
     hooks:
     -   id: doc8
 -   repo: https://github.com/econchick/interrogate
-    rev: 1.4.0
+    rev: 1.5.0
     hooks:
     -   id: interrogate
         args: [-v, --fail-under=40, src, tests]
@@ -87,7 +87,7 @@ repos:
     -   id: codespell
         args: [-L hist,-L unparseable]
 -   repo: https://github.com/mgedmin/check-manifest
-    rev: "0.46"
+    rev: "0.47"
     hooks:
     -   id: check-manifest
 -   repo: https://github.com/guilatrova/tryceratops
