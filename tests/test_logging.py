@@ -35,13 +35,25 @@ def test_format_plugin_names_and_versions(plugins, expected):
             [(1, "succeeded", "green"), (1, "failed", "red")],
             1,
             "red",
-            "────── 1 succeeded, 1 failed in 1s ───────────",
+            "────── 1 succeeded, 1 failed in 1 second ───────────",
         ),
         (
             [(2, "succeeded", "green"), (1, "skipped", "yellow")],
             10,
             "green",
-            "────── 2 succeeded, 1 skipped in 10s ───────────",
+            "────── 2 succeeded, 1 skipped in 10 seconds ───────────",
+        ),
+        (
+            [(2, "succeeded", "green"), (1, "skipped", "yellow")],
+            5400,
+            "green",
+            "────── 2 succeeded, 1 skipped in 1 hour, 30 minutes ───────────",
+        ),
+        (
+            [(2, "succeeded", "green"), (1, "skipped", "yellow")],
+            125_000,
+            "green",
+            "────── 2 succeeded, 1 skipped in 1 day, 10 hours, 43 minutes ───────────",
         ),
     ],
 )

@@ -77,7 +77,8 @@ def pytask_log_session_footer(
 ) -> str:
     """Format the footer of the log message."""
     message = _style_infos(infos)
-    message += f"[{color}] in {duration}s"
+    formatted_duration = _format_duration(duration)
+    message += f"[{color}] in {formatted_duration}"
 
     console.rule(message, style=color)
 
@@ -109,6 +110,19 @@ _TIME_UNITS = [
 ]
 
 
+def _format_duration(duration):
+    duration_tuples = _humanize_time(duration, "seconds", short_label=False)
+
+    # Remove seconds if the execution lasted days.
+    if duration_tuples[0][1] in ["day", "days"]:
+        duration_tuples = [
+            i for i in duration_tuples if i[1] not in ["second", "seconds"]
+        ]
+
+    formatted_duration = ", ".join([" ".join(map(str, i)) for i in duration_tuples])
+    return formatted_duration
+
+
 def _humanize_time(amount: int, unit: str, short_label: bool = False):
     """Humanize the time.
 
@@ -118,6 +132,8 @@ def _humanize_time(amount: int, unit: str, short_label: bool = False):
     [(7, 'days'), (5, 'hours')]
     >>> _humanize_time(173, "hours", short_label=True)
     [(7, 'd'), (5, 'h')]
+    >>> _humanize_time(0, "seconds", short_label=True)
+    [(0, 's')]
     >>> _humanize_time(1, "unknown_unit")
     Traceback (most recent call last):
     ...
@@ -146,7 +162,15 @@ def _humanize_time(amount: int, unit: str, short_label: bool = False):
             else:
                 label = entry["plural"]
 
-            result.append((whole_units, label))
-            remaining_seconds -= whole_units * entry["in_seconds"]
+            if not entry["singular"] == "second":
+                result.append((whole_units, label))
+                remaining_seconds -= whole_units * entry["in_seconds"]
+            else:
+                result.append((remaining_seconds, label))
+
+    if not result:
+        result.append(
+            (0, _TIME_UNITS[-1]["short"] if short_label else _TIME_UNITS[-1]["plural"])
+        )
 
     return result
