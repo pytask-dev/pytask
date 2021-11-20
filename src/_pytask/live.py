@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Union
 
 import attr
+import click
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.shared import get_first_non_none_value
@@ -10,6 +11,20 @@ from rich.live import Live
 from rich.status import Status
 from rich.table import Table
 from rich.text import Text
+
+
+@hookimpl
+def pytask_extend_command_line_interface(cli):
+    """Extend command line interface."""
+    additional_parameters = [
+        click.Option(
+            ["--n-entries-in-table"],
+            default=None,
+            help="How many entries to display in the table during the execution. "
+            "Tasks which are running are always displayed.",
+        ),
+    ]
+    cli.commands["build"].params.extend(additional_parameters)
 
 
 @hookimpl
