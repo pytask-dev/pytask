@@ -99,3 +99,54 @@ def _style_infos(infos: List[Tuple[Any]]) -> str:
     if not message:
         message = ["nothing to report"]
     return ", ".join(message)
+
+
+_TIME_UNITS = [
+    {"singular": "day", "plural": "days", "short": "d", "in_seconds": 86400},
+    {"singular": "hour", "plural": "hours", "short": "h", "in_seconds": 3600},
+    {"singular": "minute", "plural": "minutes", "short": "m", "in_seconds": 60},
+    {"singular": "second", "plural": "seconds", "short": "s", "in_seconds": 1},
+]
+
+
+def _humanize_time(amount: int, unit: str, short_label: bool = False):
+    """Humanize the time.
+
+    Examples
+    --------
+    >>> _humanize_time(173, "hours")
+    [(7, 'days'), (5, 'hours')]
+    >>> _humanize_time(173, "hours", short_label=True)
+    [(7, 'd'), (5, 'h')]
+    >>> _humanize_time(1, "unknown_unit")
+    Traceback (most recent call last):
+    ...
+    ValueError: The time unit 'unknown_unit' is not known.
+
+    """
+    index = None
+    for i, entry in enumerate(_TIME_UNITS):
+        if unit in [entry["singular"], entry["plural"]]:
+            index = i
+            break
+    else:
+        raise ValueError(f"The time unit '{unit}' is not known.")
+
+    seconds = amount * _TIME_UNITS[index]["in_seconds"]
+
+    result = []
+    remaining_seconds = seconds
+    for entry in _TIME_UNITS:
+        whole_units = remaining_seconds // entry["in_seconds"]
+        if whole_units >= 1:
+            if short_label:
+                label = entry["short"]
+            elif whole_units == 1:
+                label = entry["singular"]
+            else:
+                label = entry["plural"]
+
+            result.append((whole_units, label))
+            remaining_seconds -= whole_units * entry["in_seconds"]
+
+    return result

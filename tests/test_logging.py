@@ -1,8 +1,10 @@
 import textwrap
+from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import attr
 import pytest
 from _pytask.logging import _format_plugin_names_and_versions
+from _pytask.logging import _humanize_time
 from _pytask.logging import pytask_log_session_footer
 from pytask import cli
 
@@ -72,3 +74,32 @@ def test_logging_of_outcomes(tmp_path, runner):
     assert "1 persisted" in result.output
     assert "1 skipped" in result.output
     assert "1 failed" in result.output
+
+
+@pytest.mark.parametrize(
+    "amount, unit, short_label, expectation, expected",
+    [
+        (173, "hours", False, does_not_raise(), [(7, "days"), (5, "hours")]),
+        (1, "hour", False, does_not_raise(), [(1, "hour")]),
+        (
+            17281,
+            "seconds",
+            False,
+            does_not_raise(),
+            [(4, "hours"), (48, "minutes"), (1, "second")],
+        ),
+        (173, "hours", True, does_not_raise(), [(7, "d"), (5, "h")]),
+        (1, "hour", True, does_not_raise(), [(1, "h")]),
+        (
+            1,
+            "unknown_unit",
+            False,
+            pytest.raises(ValueError, match="The time unit"),
+            None,
+        ),
+    ],
+)
+def test_humanize_time(amount, unit, short_label, expectation, expected):
+    with expectation:
+        result = _humanize_time(amount, unit, short_label)
+        assert result == expected
