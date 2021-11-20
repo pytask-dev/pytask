@@ -1,13 +1,42 @@
 from pathlib import Path
+from typing import Union
 
 import attr
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.shared import get_first_non_none_value
 from _pytask.shared import reduce_node_name
 from rich.live import Live
 from rich.status import Status
 from rich.table import Table
 from rich.text import Text
+
+
+@hookimpl
+def pytask_parse_config(config, config_from_cli, config_from_file):
+    config["n_entries_in_table"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="n_entries_in_table",
+        default=20,
+        callback=_parse_n_entries_in_table,
+    )
+
+
+def _parse_n_entries_in_table(value: Union[int, str, None]) -> int:
+    if value in ["none", "None", None, ""]:
+        out = None
+    elif isinstance(value, int) and value >= 1:
+        out = value
+    elif isinstance(value, str) and value.isdigit() and int(value) >= 1:
+        out = int(value)
+    elif value == "all":
+        out = 1_000_000
+    else:
+        raise ValueError(
+            "'n_entries_in_table' can either be 'None' or an integer bigger than one."
+        )
+    return out
 
 
 @hookimpl
