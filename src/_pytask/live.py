@@ -21,7 +21,7 @@ def pytask_extend_command_line_interface(cli):
             ["--n-entries-in-table"],
             default=None,
             help="How many entries to display in the table during the execution. "
-            "Tasks which are running are always displayed.",
+            "Tasks which are running are always displayed.  [default: 15]",
         ),
     ]
     cli.commands["build"].params.extend(additional_parameters)
@@ -33,7 +33,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
         config_from_cli,
         config_from_file,
         key="n_entries_in_table",
-        default=20,
+        default=15,
         callback=_parse_n_entries_in_table,
     )
 

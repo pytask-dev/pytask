@@ -14,6 +14,9 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   table for the default verbosity level of 1. They are displayed at 2.
 - :gh:`144` adds tryceratops to the pre-commit hooks for catching issues with
   exceptions.
+- :gh:`150` adds a limit on the number of items displayed in the execution table which
+  is also configurable with ``--n-entries-in-table`` on the cli and
+  ``n_entries_in_table`` in the configuration file.
 
 
 0.1.1 - 2021-08-25
