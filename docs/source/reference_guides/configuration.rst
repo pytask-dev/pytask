@@ -105,7 +105,7 @@ The options
 
     .. code-block:: console
 
-        $ pytask build --n-entries-in-tabl 10
+        $ pytask build --n-entries-in-table 10
 
     and in the configuration use
 
