@@ -11,10 +11,10 @@ def evaluate(input_: str, matcher: Callable[[str], bool]) -> bool:
 
 @pytest.mark.unit
 def test_empty_is_false() -> None:
-    assert not evaluate("", lambda ident: False)
-    assert not evaluate("", lambda ident: True)
-    assert not evaluate("   ", lambda ident: False)
-    assert not evaluate("\t", lambda ident: False)
+    assert not evaluate("", lambda ident: False)  # noqa: U100
+    assert not evaluate("", lambda ident: True)  # noqa: U100
+    assert not evaluate("   ", lambda ident: False)  # noqa: U100
+    assert not evaluate("\t", lambda ident: False)  # noqa: U100
 
 
 @pytest.mark.unit
@@ -119,7 +119,7 @@ def test_syntax_oddeties(expr: str, expected: bool) -> None:
 )
 def test_syntax_errors(expr: str, column: int, message: str) -> None:
     with pytest.raises(ParseError) as excinfo:
-        evaluate(expr, lambda ident: True)
+        evaluate(expr, lambda ident: True)  # noqa: U100
     assert excinfo.value.column == column
     assert excinfo.value.message == message
 
@@ -183,4 +183,4 @@ def test_valid_idents(ident: str) -> None:
 )
 def test_invalid_idents(ident: str) -> None:
     with pytest.raises(ParseError):
-        evaluate(ident, lambda ident: True)
+        evaluate(ident, lambda ident: True)  # noqa: U100
