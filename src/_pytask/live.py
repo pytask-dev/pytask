@@ -1,8 +1,11 @@
 from pathlib import Path
+from typing import Union
 
 import attr
+import click
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.shared import get_first_non_none_value
 from _pytask.shared import reduce_node_name
 from rich.live import Live
 from rich.status import Status
@@ -11,12 +14,58 @@ from rich.text import Text
 
 
 @hookimpl
+def pytask_extend_command_line_interface(cli):
+    """Extend command line interface."""
+    additional_parameters = [
+        click.Option(
+            ["--n-entries-in-table"],
+            default=None,
+            help="How many entries to display in the table during the execution. "
+            "Tasks which are running are always displayed.  [default: 15]",
+        ),
+    ]
+    cli.commands["build"].params.extend(additional_parameters)
+
+
+@hookimpl
+def pytask_parse_config(config, config_from_cli, config_from_file):
+    config["n_entries_in_table"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="n_entries_in_table",
+        default=15,
+        callback=_parse_n_entries_in_table,
+    )
+
+
+def _parse_n_entries_in_table(value: Union[int, str, None]) -> int:
+    if value in ["none", "None", None, ""]:
+        out = None
+    elif isinstance(value, int) and value >= 1:
+        out = value
+    elif isinstance(value, str) and value.isdigit() and int(value) >= 1:
+        out = int(value)
+    elif value == "all":
+        out = 1_000_000
+    else:
+        raise ValueError(
+            "'n_entries_in_table' can either be 'None' or an integer bigger than one."
+        )
+    return out
+
+
+@hookimpl
 def pytask_post_parse(config):
     live_manager = LiveManager()
     config["pm"].register(live_manager, "live_manager")
 
     if config["verbose"] >= 1:
-        live_execution = LiveExecution(live_manager, config["paths"], config["verbose"])
+        live_execution = LiveExecution(
+            live_manager,
+            config["paths"],
+            config["n_entries_in_table"],
+            config["verbose"],
+        )
         config["pm"].register(live_execution)
 
     live_collection = LiveCollection(live_manager)
@@ -66,6 +115,7 @@ class LiveExecution:
 
     _live_manager = attr.ib(type=LiveManager)
     _paths = attr.ib(type=Path)
+    _n_entries_in_table = attr.ib(type=int)
     _verbose = attr.ib(type=int)
     _running_tasks = attr.ib(factory=set)
     _reports = attr.ib(factory=list)
@@ -74,6 +124,7 @@ class LiveExecution:
     def pytask_execute_build(self):
         self._live_manager.start()
         yield
+        self._update_table(reduce_table=False)
         self._live_manager.stop(transient=False)
 
     @hookimpl(tryfirst=True)
@@ -86,10 +137,27 @@ class LiveExecution:
         self.update_reports(report)
         return True
 
-    def _generate_table(self):
+    def _generate_table(self, reduce_table: bool) -> Union[None, Table]:
+        """Generate the table.
+
+        First, display all completed tasks and, then, all running tasks.
+
+        The number of entries can be limited. All running tasks are always displayed and
+        if more entries are requested, the list is filled up with completed tasks.
+
+        """
         if self._running_tasks or self._reports:
+
+            n_reports_to_display = self._n_entries_in_table - len(self._running_tasks)
+            if not reduce_table:
+                relevant_reports = self._reports
+            elif n_reports_to_display >= 1:
+                relevant_reports = self._reports[-n_reports_to_display:]
+            else:
+                relevant_reports = []
+
             table = Table("Task", "Outcome")
-            for report in self._reports:
+            for report in relevant_reports:
                 if report["symbol"] in ("s", "p") and self._verbose < 2:
                     pass
                 else:
@@ -103,8 +171,8 @@ class LiveExecution:
 
         return table
 
-    def _update_table(self):
-        table = self._generate_table()
+    def _update_table(self, reduce_table: bool = True):
+        table = self._generate_table(reduce_table)
         self._live_manager.update(table)
 
     def update_running_tasks(self, new_running_task):
