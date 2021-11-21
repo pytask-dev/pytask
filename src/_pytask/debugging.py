@@ -274,7 +274,7 @@ class PytaskPDB:
         return PytaskPdbWrapper
 
     @classmethod
-    def _init_pdb(cls, method, *args, **kwargs):
+    def _init_pdb(cls, method, *args, **kwargs):  # noqa: U100
         """Initialize PDB debugging, dropping any IO capturing."""
         if cls._pluginmanager is None:
             capman = None
