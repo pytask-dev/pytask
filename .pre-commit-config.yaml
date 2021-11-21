@@ -41,11 +41,11 @@ repos:
     hooks:
     -   id: reorder-python-imports
 -   repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v1.18.0
+    rev: v1.19.0
     hooks:
     -   id: setup-cfg-fmt
 -   repo: https://github.com/psf/black
-    rev: 21.9b0
+    rev: 21.10b0
     hooks:
     -   id: black
 -   repo: https://github.com/asottile/blacken-docs
@@ -73,7 +73,7 @@ repos:
             Pygments,
         ]
 -   repo: https://github.com/PyCQA/doc8
-    rev: 0.9.1
+    rev: 0.10.1
     hooks:
     -   id: doc8
 -   repo: https://github.com/econchick/interrogate
