@@ -113,8 +113,8 @@ _TIME_UNITS = [
 def _format_duration(duration):
     duration_tuples = _humanize_time(duration, "seconds", short_label=False)
 
-    # Remove seconds if the execution lasted days.
-    if duration_tuples[0][1] in ["day", "days"]:
+    # Remove seconds if the execution lasted days or hours.
+    if duration_tuples[0][1] in ["day", "days", "hour", "hours"]:
         duration_tuples = [
             i for i in duration_tuples if i[1] not in ["second", "seconds"]
         ]
