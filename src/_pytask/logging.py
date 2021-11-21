@@ -77,7 +77,8 @@ def pytask_log_session_footer(
 ) -> str:
     """Format the footer of the log message."""
     message = _style_infos(infos)
-    message += f"[{color}] in {duration}s"
+    formatted_duration = _format_duration(duration)
+    message += f"[{color}] in {formatted_duration}"
 
     console.rule(message, style=color)
 
@@ -99,3 +100,77 @@ def _style_infos(infos: List[Tuple[Any]]) -> str:
     if not message:
         message = ["nothing to report"]
     return ", ".join(message)
+
+
+_TIME_UNITS = [
+    {"singular": "day", "plural": "days", "short": "d", "in_seconds": 86400},
+    {"singular": "hour", "plural": "hours", "short": "h", "in_seconds": 3600},
+    {"singular": "minute", "plural": "minutes", "short": "m", "in_seconds": 60},
+    {"singular": "second", "plural": "seconds", "short": "s", "in_seconds": 1},
+]
+
+
+def _format_duration(duration):
+    duration_tuples = _humanize_time(duration, "seconds", short_label=False)
+
+    # Remove seconds if the execution lasted days or hours.
+    if duration_tuples[0][1] in ["day", "days", "hour", "hours"]:
+        duration_tuples = [
+            i for i in duration_tuples if i[1] not in ["second", "seconds"]
+        ]
+
+    formatted_duration = ", ".join([" ".join(map(str, i)) for i in duration_tuples])
+    return formatted_duration
+
+
+def _humanize_time(amount: int, unit: str, short_label: bool = False):
+    """Humanize the time.
+
+    Examples
+    --------
+    >>> _humanize_time(173, "hours")
+    [(7, 'days'), (5, 'hours')]
+    >>> _humanize_time(173, "hours", short_label=True)
+    [(7, 'd'), (5, 'h')]
+    >>> _humanize_time(0, "seconds", short_label=True)
+    [(0, 's')]
+    >>> _humanize_time(1, "unknown_unit")
+    Traceback (most recent call last):
+    ...
+    ValueError: The time unit 'unknown_unit' is not known.
+
+    """
+    index = None
+    for i, entry in enumerate(_TIME_UNITS):
+        if unit in [entry["singular"], entry["plural"]]:
+            index = i
+            break
+    else:
+        raise ValueError(f"The time unit '{unit}' is not known.")
+
+    seconds = amount * _TIME_UNITS[index]["in_seconds"]
+
+    result = []
+    remaining_seconds = seconds
+    for entry in _TIME_UNITS:
+        whole_units = remaining_seconds // entry["in_seconds"]
+        if whole_units >= 1:
+            if short_label:
+                label = entry["short"]
+            elif whole_units == 1:
+                label = entry["singular"]
+            else:
+                label = entry["plural"]
+
+            if not entry["singular"] == "second":
+                result.append((whole_units, label))
+                remaining_seconds -= whole_units * entry["in_seconds"]
+            else:
+                result.append((remaining_seconds, label))
+
+    if not result:
+        result.append(
+            (0, _TIME_UNITS[-1]["short"] if short_label else _TIME_UNITS[-1]["plural"])
+        )
+
+    return result
