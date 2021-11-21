@@ -10,6 +10,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 0.1.2 - 2021-xx-xx
 ------------------
 
+- :gh:`135` implements handling of version in docs as proposed by setuptools-scm.
 - :gh:`142` removes the display of skipped and persisted tasks from the live execution
   table for the default verbosity level of 1. They are displayed at 2.
 
