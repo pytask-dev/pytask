@@ -1,11 +1,12 @@
 """This file contains the command and code for drawing the DAG."""
-import shutil
 from pathlib import Path
 from typing import Any
 from typing import Dict
 
 import click
 import networkx as nx
+from _pytask.compat import check_for_optional_program
+from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.dag import descending_tasks
@@ -122,6 +123,8 @@ def _create_session(config_from_cli: Dict[str, Any]) -> nx.DiGraph:
     else:
         try:
             session.hook.pytask_log_session_header(session=session)
+            import_optional_dependency("pydot")
+            check_for_optional_program(session.config["layout"])
             session.hook.pytask_collect(session=session)
             session.hook.pytask_resolve_dependencies(session=session)
 
@@ -186,21 +189,6 @@ def _escape_node_names_with_colons(dag: nx.DiGraph):
 
 
 def _write_graph(dag: nx.DiGraph, path: Path, layout: str) -> None:
-    try:
-        import pydot  # noqa: F401
-    except ImportError:
-        raise ImportError(
-            "To visualize the project's DAG you need to install pydot which is "
-            "available with pip and conda. For example, use 'conda install -c "
-            "conda-forge pydot'."
-        ) from None
-    if shutil.which(layout) is None:
-        raise RuntimeError(
-            f"The layout program '{layout}' could not be found on your PATH. Please, "
-            "install graphviz. For example, use 'conda install -c conda-forge "
-            "graphivz'."
-        )
-
     path.parent.mkdir(exist_ok=True, parents=True)
     graph = nx.nx_pydot.to_pydot(dag)
     graph.write(path, prog=layout, format=path.suffix[1:])
