@@ -97,6 +97,23 @@ The options
             wip: Work-in-progress. These are tasks which I am currently working on.
 
 
+.. confval:: n_entries_in_table
+
+    You can limit the number of entries displayed in the live table during the execution
+    to make it more clear. Use either ``all`` or an integer greater or equal to one. On
+    the command line use
+
+    .. code-block:: console
+
+        $ pytask build --n-entries-in-table 10
+
+    and in the configuration use
+
+    .. code-block:: ini
+
+        n_entries_in_table = all  # default 15
+
+
 .. confval:: paths
 
     If you want to collect tasks from specific paths without passing the names via the
