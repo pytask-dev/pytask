@@ -20,6 +20,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   ``n_entries_in_table`` in the configuration file.
 - :gh:`152` makes the duration of the execution readable by humans by separating it into
   days, hours, minutes and seconds.
+- :gh:`155` implements functions to check for optional packages and programs and raises
+  errors for requirements to draw the DAG earlier.
 
 
 0.1.1 - 2021-08-25
