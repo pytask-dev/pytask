@@ -123,7 +123,7 @@ def check_for_optional_program(
             f"'errors' must be one of 'warn', 'raise' or 'ignore' and not '{errors}'."
         )
 
-    msg = f"{caller} requires missing optional program '{name}'. {extra}"
+    msg = f"{caller} requires the optional program '{name}'. {extra}"
 
     program_exists = shutil.which(name) is not None
 
