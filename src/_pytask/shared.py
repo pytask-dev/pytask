@@ -144,7 +144,7 @@ def reduce_node_name(node, paths: List[Path]):
     elif isinstance(node, MetaNode):
         name = relative_to(node.path, ancestor).as_posix()
     else:
-        raise ValueError(f"Unknown node {node} with type '{type(node)}'.")
+        raise TypeError(f"Unknown node {node} with type '{type(node)}'.")
 
     return name
 
