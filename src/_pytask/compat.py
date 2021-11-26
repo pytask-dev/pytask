@@ -1,3 +1,4 @@
+"""This module contains functions to assess compatibility and optional dependencies."""
 import importlib
 import shutil
 import sys
