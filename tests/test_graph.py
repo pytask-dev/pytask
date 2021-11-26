@@ -126,7 +126,7 @@ def test_raise_error_with_graph_via_task_missing_optional_dependency(
     import networkx as nx
 
     def task_create_graph():
-        dag = pytask.build_dag({{"paths": Path(__file__).parent}})
+        dag = pytask.build_dag({"paths": Path(__file__).parent})
         graph = nx.nx_pydot.to_pydot(dag)
         path = Path(__file__).parent.joinpath("dag.png")
         graph.write(path, prog="dot", format=path.suffix[1:])
@@ -185,7 +185,7 @@ def test_raise_error_with_graph_via_task_missing_optional_program(
     import networkx as nx
 
     def task_create_graph():
-        dag = pytask.build_dag({{"paths": Path(__file__).parent}})
+        dag = pytask.build_dag({"paths": Path(__file__).parent})
         graph = nx.nx_pydot.to_pydot(dag)
         path = Path(__file__).parent.joinpath("dag.png")
         graph.write(path, prog="dot", format=path.suffix[1:])
