@@ -85,7 +85,11 @@ def dag(**config_from_cli):
         try:
             session.hook.pytask_log_session_header(session=session)
             import_optional_dependency("pydot")
-            check_for_optional_program(session.config["layout"])
+            check_for_optional_program(
+                session.config["layout"],
+                extra="The layout program is part of the graphviz package which you "
+                "can install with conda.",
+            )
             session.hook.pytask_collect(session=session)
             session.hook.pytask_resolve_dependencies(session=session)
             dag = _refine_dag(session)
