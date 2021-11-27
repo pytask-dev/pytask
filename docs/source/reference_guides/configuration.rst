@@ -147,6 +147,20 @@ The options
         pdb = True
 
 
+.. confval:: show_errors_immediately
+
+    If you want to print the exception and tracebacks of errors as soon as they occur,
+    set this value to true.
+
+    .. code-block:: console
+
+        pytask build --show-errors-immediately
+
+    .. code-block:: ini
+
+        show_errors_immediately = True
+
+
 .. confval:: show_locals
 
     If you want to print local variables of each stack frame in the tracebacks, set this

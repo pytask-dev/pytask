@@ -22,6 +22,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   days, hours, minutes and seconds.
 - :gh:`155` implements functions to check for optional packages and programs and raises
   errors for requirements to draw the DAG earlier.
+- :gh:`156` adds an option to print/show errors as soon as they occur.
 
 
 0.1.1 - 2021-08-25

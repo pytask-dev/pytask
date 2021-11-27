@@ -1,3 +1,4 @@
+import re
 import subprocess
 import textwrap
 
@@ -265,7 +266,7 @@ def test_scheduling_w_priorities(tmp_path):
 
 
 @pytest.mark.end_to_end
-def test_scheduling_w_mixed_priorities(tmp_path):
+def test_scheduling_w_mixed_priorities(runner, tmp_path):
     source = """
     import pytask
 
@@ -275,6 +276,32 @@ def test_scheduling_w_mixed_priorities(tmp_path):
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert session.exit_code == 4
+    assert result.exit_code == 4
+    assert "Failures during resolving dependencies" in result.output
+    assert "'try_first' and 'try_last' cannot be applied" in result.output
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("show_errors_immediately", [True, False])
+def test_show_errors_immediately(runner, tmp_path, show_errors_immediately):
+    source = """
+    def task_succeed(): pass
+    def task_error(): raise ValueError
+    """
+    tmp_path.joinpath("task_error.py").write_text(textwrap.dedent(source))
+
+    args = [tmp_path.as_posix()]
+    if show_errors_immediately:
+        args.append("--show-errors-immediately")
+    result = runner.invoke(cli, args)
+
+    assert result.exit_code == 1
+    assert "::task_succeed │ ." in result.output
+
+    matches_traceback = re.findall("Traceback", result.output)
+    if show_errors_immediately:
+        assert len(matches_traceback) == 2
+    else:
+        assert len(matches_traceback) == 1
