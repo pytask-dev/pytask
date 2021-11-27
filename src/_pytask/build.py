@@ -94,6 +94,12 @@ def main(config_from_cli):
     help="Stop after the first failure.",
 )
 @click.option("--max-failures", default=None, help="Stop after some failures.")
+@click.option(
+    "--show-errors-immediately",
+    is_flag=True,
+    default=None,
+    help="Print errors with tracebacks as soon as the task fails.",
+)
 def build(**config_from_cli):
     """Collect and execute tasks and report the results.
 

@@ -132,7 +132,7 @@ class LiveExecution:
         self.update_running_tasks(task)
         return True
 
-    @hookimpl(tryfirst=True)
+    @hookimpl
     def pytask_execute_task_log_end(self, report):
         self.update_reports(report)
         return True
