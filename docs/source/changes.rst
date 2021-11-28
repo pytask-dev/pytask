@@ -7,7 +7,13 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.1.2 - 2021-xx-xx
+0.1.3 - 2021-xx-xx
+------------------
+
+- :gh:`157` adds packaging to the dependencies of the package.
+
+
+0.1.2 - 2021-11-27
 ------------------
 
 - :gh:`135` implements handling of version in docs as proposed by setuptools-scm.
