@@ -7,10 +7,15 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.1.3 - 2021-xx-xx
+0.1.4 - 2021-xx-xx
+------------------
+
+
+0.1.3 - 2021-11-30
 ------------------
 
 - :gh:`157` adds packaging to the dependencies of the package.
+- :gh:`158` converts time units to the nearest integer.
 
 
 0.1.2 - 2021-11-27
