@@ -119,9 +119,9 @@ def test_parse_argnames(arg_names, expected):
         ("i, j", does_not_raise()),
         (("i", "j"), does_not_raise()),
         (["i", "j"], does_not_raise()),
-        (range(1, 2), pytest.raises(ValueError)),
-        ({"i": None, "j": None}, pytest.raises(ValueError)),
-        ({"i", "j"}, pytest.raises(ValueError)),
+        (range(1, 2), pytest.raises(TypeError)),
+        ({"i": None, "j": None}, pytest.raises(TypeError)),
+        ({"i", "j"}, pytest.raises(TypeError)),
     ],
 )
 def test_parse_argnames_raise_error(arg_names, expectation):

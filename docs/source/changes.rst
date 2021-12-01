@@ -7,7 +7,20 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.1.2 - 2021-xx-xx
+0.1.4 - 2021-xx-xx
+------------------
+
+- :gh:`153` adds support and testing for Python 3.10.
+
+
+0.1.3 - 2021-11-30
+------------------
+
+- :gh:`157` adds packaging to the dependencies of the package.
+- :gh:`158` converts time units to the nearest integer.
+
+
+0.1.2 - 2021-11-27
 ------------------
 
 - :gh:`135` implements handling of version in docs as proposed by setuptools-scm.
@@ -20,7 +33,9 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   ``n_entries_in_table`` in the configuration file.
 - :gh:`152` makes the duration of the execution readable by humans by separating it into
   days, hours, minutes and seconds.
-- :gh:`153` adds support and testing for Python 3.10.
+- :gh:`155` implements functions to check for optional packages and programs and raises
+  errors for requirements to draw the DAG earlier.
+- :gh:`156` adds an option to print/show errors as soon as they occur.
 
 
 0.1.1 - 2021-08-25

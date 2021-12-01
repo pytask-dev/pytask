@@ -236,7 +236,7 @@ _ROOT = Path.cwd()
         pytest.param(
             FalseNode(_ROOT.joinpath("src/module.py")),
             [_ROOT.joinpath("src")],
-            pytest.raises(ValueError, match="Unknown node"),
+            pytest.raises(TypeError, match="Unknown node"),
             None,
             id="throw error on unknown node type.",
         ),

@@ -16,10 +16,28 @@ from _pytask.outcomes import Exit
 from _pytask.outcomes import Persisted
 from _pytask.outcomes import Skipped
 from _pytask.report import ExecutionReport
+from _pytask.shared import get_first_non_none_value
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
+
+
+@hookimpl
+def pytask_post_parse(config):
+    if config["show_errors_immediately"]:
+        config["pm"].register(ShowErrorsImmediatelyPlugin)
+
+
+@hookimpl
+def pytask_parse_config(config, config_from_cli, config_from_file):
+    config["show_errors_immediately"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="show_errors_immediately",
+        default=False,
+        callback=lambda x: x if x is None else bool(x),
+    )
 
 
 @hookimpl
@@ -172,10 +190,17 @@ def pytask_execute_task_log_end(report):
     console.print(report.symbol, style=report.color, end="")
 
 
+class ShowErrorsImmediatelyPlugin:
+    @staticmethod
+    @hookimpl(tryfirst=True)
+    def pytask_execute_task_log_end(session, report):
+        if not report.success:
+            _print_errored_task_report(session, report)
+
+
 @hookimpl
 def pytask_execute_log_end(session, reports):
     session.execution_end = time.time()
-    show_locals = session.config["show_locals"]
 
     n_failed = len(reports) - sum(report.success for report in reports)
     n_skipped = sum(
@@ -195,27 +220,7 @@ def pytask_execute_log_end(session, reports):
 
     for report in reports:
         if not report.success:
-
-            task_name = reduce_node_name(report.task, session.config["paths"])
-            if len(task_name) > console.width - 15:
-                task_name = report.task.base_name
-            console.rule(
-                f"[{ColorCode.FAILED}]Task {task_name} failed", style=ColorCode.FAILED
-            )
-
-            console.print()
-
-            if report.exc_info and isinstance(report.exc_info[1], Exit):
-                console.print(format_exception_without_traceback(report.exc_info))
-            else:
-                console.print(render_exc_info(*report.exc_info, show_locals))
-
-            console.print()
-            show_capture = session.config["show_capture"]
-            for when, key, content in report.sections:
-                if key in ("stdout", "stderr") and show_capture in (key, "all"):
-                    console.rule(f"Captured {key} during {when}", style=None)
-                    console.print(content)
+            _print_errored_task_report(session, report)
 
     session.hook.pytask_log_session_footer(
         session=session,
@@ -233,6 +238,28 @@ def pytask_execute_log_end(session, reports):
         raise ExecutionError
 
     return True
+
+
+def _print_errored_task_report(session, report):
+    """Print the traceback and the exception of an errored report."""
+    task_name = reduce_node_name(report.task, session.config["paths"])
+    if len(task_name) > console.width - 15:
+        task_name = report.task.base_name
+    console.rule(f"[{ColorCode.FAILED}]Task {task_name} failed", style=ColorCode.FAILED)
+
+    console.print()
+
+    if report.exc_info and isinstance(report.exc_info[1], Exit):
+        console.print(format_exception_without_traceback(report.exc_info))
+    else:
+        console.print(render_exc_info(*report.exc_info, session.config["show_locals"]))
+
+    console.print()
+    show_capture = session.config["show_capture"]
+    for when, key, content in report.sections:
+        if key in ("stdout", "stderr") and show_capture in (key, "all"):
+            console.rule(f"Captured {key} during {when}", style=None)
+            console.print(content)
 
 
 def _update_states_in_database(dag, task_name):
