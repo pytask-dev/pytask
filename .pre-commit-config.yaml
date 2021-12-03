@@ -8,7 +8,6 @@ repos:
     -   id: check-merge-conflict
     -   id: check-vcs-permalinks
     -   id: check-yaml
-        exclude: meta.yaml
     -   id: debug-statements
         exclude: (debugging\.py)
     -   id: end-of-file-fixer
