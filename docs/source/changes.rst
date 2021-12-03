@@ -10,6 +10,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 0.1.4 - 2021-xx-xx
 ------------------
 
+- :gh:`159` removes files for creating a conda package which is handled by conda-forge.
+
 
 0.1.3 - 2021-11-30
 ------------------
