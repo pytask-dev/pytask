@@ -15,6 +15,7 @@ from _pytask.path import relative_to
 @pytest.mark.parametrize(
     "path, source, include_source, expected",
     [
+        ("src/hello.py", "src", True, Path("src/hello.py")),
         (Path("src/hello.py"), Path("src"), True, Path("src/hello.py")),
         (Path("src/hello.py"), Path("src"), False, Path("hello.py")),
     ],
@@ -28,6 +29,7 @@ def test_relative_to(path, source, include_source, expected):
 @pytest.mark.parametrize(
     "path, potential_ancestors, expected",
     [
+        ("src/task.py", ["src", "bld"], Path("src")),
         (Path("src/task.py"), [Path("src"), Path("bld")], Path("src")),
         (Path("tasks/task.py"), [Path("src"), Path("bld")], None),
         (Path("src/ts/task.py"), [Path("src"), Path("src/ts")], Path("src/ts")),
