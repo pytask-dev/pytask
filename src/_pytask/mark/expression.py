@@ -22,6 +22,7 @@ import types
 from typing import Callable
 from typing import Iterator
 from typing import Mapping
+from typing import NoReturn
 from typing import Optional
 from typing import Sequence
 
@@ -116,7 +117,7 @@ class Scanner:
             self.reject((type_,))
         return None
 
-    def reject(self, expected: Sequence[TokenType]):
+    def reject(self, expected: Sequence[TokenType]) -> NoReturn:
         raise ParseError(
             self.current.pos + 1,
             "expected {}; got {}".format(
@@ -157,7 +158,7 @@ def and_expr(s: Scanner) -> ast.expr:
     return ret
 
 
-def not_expr(s: Scanner) -> ast.expr:
+def not_expr(s: Scanner) -> Optional[ast.expr]:
     if s.accept(TokenType.NOT):
         return ast.UnaryOp(ast.Not(), not_expr(s))
     if s.accept(TokenType.LPAREN):
