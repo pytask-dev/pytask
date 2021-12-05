@@ -4,16 +4,17 @@ import shutil
 import sys
 import types
 import warnings
+from typing import Dict
 from typing import Optional
 
 from packaging.version import parse as parse_version
 
 
-_MINIMUM_VERSIONS = {}
+_MINIMUM_VERSIONS: Dict[str, str] = {}
 """Dict[str, str]: A mapping from packages to their minimum versions."""
 
 
-_IMPORT_TO_PACKAGE_NAME = {}
+_IMPORT_TO_PACKAGE_NAME: Dict[str, str] = {}
 """Dict[str, str]: A mapping from import name to package name (on PyPI) for packages
 where these two names are different."""
 
