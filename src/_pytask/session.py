@@ -6,8 +6,13 @@ from typing import TYPE_CHECKING
 
 import attr
 import networkx as nx
-import pluggy
 from _pytask.enums import ExitCode
+
+
+try:
+    from pluggy.hooks import _HookRelay
+except ImportError:
+    from pluggy._hooks import _HookRelay
 
 
 if TYPE_CHECKING:
@@ -22,10 +27,10 @@ class Session:
 
     config = attr.ib(factory=dict, type=Optional[Dict[str, Any]])
     """Optional[Dict[str, Any]]: Configuration of the session."""
-    hook = attr.ib(default=None, type=Optional[pluggy.hooks._HookRelay])
+    hook = attr.ib(default=None, type=Optional[_HookRelay])
     """Optional[pluggy.hooks._HookRelay]: Holds all hooks collected by pytask."""
     collection_reports = attr.ib(factory=list, type="List[ExecutionReport]")
-    """Optional[List[pytask.report.ExecutionReport]]: Reports for collected items.
+    """Optional[List[ExecutionReport]]: Reports for collected items.
 
     The reports capture errors which happened while collecting tasks.
 
