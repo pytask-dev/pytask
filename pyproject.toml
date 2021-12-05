@@ -24,7 +24,6 @@ warn_unused_ignores = true
 [[tool.mypy.overrides]]
 module = [
     "_pytask.capture",
-    "_pytask.cli",
     "_pytask.clean",
     "_pytask.collect",
     "_pytask.debugging",
