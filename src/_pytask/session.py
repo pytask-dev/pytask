@@ -9,6 +9,7 @@ import networkx as nx
 from _pytask.enums import ExitCode
 
 
+# Location was moved from pluggy v0.13.1 to v1.0.0.
 try:
     from pluggy.hooks import _HookRelay
 except ImportError:
