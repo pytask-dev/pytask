@@ -5,6 +5,7 @@ from typing import Optional
 from typing import TYPE_CHECKING
 
 import attr
+import networkx as nx
 import pluggy
 from _pytask.enums import ExitCode
 
@@ -31,6 +32,7 @@ class Session:
     """
     tasks = attr.ib(factory=list, type="Optional[List[MetaTask]]")
     """Optional[List[MetaTask]]: List of collected tasks."""
+    dag = attr.ib(default=None, type=Optional[nx.DiGraph])
     resolving_dependencies_report = attr.ib(
         factory=list, type="Optional[List[ResolvingDependenciesReport]]"
     )

@@ -55,6 +55,8 @@ def produces(objects: Union[Any, Iterable[Any]]) -> Union[Any, Iterable[Any]]:
 class MetaNode(metaclass=ABCMeta):
     """Meta class for nodes."""
 
+    path: Path
+
     @abstractmethod
     def state(self):
         """Return a value which indicates whether a node has changed or not."""
@@ -64,7 +66,12 @@ class MetaNode(metaclass=ABCMeta):
 class MetaTask(MetaNode):
     """The base class for tasks."""
 
+    name: str
     markers: "List[Mark]"
+    depends_on: Dict[str, MetaNode]
+    produces: Dict[str, MetaNode]
+    path: Path
+    _report_sections: List[Tuple[str, str, str]]
 
     @abstractmethod
     def execute(self):

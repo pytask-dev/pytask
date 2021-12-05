@@ -107,6 +107,7 @@ repos:
             types-click,
             types-setuptools
         ]
+        pass_filenames: false
 -   repo: meta
     hooks:
     -   id: check-hooks-apply

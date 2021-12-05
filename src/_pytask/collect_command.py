@@ -1,9 +1,12 @@
 """This module contains the implementation of ``pytask collect``."""
 import sys
+from pathlib import Path
 from typing import Any
 from typing import Dict
+from typing import List
 from typing import NoReturn
 from typing import Optional
+from typing import TYPE_CHECKING
 
 import click
 from _pytask.config import hookimpl
@@ -24,6 +27,10 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import reduce_node_name
 from rich.tree import Tree
+
+
+if TYPE_CHECKING:
+    from _pytask.nodes import MetaTask
 
 
 @hookimpl(tryfirst=True)
@@ -94,7 +101,7 @@ def collect(**config_from_cli: Optional[Any]) -> NoReturn:
     sys.exit(session.exit_code)
 
 
-def _select_tasks_by_expressions_and_marker(session):
+def _select_tasks_by_expressions_and_marker(session: Session) -> "List[MetaTask]":
     all_tasks = {task.name for task in session.tasks}
     remaining_by_mark = select_by_mark(session, session.dag) or all_tasks
     remaining_by_keyword = select_by_keyword(session, session.dag) or all_tasks
@@ -103,7 +110,9 @@ def _select_tasks_by_expressions_and_marker(session):
     return [task for task in session.tasks if task.name in remaining]
 
 
-def _find_common_ancestor_of_all_nodes(tasks, paths):
+def _find_common_ancestor_of_all_nodes(
+    tasks: "List[MetaTask]", paths: List[Path]
+) -> Path:
     """Find common ancestor from all nodes and passed paths."""
     all_paths = []
     for task in tasks:
@@ -118,14 +127,16 @@ def _find_common_ancestor_of_all_nodes(tasks, paths):
     return common_ancestor
 
 
-def _organize_tasks(tasks, common_ancestor):
+def _organize_tasks(
+    tasks: "List[MetaTask]", common_ancestor: Path
+) -> "Dict[Path, Dict[str, Dict[str, List[Path]]]]":
     """Organize tasks in a dictionary.
 
     The dictionary has file names as keys and then a dictionary with task names and
     below a dictionary with dependencies and targets.
 
     """
-    dictionary = {}
+    dictionary: "Dict[Path, Dict[str, Dict[str, List[Path]]]]" = {}
     for task in tasks:
         reduced_task_path = relative_to(task.path, common_ancestor)
         reduced_task_name = reduce_node_name(task, [common_ancestor])
@@ -151,7 +162,9 @@ def _organize_tasks(tasks, common_ancestor):
     return dictionary
 
 
-def _print_collected_tasks(dictionary, show_nodes):
+def _print_collected_tasks(
+    dictionary: "Dict[Path, Dict[str, Dict[str, List[Path]]]]", show_nodes: bool
+) -> None:
     """Print the information on collected tasks.
 
     Parameters

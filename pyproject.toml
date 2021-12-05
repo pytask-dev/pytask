@@ -8,3 +8,44 @@ write_to = "src/_pytask/_version.py"
 
 [tool.tryceratops]
 ignore = ["TC003"]
+
+
+[tool.mypy]
+files = ["src", "tests"]
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+
+[[tool.mypy.overrides]]
+module = [
+    "_pytask.capture",
+    "_pytask.cli",
+    "_pytask.clean",
+    "_pytask.collect",
+    "_pytask.dag",
+    "_pytask.database",
+    "_pytask.debugging",
+    "_pytask.execute",
+    "_pytask.graph",
+    "_pytask.hookspecs",
+    "_pytask.live",
+    "_pytask.logging",
+    "_pytask.mark.*",
+    "_pytask.nodes",
+    "_pytask.parametrize",
+    "_pytask.profile",
+    "_pytask.resolve_dependencies",
+    "_pytask.shared"
+]
+ignore_errors = true
+
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+ignore_errors = true
