@@ -55,7 +55,9 @@ def parse_paths(x: Optional[Any]) -> Optional[List[Path]]:
         return paths
 
 
-def falsy_to_none_callback(ctx, param, value: Any) -> Optional[Any]:  # noqa: U100
+def falsy_to_none_callback(
+    ctx: Any, param: Any, value: Any  # noqa: U100
+) -> Optional[Any]:
     """Convert falsy object to ``None``.
 
     Some click arguments accept multiple inputs and instead of ``None`` as a default if
@@ -131,7 +133,7 @@ def convert_truthy_or_falsy_to_bool(x: Union[bool, str, None]) -> bool:
     return out
 
 
-def reduce_node_name(node, paths: List[Path]) -> str:
+def reduce_node_name(node: "MetaNode", paths: List[Path]) -> str:
     """Reduce the node name.
 
     The whole name of the node - which includes the drive letter - can be very long

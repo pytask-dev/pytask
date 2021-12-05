@@ -11,12 +11,17 @@ from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Tuple
+from typing import TYPE_CHECKING
 from typing import Union
 
 import attr
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark_utils import get_marks_from_obj
+
+
+if TYPE_CHECKING:
+    from _pytask.mark import Mark
 
 
 def depends_on(objects: Union[Any, Iterable[Any]]) -> Union[Any, Iterable[Any]]:
@@ -58,6 +63,8 @@ class MetaNode(metaclass=ABCMeta):
 
 class MetaTask(MetaNode):
     """The base class for tasks."""
+
+    markers: "List[Mark]"
 
     @abstractmethod
     def execute(self):

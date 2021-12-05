@@ -3,14 +3,22 @@
 The utility functions are stored here to be separate from the plugin.
 
 """
+from typing import Any
+from typing import List
+from typing import TYPE_CHECKING
 
 
-def get_specific_markers_from_task(task, marker_name):
+if TYPE_CHECKING:
+    from _pytask.nodes import MetaTask
+    from _pytask.mark import Mark
+
+
+def get_specific_markers_from_task(task: "MetaTask", marker_name: str) -> "List[Mark]":
     """Get a specific group of markers from a task."""
     return [marker for marker in task.markers if marker.name == marker_name]
 
 
-def get_marks_from_obj(obj, marker_name):
+def get_marks_from_obj(obj: Any, marker_name: str) -> "List[Mark]":
     """Get a specific group of markers from a task function."""
     return [
         marker
@@ -19,6 +27,6 @@ def get_marks_from_obj(obj, marker_name):
     ]
 
 
-def has_marker(obj, marker_name):
+def has_marker(obj: Any, marker_name: str) -> bool:
     """Determine whether a task function has a certain marker."""
     return any(marker.name == marker_name for marker in getattr(obj, "pytaskmark", []))
