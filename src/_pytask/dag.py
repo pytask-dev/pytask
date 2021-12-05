@@ -3,8 +3,8 @@ import itertools
 from pathlib import Path
 from typing import Dict
 from typing import Generator
-from typing import Iterable
 from typing import List
+from typing import Set
 
 import attr
 import networkx as nx
@@ -45,7 +45,7 @@ def task_and_preceding_tasks(
     yield from preceding_tasks(task_name, dag)
 
 
-def node_and_neighbors(dag: nx.DiGraph, node: str) -> Generator[str, None, None]:
+def node_and_neighbors(dag: nx.DiGraph, node: str) -> itertools.chain[str]:
     """Yield node and neighbors which are first degree predecessors and successors.
 
     We cannot use ``dag.neighbors`` as it only considers successors as neighbors in a
@@ -63,11 +63,11 @@ class TopologicalSorter:
 
     """
 
-    dag = attr.ib(converter=nx.DiGraph)
-    priorities = attr.ib(factory=dict)
-    _dag_backup = attr.ib(default=None)
+    dag = attr.ib(type=nx.DiGraph)
+    priorities = attr.ib(factory=dict, type=Dict[str, int])
+    _dag_backup = attr.ib(default=None, type=nx.DiGraph)
     _is_prepared = attr.ib(default=False, type=bool)
-    _nodes_out = attr.ib(factory=set)
+    _nodes_out = attr.ib(factory=set, type=Set[str])
 
     @classmethod
     def from_dag(cls, dag: nx.DiGraph, paths: List[Path] = None) -> "TopologicalSorter":
@@ -99,7 +99,7 @@ class TopologicalSorter:
 
         self._is_prepared = True
 
-    def get_ready(self, n: int = 1):
+    def get_ready(self, n: int = 1) -> List[str]:
         """Get up to ``n`` tasks which are ready."""
         if not self._is_prepared:
             raise ValueError("The TopologicalSorter needs to be prepared.")
@@ -119,7 +119,7 @@ class TopologicalSorter:
         """Indicate whether there are still tasks left."""
         return bool(self.dag.nodes)
 
-    def done(self, *nodes: Iterable[str]) -> None:
+    def done(self, *nodes: str) -> None:
         """Mark some tasks as done."""
         self._nodes_out = self._nodes_out - set(nodes)
         self.dag.remove_nodes_from(nodes)

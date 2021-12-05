@@ -27,7 +27,6 @@ module = [
     "_pytask.cli",
     "_pytask.clean",
     "_pytask.collect",
-    "_pytask.dag",
     "_pytask.database",
     "_pytask.debugging",
     "_pytask.execute",
