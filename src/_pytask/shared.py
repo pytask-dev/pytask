@@ -2,8 +2,14 @@
 import glob
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
+from typing import Callable
+from typing import Dict
 from typing import List
+from typing import Optional
+from typing import Union
 
+import networkx as nx
 from _pytask.console import escape_squared_brackets
 from _pytask.nodes import create_task_name
 from _pytask.nodes import MetaNode
@@ -13,7 +19,7 @@ from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 
 
-def to_list(scalar_or_iter):
+def to_list(scalar_or_iter: Any) -> List[Any]:
     """Convert scalars and iterables to list.
 
     Parameters
@@ -39,7 +45,7 @@ def to_list(scalar_or_iter):
     )
 
 
-def parse_paths(x):
+def parse_paths(x: Optional[Any]) -> Optional[List[Path]]:
     """Parse paths."""
     if x is not None:
         paths = [Path(p) for p in to_list(x)]
@@ -49,7 +55,7 @@ def parse_paths(x):
         return paths
 
 
-def falsy_to_none_callback(ctx, param, value):  # noqa: U100
+def falsy_to_none_callback(ctx, param, value: Any) -> Optional[Any]:  # noqa: U100
     """Convert falsy object to ``None``.
 
     Some click arguments accept multiple inputs and instead of ``None`` as a default if
@@ -71,7 +77,12 @@ def falsy_to_none_callback(ctx, param, value):  # noqa: U100
     return value if value else None
 
 
-def get_first_non_none_value(*configs, key, default=None, callback=None):
+def get_first_non_none_value(
+    *configs: Dict[str, Any],
+    key: str,
+    default: Optional[Any] = None,
+    callback: Optional[Callable] = None,
+) -> Any:
     """Get the first non-None value for a key from a list of dictionaries.
 
     This function allows to prioritize information from many configurations by changing
@@ -94,7 +105,7 @@ def get_first_non_none_value(*configs, key, default=None, callback=None):
     return next((value for value in processed_values if value is not None), default)
 
 
-def parse_value_or_multiline_option(value):
+def parse_value_or_multiline_option(value: str) -> Union[str, List[str]]:
     """Parse option which can hold a single value or values separated by new lines."""
     if value in ["none", "None", None, ""]:
         value = None
@@ -105,7 +116,7 @@ def parse_value_or_multiline_option(value):
     return value
 
 
-def convert_truthy_or_falsy_to_bool(x):
+def convert_truthy_or_falsy_to_bool(x: Union[bool, str, None]) -> bool:
     """Convert truthy or falsy value in .ini to Python boolean."""
     if x in [True, "True", "true", "1"]:
         out = True
@@ -120,7 +131,7 @@ def convert_truthy_or_falsy_to_bool(x):
     return out
 
 
-def reduce_node_name(node, paths: List[Path]):
+def reduce_node_name(node, paths: List[Path]) -> str:
     """Reduce the node name.
 
     The whole name of the node - which includes the drive letter - can be very long
@@ -149,7 +160,9 @@ def reduce_node_name(node, paths: List[Path]):
     return name
 
 
-def reduce_names_of_multiple_nodes(names, dag, paths):
+def reduce_names_of_multiple_nodes(
+    names: List[str], dag: nx.DiGraph, paths: List[Path]
+) -> List[str]:
     """Reduce the names of multiple nodes in the DAG."""
     return [
         reduce_node_name(dag.nodes[n].get("node") or dag.nodes[n].get("task"), paths)

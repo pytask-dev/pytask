@@ -1,5 +1,9 @@
 """This module contains the implementation of ``pytask collect``."""
 import sys
+from typing import Any
+from typing import Dict
+from typing import NoReturn
+from typing import Optional
 
 import click
 from _pytask.config import hookimpl
@@ -23,20 +27,22 @@ from rich.tree import Tree
 
 
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(cli: click.Group):
+def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface."""
     cli.add_command(collect)
 
 
 @hookimpl
-def pytask_parse_config(config, config_from_cli):
+def pytask_parse_config(
+    config: Dict[str, Any], config_from_cli: Dict[str, Any]
+) -> None:
     """Parse configuration."""
     config["nodes"] = config_from_cli.get("nodes", False)
 
 
 @click.command()
 @click.option("--nodes", is_flag=True, help="Show a task's dependencies and products.")
-def collect(**config_from_cli):
+def collect(**config_from_cli: Optional[Any]) -> NoReturn:
     """Collect tasks from paths."""
     config_from_cli["command"] = "collect"
 

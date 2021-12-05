@@ -7,7 +7,7 @@ from _pytask.shared import falsy_to_none_callback
 _CONFIG_OPTION = click.Option(
     ["-c", "--config"], type=click.Path(exists=True), help="Path to configuration file."
 )
-"""click.Option: An general option for the --config flag."""
+"""click.Option: An option for the --config flag."""
 
 _IGNORE_OPTION = click.Option(
     ["--ignore"],
@@ -19,13 +19,13 @@ _IGNORE_OPTION = click.Option(
     ),
     callback=falsy_to_none_callback,
 )
-"""click.Option: An general option for the --ignore flag."""
+"""click.Option: An option for the --ignore flag."""
 
 
 _PATH_ARGUMENT = click.Argument(
     ["paths"], nargs=-1, type=click.Path(exists=True), callback=falsy_to_none_callback
 )
-"""click.Option: An general paths argument."""
+"""click.Argument: An argument for paths."""
 
 
 _VERBOSE_OPTION = click.Option(
@@ -34,10 +34,11 @@ _VERBOSE_OPTION = click.Option(
     default=None,
     help="Make pytask verbose (>= 0) or quiet (< 0) [default: 0]",
 )
+"""click.Option: An general ."""
 
 
 @hookimpl(trylast=True)
-def pytask_extend_command_line_interface(cli):
+def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Register general markers."""
     for command in ["build", "clean", "collect", "markers", "profile"]:
         cli.commands[command].params.append(_CONFIG_OPTION)
