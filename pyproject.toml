@@ -34,7 +34,6 @@ module = [
     "_pytask.logging",
     "_pytask.mark.*",
     "_pytask.nodes",
-    "_pytask.parametrize",
     "_pytask.profile",
     "_pytask.resolve_dependencies",
     "_pytask.shared"
