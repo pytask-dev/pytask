@@ -134,8 +134,8 @@ def pytask_parametrize_task(
             )
 
             # Copy function and attributes to allow in-place changes.
-            func = _copy_func(obj)
-            func.pytaskmark = copy.deepcopy(obj.pytaskmark)
+            func = _copy_func(obj)  # type: ignore
+            func.pytaskmark = copy.deepcopy(obj.pytaskmark)  # type: ignore
 
             # Convert parametrized dependencies and products to decorator.
             session.hook.pytask_parametrize_kwarg_to_marker(obj=func, kwargs=kwargs)
