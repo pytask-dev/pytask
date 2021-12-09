@@ -2,11 +2,17 @@ r"""Evaluate match expressions, as used by `-k` and `-m`.
 
 The grammar is:
 
-expression: expr? EOF
-expr:       and_expr ('or' and_expr)*
-and_expr:   not_expr ('and' not_expr)*
-not_expr:   'not' not_expr | '(' expr ')' | ident
-ident:      (\w|:|\+|-|\.|\[|\]|\\)+
++------------+--------------------------------------------+
+| expression | expr? EOF                                  |
++------------+--------------------------------------------+
+| expr       | and_expr ('or' and_expr)*                  |
++------------+--------------------------------------------+
+| and_expr   | not_expr ('and' not_expr)*                 |
++------------+--------------------------------------------+
+| not_expr   | ``'not' not_expr | '(' expr ')' | ident``  |
++------------+--------------------------------------------+
+| ident      | ``(\w|:|\+|-|\.|\[|\]|\\)+``               |
++------------+--------------------------------------------+
 
 The semantics are:
 
@@ -87,7 +93,7 @@ class Scanner:
                 yield Token(TokenType.RPAREN, ")", pos)
                 pos += 1
             else:
-                match = re.match(r"(:?\w|:|\+|-|\.|\[|\]|\\)+", input_[pos:])
+                match = re.match(r"(:?\w|:|\+|-|\.|\[|\]|/|\\)+", input_[pos:])
                 if match:
                     value = match.group(0)
                     if value == "or":
