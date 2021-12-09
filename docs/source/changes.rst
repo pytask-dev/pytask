@@ -11,6 +11,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 ------------------
 
 - :gh:`159` removes files for creating a conda package which is handled by conda-forge.
+- :gh:`161` removes a workaround for pyreadline which is also removed in pytest 7.
 
 
 0.1.3 - 2021-11-30

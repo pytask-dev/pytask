@@ -117,7 +117,6 @@ def pytask_post_parse(config):
     if config["capture"] == "fd":
         _py36_windowsconsoleio_workaround(sys.stdout)
     _colorama_workaround()
-    _readline_workaround()
 
     pluginmanager = config["pm"]
     capman = CaptureManager(config["capture"])
@@ -168,31 +167,6 @@ def _colorama_workaround() -> None:
     if sys.platform.startswith("win32"):
         try:
             import colorama  # noqa: F401
-        except ImportError:
-            pass
-
-
-def _readline_workaround() -> None:
-    """Ensure readline is imported so that it attaches to the correct stdio handles on
-    Windows.
-
-    Pdb uses readline support where available -- when not running from the Python
-    prompt, the readline module is not imported until running the pdb REPL.  If running
-    pytest with the ``--pdb`` option this means the readline module is not imported
-    until after I/O capture has been started.
-
-    This is a problem for pyreadline, which is often used to implement readline support
-    on Windows, as it does not attach to the correct handles for stdout and/or stdin if
-    they have been redirected by the FDCapture mechanism.  This workaround ensures that
-    readline is imported before I/O capture is setup so that it can attach to the actual
-    stdin/out for the console.
-
-    See https://github.com/pytest-dev/pytest/pull/1281.
-
-    """
-    if sys.platform.startswith("win32"):
-        try:
-            import readline  # noqa: F401
         except ImportError:
             pass
 
