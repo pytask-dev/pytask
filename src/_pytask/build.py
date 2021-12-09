@@ -2,7 +2,7 @@
 import sys
 from typing import Any
 from typing import Dict
-from typing import NoReturn
+from typing import TYPE_CHECKING
 
 import click
 from _pytask.config import hookimpl
@@ -14,6 +14,10 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
+
+
+if TYPE_CHECKING:
+    from typing import NoReturn
 
 
 @hookimpl(tryfirst=True)
@@ -103,7 +107,7 @@ def main(config_from_cli: Dict[str, Any]) -> Session:
     default=None,
     help="Print errors with tracebacks as soon as the task fails.",
 )
-def build(**config_from_cli: Any) -> NoReturn:
+def build(**config_from_cli: Any) -> "NoReturn":
     """Collect and execute tasks and report the results.
 
     This is the default command of pytask which searches given paths or the current

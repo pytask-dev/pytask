@@ -66,6 +66,7 @@ repos:
             flake8-print,
             flake8-pytest-style,
             flake8-todo,
+            flake8-typing-imports,
             flake8-unused-arguments,
             pep8-naming,
             pydocstyle,

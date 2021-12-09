@@ -28,11 +28,15 @@ import types
 from typing import Callable
 from typing import Iterator
 from typing import Mapping
-from typing import NoReturn
 from typing import Optional
 from typing import Sequence
+from typing import TYPE_CHECKING
 
 import attr
+
+
+if TYPE_CHECKING:
+    from typing import NoReturn
 
 
 __all__ = ["Expression", "ParseError"]
@@ -123,7 +127,7 @@ class Scanner:
             self.reject((type_,))
         return None
 
-    def reject(self, expected: Sequence[TokenType]) -> NoReturn:
+    def reject(self, expected: Sequence[TokenType]) -> "NoReturn":
         raise ParseError(
             self.current.pos + 1,
             "expected {}; got {}".format(

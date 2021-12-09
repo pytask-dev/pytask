@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
-from typing import NoReturn
 from typing import Optional
 from typing import TYPE_CHECKING
 
@@ -30,6 +29,7 @@ from rich.tree import Tree
 
 
 if TYPE_CHECKING:
+    from typing import NoReturn
     from _pytask.nodes import MetaTask
 
 
@@ -49,7 +49,7 @@ def pytask_parse_config(
 
 @click.command()
 @click.option("--nodes", is_flag=True, help="Show a task's dependencies and products.")
-def collect(**config_from_cli: Optional[Any]) -> NoReturn:
+def collect(**config_from_cli: Optional[Any]) -> "NoReturn":
     """Collect tasks from paths."""
     config_from_cli["command"] = "collect"
 

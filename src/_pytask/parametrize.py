@@ -9,10 +9,8 @@ from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
-from typing import Protocol
 from typing import Sequence
 from typing import Tuple
-from typing import TypeVar
 from typing import Union
 
 from _pytask.config import hookimpl
@@ -22,14 +20,6 @@ from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
 from _pytask.nodes import find_duplicates
 from _pytask.session import Session
-
-
-F = TypeVar("F", bound=Callable[..., Any])
-
-
-class TaskFunction(Protocol[F]):
-    __call__: F
-    pytaskmark: Optional[List[Mark]]
 
 
 def parametrize(
