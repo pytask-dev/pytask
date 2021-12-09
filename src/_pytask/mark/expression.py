@@ -93,7 +93,7 @@ class Scanner:
                 yield Token(TokenType.RPAREN, ")", pos)
                 pos += 1
             else:
-                match = re.match(r"(:?\w|:|\+|-|\.|\[|\]|/)+", input_[pos:])
+                match = re.match(r"(:?\w|:|\+|-|\.|\[|\]|/|\\)+", input_[pos:])
                 if match:
                     value = match.group(0)
                     if value == "or":
