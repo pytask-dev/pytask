@@ -2,7 +2,7 @@
 import functools
 import os
 from pathlib import Path
-from typing import List
+from typing import Sequence
 from typing import Union
 
 
@@ -34,7 +34,7 @@ def relative_to(
 
 
 def find_closest_ancestor(
-    path: Union[str, Path], potential_ancestors: List[Union[str, Path]]
+    path: Union[str, Path], potential_ancestors: Sequence[Union[str, Path]]
 ) -> Path:
     """Find the closest ancestor of a path.
 

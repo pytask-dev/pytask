@@ -66,6 +66,7 @@ class MetaNode(metaclass=ABCMeta):
 class MetaTask(MetaNode):
     """The base class for tasks."""
 
+    base_name: str
     name: str
     markers: "List[Mark]"
     depends_on: Dict[str, MetaNode]

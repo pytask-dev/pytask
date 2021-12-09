@@ -36,7 +36,6 @@ module = [
     "_pytask.nodes",
     "_pytask.profile",
     "_pytask.resolve_dependencies",
-    "_pytask.shared"
 ]
 ignore_errors = true
 

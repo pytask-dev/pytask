@@ -52,7 +52,10 @@ def parse_paths(x: Optional[Any]) -> Optional[List[Path]]:
         paths = [
             Path(p).resolve() for path in paths for p in glob.glob(path.as_posix())
         ]
-        return paths
+        out = paths
+    else:
+        out = None
+    return out
 
 
 def falsy_to_none_callback(
@@ -83,7 +86,7 @@ def get_first_non_none_value(
     *configs: Dict[str, Any],
     key: str,
     default: Optional[Any] = None,
-    callback: Optional[Callable] = None,
+    callback: Optional[Callable[[Any], Any]] = None,
 ) -> Any:
     """Get the first non-None value for a key from a list of dictionaries.
 
@@ -107,15 +110,18 @@ def get_first_non_none_value(
     return next((value for value in processed_values if value is not None), default)
 
 
-def parse_value_or_multiline_option(value: str) -> Union[str, List[str]]:
+def parse_value_or_multiline_option(
+    value: Union[str, None]
+) -> Union[None, str, List[str]]:
     """Parse option which can hold a single value or values separated by new lines."""
     if value in ["none", "None", None, ""]:
-        value = None
+        return None
     elif isinstance(value, str) and "\n" in value:
-        value = [v.strip() for v in value.split("\n") if v.strip()]
-    elif isinstance(value, str) and "n" not in value:
-        value = value.strip()
-    return value
+        return [v.strip() for v in value.split("\n") if v.strip()]
+    elif isinstance(value, str):
+        return value.strip()
+    else:
+        raise ValueError(f"Input '{value}' is neither a 'str' nor 'None'.")
 
 
 def convert_truthy_or_falsy_to_bool(x: Union[bool, str, None]) -> bool:
@@ -133,7 +139,7 @@ def convert_truthy_or_falsy_to_bool(x: Union[bool, str, None]) -> bool:
     return out
 
 
-def reduce_node_name(node: "MetaNode", paths: List[Path]) -> str:
+def reduce_node_name(node: "MetaNode", paths: Sequence[Union[str, Path]]) -> str:
     """Reduce the node name.
 
     The whole name of the node - which includes the drive letter - can be very long
@@ -163,7 +169,7 @@ def reduce_node_name(node: "MetaNode", paths: List[Path]) -> str:
 
 
 def reduce_names_of_multiple_nodes(
-    names: List[str], dag: nx.DiGraph, paths: List[Path]
+    names: List[str], dag: nx.DiGraph, paths: List[Union[str, Path]]
 ) -> List[str]:
     """Reduce the names of multiple nodes in the DAG."""
     return [
