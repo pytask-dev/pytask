@@ -169,7 +169,7 @@ def reduce_node_name(node: "MetaNode", paths: Sequence[Union[str, Path]]) -> str
 
 
 def reduce_names_of_multiple_nodes(
-    names: List[str], dag: nx.DiGraph, paths: List[Union[str, Path]]
+    names: List[str], dag: nx.DiGraph, paths: Sequence[Union[str, Path]]
 ) -> List[str]:
     """Reduce the names of multiple nodes in the DAG."""
     return [

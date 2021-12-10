@@ -27,7 +27,6 @@ module = [
     "_pytask.collect",
     "_pytask.debugging",
     "_pytask.execute",
-    "_pytask.graph",
     "_pytask.hookspecs",
     "_pytask.mark.*",
     "_pytask.nodes",
