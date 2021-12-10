@@ -1,10 +1,19 @@
 from pathlib import Path
+from typing import Any
+from typing import Dict
+from typing import Generator
+from typing import List
+from typing import Optional
+from typing import Set
 from typing import Union
 
 import attr
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.nodes import MetaTask
+from _pytask.report import CollectionReport
+from _pytask.report import ExecutionReport
 from _pytask.shared import get_first_non_none_value
 from _pytask.shared import reduce_node_name
 from rich.live import Live
@@ -14,7 +23,7 @@ from rich.text import Text
 
 
 @hookimpl
-def pytask_extend_command_line_interface(cli):
+def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend command line interface."""
     additional_parameters = [
         click.Option(
@@ -28,7 +37,11 @@ def pytask_extend_command_line_interface(cli):
 
 
 @hookimpl
-def pytask_parse_config(config, config_from_cli, config_from_file):
+def pytask_parse_config(
+    config: Dict[str, Any],
+    config_from_cli: Dict[str, Any],
+    config_from_file: Dict[str, Any],
+) -> None:
     config["n_entries_in_table"] = get_first_non_none_value(
         config_from_cli,
         config_from_file,
@@ -55,7 +68,7 @@ def _parse_n_entries_in_table(value: Union[int, str, None]) -> int:
 
 
 @hookimpl
-def pytask_post_parse(config):
+def pytask_post_parse(config: Dict[str, Any]) -> None:
     live_manager = LiveManager()
     config["pm"].register(live_manager, "live_manager")
 
@@ -84,29 +97,29 @@ class LiveManager:
 
     _live = Live(renderable=None, console=console, auto_refresh=True)
 
-    def start(self):
+    def start(self) -> None:
         self._live.start()
 
-    def stop(self, transient=None):
+    def stop(self, transient: Optional[bool] = None) -> None:
         if transient is not None:
             self._live.transient = transient
         self._live.stop()
 
-    def pause(self):
+    def pause(self) -> None:
         self._live.transient = True
         self.stop()
 
-    def resume(self):
+    def resume(self) -> None:
         if not self._live.renderable:
             return
         self._live.transient = False
         self.start()
 
-    def update(self, *args, **kwargs):
+    def update(self, *args: Any, **kwargs: Any) -> None:
         self._live.update(*args, **kwargs)
 
     @property
-    def is_started(self):
+    def is_started(self) -> None:
         return self._live.is_started
 
 
@@ -114,30 +127,30 @@ class LiveManager:
 class LiveExecution:
 
     _live_manager = attr.ib(type=LiveManager)
-    _paths = attr.ib(type=Path)
+    _paths = attr.ib(type=List[Path])
     _n_entries_in_table = attr.ib(type=int)
     _verbose = attr.ib(type=int)
-    _running_tasks = attr.ib(factory=set)
-    _reports = attr.ib(factory=list)
+    _running_tasks = attr.ib(factory=set, type=Set[str])
+    _reports = attr.ib(factory=list, type=List[Dict[str, str]])
 
     @hookimpl(hookwrapper=True)
-    def pytask_execute_build(self):
+    def pytask_execute_build(self) -> Generator[None, None, None]:
         self._live_manager.start()
         yield
         self._update_table(reduce_table=False)
         self._live_manager.stop(transient=False)
 
     @hookimpl(tryfirst=True)
-    def pytask_execute_task_log_start(self, task):
+    def pytask_execute_task_log_start(self, task: MetaTask) -> bool:
         self.update_running_tasks(task)
         return True
 
     @hookimpl
-    def pytask_execute_task_log_end(self, report):
+    def pytask_execute_task_log_end(self, report: ExecutionReport) -> bool:
         self.update_reports(report)
         return True
 
-    def _generate_table(self, reduce_table: bool) -> Union[None, Table]:
+    def _generate_table(self, reduce_table: bool) -> Optional[Table]:
         """Generate the table.
 
         First, display all completed tasks and, then, all running tasks.
@@ -171,16 +184,16 @@ class LiveExecution:
 
         return table
 
-    def _update_table(self, reduce_table: bool = True):
+    def _update_table(self, reduce_table: bool = True) -> None:
         table = self._generate_table(reduce_table)
         self._live_manager.update(table)
 
-    def update_running_tasks(self, new_running_task):
+    def update_running_tasks(self, new_running_task: MetaTask) -> None:
         reduced_task_name = reduce_node_name(new_running_task, self._paths)
         self._running_tasks.add(reduced_task_name)
         self._update_table()
 
-    def update_reports(self, new_report):
+    def update_reports(self, new_report: ExecutionReport) -> None:
         reduced_task_name = reduce_node_name(new_report.task, self._paths)
         self._running_tasks.remove(reduced_task_name)
         self._reports.append(
@@ -201,22 +214,22 @@ class LiveCollection:
     _n_errors = attr.ib(default=0, type=int)
 
     @hookimpl(hookwrapper=True)
-    def pytask_collect(self):
+    def pytask_collect(self) -> Generator[None, None, None]:
         self._live_manager.start()
         yield
 
     @hookimpl
-    def pytask_collect_file_log(self, reports):
+    def pytask_collect_file_log(self, reports: List[CollectionReport]) -> None:
         self._update_statistics(reports)
         self._update_status()
 
     @hookimpl(hookwrapper=True)
-    def pytask_collect_log(self):
+    def pytask_collect_log(self) -> Generator[None, None, None]:
         self._live_manager.update(None)
         self._live_manager.stop(transient=True)
         yield
 
-    def _update_statistics(self, reports):
+    def _update_statistics(self, reports: List[CollectionReport]) -> None:
         if reports is None:
             reports = []
         for report in reports:
@@ -225,11 +238,11 @@ class LiveCollection:
             else:
                 self._n_errors += 1
 
-    def _update_status(self):
+    def _update_status(self) -> None:
         status = self._generate_status()
         self._live_manager.update(status)
 
-    def _generate_status(self):
+    def _generate_status(self) -> Status:
         msg = f"Collected {self._n_collected_tasks} tasks."
         if self._n_errors > 0:
             msg += f" {self._n_errors} errors."

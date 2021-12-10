@@ -29,7 +29,6 @@ module = [
     "_pytask.execute",
     "_pytask.graph",
     "_pytask.hookspecs",
-    "_pytask.live",
     "_pytask.logging",
     "_pytask.mark.*",
     "_pytask.nodes",
