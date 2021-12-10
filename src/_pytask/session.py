@@ -56,6 +56,7 @@ class Session:
 
     n_tasks_failed = attr.ib(default=0, type=Optional[int])
     """Optional[int]: Number of tests which have failed."""
+    scheduler = attr.ib(default=None, type=Any)
     should_stop = attr.ib(default=False, type=Optional[bool])
     """Optional[bool]: Indicates whether the session should be stopped."""
 

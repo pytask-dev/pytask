@@ -17,6 +17,11 @@ from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 
+try:
+    from pluggy._manager import DistFacade
+except ImportError:
+    from pluggy.manager import DistFacade
+
 
 if TYPE_CHECKING:
     from typing import TypedDict
@@ -75,7 +80,7 @@ def pytask_log_session_header(session: Session) -> None:
 
 
 def _format_plugin_names_and_versions(
-    plugininfo: List[Tuple[str, pluggy._manager.DistFacade]]
+    plugininfo: List[Tuple[str, DistFacade]]
 ) -> List[str]:
     """Format name and version of loaded plugins."""
     values: List[str] = []

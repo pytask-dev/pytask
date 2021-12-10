@@ -25,7 +25,6 @@ warn_unused_ignores = true
 module = [
     "_pytask.capture",
     "_pytask.debugging",
-    "_pytask.execute",
     "_pytask.hookspecs",
     "_pytask.mark.*",
     "_pytask.nodes",
