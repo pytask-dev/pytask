@@ -30,7 +30,7 @@ def parametrize(
         Union[
             Iterable[Union[None, str, float, int, bool]], Callable[[Any], Optional[Any]]
         ]
-    ],
+    ] = None,
 ) -> Tuple[
     Union[str, List[str], Tuple[str, ...]],
     Iterable[Union[Sequence[Any], Any]],

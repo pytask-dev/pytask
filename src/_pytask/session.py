@@ -40,7 +40,7 @@ class Session:
     """Optional[List[MetaTask]]: List of collected tasks."""
     dag = attr.ib(default=None, type=Optional[nx.DiGraph])
     resolving_dependencies_report = attr.ib(
-        factory=list, type="Optional[List[ResolvingDependenciesReport]]"
+        default=None, type="ResolvingDependenciesReport"
     )
     """Optional[List[ResolvingDependenciesReport]]: Reports for resolving dependencies
     failed."""

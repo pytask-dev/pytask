@@ -55,6 +55,7 @@ def produces(objects: Union[Any, Iterable[Any]]) -> Union[Any, Iterable[Any]]:
 class MetaNode(metaclass=ABCMeta):
     """Meta class for nodes."""
 
+    name: str
     path: Path
 
     @abstractmethod
@@ -72,6 +73,7 @@ class MetaTask(MetaNode):
     depends_on: Dict[str, MetaNode]
     produces: Dict[str, MetaNode]
     path: Path
+    attributes: Dict[Any, Any]
     _report_sections: List[Tuple[str, str, str]]
 
     @abstractmethod

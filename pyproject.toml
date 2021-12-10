@@ -34,8 +34,6 @@ module = [
     "_pytask.logging",
     "_pytask.mark.*",
     "_pytask.nodes",
-    "_pytask.profile",
-    "_pytask.resolve_dependencies",
 ]
 ignore_errors = true
 
