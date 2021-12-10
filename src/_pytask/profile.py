@@ -10,6 +10,7 @@ from typing import Dict
 from typing import Generator
 from typing import List
 from typing import Optional
+from typing import Set
 from typing import Tuple
 from typing import Type
 from typing import TYPE_CHECKING
@@ -296,7 +297,12 @@ def _get_info_names(profile: Dict[str, Dict[str, Any]]) -> List[str]:
     --------
     >>> _get_info_names({"t1": {"time": 1}, "t2": {"time": 1, "size": "2GB"}})
     ['size', 'time']
+    >>> _get_info_names({})
+    []
+    >>> _get_info_names({"t1": {}})
+    []
 
     """
-    info_names: List[str] = sorted(set.union(*(set(val) for val in profile.values())))
+    base: Set[str] = set()
+    info_names: List[str] = sorted(base.union(*(set(val) for val in profile.values())))
     return info_names
