@@ -17,6 +17,7 @@ except ImportError:
 
 
 if TYPE_CHECKING:
+    from _pytask.report import CollectionReport  # noqa: F401
     from _pytask.report import ExecutionReport  # noqa: F401
     from _ptytask.report import ResolvingDependenciesReport  # noqa: F401
     from _pytask.nodes import MetaTask  # noqa: F401
@@ -30,8 +31,8 @@ class Session:
     """Optional[Dict[str, Any]]: Configuration of the session."""
     hook = attr.ib(default=None, type=Optional[_HookRelay])
     """Optional[pluggy.hooks._HookRelay]: Holds all hooks collected by pytask."""
-    collection_reports = attr.ib(factory=list, type="List[ExecutionReport]")
-    """Optional[List[ExecutionReport]]: Reports for collected items.
+    collection_reports = attr.ib(factory=list, type="List[CollectionReport]")
+    """Optional[List[CollectionReport]]: Reports for collected items.
 
     The reports capture errors which happened while collecting tasks.
 
