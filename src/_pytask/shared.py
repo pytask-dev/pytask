@@ -1,12 +1,12 @@
 """Functions which are used across various modules."""
 import glob
-from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Sequence
 from typing import Union
 
 import networkx as nx

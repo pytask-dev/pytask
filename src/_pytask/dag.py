@@ -3,6 +3,7 @@ import itertools
 from pathlib import Path
 from typing import Dict
 from typing import Generator
+from typing import Iterable
 from typing import List
 from typing import Set
 
@@ -45,7 +46,7 @@ def task_and_preceding_tasks(
     yield from preceding_tasks(task_name, dag)
 
 
-def node_and_neighbors(dag: nx.DiGraph, node: str) -> itertools.chain[str]:
+def node_and_neighbors(dag: nx.DiGraph, node: str) -> Iterable[str]:
     """Yield node and neighbors which are first degree predecessors and successors.
 
     We cannot use ``dag.neighbors`` as it only considers successors as neighbors in a
