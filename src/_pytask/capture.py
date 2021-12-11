@@ -29,7 +29,9 @@ import io
 import os
 import sys
 from tempfile import TemporaryFile
+from typing import Any
 from typing import AnyStr
+from typing import Dict
 from typing import Generator
 from typing import Generic
 from typing import Iterator
@@ -63,7 +65,7 @@ else:
 
 
 @hookimpl
-def pytask_extend_command_line_interface(cli):
+def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Add CLI options for capturing output."""
     additional_parameters = [
         click.Option(
@@ -85,7 +87,11 @@ def pytask_extend_command_line_interface(cli):
 
 
 @hookimpl
-def pytask_parse_config(config, config_from_cli, config_from_file):
+def pytask_parse_config(
+    config: Dict[str, Any],
+    config_from_cli: Dict[str, Any],
+    config_from_file: Dict[str, Any],
+) -> None:
     """Parse configuration.
 
     Note that, ``-s`` is a shortcut for ``--capture=no``.
@@ -112,7 +118,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
 
 
 @hookimpl
-def pytask_post_parse(config):
+def pytask_post_parse(config: Dict[str, Any]) -> None:
     """Initialize the CaptureManager."""
     if config["capture"] == "fd":
         _py36_windowsconsoleio_workaround(sys.stdout)
@@ -126,7 +132,7 @@ def pytask_post_parse(config):
     capman.suspend()
 
 
-def _capture_callback(x):
+def _capture_callback(x: "Optional[_CaptureMethod]") -> "Optional[_CaptureMethod]":
     """Validate the passed options for capturing output."""
     if x in [None, "None", "none"]:
         x = None
@@ -134,11 +140,12 @@ def _capture_callback(x):
         pass
     else:
         raise ValueError("'capture' can only be one of ['fd', 'no', 'sys', 'tee-sys'].")
-
     return x
 
 
-def _show_capture_callback(x):
+def _show_capture_callback(
+    x: "Optional[Literal['no', 'stdout', 'stderr', 'all']]",
+) -> "Optional[Literal['no', 'stdout', 'stderr', 'all']]":
     """Validate the passed options for showing captured output."""
     if x in [None, "None", "none"]:
         x = None
@@ -148,7 +155,6 @@ def _show_capture_callback(x):
         raise ValueError(
             "'show_capture' must be one of ['no', 'stdout', 'stderr', 'all']."
         )
-
     return x
 
 
@@ -200,27 +206,28 @@ def _py36_windowsconsoleio_workaround(stream: TextIO) -> None:
         return
 
     # Bail out if ``stream`` doesn't seem like a proper ``io`` stream (#2666).
-    if not hasattr(stream, "buffer"):  # type: ignore[unreachable]
+    if not hasattr(stream, "buffer"):
         return
 
     buffered = hasattr(stream.buffer, "raw")
-    raw_stdout = stream.buffer.raw if buffered else stream.buffer
-
+    raw_stdout = (
+        stream.buffer.raw if buffered else stream.buffer  # type: ignore[attr-defined]
+    )
     if not isinstance(raw_stdout, io._WindowsConsoleIO):  # type: ignore[attr-defined]
         return
 
-    def _reopen_stdio(f, mode):
+    def _reopen_stdio(f: TextIO, mode: str) -> TextIO:
         if not buffered and mode[0] == "w":
             buffering = 0
         else:
             buffering = -1
 
         return io.TextIOWrapper(
-            open(os.dup(f.fileno()), mode, buffering),  # type: ignore[arg-type]
+            open(os.dup(f.fileno()), mode, buffering),
             f.encoding,
             f.errors,
             f.newlines,
-            f.line_buffering,
+            bool(f.line_buffering),
         )
 
     sys.stdin = _reopen_stdio(sys.stdin, "rb")
@@ -270,7 +277,7 @@ class DontReadFromInput:
 
     encoding = None
 
-    def read(self, *_args):  # noqa: U101
+    def read(self, *_args: Any) -> None:  # noqa: U101
         raise OSError(
             "pytest: reading from stdin while output is captured! Consider using `-s`."
         )
@@ -279,7 +286,7 @@ class DontReadFromInput:
     readlines = read
     __next__ = read
 
-    def __iter__(self):
+    def __iter__(self) -> "DontReadFromInput":
         return self
 
     def fileno(self) -> int:
@@ -292,7 +299,7 @@ class DontReadFromInput:
         pass
 
     @property
-    def buffer(self):
+    def buffer(self) -> "DontReadFromInput":
         return self
 
 
@@ -319,7 +326,13 @@ class SysCaptureBinary:
 
     EMPTY_BUFFER = b""
 
-    def __init__(self, fd: int, tmpfile=None, *, tee: bool = False) -> None:
+    def __init__(  # type: ignore
+        self,
+        fd: int,
+        tmpfile=None,
+        *,
+        tee: bool = False,
+    ) -> None:
         name = patchsysdict[fd]
         self._old = getattr(sys, name)
         self.name = name
@@ -361,7 +374,7 @@ class SysCaptureBinary:
         setattr(sys, self.name, self.tmpfile)
         self._state = "started"
 
-    def snap(self):
+    def snap(self) -> str:
         self._assert_state("snap", ("started", "suspended"))
         self.tmpfile.seek(0)
         res = self.tmpfile.buffer.read()
@@ -390,7 +403,7 @@ class SysCaptureBinary:
         setattr(sys, self.name, self.tmpfile)
         self._state = "started"
 
-    def writeorg(self, data) -> None:
+    def writeorg(self, data: str) -> None:
         self._assert_state("writeorg", ("started", "suspended"))
         self._old.flush()
         self._old.buffer.write(data)
@@ -406,13 +419,13 @@ class SysCapture(SysCaptureBinary):
 
     EMPTY_BUFFER = ""  # type: ignore[assignment]
 
-    def snap(self):
+    def snap(self) -> str:
         res = self.tmpfile.getvalue()
         self.tmpfile.seek(0)
         self.tmpfile.truncate()
         return res
 
-    def writeorg(self, data):
+    def writeorg(self, data: str) -> None:
         self._assert_state("writeorg", ("started", "suspended"))
         self._old.write(data)
         self._old.flush()
@@ -455,7 +468,7 @@ class FDCaptureBinary:
             self.syscapture = SysCapture(targetfd)
         else:
             self.tmpfile = EncodedFile(
-                TemporaryFile(buffering=0),  # type: ignore[arg-type]
+                TemporaryFile(buffering=0),
                 encoding="utf-8",
                 errors="replace",
                 newline="",
@@ -491,7 +504,7 @@ class FDCaptureBinary:
         self.syscapture.start()
         self._state = "started"
 
-    def snap(self):
+    def snap(self) -> bytes:
         self._assert_state("snap", ("started", "suspended"))
         self.tmpfile.seek(0)
         res = self.tmpfile.buffer.read()
@@ -531,7 +544,7 @@ class FDCaptureBinary:
         os.dup2(self.tmpfile.fileno(), self.targetfd)
         self._state = "started"
 
-    def writeorg(self, data):
+    def writeorg(self, data: bytes) -> None:
         """Write to original file descriptor."""
         self._assert_state("writeorg", ("started", "suspended"))
         os.write(self.targetfd_save, data)
@@ -547,7 +560,8 @@ class FDCapture(FDCaptureBinary):
     # Ignore type because it doesn't match the type in the superclass (bytes).
     EMPTY_BUFFER = ""  # type: ignore
 
-    def snap(self):
+    # Ignore type because it doesn't match the type in the superclass (bytes).
+    def snap(self) -> str:  # type: ignore
         self._assert_state("snap", ("started", "suspended"))
         self.tmpfile.seek(0)
         res = self.tmpfile.read()
@@ -555,7 +569,8 @@ class FDCapture(FDCaptureBinary):
         self.tmpfile.truncate()
         return res
 
-    def writeorg(self, data):
+    # Ignore type because it doesn't match the type in the superclass (bytes).
+    def writeorg(self, data: str) -> None:  # type: ignore
         """Write to original file descriptor."""
         super().writeorg(data.encode("utf-8"))
 
@@ -577,9 +592,7 @@ class CaptureResult(Generic[AnyStr]):
 
     """
 
-    # Can't use slots in Python<3.5.3 due to https://bugs.python.org/issue31272
-    if sys.version_info >= (3, 5, 3):
-        __slots__ = ("out", "err")
+    __slots__ = ("out", "err")
 
     def __init__(self, out: AnyStr, err: AnyStr) -> None:
         self.out: AnyStr = out
@@ -604,7 +617,7 @@ class CaptureResult(Generic[AnyStr]):
     def count(self, value: AnyStr) -> int:
         return tuple(self).count(value)
 
-    def index(self, value) -> int:
+    def index(self, value: int) -> int:
         return tuple(self).index(value)
 
     def __eq__(self, other: object) -> bool:
@@ -636,7 +649,12 @@ class MultiCapture(Generic[AnyStr]):
     _state = None
     _in_suspended = False
 
-    def __init__(self, in_, out, err) -> None:
+    def __init__(
+        self,
+        in_: Optional[Union[FDCapture, SysCapture]],
+        out: Optional[Union[FDCapture, SysCapture]],
+        err: Optional[Union[FDCapture, SysCapture]],
+    ) -> None:
         self.in_ = in_
         self.out = out
         self.err = err
@@ -666,9 +684,9 @@ class MultiCapture(Generic[AnyStr]):
         """Pop current snapshot out/err capture and flush to orig streams."""
         out, err = self.readouterr()
         if out:
-            self.out.writeorg(out)
+            self.out.writeorg(out)  # type: ignore
         if err:
-            self.err.writeorg(err)
+            self.err.writeorg(err)  # type: ignore
         return out, err
 
     def suspend_capturing(self, in_: bool = False) -> None:
@@ -716,7 +734,7 @@ class MultiCapture(Generic[AnyStr]):
             err = self.err.snap()
         else:
             err = ""
-        return CaptureResult(out, err)
+        return CaptureResult(out, err)  # type: ignore
 
 
 def _get_multicapture(method: "_CaptureMethod") -> MultiCapture[str]:
@@ -831,7 +849,7 @@ class CaptureManager:
             yield
 
     @hookimpl(hookwrapper=True)
-    def pytask_collect_log(self):
+    def pytask_collect_log(self) -> Generator[None, None, None]:
         """Suspend capturing at the end of the collection.
 
         This hook needs to be here as long as the collection has no proper capturing. If

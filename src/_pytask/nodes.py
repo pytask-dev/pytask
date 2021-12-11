@@ -77,9 +77,14 @@ class MetaTask(MetaNode):
     _report_sections: List[Tuple[str, str, str]]
 
     @abstractmethod
-    def execute(self):
-        """Execute the task."""
-        pass
+    def execute(self) -> None:
+        ...
+
+    @abstractmethod
+    def add_report_section(
+        self, when: str, key: str, content: str  # noqa: U100
+    ) -> None:
+        ...
 
 
 @attr.s
