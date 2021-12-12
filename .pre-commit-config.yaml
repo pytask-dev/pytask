@@ -109,6 +109,7 @@ repos:
             types-setuptools
         ]
         pass_filenames: false
+        language_version: "3.9"
 -   repo: meta
     hooks:
     -   id: check-hooks-apply
