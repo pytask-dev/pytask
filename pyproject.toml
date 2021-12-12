@@ -22,13 +22,6 @@ warn_unused_ignores = true
 
 
 [[tool.mypy.overrides]]
-module = [
-    "_pytask.hookspecs",
-]
-ignore_errors = true
-
-
-[[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_defs = false
 ignore_errors = true
