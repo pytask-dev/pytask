@@ -215,8 +215,8 @@ def _py36_windowsconsoleio_workaround(stream: TextIO) -> None:
     raw_stdout = getattr(stream.buffer, "raw", stream.buffer)
 
     # ``getattr`` hack since ``_WindowsConsoleIO`` is not defined in stubs.
-    WindowsConsoleIO = getattr(io, "_WindowsConsoleIO")
-    if WindowsConsoleIO is not None and not isinstance(raw_stdout, WindowsConsoleIO):
+    windowsconsoleio = getattr(io, "_WindowsConsoleIO", None)
+    if windowsconsoleio is not None and not isinstance(raw_stdout, windowsconsoleio):
         return
 
     def _reopen_stdio(f: TextIO, mode: str) -> TextIO:
