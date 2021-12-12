@@ -211,10 +211,12 @@ def _py36_windowsconsoleio_workaround(stream: TextIO) -> None:
         return
 
     buffered = hasattr(stream.buffer, "raw")
-    raw_stdout = (
-        stream.buffer.raw if buffered else stream.buffer  # type: ignore[attr-defined]
-    )
-    if not isinstance(raw_stdout, io._WindowsConsoleIO):  # type: ignore[attr-defined]
+    # ``getattr`` hack since ``buffer`` might not have an attribute ``raw``.
+    raw_stdout = getattr(stream.buffer, "raw", stream.buffer)
+
+    # ``getattr`` hack since ``_WindowsConsoleIO`` is not defined in stubs.
+    WindowsConsoleIO = getattr(io, "_WindowsConsoleIO")
+    if WindowsConsoleIO is not None and not isinstance(raw_stdout, WindowsConsoleIO):
         return
 
     def _reopen_stdio(f: TextIO, mode: str) -> TextIO:
