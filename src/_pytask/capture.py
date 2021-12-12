@@ -50,6 +50,7 @@ if TYPE_CHECKING:
     from typing_extensions import Literal
 
     _CaptureMethod = Literal["fd", "sys", "no", "tee-sys"]
+    _CaptureCallback = Literal["no", "stdout", "stderr", "all"]
 
 if TYPE_CHECKING:
     if sys.version_info >= (3, 8):
@@ -144,8 +145,8 @@ def _capture_callback(x: "Optional[_CaptureMethod]") -> "Optional[_CaptureMethod
 
 
 def _show_capture_callback(
-    x: "Optional[Literal['no', 'stdout', 'stderr', 'all']]",
-) -> "Optional[Literal['no', 'stdout', 'stderr', 'all']]":
+    x: "Optional[_CaptureCallback]",
+) -> "Optional[_CaptureCallback]":
     """Validate the passed options for showing captured output."""
     if x in [None, "None", "none"]:
         x = None

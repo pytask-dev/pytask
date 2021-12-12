@@ -23,7 +23,7 @@ except ImportError:
     from pluggy.manager import DistFacade
 
 
-if TYPE_CHECKING:
+if TYPE_CHECKING and sys.version_info >= (3, 8):
     from typing import TypedDict
 
     class _TimeUnit(TypedDict):
