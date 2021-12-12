@@ -1,7 +1,7 @@
 """This module contains the code to format output on the command line."""
 import os
 import sys
-from typing import List
+from typing import Iterable
 
 from rich.console import Console
 from rich.tree import Tree
@@ -29,7 +29,7 @@ TASK_ICON = "" if _IS_LEGACY_WINDOWS else "📝 "
 console = Console(color_system=_COLOR_SYSTEM)
 
 
-def format_strings_as_flat_tree(strings: List[str], title: str, icon: str) -> str:
+def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -> str:
     """Format list of strings as flat tree."""
     tree = Tree(title)
     for name in strings:
