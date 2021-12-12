@@ -24,7 +24,6 @@ warn_unused_ignores = true
 [[tool.mypy.overrides]]
 module = [
     "_pytask.hookspecs",
-    "_pytask.mark.*",
     "_pytask.nodes",
 ]
 ignore_errors = true

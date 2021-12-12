@@ -1,8 +1,13 @@
 import sys
 from typing import AbstractSet
+from typing import Any
+from typing import Dict
+from typing import Set
+from typing import TYPE_CHECKING
 
 import attr
 import click
+import networkx as nx
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.dag import task_and_preceding_tasks
@@ -14,11 +19,16 @@ from _pytask.mark.structures import Mark
 from _pytask.mark.structures import MARK_GEN
 from _pytask.mark.structures import MarkDecorator
 from _pytask.mark.structures import MarkGenerator
+from _pytask.nodes import MetaTask
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from rich.table import Table
+
+
+if TYPE_CHECKING:
+    from typing import NoReturn
 
 
 __all__ = [
@@ -32,7 +42,7 @@ __all__ = [
 
 
 @click.command()
-def markers(**config_from_cli):
+def markers(**config_from_cli: Any) -> "NoReturn":
     """Show all registered markers."""
     config_from_cli["command"] = "markers"
 
@@ -94,7 +104,11 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(config, config_from_cli, config_from_file):
+def pytask_parse_config(
+    config: Dict[str, Any],
+    config_from_cli: Dict[str, Any],
+    config_from_file: Dict[str, Any],
+) -> None:
     """Parse marker related options."""
     markers = _read_marker_mapping_from_ini(config_from_file.get("markers", ""))
     config["markers"] = {**markers, **config["markers"]}
@@ -113,7 +127,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
     MARK_GEN.config = config
 
 
-def _read_marker_mapping_from_ini(string: str) -> dict:
+def _read_marker_mapping_from_ini(string: str) -> Dict[str, str]:
     """Read marker descriptions from configuration file."""
     # Split by newlines and remove empty strings.
     lines = filter(lambda x: bool(x), string.split("\n"))
@@ -152,7 +166,7 @@ class KeywordMatcher:
     _names = attr.ib(type=AbstractSet[str])
 
     @classmethod
-    def from_task(cls, task) -> "KeywordMatcher":
+    def from_task(cls, task: MetaTask) -> "KeywordMatcher":
         mapped_names = {task.name}
 
         # Add the names attached to the current function through direct assignment.
@@ -175,7 +189,7 @@ class KeywordMatcher:
         return False
 
 
-def select_by_keyword(session, dag) -> set:
+def select_by_keyword(session: Session, dag: nx.DiGraph) -> Set[str]:
     """Deselect tests by keywords."""
     keywordexpr = session.config["expression"]
     if not keywordexpr:
@@ -188,7 +202,7 @@ def select_by_keyword(session, dag) -> set:
             f"Wrong expression passed to '-k': {keywordexpr}: {e}"
         ) from None
 
-    remaining = set()
+    remaining: Set[str] = set()
     for task in session.tasks:
         if keywordexpr and expression.evaluate(KeywordMatcher.from_task(task)):
             remaining.update(task_and_preceding_tasks(task.name, dag))
@@ -204,10 +218,10 @@ class MarkMatcher:
 
     """
 
-    own_mark_names = attr.ib()
+    own_mark_names = attr.ib(type=Set[str])
 
     @classmethod
-    def from_task(cls, task) -> "MarkMatcher":
+    def from_task(cls, task: MetaTask) -> "MarkMatcher":
         mark_names = {mark.name for mark in task.markers}
         return cls(mark_names)
 
@@ -215,7 +229,7 @@ class MarkMatcher:
         return name in self.own_mark_names
 
 
-def select_by_mark(session, dag) -> set:
+def select_by_mark(session: Session, dag: nx.DiGraph) -> Set[str]:
     """Deselect tests by marks."""
     matchexpr = session.config["marker_expression"]
     if not matchexpr:
@@ -226,7 +240,7 @@ def select_by_mark(session, dag) -> set:
     except ParseError as e:
         raise ValueError(f"Wrong expression passed to '-m': {matchexpr}: {e}") from None
 
-    remaining = set()
+    remaining: Set[str] = set()
     for task in session.tasks:
         if expression.evaluate(MarkMatcher.from_task(task)):
             remaining.update(task_and_preceding_tasks(task.name, dag))
@@ -234,14 +248,16 @@ def select_by_mark(session, dag) -> set:
     return remaining
 
 
-def _deselect_others_with_mark(session, remaining, mark):
+def _deselect_others_with_mark(
+    session: Session, remaining: Set[str], mark: Mark
+) -> None:
     for task in session.tasks:
         if task.name not in remaining:
             task.markers.append(mark)
 
 
 @hookimpl
-def pytask_resolve_dependencies_modify_dag(session, dag):
+def pytask_resolve_dependencies_modify_dag(session: Session, dag: nx.DiGraph) -> None:
     """Modify the tasks which are executed with expressions and markers."""
     remaining = select_by_keyword(session, dag)
     if remaining is not None:
