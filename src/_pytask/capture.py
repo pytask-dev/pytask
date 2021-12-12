@@ -782,7 +782,7 @@ class CaptureManager:
             self._method, self._capturing
         )
 
-    def is_capturing(self) -> Union[str, bool]:
+    def is_capturing(self) -> bool:
         return self._method != "no"
 
     def start_capturing(self) -> None:

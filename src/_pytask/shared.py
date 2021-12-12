@@ -86,7 +86,7 @@ def get_first_non_none_value(
     *configs: Dict[str, Any],
     key: str,
     default: Optional[Any] = None,
-    callback: Optional[Callable[[Any], Any]] = None,
+    callback: Optional[Callable[..., Any]] = None,
 ) -> Any:
     """Get the first non-None value for a key from a list of dictionaries.
 

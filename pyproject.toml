@@ -23,7 +23,6 @@ warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
 module = [
-    "_pytask.debugging",
     "_pytask.hookspecs",
     "_pytask.mark.*",
     "_pytask.nodes",

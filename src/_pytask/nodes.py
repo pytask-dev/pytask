@@ -7,9 +7,11 @@ from abc import ABCMeta
 from abc import abstractmethod
 from pathlib import Path
 from typing import Any
+from typing import Callable
 from typing import Dict
 from typing import Iterable
 from typing import List
+from typing import Optional
 from typing import Tuple
 from typing import TYPE_CHECKING
 from typing import Union
@@ -73,6 +75,7 @@ class MetaTask(MetaNode):
     depends_on: Dict[str, MetaNode]
     produces: Dict[str, MetaNode]
     path: Path
+    function: Optional[Callable[..., Any]]
     attributes: Dict[Any, Any]
     _report_sections: List[Tuple[str, str, str]]
 
@@ -343,8 +346,8 @@ def _check_that_names_are_not_used_multiple_times(list_of_tuples, when):
 
 
 def _convert_nodes_to_dictionary(
-    list_of_tuples: List[Tuple[str]],
-) -> Dict[str, Union[str, Path]]:
+    list_of_tuples: List[Tuple[Any, Any]]
+) -> Dict[Any, Any]:
     """Convert nodes to dictionaries.
 
     Examples

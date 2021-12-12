@@ -27,18 +27,12 @@ def parametrize(
     arg_values: Iterable[Union[Sequence[Any], Any]],
     *,
     ids: Optional[
-        Union[
-            Iterable[Union[None, str, float, int, bool]], Callable[[Any], Optional[Any]]
-        ]
+        Union[Iterable[Union[None, str, float, int, bool]], Callable[..., Any]]
     ] = None,
 ) -> Tuple[
     Union[str, List[str], Tuple[str, ...]],
     Iterable[Union[Sequence[Any], Any]],
-    Optional[
-        Union[
-            Iterable[Union[None, str, float, int, bool]], Callable[[Any], Optional[Any]]
-        ]
-    ],
+    Optional[Union[Iterable[Union[None, str, float, int, bool]], Callable[..., Any]]],
 ]:
     """Parametrize a task function.
 
@@ -83,8 +77,8 @@ def pytask_parse_config(config: Dict[str, Any]) -> None:
 
 @hookimpl
 def pytask_parametrize_task(
-    session: Session, name: str, obj: Callable[[Any], Any]
-) -> List[Tuple[str, Callable[[Any], Any]]]:
+    session: Session, name: str, obj: Callable[..., Any]
+) -> List[Tuple[str, Callable[..., Any]]]:
     """Parametrize a task.
 
     This function takes a single Python function and all parametrize decorators and
@@ -114,7 +108,7 @@ def pytask_parametrize_task(
         product_arg_names = list(itertools.product(*arg_names))
         product_arg_values = list(itertools.product(*arg_values))
 
-        names_and_functions: List[Tuple[str, Callable[[Any], Any]]] = []
+        names_and_functions: List[Tuple[str, Callable[..., Any]]] = []
         for names, values in zip(product_arg_names, product_arg_values):
             kwargs = dict(
                 zip(
@@ -313,9 +307,7 @@ def _create_parametrize_ids_components(
     arg_names: Tuple[str, ...],
     arg_values: List[Tuple[Any, ...]],
     ids: Optional[
-        Union[
-            Iterable[Union[None, str, float, int, bool]], Callable[[Any], Optional[Any]]
-        ]
+        Union[Iterable[Union[None, str, float, int, bool]], Callable[..., Any]]
     ],
 ) -> List[Tuple[str, ...]]:
     """Create the ids for each parametrization.
@@ -370,7 +362,7 @@ def _create_parametrize_ids_components(
 
 
 def _arg_value_to_id_component(
-    arg_name: str, arg_value: Any, i: int, id_func: Union[Callable[[Any], Any], None]
+    arg_name: str, arg_value: Any, i: int, id_func: Union[Callable[..., Any], None]
 ) -> str:
     """Create id component from the name and value of the argument.
 
@@ -387,7 +379,7 @@ def _arg_value_to_id_component(
         Value of the argument.
     i : int
         The ith iteration of the parametrization.
-    id_func : Union[Callable[[Any], Any], None]
+    id_func : Union[Callable[..., Any], None]
         A callable which maps argument values to :obj:`bool`, :obj:`float`, :obj:`int`,
         or :obj:`str` or anything else. Any object with a different dtype than the first
         will be mapped to an auto-generated id component.

@@ -146,7 +146,7 @@ class MarkDecorator:
         return self.with_args(*args, **kwargs)
 
 
-def get_unpacked_marks(obj: Callable[[Any], Any]) -> List[Mark]:
+def get_unpacked_marks(obj: Callable[..., Any]) -> List[Mark]:
     """Obtain the unpacked marks that are stored on an object."""
     mark_list = getattr(obj, "pytaskmark", [])
     if not isinstance(mark_list, list):
@@ -173,7 +173,7 @@ def normalize_mark_list(mark_list: Iterable[Union[Mark, MarkDecorator]]) -> List
     return [x for x in extracted if isinstance(x, Mark)]
 
 
-def store_mark(obj: Callable[[Any], Any], mark: Mark) -> None:
+def store_mark(obj: Callable[..., Any], mark: Mark) -> None:
     """Store a Mark on an object.
 
     This is used to implement the Mark declarations/decorators correctly.
