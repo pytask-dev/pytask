@@ -39,7 +39,7 @@ def test_relative_to(path, source, include_source, expected):
 )
 def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected):
     # Ensures that files are detected by an existing suffix not if they also exist.
-    monkeypatch.setattr("_pytask.nodes.pathlib.Path.is_file", lambda x: bool(x.suffix))
+    monkeypatch.setattr("_pytask.nodes.Path.is_file", lambda x: bool(x.suffix))
     result = find_closest_ancestor(path, potential_ancestors)
     assert result == expected
 
