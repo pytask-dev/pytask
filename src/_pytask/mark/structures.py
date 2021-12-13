@@ -1,17 +1,20 @@
 import warnings
 from typing import Any
+from typing import Callable
+from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Mapping
 from typing import Optional
 from typing import Sequence
+from typing import Set
 from typing import Tuple
 from typing import Union
 
 import attr
 
 
-def is_task_function(func) -> bool:
+def is_task_function(func: Any) -> bool:
     return callable(func) and getattr(func, "__name__", "<lambda>") != "<lambda>"
 
 
@@ -123,7 +126,7 @@ class MarkDecorator:
     def __repr__(self) -> str:
         return f"<MarkDecorator {self.mark!r}>"
 
-    def with_args(self, *args: object, **kwargs: object) -> "MarkDecorator":
+    def with_args(self, *args: Any, **kwargs: Any) -> "MarkDecorator":
         """Return a MarkDecorator with extra arguments added.
 
         Unlike calling the MarkDecorator, ``with_args()`` can be used even if the sole
@@ -133,7 +136,7 @@ class MarkDecorator:
         mark = Mark(self.name, args, kwargs)
         return self.__class__(self.mark.combined_with(mark))
 
-    def __call__(self, *args: object, **kwargs: object):  # noqa: F811
+    def __call__(self, *args: Any, **kwargs: Any) -> "MarkDecorator":
         """Call the MarkDecorator."""
         if args and not kwargs:
             func = args[0]
@@ -143,7 +146,7 @@ class MarkDecorator:
         return self.with_args(*args, **kwargs)
 
 
-def get_unpacked_marks(obj) -> List[Mark]:
+def get_unpacked_marks(obj: Callable[..., Any]) -> List[Mark]:
     """Obtain the unpacked marks that are stored on an object."""
     mark_list = getattr(obj, "pytaskmark", [])
     if not isinstance(mark_list, list):
@@ -152,7 +155,7 @@ def get_unpacked_marks(obj) -> List[Mark]:
 
 
 def normalize_mark_list(mark_list: Iterable[Union[Mark, MarkDecorator]]) -> List[Mark]:
-    """Normalizes marker decorating helpers to mark objects.
+    """Normalize marker decorating helpers to mark objects.
 
     Parameters
     ----------
@@ -163,23 +166,23 @@ def normalize_mark_list(mark_list: Iterable[Union[Mark, MarkDecorator]]) -> List
     List[Mark]
 
     """
-    extracted = [
-        getattr(mark, "mark", mark) for mark in mark_list
-    ]  # unpack MarkDecorator
+    extracted = [getattr(mark, "mark", mark) for mark in mark_list]
     for mark in extracted:
         if not isinstance(mark, Mark):
-            raise TypeError(f"got {mark!r} instead of Mark")
+            raise TypeError(f"Got {mark!r} instead of Mark.")
     return [x for x in extracted if isinstance(x, Mark)]
 
 
-def store_mark(obj, mark: Mark) -> None:
+def store_mark(obj: Callable[..., Any], mark: Mark) -> None:
     """Store a Mark on an object.
+
     This is used to implement the Mark declarations/decorators correctly.
+
     """
     assert isinstance(mark, Mark), mark
-    # Always reassign name to avoid updating pytaskmark in a reference that
-    # was only borrowed.
-    obj.pytaskmark = get_unpacked_marks(obj) + [mark]
+    # Always reassign name to avoid updating pytaskmark in a reference that was only
+    # borrowed.
+    obj.pytaskmark = get_unpacked_marks(obj) + [mark]  # type: ignore
 
 
 class MarkGenerator:
@@ -198,9 +201,9 @@ class MarkGenerator:
 
     """
 
-    config = None
-    """Optional[dict]: The configuration."""
-    markers = set()
+    config: Optional[Dict[str, Any]] = None
+    """Optional[Dict[str, Any]]: The configuration."""
+    markers: Set[str] = set()
     """Set[str]: The set of markers."""
 
     def __getattr__(self, name: str) -> MarkDecorator:

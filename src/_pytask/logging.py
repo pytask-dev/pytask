@@ -2,20 +2,39 @@
 import platform
 import sys
 from typing import Any
+from typing import Dict
 from typing import List
 from typing import Tuple
+from typing import TYPE_CHECKING
+from typing import Union
 
 import _pytask
 import click
 import pluggy
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 
+try:
+    from pluggy._manager import DistFacade
+except ImportError:
+    from pluggy.manager import DistFacade
+
+
+if TYPE_CHECKING and sys.version_info >= (3, 8):
+    from typing import TypedDict
+
+    class _TimeUnit(TypedDict):
+        singular: str
+        plural: str
+        short: str
+        in_seconds: int
+
 
 @hookimpl
-def pytask_extend_command_line_interface(cli):
+def pytask_extend_command_line_interface(cli: click.Group) -> None:
     show_locals_option = click.Option(
         ["--show-locals"],
         is_flag=True,
@@ -26,7 +45,11 @@ def pytask_extend_command_line_interface(cli):
 
 
 @hookimpl
-def pytask_parse_config(config, config_from_file, config_from_cli):
+def pytask_parse_config(
+    config: Dict[str, Any],
+    config_from_file: Dict[str, Any],
+    config_from_cli: Dict[str, Any],
+) -> None:
     config["show_locals"] = get_first_non_none_value(
         config_from_cli,
         config_from_file,
@@ -37,7 +60,7 @@ def pytask_parse_config(config, config_from_file, config_from_cli):
 
 
 @hookimpl
-def pytask_log_session_header(session):
+def pytask_log_session_header(session: Session) -> None:
     """Log the header of a pytask session."""
     console.rule("Start pytask session", style=None)
     console.print(
@@ -56,7 +79,9 @@ def pytask_log_session_header(session):
         console.print(f"Plugins: {formatted_plugins_w_versions}")
 
 
-def _format_plugin_names_and_versions(plugininfo) -> List[str]:
+def _format_plugin_names_and_versions(
+    plugininfo: List[Tuple[str, DistFacade]]
+) -> List[str]:
     """Format name and version of loaded plugins."""
     values: List[str] = []
     for _, dist in plugininfo:
@@ -73,8 +98,8 @@ def _format_plugin_names_and_versions(plugininfo) -> List[str]:
 
 @hookimpl
 def pytask_log_session_footer(
-    infos: List[Tuple[Any]], duration: float, color: str
-) -> str:
+    infos: List[Tuple[Any, str, str]], duration: float, color: str
+) -> None:
     """Format the footer of the log message."""
     message = _style_infos(infos)
     formatted_duration = _format_duration(duration)
@@ -83,7 +108,7 @@ def pytask_log_session_footer(
     console.rule(message, style=color)
 
 
-def _style_infos(infos: List[Tuple[Any]]) -> str:
+def _style_infos(infos: List[Tuple[Any, str, str]]) -> str:
     """Style infos.
 
     Example
@@ -102,7 +127,7 @@ def _style_infos(infos: List[Tuple[Any]]) -> str:
     return ", ".join(message)
 
 
-_TIME_UNITS = [
+_TIME_UNITS: List["_TimeUnit"] = [
     {"singular": "day", "plural": "days", "short": "d", "in_seconds": 86400},
     {"singular": "hour", "plural": "hours", "short": "h", "in_seconds": 3600},
     {"singular": "minute", "plural": "minutes", "short": "m", "in_seconds": 60},
@@ -110,7 +135,7 @@ _TIME_UNITS = [
 ]
 
 
-def _format_duration(duration):
+def _format_duration(duration: float) -> str:
     duration_tuples = _humanize_time(duration, "seconds", short_label=False)
 
     # Remove seconds if the execution lasted days or hours.
@@ -123,7 +148,9 @@ def _format_duration(duration):
     return formatted_duration
 
 
-def _humanize_time(amount: int, unit: str, short_label: bool = False):
+def _humanize_time(
+    amount: Union[int, float], unit: str, short_label: bool = False
+) -> List[Tuple[int, str]]:
     """Humanize the time.
 
     Examples

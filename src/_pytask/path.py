@@ -2,13 +2,13 @@
 import functools
 import os
 from pathlib import Path
-from typing import List
+from typing import Sequence
 from typing import Union
 
 
 def relative_to(
     path: Union[str, Path], source: Union[str, Path], include_source: bool = True
-) -> Union[str, Path]:
+) -> Path:
     """Make a path relative to another path.
 
     In contrast to :meth:`pathlib.Path.relative_to`, this function allows to keep the
@@ -34,7 +34,7 @@ def relative_to(
 
 
 def find_closest_ancestor(
-    path: Union[str, Path], potential_ancestors: List[Union[str, Path]]
+    path: Union[str, Path], potential_ancestors: Sequence[Union[str, Path]]
 ) -> Path:
     """Find the closest ancestor of a path.
 
@@ -48,7 +48,6 @@ def find_closest_ancestor(
 
     Examples
     --------
-    >>> from pathlib import Path
     >>> find_closest_ancestor(Path("folder", "file.py"), [Path("folder")]).as_posix()
     'folder'
 
@@ -57,8 +56,15 @@ def find_closest_ancestor(
     'folder/subfolder'
 
     """
+    if isinstance(path, str):
+        path = Path(path)
+
     closest_ancestor = None
     for ancestor in potential_ancestors:
+
+        if isinstance(ancestor, str):
+            ancestor = Path(ancestor)
+
         if ancestor == path:
             closest_ancestor = path
             break
@@ -84,9 +90,8 @@ def find_common_ancestor_of_nodes(*names: str) -> Path:
 
 def find_common_ancestor(*paths: Union[str, Path]) -> Path:
     """Find a common ancestor of many paths."""
-    path = os.path.commonpath(paths)
-    path = Path(path)
-    return path
+    common_ancestor = Path(os.path.commonpath(paths))
+    return common_ancestor
 
 
 @functools.lru_cache()

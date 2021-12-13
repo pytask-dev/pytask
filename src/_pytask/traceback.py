@@ -1,16 +1,29 @@
 """Process tracebacks."""
 from pathlib import Path
 from types import TracebackType
+from typing import Generator
+from typing import Tuple
+from typing import Type
+from typing import Union
 
 import _pytask
 import pluggy
 from rich.traceback import Traceback
 
+
 _PLUGGY_DIRECTORY = Path(pluggy.__file__).parent
 _PYTASK_DIRECTORY = Path(_pytask.__file__).parent
 
 
-def render_exc_info(exc_type, exc_value, traceback, show_locals=False):
+ExceptionInfo = Tuple[Type[BaseException], BaseException, Union[TracebackType, None]]
+
+
+def render_exc_info(
+    exc_type: Type[BaseException],
+    exc_value: BaseException,
+    traceback: Union[str, TracebackType],
+    show_locals: bool = False,
+) -> Union[str, Traceback]:
     if isinstance(traceback, str):
         renderable = traceback
     else:
@@ -21,17 +34,19 @@ def render_exc_info(exc_type, exc_value, traceback, show_locals=False):
     return renderable
 
 
-def format_exception_without_traceback(exc_info):
+def format_exception_without_traceback(exc_info: ExceptionInfo) -> str:
     """Format an exception without displaying the traceback."""
     return f"[red bold]{exc_info[0].__name__}:[/] {exc_info[1]}"
 
 
-def remove_traceback_from_exc_info(exc_info):
+def remove_traceback_from_exc_info(exc_info: ExceptionInfo) -> ExceptionInfo:
     """Remove traceback from exception."""
     return (*exc_info[:2], None)
 
 
-def remove_internal_traceback_frames_from_exc_info(exc_info):
+def remove_internal_traceback_frames_from_exc_info(
+    exc_info: ExceptionInfo,
+) -> ExceptionInfo:
     """Remove internal traceback frames from exception info.
 
     If a non-internal traceback frame is found, return the traceback from the first
@@ -46,7 +61,7 @@ def remove_internal_traceback_frames_from_exc_info(exc_info):
     return exc_info
 
 
-def _is_internal_or_hidden_traceback_frame(frame):
+def _is_internal_or_hidden_traceback_frame(frame: TracebackType) -> bool:
     """Returns ``True`` if traceback frame belongs to internal packages or is hidden.
 
     Internal packages are ``_pytask`` and ``pluggy``. A hidden frame is indicated by a
@@ -61,7 +76,9 @@ def _is_internal_or_hidden_traceback_frame(frame):
     return any(root in path.parents for root in [_PLUGGY_DIRECTORY, _PYTASK_DIRECTORY])
 
 
-def _filter_internal_traceback_frames(frame):
+def _filter_internal_traceback_frames(
+    frame: TracebackType,
+) -> TracebackType:
     """Filter internal traceback frames from traceback.
 
     If the first external frame is visited, return the frame. Else return ``None``.
@@ -73,7 +90,9 @@ def _filter_internal_traceback_frames(frame):
     return frame
 
 
-def _yield_traceback_frames(frame):
+def _yield_traceback_frames(
+    frame: TracebackType,
+) -> Generator[TracebackType, None, None]:
     """Yield traceback frames."""
     yield frame
     yield from _yield_traceback_frames(frame.tb_next)

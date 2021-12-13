@@ -1,5 +1,7 @@
 """Implement the database managed with pony."""
 from pathlib import Path
+from typing import Any
+from typing import Dict
 
 import click
 from _pytask.config import hookimpl
@@ -11,7 +13,7 @@ from pony import orm
 db = orm.Database()
 
 
-class State(db.Entity):
+class State(db.Entity):  # type: ignore
     """Represent the state of a node in relation to a task."""
 
     task = orm.Required(str)
@@ -21,7 +23,9 @@ class State(db.Entity):
     orm.PrimaryKey(task, node)
 
 
-def create_database(provider, filename, create_db, create_tables):
+def create_database(
+    provider: str, filename: str, create_db: bool, create_tables: bool
+) -> None:
     """Create the database.
 
     Raises
@@ -38,10 +42,10 @@ def create_database(provider, filename, create_db, create_tables):
 
 
 @orm.db_session
-def create_or_update_state(first_key, second_key, state):
+def create_or_update_state(first_key: str, second_key: str, state: str) -> None:
     """Create or update a state."""
     try:
-        state_in_db = State[first_key, second_key]
+        state_in_db = State[first_key, second_key]  # type: ignore
     except orm.ObjectNotFound:
         State(task=first_key, node=second_key, state=state)
     else:
@@ -49,7 +53,7 @@ def create_or_update_state(first_key, second_key, state):
 
 
 @hookimpl
-def pytask_extend_command_line_interface(cli):
+def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend command line interface."""
     additional_parameters = [
         click.Option(
@@ -84,7 +88,11 @@ def pytask_extend_command_line_interface(cli):
 
 
 @hookimpl
-def pytask_parse_config(config, config_from_cli, config_from_file):
+def pytask_parse_config(
+    config: Dict[str, Any],
+    config_from_cli: Dict[str, Any],
+    config_from_file: Dict[str, Any],
+) -> None:
     """Parse the configuration."""
     config["database_provider"] = get_first_non_none_value(
         config_from_cli, config_from_file, key="database_provider", default="sqlite"
@@ -123,5 +131,5 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
 
 
 @hookimpl
-def pytask_post_parse(config):
+def pytask_post_parse(config: Dict[str, Any]) -> None:
     create_database(**config["database"])

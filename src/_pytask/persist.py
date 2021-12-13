@@ -1,4 +1,8 @@
 """Implement the ability for tasks to persist."""
+from typing import Any
+from typing import Dict
+from typing import TYPE_CHECKING
+
 from _pytask.config import hookimpl
 from _pytask.dag import node_and_neighbors
 from _pytask.enums import ColorCode
@@ -7,8 +11,14 @@ from _pytask.mark_utils import get_specific_markers_from_task
 from _pytask.outcomes import Persisted
 
 
+if TYPE_CHECKING:
+    from _pytask.session import Session
+    from _pytask.nodes import MetaTask
+    from _pytask.report import ExecutionReport
+
+
 @hookimpl
-def pytask_parse_config(config):
+def pytask_parse_config(config: Dict[str, Any]) -> None:
     """Add the marker to the configuration."""
     config["markers"]["persist"] = (
         "Prevent execution of a task if all products exist and even if something has "
@@ -20,7 +30,7 @@ def pytask_parse_config(config):
 
 
 @hookimpl
-def pytask_execute_task_setup(session, task):
+def pytask_execute_task_setup(session: "Session", task: "MetaTask") -> None:
     """Exit persisting tasks early.
 
     The decorator needs to be set and all nodes need to exist.
@@ -44,7 +54,7 @@ def pytask_execute_task_setup(session, task):
 
 
 @hookimpl
-def pytask_execute_task_process_report(report):
+def pytask_execute_task_process_report(report: "ExecutionReport") -> None:
     """Set task status to success.
 
     Do not return ``True`` so that states will be updated in database.

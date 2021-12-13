@@ -1,12 +1,17 @@
 """Implement functionality to collect tasks."""
-import importlib
 import inspect
 import os
 import sys
 import time
+from importlib import util as importlib_util
 from pathlib import Path
+from typing import Any
+from typing import Dict
 from typing import Generator
+from typing import Iterable
 from typing import List
+from typing import Optional
+from typing import Union
 
 from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
@@ -19,12 +24,13 @@ from _pytask.nodes import FilePathNode
 from _pytask.nodes import PythonFunctionTask
 from _pytask.path import find_case_sensitive_path
 from _pytask.report import CollectionReport
+from _pytask.session import Session
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
 
 
 @hookimpl
-def pytask_collect(session):
+def pytask_collect(session: Session) -> bool:
     """Collect tasks."""
     session.collection_start = time.time()
 
@@ -43,7 +49,7 @@ def pytask_collect(session):
     return True
 
 
-def _collect_from_paths(session):
+def _collect_from_paths(session: Session) -> None:
     """Collect tasks from paths.
 
     Go through all paths, check if the path is ignored, and collect the file if not.
@@ -59,14 +65,16 @@ def _collect_from_paths(session):
 
 
 @hookimpl
-def pytask_ignore_collect(path, config):
+def pytask_ignore_collect(path: Path, config: Dict[str, Any]) -> bool:
     """Ignore a path during the collection."""
     is_ignored = any(path.match(pattern) for pattern in config["ignore"])
     return is_ignored
 
 
 @hookimpl
-def pytask_collect_file_protocol(session, path, reports):
+def pytask_collect_file_protocol(
+    session: Session, path: Path, reports: List[CollectionReport]
+) -> List[CollectionReport]:
     try:
         reports = session.hook.pytask_collect_file(
             session=session, path=path, reports=reports
@@ -81,16 +89,18 @@ def pytask_collect_file_protocol(session, path, reports):
 
 
 @hookimpl
-def pytask_collect_file(session, path, reports):
+def pytask_collect_file(
+    session: Session, path: Path, reports: List[CollectionReport]
+) -> Optional[List[CollectionReport]]:
     """Collect a file."""
     if any(path.match(pattern) for pattern in session.config["task_files"]):
-        spec = importlib.util.spec_from_file_location(path.stem, str(path))
+        spec = importlib_util.spec_from_file_location(path.stem, str(path))
 
         if spec is None:
             raise ImportError(f"Can't find module '{path.stem}' at location {path}.")
 
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
+        mod = importlib_util.module_from_spec(spec)
+        spec.loader.exec_module(mod)  # type: ignore
 
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
@@ -109,10 +119,14 @@ def pytask_collect_file(session, path, reports):
                     collected_reports.append(report)
 
         return collected_reports
+    else:
+        return None
 
 
 @hookimpl
-def pytask_collect_task_protocol(session, path, name, obj):
+def pytask_collect_task_protocol(
+    session: Session, path: Path, name: str, obj: Any
+) -> Optional[CollectionReport]:
     """Start protocol for collecting a task."""
     try:
         session.hook.pytask_collect_task_setup(
@@ -129,9 +143,14 @@ def pytask_collect_task_protocol(session, path, name, obj):
         task = PythonFunctionTask(name, create_task_name(path, name), path, None)
         return CollectionReport.from_exception(exc_info=sys.exc_info(), node=task)
 
+    else:
+        return None
+
 
 @hookimpl(trylast=True)
-def pytask_collect_task(session, path, name, obj):
+def pytask_collect_task(
+    session: Session, path: Path, name: str, obj: Any
+) -> Optional[PythonFunctionTask]:
     """Collect a task which is a function.
 
     There is some discussion on how to detect functions in this `thread
@@ -143,9 +162,11 @@ def pytask_collect_task(session, path, name, obj):
         return PythonFunctionTask.from_path_name_function_session(
             path, name, obj, session
         )
+    else:
+        return None
 
 
-_TEMPLATE_ERROR = (
+_TEMPLATE_ERROR: str = (
     "The provided path of the dependency/product in the marker is {}, but the path of "
     "the file on disk is {}. Case-sensitive file systems would raise an error.\n\n"
     "Please, align the names to ensure reproducibility on case-sensitive file systems "
@@ -154,7 +175,9 @@ _TEMPLATE_ERROR = (
 
 
 @hookimpl(trylast=True)
-def pytask_collect_node(session, path, node):
+def pytask_collect_node(
+    session: Session, path: Path, node: Union[str, Path]
+) -> Optional[FilePathNode]:
     """Collect a node of a task as a :class:`pytask.nodes.FilePathNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
@@ -195,9 +218,13 @@ def pytask_collect_node(session, path, node):
                 raise ValueError(_TEMPLATE_ERROR.format(node, case_sensitive_path))
 
         return FilePathNode.from_path(node)
+    else:
+        return None
 
 
-def _not_ignored_paths(paths: List[Path], session) -> Generator[Path, None, None]:
+def _not_ignored_paths(
+    paths: Iterable[Path], session: Session
+) -> Generator[Path, None, None]:
     """Traverse paths and yield not ignored paths.
 
     The paths passed by the user can either point to files or directories. For
@@ -227,7 +254,9 @@ def _not_ignored_paths(paths: List[Path], session) -> Generator[Path, None, None
 
 
 @hookimpl
-def pytask_collect_log(session, reports, tasks):
+def pytask_collect_log(
+    session: Session, reports: List[CollectionReport], tasks: List[PythonFunctionTask]
+) -> None:
     """Log collection."""
     session.collection_end = time.time()
 

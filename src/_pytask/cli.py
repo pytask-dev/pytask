@@ -1,30 +1,34 @@
 """Implements the command line interface."""
 import sys
+from typing import Any
+from typing import Dict
 
 import click
+import pluggy
 from _pytask.config import hookimpl
 from _pytask.pluginmanager import get_plugin_manager
 from click_default_group import DefaultGroup
-from pkg_resources import packaging
+from packaging.version import parse as parse_version
 
 
-_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
+_CONTEXT_SETTINGS: Dict[str, Any] = {"help_option_names": ["-h", "--help"]}
 
-if packaging.version.parse(click.__version__) < packaging.version.parse("8"):
-    _VERSION_OPTION_KWARGS = {}
+
+if parse_version(click.__version__) < parse_version("8"):
+    _VERSION_OPTION_KWARGS: Dict[str, Any] = {}
 else:
     _VERSION_OPTION_KWARGS = {"package_name": "pytask"}
 
 
-def _extend_command_line_interface(command_line_interface):
+def _extend_command_line_interface(cli: click.Group) -> click.Group:
     """Add parameters from plugins to the commandline interface."""
     pm = _prepare_plugin_manager()
-    pm.hook.pytask_extend_command_line_interface(cli=command_line_interface)
-    _sort_options_for_each_command_alphabetically(command_line_interface)
-    return command_line_interface
+    pm.hook.pytask_extend_command_line_interface(cli=cli)
+    _sort_options_for_each_command_alphabetically(cli)
+    return cli
 
 
-def _prepare_plugin_manager():
+def _prepare_plugin_manager() -> pluggy.PluginManager:
     """Prepare the plugin manager."""
     pm = get_plugin_manager()
     pm.register(sys.modules[__name__])
@@ -32,7 +36,7 @@ def _prepare_plugin_manager():
     return pm
 
 
-def _sort_options_for_each_command_alphabetically(cli):
+def _sort_options_for_each_command_alphabetically(cli: click.Group) -> None:
     """Sort command line options and arguments for each command alphabetically."""
     for command in cli.commands:
         cli.commands[command].params = sorted(
@@ -41,7 +45,7 @@ def _sort_options_for_each_command_alphabetically(cli):
 
 
 @hookimpl
-def pytask_add_hooks(pm):
+def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     """Add hooks."""
     from _pytask import build
     from _pytask import capture
@@ -91,7 +95,7 @@ def pytask_add_hooks(pm):
     default_if_no_args=True,
 )
 @click.version_option(**_VERSION_OPTION_KWARGS)
-def cli():
+def cli() -> None:
     """The command line interface of pytask."""
     pass
 

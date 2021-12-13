@@ -1,6 +1,10 @@
 import sys
 import time
+from typing import Any
+from typing import Dict
+from typing import List
 
+import networkx as nx
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.dag import descending_tasks
@@ -12,10 +16,12 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.nodes import FilePathNode
+from _pytask.nodes import MetaTask
 from _pytask.outcomes import Exit
 from _pytask.outcomes import Persisted
 from _pytask.outcomes import Skipped
 from _pytask.report import ExecutionReport
+from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
@@ -24,13 +30,17 @@ from _pytask.traceback import render_exc_info
 
 
 @hookimpl
-def pytask_post_parse(config):
+def pytask_post_parse(config: Dict[str, Any]) -> None:
     if config["show_errors_immediately"]:
         config["pm"].register(ShowErrorsImmediatelyPlugin)
 
 
 @hookimpl
-def pytask_parse_config(config, config_from_cli, config_from_file):
+def pytask_parse_config(
+    config: Dict[str, Any],
+    config_from_cli: Dict[str, Any],
+    config_from_file: Dict[str, Any],
+) -> None:
     config["show_errors_immediately"] = get_first_non_none_value(
         config_from_cli,
         config_from_file,
@@ -41,7 +51,7 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
 
 
 @hookimpl
-def pytask_execute(session):
+def pytask_execute(session: Session) -> None:
     """Execute tasks."""
     session.hook.pytask_execute_log_start(session=session)
     session.scheduler = session.hook.pytask_execute_create_scheduler(session=session)
@@ -52,7 +62,7 @@ def pytask_execute(session):
 
 
 @hookimpl
-def pytask_execute_log_start(session):
+def pytask_execute_log_start(session: Session) -> None:
     """Start logging."""
     session.execution_start = time.time()
 
@@ -61,7 +71,7 @@ def pytask_execute_log_start(session):
 
 
 @hookimpl(trylast=True)
-def pytask_execute_create_scheduler(session):
+def pytask_execute_create_scheduler(session: Session) -> TopologicalSorter:
     """Create a scheduler based on topological sorting."""
     scheduler = TopologicalSorter.from_dag(session.dag)
     scheduler.prepare()
@@ -69,21 +79,25 @@ def pytask_execute_create_scheduler(session):
 
 
 @hookimpl
-def pytask_execute_build(session):
+def pytask_execute_build(session: Session) -> bool:
     """Execute tasks."""
-    for name in session.scheduler.static_order():
-        task = session.dag.nodes[name]["task"]
-        report = session.hook.pytask_execute_task_protocol(session=session, task=task)
-        session.execution_reports.append(report)
+    if isinstance(session.scheduler, TopologicalSorter):
+        for name in session.scheduler.static_order():
+            task = session.dag.nodes[name]["task"]
+            report = session.hook.pytask_execute_task_protocol(
+                session=session, task=task
+            )
+            session.execution_reports.append(report)
 
-        if session.should_stop:
-            return True
-
-    return True
+            if session.should_stop:
+                return True
+        return True
+    else:
+        return None
 
 
 @hookimpl
-def pytask_execute_task_protocol(session, task):
+def pytask_execute_task_protocol(session: Session, task: MetaTask) -> ExecutionReport:
     """Follow the protocol to execute each task."""
     session.hook.pytask_execute_task_log_start(session=session, task=task)
     try:
@@ -105,7 +119,7 @@ def pytask_execute_task_protocol(session, task):
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task_setup(session, task):
+def pytask_execute_task_setup(session: Session, task: MetaTask) -> None:
     """Set up the execution of a task.
 
     1. Check whether all dependencies of a task are available.
@@ -130,13 +144,13 @@ def pytask_execute_task_setup(session, task):
 
 
 @hookimpl
-def pytask_execute_task(task):
+def pytask_execute_task(task: MetaTask) -> None:
     """Execute task."""
     task.execute()
 
 
 @hookimpl
-def pytask_execute_task_teardown(session, task):
+def pytask_execute_task_teardown(session: Session, task: MetaTask) -> None:
     """Check if each produced node was indeed produced."""
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
@@ -149,7 +163,9 @@ def pytask_execute_task_teardown(session, task):
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task_process_report(session, report):
+def pytask_execute_task_process_report(
+    session: Session, report: ExecutionReport
+) -> bool:
     """Process the execution report of a task.
 
     If a task failed, skip all subsequent tasks. Else, update the states of related
@@ -185,7 +201,7 @@ def pytask_execute_task_process_report(session, report):
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task_log_end(report):
+def pytask_execute_task_log_end(report: ExecutionReport) -> None:
     """Log task outcome."""
     console.print(report.symbol, style=report.color, end="")
 
@@ -193,13 +209,13 @@ def pytask_execute_task_log_end(report):
 class ShowErrorsImmediatelyPlugin:
     @staticmethod
     @hookimpl(tryfirst=True)
-    def pytask_execute_task_log_end(session, report):
+    def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:
         if not report.success:
             _print_errored_task_report(session, report)
 
 
 @hookimpl
-def pytask_execute_log_end(session, reports):
+def pytask_execute_log_end(session: Session, reports: List[ExecutionReport]) -> bool:
     session.execution_end = time.time()
 
     n_failed = len(reports) - sum(report.success for report in reports)
@@ -240,7 +256,7 @@ def pytask_execute_log_end(session, reports):
     return True
 
 
-def _print_errored_task_report(session, report):
+def _print_errored_task_report(session: Session, report: ExecutionReport) -> None:
     """Print the traceback and the exception of an errored report."""
     task_name = reduce_node_name(report.task, session.config["paths"])
     if len(task_name) > console.width - 15:
@@ -262,7 +278,7 @@ def _print_errored_task_report(session, report):
             console.print(content)
 
 
-def _update_states_in_database(dag, task_name):
+def _update_states_in_database(dag: nx.DiGraph, task_name: str) -> None:
     """Update the state for each node of a task in the database."""
     for name in node_and_neighbors(dag, task_name):
         node = dag.nodes[name].get("task") or dag.nodes[name]["node"]

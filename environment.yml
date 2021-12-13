@@ -40,7 +40,6 @@ dependencies:
   - nbsphinx
   - sphinx
   - sphinx-autoapi
-  - sphinx-autodoc-typehints
   - sphinx-click
   - sphinx-copybutton
   - sphinx-panels

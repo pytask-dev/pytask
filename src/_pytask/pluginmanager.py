@@ -3,7 +3,7 @@ import pluggy
 from _pytask import hookspecs
 
 
-def get_plugin_manager():
+def get_plugin_manager() -> pluggy.PluginManager:
     """Get the plugin manager."""
     pm = pluggy.PluginManager("pytask")
     pm.add_hookspecs(hookspecs)
