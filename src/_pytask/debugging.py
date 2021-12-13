@@ -2,20 +2,38 @@
 import functools
 import pdb
 import sys
+from types import FrameType
+from types import TracebackType
+from typing import Any
+from typing import Dict
+from typing import Generator
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Type
+from typing import TYPE_CHECKING
 
 import click
+import pluggy
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.nodes import MetaTask
 from _pytask.nodes import PythonFunctionTask
 from _pytask.outcomes import Exit
+from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import render_exc_info
 
 
+if TYPE_CHECKING:
+    from _pytask.capture import CaptureManager
+    from _pytask.live import LiveManager
+
+
 @hookimpl
-def pytask_extend_command_line_interface(cli):
+def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend command line interface."""
     additional_parameters = [
         click.Option(
@@ -49,7 +67,11 @@ def pytask_extend_command_line_interface(cli):
 
 
 @hookimpl
-def pytask_parse_config(config, config_from_cli, config_from_file):
+def pytask_parse_config(
+    config: Dict[str, Any],
+    config_from_cli: Dict[str, Any],
+    config_from_file: Dict[str, Any],
+) -> None:
     """Parse the configuration."""
     config["pdb"] = get_first_non_none_value(
         config_from_cli,
@@ -81,25 +103,24 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
     )
 
 
-def _pdbcls_callback(x):
+def _pdbcls_callback(x: Optional[str]) -> Optional[Tuple[str, str]]:
     """Validate the debugger class string passed to pdbcls."""
     message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
 
     if x in [None, "None", "none"]:
-        x = None
+        return None
     elif isinstance(x, str):
         if len(x.split(":")) != 2:
             raise ValueError(message)
         else:
-            x = tuple(x.split(":"))
+            return tuple(x.split(":"))  # type: ignore
     else:
         raise ValueError(message)
-
     return x
 
 
 @hookimpl(trylast=True)
-def pytask_post_parse(config):
+def pytask_post_parse(config: Dict[str, Any]) -> None:
     """Post parse the configuration.
 
     Register the plugins in this step to let other plugins influence the pdb or trace
@@ -121,7 +142,7 @@ def pytask_post_parse(config):
 
 
 @hookimpl
-def pytask_unconfigure():
+def pytask_unconfigure() -> None:
     """Return the resources.
 
     If the :func:`pdb.set_trace` function would not be returned, using breakpoints in
@@ -134,20 +155,22 @@ def pytask_unconfigure():
 class PytaskPDB:
     """Pseudo PDB that defers to the real pdb."""
 
-    _pluginmanager = None
-    _config = None
-    _saved = []
-    _recursive_debug = 0
-    _wrapped_pdb_cls = None
+    _pluginmanager: Optional[pluggy.PluginManager] = None
+    _config: Optional[Dict[str, Any]] = None
+    _saved: List[Tuple[Any, ...]] = []
+    _recursive_debug: int = 0
+    _wrapped_pdb_cls: Optional[Tuple[Type[pdb.Pdb], Type[pdb.Pdb]]] = None
 
     @classmethod
-    def _is_capturing(cls, capman):
+    def _is_capturing(cls, capman: "CaptureManager") -> bool:
         if capman:
             return capman.is_capturing()
         return False
 
     @classmethod
-    def _import_pdb_cls(cls, capman, live_manager):
+    def _import_pdb_cls(
+        cls, capman: "CaptureManager", live_manager: "LiveManager"
+    ) -> Type[pdb.Pdb]:
         if not cls._config:
             import pdb
 
@@ -186,7 +209,12 @@ class PytaskPDB:
         return wrapped_cls
 
     @classmethod
-    def _get_pdb_wrapper_class(cls, pdb_cls, capman, live_manager):
+    def _get_pdb_wrapper_class(
+        cls,
+        pdb_cls: Type[pdb.Pdb],
+        capman: "CaptureManager",
+        live_manager: "LiveManager",
+    ) -> Type[pdb.Pdb]:
         # Type ignored because mypy doesn't support "dynamic"
         # inheritance like this.
         class PytaskPdbWrapper(pdb_cls):  # type: ignore[valid-type,misc]
@@ -194,13 +222,13 @@ class PytaskPDB:
             _pytask_live_manager = live_manager
             _continued = False
 
-            def do_debug(self, arg):
+            def do_debug(self, arg):  # type: ignore
                 cls._recursive_debug += 1
                 ret = super().do_debug(arg)
                 cls._recursive_debug -= 1
                 return ret
 
-            def do_continue(self, arg):
+            def do_continue(self, arg):  # type: ignore
                 ret = super().do_continue(arg)
                 if cls._recursive_debug == 0:
                     assert cls._config is not None
@@ -228,7 +256,7 @@ class PytaskPDB:
 
             do_c = do_cont = do_continue
 
-            def do_quit(self, arg):
+            def do_quit(self, arg):  # type: ignore
                 """Raise Exit outcome when quit command is used in pdb.
 
                 This is a bit of a hack - it would be better if BdbQuit could be
@@ -246,7 +274,7 @@ class PytaskPDB:
             do_q = do_quit
             do_exit = do_quit
 
-            def setup(self, f, tb):
+            def setup(self, f, tb):  # type: ignore
                 """Suspend on setup().
 
                 Needed after do_continue resumed, and entering another breakpoint again.
@@ -262,7 +290,7 @@ class PytaskPDB:
                         self._pytask_live_manager.pause()
                 return ret
 
-            def get_stack(self, f, t):
+            def get_stack(self, f: FrameType, t: TracebackType) -> Tuple[str, int]:
                 stack, i = super().get_stack(f, t)
                 if f is None:
                     # Find last non-hidden frame.
@@ -274,7 +302,7 @@ class PytaskPDB:
         return PytaskPdbWrapper
 
     @classmethod
-    def _init_pdb(cls, method, *args, **kwargs):  # noqa: U100
+    def _init_pdb(cls, method: str, *args: Any, **kwargs: Any) -> pdb.Pdb:  # noqa: U100
         """Initialize PDB debugging, dropping any IO capturing."""
         if cls._pluginmanager is None:
             capman = None
@@ -311,7 +339,7 @@ class PytaskPDB:
         return _pdb
 
     @classmethod
-    def set_trace(cls, *args, **kwargs) -> None:
+    def set_trace(cls, *args: Any, **kwargs: Any) -> None:
         """Invoke debugging via ``Pdb.set_trace``, dropping any IO capturing."""
         frame = sys._getframe().f_back
         _pdb = cls._init_pdb("set_trace", *args, **kwargs)
@@ -323,20 +351,22 @@ class PdbDebugger:
 
     @staticmethod
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task(session, task):
+    def pytask_execute_task(
+        session: Session, task: MetaTask
+    ) -> Generator[None, None, None]:
         """Execute a task by wrapping the function with post-mortem debugger."""
         if isinstance(task, PythonFunctionTask):
             wrap_function_for_post_mortem_debugging(session, task)
         yield
 
 
-def wrap_function_for_post_mortem_debugging(session, task):
+def wrap_function_for_post_mortem_debugging(session: Session, task: MetaTask) -> None:
     """Wrap the function for post-mortem debugging."""
 
     task_function = task.function
 
     @functools.wraps(task_function)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> None:
         capman = session.config["pm"].get_plugin("capturemanager")
         live_manager = session.config["pm"].get_plugin("live_manager")
         try:
@@ -382,14 +412,16 @@ class PdbTrace:
 
     @staticmethod
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task(session, task):
+    def pytask_execute_task(
+        session: Session, task: MetaTask
+    ) -> Generator[None, None, None]:
         """Wrapping the task function with a tracer."""
         if isinstance(task, PythonFunctionTask):
             wrap_function_for_tracing(session, task)
         yield
 
 
-def wrap_function_for_tracing(session, task):
+def wrap_function_for_tracing(session: Session, task: MetaTask) -> None:
     """Wrap the task function for tracing."""
 
     _pdb = PytaskPDB._init_pdb("runcall")
@@ -399,7 +431,7 @@ def wrap_function_for_tracing(session, task):
     # 3.7.4) runcall's first param is `func`, which means we'd get an exception if one
     # of the kwargs to task_function was called `func`.
     @functools.wraps(task_function)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> None:
         capman = session.config["pm"].get_plugin("capturemanager")
         live_manager = session.config["pm"].get_plugin("live_manager")
 
@@ -428,7 +460,7 @@ def wrap_function_for_tracing(session, task):
     task.function = wrapper
 
 
-def post_mortem(t) -> None:
+def post_mortem(t: TracebackType) -> None:
     p = PytaskPDB._init_pdb("post_mortem")
     p.reset()
     p.interaction(None, t)

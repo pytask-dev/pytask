@@ -20,10 +20,13 @@ class _DummyTask(MetaTask):
     base_name = ""
 
     def execute(self):
-        pass
+        ...
 
     def state(self):
-        pass
+        ...
+
+    def add_report_section(self):
+        ...
 
 
 @pytest.fixture()

@@ -3,6 +3,8 @@ import sys
 from pathlib import Path
 from typing import Any
 from typing import Dict
+from typing import List
+from typing import TYPE_CHECKING
 
 import click
 import networkx as nx
@@ -24,14 +26,22 @@ from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from rich.traceback import Traceback
 
 
+if TYPE_CHECKING:
+    from typing import NoReturn
+
+
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(cli: click.Group):
+def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface."""
     cli.add_command(dag)
 
 
 @hookimpl
-def pytask_parse_config(config, config_from_cli, config_from_file):
+def pytask_parse_config(
+    config: Dict[str, Any],
+    config_from_cli: Dict[str, Any],
+    config_from_file: Dict[str, Any],
+) -> None:
     """Parse configuration."""
     config["output_path"] = get_first_non_none_value(
         config_from_cli,
@@ -48,13 +58,13 @@ def pytask_parse_config(config, config_from_cli, config_from_file):
     )
 
 
-_HELP_TEXT_LAYOUT = (
+_HELP_TEXT_LAYOUT: str = (
     "The layout determines the structure of the graph. Here you find an overview of "
     "all available layouts: https://graphviz.org/#roadmap."
 )
 
 
-_HELP_TEXT_OUTPUT = (
+_HELP_TEXT_OUTPUT: str = (
     "The output path of the visualization. The format is inferred from the file "
     "extension."
 )
@@ -63,7 +73,7 @@ _HELP_TEXT_OUTPUT = (
 @click.command()
 @click.option("-l", "--layout", type=str, default=None, help=_HELP_TEXT_LAYOUT)
 @click.option("-o", "--output-path", type=str, default=None, help=_HELP_TEXT_OUTPUT)
-def dag(**config_from_cli):
+def dag(**config_from_cli: Any) -> "NoReturn":
     """Create a visualization of the project's DAG."""
     try:
         pm = get_plugin_manager()
@@ -111,7 +121,7 @@ def dag(**config_from_cli):
     sys.exit(session.exit_code)
 
 
-def build_dag(config_from_cli: Dict[str, Any]) -> "pydot.Dot":  # noqa: F821
+def build_dag(config_from_cli: Dict[str, Any]) -> nx.DiGraph:
     """Build the DAG.
 
     This function is the programmatic interface to ``pytask dag`` and returns a
@@ -168,7 +178,7 @@ def build_dag(config_from_cli: Dict[str, Any]) -> "pydot.Dot":  # noqa: F821
             return dag
 
 
-def _refine_dag(session):
+def _refine_dag(session: Session) -> nx.DiGraph:
     dag = _shorten_node_labels(session.dag, session.config["paths"])
     dag = _add_root_node(dag)
     dag = _clean_dag(dag)
@@ -217,7 +227,7 @@ def _create_session(config_from_cli: Dict[str, Any]) -> nx.DiGraph:
     return session
 
 
-def _shorten_node_labels(dag, paths):
+def _shorten_node_labels(dag: nx.DiGraph, paths: List[Path]) -> nx.DiGraph:
     node_names = dag.nodes
     short_names = reduce_names_of_multiple_nodes(node_names, dag, paths)
     old_to_new = dict(zip(node_names, short_names))
@@ -225,7 +235,7 @@ def _shorten_node_labels(dag, paths):
     return dag
 
 
-def _add_root_node(dag):
+def _add_root_node(dag: nx.DiGraph) -> nx.DiGraph:
     tasks_without_predecessor = [
         name
         for name in dag.nodes
@@ -239,7 +249,7 @@ def _add_root_node(dag):
     return dag
 
 
-def _clean_dag(dag):
+def _clean_dag(dag: nx.DiGraph) -> nx.DiGraph:
     """Clean the DAG."""
     for node in dag.nodes:
         dag.nodes[node].clear()
@@ -252,7 +262,7 @@ def _style_dag(dag: nx.DiGraph) -> nx.DiGraph:
     return dag
 
 
-def _escape_node_names_with_colons(dag: nx.DiGraph):
+def _escape_node_names_with_colons(dag: nx.DiGraph) -> nx.DiGraph:
     """Escape node names with colons.
 
     pydot cannot handle colons in node names since it messes up some syntax. Escaping

@@ -2,11 +2,17 @@ r"""Evaluate match expressions, as used by `-k` and `-m`.
 
 The grammar is:
 
-| expression | expr? EOF                  |                                  |
-| expr       | and_expr ('or' and_expr)*  |                                  |
-| and_expr   | not_expr ('and' not_expr)* |                                  |
-| not_expr   | 'not' not_expr             | '(' expr ')' or ident            |
-| ident      | (\w                        | : or \+ or - or \. or \[ or \])+ |
++------------+--------------------------------------------+
+| expression | expr? EOF                                  |
++------------+--------------------------------------------+
+| expr       | and_expr ('or' and_expr)*                  |
++------------+--------------------------------------------+
+| and_expr   | not_expr ('and' not_expr)*                 |
++------------+--------------------------------------------+
+| not_expr   | ``'not' not_expr | '(' expr ')' | ident``  |
++------------+--------------------------------------------+
+| ident      | ``(\w|:|\+|-|\.|\[|\]|\\)+``               |
++------------+--------------------------------------------+
 
 The semantics are:
 
@@ -24,8 +30,13 @@ from typing import Iterator
 from typing import Mapping
 from typing import Optional
 from typing import Sequence
+from typing import TYPE_CHECKING
 
 import attr
+
+
+if TYPE_CHECKING:
+    from typing import NoReturn
 
 
 __all__ = ["Expression", "ParseError"]
@@ -87,7 +98,7 @@ class Scanner:
                 yield Token(TokenType.RPAREN, ")", pos)
                 pos += 1
             else:
-                match = re.match(r"(:?\w|:|\+|-|\.|\[|\])+", input_[pos:])
+                match = re.match(r"(:?\w|:|\+|-|\.|\[|\]|/|\\)+", input_[pos:])
                 if match:
                     value = match.group(0)
                     if value == "or":
@@ -116,7 +127,7 @@ class Scanner:
             self.reject((type_,))
         return None
 
-    def reject(self, expected: Sequence[TokenType]):
+    def reject(self, expected: Sequence[TokenType]) -> "NoReturn":
         raise ParseError(
             self.current.pos + 1,
             "expected {}; got {}".format(
@@ -157,7 +168,7 @@ def and_expr(s: Scanner) -> ast.expr:
     return ret
 
 
-def not_expr(s: Scanner) -> ast.expr:
+def not_expr(s: Scanner) -> Optional[ast.expr]:
     if s.accept(TokenType.NOT):
         return ast.UnaryOp(ast.Not(), not_expr(s))
     if s.accept(TokenType.LPAREN):

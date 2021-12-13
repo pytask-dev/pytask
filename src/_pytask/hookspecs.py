@@ -4,8 +4,28 @@ At each of the entry-points, a plugin can register a hook implementation which r
 the message send by the host and may send a response.
 
 """
+from pathlib import Path
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import TYPE_CHECKING
+
 import click
+import networkx as nx
 import pluggy
+
+
+if TYPE_CHECKING:
+    from _pytask.session import Session
+    from _pytask.nodes import MetaTask, MetaNode
+    from _pytask.reports import (
+        CollectionReport,
+        ExecutionReport,
+        ResolveDependencyReport,
+    )
 
 
 hookspec = pluggy.HookspecMarker("pytask")
@@ -46,7 +66,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookspec(firstresult=True)
-def pytask_configure(pm: pluggy.PluginManager, config_from_cli: dict) -> dict:
+def pytask_configure(
+    pm: pluggy.PluginManager, config_from_cli: Dict[str, Any]
+) -> Dict[str, Any]:
     """Configure pytask.
 
     The main hook implementation which controls the configuration and calls subordinated
@@ -57,7 +79,9 @@ def pytask_configure(pm: pluggy.PluginManager, config_from_cli: dict) -> dict:
 
 @hookspec
 def pytask_parse_config(
-    config: dict, config_from_cli: dict, config_from_file: dict
+    config: Dict[str, Any],
+    config_from_cli: Dict[str, Any],
+    config_from_file: Dict[str, Any],
 ) -> None:
     """Parse configuration from the CLI or from file.
 
@@ -71,7 +95,7 @@ def pytask_parse_config(
 
 
 @hookspec
-def pytask_post_parse(config: dict) -> None:
+def pytask_post_parse(config: Dict[str, Any]) -> None:
     """Post parsing.
 
     This hook allows to consolidate the configuration in case some plugins might be
@@ -83,7 +107,7 @@ def pytask_post_parse(config: dict) -> None:
 
 
 @hookspec
-def pytask_unconfigure(session):
+def pytask_unconfigure(session: "Session") -> None:
     """Unconfigure a pytask session before the process is exited.
 
     The hook allows to return resources previously borrowed like :func:`pdb.set_trace`
@@ -96,7 +120,7 @@ def pytask_unconfigure(session):
 
 
 @hookspec(firstresult=True)
-def pytask_collect(session):
+def pytask_collect(session: "Session") -> Any:
     """Collect tasks from paths.
 
     The main hook implementation which controls the collection and calls subordinated
@@ -106,7 +130,7 @@ def pytask_collect(session):
 
 
 @hookspec(firstresult=True)
-def pytask_ignore_collect(path, config):
+def pytask_ignore_collect(path: Path, config: Dict[str, Any]) -> bool:
     """Ignore collected path.
 
     This hook is indicates for each directory and file whether it should be ignored.
@@ -116,7 +140,7 @@ def pytask_ignore_collect(path, config):
 
 
 @hookspec
-def pytask_collect_modify_tasks(session, tasks):
+def pytask_collect_modify_tasks(session: "Session", tasks: "List[MetaTask]") -> None:
     """Modify tasks after they have been collected.
 
     This hook can be used to deselect tasks when they match a certain keyword or mark.
@@ -125,7 +149,9 @@ def pytask_collect_modify_tasks(session, tasks):
 
 
 @hookspec(firstresult=True)
-def pytask_collect_file_protocol(session, path, reports):
+def pytask_collect_file_protocol(
+    session: "Session", path: Path, reports: "List[CollectionReport]"
+) -> "List[CollectionReport]":
     """Start protocol to collect files.
 
     The protocol calls the subordinate hook :func:`pytask_collect_file` which might
@@ -135,7 +161,9 @@ def pytask_collect_file_protocol(session, path, reports):
 
 
 @hookspec(firstresult=True)
-def pytask_collect_file(session, path, reports):
+def pytask_collect_file(
+    session: "Session", path: Path, reports: "List[CollectionReport]"
+) -> "Optional[List[CollectionReport]]":
     """Collect tasks from a file.
 
     If you want to collect tasks from other files, modify this hook.
@@ -144,27 +172,35 @@ def pytask_collect_file(session, path, reports):
 
 
 @hookspec
-def pytask_collect_file_log(session, reports):
+def pytask_collect_file_log(
+    session: "Session", reports: "List[CollectionReport]"
+) -> None:
     """Perform logging at the end of collecting a file."""
 
 
 @hookspec(firstresult=True)
-def pytask_collect_task_protocol(session, path, name, obj):
+def pytask_collect_task_protocol(
+    session: "Session", path: Path, name: str, obj: Any
+) -> "Optional[CollectionReport]":
     """Start protocol to collect tasks."""
 
 
 @hookspec
-def pytask_collect_task_setup(session, path, name, obj):
+def pytask_collect_task_setup(
+    session: "Session", path: Path, name: str, obj: Any
+) -> None:
     """Steps before collecting a task."""
 
 
 @hookspec(firstresult=True)
-def pytask_collect_task(session, path, name, obj):
+def pytask_collect_task(
+    session: "Session", path: Path, name: str, obj: Any
+) -> "MetaTask":
     """Collect a single task."""
 
 
 @hookspec
-def pytask_collect_task_teardown(session, task):
+def pytask_collect_task_teardown(session: "Session", task: "MetaTask") -> None:
     """Perform tear-down operations when a task was collected.
 
     Use this hook specification to, for example, perform checks on the collected task.
@@ -173,12 +209,16 @@ def pytask_collect_task_teardown(session, task):
 
 
 @hookspec(firstresult=True)
-def pytask_collect_node(session, path, node):
+def pytask_collect_node(
+    session: "Session", path: Path, node: "MetaNode"
+) -> "Optional[MetaNode]":
     """Collect a node which is a dependency or a product of a task."""
 
 
 @hookspec(firstresult=True)
-def pytask_collect_log(session, reports, tasks):
+def pytask_collect_log(
+    session: "Session", reports: "List[CollectionReport]", tasks: "List[MetaTask]"
+) -> None:
     """Log errors occurring during the collection.
 
     This hook reports errors during the collection.
@@ -190,12 +230,14 @@ def pytask_collect_log(session, reports, tasks):
 
 
 @hookspec(firstresult=True)
-def pytask_parametrize_task(session, name, obj):
+def pytask_parametrize_task(
+    session: "Session", name: str, obj: Any
+) -> List[Tuple[str, Callable[..., Any]]]:
     """Generate multiple tasks from name and object with parametrization."""
 
 
 @hookspec
-def pytask_parametrize_kwarg_to_marker(obj, kwargs):
+def pytask_parametrize_kwarg_to_marker(obj: Any, kwargs: Dict[Any, Any]) -> None:
     """Add some keyword arguments as markers to object.
 
     This hook moves arguments defined in the parametrization to marks of the same
@@ -209,7 +251,7 @@ def pytask_parametrize_kwarg_to_marker(obj, kwargs):
 
 
 @hookspec(firstresult=True)
-def pytask_resolve_dependencies(session):
+def pytask_resolve_dependencies(session: "Session") -> None:
     """Resolve dependencies.
 
     The main hook implementation which controls the resolution of dependencies and calls
@@ -219,7 +261,9 @@ def pytask_resolve_dependencies(session):
 
 
 @hookspec(firstresult=True)
-def pytask_resolve_dependencies_create_dag(session, tasks):
+def pytask_resolve_dependencies_create_dag(
+    session: "Session", tasks: "List[MetaTask]"
+) -> nx.DiGraph:
     """Create the DAG.
 
     This hook creates the DAG from tasks, dependencies and products. The DAG can be used
@@ -229,7 +273,7 @@ def pytask_resolve_dependencies_create_dag(session, tasks):
 
 
 @hookspec
-def pytask_resolve_dependencies_modify_dag(session, dag):
+def pytask_resolve_dependencies_modify_dag(session: "Session", dag: nx.DiGraph) -> None:
     """Modify the DAG.
 
     This hook allows to make some changes to the DAG before it is validated and tasks
@@ -239,7 +283,9 @@ def pytask_resolve_dependencies_modify_dag(session, dag):
 
 
 @hookspec(firstresult=True)
-def pytask_resolve_dependencies_validate_dag(session, dag):
+def pytask_resolve_dependencies_validate_dag(
+    session: "Session", dag: nx.DiGraph
+) -> None:
     """Validate the DAG.
 
     This hook validates the DAG. For example, there can be cycles in the DAG if tasks,
@@ -249,7 +295,9 @@ def pytask_resolve_dependencies_validate_dag(session, dag):
 
 
 @hookspec
-def pytask_resolve_dependencies_select_execution_dag(session, dag):
+def pytask_resolve_dependencies_select_execution_dag(
+    session: "Session", dag: nx.DiGraph
+) -> None:
     """Select the subgraph which needs to be executed.
 
     This hook determines which of the tasks have to be re-run because something has
@@ -259,7 +307,9 @@ def pytask_resolve_dependencies_select_execution_dag(session, dag):
 
 
 @hookspec
-def pytask_resolve_dependencies_log(session, report):
+def pytask_resolve_dependencies_log(
+    session: "Session", report: "ResolveDependencyReport"
+) -> None:
     """Log errors during resolving dependencies."""
 
 
@@ -267,7 +317,7 @@ def pytask_resolve_dependencies_log(session, report):
 
 
 @hookspec(firstresult=True)
-def pytask_execute(session):
+def pytask_execute(session: "Session") -> Optional[Any]:
     """Loop over all tasks for the execution.
 
     The main hook implementation which controls the execution and calls subordinated
@@ -277,7 +327,7 @@ def pytask_execute(session):
 
 
 @hookspec
-def pytask_execute_log_start(session):
+def pytask_execute_log_start(session: "Session") -> None:
     """Start logging of execution.
 
     This hook allows to provide a header with information before the execution starts.
@@ -286,7 +336,7 @@ def pytask_execute_log_start(session):
 
 
 @hookspec(firstresult=True)
-def pytask_execute_create_scheduler(session):
+def pytask_execute_create_scheduler(session: "Session") -> Any:
     """Create a scheduler for the execution.
 
     The scheduler provides information on which tasks are able to be executed. Its
@@ -296,7 +346,7 @@ def pytask_execute_create_scheduler(session):
 
 
 @hookspec(firstresult=True)
-def pytask_execute_build(session):
+def pytask_execute_build(session: "Session") -> Any:
     """Execute the build.
 
     This hook implements the main loop to execute tasks.
@@ -305,7 +355,9 @@ def pytask_execute_build(session):
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task_protocol(session, task):
+def pytask_execute_task_protocol(
+    session: "Session", task: "MetaTask"
+) -> "ExecutionReport":
     """Run the protocol for executing a test.
 
     This hook runs all stages of the execution process, setup, execution, and teardown
@@ -317,7 +369,7 @@ def pytask_execute_task_protocol(session, task):
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task_log_start(session, task):
+def pytask_execute_task_log_start(session: "Session", task: "MetaTask") -> None:
     """Start logging of task execution.
 
     This hook can be used to provide more verbose output during the execution.
@@ -326,7 +378,7 @@ def pytask_execute_task_log_start(session, task):
 
 
 @hookspec
-def pytask_execute_task_setup(session, task):
+def pytask_execute_task_setup(session: "Session", task: "MetaTask") -> None:
     """Set up the task execution.
 
     This hook is called before the task is executed and can provide an entry-point to
@@ -337,12 +389,12 @@ def pytask_execute_task_setup(session, task):
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task(session, task):
+def pytask_execute_task(session: "Session", task: "MetaTask") -> Optional[Any]:
     """Execute a task."""
 
 
 @hookspec
-def pytask_execute_task_teardown(session, task):
+def pytask_execute_task_teardown(session: "Session", task: "MetaTask") -> None:
     """Tear down task execution.
 
     This hook is executed after the task has been executed. It allows to perform
@@ -352,7 +404,9 @@ def pytask_execute_task_teardown(session, task):
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task_process_report(session, report):
+def pytask_execute_task_process_report(
+    session: "Session", report: "ExecutionReport"
+) -> Optional[Any]:
     """Process the report of a task.
 
     This hook allows to process each report generated by a task which is either based on
@@ -365,12 +419,14 @@ def pytask_execute_task_process_report(session, report):
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task_log_end(session, report):
+def pytask_execute_task_log_end(session: "Session", report: "ExecutionReport") -> None:
     """Log the end of a task execution."""
 
 
 @hookspec
-def pytask_execute_log_end(session, reports):
+def pytask_execute_log_end(
+    session: "Session", reports: "List[ExecutionReport]"
+) -> None:
     """Log the footer of the execution report."""
 
 
@@ -378,12 +434,14 @@ def pytask_execute_log_end(session, reports):
 
 
 @hookspec
-def pytask_log_session_header(session):
+def pytask_log_session_header(session: "Session") -> None:
     """Log session information at the begin of a run."""
 
 
 @hookspec
-def pytask_log_session_footer(session, infos, duration, color):
+def pytask_log_session_footer(
+    session: "Session", infos: List[Tuple[Any, str, str]], duration: float, color: str
+) -> None:
     """Log session information at the end of a run."""
 
 
@@ -391,7 +449,9 @@ def pytask_log_session_footer(session, infos, duration, color):
 
 
 @hookspec
-def pytask_profile_add_info_on_task(session, tasks, profile):
+def pytask_profile_add_info_on_task(
+    session: "Session", tasks: "List[MetaTask]", profile: Dict[str, Dict[Any, Any]]
+) -> None:
     """Add information on task for profile.
 
     Hook implementations can add information to the ``profile`` dictionary. The
@@ -402,5 +462,7 @@ def pytask_profile_add_info_on_task(session, tasks, profile):
 
 
 @hookspec
-def pytask_profile_export_profile(session, profile):
+def pytask_profile_export_profile(
+    session: "Session", profile: Dict[str, Dict[Any, Any]]
+) -> None:
     """Export the profile."""

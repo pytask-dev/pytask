@@ -1,3 +1,5 @@
+from contextlib import ExitStack as does_not_raise  # noqa: N813
+
 import pytest
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import parse_value_or_multiline_option
@@ -37,16 +39,18 @@ def test_raise_error_convert_truthy_or_falsy_to_bool(value, expectation):
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
-    "value, expected",
+    "value, expectation, expected",
     [
-        (None, None),
-        ("None", None),
-        ("none", None),
-        ("first\nsecond", ["first", "second"]),
-        ("first", "first"),
-        ("", None),
+        (None, does_not_raise(), None),
+        ("None", does_not_raise(), None),
+        ("none", does_not_raise(), None),
+        ("first\nsecond", does_not_raise(), ["first", "second"]),
+        ("first", does_not_raise(), "first"),
+        ("", does_not_raise(), None),
+        (1, pytest.raises(ValueError, match="Input '1'"), None),
     ],
 )
-def test_parse_value_or_multiline_option(value, expected):
-    result = parse_value_or_multiline_option(value)
-    assert result == expected
+def test_parse_value_or_multiline_option(value, expectation, expected):
+    with expectation:
+        result = parse_value_or_multiline_option(value)
+        assert result == expected

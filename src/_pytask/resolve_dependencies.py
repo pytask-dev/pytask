@@ -2,7 +2,9 @@ import itertools
 import sys
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Tuple
+from typing import Union
 
 import networkx as nx
 from _pytask.config import hookimpl
@@ -20,8 +22,11 @@ from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_specific_markers_from_task
+from _pytask.nodes import MetaNode
+from _pytask.nodes import MetaTask
 from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import ResolvingDependenciesReport
+from _pytask.session import Session
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
@@ -30,7 +35,7 @@ from rich.tree import Tree
 
 
 @hookimpl
-def pytask_resolve_dependencies(session):
+def pytask_resolve_dependencies(session: Session) -> Optional[bool]:
     """Create a directed acyclic graph (DAG) capturing dependencies between functions.
 
     Parameters
@@ -65,7 +70,7 @@ def pytask_resolve_dependencies(session):
 
 
 @hookimpl
-def pytask_resolve_dependencies_create_dag(tasks):
+def pytask_resolve_dependencies_create_dag(tasks: List[MetaTask]) -> nx.DiGraph:
     """Create the DAG from tasks, dependencies and products."""
     dag = nx.DiGraph()
 
@@ -86,7 +91,7 @@ def pytask_resolve_dependencies_create_dag(tasks):
 
 
 @hookimpl
-def pytask_resolve_dependencies_select_execution_dag(dag):
+def pytask_resolve_dependencies_select_execution_dag(dag: nx.DiGraph) -> None:
     """Select the tasks which need to be executed."""
     scheduler = TopologicalSorter.from_dag(dag)
     visited_nodes = []
@@ -103,13 +108,13 @@ def pytask_resolve_dependencies_select_execution_dag(dag):
 
 
 @hookimpl
-def pytask_resolve_dependencies_validate_dag(dag):
+def pytask_resolve_dependencies_validate_dag(dag: nx.DiGraph) -> None:
     """Validate the DAG."""
     _check_if_root_nodes_are_available(dag)
     _check_if_tasks_have_the_same_products(dag)
 
 
-def _have_task_or_neighbors_changed(task_name, dag):
+def _have_task_or_neighbors_changed(task_name: str, dag: nx.DiGraph) -> bool:
     """Indicate whether dependencies or products of a task have changed."""
     return any(
         _has_node_changed(task_name, dag.nodes[node])
@@ -118,7 +123,9 @@ def _have_task_or_neighbors_changed(task_name, dag):
 
 
 @orm.db_session
-def _has_node_changed(task_name: str, node_dict):
+def _has_node_changed(
+    task_name: str, node_dict: Dict[str, Union[MetaNode, MetaTask]]
+) -> bool:
     """Indicate whether a single dependency or product has changed."""
     node = node_dict.get("task") or node_dict["node"]
     try:
@@ -127,7 +134,7 @@ def _has_node_changed(task_name: str, node_dict):
         out = True
     else:
         try:
-            state_in_db = State[task_name, node.name].state
+            state_in_db = State[task_name, node.name].state  # type: ignore
         except orm.ObjectNotFound:
             out = True
         else:
@@ -136,7 +143,7 @@ def _has_node_changed(task_name: str, node_dict):
     return out
 
 
-def _check_if_dag_has_cycles(dag):
+def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:
     """Check if DAG has cycles."""
     try:
         cycles = nx.algorithms.cycles.find_cycle(dag)
@@ -151,7 +158,7 @@ def _check_if_dag_has_cycles(dag):
         )
 
 
-def _format_cycles(cycles: List[Tuple[str]]) -> str:
+def _format_cycles(cycles: List[Tuple[str, ...]]) -> str:
     """Format cycles as a paths connected by arrows."""
     chain = [x for i, x in enumerate(itertools.chain(*cycles)) if i % 2 == 0]
     chain += [cycles[-1][1]]
@@ -165,7 +172,7 @@ def _format_cycles(cycles: List[Tuple[str]]) -> str:
     return text
 
 
-_TEMPLATE_ERROR = (
+_TEMPLATE_ERROR: str = (
     "Some dependencies do not exist or are not produced by any task. See the following "
     "tree which shows which dependencies are missing for which tasks.\n\n{}"
 )
@@ -173,9 +180,9 @@ if IS_FILE_SYSTEM_CASE_SENSITIVE:
     _TEMPLATE_ERROR += "\n\n(Hint: Sometimes case sensitivity is at fault.)"
 
 
-def _check_if_root_nodes_are_available(dag):
+def _check_if_root_nodes_are_available(dag: nx.DiGraph) -> None:
     missing_root_nodes = []
-    is_task_skipped = {}
+    is_task_skipped: Dict[str, bool] = {}
 
     for node in dag.nodes:
         is_node = "node" in dag.nodes[node]
@@ -216,7 +223,9 @@ def _check_if_root_nodes_are_available(dag):
         raise ResolvingDependenciesError(_TEMPLATE_ERROR.format(text)) from None
 
 
-def _check_if_tasks_are_skipped(node, dag, is_task_skipped):
+def _check_if_tasks_are_skipped(
+    node: MetaNode, dag: nx.DiGraph, is_task_skipped: Dict[str, bool]
+) -> Tuple[bool, Dict[str, bool]]:
     """Check for a given node whether it is only used by skipped tasks."""
     are_all_tasks_skipped = []
     for successor in dag.successors(node):
@@ -227,7 +236,7 @@ def _check_if_tasks_are_skipped(node, dag, is_task_skipped):
     return all(are_all_tasks_skipped), is_task_skipped
 
 
-def _check_if_task_is_skipped(task_name, dag):
+def _check_if_task_is_skipped(task_name: str, dag: nx.DiGraph) -> bool:
     task = dag.nodes[task_name]["task"]
     is_skipped = get_specific_markers_from_task(task, "skip")
 
@@ -241,7 +250,7 @@ def _check_if_task_is_skipped(task_name, dag):
     return is_any_true
 
 
-def _skipif(condition: bool, *, reason: str) -> tuple:
+def _skipif(condition: bool, *, reason: str) -> Tuple[bool, str]:
     """Shameless copy to circumvent circular imports."""
     return condition, reason
 
@@ -262,7 +271,7 @@ def _format_dictionary_to_tree(dict_: Dict[str, List[str]], title: str) -> str:
     return text
 
 
-def _check_if_tasks_have_the_same_products(dag):
+def _check_if_tasks_have_the_same_products(dag: nx.DiGraph) -> None:
     nodes_created_by_multiple_tasks = []
 
     for node in dag.nodes:
@@ -297,7 +306,9 @@ def _check_if_tasks_have_the_same_products(dag):
 
 
 @hookimpl
-def pytask_resolve_dependencies_log(session, report):
+def pytask_resolve_dependencies_log(
+    session: Session, report: ResolvingDependenciesReport
+) -> None:
     """Log errors which happened while resolving dependencies."""
     console.print()
     console.rule(

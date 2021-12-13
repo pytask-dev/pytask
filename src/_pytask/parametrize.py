@@ -5,9 +5,11 @@ import pprint
 import types
 from typing import Any
 from typing import Callable
+from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Sequence
 from typing import Tuple
 from typing import Union
 
@@ -17,26 +19,31 @@ from _pytask.console import TASK_ICON
 from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
 from _pytask.nodes import find_duplicates
+from _pytask.session import Session
 
 
 def parametrize(
-    arg_names: Union[str, Tuple[str], List[str]],
-    arg_values: Iterable,
+    arg_names: Union[str, List[str], Tuple[str, ...]],
+    arg_values: Iterable[Union[Sequence[Any], Any]],
     *,
     ids: Optional[
-        Union[Iterable[Union[bool, float, int, str, None]], Callable[[Any], Any]]
+        Union[Iterable[Union[None, str, float, int, bool]], Callable[..., Any]]
     ] = None,
-):
+) -> Tuple[
+    Union[str, List[str], Tuple[str, ...]],
+    Iterable[Union[Sequence[Any], Any]],
+    Optional[Union[Iterable[Union[None, str, float, int, bool]], Callable[..., Any]]],
+]:
     """Parametrize a task function.
 
     Parametrizing a task allows to execute the same task with different arguments.
 
     Parameters
     ----------
-    arg_names : Union[str, Tuple[str], List[str]]
+    arg_names : Union[str, List[str], Tuple[str, ...]]
         The names of the arguments which can either be given as a comma-separated
         string, a tuple of strings, or a list of strings.
-    arg_values : Iterable
+    arg_values : Iterable[Union[Sequence[Any], Any]]
         The values which correspond to names in ``arg_names``. For one argument, it is a
         single iterable. For multiple argument names it is an iterable of iterables.
     ids
@@ -56,7 +63,7 @@ def parametrize(
 
 
 @hookimpl
-def pytask_parse_config(config):
+def pytask_parse_config(config: Dict[str, Any]) -> None:
     config["markers"]["parametrize"] = (
         "Call a task function multiple times passing in different arguments each turn. "
         "arg_values generally needs to be a list of values if arg_names specifies only "
@@ -69,7 +76,9 @@ def pytask_parse_config(config):
 
 
 @hookimpl
-def pytask_parametrize_task(session, name, obj):
+def pytask_parametrize_task(
+    session: Session, name: str, obj: Callable[..., Any]
+) -> List[Tuple[str, Callable[..., Any]]]:
     """Parametrize a task.
 
     This function takes a single Python function and all parametrize decorators and
@@ -89,7 +98,7 @@ def pytask_parametrize_task(session, name, obj):
         if len(markers) > 1:
             raise NotImplementedError(
                 "Multiple parametrizations are currently not implemented since it is "
-                "not possible to define products for tasks from a cartesian product."
+                "not possible to define products for tasks from a Cartesian product."
             )
 
         base_arg_names, arg_names, arg_values = _parse_parametrize_markers(
@@ -99,7 +108,7 @@ def pytask_parametrize_task(session, name, obj):
         product_arg_names = list(itertools.product(*arg_names))
         product_arg_values = list(itertools.product(*arg_values))
 
-        names_and_functions = []
+        names_and_functions: List[Tuple[str, Callable[..., Any]]] = []
         for names, values in zip(product_arg_names, product_arg_values):
             kwargs = dict(
                 zip(
@@ -109,8 +118,8 @@ def pytask_parametrize_task(session, name, obj):
             )
 
             # Copy function and attributes to allow in-place changes.
-            func = _copy_func(obj)
-            func.pytaskmark = copy.deepcopy(obj.pytaskmark)
+            func = _copy_func(obj)  # type: ignore
+            func.pytaskmark = copy.deepcopy(obj.pytaskmark)  # type: ignore
 
             # Convert parametrized dependencies and products to decorator.
             session.hook.pytask_parametrize_kwarg_to_marker(obj=func, kwargs=kwargs)
@@ -122,8 +131,8 @@ def pytask_parametrize_task(session, name, obj):
             name_ = f"{name}[{'-'.join(itertools.chain.from_iterable(names))}]"
             names_and_functions.append((name_, wrapped_func))
 
-        names = [i[0] for i in names_and_functions]
-        duplicates = find_duplicates(names)
+        all_names = [i[0] for i in names_and_functions]
+        duplicates = find_duplicates(all_names)
         if duplicates:
             text = format_strings_as_flat_tree(
                 duplicates, "Duplicated task ids", TASK_ICON
@@ -139,7 +148,7 @@ def pytask_parametrize_task(session, name, obj):
         return names_and_functions
 
 
-def _remove_parametrize_markers_from_func(obj):
+def _remove_parametrize_markers_from_func(obj: Any) -> Tuple[Any, List[Mark]]:
     """Remove parametrize markers from the object."""
     parametrize_markers = [i for i in obj.pytaskmark if i.name == "parametrize"]
     others = [i for i in obj.pytaskmark if i.name != "parametrize"]
@@ -148,7 +157,9 @@ def _remove_parametrize_markers_from_func(obj):
     return obj, parametrize_markers
 
 
-def _parse_parametrize_marker(marker: Mark, name: str) -> Tuple[Any, Any, Any]:
+def _parse_parametrize_marker(
+    marker: Mark, name: str
+) -> Tuple[Tuple[str, ...], List[Tuple[str, ...]], List[Tuple[Any, ...]]]:
     """Parse parametrize marker.
 
     Parameters
@@ -160,12 +171,12 @@ def _parse_parametrize_marker(marker: Mark, name: str) -> Tuple[Any, Any, Any]:
 
     Returns
     -------
-    base_arg_names : Tuple[str]
+    base_arg_names : Tuple[str, ...]
         Contains the names of the arguments.
-    processed_arg_names : List[Tuple[str]]
+    processed_arg_names : List[Tuple[str, ...]]
         Each tuple in the list represents the processed names of the arguments suffixed
         with a number indicating the iteration.
-    processed_arg_values : List[Tuple[Any]]
+    processed_arg_values : List[Tuple[Any, ...]]
         Each tuple in the list represents the values of the arguments for each
         iteration.
 
@@ -186,7 +197,13 @@ def _parse_parametrize_marker(marker: Mark, name: str) -> Tuple[Any, Any, Any]:
     return parsed_arg_names, expanded_arg_names, parsed_arg_values
 
 
-def _parse_parametrize_markers(markers: List[Mark], name: str):
+def _parse_parametrize_markers(
+    markers: List[Mark], name: str
+) -> Tuple[
+    List[Tuple[str, ...]],
+    List[List[Tuple[str, ...]]],
+    List[List[Tuple[Any, ...]]],
+]:
     """Parse parametrize markers."""
     parsed_markers = [_parse_parametrize_marker(marker, name) for marker in markers]
     base_arg_names = [i[0] for i in parsed_markers]
@@ -196,7 +213,9 @@ def _parse_parametrize_markers(markers: List[Mark], name: str):
     return base_arg_names, processed_arg_names, processed_arg_values
 
 
-def _parse_arg_names(arg_names: Union[str, Tuple[str], List[str]]) -> Tuple[str]:
+def _parse_arg_names(
+    arg_names: Union[str, List[str], Tuple[str, ...]]
+) -> Tuple[str, ...]:
     """Parse arg_names argument of parametrize decorator.
 
     There are three allowed formats:
@@ -209,12 +228,12 @@ def _parse_arg_names(arg_names: Union[str, Tuple[str], List[str]]) -> Tuple[str]
 
     Parameters
     ----------
-    arg_names : Union[str, Tuple[str], List[str]]
+    arg_names : Union[str, List[str], Tuple[str, ...]]
         The names of the arguments which are parametrized.
 
     Returns
     -------
-    out : Tuple[str]
+    out : Tuple[str, ...]
         The parsed arg_names.
 
     Example
@@ -238,8 +257,13 @@ def _parse_arg_names(arg_names: Union[str, Tuple[str], List[str]]) -> Tuple[str]
     return out
 
 
-def _parse_arg_values(arg_values: Iterable) -> List[Tuple[Any]]:
+def _parse_arg_values(
+    arg_values: Iterable[Union[Sequence[Any], Any]]
+) -> List[Tuple[Any, ...]]:
     """Parse the values provided for each argument name.
+
+    After processing the values, the return is a list where each value is an iteration
+    of the parametrization. Each iteration is a tuple of all parametrized arguments.
 
     Example
     -------
@@ -256,7 +280,7 @@ def _parse_arg_values(arg_values: Iterable) -> List[Tuple[Any]]:
 
 
 def _check_if_n_arg_names_matches_n_arg_values(
-    arg_names: Tuple[str], arg_values: List[Tuple[Any]], name: str
+    arg_names: Tuple[str, ...], arg_values: List[Tuple[Any, ...]], name: str
 ) -> None:
     """Check if the number of argument names matches the number of arguments."""
     n_names = len(arg_names)
@@ -280,19 +304,19 @@ def _check_if_n_arg_names_matches_n_arg_values(
 
 
 def _create_parametrize_ids_components(
-    arg_names: Tuple[str],
-    arg_values: List[Tuple[Any]],
+    arg_names: Tuple[str, ...],
+    arg_values: List[Tuple[Any, ...]],
     ids: Optional[
-        Union[Iterable[Union[bool, float, int, str, None]], Callable[[Any], Any]]
+        Union[Iterable[Union[None, str, float, int, bool]], Callable[..., Any]]
     ],
-):
+) -> List[Tuple[str, ...]]:
     """Create the ids for each parametrization.
 
     Parameters
     ----------
-    arg_names : Tuple[str]
+    arg_names : Tuple[str, ...]
         The names of the arguments of the parametrized function.
-    arg_values : List[Tuple[Any]]
+    arg_values : List[Tuple[Any, ...]]
         A list of tuples where each tuple is for one run.
     ids
         The ids associated with one parametrization.
@@ -307,21 +331,23 @@ def _create_parametrize_ids_components(
 
     """
     if isinstance(ids, Iterable):
-        parsed_ids = [(id_,) for id_ in ids]
+        raw_ids = [(id_,) for id_ in ids]
 
-        if len(parsed_ids) != len(arg_values):
+        if len(raw_ids) != len(arg_values):
             raise ValueError("The number of ids must match the number of runs.")
 
         if not all(
             isinstance(id_, (bool, int, float, str)) or id_ is None
-            for id_ in itertools.chain.from_iterable(parsed_ids)
+            for id_ in itertools.chain.from_iterable(raw_ids)
         ):
             raise ValueError(
                 "Ids for parametrization can only be of type bool, float, int, str or "
                 "None."
             )
 
-        parsed_ids = [(str(id_),) for id_ in itertools.chain.from_iterable(parsed_ids)]
+        parsed_ids: List[Tuple[str, ...]] = [
+            (str(id_),) for id_ in itertools.chain.from_iterable(raw_ids)
+        ]
 
     else:
         parsed_ids = []
@@ -336,7 +362,7 @@ def _create_parametrize_ids_components(
 
 
 def _arg_value_to_id_component(
-    arg_name: str, arg_value: Any, i: int, id_func: Union[Callable[[Any], Any], None]
+    arg_name: str, arg_value: Any, i: int, id_func: Union[Callable[..., Any], None]
 ) -> str:
     """Create id component from the name and value of the argument.
 
@@ -353,7 +379,7 @@ def _arg_value_to_id_component(
         Value of the argument.
     i : int
         The ith iteration of the parametrization.
-    id_func : Union[Callable[[Any], Any], None]
+    id_func : Union[Callable[..., Any], None]
         A callable which maps argument values to :obj:`bool`, :obj:`float`, :obj:`int`,
         or :obj:`str` or anything else. Any object with a different dtype than the first
         will be mapped to an auto-generated id component.
@@ -375,7 +401,7 @@ def _arg_value_to_id_component(
 
 
 @hookimpl
-def pytask_parametrize_kwarg_to_marker(obj, kwargs: dict) -> None:
+def pytask_parametrize_kwarg_to_marker(obj: Any, kwargs: Dict[str, str]) -> None:
     """Add some parametrized keyword arguments as decorator."""
     if callable(obj):
         for marker_name in ["depends_on", "produces"]:
@@ -383,7 +409,7 @@ def pytask_parametrize_kwarg_to_marker(obj, kwargs: dict) -> None:
                 mark.__getattr__(marker_name)(kwargs.pop(marker_name))(obj)
 
 
-def _copy_func(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
+def _copy_func(func: types.FunctionType) -> types.FunctionType:
     """Create a copy of a function.
 
     Based on https://stackoverflow.com/a/13503277/7523785.
