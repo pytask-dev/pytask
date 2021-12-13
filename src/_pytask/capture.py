@@ -47,7 +47,10 @@ from _pytask.nodes import MetaTask
 from _pytask.shared import get_first_non_none_value
 
 if TYPE_CHECKING:
-    from typing_extensions import Literal
+    if sys.version_info >= (3, 8):
+        from typing import Literal
+    else:
+        from typing_extensions import Literal
 
     _CaptureMethod = Literal["fd", "sys", "no", "tee-sys"]
     _CaptureCallback = Literal["no", "stdout", "stderr", "all"]
