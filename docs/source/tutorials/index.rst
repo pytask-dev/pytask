@@ -20,7 +20,7 @@ project. Start here if you are a new user.
    how_to_profile
    how_to_skip_tasks
    how_to_make_tasks_persist
-   how_to_capture
+   how_to_capture_output
    how_to_invoke_pytask
    how_to_use_plugins
    how_to_visualize_the_dag

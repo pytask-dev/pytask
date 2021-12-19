@@ -86,6 +86,7 @@ Furthermore, the documentation includes the following topics.
    :maxdepth: 1
 
    api
+   developers_guide
    glossary
    changes
    On Github <https://github.com/pytask-dev/pytask>
