@@ -1,4 +1,10 @@
 """This module contains everything related to skipping tasks."""
+from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Tuple
+from typing import TYPE_CHECKING
+
 from _pytask.config import hookimpl
 from _pytask.dag import descending_tasks
 from _pytask.enums import ColorCode
@@ -10,18 +16,24 @@ from _pytask.outcomes import SkippedUnchanged
 from _pytask.traceback import remove_traceback_from_exc_info
 
 
+if TYPE_CHECKING:
+    from _pytask.session import Session
+    from _pytask.nodes import MetaTask
+    from _pytask.report import ExecutionReport
+
+
 def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
     """Function to parse information in ``@pytask.mark.skip_ancestor_failed``."""
     return reason
 
 
-def skipif(condition: bool, *, reason: str) -> tuple:
+def skipif(condition: bool, *, reason: str) -> Tuple[bool, str]:
     """Function to parse information in ``@pytask.mark.skipif``."""
     return condition, reason
 
 
 @hookimpl
-def pytask_parse_config(config):
+def pytask_parse_config(config: Dict[str, Any]) -> None:
     markers = {
         "skip": "Skip a task and all its subsequent tasks as well.",
         "skip_ancestor_failed": "Internal decorator applied to tasks whose ancestor "
@@ -35,7 +47,7 @@ def pytask_parse_config(config):
 
 
 @hookimpl
-def pytask_execute_task_setup(task):
+def pytask_execute_task_setup(task: "MetaTask") -> None:
     """Take a short-cut for skipped tasks during setup with an exception."""
     markers = get_specific_markers_from_task(task, "skip_unchanged")
     if markers:
@@ -62,7 +74,9 @@ def pytask_execute_task_setup(task):
 
 
 @hookimpl
-def pytask_execute_task_process_report(session, report):
+def pytask_execute_task_process_report(
+    session: "Session", report: "ExecutionReport"
+) -> Optional[bool]:
     """Process the execution reports for skipped tasks.
 
     This functions allows to turn skipped tasks to successful tasks.
@@ -101,3 +115,5 @@ def pytask_execute_task_process_report(session, report):
         report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)
     ):
         return True
+    else:
+        return None

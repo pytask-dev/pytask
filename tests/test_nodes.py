@@ -81,10 +81,13 @@ def test_instantiation_of_metatask():
 
     class Task(MetaTask):
         def execute(self):
-            pass
+            ...
 
         def state(self):
-            pass
+            ...
+
+        def add_report_section(self):
+            ...
 
     task = Task()
     assert isinstance(task, MetaTask)
@@ -208,10 +211,13 @@ class DummyTask(MetaTask):
     base_name = attr.ib()
 
     def state():
-        pass
+        ...
 
     def execute():
-        pass
+        ...
+
+    def add_report_section():
+        ...
 
 
 @attr.s
