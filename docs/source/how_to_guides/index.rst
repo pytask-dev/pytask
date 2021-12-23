@@ -37,4 +37,5 @@ see the section on :doc:`bp_organization`.
 
    bp_organization
    bp_structure_of_task_files
+   bp_structure_of_a_research_project
    bp_parametrizations

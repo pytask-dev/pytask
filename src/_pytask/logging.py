@@ -111,8 +111,8 @@ def pytask_log_session_footer(
 def _style_infos(infos: List[Tuple[Any, str, str]]) -> str:
     """Style infos.
 
-    Example
-    -------
+    Examples
+    --------
     >>> m = _style_infos([(1, "a", "green"), (2, "b", "red"), (0, "c", "yellow")])
     >>> print(m)
     [green]1 a[/], [red]2 b[/]
