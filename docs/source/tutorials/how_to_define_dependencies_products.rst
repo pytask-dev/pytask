@@ -22,9 +22,6 @@ take the task from the previous tutorial.
 
 .. code-block:: python
 
-    import pytask
-
-
     @pytask.mark.produces(BLD / "data.pkl")
     def task_create_random_data(produces):
         ...
