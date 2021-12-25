@@ -1,6 +1,13 @@
 How to skip tasks
 =================
 
+Skipping tasks is one way to prevent tasks from being executed. It is identical but less
+dynamic than selecting tasks via :ref:`markers <markers>` or :ref:`expressions
+<expressions>`.
+
+In contrast to tasks in ignored files, ignored with :confval:`ignore`, pytask will still
+check whether skipped tasks are consistent with the DAG of the project.
+
 Tasks are skipped automatically if neither their file nor any of their dependencies have
 changed and all products exist.
 
@@ -67,3 +74,10 @@ condition and a reason as arguments:
     @pytask.mark.depends_on("dependency_of_long_running_task.md")
     def task_that_takes_really_long_to_run(depends_on):
         ...
+
+
+Further Reading
+---------------
+
+- :doc:`how_to_select_tasks`.
+- :confval:`ignore` on how to ignore task files.

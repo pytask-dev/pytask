@@ -27,7 +27,7 @@ First, we write the task for one seed.
 
     @pytask.mark.produces(BLD / "data_0.pkl")
     def task_create_random_data(produces):
-        np.random.seed(0)
+        rng = np.random.default_rng(0)
         ...
 
 In the next step, we repeat the same task over the numbers 0, 1, and 2 and pass them to
@@ -39,8 +39,8 @@ the ``seed`` argument. We also vary the name of the produced file in every itera
         "produces, seed",
         [(BLD / "data_0.pkl", 0), (BLD / "data_1.pkl", 1), (BLD / "data_2.pkl", 2)],
     )
-    def task_create_random_data(produces):
-        np.random.seed(0)
+    def task_create_random_data(seed, produces):
+        rng = np.random.default_rng(seed)
         ...
 
 The parametrize decorator receives two arguments. The first argument is ``"produces,
@@ -77,8 +77,8 @@ To specify a dependency which is the same for all parametrizations, add it with
         "produces, seed",
         [(BLD / "data_0.pkl", 0), (BLD / "data_1.pkl", 1), (BLD / "data_2.pkl", 2)],
     )
-    def task_create_random_data(produces):
-        np.random.seed(0)
+    def task_create_random_data(seed, produces):
+        rng = np.random.default_rng(seed)
         ...
 
 

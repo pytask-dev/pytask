@@ -56,6 +56,9 @@ pytask discovers plugins via ``setuptools`` entry-points. This is specified in
         classifiers=["Framework :: pytask"],
     )
 
+For an example with ``setuptools_scm`` and ``setup.cfg`` see the `pytask-parallel repo
+<https://github.com/pytask-dev/pytask-parallel/blob/main/setup.cfg>`_.
+
 The entry-point for pytask is called ``"pytask"`` and points to a module called
 ``pytask_plugin.plugin``.
 
