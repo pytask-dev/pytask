@@ -43,3 +43,6 @@ dependencies:
   - sphinx-click
   - sphinx-copybutton
   - sphinx-panels
+
+  - pip:
+    - -e .
