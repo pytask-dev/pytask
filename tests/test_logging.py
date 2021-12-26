@@ -88,6 +88,7 @@ def test_logging_of_outcomes(tmp_path, runner):
     assert "1 failed" in result.output
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "amount, unit, short_label, expectation, expected",
     [

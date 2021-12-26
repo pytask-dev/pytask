@@ -193,6 +193,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
         assert "│ ." in captured.out
 
 
+@pytest.mark.end_to_end
 def test_full_execution_table_is_displayed_at_the_end_of_execution(tmp_path, runner):
     source = """
     import pytask

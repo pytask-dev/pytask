@@ -97,6 +97,16 @@ def create_url_style_for_task(task: "MetaTask", edtior_url_scheme: str) -> Style
     return Style() if not url_scheme else Style(link=url_scheme.format(**info))
 
 
+def create_url_style_for_path(path: Path, edtior_url_scheme: str) -> Style:
+    """Create the style to add a link to a task id."""
+    url_scheme = _EDITOR_URL_SCHEMES.get(edtior_url_scheme, edtior_url_scheme)
+    return (
+        Style()
+        if not url_scheme
+        else Style(link=url_scheme.format(path=path, line_number="1"))
+    )
+
+
 def _get_file(function: Callable[..., Any]) -> Path:
     """Get path to module where the function is defined."""
     if isinstance(function, functools.partial):
