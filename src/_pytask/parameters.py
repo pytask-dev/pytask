@@ -34,7 +34,17 @@ _VERBOSE_OPTION = click.Option(
     default=None,
     help="Make pytask verbose (>= 0) or quiet (< 0) [default: 0]",
 )
-"""click.Option: An general ."""
+"""click.Option: An option to control pytask's verbosity."""
+
+
+_EDITOR_URL_SCHEME_OPTION = click.Option(
+    ["--editor-url-scheme"],
+    default=None,
+    help="Use file, vscode, pycharm or a custom url scheme to add URLs to task "
+    "ids to quickly jump to the task definition. Use no_link to disable URLs.  "
+    "[default file]",
+)
+"""click.Option: An option to embed URLs in task ids."""
 
 
 @hookimpl(trylast=True)
@@ -43,7 +53,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     for command in ["build", "clean", "collect", "markers", "profile"]:
         cli.commands[command].params.append(_CONFIG_OPTION)
     for command in ["build", "clean", "collect", "profile"]:
-        cli.commands[command].params.append(_IGNORE_OPTION)
+        cli.commands[command].params.extend([_IGNORE_OPTION, _EDITOR_URL_SCHEME_OPTION])
     for command in ["build", "clean", "collect", "dag", "profile"]:
         cli.commands[command].params.append(_PATH_ARGUMENT)
     for command in ["build"]:

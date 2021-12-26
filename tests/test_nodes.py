@@ -96,14 +96,14 @@ def test_instantiation_of_metatask():
 @pytest.mark.unit
 def test_instantiation_of_metanode():
     class Node(MetaNode):
-        pass
+        ...
 
     with pytest.raises(TypeError):
         Node()
 
     class Node(MetaNode):
         def state(self):
-            pass
+            ...
 
     task = Node()
     assert isinstance(task, MetaNode)
