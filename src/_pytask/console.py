@@ -20,11 +20,11 @@ if TYPE_CHECKING:
 
 
 _IS_WSL = "IS_WSL" in os.environ or "WSL_DISTRO_NAME" in os.environ
-_IS_WINDOWS_TERMINAL = "WT_SESSION" in os.environ
+IS_WINDOWS_TERMINAL = "WT_SESSION" in os.environ
 _IS_WINDOWS = sys.platform == "win32"
 
 
-if (_IS_WINDOWS or _IS_WSL) and not _IS_WINDOWS_TERMINAL:
+if (_IS_WINDOWS or _IS_WSL) and not IS_WINDOWS_TERMINAL:
     _IS_LEGACY_WINDOWS = True
 else:
     _IS_LEGACY_WINDOWS = False
@@ -84,6 +84,7 @@ def escape_squared_brackets(string: str) -> str:
 
 
 def create_url_style_for_task(task: "MetaTask", edtior_url_scheme: str) -> str:
+    """Create the style to add a link to a task id."""
     url_scheme = _EDITOR_URL_SCHEMES.get(edtior_url_scheme, edtior_url_scheme)
 
     info = {
@@ -95,6 +96,7 @@ def create_url_style_for_task(task: "MetaTask", edtior_url_scheme: str) -> str:
 
 
 def _get_file(function: Callable[..., Any]) -> Path:
+    """Get path to module where the function is defined."""
     if isinstance(function, functools.partial):
         return _get_file(function.func)
     else:
