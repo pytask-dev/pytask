@@ -19,8 +19,8 @@ import click
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_url_style_for_task
+from _pytask.console import theme
 from _pytask.database import db
-from _pytask.enums import ColorCode
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
@@ -151,7 +151,7 @@ def profile(**config_from_cli: Any) -> "NoReturn":
 
             session.hook.pytask_profile_export_profile(session=session, profile=profile)
 
-            console.rule(style=ColorCode.NEUTRAL)
+            console.rule(style=theme.styles["neutral"])
 
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
@@ -159,7 +159,7 @@ def profile(**config_from_cli: Any) -> "NoReturn":
         except Exception:
             session.exit_code = ExitCode.FAILED
             console.print_exception()
-            console.rule(style=ColorCode.FAILED)
+            console.rule(style=theme.styles["failed"])
 
     sys.exit(session.exit_code)
 

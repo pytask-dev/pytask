@@ -8,12 +8,12 @@ import networkx as nx
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_url_style_for_task
+from _pytask.console import theme
 from _pytask.console import unify_styles
 from _pytask.dag import descending_tasks
 from _pytask.dag import node_and_neighbors
 from _pytask.dag import TopologicalSorter
 from _pytask.database import create_or_update_state
-from _pytask.enums import ColorCode
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
@@ -179,10 +179,10 @@ def pytask_execute_task_process_report(
     if report.success:
         _update_states_in_database(session.dag, task.name)
         report.symbol = "."
-        report.color = ColorCode.SUCCESS
+        report.style = theme.styles["success"]
     else:
         report.symbol = "F"
-        report.color = ColorCode.FAILED
+        report.style = theme.styles["failed"]
         for descending_task_name in descending_tasks(task.name, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]
             descending_task.markers.append(
@@ -209,7 +209,7 @@ def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> No
     url_style = create_url_style_for_task(
         report.task, session.config["editor_url_scheme"]
     )
-    console.print(report.symbol, style=unify_styles(report.color, url_style), end="")
+    console.print(report.symbol, style=unify_styles(report.style, url_style), end="")
 
 
 class ShowErrorsImmediatelyPlugin:
@@ -237,7 +237,7 @@ def pytask_execute_log_end(session: Session, reports: List[ExecutionReport]) -> 
 
     console.print()
     if n_failed:
-        console.rule(f"[{ColorCode.FAILED}]Failures", style=ColorCode.FAILED)
+        console.rule(Text("Failures", style="failed"), style="failed")
         console.print()
 
     for report in reports:
@@ -247,13 +247,13 @@ def pytask_execute_log_end(session: Session, reports: List[ExecutionReport]) -> 
     session.hook.pytask_log_session_footer(
         session=session,
         infos=[
-            (n_successful, "succeeded", ColorCode.SUCCESS),
-            (n_persisted, "persisted", ColorCode.SUCCESS),
-            (n_failed, "failed", ColorCode.FAILED),
-            (n_skipped, "skipped", ColorCode.SKIPPED),
+            (n_successful, "succeeded", theme.styles["success"]),
+            (n_persisted, "persisted", theme.styles["success"]),
+            (n_failed, "failed", theme.styles["failed"]),
+            (n_skipped, "skipped", theme.styles["skipped"]),
         ],
         duration=round(session.execution_end - session.execution_start, 2),
-        color=ColorCode.FAILED if n_failed else ColorCode.SUCCESS,
+        style=theme.styles["failed"] if n_failed else theme.styles["success"],
     )
 
     if n_failed:
@@ -273,8 +273,8 @@ def _print_errored_task_report(session: Session, report: ExecutionReport) -> Non
     )
 
     console.rule(
-        Text(f"Task {task_name} failed", style=unify_styles(report.color, url_style)),
-        style=report.color,
+        Text(f"Task {task_name} failed", style=unify_styles(report.style, url_style)),
+        style=report.style,
     )
 
     console.print()

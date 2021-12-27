@@ -49,7 +49,15 @@ _EDITOR_URL_SCHEMES: Dict[str, str] = {
 }
 
 
-theme = Theme({"warning": "yellow"})
+theme = Theme(
+    {
+        "failed": "red",
+        "neutral": "",
+        "skipped": "yellow",
+        "success": "green",
+        "warning": "yellow",
+    }
+)
 
 
 console = Console(theme=theme, color_system=_COLOR_SYSTEM)
