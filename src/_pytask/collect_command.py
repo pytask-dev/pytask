@@ -189,14 +189,21 @@ def _print_collected_tasks(
         reduced_module = relative_to(module, common_ancestor)
         url_style = create_url_style_for_path(module, editor_url_scheme)
         module_branch = tree.add(
-            Text(f"{PYTHON_ICON}<Module {reduced_module}>", style=url_style)
+            Text.assemble(
+                PYTHON_ICON, "<Module ", Text(str(reduced_module), style=url_style), ">"
+            )
         )
 
         for task in tasks:
             reduced_task_name = reduce_node_name(task, [common_ancestor])
             url_style = create_url_style_for_task(task, editor_url_scheme)
             task_branch = module_branch.add(
-                Text(f"{TASK_ICON}<Function {reduced_task_name}>", style=url_style)
+                Text.assemble(
+                    TASK_ICON,
+                    "<Function ",
+                    Text(reduced_task_name, style=url_style),
+                    ">",
+                ),
             )
 
             if show_nodes:
@@ -204,9 +211,11 @@ def _print_collected_tasks(
                     reduced_node_name = relative_to(node.path, common_ancestor)
                     url_style = create_url_style_for_path(node.path, editor_url_scheme)
                     task_branch.add(
-                        Text(
-                            f"{FILE_ICON}<Dependency {reduced_node_name}>",
-                            style=url_style,
+                        Text.assemble(
+                            FILE_ICON,
+                            "<Dependency ",
+                            Text(str(reduced_node_name), style=url_style),
+                            ">",
                         )
                     )
 
@@ -214,8 +223,11 @@ def _print_collected_tasks(
                     reduced_node_name = relative_to(node.path, common_ancestor)
                     url_style = create_url_style_for_path(node.path, editor_url_scheme)
                     task_branch.add(
-                        Text(
-                            f"{FILE_ICON}<Product {reduced_node_name}>", style=url_style
+                        Text.assemble(
+                            FILE_ICON,
+                            "<Product ",
+                            Text(str(reduced_node_name), style=url_style),
+                            ">",
                         )
                     )
 
