@@ -12,7 +12,6 @@ from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.console import theme
 from _pytask.dag import descending_tasks
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
@@ -116,7 +115,7 @@ def dag(**config_from_cli: Any) -> "NoReturn":
             exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
             console.print()
             console.print(Traceback.from_exception(*exc_info))
-            console.rule(style=theme.styles["failed"])
+            console.rule(style="failed")
 
     sys.exit(session.exit_code)
 
@@ -222,7 +221,7 @@ def _create_session(config_from_cli: Dict[str, Any]) -> nx.DiGraph:
         except Exception:
             session.exit_code = ExitCode.FAILED
             console.print_exception()
-            console.rule(style=theme.styles["failed"])
+            console.rule(style="failed")
 
     return session
 

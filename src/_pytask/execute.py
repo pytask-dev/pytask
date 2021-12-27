@@ -8,7 +8,6 @@ import networkx as nx
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_url_style_for_task
-from _pytask.console import theme
 from _pytask.console import unify_styles
 from _pytask.dag import descending_tasks
 from _pytask.dag import node_and_neighbors
@@ -179,10 +178,10 @@ def pytask_execute_task_process_report(
     if report.success:
         _update_states_in_database(session.dag, task.name)
         report.symbol = "."
-        report.style = theme.styles["success"]
+        report.style = "success"
     else:
         report.symbol = "F"
-        report.style = theme.styles["failed"]
+        report.style = "failed"
         for descending_task_name in descending_tasks(task.name, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]
             descending_task.markers.append(
@@ -247,13 +246,13 @@ def pytask_execute_log_end(session: Session, reports: List[ExecutionReport]) -> 
     session.hook.pytask_log_session_footer(
         session=session,
         infos=[
-            (n_successful, "succeeded", theme.styles["success"]),
-            (n_persisted, "persisted", theme.styles["success"]),
-            (n_failed, "failed", theme.styles["failed"]),
-            (n_skipped, "skipped", theme.styles["skipped"]),
+            (n_successful, "succeeded", "success"),
+            (n_persisted, "persisted", "success"),
+            (n_failed, "failed", "failed"),
+            (n_skipped, "skipped", "skipped"),
         ],
         duration=round(session.execution_end - session.execution_start, 2),
-        style=theme.styles["failed"] if n_failed else theme.styles["success"],
+        style="failed" if n_failed else "success",
     )
 
     if n_failed:
