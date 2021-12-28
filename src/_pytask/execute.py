@@ -7,6 +7,8 @@ from typing import List
 import networkx as nx
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.console import create_url_style_for_task
+from _pytask.console import unify_styles
 from _pytask.dag import descending_tasks
 from _pytask.dag import node_and_neighbors
 from _pytask.dag import TopologicalSorter
@@ -27,6 +29,7 @@ from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
+from rich.text import Text
 
 
 @hookimpl
@@ -201,9 +204,12 @@ def pytask_execute_task_process_report(
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task_log_end(report: ExecutionReport) -> None:
+def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:
     """Log task outcome."""
-    console.print(report.symbol, style=report.color, end="")
+    url_style = create_url_style_for_task(
+        report.task, session.config["editor_url_scheme"]
+    )
+    console.print(report.symbol, style=unify_styles(report.color, url_style), end="")
 
 
 class ShowErrorsImmediatelyPlugin:
@@ -261,7 +267,15 @@ def _print_errored_task_report(session: Session, report: ExecutionReport) -> Non
     task_name = reduce_node_name(report.task, session.config["paths"])
     if len(task_name) > console.width - 15:
         task_name = report.task.base_name
-    console.rule(f"[{ColorCode.FAILED}]Task {task_name} failed", style=ColorCode.FAILED)
+
+    url_style = create_url_style_for_task(
+        report.task, session.config["editor_url_scheme"]
+    )
+
+    console.rule(
+        Text(f"Task {task_name} failed", style=unify_styles(report.color, url_style)),
+        style=report.color,
+    )
 
     console.print()
 

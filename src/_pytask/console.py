@@ -1,17 +1,32 @@
 """This module contains the code to format output on the command line."""
+import functools
+import inspect
 import os
 import sys
+from pathlib import Path
+from typing import Any
+from typing import Callable
+from typing import Dict
 from typing import Iterable
+from typing import TYPE_CHECKING
+from typing import Union
 
 from rich.console import Console
+from rich.style import Style
+from rich.theme import Theme
 from rich.tree import Tree
 
+
+if TYPE_CHECKING:
+    from _pytask.nodes import MetaTask
+
+
 _IS_WSL = "IS_WSL" in os.environ or "WSL_DISTRO_NAME" in os.environ
-_IS_WINDOWS_TERMINAL = "WT_SESSION" in os.environ
+IS_WINDOWS_TERMINAL = "WT_SESSION" in os.environ
 _IS_WINDOWS = sys.platform == "win32"
 
 
-if (_IS_WINDOWS or _IS_WSL) and not _IS_WINDOWS_TERMINAL:
+if (_IS_WINDOWS or _IS_WSL) and not IS_WINDOWS_TERMINAL:
     _IS_LEGACY_WINDOWS = True
 else:
     _IS_LEGACY_WINDOWS = False
@@ -26,7 +41,18 @@ PYTHON_ICON = "" if _IS_LEGACY_WINDOWS else "🐍 "
 TASK_ICON = "" if _IS_LEGACY_WINDOWS else "📝 "
 
 
-console = Console(color_system=_COLOR_SYSTEM)
+_EDITOR_URL_SCHEMES: Dict[str, str] = {
+    "no_link": "",
+    "file": "file:///{path}",
+    "vscode": "vscode://file/{path}:{line_number}",
+    "pycharm": "pycharm://open?file={path}&line={line_number}",
+}
+
+
+theme = Theme({"warning": "yellow"})
+
+
+console = Console(theme=theme, color_system=_COLOR_SYSTEM)
 
 
 def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -> str:
@@ -57,3 +83,40 @@ def escape_squared_brackets(string: str) -> str:
 
     """
     return string.replace("[", "\\[")
+
+
+def create_url_style_for_task(task: "MetaTask", edtior_url_scheme: str) -> Style:
+    """Create the style to add a link to a task id."""
+    url_scheme = _EDITOR_URL_SCHEMES.get(edtior_url_scheme, edtior_url_scheme)
+
+    info = {
+        "path": _get_file(task.function),
+        "line_number": inspect.getsourcelines(task.function)[1],
+    }
+
+    return Style() if not url_scheme else Style(link=url_scheme.format(**info))
+
+
+def create_url_style_for_path(path: Path, edtior_url_scheme: str) -> Style:
+    """Create the style to add a link to a task id."""
+    url_scheme = _EDITOR_URL_SCHEMES.get(edtior_url_scheme, edtior_url_scheme)
+    return (
+        Style()
+        if not url_scheme
+        else Style(link=url_scheme.format(path=path, line_number="1"))
+    )
+
+
+def _get_file(function: Callable[..., Any]) -> Path:
+    """Get path to module where the function is defined."""
+    if isinstance(function, functools.partial):
+        return _get_file(function.func)
+    else:
+        return Path(inspect.getfile(function))
+
+
+def unify_styles(*styles: Union[str, Style]) -> Style:
+    """Unify styles."""
+    return Style.combine(
+        Style.parse(style) if isinstance(style, str) else style for style in styles
+    )

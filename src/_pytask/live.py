@@ -11,6 +11,7 @@ import attr
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.console import create_url_style_for_task
 from _pytask.nodes import MetaTask
 from _pytask.report import CollectionReport
 from _pytask.report import ExecutionReport
@@ -78,6 +79,7 @@ def pytask_post_parse(config: Dict[str, Any]) -> None:
             config["paths"],
             config["n_entries_in_table"],
             config["verbose"],
+            config["editor_url_scheme"],
         )
         config["pm"].register(live_execution)
 
@@ -130,8 +132,9 @@ class LiveExecution:
     _paths = attr.ib(type=List[Path])
     _n_entries_in_table = attr.ib(type=int)
     _verbose = attr.ib(type=int)
+    _editor_url_scheme = attr.ib(type=str, default="file")
     _running_tasks = attr.ib(factory=set, type=Set[str])
-    _reports = attr.ib(factory=list, type=List[Dict[str, str]])
+    _reports = attr.ib(factory=list, type=List[Dict[str, Any]])
 
     @hookimpl(hookwrapper=True)
     def pytask_execute_build(self) -> Generator[None, None, None]:
@@ -175,7 +178,13 @@ class LiveExecution:
                     pass
                 else:
                     table.add_row(
-                        report["name"], Text(report["symbol"], style=report["color"])
+                        Text(
+                            report["name"],
+                            style=create_url_style_for_task(
+                                report["task"], self._editor_url_scheme
+                            ),
+                        ),
+                        Text(report["symbol"], style=report["color"]),
                     )
             for running_task in self._running_tasks:
                 table.add_row(running_task, "running")
@@ -201,6 +210,7 @@ class LiveExecution:
                 "name": reduced_task_name,
                 "symbol": new_report.symbol,
                 "color": new_report.color,
+                "task": new_report.task,
             }
         )
         self._update_table()

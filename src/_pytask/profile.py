@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.console import create_url_style_for_task
 from _pytask.database import db
 from _pytask.enums import ColorCode
 from _pytask.enums import ExitCode
@@ -33,6 +34,7 @@ from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
 from pony import orm
 from rich.table import Table
+from rich.text import Text
 
 
 if TYPE_CHECKING:
@@ -145,7 +147,7 @@ def profile(**config_from_cli: Any) -> "NoReturn":
             )
             profile = _process_profile(profile)
 
-            _print_profile_table(profile, session.tasks, session.config["paths"])
+            _print_profile_table(profile, session.tasks, session.config)
 
             session.hook.pytask_profile_export_profile(session=session, profile=profile)
 
@@ -163,7 +165,7 @@ def profile(**config_from_cli: Any) -> "NoReturn":
 
 
 def _print_profile_table(
-    profile: Dict[str, Dict[str, Any]], tasks: List[MetaTask], paths: List[Path]
+    profile: Dict[str, Dict[str, Any]], tasks: List[MetaTask], config: Dict[str, Any]
 ) -> None:
     """Print the profile table."""
     name_to_task = {task.name: task for task in tasks}
@@ -176,9 +178,12 @@ def _print_profile_table(
             table.add_column(name, justify="right")
 
         for task_name, info in profile.items():
-            reduced_name = reduce_node_name(name_to_task[task_name], paths)
+            reduced_name = reduce_node_name(name_to_task[task_name], config["paths"])
+            url = create_url_style_for_task(
+                name_to_task[task_name], config["editor_url_scheme"]
+            )
             infos = [str(i) for i in info.values()]
-            table.add_row(reduced_name, *infos)
+            table.add_row(Text(reduced_name, style=url), *infos)
 
         console.print(table)
     else:

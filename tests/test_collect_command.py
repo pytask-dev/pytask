@@ -1,12 +1,13 @@
 import textwrap
+from pathlib import Path
 
+import attr
 import pytest
+from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
+from _pytask.nodes import MetaNode
+from _pytask.nodes import MetaTask
 from pytask import cli
-
-
-class DummyClass:
-    pass
 
 
 @pytest.mark.end_to_end
@@ -265,19 +266,56 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
     assert "out_1.txt>" in captured
 
 
+@attr.s
+class Node(MetaNode):
+    path = attr.ib()
+
+    def state(self):
+        ...
+
+
+def function():
+    ...
+
+
+@attr.s
+class Task(MetaTask):
+    base_name = attr.ib()
+    path = attr.ib()
+    function = attr.ib()
+    depends_on = attr.ib()
+    produces = attr.ib()
+
+    def execute(self):
+        ...
+
+    def state(self):
+        ...
+
+    def add_report_section(self):
+        ...
+
+
 @pytest.mark.unit
 def test_print_collected_tasks_without_nodes(capsys):
     dictionary = {
-        "path.py": {"task_dummy": {"depends_on": ["in.txt"], "produces": ["out.txt"]}}
+        "task_path.py": [
+            Task(
+                base_name="function",
+                path=Path("task_path.py"),
+                function=function,
+                depends_on={0: Node("in.txt")},
+                produces={0: Node("out.txt")},
+            )
+        ]
     }
 
-    _print_collected_tasks(dictionary, False)
+    _print_collected_tasks(dictionary, False, "file", Path())
 
     captured = capsys.readouterr().out
 
-    assert "<Module path.py>" in captured
-    assert "<Function" in captured
-    assert "task_dummy>" in captured
+    assert "<Module task_path.py>" in captured
+    assert "<Function task_path.py::function>" in captured
     assert "<Dependency in.txt>" not in captured
     assert "<Product out.txt>" not in captured
 
@@ -285,15 +323,39 @@ def test_print_collected_tasks_without_nodes(capsys):
 @pytest.mark.unit
 def test_print_collected_tasks_with_nodes(capsys):
     dictionary = {
-        "path.py": {"task_dummy": {"depends_on": ["in.txt"], "produces": ["out.txt"]}}
+        "task_path.py": [
+            Task(
+                base_name="function",
+                path=Path("task_path.py"),
+                function=function,
+                depends_on={0: Node("in.txt")},
+                produces={0: Node("out.txt")},
+            )
+        ]
     }
 
-    _print_collected_tasks(dictionary, True)
+    _print_collected_tasks(dictionary, True, "file", Path())
 
     captured = capsys.readouterr().out
 
-    assert "<Module path.py>" in captured
-    assert "<Function" in captured
-    assert "task_dummy>" in captured
+    assert "<Module task_path.py>" in captured
+    assert "<Function task_path.py::function>" in captured
     assert "<Dependency in.txt>" in captured
     assert "<Product out.txt>" in captured
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("show_nodes, expected_add", [(False, "src"), (True, "..")])
+def test_find_common_ancestor_of_all_nodes(show_nodes, expected_add):
+    tasks = [
+        Task(
+            base_name="function",
+            path=Path.cwd() / "src" / "task_path.py",
+            function=function,
+            depends_on={0: Node(Path.cwd() / "src" / "in.txt")},
+            produces={0: Node(Path.cwd().joinpath("..", "bld", "out.txt").resolve())},
+        )
+    ]
+
+    result = _find_common_ancestor_of_all_nodes(tasks, [Path.cwd() / "src"], show_nodes)
+    assert result == Path.cwd().joinpath(expected_add).resolve()

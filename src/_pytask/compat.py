@@ -20,6 +20,7 @@ where these two names are different."""
 
 
 def _get_version(module: types.ModuleType) -> str:
+    """Get version from a package."""
     version = getattr(module, "__version__", None)
     if version is None:
         raise ImportError(f"Can't determine version for {module.__name__}")
@@ -119,6 +120,7 @@ def check_for_optional_program(
     errors: str = "raise",
     caller: str = "pytask",
 ) -> Optional[bool]:
+    """Check whether an optional program exists."""
     if errors not in ("warn", "raise", "ignore"):
         raise ValueError(
             f"'errors' must be one of 'warn', 'raise' or 'ignore' and not '{errors}'."

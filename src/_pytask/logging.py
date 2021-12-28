@@ -13,6 +13,7 @@ import click
 import pluggy
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.console import IS_WINDOWS_TERMINAL
 from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
@@ -57,6 +58,21 @@ def pytask_parse_config(
         default=False,
         callback=convert_truthy_or_falsy_to_bool,
     )
+    config["editor_url_scheme"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="editor_url_scheme",
+        default="file",
+        callback=lambda x: None if x in [None, "none", "None"] else str(x),
+    )
+    if config["editor_url_scheme"] not in ["no_link", "file"] and IS_WINDOWS_TERMINAL:
+        config["editor_url_scheme"] = "file"
+        console.print(
+            "WARNING: Windows Terminal does not support url schemes to applications, "
+            "yet. See https://github.com/pytask-dev/pytask/issues/171 for more "
+            "information. Resort to file instead.",
+            style="warning",
+        )
 
 
 @hookimpl
