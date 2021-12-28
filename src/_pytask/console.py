@@ -49,7 +49,15 @@ _EDITOR_URL_SCHEMES: Dict[str, str] = {
 }
 
 
-theme = Theme({"warning": "yellow"})
+theme = Theme(
+    {
+        "failed": "red",
+        "neutral": "",
+        "skipped": "yellow",
+        "success": "green",
+        "warning": "yellow",
+    }
+)
 
 
 console = Console(theme=theme, color_system=_COLOR_SYSTEM)
@@ -117,6 +125,12 @@ def _get_file(function: Callable[..., Any]) -> Path:
 
 def unify_styles(*styles: Union[str, Style]) -> Style:
     """Unify styles."""
-    return Style.combine(
-        Style.parse(style) if isinstance(style, str) else style for style in styles
-    )
+    parsed_styles = []
+    for style in styles:
+        if isinstance(style, str) and style in theme.styles:
+            parsed_styles.append(theme.styles[style])
+        elif isinstance(style, str):
+            parsed_styles.append(Style.parse(style))
+        else:
+            parsed_styles.append(style)
+    return Style.combine(parsed_styles)

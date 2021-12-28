@@ -20,7 +20,6 @@ import click
 from _pytask.config import hookimpl
 from _pytask.config import IGNORED_TEMPORARY_FILES_AND_FOLDERS
 from _pytask.console import console
-from _pytask.enums import ColorCode
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.nodes import MetaTask
@@ -154,12 +153,12 @@ def clean(**config_from_cli: Any) -> "NoReturn":
 
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
-            console.rule(style=ColorCode.FAILED)
+            console.rule(style="failed")
 
         except Exception:
             exc_info = sys.exc_info()
             console.print(render_exc_info(*exc_info, show_locals=config["show_locals"]))
-            console.rule(style=ColorCode.FAILED)
+            console.rule(style="failed")
             session.exit_code = ExitCode.FAILED
 
     sys.exit(session.exit_code)

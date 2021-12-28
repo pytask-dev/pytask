@@ -209,7 +209,7 @@ class LiveExecution:
             {
                 "name": reduced_task_name,
                 "symbol": new_report.symbol,
-                "color": new_report.color,
+                "color": new_report.style,
                 "task": new_report.task,
             }
         )

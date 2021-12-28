@@ -64,7 +64,7 @@ class ExecutionReport:
     exc_info = attr.ib(default=None, type=Optional[ExceptionInfo])
     sections = attr.ib(factory=list, type=List[Tuple[str, str, str]])
     symbol = attr.ib(default="?", type=str)
-    color = attr.ib(default=None, type=Optional[str])
+    style = attr.ib(default=None, type=Optional[str])
 
     @classmethod
     def from_task_and_exception(

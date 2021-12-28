@@ -440,7 +440,7 @@ def pytask_log_session_header(session: "Session") -> None:
 
 @hookspec
 def pytask_log_session_footer(
-    session: "Session", infos: List[Tuple[Any, str, str]], duration: float, color: str
+    session: "Session", infos: List[Tuple[Any, str, str]], duration: float, style: str
 ) -> None:
     """Log session information at the end of a run."""
 

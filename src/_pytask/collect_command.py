@@ -15,7 +15,6 @@ from _pytask.console import create_url_style_for_task
 from _pytask.console import FILE_ICON
 from _pytask.console import PYTHON_ICON
 from _pytask.console import TASK_ICON
-from _pytask.enums import ColorCode
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
@@ -93,7 +92,7 @@ def collect(**config_from_cli: Optional[Any]) -> "NoReturn":
                 )
 
             console.print()
-            console.rule(style=ColorCode.NEUTRAL)
+            console.rule(style="neutral")
 
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
@@ -104,7 +103,7 @@ def collect(**config_from_cli: Optional[Any]) -> "NoReturn":
         except Exception:
             session.exit_code = ExitCode.FAILED
             console.print_exception()
-            console.rule(style=ColorCode.FAILED)
+            console.rule(style="failed")
 
     sys.exit(session.exit_code)
 

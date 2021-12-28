@@ -90,7 +90,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
     live_manager.start()
 
     report = ExecutionReport(
-        task=task, success=True, exc_info=None, symbol="new_symbol", color="black"
+        task=task, success=True, exc_info=None, symbol="new_symbol", style="black"
     )
 
     live_manager.resume()
@@ -123,7 +123,7 @@ def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, s
     live_manager.pause()
 
     report = ExecutionReport(
-        task=task, success=True, exc_info=None, symbol=symbol, color="black"
+        task=task, success=True, exc_info=None, symbol=symbol, style="black"
     )
 
     live_manager.resume()
@@ -171,7 +171,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
     )
     live.update_running_tasks(completed_task)
     report = ExecutionReport(
-        task=completed_task, success=True, exc_info=None, symbol=".", color="black"
+        task=completed_task, success=True, exc_info=None, symbol=".", style="black"
     )
 
     live_manager.resume()
