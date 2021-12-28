@@ -100,7 +100,7 @@ def pytask_collect_file(
             raise ImportError(f"Can't find module '{path.stem}' at location {path}.")
 
         mod = importlib_util.module_from_spec(spec)
-        spec.loader.exec_module(mod)  # type: ignore
+        spec.loader.exec_module(mod)
 
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
