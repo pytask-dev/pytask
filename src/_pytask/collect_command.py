@@ -10,10 +10,11 @@ from typing import TYPE_CHECKING
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.console import create_url_style_for_path
+from _pytask.console import create_url_style_for_task
 from _pytask.console import FILE_ICON
 from _pytask.console import PYTHON_ICON
 from _pytask.console import TASK_ICON
-from _pytask.enums import ColorCode
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
@@ -25,6 +26,7 @@ from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import reduce_node_name
+from rich.text import Text
 from rich.tree import Tree
 
 
@@ -78,14 +80,19 @@ def collect(**config_from_cli: Optional[Any]) -> "NoReturn":
             tasks = _select_tasks_by_expressions_and_marker(session)
 
             common_ancestor = _find_common_ancestor_of_all_nodes(
-                tasks, session.config["paths"]
+                tasks, session.config["paths"], session.config["nodes"]
             )
-            dictionary = _organize_tasks(tasks, common_ancestor)
+            dictionary = _organize_tasks(tasks)
             if dictionary:
-                _print_collected_tasks(dictionary, session.config["nodes"])
+                _print_collected_tasks(
+                    dictionary,
+                    session.config["nodes"],
+                    session.config["editor_url_scheme"],
+                    common_ancestor,
+                )
 
             console.print()
-            console.rule(style=ColorCode.NEUTRAL)
+            console.rule(style="neutral")
 
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
@@ -96,12 +103,13 @@ def collect(**config_from_cli: Optional[Any]) -> "NoReturn":
         except Exception:
             session.exit_code = ExitCode.FAILED
             console.print_exception()
-            console.rule(style=ColorCode.FAILED)
+            console.rule(style="failed")
 
     sys.exit(session.exit_code)
 
 
 def _select_tasks_by_expressions_and_marker(session: Session) -> "List[MetaTask]":
+    """Select tasks by expressions and marker."""
     all_tasks = {task.name for task in session.tasks}
     remaining_by_mark = select_by_mark(session, session.dag) or all_tasks
     remaining_by_keyword = select_by_keyword(session, session.dag) or all_tasks
@@ -111,84 +119,115 @@ def _select_tasks_by_expressions_and_marker(session: Session) -> "List[MetaTask]
 
 
 def _find_common_ancestor_of_all_nodes(
-    tasks: "List[MetaTask]", paths: List[Path]
+    tasks: "List[MetaTask]", paths: List[Path], show_nodes: bool
 ) -> Path:
     """Find common ancestor from all nodes and passed paths."""
     all_paths = []
     for task in tasks:
-        all_paths += [task.path] + [
-            node.path
-            for attr in ("depends_on", "produces")
-            for node in getattr(task, attr).values()
-        ]
+        all_paths.append(task.path)
+        if show_nodes:
+            all_paths.extend(
+                [
+                    node.path
+                    for attr in ("depends_on", "produces")
+                    for node in getattr(task, attr).values()
+                ]
+            )
 
     common_ancestor = find_common_ancestor(*all_paths, *paths)
 
     return common_ancestor
 
 
-def _organize_tasks(
-    tasks: "List[MetaTask]", common_ancestor: Path
-) -> "Dict[Path, Dict[str, Dict[str, List[Path]]]]":
+def _organize_tasks(tasks: List["MetaTask"]) -> Dict[Path, List["MetaTask"]]:
     """Organize tasks in a dictionary.
 
     The dictionary has file names as keys and then a dictionary with task names and
     below a dictionary with dependencies and targets.
 
     """
-    dictionary: "Dict[Path, Dict[str, Dict[str, List[Path]]]]" = {}
+    dictionary: Dict[Path, List["MetaTask"]] = {}
     for task in tasks:
-        reduced_task_path = relative_to(task.path, common_ancestor)
-        reduced_task_name = reduce_node_name(task, [common_ancestor])
-        dictionary[reduced_task_path] = dictionary.get(reduced_task_path, {})
+        dictionary[task.path] = dictionary.get(task.path, [])
+        dictionary[task.path].append(task)
 
-        task_dict = {
-            reduced_task_name: {
-                "depends_on": sorted(
-                    relative_to(node.path, common_ancestor)
-                    for node in task.depends_on.values()
-                ),
-                "produces": sorted(
-                    relative_to(node.path, common_ancestor)
-                    for node in task.produces.values()
-                ),
-            }
-        }
+    sorted_dict = {}
+    for k in sorted(dictionary):
+        sorted_dict[k] = sorted(dictionary[k], key=lambda x: x.path)
 
-        dictionary[reduced_task_path].update(task_dict)
-
-    dictionary = {key: dictionary[key] for key in sorted(dictionary)}
-
-    return dictionary
+    return sorted_dict
 
 
 def _print_collected_tasks(
-    dictionary: "Dict[Path, Dict[str, Dict[str, List[Path]]]]", show_nodes: bool
+    dictionary: Dict[Path, List["MetaTask"]],
+    show_nodes: bool,
+    editor_url_scheme: str,
+    common_ancestor: Path,
 ) -> None:
     """Print the information on collected tasks.
 
     Parameters
     ----------
-    dictionary: dict
+    dictionary : Dict[Path, List["MetaTask"]]
         A dictionary with path on the first level, tasks on the second, dependencies and
         products on the third.
-    show_nodes: bool
+    show_nodes : bool
         Indicator for whether dependencies and products should be displayed.
+    editor_url_scheme : str
+        The scheme to create an url.
+    common_ancestor : Path
+        The path common to all tasks and nodes.
 
     """
     # Have a new line between the number of collected tasks and this info.
     console.print()
 
     tree = Tree("Collected tasks:", highlight=True)
-    for path in dictionary:
-        module_branch = tree.add(PYTHON_ICON + f"<Module {path}>")
-        for task in dictionary[path]:
-            task_branch = module_branch.add(TASK_ICON + f"<Function {task}>")
-            if show_nodes:
-                for dependency in dictionary[path][task]["depends_on"]:
-                    task_branch.add(FILE_ICON + f"<Dependency {dependency}>")
 
-                for product in dictionary[path][task]["produces"]:
-                    task_branch.add(FILE_ICON + f"<Product {product}>")
+    for module, tasks in dictionary.items():
+        reduced_module = relative_to(module, common_ancestor)
+        url_style = create_url_style_for_path(module, editor_url_scheme)
+        module_branch = tree.add(
+            Text.assemble(
+                PYTHON_ICON, "<Module ", Text(str(reduced_module), style=url_style), ">"
+            )
+        )
+
+        for task in tasks:
+            reduced_task_name = reduce_node_name(task, [common_ancestor])
+            url_style = create_url_style_for_task(task, editor_url_scheme)
+            task_branch = module_branch.add(
+                Text.assemble(
+                    TASK_ICON,
+                    "<Function ",
+                    Text(reduced_task_name, style=url_style),
+                    ">",
+                ),
+            )
+
+            if show_nodes:
+                for node in sorted(task.depends_on.values(), key=lambda x: x.path):
+                    reduced_node_name = relative_to(node.path, common_ancestor)
+                    url_style = create_url_style_for_path(node.path, editor_url_scheme)
+                    task_branch.add(
+                        Text.assemble(
+                            FILE_ICON,
+                            "<Dependency ",
+                            Text(str(reduced_node_name), style=url_style),
+                            ">",
+                        )
+                    )
+
+                for node in sorted(task.produces.values(), key=lambda x: x.path):
+                    reduced_node_name = relative_to(node.path, common_ancestor)
+                    url_style = create_url_style_for_path(node.path, editor_url_scheme)
+                    task_branch.add(
+                        Text.assemble(
+                            FILE_ICON,
+                            "<Product ",
+                            Text(str(reduced_node_name), style=url_style),
+                            ">",
+                        )
+                    )
 
     console.print(tree)

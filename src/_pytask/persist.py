@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
 from _pytask.dag import node_and_neighbors
-from _pytask.enums import ColorCode
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark_utils import get_specific_markers_from_task
 from _pytask.outcomes import Persisted
@@ -63,4 +62,4 @@ def pytask_execute_task_process_report(report: "ExecutionReport") -> None:
     if report.exc_info and isinstance(report.exc_info[1], Persisted):
         report.success = True
         report.symbol = "p"
-        report.color = ColorCode.SUCCESS
+        report.style = "success"

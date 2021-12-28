@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
 from _pytask.dag import descending_tasks
-from _pytask.enums import ColorCode
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_specific_markers_from_task
 from _pytask.outcomes import Skipped
@@ -88,12 +87,12 @@ def pytask_execute_task_process_report(
         if isinstance(report.exc_info[1], SkippedUnchanged):
             report.success = True
             report.symbol = "s"
-            report.color = ColorCode.SUCCESS
+            report.style = "success"
 
         elif isinstance(report.exc_info[1], Skipped):
             report.success = True
             report.symbol = "s"
-            report.color = ColorCode.SKIPPED
+            report.style = "skipped"
 
             for descending_task_name in descending_tasks(task.name, session.dag):
                 descending_task = session.dag.nodes[descending_task_name]["task"]
@@ -109,7 +108,7 @@ def pytask_execute_task_process_report(
             report.success = False
             report.exc_info = remove_traceback_from_exc_info(report.exc_info)
             report.symbol = "s"
-            report.color = ColorCode.FAILED
+            report.style = "skipped"
 
     if report.exc_info and isinstance(
         report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)

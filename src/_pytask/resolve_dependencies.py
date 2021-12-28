@@ -17,7 +17,6 @@ from _pytask.dag import node_and_neighbors
 from _pytask.dag import task_and_descending_tasks
 from _pytask.dag import TopologicalSorter
 from _pytask.database import State
-from _pytask.enums import ColorCode
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
@@ -31,6 +30,7 @@ from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
 from pony import orm
+from rich.text import Text
 from rich.tree import Tree
 
 
@@ -312,12 +312,12 @@ def pytask_resolve_dependencies_log(
     """Log errors which happened while resolving dependencies."""
     console.print()
     console.rule(
-        f"[{ColorCode.FAILED}]Failures during resolving dependencies",
-        style=ColorCode.FAILED,
+        Text("Failures during resolving dependencies", style="failed"),
+        style="failed",
     )
 
     console.print()
     console.print(render_exc_info(*report.exc_info, session.config["show_locals"]))
 
     console.print()
-    console.rule(style=ColorCode.FAILED)
+    console.rule(style="failed")

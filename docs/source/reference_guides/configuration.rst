@@ -51,6 +51,39 @@ The options
         Contributions are welcome to also support macOS.
 
 
+.. confval:: editor_url_scheme
+
+    Depending on your terminal, pytask is able to turn task ids into clickable links to
+    the modules in which tasks are defined. By default, following the link will open the
+    module with your default application. It is done with
+
+    .. code-block:: ini
+
+        editor_url_scheme = file
+
+    If you use ``vscode`` or ``pycharm`` instead, the file will be opened in the
+    specified editor and the cursor will also jump to the corresponding line.
+
+    .. code-block:: ini
+
+        editor_url_scheme = vscode | pycharm
+
+    For complete flexibility, you can also enter a custom url which can use the
+    variables ``path`` and ``line_number`` to open the file.
+
+    .. code-block:: ini
+
+        editor_url_scheme = editor://{path}:{line_number}
+
+    Maybe you want to contribute this URL scheme to make it available to more people.
+
+    To disable links, use
+
+    .. code-block:: ini
+
+        editor_url_scheme = no_link
+
+
 .. confval:: ignore
 
     pytask can ignore files and directories and exclude some tasks or reduce the

@@ -16,7 +16,6 @@ from typing import Union
 from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
-from _pytask.enums import ColorCode
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_marker
 from _pytask.nodes import create_task_name
@@ -27,6 +26,7 @@ from _pytask.report import CollectionReport
 from _pytask.session import Session
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
+from rich.text import Text
 
 
 @hookimpl
@@ -265,9 +265,7 @@ def pytask_collect_log(
     failed_reports = [i for i in reports if not i.successful]
     if failed_reports:
         console.print()
-        console.rule(
-            f"[{ColorCode.FAILED}]Failures during collection", style=ColorCode.FAILED
-        )
+        console.rule(Text("Failures during collection", style="failed"), style="failed")
 
         for report in failed_reports:
             if report.node is None:
@@ -276,7 +274,7 @@ def pytask_collect_log(
                 short_name = reduce_node_name(report.node, session.config["paths"])
                 header = f"Could not collect {short_name}"
 
-            console.rule(f"[{ColorCode.FAILED}]{header}", style=ColorCode.FAILED)
+            console.rule(Text(header, style="failed"), style="failed")
 
             console.print()
 
@@ -289,11 +287,11 @@ def pytask_collect_log(
         session.hook.pytask_log_session_footer(
             session=session,
             infos=[
-                (len(tasks), "collected", ColorCode.SUCCESS),
-                (len(failed_reports), "failed", ColorCode.FAILED),
+                (len(tasks), "collected", "success"),
+                (len(failed_reports), "failed", "failed"),
             ],
             duration=round(session.collection_end - session.collection_start, 2),
-            color=ColorCode.FAILED if len(failed_reports) else ColorCode.SUCCESS,
+            style="failed" if len(failed_reports) else "success",
         )
 
         raise CollectionError

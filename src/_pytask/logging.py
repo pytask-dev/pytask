@@ -13,9 +13,11 @@ import click
 import pluggy
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.console import IS_WINDOWS_TERMINAL
 from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
+from rich.text import Text
 
 try:
     from pluggy._manager import DistFacade
@@ -57,6 +59,21 @@ def pytask_parse_config(
         default=False,
         callback=convert_truthy_or_falsy_to_bool,
     )
+    config["editor_url_scheme"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="editor_url_scheme",
+        default="file",
+        callback=lambda x: None if x in [None, "none", "None"] else str(x),
+    )
+    if config["editor_url_scheme"] not in ["no_link", "file"] and IS_WINDOWS_TERMINAL:
+        config["editor_url_scheme"] = "file"
+        console.print(
+            "WARNING: Windows Terminal does not support url schemes to applications, "
+            "yet. See https://github.com/pytask-dev/pytask/issues/171 for more "
+            "information. Resort to file instead.",
+            style="warning",
+        )
 
 
 @hookimpl
@@ -98,14 +115,14 @@ def _format_plugin_names_and_versions(
 
 @hookimpl
 def pytask_log_session_footer(
-    infos: List[Tuple[Any, str, str]], duration: float, color: str
+    infos: List[Tuple[Any, str, str]], duration: float, style: str
 ) -> None:
     """Format the footer of the log message."""
     message = _style_infos(infos)
     formatted_duration = _format_duration(duration)
-    message += f"[{color}] in {formatted_duration}"
+    message += Text(f" in {formatted_duration}", style=style)
 
-    console.rule(message, style=color)
+    console.rule(message, style=style)
 
 
 def _style_infos(infos: List[Tuple[Any, str, str]]) -> str:
@@ -115,16 +132,16 @@ def _style_infos(infos: List[Tuple[Any, str, str]]) -> str:
     --------
     >>> m = _style_infos([(1, "a", "green"), (2, "b", "red"), (0, "c", "yellow")])
     >>> print(m)
-    [green]1 a[/], [red]2 b[/]
+    1 a, 2 b
 
     """
     message = []
-    for value, description, color in infos:
+    for value, description, style in infos:
         if value:
-            message.append(f"[{color}]{value} {description}[/]")
+            message.append(Text(f"{value} {description}", style=style))
     if not message:
-        message = ["nothing to report"]
-    return ", ".join(message)
+        message = [Text("nothing to report")]
+    return Text(", ").join(message)
 
 
 _TIME_UNITS: List["_TimeUnit"] = [
