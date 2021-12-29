@@ -19,6 +19,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`172` embeds URLs in task ids. See :confval:`editor_url_scheme` for more
   information.
 - :gh:`173` replaces ``ColorCode`` with custom rich themes.
+- :gh:`174` restructures loosely defined outcomes to clear ``enum.Enum``.
 
 
 0.1.3 - 2021-11-30
