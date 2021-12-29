@@ -4,23 +4,21 @@ from typing import Any
 from typing import Dict
 from typing import List
 
-import networkx as nx
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_url_style_for_task
 from _pytask.console import unify_styles
 from _pytask.dag import descending_tasks
-from _pytask.dag import node_and_neighbors
 from _pytask.dag import TopologicalSorter
-from _pytask.database import create_or_update_state
+from _pytask.database import update_states_in_database
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaTask
+from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
-from _pytask.outcomes import Persisted
-from _pytask.outcomes import Skipped
+from _pytask.outcomes import TaskOutcome
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
@@ -175,13 +173,9 @@ def pytask_execute_task_process_report(
 
     """
     task = report.task
-    if report.success:
-        _update_states_in_database(session.dag, task.name)
-        report.symbol = "."
-        report.style = "success"
+    if report.outcome == TaskOutcome.SUCCESS:
+        update_states_in_database(session.dag, task.name)
     else:
-        report.symbol = "F"
-        report.style = "failed"
         for descending_task_name in descending_tasks(task.name, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]
             descending_task.markers.append(
@@ -208,14 +202,18 @@ def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> No
     url_style = create_url_style_for_task(
         report.task, session.config["editor_url_scheme"]
     )
-    console.print(report.symbol, style=unify_styles(report.style, url_style), end="")
+    console.print(
+        report.outcome.symbol,
+        style=unify_styles(report.outcome.style, url_style),
+        end="",
+    )
 
 
 class ShowErrorsImmediatelyPlugin:
     @staticmethod
     @hookimpl(tryfirst=True)
     def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:
-        if not report.success:
+        if report.outcome == TaskOutcome.FAIL:
             _print_errored_task_report(session, report)
 
 
@@ -223,39 +221,27 @@ class ShowErrorsImmediatelyPlugin:
 def pytask_execute_log_end(session: Session, reports: List[ExecutionReport]) -> bool:
     session.execution_end = time.time()
 
-    n_failed = len(reports) - sum(report.success for report in reports)
-    n_skipped = sum(
-        isinstance(report.exc_info[1], Skipped) for report in reports if report.exc_info
-    )
-    n_persisted = sum(
-        isinstance(report.exc_info[1], Persisted)
-        for report in reports
-        if report.exc_info
-    )
-    n_successful = len(reports) - n_failed - n_skipped - n_persisted
+    counts = count_outcomes(reports, TaskOutcome)
 
     console.print()
-    if n_failed:
-        console.rule(Text("Failures", style="failed"), style="failed")
+    if counts[TaskOutcome.FAIL]:
+        console.rule(
+            Text("Failures", style=TaskOutcome.FAIL.style), style=TaskOutcome.FAIL.style
+        )
         console.print()
 
     for report in reports:
-        if not report.success:
+        if report.outcome in (TaskOutcome.FAIL, TaskOutcome.SKIP_PREVIOUS_FAILED):
             _print_errored_task_report(session, report)
 
     session.hook.pytask_log_session_footer(
         session=session,
-        infos=[
-            (n_successful, "succeeded", "success"),
-            (n_persisted, "persisted", "success"),
-            (n_failed, "failed", "failed"),
-            (n_skipped, "skipped", "skipped"),
-        ],
+        counts=counts,
         duration=round(session.execution_end - session.execution_start, 2),
-        style="failed" if n_failed else "success",
+        style="failed" if counts[TaskOutcome.FAIL] else "success",
     )
 
-    if n_failed:
+    if counts[TaskOutcome.FAIL]:
         raise ExecutionError
 
     return True
@@ -272,8 +258,11 @@ def _print_errored_task_report(session: Session, report: ExecutionReport) -> Non
     )
 
     console.rule(
-        Text(f"Task {task_name} failed", style=unify_styles(report.style, url_style)),
-        style=report.style,
+        Text(
+            f"Task {task_name} failed",
+            style=unify_styles(report.outcome.style, url_style),
+        ),
+        style=report.outcome.style,
     )
 
     console.print()
@@ -289,10 +278,3 @@ def _print_errored_task_report(session: Session, report: ExecutionReport) -> Non
         if key in ("stdout", "stderr") and show_capture in (key, "all"):
             console.rule(f"Captured {key} during {when}", style=None)
             console.print(content)
-
-
-def _update_states_in_database(dag: nx.DiGraph, task_name: str) -> None:
-    """Update the state for each node of a task in the database."""
-    for name in node_and_neighbors(dag, task_name):
-        node = dag.nodes[name].get("task") or dag.nodes[name]["node"]
-        create_or_update_state(task_name, node.name, node.state())

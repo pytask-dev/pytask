@@ -6,6 +6,7 @@ from _pytask.live import _parse_n_entries_in_table
 from _pytask.live import LiveExecution
 from _pytask.live import LiveManager
 from _pytask.nodes import PythonFunctionTask
+from _pytask.outcomes import TaskOutcome
 from _pytask.report import ExecutionReport
 from pytask import cli
 
@@ -89,9 +90,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
 
     live_manager.start()
 
-    report = ExecutionReport(
-        task=task, success=True, exc_info=None, symbol="new_symbol", style="black"
-    )
+    report = ExecutionReport(task=task, outcome=TaskOutcome.SUCCESS, exc_info=None)
 
     live_manager.resume()
     live.update_reports(report)
@@ -103,13 +102,13 @@ def test_live_execution_sequentially(capsys, tmp_path):
     assert "Outcome" in captured.out
     assert "task_dummy.py::task_dummy" in captured.out
     assert "running" not in captured.out
-    assert "new_symbol" in captured.out
+    assert TaskOutcome.SUCCESS.symbol in captured.out
 
 
 @pytest.mark.unit
 @pytest.mark.parametrize("verbose", [1, 2])
-@pytest.mark.parametrize("symbol", ["s", "p", ".", "F"])
-def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, symbol):
+@pytest.mark.parametrize("outcome", TaskOutcome)
+def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, outcome):
     path = tmp_path.joinpath("task_dummy.py")
     task = PythonFunctionTask(
         "task_dummy", path.as_posix() + "::task_dummy", path, lambda x: x
@@ -122,9 +121,7 @@ def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, s
     live.update_running_tasks(task)
     live_manager.pause()
 
-    report = ExecutionReport(
-        task=task, success=True, exc_info=None, symbol=symbol, style="black"
-    )
+    report = ExecutionReport(task=task, outcome=outcome, exc_info=None)
 
     live_manager.resume()
     live.update_reports(report)
@@ -135,12 +132,17 @@ def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, s
     assert "Task" in captured.out
     assert "Outcome" in captured.out
 
-    if verbose < 2 and symbol in ("s", "p"):
+    if verbose < 2 and outcome in (
+        TaskOutcome.SKIP,
+        TaskOutcome.SKIP_UNCHANGED,
+        TaskOutcome.SKIP_PREVIOUS_FAILED,
+        TaskOutcome.PERSISTENCE,
+    ):
         assert "task_dummy.py::task_dummy" not in captured.out
-        assert f"│ {symbol}" not in captured.out
+        assert f"│ {outcome.symbol}" not in captured.out
     else:
         assert "task_dummy.py::task_dummy" in captured.out
-        assert f"│ {symbol}" in captured.out
+        assert f"│ {outcome.symbol}" in captured.out
 
     assert "running" not in captured.out
 
@@ -171,7 +173,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
     )
     live.update_running_tasks(completed_task)
     report = ExecutionReport(
-        task=completed_task, success=True, exc_info=None, symbol=".", style="black"
+        task=completed_task, outcome=TaskOutcome.SUCCESS, exc_info=None
     )
 
     live_manager.resume()

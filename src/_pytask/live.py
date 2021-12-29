@@ -13,6 +13,8 @@ from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_url_style_for_task
 from _pytask.nodes import MetaTask
+from _pytask.outcomes import CollectionOutcome
+from _pytask.outcomes import TaskOutcome
 from _pytask.report import CollectionReport
 from _pytask.report import ExecutionReport
 from _pytask.shared import get_first_non_none_value
@@ -174,7 +176,16 @@ class LiveExecution:
 
             table = Table("Task", "Outcome")
             for report in relevant_reports:
-                if report["symbol"] in ("s", "p") and self._verbose < 2:
+                if (
+                    report["outcome"]
+                    in (
+                        TaskOutcome.SKIP,
+                        TaskOutcome.SKIP_UNCHANGED,
+                        TaskOutcome.SKIP_PREVIOUS_FAILED,
+                        TaskOutcome.PERSISTENCE,
+                    )
+                    and self._verbose < 2
+                ):
                     pass
                 else:
                     table.add_row(
@@ -184,7 +195,7 @@ class LiveExecution:
                                 report["task"], self._editor_url_scheme
                             ),
                         ),
-                        Text(report["symbol"], style=report["color"]),
+                        Text(report["outcome"].symbol, style=report["outcome"].style),
                     )
             for running_task in self._running_tasks:
                 table.add_row(running_task, "running")
@@ -208,8 +219,7 @@ class LiveExecution:
         self._reports.append(
             {
                 "name": reduced_task_name,
-                "symbol": new_report.symbol,
-                "color": new_report.style,
+                "outcome": new_report.outcome,
                 "task": new_report.task,
             }
         )
@@ -243,7 +253,7 @@ class LiveCollection:
         if reports is None:
             reports = []
         for report in reports:
-            if report.successful:
+            if report.outcome == CollectionOutcome.SUCCESS:
                 self._n_collected_tasks += 1
             else:
                 self._n_errors += 1

@@ -25,6 +25,7 @@ from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaTask
+from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
@@ -34,7 +35,6 @@ from _pytask.traceback import render_exc_info
 from pony import orm
 from rich.table import Table
 from rich.text import Text
-
 
 if TYPE_CHECKING:
     from typing import NoReturn
@@ -86,7 +86,7 @@ def pytask_execute_task_process_report(report: ExecutionReport) -> None:
     """Store runtime of successfully finishing tasks in database."""
     task = report.task
     duration = task.attributes.get("duration")
-    if report.success and duration is not None:
+    if report.outcome == TaskOutcome.SUCCESS and duration is not None:
         _create_or_update_runtime(task.name, *duration)
 
 
