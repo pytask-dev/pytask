@@ -1,13 +1,16 @@
 """Implement the ability for tasks to persist."""
 from typing import Any
 from typing import Dict
+from typing import Optional
 from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
 from _pytask.dag import node_and_neighbors
+from _pytask.database import update_states_in_database
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark_utils import get_specific_markers_from_task
 from _pytask.outcomes import Persisted
+from _pytask.outcomes import TaskOutcome
 
 
 if TYPE_CHECKING:
@@ -53,13 +56,16 @@ def pytask_execute_task_setup(session: "Session", task: "MetaTask") -> None:
 
 
 @hookimpl
-def pytask_execute_task_process_report(report: "ExecutionReport") -> None:
+def pytask_execute_task_process_report(
+    session: "Session", report: "ExecutionReport"
+) -> Optional[bool]:
     """Set task status to success.
 
     Do not return ``True`` so that states will be updated in database.
 
     """
     if report.exc_info and isinstance(report.exc_info[1], Persisted):
-        report.success = True
-        report.symbol = "p"
-        report.style = "success"
+        report.outcome = TaskOutcome.PERSISTENCE
+        update_states_in_database(session.dag, report.task.name)
+        return True
+    return None

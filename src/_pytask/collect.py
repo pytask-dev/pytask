@@ -21,6 +21,8 @@ from _pytask.mark_utils import has_marker
 from _pytask.nodes import create_task_name
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import PythonFunctionTask
+from _pytask.outcomes import CollectionOutcome
+from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
 from _pytask.report import CollectionReport
 from _pytask.session import Session
@@ -39,7 +41,9 @@ def pytask_collect(session: Session) -> bool:
     try:
         session.hook.pytask_collect_modify_tasks(session=session, tasks=session.tasks)
     except Exception:
-        report = CollectionReport.from_exception(exc_info=sys.exc_info())
+        report = CollectionReport.from_exception(
+            outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info()
+        )
         session.collection_reports.append(report)
 
     session.hook.pytask_collect_log(
@@ -61,7 +65,9 @@ def _collect_from_paths(session: Session) -> None:
         )
         if reports is not None:
             session.collection_reports.extend(reports)
-            session.tasks.extend(i.node for i in reports if i.successful)
+            session.tasks.extend(
+                i.node for i in reports if i.outcome == CollectionOutcome.SUCCESS
+            )
 
 
 @hookimpl
@@ -81,7 +87,11 @@ def pytask_collect_file_protocol(
         )
     except Exception:
         node = FilePathNode.from_path(path)
-        reports = [CollectionReport.from_exception(node=node, exc_info=sys.exc_info())]
+        reports = [
+            CollectionReport.from_exception(
+                outcome=CollectionOutcome.FAIL, node=node, exc_info=sys.exc_info()
+            )
+        ]
 
     session.hook.pytask_collect_file_log(session=session, reports=reports)
 
@@ -100,7 +110,7 @@ def pytask_collect_file(
             raise ImportError(f"Can't find module '{path.stem}' at location {path}.")
 
         mod = importlib_util.module_from_spec(spec)
-        spec.loader.exec_module(mod)  # type: ignore
+        spec.loader.exec_module(mod)
 
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
@@ -137,11 +147,15 @@ def pytask_collect_task_protocol(
         )
         if task is not None:
             session.hook.pytask_collect_task_teardown(session=session, task=task)
-            return CollectionReport.from_node(task)
+            return CollectionReport.from_node(
+                outcome=CollectionOutcome.SUCCESS, node=task
+            )
 
     except Exception:
         task = PythonFunctionTask(name, create_task_name(path, name), path, None)
-        return CollectionReport.from_exception(exc_info=sys.exc_info(), node=task)
+        return CollectionReport.from_exception(
+            outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info(), node=task
+        )
 
     else:
         return None
@@ -260,12 +274,16 @@ def pytask_collect_log(
     """Log collection."""
     session.collection_end = time.time()
 
+    counts = count_outcomes(reports, CollectionOutcome)
     console.print(f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}.")
 
-    failed_reports = [i for i in reports if not i.successful]
+    failed_reports = [r for r in reports if r.outcome == CollectionOutcome.FAIL]
     if failed_reports:
         console.print()
-        console.rule(Text("Failures during collection", style="failed"), style="failed")
+        console.rule(
+            Text("Failures during collection", style=CollectionOutcome.FAIL.style),
+            style=CollectionOutcome.FAIL.style,
+        )
 
         for report in failed_reports:
             if report.node is None:
@@ -274,7 +292,10 @@ def pytask_collect_log(
                 short_name = reduce_node_name(report.node, session.config["paths"])
                 header = f"Could not collect {short_name}"
 
-            console.rule(Text(header, style="failed"), style="failed")
+            console.rule(
+                Text(header, style=CollectionOutcome.FAIL.style),
+                style=CollectionOutcome.FAIL.style,
+            )
 
             console.print()
 
@@ -286,12 +307,11 @@ def pytask_collect_log(
 
         session.hook.pytask_log_session_footer(
             session=session,
-            infos=[
-                (len(tasks), "collected", "success"),
-                (len(failed_reports), "failed", "failed"),
-            ],
+            infos=counts,
             duration=round(session.collection_end - session.collection_start, 2),
-            style="failed" if len(failed_reports) else "success",
+            style=CollectionOutcome.FAIL.style
+            if counts[CollectionOutcome.FAIL]
+            else CollectionOutcome.SUCCESS.style,
         )
 
         raise CollectionError

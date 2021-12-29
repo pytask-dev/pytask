@@ -1,7 +1,60 @@
 """This module contains code related to outcomes."""
 from enum import auto
 from enum import Enum
+from typing import Dict
 from typing import Optional
+from typing import Sequence
+from typing import Type
+from typing import TYPE_CHECKING
+from typing import Union
+
+
+if TYPE_CHECKING:
+    from _pytask.report import CollectionReport
+    from _pytask.report import ExecutionReport
+
+
+class CollectionOutcome(Enum):
+    """Outcomes of collected files or tasks.
+
+    Attributes
+    ----------
+    FAIL
+        Outcome for failed collected files or tasks.
+    SUCCESS
+        Outcome for task which was executed successfully.
+
+    """
+
+    SUCCESS = auto()
+    FAIL = auto()
+
+    @property
+    def symbol(self) -> str:
+        symbols = {
+            CollectionOutcome.SUCCESS: ".",
+            CollectionOutcome.FAIL: "F",
+        }
+        assert len(symbols) == len(CollectionOutcome)
+        return symbols[self]
+
+    @property
+    def description(self) -> str:
+        descriptions = {
+            CollectionOutcome.SUCCESS: "succeeded",
+            CollectionOutcome.FAIL: "failed",
+        }
+        assert len(descriptions) == len(CollectionOutcome)
+        return descriptions[self]
+
+    @property
+    def style(self) -> str:
+        styles = {
+            CollectionOutcome.SUCCESS: "success",
+            CollectionOutcome.FAIL: "failed",
+        }
+        assert len(styles) == len(CollectionOutcome)
+        return styles[self]
 
 
 class TaskOutcome(Enum):
@@ -36,8 +89,8 @@ class TaskOutcome(Enum):
     FAIL = auto()
 
     @property
-    def display_char(self) -> str:
-        display_chars = {
+    def symbol(self) -> str:
+        symbols = {
             TaskOutcome.SUCCESS: ".",
             TaskOutcome.PERSISTENCE: "p",
             TaskOutcome.SKIP_UNCHANGED: "s",
@@ -45,21 +98,45 @@ class TaskOutcome(Enum):
             TaskOutcome.SKIP_PREVIOUS_FAILED: "F",
             TaskOutcome.FAIL: "F",
         }
-        assert len(display_chars) == len(TaskOutcome)
-        return display_chars[self]
+        assert len(symbols) == len(TaskOutcome)
+        return symbols[self]
 
     @property
-    def display_name(self) -> str:
-        display_names = {
-            TaskOutcome.SUCCESS: "Succeeded",
-            TaskOutcome.PERSISTENCE: "Persisted",
-            TaskOutcome.SKIP_UNCHANGED: "Skipped because unchanged",
-            TaskOutcome.SKIP: "Skipped",
-            TaskOutcome.SKIP_PREVIOUS_FAILED: "Skipped because previous failed",
-            TaskOutcome.FAIL: "Failed",
+    def description(self) -> str:
+        descriptions = {
+            TaskOutcome.SUCCESS: "succeeded",
+            TaskOutcome.PERSISTENCE: "persisted",
+            TaskOutcome.SKIP_UNCHANGED: "skipped because unchanged",
+            TaskOutcome.SKIP: "skipped",
+            TaskOutcome.SKIP_PREVIOUS_FAILED: "skipped because previous failed",
+            TaskOutcome.FAIL: "failed",
         }
-        assert len(display_names) == len(TaskOutcome)
-        return display_names[self]
+        assert len(descriptions) == len(TaskOutcome)
+        return descriptions[self]
+
+    @property
+    def style(self) -> str:
+        styles = {
+            TaskOutcome.SUCCESS: "success",
+            TaskOutcome.PERSISTENCE: "success",
+            TaskOutcome.SKIP_UNCHANGED: "success",
+            TaskOutcome.SKIP: "skipped",
+            TaskOutcome.SKIP_PREVIOUS_FAILED: "failed",
+            TaskOutcome.FAIL: "failed",
+        }
+        assert len(styles) == len(TaskOutcome)
+        return styles[self]
+
+
+def count_outcomes(
+    reports: Sequence[Union["CollectionReport", "ExecutionReport"]],
+    outcome_enum: Type[Enum],
+) -> Dict[Enum, int]:
+    """Count how often an outcome occurred."""
+    return {
+        outcome: len([r for r in reports if r.outcome == outcome])
+        for outcome in outcome_enum
+    }
 
 
 class PytaskOutcome(Exception):

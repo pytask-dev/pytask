@@ -6,7 +6,9 @@ from pathlib import Path
 import pytest
 from _pytask.collect import pytask_collect_node
 from _pytask.exceptions import NodeNotCollectedError
+from _pytask.outcomes import CollectionOutcome
 from _pytask.session import Session
+from pytask import cli
 from pytask import main
 
 
@@ -25,7 +27,7 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.collection_reports[0].successful
+    assert session.collection_reports[0].outcome == CollectionOutcome.SUCCESS
     assert tmp_path.joinpath("out.txt").read_text() == "Relative paths work."
 
 
@@ -44,11 +46,12 @@ def test_collect_filepathnode_with_unknown_type(tmp_path):
     session = main({"paths": tmp_path})
 
     assert session.exit_code == 3
+    assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
     assert isinstance(session.collection_reports[0].exc_info[1], NodeNotCollectedError)
 
 
 @pytest.mark.end_to_end
-def test_collect_nodes_with_the_same_name(tmp_path):
+def test_collect_nodes_with_the_same_name(runner, tmp_path):
     """Nodes with the same filename, not path, are not mistaken for each other."""
     source = """
     import pytask
@@ -70,9 +73,9 @@ def test_collect_nodes_with_the_same_name(tmp_path):
     tmp_path.joinpath("sub").mkdir()
     tmp_path.joinpath("sub", "text.txt").write_text("in sub")
 
-    session = main({"paths": tmp_path})
+    result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert session.exit_code == 0
+    assert result.exit_code == 0
     assert tmp_path.joinpath("out_0.txt").read_text() == "in root"
     assert tmp_path.joinpath("out_1.txt").read_text() == "in sub"
 

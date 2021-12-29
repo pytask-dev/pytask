@@ -14,6 +14,8 @@ import pluggy
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import IS_WINDOWS_TERMINAL
+from _pytask.outcomes import CollectionOutcome
+from _pytask.outcomes import TaskOutcome
 from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
@@ -115,7 +117,7 @@ def _format_plugin_names_and_versions(
 
 @hookimpl
 def pytask_log_session_footer(
-    infos: List[Tuple[Any, str, str]], duration: float, style: str
+    infos: Dict[Union[TaskOutcome, CollectionOutcome], int], duration: float, style: str
 ) -> None:
     """Format the footer of the log message."""
     message = _style_infos(infos)
@@ -125,20 +127,21 @@ def pytask_log_session_footer(
     console.rule(message, style=style)
 
 
-def _style_infos(infos: List[Tuple[Any, str, str]]) -> str:
+def _style_infos(infos: Dict[Union[TaskOutcome, CollectionOutcome], int]) -> str:
     """Style infos.
 
     Examples
     --------
-    >>> m = _style_infos([(1, "a", "green"), (2, "b", "red"), (0, "c", "yellow")])
+    >>> from _pytask.outcomes import CollectionOutcome
+    >>> m = _style_infos({CollectionOutcome.SUCCESS: 1, CollectionOutcome.FAIL: 2})
     >>> print(m)
-    1 a, 2 b
+    1 succeeded, 2 failed
 
     """
     message = []
-    for value, description, style in infos:
-        if value:
-            message.append(Text(f"{value} {description}", style=style))
+    for outcome, count in infos.items():
+        if count:
+            message.append(Text(f"{count} {outcome.description}", style=outcome.style))
     if not message:
         message = [Text("nothing to report")]
     return Text(", ").join(message)

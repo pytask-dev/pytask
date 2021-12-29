@@ -5,6 +5,7 @@ from _pytask.database import create_database
 from _pytask.database import State
 from _pytask.outcomes import Persisted
 from _pytask.outcomes import SkippedUnchanged
+from _pytask.outcomes import TaskOutcome
 from _pytask.persist import pytask_execute_task_process_report
 from pony import orm
 from pytask import main
@@ -46,7 +47,7 @@ def test_multiple_runs_with_persist(tmp_path):
 
     assert session.exit_code == 0
     assert len(session.execution_reports) == 1
-    assert session.execution_reports[0].success
+    assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
     assert session.execution_reports[0].exc_info is None
     assert tmp_path.joinpath("out.txt").exists()
 
@@ -56,7 +57,7 @@ def test_multiple_runs_with_persist(tmp_path):
 
     assert session.exit_code == 0
     assert len(session.execution_reports) == 1
-    assert session.execution_reports[0].success
+    assert session.execution_reports[0].outcome == TaskOutcome.PERSISTENCE
     assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
 
     with orm.db_session:
@@ -74,7 +75,7 @@ def test_multiple_runs_with_persist(tmp_path):
 
     assert session.exit_code == 0
     assert len(session.execution_reports) == 1
-    assert session.execution_reports[0].success
+    assert session.execution_reports[0].outcome == TaskOutcome.SKIP_UNCHANGED
     assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
 
 
@@ -99,7 +100,7 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
 
     assert session.exit_code == 0
     assert len(session.execution_reports) == 1
-    assert session.execution_reports[0].success
+    assert session.execution_reports[0].outcome == TaskOutcome.PERSISTENCE
     assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
 
 
@@ -112,12 +113,25 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
         ((None, Persisted(), None), True),
     ],
 )
-def test_pytask_execute_task_process_report(exc_info, expected):
+def test_pytask_execute_task_process_report(monkeypatch, exc_info, expected):
+    monkeypatch.setattr(
+        "_pytask.persist.update_states_in_database", lambda *x: None  # noqa: U100
+    )
+
+    task = DummyClass()
+    task.name = None
+
+    session = DummyClass()
+    session.dag = None
+
     report = DummyClass()
     report.exc_info = exc_info
-    result = pytask_execute_task_process_report(report)
+    report.task = task
+
+    result = pytask_execute_task_process_report(session, report)
 
     if expected:
-        assert report.success
+        assert report.outcome == TaskOutcome.PERSISTENCE
+        assert result is True
     else:
         assert result is None

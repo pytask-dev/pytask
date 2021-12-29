@@ -6,6 +6,7 @@ import pytest
 from _pytask.logging import _format_plugin_names_and_versions
 from _pytask.logging import _humanize_time
 from _pytask.logging import pytask_log_session_footer
+from _pytask.outcomes import TaskOutcome
 from pytask import cli
 
 
@@ -32,28 +33,28 @@ def test_format_plugin_names_and_versions(plugins, expected):
     "infos, duration, color, expected",
     [
         (
-            [(1, "succeeded", "green"), (1, "failed", "red")],
+            {TaskOutcome.SUCCESS: 1, TaskOutcome.FAIL: 1},
             1,
-            "red",
+            TaskOutcome.FAIL.style,
             "────── 1 succeeded, 1 failed in 1 second ───────────",
         ),
         (
-            [(2, "succeeded", "green"), (1, "skipped", "yellow")],
+            {TaskOutcome.SUCCESS: 1, TaskOutcome.SKIP_PREVIOUS_FAILED: 1},
             10,
-            "green",
-            "────── 2 succeeded, 1 skipped in 10 seconds ───────────",
+            TaskOutcome.SUCCESS.style,
+            "────── 1 succeeded, 1 skipped because previous failed in 10 seconds ─────",
         ),
         (
-            [(2, "succeeded", "green"), (1, "skipped", "yellow")],
+            {TaskOutcome.SKIP_UNCHANGED: 1, TaskOutcome.PERSISTENCE: 1},
             5401,
-            "green",
-            "────── 2 succeeded, 1 skipped in 1 hour, 30 minutes ───────────",
+            TaskOutcome.SUCCESS.style,
+            "─ 1 skipped because unchanged, 1 persisted in 1 hour, 30 minutes ─",
         ),
         (
-            [(2, "succeeded", "green"), (1, "skipped", "yellow")],
+            {TaskOutcome.FAIL: 1, TaskOutcome.SKIP: 1},
             125_000,
-            "green",
-            "────── 2 succeeded, 1 skipped in 1 day, 10 hours, 43 minutes ───────────",
+            TaskOutcome.FAIL.style,
+            "─────── 1 failed, 1 skipped in 1 day, 10 hours, 43 minutes ───────────",
         ),
     ],
 )
@@ -64,28 +65,42 @@ def test_pytask_log_session_footer(capsys, infos, duration, color, expected):
 
 
 @pytest.mark.end_to_end
-def test_logging_of_outcomes(tmp_path, runner):
-    source = """
+@pytest.mark.parametrize(
+    "func, expected_1, expected_2",
+    [
+        ("def task_func(): pass", "1 succeeded", "1 skipped because unchanged"),
+        (
+            "@pytask.mark.persist\n    def task_func(): pass",
+            "1 persisted",
+            "1 skipped because unchanged",
+        ),
+        ("@pytask.mark.skip\n    def task_func(): pass", "1 skipped", "1 skipped"),
+        (
+            "@pytask.mark.skip_unchanged\n    def task_func(): pass",
+            "1 skipped because unchanged",
+            "1 skipped because unchanged",
+        ),
+        (
+            "@pytask.mark.skip_ancestor_failed\n    def task_func(): pass",
+            "1 skipped because previous failed",
+            "1 skipped because previous failed",
+        ),
+        ("def task_func(): raise Exception", "1 failed", "1 failed"),
+    ],
+)
+def test_logging_of_outcomes(tmp_path, runner, func, expected_1, expected_2):
+    source = f"""
     import pytask
 
-    @pytask.mark.skip
-    def task_skipped(): pass
-
-    @pytask.mark.persist
-    def task_persist(): pass
-
-    def task_failed(): raise Exception
-
-    def task_sc(): pass
+    {func}
     """
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert expected_1 in result.output
 
-    assert "1 succeeded" in result.output
-    assert "1 persisted" in result.output
-    assert "1 skipped" in result.output
-    assert "1 failed" in result.output
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert expected_2 in result.output
 
 
 @pytest.mark.unit
