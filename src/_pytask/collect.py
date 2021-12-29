@@ -307,7 +307,7 @@ def pytask_collect_log(
 
         session.hook.pytask_log_session_footer(
             session=session,
-            infos=counts,
+            counts=counts,
             duration=round(session.collection_end - session.collection_start, 2),
             style=CollectionOutcome.FAIL.style
             if counts[CollectionOutcome.FAIL]

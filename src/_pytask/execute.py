@@ -236,7 +236,7 @@ def pytask_execute_log_end(session: Session, reports: List[ExecutionReport]) -> 
 
     session.hook.pytask_log_session_footer(
         session=session,
-        infos=counts,
+        counts=counts,
         duration=round(session.execution_end - session.execution_start, 2),
         style="failed" if counts[TaskOutcome.FAIL] else "success",
     )
