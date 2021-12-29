@@ -127,19 +127,18 @@ def pytask_log_session_footer(
     console.rule(message, style=style)
 
 
-def _style_infos(infos: Dict[Union[TaskOutcome, CollectionOutcome], int]) -> str:
+def _style_infos(counts: Dict[Union[TaskOutcome, CollectionOutcome], int]) -> str:
     """Style infos.
 
     Examples
     --------
     >>> from _pytask.outcomes import CollectionOutcome
-    >>> m = _style_infos({CollectionOutcome.SUCCESS: 1, CollectionOutcome.FAIL: 2})
-    >>> print(m)
-    1 succeeded, 2 failed
+    >>> _style_infos({CollectionOutcome.SUCCESS: 1, CollectionOutcome.FAIL: 2})
+    <text '1 succeeded, 2 failed' [Span(0, 11, 'success'), Span(13, 21, 'failed')]>
 
     """
     message = []
-    for outcome, count in infos.items():
+    for outcome, count in counts.items():
         if count:
             message.append(Text(f"{count} {outcome.description}", style=outcome.style))
     if not message:
