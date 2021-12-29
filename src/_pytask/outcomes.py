@@ -132,7 +132,15 @@ def count_outcomes(
     reports: Sequence[Union["CollectionReport", "ExecutionReport"]],
     outcome_enum: Type[Enum],
 ) -> Dict[Enum, int]:
-    """Count how often an outcome occurred."""
+    """Count how often an outcome occurred.
+
+    Examples
+    --------
+    >>> from _pytask.outcomes import CollectionOutcome, TaskOutcome
+    >>> count_outcomes([], CollectionOutcome)
+    {<CollectionOutcome.SUCCESS: 1>: 0, <CollectionOutcome.FAIL: 2>: 0}
+
+    """
     return {
         outcome: len([r for r in reports if r.outcome == outcome])
         for outcome in outcome_enum
