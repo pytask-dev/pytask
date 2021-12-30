@@ -20,8 +20,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   information.
 - :gh:`173` replaces ``ColorCode`` with custom rich themes.
 - :gh:`174` restructures loosely defined outcomes to clear ``enum.Enum``.
-- :gh:`176` implements a summary panel which holds aggregate information about the
-  number of successes, fails and other status.
+- :gh:`176` and :gh:`177` implement a summary panel which holds aggregate information
+  about the number of successes, fails and other status.
 
 
 0.1.3 - 2021-11-30

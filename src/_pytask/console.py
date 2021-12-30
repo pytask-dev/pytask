@@ -162,6 +162,7 @@ def create_summary_panel(
         Padding(str(n_total), pad=_HORIZONTAL_PADDING),
         Padding(description_total, pad=_HORIZONTAL_PADDING),
         Padding("", pad=_HORIZONTAL_PADDING),
+        style="#ffffff",
     )
     for outcome, value in counts.items():
         if value:
@@ -181,8 +182,9 @@ def create_summary_panel(
 
     panel = Panel(
         grid,
-        title="Summary",
+        title="[bold #ffffff]Summary[/bold #ffffff]",
         expand=False,
+        style="none",
         border_style=outcome_enum.FAIL.style
         if counts[outcome_enum.FAIL]
         else outcome_enum.SUCCESS.style,
