@@ -16,6 +16,7 @@ from typing import Union
 from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
+from _pytask.console import create_summary_panel
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_marker
 from _pytask.nodes import create_task_name
@@ -274,11 +275,12 @@ def pytask_collect_log(
     """Log collection."""
     session.collection_end = time.time()
 
-    counts = count_outcomes(reports, CollectionOutcome)
     console.print(f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}.")
 
     failed_reports = [r for r in reports if r.outcome == CollectionOutcome.FAIL]
     if failed_reports:
+        counts = count_outcomes(reports, CollectionOutcome)
+
         console.print()
         console.rule(
             Text("Failures during collection", style=CollectionOutcome.FAIL.style),
@@ -305,13 +307,17 @@ def pytask_collect_log(
 
             console.print()
 
+        panel = create_summary_panel(
+            counts, CollectionOutcome, "Collected errors and tasks"
+        )
+        console.print(panel)
+
         session.hook.pytask_log_session_footer(
             session=session,
-            counts=counts,
-            duration=round(session.collection_end - session.collection_start, 2),
-            style=CollectionOutcome.FAIL.style
+            duration=session.collection_end - session.collection_start,
+            outcome=CollectionOutcome.FAIL
             if counts[CollectionOutcome.FAIL]
-            else CollectionOutcome.SUCCESS.style,
+            else CollectionOutcome.SUCCESS,
         )
 
         raise CollectionError

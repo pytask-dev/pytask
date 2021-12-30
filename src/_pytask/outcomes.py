@@ -41,8 +41,8 @@ class CollectionOutcome(Enum):
     @property
     def description(self) -> str:
         descriptions = {
-            CollectionOutcome.SUCCESS: "succeeded",
-            CollectionOutcome.FAIL: "failed",
+            CollectionOutcome.SUCCESS: "Succeeded",
+            CollectionOutcome.FAIL: "Failed",
         }
         assert len(descriptions) == len(CollectionOutcome)
         return descriptions[self]
@@ -55,6 +55,15 @@ class CollectionOutcome(Enum):
         }
         assert len(styles) == len(CollectionOutcome)
         return styles[self]
+
+    @property
+    def style_textonly(self) -> str:
+        styles_textonly = {
+            CollectionOutcome.SUCCESS: "success.textonly",
+            CollectionOutcome.FAIL: "failed.textonly",
+        }
+        assert len(styles_textonly) == len(CollectionOutcome)
+        return styles_textonly[self]
 
 
 class TaskOutcome(Enum):
@@ -104,12 +113,12 @@ class TaskOutcome(Enum):
     @property
     def description(self) -> str:
         descriptions = {
-            TaskOutcome.SUCCESS: "succeeded",
-            TaskOutcome.PERSISTENCE: "persisted",
-            TaskOutcome.SKIP_UNCHANGED: "skipped because unchanged",
-            TaskOutcome.SKIP: "skipped",
-            TaskOutcome.SKIP_PREVIOUS_FAILED: "skipped because previous failed",
-            TaskOutcome.FAIL: "failed",
+            TaskOutcome.SUCCESS: "Succeeded",
+            TaskOutcome.PERSISTENCE: "Persisted",
+            TaskOutcome.SKIP_UNCHANGED: "Skipped because unchanged",
+            TaskOutcome.SKIP: "Skipped",
+            TaskOutcome.SKIP_PREVIOUS_FAILED: "Skipped because previous failed",
+            TaskOutcome.FAIL: "Failed",
         }
         assert len(descriptions) == len(TaskOutcome)
         return descriptions[self]
@@ -127,10 +136,23 @@ class TaskOutcome(Enum):
         assert len(styles) == len(TaskOutcome)
         return styles[self]
 
+    @property
+    def style_textonly(self) -> str:
+        styles_textonly = {
+            TaskOutcome.SUCCESS: "success.textonly",
+            TaskOutcome.PERSISTENCE: "success.textonly",
+            TaskOutcome.SKIP_UNCHANGED: "success.textonly",
+            TaskOutcome.SKIP: "skipped.textonly",
+            TaskOutcome.SKIP_PREVIOUS_FAILED: "failed.textonly",
+            TaskOutcome.FAIL: "failed.textonly",
+        }
+        assert len(styles_textonly) == len(TaskOutcome)
+        return styles_textonly[self]
+
 
 def count_outcomes(
     reports: Sequence[Union["CollectionReport", "ExecutionReport"]],
-    outcome_enum: Type[Enum],
+    outcome_enum: Union[Type[CollectionOutcome], Type[TaskOutcome]],
 ) -> Dict[Enum, int]:
     """Count how often an outcome occurred.
 

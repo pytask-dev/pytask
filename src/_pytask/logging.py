@@ -117,35 +117,15 @@ def _format_plugin_names_and_versions(
 
 @hookimpl
 def pytask_log_session_footer(
-    counts: Dict[Union[TaskOutcome, CollectionOutcome], int],
     duration: float,
-    style: str,
+    outcome: Union[CollectionOutcome, TaskOutcome],
 ) -> None:
     """Format the footer of the log message."""
-    message = _style_counts(counts)
     formatted_duration = _format_duration(duration)
-    message += Text(f" in {formatted_duration}", style=style)
-
-    console.rule(message, style=style)
-
-
-def _style_counts(counts: Dict[Union[TaskOutcome, CollectionOutcome], int]) -> str:
-    """Style counts.
-
-    Examples
-    --------
-    >>> from _pytask.outcomes import CollectionOutcome
-    >>> _style_counts({CollectionOutcome.SUCCESS: 1, CollectionOutcome.FAIL: 2})
-    <text '1 succeeded, 2 failed' [Span(0, 11, 'success'), Span(13, 21, 'failed')]>
-
-    """
-    message = []
-    for outcome, count in counts.items():
-        if count:
-            message.append(Text(f"{count} {outcome.description}", style=outcome.style))
-    if not message:
-        message = [Text("nothing to report")]
-    return Text(", ").join(message)
+    message = Text(
+        f"{outcome.description} in {formatted_duration}", style=outcome.style
+    )
+    console.rule(message, style=outcome.style)
 
 
 _TIME_UNITS: List["_TimeUnit"] = [

@@ -3,9 +3,13 @@ from pathlib import Path
 
 import attr
 import pytest
+from _pytask.console import console
+from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_path
 from _pytask.console import create_url_style_for_task
 from _pytask.nodes import MetaTask
+from _pytask.outcomes import CollectionOutcome
+from _pytask.outcomes import TaskOutcome
 from rich.style import Style
 
 
@@ -69,3 +73,23 @@ def test_create_url_style_for_path(edtior_url_scheme, expected):
     path = Path(__file__)
     style = create_url_style_for_path(path, edtior_url_scheme)
     assert style == Style.parse(expected.format(path=path))
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "outcome, outcome_enum, total_description",
+    [(outcome, TaskOutcome, "description") for outcome in TaskOutcome]
+    + [(outcome, CollectionOutcome, "description") for outcome in CollectionOutcome],
+)
+def test_create_summary_panel(capsys, outcome, outcome_enum, total_description):
+    counts = {out: 0 for out in outcome_enum}
+    counts[outcome] = 1
+    panel = create_summary_panel(counts, outcome_enum, total_description)
+    console.print(panel)
+
+    captured = capsys.readouterr().out
+    assert "───── Summary ────" in captured
+    assert "─┐" in captured or "─╮" in captured
+    assert "└─" in captured or "╰─" in captured
+    assert outcome.description in captured
+    assert "description" in captured

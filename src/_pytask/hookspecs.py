@@ -443,9 +443,8 @@ def pytask_log_session_header(session: "Session") -> None:
 @hookspec
 def pytask_log_session_footer(
     session: "Session",
-    counts: Dict[Union["TaskOutcome", "CollectionOutcome"], int],
     duration: float,
-    style: str,
+    outcome: Union["CollectionOutcome", "TaskOutcome"],
 ) -> None:
     """Log session information at the end of a run."""
 

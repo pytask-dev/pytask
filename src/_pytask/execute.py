@@ -6,6 +6,7 @@ from typing import List
 
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_task
 from _pytask.console import unify_styles
 from _pytask.dag import descending_tasks
@@ -234,11 +235,15 @@ def pytask_execute_log_end(session: Session, reports: List[ExecutionReport]) -> 
         if report.outcome in (TaskOutcome.FAIL, TaskOutcome.SKIP_PREVIOUS_FAILED):
             _print_errored_task_report(session, report)
 
+    console.rule(style="dim")
+
+    panel = create_summary_panel(counts, TaskOutcome, "Collected tasks")
+    console.print(panel)
+
     session.hook.pytask_log_session_footer(
         session=session,
-        counts=counts,
-        duration=round(session.execution_end - session.execution_start, 2),
-        style="failed" if counts[TaskOutcome.FAIL] else "success",
+        duration=session.execution_end - session.execution_start,
+        outcome=TaskOutcome.FAIL if counts[TaskOutcome.FAIL] else TaskOutcome.SUCCESS,
     )
 
     if counts[TaskOutcome.FAIL]:
