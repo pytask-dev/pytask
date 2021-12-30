@@ -1,12 +1,12 @@
 import sys
 import time
-from enum import Enum
 from typing import Any
 from typing import Dict
 from typing import List
 
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_task
 from _pytask.console import unify_styles
 from _pytask.dag import descending_tasks
@@ -27,13 +27,7 @@ from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
-from rich.padding import Padding
-from rich.panel import Panel
-from rich.table import Table
 from rich.text import Text
-
-
-_HORIZONTAL_PADDING = (0, 1, 0, 1)
 
 
 @hookimpl
@@ -243,13 +237,13 @@ def pytask_execute_log_end(session: Session, reports: List[ExecutionReport]) -> 
 
     console.rule(style="dim")
 
-    panel = _create_summary_panel(counts)
+    panel = create_summary_panel(counts, TaskOutcome, "Collected tasks")
     console.print(panel)
 
     session.hook.pytask_log_session_footer(
         session=session,
         counts=counts,
-        duration=round(session.execution_end - session.execution_start, 2),
+        duration=session.execution_end - session.execution_start,
         style=TaskOutcome.FAIL.style
         if counts[TaskOutcome.FAIL]
         else TaskOutcome.SUCCESS.style,
@@ -259,44 +253,6 @@ def pytask_execute_log_end(session: Session, reports: List[ExecutionReport]) -> 
         raise ExecutionError
 
     return True
-
-
-def _create_summary_panel(counts: Dict[Enum, int]) -> Panel:
-    """Create a summary panel."""
-    n_total = sum(counts.values())
-
-    grid = Table.grid("", "", "")
-    grid.add_row(
-        Padding(str(n_total), pad=_HORIZONTAL_PADDING),
-        Padding("Collected tasks", pad=_HORIZONTAL_PADDING),
-        Padding("", pad=_HORIZONTAL_PADDING),
-    )
-    for outcome, value in counts.items():
-        if value:
-            percentage = f"({100 * value / n_total:.1f}%)"
-            grid.add_row(
-                Padding(str(value), pad=_HORIZONTAL_PADDING),
-                Padding(
-                    outcome.description,  # type: ignore[attr-defined]
-                    pad=_HORIZONTAL_PADDING,
-                ),
-                Padding(
-                    percentage,
-                    style=outcome.style,  # type: ignore[attr-defined]
-                    pad=_HORIZONTAL_PADDING,
-                ),
-            )
-
-    panel = Panel(
-        grid,
-        title="Summary",
-        expand=False,
-        border_style=TaskOutcome.FAIL.style
-        if counts[TaskOutcome.FAIL]
-        else TaskOutcome.SUCCESS.style,
-    )
-
-    return panel
 
 
 def _print_errored_task_report(session: Session, report: ExecutionReport) -> None:

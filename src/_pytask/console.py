@@ -3,22 +3,29 @@ import functools
 import inspect
 import os
 import sys
+from enum import Enum
 from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import Iterable
+from typing import Type
 from typing import TYPE_CHECKING
 from typing import Union
 
 from rich.console import Console
+from rich.padding import Padding
+from rich.panel import Panel
 from rich.style import Style
+from rich.table import Table
 from rich.theme import Theme
 from rich.tree import Tree
 
 
 if TYPE_CHECKING:
     from _pytask.nodes import MetaTask
+    from _pytask.outcomes import CollectionOutcome
+    from _pytask.outcomes import TaskOutcome
 
 
 _IS_WSL = "IS_WSL" in os.environ or "WSL_DISTRO_NAME" in os.environ
@@ -33,6 +40,9 @@ else:
 
 
 _COLOR_SYSTEM = None if _IS_LEGACY_WINDOWS else "auto"
+
+
+_HORIZONTAL_PADDING = (0, 1, 0, 1)
 
 
 ARROW_DOWN_ICON = "|" if _IS_LEGACY_WINDOWS else "⬇"
@@ -134,3 +144,45 @@ def unify_styles(*styles: Union[str, Style]) -> Style:
         else:
             parsed_styles.append(style)
     return Style.combine(parsed_styles)
+
+
+def create_summary_panel(
+    counts: Dict[Enum, int],
+    outcome_enum: Union[Type["CollectionOutcome"], Type["TaskOutcome"]],
+    description_total: str,
+) -> Panel:
+    """Create a summary panel."""
+    n_total = sum(counts.values())
+
+    grid = Table.grid("", "", "")
+    grid.add_row(
+        Padding(str(n_total), pad=_HORIZONTAL_PADDING),
+        Padding(description_total, pad=_HORIZONTAL_PADDING),
+        Padding("", pad=_HORIZONTAL_PADDING),
+    )
+    for outcome, value in counts.items():
+        if value:
+            percentage = f"({100 * value / n_total:.1f}%)"
+            grid.add_row(
+                Padding(str(value), pad=_HORIZONTAL_PADDING),
+                Padding(
+                    outcome.description,  # type: ignore[attr-defined]
+                    pad=_HORIZONTAL_PADDING,
+                ),
+                Padding(
+                    percentage,
+                    style=outcome.style,  # type: ignore[attr-defined]
+                    pad=_HORIZONTAL_PADDING,
+                ),
+            )
+
+    panel = Panel(
+        grid,
+        title="Summary",
+        expand=False,
+        border_style=outcome_enum.FAIL.style
+        if counts[outcome_enum.FAIL]
+        else outcome_enum.SUCCESS.style,
+    )
+
+    return panel
