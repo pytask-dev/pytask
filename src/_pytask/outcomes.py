@@ -127,6 +127,19 @@ class TaskOutcome(Enum):
         assert len(styles) == len(TaskOutcome)
         return styles[self]
 
+    @property
+    def style_textonly(self) -> str:
+        styles_textonly = {
+            TaskOutcome.SUCCESS: "success.textonly",
+            TaskOutcome.PERSISTENCE: "success.textonly",
+            TaskOutcome.SKIP_UNCHANGED: "success.textonly",
+            TaskOutcome.SKIP: "skipped.textonly",
+            TaskOutcome.SKIP_PREVIOUS_FAILED: "failed.textonly",
+            TaskOutcome.FAIL: "failed.textonly",
+        }
+        assert len(styles_textonly) == len(TaskOutcome)
+        return styles_textonly[self]
+
 
 def count_outcomes(
     reports: Sequence[Union["CollectionReport", "ExecutionReport"]],

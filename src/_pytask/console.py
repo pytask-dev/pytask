@@ -61,11 +61,14 @@ _EDITOR_URL_SCHEMES: Dict[str, str] = {
 
 theme = Theme(
     {
-        "failed": "red",
+        "failed": "#BF2D2D",
+        "failed.textonly": "#ffffff on #BF2D2D",
         "neutral": "",
-        "skipped": "yellow",
-        "success": "green",
-        "warning": "yellow",
+        "skipped": "#F4C041",
+        "skipped.textonly": "#000000 on #F4C041",
+        "success": "#137C39",
+        "success.textonly": "#ffffff on #137C39",
+        "warning": "#F4C041",
     }
 )
 
@@ -171,9 +174,9 @@ def create_summary_panel(
                 ),
                 Padding(
                     percentage,
-                    style=outcome.style,  # type: ignore[attr-defined]
                     pad=_HORIZONTAL_PADDING,
                 ),
+                style=outcome.style_textonly,  # type: ignore[attr-defined]
             )
 
     panel = Panel(
