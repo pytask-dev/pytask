@@ -52,7 +52,6 @@ def test_verbose_mode_execution(tmp_path, runner, verbose):
 
     assert ("Task" in result.output) is verbose
     assert ("Outcome" in result.output) is verbose
-    assert ("└──" in result.output) is verbose
     assert ("task_dummy.py::task_dummy" in result.output) is verbose
 
 

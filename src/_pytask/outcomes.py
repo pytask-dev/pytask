@@ -130,7 +130,7 @@ class TaskOutcome(Enum):
 
 def count_outcomes(
     reports: Sequence[Union["CollectionReport", "ExecutionReport"]],
-    outcome_enum: Type[Enum],
+    outcome_enum: Union[Type[CollectionOutcome], Type[TaskOutcome]],
 ) -> Dict[Enum, int]:
     """Count how often an outcome occurred.
 

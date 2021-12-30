@@ -1,9 +1,12 @@
+# -*- coding: <encoding-name> -*-
 import re
 import subprocess
 import textwrap
 
 import pytest
+from _pytask.console import console
 from _pytask.exceptions import NodeNotFoundError
+from _pytask.execute import _create_summary_panel
 from _pytask.outcomes import TaskOutcome
 from pytask import cli
 from pytask import main
@@ -307,3 +310,18 @@ def test_show_errors_immediately(runner, tmp_path, show_errors_immediately):
         assert len(matches_traceback) == 2
     else:
         assert len(matches_traceback) == 1
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("outcome", TaskOutcome)
+def test_create_summary_panel(capsys, outcome):
+    counts = {out: 0 for out in TaskOutcome}
+    counts[outcome] = 1
+    panel = _create_summary_panel(counts)
+    console.print(panel)
+
+    captured = capsys.readouterr().out
+    assert "───── Summary ────" in captured
+    assert "─┐" in captured
+    # assert "└─" in captured
+    assert outcome.description in captured
