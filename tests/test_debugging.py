@@ -306,7 +306,7 @@ def test_pdb_interaction_capturing_twice(tmp_path):
     assert "Captured stdout during call" in rest
     assert "hello17" in rest  # out is captured
     assert "hello18" in rest  # out is captured
-    assert "1 failed" in rest
+    assert "1  Failed" in rest
     _flush(child)
 
 
