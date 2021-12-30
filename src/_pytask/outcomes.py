@@ -41,8 +41,8 @@ class CollectionOutcome(Enum):
     @property
     def description(self) -> str:
         descriptions = {
-            CollectionOutcome.SUCCESS: "succeeded",
-            CollectionOutcome.FAIL: "failed",
+            CollectionOutcome.SUCCESS: "Succeeded",
+            CollectionOutcome.FAIL: "Failed",
         }
         assert len(descriptions) == len(CollectionOutcome)
         return descriptions[self]
@@ -104,12 +104,12 @@ class TaskOutcome(Enum):
     @property
     def description(self) -> str:
         descriptions = {
-            TaskOutcome.SUCCESS: "succeeded",
-            TaskOutcome.PERSISTENCE: "persisted",
-            TaskOutcome.SKIP_UNCHANGED: "skipped because unchanged",
-            TaskOutcome.SKIP: "skipped",
-            TaskOutcome.SKIP_PREVIOUS_FAILED: "skipped because previous failed",
-            TaskOutcome.FAIL: "failed",
+            TaskOutcome.SUCCESS: "Succeeded",
+            TaskOutcome.PERSISTENCE: "Persisted",
+            TaskOutcome.SKIP_UNCHANGED: "Skipped because unchanged",
+            TaskOutcome.SKIP: "Skipped",
+            TaskOutcome.SKIP_PREVIOUS_FAILED: "Skipped because previous failed",
+            TaskOutcome.FAIL: "Failed",
         }
         assert len(descriptions) == len(TaskOutcome)
         return descriptions[self]

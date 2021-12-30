@@ -196,7 +196,7 @@ def test_capturing_unicode(tmp_path, runner, method):
 
     result = runner.invoke(cli, [tmp_path.as_posix(), f"--capture={method}"])
 
-    assert "1 succeeded" in result.output
+    assert "1  Succeeded" in result.output
     assert result.exit_code == 0
 
 
@@ -213,7 +213,7 @@ def test_capturing_bytes_in_utf8_encoding(tmp_path, runner, method):
 
     result = runner.invoke(cli, [tmp_path.as_posix(), f"--capture={method}"])
 
-    assert "1 succeeded" in result.output
+    assert "1  Succeeded" in result.output
     assert result.exit_code == 0
 
 
@@ -266,7 +266,10 @@ def test_capturing_outerr(tmp_path, runner):
         "1",
         "──────────────────────── Captured stderr during call ────────────────────────",
         "2",
-        "─────────── 1 succeeded, 1 failed in 0 seconds ────────",
+        "2  Collected tasks",
+        "1  Succeeded",
+        "1  Failed",
+        "─────────── Failed in 0 seconds ────────",
     ]:
         assert content in result.output
 
@@ -288,7 +291,7 @@ def test_capture_badoutput_issue412(tmp_path, runner):
         "task_func",
         "assert 0",
         "Captured",
-        "1 failed",
+        "1  Failed",
     ]:
         assert content in result.output
 
@@ -737,7 +740,7 @@ class TestStdCaptureFDinvalidFD:
 
         result = runner.invoke(cli, [tmp_path.as_posix(), "--capture=fd"])
         assert result.exit_code == 0
-        assert "3 succeeded" in result.output
+        assert "3  Succeeded" in result.output
 
     def test_fdcapture_invalid_fd_with_fd_reuse(self, tmp_path):
         os.chdir(tmp_path)

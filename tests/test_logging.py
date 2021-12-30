@@ -30,36 +30,32 @@ def test_format_plugin_names_and_versions(plugins, expected):
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
-    "infos, duration, color, expected",
+    "duration, outcome, expected",
     [
         (
-            {TaskOutcome.SUCCESS: 1, TaskOutcome.FAIL: 1},
             1,
-            TaskOutcome.FAIL.style,
-            "────── 1 succeeded, 1 failed in 1 second ───────────",
+            TaskOutcome.FAIL,
+            "────── Failed in 1 second ───────────",
         ),
         (
-            {TaskOutcome.SUCCESS: 1, TaskOutcome.SKIP_PREVIOUS_FAILED: 1},
             10,
-            TaskOutcome.SUCCESS.style,
-            "────── 1 succeeded, 1 skipped because previous failed in 10 seconds ─────",
+            TaskOutcome.SUCCESS,
+            "────── Succeeded in 10 seconds ─────",
         ),
         (
-            {TaskOutcome.SKIP_UNCHANGED: 1, TaskOutcome.PERSISTENCE: 1},
             5401,
-            TaskOutcome.SUCCESS.style,
-            "─ 1 skipped because unchanged, 1 persisted in 1 hour, 30 minutes ─",
+            TaskOutcome.SUCCESS,
+            "─ Succeeded in 1 hour, 30 minutes ─",
         ),
         (
-            {TaskOutcome.FAIL: 1, TaskOutcome.SKIP: 1},
             125_000,
-            TaskOutcome.FAIL.style,
-            "─────── 1 failed, 1 skipped in 1 day, 10 hours, 43 minutes ───────────",
+            TaskOutcome.FAIL,
+            "─────── Failed in 1 day, 10 hours, 43 minutes ───────────",
         ),
     ],
 )
-def test_pytask_log_session_footer(capsys, infos, duration, color, expected):
-    pytask_log_session_footer(infos, duration, color)
+def test_pytask_log_session_footer(capsys, duration, outcome, expected):
+    pytask_log_session_footer(duration, outcome)
     captured = capsys.readouterr()
     assert expected in captured.out
 
@@ -68,24 +64,24 @@ def test_pytask_log_session_footer(capsys, infos, duration, color, expected):
 @pytest.mark.parametrize(
     "func, expected_1, expected_2",
     [
-        ("def task_func(): pass", "1 succeeded", "1 skipped because unchanged"),
+        ("def task_func(): pass", "1  Succeeded", "1  Skipped because unchanged"),
         (
             "@pytask.mark.persist\n    def task_func(): pass",
-            "1 persisted",
-            "1 skipped because unchanged",
+            "1  Persisted",
+            "1  Skipped because unchanged",
         ),
-        ("@pytask.mark.skip\n    def task_func(): pass", "1 skipped", "1 skipped"),
+        ("@pytask.mark.skip\n    def task_func(): pass", "1  Skipped", "1  Skipped"),
         (
             "@pytask.mark.skip_unchanged\n    def task_func(): pass",
-            "1 skipped because unchanged",
-            "1 skipped because unchanged",
+            "1  Skipped because unchanged",
+            "1  Skipped because unchanged",
         ),
         (
             "@pytask.mark.skip_ancestor_failed\n    def task_func(): pass",
-            "1 skipped because previous failed",
-            "1 skipped because previous failed",
+            "1  Skipped because previous failed",
+            "1  Skipped because previous failed",
         ),
-        ("def task_func(): raise Exception", "1 failed", "1 failed"),
+        ("def task_func(): raise Exception", "1  Failed", "1  Failed"),
     ],
 )
 def test_logging_of_outcomes(tmp_path, runner, func, expected_1, expected_2):

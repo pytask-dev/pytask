@@ -304,7 +304,7 @@ def test_selecting_task_with_keyword_should_run_predecessor(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix(), "-k", "second"])
 
     assert result.exit_code == 0
-    assert "2 succeeded" in result.output
+    assert "2  Succeeded" in result.output
 
 
 @pytest.mark.end_to_end
@@ -326,7 +326,7 @@ def test_selecting_task_with_marker_should_run_predecessor(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
 
     assert result.exit_code == 0
-    assert "2 succeeded" in result.output
+    assert "2  Succeeded" in result.output
 
 
 @pytest.mark.end_to_end
@@ -346,8 +346,8 @@ def test_selecting_task_with_keyword_ignores_other_task(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix(), "-k", "second"])
 
     assert result.exit_code == 0
-    assert "1 succeeded" in result.output
-    assert "1 skipped" in result.output
+    assert "1  Succeeded" in result.output
+    assert "1  Skipped" in result.output
 
 
 @pytest.mark.end_to_end
@@ -368,5 +368,5 @@ def test_selecting_task_with_marker_ignores_other_task(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
 
     assert result.exit_code == 0
-    assert "1 succeeded" in result.output
-    assert "1 skipped" in result.output
+    assert "1  Succeeded" in result.output
+    assert "1  Skipped" in result.output

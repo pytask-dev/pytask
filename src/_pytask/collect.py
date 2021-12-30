@@ -314,11 +314,10 @@ def pytask_collect_log(
 
         session.hook.pytask_log_session_footer(
             session=session,
-            counts=counts,
             duration=session.collection_end - session.collection_start,
-            style=CollectionOutcome.FAIL.style
+            outcome=CollectionOutcome.FAIL
             if counts[CollectionOutcome.FAIL]
-            else CollectionOutcome.SUCCESS.style,
+            else CollectionOutcome.SUCCESS,
         )
 
         raise CollectionError
