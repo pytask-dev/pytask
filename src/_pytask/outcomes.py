@@ -56,6 +56,15 @@ class CollectionOutcome(Enum):
         assert len(styles) == len(CollectionOutcome)
         return styles[self]
 
+    @property
+    def style_textonly(self) -> str:
+        styles_textonly = {
+            CollectionOutcome.SUCCESS: "success.textonly",
+            CollectionOutcome.FAIL: "failed.textonly",
+        }
+        assert len(styles_textonly) == len(CollectionOutcome)
+        return styles_textonly[self]
+
 
 class TaskOutcome(Enum):
     """Outcomes of tasks.
