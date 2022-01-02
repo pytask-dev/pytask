@@ -9,15 +9,19 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import Iterable
+from typing import Optional
 from typing import Type
 from typing import TYPE_CHECKING
 from typing import Union
 
+import rich
 from rich.console import Console
 from rich.padding import Padding
 from rich.panel import Panel
+from rich.segment import Segment
 from rich.style import Style
 from rich.table import Table
+from rich.text import Text
 from rich.theme import Theme
 from rich.tree import Tree
 
@@ -74,6 +78,33 @@ theme = Theme(
 
 
 console = Console(theme=theme, color_system=_COLOR_SYSTEM)
+
+
+def render_to_string(text: Union[str, Text], console: Optional[Console] = None) -> str:
+    """Render text with rich to string including ANSI codes, etc.."""
+    if console is None:
+        console = rich.get_console()
+
+    segments = console.render(text)
+
+    output = []
+    if console.no_color and console._color_system:
+        segments = Segment.remove_color(segments)
+
+    for segment in segments:
+        if segment.style:
+            output.append(
+                segment.style.render(
+                    segment.text,
+                    color_system=console._color_system,
+                    legacy_windows=console.legacy_windows,
+                )
+            )
+        else:
+            output.append(segment.text)
+
+    rendered = "".join(output)
+    return rendered
 
 
 def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -> str:

@@ -7,9 +7,11 @@ from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_path
 from _pytask.console import create_url_style_for_task
+from _pytask.console import render_to_string
 from _pytask.nodes import MetaTask
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
+from rich.console import Console
 from rich.style import Style
 
 
@@ -93,3 +95,17 @@ def test_create_summary_panel(capsys, outcome, outcome_enum, total_description):
     assert "└─" in captured or "╰─" in captured
     assert outcome.description in captured
     assert "description" in captured
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "color_system, text, expected",
+    [
+        (None, "[red]text", "text\n"),
+        ("truecolor", "[red]text", "\x1b[31mtext\x1b[0m\n"),
+    ],
+)
+def test_render_to_string(color_system, text, expected):
+    console = Console(color_system=color_system)
+    result = render_to_string(text, console)
+    assert result == expected
