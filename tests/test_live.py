@@ -214,3 +214,25 @@ def test_full_execution_table_is_displayed_at_the_end_of_execution(tmp_path, run
     assert result.exit_code == 0
     for i in range(4):
         assert f"{i}.txt" in result.output
+
+
+@pytest.mark.end_to_end
+def test_execute_w_partialed_functions(tmp_path, runner):
+    """Test with partialed function which make it harder to extract info.
+
+    Info like source line number and the path to the module.
+
+    """
+    source = """
+    import functools
+
+    def func(): ...
+
+    task_func = functools.partial(func)
+
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.joinpath("task_module.py").as_posix()])
+
+    assert result.exit_code == 0
+    assert "task_func" in result.output
