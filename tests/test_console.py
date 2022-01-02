@@ -93,5 +93,3 @@ def test_create_summary_panel(capsys, outcome, outcome_enum, total_description):
     assert "└─" in captured or "╰─" in captured
     assert outcome.description in captured
     assert "description" in captured
-
-    ...

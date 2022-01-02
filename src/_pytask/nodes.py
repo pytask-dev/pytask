@@ -76,7 +76,8 @@ class MetaTask(MetaNode):
 
     base_name: str
     name: str
-    markers: "List[Mark]"
+    short_name: Optional[str]
+    markers: List["Mark"]
     depends_on: Dict[str, MetaNode]
     produces: Dict[str, MetaNode]
     path: Path
@@ -107,6 +108,8 @@ class PythonFunctionTask(MetaTask):
     """pathlib.Path: Path to the file where the task was defined."""
     function = attr.ib(type=Callable[..., Any])
     """Callable[..., Any]: The task function."""
+    short_name = attr.ib(default=None, type=Optional[str])
+    """str: The shortest uniquely identifiable name for task for display."""
     depends_on = attr.ib(factory=dict, type=Dict[str, MetaNode])
     """Dict[str, MetaNode]: A list of dependencies of task."""
     produces = attr.ib(factory=dict, type=Dict[str, MetaNode])

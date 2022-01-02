@@ -12,6 +12,7 @@ import click
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_url_style_for_task
+from _pytask.console import unify_styles
 from _pytask.nodes import MetaTask
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
@@ -174,7 +175,9 @@ class LiveExecution:
             else:
                 relevant_reports = []
 
-            table = Table("Task", "Outcome")
+            table = Table()
+            table.add_column("Task", overflow="fold")
+            table.add_column("Outcome", justify="center")
             for report in relevant_reports:
                 if (
                     report["outcome"]
@@ -188,13 +191,23 @@ class LiveExecution:
                 ):
                     pass
                 else:
-                    table.add_row(
+                    if "::" in report["name"]:
+                        path, base = report["name"].split("::")
+                    else:
+                        path, base = "", report["name"]
+                    name = Text.assemble(
+                        Text(path + "::", style="dim"),
                         Text(
-                            report["name"],
-                            style=create_url_style_for_task(
-                                report["task"], self._editor_url_scheme
+                            base,
+                            style=unify_styles(
+                                create_url_style_for_task(
+                                    report["task"], self._editor_url_scheme
+                                )
                             ),
                         ),
+                    )
+                    table.add_row(
+                        name,
                         Text(report["outcome"].symbol, style=report["outcome"].style),
                     )
             for running_task in self._running_tasks:
@@ -218,7 +231,7 @@ class LiveExecution:
         self._running_tasks.remove(reduced_task_name)
         self._reports.append(
             {
-                "name": reduced_task_name,
+                "name": new_report.task.short_name,
                 "outcome": new_report.outcome,
                 "task": new_report.task,
             }
