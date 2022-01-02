@@ -159,7 +159,7 @@ def _humanize_time(
     >>> _humanize_time(173, "hours")
     [(7, 'days'), (5, 'hours')]
     >>> _humanize_time(173.345, "seconds")
-    [(2, 'minutes'), (53, 'seconds')]
+    [(2, 'minutes'), (53.34, 'seconds')]
     >>> _humanize_time(173, "hours", short_label=True)
     [(7, 'd'), (5, 'h')]
     >>> _humanize_time(0, "seconds", short_label=True)
