@@ -44,7 +44,7 @@ else:
     _IS_LEGACY_WINDOWS = False
 
 
-_COLOR_SYSTEM = None if _IS_LEGACY_WINDOWS else "auto"
+_COLOR_SYSTEM = None if _IS_LEGACY_WINDOWS or "CI" in os.environ else "auto"
 
 
 _HORIZONTAL_PADDING = (0, 1, 0, 1)
