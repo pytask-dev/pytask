@@ -89,23 +89,6 @@ def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -
     return text
 
 
-def escape_squared_brackets(string: str) -> str:
-    """Escape squared brackets which would be accidentally parsed by rich.
-
-    An example are the ids of parametrized tasks which are suffixed with squared
-    brackets surrounding string representations of the parametrized arguments.
-
-    Example
-    -------
-    >>> escape_squared_brackets("Hello!")
-    'Hello!'
-    >>> escape_squared_brackets("task_dummy[arg1-arg2]")
-    'task_dummy\\\\[arg1-arg2]'
-
-    """
-    return string.replace("[", "\\[")
-
-
 def create_url_style_for_task(task: "MetaTask", edtior_url_scheme: str) -> Style:
     """Create the style to add a link to a task id."""
     url_scheme = _EDITOR_URL_SCHEMES.get(edtior_url_scheme, edtior_url_scheme)
