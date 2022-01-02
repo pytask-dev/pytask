@@ -103,7 +103,8 @@ def test_logging_of_outcomes(tmp_path, runner, func, expected_1, expected_2):
 @pytest.mark.parametrize(
     "amount, unit, short_label, expectation, expected",
     [
-        (173, "hours", False, does_not_raise(), [(7, "days"), (5, "hours")]),
+        (2.234, "seconds", True, does_not_raise(), [(2.23, "s")]),
+        (173, "hours", True, does_not_raise(), [(7, "d"), (5, "h")]),
         (1, "hour", False, does_not_raise(), [(1, "hour")]),
         (
             17281,
@@ -112,7 +113,6 @@ def test_logging_of_outcomes(tmp_path, runner, func, expected_1, expected_2):
             does_not_raise(),
             [(4, "hours"), (48, "minutes"), (1, "second")],
         ),
-        (173, "hours", True, does_not_raise(), [(7, "d"), (5, "h")]),
         (1, "hour", True, does_not_raise(), [(1, "h")]),
         (
             1,

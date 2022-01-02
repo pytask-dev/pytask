@@ -151,7 +151,7 @@ def _format_duration(duration: float) -> str:
 
 def _humanize_time(
     amount: Union[int, float], unit: str, short_label: bool = False
-) -> List[Tuple[int, str]]:
+) -> List[Tuple[float, str]]:
     """Humanize the time.
 
     Examples
@@ -180,7 +180,7 @@ def _humanize_time(
 
     seconds = amount * _TIME_UNITS[index]["in_seconds"]
 
-    result = []
+    result: List[Tuple[float, str]] = []
     remaining_seconds = seconds
     for entry in _TIME_UNITS:
         whole_units = int(remaining_seconds / entry["in_seconds"])
@@ -196,7 +196,7 @@ def _humanize_time(
                 result.append((whole_units, label))
                 remaining_seconds -= whole_units * entry["in_seconds"]
             else:
-                result.append((int(remaining_seconds), label))
+                result.append((round(remaining_seconds, 2), label))
 
     if not result:
         result.append(
