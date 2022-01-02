@@ -142,7 +142,7 @@ class LiveExecution:
     def pytask_execute_build(self) -> Generator[None, None, None]:
         self._live_manager.start()
         yield
-        self._update_table(reduce_table=False)
+        self._update_table(reduce_table=False, sort_table=True)
         self._live_manager.stop(transient=False)
 
     @hookimpl(tryfirst=True)
@@ -155,7 +155,7 @@ class LiveExecution:
         self.update_reports(report)
         return True
 
-    def _generate_table(self, reduce_table: bool) -> Optional[Table]:
+    def _generate_table(self, reduce_table: bool, sort_table: bool) -> Optional[Table]:
         """Generate the table.
 
         First, display all completed tasks and, then, all running tasks.
@@ -173,6 +173,11 @@ class LiveExecution:
                 relevant_reports = self._reports[-n_reports_to_display:]
             else:
                 relevant_reports = []
+
+            if sort_table:
+                relevant_reports = sorted(
+                    relevant_reports, key=lambda report: report["name"]
+                )
 
             table = Table()
             table.add_column("Task", overflow="fold")
@@ -211,8 +216,10 @@ class LiveExecution:
 
         return table
 
-    def _update_table(self, reduce_table: bool = True) -> None:
-        table = self._generate_table(reduce_table)
+    def _update_table(
+        self, reduce_table: bool = True, sort_table: bool = False
+    ) -> None:
+        table = self._generate_table(reduce_table=reduce_table, sort_table=sort_table)
         self._live_manager.update(table)
 
     def update_running_tasks(self, new_running_task: MetaTask) -> None:

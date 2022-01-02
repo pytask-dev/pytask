@@ -112,7 +112,7 @@ def create_url_style_for_task(task: "MetaTask", edtior_url_scheme: str) -> Style
 
     info = {
         "path": _get_file(task.function),
-        "line_number": inspect.getsourcelines(task.function)[1],
+        "line_number": _get_source_lines(task.function),
     }
 
     return Style() if not url_scheme else Style(link=url_scheme.format(**info))
@@ -134,6 +134,14 @@ def _get_file(function: Callable[..., Any]) -> Path:
         return _get_file(function.func)
     else:
         return Path(inspect.getfile(function))
+
+
+def _get_source_lines(function: Callable[..., Any]) -> int:
+    """Get the source line number of the function."""
+    if isinstance(function, functools.partial):
+        return _get_source_lines(function.func)
+    else:
+        return inspect.getsourcelines(function)[1]
 
 
 def unify_styles(*styles: Union[str, Style]) -> Style:
