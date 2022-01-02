@@ -358,7 +358,7 @@ def test_pdb_with_injected_do_debug(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(
-        f"pytask --pdbcls=task_example:CustomPdb {tmp_path.as_posix()}",
+        f"pytask --pdbcls=task_module:CustomPdb {tmp_path.as_posix()}",
         env={"PATH": os.environ["PATH"], "PYTHONPATH": f"{tmp_path.as_posix()}"},
     )
 
