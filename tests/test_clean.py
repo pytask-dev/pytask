@@ -12,10 +12,10 @@ def sample_project_path(tmp_path):
 
     @pytask.mark.depends_on("in.txt")
     @pytask.mark.produces("out.txt")
-    def task_dummy(produces):
+    def task_write_text(produces):
         produces.write_text("a")
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").touch()
 
     tmp_path.joinpath("to_be_deleted_file_1.txt").touch()
@@ -161,7 +161,7 @@ def test_collection_failed(runner, tmp_path):
     source = """
     raise Exception
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, ["clean", tmp_path.as_posix()])
     assert result.exit_code == 3

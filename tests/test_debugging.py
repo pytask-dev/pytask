@@ -48,12 +48,12 @@ def _flush(child):
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_post_mortem_on_error(tmp_path):
     source = """
-    def task_dummy():
+    def task_example():
         a = 'I am in the debugger. '
         b = 'For real!'
         assert 0
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask --pdb {tmp_path.as_posix()}")
     child.expect("Pdb")
@@ -72,11 +72,11 @@ def test_post_mortem_on_error_w_kwargs(tmp_path):
     from pathlib import Path
 
     @pytask.mark.depends_on(Path(__file__).parent / "in.txt")
-    def task_dummy(depends_on):
+    def task_example(depends_on):
         a = depends_on.read_text()
         assert 0
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Stuck in the middle with you.")
 
     child = pexpect.spawn(f"pytask --pdb {tmp_path.as_posix()}")
@@ -92,10 +92,10 @@ def test_post_mortem_on_error_w_kwargs(tmp_path):
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_trace(tmp_path):
     source = """
-    def task_dummy():
+    def task_example():
         i = 32345434
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask --trace {tmp_path.as_posix()}")
     child.expect("Pdb")
@@ -114,10 +114,10 @@ def test_trace_w_kwargs(tmp_path):
     from pathlib import Path
 
     @pytask.mark.depends_on(Path(__file__).parent / "in.txt")
-    def task_dummy(depends_on):
+    def task_example(depends_on):
         print(depends_on.read_text())
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("I want you back.")
 
     child = pexpect.spawn(f"pytask --trace {tmp_path.as_posix()}")
@@ -134,11 +134,11 @@ def test_trace_w_kwargs(tmp_path):
 @pytest.mark.skipif(sys.version_info < (3, 7), reason="breakpoint is Python 3.7+ only.")
 def test_breakpoint(tmp_path):
     source = """
-    def task_dummy():
+    def task_example():
         i = 32345434
         breakpoint()
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
     child.expect("Pdb")
@@ -154,11 +154,11 @@ def test_breakpoint(tmp_path):
 def test_pdb_set_trace(tmp_path):
     source = """
     import pdb
-    def task_dummy():
+    def task_example():
         i = 32345434
         pdb.set_trace()
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
     child.expect("Pdb")
@@ -181,7 +181,7 @@ def test_pdb_interaction_capturing_simple(tmp_path):
         i == 1
         assert 0
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
     child.expect(r"task_1\(\)")
@@ -209,7 +209,7 @@ def test_pdb_set_trace_kwargs(tmp_path):
         x = 3
         assert 0
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
     child.expect("== my_header ==")
@@ -232,7 +232,7 @@ def test_pdb_set_trace_interception(tmp_path):
     def task_1():
         pdb.set_trace()
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
     child.expect("task_1")
@@ -260,7 +260,7 @@ def test_set_trace_capturing_afterwards(tmp_path):
         print("hello")
         assert 0
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
     child.expect("task_1")
@@ -287,7 +287,7 @@ def test_pdb_interaction_capturing_twice(tmp_path):
         x = 4
         assert 0
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
     child.expect(["PDB", "set_trace", r"\(IO-capturing", "turned", r"off\)"])
@@ -355,10 +355,10 @@ def test_pdb_with_injected_do_debug(tmp_path):
         print("hello18")
         assert count_continue == 2, "unexpected_failure: %d != 2" % count_continue
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(
-        f"pytask --pdbcls=task_dummy:CustomPdb {tmp_path.as_posix()}",
+        f"pytask --pdbcls=task_example:CustomPdb {tmp_path.as_posix()}",
         env={"PATH": os.environ["PATH"], "PYTHONPATH": f"{tmp_path.as_posix()}"},
     )
 
@@ -399,7 +399,7 @@ def test_pdb_without_capture(tmp_path):
     def task_1():
         pdb.set_trace()
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask -s {tmp_path.as_posix()}")
     child.expect(r"PDB set_trace")
@@ -419,7 +419,7 @@ def test_pdb_used_outside_task(tmp_path):
     pdb.set_trace()
     x = 5
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
     child.expect("x = 5")
@@ -431,7 +431,7 @@ def test_pdb_used_outside_task(tmp_path):
 @pytest.mark.end_to_end
 def test_printing_of_local_variables(tmp_path, runner):
     source = """
-    def task_dummy():
+    def task_example():
         a = 1
         helper()
 
@@ -439,7 +439,7 @@ def test_printing_of_local_variables(tmp_path, runner):
         b = 2
         raise Exception
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "--show-locals"])
     assert result.exit_code == 1
@@ -462,7 +462,7 @@ def test_set_trace_is_returned_after_pytask_finishes(tmp_path):
         pytask.main({{"paths": "{tmp_path.as_posix()}"}})
         breakpoint()
     """
-    tmp_path.joinpath("test_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("test_example.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytest {tmp_path.as_posix()}")
     child.expect("breakpoint()")

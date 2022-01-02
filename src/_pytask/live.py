@@ -45,6 +45,7 @@ def pytask_parse_config(
     config_from_cli: Dict[str, Any],
     config_from_file: Dict[str, Any],
 ) -> None:
+    """Parse the configuration."""
     config["n_entries_in_table"] = get_first_non_none_value(
         config_from_cli,
         config_from_file,
@@ -55,6 +56,7 @@ def pytask_parse_config(
 
 
 def _parse_n_entries_in_table(value: Union[int, str, None]) -> int:
+    """Parse how many entries should be displayed in the table during the execution."""
     if value in ["none", "None", None, ""]:
         out = None
     elif isinstance(value, int) and value >= 1:
@@ -72,6 +74,7 @@ def _parse_n_entries_in_table(value: Union[int, str, None]) -> int:
 
 @hookimpl
 def pytask_post_parse(config: Dict[str, Any]) -> None:
+    """Post-parse the configuration."""
     live_manager = LiveManager()
     config["pm"].register(live_manager, "live_manager")
 
@@ -129,6 +132,7 @@ class LiveManager:
 
 @attr.s(eq=False)
 class LiveExecution:
+    """A class for managing the table displaying task progress during the execution."""
 
     _live_manager = attr.ib(type=LiveManager)
     _paths = attr.ib(type=List[Path])
@@ -140,6 +144,8 @@ class LiveExecution:
 
     @hookimpl(hookwrapper=True)
     def pytask_execute_build(self) -> Generator[None, None, None]:
+        """Wrap the execution with the live manager and yield a complete table at the
+        end."""
         self._live_manager.start()
         yield
         self._update_table(reduce_table=False, sort_table=True)
@@ -147,11 +153,13 @@ class LiveExecution:
 
     @hookimpl(tryfirst=True)
     def pytask_execute_task_log_start(self, task: MetaTask) -> bool:
+        """Mark a new task as running."""
         self.update_running_tasks(task)
         return True
 
     @hookimpl
     def pytask_execute_task_log_end(self, report: ExecutionReport) -> bool:
+        """Mark a task as being finished and update outcome."""
         self.update_reports(report)
         return True
 
@@ -213,15 +221,18 @@ class LiveExecution:
     def _update_table(
         self, reduce_table: bool = True, sort_table: bool = False
     ) -> None:
+        """Regenerate the table."""
         table = self._generate_table(reduce_table=reduce_table, sort_table=sort_table)
         self._live_manager.update(table)
 
     def update_running_tasks(self, new_running_task: MetaTask) -> None:
+        """Add a new running task."""
         reduced_task_name = reduce_node_name(new_running_task, self._paths)
         self._running_tasks.add(reduced_task_name)
         self._update_table()
 
     def update_reports(self, new_report: ExecutionReport) -> None:
+        """Update the status of a running task by adding its report."""
         reduced_task_name = reduce_node_name(new_report.task, self._paths)
         self._running_tasks.remove(reduced_task_name)
         self._reports.append(
@@ -236,6 +247,7 @@ class LiveExecution:
 
 @attr.s(eq=False)
 class LiveCollection:
+    """A class for managing the live status during the collection."""
 
     _live_manager = attr.ib(type=LiveManager)
     _n_collected_tasks = attr.ib(default=0, type=int)

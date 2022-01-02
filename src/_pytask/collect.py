@@ -84,6 +84,7 @@ def pytask_ignore_collect(path: Path, config: Dict[str, Any]) -> bool:
 def pytask_collect_file_protocol(
     session: Session, path: Path, reports: List[CollectionReport]
 ) -> List[CollectionReport]:
+    """Wrap the collection of tasks from a file to collect reports."""
     try:
         reports = session.hook.pytask_collect_file(
             session=session, path=path, reports=reports

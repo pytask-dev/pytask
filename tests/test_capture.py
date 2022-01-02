@@ -226,7 +226,7 @@ def test_collect_capturing(tmp_path, runner):
     sys.stderr.write("collect %s_stderr failure" % 13)
     import xyz42123
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
@@ -283,7 +283,7 @@ def test_capture_badoutput_issue412(tmp_path, runner):
         os.write(1, omg)
         assert 0
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "--capture=fd"])
 
@@ -387,7 +387,7 @@ def test_captureresult() -> None:
 
 @pytest.fixture()
 def tmpfile(tmp_path) -> Generator[BinaryIO, None, None]:
-    f = tmp_path.joinpath("task_dummy.py").open("wb+")
+    f = tmp_path.joinpath("task_module.py").open("wb+")
     yield f
     if not f.closed:
         f.close()
@@ -430,7 +430,7 @@ class TestFDCapture:
 
     def test_simple_many_check_open_files(self, tmp_path):
         with lsof_check():
-            with tmp_path.joinpath("task_dummy.py").open("wb+") as tmpfile:
+            with tmp_path.joinpath("task_module.py").open("wb+") as tmpfile:
                 self.test_simple_many(tmpfile)
 
     def test_simple_fail_second_start(self, tmpfile):
@@ -664,7 +664,7 @@ class TestStdCaptureFD(TestStdCapture):
             os.write(1, b"hello\\n")
             assert 0
         """
-        tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+        tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
         result = runner.invoke(cli, [tmp_path.as_posix()])
         for content in [
             "task_x",
@@ -736,7 +736,7 @@ class TestStdCaptureFDinvalidFD:
             )
             cap.stop_capturing()
         """
-        tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+        tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
         result = runner.invoke(cli, [tmp_path.as_posix(), "--capture=fd"])
         assert result.exit_code == 0

@@ -22,10 +22,10 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
 
     @pytask.mark.depends_on("in.txt")
     @pytask.mark.produces("out.txt")
-    def task_dummy(depends_on, produces):
+    def task_write_text(depends_on, produces):
         produces.write_text(depends_on.read_text())
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Relative paths work.")
 
     session = main({"paths": tmp_path})
@@ -44,7 +44,7 @@ def test_collect_filepathnode_with_unknown_type(tmp_path):
     def task_with_non_path_dependency():
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
 
@@ -69,7 +69,7 @@ def test_collect_nodes_with_the_same_name(runner, tmp_path):
     def task_1(depends_on, produces):
         produces.write_text(depends_on.read_text())
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     tmp_path.joinpath("text.txt").write_text("in root")
 
@@ -84,9 +84,9 @@ def test_collect_nodes_with_the_same_name(runner, tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.parametrize("path_extension", ["", "task_dummy.py"])
+@pytest.mark.parametrize("path_extension", ["", "task_module.py"])
 def test_collect_same_test_different_ways(tmp_path, path_extension):
-    tmp_path.joinpath("task_dummy.py").write_text("def task_dummy(): pass")
+    tmp_path.joinpath("task_module.py").write_text("def task_passes(): pass")
 
     session = main({"paths": tmp_path.joinpath(path_extension)})
 
@@ -98,13 +98,13 @@ def test_collect_same_test_different_ways(tmp_path, path_extension):
 @pytest.mark.parametrize(
     "task_files, pattern, expected_collected_tasks",
     [
-        (["dummy_task.py"], "*_task.py", 1),
-        (["tasks_dummy.py"], "tasks_*", 1),
-        (["dummy_tasks.py"], "*_tasks.py", 1),
-        (["task_dummy.py", "tasks_dummy.py"], "None", 1),
-        (["task_dummy.py", "tasks_dummy.py"], "tasks_*.py", 1),
+        (["example_task.py"], "*_task.py", 1),
+        (["tasks_example.py"], "tasks_*", 1),
+        (["example_tasks.py"], "*_tasks.py", 1),
+        (["task_module.py", "tasks_example.py"], "None", 1),
+        (["task_module.py", "tasks_example.py"], "tasks_*.py", 1),
         (
-            ["task_dummy.py", "tasks_dummy.py"],
+            ["task_module.py", "tasks_example.py"],
             "\n            task_*.py\n             tasks_*.py",
             2,
         ),
@@ -117,7 +117,7 @@ def test_collect_files_w_custom_file_name_pattern(
     tmp_path.joinpath(config_name).write_text(f"[pytask]\ntask_files = {pattern}")
 
     for file in task_files:
-        tmp_path.joinpath(file).write_text("def task_dummy(): pass")
+        tmp_path.joinpath(file).write_text("def task_example(): pass")
 
     session = main({"paths": tmp_path})
 

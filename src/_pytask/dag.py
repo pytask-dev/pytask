@@ -72,6 +72,7 @@ class TopologicalSorter:
 
     @classmethod
     def from_dag(cls, dag: nx.DiGraph, paths: List[Path] = None) -> "TopologicalSorter":
+        """Instantiate from a DAG."""
         if paths is None:
             paths = []
 

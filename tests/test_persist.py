@@ -40,7 +40,7 @@ def test_multiple_runs_with_persist(tmp_path):
     def task_dummy(depends_on, produces):
         produces.write_text(depends_on.read_text())
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("I'm not the reason you care.")
 
     session = main({"paths": tmp_path})
@@ -65,7 +65,7 @@ def test_multiple_runs_with_persist(tmp_path):
         create_database(
             "sqlite", tmp_path.joinpath(".pytask.sqlite3").as_posix(), True, False
         )
-        task_id = tmp_path.joinpath("task_dummy.py").as_posix() + "::task_dummy"
+        task_id = tmp_path.joinpath("task_module.py").as_posix() + "::task_dummy"
         node_id = tmp_path.joinpath("out.txt").as_posix()
 
         state = State[task_id, node_id].state
@@ -90,7 +90,7 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
     def task_dummy(depends_on, produces):
         produces.write_text(depends_on.read_text())
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     for name in ["in.txt", "out.txt"]:
         tmp_path.joinpath(name).write_text(
             "They say oh my god I see the way you shine."

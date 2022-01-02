@@ -455,6 +455,7 @@ def wrap_function_for_tracing(session: Session, task: MetaTask) -> None:
 
 
 def post_mortem(t: TracebackType) -> None:
+    """Start post-mortem debugging."""
     p = PytaskPDB._init_pdb("post_mortem")
     p.reset()
     p.interaction(None, t)

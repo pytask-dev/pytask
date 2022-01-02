@@ -90,7 +90,7 @@ def test_logging_of_outcomes(tmp_path, runner, func, expected_1, expected_2):
 
     {func}
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert expected_1 in result.output

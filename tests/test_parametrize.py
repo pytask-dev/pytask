@@ -169,7 +169,7 @@ def test_parametrizing_tasks(tmp_path):
     def task_write_numbers_to_file(produces, i):
         produces.write_text(str(i))
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
 
@@ -193,7 +193,7 @@ def test_parametrizing_dependencies_and_targets(tmp_path):
     def task_save_numbers_again(depends_on, produces):
         produces.write_text(depends_on.read_text())
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
 
@@ -213,7 +213,7 @@ def test_parametrize_iterator(tmp_path):
     def task_func(a):
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     session = main({"paths": tmp_path})
     assert session.exit_code == 0
     assert len(session.execution_reports) == 3
@@ -228,7 +228,7 @@ def test_raise_error_if_function_does_not_use_parametrized_arguments(tmp_path):
     def task_func():
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     session = main({"paths": tmp_path})
 
     assert session.exit_code == 1
@@ -245,7 +245,7 @@ def test_raise_error_if_function_does_not_use_parametrized_arguments(tmp_path):
     ],
 )
 def test_parametrize_w_ids(tmp_path, arg_values, ids):
-    tmp_path.joinpath("task_dummy.py").write_text(
+    tmp_path.joinpath("task_module.py").write_text(
         textwrap.dedent(
             f"""
             import pytask
@@ -266,7 +266,7 @@ def test_parametrize_w_ids(tmp_path, arg_values, ids):
 @pytest.mark.end_to_end
 @pytest.mark.xfail(strict=True, reason="Cartesian task product is disabled.")
 def test_two_parametrize_w_ids(tmp_path):
-    tmp_path.joinpath("task_dummy.py").write_text(
+    tmp_path.joinpath("task_module.py").write_text(
         textwrap.dedent(
             """
             import pytask
@@ -291,7 +291,7 @@ def test_two_parametrize_w_ids(tmp_path):
 @pytest.mark.end_to_end
 @pytest.mark.parametrize("ids", [["a"], list("abc"), ((1,), (2,)), ({0}, {1})])
 def test_raise_error_for_irregular_ids(tmp_path, ids):
-    tmp_path.joinpath("task_dummy.py").write_text(
+    tmp_path.joinpath("task_module.py").write_text(
         textwrap.dedent(
             f"""
             import pytask
@@ -332,7 +332,7 @@ def test_arg_value_to_id_component(arg_name, arg_value, i, id_func, expected):
 
 @pytest.mark.end_to_end
 def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
-    tmp_path.joinpath("task_dummy.py").write_text(
+    tmp_path.joinpath("task_module.py").write_text(
         textwrap.dedent(
             """
             import pytask
@@ -398,7 +398,7 @@ def test_wrong_number_of_names_and_wrong_number_of_arguments(
     def task_func():
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 

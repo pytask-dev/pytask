@@ -11,7 +11,7 @@ from pytask import main
 
 @pytest.mark.end_to_end
 def test_python_m_pytask(tmp_path):
-    tmp_path.joinpath("task_dummy.py").write_text("def task_dummy(): pass")
+    tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
     subprocess.run(["python", "-m", "pytask", tmp_path.as_posix()], check=True)
 
 
@@ -21,10 +21,10 @@ def test_task_did_not_produce_node(tmp_path):
     import pytask
 
     @pytask.mark.produces("out.txt")
-    def task_dummy():
+    def task_example():
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
 
@@ -62,7 +62,7 @@ def test_node_not_found_in_task_setup(tmp_path):
     def task_3(depends_on):
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
 
@@ -87,7 +87,7 @@ def test_execution_w_varying_dependencies_products(tmp_path, dependencies, produ
 
     @pytask.mark.depends_on({dependencies})
     @pytask.mark.produces({products})
-    def task_dummy(depends_on, produces):
+    def task_example(depends_on, produces):
         if isinstance(produces, dict):
             produces = produces.values()
         elif isinstance(produces, Path):
@@ -95,7 +95,7 @@ def test_execution_w_varying_dependencies_products(tmp_path, dependencies, produ
         for product in produces:
             product.touch()
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     for dependency in dependencies:
         tmp_path.joinpath(dependency).touch()
 
@@ -111,11 +111,11 @@ def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
 
     @pytask.mark.depends_on("in.txt")
     @pytask.mark.produces("out.txt")
-    def task_dummy(depends_on, produces):
+    def task_example(depends_on, produces):
         assert isinstance(depends_on, Path) and isinstance(produces, Path)
         produces.write_text(depends_on.read_text())
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Here I am. Once again.")
 
     session = main({"paths": tmp_path})
@@ -135,7 +135,7 @@ def test_assert_multiple_dependencies_are_merged_to_dict(tmp_path, runner):
     @pytask.mark.depends_on(["in_1.txt", "in_2.txt"])
     @pytask.mark.depends_on("in_0.txt")
     @pytask.mark.produces("out.txt")
-    def task_dummy(depends_on, produces):
+    def task_example(depends_on, produces):
         expected = {
             i: Path(__file__).parent.joinpath(f"in_{i}.txt").resolve()
             for i in range(7)
@@ -143,7 +143,7 @@ def test_assert_multiple_dependencies_are_merged_to_dict(tmp_path, runner):
         assert depends_on == expected
         produces.touch()
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     for name in [f"in_{i}.txt" for i in range(7)]:
         tmp_path.joinpath(name).touch()
 
@@ -163,7 +163,7 @@ def test_assert_multiple_products_are_merged_to_dict(tmp_path, runner):
     @pytask.mark.produces({3: "out_3.txt", 4: "out_4.txt"})
     @pytask.mark.produces(["out_1.txt", "out_2.txt"])
     @pytask.mark.produces("out_0.txt")
-    def task_dummy(depends_on, produces):
+    def task_example(depends_on, produces):
         expected = {
             i: Path(__file__).parent.joinpath(f"out_{i}.txt").resolve()
             for i in range(7)
@@ -172,7 +172,7 @@ def test_assert_multiple_products_are_merged_to_dict(tmp_path, runner):
         for product in produces.values():
             product.touch()
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").touch()
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
@@ -197,14 +197,14 @@ def test_preserve_input_for_dependencies_and_products(tmp_path, input_type):
 
     @pytask.mark.depends_on({input_})
     @pytask.mark.produces({output})
-    def task_dummy(depends_on, produces):
+    def task_example(depends_on, produces):
         for nodes in [depends_on, produces]:
             assert isinstance(nodes, dict)
             assert len(nodes) == 1
             assert 0 in nodes
         produces[0].touch()
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
     assert session.exit_code == 0
@@ -218,7 +218,7 @@ def test_execution_stops_after_n_failures(tmp_path, n_failures):
     def task_2(): raise Exception
     def task_3(): raise Exception
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path, "max_failures": n_failures})
 
@@ -234,7 +234,7 @@ def test_execution_stop_after_first_failure(tmp_path, stop_after_first_failure):
     def task_2(): raise Exception
     def task_3(): raise Exception
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main(
         {"paths": tmp_path, "stop_after_first_failure": stop_after_first_failure}
@@ -257,7 +257,7 @@ def test_scheduling_w_priorities(tmp_path):
     @pytask.mark.try_last
     def task_y(): pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
 
@@ -276,7 +276,7 @@ def test_scheduling_w_mixed_priorities(runner, tmp_path):
     @pytask.mark.try_first
     def task_mixed(): pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
