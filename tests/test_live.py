@@ -181,13 +181,16 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
 
     # Test that report is or is not included.
     captured = capsys.readouterr()
+    print(captured)
     assert "Task" in captured.out
     assert "Outcome" in captured.out
     assert "::task_running" in captured.out
     assert " running " in captured.out
 
     if n_entries_in_table == 1:
-        assert "task_dummy.py::task_completed" not in captured.out
+        assert "task_dummy.py::task_completed" not in captured.out.encode(
+            "ascii", "ignore"
+        )
         assert "│ ." not in captured.out
     else:
         assert "task_dummy.py::task_completed" in captured.out
