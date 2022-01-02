@@ -16,7 +16,6 @@ from typing import Union
 
 import rich
 from rich.console import Console
-from rich.markup import escape
 from rich.padding import Padding
 from rich.panel import Panel
 from rich.segment import Segment
@@ -121,7 +120,7 @@ def format_task_id(task: "MetaTask", editor_url_scheme: str, short_name: bool) -
         path, task_name = task.name.split("::")
     url_style = create_url_style_for_task(task, editor_url_scheme)
     task_id = Text.assemble(
-        Text(path + "::", style="dim"), Text(escape(task_name), style=url_style)
+        Text(path + "::", style="dim"), Text(task_name, style=url_style)
     )
     return task_id
 

@@ -16,7 +16,6 @@ from _pytask.nodes import MetaTask
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
-from rich.markup import escape
 
 
 def to_list(scalar_or_iter: Any) -> List[Any]:
@@ -158,8 +157,7 @@ def reduce_node_name(node: "MetaNode", paths: Sequence[Union[str, Path]]) -> str
 
     if isinstance(node, MetaTask):
         shortened_path = relative_to(node.path, ancestor)
-        raw_name = create_task_name(shortened_path, node.base_name)
-        name = escape(raw_name)
+        name = create_task_name(shortened_path, node.base_name)
     elif isinstance(node, MetaNode):
         name = relative_to(node.path, ancestor).as_posix()
     else:
