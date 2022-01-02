@@ -1,6 +1,7 @@
 """Add general logging capabilities."""
 import platform
 import sys
+import warnings
 from typing import Any
 from typing import Dict
 from typing import List
@@ -20,6 +21,7 @@ from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from rich.text import Text
+
 
 try:
     from pluggy._manager import DistFacade
@@ -70,11 +72,10 @@ def pytask_parse_config(
     )
     if config["editor_url_scheme"] not in ["no_link", "file"] and IS_WINDOWS_TERMINAL:
         config["editor_url_scheme"] = "file"
-        console.print(
-            "WARNING: Windows Terminal does not support url schemes to applications, "
-            "yet. See https://github.com/pytask-dev/pytask/issues/171 for more "
-            "information. Resort to file instead.",
-            style="warning",
+        warnings.warn(
+            "Windows Terminal does not support url schemes to applications, yet."
+            "See https://github.com/pytask-dev/pytask/issues/171 for more information. "
+            "Resort to `editor_url_scheme='file'`."
         )
 
 
