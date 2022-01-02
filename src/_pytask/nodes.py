@@ -108,7 +108,7 @@ class PythonFunctionTask(MetaTask):
     """pathlib.Path: Path to the file where the task was defined."""
     function = attr.ib(type=Callable[..., Any])
     """Callable[..., Any]: The task function."""
-    short_name = attr.ib(default=None, type=Optional[str])
+    short_name = attr.ib(default=None, type=Optional[str], init=False)
     """str: The shortest uniquely identifiable name for task for display."""
     depends_on = attr.ib(factory=dict, type=Dict[str, MetaNode])
     """Dict[str, MetaNode]: A list of dependencies of task."""
@@ -122,6 +122,10 @@ class PythonFunctionTask(MetaTask):
     """List[Tuple[str, str, str]]: Reports with entries for when, what, and content."""
     attributes = attr.ib(factory=dict, type=Dict[Any, Any])
     """Dict[Any, Any]: A dictionary to store additional information of the task."""
+
+    def __attrs_post_init__(self: "PythonFunctionTask") -> None:
+        if self.short_name is None:
+            self.short_name = self.name
 
     @classmethod
     def from_path_name_function_session(

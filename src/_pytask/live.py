@@ -12,7 +12,6 @@ import click
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_url_style_for_task
-from _pytask.console import unify_styles
 from _pytask.nodes import MetaTask
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
@@ -177,7 +176,7 @@ class LiveExecution:
 
             table = Table()
             table.add_column("Task", overflow="fold")
-            table.add_column("Outcome", justify="center")
+            table.add_column("Outcome")
             for report in relevant_reports:
                 if (
                     report["outcome"]
@@ -191,18 +190,13 @@ class LiveExecution:
                 ):
                     pass
                 else:
-                    if "::" in report["name"]:
-                        path, base = report["name"].split("::")
-                    else:
-                        path, base = "", report["name"]
+                    path, base = report["name"].split("::")
                     name = Text.assemble(
                         Text(path + "::", style="dim"),
                         Text(
                             base,
-                            style=unify_styles(
-                                create_url_style_for_task(
-                                    report["task"], self._editor_url_scheme
-                                )
+                            style=create_url_style_for_task(
+                                report["task"], self._editor_url_scheme
                             ),
                         ),
                     )

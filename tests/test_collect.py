@@ -193,7 +193,7 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
         tasks.append(
             PythonFunctionTask(base_name, task_id, path_identifiable_by_base_name, None)
         )
-        expected[task_id] = base_name
+        expected[task_id] = "t.py::" + base_name
 
     dir_identifiable_by_module_name = tmp_path.joinpath("identifiable_by_module")
     dir_identifiable_by_module_name.mkdir()
