@@ -11,7 +11,7 @@ import attr
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.console import create_url_style_for_task
+from _pytask.console import format_task_id
 from _pytask.nodes import MetaTask
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
@@ -195,18 +195,12 @@ class LiveExecution:
                 ):
                     pass
                 else:
-                    path, base = report["name"].split("::")
-                    name = Text.assemble(
-                        Text(path + "::", style="dim"),
-                        Text(
-                            base,
-                            style=create_url_style_for_task(
-                                report["task"], self._editor_url_scheme
-                            ),
-                        ),
-                    )
                     table.add_row(
-                        name,
+                        format_task_id(
+                            report["task"],
+                            editor_url_scheme=self._editor_url_scheme,
+                            short_name=True,
+                        ),
                         Text(report["outcome"].symbol, style=report["outcome"].style),
                     )
             for running_task in self._running_tasks:

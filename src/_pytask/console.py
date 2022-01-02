@@ -16,6 +16,7 @@ from typing import Union
 
 import rich
 from rich.console import Console
+from rich.markup import escape
 from rich.padding import Padding
 from rich.panel import Panel
 from rich.segment import Segment
@@ -81,7 +82,12 @@ console = Console(theme=theme, color_system=_COLOR_SYSTEM)
 
 
 def render_to_string(text: Union[str, Text], console: Optional[Console] = None) -> str:
-    """Render text with rich to string including ANSI codes, etc.."""
+    """Render text with rich to string including ANSI codes, etc..
+
+    This function allows to render text with is not automatically printed with rich. For
+    example, render warnings with colors or text in exceptions.
+
+    """
     if console is None:
         console = rich.get_console()
 
@@ -107,16 +113,25 @@ def render_to_string(text: Union[str, Text], console: Optional[Console] = None) 
     return rendered
 
 
+def format_task_id(task: "MetaTask", editor_url_scheme: str, short_name: bool) -> Text:
+    """Format a task id."""
+    if short_name:
+        path, task_name = task.short_name.split("::")
+    else:
+        path, task_name = task.name.split("::")
+    url_style = create_url_style_for_task(task, editor_url_scheme)
+    task_id = Text.assemble(
+        Text(path + "::", style="dim"), Text(escape(task_name), style=url_style)
+    )
+    return task_id
+
+
 def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -> str:
     """Format list of strings as flat tree."""
     tree = Tree(title)
     for name in strings:
         tree.add(icon + name)
-
-    text = "".join(
-        [x.text for x in tree.__rich_console__(console, console.options)][:-1]
-    )
-
+    text = render_to_string(tree, console)
     return text
 
 

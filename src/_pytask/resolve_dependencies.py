@@ -12,6 +12,7 @@ from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import ARROW_DOWN_ICON
 from _pytask.console import console
 from _pytask.console import FILE_ICON
+from _pytask.console import render_to_string
 from _pytask.console import TASK_ICON
 from _pytask.dag import node_and_neighbors
 from _pytask.dag import task_and_descending_tasks
@@ -260,14 +261,11 @@ def _format_dictionary_to_tree(dict_: Dict[str, List[str]], title: str) -> str:
     tree = Tree(title)
 
     for node, tasks in dict_.items():
-        branch = tree.add(FILE_ICON + node)
+        branch = tree.add(Text.assemble(FILE_ICON, node))
         for task in tasks:
-            branch.add(TASK_ICON + task)
+            branch.add(Text.assemble(TASK_ICON, task))
 
-    text = "".join(
-        [x.text for x in tree.__rich_console__(console, console.options)][:-1]
-    )
-
+    text = render_to_string(tree)
     return text
 
 
