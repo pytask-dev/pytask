@@ -4,7 +4,6 @@ from typing import Dict
 from typing import Generator
 from typing import List
 from typing import Optional
-from typing import Set
 from typing import Union
 
 import attr
@@ -136,7 +135,7 @@ class LiveExecution:
     _n_entries_in_table = attr.ib(type=int)
     _verbose = attr.ib(type=int)
     _editor_url_scheme = attr.ib(type=str)
-    _running_tasks = attr.ib(factory=set, type=Set[str])
+    _running_tasks = attr.ib(factory=dict, type=Dict[str, MetaTask])
     _reports = attr.ib(factory=list, type=List[Dict[str, Any]])
 
     @hookimpl(hookwrapper=True)
@@ -208,8 +207,13 @@ class LiveExecution:
                         ),
                         Text(report["outcome"].symbol, style=report["outcome"].style),
                     )
-            for running_task in self._running_tasks:
-                table.add_row(running_task, "running")
+            for task in self._running_tasks.values():
+                table.add_row(
+                    format_task_id(
+                        task, editor_url_scheme=self._editor_url_scheme, short_name=True
+                    ),
+                    "running",
+                )
         else:
             table = None
 
@@ -224,12 +228,12 @@ class LiveExecution:
 
     def update_running_tasks(self, new_running_task: MetaTask) -> None:
         """Add a new running task."""
-        self._running_tasks.add(new_running_task.short_name)
+        self._running_tasks[new_running_task.name] = new_running_task
         self._update_table()
 
     def update_reports(self, new_report: ExecutionReport) -> None:
         """Update the status of a running task by adding its report."""
-        self._running_tasks.remove(new_report.task.short_name)
+        self._running_tasks.pop(new_report.task.name)
         self._reports.append(
             {
                 "name": new_report.task.short_name,
