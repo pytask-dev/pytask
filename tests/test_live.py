@@ -64,7 +64,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
     task.short_name = "task_module.py::task_example"
 
     live_manager = LiveManager()
-    live = LiveExecution(live_manager, 20, 1)
+    live = LiveExecution(live_manager, 20, 1, "no_link")
 
     live_manager.start()
     live.update_running_tasks(task)
@@ -116,7 +116,7 @@ def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, o
     task.short_name = "task_module.py::task_example"
 
     live_manager = LiveManager()
-    live = LiveExecution(live_manager, 20, verbose)
+    live = LiveExecution(live_manager, 20, verbose, "no_link")
 
     live_manager.start()
     live.update_running_tasks(task)
@@ -158,7 +158,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
     running_task.short_name = "task_module.py::task_running"
 
     live_manager = LiveManager()
-    live = LiveExecution(live_manager, n_entries_in_table, 1)
+    live = LiveExecution(live_manager, n_entries_in_table, 1, "no_link")
 
     live_manager.start()
     live.update_running_tasks(running_task)

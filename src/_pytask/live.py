@@ -135,7 +135,7 @@ class LiveExecution:
     _live_manager = attr.ib(type=LiveManager)
     _n_entries_in_table = attr.ib(type=int)
     _verbose = attr.ib(type=int)
-    _editor_url_scheme = attr.ib(type=str, default="file")
+    _editor_url_scheme = attr.ib(type=str)
     _running_tasks = attr.ib(factory=set, type=Set[str])
     _reports = attr.ib(factory=list, type=List[Dict[str, Any]])
 
