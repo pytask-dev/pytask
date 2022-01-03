@@ -116,6 +116,9 @@ def test_render_to_string(color_system, text, expected):
     assert result == expected
 
 
+_THIS_FILE = Path(__file__)
+
+
 @pytest.mark.parametrize(
     "base_name, short_name, editor_url_scheme, use_short_name, relative_to, expected",
     [
@@ -126,8 +129,11 @@ def test_render_to_string(color_system, text, expected):
             False,
             None,
             Text(
-                "C:/Users/tobia/git/pytask/tests/test_console.py::task_a",
-                spans=[Span(0, 49, "dim"), Span(49, 55, Style())],
+                _THIS_FILE.as_posix() + "::task_a",
+                spans=[
+                    Span(0, len(_THIS_FILE.as_posix()) + 2, "dim"),
+                    Span(len(_THIS_FILE.as_posix()) + 2, 55, Style()),
+                ],
             ),
             id="format full id",
         ),
@@ -148,7 +154,7 @@ def test_render_to_string(color_system, text, expected):
             None,
             "no_link",
             False,
-            Path(__file__).parent,
+            _THIS_FILE.parent,
             Text(
                 "tests/test_console.py::task_a",
                 spans=[Span(0, 23, "dim"), Span(23, 29, Style())],
@@ -165,7 +171,7 @@ def test_format_task_id(
     relative_to,
     expected,
 ):
-    path = Path(__file__)
+    path = _THIS_FILE
 
     task = PythonFunctionTask(
         base_name, create_task_name(path, base_name), path, task_func
