@@ -7,7 +7,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.1.4 - 2021-xx-xx
+0.1.4 - 2022-01-04
 ------------------
 
 - :gh:`159` removes files for creating a conda package which is handled by conda-forge.
@@ -25,6 +25,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`178` makes some stylistic changes like reducing tasks ids even more and dims the
   path part.
 - :gh:`180` fixes parsing relative paths from the configuration file.
+- :gh:`181` adds correct formatting of running tasks.
 
 
 0.1.3 - 2021-11-30
