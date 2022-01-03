@@ -1,3 +1,4 @@
+"""This module contains hook implementations concerning the execution."""
 import sys
 import time
 from typing import Any
@@ -31,17 +32,12 @@ from rich.text import Text
 
 
 @hookimpl
-def pytask_post_parse(config: Dict[str, Any]) -> None:
-    if config["show_errors_immediately"]:
-        config["pm"].register(ShowErrorsImmediatelyPlugin)
-
-
-@hookimpl
 def pytask_parse_config(
     config: Dict[str, Any],
     config_from_cli: Dict[str, Any],
     config_from_file: Dict[str, Any],
 ) -> None:
+    """Parse the configuration."""
     config["show_errors_immediately"] = get_first_non_none_value(
         config_from_cli,
         config_from_file,
@@ -49,6 +45,13 @@ def pytask_parse_config(
         default=False,
         callback=lambda x: x if x is None else bool(x),
     )
+
+
+@hookimpl
+def pytask_post_parse(config: Dict[str, Any]) -> None:
+    """Adjust the configuration after intermediate values have been parsed."""
+    if config["show_errors_immediately"]:
+        config["pm"].register(ShowErrorsImmediatelyPlugin)
 
 
 @hookimpl
@@ -220,6 +223,7 @@ class ShowErrorsImmediatelyPlugin:
 
 @hookimpl
 def pytask_execute_log_end(session: Session, reports: List[ExecutionReport]) -> bool:
+    """Log information on the execution."""
     session.execution_end = time.time()
 
     counts = count_outcomes(reports, TaskOutcome)

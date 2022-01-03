@@ -22,7 +22,7 @@ def test_skip_unchanged(tmp_path):
     def task_dummy():
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
     assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
@@ -41,7 +41,7 @@ def test_skip_unchanged_w_dependencies_and_products(tmp_path):
     def task_dummy(depends_on, produces):
         produces.write_text(depends_on.read_text())
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Original content of in.txt.")
 
     session = main({"paths": tmp_path})
@@ -69,7 +69,7 @@ def test_skipif_ancestor_failed(tmp_path):
     def task_second():
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
 
@@ -93,7 +93,7 @@ def test_if_skip_decorator_is_applied_to_following_tasks(tmp_path):
     def task_second():
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
 
@@ -116,7 +116,7 @@ def test_skip_if_dependency_is_missing(tmp_path, mark_string):
     def task_first():
         assert 0
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
 
@@ -141,7 +141,7 @@ def test_skip_if_dependency_is_missing_only_for_one_task(runner, tmp_path, mark_
     def task_second():
         assert 0
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
@@ -165,7 +165,7 @@ def test_if_skipif_decorator_is_applied_skipping(tmp_path):
     def task_second():
         assert False
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
     node = session.collection_reports[0].node
@@ -196,7 +196,7 @@ def test_if_skipif_decorator_is_applied_execute(tmp_path):
     def task_second():
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
     node = session.collection_reports[0].node
@@ -227,7 +227,7 @@ def test_if_skipif_decorator_is_applied_any_condition_matches(tmp_path):
     def task_second():
         assert False
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
     node = session.collection_reports[0].node

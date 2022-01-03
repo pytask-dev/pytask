@@ -11,8 +11,8 @@ import click
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_url_style_for_path
-from _pytask.console import create_url_style_for_task
 from _pytask.console import FILE_ICON
+from _pytask.console import format_task_id
 from _pytask.console import PYTHON_ICON
 from _pytask.console import TASK_ICON
 from _pytask.enums import ExitCode
@@ -25,7 +25,6 @@ from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from _pytask.shared import reduce_node_name
 from rich.text import Text
 from rich.tree import Tree
 
@@ -194,15 +193,11 @@ def _print_collected_tasks(
         )
 
         for task in tasks:
-            reduced_task_name = reduce_node_name(task, [common_ancestor])
-            url_style = create_url_style_for_task(task, editor_url_scheme)
+            reduced_task_name = format_task_id(
+                task, editor_url_scheme=editor_url_scheme, relative_to=common_ancestor
+            )
             task_branch = module_branch.add(
-                Text.assemble(
-                    TASK_ICON,
-                    "<Function ",
-                    Text(reduced_task_name, style=url_style),
-                    ">",
-                ),
+                Text.assemble(TASK_ICON, "<Function ", reduced_task_name, ">"),
             )
 
             if show_nodes:

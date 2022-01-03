@@ -134,6 +134,7 @@ def pytask_parse_config(
 
 @hookimpl
 def pytask_post_parse(config: Dict[str, Any]) -> None:
+    """Post-parse the configuration."""
     create_database(**config["database"])
 
 

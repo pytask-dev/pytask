@@ -1,4 +1,4 @@
-from pathlib import Path
+"""This module contains code related to live objects."""
 from typing import Any
 from typing import Dict
 from typing import Generator
@@ -11,14 +11,13 @@ import attr
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.console import create_url_style_for_task
+from _pytask.console import format_task_id
 from _pytask.nodes import MetaTask
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
 from _pytask.report import CollectionReport
 from _pytask.report import ExecutionReport
 from _pytask.shared import get_first_non_none_value
-from _pytask.shared import reduce_node_name
 from rich.live import Live
 from rich.status import Status
 from rich.table import Table
@@ -45,6 +44,7 @@ def pytask_parse_config(
     config_from_cli: Dict[str, Any],
     config_from_file: Dict[str, Any],
 ) -> None:
+    """Parse the configuration."""
     config["n_entries_in_table"] = get_first_non_none_value(
         config_from_cli,
         config_from_file,
@@ -55,6 +55,7 @@ def pytask_parse_config(
 
 
 def _parse_n_entries_in_table(value: Union[int, str, None]) -> int:
+    """Parse how many entries should be displayed in the table during the execution."""
     if value in ["none", "None", None, ""]:
         out = None
     elif isinstance(value, int) and value >= 1:
@@ -72,13 +73,13 @@ def _parse_n_entries_in_table(value: Union[int, str, None]) -> int:
 
 @hookimpl
 def pytask_post_parse(config: Dict[str, Any]) -> None:
+    """Post-parse the configuration."""
     live_manager = LiveManager()
     config["pm"].register(live_manager, "live_manager")
 
     if config["verbose"] >= 1:
         live_execution = LiveExecution(
             live_manager,
-            config["paths"],
             config["n_entries_in_table"],
             config["verbose"],
             config["editor_url_scheme"],
@@ -129,33 +130,37 @@ class LiveManager:
 
 @attr.s(eq=False)
 class LiveExecution:
+    """A class for managing the table displaying task progress during the execution."""
 
     _live_manager = attr.ib(type=LiveManager)
-    _paths = attr.ib(type=List[Path])
     _n_entries_in_table = attr.ib(type=int)
     _verbose = attr.ib(type=int)
-    _editor_url_scheme = attr.ib(type=str, default="file")
+    _editor_url_scheme = attr.ib(type=str)
     _running_tasks = attr.ib(factory=set, type=Set[str])
     _reports = attr.ib(factory=list, type=List[Dict[str, Any]])
 
     @hookimpl(hookwrapper=True)
     def pytask_execute_build(self) -> Generator[None, None, None]:
+        """Wrap the execution with the live manager and yield a complete table at the
+        end."""
         self._live_manager.start()
         yield
-        self._update_table(reduce_table=False)
+        self._update_table(reduce_table=False, sort_table=True)
         self._live_manager.stop(transient=False)
 
     @hookimpl(tryfirst=True)
     def pytask_execute_task_log_start(self, task: MetaTask) -> bool:
+        """Mark a new task as running."""
         self.update_running_tasks(task)
         return True
 
     @hookimpl
     def pytask_execute_task_log_end(self, report: ExecutionReport) -> bool:
+        """Mark a task as being finished and update outcome."""
         self.update_reports(report)
         return True
 
-    def _generate_table(self, reduce_table: bool) -> Optional[Table]:
+    def _generate_table(self, reduce_table: bool, sort_table: bool) -> Optional[Table]:
         """Generate the table.
 
         First, display all completed tasks and, then, all running tasks.
@@ -174,7 +179,14 @@ class LiveExecution:
             else:
                 relevant_reports = []
 
-            table = Table("Task", "Outcome")
+            if sort_table:
+                relevant_reports = sorted(
+                    relevant_reports, key=lambda report: report["name"]
+                )
+
+            table = Table()
+            table.add_column("Task", overflow="fold")
+            table.add_column("Outcome")
             for report in relevant_reports:
                 if (
                     report["outcome"]
@@ -189,11 +201,10 @@ class LiveExecution:
                     pass
                 else:
                     table.add_row(
-                        Text(
-                            report["name"],
-                            style=create_url_style_for_task(
-                                report["task"], self._editor_url_scheme
-                            ),
+                        format_task_id(
+                            report["task"],
+                            editor_url_scheme=self._editor_url_scheme,
+                            short_name=True,
                         ),
                         Text(report["outcome"].symbol, style=report["outcome"].style),
                     )
@@ -204,21 +215,24 @@ class LiveExecution:
 
         return table
 
-    def _update_table(self, reduce_table: bool = True) -> None:
-        table = self._generate_table(reduce_table)
+    def _update_table(
+        self, reduce_table: bool = True, sort_table: bool = False
+    ) -> None:
+        """Regenerate the table."""
+        table = self._generate_table(reduce_table=reduce_table, sort_table=sort_table)
         self._live_manager.update(table)
 
     def update_running_tasks(self, new_running_task: MetaTask) -> None:
-        reduced_task_name = reduce_node_name(new_running_task, self._paths)
-        self._running_tasks.add(reduced_task_name)
+        """Add a new running task."""
+        self._running_tasks.add(new_running_task.short_name)
         self._update_table()
 
     def update_reports(self, new_report: ExecutionReport) -> None:
-        reduced_task_name = reduce_node_name(new_report.task, self._paths)
-        self._running_tasks.remove(reduced_task_name)
+        """Update the status of a running task by adding its report."""
+        self._running_tasks.remove(new_report.task.short_name)
         self._reports.append(
             {
-                "name": reduced_task_name,
+                "name": new_report.task.short_name,
                 "outcome": new_report.outcome,
                 "task": new_report.task,
             }
@@ -228,6 +242,7 @@ class LiveExecution:
 
 @attr.s(eq=False)
 class LiveCollection:
+    """A class for managing the live status during the collection."""
 
     _live_manager = attr.ib(type=LiveManager)
     _n_collected_tasks = attr.ib(default=0, type=int)

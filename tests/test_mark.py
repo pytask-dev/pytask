@@ -101,7 +101,7 @@ def test_ini_markers_whitespace(tmp_path, config_name):
             """
         )
     )
-    tmp_path.joinpath("task_dummy.py").write_text(
+    tmp_path.joinpath("task_module.py").write_text(
         textwrap.dedent(
             """
             import pytask
@@ -131,7 +131,7 @@ def test_ini_markers_whitespace(tmp_path, config_name):
     ],
 )
 def test_mark_option(tmp_path, expr: str, expected_passed: str) -> None:
-    tmp_path.joinpath("task_dummy.py").write_text(
+    tmp_path.joinpath("task_module.py").write_text(
         textwrap.dedent(
             """
             import pytask
@@ -171,7 +171,7 @@ def test_mark_option(tmp_path, expr: str, expected_passed: str) -> None:
     ],
 )
 def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> None:
-    tmp_path.joinpath("task_dummy.py").write_text(
+    tmp_path.joinpath("task_module.py").write_text(
         textwrap.dedent(
             """
             def task_interface():
@@ -208,7 +208,7 @@ def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> Non
     ],
 )
 def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -> None:
-    tmp_path.joinpath("task_dummy.py").write_text(
+    tmp_path.joinpath("task_module.py").write_text(
         textwrap.dedent(
             """
             import pytask
@@ -265,7 +265,7 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
 def test_keyword_option_wrong_arguments(
     tmp_path, capsys, option: str, expr: str, expected_error: str
 ) -> None:
-    tmp_path.joinpath("task_dummy.py").write_text(
+    tmp_path.joinpath("task_module.py").write_text(
         textwrap.dedent("def task_func(arg): pass")
     )
     session = main({"paths": tmp_path, option: expr})
@@ -299,7 +299,7 @@ def test_selecting_task_with_keyword_should_run_predecessor(runner, tmp_path):
     def task_second(depends_on):
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "-k", "second"])
 
@@ -321,7 +321,7 @@ def test_selecting_task_with_marker_should_run_predecessor(runner, tmp_path):
     def task_second(depends_on):
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
 
@@ -341,7 +341,7 @@ def test_selecting_task_with_keyword_ignores_other_task(runner, tmp_path):
     def task_second():
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "-k", "second"])
 
@@ -363,7 +363,7 @@ def test_selecting_task_with_marker_ignores_other_task(runner, tmp_path):
     def task_second():
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
 

@@ -1,6 +1,7 @@
 """Add general logging capabilities."""
 import platform
 import sys
+import warnings
 from typing import Any
 from typing import Dict
 from typing import List
@@ -20,6 +21,7 @@ from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from rich.text import Text
+
 
 try:
     from pluggy._manager import DistFacade
@@ -70,11 +72,10 @@ def pytask_parse_config(
     )
     if config["editor_url_scheme"] not in ["no_link", "file"] and IS_WINDOWS_TERMINAL:
         config["editor_url_scheme"] = "file"
-        console.print(
-            "WARNING: Windows Terminal does not support url schemes to applications, "
-            "yet. See https://github.com/pytask-dev/pytask/issues/171 for more "
-            "information. Resort to file instead.",
-            style="warning",
+        warnings.warn(
+            "Windows Terminal does not support url schemes to applications, yet."
+            "See https://github.com/pytask-dev/pytask/issues/171 for more information. "
+            "Resort to `editor_url_scheme='file'`."
         )
 
 
@@ -151,7 +152,7 @@ def _format_duration(duration: float) -> str:
 
 def _humanize_time(
     amount: Union[int, float], unit: str, short_label: bool = False
-) -> List[Tuple[int, str]]:
+) -> List[Tuple[float, str]]:
     """Humanize the time.
 
     Examples
@@ -159,7 +160,7 @@ def _humanize_time(
     >>> _humanize_time(173, "hours")
     [(7, 'days'), (5, 'hours')]
     >>> _humanize_time(173.345, "seconds")
-    [(2, 'minutes'), (53, 'seconds')]
+    [(2, 'minutes'), (53.34, 'seconds')]
     >>> _humanize_time(173, "hours", short_label=True)
     [(7, 'd'), (5, 'h')]
     >>> _humanize_time(0, "seconds", short_label=True)
@@ -180,7 +181,7 @@ def _humanize_time(
 
     seconds = amount * _TIME_UNITS[index]["in_seconds"]
 
-    result = []
+    result: List[Tuple[float, str]] = []
     remaining_seconds = seconds
     for entry in _TIME_UNITS:
         whole_units = int(remaining_seconds / entry["in_seconds"])
@@ -196,7 +197,7 @@ def _humanize_time(
                 result.append((whole_units, label))
                 remaining_seconds -= whole_units * entry["in_seconds"]
             else:
-                result.append((int(remaining_seconds), label))
+                result.append((round(remaining_seconds, 2), label))
 
     if not result:
         result.append(

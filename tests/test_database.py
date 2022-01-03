@@ -16,10 +16,10 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
 
     @pytask.mark.depends_on("in.txt")
     @pytask.mark.produces("out.txt")
-    def task_dummy(produces):
+    def task_write(produces):
         produces.touch()
     """
-    task_path = tmp_path.joinpath("task_dummy.py")
+    task_path = tmp_path.joinpath("task_module.py")
     task_path.write_text(textwrap.dedent(source))
     in_path = tmp_path.joinpath("in.txt")
     in_path.touch()
@@ -35,7 +35,7 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
             "sqlite", tmp_path.joinpath(".pytask.sqlite3").as_posix(), True, False
         )
 
-        task_id = task_path.as_posix() + "::task_dummy"
+        task_id = task_path.as_posix() + "::task_write"
         out_path = tmp_path.joinpath("out.txt")
 
         for id_, path in [

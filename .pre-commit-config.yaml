@@ -30,7 +30,7 @@ repos:
     -   id: rst-inline-touching-normal
     -   id: text-unicode-replacement-char
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.29.1
+    rev: v2.31.0
     hooks:
     -   id: pyupgrade
         args: [--py36-plus]
@@ -90,10 +90,9 @@ repos:
     hooks:
     -   id: check-manifest
 -   repo: https://github.com/guilatrova/tryceratops
-    rev: v1.0.0
+    rev: v1.0.1
     hooks:
     -   id: tryceratops
-        exclude: (console\.py|test_mark_expression\.py)
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: 'v0.930'
     hooks:

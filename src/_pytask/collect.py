@@ -21,6 +21,8 @@ from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_marker
 from _pytask.nodes import create_task_name
 from _pytask.nodes import FilePathNode
+from _pytask.nodes import find_duplicates
+from _pytask.nodes import MetaTask
 from _pytask.nodes import PythonFunctionTask
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
@@ -82,6 +84,7 @@ def pytask_ignore_collect(path: Path, config: Dict[str, Any]) -> bool:
 def pytask_collect_file_protocol(
     session: Session, path: Path, reports: List[CollectionReport]
 ) -> List[CollectionReport]:
+    """Wrap the collection of tasks from a file to collect reports."""
     try:
         reports = session.hook.pytask_collect_file(
             session=session, path=path, reports=reports
@@ -266,6 +269,52 @@ def _not_ignored_paths(
                 yield from _not_ignored_paths(files_in_dir, session)
             else:
                 yield path
+
+
+@hookimpl(trylast=True)
+def pytask_collect_modify_tasks(tasks: List[MetaTask]) -> None:
+    """Given all tasks, assign a short uniquely identifiable name to each task.
+
+    The shorter ids are necessary to display
+
+    """
+    id_to_short_id = _find_shortest_uniquely_identifiable_name_for_tasks(tasks)
+    for task in tasks:
+        short_id = id_to_short_id[task.name]
+        task.short_name = short_id
+
+
+def _find_shortest_uniquely_identifiable_name_for_tasks(
+    tasks: List[MetaTask],
+) -> Dict[str, str]:
+    """Find the shortest uniquely identifiable name for tasks.
+
+    The shortest unique id consists of the module name plus the base name (e.g. function
+    name) of the task. If this does not make the id unique, append more and more parent
+    folders until the id is unique.
+
+    """
+    id_to_short_id = {}
+
+    # Make attempt to add up to twenty parts of the path to ensure uniqueness.
+    id_to_task = {task.name: task for task in tasks}
+    for n_parts in range(1, 20):
+        dupl_id_to_short_id = {
+            id_: "/".join(task.path.parts[-n_parts:]) + "::" + task.base_name
+            for id_, task in id_to_task.items()
+        }
+        duplicates = find_duplicates(dupl_id_to_short_id.values())
+
+        for id_, short_id in dupl_id_to_short_id.items():
+            if short_id not in duplicates:
+                id_to_short_id[id_] = short_id
+                id_to_task.pop(id_)
+
+    # If there are still non-unique task ids, just use the full id as the short id.
+    for id_, task in id_to_task.items():
+        id_to_short_id[id_] = task.name
+
+    return id_to_short_id
 
 
 @hookimpl

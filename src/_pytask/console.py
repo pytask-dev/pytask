@@ -9,15 +9,20 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import Iterable
+from typing import Optional
 from typing import Type
 from typing import TYPE_CHECKING
 from typing import Union
 
+import rich
+from _pytask.path import relative_to as relative_to_
 from rich.console import Console
 from rich.padding import Padding
 from rich.panel import Panel
+from rich.segment import Segment
 from rich.style import Style
 from rich.table import Table
+from rich.text import Text
 from rich.theme import Theme
 from rich.tree import Tree
 
@@ -76,34 +81,66 @@ theme = Theme(
 console = Console(theme=theme, color_system=_COLOR_SYSTEM)
 
 
+def render_to_string(text: Union[str, Text], console: Optional[Console] = None) -> str:
+    """Render text with rich to string including ANSI codes, etc..
+
+    This function allows to render text with is not automatically printed with rich. For
+    example, render warnings with colors or text in exceptions.
+
+    """
+    if console is None:
+        console = rich.get_console()
+
+    segments = console.render(text)
+
+    output = []
+    if console.no_color and console._color_system:
+        segments = Segment.remove_color(segments)
+
+    for segment in segments:
+        if segment.style:
+            output.append(
+                segment.style.render(
+                    segment.text,
+                    color_system=console._color_system,
+                    legacy_windows=console.legacy_windows,
+                )
+            )
+        else:
+            output.append(segment.text)
+
+    rendered = "".join(output)
+    return rendered
+
+
+def format_task_id(
+    task: "MetaTask",
+    editor_url_scheme: str,
+    short_name: bool = False,
+    relative_to: Optional[Path] = None,
+) -> Text:
+    """Format a task id."""
+    if short_name:
+        path, task_name = task.short_name.split("::")
+    elif relative_to:
+        path = relative_to_(task.path, relative_to).as_posix()
+        task_name = task.base_name
+    else:
+        path, task_name = task.name.split("::")
+    url_style = create_url_style_for_task(task, editor_url_scheme)
+    task_id = Text.assemble(
+        Text(path + "::", style="dim"), Text(task_name, style=url_style)
+    )
+    return task_id
+
+
 def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -> str:
     """Format list of strings as flat tree."""
     tree = Tree(title)
     for name in strings:
         tree.add(icon + name)
-
-    text = "".join(
-        [x.text for x in tree.__rich_console__(console, console.options)][:-1]
-    )
-
+    text = render_to_string(tree, console)
     return text
-
-
-def escape_squared_brackets(string: str) -> str:
-    """Escape squared brackets which would be accidentally parsed by rich.
-
-    An example are the ids of parametrized tasks which are suffixed with squared
-    brackets surrounding string representations of the parametrized arguments.
-
-    Example
-    -------
-    >>> escape_squared_brackets("Hello!")
-    'Hello!'
-    >>> escape_squared_brackets("task_dummy[arg1-arg2]")
-    'task_dummy\\\\[arg1-arg2]'
-
-    """
-    return string.replace("[", "\\[")
 
 
 def create_url_style_for_task(task: "MetaTask", edtior_url_scheme: str) -> Style:
@@ -112,7 +149,7 @@ def create_url_style_for_task(task: "MetaTask", edtior_url_scheme: str) -> Style
 
     info = {
         "path": _get_file(task.function),
-        "line_number": inspect.getsourcelines(task.function)[1],
+        "line_number": _get_source_lines(task.function),
     }
 
     return Style() if not url_scheme else Style(link=url_scheme.format(**info))
@@ -134,6 +171,14 @@ def _get_file(function: Callable[..., Any]) -> Path:
         return _get_file(function.func)
     else:
         return Path(inspect.getfile(function))
+
+
+def _get_source_lines(function: Callable[..., Any]) -> int:
+    """Get the source line number of the function."""
+    if isinstance(function, functools.partial):
+        return _get_source_lines(function.func)
+    else:
+        return inspect.getsourcelines(function)[1]
 
 
 def unify_styles(*styles: Union[str, Style]) -> Style:

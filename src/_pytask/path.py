@@ -84,6 +84,7 @@ def find_closest_ancestor(
 
 
 def find_common_ancestor_of_nodes(*names: str) -> Path:
+    """Find the common ancestor from task names and nodes."""
     cleaned_names = [name.split("::")[0] for name in names]
     return find_common_ancestor(*cleaned_names)
 

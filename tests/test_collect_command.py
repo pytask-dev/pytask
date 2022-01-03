@@ -17,27 +17,27 @@ def test_collect_task(runner, tmp_path):
 
     @pytask.mark.depends_on("in.txt")
     @pytask.mark.produces("out.txt")
-    def task_dummy():
+    def task_example():
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").touch()
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
 
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
-    assert "task_dummy.py>" in captured
+    assert "task_module.py>" in captured
     assert "<Function" in captured
-    assert "task_dummy>" in captured
+    assert "task_example>" in captured
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
 
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
-    assert "task_dummy.py>" in captured
+    assert "task_module.py>" in captured
     assert "<Function" in captured
-    assert "task_dummy>" in captured
+    assert "task_example>" in captured
     assert "<Dependency" in captured
     assert "in.txt>" in captured
     assert "<Product" in captured
@@ -51,17 +51,17 @@ def test_collect_parametrized_tasks(runner, tmp_path):
 
     @pytask.mark.depends_on("in.txt")
     @pytask.mark.parametrize("arg, produces", [(0, "out_0.txt"), (1, "out_1.txt")])
-    def task_dummy(arg):
+    def task_example(arg):
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").touch()
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
 
     captured = result.output.replace("\n", "").replace(" ", "").replace("\u2502", "")
     assert "<Module" in captured
-    assert "task_dummy.py>" in captured
+    assert "task_module.py>" in captured
     assert "<Function" in captured
     assert "[0-out_0.txt]>" in captured
     assert "[1-out_1.txt]>" in captured
@@ -74,15 +74,15 @@ def test_collect_task_with_expressions(runner, tmp_path):
 
     @pytask.mark.depends_on("in_1.txt")
     @pytask.mark.produces("out_1.txt")
-    def task_dummy_1():
+    def task_example_1():
         pass
 
     @pytask.mark.depends_on("in_2.txt")
     @pytask.mark.produces("out_2.txt")
-    def task_dummy_2():
+    def task_example_2():
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in_1.txt").touch()
     tmp_path.joinpath("in_2.txt").touch()
 
@@ -90,19 +90,19 @@ def test_collect_task_with_expressions(runner, tmp_path):
 
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
-    assert "task_dummy.py>" in captured
+    assert "task_module.py>" in captured
     assert "<Function" in captured
-    assert "task_dummy_1>" in captured
+    assert "task_example_1>" in captured
     assert "<Function" in captured
-    assert "task_dummy_2>" not in captured
+    assert "task_example_2>" not in captured
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "-k", "_1", "--nodes"])
 
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
-    assert "task_dummy.py>" in captured
+    assert "task_module.py>" in captured
     assert "<Function" in captured
-    assert "task_dummy_1>" in captured
+    assert "task_example_1>" in captured
     assert "<Dependency" in captured
     assert "in_1.txt>" in captured
     assert "<Product" in captured
@@ -118,15 +118,15 @@ def test_collect_task_with_marker(runner, tmp_path, config_name):
     @pytask.mark.wip
     @pytask.mark.depends_on("in_1.txt")
     @pytask.mark.produces("out_1.txt")
-    def task_dummy_1():
+    def task_example_1():
         pass
 
     @pytask.mark.depends_on("in_2.txt")
     @pytask.mark.produces("out_2.txt")
-    def task_dummy_2():
+    def task_example_2():
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in_1.txt").touch()
 
     config = """
@@ -140,11 +140,11 @@ def test_collect_task_with_marker(runner, tmp_path, config_name):
 
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
-    assert "task_dummy.py>" in captured
+    assert "task_module.py>" in captured
     assert "<Function" in captured
-    assert "task_dummy_1>" in captured
+    assert "task_example_1>" in captured
     assert "<Function" in captured
-    assert "task_dummy_2>" not in captured
+    assert "task_example_2>" not in captured
 
     result = runner.invoke(
         cli, ["collect", tmp_path.as_posix(), "-m", "wip", "--nodes"]
@@ -152,9 +152,9 @@ def test_collect_task_with_marker(runner, tmp_path, config_name):
 
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
-    assert "task_dummy.py>" in captured
+    assert "task_module.py>" in captured
     assert "<Function" in captured
-    assert "task_dummy_1>" in captured
+    assert "task_example_1>" in captured
     assert "<Dependency" in captured
     assert "in_1.txt>" in captured
     assert "<Product" in captured
@@ -170,23 +170,23 @@ def test_collect_task_with_ignore_from_config(runner, tmp_path, config_name):
     @pytask.mark.wip
     @pytask.mark.depends_on("in_1.txt")
     @pytask.mark.produces("out_1.txt")
-    def task_dummy_1():
+    def task_example_1():
         pass
     """
-    tmp_path.joinpath("task_dummy_1.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_example_1.py").write_text(textwrap.dedent(source))
 
     source = """
     @pytask.mark.depends_on("in_2.txt")
     @pytask.mark.produces("out_2.txt")
-    def task_dummy_2():
+    def task_example_2():
         pass
     """
-    tmp_path.joinpath("task_dummy_2.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_example_2.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in_1.txt").touch()
 
     config = """
     [pytask]
-    ignore = task_dummy_2.py
+    ignore = task_example_2.py
     """
     tmp_path.joinpath(config_name).write_text(textwrap.dedent(config))
 
@@ -194,21 +194,21 @@ def test_collect_task_with_ignore_from_config(runner, tmp_path, config_name):
 
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
-    assert "task_dummy_1.py>" in captured
-    assert "task_dummy_2.py>" not in captured
+    assert "task_example_1.py>" in captured
+    assert "task_example_2.py>" not in captured
     assert "<Function" in captured
-    assert "task_dummy_1>" in captured
+    assert "task_example_1>" in captured
     assert "<Function" in captured
-    assert "task_dummy_2>" not in captured
+    assert "task_example_2>" not in captured
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
 
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
-    assert "task_dummy_1.py>" in captured
-    assert "task_dummy_2.py>" not in captured
+    assert "task_example_1.py>" in captured
+    assert "task_example_2.py>" not in captured
     assert "<Function" in captured
-    assert "task_dummy_1>" in captured
+    assert "task_example_1>" in captured
     assert "<Dependency" in captured
     assert "in_1.txt>" in captured
     assert "<Product" in captured
@@ -223,43 +223,44 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
     @pytask.mark.wip
     @pytask.mark.depends_on("in_1.txt")
     @pytask.mark.produces("out_1.txt")
-    def task_dummy_1():
+    def task_example_1():
         pass
     """
-    tmp_path.joinpath("task_dummy_1.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_example_1.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in_1.txt").touch()
 
     source = """
     @pytask.mark.depends_on("in_2.txt")
     @pytask.mark.produces("out_2.txt")
-    def task_dummy_2():
+    def task_example_2():
         pass
     """
-    tmp_path.joinpath("task_dummy_2.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_example_2.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(
-        cli, ["collect", tmp_path.as_posix(), "--ignore", "task_dummy_2.py"]
+        cli, ["collect", tmp_path.as_posix(), "--ignore", "task_example_2.py"]
     )
 
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
-    assert "task_dummy_1.py>" in captured
-    assert "task_dummy_2.py>" not in captured
+    assert "task_example_1.py>" in captured
+    assert "task_example_2.py>" not in captured
     assert "<Function" in captured
-    assert "task_dummy_1>" in captured
+    assert "task_example_1>" in captured
     assert "<Function" in captured
-    assert "task_dummy_2>" not in captured
+    assert "task_example_2>" not in captured
 
     result = runner.invoke(
-        cli, ["collect", tmp_path.as_posix(), "--ignore", "task_dummy_2.py", "--nodes"]
+        cli,
+        ["collect", tmp_path.as_posix(), "--ignore", "task_example_2.py", "--nodes"],
     )
 
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
-    assert "task_dummy_1.py>" in captured
-    assert "task_dummy_2.py>" not in captured
+    assert "task_example_1.py>" in captured
+    assert "task_example_2.py>" not in captured
     assert "<Function" in captured
-    assert "task_dummy_1>" in captured
+    assert "task_example_1>" in captured
     assert "<Dependency" in captured
     assert "in_1.txt>" in captured
     assert "<Product" in captured

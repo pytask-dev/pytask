@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.console import create_url_style_for_task
+from _pytask.console import format_task_id
 from _pytask.database import db
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
@@ -30,11 +30,10 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
-from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
 from pony import orm
 from rich.table import Table
-from rich.text import Text
+
 
 if TYPE_CHECKING:
     from typing import NoReturn
@@ -177,12 +176,13 @@ def _print_profile_table(
             table.add_column(name, justify="right")
 
         for task_name, info in profile.items():
-            reduced_name = reduce_node_name(name_to_task[task_name], config["paths"])
-            url = create_url_style_for_task(
-                name_to_task[task_name], config["editor_url_scheme"]
+            task_id = format_task_id(
+                task=name_to_task[task_name],
+                editor_url_scheme=config["editor_url_scheme"],
+                short_name=True,
             )
             infos = [str(i) for i in info.values()]
-            table.add_row(Text(reduced_name, style=url), *infos)
+            table.add_row(task_id, *infos)
 
         console.print(table)
     else:
@@ -197,7 +197,7 @@ class DurationNameSpace:
     ) -> None:
         runtimes = _collect_runtimes([task.name for task in tasks])
         for name, duration in runtimes.items():
-            profile[name]["Last Duration (in s)"] = round(duration, 2)
+            profile[name]["Duration (in s)"] = round(duration, 2)
 
 
 @orm.db_session
