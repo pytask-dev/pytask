@@ -1,4 +1,4 @@
-from pathlib import Path
+"""This module contains code related to live objects."""
 from typing import Any
 from typing import Dict
 from typing import Generator
@@ -18,7 +18,6 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.report import CollectionReport
 from _pytask.report import ExecutionReport
 from _pytask.shared import get_first_non_none_value
-from _pytask.shared import reduce_node_name
 from rich.live import Live
 from rich.status import Status
 from rich.table import Table
@@ -81,7 +80,6 @@ def pytask_post_parse(config: Dict[str, Any]) -> None:
     if config["verbose"] >= 1:
         live_execution = LiveExecution(
             live_manager,
-            config["paths"],
             config["n_entries_in_table"],
             config["verbose"],
             config["editor_url_scheme"],
@@ -135,7 +133,6 @@ class LiveExecution:
     """A class for managing the table displaying task progress during the execution."""
 
     _live_manager = attr.ib(type=LiveManager)
-    _paths = attr.ib(type=List[Path])
     _n_entries_in_table = attr.ib(type=int)
     _verbose = attr.ib(type=int)
     _editor_url_scheme = attr.ib(type=str, default="file")
@@ -227,14 +224,12 @@ class LiveExecution:
 
     def update_running_tasks(self, new_running_task: MetaTask) -> None:
         """Add a new running task."""
-        reduced_task_name = reduce_node_name(new_running_task, self._paths)
-        self._running_tasks.add(reduced_task_name)
+        self._running_tasks.add(new_running_task.short_name)
         self._update_table()
 
     def update_reports(self, new_report: ExecutionReport) -> None:
         """Update the status of a running task by adding its report."""
-        reduced_task_name = reduce_node_name(new_report.task, self._paths)
-        self._running_tasks.remove(reduced_task_name)
+        self._running_tasks.remove(new_report.task.short_name)
         self._reports.append(
             {
                 "name": new_report.task.short_name,
