@@ -26,6 +26,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   path part.
 - :gh:`180` fixes parsing relative paths from the configuration file.
 - :gh:`181` adds correct formatting of running tasks.
+- :gh:`182` introduces that only the starting year is displayed in the license following
+  https://hynek.me/til/copyright-years.
 
 
 0.1.3 - 2021-11-30
