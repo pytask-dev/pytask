@@ -24,7 +24,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   about the number of successes, fails and other status.
 - :gh:`178` makes some stylistic changes like reducing tasks ids even more and dims the
   path part.
-- :gh:`179` fixes parsing relative paths from the configuration file.
+- :gh:`180` fixes parsing relative paths from the configuration file.
 
 
 0.1.3 - 2021-11-30
