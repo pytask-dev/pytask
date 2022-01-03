@@ -109,7 +109,7 @@ def test_node_and_neighbors(dag):
 )
 def test_extract_priorities_from_tasks(tasks, expectation, expected):
     with expectation:
-        result = _extract_priorities_from_tasks(tasks, [])
+        result = _extract_priorities_from_tasks(tasks)
         assert result == expected
 
 

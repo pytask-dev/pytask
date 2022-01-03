@@ -1,6 +1,5 @@
 """Implement some capabilities to deal with the DAG."""
 import itertools
-from pathlib import Path
 from typing import Dict
 from typing import Generator
 from typing import Iterable
@@ -13,7 +12,6 @@ from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import TASK_ICON
 from _pytask.mark_utils import get_specific_markers_from_task
 from _pytask.nodes import MetaTask
-from _pytask.shared import reduce_node_name
 
 
 def descending_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, None]:
@@ -71,18 +69,15 @@ class TopologicalSorter:
     _nodes_out = attr.ib(factory=set, type=Set[str])
 
     @classmethod
-    def from_dag(cls, dag: nx.DiGraph, paths: List[Path] = None) -> "TopologicalSorter":
+    def from_dag(cls, dag: nx.DiGraph) -> "TopologicalSorter":
         """Instantiate from a DAG."""
-        if paths is None:
-            paths = []
-
         if not dag.is_directed():
             raise ValueError("Only directed graphs have a topological order.")
 
         tasks = [
             dag.nodes[node]["task"] for node in dag.nodes if "task" in dag.nodes[node]
         ]
-        priorities = _extract_priorities_from_tasks(tasks, paths)
+        priorities = _extract_priorities_from_tasks(tasks)
 
         task_names = {task.name for task in tasks}
         task_dict = {name: nx.ancestors(dag, name) & task_names for name in task_names}
@@ -141,9 +136,7 @@ class TopologicalSorter:
             self.done(new_task)
 
 
-def _extract_priorities_from_tasks(
-    tasks: List[MetaTask], paths: List[Path]
-) -> Dict[str, int]:
+def _extract_priorities_from_tasks(tasks: List[MetaTask]) -> Dict[str, int]:
     """Extract priorities from tasks.
 
     Priorities are set via the ``pytask.mark.try_first`` and ``pytask.mark.try_last``
@@ -167,8 +160,7 @@ def _extract_priorities_from_tasks(
     if tasks_w_mixed_priorities:
         name_to_task = {task.name: task for task in tasks}
         reduced_names = [
-            reduce_node_name(name_to_task[name], paths)
-            for name in tasks_w_mixed_priorities
+            name_to_task[name].short_name for name in tasks_w_mixed_priorities
         ]
         text = format_strings_as_flat_tree(
             reduced_names, "Tasks with mixed priorities", TASK_ICON
