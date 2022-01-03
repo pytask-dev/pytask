@@ -96,7 +96,9 @@ def pytask_configure(
 
     # If paths are set in the configuration, process them.
     if config_from_file.get("paths"):
-        paths_from_file = parse_value_or_multiline_option(config_from_file.get("paths"))
+        paths_from_file = to_list(
+            parse_value_or_multiline_option(config_from_file.get("paths"))
+        )
         config_from_file["paths"] = [
             config["config"].parent.joinpath(p).resolve() for p in paths_from_file
         ]
