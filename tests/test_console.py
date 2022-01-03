@@ -7,12 +7,17 @@ from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_path
 from _pytask.console import create_url_style_for_task
+from _pytask.console import format_task_id
 from _pytask.console import render_to_string
+from _pytask.nodes import create_task_name
 from _pytask.nodes import MetaTask
+from _pytask.nodes import PythonFunctionTask
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
 from rich.console import Console
 from rich.style import Style
+from rich.text import Span
+from rich.text import Text
 
 
 def task_func():
@@ -108,4 +113,65 @@ def test_create_summary_panel(capsys, outcome, outcome_enum, total_description):
 def test_render_to_string(color_system, text, expected):
     console = Console(color_system=color_system)
     result = render_to_string(text, console)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "base_name, short_name, editor_url_scheme, use_short_name, relative_to, expected",
+    [
+        pytest.param(
+            "task_a",
+            None,
+            "no_link",
+            False,
+            None,
+            Text(
+                "C:/Users/tobia/git/pytask/tests/test_console.py::task_a",
+                spans=[Span(0, 49, "dim"), Span(49, 55, Style())],
+            ),
+            id="format full id",
+        ),
+        pytest.param(
+            "task_a",
+            "test_console.py::task_a",
+            "no_link",
+            True,
+            None,
+            Text(
+                "test_console.py::task_a",
+                spans=[Span(0, 17, "dim"), Span(17, 23, Style())],
+            ),
+            id="format short id",
+        ),
+        pytest.param(
+            "task_a",
+            None,
+            "no_link",
+            False,
+            Path(__file__).parent,
+            Text(
+                "tests/test_console.py::task_a",
+                spans=[Span(0, 23, "dim"), Span(23, 29, Style())],
+            ),
+            id="format relative to id",
+        ),
+    ],
+)
+def test_format_task_id(
+    base_name,
+    short_name,
+    editor_url_scheme,
+    use_short_name,
+    relative_to,
+    expected,
+):
+    path = Path(__file__)
+
+    task = PythonFunctionTask(
+        base_name, create_task_name(path, base_name), path, task_func
+    )
+    if short_name is not None:
+        task.short_name = short_name
+
+    result = format_task_id(task, editor_url_scheme, use_short_name, relative_to)
     assert result == expected

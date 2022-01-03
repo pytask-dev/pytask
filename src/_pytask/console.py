@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 from typing import Union
 
 import rich
+from _pytask.path import relative_to as relative_to_
 from rich.console import Console
 from rich.padding import Padding
 from rich.panel import Panel
@@ -112,10 +113,18 @@ def render_to_string(text: Union[str, Text], console: Optional[Console] = None) 
     return rendered
 
 
-def format_task_id(task: "MetaTask", editor_url_scheme: str, short_name: bool) -> Text:
+def format_task_id(
+    task: "MetaTask",
+    editor_url_scheme: str,
+    short_name: bool = False,
+    relative_to: Optional[Path] = None,
+) -> Text:
     """Format a task id."""
     if short_name:
         path, task_name = task.short_name.split("::")
+    elif relative_to:
+        path = relative_to_(task.path, relative_to).as_posix()
+        task_name = task.base_name
     else:
         path, task_name = task.name.split("::")
     url_style = create_url_style_for_task(task, editor_url_scheme)
