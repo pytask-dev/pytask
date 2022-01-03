@@ -23,7 +23,7 @@ def to_list(scalar_or_iter: Any) -> List[Any]:
 
     Parameters
     ----------
-    scalar_or_iter : str or list
+    scalar_or_iter : Any
 
     Returns
     -------

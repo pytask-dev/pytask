@@ -132,7 +132,11 @@ _THIS_FILE = Path(__file__)
                 _THIS_FILE.as_posix() + "::task_a",
                 spans=[
                     Span(0, len(_THIS_FILE.as_posix()) + 2, "dim"),
-                    Span(len(_THIS_FILE.as_posix()) + 2, 55, Style()),
+                    Span(
+                        len(_THIS_FILE.as_posix()) + 2,
+                        len(_THIS_FILE.as_posix()) + 2 + 6,
+                        Style(),
+                    ),
                 ],
             ),
             id="format full id",
