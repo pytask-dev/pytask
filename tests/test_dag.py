@@ -18,6 +18,10 @@ class _DummyTask(MetaTask):
     markers = attr.ib(factory=list)
     path = attr.ib(default=None)
     base_name = ""
+    short_name = attr.ib(init=False)
+
+    def __attrs_post_init__(self):
+        self.short_name = self.name
 
     def execute(self):
         ...
