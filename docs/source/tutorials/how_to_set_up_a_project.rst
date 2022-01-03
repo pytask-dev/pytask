@@ -39,16 +39,18 @@ The configuration
 
 The configuration resides in either a ``pytask.ini``, ``tox.ini``, or ``setup.cfg``
 file. The file is placed in the root folder of the project and contains a ``[pytask]``
-section which can be left empty.
+section which can be left empty. Here, we set ``paths`` such that it points to the
+project.
 
 .. code-block:: ini
 
     # Content of pytask.ini, tox.ini or setup.cfg.
 
     [pytask]
+    paths = ./src/my_project
 
-The file in combination with the section will signal the root of the project to pytask.
-This has two benefits.
+The file in combination with an empty section will signal the root of the project to
+pytask. This has two benefits.
 
 1. pytask needs to save some data across executions. It will store this information in
    a ``.pytask.sqlite3`` database in the root folder.
