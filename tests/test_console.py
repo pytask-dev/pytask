@@ -3,6 +3,8 @@ from pathlib import Path
 
 import attr
 import pytest
+from _pytask.console import _get_file
+from _pytask.console import _get_source_lines
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_path
@@ -18,6 +20,8 @@ from rich.console import Console
 from rich.style import Style
 from rich.text import Span
 from rich.text import Text
+
+from tests._test_console_helpers import empty_decorator
 
 
 def task_func():
@@ -184,4 +188,37 @@ def test_format_task_id(
         task.short_name = short_name
 
     result = format_task_id(task, editor_url_scheme, use_short_name, relative_to)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "task_func, skipped_paths, expected",
+    [
+        (task_func, [], _THIS_FILE),
+        (
+            empty_decorator(task_func),
+            [],
+            _THIS_FILE.parent.joinpath("_test_console_helpers.py"),
+        ),
+        (
+            empty_decorator(task_func),
+            [_THIS_FILE.parent.joinpath("_test_console_helpers.py")],
+            _THIS_FILE,
+        ),
+    ],
+)
+def test_get_file(task_func, skipped_paths, expected):
+    result = _get_file(task_func, skipped_paths)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "task_func, expected",
+    [
+        (task_func, _SOURCE_LINE_TASK_FUNC),
+        (empty_decorator(task_func), _SOURCE_LINE_TASK_FUNC),
+    ],
+)
+def test_get_source_lines(task_func, expected):
+    result = _get_source_lines(task_func)
     assert result == expected
