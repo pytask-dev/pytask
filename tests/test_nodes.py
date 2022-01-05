@@ -26,11 +26,11 @@ from _pytask.shared import reduce_node_name
 )
 def test_extract_args_from_mark(decorator, values, expected):
     @decorator(values)
-    def task_dummy():
+    def task_example():
         pass
 
     parser = depends_on if decorator.name == "depends_on" else produces
-    result = list(_extract_nodes_from_function_markers(task_dummy, parser))
+    result = list(_extract_nodes_from_function_markers(task_example, parser))
     assert result == expected
 
 
@@ -46,11 +46,11 @@ def test_extract_args_from_mark(decorator, values, expected):
 )
 def test_extract_kwargs_from_mark(decorator, values, expected):
     @decorator(**values)
-    def task_dummy():
+    def task_example():
         pass
 
     parser = depends_on if decorator.name == "depends_on" else produces
-    result = list(_extract_nodes_from_function_markers(task_dummy, parser))
+    result = list(_extract_nodes_from_function_markers(task_example, parser))
     assert result == expected
 
 
@@ -63,12 +63,12 @@ def test_raise_error_for_invalid_args_to_depends_on_and_produces(
     decorator, args, kwargs
 ):
     @decorator(*args, **kwargs)
-    def task_dummy():
+    def task_example():
         pass
 
     parser = depends_on if decorator.name == "depends_on" else produces
     with pytest.raises(TypeError):
-        list(_extract_nodes_from_function_markers(task_dummy, parser))
+        list(_extract_nodes_from_function_markers(task_example, parser))
 
 
 @pytest.mark.unit
@@ -96,14 +96,14 @@ def test_instantiation_of_metatask():
 @pytest.mark.unit
 def test_instantiation_of_metanode():
     class Node(MetaNode):
-        pass
+        ...
 
     with pytest.raises(TypeError):
         Node()
 
     class Node(MetaNode):
         def state(self):
-            pass
+            ...
 
     task = Node()
     assert isinstance(task, MetaNode)

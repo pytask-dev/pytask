@@ -7,7 +7,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.1.4 - 2021-xx-xx
+0.1.4 - 2022-01-04
 ------------------
 
 - :gh:`153` adds support and testing for Python 3.10.
@@ -16,6 +16,19 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`161` removes a workaround for pyreadline which is also removed in pytest 7.
 - :gh:`163` allow forward slashes in expressions and marker expressions.
 - :gh:`164` allows to use backward slashes in expressions and marker expressions.
+- :gh:`167` makes small changes to the docs.
+- :gh:`172` embeds URLs in task ids. See :confval:`editor_url_scheme` for more
+  information.
+- :gh:`173` replaces ``ColorCode`` with custom rich themes.
+- :gh:`174` restructures loosely defined outcomes to clear ``enum.Enum``.
+- :gh:`176` and :gh:`177` implement a summary panel which holds aggregate information
+  about the number of successes, fails and other status.
+- :gh:`178` makes some stylistic changes like reducing tasks ids even more and dims the
+  path part.
+- :gh:`180` fixes parsing relative paths from the configuration file.
+- :gh:`181` adds correct formatting of running tasks.
+- :gh:`182` introduces that only the starting year is displayed in the license following
+  https://hynek.me/til/copyright-years.
 
 
 0.1.3 - 2021-11-30
@@ -34,20 +47,21 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`144` adds tryceratops to the pre-commit hooks for catching issues with
   exceptions.
 - :gh:`150` adds a limit on the number of items displayed in the execution table which
-  is also configurable with ``--n-entries-in-table`` on the cli and
-  ``n_entries_in_table`` in the configuration file.
+  is configurable with :confval:`n_entries_in_table` in the configuration file.
 - :gh:`152` makes the duration of the execution readable by humans by separating it into
   days, hours, minutes and seconds.
 - :gh:`155` implements functions to check for optional packages and programs and raises
   errors for requirements to draw the DAG earlier.
-- :gh:`156` adds an option to print/show errors as soon as they occur.
+- :gh:`156` adds the option :confval:`show_errors_immediately` to print/show errors as
+  soon as they occur.
 
 
 0.1.1 - 2021-08-25
 ------------------
 
-- :gh:`138` changes the default verbosity to ``1`` which displays the live table during
-  execution and ``0`` display the symbols for outcomes (e.g. ``.``, ``F``, ``s``).
+- :gh:`138` changes the default :confval:`verbosity` to ``1`` which displays the live
+  table during execution and ``0`` display the symbols for outcomes (e.g. ``.``, ``F``,
+  ``s``).
 - :gh:`139` enables rich's auto-refresh mechanism for live objects which causes almost
   no performance penalty for the live table compared to the symbolic output.
 
@@ -85,25 +99,28 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`80` replaces some remaining formatting using ``pprint`` with ``rich``.
 - :gh:`81` adds a warning if a path is not correctly cased on a case-insensitive file
   system. This facilitates cross-platform builds of projects. Deactivate the check by
-  setting ``check_casing_of_paths = false`` in the configuration file.
+  setting ``check_casing_of_paths = false`` in the configuration file. See
+  :confval:`check_casing_of_paths` for more information.
 - :gh:`83` replaces ``versioneer`` with ``setuptools_scm``.
 - :gh:`84` fixes an error in the path normalization introduced by :gh:`81`.
 - :gh:`85` sorts collected tasks, dependencies, and products by name.
 - :gh:`87` fixes that dirty versions are displayed in the documentation.
-- :gh:`88` adds a ``profile`` command to show information on tasks like duration and
-  file size of products.
+- :gh:`88` adds the ``pytask profile`` command to show information on tasks like
+  duration and file size of products.
 - :gh:`93` fixes the display of parametrized arguments in the console.
-- :gh:`94` adds ``--show-locals`` which allows to print local variables in tracebacks.
+- :gh:`94` adds :confval:`show_locals` which allows to print local variables in
+  tracebacks.
 - :gh:`96` implements a spinner to show the progress during the collection.
-- :gh:`99` enables color support in WSL and fixes ``show_locals`` during collection.
+- :gh:`99` enables color support in WSL and fixes :confval:`show_locals` during
+  collection.
 - :gh:`101` implement to visualize the project's DAG. :gh:`108` refines the
   implementation.
 - :gh:`102` adds an example if a parametrization provides not the number of arguments
   specified in the signature.
 - :gh:`105` simplifies the logging of the tasks.
-- :gh:`107` adds and new hook ``pytask_unconfigure`` which makes pytask return
-  :func:`pdb.set_trace` at the end of a session which allows to use ``breakpoint()``
-  inside test functions using pytask.
+- :gh:`107` adds and new hook :func:`~_pytask.hookspecs.pytask_unconfigure` which makes
+  pytask return :func:`pdb.set_trace` at the end of a session which allows to use
+  :func:`breakpoint` inside test functions using pytask.
 - :gh:`109` makes pytask require networkx>=2.4 since previous versions fail with Python
   3.9.
 - :gh:`110` adds a "New Features" section to the ``README.rst``.
@@ -124,7 +141,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 
 - :gh:`72` adds conda-forge to the README and highlights importance of specifying
   dependencies and products.
-- :gh:`62` implements the ``pytask.mark.skipif`` marker to conditionally skip tasks.
+- :gh:`62` implements the :func:`pytask.mark.skipif` marker to conditionally skip tasks.
   Many thanks to :ghuser:`roecla` for implementing this feature and a warm welcome since
   she is the first pytask contributor!
 

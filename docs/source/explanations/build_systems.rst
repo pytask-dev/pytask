@@ -99,3 +99,12 @@ Pros
 Cons
 
 - Seems to have no plugin system.
+
+
+`Kedro <https://github.com/quantumblacklabs/kedro>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pros
+
+- Mature library.
+- Used by some institutions and companies.

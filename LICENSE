@@ -1,4 +1,6 @@
-Copyright 2020-2021 Tobias Raabe
+MIT License
+
+Copyright 2020 Tobias Raabe
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this
 software and associated documentation files (the "Software"), to deal in the Software
@@ -22,7 +24,9 @@ pytask's code is heavily inspired by pytest. Some modules, classes or functions 
 copied and potentially modified.
 
 
-Copyright (c) 2004-2020 Holger Krekel and others
+MIT License
+
+Copyright (c) 2004 Holger Krekel and others
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this
 software and associated documentation files (the "Software"), to deal in the Software

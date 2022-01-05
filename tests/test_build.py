@@ -7,10 +7,10 @@ from pytask import cli
 @pytest.mark.end_to_end
 def test_execution_failed(runner, tmp_path):
     source = """
-    def task_dummy():
+    def task_raises():
         raise Exception
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == 1
@@ -27,7 +27,7 @@ def test_collection_failed(runner, tmp_path):
     source = """
     raise Exception
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == 3
@@ -40,15 +40,15 @@ def test_resolving_dependencies_failed(runner, tmp_path):
 
     @pytask.mark.depends_on("in.txt")
     @pytask.mark.produces("out.txt")
-    def task_dummy_1():
+    def task_passes_1():
         pass
 
     @pytask.mark.depends_on("out.txt")
     @pytask.mark.produces("in.txt")
-    def task_dummy_2():
+    def task_passes_2():
         pass
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == 4

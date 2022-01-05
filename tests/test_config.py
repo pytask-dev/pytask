@@ -14,7 +14,7 @@ from pytask import main
     [
         ("pytask.ini", ["src/a", "src/b"], ".", "pytask.ini"),
         ("tox.ini", ["."], None, "tox.ini"),
-        (None, ["task_dummy.py"], "", None),
+        (None, ["task_module.py"], "", None),
     ],
 )
 def test_find_project_root_and_ini(
@@ -125,7 +125,7 @@ def test_passing_paths_via_configuration_file(tmp_path, config_path, file_or_fol
     for letter in ["a", "b"]:
         tmp_path.joinpath(f"folder_{letter}").mkdir()
         tmp_path.joinpath(f"folder_{letter}", f"task_{letter}.py").write_text(
-            "def task_dummy(): pass"
+            "def task_passes(): pass"
         )
 
     os.chdir(tmp_path)

@@ -12,12 +12,12 @@ from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import ARROW_DOWN_ICON
 from _pytask.console import console
 from _pytask.console import FILE_ICON
+from _pytask.console import render_to_string
 from _pytask.console import TASK_ICON
 from _pytask.dag import node_and_neighbors
 from _pytask.dag import task_and_descending_tasks
 from _pytask.dag import TopologicalSorter
 from _pytask.database import State
-from _pytask.enums import ColorCode
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
@@ -31,6 +31,7 @@ from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
 from pony import orm
+from rich.text import Text
 from rich.tree import Tree
 
 
@@ -260,14 +261,11 @@ def _format_dictionary_to_tree(dict_: Dict[str, List[str]], title: str) -> str:
     tree = Tree(title)
 
     for node, tasks in dict_.items():
-        branch = tree.add(FILE_ICON + node)
+        branch = tree.add(Text.assemble(FILE_ICON, node))
         for task in tasks:
-            branch.add(TASK_ICON + task)
+            branch.add(Text.assemble(TASK_ICON, task))
 
-    text = "".join(
-        [x.text for x in tree.__rich_console__(console, console.options)][:-1]
-    )
-
+    text = render_to_string(tree)
     return text
 
 
@@ -312,12 +310,12 @@ def pytask_resolve_dependencies_log(
     """Log errors which happened while resolving dependencies."""
     console.print()
     console.rule(
-        f"[{ColorCode.FAILED}]Failures during resolving dependencies",
-        style=ColorCode.FAILED,
+        Text("Failures during resolving dependencies", style="failed"),
+        style="failed",
     )
 
     console.print()
     console.print(render_exc_info(*report.exc_info, session.config["show_locals"]))
 
     console.print()
-    console.rule(style=ColorCode.FAILED)
+    console.rule(style="failed")

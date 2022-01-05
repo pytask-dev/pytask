@@ -186,6 +186,7 @@ def test_invalid_idents(ident: str) -> None:
         evaluate(ident, lambda ident: True)  # noqa: U100
 
 
+@pytest.mark.unit
 def test_backslash_not_treated_specially() -> None:
     r"""When generating nodeids, if the source name contains special characters
     like a newline, they are escaped into two characters like \n. Therefore, a

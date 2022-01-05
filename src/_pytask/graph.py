@@ -13,7 +13,6 @@ from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.dag import descending_tasks
-from _pytask.enums import ColorCode
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
@@ -116,7 +115,7 @@ def dag(**config_from_cli: Any) -> "NoReturn":
             exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
             console.print()
             console.print(Traceback.from_exception(*exc_info))
-            console.rule(style=ColorCode.FAILED)
+            console.rule(style="failed")
 
     sys.exit(session.exit_code)
 
@@ -179,6 +178,7 @@ def build_dag(config_from_cli: Dict[str, Any]) -> nx.DiGraph:
 
 
 def _refine_dag(session: Session) -> nx.DiGraph:
+    """Refine the dag for plotting."""
     dag = _shorten_node_labels(session.dag, session.config["paths"])
     dag = _add_root_node(dag)
     dag = _clean_dag(dag)
@@ -189,6 +189,7 @@ def _refine_dag(session: Session) -> nx.DiGraph:
 
 
 def _create_session(config_from_cli: Dict[str, Any]) -> nx.DiGraph:
+    """Create a session object."""
     try:
         pm = get_plugin_manager()
         from _pytask import cli
@@ -222,12 +223,13 @@ def _create_session(config_from_cli: Dict[str, Any]) -> nx.DiGraph:
         except Exception:
             session.exit_code = ExitCode.FAILED
             console.print_exception()
-            console.rule(style=ColorCode.FAILED)
+            console.rule(style="failed")
 
     return session
 
 
 def _shorten_node_labels(dag: nx.DiGraph, paths: List[Path]) -> nx.DiGraph:
+    """Shorten the node labels in the graph for a better experience."""
     node_names = dag.nodes
     short_names = reduce_names_of_multiple_nodes(node_names, dag, paths)
     old_to_new = dict(zip(node_names, short_names))
@@ -236,6 +238,7 @@ def _shorten_node_labels(dag: nx.DiGraph, paths: List[Path]) -> nx.DiGraph:
 
 
 def _add_root_node(dag: nx.DiGraph) -> nx.DiGraph:
+    """Add a root node to the graph to bind all starting nodes together."""
     tasks_without_predecessor = [
         name
         for name in dag.nodes
@@ -257,6 +260,7 @@ def _clean_dag(dag: nx.DiGraph) -> nx.DiGraph:
 
 
 def _style_dag(dag: nx.DiGraph) -> nx.DiGraph:
+    """Style the DAG."""
     shapes = {name: "hexagon" if "::task_" in name else "box" for name in dag.nodes}
     nx.set_node_attributes(dag, shapes, "shape")
     return dag
@@ -274,6 +278,7 @@ def _escape_node_names_with_colons(dag: nx.DiGraph) -> nx.DiGraph:
 
 
 def _write_graph(dag: nx.DiGraph, path: Path, layout: str) -> None:
+    """Write the graph to disk."""
     path.parent.mkdir(exist_ok=True, parents=True)
     graph = nx.nx_pydot.to_pydot(dag)
     graph.write(path, prog=layout, format=path.suffix[1:])

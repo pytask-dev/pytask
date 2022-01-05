@@ -1,6 +1,7 @@
 """Add general logging capabilities."""
 import platform
 import sys
+import warnings
 from typing import Any
 from typing import Dict
 from typing import List
@@ -13,9 +14,14 @@ import click
 import pluggy
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.console import IS_WINDOWS_TERMINAL
+from _pytask.outcomes import CollectionOutcome
+from _pytask.outcomes import TaskOutcome
 from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
+from rich.text import Text
+
 
 try:
     from pluggy._manager import DistFacade
@@ -57,6 +63,20 @@ def pytask_parse_config(
         default=False,
         callback=convert_truthy_or_falsy_to_bool,
     )
+    config["editor_url_scheme"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="editor_url_scheme",
+        default="file",
+        callback=lambda x: None if x in [None, "none", "None"] else str(x),
+    )
+    if config["editor_url_scheme"] not in ["no_link", "file"] and IS_WINDOWS_TERMINAL:
+        config["editor_url_scheme"] = "file"
+        warnings.warn(
+            "Windows Terminal does not support url schemes to applications, yet."
+            "See https://github.com/pytask-dev/pytask/issues/171 for more information. "
+            "Resort to `editor_url_scheme='file'`."
+        )
 
 
 @hookimpl
@@ -98,33 +118,15 @@ def _format_plugin_names_and_versions(
 
 @hookimpl
 def pytask_log_session_footer(
-    infos: List[Tuple[Any, str, str]], duration: float, color: str
+    duration: float,
+    outcome: Union[CollectionOutcome, TaskOutcome],
 ) -> None:
     """Format the footer of the log message."""
-    message = _style_infos(infos)
     formatted_duration = _format_duration(duration)
-    message += f"[{color}] in {formatted_duration}"
-
-    console.rule(message, style=color)
-
-
-def _style_infos(infos: List[Tuple[Any, str, str]]) -> str:
-    """Style infos.
-
-    Example
-    -------
-    >>> m = _style_infos([(1, "a", "green"), (2, "b", "red"), (0, "c", "yellow")])
-    >>> print(m)
-    [green]1 a[/], [red]2 b[/]
-
-    """
-    message = []
-    for value, description, color in infos:
-        if value:
-            message.append(f"[{color}]{value} {description}[/]")
-    if not message:
-        message = ["nothing to report"]
-    return ", ".join(message)
+    message = Text(
+        f"{outcome.description} in {formatted_duration}", style=outcome.style
+    )
+    console.rule(message, style=outcome.style)
 
 
 _TIME_UNITS: List["_TimeUnit"] = [
@@ -150,7 +152,7 @@ def _format_duration(duration: float) -> str:
 
 def _humanize_time(
     amount: Union[int, float], unit: str, short_label: bool = False
-) -> List[Tuple[int, str]]:
+) -> List[Tuple[float, str]]:
     """Humanize the time.
 
     Examples
@@ -158,7 +160,7 @@ def _humanize_time(
     >>> _humanize_time(173, "hours")
     [(7, 'days'), (5, 'hours')]
     >>> _humanize_time(173.345, "seconds")
-    [(2, 'minutes'), (53, 'seconds')]
+    [(2, 'minutes'), (53.34, 'seconds')]
     >>> _humanize_time(173, "hours", short_label=True)
     [(7, 'd'), (5, 'h')]
     >>> _humanize_time(0, "seconds", short_label=True)
@@ -179,7 +181,7 @@ def _humanize_time(
 
     seconds = amount * _TIME_UNITS[index]["in_seconds"]
 
-    result = []
+    result: List[Tuple[float, str]] = []
     remaining_seconds = seconds
     for entry in _TIME_UNITS:
         whole_units = int(remaining_seconds / entry["in_seconds"])
@@ -195,7 +197,7 @@ def _humanize_time(
                 result.append((whole_units, label))
                 remaining_seconds -= whole_units * entry["in_seconds"]
             else:
-                result.append((int(remaining_seconds), label))
+                result.append((round(remaining_seconds, 2), label))
 
     if not result:
         result.append(

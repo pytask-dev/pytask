@@ -7,12 +7,12 @@ from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
 from _pytask.dag import descending_tasks
-from _pytask.enums import ColorCode
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_specific_markers_from_task
 from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
+from _pytask.outcomes import TaskOutcome
 from _pytask.traceback import remove_traceback_from_exc_info
 
 
@@ -86,14 +86,10 @@ def pytask_execute_task_process_report(
 
     if report.exc_info:
         if isinstance(report.exc_info[1], SkippedUnchanged):
-            report.success = True
-            report.symbol = "s"
-            report.color = ColorCode.SUCCESS
+            report.outcome = TaskOutcome.SKIP_UNCHANGED
 
         elif isinstance(report.exc_info[1], Skipped):
-            report.success = True
-            report.symbol = "s"
-            report.color = ColorCode.SKIPPED
+            report.outcome = TaskOutcome.SKIP
 
             for descending_task_name in descending_tasks(task.name, session.dag):
                 descending_task = session.dag.nodes[descending_task_name]["task"]
@@ -106,10 +102,8 @@ def pytask_execute_task_process_report(
                 )
 
         elif isinstance(report.exc_info[1], SkippedAncestorFailed):
-            report.success = False
+            report.outcome = TaskOutcome.SKIP_PREVIOUS_FAILED
             report.exc_info = remove_traceback_from_exc_info(report.exc_info)
-            report.symbol = "s"
-            report.color = ColorCode.FAILED
 
     if report.exc_info and isinstance(
         report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)

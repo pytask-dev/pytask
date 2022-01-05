@@ -73,7 +73,7 @@ def test_profile_if_there_is_information_on_collected_tasks(tmp_path, runner):
 
     assert result.exit_code == 0
     assert "Collected 1 task." in result.output
-    assert "Last Duration (in s)" in result.output
+    assert "Duration (in s)" in result.output
     assert "0." in result.output
 
 
@@ -93,6 +93,6 @@ def test_export_of_profile(tmp_path, runner, export):
 
     assert result.exit_code == 0
     assert "Collected 1 task." in result.output
-    assert "Last Duration (in s)" in result.output
+    assert "Duration (in s)" in result.output
     assert "0." in result.output
     assert tmp_path.joinpath(f"profile.{export}").exists()

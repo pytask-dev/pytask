@@ -6,6 +6,7 @@ import pytest
 from _pytask.logging import _format_plugin_names_and_versions
 from _pytask.logging import _humanize_time
 from _pytask.logging import pytask_log_session_footer
+from _pytask.outcomes import TaskOutcome
 from pytask import cli
 
 
@@ -29,69 +30,81 @@ def test_format_plugin_names_and_versions(plugins, expected):
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
-    "infos, duration, color, expected",
+    "duration, outcome, expected",
     [
         (
-            [(1, "succeeded", "green"), (1, "failed", "red")],
             1,
-            "red",
-            "────── 1 succeeded, 1 failed in 1 second ───────────",
+            TaskOutcome.FAIL,
+            "────── Failed in 1 second ───────────",
         ),
         (
-            [(2, "succeeded", "green"), (1, "skipped", "yellow")],
             10,
-            "green",
-            "────── 2 succeeded, 1 skipped in 10 seconds ───────────",
+            TaskOutcome.SUCCESS,
+            "────── Succeeded in 10 seconds ─────",
         ),
         (
-            [(2, "succeeded", "green"), (1, "skipped", "yellow")],
             5401,
-            "green",
-            "────── 2 succeeded, 1 skipped in 1 hour, 30 minutes ───────────",
+            TaskOutcome.SUCCESS,
+            "─ Succeeded in 1 hour, 30 minutes ─",
         ),
         (
-            [(2, "succeeded", "green"), (1, "skipped", "yellow")],
             125_000,
-            "green",
-            "────── 2 succeeded, 1 skipped in 1 day, 10 hours, 43 minutes ───────────",
+            TaskOutcome.FAIL,
+            "─────── Failed in 1 day, 10 hours, 43 minutes ───────────",
         ),
     ],
 )
-def test_pytask_log_session_footer(capsys, infos, duration, color, expected):
-    pytask_log_session_footer(infos, duration, color)
+def test_pytask_log_session_footer(capsys, duration, outcome, expected):
+    pytask_log_session_footer(duration, outcome)
     captured = capsys.readouterr()
     assert expected in captured.out
 
 
 @pytest.mark.end_to_end
-def test_logging_of_outcomes(tmp_path, runner):
-    source = """
+@pytest.mark.parametrize(
+    "func, expected_1, expected_2",
+    [
+        ("def task_func(): pass", "1  Succeeded", "1  Skipped because unchanged"),
+        (
+            "@pytask.mark.persist\n    def task_func(): pass",
+            "1  Persisted",
+            "1  Skipped because unchanged",
+        ),
+        ("@pytask.mark.skip\n    def task_func(): pass", "1  Skipped", "1  Skipped"),
+        (
+            "@pytask.mark.skip_unchanged\n    def task_func(): pass",
+            "1  Skipped because unchanged",
+            "1  Skipped because unchanged",
+        ),
+        (
+            "@pytask.mark.skip_ancestor_failed\n    def task_func(): pass",
+            "1  Skipped because previous failed",
+            "1  Skipped because previous failed",
+        ),
+        ("def task_func(): raise Exception", "1  Failed", "1  Failed"),
+    ],
+)
+def test_logging_of_outcomes(tmp_path, runner, func, expected_1, expected_2):
+    source = f"""
     import pytask
 
-    @pytask.mark.skip
-    def task_skipped(): pass
-
-    @pytask.mark.persist
-    def task_persist(): pass
-
-    def task_failed(): raise Exception
-
-    def task_sc(): pass
+    {func}
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert expected_1 in result.output
 
-    assert "1 succeeded" in result.output
-    assert "1 persisted" in result.output
-    assert "1 skipped" in result.output
-    assert "1 failed" in result.output
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert expected_2 in result.output
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "amount, unit, short_label, expectation, expected",
     [
-        (173, "hours", False, does_not_raise(), [(7, "days"), (5, "hours")]),
+        (2.234, "seconds", True, does_not_raise(), [(2.23, "s")]),
+        (173, "hours", True, does_not_raise(), [(7, "d"), (5, "h")]),
         (1, "hour", False, does_not_raise(), [(1, "hour")]),
         (
             17281,
@@ -100,7 +113,6 @@ def test_logging_of_outcomes(tmp_path, runner):
             does_not_raise(),
             [(4, "hours"), (48, "minutes"), (1, "second")],
         ),
-        (173, "hours", True, does_not_raise(), [(7, "d"), (5, "h")]),
         (1, "hour", True, does_not_raise(), [(1, "h")]),
         (
             1,

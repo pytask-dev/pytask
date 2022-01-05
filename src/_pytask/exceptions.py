@@ -1,3 +1,6 @@
+"""This module contains custom exceptions."""
+
+
 class PytaskError(Exception):
     """Base exception for pytask which should be inherited by all other exceptions."""
 

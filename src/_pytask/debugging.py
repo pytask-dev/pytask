@@ -56,12 +56,6 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             ),
             metavar="module_name:class_name",
         ),
-        click.Option(
-            ["--show-locals"],
-            is_flag=True,
-            default=None,
-            help="Show local variables in tracebacks.",
-        ),
     ]
     cli.commands["build"].params.extend(additional_parameters)
 
@@ -461,6 +455,7 @@ def wrap_function_for_tracing(session: Session, task: MetaTask) -> None:
 
 
 def post_mortem(t: TracebackType) -> None:
+    """Start post-mortem debugging."""
     p = PytaskPDB._init_pdb("post_mortem")
     p.reset()
     p.interaction(None, t)

@@ -10,7 +10,6 @@ from typing import Sequence
 from typing import Union
 
 import networkx as nx
-from _pytask.console import escape_squared_brackets
 from _pytask.nodes import create_task_name
 from _pytask.nodes import MetaNode
 from _pytask.nodes import MetaTask
@@ -24,7 +23,7 @@ def to_list(scalar_or_iter: Any) -> List[Any]:
 
     Parameters
     ----------
-    scalar_or_iter : str or list
+    scalar_or_iter : Any
 
     Returns
     -------
@@ -158,8 +157,7 @@ def reduce_node_name(node: "MetaNode", paths: Sequence[Union[str, Path]]) -> str
 
     if isinstance(node, MetaTask):
         shortened_path = relative_to(node.path, ancestor)
-        raw_name = create_task_name(shortened_path, node.base_name)
-        name = escape_squared_brackets(raw_name)
+        name = create_task_name(shortened_path, node.base_name)
     elif isinstance(node, MetaNode):
         name = relative_to(node.path, ancestor).as_posix()
     else:

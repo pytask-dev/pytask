@@ -146,7 +146,7 @@ def test_cycle_in_dag(tmp_path, runner):
     def task_2(produces):
         produces.write_text("2")
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 

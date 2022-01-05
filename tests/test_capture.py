@@ -196,7 +196,7 @@ def test_capturing_unicode(tmp_path, runner, method):
 
     result = runner.invoke(cli, [tmp_path.as_posix(), f"--capture={method}"])
 
-    assert "1 succeeded" in result.output
+    assert "1  Succeeded" in result.output
     assert result.exit_code == 0
 
 
@@ -213,7 +213,7 @@ def test_capturing_bytes_in_utf8_encoding(tmp_path, runner, method):
 
     result = runner.invoke(cli, [tmp_path.as_posix(), f"--capture={method}"])
 
-    assert "1 succeeded" in result.output
+    assert "1  Succeeded" in result.output
     assert result.exit_code == 0
 
 
@@ -226,7 +226,7 @@ def test_collect_capturing(tmp_path, runner):
     sys.stderr.write("collect %s_stderr failure" % 13)
     import xyz42123
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
@@ -266,7 +266,10 @@ def test_capturing_outerr(tmp_path, runner):
         "1",
         "──────────────────────── Captured stderr during call ────────────────────────",
         "2",
-        "─────────── 1 succeeded, 1 failed in 0 seconds ────────",
+        "2  Collected tasks",
+        "1  Succeeded",
+        "1  Failed",
+        "─────────── Failed in 0 seconds ────────",
     ]:
         assert content in result.output
 
@@ -280,7 +283,7 @@ def test_capture_badoutput_issue412(tmp_path, runner):
         os.write(1, omg)
         assert 0
     """
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "--capture=fd"])
 
@@ -288,7 +291,7 @@ def test_capture_badoutput_issue412(tmp_path, runner):
         "task_func",
         "assert 0",
         "Captured",
-        "1 failed",
+        "1  Failed",
     ]:
         assert content in result.output
 
@@ -384,7 +387,7 @@ def test_captureresult() -> None:
 
 @pytest.fixture()
 def tmpfile(tmp_path) -> Generator[BinaryIO, None, None]:
-    f = tmp_path.joinpath("task_dummy.py").open("wb+")
+    f = tmp_path.joinpath("task_module.py").open("wb+")
     yield f
     if not f.closed:
         f.close()
@@ -427,7 +430,7 @@ class TestFDCapture:
 
     def test_simple_many_check_open_files(self, tmp_path):
         with lsof_check():
-            with tmp_path.joinpath("task_dummy.py").open("wb+") as tmpfile:
+            with tmp_path.joinpath("task_module.py").open("wb+") as tmpfile:
                 self.test_simple_many(tmpfile)
 
     def test_simple_fail_second_start(self, tmpfile):
@@ -661,7 +664,7 @@ class TestStdCaptureFD(TestStdCapture):
             os.write(1, b"hello\\n")
             assert 0
         """
-        tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+        tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
         result = runner.invoke(cli, [tmp_path.as_posix()])
         for content in [
             "task_x",
@@ -733,11 +736,11 @@ class TestStdCaptureFDinvalidFD:
             )
             cap.stop_capturing()
         """
-        tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+        tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
         result = runner.invoke(cli, [tmp_path.as_posix(), "--capture=fd"])
         assert result.exit_code == 0
-        assert "3 succeeded" in result.output
+        assert "3  Succeeded" in result.output
 
     def test_fdcapture_invalid_fd_with_fd_reuse(self, tmp_path):
         os.chdir(tmp_path)

@@ -12,6 +12,7 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import TYPE_CHECKING
+from typing import Union
 
 import click
 import networkx as nx
@@ -20,12 +21,13 @@ import pluggy
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import MetaTask, MetaNode
-    from _pytask.reports import (
-        CollectionReport,
-        ExecutionReport,
-        ResolveDependencyReport,
-    )
+    from _pytask.nodes import MetaNode
+    from _pytask.nodes import MetaTask
+    from _pytask.outcomes import CollectionOutcome
+    from _pytask.outcomes import TaskOutcome
+    from _pytask.reports import CollectionReport
+    from _pytask.reports import ExecutionReport
+    from _pytask.reports import ResolveDependencyReport
 
 
 hookspec = pluggy.HookspecMarker("pytask")
@@ -440,7 +442,9 @@ def pytask_log_session_header(session: "Session") -> None:
 
 @hookspec
 def pytask_log_session_footer(
-    session: "Session", infos: List[Tuple[Any, str, str]], duration: float, color: str
+    session: "Session",
+    duration: float,
+    outcome: Union["CollectionOutcome", "TaskOutcome"],
 ) -> None:
     """Log session information at the end of a run."""
 

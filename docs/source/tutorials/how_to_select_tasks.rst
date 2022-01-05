@@ -19,6 +19,8 @@ pytask. The same can be done for multiple paths.
     $ pytask src/task_1.py src/task_2.py
 
 
+.. _markers:
+
 Markers
 -------
 
@@ -97,7 +99,7 @@ To execute a single task, say ``task_run_this_one`` in ``task_example.py``, use
 Parametrization
 ~~~~~~~~~~~~~~~
 
-If you have a task which is parametrized, you can select individual parametrizations.
+If you have a parametrized task, you can select individual parametrizations.
 
 .. code-block:: python
 
@@ -107,10 +109,15 @@ If you have a task which is parametrized, you can select individual parametrizat
 
 To run the task where ``i = 1``, type
 
-.. code-block:: bash
+.. code-block:: console
 
     $ pytask -k task_parametrized[1]
 
 Booleans, floats, integers, and strings are used in the task id as they are, but all
 other Python objects like tuples are replaced with a combination of the argument name
 and an iteration counter. Multiple arguments are separated via dashes.
+
+.. seealso::
+
+    See this :ref:`section <how_to_parametrize_a_task_the_id>` for more information how
+    ids for parametrized tasks are generated.

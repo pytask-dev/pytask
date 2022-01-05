@@ -6,6 +6,7 @@ from _pytask.live import _parse_n_entries_in_table
 from _pytask.live import LiveExecution
 from _pytask.live import LiveManager
 from _pytask.nodes import PythonFunctionTask
+from _pytask.outcomes import TaskOutcome
 from _pytask.report import ExecutionReport
 from pytask import cli
 
@@ -41,8 +42,8 @@ def test_parse_n_entries_in_table(value, expectation, expected):
 @pytest.mark.end_to_end
 @pytest.mark.parametrize("verbose", [False, True])
 def test_verbose_mode_execution(tmp_path, runner, verbose):
-    source = "def task_dummy(): pass"
-    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+    source = "def task_example(): pass"
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     args = [tmp_path.as_posix()]
     if not verbose:
@@ -51,19 +52,19 @@ def test_verbose_mode_execution(tmp_path, runner, verbose):
 
     assert ("Task" in result.output) is verbose
     assert ("Outcome" in result.output) is verbose
-    assert ("└──" in result.output) is verbose
-    assert ("task_dummy.py::task_dummy" in result.output) is verbose
+    assert ("task_module.py::task_example" in result.output) is verbose
 
 
 @pytest.mark.unit
 def test_live_execution_sequentially(capsys, tmp_path):
-    path = tmp_path.joinpath("task_dummy.py")
+    path = tmp_path.joinpath("task_module.py")
     task = PythonFunctionTask(
-        "task_dummy", path.as_posix() + "::task_dummy", path, None
+        "task_example", path.as_posix() + "::task_example", path, lambda x: x
     )
+    task.short_name = "task_module.py::task_example"
 
     live_manager = LiveManager()
-    live = LiveExecution(live_manager, [tmp_path], 20, 1)
+    live = LiveExecution(live_manager, 20, 1, "no_link")
 
     live_manager.start()
     live.update_running_tasks(task)
@@ -73,7 +74,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
     captured = capsys.readouterr()
     assert "Task" not in captured.out
     assert "Outcome" not in captured.out
-    assert "task_dummy.py::task_dummy" not in captured.out
+    assert "task_module.py::task_example" not in captured.out
     assert "running" not in captured.out
 
     live_manager.resume()
@@ -84,14 +85,12 @@ def test_live_execution_sequentially(capsys, tmp_path):
     captured = capsys.readouterr()
     assert "Task" in captured.out
     assert "Outcome" in captured.out
-    assert "task_dummy.py::task_dummy" in captured.out
+    assert "task_module.py::task_example" in captured.out
     assert "running" in captured.out
 
     live_manager.start()
 
-    report = ExecutionReport(
-        task=task, success=True, exc_info=None, symbol="new_symbol", color="black"
-    )
+    report = ExecutionReport(task=task, outcome=TaskOutcome.SUCCESS, exc_info=None)
 
     live_manager.resume()
     live.update_reports(report)
@@ -101,30 +100,29 @@ def test_live_execution_sequentially(capsys, tmp_path):
     captured = capsys.readouterr()
     assert "Task" in captured.out
     assert "Outcome" in captured.out
-    assert "task_dummy.py::task_dummy" in captured.out
+    assert "task_module.py::task_example" in captured.out
     assert "running" not in captured.out
-    assert "new_symbol" in captured.out
+    assert TaskOutcome.SUCCESS.symbol in captured.out
 
 
 @pytest.mark.unit
 @pytest.mark.parametrize("verbose", [1, 2])
-@pytest.mark.parametrize("symbol", ["s", "p", ".", "F"])
-def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, symbol):
-    path = tmp_path.joinpath("task_dummy.py")
+@pytest.mark.parametrize("outcome", TaskOutcome)
+def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, outcome):
+    path = tmp_path.joinpath("task_module.py")
     task = PythonFunctionTask(
-        "task_dummy", path.as_posix() + "::task_dummy", path, None
+        "task_example", path.as_posix() + "::task_example", path, lambda x: x
     )
+    task.short_name = "task_module.py::task_example"
 
     live_manager = LiveManager()
-    live = LiveExecution(live_manager, [tmp_path], 20, verbose)
+    live = LiveExecution(live_manager, 20, verbose, "no_link")
 
     live_manager.start()
     live.update_running_tasks(task)
     live_manager.pause()
 
-    report = ExecutionReport(
-        task=task, success=True, exc_info=None, symbol=symbol, color="black"
-    )
+    report = ExecutionReport(task=task, outcome=outcome, exc_info=None)
 
     live_manager.resume()
     live.update_reports(report)
@@ -135,12 +133,17 @@ def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, s
     assert "Task" in captured.out
     assert "Outcome" in captured.out
 
-    if verbose < 2 and symbol in ("s", "p"):
-        assert "task_dummy.py::task_dummy" not in captured.out
-        assert f"│ {symbol}" not in captured.out
+    if verbose < 2 and outcome in (
+        TaskOutcome.SKIP,
+        TaskOutcome.SKIP_UNCHANGED,
+        TaskOutcome.SKIP_PREVIOUS_FAILED,
+        TaskOutcome.PERSISTENCE,
+    ):
+        assert "task_module.py::task_example" not in captured.out
+        assert f"│ {outcome.symbol}" not in captured.out
     else:
-        assert "task_dummy.py::task_dummy" in captured.out
-        assert f"│ {symbol}" in captured.out
+        assert "task_module.py::task_example" in captured.out
+        assert f"│ {outcome.symbol}" in captured.out
 
     assert "running" not in captured.out
 
@@ -148,13 +151,14 @@ def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, s
 @pytest.mark.unit
 @pytest.mark.parametrize("n_entries_in_table", [1, 2])
 def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_table):
-    path = tmp_path.joinpath("task_dummy.py")
+    path = tmp_path.joinpath("task_module.py")
     running_task = PythonFunctionTask(
-        "task_running", path.as_posix() + "::task_running", path, None
+        "task_running", path.as_posix() + "::task_running", path, lambda x: x
     )
+    running_task.short_name = "task_module.py::task_running"
 
     live_manager = LiveManager()
-    live = LiveExecution(live_manager, [tmp_path], n_entries_in_table, 1)
+    live = LiveExecution(live_manager, n_entries_in_table, 1, "no_link")
 
     live_manager.start()
     live.update_running_tasks(running_task)
@@ -167,11 +171,12 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
     assert " running " in captured.out
 
     completed_task = PythonFunctionTask(
-        "task_completed", path.as_posix() + "::task_completed", path, None
+        "task_completed", path.as_posix() + "::task_completed", path, lambda x: x
     )
+    completed_task.short_name = "task_module.py::task_completed"
     live.update_running_tasks(completed_task)
     report = ExecutionReport(
-        task=completed_task, success=True, exc_info=None, symbol=".", color="black"
+        task=completed_task, outcome=TaskOutcome.SUCCESS, exc_info=None
     )
 
     live_manager.resume()
@@ -186,13 +191,14 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
     assert " running " in captured.out
 
     if n_entries_in_table == 1:
-        assert "task_dummy.py::task_completed" not in captured.out
+        assert "task_module.py::task_completed" not in captured.out
         assert "│ ." not in captured.out
     else:
-        assert "task_dummy.py::task_completed" in captured.out
+        assert "task_module.py::task_completed" in captured.out
         assert "│ ." in captured.out
 
 
+@pytest.mark.end_to_end
 def test_full_execution_table_is_displayed_at_the_end_of_execution(tmp_path, runner):
     source = """
     import pytask
@@ -212,3 +218,25 @@ def test_full_execution_table_is_displayed_at_the_end_of_execution(tmp_path, run
     assert result.exit_code == 0
     for i in range(4):
         assert f"{i}.txt" in result.output
+
+
+@pytest.mark.end_to_end
+def test_execute_w_partialed_functions(tmp_path, runner):
+    """Test with partialed function which make it harder to extract info.
+
+    Info like source line number and the path to the module.
+
+    """
+    source = """
+    import functools
+
+    def func(): ...
+
+    task_func = functools.partial(func)
+
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.joinpath("task_module.py").as_posix()])
+
+    assert result.exit_code == 0
+    assert "task_func" in result.output

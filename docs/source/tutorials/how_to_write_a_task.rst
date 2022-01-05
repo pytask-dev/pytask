@@ -14,8 +14,13 @@ the module :func:`task_create_random_data`.
     ├───pytask.ini or tox.ini or setup.cfg
     │
     ├───src
-    │   ├────config.py
-    │   └────task_data_preparation.py
+    │   └───my_project
+    │       ├────config.py
+    │       └────task_data_preparation.py
+    │
+    ├───setup.py
+    │
+    ├───.pytask.sqlite3
     │
     └───bld
         └────data.pkl
@@ -30,7 +35,7 @@ Here, we define the function
     import numpy as np
     import pandas as np
 
-    from src.config import BLD
+    from my_project.config import BLD
 
 
     @pytask.mark.produces(BLD / "data.pkl")

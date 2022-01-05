@@ -8,7 +8,7 @@ For example, let us take the following task
 
 .. code-block:: python
 
-    # Content of task_dummy.py
+    # Content of task_module.py
 
     import pytask
 
@@ -29,7 +29,7 @@ Now, running :program:`pytask collect` will produce the following output.
     Root: xxx
     Collected 1 task(s).
 
-    <Module /.../task_dummy.py>
+    <Module /.../task_module.py>
       <Function task_write_file>
 
     ========================================================================
@@ -45,7 +45,7 @@ append the ``--nodes`` flag.
     Root: xxx
     Collected 1 task(s).
 
-    <Module /.../task_dummy.py>
+    <Module /.../task_module.py>
       <Function task_write_file>
         <Dependency /.../in.txt>
         <Product /.../out.txt>

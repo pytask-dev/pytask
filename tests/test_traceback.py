@@ -4,6 +4,7 @@ import pytest
 from pytask import cli
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("is_hidden", [True, False])
 def test_hide_traceback_from_error_report(runner, tmp_path, is_hidden):
     source = f"""

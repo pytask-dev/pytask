@@ -4,7 +4,9 @@ from typing import Any
 from typing import Dict
 
 import click
+import networkx as nx
 from _pytask.config import hookimpl
+from _pytask.dag import node_and_neighbors
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from pony import orm
@@ -132,4 +134,12 @@ def pytask_parse_config(
 
 @hookimpl
 def pytask_post_parse(config: Dict[str, Any]) -> None:
+    """Post-parse the configuration."""
     create_database(**config["database"])
+
+
+def update_states_in_database(dag: nx.DiGraph, task_name: str) -> None:
+    """Update the state for each node of a task in the database."""
+    for name in node_and_neighbors(dag, task_name):
+        node = dag.nodes[name].get("task") or dag.nodes[name]["node"]
+        create_or_update_state(task_name, node.name, node.state())
