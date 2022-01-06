@@ -12,7 +12,7 @@ from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.dag import descending_tasks
+from _pytask.dag import preceding_tasks
 from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
@@ -59,7 +59,7 @@ def pytask_parse_config(
 
 _HELP_TEXT_LAYOUT: str = (
     "The layout determines the structure of the graph. Here you find an overview of "
-    "all available layouts: https://graphviz.org/#roadmap."
+    "all available layouts: https://graphviz.org/docs/layouts."
 )
 
 
@@ -242,7 +242,7 @@ def _add_root_node(dag: nx.DiGraph) -> nx.DiGraph:
     tasks_without_predecessor = [
         name
         for name in dag.nodes
-        if len(list(descending_tasks(name, dag))) == 0 and "task" in dag.nodes[name]
+        if len(list(preceding_tasks(name, dag))) == 0 and "task" in dag.nodes[name]
     ]
     if tasks_without_predecessor:
         dag.add_node("root")
