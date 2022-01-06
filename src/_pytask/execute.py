@@ -9,6 +9,7 @@ from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_task
+from _pytask.console import format_task_id
 from _pytask.console import unify_styles
 from _pytask.dag import descending_tasks
 from _pytask.dag import TopologicalSorter
@@ -24,7 +25,6 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
-from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
@@ -258,21 +258,13 @@ def pytask_execute_log_end(session: Session, reports: List[ExecutionReport]) -> 
 
 def _print_errored_task_report(session: Session, report: ExecutionReport) -> None:
     """Print the traceback and the exception of an errored report."""
-    task_name = reduce_node_name(report.task, session.config["paths"])
-    if len(task_name) > console.width - 15:
-        task_name = report.task.base_name
-
-    url_style = create_url_style_for_task(
-        report.task, session.config["editor_url_scheme"]
+    task_name = format_task_id(
+        task=report.task,
+        editor_url_scheme=session.config["editor_url_scheme"],
+        short_name=True,
     )
-
-    console.rule(
-        Text(
-            f"Task {task_name} failed",
-            style=unify_styles(report.outcome.style, url_style),
-        ),
-        style=report.outcome.style,
-    )
+    text = Text.assemble("Task ", task_name, " failed", style="failed")
+    console.rule(text, style=report.outcome.style)
 
     console.print()
 
