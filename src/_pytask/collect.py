@@ -111,7 +111,7 @@ def pytask_collect_file(
         spec = importlib_util.spec_from_file_location(path.stem, str(path))
 
         if spec is None:
-            raise ImportError(f"Can't find module '{path.stem}' at location {path}.")
+            raise ImportError(f"Can't find module {path.stem!r} at location {path}.")
 
         mod = importlib_util.module_from_spec(spec)
         spec.loader.exec_module(mod)

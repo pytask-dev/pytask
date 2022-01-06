@@ -186,7 +186,7 @@ def pytask_execute_task_process_report(
                 Mark(
                     "skip_ancestor_failed",
                     (),
-                    {"reason": f"Previous task '{task.name}' failed."},
+                    {"reason": f"Previous task {task.name!r} failed."},
                 )
             )
 

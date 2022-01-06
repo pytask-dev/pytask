@@ -177,7 +177,7 @@ def _humanize_time(
             index = i
             break
     else:
-        raise ValueError(f"The time unit '{unit}' is not known.")
+        raise ValueError(f"The time unit {unit!r} is not known.")
 
     seconds = amount * _TIME_UNITS[index]["in_seconds"]
 

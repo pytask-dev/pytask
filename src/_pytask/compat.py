@@ -77,8 +77,8 @@ def import_optional_dependency(
     if extra and not extra.endswith(" "):
         extra += " "
     msg = (
-        f"{caller} requires the optional dependency '{install_name}'. {extra}"
-        f"Use pip or conda to install '{install_name}'."
+        f"{caller} requires the optional dependency {install_name!r}. {extra}"
+        f"Use pip or conda to install {install_name!r}."
     )
     try:
         module = importlib.import_module(name)
@@ -102,8 +102,8 @@ def import_optional_dependency(
         version = _get_version(module_to_get)
         if parse_version(version) < parse_version(minimum_version):
             msg = (
-                f"{caller} requires version '{minimum_version}' or newer of "
-                f"'{parent}' (version '{version}' currently installed)."
+                f"{caller} requires version {minimum_version!r} or newer of "
+                f"{parent!r} (version {version!r} currently installed)."
             )
             if errors == "warn":
                 warnings.warn(msg, UserWarning)
@@ -123,10 +123,10 @@ def check_for_optional_program(
     """Check whether an optional program exists."""
     if errors not in ("warn", "raise", "ignore"):
         raise ValueError(
-            f"'errors' must be one of 'warn', 'raise' or 'ignore' and not '{errors}'."
+            f"'errors' must be one of 'warn', 'raise' or 'ignore' and not {errors!r}."
         )
 
-    msg = f"{caller} requires the optional program '{name}'. {extra}"
+    msg = f"{caller} requires the optional program {name!r}. {extra}"
 
     program_exists = shutil.which(name) is not None
 

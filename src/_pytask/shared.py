@@ -120,7 +120,7 @@ def parse_value_or_multiline_option(
     elif isinstance(value, str):
         return value.strip()
     else:
-        raise ValueError(f"Input '{value}' is neither a 'str' nor 'None'.")
+        raise ValueError(f"Input {value!r} is neither a 'str' nor 'None'.")
 
 
 def convert_truthy_or_falsy_to_bool(x: Union[bool, str, None]) -> bool:
@@ -133,7 +133,7 @@ def convert_truthy_or_falsy_to_bool(x: Union[bool, str, None]) -> bool:
         out = None
     else:
         raise ValueError(
-            f"Input '{x}' is neither truthy (True, true, 1) or falsy (False, false, 0)."
+            f"Input {x!r} is neither truthy (True, true, 1) or falsy (False, false, 0)."
         )
     return out
 
@@ -161,7 +161,7 @@ def reduce_node_name(node: "MetaNode", paths: Sequence[Union[str, Path]]) -> str
     elif isinstance(node, MetaNode):
         name = relative_to(node.path, ancestor).as_posix()
     else:
-        raise TypeError(f"Unknown node {node} with type '{type(node)}'.")
+        raise TypeError(f"Unknown node {node} with type {type(node)!r}.")
 
     return name
 
