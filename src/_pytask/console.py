@@ -90,6 +90,7 @@ console = Console(theme=theme, color_system=_COLOR_SYSTEM)
 
 def render_to_string(
     text: Union[str, Text],
+    *,
     console: Optional[Console] = None,
     strip_styles: bool = False,
 ) -> str:
@@ -158,7 +159,7 @@ def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -
     tree = Tree(title)
     for name in strings:
         tree.add(icon + name)
-    text = render_to_string(tree, console)
+    text = render_to_string(tree, console=console)
     return text
 
 

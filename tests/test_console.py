@@ -91,15 +91,16 @@ def test_create_summary_panel(capsys, outcome, outcome_enum, total_description):
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
-    "color_system, text, expected",
+    "color_system, text, strip_styles, expected",
     [
-        (None, "[red]text", "text\n"),
-        ("truecolor", "[red]text", "\x1b[31mtext\x1b[0m\n"),
+        (None, "[red]text", False, "text\n"),
+        ("truecolor", "[red]text", False, "\x1b[31mtext\x1b[0m\n"),
+        ("truecolor", "[red]text", True, "text\n"),
     ],
 )
-def test_render_to_string(color_system, text, expected):
+def test_render_to_string(color_system, text, strip_styles, expected):
     console = Console(color_system=color_system)
-    result = render_to_string(text, console)
+    result = render_to_string(text, console=console, strip_styles=strip_styles)
     assert result == expected
 
 
