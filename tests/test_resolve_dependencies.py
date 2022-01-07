@@ -96,7 +96,7 @@ def test_check_if_root_nodes_are_available_end_to_end(tmp_path, runner):
     assert "Failures during resolving dependencies" in result.output
     assert "Some dependencies do not exist or are" in result.output
     assert tmp_path.joinpath("task_d.py").as_posix() + "::task_d" not in result.output
-    assert tmp_path.name + "/task_d.py::task_d" in result.output
+    assert "task_d.py::task_d" in result.output
     assert tmp_path.joinpath("in.txt").as_posix() not in result.output
     assert tmp_path.name + "/in.txt" in result.output
 
@@ -126,7 +126,7 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder_end_to_end
     assert "Failures during resolving dependencies" in result.output
     assert "Some dependencies do not exist" in result.output
     assert tmp_path.joinpath("task_d.py").as_posix() + "::task_d" not in result.output
-    assert "src/task_d.py::task_d" in result.output
+    assert "task_d.py::task_d" in result.output
     assert tmp_path.joinpath("bld", "in.txt").as_posix() not in result.output
     assert tmp_path.name + "/bld/in.txt" in result.output
 
@@ -178,9 +178,9 @@ def test_two_tasks_have_the_same_product(tmp_path, runner):
 
     # Ensure that nodes names are reduced.
     assert tmp_path.joinpath("task_d.py").as_posix() + "::task_1" not in result.output
-    assert tmp_path.name + "/task_d.py::task_1" in result.output
+    assert "task_d.py::task_1" in result.output
     assert tmp_path.joinpath("task_d.py").as_posix() + "::task_2" not in result.output
-    assert tmp_path.name + "/task_d.py::task_2" in result.output
+    assert "task_d.py::task_2" in result.output
     assert tmp_path.joinpath("out.txt").as_posix() not in result.output
     assert tmp_path.name + "/out.txt" in result.output
 

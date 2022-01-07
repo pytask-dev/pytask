@@ -1,7 +1,6 @@
 import inspect
 from pathlib import Path
 
-import attr
 import pytest
 from _pytask.console import _get_file
 from _pytask.console import _get_source_lines
@@ -12,7 +11,6 @@ from _pytask.console import create_url_style_for_task
 from _pytask.console import format_task_id
 from _pytask.console import render_to_string
 from _pytask.nodes import create_task_name
-from _pytask.nodes import MetaTask
 from _pytask.nodes import PythonFunctionTask
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
@@ -26,20 +24,6 @@ from tests._test_console_helpers import empty_decorator
 
 def task_func():
     ...
-
-
-@attr.s
-class DummyTask(MetaTask):
-    function = attr.ib()
-
-    def state():
-        ...
-
-    def execute():
-        ...
-
-    def add_report_section():
-        ...
 
 
 _SOURCE_LINE_TASK_FUNC = inspect.getsourcelines(task_func)[1]
@@ -61,8 +45,7 @@ _SOURCE_LINE_TASK_FUNC = inspect.getsourcelines(task_func)[1]
 )
 def test_create_url_style_for_task(edtior_url_scheme, expected):
     path = Path(__file__)
-    task = DummyTask(task_func)
-    style = create_url_style_for_task(task, edtior_url_scheme)
+    style = create_url_style_for_task(task_func, edtior_url_scheme)
     assert style == Style.parse(expected.format(path=path))
 
 

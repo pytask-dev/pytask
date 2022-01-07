@@ -10,7 +10,7 @@ from typing import Sequence
 from typing import Union
 
 import networkx as nx
-from _pytask.nodes import create_task_name
+from _pytask.console import format_task_id
 from _pytask.nodes import MetaNode
 from _pytask.nodes import MetaTask
 from _pytask.path import find_closest_ancestor
@@ -155,10 +155,7 @@ def reduce_node_name(node: "MetaNode", paths: Sequence[Union[str, Path]]) -> str
         except ValueError:
             ancestor = node.path.parents[-1]
 
-    if isinstance(node, MetaTask):
-        shortened_path = relative_to(node.path, ancestor)
-        name = create_task_name(shortened_path, node.base_name)
-    elif isinstance(node, MetaNode):
+    if isinstance(node, MetaNode):
         name = relative_to(node.path, ancestor).as_posix()
     else:
         raise TypeError(f"Unknown node {node} with type {type(node)!r}.")
@@ -170,7 +167,21 @@ def reduce_names_of_multiple_nodes(
     names: List[str], dag: nx.DiGraph, paths: Sequence[Union[str, Path]]
 ) -> List[str]:
     """Reduce the names of multiple nodes in the DAG."""
-    return [
-        reduce_node_name(dag.nodes[n].get("node") or dag.nodes[n].get("task"), paths)
-        for n in names
-    ]
+    short_names = []
+    for name in names:
+        node = dag.nodes[name].get("node") or dag.nodes[name].get("task")
+
+        if isinstance(node, MetaTask):
+            short_name = format_task_id(
+                node, editor_url_scheme="no_link", short_name=True
+            )
+        elif isinstance(node, MetaNode):
+            short_name = reduce_node_name(node, paths)
+        else:
+            raise TypeError(
+                f"Requires 'MetaTask' or 'MetaNode' and not {type(node)!r}."
+            )
+
+        short_names.append(short_name)
+
+    return short_names

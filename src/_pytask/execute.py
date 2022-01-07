@@ -204,7 +204,7 @@ def pytask_execute_task_process_report(
 def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:
     """Log task outcome."""
     url_style = create_url_style_for_task(
-        report.task, session.config["editor_url_scheme"]
+        report.task.function, session.config["editor_url_scheme"]
     )
     console.print(
         report.outcome.symbol,
