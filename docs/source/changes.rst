@@ -11,6 +11,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 ------------------
 
 - :gh:`186` enhance live displays by deactivating auto-refresh among other things.
+- :gh:`187` allows to enable and disable showing tracebacks and potentially different
+  styles in the future with :confval:`show_traceback=True|False`.
 
 
 0.1.4 - 2022-01-04
