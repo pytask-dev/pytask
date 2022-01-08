@@ -22,6 +22,7 @@ from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
+from rich.text import Text
 from rich.traceback import Traceback
 
 
@@ -232,6 +233,7 @@ def _shorten_node_labels(dag: nx.DiGraph, paths: List[Path]) -> nx.DiGraph:
     """Shorten the node labels in the graph for a better experience."""
     node_names = dag.nodes
     short_names = reduce_names_of_multiple_nodes(node_names, dag, paths)
+    short_names = [i.plain if isinstance(i, Text) else i for i in short_names]
     old_to_new = dict(zip(node_names, short_names))
     dag = nx.relabel_nodes(dag, old_to_new)
     return dag
