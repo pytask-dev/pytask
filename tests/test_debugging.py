@@ -190,7 +190,10 @@ def test_pdb_interaction_capturing_simple(tmp_path):
     child.sendline("c")
     rest = child.read().decode("utf-8")
     assert "AssertionError" in rest
-    assert "1 failed" in rest
+    assert "1" in rest
+    assert "failed" in rest
+    assert "Failed" in rest
+    assert "task_module.py" in rest
     assert "task_1" in rest
     assert "hello17" in rest  # out is captured
     _flush(child)
@@ -217,7 +220,10 @@ def test_pdb_set_trace_kwargs(tmp_path):
     child.expect("Pdb")
     child.sendline("c")
     rest = child.read().decode("utf-8")
-    assert "1 failed" in rest
+    assert "1" in rest
+    assert "failed" in rest
+    assert "Failed" in rest
+    assert "task_module.py" in rest
     assert "task_1" in rest
     assert "hello17" in rest  # out is captured
     _flush(child)
@@ -239,7 +245,9 @@ def test_pdb_set_trace_interception(tmp_path):
     child.expect("Pdb")
     child.sendline("q")
     rest = child.read().decode("utf8")
+    assert "1" in rest
     assert "failed" in rest
+    assert "Failed" in rest
     assert "reading from stdin while output" not in rest
     # Commented out since the traceback is not hidden. Exiting the debugger should end
     # the session without traceback.
@@ -301,7 +309,8 @@ def test_pdb_interaction_capturing_twice(tmp_path):
     child.expect("Pdb")
     child.sendline("c")
     child.expect(["PDB", "continue", r"\(IO-capturing", r"resumed\)"])
-    child.expect("task_1 failed")
+    child.expect("task_1")
+    child.expect("failed")
     rest = _escape_ansi(child.read().decode("utf8"))
     assert "Captured stdout during call" in rest
     assert "hello17" in rest  # out is captured
@@ -385,7 +394,9 @@ def test_pdb_with_injected_do_debug(tmp_path):
     rest = _escape_ansi(child.read().decode("utf8"))
     assert "hello17" in rest  # out is captured
     assert "hello18" in rest  # out is captured
-    assert "1 failed" in rest
+    assert "1" in rest
+    assert "failed" in rest
+    assert "Failed" in rest
     assert "AssertionError: unexpected_failure" in rest
     _flush(child)
 
