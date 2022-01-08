@@ -29,6 +29,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`182` introduces that only the starting year is displayed in the license following
   https://hynek.me/til/copyright-years.
 - :gh:`183` enables tracing down the source of a function through decorators.
+- :gh:`186` enhance live displays by deactivating auto-refresh among other things.
 
 
 0.1.3 - 2021-11-30
