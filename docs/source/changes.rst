@@ -11,6 +11,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 ------------------
 
 - :gh:`185` fix issues with drawing a graph.
+- :gh:`186` enhance live displays by deactivating auto-refresh among other things.
 
 
 0.1.4 - 2022-01-04
