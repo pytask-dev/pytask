@@ -7,6 +7,12 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
+0.1.5 - 2022-xx-xx
+------------------
+
+- :gh:`186` enhance live displays by deactivating auto-refresh among other things.
+
+
 0.1.4 - 2022-01-04
 ------------------
 

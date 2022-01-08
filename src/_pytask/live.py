@@ -94,12 +94,22 @@ class LiveManager:
     """A class for live displays during a session.
 
     This class allows to display live information during a session and handles the
-    interaction with the :class:`_pytask.debugging.PytaskPDB` and
-    :class:`_pytask.capture.CaptureManager`.
+    interaction with the :class:`_pytask.debugging.PytaskPDB`.
+
+    The renderable is not updated automatically for two reasons.
+
+    1. Usually, the duration of tasks is highly heterogeneous and there are probably not
+       many tasks which last much less than a second. Therefore, updating the renderable
+       automatically by a fixed time interval seems unnecessary.
+
+    2. To update the renderable automatically a thread is started which pushes the
+       updates. When a task is run simultaneously and capturing is activated, all
+       updates will be captured and added to the stdout of the task instead of printed
+       to the terminal.
 
     """
 
-    _live = Live(renderable=None, console=console, auto_refresh=True)
+    _live = Live(renderable=None, console=console, auto_refresh=False)
 
     def start(self) -> None:
         self._live.start()
@@ -121,6 +131,7 @@ class LiveManager:
 
     def update(self, *args: Any, **kwargs: Any) -> None:
         self._live.update(*args, **kwargs)
+        self._live.refresh()
 
     @property
     def is_started(self) -> None:
@@ -144,8 +155,8 @@ class LiveExecution:
         end."""
         self._live_manager.start()
         yield
-        self._update_table(reduce_table=False, sort_table=True)
-        self._live_manager.stop(transient=False)
+        self._live_manager.stop(transient=True)
+        console.print(self._generate_table(reduce_table=False, sort_table=True))
 
     @hookimpl(tryfirst=True)
     def pytask_execute_task_log_start(self, task: MetaTask) -> bool:
@@ -264,7 +275,6 @@ class LiveCollection:
 
     @hookimpl(hookwrapper=True)
     def pytask_collect_log(self) -> Generator[None, None, None]:
-        self._live_manager.update(None)
         self._live_manager.stop(transient=True)
         yield
 
