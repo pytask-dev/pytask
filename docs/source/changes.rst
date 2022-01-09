@@ -10,6 +10,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 0.1.5 - 2022-xx-xx
 ------------------
 
+- :gh:`185` fix issues with drawing a graph and adds the ``--rank-direction`` to change
+  the direction of the DAG.
 - :gh:`186` enhance live displays by deactivating auto-refresh among other things.
 - :gh:`187` allows to enable and disable showing tracebacks and potentially different
   styles in the future with :confval:`show_traceback=True|False`.
