@@ -11,7 +11,6 @@ import networkx as nx
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.dag import task_and_preceding_tasks
-from _pytask.enums import ExitCode
 from _pytask.exceptions import ConfigurationError
 from _pytask.mark.expression import Expression
 from _pytask.mark.expression import ParseError
@@ -20,6 +19,7 @@ from _pytask.mark.structures import MARK_GEN
 from _pytask.mark.structures import MarkDecorator
 from _pytask.mark.structures import MarkGenerator
 from _pytask.nodes import MetaTask
+from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool

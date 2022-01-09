@@ -1,3 +1,4 @@
+"""This module contains the main namespace for pytask."""
 from _pytask import __version__
 from _pytask.build import main
 from _pytask.cli import cli

@@ -3,6 +3,7 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
 from _pytask.mark import Mark
+from _pytask.outcomes import ExitCode
 from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
@@ -145,7 +146,7 @@ def test_skip_if_dependency_is_missing_only_for_one_task(runner, tmp_path, mark_
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == 4
+    assert result.exit_code == ExitCode.RESOLVING_DEPENDENCIES_FAILED
     assert "in.txt" in result.output
     assert "task_first" not in result.output
     assert "task_second" in result.output

@@ -228,16 +228,18 @@ def pytask_execute_log_end(session: Session, reports: List[ExecutionReport]) -> 
 
     counts = count_outcomes(reports, TaskOutcome)
 
-    console.print()
-    if counts[TaskOutcome.FAIL]:
-        console.rule(
-            Text("Failures", style=TaskOutcome.FAIL.style), style=TaskOutcome.FAIL.style
-        )
+    if session.config["show_traceback"] != "no":
         console.print()
+        if counts[TaskOutcome.FAIL]:
+            console.rule(
+                Text("Failures", style=TaskOutcome.FAIL.style),
+                style=TaskOutcome.FAIL.style,
+            )
+            console.print()
 
-    for report in reports:
-        if report.outcome in (TaskOutcome.FAIL, TaskOutcome.SKIP_PREVIOUS_FAILED):
-            _print_errored_task_report(session, report)
+        for report in reports:
+            if report.outcome in (TaskOutcome.FAIL, TaskOutcome.SKIP_PREVIOUS_FAILED):
+                _print_errored_task_report(session, report)
 
     console.rule(style="dim")
 

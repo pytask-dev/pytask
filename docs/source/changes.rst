@@ -12,6 +12,10 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 
 - :gh:`185` fix issues with drawing a graph.
 - :gh:`186` enhance live displays by deactivating auto-refresh among other things.
+- :gh:`187` allows to enable and disable showing tracebacks and potentially different
+  styles in the future with :confval:`show_traceback=True|False`.
+- :gh:`188` refactors some code related to :class:`_pytask.enums.ExitCode`.
+- :gh:`189` do not display a table in the execution if no task was run.
 
 
 0.1.4 - 2022-01-04
