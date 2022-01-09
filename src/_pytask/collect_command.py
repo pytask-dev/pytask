@@ -15,12 +15,12 @@ from _pytask.console import FILE_ICON
 from _pytask.console import format_task_id
 from _pytask.console import PYTHON_ICON
 from _pytask.console import TASK_ICON
-from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import select_by_keyword
 from _pytask.mark import select_by_mark
+from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager

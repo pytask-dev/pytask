@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import attr
 import networkx as nx
-from _pytask.enums import ExitCode
+from _pytask.outcomes import ExitCode
 
 
 # Location was moved from pluggy v0.13.1 to v1.0.0.

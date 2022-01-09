@@ -64,6 +64,7 @@ def pytask_parse_config(
     config_from_file: Dict[str, Any],
     config_from_cli: Dict[str, Any],
 ) -> None:
+    """Parse configuration."""
     config["show_locals"] = get_first_non_none_value(
         config_from_cli,
         config_from_file,
@@ -166,6 +167,7 @@ _TIME_UNITS: List["_TimeUnit"] = [
 
 
 def _format_duration(duration: float) -> str:
+    """Format the duration."""
     duration_tuples = _humanize_time(duration, "seconds", short_label=False)
 
     # Remove seconds if the execution lasted days or hours.
