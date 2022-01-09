@@ -1,6 +1,7 @@
 """This module contains code related to outcomes."""
 from enum import auto
 from enum import Enum
+from enum import IntEnum
 from typing import Dict
 from typing import Optional
 from typing import Sequence
@@ -171,6 +172,24 @@ def count_outcomes(
         outcome: len([r for r in reports if r.outcome == outcome])
         for outcome in outcome_enum
     }
+
+
+class ExitCode(IntEnum):
+    """Exit codes for pytask."""
+
+    OK = 0
+    """Tasks were executed successfully."""
+
+    FAILED = 1
+    """Failed while executing tasks."""
+
+    CONFIGURATION_FAILED = 2
+
+    COLLECTION_FAILED = 3
+    """Failed while collecting tasks."""
+
+    RESOLVING_DEPENDENCIES_FAILED = 4
+    """Failed while resolving dependencies."""
 
 
 class PytaskOutcome(Exception):
