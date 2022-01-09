@@ -1,6 +1,7 @@
 import textwrap
 
 import pytest
+from _pytask.enums import ExitCode
 from pytask import cli
 
 
@@ -23,5 +24,5 @@ def test_hide_traceback_from_error_report(runner, tmp_path, is_hidden):
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "--show-locals"])
 
-    assert result.exit_code == 1
+    assert result.exit_code == ExitCode.FAILED
     assert ("This variable should not be shown." in result.output) is not is_hidden

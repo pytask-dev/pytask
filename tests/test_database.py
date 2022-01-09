@@ -4,6 +4,7 @@ import textwrap
 import pytest
 from _pytask.database import create_database
 from _pytask.database import State
+from _pytask.enums import ExitCode
 from pony import orm
 from pytask import cli
 
@@ -27,7 +28,7 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
     os.chdir(tmp_path)
     result = runner.invoke(cli)
 
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
 
     with orm.db_session:
 

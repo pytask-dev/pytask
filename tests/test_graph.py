@@ -2,6 +2,7 @@ import shutil
 import textwrap
 
 import pytest
+from _pytask.enums import ExitCode
 from pytask import cli
 
 try:
@@ -54,7 +55,7 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout):
         ],
     )
 
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath(f"dag.{format_}").exists()
 
 
@@ -82,7 +83,7 @@ def test_create_graph_via_task(tmp_path, runner, format_, layout):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath(f"dag.{format_}").exists()
 
 
@@ -113,7 +114,7 @@ def test_raise_error_with_graph_via_cli_missing_optional_dependency(
         ["dag", tmp_path.as_posix(), "-o", tmp_path.joinpath("dag.png"), "-l", "dot"],
     )
 
-    assert result.exit_code == 1
+    assert result.exit_code == ExitCode.FAILED
     assert "pytask requires the optional dependency 'pydot'." in result.output
     assert "pip or conda" in result.output
     assert "Traceback" not in result.output
@@ -144,7 +145,7 @@ def test_raise_error_with_graph_via_task_missing_optional_dependency(
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == 1
+    assert result.exit_code == ExitCode.FAILED
     assert "pytask requires the optional dependency 'pydot'." in result.output
     assert "pip or conda" in result.output
     assert "Traceback" in result.output
@@ -174,7 +175,7 @@ def test_raise_error_with_graph_via_cli_missing_optional_program(
         ["dag", tmp_path.as_posix(), "-o", tmp_path.joinpath("dag.png"), "-l", "dot"],
     )
 
-    assert result.exit_code == 1
+    assert result.exit_code == ExitCode.FAILED
     assert "pytask requires the optional program 'dot'." in result.output
     assert "conda" in result.output
     assert "Traceback" not in result.output
@@ -205,7 +206,7 @@ def test_raise_error_with_graph_via_task_missing_optional_program(
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == 1
+    assert result.exit_code == ExitCode.FAILED
     assert "pytask requires the optional program 'dot'." in result.output
     assert "conda" in result.output
     assert "Traceback" in result.output

@@ -3,6 +3,7 @@ import textwrap
 
 import pytask
 import pytest
+from _pytask.enums import ExitCode
 from _pytask.mark import MarkGenerator
 from pytask import cli
 from pytask import main
@@ -282,7 +283,7 @@ def test_configuration_failed(runner, tmp_path):
     result = runner.invoke(
         cli, ["markers", "-c", tmp_path.joinpath("non_existent_path").as_posix()]
     )
-    assert result.exit_code == 2
+    assert result.exit_code == ExitCode.CONFIGURATION_FAILED
 
 
 @pytest.mark.end_to_end
@@ -303,7 +304,7 @@ def test_selecting_task_with_keyword_should_run_predecessor(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "-k", "second"])
 
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
     assert "2  Succeeded" in result.output
 
 
@@ -325,7 +326,7 @@ def test_selecting_task_with_marker_should_run_predecessor(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
 
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
     assert "2  Succeeded" in result.output
 
 
@@ -345,7 +346,7 @@ def test_selecting_task_with_keyword_ignores_other_task(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "-k", "second"])
 
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
     assert "1  Skipped" in result.output
 
@@ -367,6 +368,6 @@ def test_selecting_task_with_marker_ignores_other_task(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
 
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
     assert "1  Skipped" in result.output

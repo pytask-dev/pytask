@@ -5,6 +5,7 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 import _pytask.parametrize
 import pytask
 import pytest
+from _pytask.enums import ExitCode
 from _pytask.mark import Mark
 from _pytask.parametrize import _arg_value_to_id_component
 from _pytask.parametrize import _parse_arg_names
@@ -402,6 +403,6 @@ def test_wrong_number_of_names_and_wrong_number_of_arguments(
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == 3
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
     for c in content:
         assert c in result.output

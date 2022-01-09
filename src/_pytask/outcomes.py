@@ -99,6 +99,7 @@ class TaskOutcome(Enum):
 
     @property
     def symbol(self) -> str:
+        """The symbol of an outcome."""
         symbols = {
             TaskOutcome.SUCCESS: ".",
             TaskOutcome.PERSISTENCE: "p",
@@ -112,6 +113,7 @@ class TaskOutcome(Enum):
 
     @property
     def description(self) -> str:
+        """A description of an outcome used in the summary panel."""
         descriptions = {
             TaskOutcome.SUCCESS: "Succeeded",
             TaskOutcome.PERSISTENCE: "Persisted",
@@ -125,6 +127,7 @@ class TaskOutcome(Enum):
 
     @property
     def style(self) -> str:
+        """Return the style of an outcome."""
         styles = {
             TaskOutcome.SUCCESS: "success",
             TaskOutcome.PERSISTENCE: "success",
@@ -138,6 +141,7 @@ class TaskOutcome(Enum):
 
     @property
     def style_textonly(self) -> str:
+        """Return the style of an outcome when only the text is colored."""
         styles_textonly = {
             TaskOutcome.SUCCESS: "success.textonly",
             TaskOutcome.PERSISTENCE: "success.textonly",
