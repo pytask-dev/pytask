@@ -104,7 +104,7 @@ def _show_traceback_callback(
     elif x in ["no", "yes"]:
         pass
     else:
-        raise ValueError("'show_traceback' can only be one of ['no', 'yes'")
+        raise ValueError("'show_traceback' can only be one of ['no', 'yes'].")
     return x
 
 

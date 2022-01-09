@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import TYPE_CHECKING
 
 import click
@@ -27,6 +28,13 @@ from rich.traceback import Traceback
 
 if TYPE_CHECKING:
     from typing import NoReturn
+
+    if sys.version_info >= (3, 8):
+        from typing import Literal
+    else:
+        from typing_extensions import Literal
+
+    _RankDirection = Literal["TB", "LR", "BT", "RL"]
 
 
 @hookimpl(tryfirst=True)
@@ -55,6 +63,28 @@ def pytask_parse_config(
         key="layout",
         default="dot",
     )
+    config["rank_direction"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="rank_direction",
+        default="TB",
+        callback=_rank_direction_callback,
+    )
+
+
+def _rank_direction_callback(
+    x: Optional["_RankDirection"],
+) -> Optional["_RankDirection"]:
+    """Validate the passed options for rank direction."""
+    if x in [None, "None", "none"]:
+        x = None
+    elif x in ["TB", "LR", "BT", "RL"]:
+        pass
+    else:
+        raise ValueError(
+            "'rank_direction' can only be one of ['TB', 'LR', 'BT', 'RL']."
+        )
+    return x
 
 
 _HELP_TEXT_LAYOUT: str = (
@@ -69,9 +99,20 @@ _HELP_TEXT_OUTPUT: str = (
 )
 
 
+_HELP_TEXT_RANK_DIRECTION: str = (
+    "The direction of the directed graph. It can be ordered from top to bottom, TB, "
+    "left to right, LR, bottom to top, BT, or right to left, RL.  [default: TB]"
+)
+
+
 @click.command()
 @click.option("-l", "--layout", type=str, default=None, help=_HELP_TEXT_LAYOUT)
 @click.option("-o", "--output-path", type=str, default=None, help=_HELP_TEXT_OUTPUT)
+@click.option(
+    "--rank-direction",
+    type=click.Choice(["TB", "LR", "BT", "RL"]),
+    help=_HELP_TEXT_RANK_DIRECTION,
+)
 def dag(**config_from_cli: Any) -> "NoReturn":
     """Create a visualization of the project's DAG."""
     try:
@@ -184,6 +225,7 @@ def _refine_dag(session: Session) -> nx.DiGraph:
     dag = _clean_dag(dag)
     dag = _style_dag(dag)
     dag = _escape_node_names_with_colons(dag)
+    dag.graph["graph"] = {"rankdir": session.config["rank_direction"]}
 
     return dag
 
