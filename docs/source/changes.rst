@@ -7,9 +7,11 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.1.5 - 2022-xx-xx
+0.1.5 - 2022-01-10
 ------------------
 
+- :gh:`184` refactors :func:`~_pytask.shared.reduce_node_name` and shorten task names in
+  many places.
 - :gh:`185` fix issues with drawing a graph and adds the ``--rank-direction`` to change
   the direction of the DAG.
 - :gh:`186` enhance live displays by deactivating auto-refresh among other things.
@@ -17,6 +19,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   styles in the future with :confval:`show_traceback=True|False`.
 - :gh:`188` refactors some code related to :class:`_pytask.enums.ExitCode`.
 - :gh:`189` do not display a table in the execution if no task was run.
+- :gh:`190` updates the release notes.
 
 
 0.1.4 - 2022-01-04
