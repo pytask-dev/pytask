@@ -156,7 +156,9 @@ class LiveExecution:
         self._live_manager.start()
         yield
         self._live_manager.stop(transient=True)
-        console.print(self._generate_table(reduce_table=False, sort_table=True))
+        table = self._generate_table(reduce_table=False, sort_table=True)
+        if table is not None:
+            console.print(table)
 
     @hookimpl(tryfirst=True)
     def pytask_execute_task_log_start(self, task: MetaTask) -> bool:
@@ -225,6 +227,11 @@ class LiveExecution:
                     ),
                     "running",
                 )
+
+            # If the table is empty, do not display anything.
+            if table.rows == []:
+                table = None
+
         else:
             table = None
 
