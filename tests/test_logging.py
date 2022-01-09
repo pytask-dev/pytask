@@ -3,10 +3,10 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import attr
 import pytest
-from _pytask.enums import ExitCode
 from _pytask.logging import _format_plugin_names_and_versions
 from _pytask.logging import _humanize_time
 from _pytask.logging import pytask_log_session_footer
+from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from pytask import cli
 
