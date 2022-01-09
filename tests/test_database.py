@@ -4,7 +4,7 @@ import textwrap
 import pytest
 from _pytask.database import create_database
 from _pytask.database import State
-from _pytask.enums import ExitCode
+from _pytask.outcomes import ExitCode
 from pony import orm
 from pytask import cli
 

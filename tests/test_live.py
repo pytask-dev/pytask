@@ -2,11 +2,11 @@ import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
-from _pytask.enums import ExitCode
 from _pytask.live import _parse_n_entries_in_table
 from _pytask.live import LiveExecution
 from _pytask.live import LiveManager
 from _pytask.nodes import PythonFunctionTask
+from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from _pytask.report import ExecutionReport
 from pytask import cli

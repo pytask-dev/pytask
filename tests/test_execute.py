@@ -3,8 +3,8 @@ import subprocess
 import textwrap
 
 import pytest
-from _pytask.enums import ExitCode
 from _pytask.exceptions import NodeNotFoundError
+from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from pytask import cli
 from pytask import main

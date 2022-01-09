@@ -2,8 +2,8 @@ import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
-from _pytask.enums import ExitCode
 from _pytask.mark import Mark
+from _pytask.outcomes import ExitCode
 from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged

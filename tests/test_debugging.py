@@ -6,7 +6,7 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
 from _pytask.debugging import _pdbcls_callback
-from _pytask.enums import ExitCode
+from _pytask.outcomes import ExitCode
 from pytask import cli
 
 try:

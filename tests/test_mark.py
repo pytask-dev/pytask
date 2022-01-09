@@ -3,8 +3,8 @@ import textwrap
 
 import pytask
 import pytest
-from _pytask.enums import ExitCode
 from _pytask.mark import MarkGenerator
+from _pytask.outcomes import ExitCode
 from pytask import cli
 from pytask import main
 

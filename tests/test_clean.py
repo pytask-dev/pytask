@@ -1,7 +1,7 @@
 import textwrap
 
 import pytest
-from _pytask.enums import ExitCode
+from _pytask.outcomes import ExitCode
 from pytask import cli
 
 
