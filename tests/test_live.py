@@ -131,8 +131,6 @@ def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, o
 
     # Test final table with reported outcome.
     captured = capsys.readouterr()
-    assert "Task" in captured.out
-    assert "Outcome" in captured.out
 
     if verbose < 2 and outcome in (
         TaskOutcome.SKIP,
@@ -140,9 +138,15 @@ def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, o
         TaskOutcome.SKIP_PREVIOUS_FAILED,
         TaskOutcome.PERSISTENCE,
     ):
+        # An empty table is not shown.
+        assert "Task" not in captured.out
+        assert "Outcome" not in captured.out
+
         assert "task_module.py::task_example" not in captured.out
         assert f"│ {outcome.symbol}" not in captured.out
     else:
+        assert "Task" in captured.out
+        assert "Outcome" in captured.out
         assert "task_module.py::task_example" in captured.out
         assert f"│ {outcome.symbol}" in captured.out
 
