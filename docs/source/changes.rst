@@ -11,6 +11,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 ------------------
 
 - :gh:`186` enhance live displays by deactivating auto-refresh among other things.
+- :gh:`188` refactors some code related to :class:`_pytask.enums.ExitCode`.
 
 
 0.1.4 - 2022-01-04

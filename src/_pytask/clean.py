@@ -20,9 +20,9 @@ import click
 from _pytask.config import hookimpl
 from _pytask.config import IGNORED_TEMPORARY_FILES_AND_FOLDERS
 from _pytask.console import console
-from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.nodes import MetaTask
+from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager

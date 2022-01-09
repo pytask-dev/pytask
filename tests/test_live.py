@@ -6,6 +6,7 @@ from _pytask.live import _parse_n_entries_in_table
 from _pytask.live import LiveExecution
 from _pytask.live import LiveManager
 from _pytask.nodes import PythonFunctionTask
+from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from _pytask.report import ExecutionReport
 from pytask import cli
@@ -215,7 +216,7 @@ def test_full_execution_table_is_displayed_at_the_end_of_execution(tmp_path, run
         cli, [tmp_path.joinpath("d").as_posix(), "--n-entries-in-table=1"]
     )
 
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
     for i in range(4):
         assert f"{i}.txt" in result.output
 
@@ -238,5 +239,5 @@ def test_execute_w_partialed_functions(tmp_path, runner):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.joinpath("task_module.py").as_posix()])
 
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
     assert "task_func" in result.output

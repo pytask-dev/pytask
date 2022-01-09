@@ -1,6 +1,7 @@
 import textwrap
 
 import pytest
+from _pytask.outcomes import ExitCode
 from pytask import cli
 
 
@@ -13,13 +14,13 @@ def test_execution_failed(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == 1
+    assert result.exit_code == ExitCode.FAILED
 
 
 @pytest.mark.end_to_end
 def test_configuration_failed(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.joinpath("non_existent_path").as_posix()])
-    assert result.exit_code == 2
+    assert result.exit_code == ExitCode.CONFIGURATION_FAILED
 
 
 @pytest.mark.end_to_end
@@ -30,7 +31,7 @@ def test_collection_failed(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == 3
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
 
 
 @pytest.mark.end_to_end
@@ -51,4 +52,4 @@ def test_resolving_dependencies_failed(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == 4
+    assert result.exit_code == ExitCode.RESOLVING_DEPENDENCIES_FAILED

@@ -265,20 +265,24 @@ class LiveCollection:
 
     @hookimpl(hookwrapper=True)
     def pytask_collect(self) -> Generator[None, None, None]:
+        """Start the status of the cllection."""
         self._live_manager.start()
         yield
 
     @hookimpl
     def pytask_collect_file_log(self, reports: List[CollectionReport]) -> None:
+        """Update the status after a file is collected."""
         self._update_statistics(reports)
         self._update_status()
 
     @hookimpl(hookwrapper=True)
     def pytask_collect_log(self) -> Generator[None, None, None]:
+        """Stop the live display when all tasks have been collected."""
         self._live_manager.stop(transient=True)
         yield
 
     def _update_statistics(self, reports: List[CollectionReport]) -> None:
+        """Update the statistics on collected tasks and errors."""
         if reports is None:
             reports = []
         for report in reports:
@@ -288,10 +292,12 @@ class LiveCollection:
                 self._n_errors += 1
 
     def _update_status(self) -> None:
+        """Update the status."""
         status = self._generate_status()
         self._live_manager.update(status)
 
     def _generate_status(self) -> Status:
+        """Generate the status."""
         msg = f"Collected {self._n_collected_tasks} tasks."
         if self._n_errors > 0:
             msg += f" {self._n_errors} errors."
