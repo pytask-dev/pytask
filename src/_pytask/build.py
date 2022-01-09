@@ -107,6 +107,11 @@ def main(config_from_cli: Dict[str, Any]) -> Session:
     default=None,
     help="Print errors with tracebacks as soon as the task fails.",
 )
+@click.option(
+    "--show-traceback",
+    type=click.Choice(["yes", "no"]),
+    help="Choose whether tracebacks should be displayed or not.  [default: yes]",
+)
 def build(**config_from_cli: Any) -> "NoReturn":
     """Collect and execute tasks and report the results.
 

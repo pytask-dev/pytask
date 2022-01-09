@@ -3,6 +3,7 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import attr
 import pytest
+from _pytask.enums import ExitCode
 from _pytask.logging import _format_plugin_names_and_versions
 from _pytask.logging import _humanize_time
 from _pytask.logging import pytask_log_session_footer
@@ -127,3 +128,20 @@ def test_humanize_time(amount, unit, short_label, expectation, expected):
     with expectation:
         result = _humanize_time(amount, unit, short_label)
         assert result == expected
+
+
+@pytest.mark.parametrize("show_traceback", ["no", "yes"])
+def test_show_traceback(runner, tmp_path, show_traceback):
+    source = "def task_raises(): raise Exception"
+    tmp_path.joinpath("task_module.py").write_text(source)
+
+    result = runner.invoke(
+        cli, [tmp_path.as_posix(), "--show-traceback", show_traceback]
+    )
+
+    has_traceback = show_traceback == "yes"
+
+    assert result.exit_code == ExitCode.FAILED
+    assert ("Failures" in result.output) is has_traceback
+    assert ("Traceback" in result.output) is has_traceback
+    assert ("raise Exception" in result.output) is has_traceback
