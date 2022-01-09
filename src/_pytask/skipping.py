@@ -97,7 +97,7 @@ def pytask_execute_task_process_report(
                     Mark(
                         "skip",
                         (),
-                        {"reason": f"Previous task '{task.name}' was skipped."},
+                        {"reason": f"Previous task {task.name!r} was skipped."},
                     )
                 )
 

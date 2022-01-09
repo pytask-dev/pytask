@@ -265,7 +265,7 @@ def _format_dictionary_to_tree(dict_: Dict[str, List[str]], title: str) -> str:
         for task in tasks:
             branch.add(Text.assemble(TASK_ICON, task))
 
-    text = render_to_string(tree)
+    text = render_to_string(tree, console=console, strip_styles=True)
     return text
 
 

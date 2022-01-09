@@ -272,7 +272,7 @@ class ExportNameSpace:
         elif extension is None:
             pass
         else:
-            raise ValueError(f"The export option '{extension}' cannot be handled.")
+            raise ValueError(f"The export option {extension!r} cannot be handled.")
 
 
 def _export_to_csv(profile: Dict[str, Dict[str, Any]]) -> None:
