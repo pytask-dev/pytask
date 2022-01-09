@@ -17,6 +17,7 @@ from _pytask.capture import _show_capture_callback
 from _pytask.capture import CaptureManager
 from _pytask.capture import CaptureResult
 from _pytask.capture import MultiCapture
+from _pytask.outcomes import ExitCode
 from pytask import cli
 
 
@@ -78,7 +79,7 @@ def test_show_capture(tmp_path, runner, show_capture):
     cmd_arg = "-s" if show_capture == "s" else f"--show-capture={show_capture}"
     result = runner.invoke(cli, [tmp_path.as_posix(), cmd_arg])
 
-    assert result.exit_code == 1
+    assert result.exit_code == ExitCode.FAILED
 
     if show_capture in ["no", "s"]:
         assert "Captured" not in result.output
@@ -197,7 +198,7 @@ def test_capturing_unicode(tmp_path, runner, method):
     result = runner.invoke(cli, [tmp_path.as_posix(), f"--capture={method}"])
 
     assert "1  Succeeded" in result.output
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
 
 
 @pytest.mark.end_to_end
@@ -214,7 +215,7 @@ def test_capturing_bytes_in_utf8_encoding(tmp_path, runner, method):
     result = runner.invoke(cli, [tmp_path.as_posix(), f"--capture={method}"])
 
     assert "1  Succeeded" in result.output
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
 
 
 @pytest.mark.end_to_end
@@ -739,7 +740,7 @@ class TestStdCaptureFDinvalidFD:
         tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
         result = runner.invoke(cli, [tmp_path.as_posix(), "--capture=fd"])
-        assert result.exit_code == 0
+        assert result.exit_code == ExitCode.OK
         assert "3  Succeeded" in result.output
 
     def test_fdcapture_invalid_fd_with_fd_reuse(self, tmp_path):

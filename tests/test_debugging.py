@@ -6,6 +6,7 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
 from _pytask.debugging import _pdbcls_callback
+from _pytask.outcomes import ExitCode
 from pytask import cli
 
 try:
@@ -453,7 +454,7 @@ def test_printing_of_local_variables(tmp_path, runner):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "--show-locals"])
-    assert result.exit_code == 1
+    assert result.exit_code == ExitCode.FAILED
 
     captured = result.output
     assert " locals " in captured

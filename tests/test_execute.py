@@ -4,6 +4,7 @@ import textwrap
 
 import pytest
 from _pytask.exceptions import NodeNotFoundError
+from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from pytask import cli
 from pytask import main
@@ -149,7 +150,7 @@ def test_assert_multiple_dependencies_are_merged_to_dict(tmp_path, runner):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
 
 
 @pytest.mark.end_to_end
@@ -177,7 +178,7 @@ def test_assert_multiple_products_are_merged_to_dict(tmp_path, runner):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
 
 
 @pytest.mark.end_to_end
@@ -280,7 +281,7 @@ def test_scheduling_w_mixed_priorities(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == 4
+    assert result.exit_code == ExitCode.RESOLVING_DEPENDENCIES_FAILED
     assert "Failures during resolving dependencies" in result.output
     assert "'try_first' and 'try_last' cannot be applied" in result.output
 
@@ -299,7 +300,7 @@ def test_show_errors_immediately(runner, tmp_path, show_errors_immediately):
         args.append("--show-errors-immediately")
     result = runner.invoke(cli, args)
 
-    assert result.exit_code == 1
+    assert result.exit_code == ExitCode.FAILED
     assert "::task_succeed │ ." in result.output
 
     matches_traceback = re.findall("Traceback", result.output)

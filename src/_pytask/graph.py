@@ -13,10 +13,10 @@ from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.dag import descending_tasks
-from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
+from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value

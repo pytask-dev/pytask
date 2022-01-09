@@ -20,11 +20,11 @@ from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_id
 from _pytask.database import db
-from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaTask
+from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.report import ExecutionReport
