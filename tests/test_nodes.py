@@ -15,7 +15,6 @@ from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaNode
 from _pytask.nodes import MetaTask
 from _pytask.nodes import produces
-from _pytask.nodes import PythonFunctionTask
 from _pytask.shared import reduce_node_name
 
 
@@ -205,22 +204,6 @@ def test_create_task_name(path, name, expected):
 
 
 @attr.s
-class DummyTask(MetaTask):
-    path = attr.ib()
-    name = attr.ib()
-    base_name = attr.ib()
-
-    def state():
-        ...
-
-    def execute():
-        ...
-
-    def add_report_section():
-        ...
-
-
-@attr.s
 class FalseNode:
     path = attr.ib()
 
@@ -247,34 +230,11 @@ _ROOT = Path.cwd()
             id="throw error on unknown node type.",
         ),
         pytest.param(
-            DummyTask(
-                _ROOT.joinpath("top/src/module.py"),
-                _ROOT.joinpath("top/src/module.py").as_posix() + "::task_func",
-                "task_func",
-            ),
-            [_ROOT.joinpath("top/src")],
-            does_not_raise(),
-            "src/module.py::task_func",
-            id="make task name relative to 'paths'.",
-        ),
-        pytest.param(
             FilePathNode.from_path(_ROOT.joinpath("top/src/module.py")),
             [_ROOT.joinpath("top/src")],
             does_not_raise(),
             "src/module.py",
             id="make filepathnode relative to 'paths'.",
-        ),
-        pytest.param(
-            PythonFunctionTask(
-                "task_d",
-                _ROOT.joinpath("top/src/module.py").as_posix() + "::task_d",
-                _ROOT.joinpath("top/src/module.py"),
-                lambda x: x,
-            ),
-            [_ROOT.joinpath("top/src/module.py")],
-            does_not_raise(),
-            "module.py::task_d",
-            id="shorten task name when task module is passed to 'paths'.",
         ),
     ],
 )

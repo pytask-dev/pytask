@@ -224,7 +224,7 @@ class MarkGenerator:
                     raise ValueError(f"Unknown pytask.mark.{name}.")
                 # Raise a specific error for common misspellings of "parametrize".
                 if name in ["parameterize", "parametrise", "parameterise"]:
-                    warnings.warn(f"Unknown '{name}' mark, did you mean 'parametrize'?")
+                    warnings.warn(f"Unknown {name!r} mark, did you mean 'parametrize'?")
 
                 warnings.warn(
                     f"Unknown pytask.mark.{name} - is this a typo? You can register "

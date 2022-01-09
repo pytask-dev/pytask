@@ -47,7 +47,7 @@ def test_raise_error_convert_truthy_or_falsy_to_bool(value, expectation):
         ("first\nsecond", does_not_raise(), ["first", "second"]),
         ("first", does_not_raise(), "first"),
         ("", does_not_raise(), None),
-        (1, pytest.raises(ValueError, match="Input '1'"), None),
+        (1, pytest.raises(ValueError, match="Input 1"), None),
     ],
 )
 def test_parse_value_or_multiline_option(value, expectation, expected):
