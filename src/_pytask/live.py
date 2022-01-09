@@ -181,58 +181,53 @@ class LiveExecution:
         if more entries are requested, the list is filled up with completed tasks.
 
         """
-        if self._running_tasks or self._reports:
+        n_reports_to_display = self._n_entries_in_table - len(self._running_tasks)
+        if not reduce_table:
+            relevant_reports = self._reports
+        elif n_reports_to_display >= 1:
+            relevant_reports = self._reports[-n_reports_to_display:]
+        else:
+            relevant_reports = []
 
-            n_reports_to_display = self._n_entries_in_table - len(self._running_tasks)
-            if not reduce_table:
-                relevant_reports = self._reports
-            elif n_reports_to_display >= 1:
-                relevant_reports = self._reports[-n_reports_to_display:]
-            else:
-                relevant_reports = []
+        if sort_table:
+            relevant_reports = sorted(
+                relevant_reports, key=lambda report: report["name"]
+            )
 
-            if sort_table:
-                relevant_reports = sorted(
-                    relevant_reports, key=lambda report: report["name"]
+        table = Table()
+        table.add_column("Task", overflow="fold")
+        table.add_column("Outcome")
+        for report in relevant_reports:
+            if (
+                report["outcome"]
+                in (
+                    TaskOutcome.SKIP,
+                    TaskOutcome.SKIP_UNCHANGED,
+                    TaskOutcome.SKIP_PREVIOUS_FAILED,
+                    TaskOutcome.PERSISTENCE,
                 )
-
-            table = Table()
-            table.add_column("Task", overflow="fold")
-            table.add_column("Outcome")
-            for report in relevant_reports:
-                if (
-                    report["outcome"]
-                    in (
-                        TaskOutcome.SKIP,
-                        TaskOutcome.SKIP_UNCHANGED,
-                        TaskOutcome.SKIP_PREVIOUS_FAILED,
-                        TaskOutcome.PERSISTENCE,
-                    )
-                    and self._verbose < 2
-                ):
-                    pass
-                else:
-                    table.add_row(
-                        format_task_id(
-                            report["task"],
-                            editor_url_scheme=self._editor_url_scheme,
-                            short_name=True,
-                        ),
-                        Text(report["outcome"].symbol, style=report["outcome"].style),
-                    )
-            for task in self._running_tasks.values():
+                and self._verbose < 2
+            ):
+                pass
+            else:
                 table.add_row(
                     format_task_id(
-                        task, editor_url_scheme=self._editor_url_scheme, short_name=True
+                        report["task"],
+                        editor_url_scheme=self._editor_url_scheme,
+                        short_name=True,
                     ),
-                    "running",
+                    Text(report["outcome"].symbol, style=report["outcome"].style),
                 )
+        for task in self._running_tasks.values():
+            table.add_row(
+                format_task_id(
+                    task, editor_url_scheme=self._editor_url_scheme, short_name=True
+                ),
+                "running",
+            )
 
-            # If the table is empty, do not display anything.
-            if table.rows == []:
-                table = None
-
-        else:
+        # If the table is empty, do not display anything.
+        if table.rows == []:
             table = None
 
         return table
