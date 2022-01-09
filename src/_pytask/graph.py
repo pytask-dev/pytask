@@ -13,7 +13,6 @@ from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.dag import preceding_tasks
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
@@ -222,7 +221,6 @@ def build_dag(config_from_cli: Dict[str, Any]) -> nx.DiGraph:
 def _refine_dag(session: Session) -> nx.DiGraph:
     """Refine the dag for plotting."""
     dag = _shorten_node_labels(session.dag, session.config["paths"])
-    dag = _add_root_node(dag)
     dag = _clean_dag(dag)
     dag = _style_dag(dag)
     dag = _escape_node_names_with_colons(dag)
@@ -278,21 +276,6 @@ def _shorten_node_labels(dag: nx.DiGraph, paths: List[Path]) -> nx.DiGraph:
     short_names = [i.plain if isinstance(i, Text) else i for i in short_names]
     old_to_new = dict(zip(node_names, short_names))
     dag = nx.relabel_nodes(dag, old_to_new)
-    return dag
-
-
-def _add_root_node(dag: nx.DiGraph) -> nx.DiGraph:
-    """Add a root node to the graph to bind all starting nodes together."""
-    tasks_without_predecessor = [
-        name
-        for name in dag.nodes
-        if len(list(preceding_tasks(name, dag))) == 0 and "task" in dag.nodes[name]
-    ]
-    if tasks_without_predecessor:
-        dag.add_node("root")
-        for name in tasks_without_predecessor:
-            dag.add_edge("root", name)
-
     return dag
 
 
