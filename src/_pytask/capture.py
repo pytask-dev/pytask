@@ -124,8 +124,6 @@ def pytask_parse_config(
 @hookimpl
 def pytask_post_parse(config: Dict[str, Any]) -> None:
     """Initialize the CaptureManager."""
-    if config["capture"] == "fd":
-        _py36_windowsconsoleio_workaround(sys.stdout)
     _colorama_workaround()
 
     pluginmanager = config["pm"]
@@ -179,66 +177,6 @@ def _colorama_workaround() -> None:
             import colorama  # noqa: F401
         except ImportError:
             pass
-
-
-def _py36_windowsconsoleio_workaround(stream: TextIO) -> None:
-    """Workaround for Windows Unicode console handling on Python>=3.6.
-
-    Python 3.6 implemented Unicode console handling for Windows. This works by
-    reading/writing to the raw console handle using ``{Read,Write}ConsoleW``.
-
-    The problem is that we are going to ``dup2`` over the stdio file descriptors when
-    doing ``FDCapture`` and this will ``CloseHandle`` the handles used by Python to
-    write to the console. Though there is still some weirdness and the console handle
-    seems to only be closed randomly and not on the first call to ``CloseHandle``, or
-    maybe it gets reopened with the same handle value when we suspend capturing.
-
-    The workaround in this case will reopen stdio with a different fd which also means a
-    different handle by replicating the logic in
-    "Py_lifecycle.c:initstdio/create_stdio".
-
-    Parameters
-    ---------
-    stream
-        In practice ``sys.stdout`` or ``sys.stderr``, but given here as parameter for
-        unit testing purposes.
-
-    See https://github.com/pytest-dev/py/issues/103.
-
-    """
-    if not sys.platform.startswith("win32") or hasattr(sys, "pypy_version_info"):
-        return
-
-    # Bail out if ``stream`` doesn't seem like a proper ``io`` stream (#2666).
-    if not hasattr(stream, "buffer"):
-        return
-
-    buffered = hasattr(stream.buffer, "raw")
-    # ``getattr`` hack since ``buffer`` might not have an attribute ``raw``.
-    raw_stdout = getattr(stream.buffer, "raw", stream.buffer)
-
-    # ``getattr`` hack since ``_WindowsConsoleIO`` is not defined in stubs.
-    windowsconsoleio = getattr(io, "_WindowsConsoleIO", None)
-    if windowsconsoleio is not None and not isinstance(raw_stdout, windowsconsoleio):
-        return
-
-    def _reopen_stdio(f: TextIO, mode: str) -> TextIO:
-        if not buffered and mode[0] == "w":
-            buffering = 0
-        else:
-            buffering = -1
-
-        return io.TextIOWrapper(
-            open(os.dup(f.fileno()), mode, buffering),
-            f.encoding,
-            f.errors,
-            f.newlines,
-            bool(f.line_buffering),
-        )
-
-    sys.stdin = _reopen_stdio(sys.stdin, "rb")
-    sys.stdout = _reopen_stdio(sys.stdout, "wb")
-    sys.stderr = _reopen_stdio(sys.stderr, "wb")
 
 
 # IO Helpers.
