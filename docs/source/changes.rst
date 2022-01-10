@@ -7,6 +7,12 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
+0.2.0 - 2022-xx-xx
+------------------
+
+- :gh:`192` deprecates Python 3.6.
+
+
 0.1.5 - 2022-01-10
 ------------------
 
