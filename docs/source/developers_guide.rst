@@ -37,3 +37,22 @@ Creating showcases on the command line
   .. code-block:: console
 
       $ $Host.UI.RawUI.WindowTitle = $title
+
+
+Profiling the application
+-------------------------
+
+To profile pytask, you can follow this `video
+<https://www.youtube.com/watch?v=qiZyDLEJHh0>`_ (it also features explanations for ``git
+bisect``, caching, and profiling tools). We use :mod:`cProfile` with
+
+.. code-block:: console
+
+    $ python -m cProfile -o log.pstats pytask directory/with/tasks
+
+The profile can be visualized with
+
+.. code-block:: console
+
+    $ pip install yelp-gprof2dot
+    $ gprof2dot log.pstats | dot -T svg -o out.svg
