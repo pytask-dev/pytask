@@ -7,6 +7,12 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
+0.1.6 - 2022-xx-xx
+------------------
+
+- :gh:`191` adds a guide on how to profile pytask to the developer's guide.
+
+
 0.1.5 - 2022-01-10
 ------------------
 
