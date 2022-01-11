@@ -21,36 +21,12 @@ For example, let us take the following task
 
 Now, running :program:`pytask collect` will produce the following output.
 
-.. code-block:: console
-
-    $ pytask collect
-    ========================= Start pytask session =========================
-    Platform: linux -- Python 3.x.y, pytask 0.x.y, pluggy 0.x.y
-    Root: xxx
-    Collected 1 task(s).
-
-    <Module /.../task_module.py>
-      <Function task_write_file>
-
-    ========================================================================
+.. image:: /_static/images/pytask-collect.png
 
 If you want to have more information regarding dependencies and products of the task,
 append the ``--nodes`` flag.
 
-.. code-block:: console
-
-    $ pytask collect
-    ========================= Start pytask session =========================
-    Platform: linux -- Python 3.x.y, pytask 0.x.y, pluggy 0.x.y
-    Root: xxx
-    Collected 1 task(s).
-
-    <Module /.../task_module.py>
-      <Function task_write_file>
-        <Dependency /.../in.txt>
-        <Product /.../out.txt>
-
-    ========================================================================
+.. image:: /_static/images/pytask-collect-nodes.png
 
 To restrict the set of tasks you are looking at, use markers, expression and ignore
 patterns as usual.
@@ -59,4 +35,7 @@ patterns as usual.
 Further reading
 ---------------
 
-- :program:`pytask collect` in :doc:`../reference_guides/command_line_interface`.
+- The documentation on the command line interface of :program:`pytask collect` can be
+  found :doc:`here <../reference_guides/command_line_interface>`.
+- Read :doc:`here <how_to_select_tasks>` about selecting tasks.
+- Paths can be ignored with :confval:`ignore`.
