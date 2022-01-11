@@ -26,8 +26,8 @@ Plugins can be found in many places.
 How to use plugins
 ------------------
 
-To use a plugin, simply follow the installation instructions. A plugin will enable
-itself by using pytask's entry-point.
+To use a plugin, simply follow the installation instructions and the accompanying
+documentation. A plugin will usually enable itself by using pytask's entry-point.
 
 
 How to implement your own plugin
