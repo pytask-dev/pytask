@@ -134,7 +134,7 @@ Here are some details:
 
 To execute the task, enter ``pytask`` on the command-line
 
-.. image:: https://github.com/pytask-dev/pytask/tree/main/docs/source/_static/images/readme.png
+.. image:: https://github.com/pytask-dev/pytask/raw/main/docs/source/_static/images/readme.png
 
 
 Documentation
