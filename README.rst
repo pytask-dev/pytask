@@ -132,34 +132,9 @@ Here are some details:
   dependencies and products inside the function via ``pathlib.Path`` objects. Here,
   ``produces`` holds the path to ``"hello_earth.txt"``.
 
-To execute the task, type the following command on the command-line
+To execute the task, enter ``pytask`` on the command-line
 
-.. code-block:: console
-
-    $ pytask
-    ========================= Start pytask session =========================
-    Platform: linux -- Python 3.x.y, pytask 0.x.y, pluggy 0.x.y
-    Root: xxx
-    Collected 1 task(s).
-
-    .
-    ====================== 1 succeeded in 1 second(s) ======================
-
-
-Demo
-----
-
-The demo walks you through the following steps.
-
-1. Write an executable script which produces a text file like you would normally do
-   without pytask.
-2. Rewrite the script to a pytask task.
-3. Execute the task.
-4. Add a task which produces a second text file and another task which merges both text
-   files.
-5. Execute all three tasks.
-
-.. image:: https://github.com/pytask-dev/misc/raw/main/gif/workflow.gif
+.. image:: https://github.com/pytask-dev/pytask/raw/main/docs/source/_static/images/readme.png
 
 
 Documentation
