@@ -10,6 +10,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 0.1.6 - 2022-xx-xx
 ------------------
 
+- :gh:`191` adds a guide on how to profile pytask to the developer's guide.
 - :gh:`193` adds more figures to the documentation.
 
 
