@@ -73,7 +73,7 @@ projects. Its features include:
   <https://github.com/pytask-dev/pytask-latex>`_, `R
   <https://github.com/pytask-dev/pytask-r>`_, and `Stata
   <https://github.com/pytask-dev/pytask-stata>`_ and more can be found `here
-  <https://github.com/topics/pytask>`_. Read `here
+  <https://github.com/topics/pytask>`_. Read in `this tutorial
   <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_use_plugins.html>`_ how
   to use and create plugins.
 
