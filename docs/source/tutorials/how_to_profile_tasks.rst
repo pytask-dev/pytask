@@ -7,3 +7,7 @@ display the information, enter
 .. code-block:: console
 
     $ pytask profile
+
+Here is an example
+
+.. image:: /_static/images/pytask-profile.png

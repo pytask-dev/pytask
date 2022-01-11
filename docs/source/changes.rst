@@ -7,6 +7,12 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
+0.1.6 - 2022-xx-xx
+------------------
+
+- :gh:`193` adds more figures to the documentation.
+
+
 0.1.5 - 2022-01-10
 ------------------
 

@@ -1,16 +1,23 @@
 How to make tasks persist
 =========================
 
-Sometimes you want to skip the execution. It means that if all dependencies
-and products exist, the task will not be executed even though a dependency, the task's
-source file or a product has changed. Instead, the state of the dependencies, the source
-file and the products is updated in the database such that the next execution will skip
-the task successfully.
+Sometimes you want to skip the execution of a task and pretend like nothing has changed.
+
+A common scenario is that you have a long running task which will be executed again if
+you would format the task's source file with `black <https://github.com/psf/black>`_.
+
+In this case, you can apply the ``@pytask.mark.persist`` decorator to the task which
+will skip its execution as long as all products exist.
+
+Internally, the state of the dependencies, the source file and the products is updated
+in the database such that the next execution will skip the task successfully.
+
 
 When is this useful?
 --------------------
 
-- You ran a formatter like Black on the files in your project.
+- You ran a formatter like Black on the files in your project and want to prevent the
+  longest running tasks from being rerun.
 
 - You extend a parametrization, but do not want to rerun all tasks.
 
@@ -30,12 +37,11 @@ How to do it?
 
 To create a persisting task, apply the correct decorator and, et voilà, it is done.
 
-Let us take the second scenario as an example. First, we define the tasks, the
-dependency and the product and save everything in the same folder.
+To see the whole process, first, we create some task and its dependency.
 
 .. code-block:: python
 
-    # Content of task_file.py
+    # Content of task_module.py
 
     import pytask
 
@@ -47,45 +53,25 @@ dependency and the product and save everything in the same folder.
         produces.write_text("**" + depends_on.read_text() + "**")
 
 
-.. code-block::
+.. code-block:: md
 
-    # Content of input.md. Do not copy this line.
+    <!-- Content of input.md. -->
 
     Here is the text.
 
+If you execute the task with pytask, the task will be executed since the product is
+missing.
 
-.. code-block::
+.. image:: /_static/images/persist-executed.png
 
-    # Content of output.md. Do not copy this line.
+After that, we change the source file of the task accidentally by formatting the file
+with black. Without the ``@pytask.mark.persist`` decorator the task would run again
+since it has changed. With the decorator, the execution is skipped which is signaled by
+a green p.
 
-    **Here is the text.**
+.. image:: /_static/images/persist-persisted.png
 
+If we now run the task again, it is skipped because nothing has changed and not because
+it is marked with ``@pytask.mark.persist``.
 
-If you run pytask in this folder, you get the following output.
-
-.. code-block:: console
-
-    $ pytask demo
-    ========================= Start pytask session =========================
-    Platform: win32 -- Python 3.8.5, pytask 0.0.6, pluggy 0.13.1
-    Root: xxx/demo
-    Collected 1 task(s).
-
-    p
-    ====================== 1 succeeded in 1 second(s) ======================
-
-The green p signals that the task persisted. Another execution will show the following.
-
-.. code-block:: console
-
-    $ pytask demo
-    ========================= Start pytask session =========================
-    Platform: win32 -- Python 3.8.5, pytask 0.0.6, pluggy 0.13.1
-    Root: xxx/demo
-    Collected 1 task(s).
-
-    s
-    ====================== 1 succeeded in 1 second(s) ======================
-
-Now, the task is skipped successfully because nothing has changed compared to the
-previous run.
+.. image:: /_static/images/persist-skipped-successfully.png
