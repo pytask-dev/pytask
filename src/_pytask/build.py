@@ -7,11 +7,11 @@ from typing import TYPE_CHECKING
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import ResolvingDependenciesError
+from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 
@@ -106,6 +106,11 @@ def main(config_from_cli: Dict[str, Any]) -> Session:
     is_flag=True,
     default=None,
     help="Print errors with tracebacks as soon as the task fails.",
+)
+@click.option(
+    "--show-traceback",
+    type=click.Choice(["yes", "no"]),
+    help="Choose whether tracebacks should be displayed or not.  [default: yes]",
 )
 def build(**config_from_cli: Any) -> "NoReturn":
     """Collect and execute tasks and report the results.

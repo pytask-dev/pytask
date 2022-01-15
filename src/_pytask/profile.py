@@ -20,11 +20,11 @@ from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_id
 from _pytask.database import db
-from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaTask
+from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.report import ExecutionReport
@@ -233,7 +233,7 @@ class FileSizeNameSpace:
 
 def _to_human_readable_size(bytes_: int, units: Optional[List[str]] = None) -> str:
     """Convert bytes to a human readable size."""
-    units = [" bytes", "KB", "MB", "GB", "TB"] if units is None else units
+    units = [" bytes", " KB", " MB", " GB", " TB"] if units is None else units
     return (
         str(bytes_) + units[0]
         if bytes_ < 1024
@@ -272,7 +272,7 @@ class ExportNameSpace:
         elif extension is None:
             pass
         else:
-            raise ValueError(f"The export option '{extension}' cannot be handled.")
+            raise ValueError(f"The export option {extension!r} cannot be handled.")
 
 
 def _export_to_csv(profile: Dict[str, Dict[str, Any]]) -> None:

@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import TYPE_CHECKING
 
 import click
@@ -12,21 +13,28 @@ from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.dag import descending_tasks
-from _pytask.enums import ExitCode
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
+from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
+from rich.text import Text
 from rich.traceback import Traceback
 
 
 if TYPE_CHECKING:
     from typing import NoReturn
+
+    if sys.version_info >= (3, 8):
+        from typing import Literal
+    else:
+        from typing_extensions import Literal
+
+    _RankDirection = Literal["TB", "LR", "BT", "RL"]
 
 
 @hookimpl(tryfirst=True)
@@ -55,11 +63,33 @@ def pytask_parse_config(
         key="layout",
         default="dot",
     )
+    config["rank_direction"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="rank_direction",
+        default="TB",
+        callback=_rank_direction_callback,
+    )
+
+
+def _rank_direction_callback(
+    x: Optional["_RankDirection"],
+) -> Optional["_RankDirection"]:
+    """Validate the passed options for rank direction."""
+    if x in [None, "None", "none"]:
+        x = None
+    elif x in ["TB", "LR", "BT", "RL"]:
+        pass
+    else:
+        raise ValueError(
+            "'rank_direction' can only be one of ['TB', 'LR', 'BT', 'RL']."
+        )
+    return x
 
 
 _HELP_TEXT_LAYOUT: str = (
     "The layout determines the structure of the graph. Here you find an overview of "
-    "all available layouts: https://graphviz.org/#roadmap."
+    "all available layouts: https://graphviz.org/docs/layouts."
 )
 
 
@@ -69,9 +99,20 @@ _HELP_TEXT_OUTPUT: str = (
 )
 
 
+_HELP_TEXT_RANK_DIRECTION: str = (
+    "The direction of the directed graph. It can be ordered from top to bottom, TB, "
+    "left to right, LR, bottom to top, BT, or right to left, RL.  [default: TB]"
+)
+
+
 @click.command()
 @click.option("-l", "--layout", type=str, default=None, help=_HELP_TEXT_LAYOUT)
 @click.option("-o", "--output-path", type=str, default=None, help=_HELP_TEXT_OUTPUT)
+@click.option(
+    "--rank-direction",
+    type=click.Choice(["TB", "LR", "BT", "RL"]),
+    help=_HELP_TEXT_RANK_DIRECTION,
+)
 def dag(**config_from_cli: Any) -> "NoReturn":
     """Create a visualization of the project's DAG."""
     try:
@@ -180,10 +221,10 @@ def build_dag(config_from_cli: Dict[str, Any]) -> nx.DiGraph:
 def _refine_dag(session: Session) -> nx.DiGraph:
     """Refine the dag for plotting."""
     dag = _shorten_node_labels(session.dag, session.config["paths"])
-    dag = _add_root_node(dag)
     dag = _clean_dag(dag)
     dag = _style_dag(dag)
     dag = _escape_node_names_with_colons(dag)
+    dag.graph["graph"] = {"rankdir": session.config["rank_direction"]}
 
     return dag
 
@@ -232,23 +273,9 @@ def _shorten_node_labels(dag: nx.DiGraph, paths: List[Path]) -> nx.DiGraph:
     """Shorten the node labels in the graph for a better experience."""
     node_names = dag.nodes
     short_names = reduce_names_of_multiple_nodes(node_names, dag, paths)
+    short_names = [i.plain if isinstance(i, Text) else i for i in short_names]
     old_to_new = dict(zip(node_names, short_names))
     dag = nx.relabel_nodes(dag, old_to_new)
-    return dag
-
-
-def _add_root_node(dag: nx.DiGraph) -> nx.DiGraph:
-    """Add a root node to the graph to bind all starting nodes together."""
-    tasks_without_predecessor = [
-        name
-        for name in dag.nodes
-        if len(list(descending_tasks(name, dag))) == 0 and "task" in dag.nodes[name]
-    ]
-    if tasks_without_predecessor:
-        dag.add_node("root")
-        for name in tasks_without_predecessor:
-            dag.add_edge("root", name)
-
     return dag
 
 

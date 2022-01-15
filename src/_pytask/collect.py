@@ -17,6 +17,7 @@ from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.console import create_summary_panel
+from _pytask.console import format_task_id
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_marker
 from _pytask.nodes import create_task_name
@@ -111,7 +112,7 @@ def pytask_collect_file(
         spec = importlib_util.spec_from_file_location(path.stem, str(path))
 
         if spec is None:
-            raise ImportError(f"Can't find module '{path.stem}' at location {path}.")
+            raise ImportError(f"Can't find module {path.stem!r} at location {path}.")
 
         mod = importlib_util.module_from_spec(spec)
         spec.loader.exec_module(mod)
@@ -340,7 +341,12 @@ def pytask_collect_log(
             if report.node is None:
                 header = "Error"
             else:
-                short_name = reduce_node_name(report.node, session.config["paths"])
+                if isinstance(report.node, MetaTask):
+                    short_name = format_task_id(
+                        report.node, editor_url_scheme="no_link", short_name=True
+                    )
+                else:
+                    short_name = reduce_node_name(report.node, session.config["paths"])
                 header = f"Could not collect {short_name}"
 
             console.rule(

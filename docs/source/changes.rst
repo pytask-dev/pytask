@@ -7,6 +7,29 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
+0.1.6 - 2022-xx-xx
+------------------
+
+- :gh:`191` adds a guide on how to profile pytask to the developer's guide.
+- :gh:`193` adds more figures to the documentation.
+- :gh:`194` updates the ``README.rst``.
+
+
+0.1.5 - 2022-01-10
+------------------
+
+- :gh:`184` refactors :func:`~_pytask.shared.reduce_node_name` and shorten task names in
+  many places.
+- :gh:`185` fix issues with drawing a graph and adds the ``--rank-direction`` to change
+  the direction of the DAG.
+- :gh:`186` enhance live displays by deactivating auto-refresh among other things.
+- :gh:`187` allows to enable and disable showing tracebacks and potentially different
+  styles in the future with :confval:`show_traceback=True|False`.
+- :gh:`188` refactors some code related to :class:`_pytask.enums.ExitCode`.
+- :gh:`189` do not display a table in the execution if no task was run.
+- :gh:`190` updates the release notes.
+
+
 0.1.4 - 2022-01-04
 ------------------
 
@@ -29,6 +52,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`181` adds correct formatting of running tasks.
 - :gh:`182` introduces that only the starting year is displayed in the license following
   https://hynek.me/til/copyright-years.
+- :gh:`183` enables tracing down the source of a function through decorators.
 
 
 0.1.3 - 2021-11-30

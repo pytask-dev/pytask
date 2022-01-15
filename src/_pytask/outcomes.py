@@ -1,6 +1,7 @@
 """This module contains code related to outcomes."""
 from enum import auto
 from enum import Enum
+from enum import IntEnum
 from typing import Dict
 from typing import Optional
 from typing import Sequence
@@ -99,6 +100,7 @@ class TaskOutcome(Enum):
 
     @property
     def symbol(self) -> str:
+        """The symbol of an outcome."""
         symbols = {
             TaskOutcome.SUCCESS: ".",
             TaskOutcome.PERSISTENCE: "p",
@@ -112,6 +114,7 @@ class TaskOutcome(Enum):
 
     @property
     def description(self) -> str:
+        """A description of an outcome used in the summary panel."""
         descriptions = {
             TaskOutcome.SUCCESS: "Succeeded",
             TaskOutcome.PERSISTENCE: "Persisted",
@@ -125,6 +128,7 @@ class TaskOutcome(Enum):
 
     @property
     def style(self) -> str:
+        """Return the style of an outcome."""
         styles = {
             TaskOutcome.SUCCESS: "success",
             TaskOutcome.PERSISTENCE: "success",
@@ -138,6 +142,7 @@ class TaskOutcome(Enum):
 
     @property
     def style_textonly(self) -> str:
+        """Return the style of an outcome when only the text is colored."""
         styles_textonly = {
             TaskOutcome.SUCCESS: "success.textonly",
             TaskOutcome.PERSISTENCE: "success.textonly",
@@ -167,6 +172,24 @@ def count_outcomes(
         outcome: len([r for r in reports if r.outcome == outcome])
         for outcome in outcome_enum
     }
+
+
+class ExitCode(IntEnum):
+    """Exit codes for pytask."""
+
+    OK = 0
+    """Tasks were executed successfully."""
+
+    FAILED = 1
+    """Failed while executing tasks."""
+
+    CONFIGURATION_FAILED = 2
+
+    COLLECTION_FAILED = 3
+    """Failed while collecting tasks."""
+
+    RESOLVING_DEPENDENCIES_FAILED = 4
+    """Failed while resolving dependencies."""
 
 
 class PytaskOutcome(Exception):

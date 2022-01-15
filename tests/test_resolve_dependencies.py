@@ -9,6 +9,7 @@ from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import PythonFunctionTask
+from _pytask.outcomes import ExitCode
 from _pytask.resolve_dependencies import _check_if_root_nodes_are_available
 from _pytask.resolve_dependencies import pytask_resolve_dependencies_create_dag
 from pytask import cli
@@ -89,14 +90,14 @@ def test_check_if_root_nodes_are_available_end_to_end(tmp_path, runner):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == 4
+    assert result.exit_code == ExitCode.RESOLVING_DEPENDENCIES_FAILED
     assert "Failures during resolving dependencies" in result.output
 
     # Ensure that node names are reduced.
     assert "Failures during resolving dependencies" in result.output
     assert "Some dependencies do not exist or are" in result.output
     assert tmp_path.joinpath("task_d.py").as_posix() + "::task_d" not in result.output
-    assert tmp_path.name + "/task_d.py::task_d" in result.output
+    assert "task_d.py::task_d" in result.output
     assert tmp_path.joinpath("in.txt").as_posix() not in result.output
     assert tmp_path.name + "/in.txt" in result.output
 
@@ -119,14 +120,14 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder_end_to_end
 
     result = runner.invoke(cli, [tmp_path.joinpath("src").as_posix()])
 
-    assert result.exit_code == 4
+    assert result.exit_code == ExitCode.RESOLVING_DEPENDENCIES_FAILED
     assert "Failures during resolving dependencies" in result.output
 
     # Ensure that node names are reduced.
     assert "Failures during resolving dependencies" in result.output
     assert "Some dependencies do not exist" in result.output
     assert tmp_path.joinpath("task_d.py").as_posix() + "::task_d" not in result.output
-    assert "src/task_d.py::task_d" in result.output
+    assert "task_d.py::task_d" in result.output
     assert tmp_path.joinpath("bld", "in.txt").as_posix() not in result.output
     assert tmp_path.name + "/bld/in.txt" in result.output
 
@@ -150,7 +151,7 @@ def test_cycle_in_dag(tmp_path, runner):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == 4
+    assert result.exit_code == ExitCode.RESOLVING_DEPENDENCIES_FAILED
     assert "Failures during resolving dependencies" in result.output
     assert "The DAG contains cycles which means a dependency" in result.output
 
@@ -172,15 +173,15 @@ def test_two_tasks_have_the_same_product(tmp_path, runner):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == 4
+    assert result.exit_code == ExitCode.RESOLVING_DEPENDENCIES_FAILED
     assert "Failures during resolving dependencies" in result.output
     assert "There are some tasks which produce the same output." in result.output
 
     # Ensure that nodes names are reduced.
     assert tmp_path.joinpath("task_d.py").as_posix() + "::task_1" not in result.output
-    assert tmp_path.name + "/task_d.py::task_1" in result.output
+    assert "task_d.py::task_1" in result.output
     assert tmp_path.joinpath("task_d.py").as_posix() + "::task_2" not in result.output
-    assert tmp_path.name + "/task_d.py::task_2" in result.output
+    assert "task_d.py::task_2" in result.output
     assert tmp_path.joinpath("out.txt").as_posix() not in result.output
     assert tmp_path.name + "/out.txt" in result.output
 
@@ -199,9 +200,9 @@ def test_has_node_changed_catches_notnotfounderror(runner, tmp_path):
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
 
     tmp_path.joinpath("file.txt").unlink()
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK

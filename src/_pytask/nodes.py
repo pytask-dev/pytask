@@ -260,8 +260,8 @@ def _collect_nodes(
         )
         if collected_node is None:
             raise NodeNotCollectedError(
-                f"'{node}' cannot be parsed as a dependency or product for task "
-                f"'{name}' in '{path}'."
+                f"{node!r} cannot be parsed as a dependency or product for task "
+                f"{name!r} in {path!r}."
             )
         else:
             collected_nodes[node_name] = collected_node

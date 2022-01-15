@@ -10,6 +10,7 @@ from _pytask.exceptions import NodeNotCollectedError
 from _pytask.nodes import create_task_name
 from _pytask.nodes import PythonFunctionTask
 from _pytask.outcomes import CollectionOutcome
+from _pytask.outcomes import ExitCode
 from _pytask.session import Session
 from pytask import cli
 from pytask import main
@@ -78,7 +79,7 @@ def test_collect_nodes_with_the_same_name(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out_0.txt").read_text() == "in root"
     assert tmp_path.joinpath("out_1.txt").read_text() == "in sub"
 

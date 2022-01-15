@@ -9,6 +9,7 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import Iterable
+from typing import List
 from typing import Optional
 from typing import Type
 from typing import TYPE_CHECKING
@@ -50,6 +51,12 @@ _COLOR_SYSTEM = None if _IS_LEGACY_WINDOWS else "auto"
 _HORIZONTAL_PADDING = (0, 1, 0, 1)
 
 
+_SKIPPED_PATHS = [Path(__file__).parent.joinpath("debugging.py")]
+"""List[Path]: List of paths to skip when tracing down the path to the source of a task
+function.
+
+"""
+
 ARROW_DOWN_ICON = "|" if _IS_LEGACY_WINDOWS else "⬇"
 FILE_ICON = "" if _IS_LEGACY_WINDOWS else "📄 "
 PYTHON_ICON = "" if _IS_LEGACY_WINDOWS else "🐍 "
@@ -81,7 +88,12 @@ theme = Theme(
 console = Console(theme=theme, color_system=_COLOR_SYSTEM)
 
 
-def render_to_string(text: Union[str, Text], console: Optional[Console] = None) -> str:
+def render_to_string(
+    text: Union[str, Text],
+    *,
+    console: Optional[Console] = None,
+    strip_styles: bool = False,
+) -> str:
     """Render text with rich to string including ANSI codes, etc..
 
     This function allows to render text with is not automatically printed with rich. For
@@ -96,6 +108,9 @@ def render_to_string(text: Union[str, Text], console: Optional[Console] = None) 
     output = []
     if console.no_color and console._color_system:
         segments = Segment.remove_color(segments)
+
+    if strip_styles:
+        segments = Segment.strip_styles(segments)
 
     for segment in segments:
         if segment.style:
@@ -127,7 +142,12 @@ def format_task_id(
         task_name = task.base_name
     else:
         path, task_name = task.name.split("::")
-    url_style = create_url_style_for_task(task, editor_url_scheme)
+
+    if task.function is None:
+        url_style = Style()
+    else:
+        url_style = create_url_style_for_task(task.function, editor_url_scheme)
+
     task_id = Text.assemble(
         Text(path + "::", style="dim"), Text(task_name, style=url_style)
     )
@@ -139,17 +159,19 @@ def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -
     tree = Tree(title)
     for name in strings:
         tree.add(icon + name)
-    text = render_to_string(tree, console)
+    text = render_to_string(tree, console=console)
     return text
 
 
-def create_url_style_for_task(task: "MetaTask", edtior_url_scheme: str) -> Style:
+def create_url_style_for_task(
+    task_function: Callable[..., Any], edtior_url_scheme: str
+) -> Style:
     """Create the style to add a link to a task id."""
     url_scheme = _EDITOR_URL_SCHEMES.get(edtior_url_scheme, edtior_url_scheme)
 
     info = {
-        "path": _get_file(task.function),
-        "line_number": _get_source_lines(task.function),
+        "path": _get_file(task_function),
+        "line_number": _get_source_lines(task_function),
     }
 
     return Style() if not url_scheme else Style(link=url_scheme.format(**info))
@@ -165,12 +187,26 @@ def create_url_style_for_path(path: Path, edtior_url_scheme: str) -> Style:
     )
 
 
-def _get_file(function: Callable[..., Any]) -> Path:
-    """Get path to module where the function is defined."""
+def _get_file(function: Callable[..., Any], skipped_paths: List[Path] = None) -> Path:
+    """Get path to module where the function is defined.
+
+    When the ``pdb`` or ``trace`` mode is activated, every task function is wrapped with
+    a decorator which we need to skip to get to the underlying task function. Thus, the
+    special case.
+
+    """
+    if skipped_paths is None:
+        skipped_paths = _SKIPPED_PATHS
+
     if isinstance(function, functools.partial):
         return _get_file(function.func)
+    elif (
+        hasattr(function, "__wrapped__")
+        and Path(inspect.getsourcefile(function)) in skipped_paths
+    ):
+        return _get_file(function.__wrapped__)  # type: ignore[attr-defined]
     else:
-        return Path(inspect.getfile(function))
+        return Path(inspect.getsourcefile(function))
 
 
 def _get_source_lines(function: Callable[..., Any]) -> int:

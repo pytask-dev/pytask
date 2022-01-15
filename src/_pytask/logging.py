@@ -5,6 +5,7 @@ import warnings
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Tuple
 from typing import TYPE_CHECKING
 from typing import Union
@@ -38,6 +39,13 @@ if TYPE_CHECKING and sys.version_info >= (3, 8):
         short: str
         in_seconds: int
 
+    if sys.version_info >= (3, 8):
+        from typing import Literal
+    else:
+        from typing_extensions import Literal
+
+    _ShowTraceback = Literal["no", "yes"]
+
 
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
@@ -56,6 +64,7 @@ def pytask_parse_config(
     config_from_file: Dict[str, Any],
     config_from_cli: Dict[str, Any],
 ) -> None:
+    """Parse configuration."""
     config["show_locals"] = get_first_non_none_value(
         config_from_cli,
         config_from_file,
@@ -77,6 +86,26 @@ def pytask_parse_config(
             "See https://github.com/pytask-dev/pytask/issues/171 for more information. "
             "Resort to `editor_url_scheme='file'`."
         )
+    config["show_traceback"] = get_first_non_none_value(
+        config_from_cli,
+        config_from_file,
+        key="show_traceback",
+        default="yes",
+        callback=_show_traceback_callback,
+    )
+
+
+def _show_traceback_callback(
+    x: Optional["_ShowTraceback"],
+) -> Optional["_ShowTraceback"]:
+    """Validate the passed options for showing tracebacks."""
+    if x in [None, "None", "none"]:
+        x = None
+    elif x in ["no", "yes"]:
+        pass
+    else:
+        raise ValueError("'show_traceback' can only be one of ['no', 'yes'].")
+    return x
 
 
 @hookimpl
@@ -138,6 +167,7 @@ _TIME_UNITS: List["_TimeUnit"] = [
 
 
 def _format_duration(duration: float) -> str:
+    """Format the duration."""
     duration_tuples = _humanize_time(duration, "seconds", short_label=False)
 
     # Remove seconds if the execution lasted days or hours.
@@ -177,7 +207,7 @@ def _humanize_time(
             index = i
             break
     else:
-        raise ValueError(f"The time unit '{unit}' is not known.")
+        raise ValueError(f"The time unit {unit!r} is not known.")
 
     seconds = amount * _TIME_UNITS[index]["in_seconds"]
 
