@@ -10,8 +10,11 @@ paragraphs might be useful nonetheless.
 Preparation
 -----------
 
-Before you start implementing your plugin, it makes sense to go through the following
-steps.
+Before you start implementing your plugin, the following notes may help you.
+
+- `cookiecutter-pytask-plugin
+  <https://github.com/pytask-dev/cookiecutter-pytask-plugin>`_ is a template if you want
+  to create a plugin.
 
 - Check whether there exist plugins which offer similar functionality. For example, many
   plugins provide convenient interfaces to run another program with inputs via the
