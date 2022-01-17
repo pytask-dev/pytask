@@ -1,15 +1,13 @@
+from __future__ import annotations
+
 import warnings
 from typing import Any
 from typing import Callable
-from typing import Dict
 from typing import Iterable
-from typing import List
 from typing import Mapping
 from typing import Optional
 from typing import Sequence
-from typing import Set
 from typing import Tuple
-from typing import Union
 
 import attr
 
@@ -37,7 +35,7 @@ class Mark:
     def _has_param_ids(self) -> bool:
         return "ids" in self.kwargs or len(self.args) >= 4
 
-    def combined_with(self, other: "Mark") -> "Mark":
+    def combined_with(self, other: Mark) -> Mark:
         """Return a new Mark which is a combination of this Mark and another Mark.
 
         Combines by appending args and merging kwargs.
@@ -56,7 +54,7 @@ class Mark:
         assert self.name == other.name
 
         # Remember source of ids with parametrize Marks.
-        param_ids_from: Optional[Mark] = None
+        param_ids_from: Mark | None = None
         if self.name == "parametrize":
             if other._has_param_ids():
                 param_ids_from = other
@@ -114,7 +112,7 @@ class MarkDecorator:
         return self.mark.name
 
     @property
-    def args(self) -> Tuple[Any, ...]:
+    def args(self) -> tuple[Any, ...]:
         """Alias for mark.args."""
         return self.mark.args
 
@@ -126,7 +124,7 @@ class MarkDecorator:
     def __repr__(self) -> str:
         return f"<MarkDecorator {self.mark!r}>"
 
-    def with_args(self, *args: Any, **kwargs: Any) -> "MarkDecorator":
+    def with_args(self, *args: Any, **kwargs: Any) -> MarkDecorator:
         """Return a MarkDecorator with extra arguments added.
 
         Unlike calling the MarkDecorator, ``with_args()`` can be used even if the sole
@@ -136,7 +134,7 @@ class MarkDecorator:
         mark = Mark(self.name, args, kwargs)
         return self.__class__(self.mark.combined_with(mark))
 
-    def __call__(self, *args: Any, **kwargs: Any) -> "MarkDecorator":
+    def __call__(self, *args: Any, **kwargs: Any) -> MarkDecorator:
         """Call the MarkDecorator."""
         if args and not kwargs:
             func = args[0]
@@ -146,7 +144,7 @@ class MarkDecorator:
         return self.with_args(*args, **kwargs)
 
 
-def get_unpacked_marks(obj: Callable[..., Any]) -> List[Mark]:
+def get_unpacked_marks(obj: Callable[..., Any]) -> list[Mark]:
     """Obtain the unpacked marks that are stored on an object."""
     mark_list = getattr(obj, "pytaskmark", [])
     if not isinstance(mark_list, list):
@@ -154,7 +152,7 @@ def get_unpacked_marks(obj: Callable[..., Any]) -> List[Mark]:
     return normalize_mark_list(mark_list)
 
 
-def normalize_mark_list(mark_list: Iterable[Union[Mark, MarkDecorator]]) -> List[Mark]:
+def normalize_mark_list(mark_list: Iterable[Mark | MarkDecorator]) -> list[Mark]:
     """Normalize marker decorating helpers to mark objects.
 
     Parameters
@@ -201,9 +199,9 @@ class MarkGenerator:
 
     """
 
-    config: Optional[Dict[str, Any]] = None
+    config: dict[str, Any] | None = None
     """Optional[Dict[str, Any]]: The configuration."""
-    markers: Set[str] = set()
+    markers: set[str] = set()
     """Set[str]: The set of markers."""
 
     def __getattr__(self, name: str) -> MarkDecorator:

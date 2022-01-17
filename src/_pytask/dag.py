@@ -1,9 +1,10 @@
 """Implement some capabilities to deal with the DAG."""
+from __future__ import annotations
+
 import itertools
 from typing import Dict
 from typing import Generator
 from typing import Iterable
-from typing import List
 from typing import Set
 
 import attr
@@ -69,7 +70,7 @@ class TopologicalSorter:
     _nodes_out = attr.ib(factory=set, type=Set[str])
 
     @classmethod
-    def from_dag(cls, dag: nx.DiGraph) -> "TopologicalSorter":
+    def from_dag(cls, dag: nx.DiGraph) -> TopologicalSorter:
         """Instantiate from a DAG."""
         if not dag.is_directed():
             raise ValueError("Only directed graphs have a topological order.")
@@ -96,7 +97,7 @@ class TopologicalSorter:
 
         self._is_prepared = True
 
-    def get_ready(self, n: int = 1) -> List[str]:
+    def get_ready(self, n: int = 1) -> list[str]:
         """Get up to ``n`` tasks which are ready."""
         if not self._is_prepared:
             raise ValueError("The TopologicalSorter needs to be prepared.")
@@ -136,7 +137,7 @@ class TopologicalSorter:
             self.done(new_task)
 
 
-def _extract_priorities_from_tasks(tasks: List[MetaTask]) -> Dict[str, int]:
+def _extract_priorities_from_tasks(tasks: list[MetaTask]) -> dict[str, int]:
     """Extract priorities from tasks.
 
     Priorities are set via the ``pytask.mark.try_first`` and ``pytask.mark.try_last``

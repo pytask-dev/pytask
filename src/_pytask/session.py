@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 from typing import Dict
 from typing import List  # noqa: F401
@@ -61,6 +63,6 @@ class Session:
     """Optional[bool]: Indicates whether the session should be stopped."""
 
     @classmethod
-    def from_config(cls, config: Dict[str, Any]) -> "Session":
+    def from_config(cls, config: dict[str, Any]) -> Session:
         """Construct the class from a config."""
         return cls(config, config["pm"].hook)

@@ -23,6 +23,8 @@ References
   <https://github.com/pytest-dev/pytest/blob/master/src/_pytest/debugging.py>`_.
 
 """
+from __future__ import annotations
+
 import contextlib
 import functools
 import io
@@ -31,15 +33,11 @@ import sys
 from tempfile import TemporaryFile
 from typing import Any
 from typing import AnyStr
-from typing import Dict
 from typing import Generator
 from typing import Generic
 from typing import Iterator
-from typing import Optional
 from typing import TextIO
-from typing import Tuple
 from typing import TYPE_CHECKING
-from typing import Union
 
 import click
 from _pytask.config import hookimpl
@@ -92,9 +90,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: Dict[str, Any],
-    config_from_cli: Dict[str, Any],
-    config_from_file: Dict[str, Any],
+    config: dict[str, Any],
+    config_from_cli: dict[str, Any],
+    config_from_file: dict[str, Any],
 ) -> None:
     """Parse configuration.
 
@@ -122,7 +120,7 @@ def pytask_parse_config(
 
 
 @hookimpl
-def pytask_post_parse(config: Dict[str, Any]) -> None:
+def pytask_post_parse(config: dict[str, Any]) -> None:
     """Initialize the CaptureManager."""
     _colorama_workaround()
 
@@ -134,7 +132,7 @@ def pytask_post_parse(config: Dict[str, Any]) -> None:
     capman.suspend()
 
 
-def _capture_callback(x: "Optional[_CaptureMethod]") -> "Optional[_CaptureMethod]":
+def _capture_callback(x: _CaptureMethod | None) -> _CaptureMethod | None:
     """Validate the passed options for capturing output."""
     if x in [None, "None", "none"]:
         x = None
@@ -146,8 +144,8 @@ def _capture_callback(x: "Optional[_CaptureMethod]") -> "Optional[_CaptureMethod
 
 
 def _show_capture_callback(
-    x: "Optional[_CaptureCallback]",
-) -> "Optional[_CaptureCallback]":
+    x: _CaptureCallback | None,
+) -> _CaptureCallback | None:
     """Validate the passed options for showing captured output."""
     if x in [None, "None", "none"]:
         x = None
@@ -230,7 +228,7 @@ class DontReadFromInput:
     readlines = read
     __next__ = read
 
-    def __iter__(self) -> "DontReadFromInput":
+    def __iter__(self) -> DontReadFromInput:
         return self
 
     def fileno(self) -> int:
@@ -243,7 +241,7 @@ class DontReadFromInput:
         pass
 
     @property
-    def buffer(self) -> "DontReadFromInput":
+    def buffer(self) -> DontReadFromInput:
         return self
 
 
@@ -306,7 +304,7 @@ class SysCaptureBinary:
             self.tmpfile,
         )
 
-    def _assert_state(self, op: str, states: Tuple[str, ...]) -> None:
+    def _assert_state(self, op: str, states: tuple[str, ...]) -> None:
         assert (
             self._state in states
         ), "cannot {} in state {!r}: expected one of {}".format(
@@ -401,7 +399,7 @@ class FDCaptureBinary:
             # Further complications are the need to support suspend() and the
             # possibility of FD reuse (e.g. the tmpfile getting the very same target
             # FD). The following approach is robust, I believe.
-            self.targetfd_invalid: Optional[int] = os.open(os.devnull, os.O_RDWR)
+            self.targetfd_invalid: int | None = os.open(os.devnull, os.O_RDWR)
             os.dup2(self.targetfd_invalid, targetfd)
         else:
             self.targetfd_invalid = None
@@ -434,7 +432,7 @@ class FDCaptureBinary:
             self.tmpfile,
         )
 
-    def _assert_state(self, op: str, states: Tuple[str, ...]) -> None:
+    def _assert_state(self, op: str, states: tuple[str, ...]) -> None:
         assert (
             self._state in states
         ), "cannot {} in state {!r}: expected one of {}".format(
@@ -552,8 +550,8 @@ class CaptureResult(Generic[AnyStr]):
         return tuple(self)[item]
 
     def _replace(
-        self, *, out: Optional[AnyStr] = None, err: Optional[AnyStr] = None
-    ) -> "CaptureResult[AnyStr]":
+        self, *, out: AnyStr | None = None, err: AnyStr | None = None
+    ) -> CaptureResult[AnyStr]:
         return CaptureResult(
             out=self.out if out is None else out, err=self.err if err is None else err
         )
@@ -595,9 +593,9 @@ class MultiCapture(Generic[AnyStr]):
 
     def __init__(
         self,
-        in_: Optional[Union[FDCapture, SysCapture]],
-        out: Optional[Union[FDCapture, SysCapture]],
-        err: Optional[Union[FDCapture, SysCapture]],
+        in_: FDCapture | SysCapture | None,
+        out: FDCapture | SysCapture | None,
+        err: FDCapture | SysCapture | None,
     ) -> None:
         self.in_ = in_
         self.out = out
@@ -624,7 +622,7 @@ class MultiCapture(Generic[AnyStr]):
         if self.err:
             self.err.start()
 
-    def pop_outerr_to_orig(self) -> Tuple[AnyStr, AnyStr]:
+    def pop_outerr_to_orig(self) -> tuple[AnyStr, AnyStr]:
         """Pop current snapshot out/err capture and flush to orig streams."""
         out, err = self.readouterr()
         if out:
@@ -681,7 +679,7 @@ class MultiCapture(Generic[AnyStr]):
         return CaptureResult(out, err)  # type: ignore
 
 
-def _get_multicapture(method: "_CaptureMethod") -> MultiCapture[str]:
+def _get_multicapture(method: _CaptureMethod) -> MultiCapture[str]:
     """Set up the MultiCapture class with the passed method.
 
     For each valid method, the function instantiates the :class:`MultiCapture` class
@@ -717,9 +715,9 @@ class CaptureManager:
 
     """
 
-    def __init__(self, method: "_CaptureMethod") -> None:
+    def __init__(self, method: _CaptureMethod) -> None:
         self._method = method
-        self._capturing: Optional[MultiCapture[str]] = None
+        self._capturing: MultiCapture[str] | None = None
 
     def __repr__(self) -> str:
         return ("<CaptureManager _method={!r} _capturing={!r}>").format(

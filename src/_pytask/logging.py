@@ -1,14 +1,11 @@
 """Add general logging capabilities."""
+from __future__ import annotations
+
 import platform
 import sys
 import warnings
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
 from typing import TYPE_CHECKING
-from typing import Union
 
 import _pytask
 import click
@@ -60,9 +57,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: Dict[str, Any],
-    config_from_file: Dict[str, Any],
-    config_from_cli: Dict[str, Any],
+    config: dict[str, Any],
+    config_from_file: dict[str, Any],
+    config_from_cli: dict[str, Any],
 ) -> None:
     """Parse configuration."""
     config["show_locals"] = get_first_non_none_value(
@@ -96,8 +93,8 @@ def pytask_parse_config(
 
 
 def _show_traceback_callback(
-    x: Optional["_ShowTraceback"],
-) -> Optional["_ShowTraceback"]:
+    x: _ShowTraceback | None,
+) -> _ShowTraceback | None:
     """Validate the passed options for showing tracebacks."""
     if x in [None, "None", "none"]:
         x = None
@@ -129,10 +126,10 @@ def pytask_log_session_header(session: Session) -> None:
 
 
 def _format_plugin_names_and_versions(
-    plugininfo: List[Tuple[str, DistFacade]]
-) -> List[str]:
+    plugininfo: list[tuple[str, DistFacade]]
+) -> list[str]:
     """Format name and version of loaded plugins."""
-    values: List[str] = []
+    values: list[str] = []
     for _, dist in plugininfo:
         # Gets us name and version!
         name = f"{dist.project_name}-{dist.version}"
@@ -148,7 +145,7 @@ def _format_plugin_names_and_versions(
 @hookimpl
 def pytask_log_session_footer(
     duration: float,
-    outcome: Union[CollectionOutcome, TaskOutcome],
+    outcome: CollectionOutcome | TaskOutcome,
 ) -> None:
     """Format the footer of the log message."""
     formatted_duration = _format_duration(duration)
@@ -158,7 +155,7 @@ def pytask_log_session_footer(
     console.rule(message, style=outcome.style)
 
 
-_TIME_UNITS: List["_TimeUnit"] = [
+_TIME_UNITS: list[_TimeUnit] = [
     {"singular": "day", "plural": "days", "short": "d", "in_seconds": 86400},
     {"singular": "hour", "plural": "hours", "short": "h", "in_seconds": 3600},
     {"singular": "minute", "plural": "minutes", "short": "m", "in_seconds": 60},
@@ -181,8 +178,8 @@ def _format_duration(duration: float) -> str:
 
 
 def _humanize_time(
-    amount: Union[int, float], unit: str, short_label: bool = False
-) -> List[Tuple[float, str]]:
+    amount: int | float, unit: str, short_label: bool = False
+) -> list[tuple[float, str]]:
     """Humanize the time.
 
     Examples
@@ -211,7 +208,7 @@ def _humanize_time(
 
     seconds = amount * _TIME_UNITS[index]["in_seconds"]
 
-    result: List[Tuple[float, str]] = []
+    result: list[tuple[float, str]] = []
     remaining_seconds = seconds
     for entry in _TIME_UNITS:
         whole_units = int(remaining_seconds / entry["in_seconds"])

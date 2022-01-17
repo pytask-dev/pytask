@@ -1,13 +1,14 @@
 """This module contains code to handle paths."""
+from __future__ import annotations
+
 import functools
 import os
 from pathlib import Path
 from typing import Sequence
-from typing import Union
 
 
 def relative_to(
-    path: Union[str, Path], source: Union[str, Path], include_source: bool = True
+    path: str | Path, source: str | Path, include_source: bool = True
 ) -> Path:
     """Make a path relative to another path.
 
@@ -34,7 +35,7 @@ def relative_to(
 
 
 def find_closest_ancestor(
-    path: Union[str, Path], potential_ancestors: Sequence[Union[str, Path]]
+    path: str | Path, potential_ancestors: Sequence[str | Path]
 ) -> Path:
     """Find the closest ancestor of a path.
 
@@ -89,7 +90,7 @@ def find_common_ancestor_of_nodes(*names: str) -> Path:
     return find_common_ancestor(*cleaned_names)
 
 
-def find_common_ancestor(*paths: Union[str, Path]) -> Path:
+def find_common_ancestor(*paths: str | Path) -> Path:
     """Find a common ancestor of many paths."""
     common_ancestor = Path(os.path.commonpath(paths))
     return common_ancestor

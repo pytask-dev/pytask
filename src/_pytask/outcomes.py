@@ -1,13 +1,11 @@
 """This module contains code related to outcomes."""
+from __future__ import annotations
+
 from enum import auto
 from enum import Enum
 from enum import IntEnum
-from typing import Dict
-from typing import Optional
 from typing import Sequence
-from typing import Type
 from typing import TYPE_CHECKING
-from typing import Union
 
 
 if TYPE_CHECKING:
@@ -156,9 +154,9 @@ class TaskOutcome(Enum):
 
 
 def count_outcomes(
-    reports: Sequence[Union["CollectionReport", "ExecutionReport"]],
-    outcome_enum: Union[Type[CollectionOutcome], Type[TaskOutcome]],
-) -> Dict[Enum, int]:
+    reports: Sequence[CollectionReport | ExecutionReport],
+    outcome_enum: type[CollectionOutcome] | type[TaskOutcome],
+) -> dict[Enum, int]:
     """Count how often an outcome occurred.
 
     Examples
@@ -216,7 +214,7 @@ class Exit(Exception):
     """Raised for immediate program exits (no tracebacks/summaries)."""
 
     def __init__(
-        self, msg: str = "unknown reason", returncode: Optional[int] = None
+        self, msg: str = "unknown reason", returncode: int | None = None
     ) -> None:
         self.msg = msg
         self.returncode = returncode

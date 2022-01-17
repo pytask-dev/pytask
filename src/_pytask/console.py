@@ -1,4 +1,6 @@
 """This module contains the code to format output on the command line."""
+from __future__ import annotations
+
 import functools
 import inspect
 import os
@@ -7,13 +9,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 from typing import Callable
-from typing import Dict
 from typing import Iterable
-from typing import List
-from typing import Optional
-from typing import Type
 from typing import TYPE_CHECKING
-from typing import Union
 
 import rich
 from _pytask.path import relative_to as relative_to_
@@ -63,7 +60,7 @@ PYTHON_ICON = "" if _IS_LEGACY_WINDOWS else "🐍 "
 TASK_ICON = "" if _IS_LEGACY_WINDOWS else "📝 "
 
 
-_EDITOR_URL_SCHEMES: Dict[str, str] = {
+_EDITOR_URL_SCHEMES: dict[str, str] = {
     "no_link": "",
     "file": "file:///{path}",
     "vscode": "vscode://file/{path}:{line_number}",
@@ -89,9 +86,9 @@ console = Console(theme=theme, color_system=_COLOR_SYSTEM)
 
 
 def render_to_string(
-    text: Union[str, Text],
+    text: str | Text,
     *,
-    console: Optional[Console] = None,
+    console: Console | None = None,
     strip_styles: bool = False,
 ) -> str:
     """Render text with rich to string including ANSI codes, etc..
@@ -129,10 +126,10 @@ def render_to_string(
 
 
 def format_task_id(
-    task: "MetaTask",
+    task: MetaTask,
     editor_url_scheme: str,
     short_name: bool = False,
-    relative_to: Optional[Path] = None,
+    relative_to: Path | None = None,
 ) -> Text:
     """Format a task id."""
     if short_name:
@@ -187,7 +184,7 @@ def create_url_style_for_path(path: Path, edtior_url_scheme: str) -> Style:
     )
 
 
-def _get_file(function: Callable[..., Any], skipped_paths: List[Path] = None) -> Path:
+def _get_file(function: Callable[..., Any], skipped_paths: list[Path] = None) -> Path:
     """Get path to module where the function is defined.
 
     When the ``pdb`` or ``trace`` mode is activated, every task function is wrapped with
@@ -217,7 +214,7 @@ def _get_source_lines(function: Callable[..., Any]) -> int:
         return inspect.getsourcelines(function)[1]
 
 
-def unify_styles(*styles: Union[str, Style]) -> Style:
+def unify_styles(*styles: str | Style) -> Style:
     """Unify styles."""
     parsed_styles = []
     for style in styles:
@@ -231,8 +228,8 @@ def unify_styles(*styles: Union[str, Style]) -> Style:
 
 
 def create_summary_panel(
-    counts: Dict[Enum, int],
-    outcome_enum: Union[Type["CollectionOutcome"], Type["TaskOutcome"]],
+    counts: dict[Enum, int],
+    outcome_enum: type[CollectionOutcome] | type[TaskOutcome],
     description_total: str,
 ) -> Panel:
     """Create a summary panel."""

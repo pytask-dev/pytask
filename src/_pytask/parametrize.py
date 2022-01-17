@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import functools
 import itertools
@@ -5,13 +7,8 @@ import pprint
 import types
 from typing import Any
 from typing import Callable
-from typing import Dict
 from typing import Iterable
-from typing import List
-from typing import Optional
 from typing import Sequence
-from typing import Tuple
-from typing import Union
 
 from _pytask.config import hookimpl
 from _pytask.console import format_strings_as_flat_tree
@@ -23,16 +20,14 @@ from _pytask.session import Session
 
 
 def parametrize(
-    arg_names: Union[str, List[str], Tuple[str, ...]],
-    arg_values: Iterable[Union[Sequence[Any], Any]],
+    arg_names: str | list[str] | tuple[str, ...],
+    arg_values: Iterable[Sequence[Any] | Any],
     *,
-    ids: Optional[
-        Union[Iterable[Union[None, str, float, int, bool]], Callable[..., Any]]
-    ] = None,
-) -> Tuple[
-    Union[str, List[str], Tuple[str, ...]],
-    Iterable[Union[Sequence[Any], Any]],
-    Optional[Union[Iterable[Union[None, str, float, int, bool]], Callable[..., Any]]],
+    ids: None | (Iterable[None | str | float | int | bool] | Callable[..., Any]) = None,
+) -> tuple[
+    str | list[str] | tuple[str, ...],
+    Iterable[Sequence[Any] | Any],
+    Iterable[None | str | float | int | bool] | Callable[..., Any] | None,
 ]:
     """Parametrize a task function.
 
@@ -63,7 +58,7 @@ def parametrize(
 
 
 @hookimpl
-def pytask_parse_config(config: Dict[str, Any]) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     config["markers"]["parametrize"] = (
         "Call a task function multiple times passing in different arguments each turn. "
         "arg_values generally needs to be a list of values if arg_names specifies only "
@@ -78,7 +73,7 @@ def pytask_parse_config(config: Dict[str, Any]) -> None:
 @hookimpl
 def pytask_parametrize_task(
     session: Session, name: str, obj: Callable[..., Any]
-) -> List[Tuple[str, Callable[..., Any]]]:
+) -> list[tuple[str, Callable[..., Any]]]:
     """Parametrize a task.
 
     This function takes a single Python function and all parametrize decorators and
@@ -108,7 +103,7 @@ def pytask_parametrize_task(
         product_arg_names = list(itertools.product(*arg_names))
         product_arg_values = list(itertools.product(*arg_values))
 
-        names_and_functions: List[Tuple[str, Callable[..., Any]]] = []
+        names_and_functions: list[tuple[str, Callable[..., Any]]] = []
         for names, values in zip(product_arg_names, product_arg_values):
             kwargs = dict(
                 zip(
@@ -148,7 +143,7 @@ def pytask_parametrize_task(
         return names_and_functions
 
 
-def _remove_parametrize_markers_from_func(obj: Any) -> Tuple[Any, List[Mark]]:
+def _remove_parametrize_markers_from_func(obj: Any) -> tuple[Any, list[Mark]]:
     """Remove parametrize markers from the object."""
     parametrize_markers = [i for i in obj.pytaskmark if i.name == "parametrize"]
     others = [i for i in obj.pytaskmark if i.name != "parametrize"]
@@ -159,7 +154,7 @@ def _remove_parametrize_markers_from_func(obj: Any) -> Tuple[Any, List[Mark]]:
 
 def _parse_parametrize_marker(
     marker: Mark, name: str
-) -> Tuple[Tuple[str, ...], List[Tuple[str, ...]], List[Tuple[Any, ...]]]:
+) -> tuple[tuple[str, ...], list[tuple[str, ...]], list[tuple[Any, ...]]]:
     """Parse parametrize marker.
 
     Parameters
@@ -198,11 +193,11 @@ def _parse_parametrize_marker(
 
 
 def _parse_parametrize_markers(
-    markers: List[Mark], name: str
-) -> Tuple[
-    List[Tuple[str, ...]],
-    List[List[Tuple[str, ...]]],
-    List[List[Tuple[Any, ...]]],
+    markers: list[Mark], name: str
+) -> tuple[
+    list[tuple[str, ...]],
+    list[list[tuple[str, ...]]],
+    list[list[tuple[Any, ...]]],
 ]:
     """Parse parametrize markers."""
     parsed_markers = [_parse_parametrize_marker(marker, name) for marker in markers]
@@ -213,9 +208,7 @@ def _parse_parametrize_markers(
     return base_arg_names, processed_arg_names, processed_arg_values
 
 
-def _parse_arg_names(
-    arg_names: Union[str, List[str], Tuple[str, ...]]
-) -> Tuple[str, ...]:
+def _parse_arg_names(arg_names: str | list[str] | tuple[str, ...]) -> tuple[str, ...]:
     """Parse arg_names argument of parametrize decorator.
 
     There are three allowed formats:
@@ -258,8 +251,8 @@ def _parse_arg_names(
 
 
 def _parse_arg_values(
-    arg_values: Iterable[Union[Sequence[Any], Any]]
-) -> List[Tuple[Any, ...]]:
+    arg_values: Iterable[Sequence[Any] | Any],
+) -> list[tuple[Any, ...]]:
     """Parse the values provided for each argument name.
 
     After processing the values, the return is a list where each value is an iteration
@@ -280,7 +273,7 @@ def _parse_arg_values(
 
 
 def _check_if_n_arg_names_matches_n_arg_values(
-    arg_names: Tuple[str, ...], arg_values: List[Tuple[Any, ...]], name: str
+    arg_names: tuple[str, ...], arg_values: list[tuple[Any, ...]], name: str
 ) -> None:
     """Check if the number of argument names matches the number of arguments."""
     n_names = len(arg_names)
@@ -304,12 +297,10 @@ def _check_if_n_arg_names_matches_n_arg_values(
 
 
 def _create_parametrize_ids_components(
-    arg_names: Tuple[str, ...],
-    arg_values: List[Tuple[Any, ...]],
-    ids: Optional[
-        Union[Iterable[Union[None, str, float, int, bool]], Callable[..., Any]]
-    ],
-) -> List[Tuple[str, ...]]:
+    arg_names: tuple[str, ...],
+    arg_values: list[tuple[Any, ...]],
+    ids: None | (Iterable[None | str | float | int | bool] | Callable[..., Any]),
+) -> list[tuple[str, ...]]:
     """Create the ids for each parametrization.
 
     Parameters
@@ -345,7 +336,7 @@ def _create_parametrize_ids_components(
                 "None."
             )
 
-        parsed_ids: List[Tuple[str, ...]] = [
+        parsed_ids: list[tuple[str, ...]] = [
             (str(id_),) for id_ in itertools.chain.from_iterable(raw_ids)
         ]
 
@@ -362,7 +353,7 @@ def _create_parametrize_ids_components(
 
 
 def _arg_value_to_id_component(
-    arg_name: str, arg_value: Any, i: int, id_func: Union[Callable[..., Any], None]
+    arg_name: str, arg_value: Any, i: int, id_func: Callable[..., Any] | None
 ) -> str:
     """Create id component from the name and value of the argument.
 
@@ -401,7 +392,7 @@ def _arg_value_to_id_component(
 
 
 @hookimpl
-def pytask_parametrize_kwarg_to_marker(obj: Any, kwargs: Dict[str, str]) -> None:
+def pytask_parametrize_kwarg_to_marker(obj: Any, kwargs: dict[str, str]) -> None:
     """Add some parametrized keyword arguments as decorator."""
     if callable(obj):
         for marker_name in ["depends_on", "produces"]:

@@ -1,10 +1,7 @@
+from __future__ import annotations
+
 import itertools
 import sys
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Union
 
 import networkx as nx
 from _pytask.config import hookimpl
@@ -36,7 +33,7 @@ from rich.tree import Tree
 
 
 @hookimpl
-def pytask_resolve_dependencies(session: Session) -> Optional[bool]:
+def pytask_resolve_dependencies(session: Session) -> bool | None:
     """Create a directed acyclic graph (DAG) capturing dependencies between functions.
 
     Parameters
@@ -71,7 +68,7 @@ def pytask_resolve_dependencies(session: Session) -> Optional[bool]:
 
 
 @hookimpl
-def pytask_resolve_dependencies_create_dag(tasks: List[MetaTask]) -> nx.DiGraph:
+def pytask_resolve_dependencies_create_dag(tasks: list[MetaTask]) -> nx.DiGraph:
     """Create the DAG from tasks, dependencies and products."""
     dag = nx.DiGraph()
 
@@ -125,7 +122,7 @@ def _have_task_or_neighbors_changed(task_name: str, dag: nx.DiGraph) -> bool:
 
 @orm.db_session
 def _has_node_changed(
-    task_name: str, node_dict: Dict[str, Union[MetaNode, MetaTask]]
+    task_name: str, node_dict: dict[str, MetaNode | MetaTask]
 ) -> bool:
     """Indicate whether a single dependency or product has changed."""
     node = node_dict.get("task") or node_dict["node"]
@@ -159,7 +156,7 @@ def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:
         )
 
 
-def _format_cycles(cycles: List[Tuple[str, ...]]) -> str:
+def _format_cycles(cycles: list[tuple[str, ...]]) -> str:
     """Format cycles as a paths connected by arrows."""
     chain = [x for i, x in enumerate(itertools.chain(*cycles)) if i % 2 == 0]
     chain += [cycles[-1][1]]
@@ -183,7 +180,7 @@ if IS_FILE_SYSTEM_CASE_SENSITIVE:
 
 def _check_if_root_nodes_are_available(dag: nx.DiGraph) -> None:
     missing_root_nodes = []
-    is_task_skipped: Dict[str, bool] = {}
+    is_task_skipped: dict[str, bool] = {}
 
     for node in dag.nodes:
         is_node = "node" in dag.nodes[node]
@@ -225,8 +222,8 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph) -> None:
 
 
 def _check_if_tasks_are_skipped(
-    node: MetaNode, dag: nx.DiGraph, is_task_skipped: Dict[str, bool]
-) -> Tuple[bool, Dict[str, bool]]:
+    node: MetaNode, dag: nx.DiGraph, is_task_skipped: dict[str, bool]
+) -> tuple[bool, dict[str, bool]]:
     """Check for a given node whether it is only used by skipped tasks."""
     are_all_tasks_skipped = []
     for successor in dag.successors(node):
@@ -251,12 +248,12 @@ def _check_if_task_is_skipped(task_name: str, dag: nx.DiGraph) -> bool:
     return is_any_true
 
 
-def _skipif(condition: bool, *, reason: str) -> Tuple[bool, str]:
+def _skipif(condition: bool, *, reason: str) -> tuple[bool, str]:
     """Shameless copy to circumvent circular imports."""
     return condition, reason
 
 
-def _format_dictionary_to_tree(dict_: Dict[str, List[str]], title: str) -> str:
+def _format_dictionary_to_tree(dict_: dict[str, list[str]], title: str) -> str:
     """Format missing root nodes."""
     tree = Tree(title)
 

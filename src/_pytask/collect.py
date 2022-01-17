@@ -1,4 +1,6 @@
 """Implement functionality to collect tasks."""
+from __future__ import annotations
+
 import inspect
 import os
 import sys
@@ -6,12 +8,8 @@ import time
 from importlib import util as importlib_util
 from pathlib import Path
 from typing import Any
-from typing import Dict
 from typing import Generator
 from typing import Iterable
-from typing import List
-from typing import Optional
-from typing import Union
 
 from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
@@ -75,7 +73,7 @@ def _collect_from_paths(session: Session) -> None:
 
 
 @hookimpl
-def pytask_ignore_collect(path: Path, config: Dict[str, Any]) -> bool:
+def pytask_ignore_collect(path: Path, config: dict[str, Any]) -> bool:
     """Ignore a path during the collection."""
     is_ignored = any(path.match(pattern) for pattern in config["ignore"])
     return is_ignored
@@ -83,8 +81,8 @@ def pytask_ignore_collect(path: Path, config: Dict[str, Any]) -> bool:
 
 @hookimpl
 def pytask_collect_file_protocol(
-    session: Session, path: Path, reports: List[CollectionReport]
-) -> List[CollectionReport]:
+    session: Session, path: Path, reports: list[CollectionReport]
+) -> list[CollectionReport]:
     """Wrap the collection of tasks from a file to collect reports."""
     try:
         reports = session.hook.pytask_collect_file(
@@ -105,8 +103,8 @@ def pytask_collect_file_protocol(
 
 @hookimpl
 def pytask_collect_file(
-    session: Session, path: Path, reports: List[CollectionReport]
-) -> Optional[List[CollectionReport]]:
+    session: Session, path: Path, reports: list[CollectionReport]
+) -> list[CollectionReport] | None:
     """Collect a file."""
     if any(path.match(pattern) for pattern in session.config["task_files"]):
         spec = importlib_util.spec_from_file_location(path.stem, str(path))
@@ -141,7 +139,7 @@ def pytask_collect_file(
 @hookimpl
 def pytask_collect_task_protocol(
     session: Session, path: Path, name: str, obj: Any
-) -> Optional[CollectionReport]:
+) -> CollectionReport | None:
     """Start protocol for collecting a task."""
     try:
         session.hook.pytask_collect_task_setup(
@@ -169,7 +167,7 @@ def pytask_collect_task_protocol(
 @hookimpl(trylast=True)
 def pytask_collect_task(
     session: Session, path: Path, name: str, obj: Any
-) -> Optional[PythonFunctionTask]:
+) -> PythonFunctionTask | None:
     """Collect a task which is a function.
 
     There is some discussion on how to detect functions in this `thread
@@ -195,8 +193,8 @@ _TEMPLATE_ERROR: str = (
 
 @hookimpl(trylast=True)
 def pytask_collect_node(
-    session: Session, path: Path, node: Union[str, Path]
-) -> Optional[FilePathNode]:
+    session: Session, path: Path, node: str | Path
+) -> FilePathNode | None:
     """Collect a node of a task as a :class:`pytask.nodes.FilePathNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
@@ -273,7 +271,7 @@ def _not_ignored_paths(
 
 
 @hookimpl(trylast=True)
-def pytask_collect_modify_tasks(tasks: List[MetaTask]) -> None:
+def pytask_collect_modify_tasks(tasks: list[MetaTask]) -> None:
     """Given all tasks, assign a short uniquely identifiable name to each task.
 
     The shorter ids are necessary to display
@@ -286,8 +284,8 @@ def pytask_collect_modify_tasks(tasks: List[MetaTask]) -> None:
 
 
 def _find_shortest_uniquely_identifiable_name_for_tasks(
-    tasks: List[MetaTask],
-) -> Dict[str, str]:
+    tasks: list[MetaTask],
+) -> dict[str, str]:
     """Find the shortest uniquely identifiable name for tasks.
 
     The shortest unique id consists of the module name plus the base name (e.g. function
@@ -320,7 +318,7 @@ def _find_shortest_uniquely_identifiable_name_for_tasks(
 
 @hookimpl
 def pytask_collect_log(
-    session: Session, reports: List[CollectionReport], tasks: List[PythonFunctionTask]
+    session: Session, reports: list[CollectionReport], tasks: list[PythonFunctionTask]
 ) -> None:
     """Log collection."""
     session.collection_end = time.time()
