@@ -233,7 +233,7 @@ class _RecursivePathNode:
     """
 
     path = attr.ib(type=Path)
-    sub_nodes = attr.ib(type=list["_RecursivePathNode"])
+    sub_nodes = attr.ib(type="list[_RecursivePathNode]")
     is_dir = attr.ib(type=bool)
     is_file = attr.ib(type=bool)
     is_unknown = attr.ib(type=bool)

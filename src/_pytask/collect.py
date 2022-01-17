@@ -250,7 +250,7 @@ def _not_ignored_paths(
 
     Parameters
     ----------
-    paths : List[pathlib.Path]
+    paths : Iterable[pathlib.Path]
         List of paths from which tasks are collected.
     session : _pytask.session.Session
         The session.
