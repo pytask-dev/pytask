@@ -4,9 +4,9 @@ How to write a task
 Starting from the project structure in the :doc:`previous tutorial
 <how_to_set_up_a_project>`, this tutorial teaches you how to write your first task.
 
-The task will be defined in ``src/task_data_preparation.py`` and it will generate
-artificial data which will be stored in ``bld/data.pkl``. We will call the function in
-the module :func:`task_create_random_data`.
+The task will be defined in ``src/my_project/task_data_preparation.py`` and it will
+generate artificial data which will be stored in ``bld/data.pkl``. We will call the
+function in the module :func:`task_create_random_data`.
 
 .. code-block::
 
@@ -33,7 +33,7 @@ Here, we define the function
 
     import pytask
     import numpy as np
-    import pandas as np
+    import pandas as pd
 
     from my_project.config import BLD
 
@@ -57,31 +57,15 @@ To let pytask track the product of the task, you need to use the
     You learn more about adding dependencies and products to a task in the next
     :doc:`tutorial <how_to_define_dependencies_products>`.
 
-To execute the task, type the following command in your shell.
+Now, execute pytask which will automatically collect tasks in the current directory and
+subsequent directories.
 
-.. code-block:: console
-
-    $ pytask task_data_preparation.py
-    ========================= Start pytask session =========================
-    Platform: linux -- Python 3.x.y, pytask 0.x.y, pluggy 0.x.y
-    Root: xxx
-    Collected 1 task(s).
-
-    .
-    ======================= 1 succeeded in 1 second ========================
-
-Executing
-
-.. code-block:: console
-
-    $ pytask
-
-would collect all tasks in the current working directory and in all subsequent folders.
+.. image:: /_static/images/how-to-write-a-task.png
 
 .. important::
 
-    By default, pytask assumes that tasks are functions in modules whose names are both
-    prefixed with ``task_``.
+    By default, pytask assumes that tasks are functions and both, the function name and
+    the module name, must be prefixed with ``task_``.
 
     Use the configuration value :confval:`task_files` if you prefer a different naming
     scheme for the task modules.

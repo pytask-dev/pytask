@@ -12,24 +12,19 @@ Tracebacks
 ----------
 
 You can enrich the display of tracebacks by showing local variables in each stack frame.
-Just execute pytask with
+Just execute pytask with :confval:`show_locals`, meaning ``pytask --show-locals``.
 
-.. code-block:: console
-
-    $ pytask --show-locals
+.. image:: /_static/images/how-to-debug-show-locals.png
 
 
 Debugging
 ---------
 
-Running
+Using :confval:`pdb` enables the post-mortem debugger. Whenever an exception is raised
+inside a task, the prompt will enter the debugger enabling you to find out the cause of
+the exception.
 
-.. code-block:: console
-
-    $ pytask --pdb
-
-enables the post-mortem debugger. Whenever an exception is raised inside a task, the
-prompt will enter the debugger enabling you to discover the source of the exception.
+.. image:: /_static/images/how-to-debug-pdb.png
 
 .. seealso::
 
@@ -46,11 +41,9 @@ prompt will enter the debugger enabling you to discover the source of the except
 Tracing
 -------
 
-If you want to enter the debugger at the start of every task, use
+If you want to enter the debugger at the start of every task, use :confval:`trace`.
 
-.. code-block:: console
-
-    $ pytask --trace
+.. image:: /_static/images/how-to-debug-trace.png
 
 
 Custom debugger

@@ -7,10 +7,14 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.2.0 - 2022-xx-xx
+0.1.6 - 2022-xx-xx
 ------------------
 
+- :gh:`191` adds a guide on how to profile pytask to the developer's guide.
 - :gh:`192` deprecates Python 3.6.
+- :gh:`193` adds more figures to the documentation.
+- :gh:`194` updates the ``README.rst``.
+- :gh:`196` references the two new cookiecutters for projects and plugins.
 
 
 0.1.5 - 2022-01-10

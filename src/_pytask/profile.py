@@ -229,7 +229,7 @@ class FileSizeNameSpace:
 
 def _to_human_readable_size(bytes_: int, units: list[str] | None = None) -> str:
     """Convert bytes to a human readable size."""
-    units = [" bytes", "KB", "MB", "GB", "TB"] if units is None else units
+    units = [" bytes", " KB", " MB", " GB", " TB"] if units is None else units
     return (
         str(bytes_) + units[0]
         if bytes_ < 1024
