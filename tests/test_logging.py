@@ -124,6 +124,8 @@ def test_logging_of_outcomes(tmp_path, runner, func, expected_1, expected_2):
             pytest.raises(ValueError, match="The time unit"),
             None,
         ),
+        (0.999, "seconds", False, does_not_raise(), [(1, "second")]),
+        (1.254, "seconds", False, does_not_raise(), [(1.25, "seconds")]),
     ],
 )
 def test_humanize_time(amount, unit, short_label, expectation, expected):

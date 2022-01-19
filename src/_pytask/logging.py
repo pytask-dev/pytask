@@ -207,24 +207,33 @@ def _humanize_time(
         raise ValueError(f"The time unit {unit!r} is not known.")
 
     seconds = amount * _TIME_UNITS[index]["in_seconds"]
-
     result: list[tuple[float, str]] = []
     remaining_seconds = seconds
+
     for entry in _TIME_UNITS:
         whole_units = int(remaining_seconds / entry["in_seconds"])
-        if whole_units >= 1:
+
+        if entry["singular"] == "second" and remaining_seconds:
+            last_seconds = round(remaining_seconds, 2)
             if short_label:
                 label = entry["short"]
-            elif whole_units == 1:
+            elif last_seconds == 1:
                 label = entry["singular"]
             else:
                 label = entry["plural"]
+            result.append((last_seconds, label))
 
-            if not entry["singular"] == "second":
+        elif whole_units >= 1:
+            if entry["singular"] != "seconds":
+                if short_label:
+                    label = entry["short"]
+                elif whole_units == 1:
+                    label = entry["singular"]
+                else:
+                    label = entry["plural"]
+
                 result.append((whole_units, label))
                 remaining_seconds -= whole_units * entry["in_seconds"]
-            else:
-                result.append((round(remaining_seconds, 2), label))
 
     if not result:
         result.append(
