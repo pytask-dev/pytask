@@ -44,9 +44,8 @@ running task to stop it from running:
 In large projects, you may have many long running tasks that you only want to execute
 sporadically, e.g. when you are not working locally but running the project on a server.
 
-In that case, we recommend using ``@pytask.mark.skipif`` which lets you supply a
-condition and a reason as arguments:
-
+In this case, use the ``@pytask.mark.skipif`` decorator which requires a condition and a
+reason as arguments:
 
 .. code-block:: python
 
@@ -70,7 +69,7 @@ condition and a reason as arguments:
     from config import NO_LONG_RUNNING_TASKS
 
 
-    @pytask.mark.skipif(NO_LONG_RUNNING_TASKS, "Skip long-running tasks.")
+    @pytask.mark.skipif(NO_LONG_RUNNING_TASKS, reason="Skip long-running tasks.")
     @pytask.mark.depends_on("dependency_of_long_running_task.md")
     def task_that_takes_really_long_to_run(depends_on):
         ...
