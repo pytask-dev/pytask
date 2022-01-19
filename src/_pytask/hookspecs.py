@@ -12,7 +12,7 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import TYPE_CHECKING
-from typing import Union
+from typing import Union, cast, TypeVar, Protocol
 
 import click
 import networkx as nx
@@ -30,7 +30,13 @@ if TYPE_CHECKING:
     from _pytask.reports import ResolveDependencyReport
 
 
-hookspec = pluggy.HookspecMarker("pytask")
+
+class C(Protocol):
+    def __call__(self, firstresult:bool) -> Any: ...
+
+
+F = TypeVar("F", bound=Callable[..., Any])
+hookspec = cast(Callable[[F], F], pluggy.HookspecMarker("pytask"))
 
 
 @hookspec
