@@ -14,7 +14,10 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`193` adds more figures to the documentation.
 - :gh:`194` updates the ``README.rst``.
 - :gh:`196` references the two new cookiecutters for projects and plugins.
-- :gh:`198` fixes the documentation of ``@pytask.mark.skipif``. (Closes :gh:`195`)
+- :gh:`198` fixes the documentation of :func:`@pytask.mark.skipif
+  <_pytask.skipping.skipif>`. (Closes :gh:`195`)
+- :gh:`199` implements the :func:`@pytask.mark.task <_pytask.task.task>` decorator to
+  mark functions as tasks regardless whether they are prefixed with ``task_`` or not.
 
 
 0.1.5 - 2022-01-10
