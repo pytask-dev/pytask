@@ -18,8 +18,11 @@ from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import TASK_ICON
 from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
+from _pytask.mark_utils import has_marker
+from _pytask.mark_utils import remove_markers_from_func
 from _pytask.nodes import find_duplicates
 from _pytask.session import Session
+from _pytask.task_utils import parse_task_marker
 
 
 def parametrize(
@@ -93,13 +96,16 @@ def pytask_parametrize_task(
 
     """
     if callable(obj):
-        obj, markers = _remove_parametrize_markers_from_func(obj)
+        obj, markers = remove_markers_from_func(obj, "parametrize")
 
         if len(markers) > 1:
             raise NotImplementedError(
                 "Multiple parametrizations are currently not implemented since it is "
                 "not possible to define products for tasks from a Cartesian product."
             )
+
+        if has_marker(obj, "task"):
+            name = parse_task_marker(obj)
 
         base_arg_names, arg_names, arg_values = _parse_parametrize_markers(
             markers, name
@@ -119,8 +125,9 @@ def pytask_parametrize_task(
 
             # Copy function and attributes to allow in-place changes.
             func = _copy_func(obj)  # type: ignore
-            func.pytaskmark = copy.deepcopy(obj.pytaskmark)  # type: ignore
-
+            func.pytaskmark = copy.deepcopy(  # type: ignore[attr-defined]
+                obj.pytaskmark  # type: ignore[attr-defined]
+            )
             # Convert parametrized dependencies and products to decorator.
             session.hook.pytask_parametrize_kwarg_to_marker(obj=func, kwargs=kwargs)
 
@@ -146,15 +153,6 @@ def pytask_parametrize_task(
             )
 
         return names_and_functions
-
-
-def _remove_parametrize_markers_from_func(obj: Any) -> Tuple[Any, List[Mark]]:
-    """Remove parametrize markers from the object."""
-    parametrize_markers = [i for i in obj.pytaskmark if i.name == "parametrize"]
-    others = [i for i in obj.pytaskmark if i.name != "parametrize"]
-    obj.pytaskmark = others
-
-    return obj, parametrize_markers
 
 
 def _parse_parametrize_marker(

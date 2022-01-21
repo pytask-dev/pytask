@@ -4,12 +4,10 @@ from typing import Dict
 from typing import Optional
 
 from _pytask.config import hookimpl
+from _pytask.mark_utils import has_marker
 from _pytask.nodes import PythonFunctionTask
 from _pytask.session import Session
-
-
-def task(*, name: str) -> str:
-    return name
+from _pytask.task_utils import parse_task_marker
 
 
 @hookimpl
@@ -28,7 +26,10 @@ def pytask_collect_task(
     detect built-ins which is not possible anyway.
 
     """
-    if name.startswith("task_") and callable(obj):
+    if has_marker(obj, "task") and callable(obj):
+        parsed_name = parse_task_marker(obj)
+        if parsed_name is not None:
+            name = parsed_name
         return PythonFunctionTask.from_path_name_function_session(
             path, name, obj, session
         )
