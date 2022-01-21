@@ -1,15 +1,17 @@
 import textwrap
 
+import pytest
 from _pytask.nodes import create_task_name
 from _pytask.outcomes import ExitCode
 from pytask import main
 
 
-def test_task_with_task_decorator(tmp_path):
-    source = """
+@pytest.mark.parametrize("task_name", ["'the_only_task'", None])
+def test_task_with_task_decorator(tmp_path, task_name):
+    source = f"""
     import pytask
 
-    @pytask.mark.task("the_only_task")
+    @pytask.mark.task({task_name})
     @pytask.mark.produces("out.txt")
     def task_example(produces):
         produces.write_text("Hello. It's me.")
@@ -19,9 +21,14 @@ def test_task_with_task_decorator(tmp_path):
     session = main({"paths": tmp_path})
 
     assert session.exit_code == ExitCode.OK
-    assert session.tasks[0].name == create_task_name(
-        tmp_path.joinpath("task_module.py"), "the_only_task"
-    )
+    if task_name:
+        assert session.tasks[0].name == create_task_name(
+            tmp_path.joinpath("task_module.py"), "the_only_task"
+        )
+    else:
+        assert session.tasks[0].name == create_task_name(
+            tmp_path.joinpath("task_module.py"), "task_example"
+        )
 
 
 def test_task_with_task_decorator_with_parametrize(tmp_path):
@@ -39,8 +46,8 @@ def test_task_with_task_decorator_with_parametrize(tmp_path):
 
     assert session.exit_code == ExitCode.OK
     assert session.tasks[0].name == create_task_name(
-        tmp_path.joinpath("task_module.py"), "the_parametrized_task[produces0]"
+        tmp_path.joinpath("task_module.py"), "the_parametrized_task[out_1.txt]"
     )
     assert session.tasks[1].name == create_task_name(
-        tmp_path.joinpath("task_module.py"), "the_parametrized_task[produces1]"
+        tmp_path.joinpath("task_module.py"), "the_parametrized_task[out_2.txt]"
     )
