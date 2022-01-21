@@ -15,7 +15,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`194` updates the ``README.rst``.
 - :gh:`196` references the two new cookiecutters for projects and plugins.
 - :gh:`198` fixes the documentation of ``@pytask.mark.skipif``. (Closes :gh:`195`)
-- :gh:`200` extends the error message when paths are ambiguous on case-insensitive file
+- :gh:`199` extends the error message when paths are ambiguous on case-insensitive file
   systems.
 
 
