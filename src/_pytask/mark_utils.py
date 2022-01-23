@@ -31,3 +31,12 @@ def get_marks_from_obj(obj: Any, marker_name: str) -> list[Mark]:
 def has_marker(obj: Any, marker_name: str) -> bool:
     """Determine whether a task function has a certain marker."""
     return any(marker.name == marker_name for marker in getattr(obj, "pytaskmark", []))
+
+
+def remove_markers_from_func(obj: Any, marker_name: str) -> tuple[Any, list[Mark]]:
+    """Remove parametrize markers from the object."""
+    markers = [i for i in getattr(obj, "pytaskmark", []) if i.name == marker_name]
+    others = [i for i in getattr(obj, "pytaskmark", []) if i.name != marker_name]
+    obj.pytaskmark = others
+
+    return obj, markers

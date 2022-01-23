@@ -180,7 +180,7 @@ def store_mark(obj: Callable[..., Any], mark: Mark) -> None:
     assert isinstance(mark, Mark), mark
     # Always reassign name to avoid updating pytaskmark in a reference that was only
     # borrowed.
-    obj.pytaskmark = get_unpacked_marks(obj) + [mark]  # type: ignore
+    obj.pytaskmark = get_unpacked_marks(obj) + [mark]  # type: ignore[attr-defined]
 
 
 class MarkGenerator:

@@ -134,6 +134,7 @@ def test_humanize_time(amount, unit, short_label, expectation, expected):
         assert result == expected
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("show_traceback", ["no", "yes"])
 def test_show_traceback(runner, tmp_path, show_traceback):
     source = "def task_raises(): raise Exception"

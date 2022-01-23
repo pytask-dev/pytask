@@ -183,6 +183,7 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
     assert not record
 
 
+@pytest.mark.unit
 def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
     tasks = []
     expected = {}
