@@ -105,7 +105,9 @@ def pytask_parametrize_task(
             )
 
         if has_marker(obj, "task"):
-            name = parse_task_marker(obj)
+            parsed_name = parse_task_marker(obj)
+            if parsed_name is not None:
+                name = parsed_name
 
         base_arg_names, arg_names, arg_values = _parse_parametrize_markers(
             markers, name
