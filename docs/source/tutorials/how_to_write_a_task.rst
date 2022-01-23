@@ -4,8 +4,11 @@ How to write a task
 Starting from the project structure in the :doc:`previous tutorial
 <how_to_set_up_a_project>`, this tutorial teaches you how to write your first task.
 
-The task will be defined in ``src/my_project/task_data_preparation.py`` and it will
-generate artificial data which will be stored in ``bld/data.pkl``. We will call the
+By default, pytask will look for tasks in modules whose name is prefixed with ``task_``.
+Tasks are functions in these modules whose name also starts with ``task_``.
+
+Our first task will be defined in ``src/my_project/task_data_preparation.py`` and it
+will generate artificial data which will be stored in ``bld/data.pkl``. We will call the
 function in the module :func:`task_create_random_data`.
 
 .. code-block::
@@ -62,10 +65,35 @@ subsequent directories.
 
 .. image:: /_static/images/how-to-write-a-task.png
 
-.. important::
 
-    By default, pytask assumes that tasks are functions and both, the function name and
-    the module name, must be prefixed with ``task_``.
+Customize task names
+--------------------
 
-    Use the configuration value :confval:`task_files` if you prefer a different naming
-    scheme for the task modules.
+Use the :func:`@pytask.mark.task <_pytask.task_utils.task>` decorator to mark a function
+as a task regardless of its function name. You can optionally pass a new name for the
+task. Otherwise, the function name is used.
+
+.. code-block:: python
+
+    # The id will be '.../task_data_preparation.py::create_random_data'
+
+
+    @pytask.mark.task
+    def create_random_data():
+        ...
+
+
+    # The id will be '.../task_data_preparation.py::create_data'
+
+
+    @pytask.mark.task(name="create_data")
+    def create_random_data():
+        ...
+
+
+Customize task module names
+---------------------------
+
+Use the configuration value :confval:`task_files` if you prefer a different naming
+scheme for the task modules. By default, it is set to ``task_*.py``. You can specify one
+or multiple patterns to collect tasks from other files.
