@@ -6,6 +6,7 @@ from _pytask.outcomes import ExitCode
 from pytask import main
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize("func_name", ["task_example", "func"])
 @pytest.mark.parametrize("task_name", ["the_only_task", None])
 def test_task_with_task_decorator(tmp_path, func_name, task_name):
@@ -34,6 +35,7 @@ def test_task_with_task_decorator(tmp_path, func_name, task_name):
         )
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize("func_name", ["task_example", "func"])
 @pytest.mark.parametrize("task_name", ["the_only_task", None])
 def test_task_with_task_decorator_with_parametrize(tmp_path, func_name, task_name):
