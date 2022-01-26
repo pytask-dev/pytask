@@ -21,6 +21,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`200` implements the :func:`@pytask.mark.task <_pytask.task.task>` decorator to
   mark functions as tasks regardless whether they are prefixed with ``task_`` or not.
 - :gh:`201` adds tests for ``_pytask.mark_utils``.
+- :gh:`204` removes internal traceback frames from exceptions raised somewhere in
+  pytask.
 
 
 0.1.5 - 2022-01-10
