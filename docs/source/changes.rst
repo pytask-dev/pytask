@@ -23,7 +23,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`201` adds tests for ``_pytask.mark_utils``.
 - :gh:`204` removes internal traceback frames from exceptions raised somewhere in
   pytask.
-- :gh:`205` fixes the best practices guide for parametrizations.
+- :gh:`208` fixes the best practices guide for parametrizations.
 
 
 0.1.5 - 2022-01-10
