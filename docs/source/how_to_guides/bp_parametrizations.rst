@@ -34,28 +34,41 @@ First, let us take a look at the folder and file structure of such a project.
 
 .. code-block::
 
-    src
-    │   config.py
+    my_project
+    ├───pytask.ini or tox.ini or setup.cfg
     │
-    ├───data
-    │       data_0.csv
-    │       data_1.csv
-    │       data_2.csv
-    │       data_3.csv
+    ├───src
+    │   └───my_project
+    │       ├────config.py
+    │       │
+    │       ├───data
+    │       │   ├────data_0.csv
+    │       │   ├────data_1.csv
+    │       │   ├────data_2.csv
+    │       │   └────data_3.csv
+    │       │
+    │       ├───data_preparation
+    │       │   ├────data_preparation_config.py
+    │       │   └────task_prepare_data.py
+    │       │
+    │       └───estimation
+    │           ├────estimation_config.py
+    │           └────task_estimate_models.py
     │
-    ├───data_preparation
-    │       data_preparation_config.py
-    │       task_prepare_data.py
     │
-    └───estimation
-            estimation_config.py
-            task_estimate_models.py
+    ├───setup.py
+    │
+    ├───.pytask.sqlite3
+    │
+    └───bld
+
+
 
 The folder structure, the general ``config.py`` which holds ``SRC`` and ``BLD`` and the
 tasks follow the same structure which is advocated for throughout the tutorials.
 
-What is new are the local configuration files in each of the subfolders of ``src`` which
-contain objects which are shared across tasks. For example,
+What is new are the local configuration files in each of the subfolders of
+``my_project`` which contain objects which are shared across tasks. For example,
 ``data_preparation_config.py`` holds the paths to the processed data and the names of
 the data sets.
 
@@ -63,8 +76,8 @@ the data sets.
 
     # Content of data_preparation_config.py
 
-    from src.config import BLD
-    from src.config import SRC
+    from my_project.config import BLD
+    from my_project.config import SRC
 
 
     DATA = ["data_0", "data_1", "data_2", "data_3"]
@@ -87,9 +100,9 @@ parametrization.
 
     import pytask
 
-    from src.data_preparation.data_preparation_config import DATA
-    from src.data_preparation.data_preparation_config import path_to_input_data
-    from src.data_preparation.data_preparation_config import path_to_processed_data
+    from my_project.data_preparation.data_preparation_config import DATA
+    from my_project.data_preparation.data_preparation_config import path_to_input_data
+    from my_project.data_preparation.data_preparation_config import path_to_processed_data
 
 
     def _create_parametrization(data):
@@ -121,7 +134,7 @@ an explicit id.
 .. code-block::
 
     # With id
-    .../src/data_preparation/task_prepare_data.py::task_prepare_data[data_0]
+    .../my_project/data_preparation/task_prepare_data.py::task_prepare_data[data_0]
 
 Next, we move to the estimation to see how we can build another parametrization upon the
 previous one.
@@ -130,8 +143,8 @@ previous one.
 
     # Content of estimation_config.py
 
-    from src.config import BLD
-    from src.data_preparation.data_preparation_config import DATA
+    from my_project.config import BLD
+    from my_project.data_preparation.data_preparation_config import DATA
 
 
     _MODELS = ["linear_probability", "logistic_model", "decision_tree"]
@@ -164,9 +177,9 @@ And, here is the task file.
 
     import pytask
 
-    from src.data_preparation.data_preparation_config import path_to_processed_data
-    from src.data_preparation.estimation_config import ESTIMATIONS
-    from src.data_preparation.estimation_config import path_to_estimation_result
+    from my_project.data_preparation.data_preparation_config import path_to_processed_data
+    from my_project.data_preparation.estimation_config import ESTIMATIONS
+    from my_project.data_preparation.estimation_config import path_to_estimation_result
 
 
     def _create_parametrization(estimations):
