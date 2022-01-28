@@ -24,6 +24,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :gh:`204` removes internal traceback frames from exceptions raised somewhere in
   pytask.
 - :gh:`208` fixes the best practices guide for parametrizations.
+- :gh:`209` cancels previous CI runs automatically.
 
 
 0.1.5 - 2022-01-10
