@@ -21,6 +21,8 @@ The semantics are:
 - or/and/not evaluate according to the usual boolean semantics.
 
 """
+from __future__ import annotations
+
 import ast
 import enum
 import re
@@ -28,7 +30,6 @@ import types
 from typing import Callable
 from typing import Iterator
 from typing import Mapping
-from typing import Optional
 from typing import Sequence
 from typing import TYPE_CHECKING
 
@@ -117,7 +118,7 @@ class Scanner:
                     )
         yield Token(TokenType.EOF, "", pos)
 
-    def accept(self, type_: TokenType, *, reject: bool = False) -> Optional[Token]:
+    def accept(self, type_: TokenType, *, reject: bool = False) -> Token | None:
         if self.current.type_ is type_:
             token = self.current
             if token.type_ is not TokenType.EOF:
@@ -127,7 +128,7 @@ class Scanner:
             self.reject((type_,))
         return None
 
-    def reject(self, expected: Sequence[TokenType]) -> "NoReturn":
+    def reject(self, expected: Sequence[TokenType]) -> NoReturn:
         raise ParseError(
             self.current.pos + 1,
             "expected {}; got {}".format(
@@ -168,7 +169,7 @@ def and_expr(s: Scanner) -> ast.expr:
     return ret
 
 
-def not_expr(s: Scanner) -> Optional[ast.expr]:
+def not_expr(s: Scanner) -> ast.expr | None:
     if s.accept(TokenType.NOT):
         return ast.UnaryOp(ast.Not(), not_expr(s))
     if s.accept(TokenType.LPAREN):
@@ -210,7 +211,7 @@ class Expression:
         self.code = code
 
     @classmethod
-    def compile_(cls, input_: str) -> "Expression":
+    def compile_(cls, input_: str) -> Expression:
         """Compile a match expression.
 
         Parameters

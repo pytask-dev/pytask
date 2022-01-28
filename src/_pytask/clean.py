@@ -1,18 +1,14 @@
 """Add a command to clean the project from files unknown to pytask."""
+from __future__ import annotations
+
 import itertools
 import shutil
 import sys
 from pathlib import Path
 from types import TracebackType
 from typing import Any
-from typing import Dict
 from typing import Generator
 from typing import Iterable
-from typing import List
-from typing import Optional
-from typing import Set
-from typing import Tuple
-from typing import Type
 from typing import TYPE_CHECKING
 
 import attr
@@ -50,7 +46,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: Dict[str, Any], config_from_cli: Dict[str, Any]
+    config: dict[str, Any], config_from_cli: dict[str, Any]
 ) -> None:
     """Parse the configuration."""
     config["mode"] = get_first_non_none_value(
@@ -65,7 +61,7 @@ def pytask_parse_config(
 
 
 @hookimpl
-def pytask_post_parse(config: Dict[str, Any]) -> None:
+def pytask_post_parse(config: dict[str, Any]) -> None:
     """Correct ignore patterns such that caches, etc. will not be ignored."""
     if config["command"] == "clean":
         config["ignore"] = [
@@ -83,7 +79,7 @@ def pytask_post_parse(config: Dict[str, Any]) -> None:
 @click.option(
     "-q", "--quiet", is_flag=True, help="Do not print the names of the removed paths."
 )
-def clean(**config_from_cli: Any) -> "NoReturn":
+def clean(**config_from_cli: Any) -> NoReturn:
     """Clean provided paths by removing files unknown to pytask."""
     config_from_cli["command"] = "clean"
 
@@ -101,8 +97,8 @@ def clean(**config_from_cli: Any) -> "NoReturn":
     except Exception:
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
-        exc_info: Tuple[
-            Type[BaseException], BaseException, Optional[TracebackType]
+        exc_info: tuple[
+            type[BaseException], BaseException, TracebackType | None
         ] = sys.exc_info()
         console.print(render_exc_info(*exc_info, config["show_locals"]))
 
@@ -164,7 +160,7 @@ def clean(**config_from_cli: Any) -> "NoReturn":
     sys.exit(session.exit_code)
 
 
-def _collect_all_paths_known_to_pytask(session: Session) -> Set[Path]:
+def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
     """Collect all paths from the session which are known to pytask.
 
     Paths belong to tasks and nodes and configuration values.
@@ -175,7 +171,7 @@ def _collect_all_paths_known_to_pytask(session: Session) -> Set[Path]:
         for path in _yield_paths_from_task(task):
             known_files.add(path)
 
-    known_directories: Set[Path] = set()
+    known_directories: set[Path] = set()
     for path in known_files:
         known_directories.update(path.parents)
 
@@ -199,8 +195,8 @@ def _yield_paths_from_task(task: MetaTask) -> Generator[Path, None, None]:
 
 
 def _find_all_unknown_paths(
-    session: Session, known_paths: Set[Path], include_directories: bool
-) -> List[Path]:
+    session: Session, known_paths: set[Path], include_directories: bool
+) -> list[Path]:
     """Find all unknown paths.
 
     First, create a tree of :class:`_RecursivePathNode`. Then, create a list of unknown
@@ -237,7 +233,7 @@ class _RecursivePathNode:
     """
 
     path = attr.ib(type=Path)
-    sub_nodes = attr.ib(type="List[_RecursivePathNode]")
+    sub_nodes = attr.ib(type="list[_RecursivePathNode]")
     is_dir = attr.ib(type=bool)
     is_file = attr.ib(type=bool)
     is_unknown = attr.ib(type=bool)
@@ -245,7 +241,7 @@ class _RecursivePathNode:
     @classmethod
     def from_path(
         cls, path: Path, known_paths: Iterable[Path], session: Session
-    ) -> "_RecursivePathNode":
+    ) -> _RecursivePathNode:
         """Create a node from a path.
 
         While instantiating the class, subordinate nodes are spawned for all paths

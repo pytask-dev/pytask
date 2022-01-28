@@ -1,4 +1,6 @@
 """Configure pytask."""
+from __future__ import annotations
+
 import configparser
 import itertools
 import os
@@ -6,9 +8,6 @@ import tempfile
 import warnings
 from pathlib import Path
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Tuple
 
 import pluggy
 from _pytask.shared import convert_truthy_or_falsy_to_bool
@@ -21,7 +20,7 @@ from _pytask.shared import to_list
 hookimpl = pluggy.HookimplMarker("pytask")
 
 
-_IGNORED_FOLDERS: List[str] = [
+_IGNORED_FOLDERS: list[str] = [
     ".git/*",
     ".hg/*",
     ".svn/*",
@@ -29,7 +28,7 @@ _IGNORED_FOLDERS: List[str] = [
 ]
 
 
-_IGNORED_FILES: List[str] = [
+_IGNORED_FILES: list[str] = [
     ".codecov.yml",
     ".gitignore",
     ".pre-commit-config.yaml",
@@ -44,10 +43,10 @@ _IGNORED_FILES: List[str] = [
 ]
 
 
-_IGNORED_FILES_AND_FOLDERS: List[str] = _IGNORED_FILES + _IGNORED_FOLDERS
+_IGNORED_FILES_AND_FOLDERS: list[str] = _IGNORED_FILES + _IGNORED_FOLDERS
 
 
-IGNORED_TEMPORARY_FILES_AND_FOLDERS: List[str] = [
+IGNORED_TEMPORARY_FILES_AND_FOLDERS: list[str] = [
     "*.egg-info/*",
     ".ipynb_checkpoints/*",
     ".mypy_cache/*",
@@ -72,8 +71,8 @@ IS_FILE_SYSTEM_CASE_SENSITIVE = is_file_system_case_sensitive()
 
 @hookimpl
 def pytask_configure(
-    pm: pluggy.PluginManager, config_from_cli: Dict[str, Any]
-) -> Dict[str, Any]:
+    pm: pluggy.PluginManager, config_from_cli: dict[str, Any]
+) -> dict[str, Any]:
     """Configure pytask."""
     config = {"pm": pm}
 
@@ -131,9 +130,9 @@ def pytask_configure(
 
 @hookimpl
 def pytask_parse_config(
-    config: Dict[str, Any],
-    config_from_cli: Dict[str, Any],
-    config_from_file: Dict[str, Any],
+    config: dict[str, Any],
+    config_from_cli: dict[str, Any],
+    config_from_file: dict[str, Any],
 ) -> None:
     """Parse the configuration."""
     config["command"] = config_from_cli.get("command", "build")
@@ -210,12 +209,12 @@ def pytask_parse_config(
 
 
 @hookimpl
-def pytask_post_parse(config: Dict[str, Any]) -> None:
+def pytask_post_parse(config: dict[str, Any]) -> None:
     """Sort markers alphabetically."""
     config["markers"] = {k: config["markers"][k] for k in sorted(config["markers"])}
 
 
-def _find_project_root_and_ini(paths: List[Path]) -> Tuple[Path, Path]:
+def _find_project_root_and_ini(paths: list[Path]) -> tuple[Path, Path]:
     """Find the project root and configuration file from a list of paths."""
     try:
         common_ancestor = Path(os.path.commonpath(paths))
@@ -254,7 +253,7 @@ def _find_project_root_and_ini(paths: List[Path]) -> Tuple[Path, Path]:
     return root, config_path
 
 
-def _read_config(path: Path) -> Dict[str, Any]:
+def _read_config(path: Path) -> dict[str, Any]:
     """Read the configuration from a file with a [pytask] section."""
     config = configparser.ConfigParser()
     config.read(path)

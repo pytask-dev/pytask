@@ -1,7 +1,7 @@
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Any
-from typing import Dict
-from typing import Optional
 
 from _pytask.config import hookimpl
 from _pytask.mark_utils import has_marker
@@ -11,14 +11,14 @@ from _pytask.task_utils import parse_task_marker
 
 
 @hookimpl
-def pytask_parse_config(config: Dict[str, Any]) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     config["markers"]["task"] = "Mark a function as a task regardless of its name."
 
 
 @hookimpl
 def pytask_collect_task(
     session: Session, path: Path, name: str, obj: Any
-) -> Optional[PythonFunctionTask]:
+) -> PythonFunctionTask | None:
     """Collect a task which is a function.
 
     There is some discussion on how to detect functions in this `thread

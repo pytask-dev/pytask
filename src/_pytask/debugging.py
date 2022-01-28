@@ -1,16 +1,13 @@
 """This module contains everything related to debugging."""
+from __future__ import annotations
+
 import functools
 import pdb
 import sys
 from types import FrameType
 from types import TracebackType
 from typing import Any
-from typing import Dict
 from typing import Generator
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Type
 from typing import TYPE_CHECKING
 
 import click
@@ -62,9 +59,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: Dict[str, Any],
-    config_from_cli: Dict[str, Any],
-    config_from_file: Dict[str, Any],
+    config: dict[str, Any],
+    config_from_cli: dict[str, Any],
+    config_from_file: dict[str, Any],
 ) -> None:
     """Parse the configuration."""
     config["pdb"] = get_first_non_none_value(
@@ -97,7 +94,7 @@ def pytask_parse_config(
     )
 
 
-def _pdbcls_callback(x: Optional[str]) -> Optional[Tuple[str, str]]:
+def _pdbcls_callback(x: str | None) -> tuple[str, str] | None:
     """Validate the debugger class string passed to pdbcls."""
     message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
 
@@ -114,7 +111,7 @@ def _pdbcls_callback(x: Optional[str]) -> Optional[Tuple[str, str]]:
 
 
 @hookimpl(trylast=True)
-def pytask_post_parse(config: Dict[str, Any]) -> None:
+def pytask_post_parse(config: dict[str, Any]) -> None:
     """Post parse the configuration.
 
     Register the plugins in this step to let other plugins influence the pdb or trace
@@ -149,22 +146,22 @@ def pytask_unconfigure() -> None:
 class PytaskPDB:
     """Pseudo PDB that defers to the real pdb."""
 
-    _pluginmanager: Optional[pluggy.PluginManager] = None
-    _config: Optional[Dict[str, Any]] = None
-    _saved: List[Tuple[Any, ...]] = []
+    _pluginmanager: pluggy.PluginManager | None = None
+    _config: dict[str, Any] | None = None
+    _saved: list[tuple[Any, ...]] = []
     _recursive_debug: int = 0
-    _wrapped_pdb_cls: Optional[Tuple[Type[pdb.Pdb], Type[pdb.Pdb]]] = None
+    _wrapped_pdb_cls: tuple[type[pdb.Pdb], type[pdb.Pdb]] | None = None
 
     @classmethod
-    def _is_capturing(cls, capman: "CaptureManager") -> bool:
+    def _is_capturing(cls, capman: CaptureManager) -> bool:
         if capman:
             return capman.is_capturing()
         return False
 
     @classmethod
     def _import_pdb_cls(
-        cls, capman: "CaptureManager", live_manager: "LiveManager"
-    ) -> Type[pdb.Pdb]:
+        cls, capman: CaptureManager, live_manager: LiveManager
+    ) -> type[pdb.Pdb]:
         if not cls._config:
             import pdb
 
@@ -205,10 +202,10 @@ class PytaskPDB:
     @classmethod
     def _get_pdb_wrapper_class(
         cls,
-        pdb_cls: Type[pdb.Pdb],
-        capman: "CaptureManager",
-        live_manager: "LiveManager",
-    ) -> Type[pdb.Pdb]:
+        pdb_cls: type[pdb.Pdb],
+        capman: CaptureManager,
+        live_manager: LiveManager,
+    ) -> type[pdb.Pdb]:
         # Type ignored because mypy doesn't support "dynamic"
         # inheritance like this.
         class PytaskPdbWrapper(pdb_cls):  # type: ignore[valid-type,misc]
@@ -284,7 +281,7 @@ class PytaskPDB:
                         self._pytask_live_manager.pause()
                 return ret
 
-            def get_stack(self, f: FrameType, t: TracebackType) -> Tuple[str, int]:
+            def get_stack(self, f: FrameType, t: TracebackType) -> tuple[str, int]:
                 stack, i = super().get_stack(f, t)
                 if f is None:
                     # Find last non-hidden frame.
