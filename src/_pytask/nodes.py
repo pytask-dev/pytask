@@ -1,4 +1,6 @@
 """Deals with nodes which are dependencies or products of a task."""
+from __future__ import annotations
+
 import functools
 import inspect
 import itertools
@@ -12,10 +14,8 @@ from typing import Generator
 from typing import Iterable
 from typing import List
 from typing import Optional
-from typing import Set
 from typing import Tuple
 from typing import TYPE_CHECKING
-from typing import Union
 
 import attr
 from _pytask.exceptions import NodeNotCollectedError
@@ -29,8 +29,8 @@ if TYPE_CHECKING:
 
 
 def depends_on(
-    objects: Union[Any, Iterable[Any], Dict[Any, Any]]
-) -> Union[Any, Iterable[Any], Dict[Any, Any]]:
+    objects: Any | Iterable[Any] | dict[Any, Any]
+) -> Any | Iterable[Any] | dict[Any, Any]:
     """Specify dependencies for a task.
 
     Parameters
@@ -45,8 +45,8 @@ def depends_on(
 
 
 def produces(
-    objects: Union[Any, Iterable[Any], Dict[Any, Any]]
-) -> Union[Any, Iterable[Any], Dict[Any, Any]]:
+    objects: Any | Iterable[Any] | dict[Any, Any]
+) -> Any | Iterable[Any] | dict[Any, Any]:
     """Specify products of a task.
 
     Parameters
@@ -67,7 +67,7 @@ class MetaNode(metaclass=ABCMeta):
     path: Path
 
     @abstractmethod
-    def state(self) -> Optional[str]:
+    def state(self) -> str | None:
         ...
 
 
@@ -76,14 +76,14 @@ class MetaTask(MetaNode):
 
     base_name: str
     name: str
-    short_name: Optional[str]
-    markers: List["Mark"]
-    depends_on: Dict[str, MetaNode]
-    produces: Dict[str, MetaNode]
+    short_name: str | None
+    markers: list[Mark]
+    depends_on: dict[str, MetaNode]
+    produces: dict[str, MetaNode]
     path: Path
-    function: Optional[Callable[..., Any]]
-    attributes: Dict[Any, Any]
-    _report_sections: List[Tuple[str, str, str]]
+    function: Callable[..., Any] | None
+    attributes: dict[Any, Any]
+    _report_sections: list[tuple[str, str, str]]
 
     @abstractmethod
     def execute(self) -> None:
@@ -123,14 +123,14 @@ class PythonFunctionTask(MetaTask):
     attributes = attr.ib(factory=dict, type=Dict[Any, Any])
     """Dict[Any, Any]: A dictionary to store additional information of the task."""
 
-    def __attrs_post_init__(self: "PythonFunctionTask") -> None:
+    def __attrs_post_init__(self: PythonFunctionTask) -> None:
         if self.short_name is None:
             self.short_name = self.name
 
     @classmethod
     def from_path_name_function_session(
         cls, path: Path, name: str, function: Callable[..., Any], session: Session
-    ) -> "PythonFunctionTask":
+    ) -> PythonFunctionTask:
         """Create a task from a path, name, function, and session."""
         keep_dictionary = {}
 
@@ -170,7 +170,7 @@ class PythonFunctionTask(MetaTask):
         """Return the last modified date of the file where the task is defined."""
         return str(self.path.stat().st_mtime)
 
-    def _get_kwargs_from_task_for_function(self) -> Dict[str, Any]:
+    def _get_kwargs_from_task_for_function(self) -> dict[str, Any]:
         """Process dependencies and products to pass them as kwargs to the function."""
         func_arg_names = set(inspect.signature(self.function).parameters)
         kwargs = {}
@@ -207,7 +207,7 @@ class FilePathNode(MetaNode):
 
     @classmethod
     @functools.lru_cache()
-    def from_path(cls, path: Path) -> "FilePathNode":
+    def from_path(cls, path: Path) -> FilePathNode:
         """Instantiate class from path to file.
 
         The `lru_cache` decorator ensures that the same object is not collected twice.
@@ -217,7 +217,7 @@ class FilePathNode(MetaNode):
             raise ValueError("FilePathNode must be instantiated from absolute path.")
         return cls(path.as_posix(), path, path)
 
-    def state(self) -> Optional[str]:
+    def state(self) -> str | None:
         """Return the last modified date for file path."""
         if not self.path.exists():
             raise NodeNotFoundError
@@ -226,8 +226,8 @@ class FilePathNode(MetaNode):
 
 
 def _collect_nodes(
-    session: Session, path: Path, name: str, nodes: Dict[str, Union[str, Path]]
-) -> Dict[str, MetaNode]:
+    session: Session, path: Path, name: str, nodes: dict[str, str | Path]
+) -> dict[str, MetaNode]:
     """Collect nodes for a task.
 
     Parameters
@@ -287,7 +287,7 @@ def _extract_nodes_from_function_markers(
 
 def _convert_objects_to_node_dictionary(
     objects: Any, when: str
-) -> Tuple[Dict[Any, Any], bool]:
+) -> tuple[dict[Any, Any], bool]:
     """Convert objects to node dictionary."""
     list_of_tuples, keep_dict = _convert_objects_to_list_of_tuples(objects, when)
     _check_that_names_are_not_used_multiple_times(list_of_tuples, when)
@@ -296,8 +296,8 @@ def _convert_objects_to_node_dictionary(
 
 
 def _convert_objects_to_list_of_tuples(
-    objects: Union[Any, Tuple[Any, Any], List[Any], List[Tuple[Any, Any]]], when: str
-) -> Tuple[List[Tuple[Any, ...]], bool]:
+    objects: Any | tuple[Any, Any] | list[Any] | list[tuple[Any, Any]], when: str
+) -> tuple[list[tuple[Any, ...]], bool]:
     """Convert objects to list of tuples.
 
     Examples
@@ -339,7 +339,7 @@ def _convert_objects_to_list_of_tuples(
 
 
 def _check_that_names_are_not_used_multiple_times(
-    list_of_tuples: List[Tuple[Any, ...]], when: str
+    list_of_tuples: list[tuple[Any, ...]], when: str
 ) -> None:
     """Check that names of nodes are not assigned multiple times.
 
@@ -368,8 +368,8 @@ def _check_that_names_are_not_used_multiple_times(
 
 
 def _convert_nodes_to_dictionary(
-    list_of_tuples: List[Tuple[Any, ...]]
-) -> Dict[Any, Any]:
+    list_of_tuples: list[tuple[Any, ...]]
+) -> dict[Any, Any]:
     """Convert nodes to dictionaries.
 
     Examples
@@ -413,7 +413,7 @@ def create_task_name(path: Path, base_name: str) -> str:
     return path.as_posix() + "::" + base_name
 
 
-def find_duplicates(x: Iterable[Any]) -> Set[Any]:
+def find_duplicates(x: Iterable[Any]) -> set[Any]:
     """Find duplicated entries in iterable.
 
     Examples

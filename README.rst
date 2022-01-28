@@ -85,9 +85,8 @@ Installation
 
 .. start-installation
 
-pytask is available on `PyPI <https://pypi.org/project/pytask>`_ for Python >= 3.6.1 and
-on `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_ for Python >= 3.7. Install
-the package with
+pytask is available on `PyPI <https://pypi.org/project/pytask>`_ and on `Anaconda.org
+<https://anaconda.org/conda-forge/pytask>`_. Install the package with
 
 .. code-block:: console
 

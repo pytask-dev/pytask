@@ -1,10 +1,9 @@
 """This file contains the command and code for drawing the DAG."""
+from __future__ import annotations
+
 import sys
 from pathlib import Path
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
 from typing import TYPE_CHECKING
 
 import click
@@ -45,9 +44,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: Dict[str, Any],
-    config_from_cli: Dict[str, Any],
-    config_from_file: Dict[str, Any],
+    config: dict[str, Any],
+    config_from_cli: dict[str, Any],
+    config_from_file: dict[str, Any],
 ) -> None:
     """Parse configuration."""
     config["output_path"] = get_first_non_none_value(
@@ -73,8 +72,8 @@ def pytask_parse_config(
 
 
 def _rank_direction_callback(
-    x: Optional["_RankDirection"],
-) -> Optional["_RankDirection"]:
+    x: _RankDirection | None,
+) -> _RankDirection | None:
     """Validate the passed options for rank direction."""
     if x in [None, "None", "none"]:
         x = None
@@ -113,7 +112,7 @@ _HELP_TEXT_RANK_DIRECTION: str = (
     type=click.Choice(["TB", "LR", "BT", "RL"]),
     help=_HELP_TEXT_RANK_DIRECTION,
 )
-def dag(**config_from_cli: Any) -> "NoReturn":
+def dag(**config_from_cli: Any) -> NoReturn:
     """Create a visualization of the project's DAG."""
     try:
         pm = get_plugin_manager()
@@ -161,7 +160,7 @@ def dag(**config_from_cli: Any) -> "NoReturn":
     sys.exit(session.exit_code)
 
 
-def build_dag(config_from_cli: Dict[str, Any]) -> nx.DiGraph:
+def build_dag(config_from_cli: dict[str, Any]) -> nx.DiGraph:
     """Build the DAG.
 
     This function is the programmatic interface to ``pytask dag`` and returns a
@@ -229,7 +228,7 @@ def _refine_dag(session: Session) -> nx.DiGraph:
     return dag
 
 
-def _create_session(config_from_cli: Dict[str, Any]) -> nx.DiGraph:
+def _create_session(config_from_cli: dict[str, Any]) -> nx.DiGraph:
     """Create a session object."""
     try:
         pm = get_plugin_manager()
@@ -269,7 +268,7 @@ def _create_session(config_from_cli: Dict[str, Any]) -> nx.DiGraph:
     return session
 
 
-def _shorten_node_labels(dag: nx.DiGraph, paths: List[Path]) -> nx.DiGraph:
+def _shorten_node_labels(dag: nx.DiGraph, paths: list[Path]) -> nx.DiGraph:
     """Shorten the node labels in the graph for a better experience."""
     node_names = dag.nodes
     short_names = reduce_names_of_multiple_nodes(node_names, dag, paths)
