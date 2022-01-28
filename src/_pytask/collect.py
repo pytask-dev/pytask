@@ -186,10 +186,15 @@ def pytask_collect_task(
 
 
 _TEMPLATE_ERROR: str = (
-    "The provided path of the dependency/product in the marker is {}, but the path of "
-    "the file on disk is {}. Case-sensitive file systems would raise an error.\n\n"
+    "The provided path of the dependency/product in the marker is\n\n{}\n\n, but the "
+    "path of the file on disk is\n\n{}\n\nCase-sensitive file systems would raise an "
+    "error because the upper and lower case format of the paths does not match.\n\n"
     "Please, align the names to ensure reproducibility on case-sensitive file systems "
-    "(often Linux or macOS) or disable this error with 'check_casing_of_paths = false'."
+    "(often Linux or macOS) or disable this error with 'check_casing_of_paths = false' "
+    " in your pytask configuration file.\n\n"
+    "Hint: If parts of the path preceding your project directory are not properly "
+    "formatted, check whether you need to call `.resolve()` on `SRC`, `BLD` or other "
+    "paths created from the `__file__` attribute of a module."
 )
 
 

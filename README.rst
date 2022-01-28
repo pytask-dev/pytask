@@ -42,7 +42,6 @@
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
 
-
 .. end-badges
 
 
@@ -75,7 +74,8 @@ projects. Its features include:
   <https://github.com/pytask-dev/pytask-stata>`_ and more can be found `here
   <https://github.com/topics/pytask>`_. Read in `this tutorial
   <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_use_plugins.html>`_ how
-  to use and create plugins.
+  to use and create plugins with a `cookiecutter
+  <https://github.com/pytask-dev/cookiecutter-pytask-plugin>`_.
 
 .. end-features
 
@@ -102,6 +102,11 @@ or
 Color support is automatically available on non-Windows platforms. On Windows, please,
 use `Windows Terminal <https://github.com/microsoft/terminal>`_ which can be, for
 example, installed via the `Microsoft Store <https://aka.ms/terminal>`_.
+
+To quickly set up a new project, use the `cookiecutter-pytask-project
+<https://github.com/pytask-dev/cookiecutter-pytask-project>`_ template or start from
+`other templates or example projects
+<https://pytask-dev.readthedocs.io/en/latest/how_to_guides/bp_templates_and_projects.html>`_.
 
 .. end-installation
 
