@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813

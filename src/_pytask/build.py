@@ -1,7 +1,8 @@
 """Implement the build command."""
+from __future__ import annotations
+
 import sys
 from typing import Any
-from typing import Dict
 from typing import TYPE_CHECKING
 
 import click
@@ -28,7 +29,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli.add_command(build)
 
 
-def main(config_from_cli: Dict[str, Any]) -> Session:
+def main(config_from_cli: dict[str, Any]) -> Session:
     """Run pytask.
 
     This is the main command to run pytask which usually receives kwargs from the
@@ -117,7 +118,7 @@ def main(config_from_cli: Dict[str, Any]) -> Session:
     type=click.Choice(["yes", "no"]),
     help="Choose whether tracebacks should be displayed or not.  [default: yes]",
 )
-def build(**config_from_cli: Any) -> "NoReturn":
+def build(**config_from_cli: Any) -> NoReturn:
     """Collect and execute tasks and report the results.
 
     This is the default command of pytask which searches given paths or the current

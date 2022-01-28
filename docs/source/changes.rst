@@ -11,6 +11,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 ------------------
 
 - :gh:`191` adds a guide on how to profile pytask to the developer's guide.
+- :gh:`192` deprecates Python 3.6.
 - :gh:`193` adds more figures to the documentation.
 - :gh:`194` updates the ``README.rst``.
 - :gh:`196` references the two new cookiecutters for projects and plugins.

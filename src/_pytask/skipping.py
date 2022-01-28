@@ -1,8 +1,7 @@
 """This module contains everything related to skipping tasks."""
+from __future__ import annotations
+
 from typing import Any
-from typing import Dict
-from typing import Optional
-from typing import Tuple
 from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
@@ -27,13 +26,13 @@ def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
     return reason
 
 
-def skipif(condition: bool, *, reason: str) -> Tuple[bool, str]:
+def skipif(condition: bool, *, reason: str) -> tuple[bool, str]:
     """Function to parse information in ``@pytask.mark.skipif``."""
     return condition, reason
 
 
 @hookimpl
-def pytask_parse_config(config: Dict[str, Any]) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     markers = {
         "skip": "Skip a task and all its subsequent tasks as well.",
         "skip_ancestor_failed": "Internal decorator applied to tasks whose ancestor "
@@ -47,7 +46,7 @@ def pytask_parse_config(config: Dict[str, Any]) -> None:
 
 
 @hookimpl
-def pytask_execute_task_setup(task: "MetaTask") -> None:
+def pytask_execute_task_setup(task: MetaTask) -> None:
     """Take a short-cut for skipped tasks during setup with an exception."""
     markers = get_specific_markers_from_task(task, "skip_unchanged")
     if markers:
@@ -75,8 +74,8 @@ def pytask_execute_task_setup(task: "MetaTask") -> None:
 
 @hookimpl
 def pytask_execute_task_process_report(
-    session: "Session", report: "ExecutionReport"
-) -> Optional[bool]:
+    session: Session, report: ExecutionReport
+) -> bool | None:
     """Process the execution reports for skipped tasks.
 
     This functions allows to turn skipped tasks to successful tasks.

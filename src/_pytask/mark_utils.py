@@ -3,9 +3,9 @@
 The utility functions are stored here to be separate from the plugin.
 
 """
+from __future__ import annotations
+
 from typing import Any
-from typing import List
-from typing import Tuple
 from typing import TYPE_CHECKING
 
 
@@ -14,12 +14,12 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-def get_specific_markers_from_task(task: "MetaTask", marker_name: str) -> "List[Mark]":
+def get_specific_markers_from_task(task: MetaTask, marker_name: str) -> list[Mark]:
     """Get a specific group of markers from a task."""
     return [marker for marker in task.markers if marker.name == marker_name]
 
 
-def get_marks_from_obj(obj: Any, marker_name: str) -> "List[Mark]":
+def get_marks_from_obj(obj: Any, marker_name: str) -> list[Mark]:
     """Get a specific group of markers from a task function."""
     return [
         marker
@@ -33,7 +33,7 @@ def has_marker(obj: Any, marker_name: str) -> bool:
     return any(marker.name == marker_name for marker in getattr(obj, "pytaskmark", []))
 
 
-def remove_markers_from_func(obj: Any, marker_name: str) -> Tuple[Any, List["Mark"]]:
+def remove_markers_from_func(obj: Any, marker_name: str) -> tuple[Any, list[Mark]]:
     """Remove parametrize markers from the object."""
     markers = [i for i in getattr(obj, "pytaskmark", []) if i.name == marker_name]
     others = [i for i in getattr(obj, "pytaskmark", []) if i.name != marker_name]

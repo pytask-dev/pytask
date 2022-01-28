@@ -5,6 +5,8 @@
 # If extensions (or modules to document with autodoc) are in another directory, add
 # these directories to sys.path here. If the directory is relative to the documentation
 # root, use os.path.abspath to make it absolute, like shown here.
+from __future__ import annotations
+
 from importlib.metadata import version
 
 import sphinx
@@ -137,7 +139,7 @@ html_theme_options = {
 }
 
 
-def setup(app: "sphinx.application.Sphinx") -> None:
+def setup(app: sphinx.application.Sphinx) -> None:
     app.add_object_type(
         "confval",
         "confval",

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest

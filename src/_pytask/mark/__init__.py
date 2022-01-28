@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import sys
 from typing import AbstractSet
 from typing import Any
-from typing import Dict
 from typing import Set
 from typing import TYPE_CHECKING
 
@@ -42,7 +43,7 @@ __all__ = [
 
 
 @click.command()
-def markers(**config_from_cli: Any) -> "NoReturn":
+def markers(**config_from_cli: Any) -> NoReturn:
     """Show all registered markers."""
     config_from_cli["command"] = "markers"
 
@@ -105,9 +106,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: Dict[str, Any],
-    config_from_cli: Dict[str, Any],
-    config_from_file: Dict[str, Any],
+    config: dict[str, Any],
+    config_from_cli: dict[str, Any],
+    config_from_file: dict[str, Any],
 ) -> None:
     """Parse marker related options."""
     markers = _read_marker_mapping_from_ini(config_from_file.get("markers", ""))
@@ -127,7 +128,7 @@ def pytask_parse_config(
     MARK_GEN.config = config
 
 
-def _read_marker_mapping_from_ini(string: str) -> Dict[str, str]:
+def _read_marker_mapping_from_ini(string: str) -> dict[str, str]:
     """Read marker descriptions from configuration file."""
     # Split by newlines and remove empty strings.
     lines = filter(lambda x: bool(x), string.split("\n"))
@@ -166,7 +167,7 @@ class KeywordMatcher:
     _names = attr.ib(type=AbstractSet[str])
 
     @classmethod
-    def from_task(cls, task: MetaTask) -> "KeywordMatcher":
+    def from_task(cls, task: MetaTask) -> KeywordMatcher:
         mapped_names = {task.name}
 
         # Add the names attached to the current function through direct assignment.
@@ -189,7 +190,7 @@ class KeywordMatcher:
         return False
 
 
-def select_by_keyword(session: Session, dag: nx.DiGraph) -> Set[str]:
+def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str]:
     """Deselect tests by keywords."""
     keywordexpr = session.config["expression"]
     if not keywordexpr:
@@ -202,7 +203,7 @@ def select_by_keyword(session: Session, dag: nx.DiGraph) -> Set[str]:
             f"Wrong expression passed to '-k': {keywordexpr}: {e}"
         ) from None
 
-    remaining: Set[str] = set()
+    remaining: set[str] = set()
     for task in session.tasks:
         if keywordexpr and expression.evaluate(KeywordMatcher.from_task(task)):
             remaining.update(task_and_preceding_tasks(task.name, dag))
@@ -221,7 +222,7 @@ class MarkMatcher:
     own_mark_names = attr.ib(type=Set[str])
 
     @classmethod
-    def from_task(cls, task: MetaTask) -> "MarkMatcher":
+    def from_task(cls, task: MetaTask) -> MarkMatcher:
         mark_names = {mark.name for mark in task.markers}
         return cls(mark_names)
 
@@ -229,7 +230,7 @@ class MarkMatcher:
         return name in self.own_mark_names
 
 
-def select_by_mark(session: Session, dag: nx.DiGraph) -> Set[str]:
+def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str]:
     """Deselect tests by marks."""
     matchexpr = session.config["marker_expression"]
     if not matchexpr:
@@ -240,7 +241,7 @@ def select_by_mark(session: Session, dag: nx.DiGraph) -> Set[str]:
     except ParseError as e:
         raise ValueError(f"Wrong expression passed to '-m': {matchexpr}: {e}") from None
 
-    remaining: Set[str] = set()
+    remaining: set[str] = set()
     for task in session.tasks:
         if expression.evaluate(MarkMatcher.from_task(task)):
             remaining.update(task_and_preceding_tasks(task.name, dag))
@@ -249,7 +250,7 @@ def select_by_mark(session: Session, dag: nx.DiGraph) -> Set[str]:
 
 
 def _deselect_others_with_mark(
-    session: Session, remaining: Set[str], mark: Mark
+    session: Session, remaining: set[str], mark: Mark
 ) -> None:
     for task in session.tasks:
         if task.name not in remaining:

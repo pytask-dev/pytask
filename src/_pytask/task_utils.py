@@ -1,12 +1,13 @@
+from __future__ import annotations
+
 from typing import Any
 from typing import Callable
-from typing import Optional
 
 from _pytask.mark import Mark
 from _pytask.mark_utils import remove_markers_from_func
 
 
-def task(name: Optional[str] = None) -> str:
+def task(name: str | None = None) -> str:
     return name
 
 

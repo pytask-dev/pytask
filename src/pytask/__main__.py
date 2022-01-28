@@ -1,4 +1,6 @@
 """The pytask entry-point."""
+from __future__ import annotations
+
 import sys
 
 import pytask

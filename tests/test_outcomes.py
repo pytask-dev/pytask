@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
