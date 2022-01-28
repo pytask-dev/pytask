@@ -46,6 +46,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 0.1.4 - 2022-01-04
 ------------------
 
+- :gh:`153` adds support and testing for Python 3.10.
 - :gh:`159` removes files for creating a conda package which is handled by conda-forge.
 - :gh:`160` adds rudimentary typing to pytask.
 - :gh:`161` removes a workaround for pyreadline which is also removed in pytest 7.
