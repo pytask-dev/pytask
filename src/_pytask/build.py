@@ -15,6 +15,8 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
+from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
+from rich.traceback import Traceback
 
 
 if TYPE_CHECKING:
@@ -79,7 +81,10 @@ def main(config_from_cli: dict[str, Any]) -> Session:
             session.exit_code = ExitCode.FAILED
 
         except Exception:
-            console.print_exception()
+            exc_info = sys.exc_info()
+            exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
+            traceback = Traceback.from_exception(*exc_info)
+            console.print(traceback)
             session.exit_code = ExitCode.FAILED
 
         session.hook.pytask_unconfigure(session=session)
