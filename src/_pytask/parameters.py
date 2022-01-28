@@ -1,4 +1,6 @@
 """Contains common parameters for the commands of the command line interface."""
+from __future__ import annotations
+
 import click
 from _pytask.config import hookimpl
 from _pytask.shared import falsy_to_none_callback

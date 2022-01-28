@@ -1,7 +1,8 @@
 """Implements the command line interface."""
+from __future__ import annotations
+
 import sys
 from typing import Any
-from typing import Dict
 
 import click
 import pluggy
@@ -11,11 +12,11 @@ from click_default_group import DefaultGroup
 from packaging.version import parse as parse_version
 
 
-_CONTEXT_SETTINGS: Dict[str, Any] = {"help_option_names": ["-h", "--help"]}
+_CONTEXT_SETTINGS: dict[str, Any] = {"help_option_names": ["-h", "--help"]}
 
 
 if parse_version(click.__version__) < parse_version("8"):
-    _VERSION_OPTION_KWARGS: Dict[str, Any] = {}
+    _VERSION_OPTION_KWARGS: dict[str, Any] = {}
 else:
     _VERSION_OPTION_KWARGS = {"package_name": "pytask"}
 
@@ -66,6 +67,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     from _pytask import profile
     from _pytask import resolve_dependencies
     from _pytask import skipping
+    from _pytask import task
 
     pm.register(build)
     pm.register(capture)
@@ -86,6 +88,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     pm.register(profile)
     pm.register(resolve_dependencies)
     pm.register(skipping)
+    pm.register(task)
 
 
 @click.group(

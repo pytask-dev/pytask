@@ -1,10 +1,9 @@
 """This module contains the implementation of ``pytask collect``."""
+from __future__ import annotations
+
 import sys
 from pathlib import Path
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
 from typing import TYPE_CHECKING
 
 import click
@@ -42,7 +41,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: Dict[str, Any], config_from_cli: Dict[str, Any]
+    config: dict[str, Any], config_from_cli: dict[str, Any]
 ) -> None:
     """Parse configuration."""
     config["nodes"] = config_from_cli.get("nodes", False)
@@ -50,7 +49,7 @@ def pytask_parse_config(
 
 @click.command()
 @click.option("--nodes", is_flag=True, help="Show a task's dependencies and products.")
-def collect(**config_from_cli: Optional[Any]) -> "NoReturn":
+def collect(**config_from_cli: Any | None) -> NoReturn:
     """Collect tasks from paths."""
     config_from_cli["command"] = "collect"
 
@@ -107,7 +106,7 @@ def collect(**config_from_cli: Optional[Any]) -> "NoReturn":
     sys.exit(session.exit_code)
 
 
-def _select_tasks_by_expressions_and_marker(session: Session) -> "List[MetaTask]":
+def _select_tasks_by_expressions_and_marker(session: Session) -> list[MetaTask]:
     """Select tasks by expressions and marker."""
     all_tasks = {task.name for task in session.tasks}
     remaining_by_mark = select_by_mark(session, session.dag) or all_tasks
@@ -118,7 +117,7 @@ def _select_tasks_by_expressions_and_marker(session: Session) -> "List[MetaTask]
 
 
 def _find_common_ancestor_of_all_nodes(
-    tasks: "List[MetaTask]", paths: List[Path], show_nodes: bool
+    tasks: list[MetaTask], paths: list[Path], show_nodes: bool
 ) -> Path:
     """Find common ancestor from all nodes and passed paths."""
     all_paths = []
@@ -138,14 +137,14 @@ def _find_common_ancestor_of_all_nodes(
     return common_ancestor
 
 
-def _organize_tasks(tasks: List["MetaTask"]) -> Dict[Path, List["MetaTask"]]:
+def _organize_tasks(tasks: list[MetaTask]) -> dict[Path, list[MetaTask]]:
     """Organize tasks in a dictionary.
 
     The dictionary has file names as keys and then a dictionary with task names and
     below a dictionary with dependencies and targets.
 
     """
-    dictionary: Dict[Path, List["MetaTask"]] = {}
+    dictionary: dict[Path, list[MetaTask]] = {}
     for task in tasks:
         dictionary[task.path] = dictionary.get(task.path, [])
         dictionary[task.path].append(task)
@@ -158,7 +157,7 @@ def _organize_tasks(tasks: List["MetaTask"]) -> Dict[Path, List["MetaTask"]]:
 
 
 def _print_collected_tasks(
-    dictionary: Dict[Path, List["MetaTask"]],
+    dictionary: dict[Path, list[MetaTask]],
     show_nodes: bool,
     editor_url_scheme: str,
     common_ancestor: Path,

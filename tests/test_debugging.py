@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import re
 import sys
@@ -323,7 +325,6 @@ def test_pdb_interaction_capturing_twice(tmp_path):
 @pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
-@pytest.mark.skipif(sys.version_info < (3, 7), reason="Importing fails for <3.7.")
 def test_pdb_with_injected_do_debug(tmp_path):
     """Simulates pdbpp, which injects Pdb into do_debug, and uses
     self.__class__ in do_continue.

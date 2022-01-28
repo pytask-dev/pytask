@@ -1,4 +1,6 @@
 """This module contains everything related to reports."""
+from __future__ import annotations
+
 from types import TracebackType
 from typing import List
 from typing import Optional
@@ -30,18 +32,16 @@ class CollectionReport:
     exc_info = attr.ib(default=None, type=ExceptionInfo)
 
     @classmethod
-    def from_node(
-        cls, outcome: CollectionOutcome, node: "MetaNode"
-    ) -> "CollectionReport":
+    def from_node(cls, outcome: CollectionOutcome, node: MetaNode) -> CollectionReport:
         return cls(outcome=outcome, node=node)
 
     @classmethod
     def from_exception(
-        cls: Type["CollectionReport"],
+        cls: type[CollectionReport],
         outcome: CollectionOutcome,
         exc_info: ExceptionInfo,
-        node: Optional["MetaNode"] = None,
-    ) -> "CollectionReport":
+        node: MetaNode | None = None,
+    ) -> CollectionReport:
         exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(outcome=outcome, node=node, exc_info=exc_info)
 
@@ -53,7 +53,7 @@ class ResolvingDependenciesReport:
     exc_info = attr.ib(type=ExceptionInfo)
 
     @classmethod
-    def from_exception(cls, exc_info: ExceptionInfo) -> "ResolvingDependenciesReport":
+    def from_exception(cls, exc_info: ExceptionInfo) -> ResolvingDependenciesReport:
         exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(exc_info)
 
@@ -69,11 +69,11 @@ class ExecutionReport:
 
     @classmethod
     def from_task_and_exception(
-        cls, task: "MetaTask", exc_info: ExceptionInfo
-    ) -> "ExecutionReport":
+        cls, task: MetaTask, exc_info: ExceptionInfo
+    ) -> ExecutionReport:
         exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(task, TaskOutcome.FAIL, exc_info, task._report_sections)
 
     @classmethod
-    def from_task(cls, task: "MetaTask") -> "ExecutionReport":
+    def from_task(cls, task: MetaTask) -> ExecutionReport:
         return cls(task, TaskOutcome.SUCCESS, None, task._report_sections)

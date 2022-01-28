@@ -1,4 +1,5 @@
 """This module contains custom exceptions."""
+from __future__ import annotations
 
 
 class PytaskError(Exception):

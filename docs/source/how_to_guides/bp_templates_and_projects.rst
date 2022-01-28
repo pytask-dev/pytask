@@ -8,7 +8,7 @@ research project.
 Templates
 ---------
 
-`cookiecutter-pytask <https://github.com/pytask-dev/cookiecutter-pytask>`_
+`cookiecutter-pytask-project <https://github.com/pytask-dev/cookiecutter-pytask-project>`_
     A simple skeleton for your next research project including many best-practices for
     creating Python packages like support for pre-commit, Github Actions, etc..
 

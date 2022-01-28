@@ -1,20 +1,20 @@
 """This module contains functions to assess compatibility and optional dependencies."""
+from __future__ import annotations
+
 import importlib
 import shutil
 import sys
 import types
 import warnings
-from typing import Dict
-from typing import Optional
 
 from packaging.version import parse as parse_version
 
 
-_MINIMUM_VERSIONS: Dict[str, str] = {}
+_MINIMUM_VERSIONS: dict[str, str] = {}
 """Dict[str, str]: A mapping from packages to their minimum versions."""
 
 
-_IMPORT_TO_PACKAGE_NAME: Dict[str, str] = {}
+_IMPORT_TO_PACKAGE_NAME: dict[str, str] = {}
 """Dict[str, str]: A mapping from import name to package name (on PyPI) for packages
 where these two names are different."""
 
@@ -31,9 +31,9 @@ def import_optional_dependency(
     name: str,
     extra: str = "",
     errors: str = "raise",
-    min_version: Optional[str] = None,
+    min_version: str | None = None,
     caller: str = "pytask",
-) -> Optional[types.ModuleType]:
+) -> types.ModuleType | None:
     """Import an optional dependency.
 
     By default, if a dependency is missing an ImportError with a nice message will be
@@ -119,7 +119,7 @@ def check_for_optional_program(
     extra: str = "",
     errors: str = "raise",
     caller: str = "pytask",
-) -> Optional[bool]:
+) -> bool | None:
     """Check whether an optional program exists."""
     if errors not in ("warn", "raise", "ignore"):
         raise ValueError(

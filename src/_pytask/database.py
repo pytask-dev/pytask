@@ -1,7 +1,8 @@
 """Implement the database managed with pony."""
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Any
-from typing import Dict
 
 import click
 import networkx as nx
@@ -91,9 +92,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: Dict[str, Any],
-    config_from_cli: Dict[str, Any],
-    config_from_file: Dict[str, Any],
+    config: dict[str, Any],
+    config_from_cli: dict[str, Any],
+    config_from_file: dict[str, Any],
 ) -> None:
     """Parse the configuration."""
     config["database_provider"] = get_first_non_none_value(
@@ -133,7 +134,7 @@ def pytask_parse_config(
 
 
 @hookimpl
-def pytask_post_parse(config: Dict[str, Any]) -> None:
+def pytask_post_parse(config: dict[str, Any]) -> None:
     """Post-parse the configuration."""
     create_database(**config["database"])
 

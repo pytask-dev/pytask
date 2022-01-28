@@ -1,4 +1,6 @@
 """This module holds the plugin manager."""
+from __future__ import annotations
+
 import pluggy
 from _pytask import hookspecs
 

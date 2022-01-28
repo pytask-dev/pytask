@@ -1,8 +1,8 @@
 How to define dependencies and products
 =======================================
 
-To make sure pytask executes all tasks in a correct order, we need to define which
-dependencies are required and which products are produced by a task.
+To make sure pytask executes all tasks in a correct order, define which dependencies are
+required and which products are produced by a task.
 
 .. important::
 

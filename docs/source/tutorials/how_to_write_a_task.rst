@@ -4,9 +4,12 @@ How to write a task
 Starting from the project structure in the :doc:`previous tutorial
 <how_to_set_up_a_project>`, this tutorial teaches you how to write your first task.
 
-The task will be defined in ``src/task_data_preparation.py`` and it will generate
-artificial data which will be stored in ``bld/data.pkl``. We will call the function in
-the module :func:`task_create_random_data`.
+By default, pytask will look for tasks in modules whose name is prefixed with ``task_``.
+Tasks are functions in these modules whose name also starts with ``task_``.
+
+Our first task will be defined in ``src/my_project/task_data_preparation.py`` and it
+will generate artificial data which will be stored in ``bld/data.pkl``. We will call the
+function in the module :func:`task_create_random_data`.
 
 .. code-block::
 
@@ -33,7 +36,7 @@ Here, we define the function
 
     import pytask
     import numpy as np
-    import pandas as np
+    import pandas as pd
 
     from my_project.config import BLD
 
@@ -57,31 +60,40 @@ To let pytask track the product of the task, you need to use the
     You learn more about adding dependencies and products to a task in the next
     :doc:`tutorial <how_to_define_dependencies_products>`.
 
-To execute the task, type the following command in your shell.
+Now, execute pytask which will automatically collect tasks in the current directory and
+subsequent directories.
 
-.. code-block:: console
+.. image:: /_static/images/how-to-write-a-task.png
 
-    $ pytask task_data_preparation.py
-    ========================= Start pytask session =========================
-    Platform: linux -- Python 3.x.y, pytask 0.x.y, pluggy 0.x.y
-    Root: xxx
-    Collected 1 task(s).
 
-    .
-    ======================= 1 succeeded in 1 second ========================
+Customize task names
+--------------------
 
-Executing
+Use the :func:`@pytask.mark.task <_pytask.task_utils.task>` decorator to mark a function
+as a task regardless of its function name. You can optionally pass a new name for the
+task. Otherwise, the function name is used.
 
-.. code-block:: console
+.. code-block:: python
 
-    $ pytask
+    # The id will be '.../task_data_preparation.py::create_random_data'
 
-would collect all tasks in the current working directory and in all subsequent folders.
 
-.. important::
+    @pytask.mark.task
+    def create_random_data():
+        ...
 
-    By default, pytask assumes that tasks are functions in modules whose names are both
-    prefixed with ``task_``.
 
-    Use the configuration value :confval:`task_files` if you prefer a different naming
-    scheme for the task modules.
+    # The id will be '.../task_data_preparation.py::create_data'
+
+
+    @pytask.mark.task(name="create_data")
+    def create_random_data():
+        ...
+
+
+Customize task module names
+---------------------------
+
+Use the configuration value :confval:`task_files` if you prefer a different naming
+scheme for the task modules. By default, it is set to ``task_*.py``. You can specify one
+or multiple patterns to collect tasks from other files.
