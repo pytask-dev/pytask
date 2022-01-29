@@ -57,13 +57,15 @@ def remove_internal_traceback_frames_from_exc_info(
     """
     if exc_info is not None:
         if isinstance(exc_info[2], TracebackType):
-            filtered_traceback = _filter_internal_traceback_frames(exc_info[2])
+            filtered_traceback = _filter_internal_traceback_frames(exc_info)
             exc_info = (*exc_info[:2], filtered_traceback)
 
     return exc_info
 
 
-def _is_internal_or_hidden_traceback_frame(frame: TracebackType) -> bool:
+def _is_internal_or_hidden_traceback_frame(
+    frame: TracebackType, exc_info: ExceptionInfo
+) -> bool:
     """Returns ``True`` if traceback frame belongs to internal packages or is hidden.
 
     Internal packages are ``_pytask`` and ``pluggy``. A hidden frame is indicated by a
@@ -71,7 +73,10 @@ def _is_internal_or_hidden_traceback_frame(frame: TracebackType) -> bool:
 
     """
     is_hidden = frame.tb_frame.f_locals.get("__tracebackhide__", False)
-    if is_hidden:
+
+    if callable(is_hidden):
+        return is_hidden(exc_info)
+    elif is_hidden:
         return True
 
     path = Path(frame.tb_frame.f_code.co_filename)
@@ -79,15 +84,16 @@ def _is_internal_or_hidden_traceback_frame(frame: TracebackType) -> bool:
 
 
 def _filter_internal_traceback_frames(
-    frame: TracebackType,
+    exc_info: ExceptionInfo,
 ) -> TracebackType:
     """Filter internal traceback frames from traceback.
 
     If the first external frame is visited, return the frame. Else return ``None``.
 
     """
+    frame = exc_info[2]
     for frame in _yield_traceback_frames(frame):
-        if frame is None or not _is_internal_or_hidden_traceback_frame(frame):
+        if frame is None or not _is_internal_or_hidden_traceback_frame(frame, exc_info):
             break
     return frame
 
