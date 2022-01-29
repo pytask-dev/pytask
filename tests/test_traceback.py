@@ -9,15 +9,19 @@ from pytask import cli
 
 @pytest.mark.end_to_end
 @pytest.mark.parametrize(
-    "value, is_hidden",
+    "value, exception, is_hidden",
     [
-        (True, True),
-        (False, False),
-        ("lambda exc_info: True", True),
-        ("lambda exc_info: False", False),
+        ("True", "Exception", True),
+        ("False", "Exception", False),
+        ("lambda exc_info: True", "Exception", True),
+        ("lambda exc_info: False", "Exception", False),
+        ("lambda exc_info: isinstance(exc_info[1], ValueError)", "ValueError", True),
+        ("lambda exc_info: isinstance(exc_info[1], ValueError)", "TypeError", False),
     ],
 )
-def test_hide_traceback_from_error_report(runner, tmp_path, value, is_hidden):
+def test_hide_traceback_from_error_report(
+    runner, tmp_path, value, exception, is_hidden
+):
     source = f"""
     def task_main():
         a = "This variable should not be shown."
@@ -28,7 +32,7 @@ def test_hide_traceback_from_error_report(runner, tmp_path, value, is_hidden):
 
 
     def helper():
-        raise Exception
+        raise {exception}
     """
     tmp_path.joinpath("task_main.py").write_text(textwrap.dedent(source))
 
