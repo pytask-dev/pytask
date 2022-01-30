@@ -22,6 +22,7 @@ dependencies:
   - networkx
   - pluggy
   - pony >=0.7.15
+  - pybaum
   - rich
 
   # Misc
