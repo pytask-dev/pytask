@@ -336,7 +336,20 @@ def _check_that_names_are_not_used_multiple_times(
         )
 
 
-def union(dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
+def union_of_dictionaries(dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
+    """Merge multiple dictionaries in one.
+
+    Examples
+    --------
+    >>> a, b = {"a": 0}, {"b": 1}
+    >>> union_of_dictionaries([a, b])
+    {'a': 0, 'b': 1}
+
+    >>> a, b = {'a': 0}, {'a': 1}
+    >>> union_of_dictionaries([a, b])
+    {'a': 1}
+
+    """
     return dict(itertools.chain.from_iterable(dict_.items() for dict_ in dicts))
 
 
@@ -345,14 +358,22 @@ def merge_dictionaries(
 ) -> tuple[dict[Any, Any], bool]:
     """Merge multiple dictionaries.
 
-    The function does not perform a deep merge. It checks whether first level keys are
-    unique and fills provisional keys with a running value.
+    The function does not perform a deep merge. It simply merges the dictionary based on
+    the first level keys which are either unique names or placeholders. During the merge
+    placeholders will be replaced by an incrementing integer.
 
-    Tuples in the list have either one or two elements. The first element in the two
-    element tuples is the name and cannot occur twice.
+    Examples
+    --------
+    >>> a, b = {"a": 0}, {"b": 1}
+    >>> merge_dictionaries([a, b])
+    ({'a': 0, 'b': 1}, True)
+
+    >>> a, b = {_Placeholder(): 0}, {_Placeholder(): 1}
+    >>> merge_dictionaries([a, b])
+    ({0: 0, 1: 1}, True)
 
     """
-    merged_dict = union(list_of_dicts)
+    merged_dict = union_of_dictionaries(list_of_dicts)
 
     if len(merged_dict) == 1 and isinstance(list(merged_dict)[0], _Placeholder):
         placeholder, value = list(merged_dict.items())[0]
