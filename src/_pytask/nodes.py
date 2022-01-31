@@ -360,10 +360,16 @@ def merge_dictionaries(
         keep_dict = not placeholder.scalar
     else:
         counter = itertools.count()
-        out = {
-            next(counter) if isinstance(k, _Placeholder) else k: v
-            for k, v in merged_dict.items()
-        }
+        out = {}
+        for k, v in merged_dict.items():
+            if isinstance(k, _Placeholder):
+                while True:
+                    possible_key = next(counter)
+                    if possible_key not in merged_dict and possible_key not in out:
+                        out[possible_key] = v
+                        break
+            else:
+                out[k] = v
         keep_dict = True
 
     return out, keep_dict

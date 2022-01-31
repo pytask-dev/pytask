@@ -197,6 +197,7 @@ def test_reduce_node_name(node, paths, expectation, expected):
             {0: {0: 0, 1: 0}, 1: {0: 0, 1: 1}},
             True,
         ),
+        ([{0: {0: {0: 0}}}, [2]], does_not_raise, {0: {0: {0: 0}}, 1: 2}, True),
         ([{0: 0}, {0: 1}], ValueError, None, None),
     ],
 )
