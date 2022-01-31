@@ -4,6 +4,7 @@ from __future__ import annotations
 import functools
 import inspect
 import itertools
+import uuid
 from abc import ABCMeta
 from abc import abstractmethod
 from pathlib import Path
@@ -289,76 +290,48 @@ def _convert_objects_to_node_dictionary(
     objects: Any, when: str
 ) -> tuple[dict[Any, Any], bool]:
     """Convert objects to node dictionary."""
-    list_of_tuples, keep_dict = _convert_objects_to_list_of_tuples(objects, when)
-    _check_that_names_are_not_used_multiple_times(list_of_tuples, when)
-    nodes = _convert_nodes_to_dictionary(list_of_tuples)
+    list_of_dicts = [convert_to_dict(x) for x in objects]
+    _check_that_names_are_not_used_multiple_times(list_of_dicts, when)
+    nodes, keep_dict = merge_dictionaries(list_of_dicts)
     return nodes, keep_dict
 
 
-def _convert_objects_to_list_of_tuples(
-    objects: Any | tuple[Any, Any] | list[Any] | list[tuple[Any, Any]], when: str
-) -> tuple[list[tuple[Any, ...]], bool]:
-    """Convert objects to list of tuples.
+@attr.s(frozen=True)
+class _Placeholder:
+    scalar = attr.ib(type=bool, default=False)
+    id_ = attr.ib(factory=uuid.uuid4, type=uuid.UUID)
 
-    Examples
-    --------
-    _convert_objects_to_list_of_tuples([{0: 0}, [4, (3, 2)], ((1, 4),))
-    [(0, 0), (4,), (3, 2), (1, 4)], False
 
-    """
-    keep_dict = False
-
-    out = []
-    for obj in objects:
-        if isinstance(obj, dict):
-            obj = obj.items()
-
-        if isinstance(obj, Iterable) and not isinstance(obj, str):
-            keep_dict = True
-            for x in obj:
-                if isinstance(x, Iterable) and not isinstance(x, str):
-                    tuple_x = tuple(x)
-                    if len(tuple_x) in [1, 2]:
-                        out.append(tuple_x)
-                    else:
-                        name = "Dependencies" if when == "depends_on" else "Products"
-                        raise ValueError(
-                            f"{name} in pytask.mark.{when} can be given as a value or "
-                            "a name and a value which is 1 or 2 elements. The "
-                            f"following node has {len(tuple_x)} elements: {tuple_x}."
-                        )
-                else:
-                    out.append((x,))
+def convert_to_dict(x: Any, first_level: bool = True) -> Any | dict[Any, Any]:
+    if isinstance(x, dict):
+        return {k: convert_to_dict(v, False) for k, v in x.items()}
+    elif isinstance(x, Iterable) and not isinstance(x, str):
+        if first_level:
+            return {
+                _Placeholder(): convert_to_dict(element, False)
+                for i, element in enumerate(x)
+            }
         else:
-            out.append((obj,))
-
-    if len(out) > 1:
-        keep_dict = False
-
-    return out, keep_dict
+            return {i: convert_to_dict(element, False) for i, element in enumerate(x)}
+    elif first_level:
+        return {_Placeholder(scalar=True): x}
+    else:
+        return x
 
 
 def _check_that_names_are_not_used_multiple_times(
-    list_of_tuples: list[tuple[Any, ...]], when: str
+    list_of_dicts: list[dict[Any, Any]], when: str
 ) -> None:
     """Check that names of nodes are not assigned multiple times.
 
     Tuples in the list have either one or two elements. The first element in the two
     element tuples is the name and cannot occur twice.
 
-    Examples
-    --------
-    >>> _check_that_names_are_not_used_multiple_times(
-    ...     [("a",), ("a", 1)], "depends_on"
-    ... )
-    >>> _check_that_names_are_not_used_multiple_times(
-    ...     [("a", 0), ("a", 1)], "produces"
-    ... )
-    Traceback (most recent call last):
-    ValueError: '@pytask.mark.produces' has nodes with the same name: {'a'}
-
     """
-    names = [x[0] for x in list_of_tuples if len(x) == 2]
+    names_with_provisional_keys = list(
+        itertools.chain.from_iterable(dict_.keys() for dict_ in list_of_dicts)
+    )
+    names = [x for x in names_with_provisional_keys if not isinstance(x, _Placeholder)]
     duplicated = find_duplicates(names)
 
     if duplicated:
@@ -367,37 +340,37 @@ def _check_that_names_are_not_used_multiple_times(
         )
 
 
-def _convert_nodes_to_dictionary(
-    list_of_tuples: list[tuple[Any, ...]]
-) -> dict[Any, Any]:
-    """Convert nodes to dictionaries.
+def union(dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
+    return dict(itertools.chain.from_iterable(dict_.items() for dict_ in dicts))
 
-    Examples
-    --------
-    >>> _convert_nodes_to_dictionary([(0,), (1,)])
-    {0: 0, 1: 1}
-    >>> _convert_nodes_to_dictionary([(1, 0), (1,)])
-    {1: 0, 0: 1}
+
+def merge_dictionaries(
+    list_of_dicts: list[dict[Any, Any]]
+) -> tuple[dict[Any, Any], bool]:
+    """Merge multiple dictionaries.
+
+    The function does not perform a deep merge. It checks whether first level keys are
+    unique and fills provisional keys with a running value.
+
+    Tuples in the list have either one or two elements. The first element in the two
+    element tuples is the name and cannot occur twice.
 
     """
-    nodes = {}
-    counter = itertools.count()
-    names = [x[0] for x in list_of_tuples if len(x) == 2]
+    merged_dict = union(list_of_dicts)
 
-    for tuple_ in list_of_tuples:
-        if len(tuple_) == 2:
-            node_name, node = tuple_
-            nodes[node_name] = node
+    if len(merged_dict) == 1 and isinstance(list(merged_dict)[0], _Placeholder):
+        placeholder, value = list(merged_dict.items())[0]
+        out = {0: value}
+        keep_dict = not placeholder.scalar
+    else:
+        counter = itertools.count()
+        out = {
+            next(counter) if isinstance(k, _Placeholder) else k: v
+            for k, v in merged_dict.items()
+        }
+        keep_dict = True
 
-        else:
-            while True:
-                node_name = next(counter)
-                if node_name not in names:
-                    break
-
-            nodes[node_name] = tuple_[0]
-
-    return nodes
+    return out, keep_dict
 
 
 def create_task_name(path: Path, base_name: str) -> str:
