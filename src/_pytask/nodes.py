@@ -23,6 +23,7 @@ from _pytask.exceptions import NodeNotCollectedError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark_utils import get_marks_from_obj
 from _pytask.session import Session
+from pybaum import tree_map
 
 
 if TYPE_CHECKING:
@@ -138,12 +139,12 @@ class PythonFunctionTask(MetaTask):
         objects = _extract_nodes_from_function_markers(function, depends_on)
         nodes, keep_dict_de = _convert_objects_to_node_dictionary(objects, "depends_on")
         keep_dictionary["depends_on"] = keep_dict_de
-        dependencies = _collect_nodes(session, path, name, nodes)
+        dependencies = tree_map(lambda x: _collect_node(session, path, name, x), nodes)
 
         objects = _extract_nodes_from_function_markers(function, produces)
         nodes, keep_dict_prod = _convert_objects_to_node_dictionary(objects, "produces")
         keep_dictionary["produces"] = keep_dict_prod
-        products = _collect_nodes(session, path, name, nodes)
+        products = tree_map(lambda x: _collect_node(session, path, name, x), nodes)
 
         markers = [
             marker
@@ -183,7 +184,7 @@ class PythonFunctionTask(MetaTask):
                     if len(attribute) == 1
                     and 0 in attribute
                     and not self.keep_dict[arg_name]
-                    else {name: node.value for name, node in attribute.items()}
+                    else tree_map(lambda x: x.value, attribute)
                 )
 
         return kwargs
@@ -226,8 +227,8 @@ class FilePathNode(MetaNode):
             return str(self.path.stat().st_mtime)
 
 
-def _collect_nodes(
-    session: Session, path: Path, name: str, nodes: dict[str, str | Path]
+def _collect_node(
+    session: Session, path: Path, name: str, node: str | Path
 ) -> dict[str, MetaNode]:
     """Collect nodes for a task.
 
@@ -253,21 +254,16 @@ def _collect_nodes(
         If the node could not collected.
 
     """
-    collected_nodes = {}
-
-    for node_name, node in nodes.items():
-        collected_node = session.hook.pytask_collect_node(
-            session=session, path=path, node=node
+    collected_node = session.hook.pytask_collect_node(
+        session=session, path=path, node=node
+    )
+    if collected_node is None:
+        raise NodeNotCollectedError(
+            f"{node!r} cannot be parsed as a dependency or product for task "
+            f"{name!r} in {path!r}."
         )
-        if collected_node is None:
-            raise NodeNotCollectedError(
-                f"{node!r} cannot be parsed as a dependency or product for task "
-                f"{name!r} in {path!r}."
-            )
-        else:
-            collected_nodes[node_name] = collected_node
 
-    return collected_nodes
+    return collected_node
 
 
 def _extract_nodes_from_function_markers(

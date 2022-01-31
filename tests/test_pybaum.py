@@ -4,6 +4,7 @@ from __future__ import annotations
 import textwrap
 
 import pytest
+from pybaum import tree_map
 from pytask import main
 
 
@@ -31,7 +32,7 @@ def test_task_with_complex_product_did_not_produce_node(tmp_path):
 
     assert session.exit_code == 1
 
-    products = session.tasks[0].produces
+    products = tree_map(lambda x: x.value, session.tasks[0].produces)
     expected = {
         0: tmp_path / "out.txt",
         1: {0: tmp_path / "tuple_out.txt"},

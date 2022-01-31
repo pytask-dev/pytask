@@ -28,6 +28,7 @@ from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
 from pony import orm
+from pybaum import tree_map
 from rich.text import Text
 from rich.tree import Tree
 
@@ -75,13 +76,11 @@ def pytask_resolve_dependencies_create_dag(tasks: list[MetaTask]) -> nx.DiGraph:
     for task in tasks:
         dag.add_node(task.name, task=task)
 
-        for dependency in task.depends_on.values():
-            dag.add_node(dependency.name, node=dependency)
-            dag.add_edge(dependency.name, task.name)
+        tree_map(lambda x: dag.add_node(x.name, node=x), task.depends_on)
+        tree_map(lambda x: dag.add_edge(x.name, task.name), task.depends_on)
 
-        for product in task.produces.values():
-            dag.add_node(product.name, node=product)
-            dag.add_edge(task.name, product.name)
+        tree_map(lambda x: dag.add_node(x.name, node=x), task.produces)
+        tree_map(lambda x: dag.add_edge(task.name, x.name), task.produces)
 
     _check_if_dag_has_cycles(dag)
 
