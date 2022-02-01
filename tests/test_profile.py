@@ -67,7 +67,12 @@ def test_profile_if_there_is_no_information_on_collected_tasks(tmp_path, runner)
 def test_profile_if_there_is_information_on_collected_tasks(tmp_path, runner):
     source = """
     import time
-    def task_example(): time.sleep(2)
+    import pytask
+
+    @pytask.mark.produces("out.txt")
+    def task_example(produces):
+        time.sleep(2)
+        produces.write_text("There are nine billion bicycles in Beijing.")
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
@@ -79,6 +84,8 @@ def test_profile_if_there_is_information_on_collected_tasks(tmp_path, runner):
     assert "Collected 1 task." in result.output
     assert "Duration (in s)" in result.output
     assert "0." in result.output
+    assert "Size of Products" in result.output
+    assert "43 bytes" in result.output
 
 
 @pytest.mark.end_to_end
