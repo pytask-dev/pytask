@@ -158,13 +158,13 @@ tasks.
 Nested dependencies and products
 --------------------------------
 
-Dependencies and products are also allowed to be nested containers consisting of tuples,
+Dependencies and products are allowed to be nested containers consisting of tuples,
 lists, and dictionaries. In situations where you want more structure and are otherwise
 forced to flatten your inputs, this can be beneficial.
 
-Here is an example with a task which fits some model on data. It depends on some model
-files which are not actively used, but make sure the task is rerun when the model is
-changed. And, it depends on data which is actively used.
+Here is an example with a task which fits some model on data. It depends on a module
+containing the code for the model which is not actively used, but ensures that the task
+is rerun when the model is changed. And, it depends on data.
 
 .. code-block:: python
 
@@ -202,6 +202,23 @@ In both cases, ``depends_on`` within the function will be
         "model": [SRC / "models" / "model.py"],
         "data": {"a": SRC / "data" / "a.pkl", "b": SRC / "data" / "b.pkl"},
     }
+
+Tuples and lists are converted to dictionaries with integer keys. The innermost
+decorator is evaluated first.
+
+.. code-block:: python
+
+    @pytask.mark.depends_on([SRC / "models" / "model.py"])
+    @pytask.mark.depends_on([SRC / "data" / "a.pkl", SRC / "data" / "b.pkl"])
+    @pytask.mark.produces(BLD / "models" / "fitted_model.pkl")
+    def task_fit_model():
+        ...
+
+would give
+
+.. code-block:: python
+
+    {0: SRC / "data" / "a.pkl", 1: SRC / "data" / "b.pkl", 2: SRC / "models" / "model.py"}
 
 .. seealso::
 
