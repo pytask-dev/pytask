@@ -179,13 +179,24 @@ class PythonFunctionTask(MetaTask):
         for arg_name in ["depends_on", "produces"]:
             if arg_name in func_arg_names:
                 attribute = getattr(self, arg_name)
-                kwargs[arg_name] = (
-                    attribute[0].value
-                    if len(attribute) == 1
-                    and 0 in attribute
-                    and not self.keep_dict[arg_name]
-                    else tree_map(lambda x: x.value, attribute)
-                )
+                if len(attribute) == 1:
+                    key, node = list(attribute.items())[0]
+                    if isinstance(key, _Placeholder) and key.scalar:
+                        kwargs[arg_name] = node.value
+                    elif isinstance(key, _Placeholder) and not key.scalar:
+                        kwargs[arg_name] = {0: node.value}
+                    else:
+                        kwargs[arg_name] = {key: node.value}
+                else:
+                    kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
+
+                # kwargs[arg_name] = (
+                #     attribute[0].value
+                #     if len(attribute) == 1
+                #     and 0 in attribute
+                #     and not self.keep_dict[arg_name]
+                #     else tree_map(lambda x: x.value, attribute)
+                # )
 
         return kwargs
 
@@ -377,7 +388,8 @@ def merge_dictionaries(
 
     if len(merged_dict) == 1 and isinstance(list(merged_dict)[0], _Placeholder):
         placeholder, value = list(merged_dict.items())[0]
-        out = {0: value}
+        # out = {0: value}
+        out = merged_dict
         keep_dict = not placeholder.scalar
     else:
         counter = itertools.count()
