@@ -36,6 +36,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   pytask.
 - :gh:`208` fixes the best practices guide for parametrizations.
 - :gh:`209` cancels previous CI runs automatically.
+- :gh:`212` add ``.coveragerc`` and improve coverage.
 
 
 0.1.5 - 2022-01-10
