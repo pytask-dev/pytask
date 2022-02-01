@@ -232,7 +232,7 @@ def _to_human_readable_size(bytes_: int, units: list[str] | None = None) -> str:
     units = [" bytes", " KB", " MB", " GB", " TB"] if units is None else units
     return (
         str(bytes_) + units[0]
-        if bytes_ < 1024
+        if bytes_ < 1024 or len(units) == 1
         else _to_human_readable_size(bytes_ >> 10, units[1:])
     )
 

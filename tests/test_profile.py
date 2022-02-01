@@ -7,6 +7,7 @@ import pytest
 from _pytask.cli import cli
 from _pytask.database import create_database
 from _pytask.outcomes import ExitCode
+from _pytask.profile import _to_human_readable_size
 from _pytask.profile import Runtime
 from pony import orm
 from pytask import main
@@ -99,3 +100,17 @@ def test_export_of_profile(tmp_path, runner, export):
     assert "Duration (in s)" in result.output
     assert "0." in result.output
     assert tmp_path.joinpath(f"profile.{export}").exists()
+
+
+@pytest.mark.parametrize(
+    "bytes_, units, expected",
+    [
+        (2**10, None, "1 KB"),
+        (2**20, None, "1 MB"),
+        (2**30, None, "1 GB"),
+        (2**30, [" bytes", " KB", " MB"], "1024 MB"),
+    ],
+)
+def test_to_human_readable_size(bytes_, units, expected):
+    result = _to_human_readable_size(bytes_, units)
+    assert result == expected
