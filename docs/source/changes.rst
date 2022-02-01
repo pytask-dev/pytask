@@ -7,6 +7,16 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
+0.1.7 - 2022-01-28
+------------------
+
+- :gh:`153` adds support for Python 3.10 which requires pony >= 0.7.15.
+- :gh:`192` deprecates Python 3.6.
+- :gh:`209` cancels previous CI jobs when a new job is started.
+- :gh:`210` allows ``__tracebackhide__`` to be a callable which accepts the current
+  exception as an input. Closes :gh:`145`.
+
+
 0.1.6 - 2022-01-27
 ------------------
 
@@ -26,6 +36,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   pytask.
 - :gh:`208` fixes the best practices guide for parametrizations.
 - :gh:`209` cancels previous CI runs automatically.
+- :gh:`212` add ``.coveragerc`` and improve coverage.
 
 
 0.1.5 - 2022-01-10
