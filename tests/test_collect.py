@@ -140,12 +140,23 @@ def test_collect_files_w_custom_file_name_pattern(
             Path.cwd() / "text.txt",
             id="test with absolute string path",
         ),
+        pytest.param(
+            Session({"check_casing_of_paths": False}, None),
+            Path(),
+            1,
+            does_not_raise(),
+            None,
+            id="test cannot collect node",
+        ),
     ],
 )
 def test_pytask_collect_node(session, path, node, expectation, expected):
     with expectation:
         result = pytask_collect_node(session, path, node)
-        assert str(result.path) == str(expected)
+        if result is None:
+            assert result is expected
+        else:
+            assert str(result.path) == str(expected)
 
 
 @pytest.mark.unit
