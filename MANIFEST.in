@@ -1,6 +1,7 @@
 include CITATION
 include LICENSE
 
+exclude .coveragerc
 exclude *.yaml
 exclude *.yml
 exclude tox.ini
