@@ -109,6 +109,7 @@ def test_export_of_profile(tmp_path, runner, export):
     assert tmp_path.joinpath(f"profile.{export}").exists()
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "bytes_, units, expected",
     [
