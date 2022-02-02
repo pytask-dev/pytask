@@ -118,8 +118,6 @@ class PythonFunctionTask(MetaTask):
     """Dict[str, MetaNode]: A list of products of task."""
     markers = attr.ib(factory=list, type="List[Mark]")
     """Optional[List[Mark]]: A list of markers attached to the task function."""
-    keep_dict = attr.ib(factory=dict, type=Dict[str, bool])
-    """Dict[str, bool]: Should dictionaries for single nodes be preserved?"""
     _report_sections = attr.ib(factory=list, type=List[Tuple[str, str, str]])
     """List[Tuple[str, str, str]]: Reports with entries for when, what, and content."""
     attributes = attr.ib(factory=dict, type=Dict[Any, Any])
@@ -134,16 +132,12 @@ class PythonFunctionTask(MetaTask):
         cls, path: Path, name: str, function: Callable[..., Any], session: Session
     ) -> PythonFunctionTask:
         """Create a task from a path, name, function, and session."""
-        keep_dictionary = {}
-
         objects = _extract_nodes_from_function_markers(function, depends_on)
-        nodes, keep_dict_de = _convert_objects_to_node_dictionary(objects, "depends_on")
-        keep_dictionary["depends_on"] = keep_dict_de
+        nodes = _convert_objects_to_node_dictionary(objects, "depends_on")
         dependencies = tree_map(lambda x: _collect_node(session, path, name, x), nodes)
 
         objects = _extract_nodes_from_function_markers(function, produces)
-        nodes, keep_dict_prod = _convert_objects_to_node_dictionary(objects, "produces")
-        keep_dictionary["produces"] = keep_dict_prod
+        nodes = _convert_objects_to_node_dictionary(objects, "produces")
         products = tree_map(lambda x: _collect_node(session, path, name, x), nodes)
 
         markers = [
@@ -160,7 +154,6 @@ class PythonFunctionTask(MetaTask):
             depends_on=dependencies,
             produces=products,
             markers=markers,
-            keep_dict=keep_dictionary,
         )
 
     def execute(self) -> None:
@@ -179,13 +172,7 @@ class PythonFunctionTask(MetaTask):
         for arg_name in ["depends_on", "produces"]:
             if arg_name in func_arg_names:
                 attribute = getattr(self, arg_name)
-                kwargs[arg_name] = (
-                    attribute[0].value
-                    if len(attribute) == 1
-                    and 0 in attribute
-                    and not self.keep_dict[arg_name]
-                    else tree_map(lambda x: x.value, attribute)
-                )
+                kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
 
         return kwargs
 
@@ -282,14 +269,12 @@ def _extract_nodes_from_function_markers(
         yield parsed
 
 
-def _convert_objects_to_node_dictionary(
-    objects: Any, when: str
-) -> tuple[dict[Any, Any], bool]:
+def _convert_objects_to_node_dictionary(objects: Any, when: str) -> dict[Any, Any]:
     """Convert objects to node dictionary."""
     list_of_dicts = [convert_to_dict(x) for x in objects]
     _check_that_names_are_not_used_multiple_times(list_of_dicts, when)
-    nodes, keep_dict = merge_dictionaries(list_of_dicts)
-    return nodes, keep_dict
+    nodes = merge_dictionaries(list_of_dicts)
+    return nodes
 
 
 @attr.s(frozen=True)
@@ -353,9 +338,7 @@ def union_of_dictionaries(dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
     return dict(itertools.chain.from_iterable(dict_.items() for dict_ in dicts))
 
 
-def merge_dictionaries(
-    list_of_dicts: list[dict[Any, Any]]
-) -> tuple[dict[Any, Any], bool]:
+def merge_dictionaries(list_of_dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
     """Merge multiple dictionaries.
 
     The function does not perform a deep merge. It simply merges the dictionary based on
@@ -366,19 +349,21 @@ def merge_dictionaries(
     --------
     >>> a, b = {"a": 0}, {"b": 1}
     >>> merge_dictionaries([a, b])
-    ({'a': 0, 'b': 1}, True)
+    {'a': 0, 'b': 1}
 
     >>> a, b = {_Placeholder(): 0}, {_Placeholder(): 1}
     >>> merge_dictionaries([a, b])
-    ({0: 0, 1: 1}, True)
+    {0: 0, 1: 1}
 
     """
     merged_dict = union_of_dictionaries(list_of_dicts)
 
     if len(merged_dict) == 1 and isinstance(list(merged_dict)[0], _Placeholder):
         placeholder, value = list(merged_dict.items())[0]
-        out = {0: value}
-        keep_dict = not placeholder.scalar
+        if placeholder.scalar:
+            out = value
+        else:
+            out = {0: value}
     else:
         counter = itertools.count()
         out = {}
@@ -391,9 +376,8 @@ def merge_dictionaries(
                         break
             else:
                 out[k] = v
-        keep_dict = True
 
-    return out, keep_dict
+    return out
 
 
 def create_task_name(path: Path, base_name: str) -> str:

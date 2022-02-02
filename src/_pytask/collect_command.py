@@ -24,6 +24,7 @@ from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
+from pybaum.tree_util import tree_just_flatten
 from rich.text import Text
 from rich.tree import Tree
 
@@ -124,13 +125,8 @@ def _find_common_ancestor_of_all_nodes(
     for task in tasks:
         all_paths.append(task.path)
         if show_nodes:
-            all_paths.extend(
-                [
-                    node.path
-                    for attr in ("depends_on", "produces")
-                    for node in getattr(task, attr).values()
-                ]
-            )
+            all_paths.extend(map(lambda x: x.path, tree_just_flatten(task.depends_on)))
+            all_paths.extend(map(lambda x: x.path, tree_just_flatten(task.produces)))
 
     common_ancestor = find_common_ancestor(*all_paths, *paths)
 
@@ -200,7 +196,9 @@ def _print_collected_tasks(
             )
 
             if show_nodes:
-                for node in sorted(task.depends_on.values(), key=lambda x: x.path):
+                for node in sorted(
+                    tree_just_flatten(task.depends_on), key=lambda x: x.path
+                ):
                     reduced_node_name = relative_to(node.path, common_ancestor)
                     url_style = create_url_style_for_path(node.path, editor_url_scheme)
                     task_branch.add(
@@ -212,7 +210,9 @@ def _print_collected_tasks(
                         )
                     )
 
-                for node in sorted(task.produces.values(), key=lambda x: x.path):
+                for node in sorted(
+                    tree_just_flatten(task.produces), key=lambda x: x.path
+                ):
                     reduced_node_name = relative_to(node.path, common_ancestor)
                     url_style = create_url_style_for_path(node.path, editor_url_scheme)
                     task_branch.add(

@@ -189,34 +189,30 @@ def test_reduce_node_name(node, paths, expectation, expected):
 @pytest.mark.integration
 @pytest.mark.parametrize("when", ["depends_on", "produces"])
 @pytest.mark.parametrize(
-    "objects, expectation, expected_dict, expected_kd",
+    "objects, expectation, expected",
     [
-        ([0, 1], does_not_raise, {0: 0, 1: 1}, True),
-        ([{0: 0}, {1: 1}], does_not_raise, {0: 0, 1: 1}, True),
-        ([{0: 0}], does_not_raise, {0: 0}, True),
-        ([[0]], does_not_raise, {0: 0}, True),
+        ([0, 1], does_not_raise, {0: 0, 1: 1}),
+        ([{0: 0}, {1: 1}], does_not_raise, {0: 0, 1: 1}),
+        ([{0: 0}], does_not_raise, {0: 0}),
+        ([[0]], does_not_raise, {0: 0}),
         (
             [((0, 0),), ((0, 1),)],
             does_not_raise,
             {0: {0: 0, 1: 0}, 1: {0: 0, 1: 1}},
-            True,
         ),
-        ([{0: {0: {0: 0}}}, [2]], does_not_raise, {0: {0: {0: 0}}, 1: 2}, True),
-        ([{0: 0}, {0: 1}], ValueError, None, None),
+        ([{0: {0: {0: 0}}}, [2]], does_not_raise, {0: {0: {0: 0}}, 1: 2}),
+        ([{0: 0}, {0: 1}], ValueError, None),
     ],
 )
-def test_convert_objects_to_node_dictionary(
-    objects, when, expectation, expected_dict, expected_kd
-):
+def test_convert_objects_to_node_dictionary(objects, when, expectation, expected):
     expectation = (
         pytest.raises(expectation, match=f"'@pytask.mark.{when}' has nodes")
         if expectation == ValueError
         else expectation()
     )
     with expectation:
-        node_dict, keep_dict = _convert_objects_to_node_dictionary(objects, when)
-        assert node_dict == expected_dict
-        assert keep_dict is expected_kd
+        nodes = _convert_objects_to_node_dictionary(objects, when)
+        assert nodes == expected
 
 
 def _convert_placeholders_to_tuples(x):
@@ -251,15 +247,14 @@ def test_convert_to_dict(x, first_level, expected):
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
-    "list_of_dicts, expected_dict, expected_keep",
+    "list_of_dicts, expected",
     [
-        ([{1: 0}, {0: 1}], {1: 0, 0: 1}, True),
-        ([{_Placeholder(): 1}, {0: 0}], {1: 1, 0: 0}, True),
-        ([{_Placeholder(scalar=True): 1}], {0: 1}, False),
-        ([{_Placeholder(scalar=False): 1}], {0: 1}, True),
+        ([{1: 0}, {0: 1}], {1: 0, 0: 1}),
+        ([{_Placeholder(): 1}, {0: 0}], {1: 1, 0: 0}),
+        ([{_Placeholder(scalar=True): 1}], 1),
+        ([{_Placeholder(scalar=False): 1}], {0: 1}),
     ],
 )
-def test_merge_dictionaries(list_of_dicts, expected_dict, expected_keep):
-    result_dict, result_keep = merge_dictionaries(list_of_dicts)
-    assert result_dict == expected_dict
-    assert result_keep is expected_keep
+def test_merge_dictionaries(list_of_dicts, expected):
+    result = merge_dictionaries(list_of_dicts)
+    assert result == expected
