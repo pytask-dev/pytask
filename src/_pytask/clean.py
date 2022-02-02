@@ -9,6 +9,7 @@ from types import TracebackType
 from typing import Any
 from typing import Generator
 from typing import Iterable
+from typing import List
 from typing import TYPE_CHECKING
 
 import attr
@@ -234,7 +235,7 @@ class _RecursivePathNode:
     """
 
     path = attr.ib(type=Path)
-    sub_nodes = attr.ib(type=list["_RecursivePathNode"])
+    sub_nodes = attr.ib(type=List["_RecursivePathNode"])
     is_dir = attr.ib(type=bool)
     is_file = attr.ib(type=bool)
     is_unknown = attr.ib(type=bool)
