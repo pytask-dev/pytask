@@ -65,6 +65,7 @@ def test_profile_with_pybaum(tmp_path, runner):
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
 
     result = runner.invoke(cli, ["profile", tmp_path.as_posix()])
 
