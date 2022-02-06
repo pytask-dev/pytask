@@ -7,6 +7,7 @@ from typing import Any
 from typing import TYPE_CHECKING
 
 import click
+from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_url_style_for_path
@@ -47,7 +48,7 @@ def pytask_parse_config(
     config["nodes"] = config_from_cli.get("nodes", False)
 
 
-@click.command()
+@click.command(cls=ColoredCommand)
 @click.option("--nodes", is_flag=True, help="Show a task's dependencies and products.")
 def collect(**config_from_cli: Any | None) -> NoReturn:
     """Collect tasks from paths."""

@@ -70,6 +70,7 @@ _EDITOR_URL_SCHEMES: dict[str, str] = {
 
 theme = Theme(
     {
+        # Statuses
         "failed": "#BF2D2D",
         "failed.textonly": "#ffffff on #BF2D2D",
         "neutral": "",
@@ -78,6 +79,10 @@ theme = Theme(
         "success": "#137C39",
         "success.textonly": "#ffffff on #137C39",
         "warning": "#F4C041",
+        # Help page.
+        "option": "bold #F4C041",
+        "switch": "bold #D54523",
+        "metavar": "bold yellow",
     }
 )
 

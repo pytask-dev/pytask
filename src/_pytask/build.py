@@ -6,6 +6,7 @@ from typing import Any
 from typing import TYPE_CHECKING
 
 import click
+from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
@@ -92,7 +93,7 @@ def main(config_from_cli: dict[str, Any]) -> Session:
     return session
 
 
-@click.command()
+@click.command(cls=ColoredCommand)
 @click.option(
     "--debug-pytask",
     is_flag=True,

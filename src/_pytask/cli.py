@@ -12,7 +12,7 @@ from click_default_group import DefaultGroup
 from packaging.version import parse as parse_version
 
 
-_CONTEXT_SETTINGS: dict[str, Any] = {"help_option_names": ["-h", "--help"]}
+_CONTEXT_SETTINGS: dict[str, Any] = {"help_option_names": ("-h", "--help")}
 
 
 if parse_version(click.__version__) < parse_version("8"):

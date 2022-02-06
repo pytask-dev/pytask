@@ -12,6 +12,7 @@ from typing import Generator
 from typing import TYPE_CHECKING
 
 import click
+from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_id
@@ -97,7 +98,7 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
             setattr(runtime, attr, val)
 
 
-@click.command()
+@click.command(cls=ColoredCommand)
 @click.option(
     "--export",
     type=str,
