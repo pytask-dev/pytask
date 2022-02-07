@@ -7,7 +7,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.1.8 - 2022-02-xx
+0.1.8 - 2022-02-07
 ------------------
 
 - :gh:`210` allows ``__tracebackhide__`` to be a callable which accepts the current
