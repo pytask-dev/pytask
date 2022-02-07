@@ -6,9 +6,9 @@ from typing import Any
 
 import click
 import pluggy
+from _pytask.click import ColoredGroup
 from _pytask.config import hookimpl
 from _pytask.pluginmanager import get_plugin_manager
-from click_default_group import DefaultGroup
 from packaging.version import parse as parse_version
 
 
@@ -92,7 +92,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
 
 
 @click.group(
-    cls=DefaultGroup,
+    cls=ColoredGroup,
     context_settings=_CONTEXT_SETTINGS,
     default="build",
     default_if_no_args=True,

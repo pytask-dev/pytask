@@ -80,6 +80,7 @@ theme = Theme(
         "success.textonly": "#ffffff on #137C39",
         "warning": "#F4C041",
         # Help page.
+        "command": "bold #137C39",
         "option": "bold #F4C041",
         "switch": "bold #D54523",
         "metavar": "bold yellow",
