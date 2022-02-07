@@ -6,13 +6,13 @@ from typing import Any
 
 import click
 import pluggy
+from _pytask.click import ColoredGroup
 from _pytask.config import hookimpl
 from _pytask.pluginmanager import get_plugin_manager
-from click_default_group import DefaultGroup
 from packaging.version import parse as parse_version
 
 
-_CONTEXT_SETTINGS: dict[str, Any] = {"help_option_names": ["-h", "--help"]}
+_CONTEXT_SETTINGS: dict[str, Any] = {"help_option_names": ("-h", "--help")}
 
 
 if parse_version(click.__version__) < parse_version("8"):
@@ -92,14 +92,14 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
 
 
 @click.group(
-    cls=DefaultGroup,
+    cls=ColoredGroup,
     context_settings=_CONTEXT_SETTINGS,
     default="build",
     default_if_no_args=True,
 )
 @click.version_option(**_VERSION_OPTION_KWARGS)
 def cli() -> None:
-    """The command line interface of pytask."""
+    """Manage your tasks with pytask."""
     pass
 
 
