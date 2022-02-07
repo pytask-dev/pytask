@@ -120,10 +120,10 @@ def main(config_from_cli: dict[str, Any]) -> Session:
     help="Choose whether tracebacks should be displayed or not.  [default: yes]",
 )
 def build(**config_from_cli: Any) -> NoReturn:
-    """Collect and execute tasks and report the results.
+    """Collect tasks, execute them and report the results.
 
-    This is the default command of pytask which searches given paths or the current
-    working directory for tasks to execute them. A report informs you on the results.
+    This is pytask's default command. pytask collects tasks from the given paths or the
+    current working directory, executes them and reports the results.
 
     """
     config_from_cli["command"] = "build"

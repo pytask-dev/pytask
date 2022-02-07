@@ -106,7 +106,7 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
     help="Export the profile in the specified format.",
 )
 def profile(**config_from_cli: Any) -> NoReturn:
-    """Show profile information on collected tasks."""
+    """Show information about tasks like runtime and memory consumption of products."""
     config_from_cli["command"] = "profile"
 
     try:

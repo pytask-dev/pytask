@@ -51,7 +51,7 @@ def pytask_parse_config(
 @click.command(cls=ColoredCommand)
 @click.option("--nodes", is_flag=True, help="Show a task's dependencies and products.")
 def collect(**config_from_cli: Any | None) -> NoReturn:
-    """Collect tasks from paths."""
+    """Collect tasks and report information about them."""
     config_from_cli["command"] = "collect"
 
     try:

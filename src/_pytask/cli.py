@@ -99,7 +99,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
 )
 @click.version_option(**_VERSION_OPTION_KWARGS)
 def cli() -> None:
-    """The command line interface of pytask."""
+    """Manage your tasks with pytask."""
     pass
 
 

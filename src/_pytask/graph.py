@@ -114,7 +114,7 @@ _HELP_TEXT_RANK_DIRECTION: str = (
     help=_HELP_TEXT_RANK_DIRECTION,
 )
 def dag(**config_from_cli: Any) -> NoReturn:
-    """Create a visualization of the project's DAG."""
+    """Create a visualization of the project's directed acyclic graph."""
     try:
         pm = get_plugin_manager()
         from _pytask import cli
