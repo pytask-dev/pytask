@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import inspect
 from pathlib import Path
 
@@ -107,6 +109,7 @@ def test_render_to_string(color_system, text, strip_styles, expected):
 _THIS_FILE = Path(__file__)
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "base_name, short_name, editor_url_scheme, use_short_name, relative_to, expected",
     [
@@ -175,6 +178,7 @@ def test_format_task_id(
     assert result == expected
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "task_func, skipped_paths, expected",
     [
@@ -196,6 +200,7 @@ def test_get_file(task_func, skipped_paths, expected):
     assert result == expected
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "task_func, expected",
     [

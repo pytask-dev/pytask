@@ -1,10 +1,10 @@
 """This module contains code related to live objects."""
+from __future__ import annotations
+
 from typing import Any
 from typing import Dict
 from typing import Generator
 from typing import List
-from typing import Optional
-from typing import Union
 
 import attr
 import click
@@ -39,9 +39,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: Dict[str, Any],
-    config_from_cli: Dict[str, Any],
-    config_from_file: Dict[str, Any],
+    config: dict[str, Any],
+    config_from_cli: dict[str, Any],
+    config_from_file: dict[str, Any],
 ) -> None:
     """Parse the configuration."""
     config["n_entries_in_table"] = get_first_non_none_value(
@@ -53,7 +53,7 @@ def pytask_parse_config(
     )
 
 
-def _parse_n_entries_in_table(value: Union[int, str, None]) -> int:
+def _parse_n_entries_in_table(value: int | str | None) -> int:
     """Parse how many entries should be displayed in the table during the execution."""
     if value in ["none", "None", None, ""]:
         out = None
@@ -71,7 +71,7 @@ def _parse_n_entries_in_table(value: Union[int, str, None]) -> int:
 
 
 @hookimpl
-def pytask_post_parse(config: Dict[str, Any]) -> None:
+def pytask_post_parse(config: dict[str, Any]) -> None:
     """Post-parse the configuration."""
     live_manager = LiveManager()
     config["pm"].register(live_manager, "live_manager")
@@ -114,7 +114,7 @@ class LiveManager:
     def start(self) -> None:
         self._live.start()
 
-    def stop(self, transient: Optional[bool] = None) -> None:
+    def stop(self, transient: bool | None = None) -> None:
         if transient is not None:
             self._live.transient = transient
         self._live.stop()
@@ -172,7 +172,7 @@ class LiveExecution:
         self.update_reports(report)
         return True
 
-    def _generate_table(self, reduce_table: bool, sort_table: bool) -> Optional[Table]:
+    def _generate_table(self, reduce_table: bool, sort_table: bool) -> Table | None:
         """Generate the table.
 
         First, display all completed tasks and, then, all running tasks.
@@ -272,7 +272,7 @@ class LiveCollection:
         yield
 
     @hookimpl
-    def pytask_collect_file_log(self, reports: List[CollectionReport]) -> None:
+    def pytask_collect_file_log(self, reports: list[CollectionReport]) -> None:
         """Update the status after a file is collected."""
         self._update_statistics(reports)
         self._update_status()
@@ -283,7 +283,7 @@ class LiveCollection:
         self._live_manager.stop(transient=True)
         yield
 
-    def _update_statistics(self, reports: List[CollectionReport]) -> None:
+    def _update_statistics(self, reports: list[CollectionReport]) -> None:
         """Update the statistics on collected tasks and errors."""
         if reports is None:
             reports = []

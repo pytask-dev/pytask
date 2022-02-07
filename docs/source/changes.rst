@@ -7,13 +7,25 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
-0.1.6 - 2022-xx-xx
+0.1.6 - 2022-01-27
 ------------------
 
 - :gh:`191` adds a guide on how to profile pytask to the developer's guide.
+- :gh:`192` deprecates Python 3.6.
 - :gh:`193` adds more figures to the documentation.
 - :gh:`194` updates the ``README.rst``.
 - :gh:`196` references the two new cookiecutters for projects and plugins.
+- :gh:`198` fixes the documentation of :func:`@pytask.mark.skipif
+  <_pytask.skipping.skipif>`. (Closes :gh:`195`)
+- :gh:`199` extends the error message when paths are ambiguous on case-insensitive file
+  systems.
+- :gh:`200` implements the :func:`@pytask.mark.task <_pytask.task.task>` decorator to
+  mark functions as tasks regardless whether they are prefixed with ``task_`` or not.
+- :gh:`201` adds tests for ``_pytask.mark_utils``.
+- :gh:`204` removes internal traceback frames from exceptions raised somewhere in
+  pytask.
+- :gh:`208` fixes the best practices guide for parametrizations.
+- :gh:`209` cancels previous CI runs automatically.
 
 
 0.1.5 - 2022-01-10
@@ -34,6 +46,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 0.1.4 - 2022-01-04
 ------------------
 
+- :gh:`153` adds support and testing for Python 3.10.
 - :gh:`159` removes files for creating a conda package which is handled by conda-forge.
 - :gh:`160` adds rudimentary typing to pytask.
 - :gh:`161` removes a workaround for pyreadline which is also removed in pytest 7.

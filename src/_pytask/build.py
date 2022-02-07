@@ -1,7 +1,8 @@
 """Implement the build command."""
+from __future__ import annotations
+
 import sys
 from typing import Any
-from typing import Dict
 from typing import TYPE_CHECKING
 
 import click
@@ -14,6 +15,8 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
+from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
+from rich.traceback import Traceback
 
 
 if TYPE_CHECKING:
@@ -26,7 +29,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli.add_command(build)
 
 
-def main(config_from_cli: Dict[str, Any]) -> Session:
+def main(config_from_cli: dict[str, Any]) -> Session:
     """Run pytask.
 
     This is the main command to run pytask which usually receives kwargs from the
@@ -78,7 +81,10 @@ def main(config_from_cli: Dict[str, Any]) -> Session:
             session.exit_code = ExitCode.FAILED
 
         except Exception:
-            console.print_exception()
+            exc_info = sys.exc_info()
+            exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
+            traceback = Traceback.from_exception(*exc_info)
+            console.print(traceback)
             session.exit_code = ExitCode.FAILED
 
         session.hook.pytask_unconfigure(session=session)
@@ -112,7 +118,7 @@ def main(config_from_cli: Dict[str, Any]) -> Session:
     type=click.Choice(["yes", "no"]),
     help="Choose whether tracebacks should be displayed or not.  [default: yes]",
 )
-def build(**config_from_cli: Any) -> "NoReturn":
+def build(**config_from_cli: Any) -> NoReturn:
     """Collect and execute tasks and report the results.
 
     This is the default command of pytask which searches given paths or the current

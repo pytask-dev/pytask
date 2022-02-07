@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import contextlib
 import io
 import os
@@ -270,7 +272,8 @@ def test_capturing_outerr(tmp_path, runner):
         "2  Collected tasks",
         "1  Succeeded",
         "1  Failed",
-        "─────────── Failed in 0 seconds ────────",
+        "─────────── Failed in ",
+        "seconds ────────",
     ]:
         assert content in result.output
 

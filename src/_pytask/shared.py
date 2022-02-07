@@ -1,13 +1,11 @@
 """Functions which are used across various modules."""
+from __future__ import annotations
+
 import glob
 from pathlib import Path
 from typing import Any
 from typing import Callable
-from typing import Dict
-from typing import List
-from typing import Optional
 from typing import Sequence
-from typing import Union
 
 import networkx as nx
 from _pytask.console import format_task_id
@@ -18,7 +16,7 @@ from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 
 
-def to_list(scalar_or_iter: Any) -> List[Any]:
+def to_list(scalar_or_iter: Any) -> list[Any]:
     """Convert scalars and iterables to list.
 
     Parameters
@@ -44,7 +42,7 @@ def to_list(scalar_or_iter: Any) -> List[Any]:
     )
 
 
-def parse_paths(x: Optional[Any]) -> Optional[List[Path]]:
+def parse_paths(x: Any | None) -> list[Path] | None:
     """Parse paths."""
     if x is not None:
         paths = [Path(p) for p in to_list(x)]
@@ -59,7 +57,7 @@ def parse_paths(x: Optional[Any]) -> Optional[List[Path]]:
 
 def falsy_to_none_callback(
     ctx: Any, param: Any, value: Any  # noqa: U100
-) -> Optional[Any]:
+) -> Any | None:
     """Convert falsy object to ``None``.
 
     Some click arguments accept multiple inputs and instead of ``None`` as a default if
@@ -82,10 +80,10 @@ def falsy_to_none_callback(
 
 
 def get_first_non_none_value(
-    *configs: Dict[str, Any],
+    *configs: dict[str, Any],
     key: str,
-    default: Optional[Any] = None,
-    callback: Optional[Callable[..., Any]] = None,
+    default: Any | None = None,
+    callback: Callable[..., Any] | None = None,
 ) -> Any:
     """Get the first non-None value for a key from a list of dictionaries.
 
@@ -109,9 +107,7 @@ def get_first_non_none_value(
     return next((value for value in processed_values if value is not None), default)
 
 
-def parse_value_or_multiline_option(
-    value: Union[str, None]
-) -> Union[None, str, List[str]]:
+def parse_value_or_multiline_option(value: str | None) -> None | str | list[str]:
     """Parse option which can hold a single value or values separated by new lines."""
     if value in ["none", "None", None, ""]:
         return None
@@ -123,7 +119,7 @@ def parse_value_or_multiline_option(
         raise ValueError(f"Input {value!r} is neither a 'str' nor 'None'.")
 
 
-def convert_truthy_or_falsy_to_bool(x: Union[bool, str, None]) -> bool:
+def convert_truthy_or_falsy_to_bool(x: bool | str | None) -> bool:
     """Convert truthy or falsy value in .ini to Python boolean."""
     if x in [True, "True", "true", "1"]:
         out = True
@@ -138,7 +134,7 @@ def convert_truthy_or_falsy_to_bool(x: Union[bool, str, None]) -> bool:
     return out
 
 
-def reduce_node_name(node: "MetaNode", paths: Sequence[Union[str, Path]]) -> str:
+def reduce_node_name(node: MetaNode, paths: Sequence[str | Path]) -> str:
     """Reduce the node name.
 
     The whole name of the node - which includes the drive letter - can be very long
@@ -164,8 +160,8 @@ def reduce_node_name(node: "MetaNode", paths: Sequence[Union[str, Path]]) -> str
 
 
 def reduce_names_of_multiple_nodes(
-    names: List[str], dag: nx.DiGraph, paths: Sequence[Union[str, Path]]
-) -> List[str]:
+    names: list[str], dag: nx.DiGraph, paths: Sequence[str | Path]
+) -> list[str]:
     """Reduce the names of multiple nodes in the DAG."""
     short_names = []
     for name in names:

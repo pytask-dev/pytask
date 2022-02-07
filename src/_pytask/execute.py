@@ -1,9 +1,9 @@
 """This module contains hook implementations concerning the execution."""
+from __future__ import annotations
+
 import sys
 import time
 from typing import Any
-from typing import Dict
-from typing import List
 
 from _pytask.config import hookimpl
 from _pytask.console import console
@@ -33,9 +33,9 @@ from rich.text import Text
 
 @hookimpl
 def pytask_parse_config(
-    config: Dict[str, Any],
-    config_from_cli: Dict[str, Any],
-    config_from_file: Dict[str, Any],
+    config: dict[str, Any],
+    config_from_cli: dict[str, Any],
+    config_from_file: dict[str, Any],
 ) -> None:
     """Parse the configuration."""
     config["show_errors_immediately"] = get_first_non_none_value(
@@ -48,7 +48,7 @@ def pytask_parse_config(
 
 
 @hookimpl
-def pytask_post_parse(config: Dict[str, Any]) -> None:
+def pytask_post_parse(config: dict[str, Any]) -> None:
     """Adjust the configuration after intermediate values have been parsed."""
     if config["show_errors_immediately"]:
         config["pm"].register(ShowErrorsImmediatelyPlugin)
@@ -222,7 +222,7 @@ class ShowErrorsImmediatelyPlugin:
 
 
 @hookimpl
-def pytask_execute_log_end(session: Session, reports: List[ExecutionReport]) -> bool:
+def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> bool:
     """Log information on the execution."""
     session.execution_end = time.time()
 

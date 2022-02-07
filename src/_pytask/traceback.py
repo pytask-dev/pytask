@@ -1,4 +1,6 @@
 """Process tracebacks."""
+from __future__ import annotations
+
 from pathlib import Path
 from types import TracebackType
 from typing import Generator
@@ -19,11 +21,11 @@ ExceptionInfo = Tuple[Type[BaseException], BaseException, Union[TracebackType, N
 
 
 def render_exc_info(
-    exc_type: Type[BaseException],
+    exc_type: type[BaseException],
     exc_value: BaseException,
-    traceback: Union[str, TracebackType],
+    traceback: str | TracebackType,
     show_locals: bool = False,
-) -> Union[str, Traceback]:
+) -> str | Traceback:
     if isinstance(traceback, str):
         renderable = traceback
     else:
