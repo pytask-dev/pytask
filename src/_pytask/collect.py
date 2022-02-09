@@ -52,8 +52,6 @@ def pytask_collect(session: Session) -> bool:
         session=session, reports=session.collection_reports, tasks=session.tasks
     )
 
-    breakpoint()
-
     return True
 
 
