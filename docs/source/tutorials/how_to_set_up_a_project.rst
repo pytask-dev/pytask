@@ -120,10 +120,6 @@ Then, install the package into your environment with
 
 .. code-block:: console
 
-    $ conda develop .
-
-    # or
-
     $ pip install -e .
 
 Both commands will produce an editable install of the project which means any changes in
@@ -138,6 +134,8 @@ the source files of the package are reflected in the installed version of the pa
 
     For a more sophisticated setup where versions are managed via tags on the
     repository, check out `setuptools_scm <https://github.com/pypa/setuptools_scm>`_.
+    The tool is also used in `cookiecutter-pytask-project
+    <https://github.com/pytask-dev/cookiecutter-pytask-project>`_.
 
 
 Further Reading
