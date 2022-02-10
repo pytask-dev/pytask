@@ -14,6 +14,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   exception as an input. Closes :gh:`145`.
 - :gh:`213` improves coverage and reporting.
 - :gh:`215` makes the help pages of the CLI prettier.
+- :gh:`217` enhances the tutorial on how to set up a project.
 
 
 0.1.7 - 2022-01-28
