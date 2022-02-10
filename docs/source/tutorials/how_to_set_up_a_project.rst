@@ -100,11 +100,12 @@ to store the products of tasks and can be deleted to rebuild the entire project.
 Install the project
 ~~~~~~~~~~~~~~~~~~~
 
-Some files are necessary to turn the source directory into a Python package. It allows
-to perform imports from ``my_project``. E.g., ``from my_project.config import SRC``.
+Two files are necessary to turn the source directory into a Python package. It allows to
+perform imports from ``my_project``. E.g., ``from my_project.config import SRC``. We
+also need ``pip >= 21.1``.
 
-For that, we need two files. First, we need a ``setup.cfg`` which contains the name and
-version of the package and where the source code can be found.
+First, we need a ``setup.cfg`` which contains the name and version of the package and
+where the source code can be found.
 
 .. code-block:: ini
 
