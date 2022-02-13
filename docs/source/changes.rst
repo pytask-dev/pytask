@@ -7,6 +7,13 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
 
+0.1.9 - 2022-xx-xx
+------------------
+
+- :gh:`217` enhances the tutorial on how to set up a project.
+- :gh:`218` removes ``depends_on`` and ``produces`` from the task function when parsed.
+
+
 0.1.8 - 2022-02-07
 ------------------
 
@@ -14,7 +21,6 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   exception as an input. Closes :gh:`145`.
 - :gh:`213` improves coverage and reporting.
 - :gh:`215` makes the help pages of the CLI prettier.
-- :gh:`217` enhances the tutorial on how to set up a project.
 
 
 0.1.7 - 2022-01-28
