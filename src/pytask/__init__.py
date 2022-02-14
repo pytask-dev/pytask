@@ -7,6 +7,8 @@ from _pytaks.mark_utils import remove_markers_from_func
 from _pytask import __version__
 from _pytask.build import main
 from _pytask.cli import cli
+from _pytask.compat import check_for_optional_program
+from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.graph import build_dag
 from _pytask.mark import Mark
@@ -23,10 +25,12 @@ from _pytask.session import Session
 __all__ = [
     "__version__",
     "build_dag",
+    "check_for_optional_program",
     "cli",
     "get_specific_markers_from_task",
     "has_marker",
     "hookimpl",
+    "import_optional_dependency",
     "main",
     "mark",
     "remove_markers_from_func",
