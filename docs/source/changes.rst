@@ -12,6 +12,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 
 - :gh:`217` enhances the tutorial on how to set up a project.
 - :gh:`218` removes ``depends_on`` and ``produces`` from the task function when parsed.
+- :gh:`219` removes some leftovers from pytest in :class:`~_pytask.mark.Mark`.
 
 
 0.1.8 - 2022-02-07
