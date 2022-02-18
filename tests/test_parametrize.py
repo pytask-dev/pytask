@@ -3,6 +3,7 @@ from __future__ import annotations
 import itertools
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
+from typing import NamedTuple
 
 import _pytask.parametrize
 import pytask
@@ -11,6 +12,7 @@ from _pytask.mark import Mark
 from _pytask.outcomes import ExitCode
 from _pytask.parametrize import _arg_value_to_id_component
 from _pytask.parametrize import _parse_arg_names
+from _pytask.parametrize import _parse_arg_values
 from _pytask.parametrize import _parse_parametrize_markers
 from _pytask.parametrize import pytask_parametrize_task
 from _pytask.pluginmanager import get_plugin_manager
@@ -109,9 +111,30 @@ def test_pytask_parametrize_missing_func_args(session):
         (["i", "j"], ("i", "j")),
     ],
 )
-def test_parse_argnames(arg_names, expected):
-    parsed_argnames = _parse_arg_names(arg_names)
-    assert parsed_argnames == expected
+def test_parse_arg_names(arg_names, expected):
+    parsed_arg_names = _parse_arg_names(arg_names)
+    assert parsed_arg_names == expected
+
+
+class TaskArguments(NamedTuple):
+    a: int
+    b: int
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "arg_values, expected",
+    [
+        (["a", "b", "c"], [("a",), ("b",), ("c",)]),
+        ([(0, 0), (0, 1), (1, 0)], [(0, 0), (0, 1), (1, 0)]),
+        ([[0, 0], [0, 1], [1, 0]], [(0, 0), (0, 1), (1, 0)]),
+        ({"a": 0, "b": 1}, [("a",), ("b",)]),
+        ([TaskArguments(a=1, b=2)], [(1, 2)]),
+    ],
+)
+def test_parse_arg_values(arg_values, expected):
+    parsed_arg_values = _parse_arg_values(arg_values)
+    assert parsed_arg_values == expected
 
 
 @pytest.mark.unit
@@ -430,3 +453,31 @@ def test_generators_are_removed_from_depends_on_produces(tmp_path):
     session = main({"paths": tmp_path})
     assert session.exit_code == 0
     assert session.tasks[0].function.__wrapped__.pytaskmark == []
+
+
+@pytest.mark.end_to_end
+def test_parametrizing_tasks_with_namedtuples(tmp_path):
+    source = """
+    from typing import NamedTuple
+    import pytask
+    from pathlib import Path
+
+
+    class Task(NamedTuple):
+        i: int
+        produces: Path
+
+
+    @pytask.mark.parametrize('i, produces', [
+        Task(i=1, produces="1.txt"), Task(produces="2.txt", i=2),
+    ])
+    def task_write_numbers_to_file(produces, i):
+        produces.write_text(str(i))
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == 0
+    for i in range(1, 3):
+        assert tmp_path.joinpath(f"{i}.txt").read_text() == str(i)
