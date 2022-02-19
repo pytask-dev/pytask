@@ -5,9 +5,6 @@ from typing import Any
 from typing import Callable
 from typing import Iterable
 from typing import Mapping
-from typing import Optional
-from typing import Sequence
-from typing import Tuple
 
 import attr
 
@@ -16,24 +13,14 @@ def is_task_function(func: Any) -> bool:
     return callable(func) and getattr(func, "__name__", "<lambda>") != "<lambda>"
 
 
-@attr.s(frozen=True)
+@attr.s(frozen=True, auto_attribs=True)
 class Mark:
-    name = attr.ib(type=str)
+    name: str
     """str: Name of the mark."""
-    args = attr.ib(type=Tuple[Any, ...])
+    args: tuple[Any, ...]
     """Tuple[Any]: Positional arguments of the mark decorator."""
-    kwargs = attr.ib(type=Mapping[str, Any])
+    kwargs: Mapping[str, Any]
     """Mapping[str, Any]: Keyword arguments of the mark decorator."""
-
-    _param_ids_from = attr.ib(type=Optional["Mark"], default=None, repr=False)
-    """Optional[Mark]: Source Mark for ids with parametrize Marks."""
-    _param_ids_generated = attr.ib(
-        type=Optional[Sequence[str]], default=None, repr=False
-    )
-    """Optional[Sequence[str]]: Resolved/generated ids with parametrize Marks."""
-
-    def _has_param_ids(self) -> bool:
-        return "ids" in self.kwargs or len(self.args) >= 4
 
     def combined_with(self, other: Mark) -> Mark:
         """Return a new Mark which is a combination of this Mark and another Mark.
@@ -53,19 +40,10 @@ class Mark:
         """
         assert self.name == other.name
 
-        # Remember source of ids with parametrize Marks.
-        param_ids_from: Mark | None = None
-        if self.name == "parametrize":
-            if other._has_param_ids():
-                param_ids_from = other
-            elif self._has_param_ids():
-                param_ids_from = self
-
         return Mark(
             self.name,
             self.args + other.args,
-            dict(self.kwargs, **other.kwargs),
-            param_ids_from=param_ids_from,
+            {**self.kwargs, **other.kwargs},
         )
 
 

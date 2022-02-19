@@ -8,7 +8,8 @@ of the most elementary pieces.
 
 .. seealso::
 
-    If you want to start from a template or take inspiration from previous projects, look at :doc:`../how_to_guides/bp_templates_and_projects`.
+    If you want to start from a template or take inspiration from previous projects,
+    look at :doc:`../how_to_guides/bp_templates_and_projects`.
 
 
 The directory structure
@@ -26,7 +27,9 @@ The following directory tree is an example of how a project can be set up.
     │       ├────config.py
     │       └────...
     │
-    ├───setup.py
+    ├───setup.cfg
+    │
+    ├───pyproject.toml
     │
     ├───.pytask.sqlite3
     │
@@ -94,50 +97,68 @@ The build directory ``bld`` is created automatically during the execution. It is
 to store the products of tasks and can be deleted to rebuild the entire project.
 
 
-``setup.py``
-~~~~~~~~~~~~
+Install the project
+~~~~~~~~~~~~~~~~~~~
 
-The ``setup.py`` is useful to turn the source directory into a Python package. It allows
-to perform imports from ``src``. E.g., ``from src.config import SRC``.
+Two files are necessary to turn the source directory into a Python package. It allows to
+perform imports from ``my_project``. E.g., ``from my_project.config import SRC``. We
+also need ``pip >= 21.1``.
 
-Here is the content of the file.
+First, we need a ``setup.cfg`` which contains the name and version of the package and
+where the source code can be found.
 
-.. code-block:: python
+.. code-block:: ini
 
-    # Content of setup.py
+    # Content of setup.cfg
 
-    from setuptools import setup
+    [metadata]
+    name = my_project
+    version = 0.0.1
 
+    [options]
+    packages = find:
+    package_dir =
+        =src
 
-    setup(
-        name="my_project",
-        version="0.0.1",
-        packages=find_packages(where="src"),
-        package_dir={"": "src"},
-    )
+    [options.packages.find]
+    where = src
 
-Then, install the package into your environment with
+Secondly, you need a ``pyproject.toml`` with this content:
+
+.. code-block:: toml
+
+    # Content of pyproject.toml
+
+    [build-system]
+    requires = ["setuptools"]
+    build-backend = "setuptools.build_meta"
+
+.. seealso::
+
+    You find this and more information in the documentation for `setuptools
+    <https://setuptools.pypa.io/en/latest/userguide/quickstart.html>`_.
+
+Now, you can install the package into your environment with
 
 .. code-block:: console
 
-    $ conda develop .
-
-    # or
-
     $ pip install -e .
 
-Both commands will produce an editable install of the project which means any changes in
-the source files of the package are reflected in the installed version of the package.
+This command will trigger an editable install of the project which means any changes in
+the source files of the package are immediately reflected in the installed version of
+the package.
 
-.. tip::
+.. important::
 
-    Do not forget to rerun the editable install every time you recreate your Python
+    Do not forget to rerun the editable install should you recreate your Python
     environment.
 
 .. tip::
 
     For a more sophisticated setup where versions are managed via tags on the
     repository, check out `setuptools_scm <https://github.com/pypa/setuptools_scm>`_.
+    The tool is also used in `cookiecutter-pytask-project
+    <https://github.com/pytask-dev/cookiecutter-pytask-project>`_.
 
 
 Further Reading

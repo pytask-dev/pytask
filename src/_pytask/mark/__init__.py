@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import attr
 import click
 import networkx as nx
+from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.dag import task_and_preceding_tasks
@@ -42,7 +43,7 @@ __all__ = [
 ]
 
 
-@click.command()
+@click.command(cls=ColoredCommand)
 def markers(**config_from_cli: Any) -> NoReturn:
     """Show all registered markers."""
     config_from_cli["command"] = "markers"

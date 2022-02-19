@@ -408,3 +408,25 @@ def test_wrong_number_of_names_and_wrong_number_of_arguments(
     assert result.exit_code == ExitCode.COLLECTION_FAILED
     for c in content:
         assert c in result.output
+
+
+@pytest.mark.end_to_end
+def test_generators_are_removed_from_depends_on_produces(tmp_path):
+    source = """
+    from pathlib import Path
+    import pytask
+
+    @pytask.mark.parametrize("produces", [
+        ((x for x in ["out.txt", "out_2.txt"]),),
+        ["in.txt"],
+    ])
+    def task_example(produces):
+        produces = {0: produces} if isinstance(produces, Path) else produces
+        for p in produces.values():
+            p.write_text("hihi")
+    """
+    tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+    assert session.exit_code == 0
+    assert session.tasks[0].function.__wrapped__.pytaskmark == []
