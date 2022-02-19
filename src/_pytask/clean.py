@@ -27,7 +27,7 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import render_exc_info
-from pybaum.tree_util import tree_just_flatten
+from pybaum.tree_util import tree_just_yield
 
 
 if TYPE_CHECKING:
@@ -192,7 +192,7 @@ def _yield_paths_from_task(task: MetaTask) -> Generator[Path, None, None]:
     """Yield all paths attached to a task."""
     yield task.path
     for attribute in ["depends_on", "produces"]:
-        for node in tree_just_flatten(getattr(task, attribute)):
+        for node in tree_just_yield(getattr(task, attribute)):
             if hasattr(node, "path") and isinstance(node.path, Path):
                 yield node.path
 
