@@ -11,6 +11,7 @@ import pytest
 from _pytask.mark import Mark
 from _pytask.outcomes import ExitCode
 from _pytask.parametrize import _arg_value_to_id_component
+from _pytask.parametrize import _check_if_n_arg_names_matches_n_arg_values
 from _pytask.parametrize import _parse_arg_names
 from _pytask.parametrize import _parse_arg_values
 from _pytask.parametrize import _parse_parametrize_markers
@@ -456,7 +457,7 @@ def test_generators_are_removed_from_depends_on_produces(tmp_path):
 
 
 @pytest.mark.end_to_end
-def test_parametrizing_tasks_with_namedtuples(tmp_path):
+def test_parametrizing_tasks_with_namedtuples(runner, tmp_path):
     source = """
     from typing import NamedTuple
     import pytask
@@ -476,8 +477,66 @@ def test_parametrizing_tasks_with_namedtuples(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert session.exit_code == 0
+    assert result.exit_code == 0
     for i in range(1, 3):
         assert tmp_path.joinpath(f"{i}.txt").read_text() == str(i)
+
+
+@pytest.mark.end_to_end
+def test_parametrization_with_different_n_of_arg_names_and_arg_values(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.parametrize('i, produces', [(1, "1.txt"), (2, 3, "2.txt")])
+    def task_write_numbers_to_file(produces, i):
+        produces.write_text(str(i))
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Task 'task_write_numbers_to_file' is parametrized with 2" in result.output
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "arg_names, arg_values, name, expectation",
+    [
+        pytest.param(
+            ("a",),
+            [(1,), (2,)],
+            "task_name",
+            does_not_raise(),
+            id="normal one argument parametrization",
+        ),
+        pytest.param(
+            ("a", "b"),
+            [(1, 2), (3, 4)],
+            "task_name",
+            does_not_raise(),
+            id="normal two argument argument parametrization",
+        ),
+        pytest.param(
+            ("a",),
+            [(1, 2), (2,)],
+            "task_name",
+            pytest.raises(ValueError, match="Task 'task_name' is parametrized with 1"),
+            id="error with one argument parametrization",
+        ),
+        pytest.param(
+            ("a", "b"),
+            [(1, 2), (3, 4, 5)],
+            "task_name",
+            pytest.raises(ValueError, match="Task 'task_name' is parametrized with 2"),
+            id="error with two argument argument parametrization",
+        ),
+    ],
+)
+def test_check_if_n_arg_names_matches_n_arg_values(
+    arg_names, arg_values, name, expectation
+):
+    with expectation:
+        _check_if_n_arg_names_matches_n_arg_values(arg_names, arg_values, name)
