@@ -57,14 +57,7 @@ def test_pytask_generate_tasks_1(session):
     def func(i, j):  # noqa: U100
         pass
 
-    names_and_objs = pytask_parametrize_task(session, "func", func)
-
-    for (name, func), values in zip(
-        names_and_objs, itertools.product(range(2), range(2))
-    ):
-        assert name == f"func[{values[0]}-{values[1]}]"
-        assert func.keywords["i"] == values[0]
-        assert func.keywords["j"] == values[1]
+    pytask_parametrize_task(session, "func", func)
 
 
 @pytest.mark.integration
@@ -75,16 +68,7 @@ def test_pytask_generate_tasks_2(session):
     def func(i, j, k):  # noqa: U100
         pass
 
-    names_and_objs = pytask_parametrize_task(session, "func", func)
-
-    for (name, func), values in zip(
-        names_and_objs,
-        [(i, j, k) for i in range(2) for j in range(2) for k in range(2)],
-    ):
-        assert name == f"func[{values[0]}-{values[1]}-{values[2]}]"
-        assert func.keywords["i"] == values[0]
-        assert func.keywords["j"] == values[1]
-        assert func.keywords["k"] == values[2]
+    pytask_parametrize_task(session, "func", func)
 
 
 @pytest.mark.integration
@@ -291,28 +275,20 @@ def test_parametrize_w_ids(tmp_path, arg_values, ids):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.xfail(strict=True, reason="Cartesian task product is disabled.")
-def test_two_parametrize_w_ids(tmp_path):
-    tmp_path.joinpath("task_module.py").write_text(
-        textwrap.dedent(
-            """
-            import pytask
+def test_two_parametrize_w_ids(runner, tmp_path):
+    source = """
+    import pytask
 
-            @pytask.mark.parametrize('i', range(2), ids=["2.1", "2.2"])
-            @pytask.mark.parametrize('j', range(2), ids=["1.1", "1.2"])
-            def task_func(i, j):
-                pass
-            """
-        )
-    )
-    session = main({"paths": tmp_path})
+    @pytask.mark.parametrize('i', range(2), ids=["2.1", "2.2"])
+    @pytask.mark.parametrize('j', range(2), ids=["1.1", "1.2"])
+    def task_func(i, j):
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert session.exit_code == 0
-    assert len(session.tasks) == 4
-    for task, id_ in zip(
-        session.tasks, ["[1.1-2.1]", "[1.1-2.2]", "[1.2-2.1]", "[1.2-2.2]"]
-    ):
-        assert id_ in task.name
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "You cannot apply @pytask.mark.parametrize multiple" in result.output
 
 
 @pytest.mark.end_to_end

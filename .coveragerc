@@ -1,3 +1,8 @@
+[paths]
+source =
+    src/
+    tests/
+
 [report]
 exclude_lines =
     pragma: no cover

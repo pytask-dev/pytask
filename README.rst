@@ -1,5 +1,5 @@
 .. image:: https://raw.githubusercontent.com/pytask-dev/pytask/main/docs/source/_static/images/pytask_w_text.png
-    :target: https://pytask-dev.readthedocs.io/en/latest
+    :target: https://pytask-dev.readthedocs.io/en/stable
     :align: center
     :width: 50%
     :alt: pytask
@@ -27,7 +27,7 @@
     :target: https://pypi.org/project/pytask
 
 .. image:: https://readthedocs.org/projects/pytask-dev/badge/?version=latest
-    :target: https://pytask-dev.readthedocs.io/en/latest
+    :target: https://pytask-dev.readthedocs.io/en/stable
 
 .. image:: https://img.shields.io/github/workflow/status/pytask-dev/pytask/Continuous%20Integration%20Workflow/main
    :target: https://github.com/pytask-dev/pytask/actions?query=branch%3Amain
@@ -57,12 +57,12 @@ projects. Its features include:
   do not execute it.
 
 - **Debug mode.** `Jump into the debugger
-  <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_debug.html>`_ if a task
+  <https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_debug.html>`_ if a task
   fails, get feedback quickly, and be more productive.
 
 - **Select tasks via expressions.** Run only a subset of tasks with `expressions and
   marker expressions
-  <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_select_tasks.html>`_
+  <https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_select_tasks.html>`_
   known from pytest.
 
 - **Easily extensible with plugins**. pytask is built on top of `pluggy
@@ -73,7 +73,7 @@ projects. Its features include:
   <https://github.com/pytask-dev/pytask-r>`_, and `Stata
   <https://github.com/pytask-dev/pytask-stata>`_ and more can be found `here
   <https://github.com/topics/pytask>`_. Read in `this tutorial
-  <https://pytask-dev.readthedocs.io/en/latest/tutorials/how_to_use_plugins.html>`_ how
+  <https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_use_plugins.html>`_ how
   to use and create plugins with a `cookiecutter
   <https://github.com/pytask-dev/cookiecutter-pytask-plugin>`_.
 
@@ -105,7 +105,7 @@ example, installed via the `Microsoft Store <https://aka.ms/terminal>`_.
 To quickly set up a new project, use the `cookiecutter-pytask-project
 <https://github.com/pytask-dev/cookiecutter-pytask-project>`_ template or start from
 `other templates or example projects
-<https://pytask-dev.readthedocs.io/en/latest/how_to_guides/bp_templates_and_projects.html>`_.
+<https://pytask-dev.readthedocs.io/en/stable/how_to_guides/bp_templates_and_projects.html>`_.
 
 .. end-installation
 
@@ -144,16 +144,16 @@ To execute the task, enter ``pytask`` on the command-line
 Documentation
 -------------
 
-The documentation can be found under https://pytask-dev.readthedocs.io/en/latest with
-`tutorials <https://pytask-dev.readthedocs.io/en/latest/tutorials/index.html>`_ and
+The documentation can be found under https://pytask-dev.readthedocs.io/en/stable with
+`tutorials <https://pytask-dev.readthedocs.io/en/stable/tutorials/index.html>`_ and
 guides for `best practices
-<https://pytask-dev.readthedocs.io/en/latest/how_to_guides/index.html>`_.
+<https://pytask-dev.readthedocs.io/en/stable/how_to_guides/index.html>`_.
 
 
 Changes
 -------
 
-Consult the `release notes <https://pytask-dev.readthedocs.io/en/latest/changes.html>`_
+Consult the `release notes <https://pytask-dev.readthedocs.io/en/stable/changes.html>`_
 to find out about what is new.
 
 
