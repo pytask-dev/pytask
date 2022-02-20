@@ -6,9 +6,9 @@ import textwrap
 import pytest
 from _pytask.database import create_database
 from _pytask.database import State
-from _pytask.outcomes import ExitCode
 from pony import orm
 from pytask import cli
+from pytask import ExitCode
 
 
 @pytest.mark.end_to_end

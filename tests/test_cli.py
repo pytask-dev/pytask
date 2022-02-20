@@ -3,9 +3,9 @@ from __future__ import annotations
 import subprocess
 
 import pytest
-from _pytask.outcomes import ExitCode
 from pytask import __version__
 from pytask import cli
+from pytask import ExitCode
 
 
 @pytest.mark.end_to_end

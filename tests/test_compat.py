@@ -6,8 +6,8 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
 from _pytask.compat import _MINIMUM_VERSIONS
-from _pytask.compat import check_for_optional_program
-from _pytask.compat import import_optional_dependency
+from pytask import check_for_optional_program
+from pytask import import_optional_dependency
 
 
 @pytest.mark.unit

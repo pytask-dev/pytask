@@ -3,11 +3,11 @@ from __future__ import annotations
 import attr
 import pytask
 import pytest
-from _pytask.mark_utils import get_marks_from_obj
-from _pytask.mark_utils import get_specific_markers_from_task
-from _pytask.mark_utils import has_marker
-from _pytask.mark_utils import remove_markers_from_func
-from _pytask.nodes import MetaTask
+from pytask import get_marks_from_obj
+from pytask import get_specific_markers_from_task
+from pytask import has_marker
+from pytask import MetaTask
+from pytask import remove_markers_from_func
 
 
 @attr.s

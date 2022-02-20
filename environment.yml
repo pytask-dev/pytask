@@ -23,6 +23,7 @@ dependencies:
   - pluggy
   - pony >=0.7.15
   - rich
+  - typing-extensions
 
   # Misc
   - black

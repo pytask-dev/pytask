@@ -9,12 +9,12 @@ import networkx as nx
 import pytest
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
-from _pytask.nodes import FilePathNode
-from _pytask.nodes import PythonFunctionTask
-from _pytask.outcomes import ExitCode
 from _pytask.resolve_dependencies import _check_if_root_nodes_are_available
 from _pytask.resolve_dependencies import pytask_resolve_dependencies_create_dag
 from pytask import cli
+from pytask import ExitCode
+from pytask import FilePathNode
+from pytask import PythonFunctionTask
 
 
 @attr.s

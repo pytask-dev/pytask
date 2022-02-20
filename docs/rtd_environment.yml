@@ -27,6 +27,7 @@ dependencies:
   - pony >=0.7.15
   - pexpect
   - rich
+  - typing-extensions
 
   - pip:
     - ../

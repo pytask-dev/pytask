@@ -6,10 +6,10 @@ import textwrap
 import pytest
 from _pytask.cli import cli
 from _pytask.database import create_database
-from _pytask.outcomes import ExitCode
 from _pytask.profile import _to_human_readable_size
 from _pytask.profile import Runtime
 from pony import orm
+from pytask import ExitCode
 from pytask import main
 
 

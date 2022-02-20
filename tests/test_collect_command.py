@@ -7,9 +7,9 @@ import attr
 import pytest
 from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
-from _pytask.nodes import MetaNode
-from _pytask.nodes import MetaTask
 from pytask import cli
+from pytask import MetaNode
+from pytask import MetaTask
 
 
 @pytest.mark.end_to_end

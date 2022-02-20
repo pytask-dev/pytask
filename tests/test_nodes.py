@@ -13,11 +13,11 @@ from _pytask.nodes import _convert_objects_to_node_dictionary
 from _pytask.nodes import _extract_nodes_from_function_markers
 from _pytask.nodes import create_task_name
 from _pytask.nodes import depends_on
-from _pytask.nodes import FilePathNode
-from _pytask.nodes import MetaNode
-from _pytask.nodes import MetaTask
 from _pytask.nodes import produces
 from _pytask.shared import reduce_node_name
+from pytask import FilePathNode
+from pytask import MetaNode
+from pytask import MetaTask
 
 
 @pytest.mark.unit
