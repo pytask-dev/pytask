@@ -6,22 +6,14 @@ the message send by the host and may send a response.
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import Any
 from typing import Callable
-from typing import cast
 from typing import TYPE_CHECKING
-from typing import TypeVar
 
 import click
 import networkx as nx
 import pluggy
-
-if sys.version_info < (3, 8):
-    from typing_extensions import Protocol
-else:
-    from typing import Protocol
 
 
 if TYPE_CHECKING:
@@ -35,13 +27,7 @@ if TYPE_CHECKING:
     from _pytask.reports import ResolveDependencyReport
 
 
-class C(Protocol):
-    def __call__(self, firstresult: bool) -> Any:
-        ...
-
-
-F = TypeVar("F", bound=Callable[..., Any])
-hookspec = cast(Callable[[F], F], pluggy.HookspecMarker("pytask"))
+hookspec = pluggy.HookspecMarker("pytask")
 
 
 @hookspec
