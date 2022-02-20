@@ -2,9 +2,8 @@ name: Update Plugin List
 
 on:
   schedule:
-    # At 00:00 on Sunday.
-    # https://crontab.guru
-    - cron: '0 0 * * 0'
+    # At 18:00 on Monday. https://crontab.guru
+    - cron: '0 18 * * MON'
   workflow_dispatch:
 
 # Set permissions at the job level.
