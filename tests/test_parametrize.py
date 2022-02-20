@@ -114,7 +114,9 @@ class TaskArguments(NamedTuple):
         ([(0, 0), (0, 1), (1, 0)], [(0, 0), (0, 1), (1, 0)]),
         ([[0, 0], [0, 1], [1, 0]], [(0, 0), (0, 1), (1, 0)]),
         ({"a": 0, "b": 1}, [("a",), ("b",)]),
+        ([TaskArguments(1, 2)], [(1, 2)]),
         ([TaskArguments(a=1, b=2)], [(1, 2)]),
+        ([TaskArguments(b=2, a=1)], [(1, 2)]),
     ],
 )
 def test_parse_arg_values(arg_values, expected):
