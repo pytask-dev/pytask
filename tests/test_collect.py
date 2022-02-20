@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 import textwrap
+import warnings
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
@@ -176,11 +177,11 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
     if is_absolute:
         collected_node = tmp_path / collected_node
 
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings(record=True) as record:
         result = pytask_collect_node(session, task_path, collected_node)
+        assert not record
 
     assert str(result.path) == str(real_node)
-    assert not record
 
 
 @pytest.mark.unit
