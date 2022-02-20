@@ -35,7 +35,7 @@ repos:
     -   id: pyupgrade
         args: [--py37-plus]
 -   repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.6.0
+    rev: v2.7.1
     hooks:
     -   id: reorder-python-imports
         args: [--py37-plus, --add-import, 'from __future__ import annotations']
@@ -44,11 +44,11 @@ repos:
     hooks:
     -   id: setup-cfg-fmt
 -   repo: https://github.com/psf/black
-    rev: 21.12b0
+    rev: 22.1.0
     hooks:
     -   id: black
 -   repo: https://github.com/asottile/blacken-docs
-    rev: v1.12.0
+    rev: v1.12.1
     hooks:
     -   id: blacken-docs
         additional_dependencies: [black]

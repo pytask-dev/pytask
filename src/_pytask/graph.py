@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import click
 import networkx as nx
+from _pytask.click import ColoredCommand
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
@@ -104,7 +105,7 @@ _HELP_TEXT_RANK_DIRECTION: str = (
 )
 
 
-@click.command()
+@click.command(cls=ColoredCommand)
 @click.option("-l", "--layout", type=str, default=None, help=_HELP_TEXT_LAYOUT)
 @click.option("-o", "--output-path", type=str, default=None, help=_HELP_TEXT_OUTPUT)
 @click.option(
@@ -113,7 +114,7 @@ _HELP_TEXT_RANK_DIRECTION: str = (
     help=_HELP_TEXT_RANK_DIRECTION,
 )
 def dag(**config_from_cli: Any) -> NoReturn:
-    """Create a visualization of the project's DAG."""
+    """Create a visualization of the project's directed acyclic graph."""
     try:
         pm = get_plugin_manager()
         from _pytask import cli

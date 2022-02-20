@@ -12,6 +12,7 @@ from typing import Generator
 from typing import TYPE_CHECKING
 
 import click
+from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_id
@@ -97,7 +98,7 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
             setattr(runtime, attr, val)
 
 
-@click.command()
+@click.command(cls=ColoredCommand)
 @click.option(
     "--export",
     type=str,
@@ -105,7 +106,7 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
     help="Export the profile in the specified format.",
 )
 def profile(**config_from_cli: Any) -> NoReturn:
-    """Show profile information on collected tasks."""
+    """Show information about tasks like runtime and memory consumption of products."""
     config_from_cli["command"] = "profile"
 
     try:
@@ -232,7 +233,7 @@ def _to_human_readable_size(bytes_: int, units: list[str] | None = None) -> str:
     units = [" bytes", " KB", " MB", " GB", " TB"] if units is None else units
     return (
         str(bytes_) + units[0]
-        if bytes_ < 1024
+        if bytes_ < 1024 or len(units) == 1
         else _to_human_readable_size(bytes_ >> 10, units[1:])
     )
 

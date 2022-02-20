@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING
 import attr
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.exceptions import NodeNotFoundError
-from _pytask.mark_utils import get_marks_from_obj
+from _pytask.mark_utils import remove_markers_from_func
 from _pytask.session import Session
 
 
@@ -147,7 +147,7 @@ class PythonFunctionTask(MetaTask):
         markers = [
             marker
             for marker in getattr(function, "pytaskmark", [])
-            if marker.name not in ["depends_on", "produces"]
+            if marker.name not in ("depends_on", "produces")
         ]
 
         return cls(
@@ -174,7 +174,7 @@ class PythonFunctionTask(MetaTask):
         """Process dependencies and products to pass them as kwargs to the function."""
         func_arg_names = set(inspect.signature(self.function).parameters)
         kwargs = {}
-        for arg_name in ["depends_on", "produces"]:
+        for arg_name in ("depends_on", "produces"):
             if arg_name in func_arg_names:
                 attribute = getattr(self, arg_name)
                 kwargs[arg_name] = (
@@ -280,7 +280,8 @@ def _extract_nodes_from_function_markers(
 
     """
     marker_name = parser.__name__
-    for marker in get_marks_from_obj(function, marker_name):
+    _, markers = remove_markers_from_func(function, marker_name)
+    for marker in markers:
         parsed = parser(*marker.args, **marker.kwargs)
         yield parsed
 

@@ -7,6 +7,7 @@ import pytest
 from _pytask.cli import cli
 from _pytask.database import create_database
 from _pytask.outcomes import ExitCode
+from _pytask.profile import _to_human_readable_size
 from _pytask.profile import Runtime
 from pony import orm
 from pytask import main
@@ -66,7 +67,12 @@ def test_profile_if_there_is_no_information_on_collected_tasks(tmp_path, runner)
 def test_profile_if_there_is_information_on_collected_tasks(tmp_path, runner):
     source = """
     import time
-    def task_example(): time.sleep(2)
+    import pytask
+
+    @pytask.mark.produces("out.txt")
+    def task_example(produces):
+        time.sleep(2)
+        produces.write_text("There are nine billion bicycles in Beijing.")
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
@@ -78,6 +84,8 @@ def test_profile_if_there_is_information_on_collected_tasks(tmp_path, runner):
     assert "Collected 1 task." in result.output
     assert "Duration (in s)" in result.output
     assert "0." in result.output
+    assert "Size of Products" in result.output
+    assert "43 bytes" in result.output
 
 
 @pytest.mark.end_to_end
@@ -99,3 +107,17 @@ def test_export_of_profile(tmp_path, runner, export):
     assert "Duration (in s)" in result.output
     assert "0." in result.output
     assert tmp_path.joinpath(f"profile.{export}").exists()
+
+
+@pytest.mark.parametrize(
+    "bytes_, units, expected",
+    [
+        (2**10, None, "1 KB"),
+        (2**20, None, "1 MB"),
+        (2**30, None, "1 GB"),
+        (2**30, [" bytes", " KB", " MB"], "1024 MB"),
+    ],
+)
+def test_to_human_readable_size(bytes_, units, expected):
+    result = _to_human_readable_size(bytes_, units)
+    assert result == expected

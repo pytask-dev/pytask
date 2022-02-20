@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 
 import attr
 import click
+from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.config import IGNORED_TEMPORARY_FILES_AND_FOLDERS
 from _pytask.console import console
@@ -69,7 +70,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
         ]
 
 
-@click.command()
+@click.command(cls=ColoredCommand)
 @click.option(
     "--mode",
     type=click.Choice(["dry-run", "interactive", "force"]),
@@ -80,7 +81,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     "-q", "--quiet", is_flag=True, help="Do not print the names of the removed paths."
 )
 def clean(**config_from_cli: Any) -> NoReturn:
-    """Clean provided paths by removing files unknown to pytask."""
+    """Clean the provided paths by removing files unknown to pytask."""
     config_from_cli["command"] = "clean"
 
     try:

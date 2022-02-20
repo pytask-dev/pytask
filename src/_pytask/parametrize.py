@@ -132,6 +132,10 @@ def pytask_parametrize_task(
             partialed_func = functools.partial(func, **kwargs)
             wrapped_func = functools.update_wrapper(partialed_func, func)
 
+            # Remove markers from wrapped function since they are not used. See
+            # https://github.com/pytask-dev/pytask/issues/216.
+            wrapped_func.func.pytaskmark = []  # type: ignore[attr-defined]
+
             name_ = f"{name}[{'-'.join(itertools.chain.from_iterable(names))}]"
             names_and_functions.append((name_, wrapped_func))
 
@@ -395,7 +399,7 @@ def _arg_value_to_id_component(
 def pytask_parametrize_kwarg_to_marker(obj: Any, kwargs: dict[str, str]) -> None:
     """Add some parametrized keyword arguments as decorator."""
     if callable(obj):
-        for marker_name in ["depends_on", "produces"]:
+        for marker_name in ("depends_on", "produces"):
             if marker_name in kwargs:
                 mark.__getattr__(marker_name)(kwargs.pop(marker_name))(obj)
 

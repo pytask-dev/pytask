@@ -16,8 +16,8 @@ _IGNORE_OPTION = click.Option(
     type=str,
     multiple=True,
     help=(
-        "A pattern to ignore files or directories. For example, ``task_example.py`` or "
-        "``src/*``."
+        "A pattern to ignore files or directories. For example, task_example.py or "
+        "src/*."
     ),
     callback=falsy_to_none_callback,
 )
