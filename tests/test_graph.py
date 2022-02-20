@@ -4,8 +4,8 @@ import shutil
 import textwrap
 
 import pytest
-from _pytask.outcomes import ExitCode
 from pytask import cli
+from pytask import ExitCode
 
 try:
     import pydot  # noqa: F401

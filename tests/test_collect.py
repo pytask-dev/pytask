@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 import textwrap
+import warnings
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
@@ -10,12 +11,12 @@ from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.nodes import create_task_name
-from _pytask.nodes import PythonFunctionTask
-from _pytask.outcomes import CollectionOutcome
-from _pytask.outcomes import ExitCode
-from _pytask.session import Session
 from pytask import cli
+from pytask import CollectionOutcome
+from pytask import ExitCode
 from pytask import main
+from pytask import PythonFunctionTask
+from pytask import Session
 
 
 @pytest.mark.end_to_end
@@ -176,11 +177,11 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
     if is_absolute:
         collected_node = tmp_path / collected_node
 
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings() as record:
         result = pytask_collect_node(session, task_path, collected_node)
+        assert not record
 
     assert str(result.path) == str(real_node)
-    assert not record
 
 
 @pytest.mark.unit

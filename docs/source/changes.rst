@@ -10,6 +10,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 0.1.9 - 2022-xx-xx
 ------------------
 
+- :gh:`197` publishes types, and adds classes and functions to the main namespace.
 - :gh:`217` enhances the tutorial on how to set up a project.
 - :gh:`218` removes ``depends_on`` and ``produces`` from the task function when parsed.
 - :gh:`219` removes some leftovers from pytest in :class:`~_pytask.mark.Mark`.

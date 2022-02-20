@@ -4,7 +4,7 @@ import textwrap
 
 import pytest
 from _pytask.nodes import create_task_name
-from _pytask.outcomes import ExitCode
+from pytask import ExitCode
 from pytask import main
 
 

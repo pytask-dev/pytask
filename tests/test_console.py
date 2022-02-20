@@ -6,16 +6,16 @@ from pathlib import Path
 import pytest
 from _pytask.console import _get_file
 from _pytask.console import _get_source_lines
-from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_path
 from _pytask.console import create_url_style_for_task
 from _pytask.console import format_task_id
 from _pytask.console import render_to_string
 from _pytask.nodes import create_task_name
-from _pytask.nodes import PythonFunctionTask
-from _pytask.outcomes import CollectionOutcome
-from _pytask.outcomes import TaskOutcome
+from pytask import CollectionOutcome
+from pytask import console
+from pytask import PythonFunctionTask
+from pytask import TaskOutcome
 from rich.console import Console
 from rich.style import Style
 from rich.text import Span
