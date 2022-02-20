@@ -91,7 +91,8 @@ repos:
     rev: "0.47"
     hooks:
     -   id: check-manifest
-        additional_dependencies: ["virtualenv[build]"]
+        args: [--no-build-isolation]
+        additional_dependencies: [setuptools-scm, toml]
 -   repo: https://github.com/guilatrova/tryceratops
     rev: v1.0.1
     hooks:
