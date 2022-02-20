@@ -1,3 +1,4 @@
+"""This module contains utilities related to the ``@pytask.mark.task`` decorator."""
 from __future__ import annotations
 
 from typing import Any
@@ -8,10 +9,12 @@ from _pytask.mark_utils import remove_markers_from_func
 
 
 def task(name: str | None = None) -> str:
+    """Parse inputs of the ``@pytask.mark.task`` decorator."""
     return name
 
 
 def parse_task_marker(obj: Callable[..., Any]) -> str:
+    """Parse the ``@pytask.mark.task`` decorator."""
     obj, task_markers = remove_markers_from_func(obj, "task")
 
     if len(task_markers) != 1:

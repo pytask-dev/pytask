@@ -1,3 +1,4 @@
+"""This module contains code related to resolving dependencies."""
 from __future__ import annotations
 
 import itertools
