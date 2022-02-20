@@ -14,8 +14,11 @@ Where to find plugins
 
 Plugins can be found in many places.
 
+- All plugins should appear in this :doc:`automatically updated list <../plugin_list>`
+  which is created by scanning packages on PyPI.
+
 - Check out the repositories in the `pytask-dev <https://github.com/pytask-dev>`_ Github
-  organization which includes a collection of officially supported plugins.
+  organization for a collection of officially supported plugins.
 
 - Check out the `pytask Github topic <https://github.com/topics/pytask>`_ which shows an
   overview of repositories linked to pytask.
