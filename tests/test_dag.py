@@ -10,8 +10,8 @@ from _pytask.dag import descending_tasks
 from _pytask.dag import node_and_neighbors
 from _pytask.dag import task_and_descending_tasks
 from _pytask.dag import TopologicalSorter
-from _pytask.mark import Mark
-from _pytask.nodes import MetaTask
+from pytask import Mark
+from pytask import MetaTask
 
 
 @attr.s

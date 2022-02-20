@@ -5,10 +5,10 @@ import textwrap
 
 import pytask
 import pytest
-from _pytask.mark import MarkGenerator
-from _pytask.outcomes import ExitCode
 from pytask import cli
+from pytask import ExitCode
 from pytask import main
+from pytask import MarkGenerator
 
 
 @pytest.mark.unit

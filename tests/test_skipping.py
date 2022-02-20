@@ -4,15 +4,15 @@ import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
-from _pytask.mark import Mark
-from _pytask.outcomes import ExitCode
-from _pytask.outcomes import Skipped
-from _pytask.outcomes import SkippedAncestorFailed
-from _pytask.outcomes import SkippedUnchanged
-from _pytask.outcomes import TaskOutcome
 from _pytask.skipping import pytask_execute_task_setup
 from pytask import cli
+from pytask import ExitCode
 from pytask import main
+from pytask import Mark
+from pytask import Skipped
+from pytask import SkippedAncestorFailed
+from pytask import SkippedUnchanged
+from pytask import TaskOutcome
 
 
 class DummyClass:
