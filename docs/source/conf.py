@@ -73,9 +73,12 @@ autodoc_mock_imports = [
 copybutton_prompt_text = r"\$ |>>> |In \[\d\]: "
 copybutton_prompt_is_regexp = True
 
+_repo = "https://github.com/pytest-dev/pytest"
 extlinks = {
-    "ghuser": ("https://github.com/%s", "@"),
-    "gh": ("https://github.com/pytask-dev/pytask/pull/%s", "#"),
+    "pypi": ("https://pypi.org/project/%s/", ""),
+    "issue": (f"{_repo}/issues/%s", "issue #"),
+    "pull": (f"{_repo}/pull/%s", "pull request #"),
+    "user": ("https://github.com/%s", "@"),
 }
 
 intersphinx_mapping = {
