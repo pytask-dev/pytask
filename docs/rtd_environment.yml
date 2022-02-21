@@ -28,6 +28,7 @@ dependencies:
   - pybaum
   - pexpect
   - rich
+  - typing-extensions
 
   - pip:
     - ../

@@ -13,6 +13,20 @@ if TYPE_CHECKING:
     from _pytask.report import ExecutionReport
 
 
+__all__ = [
+    "count_outcomes",
+    "CollectionOutcome",
+    "Exit",
+    "ExitCode",
+    "Persisted",
+    "PytaskOutcome",
+    "Skipped",
+    "SkippedUnchanged",
+    "SkippedAncestorFailed",
+    "TaskOutcome",
+]
+
+
 class CollectionOutcome(Enum):
     """Outcomes of collected files or tasks.
 
@@ -30,6 +44,7 @@ class CollectionOutcome(Enum):
 
     @property
     def symbol(self) -> str:
+        """The symbol of an outcome."""
         symbols = {
             CollectionOutcome.SUCCESS: ".",
             CollectionOutcome.FAIL: "F",
@@ -39,6 +54,7 @@ class CollectionOutcome(Enum):
 
     @property
     def description(self) -> str:
+        """A description of an outcome used in the summary panel."""
         descriptions = {
             CollectionOutcome.SUCCESS: "Succeeded",
             CollectionOutcome.FAIL: "Failed",
@@ -48,6 +64,7 @@ class CollectionOutcome(Enum):
 
     @property
     def style(self) -> str:
+        """Return the style of an outcome."""
         styles = {
             CollectionOutcome.SUCCESS: "success",
             CollectionOutcome.FAIL: "failed",
@@ -57,6 +74,7 @@ class CollectionOutcome(Enum):
 
     @property
     def style_textonly(self) -> str:
+        """Return the style of an outcome when only the text is colored."""
         styles_textonly = {
             CollectionOutcome.SUCCESS: "success.textonly",
             CollectionOutcome.FAIL: "failed.textonly",

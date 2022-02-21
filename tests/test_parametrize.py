@@ -3,19 +3,22 @@ from __future__ import annotations
 import itertools
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
+from typing import NamedTuple
 
 import _pytask.parametrize
 import pytask
 import pytest
-from _pytask.mark import Mark
-from _pytask.outcomes import ExitCode
 from _pytask.parametrize import _arg_value_to_id_component
+from _pytask.parametrize import _check_if_n_arg_names_matches_n_arg_values
 from _pytask.parametrize import _parse_arg_names
+from _pytask.parametrize import _parse_arg_values
 from _pytask.parametrize import _parse_parametrize_markers
 from _pytask.parametrize import pytask_parametrize_task
 from _pytask.pluginmanager import get_plugin_manager
 from pytask import cli
+from pytask import ExitCode
 from pytask import main
+from pytask import Mark
 
 
 class DummySession:
@@ -54,14 +57,7 @@ def test_pytask_generate_tasks_1(session):
     def func(i, j):  # noqa: U100
         pass
 
-    names_and_objs = pytask_parametrize_task(session, "func", func)
-
-    for (name, func), values in zip(
-        names_and_objs, itertools.product(range(2), range(2))
-    ):
-        assert name == f"func[{values[0]}-{values[1]}]"
-        assert func.keywords["i"] == values[0]
-        assert func.keywords["j"] == values[1]
+    pytask_parametrize_task(session, "func", func)
 
 
 @pytest.mark.integration
@@ -72,16 +68,7 @@ def test_pytask_generate_tasks_2(session):
     def func(i, j, k):  # noqa: U100
         pass
 
-    names_and_objs = pytask_parametrize_task(session, "func", func)
-
-    for (name, func), values in zip(
-        names_and_objs,
-        [(i, j, k) for i in range(2) for j in range(2) for k in range(2)],
-    ):
-        assert name == f"func[{values[0]}-{values[1]}-{values[2]}]"
-        assert func.keywords["i"] == values[0]
-        assert func.keywords["j"] == values[1]
-        assert func.keywords["k"] == values[2]
+    pytask_parametrize_task(session, "func", func)
 
 
 @pytest.mark.integration
@@ -109,9 +96,32 @@ def test_pytask_parametrize_missing_func_args(session):
         (["i", "j"], ("i", "j")),
     ],
 )
-def test_parse_argnames(arg_names, expected):
-    parsed_argnames = _parse_arg_names(arg_names)
-    assert parsed_argnames == expected
+def test_parse_arg_names(arg_names, expected):
+    parsed_arg_names = _parse_arg_names(arg_names)
+    assert parsed_arg_names == expected
+
+
+class TaskArguments(NamedTuple):
+    a: int
+    b: int
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "arg_values, expected",
+    [
+        (["a", "b", "c"], [("a",), ("b",), ("c",)]),
+        ([(0, 0), (0, 1), (1, 0)], [(0, 0), (0, 1), (1, 0)]),
+        ([[0, 0], [0, 1], [1, 0]], [(0, 0), (0, 1), (1, 0)]),
+        ({"a": 0, "b": 1}, [("a",), ("b",)]),
+        ([TaskArguments(1, 2)], [(1, 2)]),
+        ([TaskArguments(a=1, b=2)], [(1, 2)]),
+        ([TaskArguments(b=2, a=1)], [(1, 2)]),
+    ],
+)
+def test_parse_arg_values(arg_values, expected):
+    parsed_arg_values = _parse_arg_values(arg_values)
+    assert parsed_arg_values == expected
 
 
 @pytest.mark.unit
@@ -267,28 +277,20 @@ def test_parametrize_w_ids(tmp_path, arg_values, ids):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.xfail(strict=True, reason="Cartesian task product is disabled.")
-def test_two_parametrize_w_ids(tmp_path):
-    tmp_path.joinpath("task_module.py").write_text(
-        textwrap.dedent(
-            """
-            import pytask
+def test_two_parametrize_w_ids(runner, tmp_path):
+    source = """
+    import pytask
 
-            @pytask.mark.parametrize('i', range(2), ids=["2.1", "2.2"])
-            @pytask.mark.parametrize('j', range(2), ids=["1.1", "1.2"])
-            def task_func(i, j):
-                pass
-            """
-        )
-    )
-    session = main({"paths": tmp_path})
+    @pytask.mark.parametrize('i', range(2), ids=["2.1", "2.2"])
+    @pytask.mark.parametrize('j', range(2), ids=["1.1", "1.2"])
+    def task_func(i, j):
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert session.exit_code == 0
-    assert len(session.tasks) == 4
-    for task, id_ in zip(
-        session.tasks, ["[1.1-2.1]", "[1.1-2.2]", "[1.2-2.1]", "[1.2-2.2]"]
-    ):
-        assert id_ in task.name
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "You cannot apply @pytask.mark.parametrize multiple" in result.output
 
 
 @pytest.mark.end_to_end
@@ -430,3 +432,89 @@ def test_generators_are_removed_from_depends_on_produces(tmp_path):
     session = main({"paths": tmp_path})
     assert session.exit_code == 0
     assert session.tasks[0].function.__wrapped__.pytaskmark == []
+
+
+@pytest.mark.end_to_end
+def test_parametrizing_tasks_with_namedtuples(runner, tmp_path):
+    source = """
+    from typing import NamedTuple
+    import pytask
+    from pathlib import Path
+
+
+    class Task(NamedTuple):
+        i: int
+        produces: Path
+
+
+    @pytask.mark.parametrize('i, produces', [
+        Task(i=1, produces="1.txt"), Task(produces="2.txt", i=2),
+    ])
+    def task_write_numbers_to_file(produces, i):
+        produces.write_text(str(i))
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == 0
+    for i in range(1, 3):
+        assert tmp_path.joinpath(f"{i}.txt").read_text() == str(i)
+
+
+@pytest.mark.end_to_end
+def test_parametrization_with_different_n_of_arg_names_and_arg_values(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.parametrize('i, produces', [(1, "1.txt"), (2, 3, "2.txt")])
+    def task_write_numbers_to_file(produces, i):
+        produces.write_text(str(i))
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Task 'task_write_numbers_to_file' is parametrized with 2" in result.output
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "arg_names, arg_values, name, expectation",
+    [
+        pytest.param(
+            ("a",),
+            [(1,), (2,)],
+            "task_name",
+            does_not_raise(),
+            id="normal one argument parametrization",
+        ),
+        pytest.param(
+            ("a", "b"),
+            [(1, 2), (3, 4)],
+            "task_name",
+            does_not_raise(),
+            id="normal two argument argument parametrization",
+        ),
+        pytest.param(
+            ("a",),
+            [(1, 2), (2,)],
+            "task_name",
+            pytest.raises(ValueError, match="Task 'task_name' is parametrized with 1"),
+            id="error with one argument parametrization",
+        ),
+        pytest.param(
+            ("a", "b"),
+            [(1, 2), (3, 4, 5)],
+            "task_name",
+            pytest.raises(ValueError, match="Task 'task_name' is parametrized with 2"),
+            id="error with two argument argument parametrization",
+        ),
+    ],
+)
+def test_check_if_n_arg_names_matches_n_arg_values(
+    arg_names, arg_values, name, expectation
+):
+    with expectation:
+        _check_if_n_arg_names_matches_n_arg_values(arg_names, arg_values, name)

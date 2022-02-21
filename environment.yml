@@ -24,6 +24,7 @@ dependencies:
   - pony >=0.7.15
   - pybaum
   - rich
+  - typing-extensions
 
   # Misc
   - black
@@ -34,6 +35,7 @@ dependencies:
   - pydot
   - pytest
   - pytest-cov
+  - pytest-xdist
   - tox-conda
 
   # Documentation

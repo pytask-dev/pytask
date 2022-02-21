@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import pytest
-from _pytask.outcomes import CollectionOutcome
-from _pytask.outcomes import count_outcomes
-from _pytask.outcomes import TaskOutcome
 from _pytask.report import CollectionReport
 from _pytask.report import ExecutionReport
+from pytask import CollectionOutcome
+from pytask import count_outcomes
+from pytask import TaskOutcome
 
 
 @pytest.mark.unit

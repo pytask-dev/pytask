@@ -10,6 +10,9 @@ import warnings
 from packaging.version import parse as parse_version
 
 
+__all__ = ["check_for_optional_program", "import_optional_dependency"]
+
+
 _MINIMUM_VERSIONS: dict[str, str] = {}
 """Dict[str, str]: A mapping from packages to their minimum versions."""
 

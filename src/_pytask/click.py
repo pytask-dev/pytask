@@ -1,3 +1,4 @@
+"""This module contains code related to click."""
 from __future__ import annotations
 
 from typing import Any
@@ -18,11 +19,16 @@ _METAVAR_REGEX = r"\-\-[\w\-]+(?P<metavar>[ |=][\w\.:]+)"
 
 
 class OptionHighlighter(RegexHighlighter):
+    """A highlighter for help texts."""
+
     highlights = [_SWITCH_REGEX, _OPTION_REGEX, _METAVAR_REGEX]
 
 
 class ColoredGroup(DefaultGroup):
+    """A subclass which colors groups with default commands."""
+
     def format_help(self: DefaultGroup, ctx: Any, formatter: Any) -> None:  # noqa: U100
+        """Format the help text."""
         highlighter = OptionHighlighter()
 
         console.print(
@@ -71,6 +77,7 @@ class ColoredCommand(click.Command):
     def format_help(
         self: click.Command, ctx: Any, formatter: Any  # noqa: U100
     ) -> None:
+        """Format the help text."""
         console.print(
             f"[b]pytask[/b] [dim]v{version}[/]\n", justify="center", highlight=False
         )
@@ -91,6 +98,7 @@ class ColoredCommand(click.Command):
 
 
 def print_options(group_or_command: click.Command | DefaultGroup, ctx: Any) -> None:
+    """Print options formatted with a table in a panel."""
     highlighter = OptionHighlighter()
 
     options_table = Table(highlight=True, box=None, show_header=False)

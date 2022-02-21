@@ -1,10 +1,13 @@
 include CITATION
 include LICENSE
 
+recursive-include src py.typed
+
 exclude .coveragerc
 exclude *.yaml
 exclude *.yml
 exclude tox.ini
 
 prune docs
+prune scripts
 prune tests

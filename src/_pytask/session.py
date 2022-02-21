@@ -1,3 +1,4 @@
+"""This module contains code related to the session object."""
 from __future__ import annotations
 
 from typing import Any
@@ -13,9 +14,9 @@ from _pytask.outcomes import ExitCode
 
 # Location was moved from pluggy v0.13.1 to v1.0.0.
 try:
-    from pluggy.hooks import _HookRelay
-except ImportError:
     from pluggy._hooks import _HookRelay
+except ImportError:
+    from pluggy.hooks import _HookRelay
 
 
 if TYPE_CHECKING:

@@ -3,8 +3,8 @@ from __future__ import annotations
 import textwrap
 
 import pytest
-from _pytask.outcomes import ExitCode
 from pytask import cli
+from pytask import ExitCode
 
 
 @pytest.fixture()

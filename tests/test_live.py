@@ -7,11 +7,11 @@ import pytest
 from _pytask.live import _parse_n_entries_in_table
 from _pytask.live import LiveExecution
 from _pytask.live import LiveManager
-from _pytask.nodes import PythonFunctionTask
-from _pytask.outcomes import ExitCode
-from _pytask.outcomes import TaskOutcome
 from _pytask.report import ExecutionReport
 from pytask import cli
+from pytask import ExitCode
+from pytask import PythonFunctionTask
+from pytask import TaskOutcome
 
 
 @pytest.mark.unit
@@ -169,7 +169,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
 
     live_manager.start()
     live.update_running_tasks(running_task)
-    live_manager.stop()
+    live_manager.stop(transient=False)
 
     captured = capsys.readouterr()
     assert "Task" in captured.out

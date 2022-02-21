@@ -5,12 +5,12 @@ import textwrap
 import pytest
 from _pytask.database import create_database
 from _pytask.database import State
-from _pytask.outcomes import Persisted
-from _pytask.outcomes import SkippedUnchanged
-from _pytask.outcomes import TaskOutcome
 from _pytask.persist import pytask_execute_task_process_report
 from pony import orm
 from pytask import main
+from pytask import Persisted
+from pytask import SkippedUnchanged
+from pytask import TaskOutcome
 
 
 class DummyClass:

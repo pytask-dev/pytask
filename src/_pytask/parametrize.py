@@ -95,8 +95,13 @@ def pytask_parametrize_task(
 
         if len(markers) > 1:
             raise NotImplementedError(
-                "Multiple parametrizations are currently not implemented since it is "
-                "not possible to define products for tasks from a Cartesian product."
+                "You cannot apply @pytask.mark.parametrize multiple times to a task. "
+                "Use multiple for-loops, itertools.product or a different strategy to "
+                "create all combinations of inputs and pass it to a single "
+                "@pytask.mark.parametrize.\n\nFor improved readability, consider to "
+                "move the creation of inputs into its own function as shown in the "
+                "best-practices guide on parametrizations: https://pytask-dev.rtfd.io/"
+                "en/stable/how_to_guides/bp_parametrizations.html."
             )
 
         if has_marker(obj, "task"):
