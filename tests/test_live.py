@@ -169,7 +169,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
 
     live_manager.start()
     live.update_running_tasks(running_task)
-    live_manager.stop()
+    live_manager.stop(transient=False)
 
     captured = capsys.readouterr()
     assert "Task" in captured.out
