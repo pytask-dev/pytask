@@ -15,6 +15,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :pull:`218` removes ``depends_on`` and ``produces`` from the task function when
   parsed.
 - :pull:`219` removes some leftovers from pytest in :class:`~_pytask.mark.Mark`.
+- :pull:`221` adds more test cases for parametrizations.
 - :pull:`222` adds an automated Github Actions job for creating a list pytask plugins.
 
 
