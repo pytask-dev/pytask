@@ -85,6 +85,7 @@ Furthermore, the documentation includes the following topics.
 .. toctree::
    :maxdepth: 1
 
+   plugin_list
    api
    developers_guide
    glossary

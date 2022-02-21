@@ -19,8 +19,8 @@ from _pytask.capture import _show_capture_callback
 from _pytask.capture import CaptureManager
 from _pytask.capture import CaptureResult
 from _pytask.capture import MultiCapture
-from _pytask.outcomes import ExitCode
 from pytask import cli
+from pytask import ExitCode
 
 
 @pytest.mark.unit

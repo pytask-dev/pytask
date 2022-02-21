@@ -6,10 +6,10 @@ import textwrap
 
 import pytest
 from _pytask.exceptions import NodeNotFoundError
-from _pytask.outcomes import ExitCode
-from _pytask.outcomes import TaskOutcome
 from pytask import cli
+from pytask import ExitCode
 from pytask import main
+from pytask import TaskOutcome
 
 
 @pytest.mark.end_to_end

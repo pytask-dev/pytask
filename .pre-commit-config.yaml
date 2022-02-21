@@ -80,7 +80,8 @@ repos:
     rev: 1.5.0
     hooks:
     -   id: interrogate
-        args: [-v, --fail-under=40, src, tests]
+        args: [-v, --fail-under=75]
+        exclude: ^(tests/|docs/)
 -   repo: https://github.com/codespell-project/codespell
     rev: v2.1.0
     hooks:
@@ -90,6 +91,8 @@ repos:
     rev: "0.47"
     hooks:
     -   id: check-manifest
+        args: [--no-build-isolation]
+        additional_dependencies: [setuptools-scm, toml]
 -   repo: https://github.com/guilatrova/tryceratops
     rev: v1.0.1
     hooks:
@@ -108,7 +111,6 @@ repos:
             types-setuptools
         ]
         pass_filenames: false
-        language_version: "3.9"
 -   repo: meta
     hooks:
     -   id: check-hooks-apply
