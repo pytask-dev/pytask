@@ -182,10 +182,26 @@ class LiveExecution:
 
         """
         n_reports_to_display = self._n_entries_in_table - len(self._running_tasks)
+
+        if self._verbose < 2:
+            reports = [
+                report
+                for report in self._reports
+                if report["outcome"]
+                not in (
+                    TaskOutcome.SKIP,
+                    TaskOutcome.SKIP_UNCHANGED,
+                    TaskOutcome.SKIP_PREVIOUS_FAILED,
+                    TaskOutcome.PERSISTENCE,
+                )
+            ]
+        else:
+            reports = self._reports
+
         if not reduce_table:
-            relevant_reports = self._reports
+            relevant_reports = reports
         elif n_reports_to_display >= 1:
-            relevant_reports = self._reports[-n_reports_to_display:]
+            relevant_reports = reports[-n_reports_to_display:]
         else:
             relevant_reports = []
 
@@ -198,26 +214,14 @@ class LiveExecution:
         table.add_column("Task", overflow="fold")
         table.add_column("Outcome")
         for report in relevant_reports:
-            if (
-                report["outcome"]
-                in (
-                    TaskOutcome.SKIP,
-                    TaskOutcome.SKIP_UNCHANGED,
-                    TaskOutcome.SKIP_PREVIOUS_FAILED,
-                    TaskOutcome.PERSISTENCE,
-                )
-                and self._verbose < 2
-            ):
-                pass
-            else:
-                table.add_row(
-                    format_task_id(
-                        report["task"],
-                        editor_url_scheme=self._editor_url_scheme,
-                        short_name=True,
-                    ),
-                    Text(report["outcome"].symbol, style=report["outcome"].style),
-                )
+            table.add_row(
+                format_task_id(
+                    report["task"],
+                    editor_url_scheme=self._editor_url_scheme,
+                    short_name=True,
+                ),
+                Text(report["outcome"].symbol, style=report["outcome"].style),
+            )
         for task in self._running_tasks.values():
             table.add_row(
                 format_task_id(

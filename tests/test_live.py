@@ -205,6 +205,76 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
         assert "│ ." in captured.out
 
 
+@pytest.mark.unit
+def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path):
+    path = tmp_path.joinpath("task_module.py")
+    task = PythonFunctionTask(
+        "task_example", path.as_posix() + "::task_example", path, lambda x: x
+    )
+    task.short_name = "task_module.py::task_example"
+
+    live_manager = LiveManager()
+    live = LiveExecution(live_manager, 20, 1, "no_link")
+
+    live_manager.start()
+    live.update_running_tasks(task)
+    live_manager.stop()
+
+    # Test table with running task.
+    captured = capsys.readouterr()
+    assert "Task" in captured.out
+    assert "Outcome" in captured.out
+    assert "task_module.py::task_example" in captured.out
+    assert "running" in captured.out
+
+    # Add one displayed reports and many more not displayed reports to crowd out the
+    # valid one.
+    successful_task = PythonFunctionTask(
+        "task_success", path.as_posix() + "::task_success", path, lambda x: x
+    )
+    successful_task.short_name = "task_module.py::task_success"
+
+    tasks = []
+    for i in range(25):
+        skipped_task = PythonFunctionTask(
+            f"task_skip_{i}", path.as_posix() + f"::task_skip_{i}", path, lambda x: x
+        )
+        skipped_task.short_name = f"task_module.py::task_skip_{i}"
+        tasks.append(skipped_task)
+
+    live_manager.start()
+    live.update_running_tasks(successful_task)
+    for task in tasks:
+        live.update_running_tasks(task)
+    live_manager.stop()
+
+    captured = capsys.readouterr()
+    assert "running" in captured.out
+    assert "task_success" in captured.out
+    for i in range(25):
+        assert f"task_skip_{i}" in captured.out
+
+    live_manager.resume()
+    report = ExecutionReport(
+        task=successful_task, outcome=TaskOutcome.SUCCESS, exc_info=None
+    )
+    live.update_reports(report)
+    for task in tasks:
+        report = ExecutionReport(task=task, outcome=TaskOutcome.SKIP, exc_info=None)
+        live.update_reports(report)
+    live_manager.stop()
+
+    # Test final table with reported outcome.
+    captured = capsys.readouterr()
+    assert "Task" in captured.out
+    assert "Outcome" in captured.out
+    assert "task_module.py::task_example" in captured.out
+    assert "task_module.py::task_success" in captured.out
+    assert "running" in captured.out
+    assert TaskOutcome.SUCCESS.symbol in captured.out
+    assert "task_skip" not in captured.out
+
+
 @pytest.mark.end_to_end
 def test_full_execution_table_is_displayed_at_the_end_of_execution(tmp_path, runner):
     source = """

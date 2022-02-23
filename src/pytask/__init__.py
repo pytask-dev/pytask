@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from _pytask import __version__
 from _pytask.build import main
-from _pytask.cli import cli
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
@@ -31,6 +30,9 @@ from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
 from _pytask.session import Session
+
+# This import must come last, otherwise a circular import occurs.
+from _pytask.cli import cli  # noreorder
 
 
 __all__ = [
