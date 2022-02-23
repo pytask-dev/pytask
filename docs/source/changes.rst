@@ -17,6 +17,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :pull:`219` removes some leftovers from pytest in :class:`~_pytask.mark.Mark`.
 - :pull:`221` adds more test cases for parametrizations.
 - :pull:`222` adds an automated Github Actions job for creating a list pytask plugins.
+- :pull:`225` fixes a circular import noticeable in plugins created by :pull:`197`.
 
 
 0.1.8 - 2022-02-07
