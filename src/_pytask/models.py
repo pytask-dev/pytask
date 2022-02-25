@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from typing import Any
+from typing import Dict
 
 import attr
 
@@ -10,4 +11,4 @@ import attr
 class CollectionMetadata:
     """A class for carrying metadata from functions to tasks."""
 
-    kwargs = attr.ib(factory=dict, type=dict[str, Any])
+    kwargs = attr.ib(factory=dict, type=Dict[str, Any])
