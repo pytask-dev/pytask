@@ -380,7 +380,7 @@ def pytask_execute_task_setup(session: Session, task: MetaTask) -> None:
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task(session: Session, task: MetaTask) -> Any | None:
+def pytask_execute_task(session: Session, task: MetaTask) -> Any:
     """Execute a task."""
 
 

@@ -1,6 +1,7 @@
 """This module contains hook implementations concerning the execution."""
 from __future__ import annotations
 
+import inspect
 import sys
 import time
 from typing import Any
@@ -148,9 +149,24 @@ def pytask_execute_task_setup(session: Session, task: MetaTask) -> None:
 
 
 @hookimpl
-def pytask_execute_task(task: MetaTask) -> None:
+def pytask_execute_task(task: MetaTask) -> bool:
     """Execute task."""
-    task.execute()
+    kwargs = {**task.kwargs}
+
+    func_arg_names = set(inspect.signature(task.function).parameters)
+    for arg_name in ("depends_on", "produces"):
+        if arg_name in func_arg_names:
+            attribute = getattr(task, arg_name)
+            kwargs[arg_name] = (
+                attribute[0].value
+                if len(attribute) == 1
+                and 0 in attribute
+                and not task.keep_dict[arg_name]
+                else {name: node.value for name, node in attribute.items()}
+            )
+
+    task.execute(**kwargs)
+    return True
 
 
 @hookimpl

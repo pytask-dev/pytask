@@ -6,8 +6,15 @@ chronological order. Releases follow `semantic versioning <https://semver.org/>`
 all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 `Anaconda.org <https://anaconda.org/conda-forge/pytask>`_.
 
+0.2.0 - 2022-xx-xx
+------------------
 
-0.1.9 - 2022-xx-xx
+- :pull:`227` implements ``task.kwargs`` as a new way for a task to hold parametrized
+  arguments. It also implements :class:`_pytask._collect.CollectionMetadata` to carry
+  parametrized arguments to the task class.
+
+
+0.1.9 - 2022-02-23
 ------------------
 
 - :pull:`197` publishes types, and adds classes and functions to the main namespace.
@@ -19,7 +26,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :pull:`222` adds an automated Github Actions job for creating a list pytask plugins.
 - :pull:`225` fixes a circular import noticeable in plugins created by :pull:`197`.
 - :pull:`226` fixes a bug where the number of items in the live table during the
-  execution is not exhausted.
+  execution is not exhausted. (Closes :issue:`223`.)
 
 
 0.1.8 - 2022-02-07

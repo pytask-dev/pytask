@@ -45,8 +45,8 @@ def test_pytask_generate_tasks_0(session):
     names_and_objs = pytask_parametrize_task(session, "func", func)
 
     assert [i[0] for i in names_and_objs] == ["func[0]", "func[1]"]
-    assert names_and_objs[0][1].keywords["i"] == 0
-    assert names_and_objs[1][1].keywords["i"] == 1
+    assert names_and_objs[0][1].pytask_meta.kwargs["i"] == 0
+    assert names_and_objs[1][1].pytask_meta.kwargs["i"] == 1
 
 
 @pytest.mark.integration
@@ -69,20 +69,6 @@ def test_pytask_generate_tasks_2(session):
         pass
 
     pytask_parametrize_task(session, "func", func)
-
-
-@pytest.mark.integration
-def test_pytask_parametrize_missing_func_args(session):
-    """Missing function args with parametrized tasks raise an error during execution."""
-
-    @pytask.mark.parametrize("i", range(2))
-    def func():
-        pass
-
-    names_and_functions = pytask_parametrize_task(session, "func", func)
-    for _, func in names_and_functions:
-        with pytest.raises(TypeError):
-            func()
 
 
 @pytest.mark.unit

@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import functools
-import inspect
 import itertools
 from abc import ABCMeta
 from abc import abstractmethod
@@ -83,6 +82,8 @@ class MetaTask(MetaNode):
     path: Path
     function: Callable[..., Any] | None
     attributes: dict[Any, Any]
+    kwargs: dict[str, Any]
+    keep_dict: dict[str, bool]
     _report_sections: list[tuple[str, str, str]]
 
     @abstractmethod
@@ -116,6 +117,8 @@ class PythonFunctionTask(MetaTask):
     """Dict[str, MetaNode]: A list of products of task."""
     markers = attr.ib(factory=list, type="List[Mark]")
     """Optional[List[Mark]]: A list of markers attached to the task function."""
+    kwargs = attr.ib(factory=dict, type=Dict[str, Any])
+    """Dict[str, Any]: A dictionary with keyword arguments supplied to the task."""
     keep_dict = attr.ib(factory=dict, type=Dict[str, bool])
     """Dict[str, bool]: Should dictionaries for single nodes be preserved?"""
     _report_sections = attr.ib(factory=list, type=List[Tuple[str, str, str]])
@@ -150,6 +153,11 @@ class PythonFunctionTask(MetaTask):
             if marker.name not in ("depends_on", "produces")
         ]
 
+        if hasattr(function, "pytask_meta"):
+            kwargs = function.pytask_meta.kwargs  # type: ignore[attr-defined]
+        else:
+            kwargs = {}
+
         return cls(
             base_name=name,
             name=create_task_name(path, name),
@@ -158,34 +166,17 @@ class PythonFunctionTask(MetaTask):
             depends_on=dependencies,
             produces=products,
             markers=markers,
+            kwargs=kwargs,
             keep_dict=keep_dictionary,
         )
 
-    def execute(self) -> None:
+    def execute(self, **kwargs: Any) -> None:
         """Execute the task."""
-        kwargs = self._get_kwargs_from_task_for_function()
         self.function(**kwargs)
 
     def state(self) -> str:
         """Return the last modified date of the file where the task is defined."""
         return str(self.path.stat().st_mtime)
-
-    def _get_kwargs_from_task_for_function(self) -> dict[str, Any]:
-        """Process dependencies and products to pass them as kwargs to the function."""
-        func_arg_names = set(inspect.signature(self.function).parameters)
-        kwargs = {}
-        for arg_name in ("depends_on", "produces"):
-            if arg_name in func_arg_names:
-                attribute = getattr(self, arg_name)
-                kwargs[arg_name] = (
-                    attribute[0].value
-                    if len(attribute) == 1
-                    and 0 in attribute
-                    and not self.keep_dict[arg_name]
-                    else {name: node.value for name, node in attribute.items()}
-                )
-
-        return kwargs
 
     def add_report_section(self, when: str, key: str, content: str) -> None:
         if content:
