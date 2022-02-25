@@ -148,7 +148,7 @@ def pytask_execute_task_setup(session: Session, task: MetaTask) -> None:
             node.path.parent.mkdir(parents=True, exist_ok=True)
 
 
-@hookimpl
+@hookimpl(trylast=True)
 def pytask_execute_task(task: MetaTask) -> bool:
     """Execute task."""
     kwargs = {**task.kwargs}
