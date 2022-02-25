@@ -17,6 +17,7 @@ from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
 from _pytask.mark_utils import has_marker
 from _pytask.mark_utils import remove_markers_from_func
+from _pytask.models import CollectionMetadata
 from _pytask.nodes import find_duplicates
 from _pytask.session import Session
 from _pytask.task_utils import parse_task_marker
@@ -133,16 +134,12 @@ def pytask_parametrize_task(
             # Convert parametrized dependencies and products to decorator.
             session.hook.pytask_parametrize_kwarg_to_marker(obj=func, kwargs=kwargs)
 
-            # Attach remaining parametrized arguments to the function.
-            partialed_func = functools.partial(func, **kwargs)
-            wrapped_func = functools.update_wrapper(partialed_func, func)
-
-            # Remove markers from wrapped function since they are not used. See
-            # https://github.com/pytask-dev/pytask/issues/216.
-            wrapped_func.func.pytaskmark = []  # type: ignore[attr-defined]
+            func.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]
+                kwargs=kwargs
+            )
 
             name_ = f"{name}[{'-'.join(itertools.chain.from_iterable(names))}]"
-            names_and_functions.append((name_, wrapped_func))
+            names_and_functions.append((name_, func))
 
         all_names = [i[0] for i in names_and_functions]
         duplicates = find_duplicates(all_names)

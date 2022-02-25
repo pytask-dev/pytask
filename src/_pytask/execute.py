@@ -1,6 +1,7 @@
 """This module contains hook implementations concerning the execution."""
 from __future__ import annotations
 
+import inspect
 import sys
 import time
 from typing import Any
@@ -28,6 +29,7 @@ from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
+from pybaum.tree_util import tree_map
 from rich.text import Text
 
 
@@ -147,10 +149,19 @@ def pytask_execute_task_setup(session: Session, task: MetaTask) -> None:
             node.path.parent.mkdir(parents=True, exist_ok=True)
 
 
-@hookimpl
-def pytask_execute_task(task: MetaTask) -> None:
+@hookimpl(trylast=True)
+def pytask_execute_task(task: MetaTask) -> bool:
     """Execute task."""
-    task.execute()
+    kwargs = {**task.kwargs}
+
+    func_arg_names = set(inspect.signature(task.function).parameters)
+    for arg_name in ("depends_on", "produces"):
+        if arg_name in func_arg_names:
+            attribute = getattr(task, arg_name)
+            kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
+
+    task.execute(**kwargs)
+    return True
 
 
 @hookimpl
