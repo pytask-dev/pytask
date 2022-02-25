@@ -10,7 +10,6 @@ from typing import Callable
 from typing import Iterable
 from typing import Sequence
 
-from _pytask._collect import CollectionMetadata
 from _pytask.config import hookimpl
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import TASK_ICON
@@ -18,6 +17,7 @@ from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
 from _pytask.mark_utils import has_marker
 from _pytask.mark_utils import remove_markers_from_func
+from _pytask.models import CollectionMetadata
 from _pytask.nodes import find_duplicates
 from _pytask.session import Session
 from _pytask.task_utils import parse_task_marker

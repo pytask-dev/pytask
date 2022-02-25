@@ -10,7 +10,7 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 ------------------
 
 - :pull:`227` implements ``task.kwargs`` as a new way for a task to hold parametrized
-  arguments. It also implements :class:`_pytask._collect.CollectionMetadata` to carry
+  arguments. It also implements :class:`_pytask.models.CollectionMetadata` to carry
   parametrized arguments to the task class.
 
 

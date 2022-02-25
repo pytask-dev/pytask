@@ -106,7 +106,7 @@ repos:
             --ignore-missing-imports,
         ]
         additional_dependencies: [
-            attrs,
+            types-attrs,
             types-click,
             types-setuptools
         ]
