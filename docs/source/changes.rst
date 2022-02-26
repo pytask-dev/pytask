@@ -14,6 +14,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 - :pull:`227` implements ``task.kwargs`` as a new way for a task to hold parametrized
   arguments. It also implements :class:`_pytask.models.CollectionMetadata` to carry
   parametrized arguments to the task class.
+- :pull:`228` removes ``task.pytaskmark`` and moves the information to
+  :attr:`_pytask.models.CollectionMetadata.markers`.
 
 
 0.1.9 - 2022-02-23

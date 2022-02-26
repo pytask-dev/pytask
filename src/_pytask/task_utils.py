@@ -22,10 +22,8 @@ def parse_task_marker(obj: Callable[..., Any]) -> str:
             "The @pytask.mark.task decorator cannot be applied more than once to a "
             "single task."
         )
+
     task_marker = task_markers[0]
-
     name = task(*task_marker.args, **task_marker.kwargs)
-
-    obj.pytaskmark.append(Mark("task", (), {}))  # type: ignore[attr-defined]
-
+    obj.pytask_meta.markers.append(Mark("task", (), {}))  # type: ignore[attr-defined]
     return name

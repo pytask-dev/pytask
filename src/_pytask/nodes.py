@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import functools
+import inspect
 import itertools
 import uuid
 from abc import ABCMeta
@@ -143,16 +144,19 @@ class PythonFunctionTask(MetaTask):
         nodes = _convert_objects_to_node_dictionary(objects, "produces")
         products = tree_map(lambda x: _collect_node(session, path, name, x), nodes)
 
-        markers = [
-            marker
-            for marker in getattr(function, "pytaskmark", [])
-            if marker.name not in ("depends_on", "produces")
-        ]
+        if hasattr(function, "pytask_meta"):
+            markers = function.pytask_meta.markers  # type: ignore[attr-defined]
+        else:
+            markers = []
 
         if hasattr(function, "pytask_meta"):
             kwargs = function.pytask_meta.kwargs  # type: ignore[attr-defined]
         else:
             kwargs = {}
+
+        # Get the underlying function to avoid having different states of the function,
+        # e.g. due to pytask_meta, in different layers of the wrapping.
+        function = inspect.unwrap(function)
 
         return cls(
             base_name=name,
