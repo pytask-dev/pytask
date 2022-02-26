@@ -3,6 +3,7 @@ from __future__ import annotations
 import attr
 import pytask
 import pytest
+from _pytask.models import CollectionMetadata
 from pytask import get_marks_from_obj
 from pytask import get_specific_markers_from_task
 from pytask import has_marker
@@ -71,7 +72,7 @@ def test_get_marks_from_obj(markers, marker_name, expected):
         ...
 
     if markers is not None:
-        func.pytaskmark = markers
+        func.pytask_meta = CollectionMetadata(markers=markers)
 
     result = get_marks_from_obj(func, marker_name)
     assert result == expected
@@ -96,7 +97,7 @@ def test_has_marker(markers, marker_name, expected):
         ...
 
     if markers is not None:
-        func.pytaskmark = markers
+        func.pytask_meta = CollectionMetadata(markers=markers)
 
     result = has_marker(func, marker_name)
     assert result == expected
@@ -129,8 +130,9 @@ def test_remove_markers_from_func(
         ...
 
     if markers is not None:
-        func.pytaskmark = markers
+        func.pytask_meta = CollectionMetadata(markers=markers)
 
     obj, result_markers = remove_markers_from_func(func, marker_name)
-    assert obj.pytaskmark == expected_others
+    markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
+    assert markers == expected_others
     assert result_markers == expected_markers

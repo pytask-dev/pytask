@@ -21,22 +21,23 @@ def get_specific_markers_from_task(task: MetaTask, marker_name: str) -> list[Mar
 
 def get_marks_from_obj(obj: Any, marker_name: str) -> list[Mark]:
     """Get a specific group of markers from a task function."""
-    return [
-        marker
-        for marker in getattr(obj, "pytaskmark", [])
-        if marker.name == marker_name
-    ]
+    markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
+    return [marker for marker in markers if marker.name == marker_name]
 
 
 def has_marker(obj: Any, marker_name: str) -> bool:
     """Determine whether a task function has a certain marker."""
-    return any(marker.name == marker_name for marker in getattr(obj, "pytaskmark", []))
+    markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
+    return any(marker.name == marker_name for marker in markers)
 
 
 def remove_markers_from_func(obj: Any, marker_name: str) -> tuple[Any, list[Mark]]:
     """Remove parametrize markers from the object."""
-    markers = [i for i in getattr(obj, "pytaskmark", []) if i.name == marker_name]
-    others = [i for i in getattr(obj, "pytaskmark", []) if i.name != marker_name]
-    obj.pytaskmark = others
-
-    return obj, markers
+    if hasattr(obj, "pytask_meta"):
+        markers = obj.pytask_meta.markers
+        selected = [i for i in markers if i.name == marker_name]
+        others = [i for i in markers if i.name != marker_name]
+        obj.pytask_meta.markers = others
+    else:
+        selected = []
+    return obj, selected

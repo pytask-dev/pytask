@@ -417,7 +417,7 @@ def test_generators_are_removed_from_depends_on_produces(tmp_path):
 
     session = main({"paths": tmp_path})
     assert session.exit_code == 0
-    assert session.tasks[0].function.__wrapped__.pytaskmark == []
+    assert session.tasks[0].function.pytask_meta.markers == []
 
 
 @pytest.mark.end_to_end

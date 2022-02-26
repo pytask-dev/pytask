@@ -17,7 +17,6 @@ from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
 from _pytask.mark_utils import has_marker
 from _pytask.mark_utils import remove_markers_from_func
-from _pytask.models import CollectionMetadata
 from _pytask.nodes import find_duplicates
 from _pytask.session import Session
 from _pytask.task_utils import parse_task_marker
@@ -128,15 +127,16 @@ def pytask_parametrize_task(
 
             # Copy function and attributes to allow in-place changes.
             func = _copy_func(obj)  # type: ignore
-            func.pytaskmark = copy.deepcopy(  # type: ignore[attr-defined]
-                obj.pytaskmark  # type: ignore[attr-defined]
+            func.pytask_meta = copy.deepcopy(  # type: ignore[attr-defined]
+                obj.pytask_meta  # type: ignore[attr-defined]
             )
             # Convert parametrized dependencies and products to decorator.
             session.hook.pytask_parametrize_kwarg_to_marker(obj=func, kwargs=kwargs)
 
-            func.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]
-                kwargs=kwargs
-            )
+            func.pytask_meta.kwargs = {  # type: ignore[attr-defined]
+                **func.pytask_meta.kwargs,  # type: ignore[attr-defined]
+                **kwargs,
+            }
 
             name_ = f"{name}[{'-'.join(itertools.chain.from_iterable(names))}]"
             names_and_functions.append((name_, func))

@@ -7,6 +7,7 @@ from typing import Iterable
 from typing import Mapping
 
 import attr
+from _pytask.models import CollectionMetadata
 
 
 def is_task_function(func: Any) -> bool:
@@ -39,12 +40,7 @@ class Mark:
 
         """
         assert self.name == other.name
-
-        return Mark(
-            self.name,
-            self.args + other.args,
-            {**self.kwargs, **other.kwargs},
-        )
+        return Mark(self.name, self.args + other.args, {**self.kwargs, **other.kwargs})
 
 
 @attr.s
@@ -124,9 +120,10 @@ class MarkDecorator:
 
 def get_unpacked_marks(obj: Callable[..., Any]) -> list[Mark]:
     """Obtain the unpacked marks that are stored on an object."""
-    mark_list = getattr(obj, "pytaskmark", [])
-    if not isinstance(mark_list, list):
-        mark_list = [mark_list]
+    if hasattr(obj, "pytask_meta"):
+        mark_list = obj.pytask_meta.markers  # type: ignore[attr-defined]
+    else:
+        mark_list = []
     return normalize_mark_list(mark_list)
 
 
@@ -156,9 +153,14 @@ def store_mark(obj: Callable[..., Any], mark: Mark) -> None:
 
     """
     assert isinstance(mark, Mark), mark
-    # Always reassign name to avoid updating pytaskmark in a reference that was only
-    # borrowed.
-    obj.pytaskmark = get_unpacked_marks(obj) + [mark]  # type: ignore[attr-defined]
+    if hasattr(obj, "pytask_meta"):
+        obj.pytask_meta.markers = get_unpacked_marks(  # type: ignore[attr-defined]
+            obj
+        ) + [mark]
+    else:
+        obj.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]
+            markers=[mark]
+        )
 
 
 class MarkGenerator:
