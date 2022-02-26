@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
@@ -7,12 +8,13 @@ import attr
 import pytask
 import pytest
 from _pytask.nodes import _check_that_names_are_not_used_multiple_times
-from _pytask.nodes import _convert_nodes_to_dictionary
-from _pytask.nodes import _convert_objects_to_list_of_tuples
 from _pytask.nodes import _convert_objects_to_node_dictionary
 from _pytask.nodes import _extract_nodes_from_function_markers
+from _pytask.nodes import _Placeholder
+from _pytask.nodes import convert_to_dict
 from _pytask.nodes import create_task_name
 from _pytask.nodes import depends_on
+from _pytask.nodes import merge_dictionaries
 from _pytask.nodes import produces
 from _pytask.shared import reduce_node_name
 from pytask import FilePathNode
@@ -110,54 +112,6 @@ def test_instantiation_of_metanode():
     assert isinstance(task, MetaNode)
 
 
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    ("x", "when", "expectation", "expected_lot", "expected_kd"),
-    [
-        (["string"], "depends_on", does_not_raise(), [("string",)], False),
-        (("string",), "depends_on", does_not_raise(), [("string",)], False),
-        (range(2), "depends_on", does_not_raise(), [(0,), (1,)], False),
-        (
-            [{"a": 0, "b": 1}],
-            "depends_on",
-            does_not_raise(),
-            [("a", 0), ("b", 1)],
-            False,
-        ),
-        (
-            ["a", ("b", "c"), {"d": 1, "e": 1}],
-            "depends_on",
-            does_not_raise(),
-            [("a",), ("b",), ("c",), ("d", 1), ("e", 1)],
-            False,
-        ),
-        ([["string"]], "depends_on", does_not_raise(), [("string",)], True),
-        ([{0: "string"}], "depends_on", does_not_raise(), [(0, "string")], True),
-        (
-            [((0, 1, 2),)],
-            "depends_on",
-            pytest.raises(ValueError, match="Dependencies in pytask.mark.depends_on"),
-            None,
-            None,
-        ),
-        (
-            [((0, 1, 2),)],
-            "produces",
-            pytest.raises(ValueError, match="Products in pytask.mark.produces"),
-            None,
-            None,
-        ),
-    ],
-)
-def test_convert_objects_to_list_of_tuples(
-    x, when, expectation, expected_lot, expected_kd
-):
-    with expectation:
-        list_of_tuples, keep_dict = _convert_objects_to_list_of_tuples(x, when)
-        assert list_of_tuples == expected_lot
-        assert keep_dict is expected_kd
-
-
 ERROR = "'@pytask.mark.depends_on' has nodes with the same name:"
 
 
@@ -165,31 +119,17 @@ ERROR = "'@pytask.mark.depends_on' has nodes with the same name:"
 @pytest.mark.parametrize(
     ("x", "expectation"),
     [
-        ([(0, "a"), (0, "b")], pytest.raises(ValueError, match=ERROR)),
-        ([("a", 0), ("a", 1)], pytest.raises(ValueError, match=ERROR)),
-        ([("a", 0), ("b",), ("a", 1)], pytest.raises(ValueError, match=ERROR)),
-        ([("a", 0), ("b", 0), ("a", 1)], pytest.raises(ValueError, match=ERROR)),
-        ([("a",), ("a")], does_not_raise()),
-        ([("a", 0), ("a",)], does_not_raise()),
-        ([("a", 0), ("b", 1)], does_not_raise()),
+        ([{0: "a"}, {0: "b"}], pytest.raises(ValueError, match=ERROR)),
+        ([{"a": 0}, {"a": 1}], pytest.raises(ValueError, match=ERROR)),
+        ([{"a": 0}, {"b": 0}, {"a": 1}], pytest.raises(ValueError, match=ERROR)),
+        ([{0: "a"}, {1: "a"}], does_not_raise()),
+        ([{"a": 0}, {0: "a"}], does_not_raise()),
+        ([{"a": 0}, {"b": 1}], does_not_raise()),
     ],
 )
 def test_check_that_names_are_not_used_multiple_times(x, expectation):
     with expectation:
         _check_that_names_are_not_used_multiple_times(x, "depends_on")
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    ("x", "expected"),
-    [
-        ([("a",), ("b",)], {0: "a", 1: "b"}),
-        ([(1, "a"), ("b",), (0, "c")], {1: "a", 2: "b", 0: "c"}),
-    ],
-)
-def test_convert_nodes_to_dictionary(x, expected):
-    result = _convert_nodes_to_dictionary(x)
-    assert result == expected
 
 
 @pytest.mark.unit
@@ -249,25 +189,72 @@ def test_reduce_node_name(node, paths, expectation, expected):
 @pytest.mark.integration
 @pytest.mark.parametrize("when", ["depends_on", "produces"])
 @pytest.mark.parametrize(
-    "objects, expectation, expected_dict, expected_kd",
+    "objects, expectation, expected",
     [
-        ([0, 1], does_not_raise, {0: 0, 1: 1}, False),
-        ([{0: 0}, {1: 1}], does_not_raise, {0: 0, 1: 1}, False),
-        ([{0: 0}], does_not_raise, {0: 0}, True),
-        ([[0]], does_not_raise, {0: 0}, True),
-        ([((0, 0),), ((0, 1),)], ValueError, None, None),
-        ([{0: 0}, {0: 1}], ValueError, None, None),
+        ([0, 1], does_not_raise, {0: 0, 1: 1}),
+        ([{0: 0}, {1: 1}], does_not_raise, {0: 0, 1: 1}),
+        ([{0: 0}], does_not_raise, {0: 0}),
+        ([[0]], does_not_raise, {0: 0}),
+        (
+            [((0, 0),), ((0, 1),)],
+            does_not_raise,
+            {0: {0: 0, 1: 0}, 1: {0: 0, 1: 1}},
+        ),
+        ([{0: {0: {0: 0}}}, [2]], does_not_raise, {0: {0: {0: 0}}, 1: 2}),
+        ([{0: 0}, {0: 1}], ValueError, None),
     ],
 )
-def test_convert_objects_to_node_dictionary(
-    objects, when, expectation, expected_dict, expected_kd
-):
+def test_convert_objects_to_node_dictionary(objects, when, expectation, expected):
     expectation = (
         pytest.raises(expectation, match=f"'@pytask.mark.{when}' has nodes")
         if expectation == ValueError
         else expectation()
     )
     with expectation:
-        node_dict, keep_dict = _convert_objects_to_node_dictionary(objects, when)
-        assert node_dict == expected_dict
-        assert keep_dict is expected_kd
+        nodes = _convert_objects_to_node_dictionary(objects, when)
+        assert nodes == expected
+
+
+def _convert_placeholders_to_tuples(x):
+    counter = itertools.count()
+    return {
+        (next(counter), k.scalar)
+        if isinstance(k, _Placeholder)
+        else k: _convert_placeholders_to_tuples(v)
+        if isinstance(v, dict)
+        else v
+        for k, v in x.items()
+    }
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "x, first_level, expected",
+    [
+        (1, True, {(0, True): 1}),
+        ({1: 0}, False, {1: 0}),
+        ({1: [2, 3]}, False, {1: {0: 2, 1: 3}}),
+        ([2, 3], True, {(0, False): 2, (1, False): 3}),
+        ([2, 3], False, {0: 2, 1: 3}),
+    ],
+)
+def test_convert_to_dict(x, first_level, expected):
+    """We convert placeholders to a tuple consisting of the key and the scalar bool."""
+    result = convert_to_dict(x, first_level)
+    modified_result = _convert_placeholders_to_tuples(result)
+    assert modified_result == expected
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "list_of_dicts, expected",
+    [
+        ([{1: 0}, {0: 1}], {1: 0, 0: 1}),
+        ([{_Placeholder(): 1}, {0: 0}], {1: 1, 0: 0}),
+        ([{_Placeholder(scalar=True): 1}], 1),
+        ([{_Placeholder(scalar=False): 1}], {0: 1}),
+    ],
+)
+def test_merge_dictionaries(list_of_dicts, expected):
+    result = merge_dictionaries(list_of_dicts)
+    assert result == expected

@@ -25,6 +25,7 @@ dependencies:
   - networkx
   - pluggy
   - pony >=0.7.15
+  - pybaum
   - pexpect
   - rich
   - typing-extensions

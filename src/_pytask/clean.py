@@ -9,6 +9,7 @@ from types import TracebackType
 from typing import Any
 from typing import Generator
 from typing import Iterable
+from typing import List
 from typing import TYPE_CHECKING
 
 import attr
@@ -26,6 +27,7 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import render_exc_info
+from pybaum.tree_util import tree_just_yield
 
 
 if TYPE_CHECKING:
@@ -190,7 +192,7 @@ def _yield_paths_from_task(task: MetaTask) -> Generator[Path, None, None]:
     """Yield all paths attached to a task."""
     yield task.path
     for attribute in ["depends_on", "produces"]:
-        for node in getattr(task, attribute).values():
+        for node in tree_just_yield(getattr(task, attribute)):
             if hasattr(node, "path") and isinstance(node.path, Path):
                 yield node.path
 
@@ -234,7 +236,7 @@ class _RecursivePathNode:
     """
 
     path = attr.ib(type=Path)
-    sub_nodes = attr.ib(type="list[_RecursivePathNode]")
+    sub_nodes = attr.ib(type=List["_RecursivePathNode"])
     is_dir = attr.ib(type=bool)
     is_file = attr.ib(type=bool)
     is_unknown = attr.ib(type=bool)

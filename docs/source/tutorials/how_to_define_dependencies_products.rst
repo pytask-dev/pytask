@@ -85,33 +85,8 @@ Multiple dependencies and products
 ----------------------------------
 
 Most tasks have multiple dependencies or products. The easiest way to attach multiple
-dependencies or products to a task is to pass a :class:`dict`, :class:`list` or another
-iterator to the marker containing the paths.
-
-.. code-block:: python
-
-    @pytask.mark.produces([BLD / "data_0.pkl", BLD / "data_1.pkl"])
-    def task_create_random_data(produces):
-        ...
-
-Inside the function, the arguments ``depends_on`` or ``produces`` become a dictionary
-where keys are the positions in the list.
-
-.. code-block:: pycon
-
-    >>> produces
-    {0: BLD / "data_0.pkl", 1: BLD / "data_1.pkl"}
-
-Why dictionaries and not lists? First, dictionaries with positions as keys behave very
-similar to lists and conversion between both is easy.
-
-.. tip::
-
-    Use ``list(produces.values())`` to convert a dictionary to a list.
-
-Secondly, dictionaries use keys instead of positions which is more verbose and
-descriptive and does not assume a fixed ordering. Both attributes are especially
-desirable in complex projects.
+dependencies or products to a task is to pass a :class:`dict` (highly recommended),
+:class:`list` or another iterator to the marker containing the paths.
 
 To assign labels to dependencies or products, pass a dictionary. For example,
 
@@ -133,6 +108,34 @@ Then, use
 
 inside the task function.
 
+You can also use lists and other iterables.
+
+.. code-block:: python
+
+    @pytask.mark.produces([BLD / "data_0.pkl", BLD / "data_1.pkl"])
+    def task_create_random_data(produces):
+        ...
+
+Inside the function, the arguments ``depends_on`` or ``produces`` become a dictionary
+where keys are the positions in the list.
+
+.. code-block:: pycon
+
+    >>> produces
+    {0: BLD / "data_0.pkl", 1: BLD / "data_1.pkl"}
+
+Why does pytask recommend dictionaries and even converts lists to dictionaries? First,
+dictionaries with positions as keys behave very similar to lists and conversion between
+both is easy.
+
+.. tip::
+
+    Use ``list(produces.values())`` to convert a dictionary to a list.
+
+Secondly, dictionaries use keys instead of positions which is more verbose and
+descriptive and does not assume a fixed ordering. Both attributes are especially
+desirable in complex projects.
+
 
 Multiple decorators
 -------------------
@@ -152,8 +155,81 @@ tasks.
         ...
 
 
+Nested dependencies and products
+--------------------------------
+
+Dependencies and products are allowed to be nested containers consisting of tuples,
+lists, and dictionaries. In situations where you want more structure and are otherwise
+forced to flatten your inputs, this can be beneficial.
+
+Here is an example with a task which fits some model on data. It depends on a module
+containing the code for the model which is not actively used, but ensures that the task
+is rerun when the model is changed. And, it depends on data.
+
+.. code-block:: python
+
+    @pytask.mark.depends_on(
+        {
+            "model": [SRC / "models" / "model.py"],
+            "data": {"a": SRC / "data" / "a.pkl", "b": SRC / "data" / "b.pkl"},
+        }
+    )
+    @pytask.mark.produces(BLD / "models" / "fitted_model.pkl")
+    def task_fit_model():
+        ...
+
+It is also possible to merge nested containers. For example, you might want to reuse
+the dependency on models for other tasks as well.
+
+.. code-block:: python
+
+    model_dependencies = pytask.mark.depends_on({"model": [SRC / "models" / "model.py"]})
+
+
+    @model_dependencies
+    @pytask.mark.depends_on(
+        {"data": {"a": SRC / "data" / "a.pkl", "b": SRC / "data" / "b.pkl"}}
+    )
+    @pytask.mark.produces(BLD / "models" / "fitted_model.pkl")
+    def task_fit_model():
+        ...
+
+In both cases, ``depends_on`` within the function will be
+
+.. code-block:: python
+
+    {
+        "model": [SRC / "models" / "model.py"],
+        "data": {"a": SRC / "data" / "a.pkl", "b": SRC / "data" / "b.pkl"},
+    }
+
+Tuples and lists are converted to dictionaries with integer keys. The innermost
+decorator is evaluated first.
+
+.. code-block:: python
+
+    @pytask.mark.depends_on([SRC / "models" / "model.py"])
+    @pytask.mark.depends_on([SRC / "data" / "a.pkl", SRC / "data" / "b.pkl"])
+    @pytask.mark.produces(BLD / "models" / "fitted_model.pkl")
+    def task_fit_model():
+        ...
+
+would give
+
+.. code-block:: python
+
+    {0: SRC / "data" / "a.pkl", 1: SRC / "data" / "b.pkl", 2: SRC / "models" / "model.py"}
+
+.. seealso::
+
+    The general concept behind nested objects like tuples, lists, and dictionaries is
+    called pytrees and is more extensively explained in the `documentation of pybaum
+    <https://github.com/OpenSourceEconomics/pybaum>`_ which serves pytask under the
+    hood.
+
+
 References
 ----------
 
 .. [1] The official documentation for :mod:`pathlib`.
-.. [2] A guide for pathlib at `RealPython <https://realpython.com/python-pathlib/>`_.
+.. [2] A guide for pathlib by `realpython <https://realpython.com/python-pathlib/>`_.

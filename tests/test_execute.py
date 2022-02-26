@@ -133,7 +133,6 @@ def test_assert_multiple_dependencies_are_merged_to_dict(tmp_path, runner):
     import pytask
     from pathlib import Path
 
-    @pytask.mark.depends_on([(5, "in_5.txt"), (6, "in_6.txt")])
     @pytask.mark.depends_on({3: "in_3.txt", 4: "in_4.txt"})
     @pytask.mark.depends_on(["in_1.txt", "in_2.txt"])
     @pytask.mark.depends_on("in_0.txt")
@@ -141,13 +140,13 @@ def test_assert_multiple_dependencies_are_merged_to_dict(tmp_path, runner):
     def task_example(depends_on, produces):
         expected = {
             i: Path(__file__).parent.joinpath(f"in_{i}.txt").resolve()
-            for i in range(7)
+            for i in range(5)
         }
         assert depends_on == expected
         produces.touch()
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    for name in [f"in_{i}.txt" for i in range(7)]:
+    for name in [f"in_{i}.txt" for i in range(5)]:
         tmp_path.joinpath(name).touch()
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
@@ -162,14 +161,13 @@ def test_assert_multiple_products_are_merged_to_dict(tmp_path, runner):
     from pathlib import Path
 
     @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces([(5, "out_5.txt"), (6, "out_6.txt")])
     @pytask.mark.produces({3: "out_3.txt", 4: "out_4.txt"})
     @pytask.mark.produces(["out_1.txt", "out_2.txt"])
     @pytask.mark.produces("out_0.txt")
     def task_example(depends_on, produces):
         expected = {
             i: Path(__file__).parent.joinpath(f"out_{i}.txt").resolve()
-            for i in range(7)
+            for i in range(5)
         }
         assert produces == expected
         for product in produces.values():

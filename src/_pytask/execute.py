@@ -29,6 +29,7 @@ from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
+from pybaum.tree_util import tree_map
 from rich.text import Text
 
 
@@ -157,13 +158,7 @@ def pytask_execute_task(task: MetaTask) -> bool:
     for arg_name in ("depends_on", "produces"):
         if arg_name in func_arg_names:
             attribute = getattr(task, arg_name)
-            kwargs[arg_name] = (
-                attribute[0].value
-                if len(attribute) == 1
-                and 0 in attribute
-                and not task.keep_dict[arg_name]
-                else {name: node.value for name, node in attribute.items()}
-            )
+            kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
 
     task.execute(**kwargs)
     return True

@@ -9,6 +9,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
 0.2.0 - 2022-xx-xx
 ------------------
 
+- :pull:`211` allows for flexible dependencies and products which can be any pytree of
+  native Python objects as supported by pybaum.
 - :pull:`227` implements ``task.kwargs`` as a new way for a task to hold parametrized
   arguments. It also implements :class:`_pytask.models.CollectionMetadata` to carry
   parametrized arguments to the task class.
