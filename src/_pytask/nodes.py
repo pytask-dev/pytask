@@ -156,13 +156,13 @@ class PythonFunctionTask(MetaTask):
 
         # Get the underlying function to avoid having different states of the function,
         # e.g. due to pytask_meta, in different layers of the wrapping.
-        function = inspect.unwrap(function)
+        unwrapped = inspect.unwrap(function)
 
         return cls(
             base_name=name,
             name=create_task_name(path, name),
             path=path,
-            function=function,
+            function=unwrapped,
             depends_on=dependencies,
             produces=products,
             markers=markers,
@@ -178,6 +178,7 @@ class PythonFunctionTask(MetaTask):
         return str(self.path.stat().st_mtime)
 
     def add_report_section(self, when: str, key: str, content: str) -> None:
+        """Add sections which will be displayed in report like stdout or stderr."""
         if content:
             self._report_sections.append((when, key, content))
 
