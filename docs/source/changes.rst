@@ -16,6 +16,8 @@ all releases are available on `PyPI <https://pypi.org/project/pytask>`_ and
   parametrized arguments to the task class.
 - :pull:`228` removes ``task.pytaskmark`` and moves the information to
   :attr:`_pytask.models.CollectionMetadata.markers`.
+- :pull:`229` implements a new loop-based approach to parametrizations using the
+  :func:`@pytask.mark.task <_pytask.task.task>` decorator.
 
 
 0.1.9 - 2022-02-23
