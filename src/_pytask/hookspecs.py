@@ -159,7 +159,7 @@ def pytask_collect_file_protocol(
     """
 
 
-@hookspec(firstresult=True)
+@hookspec
 def pytask_collect_file(
     session: Session, path: Path, reports: list[CollectionReport]
 ) -> list[CollectionReport] | None:

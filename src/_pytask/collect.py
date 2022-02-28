@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import inspect
+import itertools
 import os
 import sys
 import time
@@ -65,7 +66,8 @@ def _collect_from_paths(session: Session) -> None:
         reports = session.hook.pytask_collect_file_protocol(
             session=session, path=path, reports=session.collection_reports
         )
-        if reports is not None:
+
+        if reports:
             session.collection_reports.extend(reports)
             session.tasks.extend(
                 i.node for i in reports if i.outcome == CollectionOutcome.SUCCESS
@@ -85,20 +87,21 @@ def pytask_collect_file_protocol(
 ) -> list[CollectionReport]:
     """Wrap the collection of tasks from a file to collect reports."""
     try:
-        reports = session.hook.pytask_collect_file(
+        new_reports = session.hook.pytask_collect_file(
             session=session, path=path, reports=reports
         )
+        flat_reports = list(itertools.chain.from_iterable(new_reports))
     except Exception:
         node = FilePathNode.from_path(path)
-        reports = [
+        flat_reports = [
             CollectionReport.from_exception(
                 outcome=CollectionOutcome.FAIL, node=node, exc_info=sys.exc_info()
             )
         ]
 
-    session.hook.pytask_collect_file_log(session=session, reports=reports)
+    session.hook.pytask_collect_file_log(session=session, reports=flat_reports)
 
-    return reports
+    return flat_reports
 
 
 @hookimpl

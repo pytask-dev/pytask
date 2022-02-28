@@ -15,11 +15,9 @@ from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import TASK_ICON
 from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
-from _pytask.mark_utils import has_marker
 from _pytask.mark_utils import remove_markers_from_func
 from _pytask.nodes import find_duplicates
 from _pytask.session import Session
-from _pytask.task_utils import parse_task_marker
 
 
 def parametrize(
@@ -103,11 +101,6 @@ def pytask_parametrize_task(
                 "best-practices guide on parametrizations: https://pytask-dev.rtfd.io/"
                 "en/stable/how_to_guides/bp_parametrizations.html."
             )
-
-        if has_marker(obj, "task"):
-            parsed_name = parse_task_marker(obj)
-            if parsed_name is not None:
-                name = parsed_name
 
         base_arg_names, arg_names, arg_values = _parse_parametrize_markers(
             markers, name

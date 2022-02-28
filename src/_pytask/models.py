@@ -5,6 +5,7 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import TYPE_CHECKING
+from typing import Union
 
 import attr
 
@@ -20,3 +21,5 @@ class CollectionMetadata:
     """Contains kwargs which are necessary for the task function on execution."""
     markers = attr.ib(factory=list, type=List["Mark"])
     """Contains the markers of the function."""
+    name = attr.ib(default=None, type=Union[str, None])
+    """The name of the task function."""
