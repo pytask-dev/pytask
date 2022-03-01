@@ -32,7 +32,23 @@ def task(
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
 ) -> Callable[..., None]:
-    """Parse inputs of the ``@pytask.mark.task`` decorator."""
+    """Parse inputs of the ``@pytask.mark.task`` decorator.
+
+    The decorator wraps task functions and stores them in the global variable
+    :obj:`COLLECTED_TASKS` to avoid garbage collection when the function definition is
+    overwritten in a loop.
+
+    Parameters
+    ----------
+    name : str | None
+        The name of the task.
+    id : str | None
+        An id for the task if it is part of a parametrization.
+    kwargs : dict[Any, Any] | None
+        A dictionary containing keyword arguments which are passed to the task when it
+        is executed.
+
+    """
 
     def wrapper(func: FuncWithMetaStub) -> None:
         unwrapped = inspect.unwrap(func)
