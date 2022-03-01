@@ -201,3 +201,25 @@ def test_parametrization_in_for_loop_with_ids(tmp_path, runner):
     assert result.exit_code == ExitCode.OK
     assert "deco_task[0]" in result.output
     assert "deco_task[1]" in result.output
+
+
+@pytest.mark.end_to_end
+def test_parametrization_in_for_loop_with_error(tmp_path, runner):
+    source = """
+    import pytask
+
+    for i in range(2):
+
+        @pytask.mark.task
+        def task_example(produces=f"out_{i}.txt"):
+            raise ValueError
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.FAILED
+    assert "2  Failed" in result.output
+    assert "Traceback" in result.output
+    assert "task_example[out_0.txt]" in result.output
+    assert "task_example[out_1.txt]" in result.output
