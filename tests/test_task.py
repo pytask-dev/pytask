@@ -189,7 +189,7 @@ def test_parametrization_in_for_loop_with_ids(tmp_path, runner):
     for i in range(2):
 
         @pytask.mark.task(
-            "deco_task", id=str(i), kwargs={"i": i, "produces": f"out_{i}.txt"}
+            "deco_task", id=i, kwargs={"i": i, "produces": f"out_{i}.txt"}
         )
         def example(produces, i):
             produces.write_text(str(i))

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import inspect
+import itertools
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -28,6 +29,7 @@ mapping from paths of modules to a list of tasks per module.
 def task(
     name: str | None = None,
     *,
+    id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
 ) -> Callable[..., None]:
     """Parse inputs of the ``@pytask.mark.task`` decorator."""
@@ -42,9 +44,13 @@ def task(
             unwrapped.pytask_meta.name = parsed_name
             unwrapped.pytask_meta.kwargs = parsed_kwargs
             unwrapped.pytask_meta.markers.append(Mark("task", (), {}))
+            unwrapped.pytask_meta.id_ = id
         else:
             unwrapped.pytask_meta = CollectionMetadata(
-                name=parsed_name, kwargs=parsed_kwargs, markers=[Mark("task", (), {})]
+                name=parsed_name,
+                kwargs=parsed_kwargs,
+                markers=[Mark("task", (), {})],
+                id_=id,
             )
 
         COLLECTED_TASKS[path].append(unwrapped)
@@ -55,7 +61,7 @@ def task(
     # In case the decorator is used without parentheses, wrap the function which is
     # passed as the first argument with the default arguments.
     if callable(name) and kwargs is None:
-        return task(name=None, kwargs=None)(name)
+        return task()(name)
     else:
         return wrapper
 
@@ -135,8 +141,12 @@ def _generate_ids_for_tasks(
     template_id = "-".join([parameter + "{i}" for parameter in parameters])
 
     out = {}
-    for i, (name, task) in enumerate(tasks):
-        stringified_args = template_id.format(i=i)
-        id_ = f"{name}[{stringified_args}]"
+    counter = itertools.count()
+    for name, task in tasks:
+        if task.pytask_meta.id_ is not None:  # type: ignore[attr-defined]
+            id_ = f"{name}[{str(task.pytask_meta.id_)}]"  # type: ignore[attr-defined]
+        else:
+            stringified_args = template_id.format(i=next(counter))
+            id_ = f"{name}[{stringified_args}]"
         out[id_] = task
     return out
