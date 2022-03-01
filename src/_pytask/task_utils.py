@@ -26,7 +26,9 @@ mapping from paths of modules to a list of tasks per module.
 
 
 def task(
-    name: str | None = None, kwargs: dict[Any, Any] | None = None
+    name: str | None = None,
+    *,
+    kwargs: dict[Any, Any] | None = None,
 ) -> Callable[..., None]:
     """Parse inputs of the ``@pytask.mark.task`` decorator."""
 

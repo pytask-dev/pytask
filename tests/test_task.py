@@ -179,3 +179,25 @@ def test_parametrization_in_for_loop_from_decorator(tmp_path, runner):
     assert result.exit_code == ExitCode.OK
     assert "deco_task[produces0-i0]" in result.output
     assert "deco_task[produces1-i1]" in result.output
+
+
+@pytest.mark.end_to_end
+def test_parametrization_in_for_loop_with_ids(tmp_path, runner):
+    source = """
+    import pytask
+
+    for i in range(2):
+
+        @pytask.mark.task(
+            "deco_task", id=str(i), kwargs={"i": i, "produces": f"out_{i}.txt"}
+        )
+        def example(produces, i):
+            produces.write_text(str(i))
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "deco_task[0]" in result.output
+    assert "deco_task[1]" in result.output
