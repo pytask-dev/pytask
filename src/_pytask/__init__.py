@@ -1,3 +1,4 @@
+"""This module should not contain any imports except for the version."""
 from __future__ import annotations
 
 try:

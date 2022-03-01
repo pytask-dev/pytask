@@ -10,15 +10,6 @@ from typing import Callable
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.nodes import find_duplicates
-from typing_extensions import Protocol
-
-
-class FuncWithMeta(Protocol):
-    pytask_meta: CollectionMetadata
-    __name__: str
-
-    def __call__(self) -> Any:
-        ...
 
 
 FuncWithMetaStub = Any
@@ -137,6 +128,7 @@ def _parse_keyword_arguments_from_signature_defaults(
 def _generate_ids_for_tasks(
     tasks: list[tuple[str, Callable[..., Any]]]
 ) -> dict[str, Callable[..., Any]]:
+    """Generate unique ids for parametrized tasks."""
     parameters = inspect.signature(tasks[0][1]).parameters
     template_id = "-".join([parameter + "{i}" for parameter in parameters])
 
