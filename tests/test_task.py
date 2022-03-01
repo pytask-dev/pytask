@@ -136,8 +136,8 @@ def test_parametrization_in_for_loop_from_signature(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
-    assert "example[depends_on0-produces0]" in result.output
-    assert "example[depends_on1-produces1]" in result.output
+    assert "example[in_0.txt-out_0.txt]" in result.output
+    assert "example[in_1.txt-out_1.txt]" in result.output
 
 
 @pytest.mark.end_to_end
@@ -157,8 +157,8 @@ def test_parametrization_in_for_loop_from_markers_and_args(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
-    assert "example[produces0-i0]" in result.output
-    assert "example[produces1-i1]" in result.output
+    assert "example[produces0-0]" in result.output
+    assert "example[produces1-1]" in result.output
 
 
 @pytest.mark.end_to_end
@@ -177,8 +177,8 @@ def test_parametrization_in_for_loop_from_decorator(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
-    assert "deco_task[produces0-i0]" in result.output
-    assert "deco_task[produces1-i1]" in result.output
+    assert "deco_task[out_0.txt-0]" in result.output
+    assert "deco_task[out_1.txt-1]" in result.output
 
 
 @pytest.mark.end_to_end

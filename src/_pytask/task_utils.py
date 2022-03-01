@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import inspect
-import itertools
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -11,6 +10,7 @@ from typing import Callable
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.nodes import find_duplicates
+from _pytask.parametrize_utils import arg_value_to_id_component
 
 
 FuncWithMetaStub = Any
@@ -138,15 +138,24 @@ def _generate_ids_for_tasks(
 ) -> dict[str, Callable[..., Any]]:
     """Generate unique ids for parametrized tasks."""
     parameters = inspect.signature(tasks[0][1]).parameters
-    template_id = "-".join([parameter + "{i}" for parameter in parameters])
 
     out = {}
-    counter = itertools.count()
-    for name, task in tasks:
+    for i, (name, task) in enumerate(tasks):
         if task.pytask_meta.id_ is not None:  # type: ignore[attr-defined]
             id_ = f"{name}[{str(task.pytask_meta.id_)}]"  # type: ignore[attr-defined]
         else:
-            stringified_args = template_id.format(i=next(counter))
-            id_ = f"{name}[{stringified_args}]"
+            stringified_args = [
+                arg_value_to_id_component(
+                    arg_name=parameter,
+                    arg_value=task.pytask_meta.kwargs.get(  # type: ignore[attr-defined]
+                        parameter
+                    ),
+                    i=i,
+                    id_func=None,
+                )
+                for parameter in parameters
+            ]
+            id_ = "-".join(stringified_args)
+            id_ = f"{name}[{id_}]"
         out[id_] = task
     return out
