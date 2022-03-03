@@ -35,7 +35,8 @@ def pytask_collect_file(
         collected_reports = []
         for name, function in name_to_function.items():
             session.hook.pytask_parametrize_kwarg_to_marker(
-                obj=function, kwargs=function.pytask_meta.kwargs
+                obj=function,
+                kwargs=function.pytask_meta.kwargs,  # type: ignore[attr-defined]
             )
 
             if has_marker(function, "parametrize"):

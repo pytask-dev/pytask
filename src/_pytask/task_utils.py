@@ -13,9 +13,6 @@ from _pytask.nodes import find_duplicates
 from _pytask.parametrize_utils import arg_value_to_id_component
 
 
-FuncWithMetaStub = Any
-
-
 COLLECTED_TASKS: dict[Path, list[Callable[..., Any]]] = defaultdict(list)
 """A container for collecting tasks.
 
@@ -53,7 +50,7 @@ def task(
 
     """
 
-    def wrapper(func: FuncWithMetaStub) -> None:
+    def wrapper(func: Callable[..., Any]) -> None:
         unwrapped = inspect.unwrap(func)
         path = Path(inspect.getfile(unwrapped)).absolute().resolve()
         parsed_kwargs = {} if kwargs is None else kwargs
@@ -89,7 +86,7 @@ def task(
 
 def parse_collected_tasks_with_task_marker(
     tasks: list[Callable[..., Any]],
-) -> dict[str, FuncWithMetaStub]:
+) -> dict[str, Callable[..., Any]]:
     """Parse collected tasks with a task marker."""
     parsed_tasks = _parse_tasks_with_preliminary_names(tasks)
     all_names = {i[0] for i in parsed_tasks}
@@ -124,20 +121,22 @@ def _parse_tasks_with_preliminary_names(
     return parsed_tasks
 
 
-def _parse_task(task: FuncWithMetaStub) -> tuple[str, Callable[..., Any]]:
+def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
     """Parse a single task."""
-    if task.pytask_meta.name is None and task.__name__ == "_":
+    name = task.pytask_meta.name  # type: ignore[attr-defined]
+    if name is None and task.__name__ == "_":
         raise ValueError(
             "A task function either needs 'name' passed by the ``@pytask.mark.task`` "
             "decorator or the function name of the task function must not be '_'."
         )
     else:
-        parsed_name = (
-            task.__name__ if task.pytask_meta.name is None else task.pytask_meta.name
-        )
+        parsed_name = task.__name__ if name is None else name
 
     signature_kwargs = _parse_keyword_arguments_from_signature_defaults(task)
-    task.pytask_meta.kwargs = {**task.pytask_meta.kwargs, **signature_kwargs}
+    task.pytask_meta.kwargs = {  # type: ignore[attr-defined]
+        **task.pytask_meta.kwargs,  # type: ignore[attr-defined]
+        **signature_kwargs,
+    }
 
     return parsed_name, task
 
