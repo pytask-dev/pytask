@@ -60,6 +60,10 @@ projects. Its features include:
   <https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_debug.html>`_ if a task
   fails, get feedback quickly, and be more productive.
 
+- **Parametrizations via loops.** `Loop over task functions
+  <https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_parametrize_a_task.html>`_
+  to run the same task with different inputs.
+
 - **Select tasks via expressions.** Run only a subset of tasks with `expressions and
   marker expressions
   <https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_select_tasks.html>`_
