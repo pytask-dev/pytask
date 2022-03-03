@@ -1,14 +1,14 @@
-How to parametrize a task - The old way
-=======================================
+How to parametrize a task - The pytest way
+==========================================
 
 You want to define a task which should be repeated over a range of inputs? Parametrize
 your task function!
 
 .. important::
 
-    This guide shows you how to parametrize tasks with the old approach which is similar
-    to pytest's. For the new and preferred approach, see this :doc:`tutorial
-    <../tutorials/how_to_parametrize>`.
+    This guide shows you how to parametrize tasks with the pytest approach. For the new
+    and preferred approach, see this :doc:`tutorial
+    <../tutorials/how_to_parametrize_a_task>`.
 
 You want to define a task which should be repeated over a range of inputs? Parametrize
 your task function!
@@ -199,9 +199,10 @@ Convert other objects
 ~~~~~~~~~~~~~~~~~~~~~
 
 To change the representation of tuples and other objects, you can pass a function to the
-``ids`` argument of the :func:`~_pytask.parametrize.parametrize` decorator. The function
-is called for every argument and may return a boolean, number, or string which will be
-integrated into the id. For every other return, the auto-generated value is used.
+``ids`` argument of the :func:`@pytask.mark.parametrize
+<_pytask.parametrize.parametrize>` decorator. The function is called for every argument
+and may return a boolean, number, or string which will be integrated into the id. For
+every other return, the auto-generated value is used.
 
 To get a unique representation of a tuple, we can use the hash value.
 

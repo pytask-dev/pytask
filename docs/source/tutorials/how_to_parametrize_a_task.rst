@@ -6,19 +6,24 @@ your task function!
 
 .. important::
 
-    If you are looking for information on the old way to parametrizations with the
-    :func:`@pytask.mark.parametrize <_pytask.parametrize.parametrize>` decorator, you
-    can find it :doc:`here <../how_to_guides/how_to_parametrize_a_task_the_old_way>`.
+    Before v0.2.0, pytask supported only one approach to parametrizations which is
+    similar to pytest's using a :func:`@pytask.mark.parametrize
+    <_pytask.parametrize.parametrize>` decorator. You can find it :doc:`here
+    <../how_to_guides/how_to_parametrize_a_task_the_pytest_way>`.
+
+    Here you find the new and preferred approach.
 
 
 An example
 ----------
 
-We reuse the previous example of a task which generates random data and repeat the same
-operation over a number of seeds to receive multiple, reproducible samples.
+We reuse the task from the previous :doc:`tutorial <how_to_write_a_task>` which
+generates random data and repeat the same operation over a number of seeds to receive
+multiple, reproducible samples.
 
 Apply the :func:`@pytask.mark.task <_pytask.task_utils.task>` decorator, loop over the
-function and supply values to the function.
+function and supply different seeds and output paths as default arguments of the
+function.
 
 .. code-block:: python
 
@@ -32,6 +37,10 @@ function and supply values to the function.
         def task_create_random_data(produces=f"data_{i}.pkl", seed=i):
             rng = np.random.default_rng(seed)
             ...
+
+Executing pytask gives you this:
+
+.. image:: /_static/images/how-to-parametrize-a-task.png
 
 
 ``depends_on`` and ``produces``
@@ -65,7 +74,7 @@ and the name of the task function. Here is an example.
 
 .. code-block::
 
-    ../task_example.py::task_example
+    ../task_data_preparation.py::task_create_random_data
 
 This behavior would produce duplicate ids for parametrized tasks. By default,
 auto-generated ids are used which are explained :ref:`here <auto_generated_ids>`.
@@ -83,18 +92,18 @@ which allows the user to set the a special name for the iteration.
 
 .. code-block:: python
 
-    for i, id_ in [(0, "first"), (1, "second")]:
+    for seed, id_ in [(0, "first"), (1, "second")]:
 
         @pytask.mark.task(id=id_)
-        def task_example(i=i, produces=f"out_{i}.txt"):
+        def task_create_random_data(seed=i, produces=f"out_{i}.txt"):
             ...
 
 produces these ids
 
 .. code-block::
 
-    task_example.py::task_example[first]
-    task_example.py::task_example[second]
+    task_data_preparation.py::task_create_random_data[first]
+    task_data_preparation.py::task_create_random_data[second]
 
 
 Complex example
@@ -103,11 +112,47 @@ Complex example
 Parametrizations are becoming more complex quickly. Often, you need to supply many
 arguments and ids to tasks.
 
-Two changes will make your life easier.
+To organize your ids and arguments use nested dictionaries where keys are ids and values
+are dictionaries mapping from argument names to values.
 
-1. Build the arguments and ids for every parametrization in a separate function.
-2. Use the ``kwargs`` argument of the ``pytask.mark.task`` decorator to pass the
-   arguments to the task.
+.. code-block:: python
+
+    ID_TO_KWARGS = {
+        "first": {
+            "seed": 0,
+            "produces": "data_0.pkl",
+        },
+        "second": {
+            "seed": 1,
+            "produces": "data_1.pkl",
+        },
+    }
+
+The parametrization becomes
+
+.. code-block:: python
+
+    for id_, kwargs in ID_TO_KWARGS.items():
+
+        @pytask.mark.task(id=id_)
+        def task_create_random_data(seed=kwargs["seed"], produces=kwargs["produces"]):
+            ...
+
+Unpacking all the arguments can become tedious. Use instead the ``kwargs`` argument of
+the :func:`@pytask.mark.task <_pytask.task_utils.task` decorator to pass keyword
+arguments to the task.
+
+.. code-block:: python
+
+    for id_, kwargs in ID_TO_KWARGS.items():
+
+        @pytask.mark.task(id=id_, kwargs=kwargs)
+        def task_create_random_data(seed, produces):
+            ...
+
+As a last step to organize our code even more, we can write a function which creates
+``ID_TO_KWARGS``. You can hide the creation of input and output paths and other
+arguments in this function.
 
 .. code-block:: python
 
@@ -125,7 +170,7 @@ Two changes will make your life easier.
     for id_, kwargs in ID_TO_KWARGS.items():
 
         @pytask.mark.task(id=id_, kwargs=kwargs)
-        def task_example(i, produces):
+        def task_create_random_data(i, produces):
             ...
 
 The :doc:`best-practices guide on parametrizations
