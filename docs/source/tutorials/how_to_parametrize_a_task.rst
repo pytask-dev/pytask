@@ -134,8 +134,6 @@ Two changes will make your life easier.
         def task_example(i, produces):
             ...
 
-.. seealso::
-
-    The :doc:`best-practices guide on parametrizations
-    <../how_to_guides/bp_parametrizations>` goes into even more detail on how to scale
-    parametrizations.
+The :doc:`best-practices guide on parametrizations
+<../how_to_guides/bp_parametrizations>` goes into even more detail on how to scale
+parametrizations.
