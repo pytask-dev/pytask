@@ -51,7 +51,8 @@ def test_task_with_task_decorator_with_parametrize(tmp_path, func_name, task_nam
     def {func_name}(produces):
         produces.write_text("Hello. It's me.")
     """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    path_to_module = tmp_path.joinpath("task_module.py")
+    path_to_module.write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
 
@@ -59,17 +60,17 @@ def test_task_with_task_decorator_with_parametrize(tmp_path, func_name, task_nam
 
     if task_name:
         assert session.tasks[0].name == create_task_name(
-            tmp_path.joinpath("task_module.py"), f"{task_name}[out_1.txt]"
+            path_to_module, f"{task_name}[out_1.txt]"
         )
         assert session.tasks[1].name == create_task_name(
-            tmp_path.joinpath("task_module.py"), f"{task_name}[out_2.txt]"
+            path_to_module, f"{task_name}[out_2.txt]"
         )
     else:
         assert session.tasks[0].name == create_task_name(
-            tmp_path.joinpath("task_module.py"), f"{func_name}[out_1.txt]"
+            path_to_module, f"{func_name}[out_1.txt]"
         )
         assert session.tasks[1].name == create_task_name(
-            tmp_path.joinpath("task_module.py"), f"{func_name}[out_2.txt]"
+            path_to_module, f"{func_name}[out_2.txt]"
         )
 
 
@@ -223,3 +224,31 @@ def test_parametrization_in_for_loop_with_error(tmp_path, runner):
     assert "Traceback" in result.output
     assert "task_example[out_0.txt]" in result.output
     assert "task_example[out_1.txt]" in result.output
+
+
+@pytest.mark.end_to_end
+def test_parametrization_in_for_loop_from_decorator_w_irregular_dicts(tmp_path, runner):
+    source = """
+    import pytask
+
+    ID_TO_KWARGS = {
+        "first": {"i": 0, "produces": "out_0.txt"},
+        "second": {"produces": "out_1.txt"},
+    }
+
+    for id_, kwargs in ID_TO_KWARGS.items():
+
+        @pytask.mark.task(name="deco_task", id=id_, kwargs=kwargs)
+        def example(produces, i):
+            produces.write_text(str(i))
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.FAILED
+    assert "deco_task[first]" in result.output
+    assert "deco_task[second]" in result.output
+    assert "1  Succeeded"
+    assert "1  Failed"
+    assert "TypeError: example() missing 1 required" in result.output
