@@ -10,12 +10,6 @@ your task function!
     :func:`@pytask.mark.parametrize <_pytask.parametrize.parametrize>` decorator, you
     can find it :doc:`here <../how_to_guides/how_to_parametrize_a_task_the_old_way>`.
 
-.. seealso::
-
-    If you want to know more about best practices for parametrizations, check out this
-    :doc:`guide <../how_to_guides/bp_parametrizations>` after you made yourself familiar
-    with this tutorial.
-
 
 An example
 ----------
