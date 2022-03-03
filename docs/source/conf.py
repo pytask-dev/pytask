@@ -42,6 +42,7 @@ extensions = [
     "sphinx_click",
     "sphinx_panels",
     "autoapi.extension",
+    "myst_parser",
 ]
 
 # List of patterns, relative to source directory, that match files and directories to
@@ -92,6 +93,10 @@ autoapi_type = "python"
 autoapi_dirs = ["../../src"]
 autoapi_keep_files = False
 autoapi_add_toctree_entry = False
+
+
+# MyST
+myst_enable_extensions = ["colon_fence", "deflist", "dollarmath"]
 
 
 # -- Options for HTML output -----------------------------------------------------------
