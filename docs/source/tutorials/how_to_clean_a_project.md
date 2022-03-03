@@ -24,8 +24,8 @@ By default, pytask takes the current directory and performs a dry-run which show
 files which could be removed. Pass other paths to the command if you want to inspect
 specific directories.
 
-If you want to remove the files, there exist two other modes for {option}`pytask clean
--m`.
+If you want to remove the files, there exist two other modes for
+{option}`pytask clean -m`.
 
 - `force` removes all files suggested in the `dry-run` without any confirmation.
 - `interactive` allows you to decide for every file whether to keep it or not.

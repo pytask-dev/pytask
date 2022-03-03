@@ -2,8 +2,8 @@
 
 :::{important}
 This guide shows how to influence the order in which tasks are executed. The feature
-should be treated with caution since it might make projects work whose dependencies
-and products are not fully specified.
+should be treated with caution since it might make projects work whose dependencies and
+products are not fully specified.
 :::
 
 You can influence the order in which tasks are executed by assigning preferences to
@@ -13,11 +13,10 @@ tasks. Use `pytask.mark.try_first` to execute a task as early as possible and
 :::{note}
 For more background, tasks, dependencies and products form a directed acyclic graph
 (DAG). A [topological ordering](https://en.wikipedia.org/wiki/Topological_sorting)
-determines the order in which tasks are executed such that tasks are not run until
-their predecessors have been executed. The ordering is not unique and instead of a
-random ordering, an ordering is chosen which is compatible with the preferences.
-Among multiple tasks which should all be preferred or delayed, a random task is
-chosen.
+determines the order in which tasks are executed such that tasks are not run until their
+predecessors have been executed. The ordering is not unique and instead of a random
+ordering, an ordering is chosen which is compatible with the preferences. Among multiple
+tasks which should all be preferred or delayed, a random task is chosen.
 :::
 
 As an example, here are two tasks where the decorator ensures that the output of the

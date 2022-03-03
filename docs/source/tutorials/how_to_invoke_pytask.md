@@ -17,14 +17,14 @@ There are two entry-points to invoke pytask.
    $ pytask -h | --help
    ```
 
-2. Invoke pytask via the Python interpreter which will add the current path to the
+1. Invoke pytask via the Python interpreter which will add the current path to the
    `sys.path`.
 
    ```console
    python -m pytask /some/task/dir
    ```
 
-3. Invoke pytask programmatically with
+1. Invoke pytask programmatically with
 
    ```python
    import pytask

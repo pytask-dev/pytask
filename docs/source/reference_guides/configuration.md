@@ -4,8 +4,8 @@ This document lists all options to configure pytask via the configuration files.
 
 ## The basics
 
-To learn about the basics visit the {doc}`tutorial
-<../tutorials/how_to_configure_pytask>`.
+To learn about the basics visit the
+{doc}`tutorial <../tutorials/how_to_configure_pytask>`.
 
 ## Truthy and falsy values
 

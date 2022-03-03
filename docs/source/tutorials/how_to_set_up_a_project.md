@@ -6,8 +6,8 @@ This tutorial shows you how to set up your first project. It also explains the p
 of the most elementary pieces.
 
 :::{seealso}
-If you want to start from a template or take inspiration from previous projects,
-look at {doc}`../how_to_guides/bp_templates_and_projects`.
+If you want to start from a template or take inspiration from previous projects, look at
+{doc}`../how_to_guides/bp_templates_and_projects`.
 :::
 
 ## The directory structure
@@ -35,10 +35,9 @@ my_project
 
 ### The configuration
 
-The configuration resides in either a `pytask.ini`, `tox.ini`, or `setup.cfg`
-file. The file is placed in the root folder of the project and contains a `[pytask]`
-section which can be left empty. Here, we set `paths` such that it points to the
-project.
+The configuration resides in either a `pytask.ini`, `tox.ini`, or `setup.cfg` file. The
+file is placed in the root folder of the project and contains a `[pytask]` section which
+can be left empty. Here, we set `paths` such that it points to the project.
 
 ```ini
 # Content of pytask.ini, tox.ini or setup.cfg.
@@ -50,9 +49,9 @@ paths = ./src/my_project
 The file in combination with an empty section will signal the root of the project to
 pytask. This has two benefits.
 
-1. pytask needs to save some data across executions. It will store this information in
-   a `.pytask.sqlite3` database in the root folder.
-2. If you start pytask without a path - simply `pytask` - from a different location
+1. pytask needs to save some data across executions. It will store this information in a
+   `.pytask.sqlite3` database in the root folder.
+1. If you start pytask without a path - simply `pytask` - from a different location
    inside the project folder than the root, the database will be found and pytask runs
    as if it is run in the project root.
 
@@ -63,12 +62,13 @@ of the project. The nested structure is called the src layout and the preferred 
 structure Python packages.
 
 :::{seealso}
-You find a better explanation of the src layout in [this article by Hynek Schlawack](https://hynek.me/articles/testing-packaging/).
+You find a better explanation of the src layout in [this article by Hynek
+Schlawack](https://hynek.me/articles/testing-packaging/).
 :::
 
 It also contains a `config.py` or a similar module to store the configuration of the
-project. For example, you should define paths pointing to the source and build
-directory of the project.
+project. For example, you should define paths pointing to the source and build directory
+of the project.
 
 ```python
 # Content of config.py.
@@ -82,14 +82,14 @@ BLD = SRC.joinpath("..", "..", "bld").resolve()
 
 ### The build directory
 
-The build directory `bld` is created automatically during the execution. It is used
-to store the products of tasks and can be deleted to rebuild the entire project.
+The build directory `bld` is created automatically during the execution. It is used to
+store the products of tasks and can be deleted to rebuild the entire project.
 
 ### Install the project
 
 Two files are necessary to turn the source directory into a Python package. It allows to
-perform imports from `my_project`. E.g., `from my_project.config import SRC`. We
-also need `pip >= 21.1`.
+perform imports from `my_project`. E.g., `from my_project.config import SRC`. We also
+need `pip >= 21.1`.
 
 First, we need a `setup.cfg` which contains the name and version of the package and
 where the source code can be found.
@@ -121,7 +121,8 @@ build-backend = "setuptools.build_meta"
 ```
 
 :::{seealso}
-You find this and more information in the documentation for [setuptools](https://setuptools.pypa.io/en/latest/userguide/quickstart.html).
+You find this and more information in the documentation for
+[setuptools](https://setuptools.pypa.io/en/latest/userguide/quickstart.html).
 :::
 
 Now, you can install the package into your environment with
@@ -135,14 +136,14 @@ the source files of the package are immediately reflected in the installed versi
 the package.
 
 :::{important}
-Do not forget to rerun the editable install should you recreate your Python
-environment.
+Do not forget to rerun the editable install should you recreate your Python environment.
 :::
 
 :::{tip}
-For a more sophisticated setup where versions are managed via tags on the
-repository, check out [setuptools_scm](https://github.com/pypa/setuptools_scm).
-The tool is also used in [cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project).
+For a more sophisticated setup where versions are managed via tags on the repository,
+check out [setuptools_scm](https://github.com/pypa/setuptools_scm). The tool is also
+used in
+[cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project).
 :::
 
 ## Further Reading

@@ -74,8 +74,9 @@ If you want to know more about pytask, dive into one the following topics.
 ```
 
 ```{toctree}
-:hidden: true
-
+---
+hidden: true
+---
 tutorials/index
 how_to_guides/index
 explanations/index
@@ -85,8 +86,9 @@ reference_guides/index
 Furthermore, the documentation includes the following topics.
 
 ```{toctree}
-:maxdepth: 1
-
+---
+maxdepth: 1
+---
 plugin_list
 api
 developers_guide

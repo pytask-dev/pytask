@@ -12,8 +12,8 @@ tasks the purpose of the entry-points.
 
 ## Naming
 
-The names of hooks always start with `pytask_` by convention. The following term
-usually specifies the phase during the execution of tasks if there exist a group of hook
+The names of hooks always start with `pytask_` by convention. The following term usually
+specifies the phase during the execution of tasks if there exist a group of hook
 specifications.
 
 If you encounter hooks which are suffixed with `_protocol`, it means that subsequent
@@ -146,10 +146,10 @@ The following hooks are designed to build a DAG from tasks and dependencies and 
 which files have changed and need to be re-run.
 
 :::{warning}
-This step is still experimental and likely to change in the future. If you are
-planning to write a plugin which extends pytask in this dimension, please, start a
-discussion before writing a plugin. It may make your life easier if changes in pytask
-anticipate your plugin.
+This step is still experimental and likely to change in the future. If you are planning
+to write a plugin which extends pytask in this dimension, please, start a discussion
+before writing a plugin. It may make your life easier if changes in pytask anticipate
+your plugin.
 :::
 
 ```{eval-rst}

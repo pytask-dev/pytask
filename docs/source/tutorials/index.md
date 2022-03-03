@@ -4,8 +4,9 @@ Tutorials take you by the hand through a series of steps to build and manage you
 project. Start here if you are a new user.
 
 ```{toctree}
-:maxdepth: 1
-
+---
+maxdepth: 1
+---
 how_to_install
 how_to_set_up_a_project
 how_to_write_a_task

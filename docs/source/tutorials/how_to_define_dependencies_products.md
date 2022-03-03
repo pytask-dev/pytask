@@ -4,9 +4,9 @@ To make sure pytask executes all tasks in a correct order, define which dependen
 required and which products are produced by a task.
 
 :::{important}
-If you do not specify dependencies and products as explained below, pytask will
-not able to build a graph, a {term}`DAG`, and will not be able to execute all tasks
-in the project correctly!
+If you do not specify dependencies and products as explained below, pytask will not able
+to build a graph, a {term}`DAG`, and will not be able to execute all tasks in the
+project correctly!
 :::
 
 The information on dependencies and products can be attached to a task function with
@@ -27,8 +27,8 @@ The {func}`@pytask.mark.produces <_pytask.nodes.produces>` marker attaches a pro
 a task which is a {class}`pathlib.Path` to file. After the task has finished, pytask
 will check whether the file exists.
 
-Optionally, you can use `produces` as an argument of the task function and get access
-to the same path inside the task function.
+Optionally, you can use `produces` as an argument of the task function and get access to
+the same path inside the task function.
 
 :::{tip}
 If you do not know about {mod}`pathlib` check out [^id3] and [^id4]. The module is very
@@ -47,12 +47,12 @@ def task_plot_data(depends_on, produces):
     ...
 ```
 
-Use `depends_on` as a function argument to work with the path of the dependency and,
-for example, load the data.
+Use `depends_on` as a function argument to work with the path of the dependency and, for
+example, load the data.
 
 :::{important}
-The two markers, `pytask.mark.depends_on` and `pytask.mark.produces`, cannot be
-used interchangeably! Use the first for dependencies and the latter for products.
+The two markers, `pytask.mark.depends_on` and `pytask.mark.produces`, cannot be used
+interchangeably! Use the first for dependencies and the latter for products.
 :::
 
 ## Conversion
@@ -69,9 +69,9 @@ def task_create_random_data(produces):
     ...
 ```
 
-If you use `depends_on` or `produces` as arguments for the task function, you will
-have access to the paths of the targets as {class}`pathlib.Path` even if strings were
-used before.
+If you use `depends_on` or `produces` as arguments for the task function, you will have
+access to the paths of the targets as {class}`pathlib.Path` even if strings were used
+before.
 
 ## Multiple dependencies and products
 
@@ -107,8 +107,8 @@ def task_create_random_data(produces):
     ...
 ```
 
-Inside the function, the arguments `depends_on` or `produces` become a dictionary
-where keys are the positions in the list.
+Inside the function, the arguments `depends_on` or `produces` become a dictionary where
+keys are the positions in the list.
 
 ```pycon
 >>> produces
@@ -165,8 +165,8 @@ def task_fit_model():
     ...
 ```
 
-It is also possible to merge nested containers. For example, you might want to reuse
-the dependency on models for other tasks as well.
+It is also possible to merge nested containers. For example, you might want to reuse the
+dependency on models for other tasks as well.
 
 ```python
 model_dependencies = pytask.mark.depends_on({"model": [SRC / "models" / "model.py"]})

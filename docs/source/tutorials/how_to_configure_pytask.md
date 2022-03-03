@@ -6,8 +6,7 @@ configuration file.
 ## The configuration file
 
 pytask accepts configurations in three files which are `pytask.ini`, `tox.ini` and
-`setup.cfg`. Place a `[pytask]` section in those files and add your configuration
-below.
+`setup.cfg`. Place a `[pytask]` section in those files and add your configuration below.
 
 ```ini
 # Content of tox.ini
@@ -42,8 +41,8 @@ and search in parent directories.
 
 ## The options
 
-You can find all possible configuration values in the {doc}`reference guide on the
-configuration <../reference_guides/configuration>`.
+You can find all possible configuration values in the
+{doc}`reference guide on the configuration <../reference_guides/configuration>`.
 
 ## Further reading
 

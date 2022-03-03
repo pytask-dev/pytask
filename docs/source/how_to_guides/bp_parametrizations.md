@@ -11,10 +11,9 @@ This section gives advice on how to use parametrizations.
 
 ## Scalability
 
-Parametrizations allow to scale tasks from $1$ to $N$ in a simple way. What
-is easily overlooked is that parametrizations usually trigger other parametrizations and
-the growth in tasks is more $1$ to $N \cdot M \cdot \dots$ or $1$ to
-$N^{M \cdot \dots}$.
+Parametrizations allow to scale tasks from $1$ to $N$ in a simple way. What is easily
+overlooked is that parametrizations usually trigger other parametrizations and the
+growth in tasks is more $1$ to $N \cdot M \cdot \dots$ or $1$ to $N^{M \cdot \dots}$.
 
 To keep the resulting complexity as manageable as possible, this guide lays out a
 structure which is simple, modular, and scalable.
@@ -55,13 +54,13 @@ my_project
 └───bld
 ```
 
-The folder structure, the general `config.py` which holds `SRC` and `BLD` and the
-tasks follow the same structure which is advocated for throughout the tutorials.
+The folder structure, the general `config.py` which holds `SRC` and `BLD` and the tasks
+follow the same structure which is advocated for throughout the tutorials.
 
-What is new are the local configuration files in each of the subfolders of
-`my_project` which contain objects which are shared across tasks. For example,
-`data_preparation_config.py` holds the paths to the processed data and the names of
-the data sets.
+What is new are the local configuration files in each of the subfolders of `my_project`
+which contain objects which are shared across tasks. For example,
+`data_preparation_config.py` holds the paths to the processed data and the names of the
+data sets.
 
 ```python
 # Content of data_preparation_config.py

@@ -4,8 +4,10 @@ You want to define a task which should be repeated over a range of inputs? Param
 your task function!
 
 :::{important}
-Before v0.2.0, pytask supported only one approach to parametrizations which is
-similar to pytest's using a {func}`@pytask.mark.parametrize <_pytask.parametrize.parametrize>` decorator. You can find it {doc}`here <../how_to_guides/how_to_parametrize_a_task_the_pytest_way>`.
+Before v0.2.0, pytask supported only one approach to parametrizations which is similar
+to pytest's using a {func}`@pytask.mark.parametrize <_pytask.parametrize.parametrize>`
+decorator. You can find it
+{doc}`here <../how_to_guides/how_to_parametrize_a_task_the_pytest_way>`.
 
 Here you find the new and preferred approach.
 :::
@@ -126,9 +128,9 @@ for id_, kwargs in ID_TO_KWARGS.items():
         ...
 ```
 
-Unpacking all the arguments can become tedious. Use instead the `kwargs` argument of
-the {func}`@pytask.mark.task <_pytask.task_utils.task` decorator to pass keyword
-arguments to the task.
+Unpacking all the arguments can become tedious. Use instead the `kwargs` argument of the
+{func}`@pytask.mark.task <_pytask.task_utils.task` decorator to pass keyword arguments
+to the task.
 
 ```python
 for id_, kwargs in ID_TO_KWARGS.items():
@@ -139,8 +141,8 @@ for id_, kwargs in ID_TO_KWARGS.items():
 ```
 
 As a last step to organize our code even more, we can write a function which creates
-`ID_TO_KWARGS`. You can hide the creation of input and output paths and other
-arguments in this function.
+`ID_TO_KWARGS`. You can hide the creation of input and output paths and other arguments
+in this function.
 
 ```python
 def create_parametrization():
@@ -161,6 +163,6 @@ for id_, kwargs in ID_TO_KWARGS.items():
         ...
 ```
 
-The {doc}`best-practices guide on parametrizations
-<../how_to_guides/bp_parametrizations>` goes into even more detail on how to scale
-parametrizations.
+The
+{doc}`best-practices guide on parametrizations <../how_to_guides/bp_parametrizations>`
+goes into even more detail on how to scale parametrizations.

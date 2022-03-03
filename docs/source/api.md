@@ -4,8 +4,9 @@ The following documents are auto-generated and not carefully edited. They provid
 access to the source code and the docstrings.
 
 ```{toctree}
-:titlesonly: true
-
+---
+titlesonly: true
+---
 /autoapi/pytask/index
 /autoapi/_pytask/index
 ```

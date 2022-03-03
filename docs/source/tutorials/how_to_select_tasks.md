@@ -34,10 +34,9 @@ To execute only tasks with the `wip` marker, use
 $ pytask -m wip
 ```
 
-You can pass more complex expressions to `-m` by using multiple markers and `and`,
-`or`, `not`, and `()`. The following pattern selects all tasks which belong to the
-data management, but not the ones which produce plots and plots produced for the
-analysis.
+You can pass more complex expressions to `-m` by using multiple markers and `and`, `or`,
+`not`, and `()`. The following pattern selects all tasks which belong to the data
+management, but not the ones which produce plots and plots produced for the analysis.
 
 ```console
 $ pytask -m "(data_management and not plots) or (analysis and plots)"
@@ -108,6 +107,6 @@ other Python objects like tuples are replaced with a combination of the argument
 and an iteration counter. Multiple arguments are separated via dashes.
 
 :::{seealso}
-See this {ref}`section <how_to_parametrize_a_task_the_id>` for more information how
-ids for parametrized tasks are generated.
+See this {ref}`section <how_to_parametrize_a_task_the_id>` for more information how ids
+for parametrized tasks are generated.
 :::

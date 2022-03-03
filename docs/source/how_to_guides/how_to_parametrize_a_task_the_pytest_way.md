@@ -4,9 +4,8 @@ You want to define a task which should be repeated over a range of inputs? Param
 your task function!
 
 :::{important}
-This guide shows you how to parametrize tasks with the pytest approach. For the new
-and preferred approach, see this {doc}`tutorial
-<../tutorials/how_to_parametrize_a_task>`.
+This guide shows you how to parametrize tasks with the pytest approach. For the new and
+preferred approach, see this {doc}`tutorial <../tutorials/how_to_parametrize_a_task>`.
 :::
 
 You want to define a task which should be repeated over a range of inputs? Parametrize
@@ -49,9 +48,9 @@ def task_create_random_data(seed, produces):
     ...
 ```
 
-The parametrize decorator receives two arguments. The first argument is `"produces,
-seed"` - the signature. It is a comma-separated string where each value specifies the
-name of a task function argument.
+The parametrize decorator receives two arguments. The first argument is
+`"produces, seed"` - the signature. It is a comma-separated string where each value
+specifies the name of a task function argument.
 
 :::{seealso}
 The signature is explained in detail {ref}`below <parametrize_signature>`.
@@ -65,8 +64,8 @@ Putting all together, the task is executed three times and each run the path fro
 list is mapped to the argument `produces` and `seed` receives the seed.
 
 :::{note}
-If you use `produces` or `depends_on` in the signature of the parametrize
-decorator, the values are handled as if they were attached to the function with
+If you use `produces` or `depends_on` in the signature of the parametrize decorator, the
+values are handled as if they were attached to the function with
 `@pytask.mark.depends_on` or `@pytask.mark.produces`.
 :::
 
@@ -102,14 +101,14 @@ The signature can be passed in three different formats.
    "first_argument, second_argument"
    ```
 
-2. The signature can be a tuple of strings where each string is one argument name. Here
+1. The signature can be a tuple of strings where each string is one argument name. Here
    is an example.
 
    ```python
    ("first_argument", "second_argument")
    ```
 
-3. Finally, it is also possible to use a list of strings.
+1. Finally, it is also possible to use a list of strings.
 
    ```python
    ["first_argument", "second_argument"]
@@ -135,8 +134,7 @@ multiple mechanisms to produce unique ids.
 To avoid duplicate task ids, the ids of parametrized tasks are extended with
 descriptions of the values they are parametrized with. Booleans, floats, integers and
 strings enter the task id directly. For example, a task function which receives four
-arguments, `True`, `1.0`, `2`, and `"hello"`, one of each dtype, has the
-following id.
+arguments, `True`, `1.0`, `2`, and `"hello"`, one of each dtype, has the following id.
 
 ```
 task_example.py::task_example[True-1.0-2-hello]
@@ -185,10 +183,10 @@ task_example.py::task_example[second]  # (1,)
 ### Convert other objects
 
 To change the representation of tuples and other objects, you can pass a function to the
-`ids` argument of the {func}`@pytask.mark.parametrize
-<_pytask.parametrize.parametrize>` decorator. The function is called for every argument
-and may return a boolean, number, or string which will be integrated into the id. For
-every other return, the auto-generated value is used.
+`ids` argument of the {func}`@pytask.mark.parametrize <_pytask.parametrize.parametrize>`
+decorator. The function is called for every argument and may return a boolean, number,
+or string which will be integrated into the id. For every other return, the
+auto-generated value is used.
 
 To get a unique representation of a tuple, we can use the hash value.
 

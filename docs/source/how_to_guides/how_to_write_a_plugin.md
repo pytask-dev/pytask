@@ -9,8 +9,8 @@ paragraphs might be useful nonetheless.
 
 Before you start implementing your plugin, the following notes may help you.
 
-- [cookiecutter-pytask-plugin](https://github.com/pytask-dev/cookiecutter-pytask-plugin) is a template if you want
-  to create a plugin.
+- [cookiecutter-pytask-plugin](https://github.com/pytask-dev/cookiecutter-pytask-plugin)
+  is a template if you want to create a plugin.
 - Check whether there exist plugins which offer similar functionality. For example, many
   plugins provide convenient interfaces to run another program with inputs via the
   command line. Naturally, there is a lot of overlap in the structure of the program and
@@ -30,9 +30,9 @@ This section explains some steps which are required for all plugins.
 
 ### Set up the setuptools entry-point
 
-pytask discovers plugins via `setuptools` entry-points. Following the approach
-advocated for by [setuptools_scm](https://github.com/pypa/setuptools_scm), the
-entry-point is specified in `setup.cfg`.
+pytask discovers plugins via `setuptools` entry-points. Following the approach advocated
+for by [setuptools_scm](https://github.com/pypa/setuptools_scm), the entry-point is
+specified in `setup.cfg`.
 
 ```cfg
 # Content of setup.cfg

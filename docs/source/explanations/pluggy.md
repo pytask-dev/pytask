@@ -2,8 +2,8 @@
 
 # pluggy and the Plugin Architecture
 
-pluggy ([^id4], [^id5], [^id6]) is at the heart of pytask and enables its plugin system. The
-mechanism to achieve extensibility is called {term}`hooking`.
+pluggy ([^id4], [^id5], [^id6]) is at the heart of pytask and enables its plugin system.
+The mechanism to achieve extensibility is called {term}`hooking`.
 
 At certain points, pytask, or more generally the host, implements entry-points which are
 called hook specifications. At these entry-points the host sends a message to all

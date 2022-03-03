@@ -1,12 +1,14 @@
 # How to write a task
 
-Starting from the project structure in the {doc}`previous tutorial <how_to_set_up_a_project>`, this tutorial teaches you how to write your first task.
+Starting from the project structure in the
+{doc}`previous tutorial <how_to_set_up_a_project>`, this tutorial teaches you how to
+write your first task.
 
 By default, pytask will look for tasks in modules whose name is prefixed with `task_`.
 Tasks are functions in these modules whose name also starts with `task_`.
 
-Our first task will be defined in `src/my_project/task_data_preparation.py` and it
-will generate artificial data which will be stored in `bld/data.pkl`. We will call the
+Our first task will be defined in `src/my_project/task_data_preparation.py` and it will
+generate artificial data which will be stored in `bld/data.pkl`. We will call the
 function in the module {func}`task_create_random_data`.
 
 ```

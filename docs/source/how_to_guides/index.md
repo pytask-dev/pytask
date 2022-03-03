@@ -8,8 +8,9 @@ The first collection of how-to guides provide detailed explanations on how to ac
 specific tasks with pytask.
 
 ```{toctree}
-:maxdepth: 1
-
+---
+maxdepth: 1
+---
 how_to_write_a_plugin
 how_to_influence_build_order
 how_to_parametrize_a_task_the_pytest_way
@@ -22,15 +23,17 @@ experience with pytask and build systems in general, research projects, and soft
 engineering to provide useful and easily understandable instructions.
 
 Contributions in any form - additions, comments, own experiences, request for
-clarifications - are highly appreciated. Please continue a discussion in [an existing
-issue](https://github.com/pytask-dev/pytask/issues) ticket or [file a new ticket](https://github.com/pytask-dev/pytask/issues/new/choose).
+clarifications - are highly appreciated. Please continue a discussion in
+[an existing issue](https://github.com/pytask-dev/pytask/issues) ticket or
+[file a new ticket](https://github.com/pytask-dev/pytask/issues/new/choose).
 
 For more information on how best-practices guides are organized and how to contribute,
 see the section on {doc}`bp_organization`.
 
 ```{toctree}
-:maxdepth: 1
-
+---
+maxdepth: 1
+---
 bp_organization
 bp_structure_of_task_files
 bp_structure_of_a_research_project

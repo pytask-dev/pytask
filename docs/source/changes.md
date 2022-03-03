@@ -1,8 +1,8 @@
 # Changes
 
 This is a record of all past pytask releases and what went into them in reverse
-chronological order. Releases follow [semantic versioning](https://semver.org/) and
-all releases are available on [PyPI](https://pypi.org/project/pytask) and
+chronological order. Releases follow [semantic versioning](https://semver.org/) and all
+releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
 ## 0.2.0 - 2022-xx-xx
@@ -21,8 +21,7 @@ all releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`197` publishes types, and adds classes and functions to the main namespace.
 - {pull}`217` enhances the tutorial on how to set up a project.
-- {pull}`218` removes `depends_on` and `produces` from the task function when
-  parsed.
+- {pull}`218` removes `depends_on` and `produces` from the task function when parsed.
 - {pull}`219` removes some leftovers from pytest in {class}`~_pytask.mark.Mark`.
 - {pull}`221` adds more test cases for parametrizations.
 - {pull}`222` adds an automated Github Actions job for creating a list pytask plugins.
@@ -50,8 +49,8 @@ all releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`193` adds more figures to the documentation.
 - {pull}`194` updates the `README.rst`.
 - {pull}`196` references the two new cookiecutters for projects and plugins.
-- {pull}`198` fixes the documentation of {func}`@pytask.mark.skipif
-  <_pytask.skipping.skipif>`. (Closes {issue}`195`)
+- {pull}`198` fixes the documentation of
+  {func}`@pytask.mark.skipif <_pytask.skipping.skipif>`. (Closes {issue}`195`)
 - {pull}`199` extends the error message when paths are ambiguous on case-insensitive
   file systems.
 - {pull}`200` implements the {func}`@pytask.mark.task <_pytask.task.task>` decorator to
@@ -67,8 +66,8 @@ all releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`184` refactors {func}`~_pytask.shared.reduce_node_name` and shorten task names
   in many places.
-- {pull}`185` fix issues with drawing a graph and adds the `--rank-direction` to
-  change the direction of the DAG.
+- {pull}`185` fix issues with drawing a graph and adds the `--rank-direction` to change
+  the direction of the DAG.
 - {pull}`186` enhance live displays by deactivating auto-refresh among other things.
 - {pull}`187` allows to enable and disable showing tracebacks and potentially different
   styles in the future with {confval}`show_traceback=True|False`.
@@ -124,8 +123,7 @@ all releases are available on [PyPI](https://pypi.org/project/pytask) and
 ## 0.1.1 - 2021-08-25
 
 - {pull}`138` changes the default {confval}`verbosity` to `1` which displays the live
-  table during execution and `0` display the symbols for outcomes (e.g. `.`, `F`,
-  `s`).
+  table during execution and `0` display the symbols for outcomes (e.g. `.`, `F`, `s`).
 - {pull}`139` enables rich's auto-refresh mechanism for live objects which causes almost
   no performance penalty for the live table compared to the symbolic output.
 
@@ -144,8 +142,8 @@ all releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`121` add skipped and persisted tasks to the execution footer.
 - {pull}`127` make the table during execution the default. Silence pytask with negative
   verbose mode integers and increase verbosity with positive ones.
-- {pull}`129` allows to hide frames from the traceback by using `__tracebackhide__ =
-  True`.
+- {pull}`129` allows to hide frames from the traceback by using
+  `__tracebackhide__ = True`.
 - {pull}`130` enables rendering of tracebacks from subprocesses with rich.
 
 ## 0.0.16 - 2021-06-25
@@ -186,8 +184,8 @@ all releases are available on [PyPI](https://pypi.org/project/pytask) and
 ## 0.0.14 - 2021-03-23
 
 - {pull}`74` reworks the formatting of the command line output by using `rich`. Due to
-  the new dependency, support for pytask with Python \<3.6.1 on PyPI and with Python \<3.7
-  on Anaconda will end.
+  the new dependency, support for pytask with Python \<3.6.1 on PyPI and with Python
+  \<3.7 on Anaconda will end.
 - {pull}`76` fixes {pull}`75` which reports a bug when a closest ancestor cannot be
   found to shorten node names in the CLI output. Instead a common ancestor is used.
 
@@ -209,19 +207,17 @@ all releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`65` adds versioneer to pytask and {pull}`66` corrects the coverage reports
   which were deflated due to the new files.
 - {pull}`67` prepares pytask to be published on PyPI and {pull}`68` fixes the pipeline,
-  and
-  {pull}`69` prepares releasing v0.0.12 and adds new shields.
+  and {pull}`69` prepares releasing v0.0.12 and adds new shields.
 
 ## 0.0.11 - 2020-12-27
 
 - {pull}`45` adds the option to stop execution after a number of tasks has failed.
-  Closes
-  {pull}`44`.
+  Closes {pull}`44`.
 - {pull}`47` reduce node names in error messages while resolving dependencies.
 - {pull}`49` starts a style guide for pytask.
 - {pull}`50` implements correct usage of singular and plural in collection logs.
-- {pull}`51` allows to invoke pytask through the Python interpreter with `python -m
-  pytask` which will add the current path to `sys.path`.
+- {pull}`51` allows to invoke pytask through the Python interpreter with
+  `python -m pytask` which will add the current path to `sys.path`.
 - {pull}`52` allows to prioritize tasks with `pytask.mark.try_last` and
   `pytask.mark.try_first`.
 - {pull}`53` changes the theme of the documentation to furo.
@@ -232,8 +228,8 @@ all releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`40` cleans up the capture manager and other parts of pytask.
 - {pull}`41` shortens the task ids in the error reports for better readability.
 - {pull}`42` ensures that lists with one element and dictionaries with only a zero key
-  as input for `@pytask.mark.depends_on` and `@pytask.mark.produces` are preserved
-  as a dictionary inside the function.
+  as input for `@pytask.mark.depends_on` and `@pytask.mark.produces` are preserved as a
+  dictionary inside the function.
 
 ## 0.0.9 - 2020-10-28
 
@@ -257,8 +253,8 @@ all releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`25` allows to customize the names of the task files.
 - {pull}`26` makes commands return the correct exit codes.
-- {pull}`27` implements the `pytask_collect_task_teardown` hook specification to
-  perform checks after a task is collected.
+- {pull}`27` implements the `pytask_collect_task_teardown` hook specification to perform
+  checks after a task is collected.
 - {pull}`28` implements the `@pytask.mark.persist` decorator.
 - {pull}`29` releases 0.0.7.
 
@@ -266,9 +262,9 @@ all releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`16` reduces the traceback generated from tasks, failure section in report, fix
   error passing a file path to pytask, add demo to README.
-- {pull}`17` changes the interface to subcommands, adds `"-c/--config"` option to pass
-  a path to a configuration file and adds `pytask clean` ({pull}`22` as well), a
-  command to clean your project.
+- {pull}`17` changes the interface to subcommands, adds `"-c/--config"` option to pass a
+  path to a configuration file and adds `pytask clean` ({pull}`22` as well), a command
+  to clean your project.
 - {pull}`18` changes the documentation theme to alabaster.
 - {pull}`19` adds some changes related to ignored folders.
 - {pull}`20` fixes copying code examples in the documentation.
@@ -306,8 +302,7 @@ all releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`2` provided multiple small changes.
 - {pull}`3` implements a class which holds the execution report of one task.
 - {pull}`4` makes adjustments after moving to `main` as the default branch.
-- {pull}`5` adds `pytask_add_hooks` to add more hook specifications and register
-  hooks.
+- {pull}`5` adds `pytask_add_hooks` to add more hook specifications and register hooks.
 - {pull}`6` releases v0.0.2.
 
 ## 0.0.1 - 2020-06-29

@@ -47,10 +47,10 @@ The task function should be the first function in the module. It should have a
 descriptive name and a docstring which explains what the task accomplishes.
 
 It should be the only {term}`public function` in the module which means the only
-function without a leading underscore. This is a convention to keep {term}`public
-functions <public function>` separate from {term}`private functions <private function>`
-(with a leading underscore) where the latter must only be used in the same module and
-not imported elsewhere.
+function without a leading underscore. This is a convention to keep
+{term}`public functions <public function>` separate from
+{term}`private functions <private function>` (with a leading underscore) where the
+latter must only be used in the same module and not imported elsewhere.
 
 The body of the task function should contain two things:
 
@@ -62,7 +62,6 @@ The body of the task function should contain two things:
 
    If we bundle all IO operations in the task functions, all other functions used in
    task remain pure (without side-effects) which makes testing the functions easier.
-
 2. The task function should either call {term}`private functions <private function>`
    defined inside the task module or functions which are shared between tasks and
    defined in a module separated from all tasks.
@@ -113,10 +112,10 @@ def _create_new_variables(df):
 ```
 
 :::{seealso}
-The structure of the task module is greatly inspired by John Ousterhout's "A
-Philosopy of Software Design" in which he coins the name "deep modules". In short,
-deep modules have simple interfaces which are defined by one or a few {term}`public
-functions <public function>` (or classes) which provide the functionality. The
-complexity is hidden inside the module in {term}`private functions <private
-function>` which are called by the {term}`public functions <public function>`.
+The structure of the task module is greatly inspired by John Ousterhout's "A Philosopy
+of Software Design" in which he coins the name "deep modules". In short, deep modules
+have simple interfaces which are defined by one or a few {term}`public functions <public
+function>` (or classes) which provide the functionality. The complexity is hidden inside
+the module in {term}`private functions <private function>` which are called by the
+{term}`public functions <public function>`.
 :::

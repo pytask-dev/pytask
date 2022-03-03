@@ -4,8 +4,9 @@ Explanations provide background information and historical context on pytask and
 systems in general as well as its design.
 
 ```{toctree}
-:maxdepth: 1
-
+---
+maxdepth: 1
+---
 build_systems
 pluggy
 ```

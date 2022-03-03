@@ -7,8 +7,8 @@ lot of experience over time. So why bother creating another build system?
 
 pytask is created having a particular audience in mind. Many researchers are not
 computer scientists first. Instead, they acquired some programming skills throughout
-their careers. Thus, a build system must be extremely user-friendly and provide a [steep
-learning curve](https://english.stackexchange.com/a/6226). Since pytask resembles
+their careers. Thus, a build system must be extremely user-friendly and provide a
+[steep learning curve](https://english.stackexchange.com/a/6226). Since pytask resembles
 pytest in many ways, users have an easy time switching to pytask and feel more
 comfortable and empowered.
 

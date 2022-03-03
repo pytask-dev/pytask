@@ -5,8 +5,8 @@ Sometimes you want to skip the execution of a task and pretend like nothing has 
 A common scenario is that you have a long running task which will be executed again if
 you would format the task's source file with [black](https://github.com/psf/black).
 
-In this case, you can apply the `@pytask.mark.persist` decorator to the task which
-will skip its execution as long as all products exist.
+In this case, you can apply the `@pytask.mark.persist` decorator to the task which will
+skip its execution as long as all products exist.
 
 Internally, the state of the dependencies, the source file and the products is updated
 in the database such that the next execution will skip the task successfully.
@@ -21,8 +21,8 @@ in the database such that the next execution will skip the task successfully.
   task persist.
 
 :::{caution}
-This feature can corrupt the integrity of your project. Document why you
-have applied the decorator out of consideration for yourself and other contributors.
+This feature can corrupt the integrity of your project. Document why you have applied
+the decorator out of consideration for yourself and other contributors.
 :::
 
 ## How to do it?
@@ -57,9 +57,9 @@ missing.
 ```
 
 After that, we change the source file of the task accidentally by formatting the file
-with black. Without the `@pytask.mark.persist` decorator the task would run again
-since it has changed. With the decorator, the execution is skipped which is signaled by
-a green p.
+with black. Without the `@pytask.mark.persist` decorator the task would run again since
+it has changed. With the decorator, the execution is skipped which is signaled by a
+green p.
 
 ```{image} /_static/images/persist-persisted.png
 ```

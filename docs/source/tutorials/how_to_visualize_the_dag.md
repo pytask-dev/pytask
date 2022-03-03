@@ -1,7 +1,8 @@
 # How to visualize the DAG
 
-To visualize the {term}`DAG` of the project, first, install [pydot](https://github.com/pydot/pydot) and [graphviz](https://graphviz.org/). For example,
-you can both install with conda
+To visualize the {term}`DAG` of the project, first, install
+[pydot](https://github.com/pydot/pydot) and [graphviz](https://graphviz.org/). For
+example, you can both install with conda
 
 ```console
 $ conda install -c conda-forge pydot
@@ -21,11 +22,12 @@ at the top of your project which will generate a `dag.pdf`.
 
 There are ways to customize the visualization.
 
-1. You can change the layout of the graph by using the `-l/--layout` option. By
-   default, it is set to `dot` and produces a hierarchical layout. graphviz supports
-   other layouts as well which are listed [here](https://graphviz.org/#roadmap).
-2. Using the `-o/--output-path` option, you can provide a file name for the graph. The
-   file extension changes the output format if it is supported by [pydot](https://github.com/pydot/pydot).
+1. You can change the layout of the graph by using the `-l/--layout` option. By default,
+   it is set to `dot` and produces a hierarchical layout. graphviz supports other
+   layouts as well which are listed [here](https://graphviz.org/#roadmap).
+1. Using the `-o/--output-path` option, you can provide a file name for the graph. The
+   file extension changes the output format if it is supported by
+   [pydot](https://github.com/pydot/pydot).
 
 ## Programmatic Interface
 
