@@ -15,6 +15,7 @@ specific tasks with pytask.
 
    how_to_write_a_plugin
    how_to_influence_build_order
+   how_to_parametrize_a_task_the_old_way
 
 
 Best Practice Guides
