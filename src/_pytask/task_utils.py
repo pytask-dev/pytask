@@ -34,9 +34,12 @@ def task(
 ) -> Callable[..., None]:
     """Parse inputs of the ``@pytask.mark.task`` decorator.
 
-    The decorator wraps task functions and stores them in the global variable
+    The decorator wraps task functions and stores it in the global variable
     :obj:`COLLECTED_TASKS` to avoid garbage collection when the function definition is
     overwritten in a loop.
+
+    The function also attaches some metadata to the function like parsed kwargs and
+    markers.
 
     Parameters
     ----------
@@ -71,7 +74,9 @@ def task(
 
         COLLECTED_TASKS[path].append(unwrapped)
 
-        # Todo: Maybe necessary to not collect a task twice?!
+        # Returning None is necessary since the remaining function in the module will be
+        # collected again from the namespace, although we already collect the function
+        # from ``COLLECTED_TASKS``.
         return None
 
     # In case the decorator is used without parentheses, wrap the function which is
