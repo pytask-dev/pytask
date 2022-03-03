@@ -1,6 +1,9 @@
 How to parametrize a task - The old way
 =======================================
 
+You want to define a task which should be repeated over a range of inputs? Parametrize
+your task function!
+
 .. important::
 
     This guide shows you how to parametrize tasks with the old approach which is similar
@@ -167,8 +170,6 @@ Since the tuples are not converted to strings, the ids of the two tasks are
     task_example.py::task_example[i0]
     task_example.py::task_example[i1]
 
-
-.. _ids:
 
 User-defined ids
 ~~~~~~~~~~~~~~~~
