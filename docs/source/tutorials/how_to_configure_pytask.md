@@ -43,7 +43,3 @@ and search in parent directories.
 
 You can find all possible configuration values in the
 {doc}`reference guide on the configuration <../reference_guides/configuration>`.
-
-## Further reading
-
-- {doc}`../reference_guides/configuration`.

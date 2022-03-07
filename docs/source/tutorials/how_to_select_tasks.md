@@ -91,9 +91,11 @@ $ pytask -k task_example.py::task_run_this_one
 If you have a parametrized task, you can select individual parametrizations.
 
 ```python
-@pytask.mark.parametrize("i", range(2))
-def task_parametrized(i):
-    pass
+for i in range(2):
+
+    @pytask.mark.task
+    def task_parametrized(i=i):
+        ...
 ```
 
 To run the task where `i = 1`, type
@@ -107,6 +109,6 @@ other Python objects like tuples are replaced with a combination of the argument
 and an iteration counter. Multiple arguments are separated via dashes.
 
 :::{seealso}
-See this {ref}`section <how-to-parametrize-a-task-the-id>` for more information how ids
-for parametrized tasks are generated.
+Read this {ref}`section <how-to-parametrize-a-task-the-id>` for more information on how
+ids for repeated tasks are created and can be customized.
 :::
