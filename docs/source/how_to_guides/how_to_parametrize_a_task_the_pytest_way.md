@@ -53,7 +53,7 @@ The parametrize decorator receives two arguments. The first argument is
 specifies the name of a task function argument.
 
 :::{seealso}
-The signature is explained in detail {ref}`below <parametrize_signature>`.
+The signature is explained in detail {ref}`below <parametrize-signature>`.
 :::
 
 The second argument of the parametrize decorator is a list (or any iterable) which has
@@ -116,9 +116,10 @@ The signature can be passed in three different formats.
 
 ## The id
 
-Every task has a unique id which can be used to {doc}`select it <how_to_select_tasks>`.
-The normal id combines the path to the module where the task is defined, a double colon,
-and the name of the task function. Here is an example.
+Every task has a unique id which can be used to
+{doc}`select it <../tutorials/how_to_select_tasks>`. The normal id combines the path to
+the module where the task is defined, a double colon, and the name of the task function.
+Here is an example.
 
 ```
 ../task_example.py::task_example

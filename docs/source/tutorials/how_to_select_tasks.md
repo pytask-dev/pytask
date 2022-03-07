@@ -107,6 +107,6 @@ other Python objects like tuples are replaced with a combination of the argument
 and an iteration counter. Multiple arguments are separated via dashes.
 
 :::{seealso}
-See this {ref}`section <how_to_parametrize_a_task_the_id>` for more information how ids
+See this {ref}`section <how-to-parametrize-a-task-the-id>` for more information how ids
 for parametrized tasks are generated.
 :::
