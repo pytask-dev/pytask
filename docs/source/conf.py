@@ -37,6 +37,7 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
+    "sphinxext.opengraph",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
     "sphinx_click",
