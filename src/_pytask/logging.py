@@ -5,6 +5,7 @@ import platform
 import sys
 import warnings
 from typing import Any
+from typing import NamedTuple
 from typing import TYPE_CHECKING
 
 import _pytask
@@ -28,20 +29,19 @@ except ImportError:
 
 
 if TYPE_CHECKING and sys.version_info >= (3, 8):
-    from typing import TypedDict
-
-    class _TimeUnit(TypedDict):
-        singular: str
-        plural: str
-        short: str
-        in_seconds: int
-
     if sys.version_info >= (3, 8):
         from typing import Literal
     else:
         from typing_extensions import Literal
 
     _ShowTraceback = Literal["no", "yes"]
+
+
+class _TimeUnit(NamedTuple):
+    singular: str
+    plural: str
+    short: str
+    in_seconds: int
 
 
 @hookimpl
@@ -156,10 +156,10 @@ def pytask_log_session_footer(
 
 
 _TIME_UNITS: list[_TimeUnit] = [
-    {"singular": "day", "plural": "days", "short": "d", "in_seconds": 86400},
-    {"singular": "hour", "plural": "hours", "short": "h", "in_seconds": 3600},
-    {"singular": "minute", "plural": "minutes", "short": "m", "in_seconds": 60},
-    {"singular": "second", "plural": "seconds", "short": "s", "in_seconds": 1},
+    _TimeUnit(singular="day", plural="days", short="d", in_seconds=86400),
+    _TimeUnit(singular="hour", plural="hours", short="h", in_seconds=3600),
+    _TimeUnit(singular="minute", plural="minutes", short="m", in_seconds=60),
+    _TimeUnit(singular="second", plural="seconds", short="s", in_seconds=1),
 ]
 
 
@@ -199,45 +199,45 @@ def _humanize_time(
 
     """
     index = None
-    for i, entry in enumerate(_TIME_UNITS):
-        if unit in [entry["singular"], entry["plural"]]:
+    for i, time_unit in enumerate(_TIME_UNITS):
+        if unit in [time_unit.singular, time_unit.plural]:
             index = i
             break
     else:
         raise ValueError(f"The time unit {unit!r} is not known.")
 
-    seconds = amount * _TIME_UNITS[index]["in_seconds"]
+    seconds = amount * _TIME_UNITS[index].in_seconds
     result: list[tuple[float, str]] = []
     remaining_seconds = seconds
 
-    for entry in _TIME_UNITS:
-        whole_units = int(remaining_seconds / entry["in_seconds"])
+    for time_unit in _TIME_UNITS:
+        whole_units = int(remaining_seconds / time_unit.in_seconds)
 
-        if entry["singular"] == "second" and remaining_seconds:
+        if time_unit.singular == "second" and remaining_seconds:
             last_seconds = round(remaining_seconds, 2)
             if short_label:
-                label = entry["short"]
+                label = time_unit.short
             elif last_seconds == 1:
-                label = entry["singular"]
+                label = time_unit.singular
             else:
-                label = entry["plural"]
+                label = time_unit.plural
             result.append((last_seconds, label))
 
         elif whole_units >= 1:
-            if entry["singular"] != "seconds":
+            if time_unit.singular != "seconds":
                 if short_label:
-                    label = entry["short"]
+                    label = time_unit.short
                 elif whole_units == 1:
-                    label = entry["singular"]
+                    label = time_unit.singular
                 else:
-                    label = entry["plural"]
+                    label = time_unit.plural
 
                 result.append((whole_units, label))
-                remaining_seconds -= whole_units * entry["in_seconds"]
+                remaining_seconds -= whole_units * time_unit.in_seconds
 
     if not result:
         result.append(
-            (0, _TIME_UNITS[-1]["short"] if short_label else _TIME_UNITS[-1]["plural"])
+            (0, _TIME_UNITS[-1].short if short_label else _TIME_UNITS[-1].plural)
         )
 
     return result
