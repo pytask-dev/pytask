@@ -8,7 +8,6 @@ from typing import NamedTuple
 import _pytask.parametrize
 import pytask
 import pytest
-from _pytask.parametrize import _arg_value_to_id_component
 from _pytask.parametrize import _check_if_n_arg_names_matches_n_arg_values
 from _pytask.parametrize import _parse_arg_names
 from _pytask.parametrize import _parse_arg_values
@@ -297,28 +296,6 @@ def test_raise_error_for_irregular_ids(tmp_path, ids):
 
     assert session.exit_code == 3
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "arg_name, arg_value, i, id_func, expected",
-    [
-        ("arg", 1, 0, None, "1"),
-        ("arg", True, 0, None, "True"),
-        ("arg", False, 0, None, "False"),
-        ("arg", 1.0, 0, None, "1.0"),
-        ("arg", None, 0, None, "arg0"),
-        ("arg", (1,), 0, None, "arg0"),
-        ("arg", [1], 0, None, "arg0"),
-        ("arg", {1, 2}, 0, None, "arg0"),
-        ("arg", 1, 0, lambda x: bool(x), "True"),
-        ("arg", 1, 1, lambda x: None, "1"),
-        ("arg", [1], 2, lambda x: None, "arg2"),
-    ],
-)
-def test_arg_value_to_id_component(arg_name, arg_value, i, id_func, expected):
-    result = _arg_value_to_id_component(arg_name, arg_value, i, id_func)
-    assert result == expected
 
 
 @pytest.mark.end_to_end

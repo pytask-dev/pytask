@@ -184,7 +184,7 @@ class MarkGenerator:
     markers: set[str] = set()
     """Set[str]: The set of markers."""
 
-    def __getattr__(self, name: str) -> MarkDecorator:
+    def __getattr__(self, name: str) -> MarkDecorator | Any:
         if name[0] == "_":
             raise AttributeError("Marker name must NOT start with underscore")
 
@@ -209,6 +209,11 @@ class MarkGenerator:
                     "custom marks to avoid this warning.",
                     stacklevel=2,
                 )
+
+        if name == "task":
+            from _pytask.task_utils import task
+
+            return task
 
         return MarkDecorator(Mark(name, (), {}))
 

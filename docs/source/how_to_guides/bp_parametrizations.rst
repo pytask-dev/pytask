@@ -106,26 +106,27 @@ parametrization.
 
 
     def _create_parametrization(data):
-        parametrizations = []
-        ids = []
+        id_to_kwargs = {}
         for data_name in data:
-            ids.append(data_name)
             depends_on = path_to_input_data(data_name)
             produces = path_to_processed_data(data_name)
-            parametrizations.append((depends_on, produces))
 
-        return "depends_on, produces", parametrizations, ids
+            id_to_kwargs[data_name] = {"depends_on": depends_on, "produces": produces}
 
-
-    _SIGNATURE, _PARAMETRIZATION, _IDS = _create_parametrization(DATA)
+        return id_to_kwargs
 
 
-    @pytask.mark.parametrize(_SIGNATURE, _PARAMETRIZATION, ids=_IDS)
-    def task_prepare_data(depends_on, produces):
-        ...
+    _ID_TO_KWARGS = _create_parametrization(DATA)
 
-All arguments for the ``parametrize`` decorator are built within a function to keep the
-logic in one place and the namespace of the module clean.
+    for id_, kwargs in _ID_TO_KWARGS.items():
+
+        @pytask.mark.task(id=id_, kwargs=kwargs)
+        def task_prepare_data(depends_on, produces):
+            ...
+
+All arguments for the loop and the :func:`@pytask.mark.task <_pytask.task_utils.task>`
+decorator are built within a function to keep the logic in one place and the namespace
+of the module clean.
 
 Ids are used to make the task :ref:`ids <ids>` more descriptive and to simplify their
 selection with :ref:`expressions <expressions>`. Here is an example of the task ids with
@@ -183,25 +184,29 @@ And, here is the task file.
 
 
     def _create_parametrization(estimations):
-        parametrizations = []
-        ids = []
+        id_to_kwargs = {}
         for name, config in estimations.items():
-            ids.append(name)
             depends_on = path_to_processed_data(config["data"])
             produces = path_to_estimation_result(name)
-            parametrizations.append((depends_on, config["model"], produces))
 
-        return "depends_on, model, produces", parametrizations, ids
+            id_to_kwargs[name] = {
+                "depends_on": depends_on,
+                "model": config["model"],
+                "produces": produces,
+            }
+
+        return id_to_kwargs
 
 
-    _SIGNATURE, _PARAMETRIZATION, _IDS = _create_parametrization(ESTIMATIONS)
+    _ID_TO_KWARGS = _create_parametrization(ESTIMATIONS)
 
 
-    @pytask.mark.parametrize(_SIGNATURE, _PARAMETRIZATION, ids=_IDS)
-    def task_estmate_models(depends_on, model, produces):
-        if model == "linear_probability":
-            ...
-        ...
+    for id_, kwargs in _ID_TO_KWARGS.items():
+
+        @pytask.mark.task(id=id_, kwargs=kwars)
+        def task_estmate_models(depends_on, model, produces):
+            if model == "linear_probability":
+                ...
 
 Replicating this pattern across a project allows for a clean way to define
 parametrizations.

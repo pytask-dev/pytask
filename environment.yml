@@ -36,6 +36,7 @@ dependencies:
   - pytest
   - pytest-cov
   - pytest-xdist
+  - tabulate
   - tox-conda
 
   # Documentation
