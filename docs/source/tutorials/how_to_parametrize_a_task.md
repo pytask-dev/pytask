@@ -129,7 +129,7 @@ for id_, kwargs in ID_TO_KWARGS.items():
 ```
 
 Unpacking all the arguments can become tedious. Use instead the `kwargs` argument of the
-{func}`@pytask.mark.task <_pytask.task_utils.task` decorator to pass keyword arguments
+{func}`@pytask.mark.task <_pytask.task_utils.task>` decorator to pass keyword arguments
 to the task.
 
 ```python
