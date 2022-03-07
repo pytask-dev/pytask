@@ -223,7 +223,7 @@ class Expression:
         astexpr = expression(Scanner(input_))
         code: types.CodeType = compile(
             astexpr,
-            filename="<pytest match expression>",
+            filename="<pytask match expression>",
             mode="eval",
         )
         return cls(code)

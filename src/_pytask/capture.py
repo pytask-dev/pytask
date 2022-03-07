@@ -221,7 +221,7 @@ class DontReadFromInput:
 
     def read(self, *_args: Any) -> None:  # noqa: U101
         raise OSError(
-            "pytest: reading from stdin while output is captured! Consider using `-s`."
+            "pytask: reading from stdin while output is captured! Consider using `-s`."
         )
 
     readline = read

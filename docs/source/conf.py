@@ -75,7 +75,7 @@ autodoc_mock_imports = [
 copybutton_prompt_text = r"\$ |>>> |In \[\d\]: "
 copybutton_prompt_is_regexp = True
 
-_repo = "https://github.com/pytest-dev/pytest"
+_repo = "https://github.com/pytask-dev/pytask"
 extlinks = {
     "pypi": ("https://pypi.org/project/%s/", ""),
     "issue": (f"{_repo}/issues/%s", "issue #"),

@@ -4,8 +4,8 @@ This section gives advice on how to use parametrizations.
 
 ## TL;DR
 
-- For very, very simple parametrizations, use parametrizations similar to pytest.
-- For the rest, build the signature, the parametrized arguments and ids with a function.
+- Loop over dictionaries which map ids to ``kwargs`` to create multiple tasks.
+- Create the dictionary with a separate function.
 - Create functions to build intermediate objects like output paths which can be shared
   more easily across tasks than the generated values.
 
