@@ -57,6 +57,7 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout):
         ],
     )
 
+    print(result.output)
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath(f"dag.{format_}").exists()
 
@@ -85,6 +86,7 @@ def test_create_graph_via_task(tmp_path, runner, format_, layout):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
+    print(result.output)
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath(f"dag.{format_}").exists()
 
