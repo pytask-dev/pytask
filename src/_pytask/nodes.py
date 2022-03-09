@@ -79,8 +79,6 @@ class Task:
 
     base_name = attr.ib(type=str)
     """str: The base name of the task."""
-    name = attr.ib(type=str)
-    """str: The unique identifier for a task."""
     path = attr.ib(type=Path)
     """pathlib.Path: Path to the file where the task was defined."""
     function = attr.ib(type=Callable[..., Any])
@@ -134,7 +132,6 @@ class Task:
 
         return cls(
             base_name=name,
-            name=create_task_name(path, name),
             path=path,
             function=unwrapped,
             depends_on=dependencies,
@@ -142,6 +139,10 @@ class Task:
             markers=markers,
             kwargs=kwargs,
         )
+
+    @property
+    def name(self) -> str:
+        return self.path.as_posix() + "::" + self.base_name
 
     def execute(self, **kwargs: Any) -> None:
         """Execute the task."""
@@ -358,19 +359,6 @@ def merge_dictionaries(list_of_dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
                 out[k] = v
 
     return out
-
-
-def create_task_name(path: Path, base_name: str) -> str:
-    """Create the name of a task from a path and the task's base name.
-
-    Examples
-    --------
-    >>> from pathlib import Path
-    >>> create_task_name(Path("module.py"), "task_dummy")
-    'module.py::task_dummy'
-
-    """
-    return path.as_posix() + "::" + base_name
 
 
 def find_duplicates(x: Iterable[Any]) -> set[Any]:

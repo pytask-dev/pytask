@@ -35,7 +35,6 @@ def test_pytask_resolve_dependencies_create_dag():
     root = Path.cwd() / "src"
     task = Task(
         base_name="task_dummy",
-        name=root.as_posix() + "::task_dummy",
         path=root,
         function=None,
         depends_on={
@@ -58,9 +57,7 @@ def test_check_if_root_nodes_are_available():
     root = Path.cwd() / "src"
 
     path = root.joinpath("task_dummy")
-    task = Task(
-        base_name="task", name=path.as_posix() + "::task", path=path, function=None
-    )
+    task = Task(base_name="task", path=path, function=None)
     task.path = path
     task.base_name = "task_dummy"
     dag.add_node(task.name, task=task)

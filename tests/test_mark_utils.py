@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytask
 import pytest
 from _pytask.models import CollectionMetadata
@@ -28,9 +30,7 @@ from pytask import Task
     ],
 )
 def test_get_specific_markers_from_task(markers, marker_name, expected):
-    task = Task(
-        name="name", base_name="name", path=None, function=None, markers=markers
-    )
+    task = Task(base_name="name", path=Path(), function=None, markers=markers)
     result = get_specific_markers_from_task(task, marker_name)
     assert result == expected
 

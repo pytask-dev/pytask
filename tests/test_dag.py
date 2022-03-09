@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextlib import ExitStack as does_not_raise  # noqa: N813
+from pathlib import Path
 
 import networkx as nx
 import pytest
@@ -17,14 +18,11 @@ from pytask import Task
 def dag():
     dag = nx.DiGraph()
     for i in range(4):
+        dag.add_node(f".::{i}", task=Task(base_name=str(i), path=Path(), function=None))
         dag.add_node(
-            str(i), task=Task(name=str(i), base_name=str(i), path=None, function=None)
+            f".::{i + 1}", task=Task(base_name=str(i + 1), path=Path(), function=None)
         )
-        dag.add_node(
-            str(i + 1),
-            task=Task(name=str(i + 1), base_name=str(i + 1), path=None, function=None),
-        )
-        dag.add_edge(str(i), str(i + 1))
+        dag.add_edge(f".::{i}", f".::{i + 1}")
 
     return dag
 
@@ -32,7 +30,7 @@ def dag():
 @pytest.mark.unit
 def test_sort_tasks_topologically(dag):
     topo_ordering = list(TopologicalSorter.from_dag(dag).static_order())
-    assert topo_ordering == [str(i) for i in range(5)]
+    assert topo_ordering == [f".::{i}" for i in range(5)]
 
 
 @pytest.mark.unit
@@ -64,70 +62,65 @@ def test_node_and_neighbors(dag):
             [
                 Task(
                     base_name="1",
-                    name="1",
-                    path=None,
+                    path=Path(),
                     function=None,
                     markers=[Mark("try_last", (), {})],
                 )
             ],
             does_not_raise(),
-            {"1": -1},
+            {".::1": -1},
             id="test try_last",
         ),
         pytest.param(
             [
                 Task(
                     base_name="1",
-                    name="1",
-                    path=None,
+                    path=Path(),
                     function=None,
                     markers=[Mark("try_first", (), {})],
                 )
             ],
             does_not_raise(),
-            {"1": 1},
+            {".::1": 1},
             id="test try_first",
         ),
         pytest.param(
-            [Task(base_name="1", name="1", path=None, function=None, markers=[])],
+            [Task(base_name="1", path=Path(), function=None, markers=[])],
             does_not_raise(),
-            {"1": 0},
+            {".::1": 0},
             id="test no priority",
         ),
         pytest.param(
             [
                 Task(
-                    name="1",
                     base_name="1",
-                    path=None,
+                    path=Path(),
                     function=None,
                     markers=[Mark("try_first", (), {}), Mark("try_last", (), {})],
                 )
             ],
             pytest.raises(ValueError, match="'try_first' and 'try_last' cannot be"),
-            {"1": 1},
+            {".::1": 1},
             id="test mixed priorities",
         ),
         pytest.param(
             [
                 Task(
-                    name="1",
                     base_name="1",
-                    path=None,
+                    path=Path(),
                     function=None,
                     markers=[Mark("try_first", (), {})],
                 ),
-                Task(name="2", base_name="2", path=None, function=None, markers=[]),
+                Task(base_name="2", path=Path(), function=None, markers=[]),
                 Task(
-                    name="3",
                     base_name="3",
-                    path=None,
+                    path=Path(),
                     function=None,
                     markers=[Mark("try_last", (), {})],
                 ),
             ],
             does_not_raise(),
-            {"1": 1, "2": 0, "3": -1},
+            {".::1": 1, ".::2": 0, ".::3": -1},
         ),
     ],
 )
@@ -146,7 +139,7 @@ def test_raise_error_for_undirected_graphs(dag):
 
 @pytest.mark.unit
 def test_raise_error_for_cycle_in_graph(dag):
-    dag.add_edge("4", "1")
+    dag.add_edge(".::4", ".::1")
     scheduler = TopologicalSorter.from_dag(dag)
     with pytest.raises(ValueError, match="The DAG contains cycles."):
         scheduler.prepare()

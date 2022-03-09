@@ -286,7 +286,6 @@ def test_print_collected_tasks_without_nodes(capsys):
     dictionary = {
         "task_path.py": [
             Task(
-                name="function",
                 base_name="function",
                 path=Path("task_path.py"),
                 function=function,
@@ -311,7 +310,6 @@ def test_print_collected_tasks_with_nodes(capsys):
     dictionary = {
         "task_path.py": [
             Task(
-                name="function",
                 base_name="function",
                 path=Path("task_path.py"),
                 function=function,
@@ -336,7 +334,6 @@ def test_print_collected_tasks_with_nodes(capsys):
 def test_find_common_ancestor_of_all_nodes(show_nodes, expected_add):
     tasks = [
         Task(
-            name="function",
             base_name="function",
             path=Path.cwd() / "src" / "task_path.py",
             function=function,

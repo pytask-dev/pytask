@@ -12,7 +12,6 @@ from _pytask.nodes import _convert_objects_to_node_dictionary
 from _pytask.nodes import _extract_nodes_from_function_markers
 from _pytask.nodes import _Placeholder
 from _pytask.nodes import convert_to_dict
-from _pytask.nodes import create_task_name
 from _pytask.nodes import depends_on
 from _pytask.nodes import merge_dictionaries
 from _pytask.nodes import produces
@@ -107,19 +106,6 @@ ERROR = "'@pytask.mark.depends_on' has nodes with the same name:"
 def test_check_that_names_are_not_used_multiple_times(x, expectation):
     with expectation:
         _check_that_names_are_not_used_multiple_times(x, "depends_on")
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "path, name, expected",
-    [
-        (Path("hello.py"), "task_func", "hello.py::task_func"),
-        (Path("C:/data/module.py"), "task_func", "C:/data/module.py::task_func"),
-    ],
-)
-def test_create_task_name(path, name, expected):
-    result = create_task_name(path, name)
-    assert result == expected
 
 
 @attr.s

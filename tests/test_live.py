@@ -61,12 +61,7 @@ def test_verbose_mode_execution(tmp_path, runner, verbose):
 @pytest.mark.unit
 def test_live_execution_sequentially(capsys, tmp_path):
     path = tmp_path.joinpath("task_module.py")
-    task = Task(
-        base_name="task_example",
-        name=path.as_posix() + "::task_example",
-        path=path,
-        function=lambda x: x,
-    )
+    task = Task(base_name="task_example", path=path, function=lambda x: x)
     task.short_name = "task_module.py::task_example"
 
     live_manager = LiveManager()
@@ -116,12 +111,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
 @pytest.mark.parametrize("outcome", TaskOutcome)
 def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, outcome):
     path = tmp_path.joinpath("task_module.py")
-    task = Task(
-        base_name="task_example",
-        name=path.as_posix() + "::task_example",
-        path=path,
-        function=lambda x: x,
-    )
+    task = Task(base_name="task_example", path=path, function=lambda x: x)
     task.short_name = "task_module.py::task_example"
 
     live_manager = LiveManager()
@@ -165,12 +155,7 @@ def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, o
 @pytest.mark.parametrize("n_entries_in_table", [1, 2])
 def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_table):
     path = tmp_path.joinpath("task_module.py")
-    running_task = Task(
-        base_name="task_running",
-        name=path.as_posix() + "::task_running",
-        path=path,
-        function=lambda x: x,
-    )
+    running_task = Task(base_name="task_running", path=path, function=lambda x: x)
     running_task.short_name = "task_module.py::task_running"
 
     live_manager = LiveManager()
@@ -186,12 +171,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
     assert "::task_running" in captured.out
     assert " running " in captured.out
 
-    completed_task = Task(
-        base_name="task_completed",
-        name=path.as_posix() + "::task_completed",
-        path=path,
-        function=lambda x: x,
-    )
+    completed_task = Task(base_name="task_completed", path=path, function=lambda x: x)
     completed_task.short_name = "task_module.py::task_completed"
     live.update_running_tasks(completed_task)
     report = ExecutionReport(
@@ -220,12 +200,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
 @pytest.mark.unit
 def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path):
     path = tmp_path.joinpath("task_module.py")
-    task = Task(
-        base_name="task_example",
-        name=path.as_posix() + "::task_example",
-        path=path,
-        function=lambda x: x,
-    )
+    task = Task(base_name="task_example", path=path, function=lambda x: x)
     task.short_name = "task_module.py::task_example"
 
     live_manager = LiveManager()
@@ -244,22 +219,12 @@ def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path)
 
     # Add one displayed reports and many more not displayed reports to crowd out the
     # valid one.
-    successful_task = Task(
-        base_name="task_success",
-        name=path.as_posix() + "::task_success",
-        path=path,
-        function=lambda x: x,
-    )
+    successful_task = Task(base_name="task_success", path=path, function=lambda x: x)
     successful_task.short_name = "task_module.py::task_success"
 
     tasks = []
     for i in range(25):
-        skipped_task = Task(
-            base_name=f"task_skip_{i}",
-            name=path.as_posix() + f"::task_skip_{i}",
-            path=path,
-            function=lambda x: x,
-        )
+        skipped_task = Task(base_name=f"task_skip_{i}", path=path, function=lambda x: x)
         skipped_task.short_name = f"task_module.py::task_skip_{i}"
         tasks.append(skipped_task)
 

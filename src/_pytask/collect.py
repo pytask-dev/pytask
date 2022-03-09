@@ -19,7 +19,6 @@ from _pytask.console import create_summary_panel
 from _pytask.console import format_task_id
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_marker
-from _pytask.nodes import create_task_name
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import find_duplicates
 from _pytask.nodes import Task
@@ -155,9 +154,7 @@ def pytask_collect_task_protocol(
             return CollectionReport(outcome=CollectionOutcome.SUCCESS, node=task)
 
     except Exception:
-        task = Task(
-            base_name=name, name=create_task_name(path, name), path=path, function=None
-        )
+        task = Task(base_name=name, path=path, function=None)
         return CollectionReport.from_exception(
             outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info(), node=task
         )

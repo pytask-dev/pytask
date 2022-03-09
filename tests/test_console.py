@@ -11,7 +11,6 @@ from _pytask.console import create_url_style_for_path
 from _pytask.console import create_url_style_for_task
 from _pytask.console import format_task_id
 from _pytask.console import render_to_string
-from _pytask.nodes import create_task_name
 from pytask import CollectionOutcome
 from pytask import console
 from pytask import Task
@@ -168,12 +167,7 @@ def test_format_task_id(
 ):
     path = _THIS_FILE
 
-    task = Task(
-        base_name=base_name,
-        name=create_task_name(path, base_name),
-        path=path,
-        function=task_func,
-    )
+    task = Task(base_name=base_name, path=path, function=task_func)
     if short_name is not None:
         task.short_name = short_name
 
