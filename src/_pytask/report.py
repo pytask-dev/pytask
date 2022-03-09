@@ -17,7 +17,7 @@ from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 
 if TYPE_CHECKING:
     from _pytask.nodes import MetaNode
-    from _pytask.nodes import MetaTask
+    from _pytask.nodes import Task
 
 
 ExceptionInfo = Tuple[Type[BaseException], BaseException, Union[TracebackType, None]]
@@ -30,10 +30,6 @@ class CollectionReport:
     outcome = attr.ib(type=CollectionOutcome)
     node = attr.ib(default=None, type="MetaNode")
     exc_info = attr.ib(default=None, type=ExceptionInfo)
-
-    @classmethod
-    def from_node(cls, outcome: CollectionOutcome, node: MetaNode) -> CollectionReport:
-        return cls(outcome=outcome, node=node)
 
     @classmethod
     def from_exception(
@@ -62,18 +58,18 @@ class ResolvingDependenciesReport:
 class ExecutionReport:
     """A report for an executed task."""
 
-    task = attr.ib(type="MetaTask")
+    task = attr.ib(type="Task")
     outcome = attr.ib(type=TaskOutcome)
     exc_info = attr.ib(default=None, type=Optional[ExceptionInfo])
     sections = attr.ib(factory=list, type=List[Tuple[str, str, str]])
 
     @classmethod
     def from_task_and_exception(
-        cls, task: MetaTask, exc_info: ExceptionInfo
+        cls, task: Task, exc_info: ExceptionInfo
     ) -> ExecutionReport:
         exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(task, TaskOutcome.FAIL, exc_info, task._report_sections)
 
     @classmethod
-    def from_task(cls, task: MetaTask) -> ExecutionReport:
+    def from_task(cls, task: Task) -> ExecutionReport:
         return cls(task, TaskOutcome.SUCCESS, None, task._report_sections)

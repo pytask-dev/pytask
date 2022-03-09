@@ -15,8 +15,8 @@ from pytask import cli
 from pytask import CollectionOutcome
 from pytask import ExitCode
 from pytask import main
-from pytask import PythonFunctionTask
 from pytask import Session
+from pytask import Task
 
 
 @pytest.mark.end_to_end
@@ -54,7 +54,8 @@ def test_collect_filepathnode_with_unknown_type(tmp_path):
 
     assert session.exit_code == 3
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
-    assert isinstance(session.collection_reports[0].exc_info[1], NodeNotCollectedError)
+    exc_info = session.collection_reports[0].exc_info
+    assert isinstance(exc_info[1], NodeNotCollectedError)
 
 
 @pytest.mark.end_to_end
@@ -207,7 +208,12 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
     for base_name in ("base_name_ident_0", "base_name_ident_1"):
         task_id = create_task_name(path_identifiable_by_base_name, base_name)
         tasks.append(
-            PythonFunctionTask(base_name, task_id, path_identifiable_by_base_name, None)
+            Task(
+                base_name=base_name,
+                name=task_id,
+                path=path_identifiable_by_base_name,
+                function=None,
+            )
         )
         expected[task_id] = "t.py::" + base_name
 
@@ -217,7 +223,9 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
     for module in ("t.py", "m.py"):
         module_path = dir_identifiable_by_module_name / module
         task_id = create_task_name(module_path, "task_a")
-        tasks.append(PythonFunctionTask("task_a", task_id, module_path, None))
+        tasks.append(
+            Task(base_name="task_a", name=task_id, path=module_path, function=None)
+        )
         expected[task_id] = module + "::task_a"
 
     dir_identifiable_by_folder = tmp_path / "identifiable_by_folder"
@@ -229,7 +237,9 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
     for base_path in (dir_identifiable_by_folder_a, dir_identifiable_by_folder_b):
         module_path = base_path / "t.py"
         task_id = create_task_name(module_path, "task_t")
-        tasks.append(PythonFunctionTask("task_t", task_id, module_path, None))
+        tasks.append(
+            Task(base_name="task_t", name=task_id, path=module_path, function=None)
+        )
         expected[task_id] = base_path.name + "/t.py::task_t"
 
     result = _find_shortest_uniquely_identifiable_name_for_tasks(tasks)

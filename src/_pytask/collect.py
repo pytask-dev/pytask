@@ -22,8 +22,7 @@ from _pytask.mark_utils import has_marker
 from _pytask.nodes import create_task_name
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import find_duplicates
-from _pytask.nodes import MetaTask
-from _pytask.nodes import PythonFunctionTask
+from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
@@ -153,12 +152,12 @@ def pytask_collect_task_protocol(
         )
         if task is not None:
             session.hook.pytask_collect_task_teardown(session=session, task=task)
-            return CollectionReport.from_node(
-                outcome=CollectionOutcome.SUCCESS, node=task
-            )
+            return CollectionReport(outcome=CollectionOutcome.SUCCESS, node=task)
 
     except Exception:
-        task = PythonFunctionTask(name, create_task_name(path, name), path, None)
+        task = Task(
+            base_name=name, name=create_task_name(path, name), path=path, function=None
+        )
         return CollectionReport.from_exception(
             outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info(), node=task
         )
@@ -170,7 +169,7 @@ def pytask_collect_task_protocol(
 @hookimpl(trylast=True)
 def pytask_collect_task(
     session: Session, path: Path, name: str, obj: Any
-) -> PythonFunctionTask | None:
+) -> Task | None:
     """Collect a task which is a function.
 
     There is some discussion on how to detect functions in this `thread
@@ -179,9 +178,7 @@ def pytask_collect_task(
 
     """
     if name.startswith("task_") and callable(obj):
-        return PythonFunctionTask.from_path_name_function_session(
-            path, name, obj, session
-        )
+        return Task.from_path_name_function_session(path, name, obj, session)
     else:
         return None
 
@@ -279,7 +276,7 @@ def _not_ignored_paths(
 
 
 @hookimpl(trylast=True)
-def pytask_collect_modify_tasks(tasks: list[MetaTask]) -> None:
+def pytask_collect_modify_tasks(tasks: list[Task]) -> None:
     """Given all tasks, assign a short uniquely identifiable name to each task.
 
     The shorter ids are necessary to display
@@ -292,7 +289,7 @@ def pytask_collect_modify_tasks(tasks: list[MetaTask]) -> None:
 
 
 def _find_shortest_uniquely_identifiable_name_for_tasks(
-    tasks: list[MetaTask],
+    tasks: list[Task],
 ) -> dict[str, str]:
     """Find the shortest uniquely identifiable name for tasks.
 
@@ -326,7 +323,7 @@ def _find_shortest_uniquely_identifiable_name_for_tasks(
 
 @hookimpl
 def pytask_collect_log(
-    session: Session, reports: list[CollectionReport], tasks: list[PythonFunctionTask]
+    session: Session, reports: list[CollectionReport], tasks: list[Task]
 ) -> None:
     """Log collection."""
     session.collection_end = time.time()
@@ -347,7 +344,7 @@ def pytask_collect_log(
             if report.node is None:
                 header = "Error"
             else:
-                if isinstance(report.node, MetaTask):
+                if isinstance(report.node, Task):
                     short_name = format_task_id(
                         report.node, editor_url_scheme="no_link", short_name=True
                     )

@@ -9,7 +9,7 @@ from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
 from pytask import cli
 from pytask import MetaNode
-from pytask import MetaTask
+from pytask import Task
 
 
 @pytest.mark.end_to_end
@@ -281,29 +281,12 @@ def function():
     ...
 
 
-@attr.s
-class Task(MetaTask):
-    base_name = attr.ib()
-    path = attr.ib()
-    function = attr.ib()
-    depends_on = attr.ib()
-    produces = attr.ib()
-
-    def execute(self):
-        ...
-
-    def state(self):
-        ...
-
-    def add_report_section(self):
-        ...
-
-
 @pytest.mark.unit
 def test_print_collected_tasks_without_nodes(capsys):
     dictionary = {
         "task_path.py": [
             Task(
+                name="function",
                 base_name="function",
                 path=Path("task_path.py"),
                 function=function,
@@ -328,6 +311,7 @@ def test_print_collected_tasks_with_nodes(capsys):
     dictionary = {
         "task_path.py": [
             Task(
+                name="function",
                 base_name="function",
                 path=Path("task_path.py"),
                 function=function,
@@ -352,6 +336,7 @@ def test_print_collected_tasks_with_nodes(capsys):
 def test_find_common_ancestor_of_all_nodes(show_nodes, expected_add):
     tasks = [
         Task(
+            name="function",
             base_name="function",
             path=Path.cwd() / "src" / "task_path.py",
             function=function,

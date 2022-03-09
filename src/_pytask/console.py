@@ -26,7 +26,7 @@ from rich.tree import Tree
 
 
 if TYPE_CHECKING:
-    from _pytask.nodes import MetaTask
+    from _pytask.nodes import Task
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
 
@@ -132,7 +132,7 @@ def render_to_string(
 
 
 def format_task_id(
-    task: MetaTask,
+    task: Task,
     editor_url_scheme: str,
     short_name: bool = False,
     relative_to: Path | None = None,

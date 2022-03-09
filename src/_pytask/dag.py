@@ -12,7 +12,7 @@ import networkx as nx
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import TASK_ICON
 from _pytask.mark_utils import get_specific_markers_from_task
-from _pytask.nodes import MetaTask
+from _pytask.nodes import Task
 
 
 def descending_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, None]:
@@ -137,7 +137,7 @@ class TopologicalSorter:
             self.done(new_task)
 
 
-def _extract_priorities_from_tasks(tasks: list[MetaTask]) -> dict[str, int]:
+def _extract_priorities_from_tasks(tasks: list[Task]) -> dict[str, int]:
     """Extract priorities from tasks.
 
     Priorities are set via the ``pytask.mark.try_first`` and ``pytask.mark.try_last``

@@ -12,6 +12,7 @@ from pytask import Mark
 from pytask import Skipped
 from pytask import SkippedAncestorFailed
 from pytask import SkippedUnchanged
+from pytask import Task
 from pytask import TaskOutcome
 
 
@@ -260,10 +261,7 @@ def test_if_skipif_decorator_is_applied_any_condition_matches(tmp_path):
     ],
 )
 def test_pytask_execute_task_setup(marker_name, expectation):
-    class Task:
-        pass
-
-    task = Task()
+    task = Task(base_name="task", name="task", path=None, function=None)
     kwargs = {"reason": ""} if marker_name == "skip_ancestor_failed" else {}
     task.markers = [Mark(marker_name, (), kwargs)]
 

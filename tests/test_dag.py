@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 
-import attr
 import networkx as nx
 import pytest
 from _pytask.dag import _extract_priorities_from_tasks
@@ -11,36 +10,20 @@ from _pytask.dag import node_and_neighbors
 from _pytask.dag import task_and_descending_tasks
 from _pytask.dag import TopologicalSorter
 from pytask import Mark
-from pytask import MetaTask
-
-
-@attr.s
-class _DummyTask(MetaTask):
-    name = attr.ib(type=str, converter=str)
-    markers = attr.ib(factory=list)
-    path = attr.ib(default=None)
-    base_name = ""
-    short_name = attr.ib(init=False)
-
-    def __attrs_post_init__(self):
-        self.short_name = self.name
-
-    def execute(self):
-        ...
-
-    def state(self):
-        ...
-
-    def add_report_section(self):
-        ...
+from pytask import Task
 
 
 @pytest.fixture()
 def dag():
     dag = nx.DiGraph()
     for i in range(4):
-        dag.add_node(str(i), task=_DummyTask(i))
-        dag.add_node(str(i + 1), task=_DummyTask(i + 1))
+        dag.add_node(
+            str(i), task=Task(name=str(i), base_name=str(i), path=None, function=None)
+        )
+        dag.add_node(
+            str(i + 1),
+            task=Task(name=str(i + 1), base_name=str(i + 1), path=None, function=None),
+        )
         dag.add_edge(str(i), str(i + 1))
 
     return dag
@@ -78,24 +61,47 @@ def test_node_and_neighbors(dag):
     "tasks, expectation, expected",
     [
         pytest.param(
-            [_DummyTask("1", [Mark("try_last", (), {})])],
+            [
+                Task(
+                    base_name="1",
+                    name="1",
+                    path=None,
+                    function=None,
+                    markers=[Mark("try_last", (), {})],
+                )
+            ],
             does_not_raise(),
             {"1": -1},
             id="test try_last",
         ),
         pytest.param(
-            [_DummyTask("1", [Mark("try_first", (), {})])],
+            [
+                Task(
+                    base_name="1",
+                    name="1",
+                    path=None,
+                    function=None,
+                    markers=[Mark("try_first", (), {})],
+                )
+            ],
             does_not_raise(),
             {"1": 1},
             id="test try_first",
         ),
         pytest.param(
-            [_DummyTask("1", [])], does_not_raise(), {"1": 0}, id="test no priority"
+            [Task(base_name="1", name="1", path=None, function=None, markers=[])],
+            does_not_raise(),
+            {"1": 0},
+            id="test no priority",
         ),
         pytest.param(
             [
-                _DummyTask(
-                    "1", [Mark("try_first", (), {}), Mark("try_last", (), {})], ""
+                Task(
+                    name="1",
+                    base_name="1",
+                    path=None,
+                    function=None,
+                    markers=[Mark("try_first", (), {}), Mark("try_last", (), {})],
                 )
             ],
             pytest.raises(ValueError, match="'try_first' and 'try_last' cannot be"),
@@ -104,9 +110,21 @@ def test_node_and_neighbors(dag):
         ),
         pytest.param(
             [
-                _DummyTask("1", [Mark("try_first", (), {})]),
-                _DummyTask("2", []),
-                _DummyTask("3", [Mark("try_last", (), {})]),
+                Task(
+                    name="1",
+                    base_name="1",
+                    path=None,
+                    function=None,
+                    markers=[Mark("try_first", (), {})],
+                ),
+                Task(name="2", base_name="2", path=None, function=None, markers=[]),
+                Task(
+                    name="3",
+                    base_name="3",
+                    path=None,
+                    function=None,
+                    markers=[Mark("try_last", (), {})],
+                ),
             ],
             does_not_raise(),
             {"1": 1, "2": 0, "3": -1},

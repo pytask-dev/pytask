@@ -20,7 +20,7 @@ from _pytask.database import db
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.nodes import FilePathNode
-from _pytask.nodes import MetaTask
+from _pytask.nodes import Task
 from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import get_plugin_manager
@@ -69,7 +69,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 
 
 @hookimpl(hookwrapper=True)
-def pytask_execute_task(task: MetaTask) -> Generator[None, None, None]:
+def pytask_execute_task(task: Task) -> Generator[None, None, None]:
     """Attach the duration of the execution to the task."""
     start = time.time()
     yield
@@ -160,7 +160,7 @@ def profile(**config_from_cli: Any) -> NoReturn:
 
 
 def _print_profile_table(
-    profile: dict[str, dict[str, Any]], tasks: list[MetaTask], config: dict[str, Any]
+    profile: dict[str, dict[str, Any]], tasks: list[Task], config: dict[str, Any]
 ) -> None:
     """Print the profile table."""
     name_to_task = {task.name: task for task in tasks}
@@ -187,11 +187,14 @@ def _print_profile_table(
 
 
 class DurationNameSpace:
+    """A namespace for adding durations to the profile."""
+
     @staticmethod
     @hookimpl
     def pytask_profile_add_info_on_task(
-        tasks: list[MetaTask], profile: dict[str, dict[str, Any]]
+        tasks: list[Task], profile: dict[str, dict[str, Any]]
     ) -> None:
+        """Add the runtime for tasks to the profile."""
         runtimes = _collect_runtimes([task.name for task in tasks])
         for name, duration in runtimes.items():
             profile[name]["Duration (in s)"] = round(duration, 2)
@@ -206,11 +209,14 @@ def _collect_runtimes(task_names: list[str]) -> dict[str, float]:
 
 
 class FileSizeNameSpace:
+    """A namespace for adding the total file size of products to a task."""
+
     @staticmethod
     @hookimpl
     def pytask_profile_add_info_on_task(
-        session: Session, tasks: list[MetaTask], profile: dict[str, dict[str, Any]]
+        session: Session, tasks: list[Task], profile: dict[str, dict[str, Any]]
     ) -> None:
+        """Add the total file size of all products for a task."""
         for task in tasks:
             successors = list(session.dag.successors(task.name))
             if successors:
@@ -255,6 +261,8 @@ def _process_profile(profile: dict[str, dict[str, Any]]) -> dict[str, dict[str, 
 
 
 class ExportNameSpace:
+    """A namespace for exporting the profile."""
+
     @staticmethod
     @hookimpl(trylast=True)
     def pytask_profile_export_profile(

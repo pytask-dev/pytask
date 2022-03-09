@@ -32,7 +32,7 @@ from rich.tree import Tree
 
 if TYPE_CHECKING:
     from typing import NoReturn
-    from _pytask.nodes import MetaTask
+    from _pytask.nodes import Task
 
 
 @hookimpl(tryfirst=True)
@@ -108,7 +108,7 @@ def collect(**config_from_cli: Any | None) -> NoReturn:
     sys.exit(session.exit_code)
 
 
-def _select_tasks_by_expressions_and_marker(session: Session) -> list[MetaTask]:
+def _select_tasks_by_expressions_and_marker(session: Session) -> list[Task]:
     """Select tasks by expressions and marker."""
     all_tasks = {task.name for task in session.tasks}
     remaining_by_mark = select_by_mark(session, session.dag) or all_tasks
@@ -119,7 +119,7 @@ def _select_tasks_by_expressions_and_marker(session: Session) -> list[MetaTask]:
 
 
 def _find_common_ancestor_of_all_nodes(
-    tasks: list[MetaTask], paths: list[Path], show_nodes: bool
+    tasks: list[Task], paths: list[Path], show_nodes: bool
 ) -> Path:
     """Find common ancestor from all nodes and passed paths."""
     all_paths = []
@@ -134,14 +134,14 @@ def _find_common_ancestor_of_all_nodes(
     return common_ancestor
 
 
-def _organize_tasks(tasks: list[MetaTask]) -> dict[Path, list[MetaTask]]:
+def _organize_tasks(tasks: list[Task]) -> dict[Path, list[Task]]:
     """Organize tasks in a dictionary.
 
     The dictionary has file names as keys and then a dictionary with task names and
     below a dictionary with dependencies and targets.
 
     """
-    dictionary: dict[Path, list[MetaTask]] = {}
+    dictionary: dict[Path, list[Task]] = {}
     for task in tasks:
         dictionary[task.path] = dictionary.get(task.path, [])
         dictionary[task.path].append(task)
@@ -154,7 +154,7 @@ def _organize_tasks(tasks: list[MetaTask]) -> dict[Path, list[MetaTask]]:
 
 
 def _print_collected_tasks(
-    dictionary: dict[Path, list[MetaTask]],
+    dictionary: dict[Path, list[Task]],
     show_nodes: bool,
     editor_url_scheme: str,
     common_ancestor: Path,
@@ -163,7 +163,7 @@ def _print_collected_tasks(
 
     Parameters
     ----------
-    dictionary : Dict[Path, List["MetaTask"]]
+    dictionary : Dict[Path, List["Task"]]
         A dictionary with path on the first level, tasks on the second, dependencies and
         products on the third.
     show_nodes : bool

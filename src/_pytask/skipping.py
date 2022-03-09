@@ -17,7 +17,7 @@ from _pytask.traceback import remove_traceback_from_exc_info
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import MetaTask
+    from _pytask.nodes import Task
     from _pytask.report import ExecutionReport
 
 
@@ -33,6 +33,7 @@ def skipif(condition: bool, *, reason: str) -> tuple[bool, str]:
 
 @hookimpl
 def pytask_parse_config(config: dict[str, Any]) -> None:
+    """Parse the configuration."""
     markers = {
         "skip": "Skip a task and all its subsequent tasks as well.",
         "skip_ancestor_failed": "Internal decorator applied to tasks whose ancestor "
@@ -46,7 +47,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 
 
 @hookimpl
-def pytask_execute_task_setup(task: MetaTask) -> None:
+def pytask_execute_task_setup(task: Task) -> None:
     """Take a short-cut for skipped tasks during setup with an exception."""
     markers = get_specific_markers_from_task(task, "skip_unchanged")
     if markers:

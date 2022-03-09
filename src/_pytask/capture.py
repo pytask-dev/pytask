@@ -41,7 +41,7 @@ from typing import TYPE_CHECKING
 
 import click
 from _pytask.config import hookimpl
-from _pytask.nodes import MetaTask
+from _pytask.nodes import Task
 from _pytask.shared import get_first_non_none_value
 
 if TYPE_CHECKING:
@@ -755,7 +755,7 @@ class CaptureManager:
     # Helper context managers
 
     @contextlib.contextmanager
-    def task_capture(self, when: str, task: MetaTask) -> Generator[None, None, None]:
+    def task_capture(self, when: str, task: Task) -> Generator[None, None, None]:
         """Pipe captured stdout and stderr into report sections."""
         self.resume()
 
@@ -771,21 +771,19 @@ class CaptureManager:
     # Hooks
 
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task_setup(self, task: MetaTask) -> Generator[None, None, None]:
+    def pytask_execute_task_setup(self, task: Task) -> Generator[None, None, None]:
         """Capture output during setup."""
         with self.task_capture("setup", task):
             yield
 
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task(self, task: MetaTask) -> Generator[None, None, None]:
+    def pytask_execute_task(self, task: Task) -> Generator[None, None, None]:
         """Capture output during execution."""
         with self.task_capture("call", task):
             yield
 
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task_teardown(
-        self, task: MetaTask
-    ) -> Generator[None, None, None]:
+    def pytask_execute_task_teardown(self, task: Task) -> Generator[None, None, None]:
         """Capture output during teardown."""
         with self.task_capture("teardown", task):
             yield

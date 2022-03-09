@@ -15,7 +15,7 @@ from _pytask.outcomes import TaskOutcome
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import MetaTask
+    from _pytask.nodes import Task
     from _pytask.report import ExecutionReport
 
 
@@ -32,7 +32,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 
 
 @hookimpl
-def pytask_execute_task_setup(session: Session, task: MetaTask) -> None:
+def pytask_execute_task_setup(session: Session, task: Task) -> None:
     """Exit persisting tasks early.
 
     The decorator needs to be set and all nodes need to exist.

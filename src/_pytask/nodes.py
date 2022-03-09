@@ -73,35 +73,8 @@ class MetaNode(metaclass=ABCMeta):
         ...
 
 
-class MetaTask(MetaNode):
-    """The base class for tasks."""
-
-    base_name: str
-    name: str
-    short_name: str | None
-    markers: list[Mark]
-    depends_on: dict[str, MetaNode]
-    produces: dict[str, MetaNode]
-    path: Path
-    function: Callable[..., Any] | None
-    attributes: dict[Any, Any]
-    kwargs: dict[str, Any]
-    keep_dict: dict[str, bool]
-    _report_sections: list[tuple[str, str, str]]
-
-    @abstractmethod
-    def execute(self) -> None:
-        ...
-
-    @abstractmethod
-    def add_report_section(
-        self, when: str, key: str, content: str  # noqa: U100
-    ) -> None:
-        ...
-
-
-@attr.s
-class PythonFunctionTask(MetaTask):
+@attr.s(kw_only=True)
+class Task:
     """The class for tasks which are Python functions."""
 
     base_name = attr.ib(type=str)
@@ -118,7 +91,7 @@ class PythonFunctionTask(MetaTask):
     """Dict[str, MetaNode]: A list of dependencies of task."""
     produces = attr.ib(factory=dict, type=Dict[str, MetaNode])
     """Dict[str, MetaNode]: A list of products of task."""
-    markers = attr.ib(factory=list, type="List[Mark]")
+    markers = attr.ib(factory=list, type=List["Mark"])
     """Optional[List[Mark]]: A list of markers attached to the task function."""
     kwargs = attr.ib(factory=dict, type=Dict[str, Any])
     """Dict[str, Any]: A dictionary with keyword arguments supplied to the task."""
@@ -127,14 +100,15 @@ class PythonFunctionTask(MetaTask):
     attributes = attr.ib(factory=dict, type=Dict[Any, Any])
     """Dict[Any, Any]: A dictionary to store additional information of the task."""
 
-    def __attrs_post_init__(self: PythonFunctionTask) -> None:
+    def __attrs_post_init__(self: Task) -> None:
+        """Change class after initialization."""
         if self.short_name is None:
             self.short_name = self.name
 
     @classmethod
     def from_path_name_function_session(
         cls, path: Path, name: str, function: Callable[..., Any], session: Session
-    ) -> PythonFunctionTask:
+    ) -> Task:
         """Create a task from a path, name, function, and session."""
         objects = _extract_nodes_from_function_markers(function, depends_on)
         nodes = _convert_objects_to_node_dictionary(objects, "depends_on")
@@ -282,11 +256,14 @@ def _convert_objects_to_node_dictionary(objects: Any, when: str) -> dict[Any, An
 
 @attr.s(frozen=True)
 class _Placeholder:
+    """A placeholder to mark unspecified keys in dictionaries."""
+
     scalar = attr.ib(type=bool, default=False)
     id_ = attr.ib(factory=uuid.uuid4, type=uuid.UUID)
 
 
 def convert_to_dict(x: Any, first_level: bool = True) -> Any | dict[Any, Any]:
+    """Convert any object to a dictionary."""
     if isinstance(x, dict):
         return {k: convert_to_dict(v, False) for k, v in x.items()}
     elif isinstance(x, Iterable) and not isinstance(x, str):
