@@ -29,7 +29,7 @@
 .. image:: https://readthedocs.org/projects/pytask-dev/badge/?version=latest
     :target: https://pytask-dev.readthedocs.io/en/stable
 
-.. image:: https://img.shields.io/github/workflow/status/pytask-dev/pytask/Continuous%20Integration%20Workflow/main
+.. image:: https://img.shields.io/github/workflow/status/pytask-dev/pytask/main/main
    :target: https://github.com/pytask-dev/pytask/actions?query=branch%3Amain
 
 .. image:: https://codecov.io/gh/pytask-dev/pytask/branch/main/graph/badge.svg
