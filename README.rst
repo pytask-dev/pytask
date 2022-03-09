@@ -60,13 +60,13 @@ projects. Its features include:
   <https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_debug.html>`_ if a task
   fails, get feedback quickly, and be more productive.
 
-- **Parametrizations via loops.** `Loop over task functions
-  <https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_parametrize_a_task.html>`_
+- **Repeat a task with different inputs.** `Loop over task functions
+  <https://pytask-dev.readthedocs.io/en/stable/tutorials/repeating_tasks_with_different_inputs.html>`_
   to run the same task with different inputs.
 
 - **Select tasks via expressions.** Run only a subset of tasks with `expressions and
   marker expressions
-  <https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_select_tasks.html>`_
+  <https://pytask-dev.readthedocs.io/en/stable/tutorials/selecting_tasks.html>`_
   known from pytest.
 
 - **Easily extensible with plugins**. pytask is built on top of `pluggy

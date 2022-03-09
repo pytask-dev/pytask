@@ -1,9 +1,6 @@
-(how-to-set-up-a-project)=
+# Set up a project
 
-# How to set up a project
-
-This tutorial shows you how to set up your first project. It also explains the purpose
-of the most elementary pieces.
+This tutorial shows you how to set up your first project.
 
 :::{seealso}
 If you want to start from a template or take inspiration from previous projects, look at

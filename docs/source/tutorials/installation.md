@@ -1,4 +1,4 @@
-# How to install pytask
+# Installation
 
 ```{eval-rst}
 .. include:: ../../../README.rst

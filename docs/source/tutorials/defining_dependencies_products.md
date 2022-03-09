@@ -1,6 +1,6 @@
-# How to define dependencies and products
+# Defining dependencies and products
 
-To make sure pytask executes all tasks in a correct order, define which dependencies are
+To ensure pytask executes all tasks in a correct order, define which dependencies are
 required and which products are produced by a task.
 
 :::{important}
@@ -9,13 +9,9 @@ to build a graph, a {term}`DAG`, and will not be able to execute all tasks in th
 project correctly!
 :::
 
-The information on dependencies and products can be attached to a task function with
-special markers. Let us have a look at some examples.
-
 ## Products
 
-We first focus on products which we already encountered in the previous tutorial. Let us
-take the task from the previous tutorial.
+Let's revisit the task from the {doc}`previous tutorial <write_a_task>`.
 
 ```python
 @pytask.mark.produces(BLD / "data.pkl")

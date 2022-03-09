@@ -206,4 +206,4 @@ Some parametrized tasks are extremely expensive to run - be it in terms of compu
 power, memory or time. On the other hand, parametrizations are often extended which
 could also trigger all parametrizations to be rerun. Thus, use the
 `@pytask.mark.persist` decorator which is explained in more detail in this
-{doc}`tutorial <../tutorials/how_to_make_tasks_persist>`.
+{doc}`tutorial <../tutorials/making_tasks_persist>`.

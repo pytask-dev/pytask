@@ -1,4 +1,4 @@
-# How to capture output
+# Capturing output
 
 What is capturing? Some of your tasks may use `print` statements, have progress bars,
 require user input or the libraries you are using show information during execution.

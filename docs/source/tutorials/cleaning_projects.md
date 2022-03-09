@@ -1,4 +1,4 @@
-# How to clean a project
+# Cleaning projects
 
 At some point, projects are cluttered with obsolete files. For example, a product of a
 task was renamed and the old version still exists.

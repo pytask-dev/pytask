@@ -1,4 +1,4 @@
-# How to skip tasks
+# Skipping tasks
 
 Skipping tasks is one way to prevent tasks from being executed. It is identical but less
 dynamic than selecting tasks via {ref}`markers <markers>` or
@@ -74,5 +74,5 @@ def task_that_takes_really_long_to_run(depends_on):
 
 ## Further Reading
 
-- {doc}`how_to_select_tasks`.
+- {doc}`selecting_tasks`.
 - {confval}`ignore` on how to ignore task files.

@@ -1,4 +1,4 @@
-# How to configure pytask
+# Configuration
 
 pytask can be configured via the command-line interface or permanently with a
 configuration file.

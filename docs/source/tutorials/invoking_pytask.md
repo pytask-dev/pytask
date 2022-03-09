@@ -1,4 +1,4 @@
-# How to invoke pytask
+# Invoking pytask
 
 ## Entry-points
 

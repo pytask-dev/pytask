@@ -1,7 +1,7 @@
-# How to write a task
+# Write a task
 
 Starting from the project structure in the
-{doc}`previous tutorial <how_to_set_up_a_project>`, this tutorial teaches you how to
+{doc}`previous tutorial <set_up_a_project>`, this tutorial teaches you how to
 write your first task.
 
 By default, pytask will look for tasks in modules whose name is prefixed with `task_`.
@@ -59,7 +59,7 @@ To let pytask track the product of the task, you need to use the
 
 :::{seealso}
 You learn more about adding dependencies and products to a task in the next
-{doc}`tutorial <how_to_define_dependencies_products>`.
+{doc}`tutorial <defining_dependencies_products>`.
 :::
 
 Now, execute pytask which will automatically collect tasks in the current directory and

@@ -11,9 +11,9 @@ specific tasks with pytask.
 ---
 maxdepth: 1
 ---
-how_to_write_a_plugin
 how_to_influence_build_order
-how_to_parametrize_a_task_the_pytest_way
+repeating_tasks_with_different_inputs_the_pytest_way
+how_to_write_a_plugin
 ```
 
 ## Best Practice Guides

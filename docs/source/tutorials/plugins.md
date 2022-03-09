@@ -1,4 +1,4 @@
-# How to use plugins
+# Plugins
 
 Since build systems are deployed in many different contexts, all possible applications
 are unforeseeable and cannot be directly supported by pytask's developers.

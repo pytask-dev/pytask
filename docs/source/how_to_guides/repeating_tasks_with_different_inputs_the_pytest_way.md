@@ -1,11 +1,16 @@
-# How to parametrize a task - The pytest way
+# Repeating tasks with different inputs - The pytest way
 
-You want to define a task which should be repeated over a range of inputs? Parametrize
+You want to define a task which should be repeated over a range of inputs? Loop over
 your task function!
+
+:::{hint}
+The process of repeating a function with different inputs is called parametrizations.
+:::
 
 :::{important}
 This guide shows you how to parametrize tasks with the pytest approach. For the new and
-preferred approach, see this {doc}`tutorial <../tutorials/how_to_parametrize_a_task>`.
+preferred approach, see this
+{doc}`tutorial <../tutorials/repeating_tasks_with_different_inputs>`.
 :::
 
 You want to define a task which should be repeated over a range of inputs? Parametrize
@@ -117,7 +122,7 @@ The signature can be passed in three different formats.
 ## The id
 
 Every task has a unique id which can be used to
-{doc}`select it <../tutorials/how_to_select_tasks>`. The normal id combines the path to
+{doc}`select it <../tutorials/selecting_tasks>`. The normal id combines the path to
 the module where the task is defined, a double colon, and the name of the task function.
 Here is an example.
 
@@ -147,7 +152,7 @@ replaced with a combination of the argument name and the iteration counter.
 For example, the following function is parametrized with tuples.
 
 ```python
-@pytask.mark.parametrized("i", [(0,), (1,)])
+@pytask.mark.parametrize("i", [(0,), (1,)])
 def task_example(i):
     pass
 ```
@@ -167,7 +172,7 @@ Instead of a function, you can also pass a list or another iterable of id values
 This code
 
 ```python
-@pytask.mark.parametrized("i", [(0,), (1,)], ids=["first", "second"])
+@pytask.mark.parametrize("i", [(0,), (1,)], ids=["first", "second"])
 def task_example(i):
     pass
 ```
@@ -197,7 +202,7 @@ def tuple_to_hash(value):
         return hash(a)
 
 
-@pytask.mark.parametrized("i", [(0,), (1,)], ids=tuple_to_hash)
+@pytask.mark.parametrize("i", [(0,), (1,)], ids=tuple_to_hash)
 def task_example(i):
     pass
 ```

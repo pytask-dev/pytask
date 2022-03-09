@@ -1,4 +1,4 @@
-# How to debug
+# Debugging
 
 Whenever you encounter an error in one of your tasks, pytask offers multiple ways which
 help you to gain more information on the root cause.
@@ -24,7 +24,7 @@ the exception.
 ```
 
 :::{seealso}
-{doc}`A following tutorial <how_to_select_tasks>` shows you how to run only one or a
+{doc}`A following tutorial <selecting_tasks>` shows you how to run only one or a
 subset of tasks which can be combined with the debug mode.
 :::
 

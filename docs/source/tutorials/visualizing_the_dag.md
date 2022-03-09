@@ -1,4 +1,4 @@
-# How to visualize the DAG
+# Visualizing the DAG
 
 To visualize the {term}`DAG` of the project, first, install
 [pydot](https://github.com/pydot/pydot) and [graphviz](https://graphviz.org/). For

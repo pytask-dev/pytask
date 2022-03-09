@@ -1,20 +1,21 @@
-# How to parametrize a task
+# Repeating tasks with different inputs
 
-You want to define a task which should be repeated over a range of inputs? Parametrize
+You want to define a task which should be repeated over a range of inputs? Loop over
 your task function!
 
 :::{important}
-Before v0.2.0, pytask supported only one approach to parametrizations which is similar
-to pytest's using a {func}`@pytask.mark.parametrize <_pytask.parametrize.parametrize>`
-decorator. You can find it
-{doc}`here <../how_to_guides/how_to_parametrize_a_task_the_pytest_way>`.
+Before v0.2.0, pytask supported only one approach to repeat tasks. It is called also
+called parametrizations and similarly to pytest it is using a
+{func}`@pytask.mark.parametrize <_pytask.parametrize.parametrize>` decorator. If you
+want to know more about it, you can find it
+{doc}`here <../how_to_guides/repeating_tasks_with_different_inputs_the_pytest_way>`.
 
 Here you find the new and preferred approach.
 :::
 
 ## An example
 
-We reuse the task from the previous {doc}`tutorial <how_to_write_a_task>` which
+We reuse the task from the previous {doc}`tutorial <write_a_task>` which
 generates random data and repeat the same operation over a number of seeds to receive
 multiple, reproducible samples.
 
@@ -44,8 +45,9 @@ Executing pytask gives you this:
 
 You can also use decorators to supply values to the function.
 
-To specify a dependency which is the same for all parametrizations, add it with
-`@pytask.mark.depends_on`. And add a product with `@pytask.mark.produces`
+To specify a dependency which is the same for all iterations, add it with
+{func}`@pytask.mark.depends_on <_pytask.nodes.depends_on>`. And add a product with
+{func}`@pytask.mark.produces <_pytask.nodes.produces>`
 
 ```python
 for i in range(10):
@@ -58,11 +60,11 @@ for i in range(10):
         ...
 ```
 
-(how-to-parametrize-a-task-the-id)=
+(how-to-repeat-a-task-with-different-inputs-the-id)=
 
 ## The id
 
-Every task has a unique id which can be used to {doc}`select it <how_to_select_tasks>`.
+Every task has a unique id which can be used to {doc}`select it <selecting_tasks>`.
 The normal id combines the path to the module where the task is defined, a double colon,
 and the name of the task function. Here is an example.
 

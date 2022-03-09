@@ -1,4 +1,4 @@
-# How to collect tasks
+# Collecting tasks
 
 If you want to inspect your project and see a summary of all the tasks in the projects,
 you can use the {program}`pytask collect` command.
@@ -35,5 +35,5 @@ patterns as usual.
 
 - The documentation on the command line interface of {program}`pytask collect` can be
   found {doc}`here <../reference_guides/command_line_interface>`.
-- Read {doc}`here <how_to_select_tasks>` about selecting tasks.
+- Read {doc}`here <selecting_tasks>` about selecting tasks.
 - Paths can be ignored with {confval}`ignore`.

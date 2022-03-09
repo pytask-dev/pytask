@@ -1,4 +1,4 @@
-# How to select tasks
+# Selecting tasks
 
 If you want to run only a subset of tasks, there exist multiple options.
 
@@ -109,6 +109,6 @@ other Python objects like tuples are replaced with a combination of the argument
 and an iteration counter. Multiple arguments are separated via dashes.
 
 :::{seealso}
-Read this {ref}`section <how-to-parametrize-a-task-the-id>` for more information on how
-ids for repeated tasks are created and can be customized.
+Read this {ref}`section <how-to-repeat-a-task-with-different-inputs-the-id>` for more
+information on how ids for repeated tasks are created and can be customized.
 :::

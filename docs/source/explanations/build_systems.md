@@ -50,6 +50,30 @@ Cons
 - Need to learn snakemake's syntax which is a mixture of Make and Python.
 - Seems to have no plugin system.
 
+
+### [ploomber](https://github.com/ploomber/ploomber)
+
+General
+
+- Strong focus on machine learning pipelines, training, and deployment.
+- Integration with tools such as MLflow, Docker, AWS Batch.
+- Tasks can be defined in yaml, python files, Jupyter notebooks or SQL.
+
+
+Pros
+
+- Conversion from Jupyter notebooks to tasks via
+  [soorgeon](https://github.com/ploomber/soorgeon).
+-
+
+Cons
+
+- Programming in Jupyter notebooks increases the risk of coding errors (e.g.
+  side-effects).
+- Supports parametrizations in form of cartesian products in ``yaml`` files, but not
+  more powerful parametrizations.
+
+
 ### [Waf](https://waf.io)
 
 Pros
@@ -62,18 +86,60 @@ Cons
 - Focus on compiling binaries, not research projects.
 - Bus factor of 1.
 
+
+### [nextflow](https://github.com/nextflow-io/nextflow)
+
+-
+
+
+### [Kedro](https://github.com/quantumblacklabs/kedro)
+
+Pros
+
+- Mature library, used by some institutions and companies. Created inside McKinsey.
+- Provides the full package: templates, pipelines, deployment
+
+
+### [pydoit](https://github.com/pydoit/doit)
+
+General
+
+- A general task runner which focuses on command line tools.
+- You can think of it as an replacement for make.
+- Powers Nikola, a static site generator.
+
+
 ### [Luigi](https://github.com/spotify/luigi)
 
-A build system written by Spotify.
+General
 
-Derivatives:
+- A build system written by Spotify.
+- Designed for any kind of long-running batch processes.
+- Integrates with many other tools like databases, Hadoop, Spark, etc..
 
-- [sciluigi](https://github.com/pharmbio/sciluigi)
+
+Cons
+
+- Very complex interface and a lot of stuff you probably don't need.
+- [Development](https://github.com/spotify/luigi/graphs/contributors) seems to stall.
+
+
+### [sciluigi](https://github.com/pharmbio/sciluigi)
+
+sciluigi aims to be a lightweight wrapper around luigi.
+
+Cons
+
+- [Development](https://github.com/pharmbio/sciluigi/graphs/contributors) has basically
+  stalled since 2018.
+- Not very popular compared to its lifetime.
+
 
 ### [scipipe](https://github.com/scipipe/scipipe)
 
 Cons
 
+- [Development](https://github.com/scipipe/scipipe/graphs/contributors) slowed down.
 - Written in Go.
 
 ### [Scons](https://github.com/SCons/scons)
@@ -86,9 +152,9 @@ Cons
 
 - Seems to have no plugin system.
 
-### [Kedro](https://github.com/quantumblacklabs/kedro)
 
-Pros
+### [pypyr](https://github.com/pypyr/pypyr)
 
-- Mature library.
-- Used by some institutions and companies.
+General
+
+- A general task-runner with task defined in yaml files.

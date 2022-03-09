@@ -1,4 +1,4 @@
-# How to make tasks persist
+# Making tasks persist
 
 Sometimes you want to skip the execution of a task and pretend like nothing has changed.
 
