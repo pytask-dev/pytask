@@ -30,7 +30,6 @@ dependencies:
   - black
   - jupyterlab
   - matplotlib
-  - pdbpp
   - pre-commit
   - pydot
   - pytest
