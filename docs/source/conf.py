@@ -37,11 +37,13 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
+    "sphinxext.opengraph",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
     "sphinx_click",
     "sphinx_panels",
     "autoapi.extension",
+    "myst_parser",
 ]
 
 # List of patterns, relative to source directory, that match files and directories to
@@ -73,7 +75,7 @@ autodoc_mock_imports = [
 copybutton_prompt_text = r"\$ |>>> |In \[\d\]: "
 copybutton_prompt_is_regexp = True
 
-_repo = "https://github.com/pytest-dev/pytest"
+_repo = "https://github.com/pytask-dev/pytask"
 extlinks = {
     "pypi": ("https://pypi.org/project/%s/", ""),
     "issue": (f"{_repo}/issues/%s", "issue #"),
@@ -92,6 +94,10 @@ autoapi_type = "python"
 autoapi_dirs = ["../../src"]
 autoapi_keep_files = False
 autoapi_add_toctree_entry = False
+
+
+# MyST
+myst_enable_extensions = ["colon_fence", "deflist", "dollarmath"]
 
 
 # -- Options for HTML output -----------------------------------------------------------

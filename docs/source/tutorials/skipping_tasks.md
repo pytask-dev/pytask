@@ -1,0 +1,78 @@
+# Skipping tasks
+
+Skipping tasks is one way to prevent tasks from being executed. It is identical but less
+dynamic than selecting tasks via {ref}`markers <markers>` or
+{ref}`expressions <expressions>`.
+
+In contrast to tasks in ignored files, ignored with {confval}`ignore`, pytask will still
+check whether skipped tasks are consistent with the DAG of the project.
+
+Tasks are skipped automatically if neither their file nor any of their dependencies have
+changed and all products exist.
+
+In addition, you may want pytask to skip tasks either generally or if certain conditions
+are fulfilled. Skipping means the task itself and all tasks that depend on it will not
+be executed, even if the task file or their dependencies have changed or products are
+missing.
+
+This can be useful for example if you are working on a task that creates the dependency
+of a long running task and you are not interested in the long running task's product for
+the moment. In that case you can simply use `@pytask.mark.skip` in front of the long
+running task to stop it from running:
+
+```python
+# Content of task_create_dependency.py
+
+
+@pytask.mark.produces("dependency_of_long_running_task.md")
+def task_you_are_working_on(produces):
+    ...
+```
+
+```python
+# Content of task_long_running.py
+
+
+@pytask.mark.skip
+@pytask.mark.depends_on("dependency_of_long_running_task.md")
+def task_that_takes_really_long_to_run(depends_on):
+    ...
+```
+
+In large projects, you may have many long running tasks that you only want to execute
+sporadically, e.g. when you are not working locally but running the project on a server.
+
+In this case, use the `@pytask.mark.skipif` decorator which requires a condition and a
+reason as arguments:
+
+```python
+# Content of a config.py
+
+NO_LONG_RUNNING_TASKS = True
+```
+
+```python
+# Content of task_create_dependency.py
+
+
+@pytask.mark.produces("run_always.md")
+def task_always(produces):
+    ...
+```
+
+```python
+# Content of task_long_running.py
+
+from config import NO_LONG_RUNNING_TASKS
+
+
+@pytask.mark.skipif(NO_LONG_RUNNING_TASKS, reason="Skip long-running tasks.")
+@pytask.mark.depends_on("dependency_of_long_running_task.md")
+def task_that_takes_really_long_to_run(depends_on):
+    ...
+```
+
+## Further Reading
+
+- {doc}`selecting_tasks`.
+- {confval}`ignore` on how to ignore task files.

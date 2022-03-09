@@ -12,6 +12,7 @@ dependencies:
   - furo
   - ipython
   - nbsphinx
+  - myst-parser
   - sphinx
   - sphinx-autoapi
   - sphinx-click
@@ -32,3 +33,4 @@ dependencies:
 
   - pip:
     - ../
+    - sphinxext-opengraph
