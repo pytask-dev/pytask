@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import shutil
+import sys
 import textwrap
 
 import pytest
@@ -36,6 +37,9 @@ _TEST_FORMATS = ["dot", "pdf", "png", "jpeg", "svg"]
 @pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
 def test_create_graph_via_cli(tmp_path, runner, format_, layout):
+    if sys.platform == "win32" and format_ == "pdf":
+        pytest.xfail("gvplugin_pango.dll might be missing on Github Actions.")
+
     source = """
     import pytask
 
@@ -57,7 +61,6 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout):
         ],
     )
 
-    print(result.output)
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath(f"dag.{format_}").exists()
 
@@ -67,6 +70,9 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout):
 @pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
 def test_create_graph_via_task(tmp_path, runner, format_, layout):
+    if sys.platform == "win32" and format_ == "pdf":
+        pytest.xfail("gvplugin_pango.dll might be missing on Github Actions.")
+
     source = f"""
     import pytask
     from pathlib import Path
@@ -81,12 +87,12 @@ def test_create_graph_via_task(tmp_path, runner, format_, layout):
         path = Path(__file__).parent.joinpath("dag.{format_}")
         graph.write(path, prog="{layout}", format=path.suffix[1:])
     """
+
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("input.txt").touch()
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    print(result.output)
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath(f"dag.{format_}").exists()
 

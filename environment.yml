@@ -16,10 +16,10 @@ dependencies:
   - conda-verify
 
   # Package dependencies
-  - attrs >=17.4.0
+  - attrs >=19.2.0
   - click
   - click-default-group
-  - networkx
+  - networkx >=2.4
   - pluggy
   - pony >=0.7.15
   - pybaum
