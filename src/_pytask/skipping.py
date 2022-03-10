@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from _pytask.config import hookimpl
 from _pytask.dag import descending_tasks
 from _pytask.mark import Mark
-from _pytask.mark_utils import get_specific_markers_from_task
+from _pytask.mark_utils import get_marks
 from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
@@ -49,22 +49,22 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 @hookimpl
 def pytask_execute_task_setup(task: Task) -> None:
     """Take a short-cut for skipped tasks during setup with an exception."""
-    markers = get_specific_markers_from_task(task, "skip_unchanged")
+    markers = get_marks(task, "skip_unchanged")
     if markers:
         raise SkippedUnchanged
 
-    markers = get_specific_markers_from_task(task, "skip_ancestor_failed")
+    markers = get_marks(task, "skip_ancestor_failed")
     if markers:
         message = "\n".join(
             skip_ancestor_failed(*marker.args, **marker.kwargs) for marker in markers
         )
         raise SkippedAncestorFailed(message)
 
-    markers = get_specific_markers_from_task(task, "skip")
+    markers = get_marks(task, "skip")
     if markers:
         raise Skipped
 
-    markers = get_specific_markers_from_task(task, "skipif")
+    markers = get_marks(task, "skipif")
     if markers:
         marker_args = [skipif(*marker.args, **marker.kwargs) for marker in markers]
         message = "\n".join(arg[1] for arg in marker_args if arg[0])

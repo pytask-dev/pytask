@@ -15,7 +15,7 @@ from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import TASK_ICON
 from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
-from _pytask.mark_utils import remove_markers_from_func
+from _pytask.mark_utils import remove_marks
 from _pytask.nodes import find_duplicates
 from _pytask.parametrize_utils import arg_value_to_id_component
 from _pytask.session import Session
@@ -90,7 +90,7 @@ def pytask_parametrize_task(
 
     """
     if callable(obj):
-        obj, markers = remove_markers_from_func(obj, "parametrize")
+        obj, markers = remove_marks(obj, "parametrize")  # type: ignore
 
         if len(markers) > 1:
             raise NotImplementedError(
