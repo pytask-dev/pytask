@@ -6,7 +6,7 @@ from typing import Any
 
 from _pytask.config import hookimpl
 from _pytask.mark_utils import has_marker
-from _pytask.nodes import PythonFunctionTask
+from _pytask.nodes import Task
 from _pytask.report import CollectionReport
 from _pytask.session import Session
 from _pytask.task_utils import COLLECTED_TASKS
@@ -61,7 +61,7 @@ def pytask_collect_file(
 @hookimpl
 def pytask_collect_task(
     session: Session, path: Path, name: str, obj: Any
-) -> PythonFunctionTask | None:
+) -> Task | None:
     """Collect a task which is a function.
 
     There is some discussion on how to detect functions in this `thread
@@ -70,8 +70,6 @@ def pytask_collect_task(
 
     """
     if has_marker(obj, "task") and callable(obj):
-        return PythonFunctionTask.from_path_name_function_session(
-            path, name, obj, session
-        )
+        return Task.from_path_name_function_session(path, name, obj, session)
     else:
         return None

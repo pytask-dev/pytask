@@ -9,7 +9,7 @@ from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
 from pytask import cli
 from pytask import MetaNode
-from pytask import MetaTask
+from pytask import Task
 
 
 @pytest.mark.end_to_end
@@ -279,24 +279,6 @@ class Node(MetaNode):
 
 def function():
     ...
-
-
-@attr.s
-class Task(MetaTask):
-    base_name = attr.ib()
-    path = attr.ib()
-    function = attr.ib()
-    depends_on = attr.ib()
-    produces = attr.ib()
-
-    def execute(self):
-        ...
-
-    def state(self):
-        ...
-
-    def add_report_section(self):
-        ...
 
 
 @pytest.mark.unit

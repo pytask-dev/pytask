@@ -20,7 +20,7 @@ from _pytask.mark.structures import Mark
 from _pytask.mark.structures import MARK_GEN
 from _pytask.mark.structures import MarkDecorator
 from _pytask.mark.structures import MarkGenerator
-from _pytask.nodes import MetaTask
+from _pytask.nodes import Task
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
@@ -168,7 +168,7 @@ class KeywordMatcher:
     _names = attr.ib(type=AbstractSet[str])
 
     @classmethod
-    def from_task(cls, task: MetaTask) -> KeywordMatcher:
+    def from_task(cls, task: Task) -> KeywordMatcher:
         mapped_names = {task.name}
 
         # Add the names attached to the current function through direct assignment.
@@ -223,7 +223,7 @@ class MarkMatcher:
     own_mark_names = attr.ib(type=Set[str])
 
     @classmethod
-    def from_task(cls, task: MetaTask) -> MarkMatcher:
+    def from_task(cls, task: Task) -> MarkMatcher:
         mark_names = {mark.name for mark in task.markers}
         return cls(mark_names)
 

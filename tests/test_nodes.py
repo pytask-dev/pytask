@@ -12,14 +12,12 @@ from _pytask.nodes import _convert_objects_to_node_dictionary
 from _pytask.nodes import _extract_nodes_from_function_markers
 from _pytask.nodes import _Placeholder
 from _pytask.nodes import convert_to_dict
-from _pytask.nodes import create_task_name
 from _pytask.nodes import depends_on
 from _pytask.nodes import merge_dictionaries
 from _pytask.nodes import produces
 from _pytask.shared import reduce_node_name
 from pytask import FilePathNode
 from pytask import MetaNode
-from pytask import MetaTask
 
 
 @pytest.mark.unit
@@ -75,28 +73,6 @@ def test_raise_error_for_invalid_args_to_depends_on_and_produces(
 
 
 @pytest.mark.unit
-def test_instantiation_of_metatask():
-    class Task(MetaTask):
-        pass
-
-    with pytest.raises(TypeError):
-        Task()
-
-    class Task(MetaTask):
-        def execute(self):
-            ...
-
-        def state(self):
-            ...
-
-        def add_report_section(self):
-            ...
-
-    task = Task()
-    assert isinstance(task, MetaTask)
-
-
-@pytest.mark.unit
 def test_instantiation_of_metanode():
     class Node(MetaNode):
         ...
@@ -130,19 +106,6 @@ ERROR = "'@pytask.mark.depends_on' has nodes with the same name:"
 def test_check_that_names_are_not_used_multiple_times(x, expectation):
     with expectation:
         _check_that_names_are_not_used_multiple_times(x, "depends_on")
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "path, name, expected",
-    [
-        (Path("hello.py"), "task_func", "hello.py::task_func"),
-        (Path("C:/data/module.py"), "task_func", "C:/data/module.py::task_func"),
-    ],
-)
-def test_create_task_name(path, name, expected):
-    result = create_task_name(path, name)
-    assert result == expected
 
 
 @attr.s

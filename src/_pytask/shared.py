@@ -10,7 +10,7 @@ from typing import Sequence
 import networkx as nx
 from _pytask.console import format_task_id
 from _pytask.nodes import MetaNode
-from _pytask.nodes import MetaTask
+from _pytask.nodes import Task
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
@@ -167,16 +167,14 @@ def reduce_names_of_multiple_nodes(
     for name in names:
         node = dag.nodes[name].get("node") or dag.nodes[name].get("task")
 
-        if isinstance(node, MetaTask):
+        if isinstance(node, Task):
             short_name = format_task_id(
                 node, editor_url_scheme="no_link", short_name=True
             )
         elif isinstance(node, MetaNode):
             short_name = reduce_node_name(node, paths)
         else:
-            raise TypeError(
-                f"Requires 'MetaTask' or 'MetaNode' and not {type(node)!r}."
-            )
+            raise TypeError(f"Requires 'Task' or 'MetaNode' and not {type(node)!r}.")
 
         short_names.append(short_name)
 

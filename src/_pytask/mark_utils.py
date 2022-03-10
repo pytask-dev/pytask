@@ -10,11 +10,11 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from _pytask.nodes import MetaTask
+    from _pytask.nodes import Task
     from _pytask.mark import Mark
 
 
-def get_specific_markers_from_task(task: MetaTask, marker_name: str) -> list[Mark]:
+def get_specific_markers_from_task(task: Task, marker_name: str) -> list[Mark]:
     """Get a specific group of markers from a task."""
     return [marker for marker in task.markers if marker.name == marker_name]
 

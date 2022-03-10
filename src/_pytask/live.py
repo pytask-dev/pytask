@@ -11,7 +11,7 @@ import click
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_id
-from _pytask.nodes import MetaTask
+from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
 from _pytask.report import CollectionReport
@@ -146,7 +146,7 @@ class LiveExecution:
     _n_entries_in_table = attr.ib(type=int)
     _verbose = attr.ib(type=int)
     _editor_url_scheme = attr.ib(type=str)
-    _running_tasks = attr.ib(factory=dict, type=Dict[str, MetaTask])
+    _running_tasks = attr.ib(factory=dict, type=Dict[str, Task])
     _reports = attr.ib(factory=list, type=List[Dict[str, Any]])
 
     @hookimpl(hookwrapper=True)
@@ -161,7 +161,7 @@ class LiveExecution:
             console.print(table)
 
     @hookimpl(tryfirst=True)
-    def pytask_execute_task_log_start(self, task: MetaTask) -> bool:
+    def pytask_execute_task_log_start(self, task: Task) -> bool:
         """Mark a new task as running."""
         self.update_running_tasks(task)
         return True
@@ -243,7 +243,7 @@ class LiveExecution:
         table = self._generate_table(reduce_table=reduce_table, sort_table=sort_table)
         self._live_manager.update(table)
 
-    def update_running_tasks(self, new_running_task: MetaTask) -> None:
+    def update_running_tasks(self, new_running_task: Task) -> None:
         """Add a new running task."""
         self._running_tasks[new_running_task.name] = new_running_task
         self._update_table()

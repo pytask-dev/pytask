@@ -16,6 +16,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   {attr}`_pytask.models.CollectionMetadata.markers`.
 - {pull}`229` implements a new loop-based approach to parametrizations using the
   {func}`@pytask.mark.task <_pytask.task.task>` decorator.
+- :pull:`230` implements :class:`_pytask.logging._TimeUnit` as a
+  :class:`typing.NamedTuple` for better typing.
+- {pull}`232` moves the documentation to MyST.
+- {pull}`234` removes `MetaTask`. There is only {class}`pytask.Task`.
 
 ## 0.1.9 - 2022-02-23
 

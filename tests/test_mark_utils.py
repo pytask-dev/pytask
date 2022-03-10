@@ -1,28 +1,15 @@
 from __future__ import annotations
 
-import attr
+from pathlib import Path
+
 import pytask
 import pytest
 from _pytask.models import CollectionMetadata
 from pytask import get_marks_from_obj
 from pytask import get_specific_markers_from_task
 from pytask import has_marker
-from pytask import MetaTask
 from pytask import remove_markers_from_func
-
-
-@attr.s
-class Task(MetaTask):
-    markers = attr.ib(factory=list)
-
-    def execute(self):
-        ...
-
-    def state(self):
-        ...
-
-    def add_report_section(self):
-        ...
+from pytask import Task
 
 
 @pytest.mark.unit
@@ -43,8 +30,7 @@ class Task(MetaTask):
     ],
 )
 def test_get_specific_markers_from_task(markers, marker_name, expected):
-    task = Task()
-    task.markers = markers
+    task = Task(base_name="name", path=Path(), function=None, markers=markers)
     result = get_specific_markers_from_task(task, marker_name)
     assert result == expected
 

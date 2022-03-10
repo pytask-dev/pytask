@@ -14,7 +14,7 @@ from _pytask.resolve_dependencies import pytask_resolve_dependencies_create_dag
 from pytask import cli
 from pytask import ExitCode
 from pytask import FilePathNode
-from pytask import PythonFunctionTask
+from pytask import Task
 
 
 @attr.s
@@ -33,11 +33,10 @@ class Node(FilePathNode):
 @pytest.mark.unit
 def test_pytask_resolve_dependencies_create_dag():
     root = Path.cwd() / "src"
-    task = PythonFunctionTask(
-        "task_dummy",
-        root.as_posix() + "::task_dummy",
-        root,
-        None,
+    task = Task(
+        base_name="task_dummy",
+        path=root,
+        function=None,
         depends_on={
             0: Node.from_path(root / "node_1"),
             1: Node.from_path(root / "node_2"),
@@ -58,7 +57,7 @@ def test_check_if_root_nodes_are_available():
     root = Path.cwd() / "src"
 
     path = root.joinpath("task_dummy")
-    task = PythonFunctionTask("task", path.as_posix() + "::task", path, None)
+    task = Task(base_name="task", path=path, function=None)
     task.path = path
     task.base_name = "task_dummy"
     dag.add_node(task.name, task=task)

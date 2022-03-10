@@ -19,7 +19,7 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.nodes import FilePathNode
-from _pytask.nodes import MetaTask
+from _pytask.nodes import Task
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
@@ -103,7 +103,7 @@ def pytask_execute_build(session: Session) -> bool:
 
 
 @hookimpl
-def pytask_execute_task_protocol(session: Session, task: MetaTask) -> ExecutionReport:
+def pytask_execute_task_protocol(session: Session, task: Task) -> ExecutionReport:
     """Follow the protocol to execute each task."""
     session.hook.pytask_execute_task_log_start(session=session, task=task)
     try:
@@ -125,7 +125,7 @@ def pytask_execute_task_protocol(session: Session, task: MetaTask) -> ExecutionR
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task_setup(session: Session, task: MetaTask) -> None:
+def pytask_execute_task_setup(session: Session, task: Task) -> None:
     """Set up the execution of a task.
 
     1. Check whether all dependencies of a task are available.
@@ -150,7 +150,7 @@ def pytask_execute_task_setup(session: Session, task: MetaTask) -> None:
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task(task: MetaTask) -> bool:
+def pytask_execute_task(task: Task) -> bool:
     """Execute task."""
     kwargs = {**task.kwargs}
 
@@ -165,7 +165,7 @@ def pytask_execute_task(task: MetaTask) -> bool:
 
 
 @hookimpl
-def pytask_execute_task_teardown(session: Session, task: MetaTask) -> None:
+def pytask_execute_task_teardown(session: Session, task: Task) -> None:
     """Check if each produced node was indeed produced."""
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]

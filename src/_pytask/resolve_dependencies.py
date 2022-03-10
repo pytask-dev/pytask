@@ -21,7 +21,7 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_specific_markers_from_task
 from _pytask.nodes import MetaNode
-from _pytask.nodes import MetaTask
+from _pytask.nodes import Task
 from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import ResolvingDependenciesReport
 from _pytask.session import Session
@@ -70,7 +70,7 @@ def pytask_resolve_dependencies(session: Session) -> bool | None:
 
 
 @hookimpl
-def pytask_resolve_dependencies_create_dag(tasks: list[MetaTask]) -> nx.DiGraph:
+def pytask_resolve_dependencies_create_dag(tasks: list[Task]) -> nx.DiGraph:
     """Create the DAG from tasks, dependencies and products."""
     dag = nx.DiGraph()
 
@@ -121,9 +121,7 @@ def _have_task_or_neighbors_changed(task_name: str, dag: nx.DiGraph) -> bool:
 
 
 @orm.db_session
-def _has_node_changed(
-    task_name: str, node_dict: dict[str, MetaNode | MetaTask]
-) -> bool:
+def _has_node_changed(task_name: str, node_dict: dict[str, MetaNode | Task]) -> bool:
     """Indicate whether a single dependency or product has changed."""
     node = node_dict.get("task") or node_dict["node"]
     try:

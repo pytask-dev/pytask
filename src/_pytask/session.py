@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from _pytask.report import CollectionReport  # noqa: F401
     from _pytask.report import ExecutionReport  # noqa: F401
     from _ptytask.report import ResolvingDependenciesReport  # noqa: F401
-    from _pytask.nodes import MetaTask  # noqa: F401
+    from _pytask.nodes import Task  # noqa: F401
 
 
 @attr.s
@@ -40,8 +40,8 @@ class Session:
     The reports capture errors which happened while collecting tasks.
 
     """
-    tasks = attr.ib(factory=list, type="Optional[List[MetaTask]]")
-    """Optional[List[MetaTask]]: List of collected tasks."""
+    tasks = attr.ib(factory=list, type="Optional[List[Task]]")
+    """Optional[List[Task]]: List of collected tasks."""
     dag = attr.ib(default=None, type=Optional[nx.DiGraph])
     resolving_dependencies_report = attr.ib(
         default=None, type="ResolvingDependenciesReport"

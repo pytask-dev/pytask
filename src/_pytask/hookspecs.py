@@ -19,7 +19,7 @@ import pluggy
 if TYPE_CHECKING:
     from _pytask.session import Session
     from _pytask.nodes import MetaNode
-    from _pytask.nodes import MetaTask
+    from _pytask.nodes import Task
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
     from _pytask.reports import CollectionReport
@@ -139,7 +139,7 @@ def pytask_ignore_collect(path: Path, config: dict[str, Any]) -> bool:
 
 
 @hookspec
-def pytask_collect_modify_tasks(session: Session, tasks: list[MetaTask]) -> None:
+def pytask_collect_modify_tasks(session: Session, tasks: list[Task]) -> None:
     """Modify tasks after they have been collected.
 
     This hook can be used to deselect tasks when they match a certain keyword or mark.
@@ -190,12 +190,12 @@ def pytask_collect_task_setup(
 
 
 @hookspec(firstresult=True)
-def pytask_collect_task(session: Session, path: Path, name: str, obj: Any) -> MetaTask:
+def pytask_collect_task(session: Session, path: Path, name: str, obj: Any) -> Task:
     """Collect a single task."""
 
 
 @hookspec
-def pytask_collect_task_teardown(session: Session, task: MetaTask) -> None:
+def pytask_collect_task_teardown(session: Session, task: Task) -> None:
     """Perform tear-down operations when a task was collected.
 
     Use this hook specification to, for example, perform checks on the collected task.
@@ -212,7 +212,7 @@ def pytask_collect_node(
 
 @hookspec(firstresult=True)
 def pytask_collect_log(
-    session: Session, reports: list[CollectionReport], tasks: list[MetaTask]
+    session: Session, reports: list[CollectionReport], tasks: list[Task]
 ) -> None:
     """Log errors occurring during the collection.
 
@@ -257,7 +257,7 @@ def pytask_resolve_dependencies(session: Session) -> None:
 
 @hookspec(firstresult=True)
 def pytask_resolve_dependencies_create_dag(
-    session: Session, tasks: list[MetaTask]
+    session: Session, tasks: list[Task]
 ) -> nx.DiGraph:
     """Create the DAG.
 
@@ -348,7 +348,7 @@ def pytask_execute_build(session: Session) -> Any:
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task_protocol(session: Session, task: MetaTask) -> ExecutionReport:
+def pytask_execute_task_protocol(session: Session, task: Task) -> ExecutionReport:
     """Run the protocol for executing a test.
 
     This hook runs all stages of the execution process, setup, execution, and teardown
@@ -360,7 +360,7 @@ def pytask_execute_task_protocol(session: Session, task: MetaTask) -> ExecutionR
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task_log_start(session: Session, task: MetaTask) -> None:
+def pytask_execute_task_log_start(session: Session, task: Task) -> None:
     """Start logging of task execution.
 
     This hook can be used to provide more verbose output during the execution.
@@ -369,7 +369,7 @@ def pytask_execute_task_log_start(session: Session, task: MetaTask) -> None:
 
 
 @hookspec
-def pytask_execute_task_setup(session: Session, task: MetaTask) -> None:
+def pytask_execute_task_setup(session: Session, task: Task) -> None:
     """Set up the task execution.
 
     This hook is called before the task is executed and can provide an entry-point to
@@ -380,12 +380,12 @@ def pytask_execute_task_setup(session: Session, task: MetaTask) -> None:
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task(session: Session, task: MetaTask) -> Any:
+def pytask_execute_task(session: Session, task: Task) -> Any:
     """Execute a task."""
 
 
 @hookspec
-def pytask_execute_task_teardown(session: Session, task: MetaTask) -> None:
+def pytask_execute_task_teardown(session: Session, task: Task) -> None:
     """Tear down task execution.
 
     This hook is executed after the task has been executed. It allows to perform
@@ -441,7 +441,7 @@ def pytask_log_session_footer(
 
 @hookspec
 def pytask_profile_add_info_on_task(
-    session: Session, tasks: list[MetaTask], profile: dict[str, dict[Any, Any]]
+    session: Session, tasks: list[Task], profile: dict[str, dict[Any, Any]]
 ) -> None:
     """Add information on task for profile.
 
