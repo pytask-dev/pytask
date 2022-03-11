@@ -9,8 +9,8 @@ from typing import Callable
 
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
-from _pytask.nodes import find_duplicates
 from _pytask.parametrize_utils import arg_value_to_id_component
+from _pytask.shared import find_duplicates
 
 
 COLLECTED_TASKS: dict[Path, list[Callable[..., Any]]] = defaultdict(list)

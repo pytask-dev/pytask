@@ -23,13 +23,13 @@ from _pytask.console import format_task_id
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_mark
 from _pytask.nodes import FilePathNode
-from _pytask.nodes import find_duplicates
 from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
 from _pytask.report import CollectionReport
 from _pytask.session import Session
+from _pytask.shared import find_duplicates
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
 from rich.text import Text

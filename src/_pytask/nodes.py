@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import Dict
-from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -87,10 +86,8 @@ class FilePathNode(MetaNode):
 
     name = attr.ib(type=str)
     """str: Name of the node which makes it identifiable in the DAG."""
-
     value = attr.ib(type=Path)
     """Any: Value passed to the decorator which can be requested inside the function."""
-
     path = attr.ib(type=Path)
     """pathlib.Path: Path to the FilePathNode."""
 
@@ -112,25 +109,3 @@ class FilePathNode(MetaNode):
             raise NodeNotFoundError
         else:
             return str(self.path.stat().st_mtime)
-
-
-def find_duplicates(x: Iterable[Any]) -> set[Any]:
-    """Find duplicated entries in iterable.
-
-    Examples
-    --------
-    >>> find_duplicates(["a", "b", "a"])
-    {'a'}
-    >>> find_duplicates(["a", "b"])
-    set()
-
-    """
-    seen = set()
-    duplicates = set()
-
-    for i in x:
-        if i in seen:
-            duplicates.add(i)
-        seen.add(i)
-
-    return duplicates

@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 import attr
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import remove_marks
-from _pytask.nodes import find_duplicates
+from _pytask.shared import find_duplicates
 from pybaum.tree_util import tree_map
 
 
