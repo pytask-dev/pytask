@@ -20,10 +20,10 @@ except ImportError:
 
 
 if TYPE_CHECKING:
-    from _pytask.report import CollectionReport  # noqa: F401
-    from _pytask.report import ExecutionReport  # noqa: F401
-    from _ptytask.report import ResolvingDependenciesReport  # noqa: F401
-    from _pytask.nodes import Task  # noqa: F401
+    from _pytask.report import CollectionReport
+    from _pytask.report import ExecutionReport
+    from _ptytask.report import ResolvingDependenciesReport
+    from _pytask.nodes import Task
 
 
 @attr.s
@@ -34,21 +34,21 @@ class Session:
     """Optional[Dict[str, Any]]: Configuration of the session."""
     hook = attr.ib(default=None, type=Optional[_HookRelay])
     """Optional[pluggy.hooks._HookRelay]: Holds all hooks collected by pytask."""
-    collection_reports = attr.ib(factory=list, type="List[CollectionReport]")
+    collection_reports = attr.ib(factory=list, type=List["CollectionReport"])
     """Optional[List[CollectionReport]]: Reports for collected items.
 
     The reports capture errors which happened while collecting tasks.
 
     """
-    tasks = attr.ib(factory=list, type="Optional[List[Task]]")
+    tasks = attr.ib(factory=list, type=Optional[List["Task"]])
     """Optional[List[Task]]: List of collected tasks."""
     dag = attr.ib(default=None, type=Optional[nx.DiGraph])
     resolving_dependencies_report = attr.ib(
-        default=None, type="ResolvingDependenciesReport"
+        default=None, type=Optional["ResolvingDependenciesReport"]
     )
-    """Optional[List[ResolvingDependenciesReport]]: Reports for resolving dependencies
+    """Optional[ResolvingDependenciesReport]: Reports for resolving dependencies
     failed."""
-    execution_reports = attr.ib(factory=list, type="Optional[List[ExecutionReport]]")
+    execution_reports = attr.ib(factory=list, type=Optional[List["ExecutionReport"]])
     """Optional[List[ExecutionReport]]: Reports for executed tasks."""
     exit_code = attr.ib(default=ExitCode.OK, type=ExitCode)
 

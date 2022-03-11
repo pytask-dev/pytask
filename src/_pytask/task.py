@@ -5,8 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from _pytask.config import hookimpl
-from _pytask.mark_utils import has_marker
-from _pytask.nodes import Task
+from _pytask.mark_utils import has_mark
 from _pytask.report import CollectionReport
 from _pytask.session import Session
 from _pytask.task_utils import COLLECTED_TASKS
@@ -39,7 +38,7 @@ def pytask_collect_file(
                 kwargs=function.pytask_meta.kwargs,  # type: ignore[attr-defined]
             )
 
-            if has_marker(function, "parametrize"):
+            if has_mark(function, "parametrize"):
                 names_and_objects = session.hook.pytask_parametrize_task(
                     session=session, name=name, obj=function
                 )
@@ -54,22 +53,5 @@ def pytask_collect_file(
                     collected_reports.append(report)
 
         return collected_reports
-    else:
-        return None
-
-
-@hookimpl
-def pytask_collect_task(
-    session: Session, path: Path, name: str, obj: Any
-) -> Task | None:
-    """Collect a task which is a function.
-
-    There is some discussion on how to detect functions in this `thread
-    <https://stackoverflow.com/q/624926/7523785>`_. :class:`types.FunctionType` does not
-    detect built-ins which is not possible anyway.
-
-    """
-    if has_marker(obj, "task") and callable(obj):
-        return Task.from_path_name_function_session(path, name, obj, session)
     else:
         return None

@@ -11,7 +11,7 @@ import attr
 import networkx as nx
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import TASK_ICON
-from _pytask.mark_utils import get_specific_markers_from_task
+from _pytask.mark_utils import has_mark
 from _pytask.nodes import Task
 
 
@@ -149,8 +149,8 @@ def _extract_priorities_from_tasks(tasks: list[Task]) -> dict[str, int]:
     """
     priorities = {
         task.name: {
-            "try_first": bool(get_specific_markers_from_task(task, "try_first")),
-            "try_last": bool(get_specific_markers_from_task(task, "try_last")),
+            "try_first": has_mark(task, "try_first"),
+            "try_last": has_mark(task, "try_last"),
         }
         for task in tasks
     }

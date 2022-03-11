@@ -8,36 +8,54 @@ from __future__ import annotations
 from typing import Any
 from typing import TYPE_CHECKING
 
+from _pytask.models import CollectionMetadata
+from _pytask.nodes import Task
+
 
 if TYPE_CHECKING:
-    from _pytask.nodes import Task
     from _pytask.mark import Mark
 
 
-def get_specific_markers_from_task(task: Task, marker_name: str) -> list[Mark]:
-    """Get a specific group of markers from a task."""
-    return [marker for marker in task.markers if marker.name == marker_name]
-
-
-def get_marks_from_obj(obj: Any, marker_name: str) -> list[Mark]:
-    """Get a specific group of markers from a task function."""
-    markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
-    return [marker for marker in markers if marker.name == marker_name]
-
-
-def has_marker(obj: Any, marker_name: str) -> bool:
-    """Determine whether a task function has a certain marker."""
-    markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
-    return any(marker.name == marker_name for marker in markers)
-
-
-def remove_markers_from_func(obj: Any, marker_name: str) -> tuple[Any, list[Mark]]:
-    """Remove parametrize markers from the object."""
-    if hasattr(obj, "pytask_meta"):
-        markers = obj.pytask_meta.markers
-        selected = [i for i in markers if i.name == marker_name]
-        others = [i for i in markers if i.name != marker_name]
-        obj.pytask_meta.markers = others
+def get_all_marks(obj_or_task: Any | Task) -> list[Mark]:
+    """Get all marks from a callable or task."""
+    if isinstance(obj_or_task, Task):
+        marks = obj_or_task.markers
     else:
-        selected = []
-    return obj, selected
+        obj = obj_or_task
+        marks = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
+    return marks
+
+
+def set_marks(obj_or_task: Any | Task, marks: list[Mark]) -> Any | Task:
+    """Set marks on a callable or task."""
+    if isinstance(obj_or_task, Task):
+        obj_or_task.markers = marks
+    else:
+        if hasattr(obj_or_task, "pytask_meta"):
+            obj_or_task.pytask_meta.markers = marks
+        else:
+            obj_or_task.pytask_meta = CollectionMetadata(markers=marks)
+    return obj_or_task
+
+
+def get_marks(obj_or_task: Any | Task, marker_name: str) -> list[Mark]:
+    """Get marks from callable or task."""
+    marks = get_all_marks(obj_or_task)
+    return [mark for mark in marks if mark.name == marker_name]
+
+
+def has_mark(obj_or_task: Any | Task, marker_name: str) -> bool:
+    """Test if callable or task has a certain mark."""
+    marks = get_all_marks(obj_or_task)
+    return any(mark.name == marker_name for mark in marks)
+
+
+def remove_marks(
+    obj_or_task: Any | Task, marker_name: str
+) -> tuple[Any | Task, list[Mark]]:
+    """Remove marks from callable or task."""
+    marks = get_all_marks(obj_or_task)
+    selected = [mark for mark in marks if mark.name == marker_name]
+    others = [mark for mark in marks if mark.name != marker_name]
+    obj_or_task = set_marks(obj_or_task, others)
+    return obj_or_task, selected

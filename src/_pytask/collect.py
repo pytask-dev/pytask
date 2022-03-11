@@ -9,18 +9,24 @@ import time
 from importlib import util as importlib_util
 from pathlib import Path
 from typing import Any
+from typing import Callable
 from typing import Generator
 from typing import Iterable
 
+from _pytask._collect import _collect_node
+from _pytask._collect import convert_objects_to_node_dictionary
 from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import format_task_id
 from _pytask.exceptions import CollectionError
-from _pytask.mark_utils import has_marker
+from _pytask.mark_utils import has_mark
+from _pytask.mark_utils import remove_marks
+from _pytask.nodes import depends_on
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import find_duplicates
+from _pytask.nodes import produces
 from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
@@ -29,6 +35,7 @@ from _pytask.report import CollectionReport
 from _pytask.session import Session
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
+from pybaum.tree_util import tree_map
 from rich.text import Text
 
 
@@ -118,7 +125,7 @@ def pytask_collect_file(
 
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
-            if has_marker(obj, "parametrize"):
+            if has_mark(obj, "parametrize"):
                 names_and_objects = session.hook.pytask_parametrize_task(
                     session=session, name=name, obj=obj
                 )
@@ -174,10 +181,50 @@ def pytask_collect_task(
     detect built-ins which is not possible anyway.
 
     """
-    if name.startswith("task_") and callable(obj):
-        return Task.from_path_name_function_session(path, name, obj, session)
+    if (name.startswith("task_") or has_mark(obj, "task")) and callable(obj):
+        objects = _extract_nodes_from_function_markers(obj, depends_on)
+        nodes = convert_objects_to_node_dictionary(objects, "depends_on")
+        dependencies = tree_map(lambda x: _collect_node(session, path, name, x), nodes)
+
+        objects = _extract_nodes_from_function_markers(obj, produces)
+        nodes = convert_objects_to_node_dictionary(objects, "produces")
+        products = tree_map(lambda x: _collect_node(session, path, name, x), nodes)
+
+        markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
+        kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
+
+        # Get the underlying function to avoid having different states of the function,
+        # e.g. due to pytask_meta, in different layers of the wrapping.
+        unwrapped = inspect.unwrap(obj)
+
+        return Task(
+            base_name=name,
+            path=path,
+            function=unwrapped,
+            depends_on=dependencies,
+            produces=products,
+            markers=markers,
+            kwargs=kwargs,
+        )
     else:
         return None
+
+
+def _extract_nodes_from_function_markers(
+    function: Callable[..., Any], parser: Callable[..., Any]
+) -> Generator[Any, None, None]:
+    """Extract nodes from a marker.
+
+    The parser is a functions which is used to document the marker with the correct
+    signature. Using the function as a parser for the ``args`` and ``kwargs`` of the
+    marker provides the expected error message for misspecification.
+
+    """
+    marker_name = parser.__name__
+    _, markers = remove_marks(function, marker_name)
+    for marker in markers:
+        parsed = parser(*marker.args, **marker.kwargs)
+        yield parsed
 
 
 _TEMPLATE_ERROR: str = (
