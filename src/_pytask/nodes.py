@@ -22,38 +22,6 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-def depends_on(
-    objects: Any | Iterable[Any] | dict[Any, Any]
-) -> Any | Iterable[Any] | dict[Any, Any]:
-    """Specify dependencies for a task.
-
-    Parameters
-    ----------
-    objects : Union[Any, Iterable[Any], Dict[Any, Any]]
-        Can be any valid Python object or an iterable of any Python objects. To be
-        valid, it must be parsed by some hook implementation for the
-        :func:`pytask.hookspecs.pytask_collect_node` entry-point.
-
-    """
-    return objects
-
-
-def produces(
-    objects: Any | Iterable[Any] | dict[Any, Any]
-) -> Any | Iterable[Any] | dict[Any, Any]:
-    """Specify products of a task.
-
-    Parameters
-    ----------
-    objects : Union[Any, Iterable[Any], Dict[Any, Any]]
-        Can be any valid Python object or an iterable of any Python objects. To be
-        valid, it must be parsed by some hook implementation for the
-        :func:`pytask.hookspecs.pytask_collect_node` entry-point.
-
-    """
-    return objects
-
-
 class MetaNode(metaclass=ABCMeta):
     """Meta class for nodes."""
 
