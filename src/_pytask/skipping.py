@@ -8,6 +8,7 @@ from _pytask.config import hookimpl
 from _pytask.dag import descending_tasks
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
+from _pytask.mark_utils import has_mark
 from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
@@ -49,24 +50,25 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 @hookimpl
 def pytask_execute_task_setup(task: Task) -> None:
     """Take a short-cut for skipped tasks during setup with an exception."""
-    markers = get_marks(task, "skip_unchanged")
-    if markers:
+    is_unchanged = has_mark(task, "skip_unchanged")
+    if is_unchanged:
         raise SkippedUnchanged
 
-    markers = get_marks(task, "skip_ancestor_failed")
-    if markers:
+    ancestor_failed_marks = get_marks(task, "skip_ancestor_failed")
+    if ancestor_failed_marks:
         message = "\n".join(
-            skip_ancestor_failed(*marker.args, **marker.kwargs) for marker in markers
+            skip_ancestor_failed(*mark.args, **mark.kwargs)
+            for mark in ancestor_failed_marks
         )
         raise SkippedAncestorFailed(message)
 
-    markers = get_marks(task, "skip")
-    if markers:
+    is_skipped = has_mark(task, "skip")
+    if is_skipped:
         raise Skipped
 
-    markers = get_marks(task, "skipif")
-    if markers:
-        marker_args = [skipif(*marker.args, **marker.kwargs) for marker in markers]
+    skipif_marks = get_marks(task, "skipif")
+    if skipif_marks:
+        marker_args = [skipif(*mark.args, **mark.kwargs) for mark in skipif_marks]
         message = "\n".join(arg[1] for arg in marker_args if arg[0])
         should_skip = any(arg[0] for arg in marker_args)
         if should_skip:

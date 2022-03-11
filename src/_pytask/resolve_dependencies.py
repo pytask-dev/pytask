@@ -20,6 +20,7 @@ from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
+from _pytask.mark_utils import has_mark
 from _pytask.nodes import MetaNode
 from _pytask.nodes import Task
 from _pytask.path import find_common_ancestor_of_nodes
@@ -234,7 +235,7 @@ def _check_if_tasks_are_skipped(
 
 def _check_if_task_is_skipped(task_name: str, dag: nx.DiGraph) -> bool:
     task = dag.nodes[task_name]["task"]
-    is_skipped = get_marks(task, "skip")
+    is_skipped = has_mark(task, "skip")
 
     if is_skipped:
         return True
