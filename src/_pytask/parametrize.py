@@ -16,9 +16,9 @@ from _pytask.console import TASK_ICON
 from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
 from _pytask.mark_utils import remove_marks
-from _pytask.nodes import find_duplicates
 from _pytask.parametrize_utils import arg_value_to_id_component
 from _pytask.session import Session
+from _pytask.shared import find_duplicates
 
 
 def parametrize(

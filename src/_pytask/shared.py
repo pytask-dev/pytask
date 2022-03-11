@@ -5,6 +5,7 @@ import glob
 from pathlib import Path
 from typing import Any
 from typing import Callable
+from typing import Iterable
 from typing import Sequence
 
 import networkx as nx
@@ -179,3 +180,25 @@ def reduce_names_of_multiple_nodes(
         short_names.append(short_name)
 
     return short_names
+
+
+def find_duplicates(x: Iterable[Any]) -> set[Any]:
+    """Find duplicated entries in iterable.
+
+    Examples
+    --------
+    >>> find_duplicates(["a", "b", "a"])
+    {'a'}
+    >>> find_duplicates(["a", "b"])
+    set()
+
+    """
+    seen = set()
+    duplicates = set()
+
+    for i in x:
+        if i in seen:
+            duplicates.add(i)
+        seen.add(i)
+
+    return duplicates

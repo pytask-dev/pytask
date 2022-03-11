@@ -3,6 +3,9 @@ from __future__ import annotations
 
 from _pytask import __version__
 from _pytask.build import main
+from _pytask.collect_utils import depends_on
+from _pytask.collect_utils import parse_nodes
+from _pytask.collect_utils import produces
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
@@ -42,6 +45,7 @@ __all__ = [
     "cli",
     "console",
     "count_outcomes",
+    "depends_on",
     "get_all_marks",
     "get_marks",
     "has_mark",
@@ -49,6 +53,8 @@ __all__ = [
     "import_optional_dependency",
     "main",
     "mark",
+    "parse_nodes",
+    "produces",
     "remove_marks",
     "set_marks",
     "CollectionOutcome",

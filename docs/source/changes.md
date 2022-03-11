@@ -22,6 +22,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`234` removes `MetaTask`. There is only {class}`pytask.Task`.
 - {pull}`235` refactors the utility functions for dealing with marks in
   {mod}`_pytask.mark_utils`. (Closes {issue}`220`.)
+- {pull}`236` refactors {mod}`_pytask.collect` and places shared functions in
+  {mod}`_pytask.collect_utils`.
+
 
 ## 0.1.9 - 2022-02-23
 
