@@ -4,6 +4,7 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
 from _pytask.shared import convert_truthy_or_falsy_to_bool
+from _pytask.shared import find_duplicates
 from _pytask.shared import parse_value_or_multiline_option
 
 
@@ -56,3 +57,13 @@ def test_parse_value_or_multiline_option(value, expectation, expected):
     with expectation:
         result = parse_value_or_multiline_option(value)
         assert result == expected
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "x, expected",
+    [([], set()), ([1, 2, 3, 1, 2], {1, 2}), (["a", "a", "b"], {"a"})],
+)
+def test_find_duplicates(x, expected):
+    result = find_duplicates(x)
+    assert result == expected
