@@ -12,9 +12,11 @@ from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
 from _pytask.mark import MarkDecorator
 from _pytask.mark import MarkGenerator
+from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
+from _pytask.mark_utils import set_marks
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaNode
 from _pytask.nodes import Task
@@ -40,6 +42,7 @@ __all__ = [
     "cli",
     "console",
     "count_outcomes",
+    "get_all_marks",
     "get_marks",
     "has_mark",
     "hookimpl",
@@ -47,6 +50,7 @@ __all__ = [
     "main",
     "mark",
     "remove_marks",
+    "set_marks",
     "CollectionOutcome",
     "Exit",
     "ExitCode",
