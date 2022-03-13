@@ -32,7 +32,16 @@ from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
+from _pytask.report import CollectionReport
+from _pytask.report import ExecutionReport
+from _pytask.report import ResolvingDependenciesReport
 from _pytask.session import Session
+from _pytask.shared import get_first_non_none_value
+from _pytask.traceback import format_exception_without_traceback
+from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
+from _pytask.traceback import remove_traceback_from_exc_info
+from _pytask.traceback import render_exc_info
+
 
 # This import must come last, otherwise a circular import occurs.
 from _pytask.cli import cli  # noreorder
@@ -46,7 +55,9 @@ __all__ = [
     "console",
     "count_outcomes",
     "depends_on",
+    "format_exception_without_traceback",
     "get_all_marks",
+    "get_first_non_none_value",
     "get_marks",
     "has_mark",
     "hookimpl",
@@ -55,9 +66,14 @@ __all__ = [
     "mark",
     "parse_nodes",
     "produces",
+    "remove_internal_traceback_frames_from_exc_info",
     "remove_marks",
+    "remove_traceback_from_exc_info",
+    "render_exc_info",
     "set_marks",
     "CollectionOutcome",
+    "CollectionReport",
+    "ExecutionReport",
     "Exit",
     "ExitCode",
     "FilePathNode",
@@ -65,12 +81,12 @@ __all__ = [
     "MarkDecorator",
     "MarkGenerator",
     "MetaNode",
-    "Task",
     "Persisted",
-    "Task",
+    "ResolvingDependenciesReport",
     "Session",
     "Skipped",
     "SkippedAncestorFailed",
     "SkippedUnchanged",
+    "Task",
     "TaskOutcome",
 ]
