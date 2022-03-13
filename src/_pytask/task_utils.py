@@ -71,10 +71,7 @@ def task(
 
         COLLECTED_TASKS[path].append(unwrapped)
 
-        # Returning None is necessary since the remaining function in the module will be
-        # collected again from the namespace, although we already collect the function
-        # from ``COLLECTED_TASKS``.
-        return None
+        return unwrapped
 
     # In case the decorator is used without parentheses, wrap the function which is
     # passed as the first argument with the default arguments.
