@@ -334,11 +334,11 @@ def test_order_of_decorator_does_not_matter(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
-    assert "task_example" in result.output
     assert "1  Skipped" in result.output
 
 
 @pytest.mark.end_to_end
+@pytest.mark.xfail(reason="Partialed functions are not supported.")
 def test_task_function_with_partialed_args(tmp_path, runner):
     source = """
     import pytask

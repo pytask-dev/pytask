@@ -24,7 +24,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   {mod}`_pytask.mark_utils`. (Closes {issue}`220`.)
 - {pull}`236` refactors {mod}`_pytask.collect` and places shared functions in
   {mod}`_pytask.collect_utils`.
-
+- {pull}`238` allows any order of decorators with a `@pytask.mark.task` decorator.
 
 ## 0.1.9 - 2022-02-23
 
