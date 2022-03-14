@@ -121,6 +121,10 @@ def pytask_collect_file(
 
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
+            # Ensures that tasks with this decorator are only collected once.
+            if has_mark(obj, "task"):
+                continue
+
             if has_mark(obj, "parametrize"):
                 names_and_objects = session.hook.pytask_parametrize_task(
                     session=session, name=name, obj=obj

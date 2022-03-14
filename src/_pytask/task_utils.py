@@ -71,10 +71,7 @@ def task(
 
         COLLECTED_TASKS[path].append(unwrapped)
 
-        # Returning None is necessary since the remaining function in the module will be
-        # collected again from the namespace, although we already collect the function
-        # from ``COLLECTED_TASKS``.
-        return None
+        return unwrapped
 
     # In case the decorator is used without parentheses, wrap the function which is
     # passed as the first argument with the default arguments.
@@ -163,6 +160,8 @@ def _generate_ids_for_tasks(
     for i, (name, task) in enumerate(tasks):
         if task.pytask_meta.id_ is not None:  # type: ignore[attr-defined]
             id_ = f"{name}[{str(task.pytask_meta.id_)}]"  # type: ignore[attr-defined]
+        elif not parameters:
+            id_ = f"{name}[{i}]"
         else:
             stringified_args = [
                 arg_value_to_id_component(
