@@ -7,6 +7,7 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 import pytest
 from _pytask.config import _find_project_root_and_ini
 from _pytask.config import _read_config
+from pytask import ExitCode
 from pytask import main
 
 
@@ -59,7 +60,7 @@ def test_find_project_root_and_ini_raise_warning(paths):
 def test_debug_pytask(capsys, tmp_path):
     session = main({"paths": tmp_path, "debug_pytask": True})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
 
     captured = capsys.readouterr()
 
@@ -84,7 +85,7 @@ def test_pass_config_to_cli(tmp_path, config_path):
     os.chdir(tmp_path)
     session = main({"config": tmp_path.joinpath(config_path).as_posix()})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert "elton" in session.config["markers"]
 
 
@@ -106,7 +107,7 @@ def test_prioritize_given_config_over_others(tmp_path, config_path):
     os.chdir(tmp_path)
     session = main({"config": tmp_path.joinpath(config_path).as_posix()})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert "kylie" in session.config["markers"]
 
 
@@ -133,7 +134,7 @@ def test_passing_paths_via_configuration_file(tmp_path, config_path, file_or_fol
     os.chdir(tmp_path)
     session = main({})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
 
 
