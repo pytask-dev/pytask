@@ -51,7 +51,7 @@ def test_collect_filepathnode_with_unknown_type(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == ExitCode.CONFIGURATION_FAILED
+    assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
     exc_info = session.collection_reports[0].exc_info
     assert isinstance(exc_info[1], NodeNotCollectedError)

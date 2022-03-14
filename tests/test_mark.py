@@ -116,7 +116,7 @@ def test_ini_markers_whitespace(tmp_path, config_name):
     )
 
     session = main({"paths": tmp_path, "strict_markers": True})
-    assert session.exit_code == ExitCode.CONFIGURATION_FAILED
+    assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
 
 

@@ -92,7 +92,8 @@ class TaskArguments(NamedTuple):
         (["a", "b", "c"], True, [("a",), ("b",), ("c",)]),
         ([(0, 0), (0, 1), (1, 0)], False, [(0, 0), (0, 1), (1, 0)]),
         ([[0, 0], [0, 1], [1, 0]], False, [(0, 0), (0, 1), (1, 0)]),
-        ({"a": 0, "b": 1}, True, [("a",), ("b",)]),
+        ({"a": 0, "b": 1}, False, [("a",), ("b",)]),
+        ([{"a": 0, "b": 1}], True, [({"a": 0, "b": 1},)]),
         ([TaskArguments(1, 2)], False, [(1, 2)]),
         ([TaskArguments(a=1, b=2)], False, [(1, 2)]),
         ([TaskArguments(b=2, a=1)], False, [(1, 2)]),
@@ -288,7 +289,7 @@ def test_raise_error_for_irregular_ids(tmp_path, ids):
     )
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == ExitCode.CONFIGURATION_FAILED
+    assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
 
 
@@ -307,7 +308,7 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
     )
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == ExitCode.CONFIGURATION_FAILED
+    assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
 
 
