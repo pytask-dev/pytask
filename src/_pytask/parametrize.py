@@ -137,6 +137,7 @@ def pytask_parametrize_task(
 
         all_names = [i[0] for i in names_and_functions]
         duplicates = find_duplicates(all_names)
+
         if duplicates:
             text = format_strings_as_flat_tree(
                 duplicates, "Duplicated task ids", TASK_ICON
@@ -179,7 +180,8 @@ def _parse_parametrize_marker(
     arg_names, arg_values, ids = parametrize(*marker.args, **marker.kwargs)
 
     parsed_arg_names = _parse_arg_names(arg_names)
-    parsed_arg_values = _parse_arg_values(arg_values)
+    has_single_arg = len(parsed_arg_names) == 1
+    parsed_arg_values = _parse_arg_values(arg_values, has_single_arg)
 
     _check_if_n_arg_names_matches_n_arg_values(
         parsed_arg_names, parsed_arg_values, name
@@ -251,7 +253,7 @@ def _parse_arg_names(arg_names: str | list[str] | tuple[str, ...]) -> tuple[str,
 
 
 def _parse_arg_values(
-    arg_values: Iterable[Sequence[Any] | Any],
+    arg_values: Iterable[Sequence[Any] | Any], has_single_arg: bool
 ) -> list[tuple[Any, ...]]:
     """Parse the values provided for each argument name.
 
@@ -260,14 +262,18 @@ def _parse_arg_values(
 
     Example
     -------
-    >>> _parse_arg_values(["a", "b", "c"])
+    >>> _parse_arg_values(["a", "b", "c"], has_single_arg=True)
     [('a',), ('b',), ('c',)]
-    >>> _parse_arg_values([(0, 0), (0, 1), (1, 0)])
+    >>> _parse_arg_values([(0, 0), (0, 1), (1, 0)], has_single_arg=False)
     [(0, 0), (0, 1), (1, 0)]
 
     """
     return [
-        tuple(i) if isinstance(i, Iterable) and not isinstance(i, str) else (i,)
+        tuple(i)
+        if isinstance(i, Iterable)
+        and not isinstance(i, str)
+        and not (isinstance(i, dict) and has_single_arg)
+        else (i,)
         for i in arg_values
     ]
 

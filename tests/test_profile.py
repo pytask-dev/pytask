@@ -23,7 +23,7 @@ def test_duration_is_stored_in_task(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
     task = session.tasks[0]
     duration = task.attributes["duration"]

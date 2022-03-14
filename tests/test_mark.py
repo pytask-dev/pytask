@@ -64,7 +64,7 @@ def test_ini_markers(tmp_path, config_name):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert "a1" in session.config["markers"]
     assert "a2" in session.config["markers"]
 
@@ -116,7 +116,7 @@ def test_ini_markers_whitespace(tmp_path, config_name):
     )
 
     session = main({"paths": tmp_path, "strict_markers": True})
-    assert session.exit_code == 3
+    assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
 
 
@@ -191,7 +191,7 @@ def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> Non
         )
     )
     session = main({"paths": tmp_path, "expression": expr})
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
 
     tasks_that_run = [
         report.task.name.rsplit("::")[1]
@@ -223,7 +223,7 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
     )
 
     session = main({"paths": tmp_path, "expression": expr})
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
 
     tasks_that_run = [
         report.task.name.rsplit("::")[1]
@@ -272,7 +272,7 @@ def test_keyword_option_wrong_arguments(
         textwrap.dedent("def task_func(arg): pass")
     )
     session = main({"paths": tmp_path, option: expr})
-    assert session.exit_code == 4
+    assert session.exit_code == ExitCode.RESOLVING_DEPENDENCIES_FAILED
 
     captured = capsys.readouterr()
     assert expected_error in captured.out.replace(

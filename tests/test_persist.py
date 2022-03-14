@@ -7,6 +7,7 @@ from _pytask.database import create_database
 from _pytask.database import State
 from _pytask.persist import pytask_execute_task_process_report
 from pony import orm
+from pytask import ExitCode
 from pytask import main
 from pytask import Persisted
 from pytask import SkippedUnchanged
@@ -47,7 +48,7 @@ def test_multiple_runs_with_persist(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1
     assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
     assert session.execution_reports[0].exc_info is None
@@ -57,7 +58,7 @@ def test_multiple_runs_with_persist(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1
     assert session.execution_reports[0].outcome == TaskOutcome.PERSISTENCE
     assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
@@ -75,7 +76,7 @@ def test_multiple_runs_with_persist(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1
     assert session.execution_reports[0].outcome == TaskOutcome.SKIP_UNCHANGED
     assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
@@ -100,7 +101,7 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1
     assert session.execution_reports[0].outcome == TaskOutcome.PERSISTENCE
     assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
