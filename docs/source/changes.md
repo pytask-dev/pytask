@@ -25,7 +25,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`236` refactors {mod}`_pytask.collect` and places shared functions in
   {mod}`_pytask.collect_utils`.
 - {pull}`241` allows to parametrize over single dicts.
-
+- {pull}`242` removes tasks from global {obj}`_pytask.task_utils.COLLECTED_TASKS` to
+  avoid re-collection when the programmatic interface is used.
 
 ## 0.1.9 - 2022-02-23
 
