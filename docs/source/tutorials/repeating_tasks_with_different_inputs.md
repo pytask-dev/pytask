@@ -168,3 +168,65 @@ for id_, kwargs in ID_TO_KWARGS.items():
 The
 {doc}`best-practices guide on parametrizations <../how_to_guides/bp_parametrizations>`
 goes into even more detail on how to scale parametrizations.
+
+
+## A warning on globals
+
+The following example serves as a warning against using globals in your task functions.
+And, it is also kind of riddle. Maybe you can spot the problem.
+
+You won't run into these problems if you strictly use the interfaces explained below.
+
+Look at this repeated task which runs three times and each time creates a different text
+file with some content.
+
+```python
+import pytask
+from pathlib import Path
+
+
+for i in range(3):
+
+    @pytask.mark.task
+    @pytask.mark.produces(f"out_{i}.txt")
+    def task_example():
+        path_of_module_folder = Path(__file__).parent
+        path_to_product = path_of_module_folder.joinpath(f"out_{i}.txt")
+        path_to_product.write_text("I use running globals. How funny.")
+```
+
+If you would execute these tasks, pytask would collect three tasks as usually. But, only
+the last task for `i = 2` would succeed. The other tasks would fail, both saying their
+text files `out_0.txt` and `out_1.txt` have not been created.
+
+```{dropdown} Explanation
+
+The problem with this example is the running variable `i` which is a global variable
+with changing state.
+
+When the task module is imported, all three task functions are created and the
+`@pytask.mark.produces` decorator receives the correct reference to the produced file.
+
+But when the task is executed, the value of the variable `i = 2` which is the last state
+of `i` after the loop has completed.
+
+So, all three tasks are creating the same file `out_3.txt`.
+
+The solution is to use the intended channels to pass variables to tasks which are the
+`kwargs` argument of `@pytask.mark.task` or the default value in the function signature.
+
+```python
+for i in range(3):
+
+    @pytask.mark.task(kwargs={"i": i})
+    @pytask.mark.produces(f"out_{i}.txt")
+    def task_example(i):
+        ...
+
+    # or
+
+    @pytask.mark.task
+    @pytask.mark.produces(f"out_{i}.txt")
+    def task_example(i=i):
+        ...
+```
