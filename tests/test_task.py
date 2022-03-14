@@ -303,7 +303,7 @@ def test_parametrized_names_without_parametrization(tmp_path, runner):
             produces.write_text("Your advertisement could be here.")
 
     @pytask.mark.task
-    @pytask.mark.produces(f"out_2.txt")
+    @pytask.mark.produces("out_2.txt")
     def task_example(produces):
         produces.write_text("Your advertisement could be here.")
     """
@@ -358,3 +358,47 @@ def test_task_function_with_partialed_args(tmp_path, runner):
     assert result.exit_code == ExitCode.OK
     assert "task_func" in result.output
     assert "1  Skipped" in result.output
+
+
+@pytest.mark.end_to_end
+def test_parametrized_tasks_without_arguments_in_signature(tmp_path, runner):
+    """This happens when plugins replace the function with its own implementation. Then,
+    there is usually no point in adding arguments to the function signature. Or when
+    people build weird workarounds like the one below."""
+    source = f"""
+    import pytask
+    from pathlib import Path
+
+    for i in range(1):
+
+        @pytask.mark.task
+        @pytask.mark.produces(f"out_{{i}}.txt")
+        def task_example():
+            Path("{tmp_path.as_posix()}").joinpath(f"out_{{i}}.txt").write_text(
+                "I use globals. How funny."
+            )
+
+
+    @pytask.mark.task
+    @pytask.mark.produces("out_1.txt")
+    def task_example():
+        Path("{tmp_path.as_posix()}").joinpath("out_1.txt").write_text(
+            "I use globals. How funny."
+        )
+
+    @pytask.mark.task(id="hello")
+    @pytask.mark.produces("out_2.txt")
+    def task_example():
+        Path("{tmp_path.as_posix()}").joinpath("out_2.txt").write_text(
+            "I use globals. How funny."
+        )
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "task_example[0]" in result.output
+    assert "task_example[1]" in result.output
+    assert "task_example[hello]" in result.output
+    assert "Collect 3 tasks"
