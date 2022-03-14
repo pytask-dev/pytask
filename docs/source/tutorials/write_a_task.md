@@ -55,7 +55,7 @@ def task_create_random_data(produces):
 ```
 
 To let pytask track the product of the task, you need to use the
-{func}`@pytask.mark.produces <_pytask.nodes.produces>` decorator.
+{func}`@pytask.mark.produces <_pytask.collect_utils.produces>` decorator.
 
 :::{seealso}
 You learn more about adding dependencies and products to a task in the next

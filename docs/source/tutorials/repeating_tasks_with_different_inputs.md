@@ -46,8 +46,8 @@ Executing pytask gives you this:
 You can also use decorators to supply values to the function.
 
 To specify a dependency which is the same for all iterations, add it with
-{func}`@pytask.mark.depends_on <_pytask.nodes.depends_on>`. And add a product with
-{func}`@pytask.mark.produces <_pytask.nodes.produces>`
+{func}`@pytask.mark.depends_on <_pytask.collect_utils.depends_on>`. And add a product with
+{func}`@pytask.mark.produces <_pytask.collect_utils.produces>`
 
 ```python
 for i in range(10):

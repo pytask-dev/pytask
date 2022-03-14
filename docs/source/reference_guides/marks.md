@@ -6,7 +6,7 @@ in the host or in plugins. The following marks are available by default.
 ## pytask.mark.depends_on
 
 ```{eval-rst}
-.. autofunction:: _pytask.nodes.depends_on
+.. autofunction:: _pytask.collect_utils.depends_on
    :noindex:
 
 ```
@@ -14,7 +14,7 @@ in the host or in plugins. The following marks are available by default.
 ## pytask.mark.produces
 
 ```{eval-rst}
-.. autofunction:: _pytask.nodes.produces
+.. autofunction:: _pytask.collect_utils.produces
    :noindex:
 
 ```
