@@ -369,7 +369,7 @@ def test_parametrized_tasks_without_arguments_in_signature(tmp_path, runner):
     import pytask
     from pathlib import Path
 
-    for i in range(2):
+    for i in range(1):
 
         @pytask.mark.task
         @pytask.mark.produces(f"out_{{i}}.txt")
@@ -378,7 +378,15 @@ def test_parametrized_tasks_without_arguments_in_signature(tmp_path, runner):
                 "I use globals. How funny."
             )
 
+
     @pytask.mark.task
+    @pytask.mark.produces("out_1.txt")
+    def task_example():
+        Path("{tmp_path.as_posix()}").joinpath("out_1.txt").write_text(
+            "I use globals. How funny."
+        )
+
+    @pytask.mark.task(id="hello")
     @pytask.mark.produces("out_2.txt")
     def task_example():
         Path("{tmp_path.as_posix()}").joinpath("out_2.txt").write_text(
@@ -392,5 +400,5 @@ def test_parametrized_tasks_without_arguments_in_signature(tmp_path, runner):
     assert result.exit_code == ExitCode.OK
     assert "task_example[0]" in result.output
     assert "task_example[1]" in result.output
-    assert "task_example[2]" in result.output
+    assert "task_example[hello]" in result.output
     assert "Collect 3 tasks"
