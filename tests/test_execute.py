@@ -31,7 +31,7 @@ def test_task_did_not_produce_node(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 1
+    assert session.exit_code == ExitCode.FAILED
     assert len(session.execution_reports) == 1
     assert isinstance(session.execution_reports[0].exc_info[1], NodeNotFoundError)
 
@@ -69,7 +69,7 @@ def test_node_not_found_in_task_setup(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 1
+    assert session.exit_code == ExitCode.FAILED
     assert sum(i.outcome == TaskOutcome.SUCCESS for i in session.execution_reports) == 2
 
     report = session.execution_reports[2]
@@ -103,7 +103,7 @@ def test_execution_w_varying_dependencies_products(tmp_path, dependencies, produ
         tmp_path.joinpath(dependency).touch()
 
     session = main({"paths": tmp_path})
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
 
 
 @pytest.mark.end_to_end
@@ -123,7 +123,7 @@ def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").read_text() == "Here I am. Once again."
 
 
@@ -208,7 +208,7 @@ def test_preserve_input_for_dependencies_and_products(tmp_path, input_type):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
 
 
 @pytest.mark.end_to_end
@@ -262,7 +262,7 @@ def test_scheduling_w_priorities(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert session.execution_reports[0].task.name.endswith("task_z")
     assert session.execution_reports[1].task.name.endswith("task_x")
     assert session.execution_reports[2].task.name.endswith("task_y")

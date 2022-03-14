@@ -12,7 +12,11 @@ from pytask import main
 
 @pytest.mark.end_to_end
 @pytest.mark.parametrize(
-    "decorator_name, exit_code", [("depends_on", 4), ("produces", 1)]
+    "decorator_name, exit_code",
+    [
+        ("depends_on", ExitCode.RESOLVING_DEPENDENCIES_FAILED),
+        ("produces", ExitCode.FAILED),
+    ],
 )
 def test_task_with_complex_product_did_not_produce_node(
     tmp_path, decorator_name, exit_code

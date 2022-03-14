@@ -51,7 +51,7 @@ def test_collect_filepathnode_with_unknown_type(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 3
+    assert session.exit_code == ExitCode.CONFIGURATION_FAILED
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
     exc_info = session.collection_reports[0].exc_info
     assert isinstance(exc_info[1], NodeNotCollectedError)
@@ -94,7 +94,7 @@ def test_collect_same_test_different_ways(tmp_path, path_extension):
 
     session = main({"paths": tmp_path.joinpath(path_extension)})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
 
 
@@ -125,7 +125,7 @@ def test_collect_files_w_custom_file_name_pattern(
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == expected_collected_tasks
 
 
