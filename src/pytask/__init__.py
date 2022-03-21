@@ -10,6 +10,7 @@ from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.database import db
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
@@ -60,6 +61,7 @@ __all__ = [
     "cli",
     "console",
     "count_outcomes",
+    "db",
     "depends_on",
     "format_exception_without_traceback",
     "get_all_marks",

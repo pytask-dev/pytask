@@ -10,24 +10,26 @@ from _pytask.shared import parse_value_or_multiline_option
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
-    "value, expected",
+    "value, expectation, expected",
     [
-        (True, True),
-        ("True", True),
-        ("true", True),
-        ("1", True),
-        (False, False),
-        ("False", False),
-        ("false", False),
-        ("0", False),
-        (None, None),
-        ("None", None),
-        ("none", None),
+        (True, does_not_raise(), True),
+        ("True", does_not_raise(), True),
+        ("true", does_not_raise(), True),
+        ("1", does_not_raise(), True),
+        (False, does_not_raise(), False),
+        ("False", does_not_raise(), False),
+        ("false", does_not_raise(), False),
+        ("0", does_not_raise(), False),
+        (None, does_not_raise(), None),
+        ("None", does_not_raise(), None),
+        ("none", does_not_raise(), None),
+        ("asklds", pytest.raises(ValueError, match="Input"), None),
     ],
 )
-def test_convert_truthy_or_falsy_to_bool(value, expected):
-    result = convert_truthy_or_falsy_to_bool(value)
-    assert result == expected
+def test_convert_truthy_or_falsy_to_bool(value, expectation, expected):
+    with expectation:
+        result = convert_truthy_or_falsy_to_bool(value)
+        assert result == expected
 
 
 @pytest.mark.unit
