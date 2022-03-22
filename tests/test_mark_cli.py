@@ -4,6 +4,7 @@ import textwrap
 
 import pytest
 from pytask import cli
+from pytask import ExitCode
 from pytask import main
 
 
@@ -58,4 +59,4 @@ def test_marker_names(tmp_path, marker_name, config_name):
         )
     )
     session = main({"paths": tmp_path, "markers": True})
-    assert session.exit_code == 2
+    assert session.exit_code == ExitCode.CONFIGURATION_FAILED

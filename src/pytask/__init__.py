@@ -10,6 +10,14 @@ from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.database import db
+from _pytask.exceptions import CollectionError
+from _pytask.exceptions import ConfigurationError
+from _pytask.exceptions import ExecutionError
+from _pytask.exceptions import NodeNotCollectedError
+from _pytask.exceptions import NodeNotFoundError
+from _pytask.exceptions import PytaskError
+from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.graph import build_dag
 from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
@@ -36,7 +44,6 @@ from _pytask.report import CollectionReport
 from _pytask.report import ExecutionReport
 from _pytask.report import ResolvingDependenciesReport
 from _pytask.session import Session
-from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import remove_traceback_from_exc_info
@@ -54,6 +61,7 @@ __all__ = [
     "cli",
     "console",
     "count_outcomes",
+    "db",
     "depends_on",
     "format_exception_without_traceback",
     "get_all_marks",
@@ -71,9 +79,12 @@ __all__ = [
     "remove_traceback_from_exc_info",
     "render_exc_info",
     "set_marks",
+    "CollectionError",
     "CollectionOutcome",
     "CollectionReport",
+    "ConfigurationError",
     "ExecutionReport",
+    "ExecutionError",
     "Exit",
     "ExitCode",
     "FilePathNode",
@@ -81,7 +92,11 @@ __all__ = [
     "MarkDecorator",
     "MarkGenerator",
     "MetaNode",
+    "NodeNotCollectedError",
+    "NodeNotFoundError",
     "Persisted",
+    "PytaskError",
+    "ResolvingDependenciesError",
     "ResolvingDependenciesReport",
     "Session",
     "Skipped",

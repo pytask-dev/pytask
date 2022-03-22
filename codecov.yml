@@ -24,4 +24,3 @@ coverage:
 
 ignore:
   - ".tox/**/*"
-  - "setup.py"

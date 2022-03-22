@@ -27,7 +27,9 @@ def pytask_collect_file(
         any(path.match(pattern) for pattern in session.config["task_files"])
         and COLLECTED_TASKS[path]
     ):
-        tasks = COLLECTED_TASKS[path]
+        # Remove tasks from the global to avoid re-collection if programmatic interface
+        # is used.
+        tasks = COLLECTED_TASKS.pop(path)
 
         name_to_function = parse_collected_tasks_with_task_marker(tasks)
 

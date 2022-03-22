@@ -18,20 +18,14 @@ from pytask import cli
 from pytask import ExitCode
 from pytask import main
 from pytask import Mark
-
-
-class DummySession:
-    pass
+from pytask import Session
 
 
 @pytest.fixture(scope="module")
 def session():
     pm = get_plugin_manager()
     pm.register(_pytask.parametrize)
-
-    session = DummySession()
-    session.hook = pm.hook
-
+    session = Session(hook=pm.hook)
     return session
 
 
@@ -93,19 +87,20 @@ class TaskArguments(NamedTuple):
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
-    "arg_values, expected",
+    "arg_values, has_single_arg, expected",
     [
-        (["a", "b", "c"], [("a",), ("b",), ("c",)]),
-        ([(0, 0), (0, 1), (1, 0)], [(0, 0), (0, 1), (1, 0)]),
-        ([[0, 0], [0, 1], [1, 0]], [(0, 0), (0, 1), (1, 0)]),
-        ({"a": 0, "b": 1}, [("a",), ("b",)]),
-        ([TaskArguments(1, 2)], [(1, 2)]),
-        ([TaskArguments(a=1, b=2)], [(1, 2)]),
-        ([TaskArguments(b=2, a=1)], [(1, 2)]),
+        (["a", "b", "c"], True, [("a",), ("b",), ("c",)]),
+        ([(0, 0), (0, 1), (1, 0)], False, [(0, 0), (0, 1), (1, 0)]),
+        ([[0, 0], [0, 1], [1, 0]], False, [(0, 0), (0, 1), (1, 0)]),
+        ({"a": 0, "b": 1}, False, [("a",), ("b",)]),
+        ([{"a": 0, "b": 1}], True, [({"a": 0, "b": 1},)]),
+        ([TaskArguments(1, 2)], False, [(1, 2)]),
+        ([TaskArguments(a=1, b=2)], False, [(1, 2)]),
+        ([TaskArguments(b=2, a=1)], False, [(1, 2)]),
     ],
 )
-def test_parse_arg_values(arg_values, expected):
-    parsed_arg_values = _parse_arg_values(arg_values)
+def test_parse_arg_values(arg_values, has_single_arg, expected):
+    parsed_arg_values = _parse_arg_values(arg_values, has_single_arg)
     assert parsed_arg_values == expected
 
 
@@ -171,7 +166,7 @@ def test_parametrizing_tasks(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     for i in range(1, 3):
         assert tmp_path.joinpath(f"{i}.txt").read_text() == str(i)
 
@@ -195,7 +190,7 @@ def test_parametrizing_dependencies_and_targets(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
 
 
 @pytest.mark.end_to_end
@@ -213,7 +208,7 @@ def test_parametrize_iterator(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     session = main({"paths": tmp_path})
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 3
 
 
@@ -229,7 +224,7 @@ def test_raise_error_if_function_does_not_use_parametrized_arguments(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 1
+    assert session.exit_code == ExitCode.FAILED
     assert isinstance(session.execution_reports[0].exc_info[1], TypeError)
     assert isinstance(session.execution_reports[1].exc_info[1], TypeError)
 
@@ -256,7 +251,7 @@ def test_parametrize_w_ids(tmp_path, arg_values, ids):
     )
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     for task, id_ in zip(session.tasks, ids):
         assert id_ in task.name
 
@@ -294,7 +289,7 @@ def test_raise_error_for_irregular_ids(tmp_path, ids):
     )
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 3
+    assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
 
 
@@ -313,7 +308,7 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
     )
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == 3
+    assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
 
 
@@ -393,7 +388,7 @@ def test_generators_are_removed_from_depends_on_produces(tmp_path):
     tmp_path.joinpath("task_dummy.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path})
-    assert session.exit_code == 0
+    assert session.exit_code == ExitCode.OK
     assert session.tasks[0].function.pytask_meta.markers == []
 
 
@@ -420,7 +415,7 @@ def test_parametrizing_tasks_with_namedtuples(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == 0
+    assert result.exit_code == ExitCode.OK
     for i in range(1, 3):
         assert tmp_path.joinpath(f"{i}.txt").read_text() == str(i)
 
@@ -481,3 +476,19 @@ def test_check_if_n_arg_names_matches_n_arg_values(
 ):
     with expectation:
         _check_if_n_arg_names_matches_n_arg_values(arg_names, arg_values, name)
+
+
+@pytest.mark.end_to_end
+def test_parametrize_with_single_dict(tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.parametrize('i', [{"a": 1}, {"a": 1.0}])
+    def task_write_numbers_to_file(i):
+        assert i["a"] == 1
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == ExitCode.OK
