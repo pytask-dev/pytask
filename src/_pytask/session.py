@@ -30,26 +30,26 @@ if TYPE_CHECKING:
 class Session:
     """The session of pytask."""
 
-    config = attr.ib(factory=dict, type=Optional[Dict[str, Any]])
-    """Optional[Dict[str, Any]]: Configuration of the session."""
+    config = attr.ib(factory=dict, type=Dict[str, Any])
+    """Dict[str, Any]: Configuration of the session."""
     hook = attr.ib(default=None, type=Optional[_HookRelay])
     """Optional[pluggy.hooks._HookRelay]: Holds all hooks collected by pytask."""
     collection_reports = attr.ib(factory=list, type=List["CollectionReport"])
-    """Optional[List[CollectionReport]]: Reports for collected items.
+    """List[CollectionReport]: Reports for collected items.
 
     The reports capture errors which happened while collecting tasks.
 
     """
-    tasks = attr.ib(factory=list, type=Optional[List["Task"]])
-    """Optional[List[Task]]: List of collected tasks."""
+    tasks = attr.ib(factory=list, type=List["Task"])
+    """List[Task]: List of collected tasks."""
     dag = attr.ib(default=None, type=Optional[nx.DiGraph])
     resolving_dependencies_report = attr.ib(
         default=None, type=Optional["ResolvingDependenciesReport"]
     )
     """Optional[ResolvingDependenciesReport]: Reports for resolving dependencies
     failed."""
-    execution_reports = attr.ib(factory=list, type=Optional[List["ExecutionReport"]])
-    """Optional[List[ExecutionReport]]: Reports for executed tasks."""
+    execution_reports = attr.ib(factory=list, type=List["ExecutionReport"])
+    """List[ExecutionReport]: Reports for executed tasks."""
     exit_code = attr.ib(default=ExitCode.OK, type=ExitCode)
 
     collection_start = attr.ib(default=None, type=Optional[float])

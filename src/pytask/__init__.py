@@ -10,6 +10,14 @@ from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.database import db
+from _pytask.exceptions import CollectionError
+from _pytask.exceptions import ConfigurationError
+from _pytask.exceptions import ExecutionError
+from _pytask.exceptions import NodeNotCollectedError
+from _pytask.exceptions import NodeNotFoundError
+from _pytask.exceptions import PytaskError
+from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.graph import build_dag
 from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
@@ -32,7 +40,15 @@ from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
+from _pytask.report import CollectionReport
+from _pytask.report import ExecutionReport
+from _pytask.report import ResolvingDependenciesReport
 from _pytask.session import Session
+from _pytask.traceback import format_exception_without_traceback
+from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
+from _pytask.traceback import remove_traceback_from_exc_info
+from _pytask.traceback import render_exc_info
+
 
 # This import must come last, otherwise a circular import occurs.
 from _pytask.cli import cli  # noreorder
@@ -45,7 +61,9 @@ __all__ = [
     "cli",
     "console",
     "count_outcomes",
+    "db",
     "depends_on",
+    "format_exception_without_traceback",
     "get_all_marks",
     "get_marks",
     "has_mark",
@@ -55,9 +73,17 @@ __all__ = [
     "mark",
     "parse_nodes",
     "produces",
+    "remove_internal_traceback_frames_from_exc_info",
     "remove_marks",
+    "remove_traceback_from_exc_info",
+    "render_exc_info",
     "set_marks",
+    "CollectionError",
     "CollectionOutcome",
+    "CollectionReport",
+    "ConfigurationError",
+    "ExecutionReport",
+    "ExecutionError",
     "Exit",
     "ExitCode",
     "FilePathNode",
@@ -65,12 +91,16 @@ __all__ = [
     "MarkDecorator",
     "MarkGenerator",
     "MetaNode",
-    "Task",
+    "NodeNotCollectedError",
+    "NodeNotFoundError",
     "Persisted",
-    "Task",
+    "PytaskError",
+    "ResolvingDependenciesError",
+    "ResolvingDependenciesReport",
     "Session",
     "Skipped",
     "SkippedAncestorFailed",
     "SkippedUnchanged",
+    "Task",
     "TaskOutcome",
 ]

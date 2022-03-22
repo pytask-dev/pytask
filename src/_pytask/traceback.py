@@ -13,6 +13,14 @@ import pluggy
 from rich.traceback import Traceback
 
 
+__all__ = [
+    "format_exception_without_traceback",
+    "remove_internal_traceback_frames_from_exc_info",
+    "remove_traceback_from_exc_info",
+    "render_exc_info",
+]
+
+
 _PLUGGY_DIRECTORY = Path(pluggy.__file__).parent
 _PYTASK_DIRECTORY = Path(_pytask.__file__).parent
 
