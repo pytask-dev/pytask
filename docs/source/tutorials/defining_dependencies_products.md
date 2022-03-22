@@ -19,7 +19,7 @@ def task_create_random_data(produces):
     ...
 ```
 
-The {func}`@pytask.mark.produces <_pytask.nodes.produces>` marker attaches a product to
+The {func}`@pytask.mark.produces <_pytask.collect_utils.produces>` marker attaches a product to
 a task which is a {class}`pathlib.Path` to file. After the task has finished, pytask
 will check whether the file exists.
 
