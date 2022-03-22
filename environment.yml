@@ -10,11 +10,6 @@ dependencies:
   - setuptools_scm
   - toml
 
-  # Conda
-  - anaconda-client
-  - conda-build
-  - conda-verify
-
   # Package dependencies
   - attrs >=19.2.0
   - click
@@ -26,10 +21,11 @@ dependencies:
   - rich
   - typing-extensions
 
+  # Optional dependencies
+  - pydot
+
   # Misc
   - black
-  - jupyterlab
-  - matplotlib
   - pre-commit
   - pydot
   - pytest
