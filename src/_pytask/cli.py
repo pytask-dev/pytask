@@ -4,8 +4,12 @@ from __future__ import annotations
 import sys
 from typing import Any
 
+import attr
+import attrs
 import click
 import pluggy
+import typed_settings as ts
+from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
 from _pytask.config import hookimpl
 from _pytask.pluginmanager import get_plugin_manager
@@ -25,7 +29,7 @@ def _extend_command_line_interface(cli: click.Group) -> click.Group:
     """Add parameters from plugins to the commandline interface."""
     pm = _prepare_plugin_manager()
     pm.hook.pytask_extend_command_line_interface(cli=cli)
-    _sort_options_for_each_command_alphabetically(cli)
+    # _sort_options_for_each_command_alphabetically(cli)
     return cli
 
 
@@ -50,57 +54,83 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     """Add hooks."""
     from _pytask import build
     from _pytask import capture
-    from _pytask import clean
+
+    # from _pytask import clean
     from _pytask import collect
-    from _pytask import collect_command
+
+    # from _pytask import collect_command
     from _pytask import config
     from _pytask import database
     from _pytask import debugging
     from _pytask import execute
-    from _pytask import graph
+
+    # from _pytask import graph
     from _pytask import live
     from _pytask import logging
     from _pytask import mark
     from _pytask import parameters
     from _pytask import parametrize
     from _pytask import persist
-    from _pytask import profile
+
+    # from _pytask import profile
     from _pytask import resolve_dependencies
     from _pytask import skipping
     from _pytask import task
 
     pm.register(build)
     pm.register(capture)
-    pm.register(clean)
+    # pm.register(clean)
     pm.register(collect)
-    pm.register(collect_command)
+    # pm.register(collect_command)
     pm.register(config)
     pm.register(database)
     pm.register(debugging)
     pm.register(execute)
-    pm.register(graph)
+    # pm.register(graph)
     pm.register(live)
     pm.register(logging)
     pm.register(mark)
     pm.register(parameters)
     pm.register(parametrize)
     pm.register(persist)
-    pm.register(profile)
+    # pm.register(profile)
     pm.register(resolve_dependencies)
     pm.register(skipping)
     pm.register(task)
 
 
-@click.group(
-    cls=ColoredGroup,
-    context_settings=_CONTEXT_SETTINGS,
-    default="build",
-    default_if_no_args=True,
-)
-@click.version_option(**_VERSION_OPTION_KWARGS)
-def cli() -> None:
+def cli(*args, main_settings) -> None:
     """Manage your tasks with pytask."""
     pass
 
 
-_extend_command_line_interface(cli)
+cmd_name_to_info = {
+    "main": {"cmd": cli, "options": {"dummy": attr.ib(default=1, type=int)}}
+}
+
+_extend_command_line_interface(cmd_name_to_info)
+
+cli = click.group(
+    cls=ColoredGroup,
+    context_settings=_CONTEXT_SETTINGS,
+    default="build",
+    default_if_no_args=True,
+)(
+    ts.click_options(
+        attrs.make_class("Settings", cmd_name_to_info["main"]["options"]),
+        "pytask",
+        argname="main_settings",
+    )(click.pass_obj(cli))
+)
+
+cli.command(
+    cls=ColoredCommand,  # Uncomment to see the full name of switches.
+)(
+    ts.pass_settings(argname="main_settings")(
+        ts.click_options(
+            attrs.make_class("Settings", cmd_name_to_info["build"]["options"]),
+            "pytask-build",
+            argname="build_settings",
+        )(cmd_name_to_info["build"]["cmd"])
+    )
+)

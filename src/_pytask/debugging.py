@@ -10,6 +10,7 @@ from typing import Any
 from typing import Generator
 from typing import TYPE_CHECKING
 
+import attr
 import click
 import pluggy
 from _pytask.config import hookimpl
@@ -31,29 +32,32 @@ if TYPE_CHECKING:
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend command line interface."""
-    additional_parameters = [
-        click.Option(
-            ["--pdb"],
-            help="Start the interactive debugger on errors.  [default: False]",
-            is_flag=True,
-            default=None,
-        ),
-        click.Option(
-            ["--trace"],
-            help="Enter debugger in the beginning of each task.  [default: False]",
-            is_flag=True,
-            default=None,
-        ),
-        click.Option(
-            ["--pdbcls"],
-            help=(
-                "Start a custom debugger on errors. For example: "
-                "--pdbcls=IPython.terminal.debugger:TerminalPdb"
-            ),
-            metavar="module_name:class_name",
-        ),
-    ]
-    cli.commands["build"].params.extend(additional_parameters)
+    cli["build"]["options"]["pdb"] = attr.ib(default=True, type=bool)
+    cli["build"]["options"]["trace"] = attr.ib(default=True, type=bool)
+    cli["build"]["options"]["pdbcls"] = attr.ib(default=None, type=str)
+    # additional_parameters = [
+    #     click.Option(
+    #         ["--pdb"],
+    #         help="Start the interactive debugger on errors.  [default: False]",
+    #         is_flag=True,
+    #         default=None,
+    #     ),
+    #     click.Option(
+    #         ["--trace"],
+    #         help="Enter debugger in the beginning of each task.  [default: False]",
+    #         is_flag=True,
+    #         default=None,
+    #     ),
+    #     click.Option(
+    #         ["--pdbcls"],
+    #         help=(
+    #             "Start a custom debugger on errors. For example: "
+    #             "--pdbcls=IPython.terminal.debugger:TerminalPdb"
+    #         ),
+    #         metavar="module_name:class_name",
+    #     ),
+    # ]
+    # cli.commands["build"].params.extend(additional_parameters)
 
 
 @hookimpl

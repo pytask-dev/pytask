@@ -9,6 +9,7 @@ from typing import NamedTuple
 from typing import TYPE_CHECKING
 
 import _pytask
+import attr
 import click
 import pluggy
 from _pytask.config import hookimpl
@@ -46,13 +47,14 @@ class _TimeUnit(NamedTuple):
 
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
-    show_locals_option = click.Option(
-        ["--show-locals"],
-        is_flag=True,
-        default=None,
-        help="Show local variables in tracebacks.",
-    )
-    cli.commands["build"].params.append(show_locals_option)
+    cli["build"]["options"]["show_locals"] = attr.ib(type=bool, default=True)
+    # show_locals_option = click.Option(
+    #     ["--show-locals"],
+    #     is_flag=True,
+    #     default=None,
+    #     help="Show local variables in tracebacks.",
+    # )
+    # cli.commands["build"].params.append(show_locals_option)
 
 
 @hookimpl

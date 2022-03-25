@@ -26,15 +26,16 @@ from rich.text import Text
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend command line interface."""
-    additional_parameters = [
-        click.Option(
-            ["--n-entries-in-table"],
-            default=None,
-            help="How many entries to display in the table during the execution. "
-            "Tasks which are running are always displayed.  [default: 15]",
-        ),
-    ]
-    cli.commands["build"].params.extend(additional_parameters)
+    cli["build"]["options"]["n_entries_in_table"] = attr.ib(type=int, default=15)
+    # additional_parameters = [
+    #     click.Option(
+    #         ["--n-entries-in-table"],
+    #         default=None,
+    #         help="How many entries to display in the table during the execution. "
+    #         "Tasks which are running are always displayed.  [default: 15]",
+    #     ),
+    # ]
+    # cli.commands["build"].params.extend(additional_parameters)
 
 
 @hookimpl

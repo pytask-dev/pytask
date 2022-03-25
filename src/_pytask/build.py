@@ -2,10 +2,14 @@
 from __future__ import annotations
 
 import sys
+from enum import Enum
 from typing import Any
+from typing import Literal
 from typing import TYPE_CHECKING
 
+import attr
 import click
+import typed_settings as ts
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.console import console
@@ -24,10 +28,44 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
+class ShowTraceback(Enum):
+    yes = "yes"
+    no = "no"
+
+
 @hookimpl(tryfirst=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface."""
-    cli.add_command(build)
+    cli["build"] = {
+        "cmd": build,
+        "options": {
+            "debug_pytask": attr.ib(
+                default=False,
+                type=bool,
+                # help="Trace all function calls in the plugin framework.  [default: False]",
+            ),
+            "max_failures": attr.ib(
+                default=float("inf"),
+                type=float,
+                # help="Stop after some failures."
+            ),
+            "show_errors_immediately": attr.ib(
+                default=False,
+                type=bool,
+                # help="Print errors with tracebacks as soon as the task fails.",
+            ),
+            "stop_after_first_failure": attr.ib(
+                default=False,
+                type=bool,
+                # help="Stop after the first failure."
+            ),
+            "show_traceback": attr.ib(
+                default=ShowTraceback.yes,
+                type=ShowTraceback,
+                # help="Choose whether tracebacks should be displayed or not.  [default: yes]",
+            ),
+        },
+    }
 
 
 def main(config_from_cli: dict[str, Any]) -> Session:
@@ -93,33 +131,7 @@ def main(config_from_cli: dict[str, Any]) -> Session:
     return session
 
 
-@click.command(cls=ColoredCommand)
-@click.option(
-    "--debug-pytask",
-    is_flag=True,
-    default=None,
-    help="Trace all function calls in the plugin framework.  [default: False]",
-)
-@click.option(
-    "-x",
-    "--stop-after-first-failure",
-    is_flag=True,
-    default=None,
-    help="Stop after the first failure.",
-)
-@click.option("--max-failures", default=None, help="Stop after some failures.")
-@click.option(
-    "--show-errors-immediately",
-    is_flag=True,
-    default=None,
-    help="Print errors with tracebacks as soon as the task fails.",
-)
-@click.option(
-    "--show-traceback",
-    type=click.Choice(["yes", "no"]),
-    help="Choose whether tracebacks should be displayed or not.  [default: yes]",
-)
-def build(**config_from_cli: Any) -> NoReturn:
+def build(main_settings, build_settings) -> NoReturn:
     """Collect tasks, execute them and report the results.
 
     This is pytask's default command. pytask collects tasks from the given paths or the

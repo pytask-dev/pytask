@@ -30,6 +30,7 @@ import functools
 import io
 import os
 import sys
+from enum import Enum
 from tempfile import TemporaryFile
 from typing import Any
 from typing import AnyStr
@@ -39,6 +40,7 @@ from typing import Iterator
 from typing import TextIO
 from typing import TYPE_CHECKING
 
+import attr
 import click
 from _pytask.config import hookimpl
 from _pytask.nodes import Task
@@ -66,26 +68,46 @@ else:
         return f
 
 
+class Capture(Enum):
+    fd = "fd"
+    no = "no"
+    sys = "sys"
+    tee_sys = "tee-sys"
+
+
+class ShowCapture(Enum):
+    no = "no"
+    stdout = "stdout"
+    stderr = "stderr"
+    all = "all"
+
+
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Add CLI options for capturing output."""
-    additional_parameters = [
-        click.Option(
-            ["--capture"],
-            type=click.Choice(["fd", "no", "sys", "tee-sys"]),
-            help="Per task capturing method.  [default: fd]",
-        ),
-        click.Option(["-s"], is_flag=True, help="Shortcut for --capture=no."),
-        click.Option(
-            ["--show-capture"],
-            type=click.Choice(["no", "stdout", "stderr", "all"]),
-            help=(
-                "Choose which captured output should be shown for failed tasks.  "
-                "[default: all]"
-            ),
-        ),
-    ]
-    cli.commands["build"].params.extend(additional_parameters)
+    cli["build"]["options"]["capture"] = attr.ib(default=Capture.fd, type=Capture)
+    cli["build"]["options"]["s"] = attr.ib(default=False, type=bool)
+    cli["build"]["options"]["show_capture"] = attr.ib(
+        default=ShowCapture.all, type=ShowCapture
+    )
+
+    # additional_parameters = [
+    #     click.Option(
+    #         ["--capture"],
+    #         type=click.Choice(["fd", "no", "sys", "tee-sys"]),
+    #         help="Per task capturing method.  [default: fd]",
+    #     ),
+    #     click.Option(["-s"], is_flag=True, help="Shortcut for --capture=no."),
+    #     click.Option(
+    #         ["--show-capture"],
+    #         type=click.Choice(["no", "stdout", "stderr", "all"]),
+    #         help=(
+    #             "Choose which captured output should be shown for failed tasks.  "
+    #             "[default: all]"
+    #         ),
+    #     ),
+    # ]
+    # cli.commands["build"].params.extend(additional_parameters)
 
 
 @hookimpl

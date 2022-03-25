@@ -1,9 +1,11 @@
 """Implement the database managed with pony."""
 from __future__ import annotations
 
+from enum import Enum
 from pathlib import Path
 from typing import Any
 
+import attr
 import click
 import networkx as nx
 from _pytask.config import hookimpl
@@ -55,39 +57,53 @@ def create_or_update_state(first_key: str, second_key: str, state: str) -> None:
         state_in_db.state = state
 
 
+class DatabaseProviders(Enum):
+    sqlite = "sqlite"
+    postgres = "postgres"
+    mysql = "mysql"
+    oracle = "oracle"
+    cockroach = "cockroach"
+
+
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend command line interface."""
-    additional_parameters = [
-        click.Option(
-            ["--database-provider"],
-            type=click.Choice(["sqlite", "postgres", "mysql", "oracle", "cockroach"]),
-            help=(
-                "Database provider. All providers except sqlite are considered "
-                "experimental.  [default: sqlite]"
-            ),
-            default=None,
-        ),
-        click.Option(
-            ["--database-filename"],
-            type=click.Path(),
-            help="Path to database relative to root.  [default: .pytask.sqlite3]",
-            default=None,
-        ),
-        click.Option(
-            ["--database-create-db"],
-            type=bool,
-            help="Create database if it does not exist.  [default: True]",
-            default=None,
-        ),
-        click.Option(
-            ["--database-create-tables"],
-            type=bool,
-            help="Create tables if they do not exist.  [default: True]",
-            default=None,
-        ),
-    ]
-    cli.commands["build"].params.extend(additional_parameters)
+    cli["build"]["options"]["database_provider"] = attr.ib(
+        default=DatabaseProviders.sqlite, type=DatabaseProviders
+    )
+    cli["build"]["options"]["database_filename"] = attr.ib(default=None, type=str)
+    cli["build"]["options"]["database_create_db"] = attr.ib(default=True, type=bool)
+    cli["build"]["options"]["database_create_tables"] = attr.ib(default=True, type=bool)
+    # additional_parameters = [
+    #     click.Option(
+    #         ["--database-provider"],
+    #         type=click.Choice(["sqlite", "postgres", "mysql", "oracle", "cockroach"]),
+    #         help=(
+    #             "Database provider. All providers except sqlite are considered "
+    #             "experimental.  [default: sqlite]"
+    #         ),
+    #         default=None,
+    #     ),
+    #     click.Option(
+    #         ["--database-filename"],
+    #         type=click.Path(),
+    #         help="Path to database relative to root.  [default: .pytask.sqlite3]",
+    #         default=None,
+    #     ),
+    #     click.Option(
+    #         ["--database-create-db"],
+    #         type=bool,
+    #         help="Create database if it does not exist.  [default: True]",
+    #         default=None,
+    #     ),
+    #     click.Option(
+    #         ["--database-create-tables"],
+    #         type=bool,
+    #         help="Create tables if they do not exist.  [default: True]",
+    #         default=None,
+    #     ),
+    # ]
+    # cli.commands["build"].params.extend(additional_parameters)
 
 
 @hookimpl

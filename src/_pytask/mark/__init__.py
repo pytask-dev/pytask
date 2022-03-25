@@ -78,31 +78,50 @@ def markers(**config_from_cli: Any) -> NoReturn:
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Add marker related options."""
-    additional_build_parameters = [
-        click.Option(
-            ["--strict-markers"],
-            is_flag=True,
-            help="Raise errors for unknown markers.",
+    cli["build"]["options"] = {
+        **cli["build"]["options"],
+        "strict_markers": attr.ib(
+            type=bool,
+            default=True,
+            # help="Raise errors for unknown markers."
+        ),
+        "expression": attr.ib(
+            type=str,
             default=None,
+            # help="Select tasks via expressions on task ids."
         ),
-        click.Option(
-            ["-m", "marker_expression"],
-            metavar="MARKER_EXPRESSION",
+        "marker_expression": attr.ib(
             type=str,
-            help="Select tasks via marker expressions.",
+            default=None,
+            # help="Select tasks via marker expressions."
         ),
-        click.Option(
-            ["-k", "expression"],
-            metavar="EXPRESSION",
-            type=str,
-            help="Select tasks via expressions on task ids.",
-        ),
-    ]
-    cli.commands["build"].params.extend(additional_build_parameters)
-    cli.commands["clean"].params.extend(additional_build_parameters)
-    cli.commands["collect"].params.extend(additional_build_parameters)
+    }
 
-    cli.add_command(markers)
+    # additional_build_parameters = [
+    #     click.Option(
+    #         ["--strict-markers"],
+    #         is_flag=True,
+    #         help="Raise errors for unknown markers.",
+    #         default=None,
+    #     ),
+    #     click.Option(
+    #         ["-m", "marker_expression"],
+    #         metavar="MARKER_EXPRESSION",
+    #         type=str,
+    #         help="Select tasks via marker expressions.",
+    #     ),
+    #     click.Option(
+    #         ["-k", "expression"],
+    #         metavar="EXPRESSION",
+    #         type=str,
+    #         help="Select tasks via expressions on task ids.",
+    #     ),
+    # ]
+    # cli.commands["build"].params.extend(additional_build_parameters)
+    # cli.commands["clean"].params.extend(additional_build_parameters)
+    # cli.commands["collect"].params.extend(additional_build_parameters)
+
+    # cli.add_command(markers)
 
 
 @hookimpl
