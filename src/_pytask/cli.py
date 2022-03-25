@@ -123,9 +123,7 @@ cli = click.group(
     )(click.pass_obj(cli))
 )
 
-cli.command(
-    cls=ColoredCommand,  # Uncomment to see the full name of switches.
-)(
+cli.command(cls=ColoredCommand,)(  # Uncomment to see the full name of switches.
     ts.pass_settings(argname="main_settings")(
         ts.click_options(
             attrs.make_class("Settings", cmd_name_to_info["build"]["options"]),
