@@ -5,6 +5,7 @@ import sys
 import textwrap
 
 import pytest
+from _pytask.graph import _RankDirection
 from pytask import cli
 from pytask import ExitCode
 
@@ -36,7 +37,8 @@ _TEST_FORMATS = ["dot", "pdf", "png", "jpeg", "svg"]
 @pytest.mark.skipif(not _IS_PYDOT_INSTALLED, reason="pydot is required")
 @pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
-def test_create_graph_via_cli(tmp_path, runner, format_, layout):
+@pytest.mark.parametrize("rankdir", ["LR"])
+def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
     if sys.platform == "win32" and format_ == "pdf":
         pytest.xfail("gvplugin_pango.dll might be missing on Github Actions.")
 
@@ -58,6 +60,8 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout):
             tmp_path.joinpath(f"dag.{format_}"),
             "-l",
             layout,
+            "-r",
+            rankdir,
         ],
     )
 
@@ -69,9 +73,12 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout):
 @pytest.mark.skipif(not _IS_PYDOT_INSTALLED, reason="pydot is required")
 @pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
-def test_create_graph_via_task(tmp_path, runner, format_, layout):
+@pytest.mark.parametrize("rankdir", ["LR", _RankDirection.TB])
+def test_create_graph_via_task(tmp_path, runner, format_, layout, rankdir):
     if sys.platform == "win32" and format_ == "pdf":
         pytest.xfail("gvplugin_pango.dll might be missing on Github Actions.")
+
+    rankdir_str = rankdir if isinstance(rankdir, str) else rankdir.name
 
     source = f"""
     import pytask
@@ -83,6 +90,7 @@ def test_create_graph_via_task(tmp_path, runner, format_, layout):
 
     def task_create_graph():
         dag = pytask.build_dag({{"paths": Path(__file__).parent}})
+        dag.graph = {{"rankdir": "{rankdir_str}"}}
         graph = nx.nx_pydot.to_pydot(dag)
         path = Path(__file__).parent.joinpath("dag.{format_}")
         graph.write(path, prog="{layout}", format=path.suffix[1:])
