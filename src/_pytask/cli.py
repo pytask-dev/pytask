@@ -110,22 +110,22 @@ cmd_name_to_info = {
 
 _extend_command_line_interface(cmd_name_to_info)
 
-cli = click.group(
-    cls=ColoredGroup,
-    context_settings=_CONTEXT_SETTINGS,
-    default="build",
-    default_if_no_args=True,
-)(
-    ts.click_options(
-        attrs.make_class("Settings", cmd_name_to_info["main"]["options"]),
-        "pytask",
-        argname="main_settings",
-    )(click.pass_obj(cli))
+cli = click.version_option(**_VERSION_OPTION_KWARGS)(
+    click.group(
+        cls=ColoredGroup,
+        context_settings=_CONTEXT_SETTINGS,
+        default="build",
+        default_if_no_args=True,
+    )(
+        ts.click_options(
+            attrs.make_class("Settings", cmd_name_to_info["main"]["options"]),
+            "pytask",
+            argname="main_settings",
+        )(click.pass_obj(cli))
+    )
 )
 
-cli.command(
-    cls=ColoredCommand,  # Uncomment to see the full name of switches.
-)(
+cli.command(cls=ColoredCommand,)(  # Uncomment to see the full name of switches.
     ts.pass_settings(argname="main_settings")(
         ts.click_options(
             attrs.make_class("Settings", cmd_name_to_info["build"]["options"]),
