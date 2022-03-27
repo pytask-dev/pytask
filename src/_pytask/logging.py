@@ -87,22 +87,9 @@ def pytask_parse_config(
         config_from_cli,
         config_from_file,
         key="show_traceback",
-        default="yes",
-        callback=_show_traceback_callback,
+        default=True,
+        callback=convert_truthy_or_falsy_to_bool,
     )
-
-
-def _show_traceback_callback(
-    x: _ShowTraceback | None,
-) -> _ShowTraceback | None:
-    """Validate the passed options for showing tracebacks."""
-    if x in [None, "None", "none"]:
-        x = None
-    elif x in ["no", "yes"]:
-        pass
-    else:
-        raise ValueError("'show_traceback' can only be one of ['no', 'yes'].")
-    return x
 
 
 @hookimpl

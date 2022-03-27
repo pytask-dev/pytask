@@ -240,7 +240,7 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
 
     counts = count_outcomes(reports, TaskOutcome)
 
-    if session.config["show_traceback"] != "no":
+    if session.config["show_traceback"]:
         console.print()
         if counts[TaskOutcome.FAIL]:
             console.rule(
