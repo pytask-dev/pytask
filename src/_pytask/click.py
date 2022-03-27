@@ -126,7 +126,7 @@ def print_options(group_or_command: click.Command | DefaultGroup, ctx: Any) -> N
             opt2 += Text(f" {param.metavar}", style="metavar")
         elif isinstance(param.type, click.Choice):
             choices = "[" + "|".join(param.type.choices) + "]"
-            opt2 += Text(f" {choices}", style="metavar")
+            opt2 += Text(f" {choices}", style="metavar", overflow="fold")
 
         help_record = param.get_help_record(ctx)
         if help_record is None:
