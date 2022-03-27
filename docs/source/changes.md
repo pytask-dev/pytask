@@ -30,6 +30,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`241` allows to parametrize over single dicts.
 - {pull}`242` removes tasks from global {obj}`_pytask.task_utils.COLLECTED_TASKS` to
   avoid re-collection when the programmatic interface is used.
+- {pull}`245` adds choices on the command line to the help pages.
 
 ## 0.1.9 - 2022-02-23
 
