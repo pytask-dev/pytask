@@ -108,6 +108,9 @@ def print_options(group_or_command: click.Command | DefaultGroup, ctx: Any) -> N
         if isinstance(param, click.Argument):
             continue
 
+        if getattr(param, "hidden", False):
+            continue
+
         # The ordering of -h and --help is not fixed.
         if param.name == "help":
             opt1 = highlighter("-h")
@@ -121,6 +124,9 @@ def print_options(group_or_command: click.Command | DefaultGroup, ctx: Any) -> N
 
         if param.metavar:
             opt2 += Text(f" {param.metavar}", style="metavar")
+        elif isinstance(param.type, click.Choice):
+            choices = "[" + "|".join(param.type.choices) + "]"
+            opt2 += Text(f" {choices}", style="metavar", overflow="fold")
 
         help_record = param.get_help_record(ctx)
         if help_record is None:
