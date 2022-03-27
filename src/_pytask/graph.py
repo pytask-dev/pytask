@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import sys
-from enum import auto
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -34,10 +33,10 @@ if TYPE_CHECKING:
 
 
 class _RankDirection(Enum):
-    TB = auto()
-    LR = auto()
-    BT = auto()
-    RL = auto()
+    TB = "TB"
+    LR = "LR"
+    BT = "BT"
+    RL = "RL"
 
 
 @hookimpl(tryfirst=True)
@@ -75,21 +74,6 @@ def pytask_parse_config(
     )
 
 
-def _rank_direction_callback(
-    x: _RankDirection | str | None,
-) -> _RankDirection | None:
-    """Validate the passed options for rank direction."""
-    if x in [None, "None", "none"]:
-        out = None
-    elif isinstance(x, str) and x in list(_RankDirection.__members__):
-        out = _RankDirection[x]
-    else:
-        raise ValueError(
-            "'rank_direction' can only be one of ['TB', 'LR', 'BT', 'RL']."
-        )
-    return out
-
-
 _HELP_TEXT_LAYOUT: str = (
     "The layout determines the structure of the graph. Here you find an overview of "
     "all available layouts: https://graphviz.org/docs/layouts."
@@ -114,7 +98,7 @@ _HELP_TEXT_RANK_DIRECTION: str = (
 @click.option(
     "-r",
     "--rank-direction",
-    type=click.Choice(list(_RankDirection.__members__)),
+    type=click.Choice([x.value for x in _RankDirection]),
     help=_HELP_TEXT_RANK_DIRECTION,
 )
 def dag(**config_from_cli: Any) -> NoReturn:

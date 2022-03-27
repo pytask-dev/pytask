@@ -30,6 +30,7 @@ import functools
 import io
 import os
 import sys
+from enum import Enum
 from tempfile import TemporaryFile
 from typing import Any
 from typing import AnyStr
@@ -41,17 +42,11 @@ from typing import TYPE_CHECKING
 
 import click
 from _pytask.config import hookimpl
+from _pytask.config_utils import parse_click_choice
+from _pytask.config_utils import ShowCapture
 from _pytask.nodes import Task
 from _pytask.shared import get_first_non_none_value
 
-if TYPE_CHECKING:
-    if sys.version_info >= (3, 8):
-        from typing import Literal
-    else:
-        from typing_extensions import Literal
-
-    _CaptureMethod = Literal["fd", "sys", "no", "tee-sys"]
-    _CaptureCallback = Literal["no", "stdout", "stderr", "all"]
 
 if TYPE_CHECKING:
     if sys.version_info >= (3, 8):
@@ -66,19 +61,30 @@ else:
         return f
 
 
+class _CaptureMethod(Enum):
+    FD = "fd"
+    NO = "no"
+    SYS = "sys"
+    TEE_SYS = "tee-sys"
+
+
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Add CLI options for capturing output."""
     additional_parameters = [
         click.Option(
             ["--capture"],
-            type=click.Choice(["fd", "no", "sys", "tee-sys"]),
+            type=click.Choice([x.value for x in _CaptureMethod]),
             help="Per task capturing method.  [default: fd]",
         ),
-        click.Option(["-s"], is_flag=True, help="Shortcut for --capture=no."),
+        click.Option(
+            ["-s"],
+            is_flag=True,
+            help="Shortcut for --capture=no.",
+        ),
         click.Option(
             ["--show-capture"],
-            type=click.Choice(["no", "stdout", "stderr", "all"]),
+            type=click.Choice([x.value for x in ShowCapture]),
             help=(
                 "Choose which captured output should be shown for failed tasks.  "
                 "[default: all]"
@@ -100,22 +106,22 @@ def pytask_parse_config(
 
     """
     if config_from_cli.get("s"):
-        config["capture"] = "no"
+        config["capture"] = _CaptureMethod.NO
     else:
         config["capture"] = get_first_non_none_value(
             config_from_cli,
             config_from_file,
             key="capture",
-            default="fd",
-            callback=_capture_callback,
+            default=_CaptureMethod.FD,
+            callback=parse_click_choice("capture", _CaptureMethod),
         )
 
     config["show_capture"] = get_first_non_none_value(
         config_from_cli,
         config_from_file,
         key="show_capture",
-        default="all",
-        callback=_show_capture_callback,
+        default=ShowCapture.ALL,
+        callback=parse_click_choice("show_capture", ShowCapture),
     )
 
 
@@ -130,32 +136,6 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     capman.stop_capturing()
     capman.start_capturing()
     capman.suspend()
-
-
-def _capture_callback(x: _CaptureMethod | None) -> _CaptureMethod | None:
-    """Validate the passed options for capturing output."""
-    if x in [None, "None", "none"]:
-        x = None
-    elif x in ["fd", "no", "sys", "tee-sys"]:
-        pass
-    else:
-        raise ValueError("'capture' can only be one of ['fd', 'no', 'sys', 'tee-sys'].")
-    return x
-
-
-def _show_capture_callback(
-    x: _CaptureCallback | None,
-) -> _CaptureCallback | None:
-    """Validate the passed options for showing captured output."""
-    if x in [None, "None", "none"]:
-        x = None
-    elif x in ["no", "stdout", "stderr", "all"]:
-        pass
-    else:
-        raise ValueError(
-            "'show_capture' must be one of ['no', 'stdout', 'stderr', 'all']."
-        )
-    return x
 
 
 # Copied from pytest with slightly modified docstrings.
@@ -686,13 +666,13 @@ def _get_multicapture(method: _CaptureMethod) -> MultiCapture[str]:
     with the specified buffers for ``stdin``, ``stdout``, and ``stderr``.
 
     """
-    if method == "fd":
+    if method == _CaptureMethod.FD:
         return MultiCapture(in_=FDCapture(0), out=FDCapture(1), err=FDCapture(2))
-    elif method == "sys":
+    elif method == _CaptureMethod.SYS:
         return MultiCapture(in_=SysCapture(0), out=SysCapture(1), err=SysCapture(2))
-    elif method == "no":
+    elif method == _CaptureMethod.NO:
         return MultiCapture(in_=None, out=None, err=None)
-    elif method == "tee-sys":
+    elif method == _CaptureMethod.TEE_SYS:
         return MultiCapture(
             in_=None, out=SysCapture(1, tee=True), err=SysCapture(2, tee=True)
         )

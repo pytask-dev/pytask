@@ -1,7 +1,6 @@
 """Implement the database managed with pony."""
 from __future__ import annotations
 
-from enum import auto
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -17,11 +16,11 @@ from pony import orm
 
 
 class _DatabaseProviders(Enum):
-    sqlite = auto()
-    postgres = auto()
-    mysql = auto()
-    oracle = auto()
-    cockroach = auto()
+    SQLITE = "sqlite"
+    POSTGRES = "postgres"
+    MYSQL = "mysql"
+    ORACLE = "oracle"
+    COCKROACH = "cockroach"
 
 
 db = orm.Database()
@@ -72,7 +71,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--database-provider"],
-            type=click.Choice(list(_DatabaseProviders.__members__)),
+            type=click.Choice([x.value for x in _DatabaseProviders]),
             help=(
                 "Database provider. All providers except sqlite are considered "
                 "experimental.  [default: sqlite]"
@@ -112,7 +111,7 @@ def pytask_parse_config(
         config_from_cli,
         config_from_file,
         key="database_provider",
-        default=_DatabaseProviders.sqlite,
+        default=_DatabaseProviders.SQLITE,
         callback=parse_click_choice("database_provider", _DatabaseProviders),
     )
     filename = get_first_non_none_value(
@@ -141,7 +140,7 @@ def pytask_parse_config(
         callback=convert_truthy_or_falsy_to_bool,
     )
     config["database"] = {
-        "provider": config["database_provider"].name,
+        "provider": config["database_provider"].value,
         "filename": config["database_filename"].as_posix(),
         "create_db": config["database_create_db"],
         "create_tables": config["database_create_tables"],

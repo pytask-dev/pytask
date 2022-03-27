@@ -73,7 +73,7 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
 @pytest.mark.skipif(not _IS_PYDOT_INSTALLED, reason="pydot is required")
 @pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
-@pytest.mark.parametrize("rankdir", ["LR", _RankDirection.TB])
+@pytest.mark.parametrize("rankdir", [_RankDirection.LR.value, _RankDirection.TB])
 def test_create_graph_via_task(tmp_path, runner, format_, layout, rankdir):
     if sys.platform == "win32" and format_ == "pdf":
         pytest.xfail("gvplugin_pango.dll might be missing on Github Actions.")
