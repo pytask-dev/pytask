@@ -34,13 +34,15 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--pdb"],
-            help="Start the interactive debugger on errors.  [default: False]",
+            help="Start the interactive debugger on errors.  "
+            "[dim]\\[default: False][/]",
             is_flag=True,
             default=None,
         ),
         click.Option(
             ["--trace"],
-            help="Enter debugger in the beginning of each task.  [default: False]",
+            help="Enter debugger in the beginning of each task.  "
+            "[dim]\\[default: False][/]",
             is_flag=True,
             default=None,
         ),
@@ -200,10 +202,7 @@ class PytaskPDB:
 
     @classmethod
     def _get_pdb_wrapper_class(
-        cls,
-        pdb_cls: type[pdb.Pdb],
-        capman: CaptureManager,
-        live_manager: LiveManager,
+        cls, pdb_cls: type[pdb.Pdb], capman: CaptureManager, live_manager: LiveManager
     ) -> type[pdb.Pdb]:
         # Type ignored because mypy doesn't support "dynamic"
         # inheritance like this.

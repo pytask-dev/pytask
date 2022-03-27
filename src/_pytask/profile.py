@@ -103,7 +103,7 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
     "--export",
     type=str,
     default=None,
-    help="Export the profile in the specified format.",
+    help="Export the profile in the specified format. [dim]\\[default: no export][/]",
 )
 def profile(**config_from_cli: Any) -> NoReturn:
     """Show information about tasks like runtime and memory consumption of products."""
@@ -268,6 +268,7 @@ class ExportNameSpace:
     def pytask_profile_export_profile(
         session: Session, profile: dict[str, dict[str, Any]]
     ) -> None:
+        """Export profiles."""
         extension = session.config["export"]
 
         if extension == "csv":

@@ -31,7 +31,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             ["--n-entries-in-table"],
             default=None,
             help="How many entries to display in the table during the execution. "
-            "Tasks which are running are always displayed.  [default: 15]",
+            "Tasks which are running are always displayed.  [dim]\\[default: 15][/]",
         ),
     ]
     cli.commands["build"].params.extend(additional_parameters)

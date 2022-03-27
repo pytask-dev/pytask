@@ -73,7 +73,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         click.Option(
             ["--capture"],
             type=click.Choice(["fd", "no", "sys", "tee-sys"]),
-            help="Per task capturing method.  [default: fd]",
+            help="Per task capturing method.  [dim]\\[default: fd][/]",
         ),
         click.Option(["-s"], is_flag=True, help="Shortcut for --capture=no."),
         click.Option(
@@ -81,7 +81,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             type=click.Choice(["no", "stdout", "stderr", "all"]),
             help=(
                 "Choose which captured output should be shown for failed tasks.  "
-                "[default: all]"
+                "[dim]\\[default: all][/]"
             ),
         ),
     ]

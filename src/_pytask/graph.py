@@ -89,19 +89,20 @@ def _rank_direction_callback(
 
 _HELP_TEXT_LAYOUT: str = (
     "The layout determines the structure of the graph. Here you find an overview of "
-    "all available layouts: https://graphviz.org/docs/layouts."
+    "all available layouts: https://graphviz.org/docs/layouts. [dim]\\[default: dot][/]"
 )
 
 
 _HELP_TEXT_OUTPUT: str = (
     "The output path of the visualization. The format is inferred from the file "
-    "extension."
+    "extension. [dim]\\[default: ../dag.pdf][/]"
 )
 
 
 _HELP_TEXT_RANK_DIRECTION: str = (
     "The direction of the directed graph. It can be ordered from top to bottom, TB, "
-    "left to right, LR, bottom to top, BT, or right to left, RL.  [default: TB]"
+    "left to right, LR, bottom to top, BT, or right to left, RL.  "
+    "[dim]\\[default: TB][/]"
 )
 
 
