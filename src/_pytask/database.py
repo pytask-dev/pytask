@@ -74,7 +74,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             type=click.Choice([x.value for x in _DatabaseProviders]),
             help=(
                 "Database provider. All providers except sqlite are considered "
-                "experimental.  [dim]\\[default: sqlite][/]"
+                "experimental. [dim]\\[default: sqlite][/]"
             ),
             default=None,
         ),
@@ -82,7 +82,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             ["--database-filename"],
             type=click.Path(),
             help=(
-                "Path to database relative to root.  "
+                "Path to database relative to root. "
                 "[dim]\\[default: .pytask.sqlite3][/]"
             ),
             default=None,
@@ -90,13 +90,13 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         click.Option(
             ["--database-create-db"],
             type=bool,
-            help="Create database if it does not exist.  [dim]\\[default: True][/]",
+            help="Create database if it does not exist. [dim]\\[default: True][/]",
             default=None,
         ),
         click.Option(
             ["--database-create-tables"],
             type=bool,
-            help="Create tables if they do not exist.  [dim]\\[default: True][/]",
+            help="Create tables if they do not exist. [dim]\\[default: True][/]",
             default=None,
         ),
     ]

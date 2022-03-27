@@ -5,6 +5,7 @@ import csv
 import json
 import sys
 import time
+from enum import Enum
 from pathlib import Path
 from types import TracebackType
 from typing import Any
@@ -14,6 +15,7 @@ from typing import TYPE_CHECKING
 import click
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
+from _pytask.config_utils import parse_click_choice
 from _pytask.console import console
 from _pytask.console import format_task_id
 from _pytask.database import db
@@ -36,6 +38,12 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
+class _ExportFormats(Enum):
+    NO = "no"
+    JSON = "json"
+    CSV = "csv"
+
+
 class Runtime(db.Entity):  # type: ignore
     """Record of runtimes of tasks."""
 
@@ -56,7 +64,10 @@ def pytask_parse_config(
 ) -> None:
     """Parse the configuration."""
     config["export"] = get_first_non_none_value(
-        config_from_cli, key="export", default=None
+        config_from_cli,
+        key="export",
+        default=_ExportFormats.NO,
+        callback=parse_click_choice("export", _ExportFormats),
     )
 
 
@@ -101,9 +112,9 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
 @click.command(cls=ColoredCommand)
 @click.option(
     "--export",
-    type=str,
+    type=click.Choice([x.value for x in _ExportFormats]),
     default=None,
-    help="Export the profile in the specified format. [dim]\\[default: no export][/]",
+    help="Export the profile in the specified format. [dim]\\[default: no][/]",
 )
 def profile(**config_from_cli: Any) -> NoReturn:
     """Show information about tasks like runtime and memory consumption of products."""
@@ -269,16 +280,16 @@ class ExportNameSpace:
         session: Session, profile: dict[str, dict[str, Any]]
     ) -> None:
         """Export profiles."""
-        extension = session.config["export"]
+        export = session.config["export"]
 
-        if extension == "csv":
+        if export == _ExportFormats.CSV:
             _export_to_csv(profile)
-        elif extension == "json":
+        elif export == _ExportFormats.JSON:
             _export_to_json(profile)
-        elif extension is None:
+        elif export == _ExportFormats.NO:
             pass
         else:
-            raise ValueError(f"The export option {extension!r} cannot be handled.")
+            raise ValueError(f"The export option {export.value!r} cannot be handled.")
 
 
 def _export_to_csv(profile: dict[str, dict[str, Any]]) -> None:
