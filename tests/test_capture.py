@@ -6,7 +6,6 @@ import os
 import subprocess
 import sys
 import textwrap
-from contextlib import ExitStack as does_not_raise  # noqa: N813
 from io import UnsupportedOperation
 from typing import BinaryIO
 from typing import Generator
@@ -18,54 +17,8 @@ from _pytask.capture import _get_multicapture
 from _pytask.capture import CaptureManager
 from _pytask.capture import CaptureResult
 from _pytask.capture import MultiCapture
-from _pytask.config_utils import parse_click_choice
-from _pytask.config_utils import ShowCapture
 from pytask import cli
 from pytask import ExitCode
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "value, expected, expectation",
-    [
-        (None, None, does_not_raise()),
-        ("None", None, does_not_raise()),
-        ("none", None, does_not_raise()),
-        ("fd", _CaptureMethod.FD, does_not_raise()),
-        ("no", _CaptureMethod.NO, does_not_raise()),
-        ("sys", _CaptureMethod.SYS, does_not_raise()),
-        ("tee-sys", _CaptureMethod.TEE_SYS, does_not_raise()),
-        ("asd", None, pytest.raises(ValueError)),
-        (1, None, pytest.raises(ValueError)),
-    ],
-)
-def test_capture_callback(value, expected, expectation):
-    with expectation:
-        # TODO: Remove
-        result = parse_click_choice("capture", _CaptureMethod)(value)
-        assert result == expected
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "value, expected, expectation",
-    [
-        (None, None, does_not_raise()),
-        ("None", None, does_not_raise()),
-        ("none", None, does_not_raise()),
-        ("no", ShowCapture.NO, does_not_raise()),
-        ("stdout", ShowCapture.STDOUT, does_not_raise()),
-        ("stderr", ShowCapture.STDERR, does_not_raise()),
-        ("all", ShowCapture.ALL, does_not_raise()),
-        ("asd", None, pytest.raises(ValueError)),
-        (1, None, pytest.raises(ValueError)),
-    ],
-)
-def test_show_capture_callback(value, expected, expectation):
-    with expectation:
-        # TODO: Remove
-        result = parse_click_choice("show_capture", ShowCapture)(value)
-        assert result == expected
 
 
 @pytest.mark.end_to_end

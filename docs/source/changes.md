@@ -33,6 +33,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`243` converts choice options to use enums instead of simple strings.
 - {pull}`245` adds choices on the command line to the help pages as metavars and show
   defaults.
+- {pull}`246` formalizes choices for {class}`click.Choice` to {class}`enum.Enum`.
 
 ## 0.1.9 - 2022-02-23
 
