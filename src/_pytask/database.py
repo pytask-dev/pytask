@@ -1,16 +1,27 @@
 """Implement the database managed with pony."""
 from __future__ import annotations
 
+from enum import auto
+from enum import Enum
 from pathlib import Path
 from typing import Any
 
 import click
 import networkx as nx
 from _pytask.config import hookimpl
+from _pytask.config_utils import parse_click_choice
 from _pytask.dag import node_and_neighbors
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from pony import orm
+
+
+class _DatabaseProviders(Enum):
+    sqlite = auto()
+    postgres = auto()
+    mysql = auto()
+    oracle = auto()
+    cockroach = auto()
 
 
 db = orm.Database()
@@ -61,7 +72,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--database-provider"],
-            type=click.Choice(["sqlite", "postgres", "mysql", "oracle", "cockroach"]),
+            type=click.Choice(list(_DatabaseProviders.__members__)),
             help=(
                 "Database provider. All providers except sqlite are considered "
                 "experimental.  [default: sqlite]"
@@ -98,7 +109,11 @@ def pytask_parse_config(
 ) -> None:
     """Parse the configuration."""
     config["database_provider"] = get_first_non_none_value(
-        config_from_cli, config_from_file, key="database_provider", default="sqlite"
+        config_from_cli,
+        config_from_file,
+        key="database_provider",
+        default=_DatabaseProviders.sqlite,
+        callback=parse_click_choice("database_provider", _DatabaseProviders),
     )
     filename = get_first_non_none_value(
         config_from_cli,
@@ -126,7 +141,7 @@ def pytask_parse_config(
         callback=convert_truthy_or_falsy_to_bool,
     )
     config["database"] = {
-        "provider": config["database_provider"],
+        "provider": config["database_provider"].name,
         "filename": config["database_filename"].as_posix(),
         "create_db": config["database_create_db"],
         "create_tables": config["database_create_tables"],
