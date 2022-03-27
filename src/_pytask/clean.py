@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 _HELP_TEXT_MODE = (
     "Choose 'dry-run' to print the paths of files/directories which would be removed, "
     "'interactive' for a confirmation prompt for every path, and 'force' to remove all "
-    "unknown paths at once.  [default: dry-run]"
+    "unknown paths at once.  [dim]\\[default: dry-run][/]"
 )
 
 
@@ -78,9 +78,17 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     type=click.Choice(["dry-run", "interactive", "force"]),
     help=_HELP_TEXT_MODE,
 )
-@click.option("-d", "--directories", is_flag=True, help="Remove whole directories.")
 @click.option(
-    "-q", "--quiet", is_flag=True, help="Do not print the names of the removed paths."
+    "-d",
+    "--directories",
+    is_flag=True,
+    help="Remove whole directories. [dim]\\[default: False][/]",
+)
+@click.option(
+    "-q",
+    "--quiet",
+    is_flag=True,
+    help="Do not print the names of the removed paths. [dim]\\[default: quiet][/]",
 )
 def clean(**config_from_cli: Any) -> NoReturn:
     """Clean the provided paths by removing files unknown to pytask."""

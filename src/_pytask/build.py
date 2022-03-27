@@ -98,7 +98,7 @@ def main(config_from_cli: dict[str, Any]) -> Session:
     "--debug-pytask",
     is_flag=True,
     default=None,
-    help="Trace all function calls in the plugin framework.  [default: False]",
+    help="Trace all function calls in the plugin framework. [dim]\\[default: False][/]",
 )
 @click.option(
     "-x",
@@ -117,7 +117,9 @@ def main(config_from_cli: dict[str, Any]) -> Session:
 @click.option(
     "--show-traceback",
     type=click.Choice(["yes", "no"]),
-    help="Choose whether tracebacks should be displayed or not.  [default: yes]",
+    help=(
+        "Choose whether tracebacks should be displayed or not. [dim]\\[default: yes][/]"
+    ),
 )
 def build(**config_from_cli: Any) -> NoReturn:
     """Collect tasks, execute them and report the results.
