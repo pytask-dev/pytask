@@ -118,6 +118,9 @@ def print_options(group_or_command: click.Command | DefaultGroup, ctx: Any) -> N
         elif len(param.opts) == 2:
             opt1 = highlighter(param.opts[0])
             opt2 = highlighter(param.opts[1])
+        elif len(param.opts) == 1 and len(param.secondary_opts) == 1:
+            opt1 = Text("")
+            opt2 = highlighter(param.opts[0] + "/" + param.secondary_opts[0])
         else:
             opt1 = Text("")
             opt2 = highlighter(param.opts[0])

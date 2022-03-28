@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import sys
+from enum import Enum
 from pathlib import Path
 from typing import Any
 from typing import TYPE_CHECKING
@@ -12,6 +13,7 @@ from _pytask.click import ColoredCommand
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
+from _pytask.config_utils import parse_click_choice
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
@@ -29,12 +31,12 @@ from rich.traceback import Traceback
 if TYPE_CHECKING:
     from typing import NoReturn
 
-    if sys.version_info >= (3, 8):
-        from typing import Literal
-    else:
-        from typing_extensions import Literal
 
-    _RankDirection = Literal["TB", "LR", "BT", "RL"]
+class _RankDirection(Enum):
+    TB = "TB"
+    LR = "LR"
+    BT = "BT"
+    RL = "RL"
 
 
 @hookimpl(tryfirst=True)
@@ -67,24 +69,9 @@ def pytask_parse_config(
         config_from_cli,
         config_from_file,
         key="rank_direction",
-        default="TB",
-        callback=_rank_direction_callback,
+        default=_RankDirection.TB,
+        callback=parse_click_choice("rank_direction", _RankDirection),
     )
-
-
-def _rank_direction_callback(
-    x: _RankDirection | None,
-) -> _RankDirection | None:
-    """Validate the passed options for rank direction."""
-    if x in [None, "None", "none"]:
-        x = None
-    elif x in ["TB", "LR", "BT", "RL"]:
-        pass
-    else:
-        raise ValueError(
-            "'rank_direction' can only be one of ['TB', 'LR', 'BT', 'RL']."
-        )
-    return x
 
 
 _HELP_TEXT_LAYOUT: str = (
@@ -110,8 +97,9 @@ _HELP_TEXT_RANK_DIRECTION: str = (
 @click.option("-l", "--layout", type=str, default=None, help=_HELP_TEXT_LAYOUT)
 @click.option("-o", "--output-path", type=str, default=None, help=_HELP_TEXT_OUTPUT)
 @click.option(
+    "-r",
     "--rank-direction",
-    type=click.Choice(["TB", "LR", "BT", "RL"]),
+    type=click.Choice([x.value for x in _RankDirection]),
     help=_HELP_TEXT_RANK_DIRECTION,
 )
 def dag(**config_from_cli: Any) -> NoReturn:
@@ -225,7 +213,7 @@ def _refine_dag(session: Session) -> nx.DiGraph:
     dag = _clean_dag(dag)
     dag = _style_dag(dag)
     dag = _escape_node_names_with_colons(dag)
-    dag.graph["graph"] = {"rankdir": session.config["rank_direction"]}
+    dag.graph["graph"] = {"rankdir": session.config["rank_direction"].name}
 
     return dag
 

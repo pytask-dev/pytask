@@ -1,16 +1,26 @@
 """Implement the database managed with pony."""
 from __future__ import annotations
 
+from enum import Enum
 from pathlib import Path
 from typing import Any
 
 import click
 import networkx as nx
 from _pytask.config import hookimpl
+from _pytask.config_utils import parse_click_choice
 from _pytask.dag import node_and_neighbors
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from pony import orm
+
+
+class _DatabaseProviders(Enum):
+    SQLITE = "sqlite"
+    POSTGRES = "postgres"
+    MYSQL = "mysql"
+    ORACLE = "oracle"
+    COCKROACH = "cockroach"
 
 
 db = orm.Database()
@@ -61,10 +71,10 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--database-provider"],
-            type=click.Choice(["sqlite", "postgres", "mysql", "oracle", "cockroach"]),
+            type=click.Choice([x.value for x in _DatabaseProviders]),
             help=(
                 "Database provider. All providers except sqlite are considered "
-                "experimental.  [dim]\\[default: sqlite][/]"
+                "experimental. [dim]\\[default: sqlite][/]"
             ),
             default=None,
         ),
@@ -72,7 +82,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             ["--database-filename"],
             type=click.Path(),
             help=(
-                "Path to database relative to root.  "
+                "Path to database relative to root. "
                 "[dim]\\[default: .pytask.sqlite3][/]"
             ),
             default=None,
@@ -80,13 +90,13 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         click.Option(
             ["--database-create-db"],
             type=bool,
-            help="Create database if it does not exist.  [dim]\\[default: True][/]",
+            help="Create database if it does not exist. [dim]\\[default: True][/]",
             default=None,
         ),
         click.Option(
             ["--database-create-tables"],
             type=bool,
-            help="Create tables if they do not exist.  [dim]\\[default: True][/]",
+            help="Create tables if they do not exist. [dim]\\[default: True][/]",
             default=None,
         ),
     ]
@@ -101,7 +111,11 @@ def pytask_parse_config(
 ) -> None:
     """Parse the configuration."""
     config["database_provider"] = get_first_non_none_value(
-        config_from_cli, config_from_file, key="database_provider", default="sqlite"
+        config_from_cli,
+        config_from_file,
+        key="database_provider",
+        default=_DatabaseProviders.SQLITE,
+        callback=parse_click_choice("database_provider", _DatabaseProviders),
     )
     filename = get_first_non_none_value(
         config_from_cli,
@@ -129,7 +143,7 @@ def pytask_parse_config(
         callback=convert_truthy_or_falsy_to_bool,
     )
     config["database"] = {
-        "provider": config["database_provider"],
+        "provider": config["database_provider"].value,
         "filename": config["database_filename"].as_posix(),
         "create_db": config["database_create_db"],
         "create_tables": config["database_create_tables"],

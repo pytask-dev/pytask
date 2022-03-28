@@ -115,10 +115,12 @@ def main(config_from_cli: dict[str, Any]) -> Session:
     help="Print errors with tracebacks as soon as the task fails.",
 )
 @click.option(
-    "--show-traceback",
-    type=click.Choice(["yes", "no"]),
+    "--show-traceback/--show-no-traceback",
+    type=bool,
+    default=None,
     help=(
-        "Choose whether tracebacks should be displayed or not. [dim]\\[default: yes][/]"
+        "Choose whether tracebacks should be displayed or not. "
+        "[dim]\\[default: True][/]"
     ),
 )
 def build(**config_from_cli: Any) -> NoReturn:

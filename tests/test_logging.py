@@ -135,16 +135,14 @@ def test_humanize_time(amount, unit, short_label, expectation, expected):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.parametrize("show_traceback", ["no", "yes"])
-def test_show_traceback(runner, tmp_path, show_traceback):
+@pytest.mark.parametrize("flag", ["--show-traceback", "--show-no-traceback"])
+def test_show_traceback(runner, tmp_path, flag):
     source = "def task_raises(): raise Exception"
     tmp_path.joinpath("task_module.py").write_text(source)
 
-    result = runner.invoke(
-        cli, [tmp_path.as_posix(), "--show-traceback", show_traceback]
-    )
+    result = runner.invoke(cli, [tmp_path.as_posix(), flag])
 
-    has_traceback = show_traceback == "yes"
+    has_traceback = flag == "--show-traceback"
 
     assert result.exit_code == ExitCode.FAILED
     assert ("Failures" in result.output) is has_traceback

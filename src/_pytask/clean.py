@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 _HELP_TEXT_MODE = (
     "Choose 'dry-run' to print the paths of files/directories which would be removed, "
     "'interactive' for a confirmation prompt for every path, and 'force' to remove all "
-    "unknown paths at once.  [dim]\\[default: dry-run][/]"
+    "unknown paths at once. [dim]\\[default: dry-run][/]"
 )
 
 
