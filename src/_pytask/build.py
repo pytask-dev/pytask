@@ -4,13 +4,9 @@ from __future__ import annotations
 import sys
 from enum import Enum
 from typing import Any
-from typing import Literal
 from typing import TYPE_CHECKING
 
-import attr
 import click
-import typed_settings as ts
-from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
@@ -21,6 +17,7 @@ from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
+from _pytask.typed_settings import option
 from rich.traceback import Traceback
 
 
@@ -39,30 +36,30 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli["build"] = {
         "cmd": build,
         "options": {
-            "debug_pytask": attr.ib(
+            "debug_pytask": option(
                 default=False,
                 type=bool,
-                # help="Trace all function calls in the plugin framework.  [default: False]",
+                help="Trace all function calls in the plugin framework. "
+                "[dim]\\[default: False][/]",
             ),
-            "max_failures": attr.ib(
-                default=float("inf"),
-                type=float,
-                # help="Stop after some failures."
+            "max_failures": option(
+                default=float("inf"), type=float, help="Stop after some failures."
             ),
-            "show_errors_immediately": attr.ib(
+            "show_errors_immediately": option(
                 default=False,
                 type=bool,
-                # help="Print errors with tracebacks as soon as the task fails.",
+                help="Print errors with tracebacks as soon as the task fails.",
             ),
-            "stop_after_first_failure": attr.ib(
-                default=False,
-                type=bool,
-                # help="Stop after the first failure."
+            "stop_after_first_failure": option(
+                default=False, type=bool, help="Stop after the first failure."
             ),
-            "show_traceback": attr.ib(
+            "show_traceback": option(
                 default=ShowTraceback.yes,
                 type=ShowTraceback,
-                # help="Choose whether tracebacks should be displayed or not.  [default: yes]",
+                help=(
+                    "Choose whether tracebacks should be displayed or not. "
+                    "[dim]\\[default: True][/]"
+                ),
             ),
         },
     }

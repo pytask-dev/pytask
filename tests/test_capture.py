@@ -6,63 +6,19 @@ import os
 import subprocess
 import sys
 import textwrap
-from contextlib import ExitStack as does_not_raise  # noqa: N813
 from io import UnsupportedOperation
 from typing import BinaryIO
 from typing import Generator
 
 import pytest
 from _pytask import capture
-from _pytask.capture import _capture_callback
+from _pytask.capture import _CaptureMethod
 from _pytask.capture import _get_multicapture
-from _pytask.capture import _show_capture_callback
 from _pytask.capture import CaptureManager
 from _pytask.capture import CaptureResult
 from _pytask.capture import MultiCapture
 from pytask import cli
 from pytask import ExitCode
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "value, expected, expectation",
-    [
-        (None, None, does_not_raise()),
-        ("None", None, does_not_raise()),
-        ("none", None, does_not_raise()),
-        ("fd", "fd", does_not_raise()),
-        ("no", "no", does_not_raise()),
-        ("sys", "sys", does_not_raise()),
-        ("tee-sys", "tee-sys", does_not_raise()),
-        ("asd", None, pytest.raises(ValueError)),
-        (1, None, pytest.raises(ValueError)),
-    ],
-)
-def test_capture_callback(value, expected, expectation):
-    with expectation:
-        result = _capture_callback(value)
-        assert result == expected
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "value, expected, expectation",
-    [
-        (None, None, does_not_raise()),
-        ("None", None, does_not_raise()),
-        ("none", None, does_not_raise()),
-        ("no", "no", does_not_raise()),
-        ("stdout", "stdout", does_not_raise()),
-        ("stderr", "stderr", does_not_raise()),
-        ("all", "all", does_not_raise()),
-        ("asd", None, pytest.raises(ValueError)),
-        (1, None, pytest.raises(ValueError)),
-    ],
-)
-def test_show_capture_callback(value, expected, expectation):
-    with expectation:
-        result = _show_capture_callback(value)
-        assert result == expected
 
 
 @pytest.mark.end_to_end
@@ -141,7 +97,9 @@ def TeeStdCapture(
 
 @pytest.mark.end_to_end
 class TestCaptureManager:
-    @pytest.mark.parametrize("method", ["no", "sys", "fd"])
+    @pytest.mark.parametrize(
+        "method", [_CaptureMethod.NO, _CaptureMethod.SYS, _CaptureMethod.FD]
+    )
     def test_capturing_basic_api(self, method):
         capouter = StdCaptureFD()
         old = sys.stdout, sys.stderr, sys.stdin
@@ -157,7 +115,7 @@ class TestCaptureManager:
             print("hello")
             capman.suspend()
             out, err = capman.read()
-            if method == "no":
+            if method == _CaptureMethod.NO:
                 assert old == (sys.stdout, sys.stderr, sys.stdin)
             else:
                 assert not out
@@ -165,7 +123,7 @@ class TestCaptureManager:
             print("hello")
             capman.suspend()
             out, err = capman.read()
-            if method != "no":
+            if method != _CaptureMethod.NO:
                 assert out == "hello\n"
             capman.stop_capturing()
         finally:
@@ -174,7 +132,7 @@ class TestCaptureManager:
     def test_init_capturing(self):
         capouter = StdCaptureFD()
         try:
-            capman = CaptureManager("fd")
+            capman = CaptureManager(_CaptureMethod.FD)
             capman.start_capturing()
             pytest.raises(AssertionError, capman.start_capturing)
             capman.stop_capturing()
@@ -782,7 +740,7 @@ class TestStdCaptureFDinvalidFD:
 
 @pytest.mark.unit
 def test__get_multicapture() -> None:
-    assert isinstance(_get_multicapture("no"), MultiCapture)
+    assert isinstance(_get_multicapture(_CaptureMethod.NO), MultiCapture)
     pytest.raises(ValueError, _get_multicapture, "unknown").match(
         r"^unknown capturing method: 'unknown'"
     )

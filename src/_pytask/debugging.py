@@ -10,7 +10,6 @@ from typing import Any
 from typing import Generator
 from typing import TYPE_CHECKING
 
-import attr
 import click
 import pluggy
 from _pytask.config import hookimpl
@@ -22,6 +21,7 @@ from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import render_exc_info
+from _pytask.typed_settings import option
 
 
 if TYPE_CHECKING:
@@ -32,32 +32,22 @@ if TYPE_CHECKING:
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend command line interface."""
-    cli["build"]["options"]["pdb"] = attr.ib(default=True, type=bool)
-    cli["build"]["options"]["trace"] = attr.ib(default=True, type=bool)
-    cli["build"]["options"]["pdbcls"] = attr.ib(default=None, type=str)
-    # additional_parameters = [
-    #     click.Option(
-    #         ["--pdb"],
-    #         help="Start the interactive debugger on errors.  [default: False]",
-    #         is_flag=True,
-    #         default=None,
-    #     ),
-    #     click.Option(
-    #         ["--trace"],
-    #         help="Enter debugger in the beginning of each task.  [default: False]",
-    #         is_flag=True,
-    #         default=None,
-    #     ),
-    #     click.Option(
-    #         ["--pdbcls"],
-    #         help=(
-    #             "Start a custom debugger on errors. For example: "
-    #             "--pdbcls=IPython.terminal.debugger:TerminalPdb"
-    #         ),
-    #         metavar="module_name:class_name",
-    #     ),
-    # ]
-    # cli.commands["build"].params.extend(additional_parameters)
+    cli["build"]["options"]["pdb"] = option(
+        default=True,
+        type=bool,
+        help="Start the interactive debugger on errors. [dim]\\[default: False][/]",
+    )
+    cli["build"]["options"]["trace"] = option(
+        default=True,
+        type=bool,
+        help="Enter debugger in the beginning of each task. [dim]\\[default: False][/]",
+    )
+    cli["build"]["options"]["pdbcls"] = option(
+        default=None,
+        type=str,
+        help="Start a custom debugger on errors. For example: "
+        "--pdbcls=IPython.terminal.debugger:TerminalPdb",
+    )
 
 
 @hookimpl
@@ -204,10 +194,7 @@ class PytaskPDB:
 
     @classmethod
     def _get_pdb_wrapper_class(
-        cls,
-        pdb_cls: type[pdb.Pdb],
-        capman: CaptureManager,
-        live_manager: LiveManager,
+        cls, pdb_cls: type[pdb.Pdb], capman: CaptureManager, live_manager: LiveManager
     ) -> type[pdb.Pdb]:
         # Type ignored because mypy doesn't support "dynamic"
         # inheritance like this.
