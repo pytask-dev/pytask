@@ -4,7 +4,6 @@ from __future__ import annotations
 import sys
 from typing import Any
 
-import attr
 import attrs
 import click
 import pluggy
@@ -13,6 +12,7 @@ from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
 from _pytask.config import hookimpl
 from _pytask.pluginmanager import get_plugin_manager
+from _pytask.typed_settings import option
 from packaging.version import parse as parse_version
 
 
@@ -105,7 +105,7 @@ def cli(*args, main_settings) -> None:
 
 
 cmd_name_to_info = {
-    "main": {"cmd": cli, "options": {"dummy": attr.ib(default=1, type=int)}}
+    "main": {"cmd": cli, "options": {"dummy": option(default=1, type=int)}}
 }
 
 _extend_command_line_interface(cmd_name_to_info)
@@ -125,12 +125,16 @@ cli = click.version_option(**_VERSION_OPTION_KWARGS)(
     )
 )
 
-cli.command(cls=ColoredCommand,)(  # Uncomment to see the full name of switches.
-    ts.pass_settings(argname="main_settings")(
-        ts.click_options(
-            attrs.make_class("Settings", cmd_name_to_info["build"]["options"]),
-            "pytask-build",
-            argname="build_settings",
-        )(cmd_name_to_info["build"]["cmd"])
+for name in cmd_name_to_info:
+    if name == "main":
+        continue
+
+    cli.command(cls=ColoredCommand,)(  # Uncomment to see the full name of switches.
+        ts.pass_settings(argname="main_settings")(
+            ts.click_options(
+                attrs.make_class("Settings", cmd_name_to_info[name]["options"]),
+                f"pytask-{name}",
+                argname=f"{name}_settings",
+            )(cmd_name_to_info[name]["cmd"])
+        )
     )
-)

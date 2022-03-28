@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING
 import attr
 import click
 import networkx as nx
-from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.dag import task_and_preceding_tasks
@@ -26,6 +25,7 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
+from _pytask.typed_settings import option
 from rich.table import Table
 
 
@@ -43,7 +43,6 @@ __all__ = [
 ]
 
 
-@click.command(cls=ColoredCommand)
 def markers(**config_from_cli: Any) -> NoReturn:
     """Show all registered markers."""
     config_from_cli["command"] = "markers"
@@ -78,50 +77,23 @@ def markers(**config_from_cli: Any) -> NoReturn:
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Add marker related options."""
-    cli["build"]["options"] = {
-        **cli["build"]["options"],
-        "strict_markers": attr.ib(
-            type=bool,
-            default=True,
-            # help="Raise errors for unknown markers."
-        ),
-        "expression": attr.ib(
-            type=str,
-            default=None,
-            # help="Select tasks via expressions on task ids."
-        ),
-        "marker_expression": attr.ib(
-            type=str,
-            default=None,
-            # help="Select tasks via marker expressions."
-        ),
-    }
+    for command in ("build", "clean", "collect"):
+        if command in ("clean", "collect"):
+            continue
+        cli["build"]["options"] = {
+            **cli["build"]["options"],
+            "strict_markers": option(
+                type=bool, default=True, help="Raise errors for unknown markers."
+            ),
+            "expression": option(
+                type=str, default=None, help="Select tasks via expressions on task ids."
+            ),
+            "marker_expression": option(
+                type=str, default=None, help="Select tasks via marker expressions."
+            ),
+        }
 
-    # additional_build_parameters = [
-    #     click.Option(
-    #         ["--strict-markers"],
-    #         is_flag=True,
-    #         help="Raise errors for unknown markers.",
-    #         default=None,
-    #     ),
-    #     click.Option(
-    #         ["-m", "marker_expression"],
-    #         metavar="MARKER_EXPRESSION",
-    #         type=str,
-    #         help="Select tasks via marker expressions.",
-    #     ),
-    #     click.Option(
-    #         ["-k", "expression"],
-    #         metavar="EXPRESSION",
-    #         type=str,
-    #         help="Select tasks via expressions on task ids.",
-    #     ),
-    # ]
-    # cli.commands["build"].params.extend(additional_build_parameters)
-    # cli.commands["clean"].params.extend(additional_build_parameters)
-    # cli.commands["collect"].params.extend(additional_build_parameters)
-
-    # cli.add_command(markers)
+    cli["markers"] = {"cmd": markers, "options": {}}
 
 
 @hookimpl

@@ -40,7 +40,6 @@ from typing import Iterator
 from typing import TextIO
 from typing import TYPE_CHECKING
 
-import attr
 import click
 from _pytask.config import hookimpl
 from _pytask.config_utils import parse_click_choice
@@ -82,7 +81,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         default=False, type=bool, help="Shortcut for --capture=no."
     )
     cli["build"]["options"]["show_capture"] = option(
-        default=ShowCapture.all,
+        default=ShowCapture.ALL,
         type=ShowCapture,
         help=(
             "Choose which captured output should be shown for failed tasks. "
