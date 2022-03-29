@@ -83,13 +83,24 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         cli["build"]["options"] = {
             **cli["build"]["options"],
             "strict_markers": option(
-                type=bool, default=True, help="Raise errors for unknown markers."
+                type=bool,
+                default=True,
+                is_flag=True,
+                help="Raise errors for unknown markers.",
             ),
             "expression": option(
-                type=str, default=None, help="Select tasks via expressions on task ids."
+                type=str,
+                default=None,
+                param_decls="-k",
+                metavar="EXPRESSION",
+                help="Select tasks via expressions on task ids.",
             ),
             "marker_expression": option(
-                type=str, default=None, help="Select tasks via marker expressions."
+                type=str,
+                default=None,
+                param_decls="-m",
+                metavar="MARKER_EXPRESSION",
+                help="Select tasks via marker expressions.",
             ),
         }
 

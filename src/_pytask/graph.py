@@ -26,6 +26,7 @@ from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from rich.text import Text
 from rich.traceback import Traceback
+from _pytask.typed_settings import option
 
 
 if TYPE_CHECKING:
@@ -42,7 +43,29 @@ class _RankDirection(Enum):
 @hookimpl(tryfirst=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface."""
-    cli.add_command(dag)
+    cli["dag"] = {
+        "cmd": dag,
+        "options": {
+            "layout": option(
+                default=None,
+                type=str,
+                param_decls=("-l", "--layout"),
+                help=_HELP_TEXT_LAYOUT,
+            ),
+            "output_path": option(
+                default=None,
+                type=str,
+                param_decls=("-o", "--output-path"),
+                help=_HELP_TEXT_OUTPUT,
+            ),
+            "rank_direction": option(
+                default=_RankDirection.TB,
+                type=_RankDirection,
+                param_decls=("-r", "--rank-direction"),
+                help=_HELP_TEXT_RANK_DIRECTION,
+            ),
+        },
+    }
 
 
 @hookimpl
@@ -93,15 +116,6 @@ _HELP_TEXT_RANK_DIRECTION: str = (
 )
 
 
-@click.command(cls=ColoredCommand)
-@click.option("-l", "--layout", type=str, default=None, help=_HELP_TEXT_LAYOUT)
-@click.option("-o", "--output-path", type=str, default=None, help=_HELP_TEXT_OUTPUT)
-@click.option(
-    "-r",
-    "--rank-direction",
-    type=click.Choice([x.value for x in _RankDirection]),
-    help=_HELP_TEXT_RANK_DIRECTION,
-)
 def dag(**config_from_cli: Any) -> NoReturn:
     """Create a visualization of the project's directed acyclic graph."""
     try:

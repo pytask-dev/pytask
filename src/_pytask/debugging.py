@@ -35,16 +35,19 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli["build"]["options"]["pdb"] = option(
         default=True,
         type=bool,
-        help="Start the interactive debugger on errors. [dim]\\[default: False][/]",
+        is_flag=True,
+        help="Start the interactive debugger on errors.",
     )
     cli["build"]["options"]["trace"] = option(
         default=True,
+        is_flag=True,
         type=bool,
-        help="Enter debugger in the beginning of each task. [dim]\\[default: False][/]",
+        help="Enter debugger in the beginning of each task.",
     )
     cli["build"]["options"]["pdbcls"] = option(
         default=None,
         type=str,
+        metavar="module_name:class_name",
         help="Start a custom debugger on errors. For example: "
         "--pdbcls=IPython.terminal.debugger:TerminalPdb",
     )
@@ -59,14 +62,12 @@ def pytask_parse_config(
     """Parse the configuration."""
     config["pdb"] = get_first_non_none_value(
         config_from_cli,
-        config_from_file,
         key="pdb",
         default=False,
         callback=convert_truthy_or_falsy_to_bool,
     )
     config["trace"] = get_first_non_none_value(
         config_from_cli,
-        config_from_file,
         key="trace",
         default=False,
         callback=convert_truthy_or_falsy_to_bool,
@@ -77,13 +78,6 @@ def pytask_parse_config(
         key="pdbcls",
         default=None,
         callback=_pdbcls_callback,
-    )
-    config["show_locals"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_locals",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
     )
 
 

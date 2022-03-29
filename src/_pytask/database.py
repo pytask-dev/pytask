@@ -92,11 +92,15 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     )
     cli["build"]["options"]["database_create_db"] = option(
         default=True,
+        is_flag=True,
+        param_decls="--database-create-db",
         type=bool,
         help="Create database if it does not exist. [dim]\\[default: True][/]",
     )
     cli["build"]["options"]["database_create_tables"] = option(
         default=True,
+        is_flag=True,
+        param_decls="--database-create-tables",
         type=bool,
         help="Create tables if they do not exist. [dim]\\[default: True][/]",
     )

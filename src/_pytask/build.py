@@ -39,6 +39,8 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             "debug_pytask": option(
                 default=False,
                 type=bool,
+                is_flag=True,
+                param_decls="--debug-pytask",
                 help="Trace all function calls in the plugin framework. "
                 "[dim]\\[default: False][/]",
             ),
@@ -47,11 +49,17 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             ),
             "show_errors_immediately": option(
                 default=False,
+                is_flag=True,
+                param_decls="--show-errors-immediately",
                 type=bool,
                 help="Print errors with tracebacks as soon as the task fails.",
             ),
             "stop_after_first_failure": option(
-                default=False, type=bool, help="Stop after the first failure."
+                default=False,
+                is_flag=True,
+                type=bool,
+                param_decls=("-x", "--stop-after-first-failure"),
+                help="Stop after the first failure.",
             ),
             "show_traceback": option(
                 default=ShowTraceback.yes,
@@ -128,7 +136,7 @@ def main(config_from_cli: dict[str, Any]) -> Session:
     return session
 
 
-def build(main_settings, build_settings) -> NoReturn:
+def build(paths, main_settings, build_settings) -> NoReturn:
     """Collect tasks, execute them and report the results.
 
     This is pytask's default command. pytask collects tasks from the given paths or the

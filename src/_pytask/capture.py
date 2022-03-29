@@ -78,7 +78,11 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         help="Per task capturing method. [dim]\\[default: fd][/]",
     )
     cli["build"]["options"]["s"] = option(
-        default=False, type=bool, help="Shortcut for --capture=no."
+        default=False,
+        type=bool,
+        is_flag=True,
+        param_decls="-s",
+        help="Shortcut for --capture=no.",
     )
     cli["build"]["options"]["show_capture"] = option(
         default=ShowCapture.ALL,

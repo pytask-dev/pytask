@@ -21,6 +21,7 @@ from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from rich.text import Text
+from _pytask.typed_settings import option
 
 
 try:
@@ -47,14 +48,12 @@ class _TimeUnit(NamedTuple):
 
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
-    cli["build"]["options"]["show_locals"] = attr.ib(type=bool, default=True)
-    # show_locals_option = click.Option(
-    #     ["--show-locals"],
-    #     is_flag=True,
-    #     default=None,
-    #     help="Show local variables in tracebacks.",
-    # )
-    # cli.commands["build"].params.append(show_locals_option)
+    cli["build"]["options"]["show_locals"] = option(
+        type=bool,
+        default=False,
+        is_flag=True,
+        help="Show local variables in tracebacks.",
+    )
 
 
 @hookimpl

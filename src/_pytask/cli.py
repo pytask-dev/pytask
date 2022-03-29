@@ -54,46 +54,42 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     """Add hooks."""
     from _pytask import build
     from _pytask import capture
-
-    # from _pytask import clean
+    from _pytask import clean
     from _pytask import collect
-
-    # from _pytask import collect_command
+    from _pytask import collect_command
     from _pytask import config
     from _pytask import database
     from _pytask import debugging
     from _pytask import execute
-
-    # from _pytask import graph
+    from _pytask import graph
     from _pytask import live
     from _pytask import logging
     from _pytask import mark
     from _pytask import parameters
     from _pytask import parametrize
     from _pytask import persist
-
-    # from _pytask import profile
+    from _pytask import profile
     from _pytask import resolve_dependencies
     from _pytask import skipping
     from _pytask import task
 
     pm.register(build)
     pm.register(capture)
-    # pm.register(clean)
+    pm.register(clean)
     pm.register(collect)
-    # pm.register(collect_command)
+    pm.register(collect_command)
     pm.register(config)
     pm.register(database)
     pm.register(debugging)
     pm.register(execute)
-    # pm.register(graph)
+    pm.register(graph)
     pm.register(live)
     pm.register(logging)
     pm.register(mark)
     pm.register(parameters)
     pm.register(parametrize)
     pm.register(persist)
-    # pm.register(profile)
+    pm.register(profile)
     pm.register(resolve_dependencies)
     pm.register(skipping)
     pm.register(task)
@@ -125,11 +121,14 @@ cli = click.version_option(**_VERSION_OPTION_KWARGS)(
     )
 )
 
+
 for name in cmd_name_to_info:
     if name == "main":
         continue
 
-    cli.command(cls=ColoredCommand,)(  # Uncomment to see the full name of switches.
+    cli.command(
+        cls=ColoredCommand,
+    )(  # Uncomment to see the full name of switches.
         ts.pass_settings(argname="main_settings")(
             ts.click_options(
                 attrs.make_class("Settings", cmd_name_to_info[name]["options"]),

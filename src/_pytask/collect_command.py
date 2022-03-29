@@ -28,6 +28,7 @@ from _pytask.session import Session
 from pybaum.tree_util import tree_just_flatten
 from rich.text import Text
 from rich.tree import Tree
+from _pytask.typed_settings import option
 
 
 if TYPE_CHECKING:
@@ -38,7 +39,17 @@ if TYPE_CHECKING:
 @hookimpl(tryfirst=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface."""
-    cli.add_command(collect)
+    cli["collect"] = {
+        "cmd": collect,
+        "options": {
+            "nodes": option(
+                default=False,
+                type=bool,
+                is_flag=True,
+                help="Show a task's dependencies and products.",
+            )
+        },
+    }
 
 
 @hookimpl
@@ -49,8 +60,6 @@ def pytask_parse_config(
     config["nodes"] = config_from_cli.get("nodes", False)
 
 
-@click.command(cls=ColoredCommand)
-@click.option("--nodes", is_flag=True, help="Show a task's dependencies and products.")
 def collect(**config_from_cli: Any | None) -> NoReturn:
     """Collect tasks and report information about them."""
     config_from_cli["command"] = "collect"

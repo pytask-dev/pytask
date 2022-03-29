@@ -28,13 +28,22 @@ def option(
     eq=None,
     order=None,
     on_setattr=None,
+    is_flag=None,
     help=None,
+    param_decls=None,
+    metavar=None,
 ):
     """An alias to :func:`attr.field()`"""
-    if help is not None:
-        if metadata is None:
-            metadata = {}
-        metadata.setdefault(METADATA_KEY, {})["help"] = help
+    for name, value in [
+        ("help", help),
+        ("param_decls", param_decls),
+        ("is_flag", is_flag),
+        ("metavar", metavar),
+    ]:
+        if value is not None:
+            if metadata is None:
+                metadata = {}
+            metadata.setdefault(METADATA_KEY, {})[name] = value
 
     return attr.ib(
         default=default,

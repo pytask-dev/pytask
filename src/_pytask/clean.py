@@ -28,10 +28,18 @@ from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import render_exc_info
 from pybaum.tree_util import tree_just_yield
+from _pytask.typed_settings import option
+from enum import Enum
 
 
 if TYPE_CHECKING:
     from typing import NoReturn
+
+
+class _Mode(Enum):
+    DRY_RUN = "dry-run"
+    INTERACTIVE = "interactive"
+    FORCE = "force"
 
 
 _HELP_TEXT_MODE = (
@@ -44,7 +52,27 @@ _HELP_TEXT_MODE = (
 @hookimpl(tryfirst=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface."""
-    cli.add_command(clean)
+    cli["clean"] = {
+        "cmd": clean,
+        "options": {
+            "directories": option(
+                default=False,
+                type=bool,
+                is_flag=True,
+                param_decls=("-d", "--directories"),
+                help="Remove whole directories. [dim]\\[default: False][/]",
+            ),
+            "mode": option(default=_Mode.DRY_RUN, type=_Mode, help=_HELP_TEXT_MODE),
+            "quiet": option(
+                default=True,
+                type=bool,
+                is_flag=True,
+                param_decls=("-q", "--quiet"),
+                help="Do not print the names of the removed paths. "
+                "[dim]\\[default: quiet][/]",
+            ),
+        },
+    }
 
 
 @hookimpl
@@ -72,24 +100,6 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
         ]
 
 
-@click.command(cls=ColoredCommand)
-@click.option(
-    "--mode",
-    type=click.Choice(["dry-run", "interactive", "force"]),
-    help=_HELP_TEXT_MODE,
-)
-@click.option(
-    "-d",
-    "--directories",
-    is_flag=True,
-    help="Remove whole directories. [dim]\\[default: False][/]",
-)
-@click.option(
-    "-q",
-    "--quiet",
-    is_flag=True,
-    help="Do not print the names of the removed paths. [dim]\\[default: quiet][/]",
-)
 def clean(**config_from_cli: Any) -> NoReturn:
     """Clean the provided paths by removing files unknown to pytask."""
     config_from_cli["command"] = "clean"

@@ -32,6 +32,7 @@ from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import render_exc_info
 from pony import orm
 from rich.table import Table
+from _pytask.typed_settings import option
 
 
 if TYPE_CHECKING:
@@ -55,7 +56,17 @@ class Runtime(db.Entity):  # type: ignore
 @hookimpl(tryfirst=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface."""
-    cli.add_command(profile)
+    cli["profile"] = {
+        "cmd": profile,
+        "options": {
+            "export": option(
+                default=_ExportFormats.NO,
+                type=_ExportFormats,
+                help="Export the profile in the specified format. "
+                "[dim]\\[default: no][/]",
+            )
+        },
+    }
 
 
 @hookimpl
@@ -109,13 +120,6 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
             setattr(runtime, attr, val)
 
 
-@click.command(cls=ColoredCommand)
-@click.option(
-    "--export",
-    type=click.Choice([x.value for x in _ExportFormats]),
-    default=None,
-    help="Export the profile in the specified format. [dim]\\[default: no][/]",
-)
 def profile(**config_from_cli: Any) -> NoReturn:
     """Show information about tasks like runtime and memory consumption of products."""
     config_from_cli["command"] = "profile"
