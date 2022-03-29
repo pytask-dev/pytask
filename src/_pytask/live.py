@@ -83,8 +83,8 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
         )
         config["pm"].register(live_execution)
 
-    # live_collection = LiveCollection(live_manager)
-    # config["pm"].register(live_collection)
+    live_collection = LiveCollection(live_manager)
+    config["pm"].register(live_collection)
 
 
 @attr.s(eq=False)
