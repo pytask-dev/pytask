@@ -33,13 +33,13 @@ if TYPE_CHECKING:
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend command line interface."""
     cli["build"]["options"]["pdb"] = option(
-        default=True,
+        default=False,
         type=bool,
         is_flag=True,
         help="Start the interactive debugger on errors.",
     )
     cli["build"]["options"]["trace"] = option(
-        default=True,
+        default=False,
         is_flag=True,
         type=bool,
         help="Enter debugger in the beginning of each task.",

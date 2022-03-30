@@ -27,7 +27,7 @@ _IGNORE_OPTION = option(
 
 
 _PATH_ARGUMENT = click.argument(
-    "paths", nargs=-1, type=str, callback=falsy_to_none_callback
+    "paths", nargs=-1, type=click.Path(exists=True), callback=falsy_to_none_callback
 )
 """click.Argument: An argument for paths."""
 
@@ -42,7 +42,7 @@ _VERBOSE_OPTION = option(
 
 
 _EDITOR_URL_SCHEME_OPTION = option(
-    default=None,
+    default="file",
     type=str,
     help="Use file, vscode, pycharm or a custom url scheme to add URLs to task "
     "ids to quickly jump to the task definition. Use no_link to disable URLs. "
@@ -58,7 +58,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         cli[command]["options"]["config"] = _CONFIG_OPTION
     for command in ["build", "clean", "collect", "profile"]:
         cli[command]["options"]["ignore"] = _IGNORE_OPTION
-        cli[command]["options"]["editor_url_config"] = _EDITOR_URL_SCHEME_OPTION
+        cli[command]["options"]["editor_url_scheme"] = _EDITOR_URL_SCHEME_OPTION
     for command in ["build", "clean", "collect", "dag", "profile"]:
         _PATH_ARGUMENT(cli[command]["cmd"])
     for command in ["build"]:

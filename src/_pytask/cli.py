@@ -13,6 +13,7 @@ from _pytask.click import ColoredGroup
 from _pytask.config import hookimpl
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.typed_settings import option
+from _pytask.typed_settings import TYPE_HANDLER
 from packaging.version import parse as parse_version
 
 
@@ -100,9 +101,7 @@ def cli(*args, main_settings) -> None:
     pass
 
 
-cmd_name_to_info = {
-    "main": {"cmd": cli, "options": {"dummy": option(default=1, type=int)}}
-}
+cmd_name_to_info = {"main": {"cmd": cli, "options": {}}}
 
 _extend_command_line_interface(cmd_name_to_info)
 
@@ -117,6 +116,7 @@ cli = click.version_option(**_VERSION_OPTION_KWARGS)(
             attrs.make_class("Settings", cmd_name_to_info["main"]["options"]),
             "pytask",
             argname="main_settings",
+            type_handler=TYPE_HANDLER,
         )(click.pass_obj(cli))
     )
 )
@@ -126,14 +126,13 @@ for name in cmd_name_to_info:
     if name == "main":
         continue
 
-    cli.command(
-        cls=ColoredCommand,
-    )(  # Uncomment to see the full name of switches.
+    cli.command(cls=ColoredCommand,)(  # Uncomment to see the full name of switches.
         ts.pass_settings(argname="main_settings")(
             ts.click_options(
                 attrs.make_class("Settings", cmd_name_to_info[name]["options"]),
                 f"pytask-{name}",
                 argname=f"{name}_settings",
+                type_handler=TYPE_HANDLER,
             )(cmd_name_to_info[name]["cmd"])
         )
     )

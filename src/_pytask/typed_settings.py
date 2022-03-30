@@ -53,6 +53,7 @@ def option(
         hash=hash,
         init=init,
         metadata=metadata,
+        type=type,
         converter=converter,
         factory=factory,
         kw_only=kw_only,

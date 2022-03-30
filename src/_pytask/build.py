@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import click
 from _pytask.config import hookimpl
+from _pytask.config_utils import merge_settings
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
@@ -143,6 +144,6 @@ def build(paths, main_settings, build_settings) -> NoReturn:
     current working directory, executes them and reports the results.
 
     """
-    config_from_cli["command"] = "build"
-    session = main(config_from_cli)
+    settings = merge_settings(paths, main_settings, build_settings, "build")
+    session = main(settings)
     sys.exit(session.exit_code)

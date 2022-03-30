@@ -20,23 +20,14 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.session import Session
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
-from rich.text import Text
 from _pytask.typed_settings import option
+from rich.text import Text
 
 
 try:
     from pluggy._manager import DistFacade
 except ImportError:
     from pluggy.manager import DistFacade
-
-
-if TYPE_CHECKING and sys.version_info >= (3, 8):
-    if sys.version_info >= (3, 8):
-        from typing import Literal
-    else:
-        from typing_extensions import Literal
-
-    _ShowTraceback = Literal["no", "yes"]
 
 
 class _TimeUnit(NamedTuple):
