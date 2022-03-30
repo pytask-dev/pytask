@@ -22,6 +22,7 @@ from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import render_exc_info
 from _pytask.typed_settings import option
+from _pytask.attrs import convert_to_none_or_type
 
 
 if TYPE_CHECKING:
@@ -45,11 +46,12 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         help="Enter debugger in the beginning of each task.",
     )
     cli["build"]["options"]["pdbcls"] = option(
+        converter=convert_to_none_or_type(str),
         default=None,
-        type=str,
-        metavar="module_name:class_name",
         help="Start a custom debugger on errors. For example: "
         "--pdbcls=IPython.terminal.debugger:TerminalPdb",
+        metavar="module_name:class_name",
+        type=str,
     )
 
 

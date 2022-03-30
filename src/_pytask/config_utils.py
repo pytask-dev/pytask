@@ -45,6 +45,6 @@ def merge_settings(
 
     settings_dict = {"paths": paths, "command": command, **main_dict, **command_dict}
     settings = {k: settings_dict[k] for k in sorted(settings_dict)}
-    settings = {k: None if v == "None" else v for k, v in settings.items()}
+    # settings = {k: None if v == "None" else v for k, v in settings.items()}
 
     return settings

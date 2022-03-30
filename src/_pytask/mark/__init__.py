@@ -27,6 +27,7 @@ from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from _pytask.typed_settings import option
 from rich.table import Table
+from _pytask.attrs import convert_to_none_or_type
 
 
 if TYPE_CHECKING:
@@ -89,18 +90,20 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
                 help="Raise errors for unknown markers.",
             ),
             "expression": option(
-                type=str,
+                converter=convert_to_none_or_type(str),
                 default=None,
+                help="Select tasks via expressions on task ids.",
                 param_decls="-k",
                 metavar="EXPRESSION",
-                help="Select tasks via expressions on task ids.",
+                type=str,
             ),
             "marker_expression": option(
-                type=str,
+                converter=convert_to_none_or_type(str),
                 default=None,
+                help="Select tasks via marker expressions.",
                 param_decls="-m",
                 metavar="MARKER_EXPRESSION",
-                help="Select tasks via marker expressions.",
+                type=str,
             ),
         }
 

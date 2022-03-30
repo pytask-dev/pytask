@@ -14,6 +14,7 @@ from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from _pytask.typed_settings import option
 from pony import orm
+from _pytask.attrs import convert_to_none_or_type
 
 
 class _DatabaseProviders(Enum):
@@ -86,16 +87,17 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         ),
     )
     cli["build"]["options"]["database_filename"] = option(
-        default=None,
-        type=str,
+        converter=convert_to_none_or_type(Path),
+        default=Path.cwd().joinpath(".pytask.sqlite3"),
         help="Path to database relative to root. [dim]\\[default: .pytask.sqlite3][/]",
+        type=str,
     )
     cli["build"]["options"]["database_create_db"] = option(
         default=True,
         is_flag=True,
+        help="Create database if it does not exist. [dim]\\[default: True][/]",
         param_decls="--database-create-db",
         type=bool,
-        help="Create database if it does not exist. [dim]\\[default: True][/]",
     )
     cli["build"]["options"]["database_create_tables"] = option(
         default=True,

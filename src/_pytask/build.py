@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import sys
-from enum import Enum
 from typing import Any
 from typing import TYPE_CHECKING
 
@@ -24,11 +23,6 @@ from rich.traceback import Traceback
 
 if TYPE_CHECKING:
     from typing import NoReturn
-
-
-class ShowTraceback(Enum):
-    yes = "yes"
-    no = "no"
 
 
 @hookimpl(tryfirst=True)
@@ -63,12 +57,14 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
                 help="Stop after the first failure.",
             ),
             "show_traceback": option(
-                default=ShowTraceback.yes,
-                type=ShowTraceback,
+                default=True,
                 help=(
                     "Choose whether tracebacks should be displayed or not. "
                     "[dim]\\[default: True][/]"
                 ),
+                is_flag=True,
+                param_decls="--show-traceback",
+                type=bool,
             ),
         },
     }
@@ -145,5 +141,6 @@ def build(paths, main_settings, build_settings) -> NoReturn:
 
     """
     settings = merge_settings(paths, main_settings, build_settings, "build")
+    breakpoint()
     session = main(settings)
     sys.exit(session.exit_code)

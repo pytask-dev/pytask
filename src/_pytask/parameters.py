@@ -1,27 +1,30 @@
 """Contains common parameters for the commands of the command line interface."""
 from __future__ import annotations
-
+from pathlib import Path
 import click
 from _pytask.config import hookimpl
 from _pytask.shared import falsy_to_none_callback
 from _pytask.typed_settings import option
+from _pytask.attrs import convert_to_none_or_type
 
 
 _CONFIG_OPTION = option(
+    converter=convert_to_none_or_type(Path),
     default=None,
-    type=str,
-    param_decls=("-c", "--config"),
     help="Path to configuration file.",
+    param_decls=("-c", "--config"),
+    type=str,
 )
 """option: An option for the --config flag."""
 
 _IGNORE_OPTION = option(
+    converter=convert_to_none_or_type(str),
     default=None,
-    type=str,
     help=(
         "A pattern to ignore files or directories. For example, task_example.py or "
         "src/*."
     ),
+    type=str,
 )
 """option: An option for the --ignore flag."""
 
