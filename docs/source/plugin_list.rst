@@ -20,7 +20,7 @@ This list contains 6 plugins.
    ==========================  ====================================================================  ==============  =========  ================
    :pypi:`pytask-environment`  Detect changes in your pytask environment and abort a project build.  Feb 08, 2022    3 - Alpha  pytask (>=0.1.7)
    :pypi:`pytask-julia`        A Pytask plugin for Julia                                             Jan 19, 2022    3 - Alpha  pytask (>=0.1)
-   :pypi:`pytask-latex`        Compile LaTeX documents with pytask.                                  Feb 08, 2022    3 - Alpha  pytask (>=0.1.7)
+   :pypi:`pytask-latex`        Compile LaTeX documents with pytask.                                  Mar 26, 2022    3 - Alpha  pytask (>=0.1.7)
    :pypi:`pytask-parallel`     Parallelize the execution of tasks with pytask.                       Feb 07, 2022    3 - Alpha  pytask (>=0.1.7)
    :pypi:`pytask-r`            Run R scripts with pytask.                                            Feb 07, 2022    3 - Alpha  pytask (>=0.1.7)
    :pypi:`pytask-stata`        Execute do-files with Stata and pytask.                               Feb 07, 2022    3 - Alpha  pytask (>=0.1.7)
@@ -44,7 +44,7 @@ This list contains 6 plugins.
      A Pytask plugin for Julia
 
   :pypi:`pytask-latex`
-     *last release*: Feb 08, 2022,
+     *last release*: Mar 26, 2022,
      *status*: 3 - Alpha,
      *requires*: pytask (>=0.1.7)
 
