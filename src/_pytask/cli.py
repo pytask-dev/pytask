@@ -102,6 +102,15 @@ def cli(*args, main_settings) -> None:
     pass
 
 
+def _make_class(name: str, options: dict[str, Any], properties: dict[str, Any]) -> type:
+    class_ = attrs.make_class(name, options)
+
+    for name, property_ in properties.items():
+        setattr(class_, name, property(property_))
+
+    return class_
+
+
 cmd_name_to_info = {"main": {"cmd": cli, "options": {}}}
 
 _extend_command_line_interface(cmd_name_to_info)
@@ -113,14 +122,14 @@ cli = click.version_option(**_VERSION_OPTION_KWARGS)(
         default="build",
         default_if_no_args=True,
     )(
-        # ts.click_options(
-        #     attrs.make_class("Settings", cmd_name_to_info["main"]["options"]),
-        #     loaders=[file_loader],
-        #     argname="main_settings",
-        #     type_handler=type_handler,
-        # )(
+        ts.click_options(
+            _make_class("Settings", cmd_name_to_info["main"]["options"], cmd_name_to_info["main"].get("properties", {})),
+            loaders=[file_loader],
+            argname="main_settings",
+            type_handler=type_handler,
+        )(
         click.pass_obj(cli)
-        # )
+        )
     )
 )
 
@@ -132,7 +141,7 @@ for name in cmd_name_to_info:
     cli.command(cls=ColoredCommand,)(  # Uncomment to see the full name of switches.
         ts.pass_settings(argname="main_settings")(
             ts.click_options(
-                attrs.make_class("Settings", cmd_name_to_info[name]["options"]),
+                _make_class("Settings", cmd_name_to_info[name]["options"], cmd_name_to_info[name].get("properties", {})),
                 loaders=[file_loader],
                 argname=f"{name}_settings",
                 type_handler=type_handler,

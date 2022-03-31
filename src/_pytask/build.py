@@ -28,7 +28,6 @@ if TYPE_CHECKING:
 @hookimpl(tryfirst=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface."""
-    breakpoint()
     cli["build"] = {
         "cmd": build,
         "options": {

@@ -75,6 +75,13 @@ class DatabaseProviders(Enum):
     cockroach = "cockroach"
 
 
+def _create_path_to_database(self):
+    path = Path(self.database_filename)
+    if not path.is_absolute():
+        path = self.root.joinpath(path)
+    return path.resolve()
+
+
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend command line interface."""
@@ -87,11 +94,11 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         ),
     )
     cli["build"]["options"]["database_filename"] = option(
-        converter=convert_to_none_or_type(Path),
-        default=Path.cwd().joinpath(".pytask.sqlite3"),
+        default=".pytask.sqlite3",
         help="Path to database relative to root. [dim]\\[default: .pytask.sqlite3][/]",
         type=str,
     )
+    cli["build"]["properties"] = {"database_path": _create_path_to_database}
     cli["build"]["options"]["database_create_db"] = option(
         default=True,
         is_flag=True,

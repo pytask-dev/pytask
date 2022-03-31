@@ -29,8 +29,22 @@ _IGNORE_OPTION = option(
 """option: An option for the --ignore flag."""
 
 
+def _path_callback(ctx, param, value):  # noqa: U100
+    """Convert input to :obj:`None` or absolute paths."""
+    if not value:
+        return None
+    else:
+        paths = []
+        for i in value:
+            path = Path(i)
+            if not path.is_absolute():
+                path = Path.cwd() / path
+            paths.append(path.resolve())
+        return paths
+
+
 _PATH_ARGUMENT = click.argument(
-    "paths", nargs=-1, type=click.Path(exists=True), callback=falsy_to_none_callback
+    "paths", nargs=-1, type=click.Path(exists=True), callback=_path_callback
 )
 """click.Argument: An argument for paths."""
 
