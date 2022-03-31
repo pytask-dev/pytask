@@ -48,3 +48,22 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
         ]:
             state = State[task_id, id_].state
             assert float(state) == path.stat().st_mtime
+
+
+@pytest.mark.end_to_end
+def test_rename_database_w_config(tmp_path, runner):
+    """Modification dates of input and output files are stored in database."""
+    tmp_path.joinpath("pytask.ini").write_text(
+        "[pytask]\ndatabase_filename=.db.sqlite3"
+    )
+    result = runner.invoke(cli)
+    assert result.exit_code == ExitCode.OK
+    tmp_path.joinpath(".db.sqlite3").exists()
+
+
+@pytest.mark.end_to_end
+def test_rename_database_w_config(tmp_path, runner):
+    """Modification dates of input and output files are stored in database."""
+    result = runner.invoke(cli, ["--database-filename", ".db.sqlite3"])
+    assert result.exit_code == ExitCode.OK
+    tmp_path.joinpath(".db.sqlite3").exists()

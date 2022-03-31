@@ -1,15 +1,54 @@
 from __future__ import annotations
 
+import configparser
+from pathlib import Path
+from typing import Any
+
 import attr
+import typed_settings as ts
 from typed_settings.attrs import METADATA_KEY
 from typed_settings.click_utils import DEFAULT_TYPES
 from typed_settings.click_utils import TypeHandler
+from typed_settings.exceptions import ConfigFileLoadError
+from typed_settings.exceptions import ConfigFileNotFoundError
+from typed_settings.types import OptionInfo
 
 
 type_dict = {**DEFAULT_TYPES}
+type_handler = TypeHandler(type_dict)
 
 
-TYPE_HANDLER = TypeHandler(type_dict)
+@attr.s
+class IniFormat:
+    """Read settings from an .ini formatted file."""
+
+    section = attr.ib(type=str)
+
+    def __call__(
+        self, path: Path, _settings_cls: type, _options: list[OptionInfo]
+    ) -> dict[str, Any]:
+        sections = self.section.split(".")
+
+        try:
+            config = configparser.ConfigParser()
+            config.read(path)
+        except FileNotFoundError as e:
+            raise ConfigFileNotFoundError(str(e)) from e
+        for s in sections:
+            try:
+                settings = config[s]
+            except KeyError:
+                return {}
+        return settings
+
+
+file_loader = ts.FileLoader(
+    formats={
+        "*.cfg": IniFormat("pytask"),
+        "*.ini": IniFormat("pytask"),
+    },
+    files=["setup.cfg", "tox.ini", "pytask.ini"],
+)
 
 
 def option(

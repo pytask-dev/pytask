@@ -7,6 +7,7 @@ from typing import Any
 
 import click
 import networkx as nx
+from _pytask.attrs import convert_to_none_or_type
 from _pytask.config import hookimpl
 from _pytask.config_utils import parse_click_choice
 from _pytask.dag import node_and_neighbors
@@ -14,7 +15,6 @@ from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from _pytask.typed_settings import option
 from pony import orm
-from _pytask.attrs import convert_to_none_or_type
 
 
 class _DatabaseProviders(Enum):
@@ -115,44 +115,10 @@ def pytask_parse_config(
     config_from_file: dict[str, Any],
 ) -> None:
     """Parse the configuration."""
-    config["database_provider"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="database_provider",
-        default=_DatabaseProviders.SQLITE,
-        callback=parse_click_choice("database_provider", _DatabaseProviders),
-    )
-    filename = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="database_filename",
-        default=".pytask.sqlite3",
-    )
-    filename = Path(filename)
-    if not filename.is_absolute():
-        filename = Path(config["root"], filename).resolve()
-    config["database_filename"] = filename
-
-    config["database_create_db"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="database_create_db",
-        default=True,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-    config["database_create_tables"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="database_create_tables",
-        default=True,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-    config["database"] = {
-        "provider": config["database_provider"].value,
-        "filename": config["database_filename"].as_posix(),
-        "create_db": config["database_create_db"],
-        "create_tables": config["database_create_tables"],
-    }
+    database_filename = Path(settings.database_filename)
+    if not database_filename.is_absolute():
+        database_filename = Path(config["root"], database_filename).resolve()
+    settings.database_filename = database_filename
 
 
 @hookimpl

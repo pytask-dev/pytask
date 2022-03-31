@@ -12,8 +12,9 @@ from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
 from _pytask.config import hookimpl
 from _pytask.pluginmanager import get_plugin_manager
+from _pytask.typed_settings import file_loader
 from _pytask.typed_settings import option
-from _pytask.typed_settings import TYPE_HANDLER
+from _pytask.typed_settings import type_handler
 from packaging.version import parse as parse_version
 
 
@@ -112,12 +113,14 @@ cli = click.version_option(**_VERSION_OPTION_KWARGS)(
         default="build",
         default_if_no_args=True,
     )(
-        ts.click_options(
-            attrs.make_class("Settings", cmd_name_to_info["main"]["options"]),
-            "pytask",
-            argname="main_settings",
-            type_handler=TYPE_HANDLER,
-        )(click.pass_obj(cli))
+        # ts.click_options(
+        #     attrs.make_class("Settings", cmd_name_to_info["main"]["options"]),
+        #     loaders=[file_loader],
+        #     argname="main_settings",
+        #     type_handler=type_handler,
+        # )(
+        click.pass_obj(cli)
+        # )
     )
 )
 
@@ -130,9 +133,9 @@ for name in cmd_name_to_info:
         ts.pass_settings(argname="main_settings")(
             ts.click_options(
                 attrs.make_class("Settings", cmd_name_to_info[name]["options"]),
-                f"pytask-{name}",
+                loaders=[file_loader],
                 argname=f"{name}_settings",
-                type_handler=TYPE_HANDLER,
+                type_handler=type_handler,
             )(cmd_name_to_info[name]["cmd"])
         )
     )
