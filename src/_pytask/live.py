@@ -81,10 +81,10 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 
     if config["verbose"] >= 1:
         live_execution = LiveExecution(
-            live_manager,
-            config["n_entries_in_table"],
-            config["verbose"],
-            config["editor_url_scheme"],
+            live_manager=live_manager,
+            n_entries_in_table=config["n_entries_in_table"],
+            verbose=config["verbose"],
+            editor_url_scheme=config["editor_url_scheme"],
         )
         config["pm"].register(live_execution, "live_execution")
 
@@ -95,7 +95,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 @hookimpl(tryfirst=True)
 def pytask_execute_build(session: Session) -> None:
     live_execution = session.config["pm"].get_plugin("live_execution")
-    live_execution._n_tasks = len(session.tasks)
+    live_execution.n_tasks = len(session.tasks)
 
 
 @attr.s(eq=False)
@@ -147,25 +147,25 @@ class LiveManager:
         return self._live.is_started
 
 
-@attr.s(eq=False)
+@attr.s(eq=False, kw_only=True)
 class LiveExecution:
     """A class for managing the table displaying task progress during the execution."""
 
-    _live_manager = attr.ib(type=LiveManager)
-    _n_entries_in_table = attr.ib(type=int)
-    _verbose = attr.ib(type=int)
-    _editor_url_scheme = attr.ib(type=str)
-    _running_tasks = attr.ib(factory=dict, type=Dict[str, Task])
+    live_manager = attr.ib(type=LiveManager)
+    n_entries_in_table = attr.ib(type=int)
+    verbose = attr.ib(type=int)
+    editor_url_scheme = attr.ib(type=str)
+    n_tasks = attr.ib(default="x", type=Union[int, str])
     _reports = attr.ib(factory=list, type=List[Dict[str, Any]])
-    _n_tasks = attr.ib(default="x", type=Union[int, str])
+    _running_tasks = attr.ib(factory=dict, type=Dict[str, Task])
 
     @hookimpl(hookwrapper=True)
     def pytask_execute_build(self) -> Generator[None, None, None]:
         """Wrap the execution with the live manager and yield a complete table at the
         end."""
-        self._live_manager.start()
+        self.live_manager.start()
         yield
-        self._live_manager.stop(transient=True)
+        self.live_manager.stop(transient=True)
         table = self._generate_table(
             reduce_table=False, sort_table=True, add_caption=False
         )
@@ -195,9 +195,9 @@ class LiveExecution:
         if more entries are requested, the list is filled up with completed tasks.
 
         """
-        n_reports_to_display = self._n_entries_in_table - len(self._running_tasks)
+        n_reports_to_display = self.n_entries_in_table - len(self._running_tasks)
 
-        if self._verbose < 2:
+        if self.verbose < 2:
             reports = [
                 report
                 for report in self._reports
@@ -227,7 +227,7 @@ class LiveExecution:
         if add_caption:
             caption_kwargs = {
                 "caption": Text(
-                    f"Completed: {len(self._reports)}/{self._n_tasks}",
+                    f"Completed: {len(self._reports)}/{self.n_tasks}",
                     style=Style(dim=True, italic=False),
                 ),
                 "caption_justify": "right",
@@ -243,7 +243,7 @@ class LiveExecution:
             table.add_row(
                 format_task_id(
                     report["task"],
-                    editor_url_scheme=self._editor_url_scheme,
+                    editor_url_scheme=self.editor_url_scheme,
                     short_name=True,
                 ),
                 Text(report["outcome"].symbol, style=report["outcome"].style),
@@ -251,7 +251,7 @@ class LiveExecution:
         for task in self._running_tasks.values():
             table.add_row(
                 format_task_id(
-                    task, editor_url_scheme=self._editor_url_scheme, short_name=True
+                    task, editor_url_scheme=self.editor_url_scheme, short_name=True
                 ),
                 "running",
             )
@@ -272,7 +272,7 @@ class LiveExecution:
         table = self._generate_table(
             reduce_table=reduce_table, sort_table=sort_table, add_caption=add_caption
         )
-        self._live_manager.update(table)
+        self.live_manager.update(table)
 
     def update_running_tasks(self, new_running_task: Task) -> None:
         """Add a new running task."""
