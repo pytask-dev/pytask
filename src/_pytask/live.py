@@ -88,7 +88,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
         )
         config["pm"].register(live_execution, "live_execution")
 
-    live_collection = LiveCollection(live_manager)
+    live_collection = LiveCollection(live_manager=live_manager)
     config["pm"].register(live_collection, "live_collection")
 
 
@@ -292,18 +292,18 @@ class LiveExecution:
         self._update_table()
 
 
-@attr.s(eq=False)
+@attr.s(eq=False, kw_only=True)
 class LiveCollection:
     """A class for managing the live status during the collection."""
 
-    _live_manager = attr.ib(type=LiveManager)
+    live_manager = attr.ib(type=LiveManager)
     _n_collected_tasks = attr.ib(default=0, type=int)
     _n_errors = attr.ib(default=0, type=int)
 
     @hookimpl(hookwrapper=True)
     def pytask_collect(self) -> Generator[None, None, None]:
-        """Start the status of the cllection."""
-        self._live_manager.start()
+        """Start the status of the collection."""
+        self.live_manager.start()
         yield
 
     @hookimpl
@@ -315,7 +315,7 @@ class LiveCollection:
     @hookimpl(hookwrapper=True)
     def pytask_collect_log(self) -> Generator[None, None, None]:
         """Stop the live display when all tasks have been collected."""
-        self._live_manager.stop(transient=True)
+        self.live_manager.stop(transient=True)
         yield
 
     def _update_statistics(self, reports: list[CollectionReport]) -> None:
@@ -331,7 +331,7 @@ class LiveCollection:
     def _update_status(self) -> None:
         """Update the status."""
         status = self._generate_status()
-        self._live_manager.update(status)
+        self.live_manager.update(status)
 
     def _generate_status(self) -> Status:
         """Generate the status."""
