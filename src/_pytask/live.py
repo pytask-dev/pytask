@@ -5,6 +5,7 @@ from typing import Any
 from typing import Dict
 from typing import Generator
 from typing import List
+from typing import Union
 
 import attr
 import click
@@ -16,9 +17,11 @@ from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
 from _pytask.report import CollectionReport
 from _pytask.report import ExecutionReport
+from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
 from rich.live import Live
 from rich.status import Status
+from rich.style import Style
 from rich.table import Table
 from rich.text import Text
 
@@ -83,10 +86,16 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
             config["verbose"],
             config["editor_url_scheme"],
         )
-        config["pm"].register(live_execution)
+        config["pm"].register(live_execution, "live_execution")
 
     live_collection = LiveCollection(live_manager)
-    config["pm"].register(live_collection)
+    config["pm"].register(live_collection, "live_collection")
+
+
+@hookimpl(tryfirst=True)
+def pytask_execute_build(session: Session) -> None:
+    live_execution = session.config["pm"].get_plugin("live_execution")
+    live_execution._n_tasks = len(session.tasks)
 
 
 @attr.s(eq=False)
@@ -148,6 +157,7 @@ class LiveExecution:
     _editor_url_scheme = attr.ib(type=str)
     _running_tasks = attr.ib(factory=dict, type=Dict[str, Task])
     _reports = attr.ib(factory=list, type=List[Dict[str, Any]])
+    _n_tasks = attr.ib(default="x", type=Union[int, str])
 
     @hookimpl(hookwrapper=True)
     def pytask_execute_build(self) -> Generator[None, None, None]:
@@ -156,7 +166,9 @@ class LiveExecution:
         self._live_manager.start()
         yield
         self._live_manager.stop(transient=True)
-        table = self._generate_table(reduce_table=False, sort_table=True)
+        table = self._generate_table(
+            reduce_table=False, sort_table=True, add_caption=False
+        )
         if table is not None:
             console.print(table)
 
@@ -172,7 +184,9 @@ class LiveExecution:
         self.update_reports(report)
         return True
 
-    def _generate_table(self, reduce_table: bool, sort_table: bool) -> Table | None:
+    def _generate_table(
+        self, reduce_table: bool, sort_table: bool, add_caption: bool
+    ) -> Table | None:
         """Generate the table.
 
         First, display all completed tasks and, then, all running tasks.
@@ -210,7 +224,19 @@ class LiveExecution:
                 relevant_reports, key=lambda report: report["name"]
             )
 
-        table = Table()
+        if add_caption:
+            caption_kwargs = {
+                "caption": Text(
+                    f"Completed: {len(self._reports)}/{self._n_tasks}",
+                    style=Style(dim=True, italic=False),
+                ),
+                "caption_justify": "right",
+                "caption_style": None,
+            }
+        else:
+            caption_kwargs = {}
+
+        table = Table(**caption_kwargs)
         table.add_column("Task", overflow="fold")
         table.add_column("Outcome")
         for report in relevant_reports:
@@ -237,10 +263,15 @@ class LiveExecution:
         return table
 
     def _update_table(
-        self, reduce_table: bool = True, sort_table: bool = False
+        self,
+        reduce_table: bool = True,
+        sort_table: bool = False,
+        add_caption: bool = True,
     ) -> None:
         """Regenerate the table."""
-        table = self._generate_table(reduce_table=reduce_table, sort_table=sort_table)
+        table = self._generate_table(
+            reduce_table=reduce_table, sort_table=sort_table, add_caption=add_caption
+        )
         self._live_manager.update(table)
 
     def update_running_tasks(self, new_running_task: Task) -> None:
