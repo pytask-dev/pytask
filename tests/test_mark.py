@@ -65,8 +65,8 @@ def test_ini_markers(tmp_path, config_name):
     session = main({"paths": tmp_path})
 
     assert session.exit_code == ExitCode.OK
-    assert "a1" in session.config["markers"]
-    assert "a2" in session.config["markers"]
+    assert "a1" in session.config.option.markers
+    assert "a2" in session.config.option.markers
 
 
 @pytest.mark.end_to_end

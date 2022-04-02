@@ -5,7 +5,7 @@ import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
-from _pytask.config import _find_project_root_and_ini
+from _pytask.config import _find_project_root
 from _pytask.config import _read_config
 from pytask import ExitCode
 from pytask import main
@@ -40,7 +40,7 @@ def test_find_project_root_and_ini(
             path.parent.mkdir(exist_ok=True, parents=True)
             path.touch()
 
-    root, ini = _find_project_root_and_ini(paths)
+    root, ini = _find_project_root(paths)
 
     assert root == tmp_path.joinpath(expected_root)
     if expected_ini is None:
@@ -53,7 +53,7 @@ def test_find_project_root_and_ini(
 @pytest.mark.parametrize("paths", [None, ["/mnt/home/", "C:/Users/"]])
 def test_find_project_root_and_ini_raise_warning(paths):
     with pytest.warns(UserWarning, match="A common path for all passed path"):
-        _find_project_root_and_ini(paths)
+        _find_project_root(paths)
 
 
 @pytest.mark.end_to_end
@@ -86,7 +86,7 @@ def test_pass_config_to_cli(tmp_path, config_path):
     session = main({"config": tmp_path.joinpath(config_path).as_posix()})
 
     assert session.exit_code == ExitCode.OK
-    assert "elton" in session.config["markers"]
+    assert "elton" in session.config.option.markers
 
 
 @pytest.mark.end_to_end
@@ -108,7 +108,7 @@ def test_prioritize_given_config_over_others(tmp_path, config_path):
     session = main({"config": tmp_path.joinpath(config_path).as_posix()})
 
     assert session.exit_code == ExitCode.OK
-    assert "kylie" in session.config["markers"]
+    assert "kylie" in session.config.option.markers
 
 
 @pytest.mark.end_to_end

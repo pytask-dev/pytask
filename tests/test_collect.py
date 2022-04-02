@@ -123,7 +123,7 @@ def test_collect_files_w_custom_file_name_pattern(
     for file in task_files:
         tmp_path.joinpath(file).write_text("def task_example(): pass")
 
-    session = main({"paths": tmp_path})
+    session = main({"paths": tmp_path, "config": tmp_path.joinpath(config_name)})
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == expected_collected_tasks

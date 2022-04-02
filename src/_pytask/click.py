@@ -103,7 +103,7 @@ def print_options(group_or_command: click.Command | DefaultGroup, ctx: Any) -> N
 
     options_table = Table(highlight=True, box=None, show_header=False)
 
-    for param in group_or_command.get_params(ctx):
+    for param in sorted(group_or_command.get_params(ctx), key=lambda x: x.name):
 
         if isinstance(param, click.Argument):
             continue

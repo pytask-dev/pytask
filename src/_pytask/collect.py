@@ -63,7 +63,7 @@ def _collect_from_paths(session: Session) -> None:
     Go through all paths, check if the path is ignored, and collect the file if not.
 
     """
-    for path in _not_ignored_paths(session.config["paths"], session):
+    for path in _not_ignored_paths(session.config.option.paths, session):
         reports = session.hook.pytask_collect_file_protocol(
             session=session, path=path, reports=session.collection_reports
         )
@@ -78,7 +78,7 @@ def _collect_from_paths(session: Session) -> None:
 @hookimpl
 def pytask_ignore_collect(path: Path, config: dict[str, Any]) -> bool:
     """Ignore a path during the collection."""
-    is_ignored = any(path.match(pattern) for pattern in config["ignore"])
+    is_ignored = any(path.match(pattern) for pattern in config.option.ignore)
     return is_ignored
 
 
@@ -110,7 +110,7 @@ def pytask_collect_file(
     session: Session, path: Path, reports: list[CollectionReport]
 ) -> list[CollectionReport] | None:
     """Collect a file."""
-    if any(path.match(pattern) for pattern in session.config["task_files"]):
+    if any(path.match(pattern) for pattern in session.config.option.task_files):
         spec = importlib_util.spec_from_file_location(path.stem, str(path))
 
         if spec is None:
@@ -254,7 +254,7 @@ def pytask_collect_node(
 
         if (
             not IS_FILE_SYSTEM_CASE_SENSITIVE
-            and session.config["check_casing_of_paths"]
+            and session.config.option.check_casing_of_paths
             and sys.platform == "win32"
         ):
             case_sensitive_path = find_case_sensitive_path(node, "win32")
@@ -371,7 +371,9 @@ def pytask_collect_log(
                         report.node, editor_url_scheme="no_link", short_name=True
                     )
                 else:
-                    short_name = reduce_node_name(report.node, session.config["paths"])
+                    short_name = reduce_node_name(
+                        report.node, session.config.option.paths
+                    )
                 header = f"Could not collect {short_name}"
 
             console.rule(
@@ -382,7 +384,7 @@ def pytask_collect_log(
             console.print()
 
             console.print(
-                render_exc_info(*report.exc_info, session.config["show_locals"])
+                render_exc_info(*report.exc_info, session.config.option.show_locals)
             )
 
             console.print()

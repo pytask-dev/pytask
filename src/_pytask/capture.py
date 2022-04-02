@@ -95,34 +95,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
-    """Parse configuration.
-
-    Note that, ``-s`` is a shortcut for ``--capture=no``.
-
-    """
-    if config_from_cli.get("s"):
-        config["capture"] = _CaptureMethod.NO
-    else:
-        config["capture"] = get_first_non_none_value(
-            config_from_cli,
-            config_from_file,
-            key="capture",
-            default=_CaptureMethod.FD,
-            callback=parse_click_choice("capture", _CaptureMethod),
-        )
-
-    config["show_capture"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_capture",
-        default=ShowCapture.ALL,
-        callback=parse_click_choice("show_capture", ShowCapture),
-    )
+def pytask_parse_config(config: dict[str, Any]) -> None:
+    if config.get("s"):
+        config.attrs["capture"] = _CaptureMethod.NO
 
 
 @hookimpl
@@ -130,8 +105,8 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     """Initialize the CaptureManager."""
     _colorama_workaround()
 
-    pluginmanager = config["pm"]
-    capman = CaptureManager(config["capture"])
+    pluginmanager = config.option.pm
+    capman = CaptureManager(config.option.capture)
     pluginmanager.register(capman, "capturemanager")
     capman.stop_capturing()
     capman.start_capturing()

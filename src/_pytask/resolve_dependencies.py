@@ -311,7 +311,7 @@ def pytask_resolve_dependencies_log(
     )
 
     console.print()
-    console.print(render_exc_info(*report.exc_info, session.config["show_locals"]))
+    console.print(render_exc_info(*report.exc_info, session.config.option.show_locals))
 
     console.print()
     console.rule(style="failed")

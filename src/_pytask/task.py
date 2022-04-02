@@ -15,7 +15,9 @@ from _pytask.task_utils import parse_collected_tasks_with_task_marker
 @hookimpl
 def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse the configuration."""
-    config["markers"]["task"] = "Mark a function as a task regardless of its name."
+    config.attrs["markers"][
+        "task"
+    ] = "Mark a function as a task regardless of its name."
 
 
 @hookimpl(trylast=True)
@@ -24,7 +26,7 @@ def pytask_collect_file(
 ) -> list[CollectionReport] | None:
     """Collect a file."""
     if (
-        any(path.match(pattern) for pattern in session.config["task_files"])
+        any(path.match(pattern) for pattern in session.config.option.task_files)
         and COLLECTED_TASKS[path]
     ):
         # Remove tasks from the global to avoid re-collection if programmatic interface

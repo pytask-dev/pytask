@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
     from _pytask.reports import ResolveDependencyReport
+    from _pytask.config_utils import Configuration
 
 
 hookspec = pluggy.HookspecMarker("pytask")
@@ -65,9 +66,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookspec(firstresult=True)
-def pytask_configure(
-    pm: pluggy.PluginManager, config_from_cli: dict[str, Any]
-) -> dict[str, Any]:
+def pytask_configure(pm: pluggy.PluginManager, config: Configuration) -> Configuration:
     """Configure pytask.
 
     The main hook implementation which controls the configuration and calls subordinated
@@ -77,11 +76,7 @@ def pytask_configure(
 
 
 @hookspec
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse configuration from the CLI or from file.
 
     This hook can be used to unify the configuration from the command line interface,

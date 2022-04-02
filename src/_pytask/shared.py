@@ -43,17 +43,20 @@ def to_list(scalar_or_iter: Any) -> list[Any]:
     )
 
 
-def parse_paths(x: Any | None) -> list[Path] | None:
+def parse_paths(x: Any | None, relative_to: Path) -> list[Path] | None:
     """Parse paths."""
-    if x is not None:
-        paths = [Path(p) for p in to_list(x)]
-        paths = [
-            Path(p).resolve() for path in paths for p in glob.glob(path.as_posix())
-        ]
-        out = paths
-    else:
-        out = None
-    return out
+    if x is None:
+        return None
+
+    if isinstance(x, str):
+        x = x.split("\n")
+
+    paths = [Path(p) for p in to_list(x)]
+    absolute_paths = [p if p.is_absolute() else relative_to.joinpath(p) for p in paths]
+    glob_resolved = [
+        Path(p).resolve() for path in paths for p in glob.glob(path.as_posix())
+    ]
+    return glob_resolved
 
 
 def falsy_to_none_callback(
@@ -142,7 +145,7 @@ def reduce_node_name(node: MetaNode, paths: Sequence[str | Path]) -> str:
     when using nested folder structures in bigger projects.
 
     Thus, the part of the name which contains the path is replaced by the relative
-    path from one path in ``session.config["paths"]`` to the node.
+    path from one path in ``session.config.option.paths`` to the node.
 
     """
     ancestor = find_closest_ancestor(node.path, paths)

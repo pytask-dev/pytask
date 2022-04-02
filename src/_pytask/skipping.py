@@ -44,7 +44,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
         "skipif": "Skip a task and all its subsequent tasks in case a condition is "
         "fulfilled.",
     }
-    config["markers"] = {**config["markers"], **markers}
+    config.attrs["markers"] = {**config.attrs["markers"], **markers}
 
 
 @hookimpl

@@ -48,43 +48,6 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_file: dict[str, Any],
-    config_from_cli: dict[str, Any],
-) -> None:
-    """Parse configuration."""
-    config["show_locals"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_locals",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-    config["editor_url_scheme"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="editor_url_scheme",
-        default="file",
-        callback=lambda x: None if x in [None, "none", "None"] else str(x),
-    )
-    if config["editor_url_scheme"] not in ["no_link", "file"] and IS_WINDOWS_TERMINAL:
-        config["editor_url_scheme"] = "file"
-        warnings.warn(
-            "Windows Terminal does not support url schemes to applications, yet."
-            "See https://github.com/pytask-dev/pytask/issues/171 for more information. "
-            "Resort to `editor_url_scheme='file'`."
-        )
-    config["show_traceback"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_traceback",
-        default=True,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-
-
-@hookimpl
 def pytask_log_session_header(session: Session) -> None:
     """Log the header of a pytask session."""
     console.rule("Start pytask session", style=None)
@@ -92,11 +55,11 @@ def pytask_log_session_header(session: Session) -> None:
         f"Platform: {sys.platform} -- Python {platform.python_version()}, "
         f"pytask {_pytask.__version__}, pluggy {pluggy.__version__}"
     )
-    console.print(f"Root: {session.config['root']}")
-    if session.config["config"] is not None:
-        console.print(f"Configuration: {session.config['config']}")
+    console.print(f"Root: {session.config.option.root}")
+    if session.config.option.config is not None:
+        console.print(f"Configuration: {session.config.option.config}")
 
-    plugin_info = session.config["pm"].list_plugin_distinfo()
+    plugin_info = session.config.option.pm.list_plugin_distinfo()
     if plugin_info:
         formatted_plugins_w_versions = ", ".join(
             _format_plugin_names_and_versions(plugin_info)

@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING
 import click
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
+from _pytask.config_utils import Configuration
+from _pytask.config_utils import merge_settings
 from _pytask.console import console
 from _pytask.console import create_url_style_for_path
 from _pytask.console import FILE_ICON
@@ -25,10 +27,10 @@ from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
+from _pytask.typed_settings import option
 from pybaum.tree_util import tree_just_flatten
 from rich.text import Text
 from rich.tree import Tree
-from _pytask.typed_settings import option
 
 
 if TYPE_CHECKING:
@@ -52,17 +54,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     }
 
 
-@hookimpl
-def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
-) -> None:
-    """Parse configuration."""
-    config["nodes"] = config_from_cli.get("nodes", False)
-
-
-def collect(**config_from_cli: Any | None) -> NoReturn:
+def collect(paths, main_settings, collect_settings) -> NoReturn:
     """Collect tasks and report information about them."""
-    config_from_cli["command"] = "collect"
+    config = merge_settings(paths, main_settings, collect_settings, "collect")
 
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
@@ -72,7 +66,7 @@ def collect(**config_from_cli: Any | None) -> NoReturn:
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, config=config)
         session = Session.from_config(config)
 
     except (ConfigurationError, Exception):
@@ -89,14 +83,14 @@ def collect(**config_from_cli: Any | None) -> NoReturn:
             tasks = _select_tasks_by_expressions_and_marker(session)
 
             common_ancestor = _find_common_ancestor_of_all_nodes(
-                tasks, session.config["paths"], session.config["nodes"]
+                tasks, session.config.option.paths, session.config.option.nodes
             )
             dictionary = _organize_tasks(tasks)
             if dictionary:
                 _print_collected_tasks(
                     dictionary,
-                    session.config["nodes"],
-                    session.config["editor_url_scheme"],
+                    session.config.option.nodes,
+                    session.config.option.editor_url_scheme,
                     common_ancestor,
                 )
 

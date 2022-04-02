@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 import click
 import pluggy
+from _pytask.attrs import convert_to_none_or_type
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.nodes import Task
@@ -22,7 +23,6 @@ from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import render_exc_info
 from _pytask.typed_settings import option
-from _pytask.attrs import convert_to_none_or_type
 
 
 if TYPE_CHECKING:
@@ -55,34 +55,6 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     )
 
 
-@hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
-    """Parse the configuration."""
-    config["pdb"] = get_first_non_none_value(
-        config_from_cli,
-        key="pdb",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-    config["trace"] = get_first_non_none_value(
-        config_from_cli,
-        key="trace",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-    config["pdbcls"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="pdbcls",
-        default=None,
-        callback=_pdbcls_callback,
-    )
-
-
 def _pdbcls_callback(x: str | None) -> tuple[str, str] | None:
     """Validate the debugger class string passed to pdbcls."""
     message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
@@ -107,17 +79,17 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     option and may be disable it. Especially thinking about pytask-parallel.
 
     """
-    if config["pdb"]:
-        config["pm"].register(PdbDebugger)
+    if config.option.pdb:
+        config.option.pm.register(PdbDebugger)
 
-    if config["trace"]:
-        config["pm"].register(PdbTrace)
+    if config.option.trace:
+        config.option.pm.register(PdbTrace)
 
     PytaskPDB._saved.append(
         (pdb.set_trace, PytaskPDB._pluginmanager, PytaskPDB._config)
     )
     pdb.set_trace = PytaskPDB.set_trace
-    PytaskPDB._pluginmanager = config["pm"]
+    PytaskPDB._pluginmanager = config.option.pm
     PytaskPDB._config = config
 
 
@@ -157,7 +129,7 @@ class PytaskPDB:
             # Happens when using pytask.set_trace outside of a task.
             return pdb.Pdb
 
-        usepdb_cls = cls._config["pdbcls"]
+        usepdb_cls = cls._config.option.pdbcls
 
         if cls._wrapped_pdb_cls and cls._wrapped_pdb_cls[0] == usepdb_cls:
             return cls._wrapped_pdb_cls[1]
@@ -344,8 +316,8 @@ def wrap_function_for_post_mortem_debugging(session: Session, task: Task) -> Non
 
     @functools.wraps(task_function)
     def wrapper(*args: Any, **kwargs: Any) -> None:
-        capman = session.config["pm"].get_plugin("capturemanager")
-        live_manager = session.config["pm"].get_plugin("live_manager")
+        capman = session.config.option.pm.get_plugin("capturemanager")
+        live_manager = session.config.option.pm.get_plugin("live_manager")
         try:
             task_function(*args, **kwargs)
 
@@ -372,7 +344,7 @@ def wrap_function_for_post_mortem_debugging(session: Session, task: Task) -> Non
 
             console.print()
             console.rule("Traceback", characters=">", style=None)
-            console.print(render_exc_info(*exc_info, session.config["show_locals"]))
+            console.print(render_exc_info(*exc_info, session.config.option.show_locals))
 
             post_mortem(exc_info[2])
 
@@ -409,8 +381,8 @@ def wrap_function_for_tracing(session: Session, task: Task) -> None:
     # of the kwargs to task_function was called `func`.
     @functools.wraps(task_function)
     def wrapper(*args: Any, **kwargs: Any) -> None:
-        capman = session.config["pm"].get_plugin("capturemanager")
-        live_manager = session.config["pm"].get_plugin("live_manager")
+        capman = session.config.option.pm.get_plugin("capturemanager")
+        live_manager = session.config.option.pm.get_plugin("live_manager")
 
         # Order is important! Pausing the live object before the capturemanager would
         # flush the table to stdout and it will be visible in the captured output.

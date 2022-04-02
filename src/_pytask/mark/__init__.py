@@ -9,7 +9,10 @@ from typing import TYPE_CHECKING
 import attr
 import click
 import networkx as nx
+from _pytask.attrs import convert_to_none_or_type
 from _pytask.config import hookimpl
+from _pytask.config_utils import Configuration
+from _pytask.config_utils import merge_settings
 from _pytask.console import console
 from _pytask.dag import task_and_preceding_tasks
 from _pytask.exceptions import ConfigurationError
@@ -27,7 +30,6 @@ from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from _pytask.typed_settings import option
 from rich.table import Table
-from _pytask.attrs import convert_to_none_or_type
 
 
 if TYPE_CHECKING:
@@ -44,9 +46,9 @@ __all__ = [
 ]
 
 
-def markers(**config_from_cli: Any) -> NoReturn:
+def markers(paths, main_settings, markers_settings) -> NoReturn:
     """Show all registered markers."""
-    config_from_cli["command"] = "markers"
+    config = merge_settings(paths, main_settings, markers_settings, "markers")
 
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
@@ -67,7 +69,7 @@ def markers(**config_from_cli: Any) -> NoReturn:
     else:
         table = Table("Marker", "Description", leading=1)
 
-        for name, description in config["markers"].items():
+        for name, description in config.option.markers.items():
             table.add_row(f"pytask.mark.{name}", description)
 
         console.print(table)
@@ -110,27 +112,16 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli["markers"] = {"cmd": markers, "options": {}}
 
 
-@hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
+@hookimpl(trylast=True)
+def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse marker related options."""
-    markers = _read_marker_mapping_from_ini(config_from_file.get("markers", ""))
-    config["markers"] = {**markers, **config["markers"]}
-    config["strict_markers"] = get_first_non_none_value(
-        config,
-        config_from_file,
-        config_from_cli,
-        key="strict_markers",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
+    markers = config.get_all("markers")
+    merged_markers = {k: v for m in reversed(markers) for k, v in m.items()}
+    config.attrs["markers"] = {k: merged_markers[k] for k in sorted(merged_markers)}
 
-    config["expression"] = config_from_cli.get("expression")
-    config["marker_expression"] = config_from_cli.get("marker_expression")
 
+@hookimpl
+def pytask_post_parse(config):
     MARK_GEN.config = config
 
 
@@ -198,7 +189,7 @@ class KeywordMatcher:
 
 def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str]:
     """Deselect tests by keywords."""
-    keywordexpr = session.config["expression"]
+    keywordexpr = session.config.option.expression
     if not keywordexpr:
         return None
 
@@ -238,7 +229,7 @@ class MarkMatcher:
 
 def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str]:
     """Deselect tests by marks."""
-    matchexpr = session.config["marker_expression"]
+    matchexpr = session.config.option.marker_expression
     if not matchexpr:
         return None
 

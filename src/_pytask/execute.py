@@ -35,26 +35,10 @@ from rich.text import Text
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
-    """Parse the configuration."""
-    config["show_errors_immediately"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_errors_immediately",
-        default=False,
-        callback=lambda x: x if x is None else bool(x),
-    )
-
-
-@hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Adjust the configuration after intermediate values have been parsed."""
-    if config["show_errors_immediately"]:
-        config["pm"].register(ShowErrorsImmediatelyPlugin)
+    if config.option.show_errors_immediately:
+        config.option.pm.register(ShowErrorsImmediatelyPlugin)
 
 
 @hookimpl
@@ -203,7 +187,7 @@ def pytask_execute_task_process_report(
             )
 
         session.n_tasks_failed += 1
-        if session.n_tasks_failed >= session.config["max_failures"]:
+        if session.n_tasks_failed >= session.config.option.max_failures:
             session.should_stop = True
 
         if report.exc_info and isinstance(report.exc_info[1], Exit):
@@ -216,7 +200,7 @@ def pytask_execute_task_process_report(
 def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:
     """Log task outcome."""
     url_style = create_url_style_for_task(
-        report.task.function, session.config["editor_url_scheme"]
+        report.task.function, session.config.option.editor_url_scheme
     )
     console.print(
         report.outcome.symbol,
@@ -240,7 +224,7 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
 
     counts = count_outcomes(reports, TaskOutcome)
 
-    if session.config["show_traceback"]:
+    if session.config.option.show_traceback:
         console.print()
         if counts[TaskOutcome.FAIL]:
             console.rule(
@@ -274,7 +258,7 @@ def _print_errored_task_report(session: Session, report: ExecutionReport) -> Non
     """Print the traceback and the exception of an errored report."""
     task_name = format_task_id(
         task=report.task,
-        editor_url_scheme=session.config["editor_url_scheme"],
+        editor_url_scheme=session.config.option.editor_url_scheme,
         short_name=True,
     )
     text = Text.assemble("Task ", task_name, " failed", style="failed")
@@ -285,10 +269,12 @@ def _print_errored_task_report(session: Session, report: ExecutionReport) -> Non
     if report.exc_info and isinstance(report.exc_info[1], Exit):
         console.print(format_exception_without_traceback(report.exc_info))
     else:
-        console.print(render_exc_info(*report.exc_info, session.config["show_locals"]))
+        console.print(
+            render_exc_info(*report.exc_info, session.config.option.show_locals)
+        )
 
     console.print()
-    show_capture = session.config["show_capture"]
+    show_capture = session.config.option.show_capture
     for when, key, content in report.sections:
         if key in ("stdout", "stderr") and show_capture in (
             ShowCapture[key.upper()],

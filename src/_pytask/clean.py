@@ -4,6 +4,7 @@ from __future__ import annotations
 import itertools
 import shutil
 import sys
+from enum import Enum
 from pathlib import Path
 from types import TracebackType
 from typing import Any
@@ -17,6 +18,8 @@ import click
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.config import IGNORED_TEMPORARY_FILES_AND_FOLDERS
+from _pytask.config_utils import Configuration
+from _pytask.config_utils import merge_settings
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
 from _pytask.nodes import Task
@@ -27,9 +30,8 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import render_exc_info
-from pybaum.tree_util import tree_just_yield
 from _pytask.typed_settings import option
-from enum import Enum
+from pybaum.tree_util import tree_just_yield
 
 
 if TYPE_CHECKING:
@@ -75,34 +77,20 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     }
 
 
-@hookimpl
-def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
-) -> None:
-    """Parse the configuration."""
-    config["mode"] = get_first_non_none_value(
-        config_from_cli, key="mode", default="dry-run"
-    )
-    config["quiet"] = get_first_non_none_value(
-        config_from_cli, key="quiet", default=False
-    )
-    config["directories"] = get_first_non_none_value(
-        config_from_cli, key="directories", default=False
-    )
-
-
-@hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+@hookimpl(trylast=True)
+def pytask_parse_config(config: dict[str, Any]) -> None:
     """Correct ignore patterns such that caches, etc. will not be ignored."""
-    if config["command"] == "clean":
-        config["ignore"] = [
-            i for i in config["ignore"] if i not in IGNORED_TEMPORARY_FILES_AND_FOLDERS
+    if config.get("command") == "clean":
+        config.attrs["ignore"] = [
+            i
+            for i in config.get("ignore")
+            if i not in IGNORED_TEMPORARY_FILES_AND_FOLDERS
         ]
 
 
-def clean(**config_from_cli: Any) -> NoReturn:
+def clean(paths, main_settings, clean_settings) -> NoReturn:
     """Clean the provided paths by removing files unknown to pytask."""
-    config_from_cli["command"] = "clean"
+    config = merge_settings(paths, main_settings, clean_settings, "clean")
 
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
@@ -121,7 +109,7 @@ def clean(**config_from_cli: Any) -> NoReturn:
         exc_info: tuple[
             type[BaseException], BaseException, TracebackType | None
         ] = sys.exc_info()
-        console.print(render_exc_info(*exc_info, config["show_locals"]))
+        console.print(render_exc_info(*exc_info, config.option.show_locals))
 
     else:
         try:
@@ -129,31 +117,30 @@ def clean(**config_from_cli: Any) -> NoReturn:
             session.hook.pytask_collect(session=session)
 
             known_paths = _collect_all_paths_known_to_pytask(session)
-            include_directories = session.config["directories"]
+            include_directories = session.config.option.directories
             unknown_paths = _find_all_unknown_paths(
                 session, known_paths, include_directories
             )
             common_ancestor = find_common_ancestor(
-                *unknown_paths, *session.config["paths"]
+                *unknown_paths, *session.config.option.paths
             )
 
             if unknown_paths:
                 targets = "Files"
-                if session.config["directories"]:
+                if session.config.option.directories:
                     targets += " and directories"
                 console.print(f"\n{targets} which can be removed:\n")
                 for path in unknown_paths:
                     short_path = relative_to(path, common_ancestor)
-                    if session.config["mode"] == "dry-run":
+                    if session.config.option.mode == _Mode.DRY_RUN:
                         console.print(f"Would remove {short_path}")
                     else:
-                        should_be_deleted = session.config[
-                            "mode"
-                        ] == "force" or click.confirm(
-                            f"Would you like to remove {short_path}?"
+                        should_be_deleted = (
+                            session.config.option.mode == _Mode.FORCE
+                            or click.confirm(f"Would you like to remove {short_path}?")
                         )
                         if should_be_deleted:
-                            if not session.config["quiet"]:
+                            if not session.config.option.quiet:
                                 console.print(f"Remove {short_path}")
                             if path.is_dir():
                                 shutil.rmtree(path)
@@ -174,7 +161,9 @@ def clean(**config_from_cli: Any) -> NoReturn:
 
         except Exception:
             exc_info = sys.exc_info()
-            console.print(render_exc_info(*exc_info, show_locals=config["show_locals"]))
+            console.print(
+                render_exc_info(*exc_info, show_locals=config.option.show_locals)
+            )
             console.rule(style="failed")
             session.exit_code = ExitCode.FAILED
 
@@ -198,10 +187,10 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
 
     known_paths = known_files | known_directories
 
-    if session.config["config"]:
-        known_paths.add(session.config["config"])
-    known_paths.add(session.config["root"])
-    known_paths.add(session.config["database_filename"])
+    if session.config.option.config:
+        known_paths.add(session.config.option.config)
+    known_paths.add(session.config.option.root)
+    known_paths.add(session.config.option.database_filename)
 
     return known_paths
 
@@ -226,7 +215,7 @@ def _find_all_unknown_paths(
     """
     recursive_nodes = [
         _RecursivePathNode.from_path(path, known_paths, session)
-        for path in session.config["paths"]
+        for path in session.config.option.paths
     ]
     unknown_paths = list(
         itertools.chain.from_iterable(

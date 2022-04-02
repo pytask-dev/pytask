@@ -75,13 +75,6 @@ class DatabaseProviders(Enum):
     cockroach = "cockroach"
 
 
-def _create_path_to_database(self):
-    path = Path(self.database_filename)
-    if not path.is_absolute():
-        path = self.root.joinpath(path)
-    return path.resolve()
-
-
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend command line interface."""
@@ -98,7 +91,6 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         help="Path to database relative to root. [dim]\\[default: .pytask.sqlite3][/]",
         type=str,
     )
-    cli["build"]["properties"] = {"database_path": _create_path_to_database}
     cli["build"]["options"]["database_create_db"] = option(
         default=True,
         is_flag=True,
@@ -116,22 +108,16 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
-    """Parse the configuration."""
-    database_filename = Path(settings.database_filename)
-    if not database_filename.is_absolute():
-        database_filename = Path(config["root"], database_filename).resolve()
-    settings.database_filename = database_filename
-
-
-@hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Post-parse the configuration."""
-    create_database(**config["database"])
+    create_database(
+        provider=config.option.database_provider.value,
+        filename=_create_path_to_database(
+            config.option.database_filename, config.option.root
+        ),
+        create_db=config.option.database_create_db,
+        create_tables=config.option.database_create_tables,
+    )
 
 
 def update_states_in_database(dag: nx.DiGraph, task_name: str) -> None:
@@ -139,3 +125,10 @@ def update_states_in_database(dag: nx.DiGraph, task_name: str) -> None:
     for name in node_and_neighbors(dag, task_name):
         node = dag.nodes[name].get("task") or dag.nodes[name]["node"]
         create_or_update_state(task_name, node.name, node.state())
+
+
+def _create_path_to_database(database_filename, root):
+    path = Path(database_filename)
+    if not path.is_absolute():
+        path = root.joinpath(path)
+    return path.resolve().as_posix()

@@ -1,7 +1,7 @@
 """This module contains code on models, containers and there like."""
 from __future__ import annotations
-
-from typing import Any
+from pathlib import Path
+from typing import Any, Iterable
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -26,3 +26,6 @@ class CollectionMetadata:
     """Contains the markers of the function."""
     name = attr.ib(default=None, type=Union[str, None])
     """The name of the task function."""
+
+
+PathType = str | Path | Iterable[str] | Iterable[Path]

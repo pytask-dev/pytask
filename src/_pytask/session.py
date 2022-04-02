@@ -66,4 +66,4 @@ class Session:
     @classmethod
     def from_config(cls, config: dict[str, Any]) -> Session:
         """Construct the class from a config."""
-        return cls(config, config["pm"].hook)
+        return cls(config, config.option.pm.hook)

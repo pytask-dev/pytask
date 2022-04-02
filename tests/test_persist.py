@@ -21,7 +21,7 @@ class DummyClass:
 @pytest.mark.end_to_end
 def test_persist_marker_is_set(tmp_path):
     session = main({"paths": tmp_path})
-    assert "persist" in session.config["markers"]
+    assert "persist" in session.config.option.markers
 
 
 @pytest.mark.end_to_end

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 import click
 from _pytask.config import hookimpl
+from _pytask.config_utils import Configuration
 from _pytask.config_utils import merge_settings
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
@@ -19,6 +20,8 @@ from _pytask.session import Session
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.typed_settings import option
 from rich.traceback import Traceback
+from _pytask.config_utils import load_settings
+from _pytask.typed_settings import file_loader, converter
 
 
 if TYPE_CHECKING:
@@ -70,7 +73,14 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     }
 
 
-def main(config_from_cli: dict[str, Any]) -> Session:
+def main(config: dict[str, Any]) -> Session:
+    from _pytask.cli import cmd_to_settings
+
+    config_ = load_settings("build", config, [file_loader], converter)
+    return _main(config_)
+
+
+def _main(config: Configuration) -> Session:
     """Run pytask.
 
     This is the main command to run pytask which usually receives kwargs from the
@@ -79,7 +89,7 @@ def main(config_from_cli: dict[str, Any]) -> Session:
 
     Parameters
     ----------
-    config_from_cli : dict
+    config : dict
         A dictionary with options passed to pytask. In general, this dictionary holds
         the information passed via the command line interface.
 
@@ -96,7 +106,7 @@ def main(config_from_cli: dict[str, Any]) -> Session:
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, config=config)
 
         session = Session.from_config(config)
 
@@ -123,7 +133,7 @@ def main(config_from_cli: dict[str, Any]) -> Session:
 
         except Exception:
             exc_info = sys.exc_info()
-            exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
+            # exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
             traceback = Traceback.from_exception(*exc_info)
             console.print(traceback)
             session.exit_code = ExitCode.FAILED
@@ -140,7 +150,6 @@ def build(paths, main_settings, build_settings) -> NoReturn:
     current working directory, executes them and reports the results.
 
     """
-    settings = merge_settings(paths, main_settings, build_settings, "build")
-    breakpoint()
-    session = main(settings)
+    config = merge_settings(paths, main_settings, build_settings, "build")
+    session = _main(config)
     sys.exit(session.exit_code)

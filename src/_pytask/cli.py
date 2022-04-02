@@ -13,8 +13,7 @@ from _pytask.click import ColoredGroup
 from _pytask.config import hookimpl
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.typed_settings import file_loader
-from _pytask.typed_settings import option
-from _pytask.typed_settings import type_handler
+from _pytask.typed_settings import type_handler, converter
 from packaging.version import parse as parse_version
 
 
@@ -31,7 +30,6 @@ def _extend_command_line_interface(cli: click.Group) -> click.Group:
     """Add parameters from plugins to the commandline interface."""
     pm = _prepare_plugin_manager()
     pm.hook.pytask_extend_command_line_interface(cli=cli)
-    # _sort_options_for_each_command_alphabetically(cli)
     return cli
 
 
@@ -41,14 +39,6 @@ def _prepare_plugin_manager() -> pluggy.PluginManager:
     pm.register(sys.modules[__name__])
     pm.hook.pytask_add_hooks(pm=pm)
     return pm
-
-
-def _sort_options_for_each_command_alphabetically(cli: click.Group) -> None:
-    """Sort command line options and arguments for each command alphabetically."""
-    for command in cli.commands:
-        cli.commands[command].params = sorted(
-            cli.commands[command].params, key=lambda x: x.name
-        )
 
 
 @hookimpl
@@ -97,7 +87,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     pm.register(task)
 
 
-def cli(*args, main_settings) -> None:
+def cli(*args, main_settings) -> None:  # noqa: U100
     """Manage your tasks with pytask."""
     pass
 
@@ -115,6 +105,15 @@ cmd_name_to_info = {"main": {"cmd": cli, "options": {}}}
 
 _extend_command_line_interface(cmd_name_to_info)
 
+
+cmd_to_settings = {
+    name: _make_class(
+        name.title() + "Settings", info["options"], info.get("properties", {})
+    )
+    for name, info in cmd_name_to_info.items()
+}
+
+
 cli = click.version_option(**_VERSION_OPTION_KWARGS)(
     click.group(
         cls=ColoredGroup,
@@ -123,13 +122,12 @@ cli = click.version_option(**_VERSION_OPTION_KWARGS)(
         default_if_no_args=True,
     )(
         ts.click_options(
-            _make_class("Settings", cmd_name_to_info["main"]["options"], cmd_name_to_info["main"].get("properties", {})),
+            cmd_to_settings["main"],
             loaders=[file_loader],
+            converter=converter,
             argname="main_settings",
             type_handler=type_handler,
-        )(
-        click.pass_obj(cli)
-        )
+        )(click.pass_obj(cli))
     )
 )
 
@@ -141,8 +139,9 @@ for name in cmd_name_to_info:
     cli.command(cls=ColoredCommand,)(  # Uncomment to see the full name of switches.
         ts.pass_settings(argname="main_settings")(
             ts.click_options(
-                _make_class("Settings", cmd_name_to_info[name]["options"], cmd_name_to_info[name].get("properties", {})),
+                cmd_to_settings[name],
                 loaders=[file_loader],
+                converter=converter,
                 argname=f"{name}_settings",
                 type_handler=type_handler,
             )(cmd_name_to_info[name]["cmd"])

@@ -15,6 +15,8 @@ from typing import TYPE_CHECKING
 import click
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
+from _pytask.config_utils import Configuration
+from _pytask.config_utils import merge_settings
 from _pytask.config_utils import parse_click_choice
 from _pytask.console import console
 from _pytask.console import format_task_id
@@ -30,9 +32,9 @@ from _pytask.report import ExecutionReport
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import render_exc_info
+from _pytask.typed_settings import option
 from pony import orm
 from rich.table import Table
-from _pytask.typed_settings import option
 
 
 if TYPE_CHECKING:
@@ -70,24 +72,11 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
-) -> None:
-    """Parse the configuration."""
-    config["export"] = get_first_non_none_value(
-        config_from_cli,
-        key="export",
-        default=_ExportFormats.NO,
-        callback=parse_click_choice("export", _ExportFormats),
-    )
-
-
-@hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Register the export option."""
-    config["pm"].register(ExportNameSpace)
-    config["pm"].register(DurationNameSpace)
-    config["pm"].register(FileSizeNameSpace)
+    config.option.pm.register(ExportNameSpace)
+    config.option.pm.register(DurationNameSpace)
+    config.option.pm.register(FileSizeNameSpace)
 
 
 @hookimpl(hookwrapper=True)
@@ -120,9 +109,9 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
             setattr(runtime, attr, val)
 
 
-def profile(**config_from_cli: Any) -> NoReturn:
+def profile(paths, main_settings, profile_settings) -> NoReturn:
     """Show information about tasks like runtime and memory consumption of products."""
-    config_from_cli["command"] = "profile"
+    config = merge_settings(paths, main_settings, profile_settings, "profile")
 
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
@@ -190,7 +179,7 @@ def _print_profile_table(
         for task_name, info in profile.items():
             task_id = format_task_id(
                 task=name_to_task[task_name],
-                editor_url_scheme=config["editor_url_scheme"],
+                editor_url_scheme=config.option.editor_url_scheme,
                 short_name=True,
             )
             infos = [str(i) for i in info.values()]
@@ -284,7 +273,7 @@ class ExportNameSpace:
         session: Session, profile: dict[str, dict[str, Any]]
     ) -> None:
         """Export profiles."""
-        export = session.config["export"]
+        export = session.config.option.export
 
         if export == _ExportFormats.CSV:
             _export_to_csv(profile)

@@ -61,7 +61,7 @@ def parametrize(
 
 @hookimpl
 def pytask_parse_config(config: dict[str, Any]) -> None:
-    config["markers"]["parametrize"] = (
+    config.attrs["markers"]["parametrize"] = (
         "Call a task function multiple times passing in different arguments each turn. "
         "arg_values generally needs to be a list of values if arg_names specifies only "
         "one name or a list of tuples of values if arg_names specifies multiple "

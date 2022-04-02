@@ -9,10 +9,11 @@ from typing import TYPE_CHECKING
 
 import click
 import networkx as nx
-from _pytask.click import ColoredCommand
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
+from _pytask.config_utils import Configuration
+from _pytask.config_utils import merge_settings
 from _pytask.config_utils import parse_click_choice
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
@@ -24,9 +25,9 @@ from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
+from _pytask.typed_settings import option
 from rich.text import Text
 from rich.traceback import Traceback
-from _pytask.typed_settings import option
 
 
 if TYPE_CHECKING:
@@ -68,35 +69,6 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     }
 
 
-@hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
-    """Parse configuration."""
-    config["output_path"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="output_path",
-        default=Path.cwd() / "dag.pdf",
-        callback=lambda x: None if x is None else Path(x),
-    )
-    config["layout"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="layout",
-        default="dot",
-    )
-    config["rank_direction"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="rank_direction",
-        default=_RankDirection.TB,
-        callback=parse_click_choice("rank_direction", _RankDirection),
-    )
-
-
 _HELP_TEXT_LAYOUT: str = (
     "The layout determines the structure of the graph. Here you find an overview of "
     "all available layouts: https://graphviz.org/docs/layouts. [dim]\\[default: dot][/]"
@@ -116,8 +88,10 @@ _HELP_TEXT_RANK_DIRECTION: str = (
 )
 
 
-def dag(**config_from_cli: Any) -> NoReturn:
+def dag(paths, main_settings, dag_settings) -> NoReturn:
     """Create a visualization of the project's directed acyclic graph."""
+    config = merge_settings(paths, main_settings, dag_settings, "dag")
+
     try:
         pm = get_plugin_manager()
         from _pytask import cli
@@ -125,7 +99,7 @@ def dag(**config_from_cli: Any) -> NoReturn:
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, config=config)
 
         session = Session.from_config(config)
 
@@ -139,14 +113,16 @@ def dag(**config_from_cli: Any) -> NoReturn:
             session.hook.pytask_log_session_header(session=session)
             import_optional_dependency("pydot")
             check_for_optional_program(
-                session.config["layout"],
+                session.config.option.layout,
                 extra="The layout program is part of the graphviz package which you "
                 "can install with conda.",
             )
             session.hook.pytask_collect(session=session)
             session.hook.pytask_resolve_dependencies(session=session)
             dag = _refine_dag(session)
-            _write_graph(dag, session.config["output_path"], session.config["layout"])
+            _write_graph(
+                dag, session.config.option.output_path, session.config.option.layout
+            )
 
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
@@ -206,7 +182,7 @@ def build_dag(config_from_cli: dict[str, Any]) -> nx.DiGraph:
             session.hook.pytask_log_session_header(session=session)
             import_optional_dependency("pydot")
             check_for_optional_program(
-                session.config["layout"],
+                session.config.option.layout,
                 extra="The layout program is part of the graphviz package which you "
                 "can install with conda.",
             )
@@ -223,11 +199,11 @@ def build_dag(config_from_cli: dict[str, Any]) -> nx.DiGraph:
 
 def _refine_dag(session: Session) -> nx.DiGraph:
     """Refine the dag for plotting."""
-    dag = _shorten_node_labels(session.dag, session.config["paths"])
+    dag = _shorten_node_labels(session.dag, session.config.option.paths)
     dag = _clean_dag(dag)
     dag = _style_dag(dag)
     dag = _escape_node_names_with_colons(dag)
-    dag.graph["graph"] = {"rankdir": session.config["rank_direction"].name}
+    dag.graph["graph"] = {"rankdir": session.config.option.rank_direction.name}
 
     return dag
 
@@ -254,7 +230,7 @@ def _create_session(config_from_cli: dict[str, Any]) -> nx.DiGraph:
         try:
             session.hook.pytask_log_session_header(session=session)
             import_optional_dependency("pydot")
-            check_for_optional_program(session.config["layout"])
+            check_for_optional_program(session.config.option.layout)
             session.hook.pytask_collect(session=session)
             session.hook.pytask_resolve_dependencies(session=session)
 

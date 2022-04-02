@@ -1,30 +1,106 @@
 from __future__ import annotations
-
+from enum import Enum
+import click
 import configparser
-from pathlib import Path
-from typing import Any, MutableMapping
 from fnmatch import fnmatch
+from pathlib import Path
+from typing import Any, TypeVar
+from typing import MutableMapping
+
 import attr
 import typed_settings as ts
+from typed_settings._dict_utils import _merge_dicts
 from typed_settings.attrs import METADATA_KEY
 from typed_settings.click_utils import DEFAULT_TYPES
 from typed_settings.click_utils import TypeHandler
 from typed_settings.exceptions import ConfigFileLoadError
 from typed_settings.exceptions import ConfigFileNotFoundError
 from typed_settings.types import OptionInfo
-from typed_settings._dict_utils import _merge_dicts
+from _pytask.models import PathType
 
 
 SettingsDict = MutableMapping[str, Any]
+ET = TypeVar("ET", bound=Enum)
 
 
-type_dict = {**DEFAULT_TYPES}
+def handle_enum(type: Type[Enum], default: Any) -> dict[str, Any]:
+    """
+    Use :class:`EnumChoice` as option type and use the enum value's name as
+    default.
+    """
+    type_info = {"type": click.Choice([e.value for e in type])}
+    if default is not attr.NOTHING:
+        # Convert Enum instance to string
+        type_info["default"] = default.value
+
+    return type_info
+
+
+def handle_path_type(type: PathType, default: Any) -> dict[str, Any]:
+    """
+    Use :class:`EnumChoice` as option type and use the enum value's name as
+    default.
+    """
+    type_info = {"type": type}
+    if default is not attr.NOTHING:
+        type_info["default"] = default
+    return type_info
+
+
+type_dict = {**DEFAULT_TYPES, Enum: handle_enum}
 type_handler = TypeHandler(type_dict)
+
+
+def to_enum(value: Any, cls: Type[ET]) -> ET:
+    """
+    Return a converter that creates an instance of the :class:`.Enum` *cls*.
+
+    If the to be converted value is not already an enum, the converter will
+    create one by name (``MyEnum[val]``).
+
+    Args:
+        value: The input data
+        cls: The enum type
+
+    Return:
+        An instance of *cls*
+
+    Raise:
+        KeyError: If *value* is not a valid member of *cls*
+
+    """
+    if isinstance(value, cls):
+        return value
+    elif isinstance(value, str) and value in cls.__members__:
+        return cls[value]
+    elif isinstance(value, str) and value in [e.value for e in cls]:
+        key = {e.value: e.name for e in cls}[value]
+        return cls[key]
+    else:
+        raise Value(f"Cannot convert {value} of type {cls}.")
+
+
+def to_list_of_paths(value: Any, cls: PathType) -> PathType:
+    if isinstance(value, str):
+        value = value.split("n")
+    elif isinstance(value, Path):
+        value = [value]
+
+    return [Path(x) for x in value]
+
+
+converter = ts.default_converter()
+converter.register_structure_hook(Enum, to_enum)
+converter.register_structure_hook(PathType, to_list_of_paths)
 
 
 @attr.s
 class IniFormat:
-    """Read settings from an .ini formatted file."""
+    """Read settings from an .ini formatted file.
+
+    If a configuration was found, add the path to the configuration as a value.
+
+    """
 
     section = attr.ib(type=str)
 
@@ -43,38 +119,49 @@ class IniFormat:
                 settings = config[s]
             except KeyError:
                 return {}
+        else:
+            settings = dict(settings)
+            settings["config"] = path
         return settings
 
 
 class FileLoader(ts.FileLoader):
-
-    def __call__(
-        self, settings_cls: type, options: list[OptionInfo]
-    ) -> SettingsDict:
+    def __call__(self, settings_cls: type, options: list[OptionInfo]) -> SettingsDict:
         """
         Load settings for the given options.
 
-        Args:
-            options: The list of available settings.
-            settings_cls: The base settings class for all options.
+        This search process stops as soon as the first configuration file with a
+        ``[pytask]`` section is found.
 
-        Return:
+        Parameters
+        ----------
+        settings_cls : type
+            The base settings class for all options.
+        options : list[OptionInfo]
+            The list of available settings.
+
+        Raise
+        -----
+        UnknownFormat:
+            When no :class:`FileFormat` is configured for a loaded file.
+        ConfigFileNotFoundError:
+            If *path* does not exist.
+        ConfigFileLoadError:
+            If *path* cannot be read/loaded/decoded.
+        InvalidOptionError:
+            If invalid settings have been found.
+
+        Returns
+        -------
+        dict[str, Any]
             A dict with the loaded settings.
-
-        Raise:
-            UnknownFormat: When no :class:`FileFormat` is configured for a
-                loaded file.
-            ConfigFileNotFoundError: If *path* does not exist.
-            ConfigFileLoadError: If *path* cannot be read/loaded/decoded.
-            InvalidOptionError: If invalid settings have been found.
         """
         paths = self._get_config_filenames(self.files, self.env_var)
-        breakpoint()
-        merged_settings: SettingsDict = {}
         for path in paths:
             settings = self._load_file(path, settings_cls, options)
-            _merge_dicts(merged_settings, settings)
-        return merged_settings
+            if "config" in settings:
+                break
+        return settings
 
     def _load_file(
         self,
@@ -145,6 +232,7 @@ class FileLoader(ts.FileLoader):
 
         return cleaned
 
+
 def _set_path(dct: SettingsDict, path: str, val: Any) -> None:
     """
     Sets a value to a nested dict and automatically creates missing dicts
@@ -169,7 +257,7 @@ file_loader = FileLoader(
         "*.cfg": IniFormat("pytask"),
         "*.ini": IniFormat("pytask"),
     },
-    files=["setup.cfg", "tox.ini", "pytask.ini"],
+    files=[ts.find("pytask.ini"), ts.find("tox.ini"), ts.find("setup.cfg")],
 )
 
 
@@ -193,6 +281,7 @@ def option(
     help=None,
     param_decls=None,
     metavar=None,
+    hidden=False,
 ):
     """An alias to :func:`attr.field()`"""
     for name, value in [
@@ -200,6 +289,7 @@ def option(
         ("param_decls", param_decls),
         ("is_flag", is_flag),
         ("metavar", metavar),
+        ("hidden", hidden),
     ]:
         if value is not None:
             if metadata is None:

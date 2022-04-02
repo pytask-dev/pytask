@@ -35,22 +35,6 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     )
 
 
-@hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
-    """Parse the configuration."""
-    config["n_entries_in_table"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="n_entries_in_table",
-        default=15,
-        callback=_parse_n_entries_in_table,
-    )
-
-
 def _parse_n_entries_in_table(value: int | str | None) -> int:
     """Parse how many entries should be displayed in the table during the execution."""
     if value in ["none", "None", None, ""]:
@@ -72,19 +56,19 @@ def _parse_n_entries_in_table(value: int | str | None) -> int:
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Post-parse the configuration."""
     live_manager = LiveManager()
-    config["pm"].register(live_manager, "live_manager")
+    config.option.pm.register(live_manager, "live_manager")
 
-    if config["verbose"] >= 1:
+    if config.option.verbose >= 1:
         live_execution = LiveExecution(
             live_manager,
-            config["n_entries_in_table"],
-            config["verbose"],
-            config["editor_url_scheme"],
+            config.option.n_entries_in_table,
+            config.option.verbose,
+            config.option.editor_url_scheme,
         )
-        config["pm"].register(live_execution)
+        config.option.pm.register(live_execution)
 
     live_collection = LiveCollection(live_manager)
-    config["pm"].register(live_collection)
+    config.option.pm.register(live_collection)
 
 
 @attr.s(eq=False)
