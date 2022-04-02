@@ -65,7 +65,12 @@ def test_live_execution_sequentially(capsys, tmp_path):
     task.short_name = "task_module.py::task_example"
 
     live_manager = LiveManager()
-    live = LiveExecution(live_manager, 20, 1, "no_link")
+    live = LiveExecution(
+        live_manager=live_manager,
+        n_entries_in_table=20,
+        verbose=1,
+        editor_url_scheme="no_link",
+    )
 
     live_manager.start()
     live.update_running_tasks(task)
@@ -77,6 +82,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
     assert "Outcome" not in captured.out
     assert "task_module.py::task_example" not in captured.out
     assert "running" not in captured.out
+    assert "Completed: 0/x" not in captured.out
 
     live_manager.resume()
     live_manager.start()
@@ -88,6 +94,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
     assert "Outcome" in captured.out
     assert "task_module.py::task_example" in captured.out
     assert "running" in captured.out
+    assert "Completed: 0/x" in captured.out
 
     live_manager.start()
 
@@ -104,6 +111,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
     assert "task_module.py::task_example" in captured.out
     assert "running" not in captured.out
     assert TaskOutcome.SUCCESS.symbol in captured.out
+    assert "Completed: 1/x" in captured.out
 
 
 @pytest.mark.unit
@@ -115,7 +123,12 @@ def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, o
     task.short_name = "task_module.py::task_example"
 
     live_manager = LiveManager()
-    live = LiveExecution(live_manager, 20, verbose, "no_link")
+    live = LiveExecution(
+        live_manager=live_manager,
+        n_entries_in_table=20,
+        verbose=verbose,
+        editor_url_scheme="no_link",
+    )
 
     live_manager.start()
     live.update_running_tasks(task)
@@ -159,7 +172,13 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
     running_task.short_name = "task_module.py::task_running"
 
     live_manager = LiveManager()
-    live = LiveExecution(live_manager, n_entries_in_table, 1, "no_link")
+    live = LiveExecution(
+        live_manager=live_manager,
+        n_entries_in_table=n_entries_in_table,
+        verbose=1,
+        editor_url_scheme="no_link",
+        n_tasks=2,
+    )
 
     live_manager.start()
     live.update_running_tasks(running_task)
@@ -170,6 +189,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
     assert "Outcome" in captured.out
     assert "::task_running" in captured.out
     assert " running " in captured.out
+    assert "Completed: 0/2" in captured.out
 
     completed_task = Task(base_name="task_completed", path=path, function=lambda x: x)
     completed_task.short_name = "task_module.py::task_completed"
@@ -188,6 +208,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
     assert "Outcome" in captured.out
     assert "::task_running" in captured.out
     assert " running " in captured.out
+    assert "Completed: 1/2" in captured.out
 
     if n_entries_in_table == 1:
         assert "task_module.py::task_completed" not in captured.out
@@ -204,7 +225,12 @@ def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path)
     task.short_name = "task_module.py::task_example"
 
     live_manager = LiveManager()
-    live = LiveExecution(live_manager, 20, 1, "no_link")
+    live = LiveExecution(
+        live_manager=live_manager,
+        n_entries_in_table=20,
+        verbose=1,
+        editor_url_scheme="no_link",
+    )
 
     live_manager.start()
     live.update_running_tasks(task)
