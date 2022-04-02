@@ -11,10 +11,10 @@ import click
 from _pytask.attrs import convert_to_none_or_type
 from _pytask.config import hookimpl
 from _pytask.console import IS_WINDOWS_TERMINAL
+from _pytask.models import PathType
 from _pytask.shared import falsy_to_none_callback
 from _pytask.shared import to_list
 from _pytask.typed_settings import option
-from _pytask.models import PathType
 
 
 _CONFIG_OPTION = option(

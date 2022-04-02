@@ -1,14 +1,17 @@
 from __future__ import annotations
-from enum import Enum
-import click
+
 import configparser
+from enum import Enum
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any
 from typing import MutableMapping
+from typing import TypeVar
 
 import attr
+import click
 import typed_settings as ts
+from _pytask.models import PathType
 from typed_settings._dict_utils import _merge_dicts
 from typed_settings.attrs import METADATA_KEY
 from typed_settings.click_utils import DEFAULT_TYPES
@@ -16,7 +19,6 @@ from typed_settings.click_utils import TypeHandler
 from typed_settings.exceptions import ConfigFileLoadError
 from typed_settings.exceptions import ConfigFileNotFoundError
 from typed_settings.types import OptionInfo
-from _pytask.models import PathType
 
 
 SettingsDict = MutableMapping[str, Any]

@@ -12,8 +12,9 @@ from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
 from _pytask.config import hookimpl
 from _pytask.pluginmanager import get_plugin_manager
+from _pytask.typed_settings import converter
 from _pytask.typed_settings import file_loader
-from _pytask.typed_settings import type_handler, converter
+from _pytask.typed_settings import type_handler
 from packaging.version import parse as parse_version
 
 

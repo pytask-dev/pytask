@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 import click
 from _pytask.config import hookimpl
 from _pytask.config_utils import Configuration
+from _pytask.config_utils import load_settings
 from _pytask.config_utils import merge_settings
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
@@ -18,10 +19,10 @@ from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
+from _pytask.typed_settings import converter
+from _pytask.typed_settings import file_loader
 from _pytask.typed_settings import option
 from rich.traceback import Traceback
-from _pytask.config_utils import load_settings
-from _pytask.typed_settings import file_loader, converter
 
 
 if TYPE_CHECKING:
