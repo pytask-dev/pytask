@@ -6,7 +6,6 @@ import sys
 import warnings
 from typing import Any
 from typing import NamedTuple
-from typing import TYPE_CHECKING
 
 import _pytask
 import click
@@ -26,15 +25,6 @@ try:
     from pluggy._manager import DistFacade
 except ImportError:
     from pluggy.manager import DistFacade
-
-
-if TYPE_CHECKING and sys.version_info >= (3, 8):
-    if sys.version_info >= (3, 8):
-        from typing import Literal
-    else:
-        from typing_extensions import Literal
-
-    _ShowTraceback = Literal["no", "yes"]
 
 
 class _TimeUnit(NamedTuple):

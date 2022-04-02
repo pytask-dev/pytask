@@ -38,7 +38,6 @@ from typing import Generator
 from typing import Generic
 from typing import Iterator
 from typing import TextIO
-from typing import TYPE_CHECKING
 
 import click
 from _pytask.config import hookimpl
@@ -48,12 +47,7 @@ from _pytask.nodes import Task
 from _pytask.shared import get_first_non_none_value
 
 
-if TYPE_CHECKING:
-    if sys.version_info >= (3, 8):
-        from typing import final as final
-    else:
-        from typing_extensions import final as final
-elif sys.version_info >= (3, 8):
+if sys.version_info >= (3, 8):
     from typing import final as final
 else:
 

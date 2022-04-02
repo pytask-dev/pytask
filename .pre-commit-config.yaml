@@ -107,7 +107,7 @@ repos:
         ]
         additional_dependencies: [
             attrs>=19.2.0,
-            types-click,
+            click,
             types-setuptools
         ]
         pass_filenames: false
