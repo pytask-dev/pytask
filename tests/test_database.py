@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import textwrap
 
 import pytest
@@ -27,8 +26,7 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
     in_path = tmp_path.joinpath("in.txt")
     in_path.touch()
 
-    os.chdir(tmp_path)
-    result = runner.invoke(cli)
+    result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
 
@@ -48,3 +46,34 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
         ]:
             state = State[task_id, id_].state
             assert float(state) == path.stat().st_mtime
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
+def test_rename_database_w_config(tmp_path, runner, config_path):
+    """Modification dates of input and output files are stored in database."""
+    tmp_path.joinpath(config_path).write_text("[pytask]\ndatabase_filename=.db.sqlite3")
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    tmp_path.joinpath(".db.sqlite3").exists()
+
+
+@pytest.mark.end_to_end
+def test_rename_database_w_config_toml(tmp_path, runner):
+    """Modification dates of input and output files are stored in database."""
+    tmp_path.joinpath("pyproject.toml").write_text(
+        "[tool.pytask.ini_options]\ndatabase_filename='.db.sqlite3'"
+    )
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    tmp_path.joinpath(".db.sqlite3").exists()
+
+
+@pytest.mark.end_to_end
+def test_rename_database_w_cli(tmp_path, runner):
+    """Modification dates of input and output files are stored in database."""
+    result = runner.invoke(
+        cli, ["--database-filename", ".db.sqlite3", tmp_path.as_posix()]
+    )
+    assert result.exit_code == ExitCode.OK
+    tmp_path.joinpath(".db.sqlite3").exists()

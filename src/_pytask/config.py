@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import configparser
-import itertools
 import os
 import tempfile
 import warnings
@@ -10,11 +9,17 @@ from pathlib import Path
 from typing import Any
 
 import pluggy
+import tomli
+import tomli_w
+from _pytask.config_utils import get_config_reader
+from _pytask.console import console
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from _pytask.shared import parse_paths
 from _pytask.shared import parse_value_or_multiline_option
 from _pytask.shared import to_list
+from rich.syntax import Syntax
+from rich.text import Text
 
 
 hookimpl = pluggy.HookimplMarker("pytask")
@@ -69,6 +74,14 @@ def is_file_system_case_sensitive() -> bool:
 IS_FILE_SYSTEM_CASE_SENSITIVE = is_file_system_case_sensitive()
 
 
+_DEPRECATION_MESSAGE = """WARNING: pytask.ini, tox.ini, and setup.cfg will be \
+deprecated as configuration files for pytask starting with v0.3 or v1.0. To upgrade \
+and silence this warning, copy the content below in a pyproject.toml in the same \
+directory as your old configuration file. It is equivalent to your current \
+configuration.
+"""
+
+
 @hookimpl
 def pytask_configure(
     pm: pluggy.PluginManager, config_from_cli: dict[str, Any]
@@ -79,7 +92,7 @@ def pytask_configure(
     # Either the path to the configuration is passed via the CLI or it needs to be
     # detected from the paths passed to pytask.
     if config_from_cli.get("config"):
-        config["config"] = Path.cwd().joinpath(config_from_cli["config"])
+        config["config"] = Path(config_from_cli["config"])
         config["root"] = config["config"].parent
     else:
         paths = (
@@ -87,11 +100,20 @@ def pytask_configure(
             if config_from_cli.get("paths") is not None
             else [Path.cwd()]
         )
-        config["root"], config["config"] = _find_project_root_and_ini(paths)
+        config["root"], config["config"] = _find_project_root_and_config(paths)
 
-    config_from_file = (
-        _read_config(config["config"]) if config["config"] is not None else {}
-    )
+    if config["config"] is None:
+        config_from_file = {}
+    else:
+        read_config = get_config_reader(config["config"])
+        config_from_file = read_config(config["config"])
+
+        if read_config.__name__ == "_read_ini_config":
+            toml_string = tomli_w.dumps(
+                {"tool": {"pytask": {"ini_options": config_from_file}}}
+            )
+            console.print(Text(_DEPRECATION_MESSAGE, style="warning"))
+            console.print(Syntax(toml_string, "toml"))
 
     # If paths are set in the configuration, process them.
     if config_from_file.get("paths"):
@@ -214,8 +236,19 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     config["markers"] = {k: config["markers"][k] for k in sorted(config["markers"])}
 
 
-def _find_project_root_and_ini(paths: list[Path]) -> tuple[Path, Path]:
-    """Find the project root and configuration file from a list of paths."""
+def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:
+    """Find the project root and configuration file from a list of paths.
+
+    The process is as follows:
+
+    1. Find the common base directory of all paths passed to pytask (default to the
+       current working directory).
+    2. Starting from this directory, look at all parent directories, and return the file
+       if it is found.
+    3. If a directory contains a ``.git`` directory/file, a ``.hg`` directory, or the
+       pyproject.toml file, stop searching.
+
+    """
     try:
         common_ancestor = Path(os.path.commonpath(paths))
     except ValueError:
@@ -224,37 +257,43 @@ def _find_project_root_and_ini(paths: list[Path]) -> tuple[Path, Path]:
             "current working directory."
         )
         common_ancestor = Path.cwd()
+    if common_ancestor.is_file():
+        common_ancestor = common_ancestor.parent
 
     config_path = None
-    parent_directories = (
-        common_ancestor.parents
-        if common_ancestor.is_file()
-        else [common_ancestor] + list(common_ancestor.parents)
-    )
-    for parent, config_name in itertools.product(
-        parent_directories, ["pytask.ini", "tox.ini", "setup.cfg"]
-    ):
-        path = parent.joinpath(config_name)
+    root = None
+    parent_directories = [common_ancestor] + list(common_ancestor.parents)
 
-        if path.exists():
-            try:
-                _read_config(path)
-            except KeyError:
-                pass
-            else:
-                config_path = path
-                break
+    for parent in parent_directories:
+        for config_name in ["pyproject.toml", "pytask.ini", "tox.ini", "setup.cfg"]:
 
-    if config_path is not None:
-        root = config_path.parent
-    else:
-        root = common_ancestor if common_ancestor.is_dir() else common_ancestor.parent
+            path = parent.joinpath(config_name)
+
+            if path.exists():
+                try:
+                    read_config = get_config_reader(path)
+                    read_config(path)
+                except configparser.Error as e:
+                    raise configparser.Error(f"Could not read {path}.") from e
+                except tomli.TOMLDecodeError as e:
+                    raise tomli.TOMLDecodeError(f"Could not read {path}.") from e
+                except KeyError:
+                    pass
+                else:
+                    config_path = path
+                    root = config_path.parent
+                    break
+
+        # If you hit a the top of a repository, stop searching further.
+        if parent.joinpath(".git").exists():
+            root = parent
+            break
+
+        if parent.joinpath(".hg").is_dir():
+            root = parent
+            break
+
+    if root is None:
+        root = common_ancestor
 
     return root, config_path
-
-
-def _read_config(path: Path) -> dict[str, Any]:
-    """Read the configuration from a file with a [pytask] section."""
-    config = configparser.ConfigParser()
-    config.read(path)
-    return dict(config["pytask"])

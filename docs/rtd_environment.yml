@@ -20,16 +20,17 @@ dependencies:
   - sphinx-panels
 
   # Package dependencies necessary for sphinx-click
-  - attrs >=17.4.0
+  - attrs >=19.2.0
   - click
   - click-default-group
-  - networkx
+  - networkx >=2.4
   - pluggy
   - pony >=0.7.15
   - pybaum
   - pexpect
   - rich
-  - typing-extensions
+  - tomli >=1.0.0
+  - tomli-w >=1.0.0
 
   - pip:
     - ../

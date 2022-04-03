@@ -50,17 +50,30 @@ def test_pytask_mark_name_starts_with_underscore():
 
 @pytest.mark.end_to_end
 @pytest.mark.parametrize("config_name", ["pytask.ini", "tox.ini", "setup.cfg"])
-def test_ini_markers(tmp_path, config_name):
-    tmp_path.joinpath(config_name).write_text(
-        textwrap.dedent(
-            """
-            [pytask]
-            markers =
-                a1: this is a webtest marker
-                a2: this is a smoke marker
-            """
-        )
-    )
+def test_parse_markers(tmp_path, config_name):
+    ini = """
+    [pytask]
+    markers =
+        a1: this is a webtest marker
+        a2: this is a smoke marker
+    """
+    tmp_path.joinpath(config_name).write_text(textwrap.dedent(ini))
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == ExitCode.OK
+    assert "a1" in session.config["markers"]
+    assert "a2" in session.config["markers"]
+
+
+@pytest.mark.end_to_end
+def test_parse_markers_toml(tmp_path):
+    toml = """
+    [tool.pytask.ini_options.markers]
+    a1 = "this is a webtest marker"
+    a2 = "this is a smoke marker"
+    """
+    tmp_path.joinpath("pyproject.toml").write_text(textwrap.dedent(toml))
 
     session = main({"paths": tmp_path})
 
@@ -72,52 +85,72 @@ def test_ini_markers(tmp_path, config_name):
 @pytest.mark.end_to_end
 @pytest.mark.parametrize("config_name", ["pytask.ini", "tox.ini", "setup.cfg"])
 def test_markers_command(tmp_path, runner, config_name):
+    ini = """
+    [pytask]
+    markers =
+        a1: this is a webtest marker
+        a2: this is a smoke marker
+        nodescription
+    """
     config_path = tmp_path.joinpath(config_name)
-    config_path.write_text(
-        textwrap.dedent(
-            """
-            [pytask]
-            markers =
-                a1: this is a webtest marker
-                a2: this is a smoke marker
-                nodescription
-            """
-        )
-    )
+    config_path.write_text(textwrap.dedent(ini))
 
     result = runner.invoke(cli, ["markers", "-c", config_path.as_posix()])
-
+    assert result.exit_code == ExitCode.OK
     for out in ["pytask.mark.a1", "pytask.mark.a2", "pytask.mark.nodescription"]:
         assert out in result.output
 
 
 @pytest.mark.end_to_end
-@pytest.mark.filterwarnings("ignore:Unknown pytask.mark.")
-@pytest.mark.parametrize("config_name", ["pytask.ini", "tox.ini", "setup.cfg"])
-def test_ini_markers_whitespace(tmp_path, config_name):
-    tmp_path.joinpath(config_name).write_text(
-        textwrap.dedent(
-            """
-            [pytask]
-            markers =
-                a1 : this is a whitespace marker
-            """
-        )
-    )
-    tmp_path.joinpath("task_module.py").write_text(
-        textwrap.dedent(
-            """
-            import pytask
-            @pytask.mark.a1
-            def test_markers():
-                assert True
-            """
-        )
-    )
+def test_markers_command_toml(tmp_path, runner):
+    toml = """
+    [tool.pytask.ini_options]
+    markers = ["a1", "a2", "nodescription"]
+    """
+    config_path = tmp_path.joinpath("pyproject.toml")
+    config_path.write_text(textwrap.dedent(toml))
 
-    session = main({"paths": tmp_path, "strict_markers": True})
-    assert session.exit_code == ExitCode.COLLECTION_FAILED
-    assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
+    result = runner.invoke(cli, ["markers", "-c", config_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    for out in ["pytask.mark.a1", "pytask.mark.a2", "pytask.mark.nodescription"]:
+        assert out in result.output
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("config_name", ["pytask.ini", "tox.ini", "setup.cfg"])
+def test_ini_markers_whitespace(runner, tmp_path, config_name):
+    tmp_path.joinpath(config_name).write_text(
+        "[pytask]\nmarkers =\n  a1 : this is a whitespace marker"
+    )
+    source = """
+    import pytask
+    @pytask.mark.a1
+    def task_markers():
+        assert True
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+
+
+@pytest.mark.end_to_end
+def test_ini_markers_whitespace_toml(runner, tmp_path):
+    tmp_path.joinpath("pyproject.toml").write_text(
+        "[tool.pytask.ini_options]\nmarkers = {'a1 ' = 'this is a whitespace marker'}"
+    )
+    source = """
+    import pytask
+    @pytask.mark.a1
+    def task_markers():
+        assert True
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
 
 
 @pytest.mark.end_to_end
@@ -326,7 +359,8 @@ def test_selecting_task_with_marker_should_run_predecessor(runner, tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
+    with pytest.warns(UserWarning, match="Unknown pytask.mark.wip"):
+        result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
 
     assert result.exit_code == ExitCode.OK
     assert "2  Succeeded" in result.output
@@ -368,8 +402,27 @@ def test_selecting_task_with_marker_ignores_other_task(runner, tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
+    with pytest.warns(UserWarning, match="Unknown pytask.mark.wip"):
+        result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
 
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
     assert "1  Skipped" in result.output
+
+
+@pytest.mark.end_to_end
+def test_selecting_task_with_unknown_marker_raises_warning(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.wip
+    def task_example():
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    with pytest.warns(UserWarning, match="Unknown pytask.mark.wip"):
+        result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
+
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output

@@ -112,7 +112,7 @@ def pytask_parse_config(
     config_from_file: dict[str, Any],
 ) -> None:
     """Parse marker related options."""
-    markers = _read_marker_mapping_from_ini(config_from_file.get("markers", ""))
+    markers = _read_marker_mapping(config_from_file.get("markers", {}))
     config["markers"] = {**markers, **config["markers"]}
     config["strict_markers"] = get_first_non_none_value(
         config,
@@ -129,23 +129,32 @@ def pytask_parse_config(
     MARK_GEN.config = config
 
 
-def _read_marker_mapping_from_ini(string: str) -> dict[str, str]:
+def _read_marker_mapping(x: dict[str, str] | str) -> dict[str, str]:
     """Read marker descriptions from configuration file."""
-    # Split by newlines and remove empty strings.
-    lines = filter(lambda x: bool(x), string.split("\n"))
-    mapping = {}
-    for line in lines:
-        try:
-            key, value = line.split(":")
-        except ValueError as e:
-            key = line
-            value = ""
-            if not key.isidentifier():
-                raise ValueError(
-                    f"{key} is not a valid Python name and cannot be used as a marker."
-                ) from e
+    if isinstance(x, dict):
+        mapping = {k.strip(): v.strip() for k, v in x.items()}
+    elif isinstance(x, list):
+        mapping = {k.strip(): "" for k in x}
+    elif isinstance(x, str):
+        # Split by newlines and remove empty strings.
+        lines = filter(lambda i: bool(i), x.split("\n"))
+        mapping = {}
+        for line in lines:
+            try:
+                key, value = line.split(":")
+            except ValueError:
+                key = line
+                value = ""
 
-        mapping[key] = value
+            mapping[key.strip()] = value.strip()
+    else:
+        raise TypeError(f"Unknown type {type(x)!r}. Expected dict or str.")
+
+    for key in mapping:
+        if not key.isidentifier():
+            raise ValueError(
+                f"{key} is not a valid Python name and cannot be used as a marker."
+            )
 
     return mapping
 

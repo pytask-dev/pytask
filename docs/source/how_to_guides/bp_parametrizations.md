@@ -26,7 +26,7 @@ First, let us take a look at the folder and file structure of such a project.
 
 ```
 my_project
-├───pytask.ini or tox.ini or setup.cfg
+├───pyproject.toml
 │
 ├───src
 │   └───my_project

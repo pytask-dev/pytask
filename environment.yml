@@ -24,7 +24,8 @@ dependencies:
   - pony >=0.7.15
   - pybaum
   - rich
-  - typing-extensions
+  - tomli >=1.0.0
+  - tomli-w >=1.0.0
 
   # Misc
   - black

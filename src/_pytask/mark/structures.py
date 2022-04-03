@@ -181,23 +181,15 @@ class MarkGenerator:
 
     config: dict[str, Any] | None = None
     """Optional[Dict[str, Any]]: The configuration."""
-    markers: set[str] = set()
-    """Set[str]: The set of markers."""
 
     def __getattr__(self, name: str) -> MarkDecorator | Any:
         if name[0] == "_":
             raise AttributeError("Marker name must NOT start with underscore")
 
         if self.config is not None:
-            # We store a set of markers as a performance optimization - if a mark
-            # name is in the set we definitely know it, but a mark may be known and
-            # not in the set.  We therefore start by updating the set!
-            if name not in self.markers:
-                self.markers.update(self.config["markers"])
-
             # If the name is not in the set of known marks after updating,
             # then it really is time to issue a warning or an error.
-            if name not in self.markers:
+            if name not in self.config["markers"]:
                 if self.config["strict_markers"]:
                     raise ValueError(f"Unknown pytask.mark.{name}.")
                 # Raise a specific error for common misspellings of "parametrize".

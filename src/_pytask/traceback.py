@@ -100,10 +100,12 @@ def _filter_internal_traceback_frames(
 
     """
     frame = exc_info[2]
-    for frame in _yield_traceback_frames(frame):
-        if frame is None or not _is_internal_or_hidden_traceback_frame(frame, exc_info):
+    for frame_ in _yield_traceback_frames(frame):
+        if frame_ is None or not _is_internal_or_hidden_traceback_frame(
+            frame_, exc_info
+        ):
             break
-    return frame
+    return frame_
 
 
 def _yield_traceback_frames(

@@ -34,8 +34,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`245` adds choices on the command line to the help pages as metavars and show
   defaults.
 - {pull}`246` formalizes choices for {class}`click.Choice` to {class}`enum.Enum`.
-- {pull}`248` adds a counter at the bottom of the execution table to show how many tasks
+- {pull}`252` adds a counter at the bottom of the execution table to show how many tasks
   have been processed.
+- {pull}`253` adds support for ``pyproject.toml``.
 
 ## 0.1.9 - 2022-02-23
 
