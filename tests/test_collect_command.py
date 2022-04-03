@@ -169,7 +169,6 @@ def test_collect_task_with_ignore_from_config(runner, tmp_path, config_name):
     source = """
     import pytask
 
-    @pytask.mark.wip
     @pytask.mark.depends_on("in_1.txt")
     @pytask.mark.produces("out_1.txt")
     def task_example_1():
@@ -222,7 +221,6 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
     source = """
     import pytask
 
-    @pytask.mark.wip
     @pytask.mark.depends_on("in_1.txt")
     @pytask.mark.produces("out_1.txt")
     def task_example_1():

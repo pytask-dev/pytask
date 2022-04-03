@@ -80,7 +80,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         ),
         click.Option(
             ["--database-filename"],
-            type=click.Path(),
+            type=str,
             help=(
                 "Path to database relative to root. "
                 "[dim]\\[default: .pytask.sqlite3][/]"

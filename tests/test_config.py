@@ -6,7 +6,7 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
 from _pytask.config import _find_project_root_and_ini
-from _pytask.config import _read_config
+from _pytask.config_utils import _read_ini_config
 from pytask import ExitCode
 from pytask import main
 
@@ -153,5 +153,24 @@ def test_read_config(tmp_path, file_exists, content, expectation, expected):
         path.write_text(content)
 
     with expectation:
-        result = _read_config(path)
+        result = _read_ini_config(path)
         assert result == expected
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "vc_folder, path, expected",
+    [
+        (".git", "folder/sub", "."),
+        (".hg", "folder/sub", "."),
+        (None, "folder/sub", "folder/sub"),
+    ],
+)
+def test_root_stops_at_version_control_folder(tmp_path, vc_folder, path, expected):
+    if vc_folder:
+        tmp_path.joinpath(vc_folder).mkdir(parents=True)
+
+    root, ini = _find_project_root_and_ini([tmp_path.joinpath(path)])
+
+    assert ini is None
+    assert root == tmp_path.joinpath(expected)

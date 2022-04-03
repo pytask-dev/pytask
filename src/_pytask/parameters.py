@@ -7,7 +7,9 @@ from _pytask.shared import falsy_to_none_callback
 
 
 _CONFIG_OPTION = click.Option(
-    ["-c", "--config"], type=click.Path(exists=True), help="Path to configuration file."
+    ["-c", "--config"],
+    type=click.Path(exists=True, resolve_path=True),
+    help="Path to configuration file.",
 )
 """click.Option: An option for the --config flag."""
 
@@ -25,16 +27,19 @@ _IGNORE_OPTION = click.Option(
 
 
 _PATH_ARGUMENT = click.Argument(
-    ["paths"], nargs=-1, type=click.Path(exists=True), callback=falsy_to_none_callback
+    ["paths"],
+    nargs=-1,
+    type=click.Path(exists=True, resolve_path=True),
+    callback=falsy_to_none_callback,
 )
 """click.Argument: An argument for paths."""
 
 
 _VERBOSE_OPTION = click.Option(
     ["-v", "--verbose"],
-    type=int,
+    type=click.IntRange(0, 2),
     default=None,
-    help="Make pytask verbose (>= 0) or quiet (< 0) [dim]\\[default: 0][/]",
+    help="Make pytask verbose (>= 0) or quiet (= 0) [dim]\\[default: 1][/]",
 )
 """click.Option: An option to control pytask's verbosity."""
 

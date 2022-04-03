@@ -31,13 +31,14 @@ First, it is possible to pass the location of the configuration file via
 $ pytask -c config/pytask.ini
 ```
 
-The second option is to let pytask try to find the configuration itself. pytask will
-first look in the current working directory or the common ancestors of multiple paths to
-tasks. It will search for `pytask.ini`, `tox.ini` and `setup.cfg` in this order.
-Whenever a `[pytask]` section is found, the search stops.
+The second option is to let pytask try to find the configuration itself.
 
-If no file is found in the current directory, pytask will climb up the directory tree
-and search in parent directories.
+1. Find the common base directory of all paths passed to pytask (default to the current
+   working directory).
+2. Starting from this directory, look at all parent directories, and return the file if
+   it is found.
+3. If a directory contains a `.git` directory/file, a `.hg` directory or a valid
+   configuration file with the right section stop searching.
 
 ## The options
 
