@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-import os
 import textwrap
-from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
 from _pytask.config import _find_project_root_and_ini
-from _pytask.config_utils import _read_ini_config
 from pytask import ExitCode
 from pytask import main
 
@@ -29,7 +26,6 @@ def test_find_project_root_and_ini(
         in_ini.write_text("[pytask]")
 
     if expected_root is None:
-        os.chdir(tmp_path)
         expected_root = tmp_path
 
     paths = [tmp_path.joinpath(path).resolve() for path in paths]
@@ -82,8 +78,7 @@ def test_pass_config_to_cli(tmp_path, config_path):
     """
     tmp_path.joinpath(config_path).write_text(textwrap.dedent(config))
 
-    os.chdir(tmp_path)
-    session = main({"config": tmp_path.joinpath(config_path).as_posix()})
+    session = main({"config": tmp_path.joinpath(config_path), "paths": tmp_path})
 
     assert session.exit_code == ExitCode.OK
     assert "elton" in session.config["markers"]
@@ -104,8 +99,7 @@ def test_prioritize_given_config_over_others(tmp_path, config_path):
             config = "[pytask]\nmarkers=bad_config: Wrong config loaded"
             tmp_path.joinpath(config_name).write_text(textwrap.dedent(config))
 
-    os.chdir(tmp_path)
-    session = main({"config": tmp_path.joinpath(config_path).as_posix()})
+    session = main({"config": tmp_path.joinpath(config_path), "paths": tmp_path})
 
     assert session.exit_code == ExitCode.OK
     assert "kylie" in session.config["markers"]
@@ -131,30 +125,10 @@ def test_passing_paths_via_configuration_file(tmp_path, config_path, file_or_fol
             "def task_passes(): pass"
         )
 
-    os.chdir(tmp_path)
-    session = main({})
+    session = main({"config": tmp_path.joinpath(config_path)})
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "file_exists, content, expectation, expected",
-    [
-        (False, None, pytest.raises(KeyError), None),
-        (True, "[pytask]", does_not_raise(), {}),
-        (True, "[pytask]\nvalue = 1", does_not_raise(), {"value": "1"}),
-    ],
-)
-def test_read_config(tmp_path, file_exists, content, expectation, expected):
-    path = tmp_path / "config.ini"
-    if file_exists:
-        path.write_text(content)
-
-    with expectation:
-        result = _read_ini_config(path)
-        assert result == expected
 
 
 @pytest.mark.unit
