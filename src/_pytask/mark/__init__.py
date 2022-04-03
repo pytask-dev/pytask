@@ -132,7 +132,7 @@ def pytask_parse_config(
 def _read_marker_mapping(x: dict[str, str] | str) -> dict[str, str]:
     """Read marker descriptions from configuration file."""
     if isinstance(x, dict):
-        mapping = x
+        mapping = {k.strip(): v.strip() for k, v in x.items()}
     elif isinstance(x, str):
         # Split by newlines and remove empty strings.
         lines = filter(lambda i: bool(i), x.split("\n"))
@@ -144,7 +144,7 @@ def _read_marker_mapping(x: dict[str, str] | str) -> dict[str, str]:
                 key = line
                 value = ""
 
-            mapping[key] = value
+            mapping[key.strip()] = value.strip()
     else:
         raise TypeError(f"Unknown type {type(x)!r}. Expected dict or str.")
 

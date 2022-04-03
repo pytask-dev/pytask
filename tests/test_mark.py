@@ -92,32 +92,41 @@ def test_markers_command(tmp_path, runner, config_name):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.filterwarnings("ignore:Unknown pytask.mark.")
 @pytest.mark.parametrize("config_name", ["pytask.ini", "tox.ini", "setup.cfg"])
 def test_ini_markers_whitespace(runner, tmp_path, config_name):
     tmp_path.joinpath(config_name).write_text(
-        textwrap.dedent(
-            """
-            [pytask]
-            markers =
-                a1 : this is a whitespace marker
-            """
-        )
+        "[pytask]\nmarkers =\n  a1 : this is a whitespace marker"
     )
-    tmp_path.joinpath("task_module.py").write_text(
-        textwrap.dedent(
-            """
-            import pytask
-            @pytask.mark.a1
-            def test_markers():
-                assert True
-            """
-        )
-    )
+    source = """
+    import pytask
+    @pytask.mark.a1
+    def task_markers():
+        assert True
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.CONFIGURATION_FAILED
-    assert "a1  is not a valid Python name" in result.output
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+
+
+@pytest.mark.end_to_end
+def test_ini_markers_whitespace_toml(runner, tmp_path):
+    tmp_path.joinpath("pyproject.toml").write_text(
+        "[tool.pytask.ini_options]\nmarkers = {'a1 ' = 'this is a whitespace marker'}"
+    )
+    source = """
+    import pytask
+    @pytask.mark.a1
+    def task_markers():
+        assert True
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+    breakpoint()
 
 
 @pytest.mark.end_to_end
