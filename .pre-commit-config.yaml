@@ -40,11 +40,11 @@ repos:
     -   id: pyupgrade
         args: [--py37-plus]
 -   repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v1.20.0
+    rev: v1.20.1
     hooks:
     -   id: setup-cfg-fmt
 -   repo: https://github.com/psf/black
-    rev: 22.1.0
+    rev: 22.3.0
     hooks:
     -   id: black
 -   repo: https://github.com/PyCQA/flake8
@@ -68,7 +68,7 @@ repos:
             Pygments,
         ]
 -   repo: https://github.com/PyCQA/doc8
-    rev: 0.10.1
+    rev: 0.11.1
     hooks:
     -   id: doc8
 -   repo: https://github.com/asottile/blacken-docs
