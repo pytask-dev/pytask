@@ -37,7 +37,7 @@ folder of the project and contains a `[tool.pytask.ini_options]` section.
 
 ```toml
 [tool.pytask.ini_options]
-paths = ./src/my_project
+paths = "src/my_project"
 ```
 
 You can also leave the section empty. The header alone will signal pytask that this is
@@ -46,6 +46,11 @@ the root of the project. pytask will store information it needs across execution
 
 `paths` allows you to set the location of tasks when you do not pass them explicitly via
 the cli.
+
+:::{seealso}
+You can find more information in the {doc}`tutorial <configuration>` or a full list in
+the {doc}`reference guide <../reference_guides/configuration>`.
+:::
 
 ### The source directory
 
