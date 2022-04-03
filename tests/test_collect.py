@@ -129,6 +129,34 @@ def test_collect_files_w_custom_file_name_pattern(
     assert len(session.tasks) == expected_collected_tasks
 
 
+@pytest.mark.end_to_end
+@pytest.mark.parametrize(
+    "task_files, pattern, expected_collected_tasks",
+    [
+        (["example_task.py"], "'*_task.py'", 1),
+        (["tasks_example.py"], "'tasks_*'", 1),
+        (["example_tasks.py"], "'*_tasks.py'", 1),
+        (["task_module.py", "tasks_example.py"], "'None'", 1),
+        (["task_module.py", "tasks_example.py"], "'tasks_*.py'", 1),
+        (["task_module.py", "tasks_example.py"], "['task_*.py', 'tasks_*.py']", 2),
+    ],
+)
+def test_collect_files_w_custom_file_name_pattern_toml(
+    tmp_path, task_files, pattern, expected_collected_tasks
+):
+    tmp_path.joinpath("pyproject.toml").write_text(
+        f"[tool.pytask.ini_options]\ntask_files = {pattern}"
+    )
+
+    for file in task_files:
+        tmp_path.joinpath(file).write_text("def task_example(): pass")
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == expected_collected_tasks
+
+
 @pytest.mark.unit
 @pytest.mark.parametrize(
     "session, path, node, expectation, expected",

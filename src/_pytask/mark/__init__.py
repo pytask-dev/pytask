@@ -133,6 +133,8 @@ def _read_marker_mapping(x: dict[str, str] | str) -> dict[str, str]:
     """Read marker descriptions from configuration file."""
     if isinstance(x, dict):
         mapping = {k.strip(): v.strip() for k, v in x.items()}
+    elif isinstance(x, list):
+        mapping = {k.strip(): "" for k in x}
     elif isinstance(x, str):
         # Split by newlines and remove empty strings.
         lines = filter(lambda i: bool(i), x.split("\n"))

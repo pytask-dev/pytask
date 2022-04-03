@@ -36,6 +36,22 @@ def test_ignore_paths(tmp_path, config_path, ignore, new_line):
     assert len(session.tasks) == 0 if ignore else len(session.tasks) == 1
 
 
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("ignore", ["", "*task_module.py"])
+@pytest.mark.parametrize("new_line", [True, False])
+def test_ignore_paths_toml(tmp_path, ignore, new_line):
+    tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
+    entry = f"ignore = ['{ignore}']" if new_line else f"ignore = '{ignore}'"
+    config = (
+        f"[tool.pytask.ini_options]\n{entry}" if ignore else "[tool.pytask.ini_options]"
+    )
+    tmp_path.joinpath("pyproject.toml").write_text(config)
+
+    session = main({"paths": tmp_path})
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 0 if ignore else len(session.tasks) == 1
+
+
 @pytest.mark.unit
 @pytest.mark.parametrize(
     "path, ignored_paths, expected",
