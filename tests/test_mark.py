@@ -94,7 +94,7 @@ def test_markers_command(tmp_path, runner, config_name):
 @pytest.mark.end_to_end
 @pytest.mark.filterwarnings("ignore:Unknown pytask.mark.")
 @pytest.mark.parametrize("config_name", ["pytask.ini", "tox.ini", "setup.cfg"])
-def test_ini_markers_whitespace(tmp_path, config_name):
+def test_ini_markers_whitespace(runner, tmp_path, config_name):
     tmp_path.joinpath(config_name).write_text(
         textwrap.dedent(
             """
@@ -115,9 +115,9 @@ def test_ini_markers_whitespace(tmp_path, config_name):
         )
     )
 
-    session = main({"paths": tmp_path, "strict_markers": True})
-    assert session.exit_code == ExitCode.COLLECTION_FAILED
-    assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.CONFIGURATION_FAILED
+    assert "a1  is not a valid Python name" in result.output
 
 
 @pytest.mark.end_to_end
