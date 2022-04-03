@@ -62,7 +62,7 @@ def test_rename_database_w_config(tmp_path, runner, config_path):
 def test_rename_database_w_config_toml(tmp_path, runner):
     """Modification dates of input and output files are stored in database."""
     tmp_path.joinpath("pyproject.toml").write_text(
-        "[tool.pytask.ini_options]\ndatabase_filename=.db.sqlite3"
+        "[tool.pytask.ini_options]\ndatabase_filename='.db.sqlite3'"
     )
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK

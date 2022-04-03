@@ -254,7 +254,9 @@ def _find_project_root_and_ini(paths: list[Path]) -> tuple[Path, Path]:
                 try:
                     read_config = get_config_reader(path)
                     read_config(path)
-                except (configparser.Error, tomli.TOMLDecodeError, KeyError):
+                except (configparser.Error, tomli.TOMLDecodeError) as e:
+                    raise OSError(f"Could not read {path}.") from e
+                except KeyError:
                     pass
                 else:
                     config_path = path
