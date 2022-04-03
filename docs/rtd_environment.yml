@@ -29,8 +29,8 @@ dependencies:
   - pybaum
   - pexpect
   - rich
-  - tomli
-  - tomli-w
+  - tomli >=1.0.0
+  - tomli-w >=1.0.0
 
   - pip:
     - ../
