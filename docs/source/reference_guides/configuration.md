@@ -1,24 +1,17 @@
 # The configuration
 
-This document lists all options to configure pytask via the configuration files.
+This document lists all options to configure pytask with a `pyproject.toml` file.
 
 ## The basics
 
 To learn about the basics visit the {doc}`tutorial <../tutorials/configuration>`.
 
-## Truthy and falsy values
+Examples for the TOML specification be found [here](https://toml.io/en/) or in [PEP
+518](https://peps.python.org/pep-0518/).
 
-For some of the configuration values you need truthy or falsy values. pytask recognizes
-the following values.
-
-- truthy: `True`, `true`, `1`.
-- falsy: `False`, `false`, `0`.
-
-Additionally, the following values are interpreted as None which is neither truthy or
-falsy.
-
-- `None`
-- `none`
+The configuration values are set under the `[tool.pytask.ini_options]` section to mimic
+the old ini configurations and to allow pytask leveraging the full potential of the TOML
+format in the future.
 
 ## The options
 
@@ -34,7 +27,7 @@ falsy.
     If you have very strong reasons for relying on this inaccuracy, although, it is
     strongly discouraged, you can deactivate the warning in the configuration file with
 
-    .. code-block:: ini
+    .. code-block:: toml
 
         check_casing_of_paths = false
 
@@ -52,31 +45,31 @@ falsy.
     the modules in which tasks are defined. By default, following the link will open the
     module with your default application. It is done with
 
-    .. code-block:: ini
+    .. code-block:: toml
 
-        editor_url_scheme = file
+        editor_url_scheme = "file"
 
     If you use ``vscode`` or ``pycharm`` instead, the file will be opened in the
     specified editor and the cursor will also jump to the corresponding line.
 
-    .. code-block:: ini
+    .. code-block:: toml
 
-        editor_url_scheme = vscode | pycharm
+        editor_url_scheme = "vscode" | "pycharm"
 
     For complete flexibility, you can also enter a custom url which can use the
     variables ``path`` and ``line_number`` to open the file.
 
-    .. code-block:: ini
+    .. code-block:: toml
 
-        editor_url_scheme = editor://{path}:{line_number}
+        editor_url_scheme = "editor://{path}:{line_number}"
 
     Maybe you want to contribute this URL scheme to make it available to more people.
 
     To disable links, use
 
-    .. code-block:: ini
+    .. code-block:: toml
 
-        editor_url_scheme = no_link
+        editor_url_scheme = "no_link"
 
 ```
 
@@ -95,15 +88,13 @@ falsy.
 
     Or, use the configuration file:
 
-    .. code-block:: ini
+    .. code-block:: toml
 
         # For single entries only.
-        ignore = some_file.py
+        ignore = "some_file.py"
 
         # Or single and multiple entries.
-        ignore =
-            some_directory/*
-            some_file.py
+        ignore = ["some_directory/*", "some_file.py"]
 
 ```
 
@@ -123,10 +114,10 @@ falsy.
     silence the warning and document the marker, provide the following information in
     your pytask configuration file.
 
-    .. code-block:: ini
+    .. code-block:: toml
 
-        markers =
-            wip: Work-in-progress. These are tasks which I am currently working on.
+        [tool.pytask.ini_options.markers]
+        wip = "Work-in-progress. These are tasks which I am currently working on."
 
 ```
 
@@ -143,9 +134,9 @@ falsy.
 
     and in the configuration use
 
-    .. code-block:: ini
+    .. code-block:: toml
 
-        n_entries_in_table = all  # default 15
+        n_entries_in_table = "all"  # default 15
 
 ```
 
@@ -156,15 +147,13 @@ falsy.
     command line, you can add the paths to the configuration file. Paths passed via the
     command line will overwrite the configuration value.
 
-    .. code-block:: ini
+    .. code-block:: toml
 
         # For single entries only.
-        paths = src
+        paths = "src"
 
         # Or single and multiple entries.
-        paths =
-            folder_1
-            folder_2/task_2.py
+        paths = ["folder_1", "folder_2/task_2.py"]
 
 ```
 
@@ -180,9 +169,9 @@ falsy.
 
     or use a truthy configuration value.
 
-    .. code-block:: ini
+    .. code-block:: toml
 
-        pdb = True
+        pdb = true
 
 ```
 
@@ -196,9 +185,9 @@ falsy.
 
         pytask build --show-errors-immediately
 
-    .. code-block:: ini
+    .. code-block:: toml
 
-        show_errors_immediately = True
+        show_errors_immediately = true
 
 ```
 
@@ -212,9 +201,9 @@ falsy.
 
         pytask build --show-locals
 
-    .. code-block:: ini
+    .. code-block:: toml
 
-        show_locals = True
+        show_locals = true
 
 ```
 
@@ -229,9 +218,9 @@ falsy.
 
     or set the option to a truthy value.
 
-    .. code-block:: ini
+    .. code-block:: toml
 
-        strict_markers = True
+        strict_markers = true
 
 ```
 
@@ -240,13 +229,11 @@ falsy.
 
     Change the pattern which identify task files.
 
-    .. code-block:: ini
+    .. code-block:: toml
 
-        task_files = task_*.py  # default
+        task_files = "task_*.py"  # default
 
-        task_files =
-            task_*.py
-            tasks_*.py
+        task_files = ["task_*.py", "tasks_*.py"]
 
 ```
 
@@ -261,7 +248,7 @@ falsy.
 
     or set this option to a truthy value.
 
-    .. code-block:: ini
+    .. code-block:: toml
 
-        trace = True
+        trace = true
 ```

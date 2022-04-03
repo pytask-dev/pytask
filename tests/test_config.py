@@ -3,7 +3,7 @@ from __future__ import annotations
 import textwrap
 
 import pytest
-from _pytask.config import _find_project_root_and_ini
+from _pytask.config import _find_project_root_and_config
 from pytask import ExitCode
 from pytask import main
 
@@ -17,7 +17,7 @@ from pytask import main
         (None, ["task_module.py"], "", None),
     ],
 )
-def test_find_project_root_and_ini(
+def test_find_project_root_and_config(
     tmp_path, in_ini, paths, expected_root, expected_ini
 ):
     if in_ini is not None:
@@ -36,7 +36,7 @@ def test_find_project_root_and_ini(
             path.parent.mkdir(exist_ok=True, parents=True)
             path.touch()
 
-    root, ini = _find_project_root_and_ini(paths)
+    root, ini = _find_project_root_and_config(paths)
 
     assert root == tmp_path.joinpath(expected_root)
     if expected_ini is None:
@@ -47,9 +47,9 @@ def test_find_project_root_and_ini(
 
 @pytest.mark.unit
 @pytest.mark.parametrize("paths", [None, ["/mnt/home/", "C:/Users/"]])
-def test_find_project_root_and_ini_raise_warning(paths):
+def test_find_project_root_and_config_raise_warning(paths):
     with pytest.warns(UserWarning, match="A common path for all passed path"):
-        _find_project_root_and_ini(paths)
+        _find_project_root_and_config(paths)
 
 
 @pytest.mark.end_to_end
@@ -200,7 +200,7 @@ def test_root_stops_at_version_control_folder(tmp_path, vc_folder, path, expecte
     if vc_folder:
         tmp_path.joinpath(vc_folder).mkdir(parents=True)
 
-    root, ini = _find_project_root_and_ini([tmp_path.joinpath(path)])
+    root, ini = _find_project_root_and_config([tmp_path.joinpath(path)])
 
     assert ini is None
     assert root == tmp_path.joinpath(expected)

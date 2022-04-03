@@ -103,12 +103,12 @@ def test_markers_command(tmp_path, runner, config_name):
 
 @pytest.mark.end_to_end
 def test_markers_command_toml(tmp_path, runner):
-    ini = """
+    toml = """
     [tool.pytask.ini_options]
     markers = ["a1", "a2", "nodescription"]
     """
     config_path = tmp_path.joinpath("pyproject.toml")
-    config_path.write_text(textwrap.dedent(ini))
+    config_path.write_text(textwrap.dedent(toml))
 
     result = runner.invoke(cli, ["markers", "-c", config_path.as_posix()])
     assert result.exit_code == ExitCode.OK

@@ -100,7 +100,7 @@ def pytask_configure(
             if config_from_cli.get("paths") is not None
             else [Path.cwd()]
         )
-        config["root"], config["config"] = _find_project_root_and_ini(paths)
+        config["root"], config["config"] = _find_project_root_and_config(paths)
 
     if config["config"] is None:
         config_from_file = {}
@@ -236,7 +236,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     config["markers"] = {k: config["markers"][k] for k in sorted(config["markers"])}
 
 
-def _find_project_root_and_ini(paths: list[Path]) -> tuple[Path, Path]:
+def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:
     """Find the project root and configuration file from a list of paths.
 
     The process is as follows:
