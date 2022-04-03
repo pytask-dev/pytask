@@ -17,6 +17,7 @@ dependencies:
   - sphinx-autoapi
   - sphinx-click
   - sphinx-copybutton
+  - sphinx-inline-tabs
   - sphinx-panels
 
   # Package dependencies necessary for sphinx-click
@@ -30,6 +31,7 @@ dependencies:
   - pexpect
   - rich
   - tomli
+  - tomli-w
 
   - pip:
     - ../

@@ -41,6 +41,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
     "sphinx_click",
+    "sphinx_inline_tabs",
     "sphinx_panels",
     "autoapi.extension",
     "myst_parser",

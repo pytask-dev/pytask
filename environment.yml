@@ -25,6 +25,7 @@ dependencies:
   - pybaum
   - rich
   - tomli
+  - tomli-w
 
   # Misc
   - black
@@ -46,6 +47,7 @@ dependencies:
   - sphinx-autoapi
   - sphinx-click
   - sphinx-copybutton
+  - sphinx-inline-tabs
   - sphinx-panels
 
   - pip:

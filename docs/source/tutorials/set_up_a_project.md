@@ -13,7 +13,7 @@ The following directory tree is an example of how a project can be set up.
 
 ```
 my_project
-├───pytask.ini or tox.ini or setup.cfg
+├───pyproject.toml
 │
 ├───src
 │   └───my_project
@@ -32,25 +32,20 @@ my_project
 
 ### The configuration
 
-The configuration resides in either a `pytask.ini`, `tox.ini`, or `setup.cfg` file. The
-file is placed in the root folder of the project and contains a `[pytask]` section which
-can be left empty. Here, we set `paths` such that it points to the project.
+The configuration resides in a `pyproject.toml` file. The file is placed in the root
+folder of the project and contains a `[tool.pytask.ini_options]` section.
 
-```ini
-# Content of pytask.ini, tox.ini or setup.cfg.
-
-[pytask]
+```toml
+[tool.pytask.ini_options]
 paths = ./src/my_project
 ```
 
-The file in combination with an empty section will signal the root of the project to
-pytask. This has two benefits.
+You can also leave the section empty. The header alone will signal pytask that this is
+the root of the project. pytask will store information it needs across executions in a
+`.pytask.sqlite3` database next to the configuration file.
 
-1. pytask needs to save some data across executions. It will store this information in a
-   `.pytask.sqlite3` database in the root folder.
-1. If you start pytask without a path - simply `pytask` - from a different location
-   inside the project folder than the root, the database will be found and pytask runs
-   as if it is run in the project root.
+`paths` allows you to set the location of tasks when you do not pass them explicitly via
+the cli.
 
 ### The source directory
 
