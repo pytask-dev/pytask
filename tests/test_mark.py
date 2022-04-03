@@ -126,7 +126,6 @@ def test_ini_markers_whitespace_toml(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
-    breakpoint()
 
 
 @pytest.mark.end_to_end
