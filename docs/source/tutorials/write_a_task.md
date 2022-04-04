@@ -65,7 +65,7 @@ You learn more about adding dependencies and products to a task in the next
 Now, execute pytask which will automatically collect tasks in the current directory and
 subsequent directories.
 
-```{image} /_static/images/how-to-write-a-task.png
+```{image} /_static/images/write-a-task.svg
 ```
 
 ## Customize task names

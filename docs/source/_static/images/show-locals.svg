@@ -1,0 +1,176 @@
+<svg width="1350" height="1350" viewBox="0 0 1350 1350"
+     xmlns="http://www.w3.org/2000/svg">
+    <style>
+        @font-face {
+            font-family: "Fira Code";
+            src: local("FiraCode-Regular"),
+                 url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2") format("woff2"),
+                 url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff") format("woff");
+            font-style: normal;
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: "Fira Code";
+            src: local("FiraCode-Bold"),
+                 url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2") format("woff2"),
+                 url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff") format("woff");
+            font-style: bold;
+            font-weight: 700;
+        }
+        span {
+            display: inline-block;
+            white-space: pre;
+            vertical-align: top;
+            font-size: 18px;
+            font-family:'Fira Code','Cascadia Code',Monaco,Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .blink {
+           animation: blinker 1s infinite;
+        }
+        @keyframes blinker {
+            from { opacity: 1.0; }
+            50% { opacity: 0.3; }
+            to { opacity: 1.0; }
+        }
+        #wrapper {
+            padding: 50px;
+            padding-top: 50px;
+        }
+        #terminal {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #0c0c0c;
+            border-radius: 14px;
+            outline: 1px solid #484848;
+        }
+        #terminal-header {
+            position: relative;
+            width: 100%;
+            background-color: #2e2e2e;
+            margin-bottom: 12px;
+            font-weight: bold;
+            border-radius: 14px 14px 0 0;
+            color: #f2f2f2;
+            font-size: 18px;
+            box-shadow: inset 0px -1px 0px 0px #4e4e4e,
+                        inset 0px -4px 8px 0px #1a1a1a;
+        }
+        #terminal-title-tab {
+            display: inline-block;
+            margin-top: 14px;
+            margin-left: 124px;
+            font-family: sans-serif;
+            padding: 14px 28px;
+            border-radius: 6px 6px 0 0;
+            background-color: #0c0c0c;
+            box-shadow: inset 0px 1px 0px 0px #4e4e4e,
+                        0px -4px 4px 0px #1e1e1e,
+                        inset 1px 0px 0px 0px #4e4e4e,
+                        inset -1px 0px 0px 0px #4e4e4e;
+        }
+        #terminal-traffic-lights {
+            position: absolute;
+            top: 24px;
+            left: 20px;
+        }
+        #terminal-body {
+            line-height: 22px;
+            padding: 14px;
+        }
+        .r1 {color: #f2f2f2; text-decoration-color: #f2f2f2;background-color: #0c0c0c;}
+.r2 {color: #11a8cd; text-decoration-color: #11a8cd; font-weight: bold;background-color: #0c0c0c;}
+.r3 {font-weight: bold;color: #f2f2f2; text-decoration-color: #f2f2f2;;background-color: #0c0c0c;}
+.r4 {color: #7f7f7f; text-decoration-color: #7f7f7f;color: #f2f2f2; text-decoration-color: #f2f2f2;;background-color: #0c0c0c;}
+.r5 {;color: #f2f2f2; text-decoration-color: #f2f2f2;;background-color: #0c0c0c;}
+.r6 {color: #bf2d2d; text-decoration-color: #bf2d2d;background-color: #0c0c0c;}
+.r7 {color: #651c1c; text-decoration-color: #651c1c;background-color: #0c0c0c;}
+.r8 {color: #cd3131; text-decoration-color: #cd3131;background-color: #0c0c0c;}
+.r9 {color: #cd3131; text-decoration-color: #cd3131; font-weight: bold;background-color: #0c0c0c;}
+.r10 {color: #6c1e1e; text-decoration-color: #6c1e1e; font-weight: bold;background-color: #0c0c0c;}
+.r11 {color: #e5e510; text-decoration-color: #e5e510;background-color: #0c0c0c;}
+.r12 {color: #3b8eea; text-decoration-color: #3b8eea;background-color: #0c0c0c;}
+.r13 {color: #23d18b; text-decoration-color: #23d18b;background-color: #0c0c0c;}
+.r14 {color: #29b8db; text-decoration-color: #29b8db;background-color: #0c0c0c;}
+.r15 {color: #bc3fbc; text-decoration-color: #bc3fbc; font-weight: bold;background-color: #0c0c0c;}
+.r16 {color: #f14c4c; text-decoration-color: #f14c4c; font-weight: bold;background-color: #0c0c0c;}
+.r17 {color: #ffffff; text-decoration-color: #ffffff; font-weight: bold;background-color: #0c0c0c;}
+.r18 {color: #ffffff; text-decoration-color: #ffffff;background-color: #0c0c0c;}
+.r19 {color: #ffffff; text-decoration-color: #ffffff; background-color: #bf2d2d}
+    </style>
+    <foreignObject x="0" y="0" width="100%" height="100%">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+            <div id="wrapper">
+                <div id="terminal">
+                    <div id='terminal-header'>
+                        <svg id="terminal-traffic-lights" width="90" height="21" viewBox="0 0 90 21" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="14" cy="8" r="8" fill="#ff6159"/>
+                            <circle cx="38" cy="8" r="8" fill="#ffbd2e"/>
+                            <circle cx="62" cy="8" r="8" fill="#28c941"/>
+                        </svg>
+                        <div id="terminal-title-tab">pytask</div>
+                    </div>
+                    <div id='terminal-body'>
+                        <div><span class="r1">$ pytask --show-locals</span></div>
+                        <div><span class="r1">──────────────────────────────────────── Start pytask session ────────────────────────────────────────</span></div>
+<div><span class="r1">Platform: win32 -- Python </span><span class="r2">3.10.0</span><span class="r1">, pytask </span><span class="r2">0.2.0</span><span class="r1">, pluggy </span><span class="r2">1.0.0</span></div>
+<div><span class="r1">Root: C:\Users\pytask-dev\git\pytask-examples</span></div>
+<div><span class="r1">Collected </span><span class="r2">1</span><span class="r1"> task.</span><span class="r1">                                                                                     </span></div>
+<div><span class="r1"></span><span class="r1">                                                                                                      </span></div>
+<div><span class="r1">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓</span><span class="r1">                                     </span></div>
+<div><span class="r1">┃</span><span class="r3"> Task                                                </span><span class="r1">┃</span><span class="r3"> Outcome </span><span class="r1">┃</span><span class="r1">                                        </span></div>
+<div><span class="r1">┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩</span><span class="r1">                                     </span></div>
+<div><span class="r1">│ </span><span class="r4">task_create_random_data.py::</span><span class="r5">task_create_random_data</span><span class="r1"> │ </span><span class="r6">F      </span><span class="r1"> │</span><span class="r1">                                        </span></div>
+<div><span class="r1">└─────────────────────────────────────────────────────┴─────────┘</span><span class="r1">                                       </span></div>
+<div><span class="r1"></span><span class="r1">                                                                                                      </span></div>
+<div><span class="r6">────────────────────────────────────────────── Failures ──────────────────────────────────────────────</span></div>
+<div><span class="r1"></span><span class="r1">                                                                                                      </span></div>
+<div><span class="r6">─────────────────── Task </span><span class="r7">task_create_random_data.py::</span><span class="r6">task_create_random_data</span><span class="r6"> failed ──────────────────</span></div>
+<div><span class="r1"></span><span class="r1">                                                                                                      </span></div>
+<div><span class="r8">╭─────────────────────────────── </span><span class="r9">Traceback </span><span class="r10">(most recent call last)</span><span class="r8"> ────────────────────────────────╮</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r1">                                                                                                </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">C:\Users\pytask-dev\git\pytask-examples\task_create_random_data.py</span><span class="r1">:</span><span class="r12">23</span><span class="r1"> in </span><span class="r13">task_create_random_data</span><span class="r1"></span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r1">                                                                                                </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1">   </span><span class="r4">20 │   </span><span class="r1">                                                                                       </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1">   </span><span class="r4">21 │   </span><span class="r1">df = pd.DataFrame({</span><span class="r11">&quot;x&quot;</span><span class="r1">: x, </span><span class="r11">&quot;y&quot;</span><span class="r1">: y})</span><span class="r1">                                                    </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1">   </span><span class="r4">22 │   </span><span class="r1">                                                                                       </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r8">❱ </span><span class="r1">23 </span><span class="r4">│   </span><span class="r12">raise</span><span class="r1"> </span><span class="r14">Exception</span><span class="r1">                                                                        </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1">   </span><span class="r4">24 │   </span><span class="r1">                                                                                       </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1">   </span><span class="r4">25 │   </span><span class="r1">df.to_pickle(produces)</span><span class="r1">                                                                 </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1">   </span><span class="r4">26 </span><span class="r1">                                                                                           </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1">                                                                                             </span><span class="r1">    </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">╭────────────────────────────────────── locals ───────────────────────────────────────╮</span><span class="r1">         </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">│</span><span class="r1">     beta = </span><span class="r12">2</span><span class="r1">                                                                        </span><span class="r11">│</span><span class="r1">         </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">│</span><span class="r1">       df = </span><span class="r4">│   │      </span><span class="r1">x          y                                                  </span><span class="r11">│</span><span class="r1">         </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">│</span><span class="r1">            </span><span class="r12">0</span><span class="r1">   </span><span class="r12">6.257302</span><span class="r1">  </span><span class="r12">12.876199</span><span class="r1">                                                  </span><span class="r11">│</span><span class="r1">         </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">│</span><span class="r1">            </span><span class="r12">1</span><span class="r1">   </span><span class="r12">3.678951</span><span class="r1">   </span><span class="r12">8.661903</span><span class="r1">                                                  </span><span class="r11">│</span><span class="r1">         </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">│</span><span class="r1">            </span><span class="r12">2</span><span class="r1">  </span><span class="r12">11.404227</span><span class="r1">  </span><span class="r12">23.755534</span><span class="r1">                                                  </span><span class="r11">│</span><span class="r1">         </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">│</span><span class="r1">            </span><span class="r12">3</span><span class="r1">   </span><span class="r12">6.049001</span><span class="r1">  </span><span class="r12">11.394267</span><span class="r1">                                                  </span><span class="r11">│</span><span class="r1">         </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">│</span><span class="r1">            </span><span class="r12">4</span><span class="r1">  </span><span class="r12">-0.356694</span><span class="r1">  </span><span class="r12">-1.978809</span><span class="r1">                                                  </span><span class="r11">│</span><span class="r1">         </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">│</span><span class="r1">  epsilon = </span><span class="r15">array</span><span class="r3">([</span><span class="r1"> </span><span class="r12">0.36159505</span><span class="r1">,  </span><span class="r12">1.30400005</span><span class="r1">,  </span><span class="r12">0.94708096</span><span class="r1">, </span><span class="r12">-0.70373524</span><span class="r1">, </span><span class="r12">-1.26542147</span><span class="r3">])</span><span class="r1"> </span><span class="r11">│</span><span class="r1">         </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">│</span><span class="r1"> produces = </span><span class="r15">WindowsPath</span><span class="r3">(</span><span class="r11">&#x27;C:/Users/pytask-dev/git/pytask-examples/data.pkl&#x27;</span><span class="r3">)</span><span class="r1">          </span><span class="r11">│</span><span class="r1">         </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">│</span><span class="r1">      rng = </span><span class="r15">Generator</span><span class="r3">(</span><span class="r1">PCG64</span><span class="r3">)</span><span class="r1"> at </span><span class="r12">0x20987EC6340</span><span class="r1">                                        </span><span class="r11">│</span><span class="r1">         </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">│</span><span class="r1">        x = </span><span class="r15">array</span><span class="r3">([</span><span class="r1"> </span><span class="r12">6.25730221</span><span class="r1">,  </span><span class="r12">3.67895137</span><span class="r1">, </span><span class="r12">11.4042265</span><span class="r1"> ,  </span><span class="r12">6.04900117</span><span class="r1">, </span><span class="r12">-0.35669373</span><span class="r3">])</span><span class="r1"> </span><span class="r11">│</span><span class="r1">         </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">│</span><span class="r1">        y = </span><span class="r15">array</span><span class="r3">([</span><span class="r12">12.87619948</span><span class="r1">,  </span><span class="r12">8.66190278</span><span class="r1">, </span><span class="r12">23.75553397</span><span class="r1">, </span><span class="r12">11.39426711</span><span class="r1">, </span><span class="r12">-1.97880893</span><span class="r3">])</span><span class="r1"> </span><span class="r11">│</span><span class="r1">         </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">│</span><span class="r1"> </span><span class="r11">╰─────────────────────────────────────────────────────────────────────────────────────╯</span><span class="r1">         </span><span class="r1"> </span><span class="r8">│</span><span class="r1">  </span></div>
+<div><span class="r8">╰──────────────────────────────────────────────────────────────────────────────────────────────────╯</span><span class="r1">  </span></div>
+<div><span class="r16">Exception</span><span class="r1">                                                                                             </span></div>
+<div><span class="r1"></span><span class="r1">                                                                                                      </span></div>
+<div><span class="r4">──────────────────────────────────────────────────────────────────────────────────────────────────────</span></div>
+<div><span class="r6">╭─────────── </span><span class="r17">Summary</span><span class="r6"> ────────────╮</span><span class="r1">                                                                    </span></div>
+<div><span class="r6">│</span><span class="r1"> </span><span class="r18"> 1  Collected tasks           </span><span class="r1"> </span><span class="r6">│</span><span class="r1">                                                                    </span></div>
+<div><span class="r6">│</span><span class="r1"> </span><span class="r19"> 1  Failed           (100.0%) </span><span class="r1"> </span><span class="r6">│</span><span class="r1">                                                                    </span></div>
+<div><span class="r6">╰────────────────────────────────╯</span><span class="r1">                                                                    </span></div>
+<div><span class="r6">─────────────────────────────────────── Failed in 0.01 seconds ───────────────────────────────────────</span></div>
+<div><span class="r1"></span><span class="r1">                                                                                                      </span></div>
+                    </div>
+                </div>
+            </div>
+        </body>
+    </foreignObject>
+</svg>

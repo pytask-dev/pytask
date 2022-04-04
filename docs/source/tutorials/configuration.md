@@ -28,7 +28,7 @@ configuration file.
 
 ```toml
 [tool.pytask.ini_options]
-paths = src
+paths = "src"
 ```
 
 ## The location
