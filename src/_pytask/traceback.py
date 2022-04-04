@@ -34,7 +34,9 @@ def render_exc_info(
     traceback: str | TracebackType,
     show_locals: bool = False,
 ) -> str | Traceback:
-    if isinstance(traceback, str):
+    """Render an exception info."""
+    # Can be string if send from subprocess by pytask-parallel.
+    if isinstance(traceback, str):  # pragma: no cover
         renderable = traceback
     else:
         renderable = Traceback.from_exception(

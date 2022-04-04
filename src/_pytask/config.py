@@ -75,10 +75,14 @@ IS_FILE_SYSTEM_CASE_SENSITIVE = is_file_system_case_sensitive()
 
 
 _DEPRECATION_MESSAGE = """WARNING: pytask.ini, tox.ini, and setup.cfg will be \
-deprecated as configuration files for pytask starting with v0.3 or v1.0. To upgrade \
-and silence this warning, copy the content below in a pyproject.toml in the same \
-directory as your old configuration file. It is equivalent to your current \
-configuration.
+deprecated as configuration files for pytask starting with v0.3 or v1.0.
+
+To upgrade and silence this warning, copy the content below in a pyproject.toml in the \
+same directory as your old configuration file. This would be the path: {}. The content \
+is equivalent to your current configuration.
+
+Even if your configuration just has the header and no values, copy it. pytask needs \
+the header to determine the root of your project.
 """
 
 
@@ -109,10 +113,17 @@ def pytask_configure(
         config_from_file = read_config(config["config"])
 
         if read_config.__name__ == "_read_ini_config":
-            toml_string = tomli_w.dumps(
+            toml_string = "# Content of pyproject.toml\n\n" + tomli_w.dumps(
                 {"tool": {"pytask": {"ini_options": config_from_file}}}
             )
-            console.print(Text(_DEPRECATION_MESSAGE, style="warning"))
+            console.print(
+                Text(
+                    _DEPRECATION_MESSAGE.format(
+                        config["config"].with_name("pyproject.toml")
+                    ),
+                    style="warning",
+                )
+            )
             console.print(Syntax(toml_string, "toml"))
 
     # If paths are set in the configuration, process them.

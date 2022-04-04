@@ -71,7 +71,7 @@ def import_optional_dependency(
         version is too old and `errors` is ``'warn'``.
 
     """
-    if errors not in ("warn", "raise", "ignore"):
+    if errors not in ("warn", "raise", "ignore"):  # pragma: no cover
         raise ValueError("'errors' must be one of 'warn', 'raise' or 'ignore'.")
 
     package_name = _IMPORT_TO_PACKAGE_NAME.get(name)

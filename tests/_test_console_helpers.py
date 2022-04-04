@@ -5,7 +5,7 @@ import functools
 
 def empty_decorator(func):
     @functools.wraps(func)
-    def wrapped():
+    def wrapped():  # pragma: no cover
         return func()
 
     return wrapped

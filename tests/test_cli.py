@@ -19,13 +19,13 @@ def test_version_option():
 @pytest.mark.parametrize(
     "commands",
     [
-        ("pytask",),
-        ("pytask", "build"),
-        ("pytask", "clean"),
-        ("pytask", "collect"),
-        ("pytask", "dag"),
-        ("pytask", "markers"),
-        ("pytask", "profile"),
+        (),
+        ("build"),
+        ("clean"),
+        ("collect"),
+        ("dag"),
+        ("markers"),
+        ("profile"),
     ],
 )
 def test_help_pages(runner, commands, help_option):

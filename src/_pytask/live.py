@@ -94,8 +94,9 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 
 @hookimpl(tryfirst=True)
 def pytask_execute_build(session: Session) -> None:
-    live_execution = session.config["pm"].get_plugin("live_execution")
-    live_execution.n_tasks = len(session.tasks)
+    if session.config["verbose"] >= 1:
+        live_execution = session.config["pm"].get_plugin("live_execution")
+        live_execution.n_tasks = len(session.tasks)
 
 
 @attr.s(eq=False)

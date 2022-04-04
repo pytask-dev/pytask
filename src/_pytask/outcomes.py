@@ -43,16 +43,6 @@ class CollectionOutcome(Enum):
     FAIL = auto()
 
     @property
-    def symbol(self) -> str:
-        """The symbol of an outcome."""
-        symbols = {
-            CollectionOutcome.SUCCESS: ".",
-            CollectionOutcome.FAIL: "F",
-        }
-        assert len(symbols) == len(CollectionOutcome)
-        return symbols[self]
-
-    @property
     def description(self) -> str:
         """A description of an outcome used in the summary panel."""
         descriptions = {

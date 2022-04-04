@@ -13,7 +13,7 @@ from pytask import ExitCode
 
 try:
     import pexpect
-except ModuleNotFoundError:
+except ModuleNotFoundError:  # pragma: no cover
     IS_PEXPECT_INSTALLED = False
 else:
     IS_PEXPECT_INSTALLED = True

@@ -11,7 +11,7 @@ from pytask import ExitCode
 
 try:
     import pydot  # noqa: F401
-except ImportError:
+except ImportError:  # pragma: no cover
     _IS_PYDOT_INSTALLED = False
 else:
     _IS_PYDOT_INSTALLED = True
@@ -39,7 +39,7 @@ _TEST_FORMATS = ["dot", "pdf", "png", "jpeg", "svg"]
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
 @pytest.mark.parametrize("rankdir", ["LR"])
 def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
-    if sys.platform == "win32" and format_ == "pdf":
+    if sys.platform == "win32" and format_ == "pdf":  # pragma: no cover
         pytest.xfail("gvplugin_pango.dll might be missing on Github Actions.")
 
     source = """
@@ -75,7 +75,7 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
 @pytest.mark.parametrize("rankdir", [_RankDirection.LR.value, _RankDirection.TB])
 def test_create_graph_via_task(tmp_path, runner, format_, layout, rankdir):
-    if sys.platform == "win32" and format_ == "pdf":
+    if sys.platform == "win32" and format_ == "pdf":  # pragma: no cover
         pytest.xfail("gvplugin_pango.dll might be missing on Github Actions.")
 
     rankdir_str = rankdir if isinstance(rankdir, str) else rankdir.name
