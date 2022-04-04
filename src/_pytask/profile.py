@@ -131,7 +131,7 @@ def profile(**config_from_cli: Any) -> NoReturn:
         config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
         session = Session.from_config(config)
 
-    except (ConfigurationError, Exception):
+    except (ConfigurationError, Exception):  # pragma: no cover
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
         exc_info: tuple[
@@ -159,10 +159,10 @@ def profile(**config_from_cli: Any) -> NoReturn:
 
             console.rule(style="neutral")
 
-        except CollectionError:
+        except CollectionError:  # pragma: no cover
             session.exit_code = ExitCode.COLLECTION_FAILED
 
-        except Exception:
+        except Exception:  # pragma: no cover
             session.exit_code = ExitCode.FAILED
             console.print_exception()
             console.rule(style="failed")
@@ -288,7 +288,7 @@ class ExportNameSpace:
             _export_to_json(profile)
         elif export == _ExportFormats.NO:
             pass
-        else:
+        else:  # pragma: no cover
             raise ValueError(f"The export option {export.value!r} cannot be handled.")
 
 

@@ -43,19 +43,16 @@ def test_parse_n_entries_in_table(value, expectation, expected):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.parametrize("verbose", [False, True])
+@pytest.mark.parametrize("verbose", [0, 1])
 def test_verbose_mode_execution(tmp_path, runner, verbose):
     source = "def task_example(): pass"
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    args = [tmp_path.as_posix()]
-    if not verbose:
-        args.append("-v 0")
-    result = runner.invoke(cli, args)
+    result = runner.invoke(cli, [tmp_path.as_posix(), "--verbose", verbose])
 
-    assert ("Task" in result.output) is verbose
-    assert ("Outcome" in result.output) is verbose
-    assert ("task_module.py::task_example" in result.output) is verbose
+    assert ("Task" in result.output) is (verbose >= 1)
+    assert ("Outcome" in result.output) is (verbose >= 1)
+    assert ("task_module.py::task_example" in result.output) is (verbose >= 1)
 
 
 @pytest.mark.unit

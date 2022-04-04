@@ -27,7 +27,7 @@ def test_pytask_mark_notcallable() -> None:
 @pytest.mark.unit
 @pytest.mark.filterwarnings("ignore:Unknown pytask.mark.foo")
 def test_mark_with_param():
-    def some_function():
+    def some_function():  # pragma: no cover
         pass
 
     class SomeClass:

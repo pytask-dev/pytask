@@ -116,7 +116,7 @@ def test_merge_dictionaries(list_of_dicts, expected):
 )
 def test_extract_args_from_mark(decorator, values, expected):
     @decorator(values)
-    def task_example():
+    def task_example():  # pragma: no cover
         pass
 
     parser = depends_on if decorator.name == "depends_on" else produces
@@ -136,7 +136,7 @@ def test_extract_args_from_mark(decorator, values, expected):
 )
 def test_extract_kwargs_from_mark(decorator, values, expected):
     @decorator(**values)
-    def task_example():
+    def task_example():  # pragma: no cover
         pass
 
     parser = depends_on if decorator.name == "depends_on" else produces
@@ -153,7 +153,7 @@ def test_raise_error_for_invalid_args_to_depends_on_and_produces(
     decorator, args, kwargs
 ):
     @decorator(*args, **kwargs)
-    def task_example():
+    def task_example():  # pragma: no cover
         pass
 
     parser = depends_on if decorator.name == "depends_on" else produces

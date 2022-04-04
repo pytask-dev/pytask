@@ -56,7 +56,7 @@ def test_show_capture(tmp_path, runner, show_capture):
         assert "xxxx" in result.output
         assert "Captured stderr" in result.output
         assert "zzzz" in result.output
-    else:
+    else:  # pragma: no cover
         raise NotImplementedError
 
 
@@ -360,7 +360,11 @@ def lsof_check():
     pid = os.getpid()
     try:
         out = subprocess.check_output(("lsof", "-p", str(pid))).decode()
-    except (OSError, subprocess.CalledProcessError, UnicodeDecodeError) as exc:
+    except (
+        OSError,
+        subprocess.CalledProcessError,
+        UnicodeDecodeError,
+    ) as exc:  # pragma: no cover
         # about UnicodeDecodeError, see note on pytester
         pytest.skip(f"could not run 'lsof' ({exc!r})")
     yield
