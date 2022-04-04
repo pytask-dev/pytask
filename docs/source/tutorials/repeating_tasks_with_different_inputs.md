@@ -15,9 +15,9 @@ Here you find the new and preferred approach.
 
 ## An example
 
-We reuse the task from the previous {doc}`tutorial <write_a_task>` which
-generates random data and repeat the same operation over a number of seeds to receive
-multiple, reproducible samples.
+We reuse the task from the previous {doc}`tutorial <write_a_task>` which generates
+random data and repeat the same operation over a number of seeds to receive multiple,
+reproducible samples.
 
 Apply the {func}`@pytask.mark.task <_pytask.task_utils.task>` decorator, loop over the
 function and supply different seeds and output paths as default arguments of the
@@ -38,7 +38,7 @@ for i in range(10):
 
 Executing pytask gives you this:
 
-```{image} /_static/images/how-to-parametrize-a-task.png
+```{image} /_static/images/repeating-tasks.svg
 ```
 
 ## `depends_on` and `produces`
@@ -46,8 +46,8 @@ Executing pytask gives you this:
 You can also use decorators to supply values to the function.
 
 To specify a dependency which is the same for all iterations, add it with
-{func}`@pytask.mark.depends_on <_pytask.collect_utils.depends_on>`. And add a product with
-{func}`@pytask.mark.produces <_pytask.collect_utils.produces>`
+{func}`@pytask.mark.depends_on <_pytask.collect_utils.depends_on>`. And add a product
+with {func}`@pytask.mark.produces <_pytask.collect_utils.produces>`
 
 ```python
 for i in range(10):

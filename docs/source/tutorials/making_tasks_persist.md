@@ -15,7 +15,7 @@ in the database such that the next execution will skip the task successfully.
 
 - You ran a formatter like Black on the files in your project and want to prevent the
   longest running tasks from being rerun.
-- You extend a parametrization, but do not want to rerun all tasks.
+- You extend a repetition of a task function, but do not want to rerun all tasks.
 - You want to integrate a task which you have already run elsewhere. Place the
   dependencies and products and the task definition in the correct place and make the
   task persist.
@@ -53,7 +53,7 @@ Here is the text.
 If you execute the task with pytask, the task will be executed since the product is
 missing.
 
-```{image} /_static/images/persist-executed.png
+```{image} /_static/images/persist-executed.svg
 ```
 
 After that, we change the source file of the task accidentally by formatting the file
@@ -61,11 +61,11 @@ with black. Without the `@pytask.mark.persist` decorator the task would run agai
 it has changed. With the decorator, the execution is skipped which is signaled by a
 green p.
 
-```{image} /_static/images/persist-persisted.png
+```{image} /_static/images/persist-persisted.svg
 ```
 
 If we now run the task again, it is skipped because nothing has changed and not because
 it is marked with `@pytask.mark.persist`.
 
-```{image} /_static/images/persist-skipped-successfully.png
+```{image} /_static/images/persist-skipped.svg
 ```
