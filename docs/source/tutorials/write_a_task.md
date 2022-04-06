@@ -1,8 +1,7 @@
 # Write a task
 
-Starting from the project structure in the
-{doc}`previous tutorial <set_up_a_project>`, this tutorial teaches you how to
-write your first task.
+Starting from the project structure in the {doc}`previous tutorial <set_up_a_project>`,
+this tutorial teaches you how to write your first task.
 
 By default, pytask will look for tasks in modules whose name is prefixed with `task_`.
 Tasks are functions in these modules whose name also starts with `task_`.

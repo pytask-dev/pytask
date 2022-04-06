@@ -24,8 +24,8 @@ the exception.
 ```
 
 :::{seealso}
-{doc}`A following tutorial <selecting_tasks>` shows you how to run only one or a
-subset of tasks which can be combined with the debug mode.
+{doc}`A following tutorial <selecting_tasks>` shows you how to run only one or a subset
+of tasks which can be combined with the debug mode.
 :::
 
 ## Tracing

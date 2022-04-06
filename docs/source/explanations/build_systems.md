@@ -50,7 +50,6 @@ Cons
 - No debug mode.
 - Seems to have no plugin system.
 
-
 ### [ploomber](https://github.com/ploomber/ploomber)
 
 General
@@ -58,7 +57,6 @@ General
 - Strong focus on machine learning pipelines, training, and deployment.
 - Integration with tools such as MLflow, Docker, AWS Batch.
 - Tasks can be defined in yaml, python files, Jupyter notebooks or SQL.
-
 
 Pros
 
@@ -70,9 +68,8 @@ Cons
 
 - Programming in Jupyter notebooks increases the risk of coding errors (e.g.
   side-effects).
-- Supports parametrizations in form of cartesian products in ``yaml`` files, but not
-  more powerful parametrizations.
-
+- Supports parametrizations in form of cartesian products in `yaml` files, but not more
+  powerful parametrizations.
 
 ### [Waf](https://waf.io)
 
@@ -86,11 +83,9 @@ Cons
 - Focus on compiling binaries, not research projects.
 - Bus factor of 1.
 
-
 ### [nextflow](https://github.com/nextflow-io/nextflow)
 
 -
-
 
 ### [Kedro](https://github.com/quantumblacklabs/kedro)
 
@@ -98,7 +93,6 @@ Pros
 
 - Mature library, used by some institutions and companies. Created inside McKinsey.
 - Provides the full package: templates, pipelines, deployment
-
 
 ### [pydoit](https://github.com/pydoit/doit)
 
@@ -108,7 +102,6 @@ General
 - You can think of it as an replacement for make.
 - Powers Nikola, a static site generator.
 
-
 ### [Luigi](https://github.com/spotify/luigi)
 
 General
@@ -117,12 +110,10 @@ General
 - Designed for any kind of long-running batch processes.
 - Integrates with many other tools like databases, Hadoop, Spark, etc..
 
-
 Cons
 
 - Very complex interface and a lot of stuff you probably don't need.
 - [Development](https://github.com/spotify/luigi/graphs/contributors) seems to stall.
-
 
 ### [sciluigi](https://github.com/pharmbio/sciluigi)
 
@@ -133,7 +124,6 @@ Cons
 - [Development](https://github.com/pharmbio/sciluigi/graphs/contributors) has basically
   stalled since 2018.
 - Not very popular compared to its lifetime.
-
 
 ### [scipipe](https://github.com/scipipe/scipipe)
 
@@ -151,7 +141,6 @@ Pros
 Cons
 
 - Seems to have no plugin system.
-
 
 ### [pypyr](https://github.com/pypyr/pypyr)
 

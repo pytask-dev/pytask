@@ -4,7 +4,7 @@ This section gives advice on how to use parametrizations.
 
 ## TL;DR
 
-- Loop over dictionaries which map ids to ``kwargs`` to create multiple tasks.
+- Loop over dictionaries which map ids to `kwargs` to create multiple tasks.
 - Create the dictionary with a separate function.
 - Create functions to build intermediate objects like output paths which can be shared
   more easily across tasks than the generated values.

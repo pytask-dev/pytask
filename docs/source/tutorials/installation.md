@@ -21,5 +21,5 @@ installed via the [Microsoft Store](https://aka.ms/terminal).
 
 To quickly set up a new project, use the
 [cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project)
-template or start from [other templates or example
-projects](https://pytask-dev.readthedocs.io/en/stable/how_to_guides/bp_templates_and_projects.html).
+template or start from
+[other templates or example projects](https://pytask-dev.readthedocs.io/en/stable/how_to_guides/bp_templates_and_projects.html).

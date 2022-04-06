@@ -6,8 +6,8 @@ This document lists all options to configure pytask with a `pyproject.toml` file
 
 To learn about the basics visit the {doc}`tutorial <../tutorials/configuration>`.
 
-Examples for the TOML specification be found [here](https://toml.io/en/) or in [PEP
-518](https://peps.python.org/pep-0518/).
+Examples for the TOML specification be found [here](https://toml.io/en/) or in
+[PEP 518](https://peps.python.org/pep-0518/).
 
 The configuration values are set under the `[tool.pytask.ini_options]` section to mimic
 the old ini configurations and to allow pytask leveraging the full potential of the TOML

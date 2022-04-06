@@ -98,12 +98,18 @@ repos:
         files: (docs/.)
         exclude: |
             (?x)^(
-                how_to_guides\how_to_influence_build_order.md|
-                how_to_guides\repeating_tasks_with_different_inputs_the_pytest_way.md|
-                tutorials\configuration.md|
-                tutorials\defining_dependencies_products.md|
-                tutorials\repeating_tasks_with_different_inputs.md|
-                tutorials\set_up_a_project.md
+                docs/source/how_to_guides/how_to_influence_build_order.md|
+                docs/source/how_to_guides/repeating_tasks_with_different_inputs_the_pytest_way.md|
+                docs/source/tutorials/configuration.md|
+                docs/source/tutorials/defining_dependencies_products.md|
+                docs/source/tutorials/repeating_tasks_with_different_inputs.md|
+                docs/source/tutorials/set_up_a_project.md|
+                docs/source/how_to_guides/bp_structure_of_task_files.md|
+                docs/source/reference_guides/hookspecs.md|
+                docs/source/tutorials/debugging.md|
+                docs/source/tutorials/making_tasks_persist.md|
+                docs/source/tutorials/selecting_tasks.md|
+                docs/source/tutorials/write_a_task.md
             )$
 -   repo: https://github.com/econchick/interrogate
     rev: 1.5.0

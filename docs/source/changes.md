@@ -36,7 +36,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`246` formalizes choices for {class}`click.Choice` to {class}`enum.Enum`.
 - {pull}`252` adds a counter at the bottom of the execution table to show how many tasks
   have been processed.
-- {pull}`253` adds support for ``pyproject.toml``.
+- {pull}`253` adds support for `pyproject.toml`.
 - {pull}`254` improves test coverage, fixes a bug, and improves the deprecation message
   for the configuration.
 - {pull}`255` converts the readme to markdown and multiple pngs to svgs.
