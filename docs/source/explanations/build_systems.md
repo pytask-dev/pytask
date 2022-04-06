@@ -46,8 +46,8 @@ Pros
 
 Cons
 
-- No debug mode.
 - Need to learn snakemake's syntax which is a mixture of Make and Python.
+- No debug mode.
 - Seems to have no plugin system.
 
 

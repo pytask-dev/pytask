@@ -4,7 +4,7 @@
     </p>
 </a>
 
-------------------------------------------------------------------------
+______________________________________________________________________
 
 <!-- Keep in sync with docs/source/index.md -->
 
@@ -21,22 +21,21 @@
 
 <!-- Keep in sync with docs/source/index.md -->
 
-In its highest aspirations, pytask tries to be pytest as a build system. It\'s main
+In its highest aspirations, pytask tries to be pytest as a build system. It's main
 purpose is to facilitate reproducible research by automating workflows in research
 projects. Its features include:
 
 - **Automatic discovery of tasks.**
 - **Lazy evaluation.** If a task, its dependencies, and its products have not changed,
   do not execute it.
-- **Debug mode.** [Jump into the
-  debugger](https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_debug.html) if
-  a task fails, get feedback quickly, and be more productive.
-- **Repeat a task with different inputs.** [Loop over task
-  functions](https://pytask-dev.readthedocs.io/en/stable/tutorials/repeating_tasks_with_different_inputs.html)
+- **Debug mode.**
+  [Jump into the debugger](https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_debug.html)
+  if a task fails, get feedback quickly, and be more productive.
+- **Repeat a task with different inputs.**
+  [Loop over task functions](https://pytask-dev.readthedocs.io/en/stable/tutorials/repeating_tasks_with_different_inputs.html)
   to run the same task with different inputs.
-- **Select tasks via expressions.** Run only a subset of tasks with [expressions and
-  marker
-  expressions](https://pytask-dev.readthedocs.io/en/stable/tutorials/selecting_tasks.html)
+- **Select tasks via expressions.** Run only a subset of tasks with
+  [expressions and marker expressions](https://pytask-dev.readthedocs.io/en/stable/tutorials/selecting_tasks.html)
   known from pytest.
 - **Easily extensible with plugins**. pytask is built on top of
   [pluggy](https://pluggy.readthedocs.io/en/latest/), a plugin management framework,
@@ -45,8 +44,8 @@ projects. Its features include:
   [LaTeX](https://github.com/pytask-dev/pytask-latex),
   [R](https://github.com/pytask-dev/pytask-r), and
   [Stata](https://github.com/pytask-dev/pytask-stata) and more can be found
-  [here](https://github.com/topics/pytask). Read in [this
-  tutorial](https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_use_plugins.html)
+  [here](https://github.com/topics/pytask). Read in
+  [this tutorial](https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_use_plugins.html)
   how to use and create plugins with a
   [cookiecutter](https://github.com/pytask-dev/cookiecutter-pytask-plugin).
 
@@ -73,8 +72,8 @@ installed via the [Microsoft Store](https://aka.ms/terminal).
 
 To quickly set up a new project, use the
 [cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project)
-template or start from [other templates or example
-projects](https://pytask-dev.readthedocs.io/en/stable/how_to_guides/bp_templates_and_projects.html).
+template or start from
+[other templates or example projects](https://pytask-dev.readthedocs.io/en/stable/how_to_guides/bp_templates_and_projects.html).
 
 # Usage
 
@@ -94,13 +93,13 @@ def task_hello_earth(produces):
 
 Here are some details:
 
--   Dependencies and products of a task are tracked via markers. For dependencies use
-    `@pytask.mark.depends_on` and for products use `@pytask.mark.produces`. Use strings
-    and `pathlib.Path` to specify the location. Pass multiple dependencies or products
-    as a list or a dictionary for positional or key-based access.
--   With `produces` (and `depends_on`) as function arguments, you get access to the
-    dependencies and products inside the function via `pathlib.Path` objects. Here,
-    `produces` holds the path to `"hello_earth.txt"`.
+- Dependencies and products of a task are tracked via markers. For dependencies use
+  `@pytask.mark.depends_on` and for products use `@pytask.mark.produces`. Use strings
+  and `pathlib.Path` to specify the location. Pass multiple dependencies or products as
+  a list or a dictionary for positional or key-based access.
+- With `produces` (and `depends_on`) as function arguments, you get access to the
+  dependencies and products inside the function via `pathlib.Path` objects. Here,
+  `produces` holds the path to `"hello_earth.txt"`.
 
 To execute the task, enter `pytask` on the command-line
 
@@ -110,8 +109,8 @@ To execute the task, enter `pytask` on the command-line
 
 The documentation can be found under <https://pytask-dev.readthedocs.io/en/stable> with
 [tutorials](https://pytask-dev.readthedocs.io/en/stable/tutorials/index.html) and guides
-for [best
-practices](https://pytask-dev.readthedocs.io/en/stable/how_to_guides/index.html).
+for
+[best practices](https://pytask-dev.readthedocs.io/en/stable/how_to_guides/index.html).
 
 # Changes
 
@@ -127,7 +126,7 @@ pytask is distributed under the terms of the [MIT license](LICENSE).
 The license also includes a copyright and permission notice from pytest since some
 modules, classes, and functions are copied from pytest. Not to mention how pytest has
 inspired the development of pytask in general. Without the amazing work of Holger Krekel
-and pytest\'s many contributors, this project would not have been possible. Thank you!
+and pytest's many contributors, this project would not have been possible. Thank you!
 
 # Citation
 
