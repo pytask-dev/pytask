@@ -19,11 +19,6 @@ Plugins can be found in many places.
   overview of repositories linked to pytask.
 - Search on [anaconda.org](https://anaconda.org/search?q=pytask) for related packages.
 
-## How to use plugins
-
-To use a plugin, simply follow the installation instructions and the accompanying
-documentation. A plugin will usually enable itself by using pytask's entry-point.
-
 ## How to implement your own plugin
 
 Follow the {doc}`guide on writing a plugin <../how_to_guides/how_to_write_a_plugin>` to

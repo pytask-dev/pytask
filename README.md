@@ -29,7 +29,7 @@ projects. Its features include:
 - **Lazy evaluation.** If a task, its dependencies, and its products have not changed,
   do not execute it.
 - **Debug mode.**
-  [Jump into the debugger](https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_debug.html)
+  [Jump into the debugger](https://pytask-dev.readthedocs.io/en/stable/tutorials/debugging.html)
   if a task fails, get feedback quickly, and be more productive.
 - **Repeat a task with different inputs.**
   [Loop over task functions](https://pytask-dev.readthedocs.io/en/stable/tutorials/repeating_tasks_with_different_inputs.html)
@@ -45,7 +45,7 @@ projects. Its features include:
   [R](https://github.com/pytask-dev/pytask-r), and
   [Stata](https://github.com/pytask-dev/pytask-stata) and more can be found
   [here](https://github.com/topics/pytask). Read in
-  [this tutorial](https://pytask-dev.readthedocs.io/en/stable/tutorials/how_to_use_plugins.html)
+  [this tutorial](https://pytask-dev.readthedocs.io/en/stable/tutorials/plugins.html)
   how to use and create plugins with a
   [cookiecutter](https://github.com/pytask-dev/cookiecutter-pytask-plugin).
 
