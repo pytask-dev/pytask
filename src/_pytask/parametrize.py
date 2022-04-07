@@ -37,10 +37,10 @@ def parametrize(
 
     Parameters
     ----------
-    arg_names : Union[str, List[str], Tuple[str, ...]]
+    arg_names : str | list[str] | tuple[str, ...]
         The names of the arguments which can either be given as a comma-separated
         string, a tuple of strings, or a list of strings.
-    arg_values : Iterable[Union[Sequence[Any], Any]]
+    arg_values : Iterable[Sequence[Any] | Any]
         The values which correspond to names in ``arg_names``. For one argument, it is a
         single iterable. For multiple argument names it is an iterable of iterables.
     ids

@@ -21,9 +21,8 @@ ______________________________________________________________________
 
 <!-- Keep in sync with docs/source/index.md -->
 
-In its highest aspirations, pytask tries to be pytest as a build system. It's main
-purpose is to facilitate reproducible research by automating workflows in research
-projects. Its features include:
+pytask is a workflow management system which facilitates reproducible research by
+automating workflows in research projects. Its features include:
 
 - **Automatic discovery of tasks.**
 - **Lazy evaluation.** If a task, its dependencies, and its products have not changed,
@@ -35,8 +34,7 @@ projects. Its features include:
   [Loop over task functions](https://pytask-dev.readthedocs.io/en/stable/tutorials/repeating_tasks_with_different_inputs.html)
   to run the same task with different inputs.
 - **Select tasks via expressions.** Run only a subset of tasks with
-  [expressions and marker expressions](https://pytask-dev.readthedocs.io/en/stable/tutorials/selecting_tasks.html)
-  known from pytest.
+  [expressions and marker expressions](https://pytask-dev.readthedocs.io/en/stable/tutorials/selecting_tasks.html).
 - **Easily extensible with plugins**. pytask is built on top of
   [pluggy](https://pluggy.readthedocs.io/en/latest/), a plugin management framework,
   which allows you to adjust pytask to your needs. Plugins are available for
@@ -44,10 +42,8 @@ projects. Its features include:
   [LaTeX](https://github.com/pytask-dev/pytask-latex),
   [R](https://github.com/pytask-dev/pytask-r), and
   [Stata](https://github.com/pytask-dev/pytask-stata) and more can be found
-  [here](https://github.com/topics/pytask). Read in
-  [this tutorial](https://pytask-dev.readthedocs.io/en/stable/tutorials/plugins.html)
-  how to use and create plugins with a
-  [cookiecutter](https://github.com/pytask-dev/cookiecutter-pytask-plugin).
+  [here](https://github.com/topics/pytask). Learn more about plungins in
+  [this tutorial](https://pytask-dev.readthedocs.io/en/stable/tutorials/plugins.html).
 
 # Installation
 
@@ -95,11 +91,10 @@ Here are some details:
 
 - Dependencies and products of a task are tracked via markers. For dependencies use
   `@pytask.mark.depends_on` and for products use `@pytask.mark.produces`. Use strings
-  and `pathlib.Path` to specify the location. Pass multiple dependencies or products as
-  a list or a dictionary for positional or key-based access.
-- With `produces` (and `depends_on`) as function arguments, you get access to the
-  dependencies and products inside the function via `pathlib.Path` objects. Here,
-  `produces` holds the path to `"hello_earth.txt"`.
+  and `pathlib.Path` to specify the location.
+- Use `produces` (and `depends_on`) as function arguments to access the paths of the
+  dependencies and products inside the function. All values are converted to
+  `pathlib.Path`'s. Here, `produces` holds the path to `"hello_earth.txt"`.
 
 To execute the task, enter `pytask` on the command-line
 
@@ -127,6 +122,13 @@ The license also includes a copyright and permission notice from pytest since so
 modules, classes, and functions are copied from pytest. Not to mention how pytest has
 inspired the development of pytask in general. Without the amazing work of Holger Krekel
 and pytest's many contributors, this project would not have been possible. Thank you!
+
+pytask ows its beautiful appearance on the command line to
+[rich](https://github.com/Textualize/rich) written by
+[Will McGugan](https://github.com/willmcgugan).
+
+Repeating tasks in loops is inspired by [ward](https://github.com/darrenburns/ward)
+written by [Darren Burns](https://github.com/darrenburns).
 
 # Citation
 

@@ -9,8 +9,9 @@ This section provides advice on how to structure task files.
 
 - A task function should be the first function in a task module.
 
-  :::\{seealso} The only exception might be for
-  {doc}`parametrizations <bp_parametrizations>`. :::
+  :::{seealso}
+  The only exception might be for {doc}`parametrizations <bp_parametrizations>`.
+  :::
 
 - The purpose of the task function is to handle IO operations like loading and saving
   files and calling Python functions on the task's inputs. IO should not be handled in

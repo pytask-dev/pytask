@@ -2,10 +2,11 @@
 
 This tutorial shows you how to set up your first project.
 
-:::{seealso}
-If you want to start from a template or take inspiration from previous projects, look at
-{doc}`../how_to_guides/bp_templates_and_projects`.
-:::
+Use the
+[cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project)
+template to start right away.
+
+Then, follow the tutorial to become familiar with its parts.
 
 ## The directory structure
 
@@ -13,7 +14,6 @@ The following directory tree is an example of how a project can be set up.
 
 ```
 my_project
-├───pyproject.toml
 │
 ├───src
 │   └───my_project
@@ -47,21 +47,11 @@ the root of the project. pytask will store information it needs across execution
 `paths` allows you to set the location of tasks when you do not pass them explicitly via
 the cli.
 
-:::{seealso}
-You can find more information in the {doc}`tutorial <configuration>` or a full list in
-the {doc}`reference guide <../reference_guides/configuration>`.
-:::
-
 ### The source directory
 
-The `src` directory is empty except for a folder containing the tasks and source files
-of the project. The nested structure is called the src layout and the preferred way to
-structure Python packages.
-
-:::{seealso}
-You find a better explanation of the src layout in [this article by Hynek
-Schlawack](https://hynek.me/articles/testing-packaging/).
-:::
+The `src` directory only contains a folder for the project in which the tasks and source
+files of the project are placed. The nested structure is called the src layout and the
+preferred way to structure Python packages.
 
 It also contains a `config.py` or a similar module to store the configuration of the
 project. For example, you should define paths pointing to the source and build directory
@@ -107,7 +97,7 @@ package_dir =
 where = src
 ```
 
-Secondly, you need a `pyproject.toml` with this content:
+Secondly, extend the `pyproject.toml` with this content:
 
 ```toml
 # Content of pyproject.toml
@@ -116,11 +106,6 @@ Secondly, you need a `pyproject.toml` with this content:
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 ```
-
-:::{seealso}
-You find this and more information in the documentation for
-[setuptools](https://setuptools.pypa.io/en/latest/userguide/quickstart.html).
-:::
 
 Now, you can install the package into your environment with
 
@@ -147,3 +132,7 @@ used in
 
 - You can find more examples for structuring a research project in
   {doc}`../how_to_guides/bp_templates_and_projects`.
+- An explanation for the src layout can be found in [this article by Hynek
+  Schlawack](https://hynek.me/articles/testing-packaging/).
+- You find this and more information in the documentation for
+  [setuptools](https://setuptools.pypa.io/en/latest/userguide/quickstart.html).

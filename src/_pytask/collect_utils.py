@@ -32,10 +32,10 @@ def depends_on(
 
     Parameters
     ----------
-    objects : Union[Any, Iterable[Any], Dict[Any, Any]]
+    objects : Any | Iterable[Any] | dict[Any, Any]
         Can be any valid Python object or an iterable of any Python objects. To be
         valid, it must be parsed by some hook implementation for the
-        :func:`pytask.hookspecs.pytask_collect_node` entry-point.
+        :func:`_pytask.hookspecs.pytask_collect_node` entry-point.
 
     """
     return objects
@@ -48,10 +48,10 @@ def produces(
 
     Parameters
     ----------
-    objects : Union[Any, Iterable[Any], Dict[Any, Any]]
+    objects : Any | Iterable[Any] | dict[Any, Any]
         Can be any valid Python object or an iterable of any Python objects. To be
         valid, it must be parsed by some hook implementation for the
-        :func:`pytask.hookspecs.pytask_collect_node` entry-point.
+        :func:`_pytask.hookspecs.pytask_collect_node` entry-point.
 
     """
     return objects
