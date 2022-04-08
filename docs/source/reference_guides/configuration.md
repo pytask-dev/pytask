@@ -19,7 +19,7 @@ format in the future.
 
 Since pytask encourages platform-independent reproducibility, it will raise a
 warning if you used a path with incorrect casing on a case-insensitive file system.
-For example, the path ``TeXt.TxT`` will match the actual file ``text.txt`` on
+For example, the path `TeXt.TxT` will match the actual file `text.txt` on
 case-insensitive file systems (usually Windows and macOS), but not on case-sensitive
 systems (usually Linux).
 
@@ -47,7 +47,7 @@ with your default application. It is done with
 editor_url_scheme = "file"
 ```
 
-If you use ``vscode`` or ``pycharm`` instead, the file will be opened in the
+If you use `vscode` or `pycharm` instead, the file will be opened in the
 specified editor and the cursor will also jump to the corresponding line.
 
 ```toml
@@ -59,7 +59,7 @@ editor_url_scheme = "pycharm"
 ```
 
 For complete flexibility, you can also enter a custom url which can use the
-variables ``path`` and ``line_number`` to open the file.
+variables `path` and `line_number` to open the file.
 
 ```toml
 editor_url_scheme = "editor://{path}:{line_number}"
@@ -80,7 +80,7 @@ editor_url_scheme = "no_link"
 pytask can ignore files and directories and exclude some tasks or reduce the duration of
 the collection.
 
-To ignore some file/folder via the command line, use the ``--ignore`` flag multiple
+To ignore some file/folder via the command line, use the `--ignore` flag multiple
 times.
 
 ```console
@@ -124,7 +124,7 @@ wip = "Work-in-progress. These are tasks which I am currently working on."
 ````{confval} n_entries_in_table
 
 You can limit the number of entries displayed in the live table during the execution
-to make it more clear. Use either ``all`` or an integer greater or equal to one. On
+to make it more clear. Use either `all` or an integer greater or equal to one. On
 the command line use
 
 ```console

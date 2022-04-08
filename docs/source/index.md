@@ -17,8 +17,8 @@
 
 <!-- Keep in sync with README.md -->
 
-pytask is a workflow management system which facilitates reproducible research by
-automating workflows in research projects. Its features include:
+pytask is a workflow management system which facilitates reproducible data analyses. Its
+features include:
 
 - **Automatic discovery of tasks.**
 - **Lazy evaluation.** If a task, its dependencies, and its products have not changed,

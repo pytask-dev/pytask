@@ -36,7 +36,7 @@ There are two entry-points to invoke pytask.
    Pass command line arguments with their long name and hyphens replaced by underscores
    as keys of the dictionary.
 
-## Stopping after the first (or N) failures
+## Stopping after the first (N) failures
 
 To stop the build of the project after the first (N) failures use
 
