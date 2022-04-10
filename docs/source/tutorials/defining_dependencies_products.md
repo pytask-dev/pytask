@@ -19,9 +19,9 @@ def task_create_random_data(produces):
     ...
 ```
 
-The {func}`@pytask.mark.produces <_pytask.collect_utils.produces>` marker attaches a product to
-a task which is a {class}`pathlib.Path` to file. After the task has finished, pytask
-will check whether the file exists.
+The {func}`@pytask.mark.produces <_pytask.collect_utils.produces>` marker attaches a
+product to a task which is a {class}`pathlib.Path` to file. After the task has finished,
+pytask will check whether the file exists.
 
 Optionally, you can use `produces` as an argument of the task function and get access to
 the same path inside the task function.
@@ -34,22 +34,19 @@ useful to handle paths conveniently and across platforms.
 ## Dependencies
 
 Most tasks have dependencies. Similar to products, you can use the
-`@pytask.mark.depends_on` marker to attach a dependency to a task.
+`@pytask.mark.depends_on <_pytask.collect_utils.depends_on>` marker to attach a
+dependency to a task.
 
 ```python
 @pytask.mark.depends_on(BLD / "data.pkl")
 @pytask.mark.produces(BLD / "plot.png")
 def task_plot_data(depends_on, produces):
+    df = pd.read_pickle(depends_on)
     ...
 ```
 
 Use `depends_on` as a function argument to work with the path of the dependency and, for
 example, load the data.
-
-:::{important}
-The two markers, `pytask.mark.depends_on` and `pytask.mark.produces`, cannot be used
-interchangeably! Use the first for dependencies and the latter for products.
-:::
 
 ## Conversion
 
@@ -111,13 +108,9 @@ keys are the positions in the list.
 {0: BLD / "data_0.pkl", 1: BLD / "data_1.pkl"}
 ```
 
-Why does pytask recommend dictionaries and even converts lists to dictionaries? First,
-dictionaries with positions as keys behave very similar to lists and conversion between
-both is easy.
-
-:::{tip}
-Use `list(produces.values())` to convert a dictionary to a list.
-:::
+Why does pytask recommend dictionaries and even converts lists, tuples or other
+iterators to dictionaries? First, dictionaries with positions as keys behave very
+similar to lists.
 
 Secondly, dictionaries use keys instead of positions which is more verbose and
 descriptive and does not assume a fixed ordering. Both attributes are especially
@@ -130,20 +123,28 @@ dictionary. This might help you to group certain dependencies and apply them to 
 tasks.
 
 ```python
-common_dependencies = ["text_1.txt", "text_2.txt"]
+common_dependencies = pytask.mark.depends_on(
+    {"first_text": "text_1.txt", "second_text": "text_2.txt"}
+)
 
 
-@pytask.mark.depends_on(common_dependencies)
+@common_dependencies
 @pytask.mark.depends_on("text_3.txt")
-def task_example():
+def task_example(depends_on):
     ...
+```
+
+Inside the task, `depends_on` will be
+
+```pycon
+>>> depends_on
+{"first_text": ... / "text_1.txt", "second_text": "text_2.txt", 0: "text_3.txt"}
 ```
 
 ## Nested dependencies and products
 
 Dependencies and products are allowed to be nested containers consisting of tuples,
-lists, and dictionaries. In situations where you want more structure and are otherwise
-forced to flatten your inputs, this can be beneficial.
+lists, and dictionaries. It beneficial if you want more structure and nesting.
 
 Here is an example with a task which fits some model on data. It depends on a module
 containing the code for the model which is not actively used, but ensures that the task
@@ -161,23 +162,7 @@ def task_fit_model():
     ...
 ```
 
-It is also possible to merge nested containers. For example, you might want to reuse the
-dependency on models for other tasks as well.
-
-```python
-model_dependencies = pytask.mark.depends_on({"model": [SRC / "models" / "model.py"]})
-
-
-@model_dependencies
-@pytask.mark.depends_on(
-    {"data": {"a": SRC / "data" / "a.pkl", "b": SRC / "data" / "b.pkl"}}
-)
-@pytask.mark.produces(BLD / "models" / "fitted_model.pkl")
-def task_fit_model():
-    ...
-```
-
-In both cases, `depends_on` within the function will be
+`depends_on` within the function will be
 
 ```python
 {
@@ -185,30 +170,6 @@ In both cases, `depends_on` within the function will be
     "data": {"a": SRC / "data" / "a.pkl", "b": SRC / "data" / "b.pkl"},
 }
 ```
-
-Tuples and lists are converted to dictionaries with integer keys. The innermost
-decorator is evaluated first.
-
-```python
-@pytask.mark.depends_on([SRC / "models" / "model.py"])
-@pytask.mark.depends_on([SRC / "data" / "a.pkl", SRC / "data" / "b.pkl"])
-@pytask.mark.produces(BLD / "models" / "fitted_model.pkl")
-def task_fit_model():
-    ...
-```
-
-would give
-
-```python
-{0: SRC / "data" / "a.pkl", 1: SRC / "data" / "b.pkl", 2: SRC / "models" / "model.py"}
-```
-
-:::{seealso}
-The general concept behind nested objects like tuples, lists, and dictionaries is called
-pytrees and is more extensively explained in the [documentation of
-pybaum](https://github.com/OpenSourceEconomics/pybaum) which serves pytask under the
-hood.
-:::
 
 ## References
 

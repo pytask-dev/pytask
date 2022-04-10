@@ -11,6 +11,7 @@ specific tasks with pytask.
 ---
 maxdepth: 1
 ---
+invoking_pytask_extended
 how_to_influence_build_order
 repeating_tasks_with_different_inputs_the_pytest_way
 how_to_write_a_plugin

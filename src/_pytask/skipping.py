@@ -36,13 +36,12 @@ def skipif(condition: bool, *, reason: str) -> tuple[bool, str]:
 def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse the configuration."""
     markers = {
-        "skip": "Skip a task and all its subsequent tasks as well.",
-        "skip_ancestor_failed": "Internal decorator applied to tasks whose ancestor "
-        "failed.",
+        "skip": "Skip a task and all its dependent tasks.",
+        "skip_ancestor_failed": "Internal decorator applied to tasks if any of its "
+        "preceding tasks failed.",
         "skip_unchanged": "Internal decorator applied to tasks which have already been "
         "executed and have not been changed.",
-        "skipif": "Skip a task and all its subsequent tasks in case a condition is "
-        "fulfilled.",
+        "skipif": "Skip a task and all its dependent tasks if a condition is met.",
     }
     config["markers"] = {**config["markers"], **markers}
 

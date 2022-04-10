@@ -40,6 +40,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`254` improves test coverage, fixes a bug, and improves the deprecation message
   for the configuration.
 - {pull}`255` converts the readme to markdown and multiple pngs to svgs.
+- {pull}`256` adds even more svgs and scripts to generate them to the documentation and
+  other improvements.
 
 ## 0.1.9 - 2022-02-23
 

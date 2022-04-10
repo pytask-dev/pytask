@@ -169,11 +169,10 @@ The
 {doc}`best-practices guide on parametrizations <../how_to_guides/bp_parametrizations>`
 goes into even more detail on how to scale parametrizations.
 
-
 ## A warning on globals
 
-The following example serves as a warning against using globals in your task functions.
-And, it is also kind of riddle. Maybe you can spot the problem.
+The following example serves as a warning against accidentally using running variables
+in your task definition.
 
 You won't run into these problems if you strictly use the interfaces explained below.
 
@@ -195,9 +194,11 @@ for i in range(3):
         path_to_product.write_text("I use running globals. How funny.")
 ```
 
-If you would execute these tasks, pytask would collect three tasks as usually. But, only
-the last task for `i = 2` would succeed. The other tasks would fail, both saying their
-text files `out_0.txt` and `out_1.txt` have not been created.
+If you would execute these tasks, pytask would collect three tasks as expected. But,
+only the last task for `i = 2` would succeed. The other tasks would fail, both saying
+their text files `out_0.txt` and `out_1.txt` have not been created.
+
+Why did the first two tasks fail?
 
 ```{dropdown} Explanation
 
@@ -207,10 +208,10 @@ with changing state.
 When the task module is imported, all three task functions are created and the
 `@pytask.mark.produces` decorator receives the correct reference to the produced file.
 
-But when the task is executed, the value of the variable `i = 2` which is the last state
-of `i` after the loop has completed.
+But, when the task is executed, the value of the variable `i = 2` which is the last
+state of `i` after the loop has completed.
 
-So, all three tasks are creating the same file `out_3.txt`.
+So, all three tasks are creating the same file `out_2.txt`.
 
 The solution is to use the intended channels to pass variables to tasks which are the
 `kwargs` argument of `@pytask.mark.task` or the default value in the function signature.

@@ -40,8 +40,9 @@ folder of the project and contains a `[tool.pytask.ini_options]` section.
 paths = "src/my_project"
 ```
 
-You can also leave the section empty. The header alone will signal pytask that this is
-the root of the project. pytask will store information it needs across executions in a
+You do not have to add any configuration values, but you need the
+`[tool.pytask.ini_options]` header. The header alone will signal pytask that this is the
+root of the project. pytask will store information it needs across executions in a
 `.pytask.sqlite3` database next to the configuration file.
 
 `paths` allows you to set the location of tasks when you do not pass them explicitly via
@@ -107,6 +108,14 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 ```
 
+:::{note}
+If you used the
+[cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project)
+template, the two files will look slightly different since
+[setuptools_scm](https://github.com/pypa/setuptools_scm) handles your versioning. Do not
+change anything and proceed.
+:::
+
 Now, you can install the package into your environment with
 
 ```console
@@ -118,21 +127,15 @@ the source files of the package are immediately reflected in the installed versi
 the package.
 
 :::{important}
-Do not forget to rerun the editable install should you recreate your Python environment.
-:::
-
-:::{tip}
-For a more sophisticated setup where versions are managed via tags on the repository,
-check out [setuptools_scm](https://github.com/pypa/setuptools_scm). The tool is also
-used in
-[cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project).
+Do not forget to rerun the editable install every time after you recreated your Python
+environment.
 :::
 
 ## Further Reading
 
 - You can find more examples for structuring a research project in
   {doc}`../how_to_guides/bp_templates_and_projects`.
-- An explanation for the src layout can be found in [this article by Hynek
-  Schlawack](https://hynek.me/articles/testing-packaging/).
+- An explanation for the src layout can be found in
+  [this article by Hynek Schlawack](https://hynek.me/articles/testing-packaging/).
 - You find this and more information in the documentation for
   [setuptools](https://setuptools.pypa.io/en/latest/userguide/quickstart.html).

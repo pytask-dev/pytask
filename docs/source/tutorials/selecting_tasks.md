@@ -46,8 +46,6 @@ $ pytask -m "(data_management and not plots) or (analysis and plots)"
 
 ## Expressions
 
-### General
-
 Expressions are similar to markers and offer the same syntax but target the task ids.
 Assume you have the following tasks.
 
@@ -78,10 +76,20 @@ $ pytask -k "1 and not 2"
 
 executes only the first task.
 
+```console
+$ pytask -k "1 or 2 and not 12"
+```
+
+executes the first two tasks.
+
 To execute a single task, say `task_run_this_one` in `task_example.py`, use
 
 ```console
 $ pytask -k task_example.py::task_run_this_one
+
+# or
+
+$ pytask -k task_run_this_one
 ```
 
 (how-to-select-tasks-parametrization)=

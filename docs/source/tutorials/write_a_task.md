@@ -1,14 +1,14 @@
 # Write a task
 
 Starting from the project structure in the {doc}`previous tutorial <set_up_a_project>`,
-this tutorial teaches you how to write your first task.
+you will learn how to write your first task.
 
-By default, pytask will look for tasks in modules whose name is prefixed with `task_`.
-Tasks are functions in these modules whose name also starts with `task_`.
+pytask will look for tasks in modules whose name is prefixed with `task_`. Tasks are
+functions in these modules whose name also starts with `task_`.
 
-Our first task will be defined in `src/my_project/task_data_preparation.py` and it will
-generate artificial data which will be stored in `bld/data.pkl`. We will call the
-function in the module {func}`task_create_random_data`.
+Our first task, {func}`task_create_random_data`, will be defined in
+`src/my_project/task_data_preparation.py` and it will generate artificial data which
+will be stored in `bld/data.pkl`.
 
 ```
 my_project
@@ -55,11 +55,6 @@ def task_create_random_data(produces):
 
 To let pytask track the product of the task, you need to use the
 {func}`@pytask.mark.produces <_pytask.collect_utils.produces>` decorator.
-
-:::{seealso}
-You learn more about adding dependencies and products to a task in the next
-{doc}`tutorial <defining_dependencies_products>`.
-:::
 
 Now, execute pytask which will automatically collect tasks in the current directory and
 subsequent directories.

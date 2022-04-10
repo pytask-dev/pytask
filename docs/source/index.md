@@ -41,7 +41,9 @@ features include:
   [here](https://github.com/topics/pytask). Learn more about plungins in
   [this tutorial](https://pytask-dev.readthedocs.io/en/stable/tutorials/plugins.html).
 
-To install pytask, follow this {doc}`tutorial <tutorials/installation>`.
+To get started with pytask, the documentation includes a series of tutorials. Go to the
+first {doc}`tutorial <tutorials/installation>` for the installation and proceed from
+there.
 
 ## Documentation
 
