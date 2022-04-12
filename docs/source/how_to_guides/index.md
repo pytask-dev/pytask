@@ -12,8 +12,8 @@ specific tasks with pytask.
 maxdepth: 1
 ---
 invoking_pytask_extended
-how_to_influence_build_order
 repeating_tasks_with_different_inputs_the_pytest_way
+how_to_influence_build_order
 how_to_write_a_plugin
 ```
 
@@ -24,20 +24,16 @@ experience with pytask and build systems in general, research projects, and soft
 engineering to provide useful and easily understandable instructions.
 
 Contributions in any form - additions, comments, own experiences, request for
-clarifications - are highly appreciated. Please continue a discussion in
-[an existing issue](https://github.com/pytask-dev/pytask/issues) ticket or
-[file a new ticket](https://github.com/pytask-dev/pytask/issues/new/choose).
-
-For more information on how best-practices guides are organized and how to contribute,
-see the section on {doc}`bp_organization`.
+clarifications - are highly appreciated. File either
+[issue](https://github.com/pytask-dev/pytask/issues) or start
+[discussion](https://github.com/pytask-dev/pytask/discussions).
 
 ```{toctree}
 ---
 maxdepth: 1
 ---
-bp_organization
-bp_structure_of_task_files
 bp_structure_of_a_research_project
+bp_structure_of_task_files
 bp_templates_and_projects
-bp_parametrizations
+bp_scalable_repititions_of_tasks
 ```

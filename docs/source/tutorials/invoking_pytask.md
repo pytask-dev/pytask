@@ -48,6 +48,11 @@ You can also pass any number of paths of directories or modules to cli.
 $ pytask path/to/task_module.py path/to/folder
 ```
 
+Do not use paths to run a subset of tasks in your project. Use
+{doc}`expressions <selecting_tasks>` instead. When pytask collects tasks from subpaths
+of your project, it cannot infer the whole structure of dependencies and products and
+might run your tasks with missing or outdated dependencies.
+
 ## Options
 
 Here are some useful options for the build command.

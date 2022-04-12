@@ -2,19 +2,6 @@
 
 If you want to run only a subset of tasks, there exist multiple options.
 
-## Paths
-
-You can run all tasks in one file or one directory by passing the corresponding path to
-pytask. The same can be done for multiple paths.
-
-```console
-$ pytask src/task_1.py
-
-$ pytask src
-
-$ pytask src/task_1.py src/task_2.py
-```
-
 (markers)=
 
 ## Markers
@@ -41,6 +28,8 @@ management, but not the ones which produce plots and plots produced for the anal
 ```console
 $ pytask -m "(data_management and not plots) or (analysis and plots)"
 ```
+
+If you create your own markers, use {confval}`markers` to register and document them.
 
 (expressions)=
 
@@ -92,9 +81,7 @@ $ pytask -k task_example.py::task_run_this_one
 $ pytask -k task_run_this_one
 ```
 
-(how-to-select-tasks-parametrization)=
-
-### Parametrization
+### Selecting repeated tasks
 
 If you have a parametrized task, you can select individual parametrizations.
 

@@ -18,8 +18,8 @@ your task function!
 
 :::{seealso}
 If you want to know more about best practices for parametrizations, check out this
-{doc}`guide <../how_to_guides/bp_parametrizations>` after you made yourself familiar
-this tutorial.
+{doc}`guide <../how_to_guides/bp_scalable_repititions_of_tasks>` after you made yourself
+familiar this tutorial.
 :::
 
 ## An example
