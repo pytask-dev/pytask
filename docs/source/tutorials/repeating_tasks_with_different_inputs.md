@@ -176,8 +176,8 @@ in your task definition.
 
 You won't run into these problems if you strictly use the interfaces explained below.
 
-Look at this repeated task which runs three times and each time creates a different text
-file with some content.
+Look at this repeated task which runs three times and tries to produce a text file with
+some content.
 
 ```python
 import pytask
@@ -195,8 +195,10 @@ for i in range(3):
 ```
 
 If you would execute these tasks, pytask would collect three tasks as expected. But,
-only the last task for `i = 2` would succeed. The other tasks would fail, both saying
-their text files `out_0.txt` and `out_1.txt` have not been created.
+only the last task for `i = 2` would succeed.
+
+The other tasks would fail and the report will state that the text files `out_0.txt` and
+`out_1.txt` have not been created.
 
 Why did the first two tasks fail?
 

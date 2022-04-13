@@ -23,7 +23,7 @@ Now, running `pytask collect` will produce the following output.
 ```
 
 If you want to have more information regarding dependencies and products of the task,
-append the `--nodes` flag.
+append the {option}`pytask collect --nodes` flag.
 
 ```{image} /_static/images/collect-nodes.svg
 ```

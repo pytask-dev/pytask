@@ -94,7 +94,6 @@ repos:
                 docs/source/how_to_guides/repeating_tasks_with_different_inputs_the_pytest_way.md|
                 docs/source/reference_guides/hookspecs.md|
                 docs/source/tutorials/configuration.md|
-                docs/source/tutorials/debugging.md|
                 docs/source/tutorials/defining_dependencies_products.md|
                 docs/source/tutorials/making_tasks_persist.md|
                 docs/source/tutorials/repeating_tasks_with_different_inputs.md|

@@ -34,7 +34,7 @@ useful to handle paths conveniently and across platforms.
 ## Dependencies
 
 Most tasks have dependencies. Similar to products, you can use the
-`@pytask.mark.depends_on <_pytask.collect_utils.depends_on>` marker to attach a
+{func}`@pytask.mark.depends_on <_pytask.collect_utils.depends_on>` marker to attach a
 dependency to a task.
 
 ```python

@@ -18,15 +18,16 @@ pytask tries to address this point in many ways.
    extremely familiar and you will feel productive quickly. If you do not know pytest,
    you will learn two tools at the same time.
 
-1. As long as you write your tasks in Python, you can use pytask to jump into the
-   interactive debugger and inspect your tasks and programs to find errors in your code.
+1. pytask tries to improve your productivity by offering a couple of features like
+   {doc}`repeating tasks <../tutorials/repeating_tasks_with_different_inputs>`,
+   {doc}`debugging of tasks <../tutorials/debugging>` and
+   {doc}`selecting subsets of tasks <../tutorials/selecting_tasks>`.
 
-1. Even if your tasks are written in, e.g., R or Julia, pytask tries to feel like a seem
+1. pytask integrates with other tools which are used in the scientific community such as
+   R and Julia and offers solutions to bridge the gap between a
+   {term}`workflow management system` written in Python and scripts in another language,
+   for example, by making paths to dependencies and products usable in the scripts.
 
-pytest provides the ideal architecture for a workflow management system. Its
-plugin-based design allows for customization at every level. A workflow management
-system is a tool which can be deployed in many different contexts whose requirements are
-not foreseeable by core developers. Thus, it is important to enable users and developers
-to adjust pytask to their needs. pytest with its 800+ plugins is a huge success story in
-this regard. In turn, pytask may attract many people from different backgrounds who
-contribute back to the main application and help the broader community.
+1. The plugin system let's power users tailor pytask to their needs by adding additional
+   functionality. It makes pytask extremely versatile and offers people from different
+   backgrounds to collaborate on the same software.

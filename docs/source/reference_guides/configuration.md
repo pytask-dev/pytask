@@ -156,23 +156,6 @@ paths = ["folder_1", "folder_2/task_2.py"]
 ```
 ````
 
-````{confval} pdb
-
-If you want to enter the interactive debugger whenever an error occurs, pass the
-flag to the command line interface
-
-```console
-pytask build --pdb
-```
-
-or use a truthy configuration value.
-
-```toml
-pdb = true
-```
-
-````
-
 ````{confval} show_errors_immediately
 
 If you want to print the exception and tracebacks of errors as soon as they occur,
@@ -227,22 +210,6 @@ Change the pattern which identify task files.
 task_files = "task_*.py"  # default
 
 task_files = ["task_*.py", "tasks_*.py"]
-```
-
-````
-
-````{confval} trace
-
-If you want to enter the interactive debugger in the beginning of each task, use
-
-```console
-pytask build --trace
-```
-
-or set this option to a truthy value.
-
-```toml
-trace = true
 ```
 
 ````

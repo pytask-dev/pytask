@@ -71,13 +71,14 @@ list is mapped to the argument `produces` and `seed` receives the seed.
 :::{note}
 If you use `produces` or `depends_on` in the signature of the parametrize decorator, the
 values are handled as if they were attached to the function with
-`@pytask.mark.depends_on` or `@pytask.mark.produces`.
+{func}`@pytask.mark.depends_on <_pytask.collect_utils.depends_on>` or
+{func}`@pytask.mark.produces <_pytask.collect_utils.produces>`.
 :::
 
 ## Un-parametrized dependencies
 
 To specify a dependency which is the same for all parametrizations, add it with
-`pytask.mark.depends_on`.
+{func}`@pytask.mark.depends_on <_pytask.collect_utils.depends_on>`.
 
 ```python
 @pytask.mark.depends_on(SRC / "common_dependency.file")

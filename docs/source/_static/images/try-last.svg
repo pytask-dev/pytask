@@ -1,4 +1,4 @@
-<svg width="1300" height="550" viewBox="0 0 1300 550"
+<svg width="1350" height="650" viewBox="0 0 1350 650"
      xmlns="http://www.w3.org/2000/svg">
     <style>
         @font-face {
@@ -85,8 +85,13 @@
         }
         .r1 {color: #f2f2f2; text-decoration-color: #f2f2f2;background-color: #0c0c0c;}
 .r2 {color: #11a8cd; text-decoration-color: #11a8cd; font-weight: bold;background-color: #0c0c0c;}
-.r3 {;color: #f2f2f2; text-decoration-color: #f2f2f2;;background-color: #0c0c0c;}
+.r3 {font-weight: bold;color: #f2f2f2; text-decoration-color: #f2f2f2;;background-color: #0c0c0c;}
 .r4 {color: #7f7f7f; text-decoration-color: #7f7f7f;color: #f2f2f2; text-decoration-color: #f2f2f2;;background-color: #0c0c0c;}
+.r5 {;color: #f2f2f2; text-decoration-color: #f2f2f2;;background-color: #0c0c0c;}
+.r6 {color: #137c39; text-decoration-color: #137c39;background-color: #0c0c0c;}
+.r7 {color: #ffffff; text-decoration-color: #ffffff; font-weight: bold;background-color: #0c0c0c;}
+.r8 {color: #ffffff; text-decoration-color: #ffffff;background-color: #0c0c0c;}
+.r9 {color: #ffffff; text-decoration-color: #ffffff; background-color: #137c39}
     </style>
     <foreignObject x="0" y="0" width="100%" height="100%">
         <body xmlns="http://www.w3.org/1999/xhtml">
@@ -101,19 +106,27 @@
                         <div id="terminal-title-tab">pytask</div>
                     </div>
                     <div id='terminal-body'>
-                        <div><span class="r1">$ pytask collect --nodes</span></div>
+                        <div><span class="r1">$ pytask -s                                                                                           </span></div>
                         <div><span class="r1">──────────────────────────────────────── Start pytask session ────────────────────────────────────────</span></div>
 <div><span class="r1">Platform: win32 -- Python </span><span class="r2">3.10.0</span><span class="r1">, pytask </span><span class="r2">0.2.0</span><span class="r1">, pluggy </span><span class="r2">1.0.0</span></div>
-<div><span class="r1">Root: C:\Users\pytask-dev\git\pytask-examples</span></div>
-<div><span class="r1">Collected </span><span class="r2">1</span><span class="r1"> task.</span><span class="r1">                                                                                     </span></div>
+<div><span class="r1">Root: C:\Users\pytask-dev\pytask-examples</span><span class="r1">                                                           </span></div>
+<div><span class="r1">Collected </span><span class="r2">2</span><span class="r1"> tasks.</span><span class="r1">                                                                                    </span></div>
 <div><span class="r1"></span><span class="r1">                                                                                                      </span></div>
-<div><span class="r1">Collected tasks:</span><span class="r1">                                                                                      </span></div>
-<div><span class="r3">└── </span><span class="r1">🐍 &lt;Module </span><span class="r3">task_module.py</span><span class="r1">&gt;</span><span class="r1">                                                         </span></div>
-<div><span class="r3">    └── </span><span class="r1">📝 &lt;Function </span><span class="r4">task_module.py::</span><span class="r3">task_write_file</span><span class="r1">&gt;</span><span class="r1">                                  </span></div>
-<div><span class="r3">        ├── </span><span class="r1">📄 &lt;Dependency </span><span class="r3">pytask-examples\in.txt</span><span class="r1">&gt;</span></div>
-<div><span class="r3">        └── </span><span class="r1">📄 &lt;Product </span><span class="r3">pytask-examples/out.txt</span><span class="r1">&gt;</span><span class="r1">                                                                 </span></div>
+<div><span class="r1">I&#x27;m second.</span><span class="r1">              </span></div>
+<div><span class="r1">I&#x27;m first.</span><span class="r1">                                                                                            </span></div>
+<div><span class="r1">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓</span><span class="r1">              </span></div>
+<div><span class="r1">┃</span><span class="r3"> Task                           </span><span class="r1">┃</span><span class="r3"> Outcome </span><span class="r1">┃</span><span class="r1">                                                          </span></div>
+<div><span class="r1">┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩</span><span class="r1">                                                          </span></div>
+<div><span class="r1">│ </span><span class="r4">task_example.py::</span><span class="r5">task_first</span><span class="r1">    │ </span><span class="r6">.      </span><span class="r1"> │</span><span class="r1">                                                          </span></div>
+<div><span class="r1">│ </span><span class="r4">task_example.py::</span><span class="r5">task_second</span><span class="r1">   │ </span><span class="r6">.      </span><span class="r1"> │</span><span class="r1">                                                          </span></div>
+<div><span class="r1">└────────────────────────────────┴─────────┘</span><span class="r1">                                                          </span></div>
 <div><span class="r1"></span><span class="r1">                                                                                                      </span></div>
-<div><span class="r1">──────────────────────────────────────────────────────────────────────────────────────────────────────</span></div>
+<div><span class="r4">──────────────────────────────────────────────────────────────────────────────────────────────────────</span></div>
+<div><span class="r6">╭─────────── </span><span class="r7">Summary</span><span class="r6"> ────────────╮</span><span class="r1">                                                                    </span></div>
+<div><span class="r6">│</span><span class="r1"> </span><span class="r8"> 2  Collected tasks           </span><span class="r1"> </span><span class="r6">│</span><span class="r1">                                                                    </span></div>
+<div><span class="r6">│</span><span class="r1"> </span><span class="r9"> 2  Succeeded        (100.0%) </span><span class="r1"> </span><span class="r6">│</span><span class="r1">                                                                    </span></div>
+<div><span class="r6">╰────────────────────────────────╯</span><span class="r1">                                                                    </span></div>
+<div><span class="r6">───────────────────────────────────── Succeeded in 0.11 seconds ──────────────────────────────────────</span></div>
 <div><span class="r1"></span><span class="r1">                                                                                                      </span></div>
                     </div>
                 </div>

@@ -87,6 +87,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3.9", None),
     "click": ("https://click.palletsprojects.com/en/8.0.x/", None),
     "pluggy": ("https://pluggy.readthedocs.io/en/latest", None),
+    "networkx": ("https://networkx.org/documentation/stable", None),
 }
 
 # Configuration for autoapi

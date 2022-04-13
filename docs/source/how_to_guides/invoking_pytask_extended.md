@@ -1,7 +1,8 @@
 # Invoking pytask - Extended
 
-In addition to the entrypoints explained in {doc}`../tutorials/invoking_pytask`, pytask
-also has a rudimentary programmatic interface to the build command.
+In addition to the entrypoints explained in the tutorial
+{doc}`../tutorials/invoking_pytask`, pytask also has a rudimentary programmatic
+interface to the build command.
 
 Invoke pytask programmatically with
 
