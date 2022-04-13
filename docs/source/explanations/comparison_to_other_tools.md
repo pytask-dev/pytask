@@ -62,7 +62,7 @@ Cons
 - Supports AWS, Google, Azure.
 - Supports Docker, Shifter, Podman, etc.
 
-## [Kedro](https://github.com/quantumblacklabs/kedro)
+## [Kedro](https://github.com/kedro-org/kedro)
 
 Pros
 

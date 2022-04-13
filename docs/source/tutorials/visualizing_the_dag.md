@@ -25,7 +25,7 @@ There are ways to customize the visualization.
 1. You can change the layout of the graph by using the {option}`pytask dag --layout`
    option. By default, it is set to `dot` and produces a hierarchical layout. graphviz
    supports other layouts as well which are listed
-   [here](https://graphviz.org/#roadmap).
+   [here](https://graphviz.org/docs/layouts/).
 1. Using the {option}`pytask dag --output-path` option, you can provide a file name for
    the graph. The file extension changes the output format if it is supported by
    [pydot](https://github.com/pydot/pydot).
