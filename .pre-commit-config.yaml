@@ -75,7 +75,7 @@ repos:
             mdformat-gfm,
             mdformat-black,
         ]
-        args: [--wrap, "88", --end-of-line, crlf]
+        args: [--wrap, "88"]
         files: (README\.md)
 -   repo: https://github.com/executablebooks/mdformat
     rev: 0.7.14
@@ -85,7 +85,7 @@ repos:
             mdformat-myst,
             mdformat-black,
         ]
-        args: [--wrap, "88", --end-of-line, crlf]
+        args: [--wrap, "88"]
         files: (docs/.)
         exclude: |
             (?x)^(

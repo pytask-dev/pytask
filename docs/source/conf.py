@@ -96,7 +96,6 @@ autoapi_dirs = ["../../src"]
 autoapi_keep_files = False
 autoapi_add_toctree_entry = False
 
-
 # MyST
 myst_enable_extensions = ["colon_fence", "deflist", "dollarmath"]
 
