@@ -13,6 +13,11 @@ The configuration values are set under the `[tool.pytask.ini_options]` section t
 the old ini configurations and to allow pytask leveraging the full potential of the TOML
 format in the future.
 
+```toml
+[tool.pytask.ini_options]
+editor_url_scheme = "vscode"
+```
+
 ## The options
 
 ````{confval} check_casing_of_paths

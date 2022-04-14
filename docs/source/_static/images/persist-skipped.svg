@@ -108,7 +108,7 @@
                     <div id='terminal-body'>
                         <div><span class="r1">$ pytask --verbose 2</span></div>
                         <div><span class="r1">──────────────────────────────────────── Start pytask session ────────────────────────────────────────</span></div>
-<div><span class="r1">Platform: win32 -- Python </span><span class="r2">3.10.0</span><span class="r1">, pytask </span><span class="r2">0.2.0</span><span class="r1">, pluggy </span><span class="r2">1.0.0</span><span class="r1">.</span></div>
+<div><span class="r1">Platform: win32 -- Python </span><span class="r2">3.10.0</span><span class="r1">, pytask </span><span class="r2">0.2.0</span><span class="r1">, pluggy </span><span class="r2">1.0.0</span></div>
 <div><span class="r1">Root: C:\Users\pytask-dev\git\pytask-examples</span></div>
 <div><span class="r1">Collected </span><span class="r2">1</span><span class="r1"> task.</span><span class="r1">                                                                                     </span></div>
 <div><span class="r1"></span><span class="r1">                                                                                                      </span></div>
