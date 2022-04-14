@@ -114,7 +114,7 @@ for id_, kwargs in _ID_TO_KWARGS.items():
         ...
 ```
 
-All arguments for the loop and the {func}`@pytask.mark.task <_pytask.task_utils.task>`
+All arguments for the loop and the {func}`@pytask.mark.task <pytask.mark.task>`
 decorator are built within a function to keep the logic in one place and the namespace
 of the module clean.
 
@@ -206,5 +206,5 @@ parametrizations.
 Some parametrized tasks are extremely expensive to run - be it in terms of computing
 power, memory or time. On the other hand, parametrizations are often extended which
 could also trigger all parametrizations to be rerun. Thus, use the
-`@pytask.mark.persist` decorator which is explained in more detail in this
-{doc}`tutorial <../tutorials/making_tasks_persist>`.
+{func}`@pytask.mark.persist <pytask.mark.persist>` decorator which is explained in more
+detail in this {doc}`tutorial <../tutorials/making_tasks_persist>`.

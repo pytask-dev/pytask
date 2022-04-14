@@ -5,7 +5,7 @@ help you to gain more information on the root cause.
 
 ## Post-mortem debugger
 
-Using {confval}`pytask build --pdb` enables the post-mortem debugger. Whenever an
+Using {option}`pytask build --pdb` enables the post-mortem debugger. Whenever an
 exception is raised inside a task, the prompt will enter the debugger enabling you to
 find out the cause of the exception.
 

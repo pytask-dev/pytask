@@ -71,14 +71,14 @@ list is mapped to the argument `produces` and `seed` receives the seed.
 :::{note}
 If you use `produces` or `depends_on` in the signature of the parametrize decorator, the
 values are handled as if they were attached to the function with
-{func}`@pytask.mark.depends_on <_pytask.collect_utils.depends_on>` or
-{func}`@pytask.mark.produces <_pytask.collect_utils.produces>`.
+{func}`@pytask.mark.depends_on <pytask.mark.depends_on>` or
+{func}`@pytask.mark.produces <pytask.mark.produces>`.
 :::
 
 ## Un-parametrized dependencies
 
 To specify a dependency which is the same for all parametrizations, add it with
-{func}`@pytask.mark.depends_on <_pytask.collect_utils.depends_on>`.
+{func}`@pytask.mark.depends_on <pytask.mark.depends_on>`.
 
 ```python
 @pytask.mark.depends_on(SRC / "common_dependency.file")
@@ -190,7 +190,7 @@ task_example.py::task_example[second]  # (1,)
 ### Convert other objects
 
 To change the representation of tuples and other objects, you can pass a function to the
-`ids` argument of the {func}`@pytask.mark.parametrize <_pytask.parametrize.parametrize>`
+`ids` argument of the {func}`@pytask.mark.parametrize <pytask.mark.parametrize>`
 decorator. The function is called for every argument and may return a boolean, number,
 or string which will be integrated into the id. For every other return, the
 auto-generated value is used.

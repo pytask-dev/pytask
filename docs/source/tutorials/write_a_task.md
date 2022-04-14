@@ -54,7 +54,7 @@ def task_create_random_data(produces):
 ```
 
 To let pytask track the product of the task, you need to use the
-{func}`@pytask.mark.produces <_pytask.collect_utils.produces>` decorator.
+{func}`@pytask.mark.produces <pytask.mark.produces>` decorator.
 
 Now, execute pytask which will automatically collect tasks in the current directory and
 subsequent directories.
@@ -64,9 +64,9 @@ subsequent directories.
 
 ## Customize task names
 
-Use the {func}`@pytask.mark.task <_pytask.task_utils.task>` decorator to mark a function
-as a task regardless of its function name. You can optionally pass a new name for the
-task. Otherwise, the function name is used.
+Use the {func}`@pytask.mark.task <pytask.mark.task>` decorator to mark a function as a
+task regardless of its function name. You can optionally pass a new name for the task.
+Otherwise, the function name is used.
 
 ```python
 # The id will be '.../task_data_preparation.py::create_random_data'

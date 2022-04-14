@@ -20,18 +20,6 @@ by the host or by plugins. The following marks are available by default.
 ```
 
 ```{eval-rst}
-.. function:: pytask.mark.produces(objects: Any | Iterable[Any] | dict[Any, Any])
-
-    Specify products of a task.
-
-    :type objects: Any | Iterable[Any] | dict[Any, Any]
-    :param objects:
-        Can be any valid Python object or an iterable of any Python objects. To be
-        valid, it must be parsed by some hook implementation for the
-        :func:`_pytask.hookspecs.pytask_collect_node` entry-point.
-```
-
-```{eval-rst}
 .. function:: pytask.mark.parametrize(arg_names, arg_values, *, ids)
 
     Parametrize a task function.
@@ -58,6 +46,55 @@ by the host or by plugins. The following marks are available by default.
         If you pass a function, the function receives each value of the parametrization
         and may return a boolean, number, string or None. For the latter, the
         auto-generated value is used.
+```
+
+```{eval-rst}
+.. function:: pytask.mark.persist()
+
+    A marker for a task which should be peristed.
+```
+
+```{eval-rst}
+.. function:: pytask.mark.produces(objects: Any | Iterable[Any] | dict[Any, Any])
+
+    Specify products of a task.
+
+    :type objects: Any | Iterable[Any] | dict[Any, Any]
+    :param objects:
+        Can be any valid Python object or an iterable of any Python objects. To be
+        valid, it must be parsed by some hook implementation for the
+        :func:`_pytask.hookspecs.pytask_collect_node` entry-point.
+```
+
+```{eval-rst}
+.. function:: pytask.mark.skipif(condition: bool, *, reason: str)
+
+    Skip a task based on a condition and provide a necessary reason.
+
+    :param bool condition: A condition for when the task is skipped.
+    :param str reason: A reason why the task is skipped.
+```
+
+```{eval-rst}
+.. function:: pytask.mark.skip_ancestor_failed(reason: str = "No reason provided")
+
+    An internal marker for a task which is skipped because an ancestor failed.
+
+    :param str reason: A reason why the task is skipped.
+```
+
+```{eval-rst}
+.. function:: pytask.mark.skip_unchanged()
+
+    An internal marker for a task which is skipped because nothing has changed.
+
+    :param str reason: A reason why the task is skipped.
+```
+
+```{eval-rst}
+.. function:: pytask.mark.skip()
+
+    Skip a task.
 ```
 
 ```{eval-rst}

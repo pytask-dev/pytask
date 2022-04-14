@@ -15,7 +15,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`228` removes `task.pytaskmark` and moves the information to
   {attr}`_pytask.models.CollectionMetadata.markers`.
 - {pull}`229` implements a new loop-based approach to parametrizations using the
-  {func}`@pytask.mark.task <_pytask.task.task>` decorator.
+  {func}`@pytask.mark.task <pytask.mark.task>` decorator.
 - {pull}`230` implements {class}`_pytask.logging._TimeUnit` as a
   {class}`typing.NamedTuple` for better typing.
 - {pull}`232` moves the documentation to MyST.
@@ -76,10 +76,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`194` updates the `README.rst`.
 - {pull}`196` references the two new cookiecutters for projects and plugins.
 - {pull}`198` fixes the documentation of
-  {func}`@pytask.mark.skipif <_pytask.skipping.skipif>`. (Closes {issue}`195`)
+  {func}`@pytask.mark.skipif <pytask.mark.skipif>`. (Closes {issue}`195`)
 - {pull}`199` extends the error message when paths are ambiguous on case-insensitive
   file systems.
-- {pull}`200` implements the {func}`@pytask.mark.task <_pytask.task.task>` decorator to
+- {pull}`200` implements the {func}`@pytask.mark.task <pytask.mark.task>` decorator to
   mark functions as tasks regardless whether they are prefixed with `task_` or not.
 - {pull}`201` adds tests for `_pytask.mark_utils`.
 - {pull}`204` removes internal traceback frames from exceptions raised somewhere in

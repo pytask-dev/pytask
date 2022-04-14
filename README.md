@@ -90,8 +90,9 @@ def task_hello_earth(produces):
 Here are some details:
 
 - Dependencies and products of a task are tracked via markers. For dependencies use
-  `@pytask.mark.depends_on` and for products use `@pytask.mark.produces`. Use strings
-  and `pathlib.Path` to specify the location.
+  `@pytask.mark.depends_on <pytask.mark.depends_on>` and for products use
+  `@pytask.mark.produces <pytask.mark.produces>`. Use strings and `pathlib.Path` to
+  specify the location.
 - Use `produces` (and `depends_on`) as function arguments to access the paths of the
   dependencies and products inside the function. All values are converted to
   `pathlib.Path`'s. Here, `produces` holds the path to `"hello_earth.txt"`.

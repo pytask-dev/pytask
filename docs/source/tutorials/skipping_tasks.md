@@ -7,8 +7,8 @@ but less dynamic than selecting tasks via {ref}`markers <markers>` or
 In contrast to tasks in ignored files, ignored with {confval}`ignore`, pytask will still
 check whether skipped tasks are consistent with the DAG of the project.
 
-For example, you can use the `@pytask.mark.skip` decorator to skip tasks during
-development which take too much time to compute right now.
+For example, you can use the {func}`@pytask.mark.skip <pytask.mark.skip>` decorator to
+skip tasks during development which take too much time to compute right now.
 
 ```python
 # Content of task_create_dependency.py
@@ -28,8 +28,8 @@ Not only this task will be skipped, but also all tasks which depend on
 In large projects, you may have many long running tasks that you only want to execute on
 a remote server but not when you are not working locally.
 
-In this case, use the `@pytask.mark.skipif` decorator which requires a condition and a
-reason as arguments:
+In this case, use the {func}`@pytask.mark.skipif <pytask.mark.skipif>` decorator which
+requires a condition and a reason as arguments:
 
 ```python
 # Content of a config.py

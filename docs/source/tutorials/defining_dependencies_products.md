@@ -19,7 +19,7 @@ def task_create_random_data(produces):
     ...
 ```
 
-The {func}`@pytask.mark.produces <_pytask.collect_utils.produces>` marker attaches a
+The {func}`@pytask.mark.produces <pytask.mark.produces>` marker attaches a
 product to a task which is a {class}`pathlib.Path` to file. After the task has finished,
 pytask will check whether the file exists.
 
@@ -34,7 +34,7 @@ useful to handle paths conveniently and across platforms.
 ## Dependencies
 
 Most tasks have dependencies. Similar to products, you can use the
-{func}`@pytask.mark.depends_on <_pytask.collect_utils.depends_on>` marker to attach a
+{func}`@pytask.mark.depends_on <pytask.mark.depends_on>` marker to attach a
 dependency to a task.
 
 ```python

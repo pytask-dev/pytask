@@ -7,8 +7,9 @@ products are not fully specified.
 :::
 
 You can influence the order in which tasks are executed by assigning preferences to
-tasks. Use `@pytask.mark.try_first` to execute a task as early as possible and
-`@pytask.mark.try_last` to defer execution.
+tasks. Use {func}`@pytask.mark.try_first <pytask.mark.try_first>` to execute a task as
+early as possible and {func}`@pytask.mark.try_last <pytask.mark.try_last>` to defer
+execution.
 
 :::{note}
 A little bit more background: Tasks, dependencies and products form a directed acyclic
@@ -41,7 +42,7 @@ The execution yields (use `-s` to make the output visible in the terminal)
 ```{image} /_static/images/try-first.svg
 ```
 
-Replacing `pytask.mark.try_first` with `pytask.mark.try_last` yields
+Replacing {func}`pytask.mark.try_first` with {func}`pytask.mark.try_last` yields
 
 ```python
 # Content of task_example.py
