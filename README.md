@@ -119,10 +119,12 @@ pytask is distributed under the terms of the [MIT license](LICENSE).
 
 # Acknowledgment
 
-The license also includes a copyright and permission notice from pytest since some
-modules, classes, and functions are copied from pytest. Not to mention how pytest has
-inspired the development of pytask in general. Without the amazing work of Holger Krekel
-and pytest's many contributors, this project would not have been possible. Thank you!
+The license also includes a copyright and permission notice from
+[pytest](https://github.com/pytest-dev/pytest) since some modules, classes, and
+functions are copied from pytest. Not to mention how pytest has inspired the development
+of pytask in general. Without the amazing work of
+[Holger Krekel](https://github.com/hpk42) and pytest's many contributors, this project
+would not have been possible. Thank you!
 
 pytask ows its beautiful appearance on the command line to
 [rich](https://github.com/Textualize/rich) written by
