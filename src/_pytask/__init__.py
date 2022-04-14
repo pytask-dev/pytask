@@ -1,6 +1,7 @@
 """This module should not contain any imports except for the version."""
 from __future__ import annotations
 
+
 try:
     from ._version import version as __version__
 except ImportError:  # pragma: no cover

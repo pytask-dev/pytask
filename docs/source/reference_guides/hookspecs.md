@@ -23,7 +23,6 @@ hooks are allowed to raise exceptions which are handled and stored in a report.
 
 ```{eval-rst}
 .. autofunction:: pytask_add_hooks
-   :noindex:
 
 ```
 
@@ -31,7 +30,6 @@ hooks are allowed to raise exceptions which are handled and stored in a report.
 
 ```{eval-rst}
 .. autofunction:: pytask_extend_command_line_interface
-   :noindex:
 
 ```
 
@@ -43,23 +41,19 @@ together.
 
 ```{eval-rst}
 .. autofunction:: pytask_configure
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_parse_config
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_post_parse
-   :noindex:
 
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_unconfigure
-   :noindex:
 
 ```
 
@@ -69,57 +63,46 @@ The following hooks traverse directories and collect tasks from files.
 
 ```{eval-rst}
 .. autofunction:: pytask_collect
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_ignore_collect
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_collect_modify_tasks
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_collect_file_protocol
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_collect_file
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_collect_task_protocol
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_collect_task_setup
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_collect_task
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_collect_task_teardown
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_collect_node
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_collect_log
-   :noindex:
 
 ```
 
@@ -131,12 +114,10 @@ duplicates are collected with {func}`pytask_collect_task`.
 
 ```{eval-rst}
 .. autofunction:: pytask_parametrize_task
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_parametrize_kwarg_to_marker
-   :noindex:
 
 ```
 
@@ -154,27 +135,22 @@ your plugin.
 
 ```{eval-rst}
 .. autofunction:: pytask_resolve_dependencies
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_resolve_dependencies_create_dag
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_resolve_dependencies_validate_dag
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_resolve_dependencies_select_execution_dag
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_resolve_dependencies_log
-   :noindex:
 
 ```
 
@@ -184,60 +160,48 @@ The following hooks execute the tasks and log information on the result in the t
 
 ```{eval-rst}
 .. autofunction:: pytask_execute
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_execute_log_start
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_execute_create_scheduler
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_execute_build
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_execute_task_protocol
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_execute_task_log_start
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_execute_task_setup
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_execute_task
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_execute_task_teardown
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_execute_task_process_report
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_execute_task_log_end
-   :noindex:
 ```
 
 ```{eval-rst}
 .. autofunction:: pytask_execute_log_end
-   :noindex:
 ```

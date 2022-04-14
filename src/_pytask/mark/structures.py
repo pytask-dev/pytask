@@ -16,6 +16,8 @@ def is_task_function(func: Any) -> bool:
 
 @attr.s(frozen=True, auto_attribs=True)
 class Mark:
+    """A class for a mark containing the name, positional and keyword arguments."""
+
     name: str
     """str: Name of the mark."""
     args: tuple[Any, ...]
@@ -47,7 +49,7 @@ class Mark:
 class MarkDecorator:
     """A decorator for applying a mark on task function.
 
-    MarkDecorators are created with ``pytask.mark``
+    Decorators are created with :class:`pytask.mark`.
 
     .. code-block:: python
 
@@ -62,19 +64,20 @@ class MarkDecorator:
         def task_function():
             pass
 
-    When a MarkDecorator is called it does the following:
+    When a :class:`MarkDecorator` is called it does the following:
 
     1. If called with a single function as its only positional argument and no
        additional keyword arguments, it attaches the mark to the function, containing
-       all the arguments already stored internally in the MarkDecorator.
-    2. When called in any other case, it returns a new MarkDecorator instance with the
-       original MarkDecorator's content updated with the arguments passed to this call.
+       all the arguments already stored internally in the :class:`MarkDecorator`.
+    2. When called in any other case, it returns a new :class:`MarkDecorator` instance
+       with the original :class:`MarkDecorator`'s content updated with the arguments
+       passed to this call.
 
     Notes
     -----
-    The rules above prevent MarkDecorators from storing only a single function or class
+    The rules above prevent decorators from storing only a single function or class
     reference as their positional argument with no additional keyword or positional
-    arguments. You can work around this by using `with_args()`.
+    arguments. You can work around this by using :meth:`MarkDecorator.with_args()`.
 
     """
 
@@ -164,7 +167,7 @@ def store_mark(obj: Callable[..., Any], mark: Mark) -> None:
 
 
 class MarkGenerator:
-    """Factory for :class:`MarkDecorator` objects - exposed as a ``pytask.mark``
+    """Factory for :class:`MarkDecorator` objects - exposed as a :class:`pytask.mark`
     singleton instance.
 
     Example

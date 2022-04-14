@@ -28,6 +28,7 @@ from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.mark_utils import set_marks
+from _pytask.models import CollectionMetadata
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaNode
 from _pytask.nodes import Task
@@ -80,6 +81,7 @@ __all__ = [
     "render_exc_info",
     "set_marks",
     "CollectionError",
+    "CollectionMetadata",
     "CollectionOutcome",
     "CollectionReport",
     "ConfigurationError",
