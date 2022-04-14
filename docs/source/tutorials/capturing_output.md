@@ -1,7 +1,8 @@
 # Capturing output
 
-What is capturing? Some of your tasks may use `print` statements, have progress bars,
-require user input or the libraries you are using show information during execution.
+What is capturing? Some of your tasks may use {func}`print` statements, have progress
+bars, require user input or the libraries you are using show information during
+execution.
 
 Since the output would pollute the terminal and the information shown by pytask, it
 captures all the output during execution and attaches it to the report of this task by
@@ -20,7 +21,7 @@ it because it is rarely desired to wait for interactive input when running autom
 tasks.
 
 By default capturing is done by intercepting writes to low level file descriptors. This
-allows to capture output from simple `print` statements as well as output from a
+allows to capture output from simple {func}`print` statements as well as output from a
 subprocess started by a task.
 
 ## Setting capturing methods or disabling capturing
@@ -29,11 +30,12 @@ There are three ways in which `pytask` can perform capturing:
 
 - `fd` (file descriptor) level capturing (default): All writes going to the operating
   system file descriptors 1 and 2 will be captured.
-- `sys` level capturing: Only writes to Python files `sys.stdout` and `sys.stderr` will
-  be captured. No capturing of writes to file descriptors is performed.
-- `tee-sys` capturing: Python writes to `sys.stdout` and `sys.stderr` will be captured,
-  however the writes will also be passed-through to the actual `sys.stdout` and
-  `sys.stderr`.
+- `sys` level capturing: Only writes to Python files {class}`sys.stdout` and
+  {class}`sys.stderr` will be captured. No capturing of writes to file descriptors is
+  performed.
+- `tee-sys` capturing: Python writes to {class}`sys.stdout` and {class}`sys.stderr` will
+  be captured, however the writes will also be passed-through to the actual
+  {class}`sys.stdout` and {class}`sys.stderr`.
 
 You can influence output capturing mechanisms from the command line:
 

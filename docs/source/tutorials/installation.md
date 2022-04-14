@@ -15,11 +15,25 @@ or
 $ conda install -c conda-forge pytask
 ```
 
+<!-- END: Keep in sync with README.md -->
+
+Verify the installation by typing
+
+```console
+$ pytask --help
+```
+
+You should see a help page listing all available commands and some options.
+
+```{image} /_static/images/help_page.svg
+```
+
+To see command-specific help pages, type
+
+```console
+$ pytask <command-name> --help
+```
+
 Color support is automatically available on non-Windows platforms. On Windows, please,
 use [Windows Terminal](https://github.com/microsoft/terminal) which can be, for example,
 installed via the [Microsoft Store](https://aka.ms/terminal).
-
-To quickly set up a new project, use the
-[cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project)
-template or start from [other templates or example
-projects](https://pytask-dev.readthedocs.io/en/stable/how_to_guides/bp_templates_and_projects.html).

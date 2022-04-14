@@ -68,8 +68,8 @@ The entry-point for pytask is called `"pytask"` and points to a module called
 
 ### plugin.py
 
-`plugin.py` is the main module in your package. You can put all of your hook
-implementations in this module, but it is recommended imitate the structure of pytask
+`plugin.py` is the entrypoint for pytask to your package. You can put all of your hook
+implementations in this module, but it is recommended to imitate the structure of pytask
 and its modules. For example, all hook implementations which change the configuration
 should be implemented in `pytask_plugin.config`.
 

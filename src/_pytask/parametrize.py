@@ -37,10 +37,10 @@ def parametrize(
 
     Parameters
     ----------
-    arg_names : Union[str, List[str], Tuple[str, ...]]
+    arg_names : str | list[str] | tuple[str, ...]
         The names of the arguments which can either be given as a comma-separated
         string, a tuple of strings, or a list of strings.
-    arg_values : Iterable[Union[Sequence[Any], Any]]
+    arg_values : Iterable[Sequence[Any] | Any]
         The values which correspond to names in ``arg_names``. For one argument, it is a
         single iterable. For multiple argument names it is an iterable of iterables.
     ids
@@ -62,13 +62,8 @@ def parametrize(
 @hookimpl
 def pytask_parse_config(config: dict[str, Any]) -> None:
     config["markers"]["parametrize"] = (
-        "Call a task function multiple times passing in different arguments each turn. "
-        "arg_values generally needs to be a list of values if arg_names specifies only "
-        "one name or a list of tuples of values if arg_names specifies multiple "
-        "names.Example: @pytask.mark.parametrize('arg1', [1, 2]) would lead to two "
-        "calls of the decorated task function, one with arg1=1 and another with arg1=2."
-        " See this [link https://bit.ly/3vqyiAk]tutorial (https://bit.ly/3vqyiAk)[/] "
-        "for more info and examples."
+        "The marker for pytest's way of repeating tasks which is explained in this "
+        "tutorial: [link https://bit.ly/3uqZqkk]https://bit.ly/3uqZqkk[/]."
     )
 
 
@@ -100,7 +95,7 @@ def pytask_parametrize_task(
                 "@pytask.mark.parametrize.\n\nFor improved readability, consider to "
                 "move the creation of inputs into its own function as shown in the "
                 "best-practices guide on parametrizations: https://pytask-dev.rtfd.io/"
-                "en/stable/how_to_guides/bp_parametrizations.html."
+                "en/stable/how_to_guides/bp_scalable_repititions_of_tasks.html."
             )
 
         base_arg_names, arg_names, arg_values = _parse_parametrize_markers(

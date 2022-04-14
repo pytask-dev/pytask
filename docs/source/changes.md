@@ -15,9 +15,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`228` removes `task.pytaskmark` and moves the information to
   {attr}`_pytask.models.CollectionMetadata.markers`.
 - {pull}`229` implements a new loop-based approach to parametrizations using the
-  {func}`@pytask.mark.task <_pytask.task.task>` decorator.
-- :pull:`230` implements :class:`_pytask.logging._TimeUnit` as a
-  :class:`typing.NamedTuple` for better typing.
+  {func}`@pytask.mark.task <pytask.mark.task>` decorator.
+- {pull}`230` implements {class}`_pytask.logging._TimeUnit` as a
+  {class}`typing.NamedTuple` for better typing.
 - {pull}`232` moves the documentation to MyST.
 - {pull}`234` removes `MetaTask`. There is only {class}`pytask.Task`.
 - {pull}`235` refactors the utility functions for dealing with marks in
@@ -36,10 +36,12 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`246` formalizes choices for {class}`click.Choice` to {class}`enum.Enum`.
 - {pull}`252` adds a counter at the bottom of the execution table to show how many tasks
   have been processed.
-- {pull}`253` adds support for ``pyproject.toml``.
+- {pull}`253` adds support for `pyproject.toml`.
 - {pull}`254` improves test coverage, fixes a bug, and improves the deprecation message
   for the configuration.
 - {pull}`255` converts the readme to markdown and multiple pngs to svgs.
+- {pull}`256` adds even more svgs and scripts to generate them to the documentation and
+  other improvements.
 
 ## 0.1.9 - 2022-02-23
 
@@ -74,10 +76,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`194` updates the `README.rst`.
 - {pull}`196` references the two new cookiecutters for projects and plugins.
 - {pull}`198` fixes the documentation of
-  {func}`@pytask.mark.skipif <_pytask.skipping.skipif>`. (Closes {issue}`195`)
+  {func}`@pytask.mark.skipif <pytask.mark.skipif>`. (Closes {issue}`195`)
 - {pull}`199` extends the error message when paths are ambiguous on case-insensitive
   file systems.
-- {pull}`200` implements the {func}`@pytask.mark.task <_pytask.task.task>` decorator to
+- {pull}`200` implements the {func}`@pytask.mark.task <pytask.mark.task>` decorator to
   mark functions as tasks regardless whether they are prefixed with `task_` or not.
 - {pull}`201` adds tests for `_pytask.mark_utils`.
 - {pull}`204` removes internal traceback frames from exceptions raised somewhere in
@@ -135,14 +137,14 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   table for the default verbosity level of 1. They are displayed at 2.
 - {pull}`144` adds tryceratops to the pre-commit hooks for catching issues with
   exceptions.
-- {pull}`150` adds a limit on the number of items displayed in the execution table which
+- {pull}`151` adds a limit on the number of items displayed in the execution table which
   is configurable with {confval}`n_entries_in_table` in the configuration file.
 - {pull}`152` makes the duration of the execution readable by humans by separating it
   into days, hours, minutes and seconds.
 - {pull}`155` implements functions to check for optional packages and programs and
   raises errors for requirements to draw the DAG earlier.
 - {pull}`156` adds the option {confval}`show_errors_immediately` to print/show errors as
-  soon as they occur.
+  soon as they occur. Resolves {issue}`150`.
 
 ## 0.1.1 - 2021-08-25
 
@@ -156,13 +158,13 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`106` implements a verbose mode for the execution which is available with
   `pytask -v` and shows a table with running and completed tasks. It also refines the
   collection status.
-- {pull}`116`, {pull}`117`, and {pull}`123` fix {pull}`104` which prevented to skip
+- {pull}`116`, {pull}`117`, and {pull}`123` fix {issue}`104` which prevented to skip
   tasks with missing dependencies.
 - {pull}`118` makes the path to the configuration in the session header os-specific.
 - {pull}`119` changes that when marker or keyword expressions are used to select tasks,
   also the predecessors of the selected tasks will be executed.
 - {pull}`120` implements that a single `KeyboardInterrupt` stops the execution and
-  previously collected reports are shown.
+  previously collected reports are shown. Fixes {issue}`111`.
 - {pull}`121` add skipped and persisted tasks to the execution footer.
 - {pull}`127` make the table during execution the default. Silence pytask with negative
   verbose mode integers and increase verbosity with positive ones.
@@ -172,7 +174,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.0.16 - 2021-06-25
 
-- {pull}`111` fixes error when using `pytask --version` with click v8.
+- {pull}`113` fixes error when using `pytask --version` with click v8.
 
 ## 0.0.15 - 2021-06-24
 
@@ -210,7 +212,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`74` reworks the formatting of the command line output by using `rich`. Due to
   the new dependency, support for pytask with Python \<3.6.1 on PyPI and with Python
   \<3.7 on Anaconda will end.
-- {pull}`76` fixes {pull}`75` which reports a bug when a closest ancestor cannot be
+- {pull}`76` fixes {issue}`75` which reports a bug when a closest ancestor cannot be
   found to shorten node names in the CLI output. Instead a common ancestor is used.
 
 ## 0.0.13 - 2021-03-09
@@ -236,7 +238,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 ## 0.0.11 - 2020-12-27
 
 - {pull}`45` adds the option to stop execution after a number of tasks has failed.
-  Closes {pull}`44`.
+  Closes {issue}`44`.
 - {pull}`47` reduce node names in error messages while resolving dependencies.
 - {pull}`49` starts a style guide for pytask.
 - {pull}`50` implements correct usage of singular and plural in collection logs.

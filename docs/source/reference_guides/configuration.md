@@ -6,249 +6,215 @@ This document lists all options to configure pytask with a `pyproject.toml` file
 
 To learn about the basics visit the {doc}`tutorial <../tutorials/configuration>`.
 
-Examples for the TOML specification be found [here](https://toml.io/en/) or in [PEP
-518](https://peps.python.org/pep-0518/).
+Examples for the TOML specification be found [here](https://toml.io/en/) or in
+[PEP 518](https://peps.python.org/pep-0518/).
 
 The configuration values are set under the `[tool.pytask.ini_options]` section to mimic
 the old ini configurations and to allow pytask leveraging the full potential of the TOML
 format in the future.
 
+```toml
+[tool.pytask.ini_options]
+editor_url_scheme = "vscode"
+```
+
 ## The options
 
-```{eval-rst}
-.. confval:: check_casing_of_paths
+````{confval} check_casing_of_paths
 
-    Since pytask encourages platform-independent reproducibility, it will raise a
-    warning if you used a path with incorrect casing on a case-insensitive file system.
-    For example, the path ``TeXt.TxT`` will match the actual file ``text.txt`` on
-    case-insensitive file systems (usually Windows and macOS), but not on case-sensitive
-    systems (usually Linux).
+Since pytask encourages platform-independent reproducibility, it will raise a
+warning if you used a path with incorrect casing on a case-insensitive file system.
+For example, the path `TeXt.TxT` will match the actual file `text.txt` on
+case-insensitive file systems (usually Windows and macOS), but not on case-sensitive
+systems (usually Linux).
 
-    If you have very strong reasons for relying on this inaccuracy, although, it is
-    strongly discouraged, you can deactivate the warning in the configuration file with
+If you have very strong reasons for relying on this inaccuracy, although, it is
+strongly discouraged, you can deactivate the warning in the configuration file with
 
-    .. code-block:: toml
-
-        check_casing_of_paths = false
-
-    .. note::
-
-        An error is only raised on Windows when a case-insensitive path is used.
-        Contributions are welcome to also support macOS.
-
+```toml
+check_casing_of_paths = false
 ```
 
-```{eval-rst}
-.. confval:: editor_url_scheme
+:::{note}
+An error is only raised on Windows when a case-insensitive path is used. Contributions
+are welcome to also support macOS.
+:::
 
-    Depending on your terminal, pytask is able to turn task ids into clickable links to
-    the modules in which tasks are defined. By default, following the link will open the
-    module with your default application. It is done with
+````
 
-    .. code-block:: toml
+````{confval} editor_url_scheme
 
-        editor_url_scheme = "file"
+Depending on your terminal, pytask is able to turn task ids into clickable links to the
+modules in which tasks are defined. By default, following the link will open the module
+with your default application. It is done with
 
-    If you use ``vscode`` or ``pycharm`` instead, the file will be opened in the
-    specified editor and the cursor will also jump to the corresponding line.
-
-    .. code-block:: toml
-
-        editor_url_scheme = "vscode" | "pycharm"
-
-    For complete flexibility, you can also enter a custom url which can use the
-    variables ``path`` and ``line_number`` to open the file.
-
-    .. code-block:: toml
-
-        editor_url_scheme = "editor://{path}:{line_number}"
-
-    Maybe you want to contribute this URL scheme to make it available to more people.
-
-    To disable links, use
-
-    .. code-block:: toml
-
-        editor_url_scheme = "no_link"
-
+```toml
+editor_url_scheme = "file"
 ```
 
-```{eval-rst}
-.. confval:: ignore
+If you use `vscode` or `pycharm` instead, the file will be opened in the
+specified editor and the cursor will also jump to the corresponding line.
 
-    pytask can ignore files and directories and exclude some tasks or reduce the
-    duration of the collection.
+```toml
+editor_url_scheme = "vscode"
 
-    To ignore some file/folder via the command line, use the ``--ignore`` flag multiple
-    times.
+# or
 
-    .. code-block:: console
-
-        $ pytask --ignore some_file.py --ignore some_directory/*
-
-    Or, use the configuration file:
-
-    .. code-block:: toml
-
-        # For single entries only.
-        ignore = "some_file.py"
-
-        # Or single and multiple entries.
-        ignore = ["some_directory/*", "some_file.py"]
-
+editor_url_scheme = "pycharm"
 ```
 
-```{eval-rst}
-.. confval:: markers
+For complete flexibility, you can also enter a custom url which can use the
+variables `path` and `line_number` to open the file.
 
-    pytask uses markers to attach additional information to task functions. To see which
-    markers are available, type
-
-    .. code-block:: console
-
-        $ pytask markers
-
-    on the command-line interface.
-
-    If you use a marker which has not been configured, you will get a warning. To
-    silence the warning and document the marker, provide the following information in
-    your pytask configuration file.
-
-    .. code-block:: toml
-
-        [tool.pytask.ini_options.markers]
-        wip = "Work-in-progress. These are tasks which I am currently working on."
-
+```toml
+editor_url_scheme = "editor://{path}:{line_number}"
 ```
 
-```{eval-rst}
-.. confval:: n_entries_in_table
+Maybe you want to contribute this URL scheme to make it available to more people.
 
-    You can limit the number of entries displayed in the live table during the execution
-    to make it more clear. Use either ``all`` or an integer greater or equal to one. On
-    the command line use
+To disable links, use
 
-    .. code-block:: console
-
-        $ pytask build --n-entries-in-table 10
-
-    and in the configuration use
-
-    .. code-block:: toml
-
-        n_entries_in_table = "all"  # default 15
-
+```toml
+editor_url_scheme = "no_link"
 ```
 
-```{eval-rst}
-.. confval:: paths
+````
 
-    If you want to collect tasks from specific paths without passing the names via the
-    command line, you can add the paths to the configuration file. Paths passed via the
-    command line will overwrite the configuration value.
+````{confval} ignore
 
-    .. code-block:: toml
+pytask can ignore files and directories and exclude some tasks or reduce the duration of
+the collection.
 
-        # For single entries only.
-        paths = "src"
+To ignore some file/folder via the command line, use the `--ignore` flag multiple
+times.
 
-        # Or single and multiple entries.
-        paths = ["folder_1", "folder_2/task_2.py"]
-
+```console
+$ pytask --ignore some_file.py --ignore some_directory/*
 ```
 
-```{eval-rst}
-.. confval:: pdb
+Or, use the configuration file:
 
-    If you want to enter the interactive debugger whenever an error occurs, pass the
-    flag to the command line interface
+```toml
+# For single entries only.
+ignore = "some_file.py"
 
-    .. code-block:: console
-
-        pytask build --pdb
-
-    or use a truthy configuration value.
-
-    .. code-block:: toml
-
-        pdb = true
-
+# Or single and multiple entries.
+ignore = ["some_directory/*", "some_file.py"]
 ```
 
-```{eval-rst}
-.. confval:: show_errors_immediately
+````
 
-    If you want to print the exception and tracebacks of errors as soon as they occur,
-    set this value to true.
+````{confval} markers
 
-    .. code-block:: console
+pytask uses markers to attach additional information to task functions. To see which
+markers are available, type
 
-        pytask build --show-errors-immediately
-
-    .. code-block:: toml
-
-        show_errors_immediately = true
-
+```console
+$ pytask markers
 ```
 
-```{eval-rst}
-.. confval:: show_locals
+on the command-line interface.
 
-    If you want to print local variables of each stack frame in the tracebacks, set this
-    value to true.
+If you use a marker which has not been configured, you will get a warning. To
+silence the warning and document the marker, provide the following information in
+your pytask configuration file.
 
-    .. code-block:: console
-
-        pytask build --show-locals
-
-    .. code-block:: toml
-
-        show_locals = true
-
+```toml
+[tool.pytask.ini_options.markers]
+wip = "Work-in-progress. These are tasks which I am currently working on."
 ```
 
-```{eval-rst}
-.. confval:: strict_markers
+````
 
-    If you want to raise an error for unregistered markers, pass
+````{confval} n_entries_in_table
 
-    .. code-block:: console
+You can limit the number of entries displayed in the live table during the execution
+to make it more clear. Use either `all` or an integer greater or equal to one. On
+the command line use
 
-        pytask build --strict-markers
-
-    or set the option to a truthy value.
-
-    .. code-block:: toml
-
-        strict_markers = true
-
+```console
+$ pytask build --n-entries-in-table 10
 ```
 
-```{eval-rst}
-.. confval:: task_files
+and in the configuration use
 
-    Change the pattern which identify task files.
-
-    .. code-block:: toml
-
-        task_files = "task_*.py"  # default
-
-        task_files = ["task_*.py", "tasks_*.py"]
-
+```toml
+n_entries_in_table = "all"  # default 15
 ```
 
-```{eval-rst}
-.. confval:: trace
+````
 
-    If you want to enter the interactive debugger in the beginning of each task, use
+````{confval} paths
 
-    .. code-block:: console
+If you want to collect tasks from specific paths without passing the names via the
+command line, you can add the paths to the configuration file. Paths passed via the
+command line will overwrite the configuration value.
 
-        pytask build --trace
+```toml
 
-    or set this option to a truthy value.
+# For single entries only.
+paths = "src"
 
-    .. code-block:: toml
+# Or single and multiple entries.
+paths = ["folder_1", "folder_2/task_2.py"]
 
-        trace = true
 ```
+````
+
+````{confval} show_errors_immediately
+
+If you want to print the exception and tracebacks of errors as soon as they occur,
+set this value to true.
+
+```console
+pytask build --show-errors-immediately
+```
+
+```toml
+show_errors_immediately = true
+```
+
+````
+
+````{confval} show_locals
+
+If you want to print local variables of each stack frame in the tracebacks, set this
+value to true.
+
+```console
+pytask build --show-locals
+```
+
+```toml
+show_locals = true
+```
+
+````
+
+````{confval} strict_markers
+
+If you want to raise an error for unregistered markers, pass
+
+```console
+pytask build --strict-markers
+```
+
+or set the option to a truthy value.
+
+```toml
+strict_markers = true
+```
+
+````
+
+````{confval} task_files
+
+Change the pattern which identify task files.
+
+```toml
+task_files = "task_*.py"  # default
+
+task_files = ["task_*.py", "tasks_*.py"]
+```
+
+````

@@ -144,8 +144,14 @@ def pytask_configure(
     )
 
     config["markers"] = {
-        "depends_on": "Attach a dependency/dependencies to a task.",
-        "produces": "Attach a product/products to a task.",
+        "depends_on": (
+            "Add dependencies to a task. See this tutorial for more information: "
+            "[link https://bit.ly/3JlxylS]https://bit.ly/3JlxylS[/]."
+        ),
+        "produces": (
+            "Add products to a task. See this tutorial for more information: "
+            "[link https://bit.ly/3JlxylS]https://bit.ly/3JlxylS[/]."
+        ),
         "try_first": "Try to execute a task a early as possible.",
         "try_last": "Try to execute a task a late as possible.",
     }

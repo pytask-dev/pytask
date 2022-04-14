@@ -15,7 +15,11 @@ from _pytask.task_utils import parse_collected_tasks_with_task_marker
 @hookimpl
 def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse the configuration."""
-    config["markers"]["task"] = "Mark a function as a task regardless of its name."
+    config["markers"]["task"] = (
+        "Mark a function as a task regardless of its name. Or mark tasks which are "
+        "repeated in a loop. See this tutorial for more information: "
+        "[link https://bit.ly/3DWrXS3]https://bit.ly/3DWrXS3[/]."
+    )
 
 
 @hookimpl(trylast=True)

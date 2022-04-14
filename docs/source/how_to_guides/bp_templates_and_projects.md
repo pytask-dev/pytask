@@ -20,12 +20,10 @@ languages in economics (i.e Python, Stata, R, Matlab).
 
 [sid-germany](https://github.com/covid-19-impact-lab/sid-germany)
 
-: A project about forecasting the COVID-19 pandemic in Germany.
-
-  The project is especially interesting due to its scalable structure. Scenarios with
-  different policies or behavioral mechanisms are implemented quickly. The extensive use
-  of parametrizations lead to the automatic creation of many subsequent tasks per
-  scenario.
+: A project about forecasting the COVID-19 pandemic in Germany. The project is
+especially interesting due to its scalable structure. Scenarios with different policies
+or behavioral mechanisms are implemented quickly. The extensive use of parametrizations
+lead to the automatic creation of many subsequent tasks per scenario.
 
 [software_patents](https://github.com/tobiasraabe/software_patents)
 

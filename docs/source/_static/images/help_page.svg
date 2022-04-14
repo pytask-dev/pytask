@@ -1,0 +1,139 @@
+<svg width="1350" height="750" viewBox="0 0 1350 750"
+     xmlns="http://www.w3.org/2000/svg">
+    <style>
+        @font-face {
+            font-family: "Fira Code";
+            src: local("FiraCode-Regular"),
+                 url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2") format("woff2"),
+                 url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff") format("woff");
+            font-style: normal;
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: "Fira Code";
+            src: local("FiraCode-Bold"),
+                 url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2") format("woff2"),
+                 url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff") format("woff");
+            font-style: bold;
+            font-weight: 700;
+        }
+        span {
+            display: inline-block;
+            white-space: pre;
+            vertical-align: top;
+            font-size: 18px;
+            font-family:'Fira Code','Cascadia Code',Monaco,Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .blink {
+           animation: blinker 1s infinite;
+        }
+        @keyframes blinker {
+            from { opacity: 1.0; }
+            50% { opacity: 0.3; }
+            to { opacity: 1.0; }
+        }
+        #wrapper {
+            padding: 50px;
+            padding-top: 50px;
+        }
+        #terminal {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #0c0c0c;
+            border-radius: 14px;
+            outline: 1px solid #484848;
+        }
+        #terminal-header {
+            position: relative;
+            width: 100%;
+            background-color: #2e2e2e;
+            margin-bottom: 12px;
+            font-weight: bold;
+            border-radius: 14px 14px 0 0;
+            color: #f2f2f2;
+            font-size: 18px;
+            box-shadow: inset 0px -1px 0px 0px #4e4e4e,
+                        inset 0px -4px 8px 0px #1a1a1a;
+        }
+        #terminal-title-tab {
+            display: inline-block;
+            margin-top: 14px;
+            margin-left: 124px;
+            font-family: sans-serif;
+            padding: 14px 28px;
+            border-radius: 6px 6px 0 0;
+            background-color: #0c0c0c;
+            box-shadow: inset 0px 1px 0px 0px #4e4e4e,
+                        0px -4px 4px 0px #1e1e1e,
+                        inset 1px 0px 0px 0px #4e4e4e,
+                        inset -1px 0px 0px 0px #4e4e4e;
+        }
+        #terminal-traffic-lights {
+            position: absolute;
+            top: 24px;
+            left: 20px;
+        }
+        #terminal-body {
+            line-height: 22px;
+            padding: 14px;
+        }
+        .r1 {color: #f2f2f2; text-decoration-color: #f2f2f2;background-color: #0c0c0c;}
+.r2 {font-weight: bold;color: #f2f2f2; text-decoration-color: #f2f2f2;;background-color: #0c0c0c;}
+.r3 {color: #7f7f7f; text-decoration-color: #7f7f7f;color: #f2f2f2; text-decoration-color: #f2f2f2;;background-color: #0c0c0c;}
+.r4 {color: #5f5f5f; text-decoration-color: #5f5f5f;background-color: #0c0c0c;}
+.r5 {color: #ffffff; text-decoration-color: #ffffff; font-weight: bold;background-color: #0c0c0c;}
+.r6 {color: #137c39; text-decoration-color: #137c39; font-weight: bold;background-color: #0c0c0c;}
+.r7 {color: #f4c041; text-decoration-color: #f4c041; font-weight: bold;background-color: #0c0c0c;}
+.r8 {color: #d54523; text-decoration-color: #d54523; font-weight: bold;background-color: #0c0c0c;}
+.r9 {color: #cd3131; text-decoration-color: #cd3131; font-weight: bold;background-color: #0c0c0c;}
+.r10 {color: #e5e5e5; text-decoration-color: #e5e5e5; text-decoration: underline;background-color: #0c0c0c;}
+    </style>
+    <foreignObject x="0" y="0" width="100%" height="100%">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+            <div id="wrapper">
+                <div id="terminal">
+                    <div id='terminal-header'>
+                        <svg id="terminal-traffic-lights" width="90" height="21" viewBox="0 0 90 21" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="14" cy="8" r="8" fill="#ff6159"/>
+                            <circle cx="38" cy="8" r="8" fill="#ffbd2e"/>
+                            <circle cx="62" cy="8" r="8" fill="#28c941"/>
+                        </svg>
+                        <div id="terminal-title-tab">pytask</div>
+                    </div>
+                    <div id='terminal-body'>
+                        <div><span class="r1">$ pytask --help                                                                                        </span></div>
+                        <div><span class="r1">                                             </span><span class="r2">pytask</span><span class="r1"> </span><span class="r3">v0.2.0</span><span class="r1">                                             </span></div>
+<div><span class="r1">                                </span><span class="r1">                                       </span><span class="r1">                                </span></div>
+<div><span class="r1">Usage: </span><span class="r2">pytask</span><span class="r1"> </span><span class="r2">[OPTIONS]</span><span class="r1"> </span><span class="r2">[COMMAND]</span><span class="r1"> </span><span class="r2">[PATHS]</span><span class="r1">                                                              </span></div>
+<div><span class="r1"></span><span class="r1">                                                                                                       </span></div>
+<div><span class="r3">Manage your tasks with pytask.</span><span class="r1">                                                                         </span></div>
+<div><span class="r1"></span><span class="r1">                                                                                                       </span></div>
+<div><span class="r4">╭─ </span><span class="r5">Commands</span><span class="r4"> ──────────────────────────────────────────────────────────────────────────────────────────╮</span></div>
+<div><span class="r4">│</span><span class="r1">  </span><span class="r6">build *</span><span class="r1">  </span><span class="r1">Collect tasks, execute them and report the results.                                </span><span class="r1"> </span><span class="r1">     </span><span class="r1"> </span><span class="r4">│</span></div>
+<div><span class="r4">│</span><span class="r1">           </span><span class="r1">                                                                                   </span><span class="r1"> </span><span class="r1">     </span><span class="r1"> </span><span class="r4">│</span></div>
+<div><span class="r4">│</span><span class="r1">           </span><span class="r1">This is pytask&#x27;s default command. pytask collects tasks from the given paths or the</span><span class="r1"> </span><span class="r1">     </span><span class="r1"> </span><span class="r4">│</span></div>
+<div><span class="r4">│</span><span class="r1">           </span><span class="r1">current working directory, executes them and reports the results.                  </span><span class="r1"> </span><span class="r1">     </span><span class="r1"> </span><span class="r4">│</span></div>
+<div><span class="r4">│</span><span class="r1">  </span><span class="r6">clean  </span><span class="r1">  </span><span class="r1">Clean the provided paths by removing files unknown to pytask.                      </span><span class="r1"> </span><span class="r1">     </span><span class="r1"> </span><span class="r4">│</span></div>
+<div><span class="r4">│</span><span class="r1">  </span><span class="r6">collect</span><span class="r1">  </span><span class="r1">Collect tasks and report information about them.                                   </span><span class="r1"> </span><span class="r1">     </span><span class="r1"> </span><span class="r4">│</span></div>
+<div><span class="r4">│</span><span class="r1">  </span><span class="r6">dag    </span><span class="r1">  </span><span class="r1">Create a visualization of the project&#x27;s directed acyclic graph.                    </span><span class="r1"> </span><span class="r1">     </span><span class="r1"> </span><span class="r4">│</span></div>
+<div><span class="r4">│</span><span class="r1">  </span><span class="r6">markers</span><span class="r1">  </span><span class="r1">Show all registered markers.                                                       </span><span class="r1"> </span><span class="r1">     </span><span class="r1"> </span><span class="r4">│</span></div>
+<div><span class="r4">│</span><span class="r1">  </span><span class="r6">profile</span><span class="r1">  </span><span class="r1">Show information about tasks like runtime and memory consumption of products.      </span><span class="r1"> </span><span class="r1">     </span><span class="r1"> </span><span class="r4">│</span></div>
+<div><span class="r4">╰─────────────────────────────────────────────────────────────────────────────────────────────────────╯</span></div>
+<div><span class="r4">╭─ </span><span class="r5">Options</span><span class="r4"> ───────────────────────────────────────────────────────────────────────────────────────────╮</span></div>
+<div><span class="r4">│</span><span class="r1">  </span><span class="r1">  </span><span class="r1">  </span><span class="r7">--version</span><span class="r1">  </span><span class="r1">Show the version and exit. </span><span class="r1"> </span><span class="r1">                                                       </span><span class="r1"> </span><span class="r4">│</span></div>
+<div><span class="r4">│</span><span class="r1">  </span><span class="r8">-h</span><span class="r1">  </span><span class="r7">--help</span><span class="r1">     </span><span class="r1">Show this message and exit.</span><span class="r1"> </span><span class="r1">                                                       </span><span class="r1"> </span><span class="r4">│</span></div>
+<div><span class="r4">╰─────────────────────────────────────────────────────────────────────────────────────────────────────╯</span></div>
+<div><span class="r1">                                                                    </span><span class="r9">♥</span><span class="r1"> </span><span class="r10">https://pytask-dev.readthedocs.io</span></div>
+<div><span class="r1"></span><span class="r1">                                                                                                       </span></div>
+                    </div>
+                </div>
+            </div>
+        </body>
+    </foreignObject>
+</svg>

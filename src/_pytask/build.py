@@ -39,13 +39,13 @@ def main(config_from_cli: dict[str, Any]) -> Session:
 
     Parameters
     ----------
-    config_from_cli : dict
+    config_from_cli : dict[str, Any]
         A dictionary with options passed to pytask. In general, this dictionary holds
         the information passed via the command line interface.
 
     Returns
     -------
-    session : pytask.session.Session
+    session : _pytask.session.Session
         The session captures all the information of the current run.
 
     """

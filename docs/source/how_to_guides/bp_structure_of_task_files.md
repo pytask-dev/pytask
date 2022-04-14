@@ -10,7 +10,7 @@ This section provides advice on how to structure task files.
 - A task function should be the first function in a task module.
 
   :::{seealso}
-  The only exception might be for {doc}`parametrizations <bp_parametrizations>`.
+  The only exception might be for {doc}`repititions <bp_scalable_repititions_of_tasks>`.
   :::
 
 - The purpose of the task function is to handle IO operations like loading and saving
@@ -62,7 +62,8 @@ The body of the task function should contain two things:
 
    If we bundle all IO operations in the task functions, all other functions used in
    task remain pure (without side-effects) which makes testing the functions easier.
-2. The task function should either call {term}`private functions <private function>`
+
+1. The task function should either call {term}`private functions <private function>`
    defined inside the task module or functions which are shared between tasks and
    defined in a module separated from all tasks.
 

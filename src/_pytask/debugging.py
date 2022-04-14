@@ -67,14 +67,12 @@ def pytask_parse_config(
     """Parse the configuration."""
     config["pdb"] = get_first_non_none_value(
         config_from_cli,
-        config_from_file,
         key="pdb",
         default=False,
         callback=convert_truthy_or_falsy_to_bool,
     )
     config["trace"] = get_first_non_none_value(
         config_from_cli,
-        config_from_file,
         key="trace",
         default=False,
         callback=convert_truthy_or_falsy_to_bool,
@@ -155,6 +153,7 @@ class PytaskPDB:
 
     @classmethod
     def _is_capturing(cls, capman: CaptureManager) -> bool:
+        """Check if the capture manager is capturing."""
         if capman:
             return capman.is_capturing()
         return False
@@ -163,6 +162,7 @@ class PytaskPDB:
     def _import_pdb_cls(
         cls, capman: CaptureManager, live_manager: LiveManager
     ) -> type[pdb.Pdb]:
+        """Create a debugger from an imported class."""
         if not cls._config:
             import pdb
 
@@ -204,6 +204,7 @@ class PytaskPDB:
     def _get_pdb_wrapper_class(
         cls, pdb_cls: type[pdb.Pdb], capman: CaptureManager, live_manager: LiveManager
     ) -> type[pdb.Pdb]:
+        """Create a pdf wrapper class."""
         # Type ignored because mypy doesn't support "dynamic"
         # inheritance like this.
         class PytaskPdbWrapper(pdb_cls):  # type: ignore[valid-type,misc]

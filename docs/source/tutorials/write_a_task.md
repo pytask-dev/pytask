@@ -1,15 +1,14 @@
 # Write a task
 
-Starting from the project structure in the
-{doc}`previous tutorial <set_up_a_project>`, this tutorial teaches you how to
-write your first task.
+Starting from the project structure in the {doc}`previous tutorial <set_up_a_project>`,
+you will learn how to write your first task.
 
-By default, pytask will look for tasks in modules whose name is prefixed with `task_`.
-Tasks are functions in these modules whose name also starts with `task_`.
+pytask will look for tasks in modules whose name is prefixed with `task_`. Tasks are
+functions in these modules whose name also starts with `task_`.
 
-Our first task will be defined in `src/my_project/task_data_preparation.py` and it will
-generate artificial data which will be stored in `bld/data.pkl`. We will call the
-function in the module {func}`task_create_random_data`.
+Our first task, {func}`task_create_random_data`, will be defined in
+`src/my_project/task_data_preparation.py` and it will generate artificial data which
+will be stored in `bld/data.pkl`.
 
 ```
 my_project
@@ -55,12 +54,7 @@ def task_create_random_data(produces):
 ```
 
 To let pytask track the product of the task, you need to use the
-{func}`@pytask.mark.produces <_pytask.collect_utils.produces>` decorator.
-
-:::{seealso}
-You learn more about adding dependencies and products to a task in the next
-{doc}`tutorial <defining_dependencies_products>`.
-:::
+{func}`@pytask.mark.produces <pytask.mark.produces>` decorator.
 
 Now, execute pytask which will automatically collect tasks in the current directory and
 subsequent directories.
@@ -70,9 +64,9 @@ subsequent directories.
 
 ## Customize task names
 
-Use the {func}`@pytask.mark.task <_pytask.task_utils.task>` decorator to mark a function
-as a task regardless of its function name. You can optionally pass a new name for the
-task. Otherwise, the function name is used.
+Use the {func}`@pytask.mark.task <pytask.mark.task>` decorator to mark a function as a
+task regardless of its function name. You can optionally pass a new name for the task.
+Otherwise, the function name is used.
 
 ```python
 # The id will be '.../task_data_preparation.py::create_random_data'

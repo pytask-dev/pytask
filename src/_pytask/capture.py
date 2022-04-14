@@ -18,9 +18,9 @@ References
 - `Blog post on redirecting and file descriptors
   <https://eli.thegreenplace.net/2015/redirecting-all-kinds-of-stdout-in-python>`_.
 - `The capture module in pytest
-  <https://github.com/pytest-dev/pytest/blob/master/src/_pytest/capture.py>`_.
+  <https://github.com/pytest-dev/pytest/blob/main/src/_pytest/capture.py>`_.
 - `The debugging module in pytest
-  <https://github.com/pytest-dev/pytest/blob/master/src/_pytest/debugging.py>`_.
+  <https://github.com/pytest-dev/pytest/blob/main/src/_pytest/debugging.py>`_.
 
 """
 from __future__ import annotations

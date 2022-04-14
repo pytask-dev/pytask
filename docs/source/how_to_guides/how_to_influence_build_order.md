@@ -7,16 +7,16 @@ products are not fully specified.
 :::
 
 You can influence the order in which tasks are executed by assigning preferences to
-tasks. Use `pytask.mark.try_first` to execute a task as early as possible and
-`pytask.mark.try_last` to defer execution.
+tasks. Use {func}`@pytask.mark.try_first <pytask.mark.try_first>` to execute a task as
+early as possible and {func}`@pytask.mark.try_last <pytask.mark.try_last>` to defer
+execution.
 
 :::{note}
-For more background, tasks, dependencies and products form a directed acyclic graph
-(DAG). A [topological ordering](https://en.wikipedia.org/wiki/Topological_sorting)
+A little bit more background: Tasks, dependencies and products form a directed acyclic
+graph (DAG). A [topological ordering](https://en.wikipedia.org/wiki/Topological_sorting)
 determines the order in which tasks are executed such that tasks are not run until their
-predecessors have been executed. The ordering is not unique and instead of a random
-ordering, an ordering is chosen which is compatible with the preferences. Among multiple
-tasks which should all be preferred or delayed, a random task is chosen.
+predecessors have been executed. You should not assume a fixed ordering in which tasks
+are executed.
 :::
 
 As an example, here are two tasks where the decorator ensures that the output of the
@@ -39,20 +39,10 @@ def task_second():
 
 The execution yields (use `-s` to make the output visible in the terminal)
 
-```console
-$ pytask -s task_example.py
-========================= Start pytask session =========================
-Platform: win32 -- Python 3.x.x, pytask 0.x.x, pluggy 0.x.x
-Root: x
-Collected 2 tasks.
-
-I'm first.
-.I'm second.
-.
-========================= 2 succeeded in 0.04s =========================
+```{image} /_static/images/try-first.svg
 ```
 
-Replacing `pytask.mark.try_first` with `pytask.mark.try_last` yields
+Replacing {func}`pytask.mark.try_first` with {func}`pytask.mark.try_last` yields
 
 ```python
 # Content of task_example.py
@@ -71,15 +61,5 @@ def task_second():
 
 and
 
-```console
-$ pytask -s task_example.py
-========================= Start pytask session =========================
-Platform: win32 -- Python 3.x.x, pytask 0.x.x, pluggy 0.x.x
-Root: x
-Collected 2 tasks.
-
-I'm second.
-.I'm first.
-.
-========================= 2 succeeded in 0.03s =========================
+```{image} /_static/images/try-last.svg
 ```

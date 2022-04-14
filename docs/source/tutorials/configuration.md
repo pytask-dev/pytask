@@ -7,10 +7,10 @@ The file also indicates the root of your project where pytask stores information
 whether tasks need to be executed or not in a `.pytask.sqlite3` database.
 
 :::{important}
-pytask.ini, tox.ini, and setup.cfg will be deprecated as configuration files for pytask
-starting with v0.3 or v1.0. Switch to a `pyproject.toml` file! If you execute pytask
-with an old configuration file, pytask provides you with a copy-paste snippet of your
-configuration in the `toml` format to facilitate the transition.
+`pytask.ini`, `tox.ini`, and `setup.cfg` will be deprecated as configuration files for
+pytask starting with v0.3 or v1.0. Switch to a `pyproject.toml` file! If you execute
+pytask with an old configuration file, pytask provides you with a copy-paste snippet of
+your configuration in the `toml` format to facilitate the transition.
 :::
 
 ## The configuration file

@@ -1,10 +1,10 @@
-# Parametrizations
+# Scalable repititions of tasks
 
-This section gives advice on how to use parametrizations.
+This section gives advice on how to use repitions to quickly scale your project.
 
 ## TL;DR
 
-- Loop over dictionaries which map ids to ``kwargs`` to create multiple tasks.
+- Loop over dictionaries which map ids to `kwargs` to create multiple tasks.
 - Create the dictionary with a separate function.
 - Create functions to build intermediate objects like output paths which can be shared
   more easily across tasks than the generated values.
@@ -39,11 +39,13 @@ my_project
 │       │   └────data_3.csv
 │       │
 │       ├───data_preparation
-│       │   ├────data_preparation_config.py
+│       │   ├────__init__.py
+│       │   ├────config.py
 │       │   └────task_prepare_data.py
 │       │
 │       └───estimation
-│           ├────estimation_config.py
+│           ├────__init__.py
+│           ├────config.py
 │           └────task_estimate_models.py
 │
 │
@@ -54,16 +56,15 @@ my_project
 └───bld
 ```
 
-The folder structure, the general `config.py` which holds `SRC` and `BLD` and the tasks
+The folder structure, the main `config.py` which holds `SRC` and `BLD` and the tasks
 follow the same structure which is advocated for throughout the tutorials.
 
 What is new are the local configuration files in each of the subfolders of `my_project`
-which contain objects which are shared across tasks. For example,
-`data_preparation_config.py` holds the paths to the processed data and the names of the
-data sets.
+which contain objects which are shared across tasks. For example, `config.py` holds the
+paths to the processed data and the names of the data sets.
 
 ```python
-# Content of data_preparation_config.py
+# Content of config.py
 
 from my_project.config import BLD
 from my_project.config import SRC
@@ -88,9 +89,9 @@ parametrization.
 
 import pytask
 
-from my_project.data_preparation.data_preparation_config import DATA
-from my_project.data_preparation.data_preparation_config import path_to_input_data
-from my_project.data_preparation.data_preparation_config import path_to_processed_data
+from my_project.data_preparation.config import DATA
+from my_project.data_preparation.config import path_to_input_data
+from my_project.data_preparation.config import path_to_processed_data
 
 
 def _create_parametrization(data):
@@ -113,7 +114,7 @@ for id_, kwargs in _ID_TO_KWARGS.items():
         ...
 ```
 
-All arguments for the loop and the {func}`@pytask.mark.task <_pytask.task_utils.task>`
+All arguments for the loop and the {func}`@pytask.mark.task <pytask.mark.task>`
 decorator are built within a function to keep the logic in one place and the namespace
 of the module clean.
 
@@ -130,10 +131,10 @@ Next, we move to the estimation to see how we can build another parametrization 
 previous one.
 
 ```python
-# Content of estimation_config.py
+# Content of config.py
 
 from my_project.config import BLD
-from my_project.data_preparation.data_preparation_config import DATA
+from my_project.data_preparation.config import DATA
 
 
 _MODELS = ["linear_probability", "logistic_model", "decision_tree"]
@@ -166,9 +167,9 @@ And, here is the task file.
 
 import pytask
 
-from my_project.data_preparation.data_preparation_config import path_to_processed_data
-from my_project.data_preparation.estimation_config import ESTIMATIONS
-from my_project.data_preparation.estimation_config import path_to_estimation_result
+from my_project.data_preparation.config import path_to_processed_data
+from my_project.estimations.config import ESTIMATIONS
+from my_project.estimations.config import path_to_estimation_result
 
 
 def _create_parametrization(estimations):
@@ -205,5 +206,5 @@ parametrizations.
 Some parametrized tasks are extremely expensive to run - be it in terms of computing
 power, memory or time. On the other hand, parametrizations are often extended which
 could also trigger all parametrizations to be rerun. Thus, use the
-`@pytask.mark.persist` decorator which is explained in more detail in this
-{doc}`tutorial <../tutorials/making_tasks_persist>`.
+{func}`@pytask.mark.persist <pytask.mark.persist>` decorator which is explained in more
+detail in this {doc}`tutorial <../tutorials/making_tasks_persist>`.

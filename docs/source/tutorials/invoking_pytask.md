@@ -1,42 +1,74 @@
 # Invoking pytask
 
-## Entry-points
+pytask is a command line program which can be invoked with
 
-There are two entry-points to invoke pytask.
+```console
+$ pytask
+```
 
-1. Use command line interface with
+Use the following flags to learn more about pytask and its configuration.
 
-   ```console
-   $ pytask
-   ```
+```console
+$ pytask --version
+$ pytask -h | --help
+```
 
-   Use the following flags to learn more about pytask and its configuration.
+## Commands
 
-   ```console
-   $ pytask --version
-   $ pytask -h | --help
-   ```
+pytask has multiple commands which are listed in the main help page.
 
-1. Invoke pytask via the Python interpreter which will add the current path to the
-   `sys.path`.
+```{image} /_static/images/help_page.svg
+```
 
-   ```console
-   python -m pytask /some/task/dir
-   ```
+The `build` command is the default command which means the following two calls are
+identical.
 
-1. Invoke pytask programmatically with
+```console
+$ pytask
 
-   ```python
-   import pytask
+$ pytask build
+```
 
+To see command-specific, use the help flag after the command.
 
-   session = pytask.main({"paths": ...})
-   ```
+```console
+$ pytask <command-name> --help
+```
 
-   Pass command line arguments with their long name and hyphens replaced by underscores
-   as keys of the dictionary.
+## The build command
 
-## Stopping after the first (or N) failures
+The build command accepts among many options paths as positional arguments. If no paths
+are passed to the command line interface, pytask will look for the `paths` key in the
+configuration file. At last, pytask will collect tasks from the current working
+directory and subsequent folders.
+
+You can also pass any number of paths of directories or modules to cli.
+
+```console
+$ pytask path/to/task_module.py path/to/folder
+```
+
+Do not use paths to run a subset of tasks in your project. Use
+{doc}`expressions <selecting_tasks>` instead. When pytask collects tasks from subpaths
+of your project, it cannot infer the whole structure of dependencies and products and
+might run your tasks with missing or outdated dependencies.
+
+## Options
+
+Here are some useful options for the build command.
+
+### Showing errors immediately
+
+To show errors immediately when they occur, use
+
+```console
+$ pytask --show-errors-immediately
+```
+
+It can be useful when you have a long-running workflow, but want feedback as soon as it
+is available.
+
+### Stopping after the first (N) failures
 
 To stop the build of the project after the first (N) failures use
 

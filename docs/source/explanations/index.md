@@ -7,6 +7,7 @@ systems in general as well as its design.
 ---
 maxdepth: 1
 ---
-build_systems
+why_pytask
+comparison_to_other_tools
 pluggy
 ```

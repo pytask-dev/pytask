@@ -33,7 +33,6 @@ extensions = [
     "IPython.sphinxext.ipython_console_highlighting",
     "IPython.sphinxext.ipython_directive",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
@@ -42,7 +41,6 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_click",
     "sphinx_panels",
-    "autoapi.extension",
     "myst_parser",
 ]
 
@@ -59,17 +57,7 @@ pygments_dark_style = "monokai"
 # -- Extensions configuration ----------------------------------------------------------
 
 # Configuration for autodoc.
-autosummary_generate = True
 add_module_names = False
-# Actually irrelevant since sphinx-click needs to import everything to build the cli.
-autodoc_mock_imports = [
-    "attr",
-    "click",
-    "click_default_group",
-    "networkx",
-    "pluggy",
-    "pony",
-]
 
 # Remove prefixed $ for bash, >>> for Python prompts, and In [1]: for IPython prompts.
 copybutton_prompt_text = r"\$ |>>> |In \[\d\]: "
@@ -87,14 +75,8 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3.9", None),
     "click": ("https://click.palletsprojects.com/en/8.0.x/", None),
     "pluggy": ("https://pluggy.readthedocs.io/en/latest", None),
+    "networkx": ("https://networkx.org/documentation/stable", None),
 }
-
-# Configuration for autoapi
-autoapi_type = "python"
-autoapi_dirs = ["../../src"]
-autoapi_keep_files = False
-autoapi_add_toctree_entry = False
-
 
 # MyST
 myst_enable_extensions = ["colon_fence", "deflist", "dollarmath"]
