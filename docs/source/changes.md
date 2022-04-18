@@ -5,7 +5,11 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.2.0 - 2022-xx-xx
+## 0.2.1 - 2022-xx-xx
+
+- {pull}`259` adds an `.svg` for profiling tasks.
+
+## 0.2.0 - 2022-04-14
 
 - {pull}`211` allows for flexible dependencies and products which can be any pytree of
   native Python objects as supported by pybaum.
