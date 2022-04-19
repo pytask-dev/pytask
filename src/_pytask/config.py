@@ -254,6 +254,7 @@ def pytask_parse_config(
         callback=convert_truthy_or_falsy_to_bool,
     )
 
+
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Sort markers alphabetically."""

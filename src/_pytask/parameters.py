@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import click
 from _pytask.config import hookimpl
-from _pytask.shared import falsy_to_none_callback
 from _pytask.shared import convert_truthy_or_falsy_to_bool
+from _pytask.shared import falsy_to_none_callback
 
 
 _CONFIG_OPTION = click.Option(
@@ -50,7 +50,7 @@ _SORT_TABLE_OPTION = click.Option(
     type=click.BOOL,
     default=False,
     callback=convert_truthy_or_falsy_to_bool,
-    help="Sort task table alphabetically."
+    help="Sort task table alphabetically.",
 )
 """click.Option: An option to control if pytask's output is sorted."""
 
