@@ -85,6 +85,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
             n_entries_in_table=config["n_entries_in_table"],
             verbose=config["verbose"],
             editor_url_scheme=config["editor_url_scheme"],
+            sort_table=config["sort_table"],
         )
         config["pm"].register(live_execution, "live_execution")
 
@@ -156,6 +157,7 @@ class LiveExecution:
     n_entries_in_table = attr.ib(type=int)
     verbose = attr.ib(type=int)
     editor_url_scheme = attr.ib(type=str)
+    sort_table = attr.ib(default=False, type=bool)
     n_tasks = attr.ib(default="x", type=Union[int, str])
     _reports = attr.ib(factory=list, type=List[Dict[str, Any]])
     _running_tasks = attr.ib(factory=dict, type=Dict[str, Task])
@@ -167,9 +169,7 @@ class LiveExecution:
         self.live_manager.start()
         yield
         self.live_manager.stop(transient=True)
-        table = self._generate_table(
-            reduce_table=False, sort_table=True, add_caption=False
-        )
+        table = self._generate_table(reduce_table=False, add_caption=False)
         if table is not None:
             console.print(table)
 
@@ -186,7 +186,7 @@ class LiveExecution:
         return True
 
     def _generate_table(
-        self, reduce_table: bool, sort_table: bool, add_caption: bool
+        self, reduce_table: bool, add_caption: bool
     ) -> Table | None:
         """Generate the table.
 
@@ -220,7 +220,7 @@ class LiveExecution:
         else:
             relevant_reports = []
 
-        if sort_table:
+        if self.sort_table:
             relevant_reports = sorted(
                 relevant_reports, key=lambda report: report["name"]
             )
@@ -266,12 +266,11 @@ class LiveExecution:
     def _update_table(
         self,
         reduce_table: bool = True,
-        sort_table: bool = False,
         add_caption: bool = True,
     ) -> None:
         """Regenerate the table."""
         table = self._generate_table(
-            reduce_table=reduce_table, sort_table=sort_table, add_caption=add_caption
+            reduce_table=reduce_table, add_caption=add_caption
         )
         self.live_manager.update(table)
 
