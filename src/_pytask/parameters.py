@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import click
 from _pytask.config import hookimpl
-from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import falsy_to_none_callback
 
 
@@ -43,16 +42,6 @@ _VERBOSE_OPTION = click.Option(
     help="Make pytask verbose (>= 0) or quiet (= 0) [dim]\\[default: 1][/]",
 )
 """click.Option: An option to control pytask's verbosity."""
-
-
-_SORT_TABLE_OPTION = click.Option(
-    ["--sort-table"],
-    type=click.BOOL,
-    default=False,
-    callback=convert_truthy_or_falsy_to_bool,
-    help="Sort task table alphabetically.",
-)
-"""click.Option: An option to control if pytask's output is sorted."""
 
 
 _EDITOR_URL_SCHEME_OPTION = click.Option(
