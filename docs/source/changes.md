@@ -7,7 +7,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.2.1 - 2022-xx-xx
 
-- {pull}`261` adds a config file option to sort entries live table
+- {pull}`261` adds a config file option to sort entries in live table
 - {pull}`259` adds an `.svg` for profiling tasks.
 
 ## 0.2.0 - 2022-04-14
