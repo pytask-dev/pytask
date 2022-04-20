@@ -148,10 +148,10 @@ n_entries_in_table = "all"  # default 15
 
 You can decide whether the entries displayed in the live table are sorted alphabetically
 once all tasks have been executed, which can be helpful when working with many tasks.
-Use either "True" or "False". This option is only supported in the configuration file.
+Use either `true` or `false`. This option is only supported in the configuration file.
 
 ```toml
-sort_table = "True"  # default "False"
+sort_table = false  # default: true
 ```
 
 ````

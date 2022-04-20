@@ -250,7 +250,7 @@ def pytask_parse_config(
         config_from_cli,
         config_from_file,
         key="sort_table",
-        default=False,
+        default=True,
         callback=convert_truthy_or_falsy_to_bool,
     )
 
