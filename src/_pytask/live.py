@@ -169,7 +169,9 @@ class LiveExecution:
         self.live_manager.start()
         yield
         self.live_manager.stop(transient=True)
-        table = self._generate_table(reduce_table=False, add_caption=False)
+        table = self._generate_table(
+            reduce_table=False, sort_table=self.sort_table, add_caption=False
+        )
         if table is not None:
             console.print(table)
 
@@ -185,7 +187,9 @@ class LiveExecution:
         self.update_reports(report)
         return True
 
-    def _generate_table(self, reduce_table: bool, add_caption: bool) -> Table | None:
+    def _generate_table(
+        self, reduce_table: bool, sort_table: bool, add_caption: bool
+    ) -> Table | None:
         """Generate the table.
 
         First, display all completed tasks and, then, all running tasks.
@@ -218,7 +222,7 @@ class LiveExecution:
         else:
             relevant_reports = []
 
-        if self.sort_table:
+        if sort_table:
             relevant_reports = sorted(
                 relevant_reports, key=lambda report: report["name"]
             )
@@ -264,10 +268,13 @@ class LiveExecution:
     def _update_table(
         self,
         reduce_table: bool = True,
+        sort_table: bool = False,
         add_caption: bool = True,
     ) -> None:
         """Regenerate the table."""
-        table = self._generate_table(reduce_table=reduce_table, add_caption=add_caption)
+        table = self._generate_table(
+            reduce_table=reduce_table, sort_table=sort_table, add_caption=add_caption
+        )
         self.live_manager.update(table)
 
     def update_running_tasks(self, new_running_task: Task) -> None:
