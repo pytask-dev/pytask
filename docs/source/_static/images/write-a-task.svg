@@ -116,7 +116,7 @@
 <div><span class="r1">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓</span><span class="r1">                                       </span></div>
 <div><span class="r1">┃</span><span class="r4"> Task                                              </span><span class="r1">┃</span><span class="r4"> Outcome </span><span class="r1">┃</span><span class="r1">                                       </span></div>
 <div><span class="r1">┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩</span><span class="r1">                                       </span></div>
-<div><span class="r1">│ </span><span class="r5">task_data_preparation.py::</span><span class="r6"><a href="file:///C:\Users\TobiasR\git\pytask\scripts\svgs\task_data_preparation.py">task_create_random_data</a></span><span class="r1"> │ </span><span class="r7">.      </span><span class="r1"> │</span><span class="r1">                                       </span></div>
+<div><span class="r1">│ </span><span class="r5">task_data_preparation.py::</span><span class="r6">task_create_random_data</span><span class="r1"> │ </span><span class="r7">.      </span><span class="r1"> │</span><span class="r1">                                       </span></div>
 <div><span class="r1">└───────────────────────────────────────────────────┴─────────┘</span><span class="r1">                                       </span></div>
 <div><span class="r1"></span><span class="r1">                                                                                                      </span></div>
 <div><span class="r5">──────────────────────────────────────────────────────────────────────────────────────────────────────</span></div>
