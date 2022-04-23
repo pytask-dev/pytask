@@ -15,6 +15,7 @@ from typing import Generator
 from typing import List
 
 import attr
+import click
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.mark_utils import get_marks
@@ -30,13 +31,36 @@ from rich.panel import Panel
 
 
 @hookimpl
+def pytask_extend_command_line_interface(cli: click.Group) -> None:
+    """Extend the cli."""
+    cli.commands["build"].params.append(
+        click.Option(
+            ["--disable-warnings"],
+            is_flag=True,
+            default=False,
+            help="Disables the summary for warnings.",
+        )
+    )
+
+
+@hookimpl
 def pytask_parse_config(
-    config: dict[str, Any], config_from_file: dict[str, Any]
+    config: dict[str, Any],
+    config_from_file: dict[str, Any],
+    config_from_cli: dict[str, Any],
 ) -> None:
     """Parse the configuration."""
+    config["disable_warnings"] = config_from_cli["disable_warnings"]
     config["filterwarnings"] = _parse_filterwarnings(
         config_from_file.get("filterwarnings")
     )
+
+
+@hookimpl
+def pytask_post_parse(config: dict[str, Any]) -> None:
+    """Activate the warnings plugin if not disabled."""
+    if not config["disable_warnings"]:
+        config["pm"].register(WarningsNameSpace)
 
 
 def _parse_filterwarnings(x: str | list[str] | None) -> list[str]:
@@ -191,31 +215,37 @@ def warning_record_to_str(warning_message: warnings.WarningMessage) -> str:
     return msg
 
 
-@hookimpl(hookwrapper=True)
-def pytask_execute_task(session: Session, task: Task) -> Generator[None, None, None]:
-    """Catch warnings while executing a task."""
-    with catch_warnings_for_item(session=session, task=task):
-        yield
+class WarningsNameSpace:
+    """A namespace for the warnings plugin."""
 
+    @staticmethod
+    @hookimpl(hookwrapper=True)
+    def pytask_execute_task(
+        session: Session, task: Task
+    ) -> Generator[None, None, None]:
+        """Catch warnings while executing a task."""
+        with catch_warnings_for_item(session=session, task=task):
+            yield
 
-@hookimpl(trylast=True)
-def pytask_log_session_footer(session: Session) -> None:
-    """Log warnings at the end of a session."""
-    if session.warnings:
-        grouped_warnings = defaultdict(list)
-        for warning in session.warnings:
-            location = (
-                warning.id_
-                if warning.id_ is not None
-                else "{}:{}".format(*warning.fs_location)
-            )
-            grouped_warnings[warning.message].append(location)
-        sorted_gw = {k: sorted(v) for k, v in grouped_warnings.items()}
+    @staticmethod
+    @hookimpl(trylast=True)
+    def pytask_log_session_footer(session: Session) -> None:
+        """Log warnings at the end of a session."""
+        if session.warnings:
+            grouped_warnings = defaultdict(list)
+            for warning in session.warnings:
+                location = (
+                    warning.id_
+                    if warning.id_ is not None
+                    else "{}:{}".format(*warning.fs_location)
+                )
+                grouped_warnings[warning.message].append(location)
+            sorted_gw = {k: sorted(v) for k, v in grouped_warnings.items()}
 
-        renderable = MyRenderable(sorted_gw)
+            renderable = MyRenderable(sorted_gw)
 
-        panel = Panel(renderable, title="Warnings", style="warning")
-        console.print(panel)
+            panel = Panel(renderable, title="Warnings", style="warning")
+            console.print(panel)
 
 
 @attr.s
@@ -230,3 +260,7 @@ class MyRenderable:
         for message, locations in self.grouped_warnings.items():
             yield from locations
             yield Padding.indent(message, 4)
+        yield (
+            "[bold red]♥[/bold red] "
+            + "https://pytask-dev.rtdf.io/en/stable/how_to_guides/capture_warnings.html"
+        )
