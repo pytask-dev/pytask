@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 import attr
 import networkx as nx
 from _pytask.outcomes import ExitCode
-
+from _pytask.warnings_utils import WarningReport
 
 # Location was moved from pluggy v0.13.1 to v1.0.0.
 try:
@@ -62,6 +62,7 @@ class Session:
     scheduler = attr.ib(default=None, type=Any)
     should_stop = attr.ib(default=False, type=Optional[bool])
     """Optional[bool]: Indicates whether the session should be stopped."""
+    warnings = attr.ib(factory=list, type=List[WarningReport])
 
     @classmethod
     def from_config(cls, config: dict[str, Any]) -> Session:

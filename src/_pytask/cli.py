@@ -68,6 +68,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     from _pytask import resolve_dependencies
     from _pytask import skipping
     from _pytask import task
+    from _pytask import warnings
 
     pm.register(build)
     pm.register(capture)
@@ -89,6 +90,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     pm.register(resolve_dependencies)
     pm.register(skipping)
     pm.register(task)
+    pm.register(warnings)
 
 
 @click.group(
