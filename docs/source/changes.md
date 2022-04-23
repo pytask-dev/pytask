@@ -7,6 +7,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.2.1 - 2022-xx-xx
 
+- {pull}`259` adds an `.svg` for profiling tasks.
 - {pull}`262` allows pytask to capture warnings. Here is the
   [guide](https://pytask-dev.readthedocs.io/en/stable/how_to_guides/capture_warnings.html).
 
