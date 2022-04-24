@@ -50,7 +50,7 @@ def pytask_parse_config(
     config_from_cli: dict[str, Any],
 ) -> None:
     """Parse the configuration."""
-    config["disable_warnings"] = config_from_cli["disable_warnings"]
+    config["disable_warnings"] = config_from_cli.get("disable_warnings", False)
     config["filterwarnings"] = _parse_filterwarnings(
         config_from_file.get("filterwarnings")
     )
