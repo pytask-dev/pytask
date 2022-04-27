@@ -144,6 +144,18 @@ n_entries_in_table = "all"  # default 15
 
 ````
 
+````{confval} sort_table
+
+You can decide whether the entries displayed in the live table are sorted alphabetically
+once all tasks have been executed, which can be helpful when working with many tasks.
+Use either `true` or `false`. This option is only supported in the configuration file.
+
+```toml
+sort_table = false  # default: true
+```
+
+````
+
 ````{confval} paths
 
 If you want to collect tasks from specific paths without passing the names via the

@@ -246,6 +246,10 @@ def pytask_parse_config(
         callback=lambda x: x if x is None else int(x),
     )
 
+    config["sort_table"] = convert_truthy_or_falsy_to_bool(
+        config_from_file.get("sort_table", True)
+    )
+
 
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
