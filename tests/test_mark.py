@@ -359,11 +359,11 @@ def test_selecting_task_with_marker_should_run_predecessor(runner, tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    with pytest.warns(UserWarning, match="Unknown pytask.mark.wip"):
-        result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
+    result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
 
     assert result.exit_code == ExitCode.OK
     assert "2  Succeeded" in result.output
+    assert "Warnings" in result.output
 
 
 @pytest.mark.end_to_end
@@ -402,12 +402,12 @@ def test_selecting_task_with_marker_ignores_other_task(runner, tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    with pytest.warns(UserWarning, match="Unknown pytask.mark.wip"):
-        result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
+    result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
 
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
     assert "1  Skipped" in result.output
+    assert "Warnings" in result.output
 
 
 @pytest.mark.end_to_end
@@ -421,8 +421,8 @@ def test_selecting_task_with_unknown_marker_raises_warning(runner, tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    with pytest.warns(UserWarning, match="Unknown pytask.mark.wip"):
-        result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
+    result = runner.invoke(cli, [tmp_path.as_posix(), "-m", "wip"])
 
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
+    assert "Warnings" in result.output
