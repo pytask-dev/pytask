@@ -246,12 +246,8 @@ def pytask_parse_config(
         callback=lambda x: x if x is None else int(x),
     )
 
-    config["sort_table"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="sort_table",
-        default=True,
-        callback=convert_truthy_or_falsy_to_bool,
+    config["sort_table"] = convert_truthy_or_falsy_to_bool(
+        config_from_file.get("sort_table", True)
     )
 
 
