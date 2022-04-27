@@ -54,6 +54,7 @@ def pytask_parse_config(
     config["filterwarnings"] = _parse_filterwarnings(
         config_from_file.get("filterwarnings")
     )
+    config["markers"]["filterwarnings"] = "Add a filter for a warning to a task."
 
 
 @hookimpl
@@ -78,7 +79,8 @@ def _parse_filterwarnings(x: str | list[str] | None) -> list[str]:
 @contextmanager
 def catch_warnings_for_item(
     session: Session,
-    task: Task | None,
+    task: Task | None = None,
+    when: str | None = None,
 ) -> Generator[None, None, None]:
     """Context manager that catches warnings generated in the contained execution block.
     ``item`` can be None if we are not in the context of an item execution.
@@ -105,13 +107,18 @@ def catch_warnings_for_item(
 
         yield
 
+        if task is not None:
+            id_ = task.short_name
+        else:
+            id_ = when
+
         for warning_message in log:
             fs_location = warning_message.filename, warning_message.lineno
             session.warnings.append(
                 WarningReport(
                     message=warning_record_to_str(warning_message),
                     fs_location=fs_location,
-                    id_=task.short_name,
+                    id_=id_,
                 )
             )
 
@@ -217,6 +224,13 @@ def warning_record_to_str(warning_message: warnings.WarningMessage) -> str:
 
 class WarningsNameSpace:
     """A namespace for the warnings plugin."""
+
+    @staticmethod
+    @hookimpl(hookwrapper=True)
+    def pytask_collect(session: Session) -> Generator[None, None, None]:
+        """Catch warnings while executing a task."""
+        with catch_warnings_for_item(session=session):
+            yield
 
     @staticmethod
     @hookimpl(hookwrapper=True)
