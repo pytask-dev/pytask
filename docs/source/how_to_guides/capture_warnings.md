@@ -99,3 +99,32 @@ filterwarnings  = [
 
 This will ignore all warnings of type `DeprecationWarning` where the start of the
 message matches the regular expression `".*U.*mode is deprecated"`.
+
+## Debugging warnings
+
+Sometimes it is not clear which line of code triggered a warning. To find the location,
+you can turn warnings into exceptions and then use the {option}`pytask build --pdb` flag
+to enter the debugger.
+
+You can use the configuration to convert warnings to errors by setting
+
+```toml
+[tool.pytask.ini_options]
+filterwarnings = ["error:.*"]
+```
+
+and then run `pytask`.
+
+Or, you use a temporary environment variable. Here is an example for bash
+
+```console
+$ PYTHONWARNINGS=error pytask --pdb
+```
+
+and here for Powershell
+
+```console
+$ $env:PYTHONWARNINGS = 'error'
+$ pytask
+$ Remove-Item env:\PYTHONWARNINGS
+```
