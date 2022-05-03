@@ -93,11 +93,14 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     config["pm"].register(live_collection, "live_collection")
 
 
-@hookimpl(tryfirst=True)
-def pytask_execute_build(session: Session) -> None:
+@hookimpl(hookwrapper=True)
+def pytask_execute(session: Session) -> Generator[None, None, None]:
     if session.config["verbose"] >= 1:
         live_execution = session.config["pm"].get_plugin("live_execution")
-        live_execution.n_tasks = len(session.tasks)
+        if live_execution:
+            live_execution.n_tasks = len(session.tasks)
+
+    yield
 
 
 @attr.s(eq=False)
