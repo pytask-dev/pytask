@@ -65,7 +65,7 @@ def test_show_capture(tmp_path, runner, show_capture):
 # note: py.io capture tests where copied from pylib 1.4.20.dev2 (rev 13d9af95547e)
 
 
-def StdCaptureFD(
+def StdCaptureFD(  # noqa: N802
     out: bool = True, err: bool = True, in_: bool = True
 ) -> MultiCapture[str]:
     return capture.MultiCapture(
@@ -75,7 +75,7 @@ def StdCaptureFD(
     )
 
 
-def StdCapture(
+def StdCapture(  # noqa: N802
     out: bool = True, err: bool = True, in_: bool = True
 ) -> MultiCapture[str]:
     return capture.MultiCapture(
@@ -85,7 +85,7 @@ def StdCapture(
     )
 
 
-def TeeStdCapture(
+def TeeStdCapture(  # noqa: N802
     out: bool = True, err: bool = True, in_: bool = True
 ) -> MultiCapture[str]:
     return capture.MultiCapture(
@@ -594,9 +594,9 @@ class TestStdCapture:
         assert sys.stdin is old
 
     def test_stdin_nulled_by_default(self):
-        print("XXX this test may well hang instead of crashing")
-        print("XXX which indicates an error in the underlying capturing")
-        print("XXX mechanisms")
+        print("XX this test may well hang instead of crashing")
+        print("XX which indicates an error in the underlying capturing")
+        print("XX mechanisms")
         with self.getcapture():
             pytest.raises(OSError, sys.stdin.read)
 
