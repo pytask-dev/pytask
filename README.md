@@ -42,7 +42,7 @@ features include:
   [LaTeX](https://github.com/pytask-dev/pytask-latex),
   [R](https://github.com/pytask-dev/pytask-r), and
   [Stata](https://github.com/pytask-dev/pytask-stata) and more can be found
-  [here](https://github.com/topics/pytask). Learn more about plungins in
+  [here](https://github.com/topics/pytask). Learn more about plugins in
   [this tutorial](https://pytask-dev.readthedocs.io/en/stable/tutorials/plugins.html).
 
 # Installation
