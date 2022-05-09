@@ -200,7 +200,7 @@ def pytask_parse_config(
         callback=convert_truthy_or_falsy_to_bool,
     )
     if config["debug_pytask"]:
-        config["pm"].trace.root.setwriter(print)  # noqa: T002
+        config["pm"].trace.root.setwriter(print)  # noqa: T202
         config["pm"].enable_tracing()
 
     config_from_file["task_files"] = parse_value_or_multiline_option(

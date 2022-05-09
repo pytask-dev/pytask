@@ -10,7 +10,7 @@ def task_func1():
 
 
 def task_func2():
-    print("Debug statement")  # noqa: T001
+    print("Debug statement")  # noqa: T201
     assert False  # noqa: B011, PT015
 
 
