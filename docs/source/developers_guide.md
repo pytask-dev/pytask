@@ -41,7 +41,7 @@ To profile pytask, you can follow this
 `git bisect`, caching, and profiling tools). We use {mod}`cProfile` with
 
 ```console
-$ python -m cProfile -o log.pstats pytask directory/with/tasks
+$ python -m cProfile -o log.pstats -m pytask directory/with/tasks
 ```
 
 The profile can be visualized with
