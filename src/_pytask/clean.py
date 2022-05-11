@@ -16,7 +16,6 @@ import attr
 import click
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
-from _pytask.config import IGNORED_TEMPORARY_FILES_AND_FOLDERS
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
 from _pytask.git import get_all_files
@@ -63,15 +62,6 @@ def pytask_parse_config(
     config["directories"] = get_first_non_none_value(
         config_from_cli, key="directories", default=False
     )
-
-
-@hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
-    """Correct ignore patterns such that caches, etc. will not be ignored."""
-    if config["command"] == "clean":
-        config["ignore"] = [
-            i for i in config["ignore"] if i not in IGNORED_TEMPORARY_FILES_AND_FOLDERS
-        ]
 
 
 @click.command(cls=ColoredCommand)
