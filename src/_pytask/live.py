@@ -132,12 +132,6 @@ class LiveManager:
         if transient is not None:
             self._live.transient = transient
         self._live.stop()
-        # try:
-        #     self._live.stop()
-        # except OSError:
-        #     import traceback
-        #     traceback.print_exc()
-        #     breakpoint()
 
     def pause(self) -> None:
         self._live.transient = True

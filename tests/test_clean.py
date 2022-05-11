@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import subprocess
 import textwrap
 
 import pytest
+from _pytask.git import init_repo
 from pytask import cli
 from pytask import ExitCode
 
@@ -190,4 +192,8 @@ def test_collection_failed(runner, tmp_path):
 
 @pytest.mark.end_to_end
 def test_dont_remove_files_tracked_by_git(runner, git_project):
-    ...
+    result = runner.invoke(cli, ["clean", git_project.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "tracked.txt" not in result.output
+    assert "in_tracked.txt" not in result.output
