@@ -67,24 +67,20 @@ def test_clean_with_excluded_file(project, runner, flag, pattern):
 
 
 @pytest.mark.end_to_end
-def test_clean_with_ingored_directory(project, runner):
+@pytest.mark.parametrize("flag", ["-e", "--exclude"])
+def test_clean_with_excluded_directory(project, runner, flag):
     result = runner.invoke(
-        cli,
-        [
-            "clean",
-            "--ignore",
-            "to_be_deleted_folder_1/*",
-            project.as_posix(),
-        ],
+        cli, ["clean", flag, "to_be_deleted_folder_1/*", project.as_posix()]
     )
 
-    assert "to_be_deleted_folder_1/" not in result.output
-    assert "to_be_deleted_file_1.txt" in result.output.replace("\n", "")
+    assert result.exit_code == ExitCode.OK
+    assert "deleted_folder_1/" not in result.output
+    assert "deleted_file_1.txt" in result.output.replace("\n", "")
 
 
 @pytest.mark.end_to_end
 def test_clean_with_nothing_to_remove(tmp_path, runner):
-    result = runner.invoke(cli, ["clean", "--ignore", "*", tmp_path.as_posix()])
+    result = runner.invoke(cli, ["clean", "--exclude", "*", tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
     assert "There are no files and directories which can be deleted." in result.output
