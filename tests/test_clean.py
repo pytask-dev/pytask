@@ -55,9 +55,12 @@ def git_project(tmp_path):
 
 
 @pytest.mark.end_to_end
-def test_clean_with_ignored_file(project, runner):
-    result = runner.invoke(cli, ["clean", "--ignore", "*_1.txt", project.as_posix()])
+@pytest.mark.parametrize("flag", ["-e", "--exclude"])
+@pytest.mark.parametrize("pattern", ["*_1.txt", "to_be_deleted_file_[1]*"])
+def test_clean_with_excluded_file(project, runner, flag, pattern):
+    result = runner.invoke(cli, ["clean", flag, pattern, project.as_posix()])
 
+    assert result.exit_code == ExitCode.OK
     text_without_linebreaks = result.output.replace("\n", "")
     assert "to_be_deleted_file_1.txt" not in text_without_linebreaks
     assert "to_be_deleted_file_2.txt" in text_without_linebreaks
@@ -83,6 +86,7 @@ def test_clean_with_ingored_directory(project, runner):
 def test_clean_with_nothing_to_remove(tmp_path, runner):
     result = runner.invoke(cli, ["clean", "--ignore", "*", tmp_path.as_posix()])
 
+    assert result.exit_code == ExitCode.OK
     assert "There are no files and directories which can be deleted." in result.output
 
 
@@ -90,6 +94,7 @@ def test_clean_with_nothing_to_remove(tmp_path, runner):
 def test_clean_dry_run(project, runner):
     result = runner.invoke(cli, ["clean", project.as_posix()])
 
+    assert result.exit_code == ExitCode.OK
     text_without_linebreaks = result.output.replace("\n", "")
     assert "Would remove" in text_without_linebreaks
     assert "to_be_deleted_file_1.txt" in text_without_linebreaks
@@ -104,6 +109,7 @@ def test_clean_dry_run(project, runner):
 def test_clean_dry_run_w_directories(project, runner):
     result = runner.invoke(cli, ["clean", "-d", project.as_posix()])
 
+    assert result.exit_code == ExitCode.OK
     text_without_linebreaks = result.output.replace("\n", "")
     assert "Would remove" in text_without_linebreaks
     assert "to_be_deleted_file_1.txt" in text_without_linebreaks
@@ -115,6 +121,7 @@ def test_clean_dry_run_w_directories(project, runner):
 def test_clean_force(project, runner):
     result = runner.invoke(cli, ["clean", "--mode", "force", project.as_posix()])
 
+    assert result.exit_code == ExitCode.OK
     text_without_linebreaks = result.output.replace("\n", "")
     assert "Remove" in result.output
     assert "to_be_deleted_file_1.txt" in text_without_linebreaks
@@ -129,6 +136,7 @@ def test_clean_force(project, runner):
 def test_clean_force_w_directories(project, runner):
     result = runner.invoke(cli, ["clean", "-d", "--mode", "force", project.as_posix()])
 
+    assert result.exit_code == ExitCode.OK
     text_without_linebreaks = result.output.replace("\n", "")
     assert "Remove" in text_without_linebreaks
     assert "to_be_deleted_file_1.txt" in text_without_linebreaks
@@ -145,6 +153,7 @@ def test_clean_interactive(project, runner):
         input="y\ny\ny",
     )
 
+    assert result.exit_code == ExitCode.OK
     assert "Remove" in result.output
     assert "to_be_deleted_file_1.txt" in result.output
     assert not project.joinpath("to_be_deleted_file_1.txt").exists()
@@ -163,6 +172,7 @@ def test_clean_interactive_w_directories(project, runner):
         input="y\ny\ny",
     )
 
+    assert result.exit_code == ExitCode.OK
     assert "Remove" in result.output
     assert "to_be_deleted_file_1.txt" in result.output
     assert not project.joinpath("to_be_deleted_file_1.txt").exists()

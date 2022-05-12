@@ -42,6 +42,7 @@ _IGNORED_FILES: list[str] = [
     "readthedocs.yml",
     "readthedocs.yaml",
     "environment.yml",
+    "pyproject.toml",
     "pytask.ini",
     "setup.cfg",
     "tox.ini",
