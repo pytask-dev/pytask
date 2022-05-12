@@ -68,6 +68,23 @@ def test_clean_with_excluded_file(project, runner, flag, pattern):
 
 @pytest.mark.end_to_end
 @pytest.mark.parametrize("flag", ["-e", "--exclude"])
+@pytest.mark.parametrize("pattern", ["*_1.txt", "to_be_deleted_file_[1]*"])
+def test_clean_with_excluded_file_via_config(project, runner, flag, pattern):
+    project.joinpath("pyproject.toml").write_text(
+        f"[tool.pytask.ini_options]\nexclude = [{pattern!r}]"
+    )
+
+    result = runner.invoke(cli, ["clean", flag, project.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    text_without_linebreaks = result.output.replace("\n", "")
+    assert "to_be_deleted_file_1.txt" not in text_without_linebreaks
+    assert "to_be_deleted_file_2.txt" in text_without_linebreaks
+    assert "pyproject.toml" in text_without_linebreaks
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("flag", ["-e", "--exclude"])
 def test_clean_with_excluded_directory(project, runner, flag):
     result = runner.invoke(
         cli, ["clean", flag, "to_be_deleted_folder_1/*", project.as_posix()]

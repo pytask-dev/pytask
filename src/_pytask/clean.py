@@ -55,9 +55,7 @@ def pytask_parse_config(
     """Parse the configuration."""
     config["directories"] = config_from_cli.get("directories", False)
     config["exclude"] = config_from_cli.get("exclude")
-    config["mode"] = get_first_non_none_value(
-        config_from_cli, key="mode", default="dry-run"
-    )
+    config["mode"] = config_from_cli.get("mode", "dry-run")
     config["quiet"] = get_first_non_none_value(
         config_from_cli, key="quiet", default=False
     )
@@ -80,6 +78,7 @@ def pytask_parse_config(
 )
 @click.option(
     "--mode",
+    default="dry-run",
     type=click.Choice(["dry-run", "interactive", "force"]),
     help=_HELP_TEXT_MODE,
 )
