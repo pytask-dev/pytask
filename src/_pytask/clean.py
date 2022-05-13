@@ -26,13 +26,19 @@ from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
+from _pytask.shared import falsy_to_none_callback
 from _pytask.shared import get_first_non_none_value
+from _pytask.shared import parse_value_or_multiline_option
+from _pytask.shared import to_list
 from _pytask.traceback import render_exc_info
 from pybaum.tree_util import tree_just_yield
 
 
 if TYPE_CHECKING:
     from typing import NoReturn
+
+
+_DEFAULT_EXCLUDE = [".git"]
 
 
 _HELP_TEXT_MODE = (
@@ -50,11 +56,17 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
+    config: dict[str, Any],
+    config_from_cli: dict[str, Any],
+    config_from_file: dict[str, Any],
 ) -> None:
     """Parse the configuration."""
     config["directories"] = config_from_cli.get("directories", False)
-    config["exclude"] = config_from_cli.get("exclude")
+    cli_excludes = parse_value_or_multiline_option(config_from_cli.get("exclude"))
+    file_excludes = parse_value_or_multiline_option(config_from_file.get("exclude"))
+    config["exclude"] = (
+        to_list(cli_excludes or []) + to_list(file_excludes or []) + _DEFAULT_EXCLUDE
+    )
     config["mode"] = config_from_cli.get("mode", "dry-run")
     config["quiet"] = get_first_non_none_value(
         config_from_cli, key="quiet", default=False
@@ -75,6 +87,7 @@ def pytask_parse_config(
     multiple=True,
     type=str,
     help="A filename pattern to exclude files from the cleaning process.",
+    callback=falsy_to_none_callback,
 )
 @click.option(
     "--mode",
@@ -109,7 +122,7 @@ def clean(**config_from_cli: Any) -> NoReturn:
         exc_info: tuple[
             type[BaseException], BaseException, TracebackType | None
         ] = sys.exc_info()
-        console.print(render_exc_info(*exc_info, config["show_locals"]))
+        console.print(render_exc_info(*exc_info))
 
     else:
         try:
@@ -198,6 +211,7 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
         paths_known_by_git = get_all_files(session.config["root"])
         absolute_paths_known_by_git = [git_root.joinpath(p) for p in paths_known_by_git]
         known_paths.update(absolute_paths_known_by_git)
+        known_paths.add(git_root / ".git")
 
     return known_paths
 
@@ -268,20 +282,21 @@ class _RecursivePathNode:
         inside a directory.
 
         """
+        # Spawn subnodes for a directory, but only if the directory is not excluded.
         sub_nodes = (
             [
                 _RecursivePathNode.from_path(p, known_paths, exclude)
                 for p in path.iterdir()
             ]
             if path.is_dir()
-            # Do not collect sub files and folders for ignored folders.
+            # Do not collect sub files and folders for excluded folders.
             and not any(path.match(pattern) for pattern in exclude)
             else []
         )
 
         is_unknown_file = path.is_file() and not (
             path in known_paths
-            # Ignored files are also known.
+            # Excluded files are also known.
             or any(path.match(pattern) for pattern in exclude)
         )
         is_unknown_directory = (

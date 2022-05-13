@@ -74,7 +74,7 @@ def test_clean_with_excluded_file_via_config(project, runner, flag, pattern):
         f"[tool.pytask.ini_options]\nexclude = [{pattern!r}]"
     )
 
-    result = runner.invoke(cli, ["clean", flag, project.as_posix()])
+    result = runner.invoke(cli, ["clean", flag, pattern, project.as_posix()])
 
     assert result.exit_code == ExitCode.OK
     text_without_linebreaks = result.output.replace("\n", "")
@@ -220,3 +220,4 @@ def test_dont_remove_files_tracked_by_git(runner, git_project):
     assert result.exit_code == ExitCode.OK
     assert "tracked.txt" not in result.output
     assert "in_tracked.txt" not in result.output
+    assert ".git" not in result.output

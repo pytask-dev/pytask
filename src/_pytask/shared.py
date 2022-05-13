@@ -112,7 +112,7 @@ def parse_value_or_multiline_option(value: str | None) -> None | str | list[str]
     """Parse option which can hold a single value or values separated by new lines."""
     if value in ["none", "None", None, ""]:
         return None
-    elif isinstance(value, list):
+    elif isinstance(value, (list, tuple)):
         return list(map(str, value))
     elif isinstance(value, str) and "\n" in value:
         return [v.strip() for v in value.split("\n") if v.strip()]
