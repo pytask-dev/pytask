@@ -25,12 +25,7 @@ from rich.text import Text
 hookimpl = pluggy.HookimplMarker("pytask")
 
 
-_IGNORED_FOLDERS: list[str] = [
-    ".git/*",
-    ".hg/*",
-    ".svn/*",
-    ".venv/*",
-]
+_IGNORED_FOLDERS: list[str] = [".git/*", ".hg/*", ".svn/*", ".venv/*"]
 
 
 _IGNORED_FILES: list[str] = [

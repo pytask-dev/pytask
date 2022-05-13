@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
-_DEFAULT_EXCLUDE = [".git"]
+_DEFAULT_EXCLUDE: list[str] = [".git/*", ".hg/*", ".svn/*"]
 
 
 _HELP_TEXT_MODE = (
