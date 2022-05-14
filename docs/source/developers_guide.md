@@ -36,6 +36,8 @@ The following list covers all steps of a release cycle.
 
 ## Profiling the application
 
+### `cProfile`
+
 To profile pytask, you can follow this
 [video](https://www.youtube.com/watch?v=qiZyDLEJHh0) (it also features explanations for
 `git bisect`, caching, and profiling tools). We use {mod}`cProfile` with
@@ -49,4 +51,12 @@ The profile can be visualized with
 ```console
 $ pip install yelp-gprof2dot
 $ gprof2dot log.pstats | dot -T svg -o out.svg
+```
+
+### `importtime`
+
+To measure how long it takes to import pytask, use
+
+```console
+$ python -X importtime -c "import pytask"
 ```

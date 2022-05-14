@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pandas as pd
 import pytask
 from click.testing import CliRunner
@@ -20,6 +22,10 @@ def task_warning(produces):
 if __name__ == "__main__":
     runner = CliRunner()
 
+    path = Path(__file__).parent
+
     pytask.console.record = True
     runner.invoke(pytask.cli, [__file__])
     pytask.console.save_svg("warning.svg", title="pytask")
+
+    path.joinpath("df.pkl").unlink()

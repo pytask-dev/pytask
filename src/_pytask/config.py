@@ -25,12 +25,7 @@ from rich.text import Text
 hookimpl = pluggy.HookimplMarker("pytask")
 
 
-_IGNORED_FOLDERS: list[str] = [
-    ".git/*",
-    ".hg/*",
-    ".svn/*",
-    ".venv/*",
-]
+_IGNORED_FOLDERS: list[str] = [".git/*", ".hg/*", ".svn/*", ".venv/*"]
 
 
 _IGNORED_FILES: list[str] = [
@@ -42,6 +37,7 @@ _IGNORED_FILES: list[str] = [
     "readthedocs.yml",
     "readthedocs.yaml",
     "environment.yml",
+    "pyproject.toml",
     "pytask.ini",
     "setup.cfg",
     "tox.ini",
