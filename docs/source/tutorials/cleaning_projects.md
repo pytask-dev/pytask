@@ -29,7 +29,8 @@ Files which are under version control with git are excluded from the cleaning pr
 If other files or directories should be excluded as well, you can use the
 {option}`pytask clean --exclude` option or the `exclude` key in the configuration file.
 
-The value can be a Unix filename pattern which is documented in {mod}`fnmatch`.
+The value can be a Unix filename pattern which is documented in {mod}`fnmatch` and
+supports the wildcard character `*` for any characters and other symbols.
 
 Here is an example where the `obsolete_folder` is excluded from the cleaning process.
 
