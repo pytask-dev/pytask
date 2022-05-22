@@ -157,7 +157,7 @@ def test_deprecation_warnings_are_not_captured(tmp_path, warning):
     assert "warning!!!" not in result.stdout.decode()
 
 
-def test_multiple_occurrences_of_warning(tmp_path, runner):
+def test_multiple_occurrences_of_warning_are_reduced(tmp_path, runner):
     source = """
     import warnings
     import pytask
@@ -175,4 +175,4 @@ def test_multiple_occurrences_of_warning(tmp_path, runner):
     assert result.exit_code == ExitCode.OK
     assert "Warnings" in result.output
     assert "warning!!!" in result.output
-    assert result.output.count("task_example") == 41
+    assert result.output.count("task_example") == 31

@@ -249,7 +249,9 @@ class WarningsNameSpace:
                 grouped_warnings[warning.message].append(location)
             sorted_gw = {k: sorted(v) for k, v in grouped_warnings.items()}
 
-            renderable = MyRenderable(sorted_gw)
+            reduced_gw = _reduce_grouped_warnings(sorted_gw)
+
+            renderable = MyRenderable(reduced_gw)
 
             panel = Panel(renderable, title="Warnings", style="warning")
             console.print(panel)
@@ -271,3 +273,19 @@ class MyRenderable:
             "[bold red]♥[/bold red] "
             + "https://pytask-dev.rtdf.io/en/stable/how_to_guides/capture_warnings.html"
         )
+
+
+def _reduce_grouped_warnings(
+    grouped_warnings: dict[str, list[str]], max_locations: int = 5
+) -> dict[str, list[str]]:
+    """Reduce grouped warnings."""
+    reduced_gw = {}
+    for message, locations in grouped_warnings.items():
+        if len(locations) > max_locations:
+            adjusted_locations = locations[:max_locations]
+            n_more_locations = len(locations[max_locations:])
+            adjusted_locations.append(f"... in {n_more_locations} more locations.")
+        else:
+            adjusted_locations = locations
+        reduced_gw[message] = adjusted_locations
+    return reduced_gw
