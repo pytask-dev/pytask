@@ -11,6 +11,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`277` ignores `DeprecationWarning` and `PendingDeprecationWarning` by default.
   Previously, they were enabled, but they should be shown when testing the project with
   pytest, not after the execution with pytask. Fixes {issue}`269`.
+- {pull}`278` counts multiple occurrences of a warning instead of listing the module or
+  task name again and again. Fixes {issue}`270`.
 
 ## 0.2.2 - 2022-05-14
 
