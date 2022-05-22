@@ -1,10 +1,16 @@
 """This module contains all functions related to git."""
 from __future__ import annotations
 
+import shutil
 import subprocess
 from os import PathLike
 from pathlib import Path
 from typing import Any
+
+
+def is_git_installed() -> bool:
+    """Check if git is installed."""
+    return shutil.which("git") is not None
 
 
 def cmd_output(*cmd: str, **kwargs: Any) -> tuple[int, str, str]:
@@ -48,6 +54,6 @@ def get_root(cwd: PathLike[str] | None) -> Path | None:
         _, stdout, _ = cmd_output("git", "rev-parse", "--show-cdup", cwd=cwd)
         root = Path(cwd) / stdout.strip()
     except subprocess.CalledProcessError:
-        # Either git is not installed or user is not in git repo.
+        # User is not in git repo.
         root = None
     return root

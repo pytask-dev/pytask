@@ -20,6 +20,7 @@ from _pytask.console import console
 from _pytask.exceptions import CollectionError
 from _pytask.git import get_all_files
 from _pytask.git import get_root
+from _pytask.git import is_git_installed
 from _pytask.nodes import Task
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
@@ -206,12 +207,15 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
     known_paths.add(session.config["database_filename"])
 
     # Add files tracked by git.
-    git_root = get_root(session.config["root"])
-    if git_root is not None:
-        paths_known_by_git = get_all_files(session.config["root"])
-        absolute_paths_known_by_git = [git_root.joinpath(p) for p in paths_known_by_git]
-        known_paths.update(absolute_paths_known_by_git)
-        known_paths.add(git_root / ".git")
+    if is_git_installed():
+        git_root = get_root(session.config["root"])
+        if git_root is not None:
+            paths_known_by_git = get_all_files(session.config["root"])
+            absolute_paths_known_by_git = [
+                git_root.joinpath(p) for p in paths_known_by_git
+            ]
+            known_paths.update(absolute_paths_known_by_git)
+            known_paths.add(git_root / ".git")
 
     return known_paths
 
