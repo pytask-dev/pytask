@@ -119,3 +119,19 @@ def test_disable_warnings_with_config(tmp_path, runner, add_config):
     assert result.exit_code == ExitCode.OK
     assert ("Warnings" in result.output) is not add_config
     assert ("warning!!!" in result.output) is not add_config
+
+
+@pytest.mark.parametrize("warning", ["DeprecationWarning", "PendingDeprecationWarning"])
+def test_deprecation_warnings_are_not_captured(tmp_path, runner, warning):
+    source = f"""
+    import warnings
+
+    def task_example():
+        warnings.warn("warning!!!", {warning})
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "Warnings" not in result.output
+    assert "warning!!!" not in result.output
