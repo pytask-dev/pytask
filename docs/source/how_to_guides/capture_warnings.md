@@ -78,28 +78,6 @@ configured by the `filterwarnings` configuration option.
 Although not recommended, you can use the `--disable-warnings` command-line option to
 suppress the warning summary entirely from the test run output.
 
-## `DeprecationWarning` and `PendingDeprecationWarning`
-
-By default pytask will display `DeprecationWarning` and `PendingDeprecationWarning`
-warnings from user code and third-party libraries. This helps users keep their code
-modern and avoid breakages when deprecated warnings are effectively removed.
-
-Sometimes it is useful to hide some specific deprecation warnings that happen in code
-that you have no control over (such as third-party libraries), in which case you might
-use the warning filters options (ini or marks) to ignore those warnings.
-
-For example:
-
-```toml
-[tool.pytask.ini_options]
-filterwarnings  = [
-    "ignore:.*U.*mode is deprecated:DeprecationWarning"
-]
-```
-
-This will ignore all warnings of type `DeprecationWarning` where the start of the
-message matches the regular expression `".*U.*mode is deprecated"`.
-
 ## Debugging warnings
 
 Sometimes it is not clear which line of code triggered a warning. To find the location,

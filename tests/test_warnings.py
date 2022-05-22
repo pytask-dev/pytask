@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 import textwrap
 
 import pytest
@@ -119,3 +120,38 @@ def test_disable_warnings_with_config(tmp_path, runner, add_config):
     assert result.exit_code == ExitCode.OK
     assert ("Warnings" in result.output) is not add_config
     assert ("warning!!!" in result.output) is not add_config
+
+
+@pytest.mark.parametrize("warning", ["DeprecationWarning", "PendingDeprecationWarning"])
+def test_deprecation_warnings_are_not_captured(tmp_path, warning):
+    path_to_warn_module = tmp_path.joinpath("warning.py")
+    source = """
+    import importlib.util
+    import sys
+    from pathlib import Path
+
+    def task_example():
+        spec = importlib.util.spec_from_file_location(
+            "warning", Path(__file__).parent / "warning.py"
+        )
+        warning_module = importlib.util.module_from_spec(spec)
+        sys.modules["warning"] = warning_module
+        spec.loader.exec_module(warning_module)
+        warning_module.warn_now()
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    warn_module = f"""
+    import warnings
+
+    def warn_now():
+        warnings.warn("warning!!!", {warning})
+    """
+    path_to_warn_module.write_text(textwrap.dedent(warn_module))
+
+    # Cannot use runner since then warnings are not ignored by default.
+    result = subprocess.run(("pytask"), cwd=tmp_path, capture_output=True)
+
+    assert result.returncode == ExitCode.OK
+    assert "Warnings" not in result.stdout.decode()
+    assert "warning!!!" not in result.stdout.decode()

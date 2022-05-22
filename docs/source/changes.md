@@ -8,6 +8,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 ## 0.2.3 - 2022-xx-xx
 
 - {pull}`276` fixes `pytask clean` when git is not installed. Fixes {issue}`275`.
+- {pull}`277` ignores `DeprecationWarning` and `PendingDeprecationWarning` by default.
+  Previously, they were enabled, but they should be shown when testing the project with
+  pytest, not after the execution with pytask. Fixes {issue}`269`.
 
 ## 0.2.2 - 2022-05-14
 

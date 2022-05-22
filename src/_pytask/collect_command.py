@@ -126,8 +126,8 @@ def _find_common_ancestor_of_all_nodes(
     for task in tasks:
         all_paths.append(task.path)
         if show_nodes:
-            all_paths.extend(map(lambda x: x.path, tree_just_flatten(task.depends_on)))
-            all_paths.extend(map(lambda x: x.path, tree_just_flatten(task.produces)))
+            all_paths.extend(x.path for x in tree_just_flatten(task.depends_on))
+            all_paths.extend(x.path for x in tree_just_flatten(task.produces))
 
     common_ancestor = find_common_ancestor(*all_paths, *paths)
 

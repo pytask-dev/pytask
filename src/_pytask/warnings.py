@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import functools
 import re
-import sys
 import textwrap
 import warnings
 from collections import defaultdict
@@ -89,12 +88,6 @@ def catch_warnings_for_item(
     with warnings.catch_warnings(record=True) as log:
         # mypy can't infer that record=True means log is not None; help it.
         assert log is not None
-
-        if not sys.warnoptions:
-            # If user is not explicitly configuring warning filters, show deprecation
-            # warnings by default (#2908).
-            warnings.filterwarnings("always", category=DeprecationWarning)
-            warnings.filterwarnings("always", category=PendingDeprecationWarning)
 
         for arg in session.config["filterwarnings"]:
             warnings.filterwarnings(*parse_warning_filter(arg, escape=False))
