@@ -155,3 +155,24 @@ def test_deprecation_warnings_are_not_captured(tmp_path, warning):
     assert result.returncode == ExitCode.OK
     assert "Warnings" not in result.stdout.decode()
     assert "warning!!!" not in result.stdout.decode()
+
+
+def test_multiple_occurrences_of_warning(tmp_path, runner):
+    source = """
+    import warnings
+    import pytask
+
+    for i in range(10):
+
+        @pytask.mark.task
+        def task_example():
+            warnings.warn("warning!!!")
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "Warnings" in result.output
+    assert "warning!!!" in result.output
+    assert result.output.count("task_example") == 41
