@@ -5,10 +5,16 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.2.2 - 2022-xx-xx
+## 0.2.3 - 2022-xx-xx
+
+- {pull}`276` fixes `pytask clean` when git is not installed. Fixes {issue}`275`.
+
+## 0.2.2 - 2022-05-14
 
 - {pull}`267` fixes the info under the live execution table to show the total number of
   tasks also for pytask-parallel.
+- {pull}`273` reworks `pytask clean` so that it ignores files tracked by git. Resolves
+  {issue}`146`.
 
 ## 0.2.1 - 2022-04-28
 
