@@ -21,7 +21,7 @@ ______________________________________________________________________
 
 <!-- Keep in sync with docs/source/index.md -->
 
-pytask is a workflow management system which facilitates reproducible data analyses. Its
+pytask is a workflow management system that facilitates reproducible data analyses. Its
 features include:
 
 - **Automatic discovery of tasks.**
@@ -73,7 +73,7 @@ template or start from
 
 # Usage
 
-A task is a function which is detected if the module and the function name are prefixed
+A task is a function that is detected if the module and the function name are prefixed
 with `task_`. Here is an example.
 
 ```python
@@ -89,12 +89,12 @@ def task_hello_earth(produces):
 
 Here are some details:
 
-- Dependencies and products of a task are tracked via markers. For dependencies use
-  `@pytask.mark.depends_on` and for products use `@pytask.mark.produces`. Use strings
-  and `pathlib.Path` to specify the location.
-- Use `produces` (and `depends_on`) as function arguments to access the paths of the
-  dependencies and products inside the function. All values are converted to
-  `pathlib.Path`'s. Here, `produces` holds the path to `"hello_earth.txt"`.
+- Dependencies and products of a task are tracked via markers. Use
+  `@pytask.mark.depends_on` for dependencies and `@pytask.mark.produces` for products.
+  Values are strings or `pathlib.Path` and point to files on the disk.
+- Use `produces` (and `depends_on`) as function arguments to access the paths inside the
+  function. pytask converts all paths to `pathlib.Path`'s. Here, `produces` holds the
+  path to `"hello_earth.txt"`.
 
 To execute the task, enter `pytask` on the command-line
 
@@ -102,7 +102,7 @@ To execute the task, enter `pytask` on the command-line
 
 # Documentation
 
-The documentation can be found under <https://pytask-dev.readthedocs.io/en/stable> with
+You find the documentation <https://pytask-dev.readthedocs.io/en/stable> with
 [tutorials](https://pytask-dev.readthedocs.io/en/stable/tutorials/index.html) and guides
 for
 [best practices](https://pytask-dev.readthedocs.io/en/stable/how_to_guides/index.html).
@@ -121,12 +121,12 @@ pytask is distributed under the terms of the [MIT license](LICENSE).
 The license also includes a copyright and permission notice from
 [pytest](https://github.com/pytest-dev/pytest) since some modules, classes, and
 functions are copied from pytest. Not to mention how pytest has inspired the development
-of pytask in general. Without the amazing work of
+of pytask in general. Without the excellent work of
 [Holger Krekel](https://github.com/hpk42) and pytest's many contributors, this project
 would not have been possible. Thank you!
 
-pytask ows its beautiful appearance on the command line to
-[rich](https://github.com/Textualize/rich) written by
+pytask owes its beautiful appearance on the command line to
+[rich](https://github.com/Textualize/rich), written by
 [Will McGugan](https://github.com/willmcgugan).
 
 Repeating tasks in loops is inspired by [ward](https://github.com/darrenburns/ward)
@@ -135,7 +135,7 @@ written by [Darren Burns](https://github.com/darrenburns).
 # Citation
 
 If you rely on pytask to manage your research project, please cite it with the following
-key to help others to discover the tool.
+key to helping others to discover the tool.
 
 ```bibtex
 @Unpublished{Raabe2020,

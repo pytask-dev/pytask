@@ -1,10 +1,10 @@
 # Defining dependencies and products
 
-To ensure pytask executes all tasks in a correct order, define which dependencies are
+To ensure pytask executes all tasks in correct order, define which dependencies are
 required and which products are produced by a task.
 
 :::{important}
-If you do not specify dependencies and products as explained below, pytask will not able
+If you do not specify dependencies and products as explained below, pytask will not be able
 to build a graph, a {term}`DAG`, and will not be able to execute all tasks in the
 project correctly!
 :::
@@ -27,13 +27,12 @@ Optionally, you can use `produces` as an argument of the task function and get a
 the same path inside the task function.
 
 :::{tip}
-If you do not know about {mod}`pathlib` check out [^id3] and [^id4]. The module is very
-useful to handle paths conveniently and across platforms.
+If you do not know about {mod}`pathlib` check out [^id3] and [^id4]. The module is beneficial for handling paths conveniently and across platforms.
 :::
 
 ## Dependencies
 
-Most tasks have dependencies. Similar to products, you can use the
+Most tasks have dependencies. Like products, you can use the
 {func}`@pytask.mark.depends_on <pytask.mark.depends_on>` marker to attach a
 dependency to a task.
 
@@ -45,7 +44,7 @@ def task_plot_data(depends_on, produces):
     ...
 ```
 
-Use `depends_on` as a function argument to work with the path of the dependency and, for
+Use `depends_on` as a function argument to work with the dependency path and, for
 example, load the data.
 
 ## Conversion
@@ -63,14 +62,13 @@ def task_create_random_data(produces):
 ```
 
 If you use `depends_on` or `produces` as arguments for the task function, you will have
-access to the paths of the targets as {class}`pathlib.Path` even if strings were used
-before.
+access to the paths of the targets as {class}`pathlib.Path`.
 
 ## Multiple dependencies and products
 
-Most tasks have multiple dependencies or products. The easiest way to attach multiple
-dependencies or products to a task is to pass a {class}`dict` (highly recommended),
-{class}`list` or another iterator to the marker containing the paths.
+The easiest way to attach multiple dependencies or products to a task is to pass a
+{class}`dict` (highly recommended), {class}`list` or another iterator to the marker
+containing the paths.
 
 To assign labels to dependencies or products, pass a dictionary. For example,
 
@@ -108,19 +106,16 @@ keys are the positions in the list.
 {0: BLD / "data_0.pkl", 1: BLD / "data_1.pkl"}
 ```
 
-Why does pytask recommend dictionaries and even converts lists, tuples or other
+Why does pytask recommend dictionaries and convert lists, tuples, or other
 iterators to dictionaries? First, dictionaries with positions as keys behave very
-similar to lists.
+similarly to lists.
 
-Secondly, dictionaries use keys instead of positions which is more verbose and
-descriptive and does not assume a fixed ordering. Both attributes are especially
-desirable in complex projects.
+Secondly, dictionaries use keys instead of positions that are more verbose and descriptive and do not assume a fixed ordering. Both attributes are especially desirable in complex projects.
 
 ## Multiple decorators
 
-You can also attach multiple decorators to a function which will be merged into a single
-dictionary. This might help you to group certain dependencies and apply them to multiple
-tasks.
+pytask merges multiple decorators of one kind into a single dictionary. This might help
+you to group dependencies and apply them to multiple tasks.
 
 ```python
 common_dependencies = pytask.mark.depends_on(
@@ -143,12 +138,12 @@ Inside the task, `depends_on` will be
 
 ## Nested dependencies and products
 
-Dependencies and products are allowed to be nested containers consisting of tuples,
-lists, and dictionaries. It beneficial if you want more structure and nesting.
+Dependencies and products can be nested containers consisting of tuples, lists, and
+dictionaries. It is beneficial if you want more structure and nesting.
 
-Here is an example with a task which fits some model on data. It depends on a module
-containing the code for the model which is not actively used, but ensures that the task
-is rerun when the model is changed. And, it depends on data.
+Here is an example with a task that fits some model on data. It depends on a module
+containing the code for the model, which is not actively used but ensures that the task
+is rerun when the model is changed. And it depends on data.
 
 ```python
 @pytask.mark.depends_on(

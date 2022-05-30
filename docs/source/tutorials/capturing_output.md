@@ -1,7 +1,7 @@
 # Capturing output
 
 What is capturing? Some of your tasks may use {func}`print` statements, have progress
-bars, require user input or the libraries you are using show information during
+bars, require user input, or the libraries you are using show information during
 execution.
 
 Since the output would pollute the terminal and the information shown by pytask, it
@@ -13,15 +13,15 @@ the error.
 
 ## Default stdout/stderr/stdin capturing behavior
 
-During task execution any output sent to `stdout` and `stderr` is captured. If a task
-fails its captured output will usually be shown along with the failure traceback.
+Any output sent to `stdout` and `stderr` is captured during task execution. pytask
+displays it only if the task fails in addition to the traceback.
 
 In addition, `stdin` is set to a "null" object which will fail on attempts to read from
 it because it is rarely desired to wait for interactive input when running automated
 tasks.
 
-By default capturing is done by intercepting writes to low level file descriptors. This
-allows to capture output from simple {func}`print` statements as well as output from a
+By default, capturing is done by intercepting writes to low-level file descriptors. This
+allows capturing output from simple {func}`print` statements as well as output from a
 subprocess started by a task.
 
 ## Setting capturing methods or disabling capturing
