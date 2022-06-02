@@ -2,7 +2,7 @@
 
 Projects usually become cluttered with obsolete files after some time.
 
-To clean the project, type
+To clean the project, type `pytask clean`
 
 ```{image} /_static/images/clean-dry-run.svg
 ```
