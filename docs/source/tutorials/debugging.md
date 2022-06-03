@@ -12,8 +12,8 @@ find out the cause of the exception.
 ```{image} /_static/images/pdb.svg
 ```
 
-A following tutorial explains {doc}`how to select a subset of tasks <selecting_tasks>`.
-Combine it with the {option}`pytask build --pdb` flag to debug specific tasks.
+One tutorial explains {doc}`how to select a subset of tasks <selecting_tasks>`. Combine
+it with the {option}`pytask build --pdb` flag to debug specific tasks.
 
 ## Tracing
 

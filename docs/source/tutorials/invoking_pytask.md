@@ -1,6 +1,6 @@
 # Invoking pytask
 
-pytask is a command line program which can be invoked with
+You can invoke pytask on the command line with
 
 ```console
 $ pytask
@@ -15,7 +15,7 @@ $ pytask -h | --help
 
 ## Commands
 
-pytask has multiple commands which are listed in the main help page.
+pytask has multiple commands that are listed in the main help page.
 
 ```{image} /_static/images/help_page.svg
 ```
@@ -38,7 +38,7 @@ $ pytask <command-name> --help
 ## The build command
 
 The build command accepts among many options paths as positional arguments. If no paths
-are passed to the command line interface, pytask will look for the `paths` key in the
+are passed via the command line interface, pytask will look for the `paths` key in the
 configuration file. At last, pytask will collect tasks from the current working
 directory and subsequent folders.
 
@@ -55,7 +55,7 @@ might run your tasks with missing or outdated dependencies.
 
 ## Options
 
-Here are some useful options for the build command.
+Here are some valuable options for the build command.
 
 ### Showing errors immediately
 
@@ -65,12 +65,12 @@ To show errors immediately when they occur, use
 $ pytask --show-errors-immediately
 ```
 
-It can be useful when you have a long-running workflow, but want feedback as soon as it
+It can be helpful when you have a long-running workflow but want feedback as soon as it
 is available.
 
 ### Stopping after the first (N) failures
 
-To stop the build of the project after the first (N) failures use
+To stop the build of the project after the first `n` failures use
 
 ```console
 $ pytask -x | --stop-after-first-failure  # Stop after the first failure

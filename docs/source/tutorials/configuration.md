@@ -3,8 +3,8 @@
 pytask can be configured via the command-line interface or permanently with a
 `pyproject.toml` file.
 
-The file also indicates the root of your project where pytask stores information on
-whether tasks need to be executed or not in a `.pytask.sqlite3` database.
+The file also indicates the root of your project where pytask stores information in a
+`.pytask.sqlite3` database.
 
 :::{important}
 `pytask.ini`, `tox.ini`, and `setup.cfg` will be deprecated as configuration files for
@@ -15,8 +15,8 @@ your configuration in the `toml` format to facilitate the transition.
 
 ## The configuration file
 
-You only need to add the header to the configuration file if you want to indicate the
-root of your project.
+You only need to add the header to the configuration file to indicate the root of your
+project.
 
 ```toml
 [tool.pytask.ini_options]
@@ -47,9 +47,9 @@ The second option is to let pytask try to find the configuration itself.
 1. Find the common base directory of all paths passed to pytask (default to the current
    working directory).
 2. Starting from this directory, look at all parent directories, and return the file if
-   it is found.
-3. If a directory contains a `.git` directory/file, a `.hg` directory or a valid
-   configuration file with the right section stop searching.
+   it exists.
+3. If a directory contains a `.git` directory/file, a `.hg` directory, or a valid
+   configuration file with the right section, stop searching.
 
 ## The options
 
