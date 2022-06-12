@@ -1,13 +1,12 @@
 # Repeating tasks with different inputs
 
-You want to define a task which should be repeated over a range of inputs? Loop over
-your task function!
+Do you want to repeat a task over a range of inputs? Loop over your task function!
 
 :::{important}
-Before v0.2.0, pytask supported only one approach to repeat tasks. It is called also
-called parametrizations and similarly to pytest it is using a
-{func}`@pytask.mark.parametrize <pytask.mark.parametrize>` decorator. If you
-want to know more about it, you can find it
+Before v0.2.0, pytask supported only one approach to repeat tasks. It is also called
+parametrizations, and similarly to pytest, it uses a
+{func}`@pytask.mark.parametrize <pytask.mark.parametrize>` decorator. If you want to
+know more about it, you can find it
 {doc}`here <../how_to_guides/repeating_tasks_with_different_inputs_the_pytest_way>`.
 
 Here you find the new and preferred approach.
@@ -15,13 +14,12 @@ Here you find the new and preferred approach.
 
 ## An example
 
-We reuse the task from the previous {doc}`tutorial <write_a_task>` which generates
-random data and repeat the same operation over a number of seeds to receive multiple,
+We reuse the task from the previous {doc}`tutorial <write_a_task>`, which generates
+random data and repeats the same operation over several seeds to receive multiple,
 reproducible samples.
 
-Apply the {func}`@pytask.mark.task <pytask.mark.task>` decorator, loop over the
-function and supply different seeds and output paths as default arguments of the
-function.
+Apply the {func}`@pytask.mark.task <pytask.mark.task>` decorator, loop over the function
+and supply different seeds and output paths as default arguments of the function.
 
 ```python
 import numpy as np
@@ -45,9 +43,9 @@ Executing pytask gives you this:
 
 You can also use decorators to supply values to the function.
 
-To specify a dependency which is the same for all iterations, add it with
-{func}`@pytask.mark.depends_on <pytask.mark.depends_on>`. And add a product
-with {func}`@pytask.mark.produces <pytask.mark.produces>`
+To specify a dependency that is the same for all iterations, add it with
+{func}`@pytask.mark.depends_on <pytask.mark.depends_on>`. And add a product with
+{func}`@pytask.mark.produces <pytask.mark.produces>`
 
 ```python
 for i in range(10):
@@ -64,8 +62,8 @@ for i in range(10):
 
 ## The id
 
-Every task has a unique id which can be used to {doc}`select it <selecting_tasks>`.
-The normal id combines the path to the module where the task is defined, a double colon,
+Every task has a unique id that can be used to {doc}`select it <selecting_tasks>`. The
+standard id combines the path to the module where the task is defined, a double colon,
 and the name of the task function. Here is an example.
 
 ```
@@ -81,8 +79,8 @@ More powerful are user-defined ids.
 
 ### User-defined ids
 
-The {func}`@pytask.mark.task <pytask.mark.task>` decorator has an `id` keyword
-which allows the user to set the a special name for the iteration.
+The {func}`@pytask.mark.task <pytask.mark.task> decorator has an `id` keyword, allowing
+the user to set a unique name for the iteration.
 
 ```python
 for seed, id_ in [(0, "first"), (1, "second")]:
@@ -104,8 +102,8 @@ task_data_preparation.py::task_create_random_data[second]
 Parametrizations are becoming more complex quickly. Often, you need to supply many
 arguments and ids to tasks.
 
-To organize your ids and arguments use nested dictionaries where keys are ids and values
-are dictionaries mapping from argument names to values.
+To organize your ids and arguments, use nested dictionaries where keys are ids and
+values are dictionaries mapping from argument names to values.
 
 ```python
 ID_TO_KWARGS = {
@@ -130,9 +128,9 @@ for id_, kwargs in ID_TO_KWARGS.items():
         ...
 ```
 
-Unpacking all the arguments can become tedious. Use instead the `kwargs` argument of the
-{func}`@pytask.mark.task <pytask.mark.task>` decorator to pass keyword arguments
-to the task.
+Unpacking all the arguments can become tedious. Instead, use the `kwargs` argument of
+the {func}`@pytask.mark.task <pytask.mark.task>` decorator to pass keyword arguments to
+the task.
 
 ```python
 for id_, kwargs in ID_TO_KWARGS.items():
@@ -142,9 +140,7 @@ for id_, kwargs in ID_TO_KWARGS.items():
         ...
 ```
 
-As a last step to organize our code even more, we can write a function which creates
-`ID_TO_KWARGS`. You can hide the creation of input and output paths and other arguments
-in this function.
+Writing a function that creates `ID_TO_KWARGS` would be even more pythonic.
 
 ```python
 def create_parametrization():
@@ -171,10 +167,10 @@ goes into even more detail on how to scale parametrizations.
 
 ## A warning on globals
 
-The following example serves as a warning against accidentally using running variables
-in your task definition.
+The following example warns against accidentally using running variables in your task
+definition.
 
-You won't run into these problems if you strictly use the interfaces explained below.
+You won't run into these problems if you strictly use the below-mentioned interfaces.
 
 Look at this repeated task which runs three times and tries to produce a text file with
 some content.
@@ -194,11 +190,10 @@ for i in range(3):
         path_to_product.write_text("I use running globals. How funny.")
 ```
 
-If you would execute these tasks, pytask would collect three tasks as expected. But,
-only the last task for `i = 2` would succeed.
+If you executed these tasks, pytask would collect three tasks as expected. But, only the
+last task for `i = 2` would succeed.
 
-The other tasks would fail and the report will state that the text files `out_0.txt` and
-`out_1.txt` have not been created.
+The other tasks would fail because they did not produce `out_0.txt` and `out_1.txt`.
 
 Why did the first two tasks fail?
 
@@ -207,13 +202,13 @@ Why did the first two tasks fail?
 The problem with this example is the running variable `i` which is a global variable
 with changing state.
 
-When the task module is imported, all three task functions are created and the
-`@pytask.mark.produces <pytask.mark.produces>` decorator receives the correct reference to the produced file.
+When pytask imports the task module, it collects all three task functions, each of them
+having the correct product assigned.
 
-But, when the task is executed, the value of the variable `i = 2` which is the last
-state of `i` after the loop has completed.
+But, when pytask executes the tasks, the running variable `i` in the function body is 2,
+or the last state of the loop.
 
-So, all three tasks are creating the same file `out_2.txt`.
+So, all three tasks create the same file, `out_2.txt`.
 
 The solution is to use the intended channels to pass variables to tasks which are the
 `kwargs` argument of `@pytask.mark.task <pytask.mark.task>` or the default value in the
