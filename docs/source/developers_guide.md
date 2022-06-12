@@ -1,5 +1,17 @@
 # Developer's Guide
 
+## Testing
+
+Run pytest to execute the test suite.
+
+The test suite creates many temporary directories. There is usually a limit on the
+number of open file descriptors on Unix systems which causes some tests and the end of
+the test suite to fail. If that happens, increase the limit with the following command.
+
+```console
+$ ulimit -n 4096
+```
+
 ## How to release
 
 The following list covers all steps of a release cycle.
