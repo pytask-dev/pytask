@@ -175,4 +175,5 @@ def test_multiple_occurrences_of_warning_are_reduced(tmp_path, runner):
     assert result.exit_code == ExitCode.OK
     assert "Warnings" in result.output
     assert "warning!!!" in result.output
-    assert result.output.count("task_example") == 31
+    # One occurrence is sometimes clipped.
+    assert result.output.count("task_example") in [30, 31]
