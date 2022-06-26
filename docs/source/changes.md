@@ -5,7 +5,15 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.2.3 - 2022-xx-xx
+## 0.2.4 - 2022-xx-xx
+
+- {pull}`279` enhances some tutorials with spell and grammar checking.
+- {pull}`282` updates the tox configuration.
+- {pull}`283` fixes an issue with coverage and tests using pexpect + `pdb.set_trace()`.
+- {pull}`285` implements that pytask does not show the traceback of tasks which are
+  skipped because its previous task failed. Fixes {issue}`284`.
+
+## 0.2.3 - 2022-05-30
 
 - {pull}`276` fixes `pytask clean` when git is not installed. Fixes {issue}`275`.
 - {pull}`277` ignores `DeprecationWarning` and `PendingDeprecationWarning` by default.
