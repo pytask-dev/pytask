@@ -37,6 +37,25 @@ def test_task_did_not_produce_node(tmp_path):
 
 
 @pytest.mark.end_to_end
+def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.produces(["1.txt", "2.txt"])
+    def task_example():
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.FAILED
+    assert "NodeNotFoundError" in result.output
+    assert "1.txt" in result.output
+    assert "2.txt" in result.output
+
+
+@pytest.mark.end_to_end
 def test_node_not_found_in_task_setup(tmp_path):
     """Test for :class:`_pytask.exceptions.NodeNotFoundError` in task setup.
 
