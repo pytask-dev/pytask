@@ -18,4 +18,3 @@ This list contains 0 plugins.
 
 
 .. only:: latex
-
