@@ -99,8 +99,8 @@ task_data_preparation.py::task_create_random_data[second]
 
 ## Complex example
 
-Parametrizations are becoming more complex quickly. Often, you need to supply many
-arguments and ids to tasks.
+Parametrizations are becoming more complex quickly. Often, there are many tasks with ids
+and arguments.
 
 To organize your ids and arguments, use nested dictionaries where keys are ids and
 values are dictionaries mapping from argument names to values.
@@ -170,7 +170,7 @@ goes into even more detail on how to scale parametrizations.
 The following example warns against accidentally using running variables in your task
 definition.
 
-You won't run into these problems if you strictly use the below-mentioned interfaces.
+You won't encounter these problems if you strictly use the below-mentioned interfaces.
 
 Look at this repeated task which runs three times and tries to produce a text file with
 some content.
