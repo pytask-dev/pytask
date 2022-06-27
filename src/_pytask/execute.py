@@ -28,6 +28,7 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
+from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
@@ -180,7 +181,7 @@ def pytask_execute_task_teardown(session: Session, task: Task) -> None:
                 missing_nodes.append(node)
 
     if missing_nodes:
-        paths = [str(i.path) for i in missing_nodes]
+        paths = [reduce_node_name(i, session.config["paths"]) for i in missing_nodes]
         formatted = format_strings_as_flat_tree(
             paths, "The task did not produce the following files:\n", ""
         )
