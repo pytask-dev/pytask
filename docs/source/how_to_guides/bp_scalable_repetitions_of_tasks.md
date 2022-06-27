@@ -1,28 +1,27 @@
-# Scalable repititions of tasks
+# Scalable repetitions of tasks
 
-This section gives advice on how to use repitions to quickly scale your project.
+This section advises on how to use repetitions to scale your project quickly.
 
 ## TL;DR
 
-- Loop over dictionaries which map ids to `kwargs` to create multiple tasks.
+- Loop over dictionaries that map ids to `kwargs` to create multiple tasks.
 - Create the dictionary with a separate function.
 - Create functions to build intermediate objects like output paths which can be shared
   more easily across tasks than the generated values.
 
 ## Scalability
 
-Parametrizations allow to scale tasks from $1$ to $N$ in a simple way. What is easily
+Parametrizations allow scaling tasks from $1$ to $N$ in a simple way. What is easily
 overlooked is that parametrizations usually trigger other parametrizations and the
 growth in tasks is more $1$ to $N \cdot M \cdot \dots$ or $1$ to $N^{M \cdot \dots}$.
 
-To keep the resulting complexity as manageable as possible, this guide lays out a
-structure which is simple, modular, and scalable.
+This guide lays out a simple, modular, and scalable structure to fight complexity.
 
-As an example, assume we have four datasets with one binary dependent variables and some
-independent variables. On each of the data sets, we fit three models, a linear model, a
-logistic model, and a decision tree. In total, we have $4 \cdot 3 = 12$ tasks.
+For example, assume we have four datasets with one binary dependent variable and some
+independent variables. We fit three models on each data set: a linear model, a logistic
+model, and a decision tree. In total, we have $4 \cdot 3 = 12$ tasks.
 
-First, let us take a look at the folder and file structure of such a project.
+First, let us look at the folder and file structure of such a project.
 
 ```
 my_project
@@ -56,12 +55,12 @@ my_project
 └───bld
 ```
 
-The folder structure, the main `config.py` which holds `SRC` and `BLD` and the tasks
-follow the same structure which is advocated for throughout the tutorials.
+The folder structure, the main `config.py` which holds `SRC` and `BLD`, and the tasks
+follow the same structure advocated throughout the tutorials.
 
-What is new are the local configuration files in each of the subfolders of `my_project`
-which contain objects which are shared across tasks. For example, `config.py` holds the
-paths to the processed data and the names of the data sets.
+What is new are the local configuration files in each subfolder of `my_project`, which
+contain objects shared across tasks. For example, `config.py` holds the paths to the
+processed data and the names of the data sets.
 
 ```python
 # Content of config.py
@@ -81,8 +80,7 @@ def path_to_processed_data(name):
     return BLD / "data" / f"processed_{name}.pkl"
 ```
 
-In the task file `task_prepare_data.py`, these objects are used to build the
-parametrization.
+The task file `task_prepare_data.py` uses these objects to build the parametrization.
 
 ```python
 # Content of task_prepare_data.py
@@ -115,8 +113,8 @@ for id_, kwargs in _ID_TO_KWARGS.items():
 ```
 
 All arguments for the loop and the {func}`@pytask.mark.task <pytask.mark.task>`
-decorator are built within a function to keep the logic in one place and the namespace
-of the module clean.
+decorator is built within a function to keep the logic in one place and the module's
+namespace clean.
 
 Ids are used to make the task {ref}`ids <ids>` more descriptive and to simplify their
 selection with {ref}`expressions <expressions>`. Here is an example of the task ids with
@@ -152,15 +150,15 @@ def path_to_estimation_result(name):
 ```
 
 In the local configuration, we define `ESTIMATIONS` which combines the information on
-data and model. The key of the dictionary can be used as a task id whenever the
-estimation is involved. This allows to trigger all tasks related to one estimation -
-estimation, figures, tables - with one command
+data and model. The dictionary's key can be used as a task id whenever the estimation is
+involved. It allows triggering all tasks related to one estimation - estimation,
+figures, tables - with one command.
 
 ```console
 pytask -k linear_probability_data_0
 ```
 
-And, here is the task file.
+And here is the task file.
 
 ```python
 # Content of task_estimate_models.py
@@ -198,13 +196,11 @@ for id_, kwargs in _ID_TO_KWARGS.items():
             ...
 ```
 
-Replicating this pattern across a project allows for a clean way to define
-parametrizations.
+Replicating this pattern across a project allows a clean way to define parametrizations.
 
 ## Extending parametrizations
 
-Some parametrized tasks are extremely expensive to run - be it in terms of computing
-power, memory or time. On the other hand, parametrizations are often extended which
-could also trigger all parametrizations to be rerun. Thus, use the
-{func}`@pytask.mark.persist <pytask.mark.persist>` decorator which is explained in more
-detail in this {doc}`tutorial <../tutorials/making_tasks_persist>`.
+Some parametrized tasks are costly to run - costly in terms of computing power, memory,
+or time. Users often extend parametrizations triggering all parametrizations to be
+rerun. Thus, use the {func}`@pytask.mark.persist <pytask.mark.persist>` decorator, which
+is explained in more detail in this {doc}`tutorial <../tutorials/making_tasks_persist>`.

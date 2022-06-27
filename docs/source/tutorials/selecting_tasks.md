@@ -1,13 +1,13 @@
 # Selecting tasks
 
-If you want to run only a subset of tasks, there exist multiple options.
+If you want to run only a subset of tasks, multiple options exist.
 
 (markers)=
 
 ## Markers
 
-If you assign markers to task functions, you can use marker expressions to select tasks.
-For example, here is a task with the `wip` marker which indicates work-in-progress.
+You can use marker expressions to select tasks if you assign markers to task functions.
+For example, here is a task with the `wip` marker, which indicates work-in-progress.
 
 ```python
 @pytask.mark.wip
@@ -15,22 +15,22 @@ def task_1():
     pass
 ```
 
-To execute only tasks with the `wip` marker, use
+Run this command in your terminal to execute only tasks with the `wip` marker.
 
 ```console
 $ pytask -m wip
 ```
 
 You can pass more complex expressions to {option}`pytask build -m` by using multiple
-markers and `and`, `or`, `not`, and `()`. The following pattern selects all tasks which
-belong to the data management, but not the ones which produce plots and plots produced
-for the analysis.
+markers and `and`, `or`, `not`, and `()`. The following pattern selects all tasks that
+belong to the data management but not those that produce plots and plots for the
+analysis.
 
 ```console
 $ pytask -m "(data_management and not plots) or (analysis and plots)"
 ```
 
-If you create your own markers, use {confval}`markers` to register and document them.
+If you create your markers, use {confval}`markers` to register and document them.
 
 (expressions)=
 
@@ -52,25 +52,23 @@ def task_12():
     pass
 ```
 
-Then,
+Then, the following command will run the first and third tasks.
 
 ```console
 $ pytask -k 1
 ```
 
-will execute the first and third task and
+The following command will only execute the first task.
 
 ```console
 $ pytask -k "1 and not 2"
 ```
 
-executes only the first task.
+This command only runs the first two tasks.
 
 ```console
 $ pytask -k "1 or 2 and not 12"
 ```
-
-executes the first two tasks.
 
 To execute a single task, say `task_run_this_one` in `task_example.py`, use
 
@@ -94,15 +92,15 @@ for i in range(2):
         ...
 ```
 
-To run the task where `i = 1`, type
+To run the task where `i = 1`, run this command.
 
 ```console
-$ pytask -k task_parametrized[1]
+$ pytask -k "task_parametrized[1]"
 ```
 
-Booleans, floats, integers, and strings are used in the task id as they are, but all
-other Python objects like tuples are replaced with a combination of the argument name
-and an iteration counter. Multiple arguments are separated via dashes.
+pytask uses booleans, floats, integers, and strings in the task id. It replaces other
+Python objects like tuples with a combination of the argument name and an iteration
+counter and separates multiple arguments via dashes.
 
 :::{seealso}
 Read this {ref}`section <how-to-repeat-a-task-with-different-inputs-the-id>` for more
