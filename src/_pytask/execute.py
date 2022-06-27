@@ -11,6 +11,7 @@ from _pytask.config_utils import ShowCapture
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_task
+from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import format_task_id
 from _pytask.console import unify_styles
 from _pytask.dag import descending_tasks
@@ -27,6 +28,7 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
+from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
@@ -167,15 +169,23 @@ def pytask_execute_task(task: Task) -> bool:
 
 @hookimpl
 def pytask_execute_task_teardown(session: Session, task: Task) -> None:
-    """Check if each produced node was indeed produced."""
+    """Check if :class:`_pytask.nodes.FilePathNode` are produced by a task."""
+    missing_nodes = []
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
-        try:
-            node.state()
-        except NodeNotFoundError as e:
-            raise NodeNotFoundError(
-                f"{node.name} was not produced by {task.name}."
-            ) from e
+        if isinstance(node, FilePathNode):
+
+            try:
+                node.state()
+            except NodeNotFoundError:
+                missing_nodes.append(node)
+
+    if missing_nodes:
+        paths = [reduce_node_name(i, session.config["paths"]) for i in missing_nodes]
+        formatted = format_strings_as_flat_tree(
+            paths, "The task did not produce the following files:\n", ""
+        )
+        raise NodeNotFoundError(formatted)
 
 
 @hookimpl(trylast=True)

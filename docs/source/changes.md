@@ -12,6 +12,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`283` fixes an issue with coverage and tests using pexpect + `pdb.set_trace()`.
 - {pull}`285` implements that pytask does not show the traceback of tasks which are
   skipped because its previous task failed. Fixes {issue}`284`.
+- {pull}`287` changes that all files that are not produced by a task are displayed in
+  the error message. Fixes {issue}`262`.
 
 ## 0.2.3 - 2022-05-30
 
