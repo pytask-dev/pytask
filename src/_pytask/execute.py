@@ -250,7 +250,10 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
             console.print()
 
         for report in reports:
-            if report.outcome in (TaskOutcome.FAIL, TaskOutcome.SKIP_PREVIOUS_FAILED):
+            if report.outcome == TaskOutcome.FAIL or (
+                report.outcome == TaskOutcome.SKIP_PREVIOUS_FAILED
+                and session.config["verbose"] >= 2
+            ):
                 _print_errored_task_report(session, report)
 
     console.rule(style="dim")
