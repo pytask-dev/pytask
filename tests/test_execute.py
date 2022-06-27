@@ -46,10 +46,9 @@ def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path)
         pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("pyproject.toml").touch()
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-
-    print(result.output)
 
     assert result.exit_code == ExitCode.FAILED
     assert "NodeNotFoundError" in result.output
