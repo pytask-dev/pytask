@@ -5,7 +5,11 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.2.4 - 2022-xx-xx
+## 0.2.5 - 2022-xx-xx
+
+- {pull}`288` fixes pinning pybaum to v0.1.1 or a version that supports `tree_yield()`.
+
+## 0.2.4 - 2022-06-28
 
 - {pull}`279` enhances some tutorials with spell and grammar checking.
 - {pull}`282` updates the tox configuration.
