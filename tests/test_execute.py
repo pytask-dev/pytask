@@ -349,3 +349,14 @@ def test_traceback_of_previous_task_failed_is_not_shown(runner, tmp_path, verbos
     assert ("Task task_example.py::task_second failed" in result.output) is (
         verbose == 2
     )
+
+
+@pytest.mark.end_to_end
+def test_dry_run(runner, tmp_path):
+    tmp_path.joinpath("task_example.py").write_text("def task_example(): ...")
+
+    result = runner.invoke(cli, ["--dry-run", tmp_path.as_posix()])
+
+    print(result.output)
+    assert result.exit_code == ExitCode.OK
+    assert "1  Would be executed" in result.output

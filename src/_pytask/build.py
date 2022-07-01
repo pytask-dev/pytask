@@ -126,6 +126,7 @@ def main(config_from_cli: dict[str, Any]) -> Session:
         "[dim]\\[default: True][/]"
     ),
 )
+@click.option("--dry-run", type=bool, is_flag=True, help="Perform a dry-run.")
 def build(**config_from_cli: Any) -> NoReturn:
     """Collect tasks, execute them and report the results.
 
