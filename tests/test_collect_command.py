@@ -470,4 +470,4 @@ def test_task_name_is_shortened(runner, tmp_path):
 
     assert result.exit_code == ExitCode.OK
     assert "task_example.py::task_example" in result.output
-    assert "a/b/" not in result.output
+    assert "a/b/task_example.py::task_example" not in result.output
