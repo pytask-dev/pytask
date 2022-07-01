@@ -8,6 +8,7 @@ import pytest
 from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
 from pytask import cli
+from pytask import ExitCode
 from pytask import MetaNode
 from pytask import Task
 
@@ -27,6 +28,7 @@ def test_collect_task(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_module.py>" in captured
@@ -35,6 +37,7 @@ def test_collect_task(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_module.py>" in captured
@@ -61,6 +64,7 @@ def test_collect_parametrized_tasks(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "").replace("\u2502", "")
     assert "<Module" in captured
     assert "task_module.py>" in captured
@@ -90,6 +94,7 @@ def test_collect_task_with_expressions(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "-k", "_1"])
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_module.py>" in captured
@@ -100,6 +105,7 @@ def test_collect_task_with_expressions(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "-k", "_1", "--nodes"])
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_module.py>" in captured
@@ -140,6 +146,7 @@ def test_collect_task_with_marker(runner, tmp_path, config_name):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "-m", "wip"])
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_module.py>" in captured
@@ -152,6 +159,7 @@ def test_collect_task_with_marker(runner, tmp_path, config_name):
         cli, ["collect", tmp_path.as_posix(), "-m", "wip", "--nodes"]
     )
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_module.py>" in captured
@@ -190,6 +198,7 @@ def test_collect_task_with_marker_toml(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "-m", "wip"])
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_module.py>" in captured
@@ -202,6 +211,7 @@ def test_collect_task_with_marker_toml(runner, tmp_path):
         cli, ["collect", tmp_path.as_posix(), "-m", "wip", "--nodes"]
     )
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_module.py>" in captured
@@ -243,6 +253,7 @@ def test_collect_task_with_ignore_from_config(runner, tmp_path, config_name):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_example_1.py>" in captured
@@ -254,6 +265,7 @@ def test_collect_task_with_ignore_from_config(runner, tmp_path, config_name):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_example_1.py>" in captured
@@ -295,6 +307,7 @@ def test_collect_task_with_ignore_from_config_toml(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_example_1.py>" in captured
@@ -306,6 +319,7 @@ def test_collect_task_with_ignore_from_config_toml(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_example_1.py>" in captured
@@ -343,6 +357,7 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
         cli, ["collect", tmp_path.as_posix(), "--ignore", "task_example_2.py"]
     )
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_example_1.py>" in captured
@@ -357,6 +372,7 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
         ["collect", tmp_path.as_posix(), "--ignore", "task_example_2.py", "--nodes"],
     )
 
+    assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
     assert "task_example_1.py>" in captured
@@ -398,7 +414,6 @@ def test_print_collected_tasks_without_nodes(capsys):
     _print_collected_tasks(dictionary, False, "file", Path())
 
     captured = capsys.readouterr().out
-
     assert "<Module task_path.py>" in captured
     assert "<Function task_path.py::function>" in captured
     assert "<Dependency in.txt>" not in captured
@@ -444,3 +459,15 @@ def test_find_common_ancestor_of_all_nodes(show_nodes, expected_add):
 
     result = _find_common_ancestor_of_all_nodes(tasks, [Path.cwd() / "src"], show_nodes)
     assert result == Path.cwd().joinpath(expected_add).resolve()
+
+
+@pytest.mark.end_to_end
+def test_task_name_is_shortened(runner, tmp_path):
+    tmp_path.joinpath("a", "b").mkdir(parents=True)
+    tmp_path.joinpath("a", "b", "task_example.py").write_text("def task_example(): ...")
+
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "task_example.py::task_example" in result.output
+    assert "a/b/task_example.py::task_example" not in result.output

@@ -8,6 +8,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 ## 0.2.5 - 2022-xx-xx
 
 - {pull}`288` fixes pinning pybaum to v0.1.1 or a version that supports `tree_yield()`.
+- {pull}`289` shortens the task ids when using `pytask collect`. Fixes {issue}`286`.
 
 ## 0.2.4 - 2022-06-28
 
