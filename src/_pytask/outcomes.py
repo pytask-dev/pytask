@@ -103,6 +103,7 @@ class TaskOutcome(Enum):
     SKIP = auto()
     SKIP_PREVIOUS_FAILED = auto()
     FAIL = auto()
+    WOULD_BE_EXECUTED = auto()
 
     @property
     def symbol(self) -> str:
@@ -216,6 +217,10 @@ class SkippedUnchanged(PytaskOutcome):
 
 class Persisted(PytaskOutcome):
     """Outcome if task should persist."""
+
+
+class WouldBeExecuted(PytaskOutcome):
+    """Outcome if a task would be executed."""
 
 
 class Exit(Exception):
