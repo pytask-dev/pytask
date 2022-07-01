@@ -25,6 +25,7 @@ from _pytask.nodes import Task
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
+from _pytask.outcomes import WouldBeExecuted
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
@@ -153,17 +154,20 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task(task: Task) -> bool:
+def pytask_execute_task(session: Session, task: Task) -> bool:
     """Execute task."""
-    kwargs = {**task.kwargs}
+    if session.config["dry_run"]:
+        raise WouldBeExecuted()
+    else:
+        kwargs = {**task.kwargs}
 
-    func_arg_names = set(inspect.signature(task.function).parameters)
-    for arg_name in ("depends_on", "produces"):
-        if arg_name in func_arg_names:
-            attribute = getattr(task, arg_name)
-            kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
+        func_arg_names = set(inspect.signature(task.function).parameters)
+        for arg_name in ("depends_on", "produces"):
+            if arg_name in func_arg_names:
+                attribute = getattr(task, arg_name)
+                kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
 
-    task.execute(**kwargs)
+        task.execute(**kwargs)
     return True
 
 
@@ -201,6 +205,8 @@ def pytask_execute_task_process_report(
     task = report.task
     if report.outcome == TaskOutcome.SUCCESS:
         update_states_in_database(session.dag, task.name)
+    elif report.exc_info and isinstance(report.exc_info[1], WouldBeExecuted):
+        report.outcome = TaskOutcome.WOULD_BE_EXECUTED
     else:
         for descending_task_name in descending_tasks(task.name, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]

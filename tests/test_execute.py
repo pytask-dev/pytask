@@ -353,10 +353,86 @@ def test_traceback_of_previous_task_failed_is_not_shown(runner, tmp_path, verbos
 
 @pytest.mark.end_to_end
 def test_dry_run(runner, tmp_path):
-    tmp_path.joinpath("task_example.py").write_text("def task_example(): ...")
+    source = """
+    import pytask
+
+    @pytask.mark.produces("out.txt")
+    def task_example(produces):
+        produces.touch()
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, ["--dry-run", tmp_path.as_posix()])
 
-    print(result.output)
     assert result.exit_code == ExitCode.OK
     assert "1  Would be executed" in result.output
+    assert not tmp_path.joinpath("out.txt").exists()
+
+
+@pytest.mark.end_to_end
+def test_dry_run_skip(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.skip
+    def task_example_skip(): ...
+
+    @pytask.mark.produces("out.txt")
+    def task_example(produces):
+        produces.touch()
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["--dry-run", tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "1  Would be executed" in result.output
+    assert "1  Skipped" in result.output
+    assert not tmp_path.joinpath("out.txt").exists()
+
+
+@pytest.mark.end_to_end
+def test_dry_run_skipped_successul(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.produces("out.txt")
+    def task_example(produces):
+        produces.touch()
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+
+    result = runner.invoke(cli, ["--dry-run", tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "1  Skipped because unchanged" in result.output
+
+
+@pytest.mark.end_to_end
+def test_dry_run_persisted(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.persist
+    @pytask.mark.produces("out.txt")
+    def task_example(produces):
+        produces.touch()
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+
+    tmp_path.joinpath("out.txt").write_text("Changed text file.")
+
+    result = runner.invoke(cli, ["--dry-run", tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "1  Persisted" in result.output
