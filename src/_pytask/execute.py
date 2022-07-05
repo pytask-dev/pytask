@@ -20,6 +20,7 @@ from _pytask.database import update_states_in_database
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
+from _pytask.mark_utils import has_mark
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import Task
 from _pytask.outcomes import count_outcomes
@@ -152,6 +153,10 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
         if isinstance(node, FilePathNode):
             node.path.parent.mkdir(parents=True, exist_ok=True)
 
+    would_be_executed = has_mark(task, "would_be_executed")
+    if would_be_executed:
+        raise WouldBeExecuted
+
 
 @hookimpl(trylast=True)
 def pytask_execute_task(session: Session, task: Task) -> bool:
@@ -207,6 +212,16 @@ def pytask_execute_task_process_report(
         update_states_in_database(session.dag, task.name)
     elif report.exc_info and isinstance(report.exc_info[1], WouldBeExecuted):
         report.outcome = TaskOutcome.WOULD_BE_EXECUTED
+
+        for descending_task_name in descending_tasks(task.name, session.dag):
+            descending_task = session.dag.nodes[descending_task_name]["task"]
+            descending_task.markers.append(
+                Mark(
+                    "would_be_executed",
+                    (),
+                    {"reason": f"Previous task {task.name!r} would be executed."},
+                )
+            )
     else:
         for descending_task_name in descending_tasks(task.name, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]
