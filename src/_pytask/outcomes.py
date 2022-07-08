@@ -103,6 +103,7 @@ class TaskOutcome(Enum):
     SKIP = auto()
     SKIP_PREVIOUS_FAILED = auto()
     FAIL = auto()
+    WOULD_BE_EXECUTED = auto()
 
     @property
     def symbol(self) -> str:
@@ -114,6 +115,7 @@ class TaskOutcome(Enum):
             TaskOutcome.SKIP: "s",
             TaskOutcome.SKIP_PREVIOUS_FAILED: "F",
             TaskOutcome.FAIL: "F",
+            TaskOutcome.WOULD_BE_EXECUTED: "w",
         }
         assert len(symbols) == len(TaskOutcome)
         return symbols[self]
@@ -128,6 +130,7 @@ class TaskOutcome(Enum):
             TaskOutcome.SKIP: "Skipped",
             TaskOutcome.SKIP_PREVIOUS_FAILED: "Skipped because previous failed",
             TaskOutcome.FAIL: "Failed",
+            TaskOutcome.WOULD_BE_EXECUTED: "Would be executed",
         }
         assert len(descriptions) == len(TaskOutcome)
         return descriptions[self]
@@ -142,6 +145,7 @@ class TaskOutcome(Enum):
             TaskOutcome.SKIP: "skipped",
             TaskOutcome.SKIP_PREVIOUS_FAILED: "failed",
             TaskOutcome.FAIL: "failed",
+            TaskOutcome.WOULD_BE_EXECUTED: "success",
         }
         assert len(styles) == len(TaskOutcome)
         return styles[self]
@@ -156,6 +160,7 @@ class TaskOutcome(Enum):
             TaskOutcome.SKIP: "skipped.textonly",
             TaskOutcome.SKIP_PREVIOUS_FAILED: "failed.textonly",
             TaskOutcome.FAIL: "failed.textonly",
+            TaskOutcome.WOULD_BE_EXECUTED: "success.textonly",
         }
         assert len(styles_textonly) == len(TaskOutcome)
         return styles_textonly[self]
@@ -216,6 +221,10 @@ class SkippedUnchanged(PytaskOutcome):
 
 class Persisted(PytaskOutcome):
     """Outcome if task should persist."""
+
+
+class WouldBeExecuted(PytaskOutcome):
+    """Outcome if a task would be executed."""
 
 
 class Exit(Exception):

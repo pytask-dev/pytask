@@ -20,11 +20,13 @@ from _pytask.database import update_states_in_database
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
+from _pytask.mark_utils import has_mark
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import Task
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
+from _pytask.outcomes import WouldBeExecuted
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
@@ -151,19 +153,26 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
         if isinstance(node, FilePathNode):
             node.path.parent.mkdir(parents=True, exist_ok=True)
 
+    would_be_executed = has_mark(task, "would_be_executed")
+    if would_be_executed:
+        raise WouldBeExecuted
+
 
 @hookimpl(trylast=True)
-def pytask_execute_task(task: Task) -> bool:
+def pytask_execute_task(session: Session, task: Task) -> bool:
     """Execute task."""
-    kwargs = {**task.kwargs}
+    if session.config["dry_run"]:
+        raise WouldBeExecuted()
+    else:
+        kwargs = {**task.kwargs}
 
-    func_arg_names = set(inspect.signature(task.function).parameters)
-    for arg_name in ("depends_on", "produces"):
-        if arg_name in func_arg_names:
-            attribute = getattr(task, arg_name)
-            kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
+        func_arg_names = set(inspect.signature(task.function).parameters)
+        for arg_name in ("depends_on", "produces"):
+            if arg_name in func_arg_names:
+                attribute = getattr(task, arg_name)
+                kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
 
-    task.execute(**kwargs)
+        task.execute(**kwargs)
     return True
 
 
@@ -201,6 +210,18 @@ def pytask_execute_task_process_report(
     task = report.task
     if report.outcome == TaskOutcome.SUCCESS:
         update_states_in_database(session.dag, task.name)
+    elif report.exc_info and isinstance(report.exc_info[1], WouldBeExecuted):
+        report.outcome = TaskOutcome.WOULD_BE_EXECUTED
+
+        for descending_task_name in descending_tasks(task.name, session.dag):
+            descending_task = session.dag.nodes[descending_task_name]["task"]
+            descending_task.markers.append(
+                Mark(
+                    "would_be_executed",
+                    (),
+                    {"reason": f"Previous task {task.name!r} would be executed."},
+                )
+            )
     else:
         for descending_task_name in descending_tasks(task.name, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]

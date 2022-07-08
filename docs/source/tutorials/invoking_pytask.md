@@ -76,3 +76,15 @@ To stop the build of the project after the first `n` failures use
 $ pytask -x | --stop-after-first-failure  # Stop after the first failure
 $ pytask --max-failures 2                 # Stop after the second failure
 ```
+
+### Performing a dry-run
+
+If you want to see which tasks would be executed without executing them, you can do a
+dry-run.
+
+```console
+$ pytask --dry-run
+```
+
+```{image} /_static/images/dry-run.svg
+```
