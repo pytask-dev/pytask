@@ -27,6 +27,7 @@ def test_dry_run(runner, tmp_path):
 
 @pytest.mark.end_to_end
 def test_dry_run_w_subsequent_task(runner, tmp_path):
+    """Subsequent tasks would be executed if their previous task changed."""
     source = """
     import pytask
 
@@ -61,6 +62,7 @@ def test_dry_run_w_subsequent_task(runner, tmp_path):
 
 @pytest.mark.end_to_end
 def test_dry_run_w_subsequent_skipped_task(runner, tmp_path):
+    """A skip is more important than a would be run."""
     source = """
     import pytask
 
@@ -135,7 +137,28 @@ def test_dry_run_skip(runner, tmp_path):
 
 
 @pytest.mark.end_to_end
-def test_dry_run_skipped_successul(runner, tmp_path):
+def test_dry_run_skip_all(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.skip
+    @pytask.mark.produces("out.txt")
+    def task_example_skip(): ...
+
+    @pytask.mark.skip
+    @pytask.mark.depends_on("out.txt")
+    def task_example_skip_subsequent(): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["--dry-run", tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "2  Skipped" in result.output
+
+
+@pytest.mark.end_to_end
+def test_dry_run_skipped_successful(runner, tmp_path):
     source = """
     import pytask
 
