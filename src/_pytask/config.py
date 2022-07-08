@@ -246,6 +246,8 @@ def pytask_parse_config(
         config_from_file.get("sort_table", True)
     )
 
+    config["dry_run"] = config_from_cli.get("dry_run", False)
+
 
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
