@@ -79,10 +79,12 @@ def pytask_resolve_dependencies_create_dag(tasks: list[Task]) -> nx.DiGraph:
         dag.add_node(task.name, task=task)
 
         tree_map(lambda x: dag.add_node(x.name, node=x), task.depends_on)
-        tree_map(lambda x: dag.add_edge(x.name, task.name), task.depends_on)
+        tree_map(
+            lambda x: dag.add_edge(x.name, task.name), task.depends_on  # noqa: B023
+        )
 
         tree_map(lambda x: dag.add_node(x.name, node=x), task.produces)
-        tree_map(lambda x: dag.add_edge(task.name, x.name), task.produces)
+        tree_map(lambda x: dag.add_edge(task.name, x.name), task.produces)  # noqa: B023
 
     _check_if_dag_has_cycles(dag)
 
