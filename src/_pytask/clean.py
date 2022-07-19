@@ -16,22 +16,30 @@ import attr
 import click
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
-from _pytask.config import IGNORED_TEMPORARY_FILES_AND_FOLDERS
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
+from _pytask.git import get_all_files
+from _pytask.git import get_root
+from _pytask.git import is_git_installed
 from _pytask.nodes import Task
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
+from _pytask.shared import falsy_to_none_callback
 from _pytask.shared import get_first_non_none_value
+from _pytask.shared import parse_value_or_multiline_option
+from _pytask.shared import to_list
 from _pytask.traceback import render_exc_info
 from pybaum.tree_util import tree_just_yield
 
 
 if TYPE_CHECKING:
     from typing import NoReturn
+
+
+_DEFAULT_EXCLUDE: list[str] = [".git/*", ".hg/*", ".svn/*"]
 
 
 _HELP_TEXT_MODE = (
@@ -49,40 +57,44 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
+    config: dict[str, Any],
+    config_from_cli: dict[str, Any],
+    config_from_file: dict[str, Any],
 ) -> None:
     """Parse the configuration."""
-    config["mode"] = get_first_non_none_value(
-        config_from_cli, key="mode", default="dry-run"
+    config["directories"] = config_from_cli.get("directories", False)
+    cli_excludes = parse_value_or_multiline_option(config_from_cli.get("exclude"))
+    file_excludes = parse_value_or_multiline_option(config_from_file.get("exclude"))
+    config["exclude"] = (
+        to_list(cli_excludes or []) + to_list(file_excludes or []) + _DEFAULT_EXCLUDE
     )
+    config["mode"] = config_from_cli.get("mode", "dry-run")
     config["quiet"] = get_first_non_none_value(
         config_from_cli, key="quiet", default=False
     )
-    config["directories"] = get_first_non_none_value(
-        config_from_cli, key="directories", default=False
-    )
-
-
-@hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
-    """Correct ignore patterns such that caches, etc. will not be ignored."""
-    if config["command"] == "clean":
-        config["ignore"] = [
-            i for i in config["ignore"] if i not in IGNORED_TEMPORARY_FILES_AND_FOLDERS
-        ]
 
 
 @click.command(cls=ColoredCommand)
-@click.option(
-    "--mode",
-    type=click.Choice(["dry-run", "interactive", "force"]),
-    help=_HELP_TEXT_MODE,
-)
 @click.option(
     "-d",
     "--directories",
     is_flag=True,
     help="Remove whole directories. [dim]\\[default: False][/]",
+)
+@click.option(
+    "-e",
+    "--exclude",
+    metavar="PATTERN",
+    multiple=True,
+    type=str,
+    help="A filename pattern to exclude files from the cleaning process.",
+    callback=falsy_to_none_callback,
+)
+@click.option(
+    "--mode",
+    default="dry-run",
+    type=click.Choice(["dry-run", "interactive", "force"]),
+    help=_HELP_TEXT_MODE,
 )
 @click.option(
     "-q",
@@ -111,7 +123,7 @@ def clean(**config_from_cli: Any) -> NoReturn:
         exc_info: tuple[
             type[BaseException], BaseException, TracebackType | None
         ] = sys.exc_info()
-        console.print(render_exc_info(*exc_info, config["show_locals"]))
+        console.print(render_exc_info(*exc_info))
 
     else:
         try:
@@ -119,9 +131,10 @@ def clean(**config_from_cli: Any) -> NoReturn:
             session.hook.pytask_collect(session=session)
 
             known_paths = _collect_all_paths_known_to_pytask(session)
+            exclude = session.config["exclude"]
             include_directories = session.config["directories"]
             unknown_paths = _find_all_unknown_paths(
-                session, known_paths, include_directories
+                session, known_paths, exclude, include_directories
             )
             common_ancestor = find_common_ancestor(
                 *unknown_paths, *session.config["paths"]
@@ -193,6 +206,17 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
     known_paths.add(session.config["root"])
     known_paths.add(session.config["database_filename"])
 
+    # Add files tracked by git.
+    if is_git_installed():
+        git_root = get_root(session.config["root"])
+        if git_root is not None:
+            paths_known_by_git = get_all_files(session.config["root"])
+            absolute_paths_known_by_git = [
+                git_root.joinpath(p) for p in paths_known_by_git
+            ]
+            known_paths.update(absolute_paths_known_by_git)
+            known_paths.add(git_root / ".git")
+
     return known_paths
 
 
@@ -206,7 +230,10 @@ def _yield_paths_from_task(task: Task) -> Generator[Path, None, None]:
 
 
 def _find_all_unknown_paths(
-    session: Session, known_paths: set[Path], include_directories: bool
+    session: Session,
+    known_paths: set[Path],
+    exclude: tuple[str, ...],
+    include_directories: bool,
 ) -> list[Path]:
     """Find all unknown paths.
 
@@ -215,7 +242,7 @@ def _find_all_unknown_paths(
 
     """
     recursive_nodes = [
-        _RecursivePathNode.from_path(path, known_paths, session)
+        _RecursivePathNode.from_path(path, known_paths, exclude)
         for path in session.config["paths"]
     ]
     unknown_paths = list(
@@ -251,7 +278,7 @@ class _RecursivePathNode:
 
     @classmethod
     def from_path(
-        cls, path: Path, known_paths: Iterable[Path], session: Session
+        cls, path: Path, known_paths: Iterable[Path], exclude: tuple[str, ...]
     ) -> _RecursivePathNode:
         """Create a node from a path.
 
@@ -259,28 +286,29 @@ class _RecursivePathNode:
         inside a directory.
 
         """
+        # Spawn subnodes for a directory, but only if the directory is not excluded.
         sub_nodes = (
             [
-                _RecursivePathNode.from_path(p, known_paths, session)
+                _RecursivePathNode.from_path(p, known_paths, exclude)
                 for p in path.iterdir()
             ]
             if path.is_dir()
-            # Do not collect sub files and folders for ignored folders.
-            and not session.hook.pytask_ignore_collect(path=path, config=session.config)
+            # Do not collect sub files and folders for excluded folders.
+            and not any(path.match(pattern) for pattern in exclude)
             else []
         )
 
         is_unknown_file = path.is_file() and not (
             path in known_paths
-            # Ignored files are also known.
-            or session.hook.pytask_ignore_collect(path=path, config=session.config)
+            # Excluded files are also known.
+            or any(path.match(pattern) for pattern in exclude)
         )
         is_unknown_directory = (
             path.is_dir()
             # True for folders and ignored folders without any sub nodes.
             and all(node.is_unknown for node in sub_nodes)
             # True for not ignored paths.
-            and not session.hook.pytask_ignore_collect(path=path, config=session.config)
+            and not any(path.match(pattern) for pattern in exclude)
         )
         is_unknown = is_unknown_file or is_unknown_directory
 

@@ -25,12 +25,7 @@ from rich.text import Text
 hookimpl = pluggy.HookimplMarker("pytask")
 
 
-_IGNORED_FOLDERS: list[str] = [
-    ".git/*",
-    ".hg/*",
-    ".svn/*",
-    ".venv/*",
-]
+_IGNORED_FOLDERS: list[str] = [".git/*", ".hg/*", ".svn/*", ".venv/*"]
 
 
 _IGNORED_FILES: list[str] = [
@@ -42,6 +37,7 @@ _IGNORED_FILES: list[str] = [
     "readthedocs.yml",
     "readthedocs.yaml",
     "environment.yml",
+    "pyproject.toml",
     "pytask.ini",
     "setup.cfg",
     "tox.ini",
@@ -249,6 +245,8 @@ def pytask_parse_config(
     config["sort_table"] = convert_truthy_or_falsy_to_bool(
         config_from_file.get("sort_table", True)
     )
+
+    config["dry_run"] = config_from_cli.get("dry_run", False)
 
 
 @hookimpl

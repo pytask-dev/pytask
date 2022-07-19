@@ -5,10 +5,38 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.2.2 - 2022-xx-xx
+## 0.2.5 - 2022-xx-xx
+
+- {pull}`288` fixes pinning pybaum to v0.1.1 or a version that supports `tree_yield()`.
+- {pull}`289` shortens the task ids when using `pytask collect`. Fixes {issue}`286`.
+- {pull}`290` implements a dry-run with `pytask --dry-run` to see which tasks would be
+  executed.
+
+## 0.2.4 - 2022-06-28
+
+- {pull}`279` enhances some tutorials with spell and grammar checking.
+- {pull}`282` updates the tox configuration.
+- {pull}`283` fixes an issue with coverage and tests using pexpect + `pdb.set_trace()`.
+- {pull}`285` implements that pytask does not show the traceback of tasks which are
+  skipped because its previous task failed. Fixes {issue}`284`.
+- {pull}`287` changes that all files that are not produced by a task are displayed in
+  the error message. Fixes {issue}`262`.
+
+## 0.2.3 - 2022-05-30
+
+- {pull}`276` fixes `pytask clean` when git is not installed. Fixes {issue}`275`.
+- {pull}`277` ignores `DeprecationWarning` and `PendingDeprecationWarning` by default.
+  Previously, they were enabled, but they should be shown when testing the project with
+  pytest, not after the execution with pytask. Fixes {issue}`269`.
+- {pull}`278` counts multiple occurrences of a warning instead of listing the module or
+  task name again and again. Fixes {issue}`270`.
+
+## 0.2.2 - 2022-05-14
 
 - {pull}`267` fixes the info under the live execution table to show the total number of
   tasks also for pytask-parallel.
+- {pull}`273` reworks `pytask clean` so that it ignores files tracked by git. Resolves
+  {issue}`146`.
 
 ## 0.2.1 - 2022-04-28
 

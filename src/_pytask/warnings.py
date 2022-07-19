@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import functools
 import re
-import sys
 import textwrap
 import warnings
 from collections import defaultdict
@@ -89,12 +88,6 @@ def catch_warnings_for_item(
     with warnings.catch_warnings(record=True) as log:
         # mypy can't infer that record=True means log is not None; help it.
         assert log is not None
-
-        if not sys.warnoptions:
-            # If user is not explicitly configuring warning filters, show deprecation
-            # warnings by default (#2908).
-            warnings.filterwarnings("always", category=DeprecationWarning)
-            warnings.filterwarnings("always", category=PendingDeprecationWarning)
 
         for arg in session.config["filterwarnings"]:
             warnings.filterwarnings(*parse_warning_filter(arg, escape=False))
@@ -256,7 +249,9 @@ class WarningsNameSpace:
                 grouped_warnings[warning.message].append(location)
             sorted_gw = {k: sorted(v) for k, v in grouped_warnings.items()}
 
-            renderable = MyRenderable(sorted_gw)
+            reduced_gw = _reduce_grouped_warnings(sorted_gw)
+
+            renderable = MyRenderable(reduced_gw)
 
             panel = Panel(renderable, title="Warnings", style="warning")
             console.print(panel)
@@ -278,3 +273,19 @@ class MyRenderable:
             "[bold red]♥[/bold red] "
             + "https://pytask-dev.rtdf.io/en/stable/how_to_guides/capture_warnings.html"
         )
+
+
+def _reduce_grouped_warnings(
+    grouped_warnings: dict[str, list[str]], max_locations: int = 5
+) -> dict[str, list[str]]:
+    """Reduce grouped warnings."""
+    reduced_gw = {}
+    for message, locations in grouped_warnings.items():
+        if len(locations) > max_locations:
+            adjusted_locations = locations[:max_locations]
+            n_more_locations = len(locations[max_locations:])
+            adjusted_locations.append(f"... in {n_more_locations} more locations.")
+        else:
+            adjusted_locations = locations
+        reduced_gw[message] = adjusted_locations
+    return reduced_gw

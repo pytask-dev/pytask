@@ -126,8 +126,8 @@ def _find_common_ancestor_of_all_nodes(
     for task in tasks:
         all_paths.append(task.path)
         if show_nodes:
-            all_paths.extend(map(lambda x: x.path, tree_just_flatten(task.depends_on)))
-            all_paths.extend(map(lambda x: x.path, tree_just_flatten(task.produces)))
+            all_paths.extend(x.path for x in tree_just_flatten(task.depends_on))
+            all_paths.extend(x.path for x in tree_just_flatten(task.produces))
 
     common_ancestor = find_common_ancestor(*all_paths, *paths)
 
@@ -190,7 +190,10 @@ def _print_collected_tasks(
 
         for task in tasks:
             reduced_task_name = format_task_id(
-                task, editor_url_scheme=editor_url_scheme, relative_to=common_ancestor
+                task,
+                editor_url_scheme=editor_url_scheme,
+                short_name=True,
+                relative_to=common_ancestor,
             )
             task_branch = module_branch.add(
                 Text.assemble(TASK_ICON, "<Function ", reduced_task_name, ">"),

@@ -37,6 +37,25 @@ def test_task_did_not_produce_node(tmp_path):
 
 
 @pytest.mark.end_to_end
+def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.produces(["1.txt", "2.txt"])
+    def task_example():
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.FAILED
+    assert "NodeNotFoundError" in result.output
+    assert "1.txt" in result.output
+    assert "2.txt" in result.output
+
+
+@pytest.mark.end_to_end
 def test_node_not_found_in_task_setup(tmp_path):
     """Test for :class:`_pytask.exceptions.NodeNotFoundError` in task setup.
 
@@ -308,3 +327,25 @@ def test_show_errors_immediately(runner, tmp_path, show_errors_immediately):
         assert len(matches_traceback) == 2
     else:
         assert len(matches_traceback) == 1
+
+
+@pytest.mark.end_to_end
+@pytest.mark.parametrize("verbose", [1, 2])
+def test_traceback_of_previous_task_failed_is_not_shown(runner, tmp_path, verbose):
+    source = """
+    import pytask
+
+    @pytask.mark.produces("in.txt")
+    def task_first(): raise ValueError
+
+    @pytask.mark.depends_on("in.txt")
+    def task_second(): pass
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix(), "--verbose", str(verbose)])
+
+    assert result.exit_code == ExitCode.FAILED
+    assert ("Task task_example.py::task_second failed" in result.output) is (
+        verbose == 2
+    )

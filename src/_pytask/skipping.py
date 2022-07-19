@@ -49,7 +49,9 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 @hookimpl
 def pytask_execute_task_setup(task: Task) -> None:
     """Take a short-cut for skipped tasks during setup with an exception."""
-    is_unchanged = has_mark(task, "skip_unchanged")
+    is_unchanged = has_mark(task, "skip_unchanged") and not has_mark(
+        task, "would_be_executed"
+    )
     if is_unchanged:
         raise SkippedUnchanged
 

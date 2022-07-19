@@ -11,6 +11,7 @@ from _pytask.config_utils import ShowCapture
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_task
+from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import format_task_id
 from _pytask.console import unify_styles
 from _pytask.dag import descending_tasks
@@ -19,14 +20,17 @@ from _pytask.database import update_states_in_database
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
+from _pytask.mark_utils import has_mark
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import Task
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
+from _pytask.outcomes import WouldBeExecuted
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
+from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
@@ -149,33 +153,48 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
         if isinstance(node, FilePathNode):
             node.path.parent.mkdir(parents=True, exist_ok=True)
 
+    would_be_executed = has_mark(task, "would_be_executed")
+    if would_be_executed:
+        raise WouldBeExecuted
+
 
 @hookimpl(trylast=True)
-def pytask_execute_task(task: Task) -> bool:
+def pytask_execute_task(session: Session, task: Task) -> bool:
     """Execute task."""
-    kwargs = {**task.kwargs}
+    if session.config["dry_run"]:
+        raise WouldBeExecuted()
+    else:
+        kwargs = {**task.kwargs}
 
-    func_arg_names = set(inspect.signature(task.function).parameters)
-    for arg_name in ("depends_on", "produces"):
-        if arg_name in func_arg_names:
-            attribute = getattr(task, arg_name)
-            kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
+        func_arg_names = set(inspect.signature(task.function).parameters)
+        for arg_name in ("depends_on", "produces"):
+            if arg_name in func_arg_names:
+                attribute = getattr(task, arg_name)
+                kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
 
-    task.execute(**kwargs)
+        task.execute(**kwargs)
     return True
 
 
 @hookimpl
 def pytask_execute_task_teardown(session: Session, task: Task) -> None:
-    """Check if each produced node was indeed produced."""
+    """Check if :class:`_pytask.nodes.FilePathNode` are produced by a task."""
+    missing_nodes = []
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
-        try:
-            node.state()
-        except NodeNotFoundError as e:
-            raise NodeNotFoundError(
-                f"{node.name} was not produced by {task.name}."
-            ) from e
+        if isinstance(node, FilePathNode):
+
+            try:
+                node.state()
+            except NodeNotFoundError:
+                missing_nodes.append(node)
+
+    if missing_nodes:
+        paths = [reduce_node_name(i, session.config["paths"]) for i in missing_nodes]
+        formatted = format_strings_as_flat_tree(
+            paths, "The task did not produce the following files:\n", ""
+        )
+        raise NodeNotFoundError(formatted)
 
 
 @hookimpl(trylast=True)
@@ -191,6 +210,18 @@ def pytask_execute_task_process_report(
     task = report.task
     if report.outcome == TaskOutcome.SUCCESS:
         update_states_in_database(session.dag, task.name)
+    elif report.exc_info and isinstance(report.exc_info[1], WouldBeExecuted):
+        report.outcome = TaskOutcome.WOULD_BE_EXECUTED
+
+        for descending_task_name in descending_tasks(task.name, session.dag):
+            descending_task = session.dag.nodes[descending_task_name]["task"]
+            descending_task.markers.append(
+                Mark(
+                    "would_be_executed",
+                    (),
+                    {"reason": f"Previous task {task.name!r} would be executed."},
+                )
+            )
     else:
         for descending_task_name in descending_tasks(task.name, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]
@@ -250,7 +281,10 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
             console.print()
 
         for report in reports:
-            if report.outcome in (TaskOutcome.FAIL, TaskOutcome.SKIP_PREVIOUS_FAILED):
+            if report.outcome == TaskOutcome.FAIL or (
+                report.outcome == TaskOutcome.SKIP_PREVIOUS_FAILED
+                and session.config["verbose"] >= 2
+            ):
                 _print_errored_task_report(session, report)
 
     console.rule(style="dim")

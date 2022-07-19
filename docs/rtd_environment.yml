@@ -25,7 +25,7 @@ dependencies:
   - networkx >=2.4
   - pluggy
   - pony >=0.7.15
-  - pybaum
+  - pybaum >=0.1.1
   - pexpect
   - rich
   - tomli >=1.0.0

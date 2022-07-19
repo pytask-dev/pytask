@@ -6,10 +6,9 @@ available markers by using the `pytask markers` command.
 ```{image} /_static/images/markers.svg
 ```
 
-You can use your own markers to select tasks as explained in this
-{ref}`tutorial <markers>`.
+You can use your markers to select tasks as explained in this {ref}`tutorial <markers>`.
 
-If you create your own marker, register it in the configuration file with its name and a
+If you create your marker, register it in the configuration file with its name and a
 description.
 
 ```toml

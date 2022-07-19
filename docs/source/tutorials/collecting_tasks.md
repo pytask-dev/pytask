@@ -1,9 +1,9 @@
 # Collecting tasks
 
-If you want to inspect your project and see a summary of all the tasks in the projects,
-you can use the `pytask collect` command.
+If you want to inspect your project and see a summary of all the tasks, you can use the
+`pytask collect` command.
 
-For example, let us take the following task
+Let us take the following task.
 
 ```python
 # Content of task_module.py
@@ -22,13 +22,13 @@ Now, running `pytask collect` will produce the following output.
 ```{image} /_static/images/collect.svg
 ```
 
-If you want to have more information regarding dependencies and products of the task,
-append the {option}`pytask collect --nodes` flag.
+If you want to have more information regarding the dependencies and products of the
+task, append the {option}`pytask collect --nodes` flag.
 
 ```{image} /_static/images/collect-nodes.svg
 ```
 
-To restrict the set of tasks you are looking at, use markers, expression and ignore
+To restrict the set of tasks you are looking at, use markers, expressions and ignore
 patterns as usual.
 
 ## Further reading
