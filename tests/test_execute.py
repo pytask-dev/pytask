@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import subprocess
+import sys
 import textwrap
 
 import pytest
@@ -12,6 +13,7 @@ from pytask import main
 from pytask import TaskOutcome
 
 
+@pytest.mark.xfail(sys.platform == "win32", reason="See #293.")
 @pytest.mark.end_to_end
 def test_python_m_pytask(tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")

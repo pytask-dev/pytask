@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 import textwrap
 
 import pytest
@@ -122,6 +123,7 @@ def test_disable_warnings_with_config(tmp_path, runner, add_config):
     assert ("warning!!!" in result.output) is not add_config
 
 
+@pytest.mark.xfail(sys.platform == "win32", reason="See #293.")
 @pytest.mark.parametrize("warning", ["DeprecationWarning", "PendingDeprecationWarning"])
 def test_deprecation_warnings_are_not_captured(tmp_path, warning):
     path_to_warn_module = tmp_path.joinpath("warning.py")
