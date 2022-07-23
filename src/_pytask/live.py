@@ -19,6 +19,7 @@ from _pytask.report import CollectionReport
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
+from rich.box import ROUNDED
 from rich.live import Live
 from rich.status import Status
 from rich.style import Style
@@ -242,7 +243,7 @@ class LiveExecution:
         else:
             caption_kwargs = {}
 
-        table = Table(**caption_kwargs)
+        table = Table(**caption_kwargs, box=ROUNDED)
         table.add_column("Task", overflow="fold")
         table.add_column("Outcome")
         for report in relevant_reports:
