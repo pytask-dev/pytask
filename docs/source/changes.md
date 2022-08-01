@@ -11,6 +11,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`289` shortens the task ids when using `pytask collect`. Fixes {issue}`286`.
 - {pull}`290` implements a dry-run with `pytask --dry-run` to see which tasks would be
   executed.
+- {pull}`296` fixes a bug where the source code of wrapped function could not be
+  retrieved.
 
 ## 0.2.4 - 2022-06-28
 
