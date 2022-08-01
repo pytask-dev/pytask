@@ -216,6 +216,8 @@ def _get_source_lines(function: Callable[..., Any]) -> int:
     """Get the source line number of the function."""
     if isinstance(function, functools.partial):
         return _get_source_lines(function.func)
+    elif hasattr(function, "__wrapped__"):
+        return _get_source_lines(function.__wrapped__)  # type: ignore[attr-defined]
     else:
         return inspect.getsourcelines(function)[1]
 
