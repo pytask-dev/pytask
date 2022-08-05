@@ -388,8 +388,8 @@ def pytask_execute_task(session: Session, task: Task) -> Any:
 def pytask_execute_task_teardown(session: Session, task: Task) -> None:
     """Tear down task execution.
 
-    This hook is executed after the task has been executed. It allows to perform
-    clean-up operations or checks for missing products.
+    This hook is executed after the task has been executed. It allows to perform clean-
+    up operations or checks for missing products.
 
     """
 

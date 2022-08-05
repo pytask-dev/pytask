@@ -43,6 +43,11 @@ repos:
     rev: v1.20.2
     hooks:
     -   id: setup-cfg-fmt
+-   repo: https://github.com/myint/docformatter
+    rev: v1.3.1
+    hooks:
+    -   id: docformatter
+        args: [--in-place, --wrap-summaries, "88", --wrap-descriptions, "88", --blank]
 -   repo: https://github.com/psf/black
     rev: 22.6.0
     hooks:

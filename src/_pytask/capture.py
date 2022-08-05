@@ -136,12 +136,11 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 
 
 def _colorama_workaround() -> None:
-    """Ensure colorama is imported so that it attaches to the correct stdio
-    handles on Windows.
+    """Ensure colorama is imported so that it attaches to the correct stdio handles on
+    Windows.
 
-    colorama uses the terminal on import time. So if something does the
-    first import of colorama while I/O capture is active, colorama will
-    fail in various ways.
+    colorama uses the terminal on import time. So if something does the first import of
+    colorama while I/O capture is active, colorama will fail in various ways.
 
     """
     if sys.platform.startswith("win32"):
@@ -429,8 +428,8 @@ class FDCaptureBinary:
         return res
 
     def done(self) -> None:
-        """Stop capturing, restore streams, return original capture file,
-        seeked to position zero."""
+        """Stop capturing, restore streams, return original capture file, seeked to
+        position zero."""
         self._assert_state("done", ("initialized", "started", "suspended", "done"))
         if self._state == "done":
             return

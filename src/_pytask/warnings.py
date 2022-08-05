@@ -82,8 +82,10 @@ def catch_warnings_for_item(
     when: str | None = None,
 ) -> Generator[None, None, None]:
     """Context manager that catches warnings generated in the contained execution block.
-    ``item`` can be None if we are not in the context of an item execution.
-    Each warning captured triggers the ``pytest_warning_recorded`` hook.
+
+    ``item`` can be None if we are not in the context of an item execution. Each warning
+    captured triggers the ``pytest_warning_recorded`` hook.
+
     """
     with warnings.catch_warnings(record=True) as log:
         # mypy can't infer that record=True means log is not None; help it.
@@ -181,11 +183,8 @@ def parse_warning_filter(
 
 
 def _resolve_warning_category(category: str) -> type[Warning]:
-    """
-    Copied from warnings._getcategory, but changed so it lets exceptions (specially
-    ImportErrors) propagate so we can get access to their tracebacks (#9218).
-
-    """
+    """Copied from warnings._getcategory, but changed so it lets exceptions (specially
+    ImportErrors) propagate so we can get access to their tracebacks (#9218)."""
     __tracebackhide__ = True
     if not category:
         return Warning
