@@ -273,8 +273,11 @@ class TestCaptureIO:
         pytest.raises(TypeError, f.write, b"hello")
 
     def test_write_bytes_to_buffer(self):
-        """In python3, stdout / stderr are text io wrappers (exposing a buffer
-        property of the underlying bytestream).  See issue #1407
+        """In python3, stdout / stderr are text io wrappers (exposing a buffer property
+        of the underlying bytestream).
+
+        See issue #1407
+
         """
         f = capture.CaptureIO()
         f.buffer.write(b"foo\r\n")

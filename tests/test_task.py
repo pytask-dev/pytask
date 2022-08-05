@@ -360,9 +360,12 @@ def test_task_function_with_partialed_args(tmp_path, runner):
 
 @pytest.mark.end_to_end
 def test_parametrized_tasks_without_arguments_in_signature(tmp_path, runner):
-    """This happens when plugins replace the function with its own implementation. Then,
-    there is usually no point in adding arguments to the function signature. Or when
-    people build weird workarounds like the one below."""
+    """This happens when plugins replace the function with its own implementation.
+
+    Then, there is usually no point in adding arguments to the function signature. Or
+    when people build weird workarounds like the one below.
+
+    """
     source = f"""
     import pytask
     from pathlib import Path
