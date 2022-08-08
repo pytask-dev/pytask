@@ -35,16 +35,16 @@ repos:
     -   id: reorder-python-imports
         args: [--py37-plus, --add-import, 'from __future__ import annotations']
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.37.2
+    rev: v2.37.3
     hooks:
     -   id: pyupgrade
         args: [--py37-plus]
 -   repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v1.20.2
+    rev: v2.0.0
     hooks:
     -   id: setup-cfg-fmt
 -   repo: https://github.com/myint/docformatter
-    rev: v1.3.1
+    rev: v1.4
     hooks:
     -   id: docformatter
         args: [--in-place, --wrap-summaries, "88", --wrap-descriptions, "88", --blank]
@@ -53,7 +53,7 @@ repos:
     hooks:
     -   id: black
 -   repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 5.0.4
     hooks:
     -   id: flake8
         additional_dependencies: [
