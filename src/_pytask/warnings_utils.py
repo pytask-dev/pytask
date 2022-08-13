@@ -7,13 +7,15 @@ import warnings
 from contextlib import contextmanager
 from typing import cast
 from typing import Generator
-from typing import Tuple
+from typing import Tuple, TYPE_CHECKING
 
 import attr
 from _pytask.mark_utils import get_marks
 from _pytask.nodes import Task
 from _pytask.outcomes import Exit
-from _pytask.session import Session
+
+if TYPE_CHECKING:
+    from _pytask.session import Session
 
 
 __all__ = [
@@ -141,7 +143,7 @@ def parse_filterwarnings(x: str | list[str] | None) -> list[str]:
 
 @contextmanager
 def catch_warnings_for_item(
-    session: Session,
+    session: "Session",
     task: Task | None = None,
     when: str | None = None,
 ) -> Generator[None, None, None]:
