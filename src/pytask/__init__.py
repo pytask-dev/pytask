@@ -49,6 +49,9 @@ from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
+from _pytask.warnings_utils import parse_warning_filter
+from _pytask.warnings_utils import warning_record_to_str
+from _pytask.warnings_utils import WarningReport
 
 
 # This import must come last, otherwise a circular import occurs.
@@ -74,12 +77,14 @@ __all__ = [
     "main",
     "mark",
     "parse_nodes",
+    "parse_warning_filter",
     "produces",
     "remove_internal_traceback_frames_from_exc_info",
     "remove_marks",
     "remove_traceback_from_exc_info",
     "render_exc_info",
     "set_marks",
+    "warning_record_to_str",
     "CollectionError",
     "CollectionMetadata",
     "CollectionOutcome",
@@ -106,4 +111,5 @@ __all__ = [
     "SkippedUnchanged",
     "Task",
     "TaskOutcome",
+    "WarningReport",
 ]

@@ -5,7 +5,12 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.2.5 - 2022-xx-xx
+## 0.2.6 - 2022-xx-xx
+
+- {pull}`297` moves non-hook functions from `warnings.py` to `warnings_utils.py` and
+  publishes them so that pytask-parallel can import them.
+
+## 0.2.5 - 2022-08-02
 
 - {pull}`288` fixes pinning pybaum to v0.1.1 or a version that supports `tree_yield()`.
 - {pull}`289` shortens the task ids when using `pytask collect`. Fixes {issue}`286`.
