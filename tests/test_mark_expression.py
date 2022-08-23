@@ -190,11 +190,14 @@ def test_invalid_idents(ident: str) -> None:
 
 @pytest.mark.unit
 def test_backslash_not_treated_specially() -> None:
-    r"""When generating nodeids, if the source name contains special characters
-    like a newline, they are escaped into two characters like \n. Therefore, a
-    user will never need to insert a literal newline, only \n (two chars). So
-    mark expressions themselves do not support escaping, instead they treat
-    backslashes as regular identifier characters."""
+    r"""When generating nodeids, if the source name contains special characters like a
+    newline, they are escaped into two characters like \n.
+
+    Therefore, a user will never need to insert a literal newline, only \n (two chars).
+    So mark expressions themselves do not support escaping, instead they treat
+    backslashes as regular identifier characters.
+
+    """
     matcher = {r"\nfoo\n"}.__contains__
 
     assert evaluate(r"\nfoo\n", matcher)
