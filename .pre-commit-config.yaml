@@ -115,7 +115,7 @@ repos:
     rev: v2.2.1
     hooks:
     -   id: codespell
-        args: [-L hist,-L unparseable]
+        args: [-L hist,-L unparseable, -L falsy]
 -   repo: https://github.com/mgedmin/check-manifest
     rev: "0.48"
     hooks:
