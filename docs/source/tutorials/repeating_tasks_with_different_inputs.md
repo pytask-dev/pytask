@@ -79,7 +79,7 @@ More powerful are user-defined ids.
 
 ### User-defined ids
 
-The {func}`@pytask.mark.task <pytask.mark.task> decorator has an `id` keyword, allowing
+The {func}`@pytask.mark.task <pytask.mark.task>` decorator has an `id` keyword, allowing
 the user to set a unique name for the iteration.
 
 ```python
