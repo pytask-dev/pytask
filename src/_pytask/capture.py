@@ -122,8 +122,6 @@ def pytask_parse_config(
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Initialize the CaptureManager."""
-    _colorama_workaround()
-
     pluginmanager = config["pm"]
     capman = CaptureManager(config["capture"])
     pluginmanager.register(capman, "capturemanager")
@@ -133,21 +131,6 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 
 
 # Copied from pytest with slightly modified docstrings.
-
-
-def _colorama_workaround() -> None:
-    """Ensure colorama is imported so that it attaches to the correct stdio handles on
-    Windows.
-
-    colorama uses the terminal on import time. So if something does the first import of
-    colorama while I/O capture is active, colorama will fail in various ways.
-
-    """
-    if sys.platform.startswith("win32"):
-        try:
-            import colorama  # noqa: F401
-        except ImportError:
-            pass
 
 
 # IO Helpers.
