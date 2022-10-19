@@ -9,6 +9,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`297` moves non-hook functions from `warnings.py` to `warnings_utils.py` and
   publishes them so that pytask-parallel can import them.
+- {pull}`305` removes traces of colorama. Whatever it did should be handled by rich.
 
 ## 0.2.5 - 2022-08-02
 
