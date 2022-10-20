@@ -135,7 +135,7 @@
 <div><span class="r10">│     indexing.html#returning-a-view-versus-a-copy                                                   │</span></div>
 <div><span class="r10">│       df[df[&quot;a&quot;] &lt; 5][&quot;b&quot;] = 1                                                                     │</span></div>
 <div><span class="r10">│                                                                                                    │</span></div>
-<div><span class="r10">│ </span><span class="r11">♥</span><span class="r10"> https://pytask-dev.rtdf.io/en/stable/how_to_guides/capture_warnings.html                         │</span></div>
+<div><span class="r10">│ </span><span class="r11">♥</span><span class="r10"> https://pytask-dev.rtfd.io/en/stable/how_to_guides/capture_warnings.html                         │</span></div>
 <div><span class="r10">╰────────────────────────────────────────────────────────────────────────────────────────────────────╯</span></div>
 <div><span class="r1"></span><span class="r1">                                                                                                      </span></div>
                     </div>
