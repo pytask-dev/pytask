@@ -46,6 +46,17 @@ filterwarnings = [
 When a warning matches more than one option in the list, the action for the last
 matching option is performed.
 
+Individual warnings filters are specified as a sequence of fields separated by colons:
+
+```
+action:message:category:module:line
+```
+
+All fields are explained in
+[this section](https://docs.python.org/3/library/warnings.html#the-warnings-filter) of
+Python's documentation and there are also
+[more examples](https://docs.python.org/3/library/warnings.html#describing-warning-filters).
+
 ## `@pytask.mark.filterwarnings`
 
 You can use the `@pytask.mark.filterwarnings` to add warning filters to specific test
