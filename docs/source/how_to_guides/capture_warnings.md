@@ -24,14 +24,27 @@ def task_warning(produces):
 Running pytask produces
 
 ```{image} /_static/images/warning.svg
+
 ```
 
 ## Controlling warnings
 
-You can use the `filterwarnings` option in `pyproject.toml` to configure pytasks
-behavior to warnings. For example, the configuration below will ignore all user warnings
-and specific deprecation warnings matching a regex, but will transform all other
-warnings into errors.
+You can use the `filterwarnings` option in `pyproject.toml` to configure pytask's
+behavior when it comes to warnings.
+
+The syntax for specifying warnings filters is the same as in the
+[Python standard library](https://docs.python.org/3/library/warnings.html#the-warnings-filter),
+i.e., a sequence of fields separated by colons:
+
+```
+action:message:category:module:line
+```
+
+You can specify a list of such filters. When a warning matches more than one option, the
+action for the last matching option is performed.
+
+For example, the configuration below will ignore specific deprecation warnings matching
+a regex, all user warnings, and transform all other warnings into errors.
 
 ```toml
 [tool.pytask.ini_options]
@@ -43,8 +56,10 @@ filterwarnings = [
 ]
 ```
 
-When a warning matches more than one option in the list, the action for the last
-matching option is performed.
+The syntax is explained in more detail in
+[this section](https://docs.python.org/3/library/warnings.html#the-warnings-filter) of
+the Python documentation and there are also
+[more examples](https://docs.python.org/3/library/warnings.html#describing-warning-filters).
 
 ## `@pytask.mark.filterwarnings`
 

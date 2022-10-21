@@ -112,7 +112,7 @@ class MyRenderable:
             yield Padding.indent(message, 4)
         yield (
             "[bold red]♥[/bold red] "
-            + "https://pytask-dev.rtdf.io/en/stable/how_to_guides/capture_warnings.html"
+            + "https://pytask-dev.rtfd.io/en/stable/how_to_guides/capture_warnings.html"
         )
 
 
