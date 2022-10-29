@@ -10,11 +10,11 @@ from pytask import cli
 from pytask import ExitCode
 
 try:
-    import pydot  # noqa: F401
+    import pygraphviz  # noqa: F401
 except ImportError:  # pragma: no cover
-    _IS_PYDOT_INSTALLED = False
+    _IS_PYGRAPHVIZ_INSTALLED = False
 else:
-    _IS_PYDOT_INSTALLED = True
+    _IS_PYGRAPHVIZ_INSTALLED = True
 
 _GRAPH_LAYOUTS = ["neato", "dot", "fdp", "sfdp", "twopi", "circo"]
 
@@ -34,7 +34,7 @@ _TEST_FORMATS = ["dot", "pdf", "png", "jpeg", "svg"]
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(not _IS_PYDOT_INSTALLED, reason="pydot is required")
+@pytest.mark.skipif(not _IS_PYGRAPHVIZ_INSTALLED, reason="pygraphviz is required")
 @pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
 @pytest.mark.parametrize("rankdir", ["LR"])
@@ -70,7 +70,7 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.skipif(not _IS_PYDOT_INSTALLED, reason="pydot is required")
+@pytest.mark.skipif(not _IS_PYGRAPHVIZ_INSTALLED, reason="pygraphviz is required")
 @pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
 @pytest.mark.parametrize("rankdir", [_RankDirection.LR.value, _RankDirection.TB])
@@ -91,9 +91,9 @@ def test_create_graph_via_task(tmp_path, runner, format_, layout, rankdir):
     def task_create_graph():
         dag = pytask.build_dag({{"paths": Path(__file__).parent}})
         dag.graph = {{"rankdir": "{rankdir_str}"}}
-        graph = nx.nx_pydot.to_pydot(dag)
+        graph = nx.nx_agraph.to_agraph(dag)
         path = Path(__file__).parent.joinpath("dag.{format_}")
-        graph.write(path, prog="{layout}", format=path.suffix[1:])
+        graph.draw(path, prog="{layout}")
     """
 
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
@@ -124,7 +124,7 @@ def test_raise_error_with_graph_via_cli_missing_optional_dependency(
 
     monkeypatch.setattr(
         "_pytask.compat.importlib.import_module",
-        lambda x: _raise_exc(ImportError("pydot not found")),  # noqa: U100
+        lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: U100
     )
 
     result = runner.invoke(
@@ -133,8 +133,9 @@ def test_raise_error_with_graph_via_cli_missing_optional_dependency(
     )
 
     assert result.exit_code == ExitCode.FAILED
-    assert "pytask requires the optional dependency 'pydot'." in result.output
-    assert "pip or conda" in result.output
+    assert "pytask requires the optional dependency 'pygraphviz'." in result.output
+    assert "pip" in result.output
+    assert "conda" in result.output
     assert "Traceback" not in result.output
     assert not tmp_path.joinpath("dag.png").exists()
 
@@ -150,22 +151,23 @@ def test_raise_error_with_graph_via_task_missing_optional_dependency(
 
     def task_create_graph():
         dag = pytask.build_dag({"paths": Path(__file__).parent})
-        graph = nx.nx_pydot.to_pydot(dag)
+        graph = nx.nx_agraph.to_agraph(dag)
         path = Path(__file__).parent.joinpath("dag.png")
-        graph.write(path, prog="dot", format=path.suffix[1:])
+        graph.draw(path, prog="dot")
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     monkeypatch.setattr(
         "_pytask.compat.importlib.import_module",
-        lambda x: _raise_exc(ImportError("pydot not found")),  # noqa: U100
+        lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: U100
     )
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.FAILED
-    assert "pytask requires the optional dependency 'pydot'." in result.output
-    assert "pip or conda" in result.output
+    assert "pytask requires the optional dependency 'pygraphviz'." in result.output
+    assert "pip" in result.output
+    assert "conda" in result.output
     assert "Traceback" in result.output
     assert not tmp_path.joinpath("dag.png").exists()
 
@@ -211,9 +213,9 @@ def test_raise_error_with_graph_via_task_missing_optional_program(
 
     def task_create_graph():
         dag = pytask.build_dag({"paths": Path(__file__).parent})
-        graph = nx.nx_pydot.to_pydot(dag)
+        graph = nx.nx_agraph.to_agraph(dag)
         path = Path(__file__).parent.joinpath("dag.png")
-        graph.write(path, prog="dot", format=path.suffix[1:])
+        graph.draw(path, prog="dot")
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
