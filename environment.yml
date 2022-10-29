@@ -32,7 +32,7 @@ dependencies:
   - jupyterlab
   - matplotlib
   - pre-commit
-  - pydot
+  - pydgraphviz
   - pytest
   - pytest-cov
   - pytest-xdist

@@ -123,7 +123,7 @@ def dag(**config_from_cli: Any) -> NoReturn:
     else:
         try:
             session.hook.pytask_log_session_header(session=session)
-            import_optional_dependency("pydot")
+            import_optional_dependency("pygraphviz")
             check_for_optional_program(
                 session.config["layout"],
                 extra="The layout program is part of the graphviz package which you "
@@ -154,10 +154,11 @@ def build_dag(config_from_cli: dict[str, Any]) -> nx.DiGraph:
     """Build the DAG.
 
     This function is the programmatic interface to ``pytask dag`` and returns a
-    preprocessed :class:`pydot.Dot` which makes plotting easier than with matplotlib.
+    preprocessed :class:`pygraphviz.AGraph` which makes plotting easier than with
+    matplotlib.
 
     To change the style of the graph, it might be easier to convert the graph back to
-    networkx, set attributes, and convert back to pydot or pygraphviz.
+    networkx, set attributes, and convert back to pygraphviz.
 
     Parameters
     ----------
@@ -167,7 +168,7 @@ def build_dag(config_from_cli: dict[str, Any]) -> nx.DiGraph:
 
     Returns
     -------
-    pydot.Dot
+    pygraphviz.AGraph
         A preprocessed graph which can be customized and exported.
 
     """
@@ -190,7 +191,7 @@ def build_dag(config_from_cli: dict[str, Any]) -> nx.DiGraph:
     else:
         try:
             session.hook.pytask_log_session_header(session=session)
-            import_optional_dependency("pydot")
+            import_optional_dependency("pygraphviz")
             check_for_optional_program(
                 session.config["layout"],
                 extra="The layout program is part of the graphviz package which you "
@@ -212,7 +213,6 @@ def _refine_dag(session: Session) -> nx.DiGraph:
     dag = _shorten_node_labels(session.dag, session.config["paths"])
     dag = _clean_dag(dag)
     dag = _style_dag(dag)
-    dag = _escape_node_names_with_colons(dag)
     dag.graph["graph"] = {"rankdir": session.config["rank_direction"].name}
 
     return dag
@@ -239,7 +239,7 @@ def _create_session(config_from_cli: dict[str, Any]) -> nx.DiGraph:
     else:
         try:
             session.hook.pytask_log_session_header(session=session)
-            import_optional_dependency("pydot")
+            import_optional_dependency("pygraphviz")
             check_for_optional_program(session.config["layout"])
             session.hook.pytask_collect(session=session)
             session.hook.pytask_resolve_dependencies(session=session)
@@ -282,19 +282,8 @@ def _style_dag(dag: nx.DiGraph) -> nx.DiGraph:
     return dag
 
 
-def _escape_node_names_with_colons(dag: nx.DiGraph) -> nx.DiGraph:
-    """Escape node names with colons.
-
-    pydot cannot handle colons in node names since it messes up some syntax. Escaping
-    works by wrapping the string in double quotes. See this issue for more information:
-    https://github.com/pydot/pydot/issues/224.
-
-    """
-    return nx.relabel_nodes(dag, {name: f'"{name}"' for name in dag.nodes})
-
-
 def _write_graph(dag: nx.DiGraph, path: Path, layout: str) -> None:
     """Write the graph to disk."""
     path.parent.mkdir(exist_ok=True, parents=True)
-    graph = nx.nx_pydot.to_pydot(dag)
-    graph.write(path, prog=layout, format=path.suffix[1:])
+    graph = nx.nx_agraph.to_agraph(dag)
+    graph.draw(path, prog=layout)
