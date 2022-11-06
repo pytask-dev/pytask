@@ -10,7 +10,6 @@ kernelspec:
 !python -m rich.diagnose
 ```
 
-
 ```{code-cell}
 !pytask collect
 ```
