@@ -95,7 +95,7 @@ def pytask_parametrize_task(
                 "@pytask.mark.parametrize.\n\nFor improved readability, consider to "
                 "move the creation of inputs into its own function as shown in the "
                 "best-practices guide on parametrizations: https://pytask-dev.rtfd.io/"
-                "en/stable/how_to_guides/bp_scalable_repititions_of_tasks.html."
+                "en/stable/how_to_guides/bp_scalable_repetitions_of_tasks.html."
             )
 
         base_arg_names, arg_names, arg_values = _parse_parametrize_markers(

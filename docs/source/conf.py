@@ -41,7 +41,8 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_click",
     "sphinx_panels",
-    "myst_parser",
+    # "myst_parser",
+    "myst_nb",
 ]
 
 # List of patterns, relative to source directory, that match files and directories to

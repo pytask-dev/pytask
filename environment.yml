@@ -10,11 +10,6 @@ dependencies:
   - setuptools_scm
   - toml
 
-  # Conda
-  - anaconda-client
-  - conda-build
-  - conda-verify
-
   # Package dependencies
   - attrs >=19.2.0
   - click
@@ -42,6 +37,7 @@ dependencies:
   # Documentation
   - furo
   - myst-parser
+  - myst-nb
   - nbsphinx
   - sphinx
   - sphinx-click
