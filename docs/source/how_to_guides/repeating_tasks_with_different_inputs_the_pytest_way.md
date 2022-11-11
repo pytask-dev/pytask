@@ -15,7 +15,7 @@ The process of repeating a function with different inputs is called parametrizat
 
 :::{seealso}
 If you want to know more about best practices for parametrizations, check out this
-{doc}`guide <../how_to_guides/bp_scalable_repititions_of_tasks>` after you have made
+{doc}`guide <../how_to_guides/bp_scalable_repetitions_of_tasks>` after you have made
 yourself familiar with this tutorial.
 :::
 
