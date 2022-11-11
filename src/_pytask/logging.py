@@ -64,9 +64,9 @@ def pytask_parse_config(
         config_from_file,
         key="editor_url_scheme",
         default="file",
-        callback=lambda x: None if x in [None, "none", "None"] else str(x),
+        callback=lambda x: None if x in (None, "none", "None") else str(x),
     )
-    if config["editor_url_scheme"] not in ["no_link", "file"] and IS_WINDOWS_TERMINAL:
+    if config["editor_url_scheme"] not in ("no_link", "file") and IS_WINDOWS_TERMINAL:
         config["editor_url_scheme"] = "file"
         warnings.warn(
             "Windows Terminal does not support url schemes to applications, yet."
@@ -145,9 +145,9 @@ def _format_duration(duration: float) -> str:
     duration_tuples = _humanize_time(duration, "seconds", short_label=False)
 
     # Remove seconds if the execution lasted days or hours.
-    if duration_tuples[0][1] in ["day", "days", "hour", "hours"]:
+    if duration_tuples[0][1] in ("day", "days", "hour", "hours"):
         duration_tuples = [
-            i for i in duration_tuples if i[1] not in ["second", "seconds"]
+            i for i in duration_tuples if i[1] not in ("second", "seconds")
         ]
 
     formatted_duration = ", ".join([" ".join(map(str, i)) for i in duration_tuples])
@@ -177,7 +177,7 @@ def _humanize_time(
     """
     index = None
     for i, time_unit in enumerate(_TIME_UNITS):
-        if unit in [time_unit.singular, time_unit.plural]:
+        if unit in (time_unit.singular, time_unit.plural):
             index = i
             break
     else:

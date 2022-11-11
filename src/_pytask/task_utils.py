@@ -159,7 +159,7 @@ def _generate_ids_for_tasks(
     out = {}
     for i, (name, task) in enumerate(tasks):
         if task.pytask_meta.id_ is not None:  # type: ignore[attr-defined]
-            id_ = f"{name}[{str(task.pytask_meta.id_)}]"  # type: ignore[attr-defined]
+            id_ = f"{name}[{task.pytask_meta.id_}]"  # type: ignore[attr-defined]
         elif not parameters:
             id_ = f"{name}[{i}]"
         else:
