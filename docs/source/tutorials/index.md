@@ -25,5 +25,4 @@ collecting_tasks
 profiling_tasks
 cleaning_projects
 visualizing_the_dag
-test_nb
 ```
