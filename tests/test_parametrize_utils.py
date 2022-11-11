@@ -16,7 +16,7 @@ from _pytask.parametrize_utils import arg_value_to_id_component
         ("arg", (1,), 0, None, "arg0"),
         ("arg", [1], 0, None, "arg0"),
         ("arg", {1, 2}, 0, None, "arg0"),
-        ("arg", 1, 0, lambda x: bool(x), "True"),
+        ("arg", 1, 0, bool, "True"),
         ("arg", 1, 1, lambda x: None, "1"),
         ("arg", [1], 2, lambda x: None, "arg2"),
     ],

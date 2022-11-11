@@ -108,7 +108,7 @@ def test_prioritize_given_config_over_others(tmp_path, config_path):
     """
     tmp_path.joinpath(config_path).write_text(textwrap.dedent(config))
 
-    for config_name in ["pytask.ini", "tox.ini", "setup.cfg"]:
+    for config_name in ("pytask.ini", "tox.ini", "setup.cfg"):
         if config_name != config_path:
             config = "[pytask]\nmarkers=bad_config: Wrong config loaded"
             tmp_path.joinpath(config_name).write_text(textwrap.dedent(config))
@@ -127,7 +127,7 @@ def test_prioritize_given_config_over_others_toml(tmp_path):
     """
     tmp_path.joinpath("pyproject.toml").write_text(textwrap.dedent(config))
 
-    for config_name in ["pytask.ini", "tox.ini", "setup.cfg"]:
+    for config_name in ("pytask.ini", "tox.ini", "setup.cfg"):
         config = "[pytask]\nmarkers=bad_config: Wrong config loaded"
         tmp_path.joinpath(config_name).write_text(textwrap.dedent(config))
 
@@ -151,7 +151,7 @@ def test_passing_paths_via_configuration_file(tmp_path, config_path, file_or_fol
     """
     tmp_path.joinpath(config_path).write_text(textwrap.dedent(config))
 
-    for letter in ["a", "b"]:
+    for letter in ("a", "b"):
         tmp_path.joinpath(f"folder_{letter}").mkdir()
         tmp_path.joinpath(f"folder_{letter}", f"task_{letter}.py").write_text(
             "def task_passes(): pass"
@@ -175,7 +175,7 @@ def test_passing_paths_via_configuration_file_toml(tmp_path, file_or_folder):
     """
     tmp_path.joinpath("pyproject.toml").write_text(textwrap.dedent(config))
 
-    for letter in ["a", "b"]:
+    for letter in ("a", "b"):
         tmp_path.joinpath(f"folder_{letter}").mkdir()
         tmp_path.joinpath(f"folder_{letter}", f"task_{letter}.py").write_text(
             "def task_passes(): pass"

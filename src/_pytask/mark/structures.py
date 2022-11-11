@@ -196,7 +196,7 @@ class MarkGenerator:
                 if self.config["strict_markers"]:
                     raise ValueError(f"Unknown pytask.mark.{name}.")
                 # Raise a specific error for common misspellings of "parametrize".
-                if name in ["parameterize", "parametrise", "parameterise"]:
+                if name in ("parameterize", "parametrise", "parameterise"):
                     warnings.warn(f"Unknown {name!r} mark, did you mean 'parametrize'?")
 
                 warnings.warn(

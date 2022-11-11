@@ -284,7 +284,7 @@ def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:
     parent_directories = [common_ancestor] + list(common_ancestor.parents)
 
     for parent in parent_directories:
-        for config_name in ["pyproject.toml", "pytask.ini", "tox.ini", "setup.cfg"]:
+        for config_name in ("pyproject.toml", "pytask.ini", "tox.ini", "setup.cfg"):
 
             path = parent.joinpath(config_name)
 

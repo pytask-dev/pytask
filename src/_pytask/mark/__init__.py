@@ -137,7 +137,7 @@ def _read_marker_mapping(x: dict[str, str] | str) -> dict[str, str]:
         mapping = {k.strip(): "" for k in x}
     elif isinstance(x, str):
         # Split by newlines and remove empty strings.
-        lines = filter(lambda i: bool(i), x.split("\n"))
+        lines = filter(bool, x.split("\n"))
         mapping = {}
         for line in lines:
             try:

@@ -97,7 +97,7 @@ def test_markers_command(tmp_path, runner, config_name):
 
     result = runner.invoke(cli, ["markers", "-c", config_path.as_posix()])
     assert result.exit_code == ExitCode.OK
-    for out in ["pytask.mark.a1", "pytask.mark.a2", "pytask.mark.nodescription"]:
+    for out in ("pytask.mark.a1", "pytask.mark.a2", "pytask.mark.nodescription"):
         assert out in result.output
 
 
@@ -112,7 +112,7 @@ def test_markers_command_toml(tmp_path, runner):
 
     result = runner.invoke(cli, ["markers", "-c", config_path.as_posix()])
     assert result.exit_code == ExitCode.OK
-    for out in ["pytask.mark.a1", "pytask.mark.a2", "pytask.mark.nodescription"]:
+    for out in ("pytask.mark.a1", "pytask.mark.a2", "pytask.mark.nodescription"):
         assert out in result.output
 
 

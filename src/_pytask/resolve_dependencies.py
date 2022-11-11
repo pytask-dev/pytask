@@ -164,8 +164,7 @@ def _format_cycles(cycles: list[tuple[str, ...]]) -> str:
 
     lines = chain[:1]
     for x in chain[1:]:
-        lines.append("     " + ARROW_DOWN_ICON)
-        lines.append(x)
+        lines.extend(("     " + ARROW_DOWN_ICON, x))
     text = "\n".join(lines)
 
     return text

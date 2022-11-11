@@ -223,7 +223,7 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
 def _yield_paths_from_task(task: Task) -> Generator[Path, None, None]:
     """Yield all paths attached to a task."""
     yield task.path
-    for attribute in ["depends_on", "produces"]:
+    for attribute in ("depends_on", "produces"):
         for node in tree_just_yield(getattr(task, attribute)):
             if hasattr(node, "path") and isinstance(node.path, Path):
                 yield node.path

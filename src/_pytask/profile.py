@@ -5,6 +5,7 @@ import csv
 import json
 import sys
 import time
+from contextlib import suppress
 from enum import Enum
 from pathlib import Path
 from types import TracebackType
@@ -105,7 +106,7 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
     except orm.ObjectNotFound:
         Runtime(task=task_name, date=start, duration=end - start)
     else:
-        for attr, val in [("date", start), ("duration", end - start)]:
+        for attr, val in (("date", start), ("duration", end - start)):
             setattr(runtime, attr, val)
 
 
@@ -235,10 +236,8 @@ class FileSizeNameSpace:
                 for successor in successors:
                     node = session.dag.nodes[successor]["node"]
                     if isinstance(node, FilePathNode):
-                        try:
+                        with suppress(FileNotFoundError):
                             sum_bytes += node.path.stat().st_size
-                        except FileNotFoundError:
-                            pass
 
                 profile[task.name]["Size of Products"] = _to_human_readable_size(
                     sum_bytes
@@ -297,7 +296,7 @@ def _export_to_csv(profile: dict[str, dict[str, Any]]) -> None:
     info_names = _get_info_names(profile)
     path = Path.cwd().joinpath("profile.csv")
 
-    with open(path, "w", newline="") as file:
+    with path.open("w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(("Task", *info_names))
         for task_name, info in profile.items():
