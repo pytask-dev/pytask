@@ -104,7 +104,7 @@ def test_trace(tmp_path):
     child.expect("Pdb")
     child.sendline("n;; p i;; p i + 1;; p i + 2;; continue")
     rest = child.read().decode("utf-8")
-    assert all(str(i) in rest for i in [32345434, 32345435, 32345436])
+    assert all(str(i) in rest for i in (32345434, 32345435, 32345436))
     _flush(child)
 
 
@@ -147,7 +147,7 @@ def test_breakpoint(tmp_path):
     child.expect("Pdb")
     child.sendline("p i;; p i + 1;; p i + 2;; continue")
     rest = child.read().decode("utf-8")
-    assert all(str(i) in rest for i in [32345434, 32345435, 32345436])
+    assert all(str(i) in rest for i in (32345434, 32345435, 32345436))
     _flush(child)
 
 
@@ -167,7 +167,7 @@ def test_pdb_set_trace(tmp_path):
     child.expect("Pdb")
     child.sendline("p i;; p i + 1;; p i + 2;; continue")
     rest = child.read().decode("utf-8")
-    assert all(str(i) in rest for i in [32345434, 32345435, 32345436])
+    assert all(str(i) in rest for i in (32345434, 32345435, 32345436))
     _flush(child)
 
 

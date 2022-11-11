@@ -77,7 +77,7 @@ def falsy_to_none_callback(
     1
 
     """
-    return value if value else None
+    return value or None
 
 
 def get_first_non_none_value(
@@ -110,7 +110,7 @@ def get_first_non_none_value(
 
 def parse_value_or_multiline_option(value: str | None) -> None | str | list[str]:
     """Parse option which can hold a single value or values separated by new lines."""
-    if value in ["none", "None", None, ""]:
+    if value in ("none", "None", None, ""):
         return None
     elif isinstance(value, (list, tuple)):
         return list(map(str, value))
@@ -124,11 +124,11 @@ def parse_value_or_multiline_option(value: str | None) -> None | str | list[str]
 
 def convert_truthy_or_falsy_to_bool(x: bool | str | None) -> bool:
     """Convert truthy or falsy value in .ini to Python boolean."""
-    if x in [True, "True", "true", "1"]:
+    if x in (True, "True", "true", "1"):
         out = True
-    elif x in [False, "False", "false", "0"]:
+    elif x in (False, "False", "false", "0"):
         out = False
-    elif x in [None, "None", "none"]:
+    elif x in (None, "None", "none"):
         out = None
     else:
         raise ValueError(

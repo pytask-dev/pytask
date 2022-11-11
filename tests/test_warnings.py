@@ -178,4 +178,4 @@ def test_multiple_occurrences_of_warning_are_reduced(tmp_path, runner):
     assert "Warnings" in result.output
     assert "warning!!!" in result.output
     # One occurrence is sometimes clipped.
-    assert result.output.count("task_example") in [30, 31]
+    assert result.output.count("task_example") in (30, 31)

@@ -94,7 +94,7 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
         produces.write_text(depends_on.read_text())
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    for name in ["in.txt", "out.txt"]:
+    for name in ("in.txt", "out.txt"):
         tmp_path.joinpath(name).write_text(
             "They say oh my god I see the way you shine."
         )

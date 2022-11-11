@@ -97,7 +97,7 @@ def _pdbcls_callback(x: str | None) -> tuple[str, str] | None:
     """Validate the debugger class string passed to pdbcls."""
     message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
 
-    if x in [None, "None", "none"]:
+    if x in (None, "None", "none"):
         return None
     elif isinstance(x, str):
         if len(x.split(":")) != 2:

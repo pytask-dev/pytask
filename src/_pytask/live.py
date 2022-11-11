@@ -59,7 +59,7 @@ def pytask_parse_config(
 
 def _parse_n_entries_in_table(value: int | str | None) -> int:
     """Parse how many entries should be displayed in the table during the execution."""
-    if value in ["none", "None", None, ""]:
+    if value in ("none", "None", None, ""):
         out = None
     elif isinstance(value, int) and value >= 1:
         out = value
