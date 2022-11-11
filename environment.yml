@@ -37,7 +37,6 @@ dependencies:
   # Documentation
   - furo
   - myst-parser
-  - myst-nb
   - nbsphinx
   - sphinx
   - sphinx-click
