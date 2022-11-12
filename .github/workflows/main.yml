@@ -5,6 +5,9 @@ concurrency:
   group: ${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+env:
+  CONDA_EXE: mamba
+
 on:
   push:
     branches:
@@ -32,10 +35,12 @@ jobs:
         with:
           auto-update-conda: false
           python-version: ${{ matrix.python-version }}
+          channels: conda-forge,nodefaults
+          mamba-version: "*"
 
       - name: Install core dependencies.
         shell: bash -l {0}
-        run: conda install -c conda-forge tox-conda coverage
+        run: mamba install -c conda-forge tox-conda coverage
 
       # Unit, integration, and end-to-end tests.
 
