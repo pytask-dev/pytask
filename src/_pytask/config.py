@@ -1,31 +1,27 @@
 """Configure pytask."""
 from __future__ import annotations
 
-import configparser
 import os
 import tempfile
 import warnings
 from pathlib import Path
 from typing import Any
 
+import click
 import pluggy
 import tomli
-import tomli_w
-from _pytask.config_utils import get_config_reader
-from _pytask.console import console
+from _pytask.config_utils import read_config
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from _pytask.shared import parse_paths
 from _pytask.shared import parse_value_or_multiline_option
 from _pytask.shared import to_list
-from rich.syntax import Syntax
-from rich.text import Text
 
 
 hookimpl = pluggy.HookimplMarker("pytask")
 
 
-_IGNORED_FOLDERS: list[str] = [".git/*", ".hg/*", ".svn/*", ".venv/*"]
+_IGNORED_FOLDERS: list[str] = [".git/*", ".venv/*"]
 
 
 _IGNORED_FILES: list[str] = [
@@ -38,7 +34,6 @@ _IGNORED_FILES: list[str] = [
     "readthedocs.yaml",
     "environment.yml",
     "pyproject.toml",
-    "pytask.ini",
     "setup.cfg",
     "tox.ini",
 ]
@@ -70,18 +65,6 @@ def is_file_system_case_sensitive() -> bool:
 IS_FILE_SYSTEM_CASE_SENSITIVE = is_file_system_case_sensitive()
 
 
-_DEPRECATION_MESSAGE = """WARNING: pytask.ini, tox.ini, and setup.cfg will be \
-deprecated as configuration files for pytask starting with v0.3 or v1.0.
-
-To upgrade and silence this warning, copy the content below in a pyproject.toml in the \
-same directory as your old configuration file. This would be the path: {}. The content \
-is equivalent to your current configuration.
-
-Even if your configuration just has the header and no values, copy it. pytask needs \
-the header to determine the root of your project.
-"""
-
-
 @hookimpl
 def pytask_configure(
     pm: pluggy.PluginManager, config_from_cli: dict[str, Any]
@@ -105,22 +88,7 @@ def pytask_configure(
     if config["config"] is None:
         config_from_file = {}
     else:
-        read_config = get_config_reader(config["config"])
         config_from_file = read_config(config["config"])
-
-        if read_config.__name__ == "_read_ini_config":
-            toml_string = "# Content of pyproject.toml\n\n" + tomli_w.dumps(
-                {"tool": {"pytask": {"ini_options": config_from_file}}}
-            )
-            console.print(
-                Text(
-                    _DEPRECATION_MESSAGE.format(
-                        config["config"].with_name("pyproject.toml")
-                    ),
-                    style="warning",
-                )
-            )
-            console.print(Syntax(toml_string, "toml"))
 
     # If paths are set in the configuration, process them.
     if config_from_file.get("paths"):
@@ -264,8 +232,8 @@ def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:
        current working directory).
     2. Starting from this directory, look at all parent directories, and return the file
        if it is found.
-    3. If a directory contains a ``.git`` directory/file, a ``.hg`` directory, or the
-       pyproject.toml file, stop searching.
+    3. If a directory contains a ``.git`` directory/file, or the ``pyproject.toml``
+       file, stop searching.
 
     """
     try:
@@ -284,31 +252,24 @@ def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:
     parent_directories = [common_ancestor] + list(common_ancestor.parents)
 
     for parent in parent_directories:
-        for config_name in ("pyproject.toml", "pytask.ini", "tox.ini", "setup.cfg"):
+        path = parent.joinpath("pyproject.toml")
 
-            path = parent.joinpath(config_name)
-
-            if path.exists():
-                try:
-                    read_config = get_config_reader(path)
-                    read_config(path)
-                except configparser.Error as e:
-                    raise configparser.Error(f"Could not read {path}.") from e
-                except tomli.TOMLDecodeError as e:
-                    raise tomli.TOMLDecodeError(f"Could not read {path}.") from e
-                except KeyError:
-                    pass
-                else:
-                    config_path = path
-                    root = config_path.parent
-                    break
+        if path.exists():
+            try:
+                read_config(path)
+            except (tomli.TOMLDecodeError, OSError) as e:
+                raise click.FileError(
+                    filename=str(path), hint=f"Error reading {path}:\n{e}"
+                ) from None
+            except KeyError:
+                pass
+            else:
+                config_path = path
+                root = config_path.parent
+                break
 
         # If you hit a the top of a repository, stop searching further.
         if parent.joinpath(".git").exists():
-            root = parent
-            break
-
-        if parent.joinpath(".hg").is_dir():
             root = parent
             break
 

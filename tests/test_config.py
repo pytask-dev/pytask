@@ -10,20 +10,20 @@ from pytask import main
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
-    "in_ini, paths, expected_root, expected_ini",
+    "config_filename, paths, expected_root, expected_config",
     [
-        ("pytask.ini", ["src/a", "src/b"], ".", "pytask.ini"),
-        ("tox.ini", ["."], None, "tox.ini"),
+        ("pyproject.toml", ["src/a", "src/b"], ".", "pyproject.toml"),
+        ("pyproject.toml", ["."], None, "pyproject.toml"),
         (None, ["task_module.py"], "", None),
     ],
 )
 def test_find_project_root_and_config(
-    tmp_path, in_ini, paths, expected_root, expected_ini
+    tmp_path, config_filename, paths, expected_root, expected_config
 ):
-    if in_ini is not None:
-        in_ini = tmp_path.joinpath(in_ini).resolve()
-        in_ini.parent.mkdir(exist_ok=True, parents=True)
-        in_ini.write_text("[pytask]")
+    if config_filename is not None:
+        config_filename = tmp_path.joinpath(config_filename).resolve()
+        config_filename.parent.mkdir(exist_ok=True, parents=True)
+        config_filename.write_text("[tool.pytask.ini_options]")
 
     if expected_root is None:
         expected_root = tmp_path
@@ -36,13 +36,13 @@ def test_find_project_root_and_config(
             path.parent.mkdir(exist_ok=True, parents=True)
             path.touch()
 
-    root, ini = _find_project_root_and_config(paths)
+    root, config = _find_project_root_and_config(paths)
 
     assert root == tmp_path.joinpath(expected_root)
-    if expected_ini is None:
-        assert ini is expected_ini
+    if expected_config is None:
+        assert config is expected_config
     else:
-        assert ini == tmp_path.joinpath(expected_ini)
+        assert config == tmp_path.joinpath(expected_config)
 
 
 @pytest.mark.unit
@@ -69,23 +69,7 @@ def test_debug_pytask(capsys, tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
-def test_pass_config_to_cli(tmp_path, config_path):
-    config = """
-    [pytask]
-    markers =
-      elton: Can you feel the love tonight?
-    """
-    tmp_path.joinpath(config_path).write_text(textwrap.dedent(config))
-
-    session = main({"config": tmp_path.joinpath(config_path), "paths": tmp_path})
-
-    assert session.exit_code == ExitCode.OK
-    assert "elton" in session.config["markers"]
-
-
-@pytest.mark.end_to_end
-def test_pass_config_to_cli_toml(tmp_path):
+def test_pass_config_to_cli(tmp_path):
     config = """
     [tool.pytask.ini_options]
     markers = {"elton" = "Can you feel the love tonight?"}
@@ -99,76 +83,11 @@ def test_pass_config_to_cli_toml(tmp_path):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
-def test_prioritize_given_config_over_others(tmp_path, config_path):
-    config = """
-    [pytask]
-    markers =
-      kylie: I just can't get you out of my head.
-    """
-    tmp_path.joinpath(config_path).write_text(textwrap.dedent(config))
-
-    for config_name in ("pytask.ini", "tox.ini", "setup.cfg"):
-        if config_name != config_path:
-            config = "[pytask]\nmarkers=bad_config: Wrong config loaded"
-            tmp_path.joinpath(config_name).write_text(textwrap.dedent(config))
-
-    session = main({"config": tmp_path.joinpath(config_path), "paths": tmp_path})
-
-    assert session.exit_code == ExitCode.OK
-    assert "kylie" in session.config["markers"]
-
-
-@pytest.mark.end_to_end
-def test_prioritize_given_config_over_others_toml(tmp_path):
-    config = """
-    [tool.pytask.ini_options]
-    markers = {"kylie" = "I just can't get you out of my head."}
-    """
-    tmp_path.joinpath("pyproject.toml").write_text(textwrap.dedent(config))
-
-    for config_name in ("pytask.ini", "tox.ini", "setup.cfg"):
-        config = "[pytask]\nmarkers=bad_config: Wrong config loaded"
-        tmp_path.joinpath(config_name).write_text(textwrap.dedent(config))
-
-    session = main({"config": tmp_path.joinpath("pyproject.toml"), "paths": tmp_path})
-
-    assert session.exit_code == ExitCode.OK
-    assert "kylie" in session.config["markers"]
-
-
-@pytest.mark.end_to_end
-@pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
 @pytest.mark.parametrize(
     "file_or_folder",
     ["folder_a", "folder_a/task_a.py", "folder_b", "folder_b/task_b.py"],
 )
-def test_passing_paths_via_configuration_file(tmp_path, config_path, file_or_folder):
-    config = f"""
-    [pytask]
-    paths =
-      {file_or_folder}
-    """
-    tmp_path.joinpath(config_path).write_text(textwrap.dedent(config))
-
-    for letter in ("a", "b"):
-        tmp_path.joinpath(f"folder_{letter}").mkdir()
-        tmp_path.joinpath(f"folder_{letter}", f"task_{letter}.py").write_text(
-            "def task_passes(): pass"
-        )
-
-    session = main({"config": tmp_path.joinpath(config_path)})
-
-    assert session.exit_code == ExitCode.OK
-    assert len(session.tasks) == 1
-
-
-@pytest.mark.end_to_end
-@pytest.mark.parametrize(
-    "file_or_folder",
-    ["folder_a", "folder_a/task_a.py", "folder_b", "folder_b/task_b.py"],
-)
-def test_passing_paths_via_configuration_file_toml(tmp_path, file_or_folder):
+def test_passing_paths_via_configuration_file(tmp_path, file_or_folder):
     config = f"""
     [tool.pytask.ini_options]
     paths = "{file_or_folder}"
@@ -192,7 +111,6 @@ def test_passing_paths_via_configuration_file_toml(tmp_path, file_or_folder):
     "vc_folder, path, expected",
     [
         (".git", "folder/sub", "."),
-        (".hg", "folder/sub", "."),
         (None, "folder/sub", "folder/sub"),
     ],
 )
