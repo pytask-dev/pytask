@@ -162,7 +162,7 @@ for id_, kwargs in ID_TO_KWARGS.items():
 ```
 
 The
-{doc}`best-practices guide on parametrizations <../how_to_guides/bp_scalable_repititions_of_tasks>`
+{doc}`best-practices guide on parametrizations <../how_to_guides/bp_scalable_repetitions_of_tasks>`
 goes into even more detail on how to scale parametrizations.
 
 ## A warning on globals

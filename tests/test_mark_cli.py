@@ -14,13 +14,13 @@ def test_show_markers(runner):
 
     assert all(
         marker in result.output
-        for marker in [
+        for marker in (
             "depends_on",
             "produces",
             "skip",
             "skip_ancestor_failed",
             "skip_unchanged",
-        ]
+        )
     )
 
 
@@ -39,7 +39,7 @@ def test_markers_option(tmp_path, runner, config_name):
 
     result = runner.invoke(cli, ["markers", "-c", config_path.as_posix()])
 
-    assert all(marker in result.output for marker in ["a1", "a1some", "nodescription"])
+    assert all(marker in result.output for marker in ("a1", "a1some", "nodescription"))
 
 
 @pytest.mark.end_to_end
@@ -55,7 +55,7 @@ def test_markers_option_toml(tmp_path, runner):
 
     result = runner.invoke(cli, ["markers", "-c", config_path.as_posix()])
 
-    assert all(marker in result.output for marker in ["a1", "a1some", "nodescription"])
+    assert all(marker in result.output for marker in ("a1", "a1some", "nodescription"))
 
 
 @pytest.mark.end_to_end

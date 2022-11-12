@@ -1,11 +1,11 @@
 # Visualizing the DAG
 
 To visualize the {term}`DAG` of the project, first, install
-[pydot](https://github.com/pydot/pydot) and [graphviz](https://graphviz.org/). For
-example, you can both install with conda
+[pygraphviz](https://github.com/pygraphviz/pygraphviz) and
+[graphviz](https://graphviz.org/). For example, you can both install with conda
 
 ```console
-$ conda install -c conda-forge pydot
+$ conda install -c conda-forge pygraphviz
 ```
 
 After that, pytask offers two interfaces to visualize your project's {term}`DAG`.
@@ -27,7 +27,7 @@ There are ways to customize the visualization.
    other layouts, which are listed [here](https://graphviz.org/docs/layouts/).
 1. Using the {option}`pytask dag --output-path` option, you can provide a file name for
    the graph. The file extension changes the output format as supported by
-   [pydot](https://github.com/pydot/pydot).
+   [pygraphviz](https://github.com/pygraphviz/pygraphviz).
 
 ## Programmatic Interface
 
@@ -49,10 +49,10 @@ shape of all nodes to hexagons by adding the property to the node attributes.
 nx.set_node_attributes(dag, "hexagon", "shape")
 ```
 
-For drawing, you better switch to pydot or pygraphviz since the matplotlib backend
-handles shapes with texts poorly. Here we use pydot and store the graph as a `.svg`.
+For drawing, you better switch to pygraphviz since the matplotlib backend handles shapes
+with texts poorly. Here we store the graph as a `.svg`.
 
 ```python
-graph = nx.nx_pydot.to_pydot(dag)
-graph.write_svg(produces)
+graph = nx.nx_agraph.to_agraph(dag)
+graph.draw(path, prog=layout)
 ```

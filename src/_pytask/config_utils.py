@@ -18,7 +18,7 @@ def parse_click_choice(
     value_to_name = {enum_[name].value: name for name in enum_.__members__}
 
     def _parse(x: Enum | str | None) -> Enum | None:
-        if x in [None, "None", "none"]:
+        if x in (None, "None", "none"):
             out = None
         elif isinstance(x, str) and x in value_to_name:
             out = enum_[value_to_name[x]]

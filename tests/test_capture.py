@@ -39,7 +39,7 @@ def test_show_capture(tmp_path, runner, show_capture):
 
     assert result.exit_code == ExitCode.FAILED
 
-    if show_capture in ["no", "s"]:
+    if show_capture in ("no", "s"):
         assert "Captured" not in result.output
     elif show_capture == "stdout":
         assert "Captured stdout" in result.output
@@ -191,12 +191,12 @@ def test_collect_capturing(tmp_path, runner):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    for content in [
+    for content in (
         "Captured stdout",
         "collect 13 failure",
         "Captured stderr",
         "collect 13_stderr failure",
-    ]:
+    ):
         assert content in result.output
 
 
@@ -219,7 +219,7 @@ def test_capturing_outerr(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert "│ F" in result.output
     assert "│ ." in result.output
-    for content in [
+    for content in (
         "───────────────────────────────── Failures ──────────────────────────────────",
         "task_capturing_error failed",
         "ValueError",
@@ -232,7 +232,7 @@ def test_capturing_outerr(tmp_path, runner):
         "1  Failed",
         "─────────── Failed in ",
         "seconds ────────",
-    ]:
+    ):
         assert content in result.output
 
 
@@ -249,12 +249,12 @@ def test_capture_badoutput_issue412(tmp_path, runner):
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "--capture=fd"])
 
-    for content in [
+    for content in (
         "task_func",
         "assert 0",
         "Captured",
         "1  Failed",
-    ]:
+    ):
         assert content in result.output
 
 
@@ -635,11 +635,11 @@ class TestStdCaptureFD(TestStdCapture):
         """
         tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
         result = runner.invoke(cli, [tmp_path.as_posix()])
-        for content in [
+        for content in (
             "task_x",
             "assert 0",
             "Captured stdout",
-        ]:
+        ):
             assert content in result.output
 
     def test_intermingling(self):

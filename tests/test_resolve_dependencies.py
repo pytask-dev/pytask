@@ -46,7 +46,7 @@ def test_pytask_resolve_dependencies_create_dag():
     dag = pytask_resolve_dependencies_create_dag([task])
 
     assert all(
-        any(i in node for i in ["node_1", "node_2", "task"]) for node in dag.nodes
+        any(i in node for i in ("node_1", "node_2", "task")) for node in dag.nodes
     )
 
 

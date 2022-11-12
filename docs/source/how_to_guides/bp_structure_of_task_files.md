@@ -10,7 +10,7 @@ This section provides advice on how to structure task files.
 - A task function should be the first function in a task module.
 
   :::{seealso}
-  The only exception might be for {doc}`repititions <bp_scalable_repititions_of_tasks>`.
+  The only exception might be for {doc}`repititions <bp_scalable_repetitions_of_tasks>`.
   :::
 
 - The purpose of the task function is to handle IO operations like loading and saving

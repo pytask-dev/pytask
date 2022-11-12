@@ -39,11 +39,11 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
         task_id = task_path.as_posix() + "::task_write"
         out_path = tmp_path.joinpath("out.txt")
 
-        for id_, path in [
+        for id_, path in (
             (task_id, task_path),
             (in_path.as_posix(), in_path),
             (out_path.as_posix(), out_path),
-        ]:
+        ):
             state = State[task_id, id_].state
             assert float(state) == path.stat().st_mtime
 
