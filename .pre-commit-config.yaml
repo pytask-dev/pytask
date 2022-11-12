@@ -77,7 +77,6 @@ repos:
     hooks:
     -   id: refurb
         args: [--ignore, FURB126]
-        language_version: python3.10
 -   repo: https://github.com/executablebooks/mdformat
     rev: 0.7.16
     hooks:
