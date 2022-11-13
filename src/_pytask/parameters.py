@@ -13,6 +13,7 @@ _CONFIG_OPTION = click.Option(
 )
 """click.Option: An option for the --config flag."""
 
+
 _IGNORE_OPTION = click.Option(
     ["--ignore"],
     type=str,
