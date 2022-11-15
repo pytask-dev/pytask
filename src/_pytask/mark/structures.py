@@ -124,7 +124,7 @@ class MarkDecorator:
 def get_unpacked_marks(obj: Callable[..., Any]) -> list[Mark]:
     """Obtain the unpacked marks that are stored on an object."""
     if hasattr(obj, "pytask_meta"):
-        mark_list = obj.pytask_meta.markers  # type: ignore[attr-defined]
+        mark_list = obj.pytask_meta.markers
     else:
         mark_list = []
     return normalize_mark_list(mark_list)
@@ -157,9 +157,7 @@ def store_mark(obj: Callable[..., Any], mark: Mark) -> None:
     """
     assert isinstance(mark, Mark), mark
     if hasattr(obj, "pytask_meta"):
-        obj.pytask_meta.markers = get_unpacked_marks(  # type: ignore[attr-defined]
-            obj
-        ) + [mark]
+        obj.pytask_meta.markers = get_unpacked_marks(obj) + [mark]
     else:
         obj.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]
             markers=[mark]
