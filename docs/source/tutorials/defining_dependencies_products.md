@@ -153,7 +153,7 @@ is rerun when the model is changed. And it depends on data.
     }
 )
 @pytask.mark.produces(BLD / "models" / "fitted_model.pkl")
-def task_fit_model():
+def task_fit_model(depends_on, produces):
     ...
 ```
 
