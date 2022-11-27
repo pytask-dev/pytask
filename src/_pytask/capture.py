@@ -41,10 +41,8 @@ from typing import TextIO
 
 import click
 from _pytask.config import hookimpl
-from _pytask.config_utils import parse_click_choice
 from _pytask.config_utils import ShowCapture
 from _pytask.nodes import Task
-from _pytask.shared import get_first_non_none_value
 
 
 if sys.version_info >= (3, 8):
@@ -55,7 +53,7 @@ else:
         return f
 
 
-class _CaptureMethod(Enum):
+class _CaptureMethod(str, Enum):
     FD = "fd"
     NO = "no"
     SYS = "sys"
@@ -68,7 +66,8 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--capture"],
-            type=click.Choice([x.value for x in _CaptureMethod]),
+            type=click.Choice(_CaptureMethod),
+            default=_CaptureMethod.FD,
             help="Per task capturing method. [dim]\\[default: fd][/]",
         ),
         click.Option(
@@ -78,7 +77,8 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         ),
         click.Option(
             ["--show-capture"],
-            type=click.Choice([x.value for x in ShowCapture]),
+            type=click.Choice(ShowCapture),
+            default=ShowCapture.ALL,
             help=(
                 "Choose which captured output should be shown for failed tasks. "
                 "[dim]\\[default: all][/]"
@@ -99,24 +99,8 @@ def pytask_parse_config(
     Note that, ``-s`` is a shortcut for ``--capture=no``.
 
     """
-    if config_from_cli.get("s"):
+    if config["s"]:
         config["capture"] = _CaptureMethod.NO
-    else:
-        config["capture"] = get_first_non_none_value(
-            config_from_cli,
-            config_from_file,
-            key="capture",
-            default=_CaptureMethod.FD,
-            callback=parse_click_choice("capture", _CaptureMethod),
-        )
-
-    config["show_capture"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_capture",
-        default=ShowCapture.ALL,
-        callback=parse_click_choice("show_capture", ShowCapture),
-    )
 
 
 @hookimpl

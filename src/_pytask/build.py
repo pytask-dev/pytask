@@ -62,7 +62,7 @@ def main(config_from_cli: dict[str, Any]) -> Session:
 
     except (ConfigurationError, Exception):
         exc_info = sys.exc_info()
-        exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
+        # exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         traceback = Traceback.from_exception(*exc_info)
         console.print(traceback)
         session = Session({}, None)

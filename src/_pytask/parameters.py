@@ -1,14 +1,28 @@
 """Contains common parameters for the commands of the command line interface."""
 from __future__ import annotations
 
+from pathlib import Path
+
 import click
 from _pytask.config import hookimpl
+from _pytask.config_utils import set_defaults_from_config
 from _pytask.shared import falsy_to_none_callback
 
 
 _CONFIG_OPTION = click.Option(
     ["-c", "--config"],
-    type=click.Path(exists=True, resolve_path=True),
+    callback=set_defaults_from_config,
+    is_eager=True,
+    expose_value=False,
+    type=click.Path(
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+        allow_dash=False,
+        path_type=Path,
+        resolve_path=True,
+    ),
     help="Path to configuration file.",
 )
 """click.Option: An option for the --config flag."""
@@ -32,6 +46,7 @@ _PATH_ARGUMENT = click.Argument(
     nargs=-1,
     type=click.Path(exists=True, resolve_path=True),
     callback=falsy_to_none_callback,
+    is_eager=True,
 )
 """click.Argument: An argument for paths."""
 
@@ -58,11 +73,11 @@ _EDITOR_URL_SCHEME_OPTION = click.Option(
 @hookimpl(trylast=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Register general markers."""
+    for command in ("build", "clean", "collect", "dag", "profile"):
+        cli.commands[command].params.append(_PATH_ARGUMENT)
     for command in ("build", "clean", "collect", "markers", "profile"):
         cli.commands[command].params.append(_CONFIG_OPTION)
     for command in ("build", "clean", "collect", "profile"):
         cli.commands[command].params.extend([_IGNORE_OPTION, _EDITOR_URL_SCHEME_OPTION])
-    for command in ("build", "clean", "collect", "dag", "profile"):
-        cli.commands[command].params.append(_PATH_ARGUMENT)
     for command in ("build",):
         cli.commands[command].params.append(_VERBOSE_OPTION)

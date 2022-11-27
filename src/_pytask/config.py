@@ -70,42 +70,7 @@ def pytask_configure(
     pm: pluggy.PluginManager, config_from_cli: dict[str, Any]
 ) -> dict[str, Any]:
     """Configure pytask."""
-    config = {"pm": pm}
-
-    # Either the path to the configuration is passed via the CLI or it needs to be
-    # detected from the paths passed to pytask.
-    if config_from_cli.get("config"):
-        config["config"] = Path(config_from_cli["config"])
-        config["root"] = config["config"].parent
-    else:
-        paths = (
-            parse_paths(config_from_cli.get("paths"))
-            if config_from_cli.get("paths") is not None
-            else [Path.cwd()]
-        )
-        config["root"], config["config"] = _find_project_root_and_config(paths)
-
-    if config["config"] is None:
-        config_from_file = {}
-    else:
-        config_from_file = read_config(config["config"])
-
-    # If paths are set in the configuration, process them.
-    if config_from_file.get("paths"):
-        paths_from_file = to_list(
-            parse_value_or_multiline_option(config_from_file.get("paths"))
-        )
-        config_from_file["paths"] = [
-            config["config"].parent.joinpath(p).resolve() for p in paths_from_file
-        ]
-
-    config["paths"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="paths",
-        default=[Path.cwd()],
-        callback=parse_paths,
-    )
+    config = {"pm": pm, **config_from_cli}
 
     config["markers"] = {
         "depends_on": (
@@ -122,8 +87,8 @@ def pytask_configure(
 
     pm.hook.pytask_parse_config(
         config=config,
-        config_from_cli=config_from_cli,
-        config_from_file=config_from_file,
+        config_from_cli={},
+        config_from_file={},
     )
 
     pm.hook.pytask_post_parse(config=config)
@@ -221,59 +186,3 @@ def pytask_parse_config(
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Sort markers alphabetically."""
     config["markers"] = {k: config["markers"][k] for k in sorted(config["markers"])}
-
-
-def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:
-    """Find the project root and configuration file from a list of paths.
-
-    The process is as follows:
-
-    1. Find the common base directory of all paths passed to pytask (default to the
-       current working directory).
-    2. Starting from this directory, look at all parent directories, and return the file
-       if it is found.
-    3. If a directory contains a ``.git`` directory/file, or the ``pyproject.toml``
-       file, stop searching.
-
-    """
-    try:
-        common_ancestor = Path(os.path.commonpath(paths))
-    except ValueError:
-        warnings.warn(
-            "A common path for all passed path could not be detected. Fall back to "
-            "current working directory."
-        )
-        common_ancestor = Path.cwd()
-    if common_ancestor.is_file():
-        common_ancestor = common_ancestor.parent
-
-    config_path = None
-    root = None
-    parent_directories = [common_ancestor] + list(common_ancestor.parents)
-
-    for parent in parent_directories:
-        path = parent.joinpath("pyproject.toml")
-
-        if path.exists():
-            try:
-                read_config(path)
-            except (tomli.TOMLDecodeError, OSError) as e:
-                raise click.FileError(
-                    filename=str(path), hint=f"Error reading {path}:\n{e}"
-                ) from None
-            except KeyError:
-                pass
-            else:
-                config_path = path
-                root = config_path.parent
-                break
-
-        # If you hit a the top of a repository, stop searching further.
-        if parent.joinpath(".git").exists():
-            root = parent
-            break
-
-    if root is None:
-        root = common_ancestor
-
-    return root, config_path

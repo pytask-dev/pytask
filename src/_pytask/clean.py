@@ -4,6 +4,7 @@ from __future__ import annotations
 import itertools
 import shutil
 import sys
+from enum import Enum
 from pathlib import Path
 from types import TracebackType
 from typing import Any

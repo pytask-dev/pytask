@@ -26,3 +26,6 @@ warn_unused_ignores = true
 module = "tests.*"
 disallow_untyped_defs = false
 ignore_errors = true
+
+
+[tool.pytask.ini_options]
