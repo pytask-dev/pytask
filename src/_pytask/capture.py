@@ -55,7 +55,7 @@ else:
         return f
 
 
-class _CaptureMethod(Enum):
+class _CaptureMethod(str, Enum):
     FD = "fd"
     NO = "no"
     SYS = "sys"
@@ -68,7 +68,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--capture"],
-            type=click.Choice([x.value for x in _CaptureMethod]),
+            type=click.Choice(_CaptureMethod),  # type: ignore[arg-type]
             help="Per task capturing method. [dim]\\[default: fd][/]",
         ),
         click.Option(
@@ -78,7 +78,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         ),
         click.Option(
             ["--show-capture"],
-            type=click.Choice([x.value for x in ShowCapture]),
+            type=click.Choice(ShowCapture),  # type: ignore[arg-type]
             help=(
                 "Choose which captured output should be shown for failed tasks. "
                 "[dim]\\[default: all][/]"

@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
-class _RankDirection(Enum):
+class _RankDirection(str, Enum):
     TB = "TB"
     LR = "LR"
     BT = "BT"
@@ -99,7 +99,7 @@ _HELP_TEXT_RANK_DIRECTION: str = (
 @click.option(
     "-r",
     "--rank-direction",
-    type=click.Choice([x.value for x in _RankDirection]),
+    type=click.Choice(_RankDirection),  # type: ignore[arg-type]
     help=_HELP_TEXT_RANK_DIRECTION,
 )
 def dag(**config_from_cli: Any) -> NoReturn:
