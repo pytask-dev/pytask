@@ -9,7 +9,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`308` replaces pydot with pygraphviz.
 - {pull}`318` Clarifies an example on nested dependencies and products.
-- {pull}`319` converts more choice options to enums.
+- {pull}`321` converts more choice options to enums.
 
 ## 0.2.6 - 2022-10-27
 
