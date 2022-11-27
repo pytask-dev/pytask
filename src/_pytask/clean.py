@@ -4,6 +4,7 @@ from __future__ import annotations
 import itertools
 import shutil
 import sys
+from enum import Enum
 from pathlib import Path
 from types import TracebackType
 from typing import Any
@@ -39,6 +40,12 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
+class _CleanMode(str, Enum):
+    DRY_RUN = "dry-run"
+    FORCE = "force"
+    INTERACTIVE = "interactive"
+
+
 _DEFAULT_EXCLUDE: list[str] = [".git/*", ".hg/*", ".svn/*"]
 
 
@@ -68,7 +75,7 @@ def pytask_parse_config(
     config["exclude"] = (
         to_list(cli_excludes or []) + to_list(file_excludes or []) + _DEFAULT_EXCLUDE
     )
-    config["mode"] = config_from_cli.get("mode", "dry-run")
+    config["mode"] = config_from_cli.get("mode", _CleanMode.DRY_RUN)
     config["quiet"] = get_first_non_none_value(
         config_from_cli, key="quiet", default=False
     )
@@ -92,8 +99,8 @@ def pytask_parse_config(
 )
 @click.option(
     "--mode",
-    default="dry-run",
-    type=click.Choice(["dry-run", "interactive", "force"]),
+    default=_CleanMode.DRY_RUN,
+    type=click.Choice(_CleanMode),  # type: ignore[arg-type]
     help=_HELP_TEXT_MODE,
 )
 @click.option(
@@ -147,12 +154,12 @@ def clean(**config_from_cli: Any) -> NoReturn:
                 console.print(f"\n{targets} which can be removed:\n")
                 for path in unknown_paths:
                     short_path = relative_to(path, common_ancestor)
-                    if session.config["mode"] == "dry-run":
+                    if session.config["mode"] == _CleanMode.DRY_RUN:
                         console.print(f"Would remove {short_path}")
                     else:
                         should_be_deleted = session.config[
                             "mode"
-                        ] == "force" or click.confirm(
+                        ] == _CleanMode.FORCE or click.confirm(
                             f"Would you like to remove {short_path}?"
                         )
                         if should_be_deleted:

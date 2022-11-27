@@ -5,7 +5,13 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.2.6 - 2022-xx-xx
+## 0.2.7 - 2022-xx-xx
+
+- {pull}`308` replaces pydot with pygraphviz.
+- {pull}`318` Clarifies an example on nested dependencies and products.
+- {pull}`319` converts more choice options to enums.
+
+## 0.2.6 - 2022-10-27
 
 - {pull}`297` moves non-hook functions from `warnings.py` to `warnings_utils.py` and
   publishes them so that pytask-parallel can import them.

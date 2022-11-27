@@ -29,7 +29,7 @@ def parse_click_choice(
     return _parse
 
 
-class ShowCapture(Enum):
+class ShowCapture(str, Enum):
     NO = "no"
     STDOUT = "stdout"
     STDERR = "stderr"
