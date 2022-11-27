@@ -66,7 +66,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--capture"],
-            type=click.Choice(_CaptureMethod),
+            type=click.Choice(_CaptureMethod),  # type: ignore[arg-type]
             default=_CaptureMethod.FD,
             help="Per task capturing method. [dim]\\[default: fd][/]",
         ),
@@ -77,7 +77,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         ),
         click.Option(
             ["--show-capture"],
-            type=click.Choice(ShowCapture),
+            type=click.Choice(ShowCapture),  # type: ignore[arg-type]
             default=ShowCapture.ALL,
             help=(
                 "Choose which captured output should be shown for failed tasks. "
@@ -89,11 +89,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse configuration.
 
     Note that, ``-s`` is a shortcut for ``--capture=no``.

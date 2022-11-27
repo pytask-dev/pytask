@@ -15,7 +15,7 @@ from _pytask.shared import get_first_non_none_value
 from pony import orm
 
 
-class _DatabaseProviders(Enum):
+class _DatabaseProviders(str, Enum):
     SQLITE = "sqlite"
     POSTGRES = "postgres"
     MYSQL = "mysql"
@@ -71,7 +71,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--database-provider"],
-            type=click.Choice([x.value for x in _DatabaseProviders]),
+            type=click.Choice(_DatabaseProviders),  # type: ignore[arg-type]
             help=(
                 "Database provider. All providers except sqlite are considered "
                 "experimental. [dim]\\[default: sqlite][/]"

@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
-class _ExportFormats(Enum):
+class _ExportFormats(str, Enum):
     NO = "no"
     JSON = "json"
     CSV = "csv"
@@ -113,7 +113,7 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
 @click.command(cls=ColoredCommand)
 @click.option(
     "--export",
-    type=click.Choice([x.value for x in _ExportFormats]),
+    type=click.Choice(_ExportFormats),  # type: ignore[arg-type]
     default=None,
     help="Export the profile in the specified format. [dim]\\[default: no][/]",
 )

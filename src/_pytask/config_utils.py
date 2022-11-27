@@ -14,10 +14,9 @@ from _pytask.shared import parse_paths
 
 
 def set_defaults_from_config(
-    context: click.Context, param: click.Parameter, value: Any
-):
+    context: click.Context, param: click.Parameter, value: Any  # noqa: U100
+) -> Path | None:
     """Set the defaults for the command-line interface from the configuration."""
-    # breakpoint()
     if value:
         context.params["config"] = value
         context.params["root"] = context.params["config"].parent

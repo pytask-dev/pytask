@@ -207,7 +207,7 @@ def _get_file(function: Callable[..., Any], skipped_paths: list[Path] = None) ->
         hasattr(function, "__wrapped__")
         and Path(inspect.getsourcefile(function)) in skipped_paths
     ):
-        return _get_file(function.__wrapped__)  # type: ignore[attr-defined]
+        return _get_file(function.__wrapped__)
     else:
         return Path(inspect.getsourcefile(function))
 
@@ -217,7 +217,7 @@ def _get_source_lines(function: Callable[..., Any]) -> int:
     if isinstance(function, functools.partial):
         return _get_source_lines(function.func)
     elif hasattr(function, "__wrapped__"):
-        return _get_source_lines(function.__wrapped__)  # type: ignore[attr-defined]
+        return _get_source_lines(function.__wrapped__)
     else:
         return inspect.getsourcelines(function)[1]
 
