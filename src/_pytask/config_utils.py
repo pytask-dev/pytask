@@ -17,6 +17,19 @@ def set_defaults_from_config(
     context: click.Context, param: click.Parameter, value: Any  # noqa: U100
 ) -> Path | None:
     """Set the defaults for the command-line interface from the configuration."""
+    # Hack: pytask will later walk through all configuration hooks, even the ones not
+    # related to this command. They might expect the defaults coming from their related
+    # command-line options during parsing. Here, we add their defaults to the
+    # configuration.
+    command_option_names = [option.name for option in context.command.params]
+    all_defaults_from_cli = {
+        option.name: option.default
+        for name, command in context.parent.command.commands.items()
+        for option in command.params
+        if name != context.info_name and option.name not in command_option_names
+    }
+    context.params.update(all_defaults_from_cli)
+
     if value:
         context.params["config"] = value
         context.params["root"] = context.params["config"].parent
@@ -37,7 +50,6 @@ def set_defaults_from_config(
 
     if context.default_map is None:
         context.default_map = {}
-
     context.default_map.update(config_from_file)
 
     return context.params["config"]

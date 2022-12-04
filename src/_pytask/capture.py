@@ -73,6 +73,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         click.Option(
             ["-s"],
             is_flag=True,
+            default=False,
             help="Shortcut for --capture=no.",
         ),
         click.Option(
