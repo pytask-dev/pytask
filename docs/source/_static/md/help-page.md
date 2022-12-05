@@ -21,11 +21,11 @@ Manage your tasks with pytask.
 <font color="#5f5f5f">│</font> <strong><font color="#137c39">profile</font></strong> Show information about tasks like runtime and memory consumption   <font color="#5f5f5f">│</font>
 <font color="#5f5f5f">│</font>         of products.                                                       <font color="#5f5f5f">│</font>
 <font color="#5f5f5f">╰────────────────────────────────────────────────────────────────────────────╯</font>
-<font color="#5f5f5f">╭─ </font> Options <font color="#5f5f5f">─────────────────────────────────────────────────────────────────╮</font>
-<font color="#5f5f5f">│</font>   <font color="#f4c041">--version</font> Show the version and exit.                                     <font color="#5f5f5f">│</font>
+<font color="#5f5f5f">╭─</font> Options <font color="#5f5f5f">──────────────────────────────────────────────────────────────────╮</font>
+<font color="#5f5f5f">│</font>    <font color="#f4c041">--version</font>  Show the version and exit.                                   <font color="#5f5f5f">│</font>
 <font color="#5f5f5f">│</font> <font color="#d54523">-h</font> <font color="#f4c041">--help</font>     Show this message and exit.                                  <font color="#5f5f5f">│</font>
 <font color="#5f5f5f">╰────────────────────────────────────────────────────────────────────────────╯</font>
-<p align="right"><font color="#cd3131">♥</font> https://pytask-dev.readthedocs.io</p>
+<p align="right"><font color="#cd3131">♥</font> https://pytask-dev.readthedocs.io </p>
 ```
 
 </div>
