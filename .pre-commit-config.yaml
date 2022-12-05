@@ -120,7 +120,7 @@ repos:
     rev: v2.2.2
     hooks:
     -   id: codespell
-        args: [-L hist,-L unparseable, -L falsy]
+        additional_dependencies: [tomli]
 -   repo: https://github.com/mgedmin/check-manifest
     rev: "0.48"
     hooks:

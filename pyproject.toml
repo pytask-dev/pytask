@@ -26,3 +26,7 @@ warn_unused_ignores = true
 module = "tests.*"
 disallow_untyped_defs = false
 ignore_errors = true
+
+
+[tool.codespell]
+ignore-words-list = "falsy, hist, ines, unparseable"

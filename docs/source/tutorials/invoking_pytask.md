@@ -15,12 +15,12 @@ $ pytask -h | --help
 
 ## Commands
 
-pytask has multiple commands that are listed in the main help page.
+pytask has multiple commands that are listed on the main help page.
 
-```{image} /_static/images/help_page.svg
+```{include} ../_static/md/help-page.md
 ```
 
-The `build` command is the default command which means the following two calls are
+The `build` command is the default command, meaning the following two calls are
 identical.
 
 ```console
@@ -79,8 +79,7 @@ $ pytask --max-failures 2                 # Stop after the second failure
 
 ### Performing a dry-run
 
-If you want to see which tasks would be executed without executing them, you can do a
-dry-run.
+You can do a dry-run to see which tasks would be executed without executing them.
 
 ```console
 $ pytask --dry-run

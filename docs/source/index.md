@@ -45,6 +45,16 @@ To get started with pytask, the documentation includes a series of tutorials. Go
 first {doc}`tutorial <tutorials/installation>` for the installation and proceed from
 there.
 
+<div class="termy">
+
+```console
+$ pip install "typer[all]"
+---> 100%
+Successfully installed typer
+```
+
+</div>
+
 ## Documentation
 
 If you want to know more about pytask, dive into one the following topics.

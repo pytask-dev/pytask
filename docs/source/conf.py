@@ -42,6 +42,7 @@ extensions = [
     "sphinx_click",
     "sphinx_panels",
     "myst_parser",
+    # 'sphinx_term.termynal',
 ]
 
 # List of patterns, relative to source directory, that match files and directories to
@@ -91,7 +92,9 @@ html_theme = "furo"
 # Add any paths that contain custom static files (such as style sheets) here, relative
 # to this directory. They are copied after the built-in static files, so a file named
 # "default.css" will overwrite the built-in "default.css".
-html_css_files = ["css/custom.css"]
+html_css_files = ["css/termynal.css", "css/custom.css"]
+
+html_js_files = ["js/termynal.js", "js/custom.js"]
 
 # The name of an image file (within the static path) to use as favicon of the docs.
 # This file should be a Windows icon file (.ico) being 16x16 or 32x32 pixels large.
