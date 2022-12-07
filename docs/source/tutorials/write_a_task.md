@@ -58,7 +58,7 @@ To let pytask track the product of the task, you need to use the
 
 Now, execute pytask to collect tasks in the current and subsequent directories.
 
-```{image} /_static/images/write-a-task.svg
+```{include} ../_static/md/write-a-task.md
 ```
 
 ## Customize task names

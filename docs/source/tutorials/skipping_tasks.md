@@ -20,7 +20,7 @@ def task_long_running(produces):
     ...
 ```
 
-Not only this task will be skipped, but also all tasks which depend on
+Not only will this task be skipped, but all tasks that depend on
 `time_intensive_product.pkl`.
 
 ## Conditional skipping

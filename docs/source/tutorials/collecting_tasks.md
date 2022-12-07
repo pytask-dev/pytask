@@ -19,13 +19,13 @@ def task_write_file(depends_on, produces):
 
 Now, running `pytask collect` will produce the following output.
 
-```{image} /_static/images/collect.svg
+```{include} ../_static/md/collect.md
 ```
 
 If you want to have more information regarding the dependencies and products of the
 task, append the {option}`pytask collect --nodes` flag.
 
-```{image} /_static/images/collect-nodes.svg
+```{include} ../_static/md/collect-nodes.md
 ```
 
 To restrict the set of tasks you are looking at, use markers, expressions and ignore

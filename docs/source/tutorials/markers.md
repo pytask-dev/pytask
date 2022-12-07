@@ -3,13 +3,12 @@
 pytask uses markers to attach additional information to a task. You can see all
 available markers by using the `pytask markers` command.
 
-```{image} /_static/images/markers.svg
+```{include} ../_static/md/markers.md
 ```
 
-You can use your markers to select tasks as explained in this {ref}`tutorial <markers>`.
+As explained in this {ref}`tutorial <markers>`, you can use markers to select tasks.
 
-If you create your marker, register it in the configuration file with its name and a
-description.
+Register your marker in the configuration file with its name and description.
 
 ```toml
 [tool.pytask.ini_options.markers]

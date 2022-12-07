@@ -15,12 +15,12 @@ $ pytask -h | --help
 
 ## Commands
 
-pytask has multiple commands that are listed in the main help page.
+pytask has multiple commands that are listed on the main help page.
 
-```{image} /_static/images/help_page.svg
+```{include} ../_static/md/help-page.md
 ```
 
-The `build` command is the default command which means the following two calls are
+The `build` command is the default command, meaning the following two calls are
 identical.
 
 ```console
@@ -37,8 +37,8 @@ $ pytask <command-name> --help
 
 ## The build command
 
-The build command accepts among many options paths as positional arguments. If no paths
-are passed via the command line interface, pytask will look for the `paths` key in the
+The build command accepts many options paths as positional arguments. If no paths are
+passed via the command line interface, pytask will look for the `paths` key in the
 configuration file. At last, pytask will collect tasks from the current working
 directory and subsequent folders.
 
@@ -70,7 +70,7 @@ is available.
 
 ### Stopping after the first (N) failures
 
-To stop the build of the project after the first `n` failures use
+To stop the build of the project after the first `n` failures, use
 
 ```console
 $ pytask -x | --stop-after-first-failure  # Stop after the first failure
@@ -79,12 +79,7 @@ $ pytask --max-failures 2                 # Stop after the second failure
 
 ### Performing a dry-run
 
-If you want to see which tasks would be executed without executing them, you can do a
-dry-run.
+You can do a dry run to see which tasks would be executed without executing them.
 
-```console
-$ pytask --dry-run
-```
-
-```{image} /_static/images/dry-run.svg
+```{include} ../_static/md/dry-run.md
 ```
