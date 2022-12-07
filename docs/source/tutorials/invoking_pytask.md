@@ -79,11 +79,7 @@ $ pytask --max-failures 2                 # Stop after the second failure
 
 ### Performing a dry-run
 
-You can do a dry-run to see which tasks would be executed without executing them.
+You can do a dry run to see which tasks would be executed without executing them.
 
-```console
-$ pytask --dry-run
-```
-
-```{image} /_static/images/dry-run.svg
+```{include} ../_static/md/dry-run.md
 ```

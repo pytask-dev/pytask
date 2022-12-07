@@ -9,7 +9,7 @@ Using {option}`pytask build --pdb` enables the post-mortem debugger. Whenever an
 exception is raised inside a task, the prompt will enter the debugger enabling you to
 find out the cause of the exception.
 
-```{image} /_static/images/pdb.svg
+```{include} ../_static/md/pdb.md
 ```
 
 One tutorial explains {doc}`how to select a subset of tasks <selecting_tasks>`. Combine
@@ -20,7 +20,7 @@ it with the {option}`pytask build --pdb` flag to debug specific tasks.
 If you want to enter the debugger at the start of every task, use
 {option}`pytask build --trace`.
 
-```{image} /_static/images/trace.svg
+```{include} ../_static/md/trace.md
 ```
 
 ## Tracebacks
@@ -28,7 +28,7 @@ If you want to enter the debugger at the start of every task, use
 You can enrich the display of tracebacks by showing local variables in each stack frame.
 Just execute {option}`pytask build --show-locals`.
 
-```{image} /_static/images/show-locals.svg
+```{include} ../_static/md/show-locals.md
 ```
 
 ## Custom debugger

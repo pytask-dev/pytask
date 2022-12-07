@@ -57,7 +57,7 @@ class ColoredGroup(DefaultGroup):
         console.print(
             Panel(
                 commands_table,
-                title="[bold #ffffff]Commands[/bold #ffffff]",
+                title="[bold #f2f2f2]Commands[/]",
                 title_align="left",
                 border_style="grey37",
             )
@@ -66,7 +66,7 @@ class ColoredGroup(DefaultGroup):
         print_options(self, ctx)
 
         console.print(
-            "[bold red]♥[/bold red] [white]https://pytask-dev.readthedocs.io[/]",
+            "[bold #FF0000]♥[/] [#f2f2f2]https://pytask-dev.readthedocs.io[/]",
             justify="right",
         )
 
@@ -92,7 +92,7 @@ class ColoredCommand(click.Command):
         print_options(self, ctx)
 
         console.print(
-            "[bold red]♥[/bold red] [white]https://pytask-dev.readthedocs.io[/]",
+            "[bold #FF0000]♥[/] [#f2f2f2]https://pytask-dev.readthedocs.io[/]",
             justify="right",
         )
 
@@ -142,7 +142,7 @@ def print_options(group_or_command: click.Command | DefaultGroup, ctx: Any) -> N
     console.print(
         Panel(
             options_table,
-            title="[bold #ffffff]Options[/bold #ffffff]",
+            title="[bold #f2f2f2]Options[/]",
             title_align="left",
             border_style="grey37",
         )
