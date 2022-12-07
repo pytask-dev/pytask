@@ -30,3 +30,45 @@ ignore_errors = true
 
 [tool.codespell]
 ignore-words-list = "falsy, hist, ines, unparseable"
+
+
+[tool.ruff]
+extend-select = [
+    "A",  # flake8-builtins
+    # "ARG",  # flake8-unused-arguments
+    "B",  # flake8-bugbear
+    "BLE",  # flake8-blind-except
+    "C4",  # flake8-comprehensions
+    # "D",  # flake8-docstring
+    "E",  # pycodestyle errors
+    "ERA",  # eradicate
+    "FBT",  # flake8-boolean-trap
+    "F",  # pyflakes
+    "N",  # pep8-naming
+    "PGH",
+    "PLC",
+    "PLE",
+    "PLR",
+    "PLW",
+    "RUF",  # ruff specific
+    "S",
+    "T10",  # flake8-debugger
+    "T20",  # flake8-print
+    "U",  # pyupgrade
+    "W",  # pycodestyle warnings
+    "YTT",
+]
+fix = true
+extend-ignore = [
+    # Numpy docstyle
+    "D107",
+    "D203",
+    "D212",
+    "D213",
+    "D402",
+    "D413",
+    "D415",
+    "D416",
+    "D417",
+    "S101",
+]
