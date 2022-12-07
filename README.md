@@ -98,7 +98,7 @@ Here are some details:
 
 To execute the task, enter `pytask` on the command-line
 
-![image](https://github.com/pytask-dev/pytask/raw/main/docs/source/_static/images/readme.svg)
+![image](https://github.com/pytask-dev/pytask/raw/main/docs/source/_static/images/readme.gif)
 
 # Documentation
 
