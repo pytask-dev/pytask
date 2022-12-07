@@ -68,5 +68,5 @@ def task_func2():
 and running this module will show you precisely the output of the failing function and
 hide the other one:
 
-```{image} /_static/images/capture.svg
+```{include} ../_static/md/capture.md
 ```
