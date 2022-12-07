@@ -27,7 +27,7 @@ the decorator out of consideration for yourself and other contributors.
 
 To create a persisting task, apply the correct decorator, and, et voilà, it is done.
 
-First, we create a task and its dependency to see the whole process.
+First, we create a task and its dependency.
 
 ```python
 # Content of task_module.py

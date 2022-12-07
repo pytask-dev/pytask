@@ -42,7 +42,6 @@ extensions = [
     "sphinx_click",
     "sphinx_panels",
     "myst_parser",
-    # 'sphinx_term.termynal',
 ]
 
 # List of patterns, relative to source directory, that match files and directories to

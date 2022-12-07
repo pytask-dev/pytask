@@ -6,19 +6,15 @@ pytask is available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask). Install the package with one of
 two commands.
 
-<div class="termy">
-
 ```console
 $ pip install pytask
----> 100%
-Successfully installed pytask
-
-$ conda install -c conda-forge pytask
----> 100%
-Successfully installed pytask
 ```
 
-</div>
+or
+
+```console
+$ conda install -c conda-forge pytask
+```
 
 <!-- END: Keep in sync with README.md -->
 
