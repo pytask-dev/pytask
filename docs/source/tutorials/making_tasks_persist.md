@@ -1,6 +1,6 @@
 # Making tasks persist
 
-Sometimes you want to skip the execution of a task and pretend as nothing has changed.
+Sometimes you want to skip the execution of a task and pretend nothing has changed.
 
 A typical scenario is that you formatted the task's source files with [black](https://github.com/psf/black) which would rerun the task.
 
@@ -27,7 +27,7 @@ the decorator out of consideration for yourself and other contributors.
 
 To create a persisting task, apply the correct decorator, and, et voilà, it is done.
 
-First, to see the whole process, we create a task and its dependency.
+First, we create a task and its dependency to see the whole process.
 
 ```python
 # Content of task_module.py
@@ -54,7 +54,7 @@ Running pytask will execute the task since the product is missing.
 ```
 
 After that, we accidentally changed the task's source file by formatting the file with
-Black. Without the {func}`@pytask.mark.persist <pytask.mark.persist>` decorator the task
+Black. Without the {func}`@pytask.mark.persist <pytask.mark.persist>` decorator, the task
 would run again since the source has changed. With the decorator, a green p signals that
 the execution is skipped.
 

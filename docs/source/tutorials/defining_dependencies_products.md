@@ -1,6 +1,6 @@
 # Defining dependencies and products
 
-To ensure pytask executes all tasks in correct order, define which dependencies are
+To ensure pytask executes all tasks in the correct order, define which dependencies are
 required and which products are produced by a task.
 
 :::{important}
@@ -52,7 +52,7 @@ example, load the data.
 Dependencies and products do not have to be absolute paths. If paths are relative, they
 are assumed to point to a location relative to the task module.
 
-You can also use absolute and relative paths as strings which obey the same rules as the
+You can also use absolute and relative paths as strings that obey the same rules as the
 {class}`pathlib.Path`.
 
 ```python
@@ -67,7 +67,7 @@ access to the paths of the targets as {class}`pathlib.Path`.
 ## Multiple dependencies and products
 
 The easiest way to attach multiple dependencies or products to a task is to pass a
-{class}`dict` (highly recommended), {class}`list` or another iterator to the marker
+{class}`dict` (highly recommended), {class}`list`, or another iterator to the marker
 containing the paths.
 
 To assign labels to dependencies or products, pass a dictionary. For example,
@@ -78,7 +78,7 @@ def task_create_random_data(produces):
     ...
 ```
 
-Then, use
+Then, use `produces` inside the task function.
 
 ```pycon
 >>> produces["first"]
@@ -87,8 +87,6 @@ BLD / "data_0.pkl"
 >>> produces["second"]
 BLD / "data_1.pkl"
 ```
-
-inside the task function.
 
 You can also use lists and other iterables.
 
@@ -141,9 +139,9 @@ Inside the task, `depends_on` will be
 Dependencies and products can be nested containers consisting of tuples, lists, and
 dictionaries. It is beneficial if you want more structure and nesting.
 
-Here is an example with a task that fits some model on data. It depends on a module
+Here is an example of a task that fits some model on data. It depends on a module
 containing the code for the model, which is not actively used but ensures that the task
-is rerun when the model is changed. And it depends on data.
+is rerun when the model is changed. And it depends on the data.
 
 ```python
 @pytask.mark.depends_on(

@@ -63,8 +63,8 @@ $ conda install -c conda-forge pytask
 ```
 
 Color support is automatically available on non-Windows platforms. On Windows, please,
-use [Windows Terminal](https://github.com/microsoft/terminal) which can be, for example,
-installed via the [Microsoft Store](https://aka.ms/terminal).
+use [Windows Terminal](https://github.com/microsoft/terminal), which can be, for
+example, installed via the [Microsoft Store](https://aka.ms/terminal).
 
 To quickly set up a new project, use the
 [cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project)
@@ -135,7 +135,7 @@ written by [Darren Burns](https://github.com/darrenburns).
 # Citation
 
 If you rely on pytask to manage your research project, please cite it with the following
-key to helping others to discover the tool.
+key to help others to discover the tool.
 
 ```bibtex
 @Unpublished{Raabe2020,

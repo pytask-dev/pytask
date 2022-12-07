@@ -37,8 +37,8 @@ $ pytask <command-name> --help
 
 ## The build command
 
-The build command accepts among many options paths as positional arguments. If no paths
-are passed via the command line interface, pytask will look for the `paths` key in the
+The build command accepts many options paths as positional arguments. If no paths are
+passed via the command line interface, pytask will look for the `paths` key in the
 configuration file. At last, pytask will collect tasks from the current working
 directory and subsequent folders.
 
@@ -70,7 +70,7 @@ is available.
 
 ### Stopping after the first (N) failures
 
-To stop the build of the project after the first `n` failures use
+To stop the build of the project after the first `n` failures, use
 
 ```console
 $ pytask -x | --stop-after-first-failure  # Stop after the first failure

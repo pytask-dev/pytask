@@ -1,10 +1,10 @@
 # Plugins
 
 Users employ pytask in many different contexts, making it impossible for pytask's
-maintainers to support all possible use-cases.
+maintainers to support all possible use cases.
 
 Therefore, pytask uses [pluggy](https://github.com/pytest-dev/pluggy), a plugin
-framework, for allowing users to extend pytask.
+framework, to allow users to extend pytask.
 
 ## Where to find plugins
 
@@ -21,4 +21,4 @@ You can find plugins in many places.
 ## How to implement your plugin
 
 Follow the {doc}`guide on writing a plugin <../how_to_guides/how_to_write_a_plugin>` to
-write your own plugin.
+write your plugin.

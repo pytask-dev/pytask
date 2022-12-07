@@ -10,7 +10,7 @@ Then, follow the tutorial to become familiar with its parts.
 
 ## The directory structure
 
-The following directory tree is an example of how you can set up a project.
+The following directory tree is an example of setting up a project.
 
 ```
 my_project
@@ -40,9 +40,9 @@ contains a `[tool.pytask.ini_options]` section.
 paths = "src/my_project"
 ```
 
-You do not have to add any configuration values, but you need the
+You do not have to add configuration values, but you need the
 `[tool.pytask.ini_options]` header. The header alone will signal pytask that this is the
-project's root. pytask will store information it needs across executions in a
+project's root. pytask will store the information it needs across executions in a
 `.pytask.sqlite3` database next to the configuration file.
 
 `paths` allows you to set the location of tasks when you do not pass them explicitly via
@@ -126,7 +126,7 @@ This command will trigger an editable install of the project, which means any ch
 the package's source files are immediately available in the installed version.
 
 :::{important}
-Do not forget to rerun the editable install every time after you recreated your Python
+Do not forget to rerun the editable install every time after you recreate your Python
 environment.
 :::
 
