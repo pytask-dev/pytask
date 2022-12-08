@@ -30,7 +30,6 @@ def set_defaults_from_config(
     }
     context.params.update(all_defaults_from_cli)
 
-
     if value:
         context.params["config"] = value
         context.params["root"] = context.params["config"].parent
