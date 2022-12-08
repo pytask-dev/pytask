@@ -34,10 +34,10 @@ There are three ways in which `pytask` can perform capturing:
   {class}`sys.stderr` will be captured. No capturing of writes to file descriptors is
   performed.
 - `tee-sys` capturing: Python writes to {class}`sys.stdout` and {class}`sys.stderr` will
-  be captured, however the writes will also be passed-through to the actual
+  be captured. However, the writes will also be passed through to the actual
   {class}`sys.stdout` and {class}`sys.stderr`.
 
-You can influence output capturing mechanisms from the command line:
+You can influence output-capturing mechanisms from the command line:
 
 ```console
 $ pytask -s                  # disable all capturing
@@ -65,8 +65,8 @@ def task_func2():
     assert False
 ```
 
-and running this module will show you precisely the output of the failing function and
+And running this module will show you precisely the output of the failing function and
 hide the other one:
 
-```{image} /_static/images/capture.svg
+```{include} ../_static/md/capture.md
 ```

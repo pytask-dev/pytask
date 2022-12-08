@@ -36,7 +36,7 @@ for i in range(10):
 
 Executing pytask gives you this:
 
-```{image} /_static/images/repeating-tasks.svg
+```{include} ../_static/md/repeating-tasks.md
 ```
 
 ## `depends_on` and `produces`

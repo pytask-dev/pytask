@@ -289,7 +289,8 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
 
     console.rule(style="dim")
 
-    panel = create_summary_panel(counts, TaskOutcome, "Collected tasks")
+    description_total = "Collected task" if len(reports) == 1 else "Collected tasks"
+    panel = create_summary_panel(counts, TaskOutcome, description_total)
     console.print(panel)
 
     session.hook.pytask_log_session_footer(

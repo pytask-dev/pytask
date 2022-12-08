@@ -41,8 +41,8 @@ The second option is to let pytask try to find the configuration itself.
    working directory).
 2. Starting from this directory, look at all parent directories, and return the file if
    it exists.
-3. If a directory contains a `.git` directory/file or a valid configuration file with
-   the right section, stop searching.
+3. Stop searching if a directory contains a `.git` directory/file or a valid configuration file with
+   the right section.
 
 ## The options
 

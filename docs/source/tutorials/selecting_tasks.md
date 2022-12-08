@@ -1,6 +1,6 @@
 # Selecting tasks
 
-If you want to run only a subset of tasks, multiple options exist.
+Multiple options exist if you want to run a subset of tasks.
 
 (markers)=
 

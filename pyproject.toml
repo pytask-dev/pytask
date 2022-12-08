@@ -29,3 +29,7 @@ ignore_errors = true
 
 
 [tool.pytask.ini_options]
+
+
+[tool.codespell]
+ignore-words-list = "falsy, hist, ines, unparseable"

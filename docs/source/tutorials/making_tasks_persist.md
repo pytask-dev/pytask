@@ -1,6 +1,6 @@
 # Making tasks persist
 
-Sometimes you want to skip the execution of a task and pretend as nothing has changed.
+Sometimes you want to skip the execution of a task and pretend nothing has changed.
 
 A typical scenario is that you formatted the task's source files with [black](https://github.com/psf/black) which would rerun the task.
 
@@ -27,7 +27,7 @@ the decorator out of consideration for yourself and other contributors.
 
 To create a persisting task, apply the correct decorator, and, et voilà, it is done.
 
-First, to see the whole process, we create a task and its dependency.
+First, we create a task and its dependency.
 
 ```python
 # Content of task_module.py
@@ -50,19 +50,19 @@ Here is the text.
 
 Running pytask will execute the task since the product is missing.
 
-```{image} /_static/images/persist-executed.svg
+```{include} ../_static/md/persist-executed.md
 ```
 
-After that, we accidentally changed the task's source file by formatting the file
-with Black. Without the {func}`@pytask.mark.persist <pytask.mark.persist>` decorator the
-task would run again since it has changed. With the decorator, the execution is skipped
-which is signaled by a green p.
+After that, we accidentally changed the task's source file by formatting the file with
+Black. Without the {func}`@pytask.mark.persist <pytask.mark.persist>` decorator, the task
+would run again since the source has changed. With the decorator, a green p signals that
+the execution is skipped.
 
-```{image} /_static/images/persist-persisted.svg
+```{include} ../_static/md/persist-persisted.md
 ```
 
 If we rerun the task, it is skipped because nothing has changed and not because
 it is marked with {func}`@pytask.mark.persist <pytask.mark.persist>`.
 
-```{image} /_static/images/persist-skipped.svg
+```{include} ../_static/md/persist-skipped.md
 ```

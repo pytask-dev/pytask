@@ -72,18 +72,18 @@ theme = Theme(
     {
         # Statuses
         "failed": "#BF2D2D",
-        "failed.textonly": "#ffffff on #BF2D2D",
+        "failed.textonly": "#f2f2f2 on #BF2D2D",
         "neutral": "",
         "skipped": "#F4C041",
-        "skipped.textonly": "#000000 on #F4C041",
+        "skipped.textonly": "#0c0c0c on #F4C041",
         "success": "#137C39",
-        "success.textonly": "#ffffff on #137C39",
+        "success.textonly": "#f2f2f2 on #137C39",
         "warning": "#F4C041",
         # Help page.
         "command": "bold #137C39",
         "option": "bold #F4C041",
         "switch": "bold #D54523",
-        "metavar": "bold yellow",
+        "metavar": "bold #FFFF00",
     }
 )
 
@@ -248,7 +248,7 @@ def create_summary_panel(
         Padding(str(n_total), pad=_HORIZONTAL_PADDING),
         Padding(description_total, pad=_HORIZONTAL_PADDING),
         Padding("", pad=_HORIZONTAL_PADDING),
-        style="#ffffff",
+        style="#f2f2f2",
     )
     for outcome, value in counts.items():
         if value:
@@ -268,7 +268,7 @@ def create_summary_panel(
 
     panel = Panel(
         grid,
-        title="[bold #ffffff]Summary[/bold #ffffff]",
+        title="[bold #f2f2f2]Summary[/]",
         expand=False,
         style="none",
         border_style=outcome_enum.FAIL.style

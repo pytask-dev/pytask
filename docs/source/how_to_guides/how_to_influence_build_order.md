@@ -39,7 +39,7 @@ def task_second():
 
 The execution yields (use `-s` to make the output visible in the terminal)
 
-```{image} /_static/images/try-first.svg
+```{include} ../_static/md/try-first.md
 ```
 
 Replacing {func}`pytask.mark.try_first` with {func}`pytask.mark.try_last` yields
@@ -61,5 +61,5 @@ def task_second():
 
 and
 
-```{image} /_static/images/try-last.svg
+```{include} ../_static/md/try-last.md
 ```

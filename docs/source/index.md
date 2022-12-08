@@ -17,7 +17,7 @@
 
 <!-- Keep in sync with README.md -->
 
-pytask is a workflow management system which facilitates reproducible data analyses. Its
+pytask is a workflow management system that facilitates reproducible data analyses. Its
 features include:
 
 - **Automatic discovery of tasks.**
@@ -37,8 +37,8 @@ features include:
   [parallelization](https://github.com/pytask-dev/pytask-parallel),
   [LaTeX](https://github.com/pytask-dev/pytask-latex),
   [R](https://github.com/pytask-dev/pytask-r), and
-  [Stata](https://github.com/pytask-dev/pytask-stata) and more can be found
-  [here](https://github.com/topics/pytask). Learn more about plungins in
+  [Stata](https://github.com/pytask-dev/pytask-stata), and more can be found
+  [here](https://github.com/topics/pytask). Learn more about plugins in
   [this tutorial](https://pytask-dev.readthedocs.io/en/stable/tutorials/plugins.html).
 
 To get started with pytask, the documentation includes a series of tutorials. Go to the
@@ -47,7 +47,7 @@ there.
 
 ## Documentation
 
-If you want to know more about pytask, dive into one the following topics.
+If you want to know more about pytask, dive into one of the following topics.
 
 ```{eval-rst}
 .. panels::

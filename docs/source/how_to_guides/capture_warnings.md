@@ -23,8 +23,7 @@ def task_warning(produces):
 
 Running pytask produces
 
-```{image} /_static/images/warning.svg
-
+```{include} ../_static/md/warning.md
 ```
 
 ## Controlling warnings
