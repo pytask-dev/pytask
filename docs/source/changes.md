@@ -5,13 +5,16 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.4.0 - 2023-xx-xx
+
+- {pull}`323` uses a new Github action to provide mamba.
+
 ## 0.2.7 - 2022-xx-xx
 
 - {pull}`308` replaces pydot with pygraphviz.
 - {pull}`318` Clarifies an example on nested dependencies and products.
 - {pull}`321` converts more choice options to enums.
 - {pull}`322` replaces SVGs with animations by termynal.
-- {pull}`323` uses a new Github action to provide mamba.
 
 ## 0.2.6 - 2022-10-27
 
