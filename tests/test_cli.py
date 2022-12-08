@@ -20,12 +20,12 @@ def test_version_option():
     "commands",
     [
         (),
-        ("build"),
-        ("clean"),
-        ("collect"),
-        ("dag"),
-        ("markers"),
-        ("profile"),
+        ("build",),
+        ("clean",),
+        ("collect",),
+        ("dag",),
+        ("markers",),
+        ("profile",),
     ],
 )
 def test_help_pages(runner, commands, help_option):
