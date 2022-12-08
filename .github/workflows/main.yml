@@ -30,17 +30,17 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: actions/checkout@v3
+      - uses: mamba-org/provision-with-micromamba@main
         with:
-          auto-update-conda: false
-          python-version: ${{ matrix.python-version }}
+          environment-file: false
+          environment-name: gha-testing
           channels: conda-forge,nodefaults
-          mamba-version: "*"
-
-      - name: Install core dependencies.
-        shell: bash -l {0}
-        run: mamba install -c conda-forge tox-conda coverage
+          extra-specs: |
+            python=${{ matrix.python-version }}
+            mamba
+            tox-conda
+          cache-downloads: true
 
       # Unit, integration, and end-to-end tests.
 
