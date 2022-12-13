@@ -354,8 +354,9 @@ def test_task_function_with_partialed_args(tmp_path, runner):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == ExitCode.FAILED
-    assert "TypeError: module, class, method" in result.output
+    assert result.exit_code == ExitCode.OK
+    assert "Collected 1 task." in result.output
+    assert "1  Succeeded" in result.output
 
 
 @pytest.mark.end_to_end
