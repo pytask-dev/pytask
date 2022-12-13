@@ -180,7 +180,7 @@ def create_url_style_for_task(
             "path": _get_file(task_function),
             "line_number": _get_source_lines(task_function),
         }
-    except OSError:
+    except (OSError, TypeError):
         style = Style()
     else:
         style = Style(link=url_scheme.format(**info))
