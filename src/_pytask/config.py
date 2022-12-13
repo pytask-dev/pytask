@@ -3,14 +3,9 @@ from __future__ import annotations
 
 import os
 import tempfile
-import warnings
-from pathlib import Path
 from typing import Any
 
-import click
 import pluggy
-import tomli
-from _pytask.config_utils import read_config
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
 from _pytask.shared import parse_paths
@@ -87,7 +82,7 @@ def pytask_configure(
 
     pm.hook.pytask_parse_config(
         config=config,
-        config_from_cli={},
+        config_from_cli=config_from_cli,
         config_from_file={},
     )
 
@@ -103,7 +98,10 @@ def pytask_parse_config(
     config_from_file: dict[str, Any],
 ) -> None:
     """Parse the configuration."""
+    # TODO: Do I need it?
     config["command"] = config_from_cli.get("command", "build")
+
+    config["paths"] = parse_paths(config_from_cli["paths"])
 
     config_from_file["ignore"] = parse_value_or_multiline_option(
         config_from_file.get("ignore")
@@ -132,13 +130,8 @@ def pytask_parse_config(
         config["pm"].trace.root.setwriter(print)  # noqa: T202
         config["pm"].enable_tracing()
 
-    config_from_file["task_files"] = parse_value_or_multiline_option(
-        config_from_file.get("task_files")
-    )
     config["task_files"] = to_list(
-        get_first_non_none_value(
-            config_from_file, key="task_files", default="task_*.py"
-        )
+        get_first_non_none_value(config_from_cli, key="task_files", default="task_*.py")
     )
 
     config["stop_after_first_failure"] = get_first_non_none_value(
@@ -156,7 +149,7 @@ def pytask_parse_config(
             config_from_file,
             key="max_failures",
             default=float("inf"),
-            callback=lambda x: x if x is None else int(x),
+            callback=lambda x: x if x is None or x == float("inf") else int(x),
         )
 
     config["check_casing_of_paths"] = get_first_non_none_value(

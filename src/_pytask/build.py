@@ -2,12 +2,15 @@
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 from typing import Any
 from typing import TYPE_CHECKING
 
 import click
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
+from _pytask.config_utils import _find_project_root_and_config
+from _pytask.config_utils import read_config
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
@@ -16,6 +19,8 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
+from _pytask.shared import parse_paths
+from _pytask.shared import to_list
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from rich.traceback import Traceback
 
@@ -56,13 +61,49 @@ def main(config_from_cli: dict[str, Any]) -> Session:
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
+        # If someone called the programmatic interface, we need to do some parsing.
+        if "command" not in config_from_cli:
+            config_from_cli["command"] = "build"
+            # Add defaults from cli.
+            from _pytask.cli import DEFAULTS_FROM_CLI
+
+            config_from_cli = {**DEFAULTS_FROM_CLI, **config_from_cli}
+
+            config_from_cli["paths"] = parse_paths(config_from_cli.get("paths"))
+
+            if config_from_cli["config"] is not None:
+                config_from_cli["config"] = Path(config_from_cli["config"]).resolve()
+                config_from_cli["root"] = config_from_cli["config"].parent
+            else:
+                if config_from_cli["paths"] is None:
+                    config_from_cli["paths"] = (Path.cwd(),)
+
+                config_from_cli["paths"] = parse_paths(config_from_cli["paths"])
+                (
+                    config_from_cli["root"],
+                    config_from_cli["config"],
+                ) = _find_project_root_and_config(config_from_cli["paths"])
+
+            if config_from_cli["config"] is not None:
+                config_from_file = read_config(config_from_cli["config"])
+
+                if "paths" in config_from_file:
+                    paths = config_from_file["paths"]
+                    paths = [
+                        config_from_cli["config"].parent.joinpath(path).resolve()
+                        for path in to_list(paths)
+                    ]
+                    config_from_file["paths"] = paths
+
+                config_from_cli = {**config_from_cli, **config_from_file}
+
         config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
 
         session = Session.from_config(config)
 
     except (ConfigurationError, Exception):
         exc_info = sys.exc_info()
-        # exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
+        exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         traceback = Traceback.from_exception(*exc_info)
         console.print(traceback)
         session = Session({}, None)
@@ -100,33 +141,35 @@ def main(config_from_cli: dict[str, Any]) -> Session:
 @click.option(
     "--debug-pytask",
     is_flag=True,
-    default=None,
+    default=False,
     help="Trace all function calls in the plugin framework. [dim]\\[default: False][/]",
 )
 @click.option(
     "-x",
     "--stop-after-first-failure",
     is_flag=True,
-    default=None,
+    default=False,
     help="Stop after the first failure.",
 )
-@click.option("--max-failures", default=None, help="Stop after some failures.")
+@click.option("--max-failures", default=float("inf"), help="Stop after some failures.")
 @click.option(
     "--show-errors-immediately",
     is_flag=True,
-    default=None,
+    default=False,
     help="Print errors with tracebacks as soon as the task fails.",
 )
 @click.option(
     "--show-traceback/--show-no-traceback",
     type=bool,
-    default=None,
+    default=True,
     help=(
         "Choose whether tracebacks should be displayed or not. "
         "[dim]\\[default: True][/]"
     ),
 )
-@click.option("--dry-run", type=bool, is_flag=True, help="Perform a dry-run.")
+@click.option(
+    "--dry-run", type=bool, is_flag=True, default=False, help="Perform a dry-run."
+)
 def build(**config_from_cli: Any) -> NoReturn:
     """Collect tasks, execute them and report the results.
 

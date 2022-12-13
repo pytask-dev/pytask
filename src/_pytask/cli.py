@@ -106,3 +106,10 @@ def cli() -> None:
 
 
 _extend_command_line_interface(cli)
+
+
+DEFAULTS_FROM_CLI = {
+    option.name: option.default
+    for command in cli.commands.values()
+    for option in command.params
+}

@@ -70,13 +70,20 @@ _EDITOR_URL_SCHEME_OPTION = click.Option(
 """click.Option: An option to embed URLs in task ids."""
 
 
+_MARKER_OPTION = click.Option(
+    ["--markers"], default={}, hidden=True, type=(str, str), multiple=True
+)
+
+
 @hookimpl(trylast=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Register general markers."""
     for command in ("build", "clean", "collect", "dag", "profile"):
         cli.commands[command].params.append(_PATH_ARGUMENT)
-    for command in ("build", "clean", "collect", "markers", "profile"):
+    for command in ("build", "clean", "collect", "dag", "markers", "profile"):
         cli.commands[command].params.append(_CONFIG_OPTION)
+    for command in ("build", "clean", "collect", "dag", "markers", "profile"):
+        cli.commands[command].params.append(_MARKER_OPTION)
     for command in ("build", "clean", "collect", "profile"):
         cli.commands[command].params.extend([_IGNORE_OPTION, _EDITOR_URL_SCHEME_OPTION])
     for command in ("build",):

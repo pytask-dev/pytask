@@ -192,7 +192,7 @@ def test_collect_task_with_ignore_from_config(runner, tmp_path):
 
     config = """
     [tool.pytask.ini_options]
-    ignore = "task_example_2.py"
+    ignore = ["task_example_2.py"]
     """
     tmp_path.joinpath("pyproject.toml").write_text(textwrap.dedent(config))
 

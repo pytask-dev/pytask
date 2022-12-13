@@ -105,7 +105,6 @@ def test_collect_same_test_different_ways(tmp_path, path_extension):
         (["example_task.py"], "'*_task.py'", 1),
         (["tasks_example.py"], "'tasks_*'", 1),
         (["example_tasks.py"], "'*_tasks.py'", 1),
-        (["task_module.py", "tasks_example.py"], "'None'", 1),
         (["task_module.py", "tasks_example.py"], "'tasks_*.py'", 1),
         (["task_module.py", "tasks_example.py"], "['task_*.py', 'tasks_*.py']", 2),
     ],

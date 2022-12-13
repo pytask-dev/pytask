@@ -30,7 +30,6 @@ def set_defaults_from_config(
     }
     context.params.update(all_defaults_from_cli)
 
-
     if value:
         context.params["config"] = value
         context.params["root"] = context.params["config"].parent
@@ -48,6 +47,9 @@ def set_defaults_from_config(
         return None
 
     config_from_file = read_config(context.params["config"])
+
+    if "markers" in config_from_file:
+        config_from_file["markers"] = list(config_from_file["markers"].items())
 
     if context.default_map is None:
         context.default_map = {}

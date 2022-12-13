@@ -308,7 +308,7 @@ def test_full_execution_table_is_displayed_at_the_end_of_execution(tmp_path, run
 
 
 @pytest.mark.end_to_end
-@pytest.mark.parametrize("sort_table", [True, False])
+@pytest.mark.parametrize("sort_table", ["true", "false"])
 def test_sort_table_option(tmp_path, runner, sort_table):
     source = """
     import pytask
@@ -323,7 +323,7 @@ def test_sort_table_option(tmp_path, runner, sort_table):
     """
     tmp_path.joinpath("task_order.py").write_text(textwrap.dedent(source))
 
-    config = f"[tool.pytask.ini_options]\nsort_table = '{sort_table}'"
+    config = f"[tool.pytask.ini_options]\nsort_table = {sort_table}"
     tmp_path.joinpath("pyproject.toml").write_text(textwrap.dedent(config))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
