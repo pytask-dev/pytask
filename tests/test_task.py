@@ -406,6 +406,7 @@ def test_parametrized_tasks_without_arguments_in_signature(tmp_path, runner):
     assert "Collect 3 tasks"
 
 
+@pytest.mark.end_to_end
 def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
     source = """
     import pytask
@@ -417,7 +418,7 @@ def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
     '''
 
     for i in range(2):
-        exec(_DEFINITION, globals(), locals())
+        exec(_DEFINITION)
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
