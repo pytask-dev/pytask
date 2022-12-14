@@ -52,7 +52,13 @@ def task(
 
     def wrapper(func: Callable[..., Any]) -> None:
         unwrapped = inspect.unwrap(func)
-        path = Path(inspect.getfile(unwrapped)).absolute().resolve()
+
+        raw_path = inspect.getfile(unwrapped)
+        if "<string>" in raw_path:
+            path = Path(unwrapped.__globals__["__file__"]).absolute().resolve()
+        else:
+            path = Path(raw_path).absolute().resolve()
+
         parsed_kwargs = {} if kwargs is None else kwargs
         parsed_name = name if isinstance(name, str) else func.__name__
 

@@ -351,3 +351,22 @@ def test_traceback_of_previous_task_failed_is_not_shown(runner, tmp_path, verbos
     assert ("Task task_example.py::task_second failed" in result.output) is (
         verbose == 2
     )
+
+
+@pytest.mark.end_to_end
+def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
+    source = """
+    _DEFINITION = '''
+    def task_example():
+        pass
+    '''
+
+    exec(_DEFINITION)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "task_example" in result.output
+    assert "Collect 1 task"
