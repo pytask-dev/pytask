@@ -331,7 +331,7 @@ def test_sort_table_option(tmp_path, runner, sort_table):
 
     lines = result.output.split("\n")
     task_names = [re.findall("task_[a|b]", line) for line in lines]
-    task_names = [name[0][-1] for name in task_names if name != []]
+    task_names = [name[0][-1] for name in task_names if name]
     expected = ["a", "b"] if sort_table else ["b", "a"]
     assert expected == task_names
 
