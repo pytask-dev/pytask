@@ -172,12 +172,20 @@ def create_url_style_for_task(
     """Create the style to add a link to a task id."""
     url_scheme = _EDITOR_URL_SCHEMES.get(edtior_url_scheme, edtior_url_scheme)
 
-    info = {
-        "path": _get_file(task_function),
-        "line_number": _get_source_lines(task_function),
-    }
+    if not url_scheme:
+        return Style()
 
-    return Style() if not url_scheme else Style(link=url_scheme.format(**info))
+    try:
+        info = {
+            "path": _get_file(task_function),
+            "line_number": _get_source_lines(task_function),
+        }
+    except (OSError, TypeError):
+        style = Style()
+    else:
+        style = Style(link=url_scheme.format(**info))
+
+    return style
 
 
 def create_url_style_for_path(path: Path, edtior_url_scheme: str) -> Style:
