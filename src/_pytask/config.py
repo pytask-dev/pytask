@@ -98,9 +98,6 @@ def pytask_parse_config(
     config_from_file: dict[str, Any],
 ) -> None:
     """Parse the configuration."""
-    # TODO: Do I need it?
-    config["command"] = config_from_cli.get("command", "build")
-
     config["paths"] = parse_paths(config_from_cli["paths"])
 
     config_from_file["ignore"] = parse_value_or_multiline_option(
