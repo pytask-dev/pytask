@@ -13,7 +13,9 @@ from _pytask.click import ColoredCommand
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
+from _pytask.config_utils import _find_project_root_and_config
 from _pytask.config_utils import parse_click_choice
+from _pytask.config_utils import read_config
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
@@ -22,7 +24,9 @@ from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import get_first_non_none_value
+from _pytask.shared import parse_paths
 from _pytask.shared import reduce_names_of_multiple_nodes
+from _pytask.shared import to_list
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from rich.text import Text
 from rich.traceback import Traceback
@@ -94,8 +98,14 @@ _HELP_TEXT_RANK_DIRECTION: str = (
 
 
 @click.command(cls=ColoredCommand)
-@click.option("-l", "--layout", type=str, default=None, help=_HELP_TEXT_LAYOUT)
-@click.option("-o", "--output-path", type=str, default=None, help=_HELP_TEXT_OUTPUT)
+@click.option("-l", "--layout", type=str, default="dot", help=_HELP_TEXT_LAYOUT)
+@click.option(
+    "-o",
+    "--output-path",
+    type=click.Path(file_okay=True, dir_okay=False, path_type=Path, resolve_path=True),
+    default="dag.pdf",
+    help=_HELP_TEXT_OUTPUT,
+)
 @click.option(
     "-r",
     "--rank-direction",
@@ -178,6 +188,42 @@ def build_dag(config_from_cli: dict[str, Any]) -> nx.DiGraph:
 
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
+
+        # If someone called the programmatic interface, we need to do some parsing.
+        if "command" not in config_from_cli:
+            config_from_cli["command"] = "dag"
+            # Add defaults from cli.
+            from _pytask.cli import DEFAULTS_FROM_CLI
+
+            config_from_cli = {**DEFAULTS_FROM_CLI, **config_from_cli}
+
+            config_from_cli["paths"] = parse_paths(config_from_cli.get("paths"))
+
+            if config_from_cli["config"] is not None:
+                config_from_cli["config"] = Path(config_from_cli["config"]).resolve()
+                config_from_cli["root"] = config_from_cli["config"].parent
+            else:
+                if config_from_cli["paths"] is None:
+                    config_from_cli["paths"] = (Path.cwd(),)
+
+                config_from_cli["paths"] = parse_paths(config_from_cli["paths"])
+                (
+                    config_from_cli["root"],
+                    config_from_cli["config"],
+                ) = _find_project_root_and_config(config_from_cli["paths"])
+
+            if config_from_cli["config"] is not None:
+                config_from_file = read_config(config_from_cli["config"])
+
+                if "paths" in config_from_file:
+                    paths = config_from_file["paths"]
+                    paths = [
+                        config_from_cli["config"].parent.joinpath(path).resolve()
+                        for path in to_list(paths)
+                    ]
+                    config_from_file["paths"] = paths
+
+                config_from_cli = {**config_from_cli, **config_from_file}
 
         config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
 
