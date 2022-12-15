@@ -6,7 +6,6 @@ import warnings
 from enum import Enum
 from pathlib import Path
 from typing import Any
-from typing import Callable
 
 import click
 import tomli
@@ -48,9 +47,6 @@ def set_defaults_from_config(
         return None
 
     config_from_file = read_config(context.params["config"])
-    config_from_file["markers"] = _convert_markers_to_list_of_tuples(
-        config_from_file.get("markers")
-    )
 
     if context.default_map is None:
         context.default_map = {}
@@ -114,24 +110,6 @@ def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:
         root = common_ancestor
 
     return root, config_path
-
-
-def parse_click_choice(
-    name: str, enum_: type[Enum]
-) -> Callable[[Enum | str | None], Enum | None]:
-    """Validate the passed options for a :class:`click.Choice` option."""
-    value_to_name = {enum_[name].value: name for name in enum_.__members__}
-
-    def _parse(x: Enum | str | None) -> Enum | None:
-        if x in (None, "None", "none"):
-            out = None
-        elif isinstance(x, str) and x in value_to_name:
-            out = enum_[value_to_name[x]]
-        else:
-            raise ValueError(f"'{name}' can only be one of {list(value_to_name)}.")
-        return out
-
-    return _parse
 
 
 class ShowCapture(str, Enum):

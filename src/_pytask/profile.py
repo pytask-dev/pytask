@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING
 import click
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
-from _pytask.config_utils import parse_click_choice
 from _pytask.console import console
 from _pytask.console import format_task_id
 from _pytask.database import db
@@ -68,7 +67,6 @@ def pytask_parse_config(
         config_from_cli,
         key="export",
         default=_ExportFormats.NO,
-        callback=parse_click_choice("export", _ExportFormats),
     )
 
 

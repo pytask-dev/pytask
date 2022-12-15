@@ -1,3 +1,4 @@
+"""This module contains the main code for the markers plugin."""
 from __future__ import annotations
 
 import sys
@@ -99,11 +100,8 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             type=str,
             help="Select tasks via expressions on task ids.",
         ),
-        click.Option(
-            ["--markers"], default={}, hidden=True, type=(str, str), multiple=True
-        ),
     ]
-    for command in ("build", "clean", "collect", "markers"):
+    for command in ("build", "clean", "collect"):
         cli.commands[command].params.extend(additional_build_parameters)
 
 
@@ -114,7 +112,7 @@ def pytask_parse_config(
     config_from_file: dict[str, Any],
 ) -> None:
     """Parse marker related options."""
-    markers = _validate_markers(config_from_cli.get("markers", {}))
+    markers = _parse_markers(config_from_cli.get("markers"))
     config["markers"] = {**markers, **config["markers"]}
     config["strict_markers"] = get_first_non_none_value(
         config,
@@ -131,21 +129,23 @@ def pytask_parse_config(
     MARK_GEN.config = config
 
 
-def _validate_markers(x: dict[str, str] | list[tuple[str, str]]) -> dict[str, str]:
-    """Validate markers."""
-    try:
-        if isinstance(x, (list, tuple)):
-            x = dict(x)
-        mapping = {k.strip(): v.strip() for k, v in x.items()}
-    except Exception:
+def _parse_markers(x: dict[str, str] | list[str] | tuple[str, ...]) -> dict[str, str]:
+    """Parse markers."""
+    if x is None:
+        return {}
+    elif isinstance(x, (list, tuple)):
+        mapping = {name.strip(): "" for name in x}
+    elif isinstance(x, dict):
+        mapping = {name.strip(): description.strip() for name, description in x.items()}
+    else:
         raise click.BadParameter(
             "'markers' must be a mapping from markers to descriptions."
         )
 
-    for key in mapping:
-        if not key.isidentifier():
+    for name in mapping:
+        if not name.isidentifier():
             raise click.BadParameter(
-                f"{key} is not a valid Python name and cannot be used as a marker."
+                f"{name} is not a valid Python name and cannot be used as a marker."
             )
 
     return mapping
@@ -254,6 +254,7 @@ def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str]:
 def _deselect_others_with_mark(
     session: Session, remaining: set[str], mark: Mark
 ) -> None:
+    """Deselect tasks."""
     for task in session.tasks:
         if task.name not in remaining:
             task.markers.append(mark)

@@ -8,7 +8,6 @@ from typing import Any
 import click
 import networkx as nx
 from _pytask.config import hookimpl
-from _pytask.config_utils import parse_click_choice
 from _pytask.dag import node_and_neighbors
 from _pytask.shared import convert_truthy_or_falsy_to_bool
 from _pytask.shared import get_first_non_none_value
@@ -115,7 +114,6 @@ def pytask_parse_config(
         config_from_file,
         key="database_provider",
         default=_DatabaseProviders.SQLITE,
-        callback=parse_click_choice("database_provider", _DatabaseProviders),
     )
     filename = get_first_non_none_value(
         config_from_cli,

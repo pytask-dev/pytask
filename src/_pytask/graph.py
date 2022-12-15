@@ -14,7 +14,6 @@ from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.config_utils import _find_project_root_and_config
-from _pytask.config_utils import parse_click_choice
 from _pytask.config_utils import read_config
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
@@ -74,7 +73,6 @@ def pytask_parse_config(
         config_from_file,
         key="rank_direction",
         default=_RankDirection.TB,
-        callback=parse_click_choice("rank_direction", _RankDirection),
     )
 
 
