@@ -1,3 +1,4 @@
+"""This module contains utility functions for warnings."""
 from __future__ import annotations
 
 import functools
@@ -134,9 +135,7 @@ def parse_filterwarnings(x: str | list[str] | None) -> list[str]:
     """Parse filterwarnings."""
     if x is None:
         return []
-    elif isinstance(x, str):
-        return [i.strip() for i in x.split("\n")]
-    elif isinstance(x, list):
+    elif isinstance(x, (list, tuple)):
         return [i.strip() for i in x]
     else:
         raise TypeError("'filterwarnings' must be a str, list[str] or None.")

@@ -29,6 +29,7 @@ ignore_errors = true
 
 
 [tool.pytask.ini_options]
+markers = ["a", "b", "c"]
 
 
 [tool.codespell]

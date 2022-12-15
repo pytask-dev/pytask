@@ -22,9 +22,10 @@ def set_defaults_from_config(
     # command-line options during parsing. Here, we add their defaults to the
     # configuration.
     command_option_names = [option.name for option in context.command.params]
+    commands = context.parent.command.commands  # type: ignore[attr-defined]
     all_defaults_from_cli = {
         option.name: option.default
-        for name, command in context.parent.command.commands.items()
+        for name, command in commands.items()
         for option in command.params
         if name != context.info_name and option.name not in command_option_names
     }
@@ -47,9 +48,9 @@ def set_defaults_from_config(
         return None
 
     config_from_file = read_config(context.params["config"])
-
-    if "markers" in config_from_file:
-        config_from_file["markers"] = list(config_from_file["markers"].items())
+    config_from_file["markers"] = _convert_markers_to_list_of_tuples(
+        config_from_file.get("markers")
+    )
 
     if context.default_map is None:
         context.default_map = {}
@@ -160,3 +161,15 @@ def read_config(
         config = config[section]
 
     return config
+
+
+def _convert_markers_to_list_of_tuples(x: Any) -> list[tuple[str, str]]:
+    """Convert markers to a list of tuples."""
+    if x is None:
+        return []
+    elif isinstance(x, list):
+        return [(i, "") for i in x]
+    elif isinstance(x, dict):
+        return list(x.items())
+    else:
+        raise click.BadParameter("'markers' must be either a list or a dictionary")
