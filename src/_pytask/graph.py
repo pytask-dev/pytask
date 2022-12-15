@@ -22,7 +22,6 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from _pytask.shared import get_first_non_none_value
 from _pytask.shared import parse_paths
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import to_list
@@ -50,30 +49,11 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
+    config: dict[str, Any], config_from_cli: dict[str, Any]
 ) -> None:
     """Parse configuration."""
-    config["output_path"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="output_path",
-        default=Path.cwd() / "dag.pdf",
-        callback=lambda x: None if x is None else Path(x),
-    )
-    config["layout"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="layout",
-        default="dot",
-    )
-    config["rank_direction"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="rank_direction",
-        default=_RankDirection.TB,
-    )
+    for name in ("output_path", "layout", "rank_direction"):
+        config[name] = config_from_cli[name]
 
 
 _HELP_TEXT_LAYOUT: str = (
@@ -109,6 +89,7 @@ _HELP_TEXT_RANK_DIRECTION: str = (
     "--rank-direction",
     type=click.Choice(_RankDirection),  # type: ignore[arg-type]
     help=_HELP_TEXT_RANK_DIRECTION,
+    default=_RankDirection.TB,
 )
 def dag(**config_from_cli: Any) -> NoReturn:
     """Create a visualization of the project's directed acyclic graph."""

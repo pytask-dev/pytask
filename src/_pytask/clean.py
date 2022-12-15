@@ -28,9 +28,6 @@ from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from _pytask.shared import falsy_to_none_callback
-from _pytask.shared import get_first_non_none_value
-from _pytask.shared import parse_value_or_multiline_option
 from _pytask.shared import to_list
 from _pytask.traceback import render_exc_info
 from pybaum.tree_util import tree_just_yield
@@ -64,21 +61,13 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
+    config: dict[str, Any], config_from_cli: dict[str, Any]
 ) -> None:
     """Parse the configuration."""
-    config["directories"] = config_from_cli.get("directories", False)
-    cli_excludes = parse_value_or_multiline_option(config_from_cli.get("exclude"))
-    file_excludes = parse_value_or_multiline_option(config_from_file.get("exclude"))
-    config["exclude"] = (
-        to_list(cli_excludes or []) + to_list(file_excludes or []) + _DEFAULT_EXCLUDE
-    )
-    config["mode"] = config_from_cli.get("mode", _CleanMode.DRY_RUN)
-    config["quiet"] = get_first_non_none_value(
-        config_from_cli, key="quiet", default=False
-    )
+    for name in ("directories", "quiet", "mode"):
+        config[name] = config_from_cli[name]
+
+    config["exclude"] = to_list(config_from_cli["exclude"]) + _DEFAULT_EXCLUDE
 
 
 @click.command(cls=ColoredCommand)
@@ -86,6 +75,7 @@ def pytask_parse_config(
     "-d",
     "--directories",
     is_flag=True,
+    default=False,
     help="Remove whole directories. [dim]\\[default: False][/]",
 )
 @click.option(
@@ -95,7 +85,6 @@ def pytask_parse_config(
     multiple=True,
     type=str,
     help="A filename pattern to exclude files from the cleaning process.",
-    callback=falsy_to_none_callback,
 )
 @click.option(
     "--mode",
@@ -107,7 +96,8 @@ def pytask_parse_config(
     "-q",
     "--quiet",
     is_flag=True,
-    help="Do not print the names of the removed paths. [dim]\\[default: quiet][/]",
+    help="Do not print the names of the removed paths. [dim]\\[default: False][/]",
+    default=False,
 )
 def clean(**config_from_cli: Any) -> NoReturn:
     """Clean the provided paths by removing files unknown to pytask."""
