@@ -55,6 +55,7 @@ def set_defaults_from_config(
     if context.default_map is None:
         context.default_map = {}
     context.default_map.update(config_from_file)
+    context.params.update(config_from_file)
 
     return context.params["config"]
 

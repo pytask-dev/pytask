@@ -32,8 +32,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
                 is_flag=True,
                 default=False,
                 help="Disables the summary for warnings.",
-            ),
-            click.Option(["--filterwarnings"], multiple=True, type=str, hidden=True),
+            )
         ]
     )
 
