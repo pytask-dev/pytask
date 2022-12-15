@@ -18,7 +18,6 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.report import CollectionReport
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
-from _pytask.shared import get_first_non_none_value
 from rich.box import ROUNDED
 from rich.live import Live
 from rich.status import Status
@@ -33,7 +32,8 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--n-entries-in-table"],
-            default=None,
+            default=15,
+            type=click.IntRange(min=0),
             help="How many entries to display in the table during the execution. "
             "Tasks which are running are always displayed. [dim]\\[default: 15][/]",
         ),
@@ -43,35 +43,10 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
+    config: dict[str, Any], config_from_cli: dict[str, Any]
 ) -> None:
     """Parse the configuration."""
-    config["n_entries_in_table"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="n_entries_in_table",
-        default=15,
-        callback=_parse_n_entries_in_table,
-    )
-
-
-def _parse_n_entries_in_table(value: int | str | None) -> int:
-    """Parse how many entries should be displayed in the table during the execution."""
-    if value in ("none", "None", None, ""):
-        out = None
-    elif isinstance(value, int) and value >= 1:
-        out = value
-    elif isinstance(value, str) and value.isdigit() and int(value) >= 1:
-        out = int(value)
-    elif value == "all":
-        out = 1_000_000
-    else:
-        raise ValueError(
-            "'n_entries_in_table' can either be 'None' or an integer bigger than one."
-        )
-    return out
+    config["n_entries_in_table"] = config_from_cli["n_entries_in_table"]
 
 
 @hookimpl

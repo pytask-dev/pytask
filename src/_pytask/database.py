@@ -9,8 +9,7 @@ import click
 import networkx as nx
 from _pytask.config import hookimpl
 from _pytask.dag import node_and_neighbors
-from _pytask.shared import convert_truthy_or_falsy_to_bool
-from _pytask.shared import get_first_non_none_value
+from click import Context
 from pony import orm
 
 
@@ -64,6 +63,14 @@ def create_or_update_state(first_key: str, second_key: str, state: str) -> None:
         state_in_db.state = state
 
 
+def _database_filename_callback(
+    ctx: Context, name: str, value: str | None  # noqa: U100
+) -> str | None:
+    if value is None:
+        return ctx.params["root"].joinpath(".pytask.sqlite3")
+    return value
+
+
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend command line interface."""
@@ -75,28 +82,29 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
                 "Database provider. All providers except sqlite are considered "
                 "experimental. [dim]\\[default: sqlite][/]"
             ),
-            default=None,
+            default=_DatabaseProviders.SQLITE,
         ),
         click.Option(
             ["--database-filename"],
-            type=str,
+            type=click.Path(file_okay=True, dir_okay=False, path_type=Path),
             help=(
                 "Path to database relative to root. "
                 "[dim]\\[default: .pytask.sqlite3][/]"
             ),
-            default=None,
+            default=Path(".pytask.sqlite3"),
+            callback=_database_filename_callback,
         ),
         click.Option(
             ["--database-create-db"],
             type=bool,
             help="Create database if it does not exist. [dim]\\[default: True][/]",
-            default=None,
+            default=True,
         ),
         click.Option(
             ["--database-create-tables"],
             type=bool,
             help="Create tables if they do not exist. [dim]\\[default: True][/]",
-            default=None,
+            default=True,
         ),
     ]
     cli.commands["build"].params.extend(additional_parameters)
@@ -104,42 +112,22 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
+    config: dict[str, Any], config_from_cli: dict[str, Any]
 ) -> None:
     """Parse the configuration."""
-    config["database_provider"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="database_provider",
-        default=_DatabaseProviders.SQLITE,
-    )
-    filename = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="database_filename",
-        default=".pytask.sqlite3",
-    )
-    filename = Path(filename)
-    if not filename.is_absolute():
-        filename = Path(config["root"], filename).resolve()
-    config["database_filename"] = filename
+    if not config_from_cli["database_filename"].is_absolute():
+        config_from_cli["database_filename"] = config_from_cli["root"].joinpath(
+            config["database_filename"]
+        )
 
-    config["database_create_db"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="database_create_db",
-        default=True,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-    config["database_create_tables"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="database_create_tables",
-        default=True,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
+    for name in (
+        "database_provider",
+        "database_filename",
+        "database_create_db",
+        "database_create_tables",
+    ):
+        config[name] = config_from_cli[name]
+
     config["database"] = {
         "provider": config["database_provider"].value,
         "filename": config["database_filename"].as_posix(),

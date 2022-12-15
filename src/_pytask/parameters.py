@@ -62,7 +62,7 @@ _VERBOSE_OPTION = click.Option(
 
 _EDITOR_URL_SCHEME_OPTION = click.Option(
     ["--editor-url-scheme"],
-    default=None,
+    default="file",
     help="Use file, vscode, pycharm or a custom url scheme to add URLs to task "
     "ids to quickly jump to the task definition. Use no_link to disable URLs. "
     "[dim]\\[default: file][/]",

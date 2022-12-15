@@ -2,10 +2,8 @@ from __future__ import annotations
 
 import re
 import textwrap
-from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
-from _pytask.live import _parse_n_entries_in_table
 from _pytask.live import LiveExecution
 from _pytask.live import LiveManager
 from _pytask.report import ExecutionReport
@@ -13,34 +11,6 @@ from pytask import cli
 from pytask import ExitCode
 from pytask import Task
 from pytask import TaskOutcome
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "value, expectation, expected",
-    [
-        pytest.param(None, does_not_raise(), None, id="none parsed"),
-        pytest.param(3, does_not_raise(), 3, id="int parsed"),
-        pytest.param("10", does_not_raise(), 10, id="string int parsed"),
-        pytest.param("all", does_not_raise(), 1_000_000, id="all to large int"),
-        pytest.param(
-            -1,
-            pytest.raises(ValueError, match="'n_entries_in_table' can"),
-            None,
-            id="negative int raises error",
-        ),
-        pytest.param(
-            "-1",
-            pytest.raises(ValueError, match="'n_entries_in_table' can"),
-            None,
-            id="negative int raises error",
-        ),
-    ],
-)
-def test_parse_n_entries_in_table(value, expectation, expected):
-    with expectation:
-        result = _parse_n_entries_in_table(value)
-        assert result == expected
 
 
 @pytest.mark.end_to_end

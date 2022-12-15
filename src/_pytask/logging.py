@@ -16,8 +16,6 @@ from _pytask.console import IS_WINDOWS_TERMINAL
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
 from _pytask.session import Session
-from _pytask.shared import convert_truthy_or_falsy_to_bool
-from _pytask.shared import get_first_non_none_value
 from rich.text import Text
 
 
@@ -39,7 +37,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     show_locals_option = click.Option(
         ["--show-locals"],
         is_flag=True,
-        default=None,
+        default=False,
         help="Show local variables in tracebacks.",
     )
     cli.commands["build"].params.append(show_locals_option)
@@ -47,25 +45,12 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_file: dict[str, Any],
-    config_from_cli: dict[str, Any],
+    config: dict[str, Any], config_from_cli: dict[str, Any]
 ) -> None:
     """Parse configuration."""
-    config["show_locals"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_locals",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-    config["editor_url_scheme"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="editor_url_scheme",
-        default="file",
-        callback=lambda x: None if x in (None, "none", "None") else str(x),
-    )
+    for name in ("editor_url_scheme", "show_locals", "show_traceback"):
+        config[name] = config_from_cli[name]
+
     if config["editor_url_scheme"] not in ("no_link", "file") and IS_WINDOWS_TERMINAL:
         config["editor_url_scheme"] = "file"
         warnings.warn(
@@ -73,13 +58,6 @@ def pytask_parse_config(
             "See https://github.com/pytask-dev/pytask/issues/171 for more information. "
             "Resort to `editor_url_scheme='file'`."
         )
-    config["show_traceback"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_traceback",
-        default=True,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
 
 
 @hookimpl
