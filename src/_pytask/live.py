@@ -35,7 +35,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             default=15,
             type=click.IntRange(min=0),
             help="How many entries to display in the table during the execution. "
-            "Tasks which are running are always displayed. [dim]\\[default: 15][/]",
+            "Tasks which are running are always displayed.",
         ),
         click.Option(
             ["--sort-table/--do-not-sort-table"],

@@ -53,7 +53,7 @@ _VERBOSE_OPTION = click.Option(
     ["-v", "--verbose"],
     type=click.IntRange(0, 2),
     default=1,
-    help="Make pytask verbose (>= 0) or quiet (= 0) [dim]\\[default: 1][/]",
+    help="Make pytask verbose (>= 0) or quiet (= 0).",
 )
 """click.Option: An option to control pytask's verbosity."""
 
@@ -62,8 +62,7 @@ _EDITOR_URL_SCHEME_OPTION = click.Option(
     ["--editor-url-scheme"],
     default="file",
     help="Use file, vscode, pycharm or a custom url scheme to add URLs to task "
-    "ids to quickly jump to the task definition. Use no_link to disable URLs. "
-    "[dim]\\[default: file][/]",
+    "ids to quickly jump to the task definition. Use no_link to disable URLs.",
 )
 """click.Option: An option to embed URLs in task ids."""
 

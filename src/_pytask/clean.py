@@ -49,7 +49,7 @@ _DEFAULT_EXCLUDE: list[str] = [".git/*"]
 _HELP_TEXT_MODE = (
     "Choose 'dry-run' to print the paths of files/directories which would be removed, "
     "'interactive' for a confirmation prompt for every path, and 'force' to remove all "
-    "unknown paths at once. [dim]\\[default: dry-run][/]"
+    "unknown paths at once."
 )
 
 
@@ -76,7 +76,7 @@ def pytask_parse_config(
     "--directories",
     is_flag=True,
     default=False,
-    help="Remove whole directories. [dim]\\[default: False][/]",
+    help="Remove whole directories.",
 )
 @click.option(
     "-e",
@@ -96,7 +96,7 @@ def pytask_parse_config(
     "-q",
     "--quiet",
     is_flag=True,
-    help="Do not print the names of the removed paths. [dim]\\[default: False][/]",
+    help="Do not print the names of the removed paths.",
     default=False,
 )
 def clean(**config_from_cli: Any) -> NoReturn:

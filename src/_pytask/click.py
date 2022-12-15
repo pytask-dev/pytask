@@ -137,6 +137,11 @@ def print_options(group_or_command: click.Command | DefaultGroup, ctx: Any) -> N
         else:
             help_text = Text.from_markup(param.get_help_record(ctx)[-1], emoji=False)
 
+        if param.default:
+            help_text = help_text + Text.from_markup(
+                rf" [dim]\[default: {param.default}][/]"
+            )
+
         options_table.add_row(opt1, opt2, highlighter(help_text))
 
     console.print(

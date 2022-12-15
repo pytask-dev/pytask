@@ -108,7 +108,7 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
     "--export",
     type=click.Choice(_ExportFormats),  # type: ignore[arg-type]
     default=_ExportFormats.NO,
-    help="Export the profile in the specified format. [dim]\\[default: no][/]",
+    help="Export the profile in the specified format.",
 )
 def profile(**config_from_cli: Any) -> NoReturn:
     """Show information about tasks like runtime and memory consumption of products."""

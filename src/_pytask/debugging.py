@@ -32,15 +32,13 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--pdb"],
-            help="Start the interactive debugger on errors.  "
-            "[dim]\\[default: False][/]",
+            help="Start the interactive debugger on errors.",
             is_flag=True,
             default=False,
         ),
         click.Option(
             ["--trace"],
-            help="Enter debugger in the beginning of each task.  "
-            "[dim]\\[default: False][/]",
+            help="Enter debugger in the beginning of each task.",
             is_flag=True,
             default=False,
         ),

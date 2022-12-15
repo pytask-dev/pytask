@@ -142,7 +142,7 @@ def main(config_from_cli: dict[str, Any]) -> Session:
     "--debug-pytask",
     is_flag=True,
     default=False,
-    help="Trace all function calls in the plugin framework. [dim]\\[default: False][/]",
+    help="Trace all function calls in the plugin framework.",
 )
 @click.option(
     "-x",
@@ -167,10 +167,7 @@ def main(config_from_cli: dict[str, Any]) -> Session:
     "--show-traceback/--show-no-traceback",
     type=bool,
     default=True,
-    help=(
-        "Choose whether tracebacks should be displayed or not. "
-        "[dim]\\[default: True][/]"
-    ),
+    help=("Choose whether tracebacks should be displayed or not."),
 )
 @click.option(
     "--dry-run", type=bool, is_flag=True, default=False, help="Perform a dry-run."

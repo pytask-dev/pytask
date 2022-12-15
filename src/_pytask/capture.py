@@ -68,7 +68,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             ["--capture"],
             type=click.Choice(_CaptureMethod),  # type: ignore[arg-type]
             default=_CaptureMethod.FD,
-            help="Per task capturing method. [dim]\\[default: fd][/]",
+            help="Per task capturing method.",
         ),
         click.Option(
             ["-s"],
@@ -80,10 +80,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             ["--show-capture"],
             type=click.Choice(ShowCapture),  # type: ignore[arg-type]
             default=ShowCapture.ALL,
-            help=(
-                "Choose which captured output should be shown for failed tasks. "
-                "[dim]\\[default: all][/]"
-            ),
+            help=("Choose which captured output should be shown for failed tasks."),
         ),
     ]
     cli.commands["build"].params.extend(additional_parameters)
