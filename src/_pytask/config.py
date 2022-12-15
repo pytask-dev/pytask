@@ -6,10 +6,7 @@ import tempfile
 from typing import Any
 
 import pluggy
-from _pytask.shared import convert_truthy_or_falsy_to_bool
-from _pytask.shared import get_first_non_none_value
 from _pytask.shared import parse_paths
-from _pytask.shared import parse_value_or_multiline_option
 from _pytask.shared import to_list
 
 
@@ -93,83 +90,33 @@ def pytask_configure(
 
 @hookimpl
 def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
+    config: dict[str, Any], config_from_cli: dict[str, Any]
 ) -> None:
     """Parse the configuration."""
     config["paths"] = parse_paths(config_from_cli["paths"])
 
-    config_from_file["ignore"] = parse_value_or_multiline_option(
-        config_from_file.get("ignore")
-    )
     config["ignore"] = (
-        to_list(
-            get_first_non_none_value(
-                config_from_cli,
-                config_from_file,
-                key="ignore",
-                default=[],
-            )
-        )
+        to_list(config_from_cli["ignore"])
         + _IGNORED_FILES_AND_FOLDERS
         + IGNORED_TEMPORARY_FILES_AND_FOLDERS
     )
 
-    config["debug_pytask"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="debug_pytask",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-    if config["debug_pytask"]:
-        config["pm"].trace.root.setwriter(print)  # noqa: T202
-        config["pm"].enable_tracing()
+    config["task_files"] = config_from_cli.get("task_files", "task_*.py")
 
-    config["task_files"] = to_list(
-        get_first_non_none_value(config_from_cli, key="task_files", default="task_*.py")
-    )
-
-    config["stop_after_first_failure"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="stop_after_first_failure",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
     if config["stop_after_first_failure"]:
         config["max_failures"] = 1
     else:
-        config["max_failures"] = get_first_non_none_value(
-            config_from_cli,
-            config_from_file,
-            key="max_failures",
-            default=float("inf"),
-            callback=lambda x: x if x is None or x == float("inf") else int(x),
-        )
+        config["max_failures"] = config_from_cli["max_failures"]
 
-    config["check_casing_of_paths"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="check_casing_of_paths",
-        default=True,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
+    for name in ("check_casing_of_paths",):
+        config[name] = bool(config_from_cli.get(name, True))
 
-    config["verbose"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="verbose",
-        default=1,
-        callback=lambda x: x if x is None else int(x),
-    )
+    for name in ("debug_pytask", "dry_run", "stop_after_first_failure", "verbose"):
+        config[name] = config_from_cli[name]
 
-    config["sort_table"] = convert_truthy_or_falsy_to_bool(
-        config_from_file.get("sort_table", True)
-    )
-
-    config["dry_run"] = config_from_cli.get("dry_run", False)
+    if config["debug_pytask"]:
+        config["pm"].trace.root.setwriter(print)  # noqa: T202
+        config["pm"].enable_tracing()
 
 
 @hookimpl

@@ -69,7 +69,6 @@ __all__ = [
     "depends_on",
     "format_exception_without_traceback",
     "get_all_marks",
-    "get_first_non_none_value",
     "get_marks",
     "has_mark",
     "hookimpl",

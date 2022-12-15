@@ -151,7 +151,12 @@ def main(config_from_cli: dict[str, Any]) -> Session:
     default=False,
     help="Stop after the first failure.",
 )
-@click.option("--max-failures", default=float("inf"), help="Stop after some failures.")
+@click.option(
+    "--max-failures",
+    type=click.FloatRange(min=1),
+    default=float("inf"),
+    help="Stop after some failures.",
+)
 @click.option(
     "--show-errors-immediately",
     is_flag=True,

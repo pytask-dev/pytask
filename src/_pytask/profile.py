@@ -28,7 +28,6 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
-from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import render_exc_info
 from pony import orm
 from rich.table import Table
@@ -63,11 +62,7 @@ def pytask_parse_config(
     config: dict[str, Any], config_from_cli: dict[str, Any]
 ) -> None:
     """Parse the configuration."""
-    config["export"] = get_first_non_none_value(
-        config_from_cli,
-        key="export",
-        default=_ExportFormats.NO,
-    )
+    config["export"] = config_from_cli["export"]
 
 
 @hookimpl
@@ -112,7 +107,7 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
 @click.option(
     "--export",
     type=click.Choice(_ExportFormats),  # type: ignore[arg-type]
-    default=None,
+    default=_ExportFormats.NO,
     help="Export the profile in the specified format. [dim]\\[default: no][/]",
 )
 def profile(**config_from_cli: Any) -> NoReturn:

@@ -25,8 +25,6 @@ from _pytask.nodes import Task
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from _pytask.shared import convert_truthy_or_falsy_to_bool
-from _pytask.shared import get_first_non_none_value
 from rich.table import Table
 
 
@@ -86,7 +84,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             ["--strict-markers"],
             is_flag=True,
             help="Raise errors for unknown markers.",
-            default=None,
+            default=False,
         ),
         click.Option(
             ["-m", "marker_expression"],
@@ -107,24 +105,14 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookimpl
 def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
+    config: dict[str, Any], config_from_cli: dict[str, Any]
 ) -> None:
     """Parse marker related options."""
     markers = _parse_markers(config_from_cli.get("markers"))
     config["markers"] = {**markers, **config["markers"]}
-    config["strict_markers"] = get_first_non_none_value(
-        config,
-        config_from_file,
-        config_from_cli,
-        key="strict_markers",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
 
-    config["expression"] = config_from_cli.get("expression")
-    config["marker_expression"] = config_from_cli.get("marker_expression")
+    for name in ("strict_markers", "expression", "marker_expression"):
+        config[name] = config_from_cli[name]
 
     MARK_GEN.config = config
 

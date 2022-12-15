@@ -37,6 +37,12 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             help="How many entries to display in the table during the execution. "
             "Tasks which are running are always displayed. [dim]\\[default: 15][/]",
         ),
+        click.Option(
+            ["--sort-table/--do-not-sort-table"],
+            default=True,
+            type=bool,
+            help="Sort the table of tasks at the end of the execution.",
+        ),
     ]
     cli.commands["build"].params.extend(additional_parameters)
 
@@ -46,7 +52,8 @@ def pytask_parse_config(
     config: dict[str, Any], config_from_cli: dict[str, Any]
 ) -> None:
     """Parse the configuration."""
-    config["n_entries_in_table"] = config_from_cli["n_entries_in_table"]
+    for name in ("n_entries_in_table", "sort_table"):
+        config[name] = config_from_cli[name]
 
 
 @hookimpl
