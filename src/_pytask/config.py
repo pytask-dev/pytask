@@ -101,7 +101,7 @@ def pytask_parse_config(
         + IGNORED_TEMPORARY_FILES_AND_FOLDERS
     )
 
-    config["task_files"] = config_from_cli.get("task_files", "task_*.py")
+    config["task_files"] = to_list(config_from_cli.get("task_files", "task_*.py"))
 
     if config["stop_after_first_failure"]:
         config["max_failures"] = 1
