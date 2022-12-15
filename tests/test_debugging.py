@@ -6,9 +6,9 @@ import sys
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 
+import click
 import pytest
 from _pytask.debugging import _pdbcls_callback
-from click import BadParameter
 from pytask import cli
 from pytask import ExitCode
 
@@ -27,9 +27,9 @@ else:
         (None, None, does_not_raise()),
         ("module:debugger", ("module", "debugger"), does_not_raise()),
         ("mod.submod:debugger", ("mod.submod", "debugger"), does_not_raise()),
-        ("asd", None, pytest.raises(BadParameter)),
-        ("asd:dasd:asdsa", None, pytest.raises(BadParameter)),
-        (1, None, pytest.raises(BadParameter)),
+        ("asd", None, pytest.raises(click.BadParameter)),
+        ("asd:dasd:asdsa", None, pytest.raises(click.BadParameter)),
+        (1, None, pytest.raises(click.BadParameter)),
     ],
 )
 def test_capture_callback(value, expected, expectation):

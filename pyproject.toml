@@ -7,10 +7,6 @@ build-backend = "setuptools.build_meta"
 write_to = "src/_pytask/_version.py"
 
 
-[tool.tryceratops]
-ignore = ["TC003"]
-
-
 [tool.mypy]
 files = ["src", "tests"]
 check_untyped_defs = true
@@ -26,11 +22,6 @@ warn_unused_ignores = true
 module = "tests.*"
 disallow_untyped_defs = false
 ignore_errors = true
-
-
-[tool.pytask.ini_options]
-markers = ["a", "b", "c"]
-# sort_table = true
 
 
 [tool.codespell]

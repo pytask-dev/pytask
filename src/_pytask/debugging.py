@@ -19,8 +19,6 @@ from _pytask.outcomes import Exit
 from _pytask.session import Session
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import render_exc_info
-from click import BadParameter
-from click import Context
 
 
 if TYPE_CHECKING:
@@ -71,7 +69,7 @@ def pytask_parse_config(
 
 
 def _pdbcls_callback(
-    ctx: Context, name: str, value: str | None  # noqa: U100
+    ctx: click.Context, name: str, value: str | None  # noqa: U100
 ) -> tuple[str, str] | None:
     """Validate the debugger class string passed to pdbcls."""
     message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
@@ -80,11 +78,11 @@ def _pdbcls_callback(
         return None
     elif isinstance(value, str):
         if len(value.split(":")) != 2:
-            raise BadParameter(message)
+            raise click.BadParameter(message)
         else:
             return tuple(value.split(":"))  # type: ignore
     else:
-        raise BadParameter(message)
+        raise click.BadParameter(message)
 
 
 @hookimpl(trylast=True)
