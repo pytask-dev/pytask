@@ -1,11 +1,15 @@
 """This module contains code related to click."""
 from __future__ import annotations
 
+import enum
+import inspect
+from gettext import gettext as _
 from typing import Any
 
 import click
 from _pytask import __version__ as version
 from _pytask.console import console
+from click.parser import split_opt
 from click_default_group import DefaultGroup
 from rich.highlighter import RegexHighlighter
 from rich.panel import Panel
@@ -27,7 +31,9 @@ class OptionHighlighter(RegexHighlighter):
 class ColoredGroup(DefaultGroup):
     """A subclass which colors groups with default commands."""
 
-    def format_help(self: DefaultGroup, ctx: Any, formatter: Any) -> None:  # noqa: U100
+    def format_help(
+        self: DefaultGroup, ctx: click.Context, formatter: Any  # noqa: U100
+    ) -> None:  # noqa: U100
         """Format the help text."""
         highlighter = OptionHighlighter()
 
@@ -75,7 +81,7 @@ class ColoredCommand(click.Command):
     """Override Clicks help with a Richer version."""
 
     def format_help(
-        self: click.Command, ctx: Any, formatter: Any  # noqa: U100
+        self: click.Command, ctx: click.Context, formatter: Any  # noqa: U100
     ) -> None:
         """Format the help text."""
         console.print(
@@ -97,7 +103,9 @@ class ColoredCommand(click.Command):
         )
 
 
-def print_options(group_or_command: click.Command | DefaultGroup, ctx: Any) -> None:
+def print_options(
+    group_or_command: click.Command | DefaultGroup, ctx: click.Context
+) -> None:
     """Print options formatted with a table in a panel."""
     highlighter = OptionHighlighter()
 
@@ -131,15 +139,7 @@ def print_options(group_or_command: click.Command | DefaultGroup, ctx: Any) -> N
             choices = "[" + "|".join(param.type.choices) + "]"
             opt2 += Text(f" {choices}", style="metavar", overflow="fold")
 
-        help_record = param.get_help_record(ctx)
-        if help_record is None:
-            help_text = ""
-        else:
-            help_text = Text.from_markup(param.get_help_record(ctx)[-1], emoji=False)
-
-        default = param.get_default(ctx)
-        if default:
-            help_text = help_text + Text.from_markup(rf" [dim]\[default: {default}][/]")
+        help_text = format_help_text(param, ctx)
 
         options_table.add_row(opt1, opt2, highlighter(help_text))
 
@@ -151,3 +151,136 @@ def print_options(group_or_command: click.Command | DefaultGroup, ctx: Any) -> N
             border_style="grey37",
         )
     )
+
+
+def format_help_text(param: click.Parameter, ctx: click.Context) -> str:
+    """Format the help of a click parameter.
+
+    A large chunk of the function is copied from
+    :meth:`click.core.Option.get_help_record` to support styling, show values of enums,
+    etc..
+
+    """
+    help_text = Text.from_markup(getattr(param, "help", None) or "")
+    extra = []
+
+    if getattr(param, "show_envvar", None):
+        envvar = getattr(param, "envvar", None)
+
+        if envvar is None:
+            if (
+                getattr(param, "allow_from_autoenv", None)
+                and ctx.auto_envvar_prefix is not None
+                and param.name is not None
+            ):
+                envvar = f"{ctx.auto_envvar_prefix}_{param.name.upper()}"
+
+        if envvar is not None:
+            var_str = (
+                envvar if isinstance(envvar, str) else ", ".join(str(d) for d in envvar)
+            )
+            extra.append(_("env var: {var}").format(var=var_str))
+
+    # Temporarily enable resilient parsing to avoid type casting
+    # failing for the default. Might be possible to extend this to
+    # help formatting in general.
+    resilient = ctx.resilient_parsing
+    ctx.resilient_parsing = True
+
+    try:
+        default_value = param.get_default(ctx, call=False)
+    finally:
+        ctx.resilient_parsing = resilient
+
+    show_default = False
+    show_default_is_str = False
+
+    if hasattr(param, "show_default"):
+        if isinstance(param.show_default, str):
+            show_default_is_str = show_default = True
+        else:
+            show_default = param.show_default
+    elif ctx.show_default is not None:
+        show_default = ctx.show_default
+
+    if show_default_is_str or (show_default and (default_value is not None)):
+        if show_default_is_str:
+            default_string = f"({param.show_default})"  # type: ignore[attr-defined]
+        elif isinstance(default_value, (list, tuple)):
+            default_string = ", ".join(str(d) for d in default_value)
+        elif inspect.isfunction(default_value):
+            default_string = _("(dynamic)")
+        elif param.is_bool_flag and param.secondary_opts:  # type: ignore[attr-defined]
+            # For boolean flags that have distinct True/False opts,
+            # use the opt without prefix instead of the value.
+            default_string = split_opt(
+                (param.opts if param.default else param.secondary_opts)[0]
+            )[1]
+        elif (
+            param.is_bool_flag  # type: ignore[attr-defined]
+            and not param.secondary_opts
+            and not default_value
+        ):
+            default_string = ""
+        elif isinstance(default_value, enum.Enum):
+            default_string = str(default_value.value)
+        else:
+            default_string = str(default_value)
+
+        if default_string:
+            extra.append(_("default: {default}").format(default=default_string))
+
+    if (
+        isinstance(param.type, click.types._NumberRangeBase)
+        # skip count with default range type
+        and not (
+            param.count  # type: ignore[attr-defined]
+            and param.type.min == 0
+            and param.type.max is None
+        )
+    ):
+        range_str = _describe_range(param.type)
+
+        if range_str:
+            extra.append(range_str)
+
+    if param.required:
+        extra.append(_("required"))
+
+    if extra:
+        extra_str = "; ".join(extra)
+        full_help_text = help_text + Text.from_markup(rf" [dim]\[{extra_str}][/]")
+    else:
+        full_help_text = help_text
+
+    return full_help_text
+
+
+def _describe_range(
+    param_type: click.types._NumberBaseRange,  # type: ignore[name-defined]
+) -> str:
+    """Describe the range for use in help text.
+
+    It differs from the :meth:`click.types._NumberRangeBase._describe_range()` because
+    intervals are always ordered as on the number line.
+
+    Examples
+    --------
+    >>> from click.types import _NumberRangeBase
+    >>> _describe_range(_NumberRangeBase(min=1))
+    '1<=x'
+    >>> _describe_range(_NumberRangeBase(max=2))
+    'x<=2'
+
+    """
+    if param_type.min is None:
+        op = "<" if param_type.max_open else "<="
+        return f"x{op}{param_type.max}"
+
+    if param_type.max is None:
+        op = "<" if param_type.min_open else "<="
+        return f"{param_type.min}{op}x"
+
+    lop = "<" if param_type.min_open else "<="
+    rop = "<" if param_type.max_open else "<="
+    return f"{param_type.min}{lop}x{rop}{param_type.max}"
