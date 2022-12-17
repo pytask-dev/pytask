@@ -218,7 +218,7 @@ def build_dag(config_from_cli: dict[str, Any]) -> nx.DiGraph:
             import_optional_dependency("pygraphviz")
             check_for_optional_program(
                 session.config["layout"],
-                extra="The layout program is part of the graphviz package which you "
+                extra="The layout program is part of the graphviz package that you "
                 "can install with conda.",
             )
             session.hook.pytask_collect(session=session)
@@ -240,46 +240,6 @@ def _refine_dag(session: Session) -> nx.DiGraph:
     dag.graph["graph"] = {"rankdir": session.config["rank_direction"].name}
 
     return dag
-
-
-def _create_session(config_from_cli: dict[str, Any]) -> nx.DiGraph:
-    """Create a session object."""
-    try:
-        pm = get_plugin_manager()
-        from _pytask import cli
-
-        pm.register(cli)
-        pm.hook.pytask_add_hooks(pm=pm)
-
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
-
-        session = Session.from_config(config)
-
-    except (ConfigurationError, Exception):
-        console.print_exception()
-        session = Session({}, None)
-        session.exit_code = ExitCode.CONFIGURATION_FAILED
-
-    else:
-        try:
-            session.hook.pytask_log_session_header(session=session)
-            import_optional_dependency("pygraphviz")
-            check_for_optional_program(session.config["layout"])
-            session.hook.pytask_collect(session=session)
-            session.hook.pytask_resolve_dependencies(session=session)
-
-        except CollectionError:
-            session.exit_code = ExitCode.COLLECTION_FAILED
-
-        except ResolvingDependenciesError:
-            session.exit_code = ExitCode.RESOLVING_DEPENDENCIES_FAILED
-
-        except Exception:
-            session.exit_code = ExitCode.FAILED
-            console.print_exception()
-            console.rule(style="failed")
-
-    return session
 
 
 def _shorten_node_labels(dag: nx.DiGraph, paths: list[Path]) -> nx.DiGraph:
