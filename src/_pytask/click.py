@@ -130,8 +130,12 @@ def print_options(
             opt1 = Text("")
             opt2 = highlighter(param.opts[0] + "/" + param.secondary_opts[0])
         else:
-            opt1 = Text("")
-            opt2 = highlighter(param.opts[0])
+            if "--" in param.opts[0]:
+                opt1 = Text("")
+                opt2 = highlighter(param.opts[0])
+            else:
+                opt1 = highlighter(param.opts[0])
+                opt2 = Text("")
 
         if param.metavar:
             opt2 += Text(f" {param.metavar}", style="metavar")
@@ -195,11 +199,11 @@ def format_help_text(param: click.Parameter, ctx: click.Context) -> str:
     show_default = False
     show_default_is_str = False
 
-    if hasattr(param, "show_default"):
-        if isinstance(param.show_default, str):
+    if param.show_default is not None:  # type: ignore[attr-defined]
+        if isinstance(param.show_default, str):  # type: ignore[attr-defined]
             show_default_is_str = show_default = True
         else:
-            show_default = param.show_default
+            show_default = param.show_default  # type: ignore[attr-defined]
     elif ctx.show_default is not None:
         show_default = ctx.show_default
 
