@@ -59,10 +59,11 @@ IS_FILE_SYSTEM_CASE_SENSITIVE = is_file_system_case_sensitive()
 
 @hookimpl
 def pytask_configure(
-    pm: pluggy.PluginManager, config_from_cli: dict[str, Any]
+    pm: pluggy.PluginManager, raw_config: dict[str, Any]
 ) -> dict[str, Any]:
     """Configure pytask."""
-    config = {"pm": pm, **config_from_cli}
+    # Add all values by default so that many plugins do not need to copy over values.
+    config = {"pm": pm, **raw_config}
 
     config["markers"] = {
         "depends_on": (
@@ -77,11 +78,7 @@ def pytask_configure(
         "try_last": "Try to execute a task a late as possible.",
     }
 
-    pm.hook.pytask_parse_config(
-        config=config,
-        config_from_cli=config_from_cli,
-        config_from_file={},
-    )
+    pm.hook.pytask_parse_config(config=config, raw_config=raw_config)
 
     pm.hook.pytask_post_parse(config=config)
 
@@ -89,30 +86,28 @@ def pytask_configure(
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
-) -> None:
+def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
     """Parse the configuration."""
-    config["paths"] = parse_paths(config_from_cli["paths"])
+    config["paths"] = parse_paths(raw_config["paths"])
 
     config["ignore"] = (
-        to_list(config_from_cli["ignore"])
+        to_list(raw_config["ignore"])
         + _IGNORED_FILES_AND_FOLDERS
         + IGNORED_TEMPORARY_FILES_AND_FOLDERS
     )
 
-    config["task_files"] = to_list(config_from_cli.get("task_files", "task_*.py"))
+    config["task_files"] = to_list(raw_config.get("task_files", "task_*.py"))
 
     if config["stop_after_first_failure"]:
         config["max_failures"] = 1
     else:
-        config["max_failures"] = config_from_cli["max_failures"]
+        config["max_failures"] = raw_config["max_failures"]
 
     for name in ("check_casing_of_paths",):
-        config[name] = bool(config_from_cli.get(name, True))
+        config[name] = bool(raw_config.get(name, True))
 
     for name in ("debug_pytask", "dry_run", "stop_after_first_failure", "verbose"):
-        config[name] = config_from_cli[name]
+        config[name] = raw_config[name]
 
     if config["debug_pytask"]:
         config["pm"].trace.root.setwriter(print)  # noqa: T202

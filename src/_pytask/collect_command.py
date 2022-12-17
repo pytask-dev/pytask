@@ -42,18 +42,16 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
-) -> None:
+def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
     """Parse configuration."""
-    config["nodes"] = config_from_cli.get("nodes", False)
+    config["nodes"] = raw_config.get("nodes", False)
 
 
 @click.command(cls=ColoredCommand)
 @click.option("--nodes", is_flag=True, help="Show a task's dependencies and products.")
-def collect(**config_from_cli: Any | None) -> NoReturn:
+def collect(**raw_config: Any | None) -> NoReturn:
     """Collect tasks and report information about them."""
-    config_from_cli["command"] = "collect"
+    raw_config["command"] = "collect"
 
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
@@ -63,7 +61,7 @@ def collect(**config_from_cli: Any | None) -> NoReturn:
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
     except (ConfigurationError, Exception):

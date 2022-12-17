@@ -38,11 +38,9 @@ from rich.text import Text
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
-) -> None:
+def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
     """Parse the configuration."""
-    config["show_errors_immediately"] = config_from_cli["show_errors_immediately"]
+    config["show_errors_immediately"] = raw_config["show_errors_immediately"]
 
 
 @hookimpl

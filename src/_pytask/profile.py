@@ -58,11 +58,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
-) -> None:
+def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
     """Parse the configuration."""
-    config["export"] = config_from_cli["export"]
+    config["export"] = raw_config["export"]
 
 
 @hookimpl
@@ -110,9 +108,9 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
     default=_ExportFormats.NO,
     help="Export the profile in the specified format.",
 )
-def profile(**config_from_cli: Any) -> NoReturn:
+def profile(**raw_config: Any) -> NoReturn:
     """Show information about tasks like runtime and memory consumption of products."""
-    config_from_cli["command"] = "profile"
+    raw_config["command"] = "profile"
 
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
@@ -122,7 +120,7 @@ def profile(**config_from_cli: Any) -> NoReturn:
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
     except (ConfigurationError, Exception):  # pragma: no cover

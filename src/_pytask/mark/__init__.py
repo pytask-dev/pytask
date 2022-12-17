@@ -43,9 +43,9 @@ __all__ = [
 
 
 @click.command(cls=ColoredCommand)
-def markers(**config_from_cli: Any) -> NoReturn:
+def markers(**raw_config: Any) -> NoReturn:
     """Show all registered markers."""
-    config_from_cli["command"] = "markers"
+    raw_config["command"] = "markers"
 
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
@@ -55,7 +55,7 @@ def markers(**config_from_cli: Any) -> NoReturn:
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
     except (ConfigurationError, Exception):
@@ -104,15 +104,13 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
-) -> None:
+def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
     """Parse marker related options."""
-    markers = _parse_markers(config_from_cli.get("markers"))
+    markers = _parse_markers(raw_config.get("markers"))
     config["markers"] = {**markers, **config["markers"]}
 
     for name in ("strict_markers", "expression", "marker_expression"):
-        config[name] = config_from_cli[name]
+        config[name] = raw_config[name]
 
     MARK_GEN.config = config
 

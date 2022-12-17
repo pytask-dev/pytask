@@ -48,12 +48,10 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
-) -> None:
+def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
     """Parse configuration."""
     for name in ("output_path", "layout", "rank_direction"):
-        config[name] = config_from_cli[name]
+        config[name] = raw_config[name]
 
 
 _HELP_TEXT_LAYOUT: str = (
@@ -90,7 +88,7 @@ _HELP_TEXT_RANK_DIRECTION: str = (
     help=_HELP_TEXT_RANK_DIRECTION,
     default=_RankDirection.TB,
 )
-def dag(**config_from_cli: Any) -> NoReturn:
+def dag(**raw_config: Any) -> NoReturn:
     """Create a visualization of the project's directed acyclic graph."""
     try:
         pm = get_plugin_manager()
@@ -99,7 +97,7 @@ def dag(**config_from_cli: Any) -> NoReturn:
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
 
         session = Session.from_config(config)
 
@@ -138,7 +136,7 @@ def dag(**config_from_cli: Any) -> NoReturn:
     sys.exit(session.exit_code)
 
 
-def build_dag(config_from_cli: dict[str, Any]) -> nx.DiGraph:
+def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
     """Build the DAG.
 
     This function is the programmatic interface to ``pytask dag`` and returns a
@@ -150,7 +148,7 @@ def build_dag(config_from_cli: dict[str, Any]) -> nx.DiGraph:
 
     Parameters
     ----------
-    config_from_cli : Dict[str, Any]
+    raw_config : Dict[str, Any]
         The configuration usually received from the CLI. For example, use ``{"paths":
         "example-directory/"}`` to collect tasks from a directory.
 
@@ -168,42 +166,42 @@ def build_dag(config_from_cli: dict[str, Any]) -> nx.DiGraph:
         pm.hook.pytask_add_hooks(pm=pm)
 
         # If someone called the programmatic interface, we need to do some parsing.
-        if "command" not in config_from_cli:
-            config_from_cli["command"] = "dag"
+        if "command" not in raw_config:
+            raw_config["command"] = "dag"
             # Add defaults from cli.
             from _pytask.cli import DEFAULTS_FROM_CLI
 
-            config_from_cli = {**DEFAULTS_FROM_CLI, **config_from_cli}
+            raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
 
-            config_from_cli["paths"] = parse_paths(config_from_cli.get("paths"))
+            raw_config["paths"] = parse_paths(raw_config.get("paths"))
 
-            if config_from_cli["config"] is not None:
-                config_from_cli["config"] = Path(config_from_cli["config"]).resolve()
-                config_from_cli["root"] = config_from_cli["config"].parent
+            if raw_config["config"] is not None:
+                raw_config["config"] = Path(raw_config["config"]).resolve()
+                raw_config["root"] = raw_config["config"].parent
             else:
-                if config_from_cli["paths"] is None:
-                    config_from_cli["paths"] = (Path.cwd(),)
+                if raw_config["paths"] is None:
+                    raw_config["paths"] = (Path.cwd(),)
 
-                config_from_cli["paths"] = parse_paths(config_from_cli["paths"])
+                raw_config["paths"] = parse_paths(raw_config["paths"])
                 (
-                    config_from_cli["root"],
-                    config_from_cli["config"],
-                ) = _find_project_root_and_config(config_from_cli["paths"])
+                    raw_config["root"],
+                    raw_config["config"],
+                ) = _find_project_root_and_config(raw_config["paths"])
 
-            if config_from_cli["config"] is not None:
-                config_from_file = read_config(config_from_cli["config"])
+            if raw_config["config"] is not None:
+                config_from_file = read_config(raw_config["config"])
 
                 if "paths" in config_from_file:
                     paths = config_from_file["paths"]
                     paths = [
-                        config_from_cli["config"].parent.joinpath(path).resolve()
+                        raw_config["config"].parent.joinpath(path).resolve()
                         for path in to_list(paths)
                     ]
                     config_from_file["paths"] = paths
 
-                config_from_cli = {**config_from_cli, **config_from_file}
+                raw_config = {**raw_config, **config_from_file}
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
 
         session = Session.from_config(config)
 

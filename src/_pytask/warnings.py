@@ -40,13 +40,11 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 @hookimpl
 def pytask_parse_config(
     config: dict[str, Any],
-    config_from_cli: dict[str, Any],
+    raw_config: dict[str, Any],
 ) -> None:
     """Parse the configuration."""
-    config["disable_warnings"] = config_from_cli.get("disable_warnings", False)
-    config["filterwarnings"] = parse_filterwarnings(
-        config_from_cli.get("filterwarnings")
-    )
+    config["disable_warnings"] = raw_config.get("disable_warnings", False)
+    config["filterwarnings"] = parse_filterwarnings(raw_config.get("filterwarnings"))
     config["markers"]["filterwarnings"] = "Add a filter for a warning to a task."
 
 

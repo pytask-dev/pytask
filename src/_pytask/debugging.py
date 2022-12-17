@@ -58,12 +58,10 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
-) -> None:
+def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
     """Parse the configuration."""
     for name in ("pdb", "trace", "pdbcls", "show_locals"):
-        config[name] = config_from_cli[name]
+        config[name] = raw_config[name]
 
 
 def _pdbcls_callback(

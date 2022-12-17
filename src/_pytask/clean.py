@@ -60,14 +60,12 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
-) -> None:
+def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
     """Parse the configuration."""
     for name in ("directories", "quiet", "mode"):
-        config[name] = config_from_cli[name]
+        config[name] = raw_config[name]
 
-    config["exclude"] = to_list(config_from_cli["exclude"]) + _DEFAULT_EXCLUDE
+    config["exclude"] = to_list(raw_config["exclude"]) + _DEFAULT_EXCLUDE
 
 
 @click.command(cls=ColoredCommand)
@@ -99,9 +97,9 @@ def pytask_parse_config(
     help="Do not print the names of the removed paths.",
     default=False,
 )
-def clean(**config_from_cli: Any) -> NoReturn:
+def clean(**raw_config: Any) -> NoReturn:
     """Clean the provided paths by removing files unknown to pytask."""
-    config_from_cli["command"] = "clean"
+    raw_config["command"] = "clean"
 
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
@@ -111,7 +109,7 @@ def clean(**config_from_cli: Any) -> NoReturn:
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
     except Exception:

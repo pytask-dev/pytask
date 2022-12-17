@@ -44,12 +44,10 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
-) -> None:
+def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
     """Parse configuration."""
     for name in ("editor_url_scheme", "show_locals", "show_traceback"):
-        config[name] = config_from_cli[name]
+        config[name] = raw_config[name]
 
     if config["editor_url_scheme"] not in ("no_link", "file") and IS_WINDOWS_TERMINAL:
         config["editor_url_scheme"] = "file"

@@ -66,7 +66,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookspec(firstresult=True)
 def pytask_configure(
-    pm: pluggy.PluginManager, config_from_cli: dict[str, Any]
+    pm: pluggy.PluginManager, raw_config: dict[str, Any]
 ) -> dict[str, Any]:
     """Configure pytask.
 
@@ -77,19 +77,8 @@ def pytask_configure(
 
 
 @hookspec
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
-    """Parse configuration from the CLI or from file.
-
-    This hook can be used to unify the configuration from the command line interface,
-    the configuration file and provided defaults.
-
-    Note that, the configuration is changed in-place.
-
-    """
+def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
+    """Parse configuration from the raw configuration that is from CLI or file."""
 
 
 @hookspec

@@ -35,7 +35,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli.add_command(build)
 
 
-def main(config_from_cli: dict[str, Any]) -> Session:
+def main(raw_config: dict[str, Any]) -> Session:
     """Run pytask.
 
     This is the main command to run pytask which usually receives kwargs from the
@@ -44,7 +44,7 @@ def main(config_from_cli: dict[str, Any]) -> Session:
 
     Parameters
     ----------
-    config_from_cli : dict[str, Any]
+    raw_config : dict[str, Any]
         A dictionary with options passed to pytask. In general, this dictionary holds
         the information passed via the command line interface.
 
@@ -62,42 +62,42 @@ def main(config_from_cli: dict[str, Any]) -> Session:
         pm.hook.pytask_add_hooks(pm=pm)
 
         # If someone called the programmatic interface, we need to do some parsing.
-        if "command" not in config_from_cli:
-            config_from_cli["command"] = "build"
+        if "command" not in raw_config:
+            raw_config["command"] = "build"
             # Add defaults from cli.
             from _pytask.cli import DEFAULTS_FROM_CLI
 
-            config_from_cli = {**DEFAULTS_FROM_CLI, **config_from_cli}
+            raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
 
-            config_from_cli["paths"] = parse_paths(config_from_cli.get("paths"))
+            raw_config["paths"] = parse_paths(raw_config.get("paths"))
 
-            if config_from_cli["config"] is not None:
-                config_from_cli["config"] = Path(config_from_cli["config"]).resolve()
-                config_from_cli["root"] = config_from_cli["config"].parent
+            if raw_config["config"] is not None:
+                raw_config["config"] = Path(raw_config["config"]).resolve()
+                raw_config["root"] = raw_config["config"].parent
             else:
-                if config_from_cli["paths"] is None:
-                    config_from_cli["paths"] = (Path.cwd(),)
+                if raw_config["paths"] is None:
+                    raw_config["paths"] = (Path.cwd(),)
 
-                config_from_cli["paths"] = parse_paths(config_from_cli["paths"])
+                raw_config["paths"] = parse_paths(raw_config["paths"])
                 (
-                    config_from_cli["root"],
-                    config_from_cli["config"],
-                ) = _find_project_root_and_config(config_from_cli["paths"])
+                    raw_config["root"],
+                    raw_config["config"],
+                ) = _find_project_root_and_config(raw_config["paths"])
 
-            if config_from_cli["config"] is not None:
-                config_from_file = read_config(config_from_cli["config"])
+            if raw_config["config"] is not None:
+                config_from_file = read_config(raw_config["config"])
 
                 if "paths" in config_from_file:
                     paths = config_from_file["paths"]
                     paths = [
-                        config_from_cli["config"].parent.joinpath(path).resolve()
+                        raw_config["config"].parent.joinpath(path).resolve()
                         for path in to_list(paths)
                     ]
                     config_from_file["paths"] = paths
 
-                config_from_cli = {**config_from_cli, **config_from_file}
+                raw_config = {**raw_config, **config_from_file}
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
 
         session = Session.from_config(config)
 
@@ -172,13 +172,13 @@ def main(config_from_cli: dict[str, Any]) -> Session:
 @click.option(
     "--dry-run", type=bool, is_flag=True, default=False, help="Perform a dry-run."
 )
-def build(**config_from_cli: Any) -> NoReturn:
+def build(**raw_config: Any) -> NoReturn:
     """Collect tasks, execute them and report the results.
 
     This is pytask's default command. pytask collects tasks from the given paths or the
     current working directory, executes them and reports the results.
 
     """
-    config_from_cli["command"] = "build"
-    session = main(config_from_cli)
+    raw_config["command"] = "build"
+    session = main(raw_config)
     sys.exit(session.exit_code)
