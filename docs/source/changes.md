@@ -5,6 +5,10 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.3.0 - 2022-12-xx
+
+- {pull}`326` fixes the badge for status of the workflow.
+
 ## 0.2.7 - 2022-12-14
 
 - {pull}`307` adds Python 3.11 to the CI.
