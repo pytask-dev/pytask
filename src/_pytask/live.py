@@ -48,13 +48,6 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
-    """Parse the configuration."""
-    for name in ("n_entries_in_table", "sort_table"):
-        config[name] = raw_config[name]
-
-
-@hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Post-parse the configuration."""
     live_manager = LiveManager()

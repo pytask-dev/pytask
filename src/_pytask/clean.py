@@ -62,9 +62,6 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 @hookimpl
 def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
     """Parse the configuration."""
-    for name in ("directories", "quiet", "mode"):
-        config[name] = raw_config[name]
-
     config["exclude"] = to_list(raw_config["exclude"]) + _DEFAULT_EXCLUDE
 
 

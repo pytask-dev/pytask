@@ -106,9 +106,6 @@ def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> N
     for name in ("check_casing_of_paths",):
         config[name] = bool(raw_config.get(name, True))
 
-    for name in ("debug_pytask", "dry_run", "stop_after_first_failure", "verbose"):
-        config[name] = raw_config[name]
-
     if config["debug_pytask"]:
         config["pm"].trace.root.setwriter(print)  # noqa: T202
         config["pm"].enable_tracing()

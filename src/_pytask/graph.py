@@ -47,13 +47,6 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli.add_command(dag)
 
 
-@hookimpl
-def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
-    """Parse configuration."""
-    for name in ("output_path", "layout", "rank_direction"):
-        config[name] = raw_config[name]
-
-
 _HELP_TEXT_LAYOUT: str = (
     "The layout determines the structure of the graph. Here you find an overview of "
     "all available layouts: https://graphviz.org/docs/layouts."

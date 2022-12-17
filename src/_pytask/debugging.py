@@ -57,13 +57,6 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli.commands["build"].params.extend(additional_parameters)
 
 
-@hookimpl
-def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
-    """Parse the configuration."""
-    for name in ("pdb", "trace", "pdbcls", "show_locals"):
-        config[name] = raw_config[name]
-
-
 def _pdbcls_callback(
     ctx: click.Context, name: str, value: str | None  # noqa: U100
 ) -> tuple[str, str] | None:

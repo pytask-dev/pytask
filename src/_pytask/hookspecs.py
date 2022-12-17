@@ -78,7 +78,12 @@ def pytask_configure(
 
 @hookspec
 def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
-    """Parse configuration from the raw configuration that is from CLI or file."""
+    """Parse configuration from the raw configuration that is from CLI or file.
+
+    Note that, all configuration values are transferred from the ``raw_config`` to
+    ``config`` by default.
+
+    """
 
 
 @hookspec

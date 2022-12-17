@@ -109,9 +109,6 @@ def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> N
     markers = _parse_markers(raw_config.get("markers"))
     config["markers"] = {**markers, **config["markers"]}
 
-    for name in ("strict_markers", "expression", "marker_expression"):
-        config[name] = raw_config[name]
-
     MARK_GEN.config = config
 
 

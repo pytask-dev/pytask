@@ -108,20 +108,12 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse the configuration."""
-    if not raw_config["database_filename"].is_absolute():
-        raw_config["database_filename"] = raw_config["root"].joinpath(
+    if not config["database_filename"].is_absolute():
+        config["database_filename"] = config["root"].joinpath(
             config["database_filename"]
         )
-
-    for name in (
-        "database_provider",
-        "database_filename",
-        "database_create_db",
-        "database_create_tables",
-    ):
-        config[name] = raw_config[name]
 
     config["database"] = {
         "provider": config["database_provider"].value,
