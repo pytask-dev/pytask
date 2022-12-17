@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from _pytask.config_utils import _find_project_root_and_config
 
@@ -42,10 +44,16 @@ def test_find_project_root_and_config(
 
 
 @pytest.mark.unit
-@pytest.mark.parametrize("paths", [None, ["/mnt/home/", "C:/Users/"]])
-def test_find_project_root_and_config_raise_warning(paths):
-    with pytest.warns(UserWarning, match="A common path for all passed path"):
-        _find_project_root_and_config(paths)
+@pytest.mark.parametrize(
+    "paths, expected_root, expected_config",
+    [(None, Path.cwd(), None), (["/mnt/home/", "C:/Users/"], Path.cwd(), None)],
+)
+def test_find_project_root_and_config_w_no_intersecting_paths(
+    paths, expected_root, expected_config
+):
+    root, config = _find_project_root_and_config(paths)
+    assert root == expected_root
+    assert config == expected_config
 
 
 @pytest.mark.unit

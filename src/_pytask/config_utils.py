@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import os
-import warnings
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -72,11 +71,8 @@ def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:
     try:
         common_ancestor = Path(os.path.commonpath(paths))
     except ValueError:
-        warnings.warn(
-            "A common path for all passed path could not be detected. Fall back to "
-            "current working directory."
-        )
         common_ancestor = Path.cwd()
+
     if common_ancestor.is_file():
         common_ancestor = common_ancestor.parent
 
