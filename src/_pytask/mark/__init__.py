@@ -25,6 +25,7 @@ from _pytask.nodes import Task
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
+from _pytask.shared import parse_markers
 from rich.table import Table
 
 
@@ -104,34 +105,14 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse marker related options."""
-    markers = _parse_markers(raw_config.get("markers"))
-    config["markers"] = {**markers, **config["markers"]}
-
     MARK_GEN.config = config
 
 
-def _parse_markers(x: dict[str, str] | list[str] | tuple[str, ...]) -> dict[str, str]:
-    """Parse markers."""
-    if x is None:
-        return {}
-    elif isinstance(x, (list, tuple)):
-        mapping = {name.strip(): "" for name in x}
-    elif isinstance(x, dict):
-        mapping = {name.strip(): description.strip() for name, description in x.items()}
-    else:
-        raise click.BadParameter(
-            "'markers' must be a mapping from markers to descriptions."
-        )
-
-    for name in mapping:
-        if not name.isidentifier():
-            raise click.BadParameter(
-                f"{name} is not a valid Python name and cannot be used as a marker."
-            )
-
-    return mapping
+@hookimpl
+def pytask_post_parse(config: dict[str, Any]) -> None:
+    config["markers"] = parse_markers(config["markers"])
 
 
 @attr.s(slots=True)

@@ -38,12 +38,6 @@ from rich.text import Text
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
-    """Parse the configuration."""
-    config["show_errors_immediately"] = raw_config["show_errors_immediately"]
-
-
-@hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Adjust the configuration after intermediate values have been parsed."""
     if config["show_errors_immediately"]:

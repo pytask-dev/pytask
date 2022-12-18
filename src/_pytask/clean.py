@@ -61,9 +61,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse the configuration."""
-    config["exclude"] = to_list(raw_config["exclude"]) + _DEFAULT_EXCLUDE
+    config["exclude"] = to_list(config["exclude"]) + _DEFAULT_EXCLUDE
 
 
 @click.command(cls=ColoredCommand)

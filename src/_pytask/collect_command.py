@@ -41,14 +41,13 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli.add_command(collect)
 
 
-@hookimpl
-def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
-    """Parse configuration."""
-    config["nodes"] = raw_config.get("nodes", False)
-
-
 @click.command(cls=ColoredCommand)
-@click.option("--nodes", is_flag=True, help="Show a task's dependencies and products.")
+@click.option(
+    "--nodes",
+    is_flag=True,
+    default=False,
+    help="Show a task's dependencies and products.",
+)
 def collect(**raw_config: Any | None) -> NoReturn:
     """Collect tasks and report information about them."""
     raw_config["command"] = "collect"

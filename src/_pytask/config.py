@@ -6,6 +6,7 @@ import tempfile
 from typing import Any
 
 import pluggy
+from _pytask.shared import parse_markers
 from _pytask.shared import parse_paths
 from _pytask.shared import to_list
 
@@ -63,7 +64,20 @@ def pytask_configure(
 ) -> dict[str, Any]:
     """Configure pytask."""
     # Add all values by default so that many plugins do not need to copy over values.
-    config = {"pm": pm, **raw_config}
+    config = {"pm": pm, "markers": {}, **raw_config}
+    config["markers"] = parse_markers(config["markers"])
+
+    pm.hook.pytask_parse_config(config=config)
+
+    pm.hook.pytask_post_parse(config=config)
+
+    return config
+
+
+@hookimpl
+def pytask_parse_config(config: dict[str, Any]) -> None:
+    """Parse the configuration."""
+    config["paths"] = parse_paths(config["paths"])
 
     config["markers"] = {
         "depends_on": (
@@ -76,35 +90,22 @@ def pytask_configure(
         ),
         "try_first": "Try to execute a task a early as possible.",
         "try_last": "Try to execute a task a late as possible.",
+        **config["markers"],
     }
 
-    pm.hook.pytask_parse_config(config=config, raw_config=raw_config)
-
-    pm.hook.pytask_post_parse(config=config)
-
-    return config
-
-
-@hookimpl
-def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
-    """Parse the configuration."""
-    config["paths"] = parse_paths(raw_config["paths"])
-
     config["ignore"] = (
-        to_list(raw_config["ignore"])
+        to_list(config["ignore"])
         + _IGNORED_FILES_AND_FOLDERS
         + IGNORED_TEMPORARY_FILES_AND_FOLDERS
     )
 
-    config["task_files"] = to_list(raw_config.get("task_files", "task_*.py"))
+    config["task_files"] = to_list(config.get("task_files", "task_*.py"))
 
     if config["stop_after_first_failure"]:
         config["max_failures"] = 1
-    else:
-        config["max_failures"] = raw_config["max_failures"]
 
     for name in ("check_casing_of_paths",):
-        config[name] = bool(raw_config.get(name, True))
+        config[name] = bool(config.get(name, True))
 
     if config["debug_pytask"]:
         config["pm"].trace.root.setwriter(print)  # noqa: T202

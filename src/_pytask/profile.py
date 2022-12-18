@@ -59,12 +59,6 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> None:
-    """Parse the configuration."""
-    config["export"] = raw_config["export"]
-
-
-@hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Register the export option."""
     config["pm"].register(ExportNameSpace)

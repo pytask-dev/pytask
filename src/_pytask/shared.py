@@ -7,6 +7,7 @@ from typing import Any
 from typing import Iterable
 from typing import Sequence
 
+import click
 import networkx as nx
 from _pytask.console import format_task_id
 from _pytask.nodes import MetaNode
@@ -122,3 +123,23 @@ def find_duplicates(x: Iterable[Any]) -> set[Any]:
         seen.add(i)
 
     return duplicates
+
+
+def parse_markers(x: dict[str, str] | list[str] | tuple[str, ...]) -> dict[str, str]:
+    """Parse markers."""
+    if isinstance(x, (list, tuple)):
+        mapping = {name.strip(): "" for name in x}
+    elif isinstance(x, dict):
+        mapping = {name.strip(): description.strip() for name, description in x.items()}
+    else:
+        raise click.BadParameter(
+            "'markers' must be a mapping from markers to descriptions."
+        )
+
+    for name in mapping:
+        if not name.isidentifier():
+            raise click.BadParameter(
+                f"{name} is not a valid Python name and cannot be used as a marker."
+            )
+
+    return mapping
