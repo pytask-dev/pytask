@@ -1,8 +1,8 @@
 """This file contains the command and code for drawing the DAG."""
 from __future__ import annotations
 
+import enum
 import sys
-from enum import Enum
 from pathlib import Path
 from typing import Any
 from typing import TYPE_CHECKING
@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 import click
 import networkx as nx
 from _pytask.click import ColoredCommand
+from _pytask.click import EnumChoice
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
@@ -34,7 +35,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
-class _RankDirection(str, Enum):
+class _RankDirection(enum.Enum):
     TB = "TB"
     LR = "LR"
     BT = "BT"
@@ -77,7 +78,7 @@ _HELP_TEXT_RANK_DIRECTION: str = (
 @click.option(
     "-r",
     "--rank-direction",
-    type=click.Choice(_RankDirection),  # type: ignore[arg-type]
+    type=EnumChoice(_RankDirection),
     help=_HELP_TEXT_RANK_DIRECTION,
     default=_RankDirection.TB,
 )

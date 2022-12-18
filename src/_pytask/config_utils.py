@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import os
-from enum import Enum
 from pathlib import Path
 from typing import Any
 
@@ -108,13 +107,6 @@ def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:
     return root, config_path
 
 
-class ShowCapture(str, Enum):
-    NO = "no"
-    STDOUT = "stdout"
-    STDERR = "stderr"
-    ALL = "all"
-
-
 def read_config(
     path: Path, sections: str = "tool.pytask.ini_options"
 ) -> dict[str, Any]:
@@ -136,15 +128,3 @@ def read_config(
         config = config[section]
 
     return config
-
-
-def _convert_markers_to_list_of_tuples(x: Any) -> list[tuple[str, str]]:
-    """Convert markers to a list of tuples."""
-    if x is None:
-        return []
-    elif isinstance(x, list):
-        return [(i, "") for i in x]
-    elif isinstance(x, dict):
-        return list(x.items())
-    else:
-        raise click.BadParameter("'markers' must be either a list or a dictionary")

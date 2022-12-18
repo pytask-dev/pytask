@@ -7,7 +7,6 @@ import time
 from typing import Any
 
 from _pytask.config import hookimpl
-from _pytask.config_utils import ShowCapture
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_task
@@ -17,6 +16,7 @@ from _pytask.console import unify_styles
 from _pytask.dag import descending_tasks
 from _pytask.dag import TopologicalSorter
 from _pytask.database import update_states_in_database
+from _pytask.enums import ShowCapture
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
@@ -315,7 +315,7 @@ def _print_errored_task_report(session: Session, report: ExecutionReport) -> Non
     show_capture = session.config["show_capture"]
     for when, key, content in report.sections:
         if key in ("stdout", "stderr") and show_capture in (
-            ShowCapture[key.upper()],
+            ShowCapture(key),
             ShowCapture.ALL,
         ):
             console.rule(f"Captured {key} during {when}", style=None)

@@ -1,19 +1,20 @@
 """Implement the database managed with pony."""
 from __future__ import annotations
 
-from enum import Enum
+import enum
 from pathlib import Path
 from typing import Any
 
 import click
 import networkx as nx
+from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
 from _pytask.dag import node_and_neighbors
 from click import Context
 from pony import orm
 
 
-class _DatabaseProviders(str, Enum):
+class _DatabaseProviders(enum.Enum):
     SQLITE = "sqlite"
     POSTGRES = "postgres"
     MYSQL = "mysql"
@@ -77,7 +78,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--database-provider"],
-            type=click.Choice(_DatabaseProviders),  # type: ignore[arg-type]
+            type=EnumChoice(_DatabaseProviders),
             help=(
                 "Database provider. All providers except sqlite are considered "
                 "experimental."

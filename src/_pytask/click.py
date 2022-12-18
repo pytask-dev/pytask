@@ -17,15 +17,49 @@ from rich.table import Table
 from rich.text import Text
 
 
-_SWITCH_REGEX = r"(?P<switch>\-\w)\b"
-_OPTION_REGEX = r"(?P<option>\-\-[\w\-]+)"
-_METAVAR_REGEX = r"\-\-[\w\-]+(?P<metavar>[ |=][\w\.:]+)"
+__all__ = ["EnumChoice", "ColoredGroup", "ColoredCommand"]
 
 
-class OptionHighlighter(RegexHighlighter):
+class EnumChoice(click.Choice):
+    """An enum-based choice type.
+
+    The implementation is copied from https://github.com/pallets/click/pull/2210 and
+    related discussion can be found in https://github.com/pallets/click/issues/605.
+
+    In contrast to using :class:`click.Choice`, using this type ensures that the error
+    message does not show the enum members.
+
+    In contrast to the proposed implementation in the PR, this implementation does not
+    use the members than rather the values of the enum.
+
+    """
+
+    def __init__(self, enum_type: type[enum.Enum], case_sensitive: bool = True):
+        super().__init__(
+            choices=[element.value for element in enum_type],
+            case_sensitive=case_sensitive,
+        )
+        self.enum_type = enum_type
+
+    def convert(
+        self, value: Any, param: click.Parameter | None, ctx: click.Context | None
+    ) -> Any:
+        if isinstance(value, enum.Enum):
+            value = value.value
+        value = super().convert(value=value, param=param, ctx=ctx)
+        if value is None:
+            return None
+        return self.enum_type(value)
+
+
+class _OptionHighlighter(RegexHighlighter):
     """A highlighter for help texts."""
 
-    highlights = [_SWITCH_REGEX, _OPTION_REGEX, _METAVAR_REGEX]
+    highlights = [
+        r"(?P<switch>\-\w)\b",
+        r"(?P<option>\-\-[\w\-]+)",
+        r"\-\-[\w\-]+(?P<metavar>[ |=][\w\.:]+)",
+    ]
 
 
 class ColoredGroup(DefaultGroup):
@@ -35,7 +69,7 @@ class ColoredGroup(DefaultGroup):
         self: DefaultGroup, ctx: click.Context, formatter: Any  # noqa: U100
     ) -> None:  # noqa: U100
         """Format the help text."""
-        highlighter = OptionHighlighter()
+        highlighter = _OptionHighlighter()
 
         console.print(
             f"[b]pytask[/b] [dim]v{version}[/]\n", justify="center", highlight=False
@@ -69,7 +103,7 @@ class ColoredGroup(DefaultGroup):
             )
         )
 
-        print_options(self, ctx)
+        _print_options(self, ctx)
 
         console.print(
             "[bold #FF0000]♥[/] [#f2f2f2]https://pytask-dev.readthedocs.io[/]",
@@ -95,7 +129,7 @@ class ColoredCommand(click.Command):
         console.print(self.help, style="dim")
         console.print()
 
-        print_options(self, ctx)
+        _print_options(self, ctx)
 
         console.print(
             "[bold #FF0000]♥[/] [#f2f2f2]https://pytask-dev.readthedocs.io[/]",
@@ -103,11 +137,11 @@ class ColoredCommand(click.Command):
         )
 
 
-def print_options(
+def _print_options(
     group_or_command: click.Command | DefaultGroup, ctx: click.Context
 ) -> None:
     """Print options formatted with a table in a panel."""
-    highlighter = OptionHighlighter()
+    highlighter = _OptionHighlighter()
 
     options_table = Table(highlight=True, box=None, show_header=False)
 
@@ -143,7 +177,7 @@ def print_options(
             choices = "[" + "|".join(param.type.choices) + "]"
             opt2 += Text(f" {choices}", style="metavar", overflow="fold")
 
-        help_text = format_help_text(param, ctx)
+        help_text = _format_help_text(param, ctx)
 
         options_table.add_row(opt1, opt2, highlighter(help_text))
 
@@ -157,7 +191,7 @@ def print_options(
     )
 
 
-def format_help_text(param: click.Parameter, ctx: click.Context) -> str:
+def _format_help_text(param: click.Parameter, ctx: click.Context) -> str:
     """Format the help of a click parameter.
 
     A large chunk of the function is copied from

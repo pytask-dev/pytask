@@ -2,11 +2,11 @@
 from __future__ import annotations
 
 import csv
+import enum
 import json
 import sys
 import time
 from contextlib import suppress
-from enum import Enum
 from pathlib import Path
 from types import TracebackType
 from typing import Any
@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 
 import click
 from _pytask.click import ColoredCommand
+from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_id
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
-class _ExportFormats(str, Enum):
+class _ExportFormats(enum.Enum):
     NO = "no"
     JSON = "json"
     CSV = "csv"
@@ -104,7 +105,7 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
 @click.command(cls=ColoredCommand)
 @click.option(
     "--export",
-    type=click.Choice(_ExportFormats),  # type: ignore[arg-type]
+    type=EnumChoice(_ExportFormats),
     default=_ExportFormats.NO,
     help="Export the profile in the specified format.",
 )

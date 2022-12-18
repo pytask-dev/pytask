@@ -26,11 +26,11 @@ References
 from __future__ import annotations
 
 import contextlib
+import enum
 import functools
 import io
 import os
 import sys
-from enum import Enum
 from tempfile import TemporaryFile
 from typing import Any
 from typing import AnyStr
@@ -40,8 +40,9 @@ from typing import Iterator
 from typing import TextIO
 
 import click
+from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
-from _pytask.config_utils import ShowCapture
+from _pytask.enums import ShowCapture
 from _pytask.nodes import Task
 
 
@@ -53,7 +54,7 @@ else:
         return f
 
 
-class _CaptureMethod(str, Enum):
+class _CaptureMethod(enum.Enum):
     FD = "fd"
     NO = "no"
     SYS = "sys"
@@ -66,7 +67,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--capture"],
-            type=click.Choice(_CaptureMethod),  # type: ignore[arg-type]
+            type=EnumChoice(_CaptureMethod),
             default=_CaptureMethod.FD,
             help="Per task capturing method.",
         ),
@@ -78,7 +79,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         ),
         click.Option(
             ["--show-capture"],
-            type=click.Choice(ShowCapture),  # type: ignore[arg-type]
+            type=EnumChoice(ShowCapture),
             default=ShowCapture.ALL,
             help=("Choose which captured output should be shown for failed tasks."),
         ),

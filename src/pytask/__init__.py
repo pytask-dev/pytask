@@ -3,6 +3,9 @@ from __future__ import annotations
 
 from _pytask import __version__
 from _pytask.build import main
+from _pytask.click import ColoredCommand
+from _pytask.click import ColoredGroup
+from _pytask.click import EnumChoice
 from _pytask.collect_utils import depends_on
 from _pytask.collect_utils import parse_nodes
 from _pytask.collect_utils import produces
@@ -84,10 +87,13 @@ __all__ = [
     "render_exc_info",
     "set_marks",
     "warning_record_to_str",
+    "EnumChoice",
     "CollectionError",
     "CollectionMetadata",
     "CollectionOutcome",
     "CollectionReport",
+    "ColoredCommand",
+    "ColoredGroup",
     "ConfigurationError",
     "ExecutionReport",
     "ExecutionError",

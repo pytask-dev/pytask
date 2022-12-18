@@ -1,10 +1,10 @@
 """Add a command to clean the project from files unknown to pytask."""
 from __future__ import annotations
 
+import enum
 import itertools
 import shutil
 import sys
-from enum import Enum
 from pathlib import Path
 from types import TracebackType
 from typing import Any
@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING
 import attr
 import click
 from _pytask.click import ColoredCommand
+from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
-class _CleanMode(str, Enum):
+class _CleanMode(enum.Enum):
     DRY_RUN = "dry-run"
     FORCE = "force"
     INTERACTIVE = "interactive"
@@ -84,7 +85,7 @@ def pytask_parse_config(config: dict[str, Any], raw_config: dict[str, Any]) -> N
 @click.option(
     "--mode",
     default=_CleanMode.DRY_RUN,
-    type=click.Choice(_CleanMode),  # type: ignore[arg-type]
+    type=EnumChoice(_CleanMode),
     help=_HELP_TEXT_MODE,
 )
 @click.option(
