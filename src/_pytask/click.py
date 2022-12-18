@@ -17,7 +17,7 @@ from rich.table import Table
 from rich.text import Text
 
 
-__all__ = ["EnumChoice", "ColoredGroup", "ColoredCommand"]
+__all__ = ["ColoredCommand", "ColoredGroup", "EnumChoice"]
 
 
 class EnumChoice(click.Choice):

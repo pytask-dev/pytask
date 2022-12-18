@@ -34,10 +34,10 @@ if TYPE_CHECKING:
 
 __all__ = [
     "Expression",
+    "MARK_GEN",
     "Mark",
     "MarkDecorator",
     "MarkGenerator",
-    "MARK_GEN",
     "ParseError",
 ]
 

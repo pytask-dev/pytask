@@ -14,16 +14,16 @@ if TYPE_CHECKING:
 
 
 __all__ = [
-    "count_outcomes",
     "CollectionOutcome",
     "Exit",
     "ExitCode",
     "Persisted",
     "PytaskOutcome",
     "Skipped",
-    "SkippedUnchanged",
     "SkippedAncestorFailed",
+    "SkippedUnchanged",
     "TaskOutcome",
+    "count_outcomes",
 ]
 
 

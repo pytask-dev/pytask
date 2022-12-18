@@ -21,10 +21,10 @@ if TYPE_CHECKING:
 
 
 __all__ = [
+    "WarningReport",
     "catch_warnings_for_item",
     "parse_filterwarnings",
     "parse_warning_filter",
-    "WarningReport",
 ]
 
 
