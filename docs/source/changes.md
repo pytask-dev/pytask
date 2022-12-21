@@ -1,16 +1,25 @@
 # Changes
 
-This is a record of all past pytask releases and what went into them in reverse
+The document records all past pytask releases and what went into them in reverse
 chronological order. Releases follow [semantic versioning](https://semver.org/) and all
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.2.7 - 2022-xx-xx
+## 0.3.0 - 2022-12-xx
 
+- {pull}`313` refactors the configuration. INI configurations are no longer supported.
+- {pull}`326` fixes the badge for status of the workflow.
+
+## 0.2.7 - 2022-12-14
+
+- {pull}`307` adds Python 3.11 to the CI.
 - {pull}`308` replaces pydot with pygraphviz.
-- {pull}`318` Clarifies an example on nested dependencies and products.
+- {pull}`311` fixes a link in the documentation.
+- {pull}`311` adds refurb to pre-commit hooks.
+- {pull}`318` clarifies an example on nested dependencies and products.
 - {pull}`321` converts more choice options to enums.
 - {pull}`322` replaces SVGs with animations by termynal.
+- {pull}`325` allows to collect dynamically created tasks.
 
 ## 0.2.6 - 2022-10-27
 
@@ -24,7 +33,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`289` shortens the task ids when using `pytask collect`. Fixes {issue}`286`.
 - {pull}`290` implements a dry-run with `pytask --dry-run` to see which tasks would be
   executed.
-- {pull}`296` fixes a bug where the source code of wrapped function could not be
+- {pull}`296` fixes a bug where the source code of the wrapped function could not be
   retrieved.
 
 ## 0.2.4 - 2022-06-28
@@ -32,8 +41,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`279` enhances some tutorials with spell and grammar checking.
 - {pull}`282` updates the tox configuration.
 - {pull}`283` fixes an issue with coverage and tests using pexpect + `pdb.set_trace()`.
-- {pull}`285` implements that pytask does not show the traceback of tasks which are
-  skipped because its previous task failed. Fixes {issue}`284`.
+- {pull}`285` implements that pytask does not show the traceback of tasks that are
+  skipped because their previous task failed. Fixes {issue}`284`.
 - {pull}`287` changes that all files that are not produced by a task are displayed in
   the error message. Fixes {issue}`262`.
 
@@ -82,7 +91,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`237` publish more functions.
 - {pull}`238` allows any order of decorators with a `@pytask.mark.task` decorator.
 - {pull}`239` adds a warning on globals for parametrizations and some fixes.
-- {pull}`241` allows to parametrize over single dicts.
+- {pull}`241` allows parametrizing over single dicts.
 - {pull}`242` removes tasks from global {obj}`_pytask.task_utils.COLLECTED_TASKS` to
   avoid re-collection when the programmatic interface is used.
 - {pull}`243` converts choice options to use enums instead of simple strings.
@@ -112,7 +121,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.1.8 - 2022-02-07
 
-- {pull}`210` allows `__tracebackhide__` to be a callable which accepts the current
+- {pull}`210` allows `__tracebackhide__` to be a callable that accepts the current
   exception as an input. Closes {issue}`145`.
 - {pull}`213` improves coverage and reporting.
 - {pull}`215` makes the help pages of the CLI prettier.
@@ -135,7 +144,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`199` extends the error message when paths are ambiguous on case-insensitive
   file systems.
 - {pull}`200` implements the {func}`@pytask.mark.task <pytask.mark.task>` decorator to
-  mark functions as tasks regardless whether they are prefixed with `task_` or not.
+  mark functions as tasks regardless of whether they are prefixed with `task_` or not.
 - {pull}`201` adds tests for `_pytask.mark_utils`.
 - {pull}`204` removes internal traceback frames from exceptions raised somewhere in
   pytask.
@@ -149,7 +158,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   in many places.
 - {pull}`185` fix issues with drawing a graph and adds the `--rank-direction` to change
   the direction of the DAG.
-- {pull}`186` enhance live displays by deactivating auto-refresh among other things.
+- {pull}`186` enhance live displays by deactivating auto-refresh, among other things.
 - {pull}`187` allows to enable and disable showing tracebacks and potentially different
   styles in the future with {confval}`show_traceback=True|False`.
 - {pull}`188` refactors some code related to {class}`_pytask.enums.ExitCode`.
@@ -170,10 +179,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   information.
 - {pull}`173` replaces `ColorCode` with custom rich themes.
 - {pull}`174` restructures loosely defined outcomes to clear `enum.Enum`.
-- {pull}`176` and {pull}`177` implement a summary panel which holds aggregate
-  information about the number of successes, fails and other status.
-- {pull}`178` makes some stylistic changes like reducing tasks ids even more and dims
-  the path part.
+- {pull}`176` and {pull}`177` implement a summary panel that holds aggregate information
+  about the number of successes, fails and other status.
+- {pull}`178` adds stylistic changes like reducing tasks ids even more and dimming the
+  path part.
 - {pull}`180` fixes parsing relative paths from the configuration file.
 - {pull}`181` adds correct formatting of running tasks.
 - {pull}`182` introduces that only the starting year is displayed in the license

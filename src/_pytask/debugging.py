@@ -17,8 +17,6 @@ from _pytask.console import console
 from _pytask.nodes import Task
 from _pytask.outcomes import Exit
 from _pytask.session import Session
-from _pytask.shared import convert_truthy_or_falsy_to_bool
-from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import render_exc_info
 
@@ -34,17 +32,15 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--pdb"],
-            help="Start the interactive debugger on errors.  "
-            "[dim]\\[default: False][/]",
+            help="Start the interactive debugger on errors.",
             is_flag=True,
-            default=None,
+            default=False,
         ),
         click.Option(
             ["--trace"],
-            help="Enter debugger in the beginning of each task.  "
-            "[dim]\\[default: False][/]",
+            help="Enter debugger in the beginning of each task.",
             is_flag=True,
-            default=None,
+            default=False,
         ),
         click.Option(
             ["--pdbcls"],
@@ -52,61 +48,30 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
                 "Start a custom debugger on errors. For example: "
                 "--pdbcls=IPython.terminal.debugger:TerminalPdb"
             ),
+            type=str,
+            default=None,
             metavar="module_name:class_name",
+            callback=_pdbcls_callback,
         ),
     ]
     cli.commands["build"].params.extend(additional_parameters)
 
 
-@hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
-    """Parse the configuration."""
-    config["pdb"] = get_first_non_none_value(
-        config_from_cli,
-        key="pdb",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-    config["trace"] = get_first_non_none_value(
-        config_from_cli,
-        key="trace",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-    config["pdbcls"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="pdbcls",
-        default=None,
-        callback=_pdbcls_callback,
-    )
-    config["show_locals"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_locals",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-
-
-def _pdbcls_callback(x: str | None) -> tuple[str, str] | None:
+def _pdbcls_callback(
+    ctx: click.Context, name: str, value: str | None  # noqa: U100
+) -> tuple[str, str] | None:
     """Validate the debugger class string passed to pdbcls."""
     message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
 
-    if x in (None, "None", "none"):
+    if value is None:
         return None
-    elif isinstance(x, str):
-        if len(x.split(":")) != 2:
-            raise ValueError(message)
+    elif isinstance(value, str):
+        if len(value.split(":")) != 2:
+            raise click.BadParameter(message)
         else:
-            return tuple(x.split(":"))  # type: ignore
+            return tuple(value.split(":"))  # type: ignore
     else:
-        raise ValueError(message)
-    return x
+        raise click.BadParameter(message)
 
 
 @hookimpl(trylast=True)

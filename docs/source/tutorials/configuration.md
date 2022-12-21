@@ -6,13 +6,6 @@ pytask can be configured via the command-line interface or permanently with a
 The file also indicates the root of your project where pytask stores information in a
 `.pytask.sqlite3` database.
 
-:::{important}
-`pytask.ini`, `tox.ini`, and `setup.cfg` will be deprecated as configuration files for
-pytask starting with v0.3 or v1.0. Switch to a `pyproject.toml` file! If you execute
-pytask with an old configuration file, pytask provides you with a copy-paste snippet of
-your configuration in the `toml` format to facilitate the transition.
-:::
-
 ## The configuration file
 
 You only need to add the header to the configuration file to indicate the root of your
@@ -48,8 +41,8 @@ The second option is to let pytask try to find the configuration itself.
    working directory).
 2. Starting from this directory, look at all parent directories, and return the file if
    it exists.
-3. Stop searching if a directory contains a `.git` directory/file, a `.hg` directory, or a valid
-   configuration file with the correct section.
+3. Stop searching if a directory contains a `.git` directory/file or a valid configuration file with
+   the right section.
 
 ## The options
 
