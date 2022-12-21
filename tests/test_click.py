@@ -38,12 +38,12 @@ def test_enum_choice(runner, method):
     @click.command()
     @click.option("--method", type=EnumChoice(Method))
     def test(method):
-        print(f"{method=}")  # noqa: T201
+        print(f"method={method}")  # noqa: T201
 
     result = runner.invoke(test, ["--method", method])
 
     assert result.exit_code == 0
-    assert f"method=<Method.{method.upper()}: {method!r}" in result.output
+    assert f"method=Method.{method.upper()}" in result.output
 
 
 @pytest.mark.unit
