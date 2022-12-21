@@ -1,3 +1,4 @@
+"""This module contains the main code for the markers plugin."""
 from __future__ import annotations
 
 import sys
@@ -24,8 +25,7 @@ from _pytask.nodes import Task
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from _pytask.shared import convert_truthy_or_falsy_to_bool
-from _pytask.shared import get_first_non_none_value
+from _pytask.shared import parse_markers
 from rich.table import Table
 
 
@@ -35,18 +35,18 @@ if TYPE_CHECKING:
 
 __all__ = [
     "Expression",
+    "MARK_GEN",
     "Mark",
     "MarkDecorator",
     "MarkGenerator",
-    "MARK_GEN",
     "ParseError",
 ]
 
 
 @click.command(cls=ColoredCommand)
-def markers(**config_from_cli: Any) -> NoReturn:
+def markers(**raw_config: Any) -> NoReturn:
     """Show all registered markers."""
-    config_from_cli["command"] = "markers"
+    raw_config["command"] = "markers"
 
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
@@ -56,7 +56,7 @@ def markers(**config_from_cli: Any) -> NoReturn:
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
     except (ConfigurationError, Exception):
@@ -78,12 +78,14 @@ def markers(**config_from_cli: Any) -> NoReturn:
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Add marker related options."""
+    cli.add_command(markers)
+
     additional_build_parameters = [
         click.Option(
             ["--strict-markers"],
             is_flag=True,
             help="Raise errors for unknown markers.",
-            default=None,
+            default=False,
         ),
         click.Option(
             ["-m", "marker_expression"],
@@ -98,65 +100,19 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             help="Select tasks via expressions on task ids.",
         ),
     ]
-    cli.commands["build"].params.extend(additional_build_parameters)
-    cli.commands["clean"].params.extend(additional_build_parameters)
-    cli.commands["collect"].params.extend(additional_build_parameters)
-
-    cli.add_command(markers)
+    for command in ("build", "clean", "collect"):
+        cli.commands[command].params.extend(additional_build_parameters)
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse marker related options."""
-    markers = _read_marker_mapping(config_from_file.get("markers", {}))
-    config["markers"] = {**markers, **config["markers"]}
-    config["strict_markers"] = get_first_non_none_value(
-        config,
-        config_from_file,
-        config_from_cli,
-        key="strict_markers",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-
-    config["expression"] = config_from_cli.get("expression")
-    config["marker_expression"] = config_from_cli.get("marker_expression")
-
     MARK_GEN.config = config
 
 
-def _read_marker_mapping(x: dict[str, str] | str) -> dict[str, str]:
-    """Read marker descriptions from configuration file."""
-    if isinstance(x, dict):
-        mapping = {k.strip(): v.strip() for k, v in x.items()}
-    elif isinstance(x, list):
-        mapping = {k.strip(): "" for k in x}
-    elif isinstance(x, str):
-        # Split by newlines and remove empty strings.
-        lines = filter(bool, x.split("\n"))
-        mapping = {}
-        for line in lines:
-            try:
-                key, value = line.split(":")
-            except ValueError:
-                key = line
-                value = ""
-
-            mapping[key.strip()] = value.strip()
-    else:
-        raise TypeError(f"Unknown type {type(x)!r}. Expected dict or str.")
-
-    for key in mapping:
-        if not key.isidentifier():
-            raise ValueError(
-                f"{key} is not a valid Python name and cannot be used as a marker."
-            )
-
-    return mapping
+@hookimpl
+def pytask_post_parse(config: dict[str, Any]) -> None:
+    config["markers"] = parse_markers(config["markers"])
 
 
 @attr.s(slots=True)
@@ -262,6 +218,7 @@ def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str]:
 def _deselect_others_with_mark(
     session: Session, remaining: set[str], mark: Mark
 ) -> None:
+    """Deselect tasks."""
     for task in session.tasks:
         if task.name not in remaining:
             task.markers.append(mark)

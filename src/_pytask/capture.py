@@ -26,11 +26,11 @@ References
 from __future__ import annotations
 
 import contextlib
+import enum
 import functools
 import io
 import os
 import sys
-from enum import Enum
 from tempfile import TemporaryFile
 from typing import Any
 from typing import AnyStr
@@ -40,11 +40,10 @@ from typing import Iterator
 from typing import TextIO
 
 import click
+from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
-from _pytask.config_utils import parse_click_choice
-from _pytask.config_utils import ShowCapture
+from _pytask.enums import ShowCapture
 from _pytask.nodes import Task
-from _pytask.shared import get_first_non_none_value
 
 
 if sys.version_info >= (3, 8):
@@ -55,7 +54,7 @@ else:
         return f
 
 
-class _CaptureMethod(str, Enum):
+class _CaptureMethod(enum.Enum):
     FD = "fd"
     NO = "no"
     SYS = "sys"
@@ -68,55 +67,35 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--capture"],
-            type=click.Choice(_CaptureMethod),  # type: ignore[arg-type]
-            help="Per task capturing method. [dim]\\[default: fd][/]",
+            type=EnumChoice(_CaptureMethod),
+            default=_CaptureMethod.FD,
+            help="Per task capturing method.",
         ),
         click.Option(
             ["-s"],
             is_flag=True,
+            default=False,
             help="Shortcut for --capture=no.",
         ),
         click.Option(
             ["--show-capture"],
-            type=click.Choice(ShowCapture),  # type: ignore[arg-type]
-            help=(
-                "Choose which captured output should be shown for failed tasks. "
-                "[dim]\\[default: all][/]"
-            ),
+            type=EnumChoice(ShowCapture),
+            default=ShowCapture.ALL,
+            help=("Choose which captured output should be shown for failed tasks."),
         ),
     ]
     cli.commands["build"].params.extend(additional_parameters)
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse configuration.
 
     Note that, ``-s`` is a shortcut for ``--capture=no``.
 
     """
-    if config_from_cli.get("s"):
+    if config["s"]:
         config["capture"] = _CaptureMethod.NO
-    else:
-        config["capture"] = get_first_non_none_value(
-            config_from_cli,
-            config_from_file,
-            key="capture",
-            default=_CaptureMethod.FD,
-            callback=parse_click_choice("capture", _CaptureMethod),
-        )
-
-    config["show_capture"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_capture",
-        default=ShowCapture.ALL,
-        callback=parse_click_choice("show_capture", ShowCapture),
-    )
 
 
 @hookimpl

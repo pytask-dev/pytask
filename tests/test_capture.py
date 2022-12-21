@@ -7,6 +7,7 @@ import subprocess
 import sys
 import textwrap
 from io import UnsupportedOperation
+from pathlib import Path
 from typing import BinaryIO
 from typing import Generator
 
@@ -712,6 +713,7 @@ class TestStdCaptureFDinvalidFD:
         assert "3  Succeeded" in result.output
 
     def test_fdcapture_invalid_fd_with_fd_reuse(self, tmp_path):
+        cwd = Path.cwd()
         os.chdir(tmp_path)
         with saved_fd(1):
             os.close(1)
@@ -726,8 +728,10 @@ class TestStdCaptureFDinvalidFD:
             cap.done()
             with pytest.raises(OSError):
                 os.write(1, b"done")
+        os.chdir(cwd)
 
     def test_fdcapture_invalid_fd_without_fd_reuse(self, tmp_path):
+        cwd = Path.cwd()
         os.chdir(tmp_path)
         with saved_fd(1), saved_fd(2):
             os.close(1)
@@ -743,6 +747,7 @@ class TestStdCaptureFDinvalidFD:
             cap.done()
             with pytest.raises(OSError):
                 os.write(2, b"done")
+            os.chdir(cwd)
 
 
 @pytest.mark.unit

@@ -7,7 +7,6 @@ import time
 from typing import Any
 
 from _pytask.config import hookimpl
-from _pytask.config_utils import ShowCapture
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_task
@@ -17,6 +16,7 @@ from _pytask.console import unify_styles
 from _pytask.dag import descending_tasks
 from _pytask.dag import TopologicalSorter
 from _pytask.database import update_states_in_database
+from _pytask.enums import ShowCapture
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
@@ -29,29 +29,12 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
-from _pytask.shared import get_first_non_none_value
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
 from pybaum.tree_util import tree_map
 from rich.text import Text
-
-
-@hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
-    """Parse the configuration."""
-    config["show_errors_immediately"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_errors_immediately",
-        default=False,
-        callback=lambda x: x if x is None else bool(x),
-    )
 
 
 @hookimpl
@@ -326,7 +309,7 @@ def _print_errored_task_report(session: Session, report: ExecutionReport) -> Non
     show_capture = session.config["show_capture"]
     for when, key, content in report.sections:
         if key in ("stdout", "stderr") and show_capture in (
-            ShowCapture[key.upper()],
+            ShowCapture(key),
             ShowCapture.ALL,
         ):
             console.rule(f"Captured {key} during {when}", style=None)

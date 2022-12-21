@@ -10,6 +10,7 @@ from pytask import ExitCode
 from pytask import main
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "disable_warnings",
     [pytest.param(True, marks=pytest.mark.filterwarnings("ignore:warning!!!")), False],
@@ -31,6 +32,7 @@ def test_disable_warnings_cli(tmp_path, runner, disable_warnings):
     assert ("warning!!!" in result.output) is not disable_warnings
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "disable_warnings",
     [pytest.param(True, marks=pytest.mark.filterwarnings("ignore:warning!!!")), False],
@@ -54,6 +56,7 @@ def test_disable_warnings(tmp_path, disable_warnings):
         assert "warning!!!" in session.warnings[0].message
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("add_marker", [False, True])
 def test_disable_warnings_with_mark(tmp_path, runner, add_marker):
     if add_marker:
@@ -78,6 +81,7 @@ def test_disable_warnings_with_mark(tmp_path, runner, add_marker):
     assert ("warning!!!" in result.output) is not add_marker
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "disable_warnings",
     [pytest.param(True, marks=pytest.mark.filterwarnings("ignore:warning!!!")), False],
@@ -101,6 +105,7 @@ def test_disable_warnings_cli_collection(tmp_path, runner, disable_warnings):
     assert ("warning!!!" in result.output) is not disable_warnings
 
 
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("add_config", [False, True])
 def test_disable_warnings_with_config(tmp_path, runner, add_config):
     if add_config:
@@ -123,6 +128,7 @@ def test_disable_warnings_with_config(tmp_path, runner, add_config):
     assert ("warning!!!" in result.output) is not add_config
 
 
+@pytest.mark.end_to_end
 @pytest.mark.xfail(sys.platform == "win32", reason="See #293.")
 @pytest.mark.parametrize("warning", ["DeprecationWarning", "PendingDeprecationWarning"])
 def test_deprecation_warnings_are_not_captured(tmp_path, warning):
@@ -159,6 +165,7 @@ def test_deprecation_warnings_are_not_captured(tmp_path, warning):
     assert "warning!!!" not in result.stdout.decode()
 
 
+@pytest.mark.end_to_end
 def test_multiple_occurrences_of_warning_are_reduced(tmp_path, runner):
     source = """
     import warnings

@@ -1,65 +1,113 @@
 """This module contains helper functions for the configuration."""
 from __future__ import annotations
 
-import configparser
-import fnmatch
-from enum import Enum
+import os
 from pathlib import Path
 from typing import Any
-from typing import Callable
 
+import click
 import tomli
+from _pytask.shared import parse_paths
 
 
-def parse_click_choice(
-    name: str, enum_: type[Enum]
-) -> Callable[[Enum | str | None], Enum | None]:
-    """Validate the passed options for a :class:`click.Choice` option."""
-    value_to_name = {enum_[name].value: name for name in enum_.__members__}
+def set_defaults_from_config(
+    context: click.Context, param: click.Parameter, value: Any  # noqa: U100
+) -> Path | None:
+    """Set the defaults for the command-line interface from the configuration."""
+    # Hack: pytask will later walk through all configuration hooks, even the ones not
+    # related to this command. They might expect the defaults coming from their related
+    # command-line options during parsing. Here, we add their defaults to the
+    # configuration.
+    command_option_names = [option.name for option in context.command.params]
+    commands = context.parent.command.commands  # type: ignore[attr-defined]
+    all_defaults_from_cli = {
+        option.name: option.default
+        for name, command in commands.items()
+        for option in command.params
+        if name != context.info_name and option.name not in command_option_names
+    }
+    context.params.update(all_defaults_from_cli)
 
-    def _parse(x: Enum | str | None) -> Enum | None:
-        if x in (None, "None", "none"):
-            out = None
-        elif isinstance(x, str) and x in value_to_name:
-            out = enum_[value_to_name[x]]
-        else:
-            raise ValueError(f"'{name}' can only be one of {list(value_to_name)}.")
-        return out
+    if value:
+        context.params["config"] = value
+        context.params["root"] = context.params["config"].parent
+    else:
+        if context.params["paths"] is None:
+            context.params["paths"] = (Path.cwd(),)
 
-    return _parse
+        context.params["paths"] = parse_paths(context.params["paths"])
+        (
+            context.params["root"],
+            context.params["config"],
+        ) = _find_project_root_and_config(context.params["paths"])
+
+    if context.params["config"] is None:
+        return None
+
+    config_from_file = read_config(context.params["config"])
+
+    if context.default_map is None:
+        context.default_map = {}
+    context.default_map.update(config_from_file)
+    context.params.update(config_from_file)
+
+    return context.params["config"]
 
 
-class ShowCapture(str, Enum):
-    NO = "no"
-    STDOUT = "stdout"
-    STDERR = "stderr"
-    ALL = "all"
+def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:
+    """Find the project root and configuration file from a list of paths.
 
+    The process is as follows:
 
-def _read_ini_config(path: Path, sections: str = "pytask") -> dict[str, Any]:
-    """Read the configuration from a ``*.ini`` file.
-
-    Raises
-    ------
-    configparser.Error
-        Raised if ``*.ini`` could not be read.
-    KeyError
-        Raised if the specified sections do not exist.
+    1. Find the common base directory of all paths passed to pytask (default to the
+       current working directory).
+    2. Starting from this directory, look at all parent directories, and return the file
+       if it is found.
+    3. If a directory contains a ``.git`` directory/file, or the ``pyproject.toml``
+       file, stop searching.
 
     """
-    sections_ = sections.split(".")
+    try:
+        common_ancestor = Path(os.path.commonpath(paths))
+    except ValueError:
+        common_ancestor = Path.cwd()
 
-    config = configparser.ConfigParser()
-    config.read(path, encoding="utf-8")
+    if common_ancestor.is_file():
+        common_ancestor = common_ancestor.parent
 
-    config_ = dict(config)
-    for section in sections_:
-        config_ = dict(config_[section])  # type: ignore
+    config_path = None
+    root = None
+    parent_directories = [common_ancestor] + list(common_ancestor.parents)
 
-    return config_
+    for parent in parent_directories:
+        path = parent.joinpath("pyproject.toml")
+
+        if path.exists():
+            try:
+                read_config(path)
+            except (tomli.TOMLDecodeError, OSError) as e:
+                raise click.FileError(
+                    filename=str(path), hint=f"Error reading {path}:\n{e}"
+                ) from None
+            except KeyError:
+                pass
+            else:
+                config_path = path
+                root = config_path.parent
+                break
+
+        # If you hit a the top of a repository, stop searching further.
+        if parent.joinpath(".git").exists():
+            root = parent
+            break
+
+    if root is None:
+        root = common_ancestor
+
+    return root, config_path
 
 
-def _read_toml_config(
+def read_config(
     path: Path, sections: str = "tool.pytask.ini_options"
 ) -> dict[str, Any]:
     """Read the configuration from a ``*.toml`` file.
@@ -80,20 +128,3 @@ def _read_toml_config(
         config = config[section]
 
     return config
-
-
-def get_config_reader(path: Path) -> Callable[[Path], dict[str, Any]]:
-    """Get a loader for a config file."""
-    loaders = {
-        "*.ini": _read_ini_config,
-        "*.cfg": _read_ini_config,
-        "*.toml": _read_toml_config,
-    }
-
-    for pattern, loader in loaders.items():
-        matches = fnmatch.fnmatch(path.as_posix(), pattern)
-
-        if matches:
-            return loader
-    else:
-        return _read_ini_config

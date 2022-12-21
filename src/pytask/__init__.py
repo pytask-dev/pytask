@@ -3,6 +3,9 @@ from __future__ import annotations
 
 from _pytask import __version__
 from _pytask.build import main
+from _pytask.click import ColoredCommand
+from _pytask.click import ColoredGroup
+from _pytask.click import EnumChoice
 from _pytask.collect_utils import depends_on
 from _pytask.collect_utils import parse_nodes
 from _pytask.collect_utils import produces
@@ -59,39 +62,16 @@ from _pytask.cli import cli  # noreorder
 
 
 __all__ = [
-    "__version__",
-    "build_dag",
-    "check_for_optional_program",
-    "cli",
-    "console",
-    "count_outcomes",
-    "db",
-    "depends_on",
-    "format_exception_without_traceback",
-    "get_all_marks",
-    "get_first_non_none_value",
-    "get_marks",
-    "has_mark",
-    "hookimpl",
-    "import_optional_dependency",
-    "main",
-    "mark",
-    "parse_nodes",
-    "parse_warning_filter",
-    "produces",
-    "remove_internal_traceback_frames_from_exc_info",
-    "remove_marks",
-    "remove_traceback_from_exc_info",
-    "render_exc_info",
-    "set_marks",
-    "warning_record_to_str",
     "CollectionError",
     "CollectionMetadata",
     "CollectionOutcome",
     "CollectionReport",
+    "ColoredCommand",
+    "ColoredGroup",
     "ConfigurationError",
-    "ExecutionReport",
+    "EnumChoice",
     "ExecutionError",
+    "ExecutionReport",
     "Exit",
     "ExitCode",
     "FilePathNode",
@@ -112,4 +92,29 @@ __all__ = [
     "Task",
     "TaskOutcome",
     "WarningReport",
+    "__version__",
+    "build_dag",
+    "check_for_optional_program",
+    "cli",
+    "console",
+    "count_outcomes",
+    "db",
+    "depends_on",
+    "format_exception_without_traceback",
+    "get_all_marks",
+    "get_marks",
+    "has_mark",
+    "hookimpl",
+    "import_optional_dependency",
+    "main",
+    "mark",
+    "parse_nodes",
+    "parse_warning_filter",
+    "produces",
+    "remove_internal_traceback_frames_from_exc_info",
+    "remove_marks",
+    "remove_traceback_from_exc_info",
+    "render_exc_info",
+    "set_marks",
+    "warning_record_to_str",
 ]

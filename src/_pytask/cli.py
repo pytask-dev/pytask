@@ -12,7 +12,10 @@ from _pytask.pluginmanager import get_plugin_manager
 from packaging.version import parse as parse_version
 
 
-_CONTEXT_SETTINGS: dict[str, Any] = {"help_option_names": ("-h", "--help")}
+_CONTEXT_SETTINGS: dict[str, Any] = {
+    "help_option_names": ("-h", "--help"),
+    "show_default": True,
+}
 
 
 if parse_version(click.__version__) < parse_version("8"):
@@ -106,3 +109,10 @@ def cli() -> None:
 
 
 _extend_command_line_interface(cli)
+
+
+DEFAULTS_FROM_CLI = {
+    option.name: option.default
+    for command in cli.commands.values()
+    for option in command.params
+}
