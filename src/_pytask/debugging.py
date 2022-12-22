@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import functools
-import pdb
+import pdb  # noqa: T100
 import sys
 from types import FrameType
 from types import TracebackType
@@ -129,7 +129,7 @@ class PytaskPDB:
     ) -> type[pdb.Pdb]:
         """Create a debugger from an imported class."""
         if not cls._config:
-            import pdb
+            import pdb  # noqa: T100
 
             # Happens when using pytask.set_trace outside of a task.
             return pdb.Pdb
@@ -157,7 +157,7 @@ class PytaskPDB:
                     f"--pdbcls: could not import {value!r}: {exc}."
                 ) from exc
         else:
-            import pdb
+            import pdb  # noqa: T100
 
             pdb_cls = pdb.Pdb
 
