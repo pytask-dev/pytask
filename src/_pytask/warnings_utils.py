@@ -78,11 +78,11 @@ def parse_warning_filter(
     try:
         action: warnings._ActionKind = warnings._getaction(action_)  # type: ignore
     except warnings._OptionError as e:
-        raise Exit(error_template.format(error=str(e)))
+        raise Exit(error_template.format(error=str(e)))  # noqa: B904
     try:
         category: type[Warning] = _resolve_warning_category(category_)
     except Exit as e:
-        raise Exit(str(e))
+        raise Exit(str(e))  # noqa: B904
     if message and escape:
         message = re.escape(message)
     if module and escape:
@@ -93,7 +93,9 @@ def parse_warning_filter(
             if lineno < 0:
                 raise ValueError("number is negative")
         except ValueError as e:
-            raise Exit(error_template.format(error=f"invalid lineno {lineno_!r}: {e}"))
+            raise Exit(  # noqa: B904
+                error_template.format(error=f"invalid lineno {lineno_!r}: {e}")
+            )
     else:
         lineno = 0
     return action, message, category, module, lineno
