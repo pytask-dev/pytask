@@ -39,7 +39,7 @@ extend-select = [
     "DTZ",  # flake8-datetimez
     "E",  # pycodestyle errors
     # "EM",  # flake8-errmsg
-    # "ERA",  # eradicate
+    "ERA",  # eradicate
     # "FBT",  # flake8-boolean-trap
     "F",  # pyflakes
     # "ICN",  # flake8-import-conventions
