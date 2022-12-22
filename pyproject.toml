@@ -50,7 +50,7 @@ extend-select = [
     "PLR",  # pylint
     "PLW",  # pylint
     # "RET",  # flake8-return
-    # "RUF",  # ruff specific
+    "RUF",  # ruff specific
     "S",  # flake8-bandit
     "SIM",  # flake8-simplify
     # "T10",  # flake8-debugger
@@ -59,7 +59,7 @@ extend-select = [
     "W",  # pycodestyle warnings
     # "YTT",  # flake8-2020
 ]
-fix = true
+fix = false
 extend-ignore = [
     # Numpy docstyle
     "D107",
