@@ -47,7 +47,7 @@ from _pytask.nodes import Task
 
 
 if sys.version_info >= (3, 8):
-    from typing import final as final
+    from typing import final
 else:
 
     def final(f):
