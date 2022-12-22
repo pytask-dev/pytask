@@ -100,7 +100,7 @@ class MyRenderable:
     grouped_warnings = attr.ib(type=Dict[str, List[str]])
 
     def __rich_console__(
-        self, console: Console, options: ConsoleOptions  # noqa: U100
+        self, console: Console, options: ConsoleOptions  # noqa: ARG002
     ) -> RenderResult:
         for message, locations in self.grouped_warnings.items():
             yield from locations

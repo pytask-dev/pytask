@@ -472,7 +472,7 @@ class TestFDCapture:
                 )
             )
 
-    def test_capfd_sys_stdout_mode(self, capfd):  # noqa: U100
+    def test_capfd_sys_stdout_mode(self, capfd):  # noqa: ARG002
         assert "b" not in sys.stdout.mode
 
 
@@ -657,7 +657,7 @@ class TestStdCaptureFD(TestStdCapture):
         assert out == "123"
         assert err == "abc"
 
-    def test_many(self, capfd):  # noqa: U100
+    def test_many(self, capfd):  # noqa: ARG002
         with lsof_check():
             for _ in range(10):
                 cap = StdCaptureFD()

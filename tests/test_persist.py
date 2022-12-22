@@ -121,7 +121,7 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
 )
 def test_pytask_execute_task_process_report(monkeypatch, exc_info, expected):
     monkeypatch.setattr(
-        "_pytask.persist.update_states_in_database", lambda *x: None  # noqa: U100
+        "_pytask.persist.update_states_in_database", lambda *x: None  # noqa: ARG005
     )
 
     task = DummyClass()

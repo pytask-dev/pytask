@@ -32,7 +32,7 @@ def session():
 @pytest.mark.integration
 def test_pytask_generate_tasks_0(session):
     @pytask.mark.parametrize("i", range(2))
-    def func(i):  # noqa: U100, pragma: no cover
+    def func(i):  # noqa: ARG001, pragma: no cover
         pass
 
     names_and_objs = pytask_parametrize_task(session, "func", func)
@@ -47,7 +47,7 @@ def test_pytask_generate_tasks_0(session):
 def test_pytask_generate_tasks_1(session):
     @pytask.mark.parametrize("j", range(2))
     @pytask.mark.parametrize("i", range(2))
-    def func(i, j):  # noqa: U100, pragma: no cover
+    def func(i, j):  # noqa: ARG001, pragma: no cover
         pass
 
     pytask_parametrize_task(session, "func", func)
@@ -58,7 +58,7 @@ def test_pytask_generate_tasks_1(session):
 def test_pytask_generate_tasks_2(session):
     @pytask.mark.parametrize("j, k", itertools.product(range(2), range(2)))
     @pytask.mark.parametrize("i", range(2))
-    def func(i, j, k):  # noqa: U100, pragma: no cover
+    def func(i, j, k):  # noqa: ARG001, pragma: no cover
         pass
 
     pytask_parametrize_task(session, "func", func)

@@ -10,7 +10,7 @@ for i in range(10):
 
     @pytask.mark.task
     def task_create_random_data(produces=f"data_{i}.pkl", seed=i):  # noqa: U100
-        produces.touch()
+        produces.write_text(seed)
 
 
 if __name__ == "__main__":

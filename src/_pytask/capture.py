@@ -481,7 +481,7 @@ class CaptureResult(Generic[AnyStr]):
     def __iter__(self) -> Iterator[AnyStr]:
         return iter((self.out, self.err))
 
-    def __getitem__(self, item: int) -> AnyStr:
+    def __getitem__(self, item: int) -> AnyStr:  # noqa: ARG002
         return tuple(self)[item]
 
     def _replace(

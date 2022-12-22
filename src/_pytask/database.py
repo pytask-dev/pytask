@@ -65,7 +65,7 @@ def create_or_update_state(first_key: str, second_key: str, state: str) -> None:
 
 
 def _database_filename_callback(
-    ctx: Context, name: str, value: str | None  # noqa: U100
+    ctx: Context, name: str, value: str | None  # noqa: ARG001
 ) -> str | None:
     if value is None:
         return ctx.params["root"].joinpath(".pytask.sqlite3")

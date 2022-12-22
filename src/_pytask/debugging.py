@@ -58,7 +58,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 def _pdbcls_callback(
-    ctx: click.Context, name: str, value: str | None  # noqa: U100
+    ctx: click.Context, name: str, value: str | None  # noqa: ARG001
 ) -> tuple[str, str] | None:
     """Validate the debugger class string passed to pdbcls."""
     message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
@@ -257,7 +257,9 @@ class PytaskPDB:
         return PytaskPdbWrapper
 
     @classmethod
-    def _init_pdb(cls, method: str, *args: Any, **kwargs: Any) -> pdb.Pdb:  # noqa: U100
+    def _init_pdb(
+        cls, method: str, *args: Any, **kwargs: Any  # noqa: ARG003
+    ) -> pdb.Pdb:
         """Initialize PDB debugging, dropping any IO capturing."""
         if cls._pluginmanager is None:
             capman = None
