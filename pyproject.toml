@@ -41,7 +41,7 @@ extend-select = [
     # "EM",  # flake8-errmsg
     # "ERA",  # eradicate
     # "FBT",  # flake8-boolean-trap
-    # "F",  # pyflakes
+    "F",  # pyflakes
     # "ICN",  # flake8-import-conventions
     "N",  # pep8-naming
     # "PGH",  # pygrep-hooks
@@ -51,7 +51,7 @@ extend-select = [
     "PLW",  # pylint
     # "RET",  # flake8-return
     # "RUF",  # ruff specific
-    # "S",  # flake8-bandit
+    "S",  # flake8-bandit
     # "SIM",  # flake8-simplify
     # "T10",  # flake8-debugger
     # "T20",  # flake8-print
