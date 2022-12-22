@@ -153,7 +153,7 @@ class DontReadFromInput:
 
     encoding = None
 
-    def read(self, *_args: Any) -> None:  # noqa: U101
+    def read(self, *_args: Any) -> None:
         raise OSError(
             "pytask: reading from stdin while output is captured! Consider using `-s`."
         )
@@ -190,7 +190,7 @@ class NoCapture:
     """Dummy class when capturing is disabled."""
 
     EMPTY_BUFFER = None
-    __init__ = start = done = suspend = resume = lambda *_args: None  # noqa: U101
+    __init__ = start = done = suspend = resume = lambda *_args: None
 
 
 class SysCaptureBinary:

@@ -54,12 +54,12 @@ extend-select = [
     "S",  # flake8-bandit
     "SIM",  # flake8-simplify
     # "T10",  # flake8-debugger
-    # "T20",  # flake8-print
+    "T20",  # flake8-print
     # "UP",  # pyupgrade
     "W",  # pycodestyle warnings
     # "YTT",  # flake8-2020
 ]
-fix = false
+fix = true
 extend-ignore = [
     # Numpy docstyle
     "D107",

@@ -108,7 +108,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
         config[name] = bool(config.get(name, True))
 
     if config["debug_pytask"]:
-        config["pm"].trace.root.setwriter(print)  # noqa: T202
+        config["pm"].trace.root.setwriter(print)
         config["pm"].enable_tracing()
 
 
