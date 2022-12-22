@@ -141,7 +141,6 @@ def _iter_plugins():
 
 def _plugin_definitions(plugins):
     """Return RST for the plugin list that fits better on a vertical page."""
-
     for plugin in plugins:
         yield dedent(
             f"""

@@ -319,7 +319,6 @@ class PdbDebugger:
 
 def wrap_function_for_post_mortem_debugging(session: Session, task: Task) -> None:
     """Wrap the function for post-mortem debugging."""
-
     task_function = task.function
 
     @functools.wraps(task_function)
@@ -380,7 +379,6 @@ class PdbTrace:
 
 def wrap_function_for_tracing(session: Session, task: Task) -> None:
     """Wrap the task function for tracing."""
-
     _pdb = PytaskPDB._init_pdb("runcall")
     task_function = task.function
 

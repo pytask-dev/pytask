@@ -35,7 +35,7 @@ extend-select = [
     "B",  # flake8-bugbear
     # "BLE",  # flake8-blind-except
     "C4",  # flake8-comprehensions
-    # # "D",  # flake8-docstring
+    "D",  # flake8-docstring
     "DTZ",  # flake8-datetimez
     "E",  # pycodestyle errors
     # "EM",  # flake8-errmsg
@@ -67,6 +67,7 @@ extend-ignore = [
     "D212",
     "D213",
     "D402",
+    "D404",
     "D413",
     "D415",
     "D416",
@@ -80,3 +81,5 @@ extend-ignore = [
 "src/_pytask/hookspecs.py" = ["ARG001"]
 "src/_pytask/outcomes.py" = ["N818"]
 "tests/test_capture.py" = ["T201"]
+"tests/*" = ["D"]
+"scripts/*" = ["D"]

@@ -14,7 +14,6 @@ three ways.
 
 References
 ----------
-
 - `Blog post on redirecting and file descriptors
   <https://eli.thegreenplace.net/2015/redirecting-all-kinds-of-stdout-in-python>`_.
 - `The capture module in pytest
@@ -390,8 +389,12 @@ class FDCaptureBinary:
         return res
 
     def done(self) -> None:
-        """Stop capturing, restore streams, return original capture file, seeked to
-        position zero."""
+        """Stop capturing.
+
+        Stop capturing, restore streams, return original capture file, seeked to
+        position zero.
+
+        """
         self._assert_state("done", ("initialized", "started", "suspended", "done"))
         if self._state == "done":
             return
