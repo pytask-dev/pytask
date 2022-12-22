@@ -36,8 +36,8 @@ extend-select = [
     # "BLE",  # flake8-blind-except
     "C4",  # flake8-comprehensions
     # # "D",  # flake8-docstring
-    # "DTZ",  # flake8-datetimez
-    # "E",  # pycodestyle errors
+    "DTZ",  # flake8-datetimez
+    "E",  # pycodestyle errors
     # "EM",  # flake8-errmsg
     # "ERA",  # eradicate
     # "FBT",  # flake8-boolean-trap
@@ -52,11 +52,11 @@ extend-select = [
     # "RET",  # flake8-return
     # "RUF",  # ruff specific
     "S",  # flake8-bandit
-    # "SIM",  # flake8-simplify
+    "SIM",  # flake8-simplify
     # "T10",  # flake8-debugger
     # "T20",  # flake8-print
     # "UP",  # pyupgrade
-    # "W",  # pycodestyle warnings
+    "W",  # pycodestyle warnings
     # "YTT",  # flake8-2020
 ]
 fix = true

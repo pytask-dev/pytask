@@ -125,9 +125,8 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
         try:
             node.state()
         except NodeNotFoundError as e:
-            raise NodeNotFoundError(
-                f"{node.name} is missing and required for {task.name}."
-            ) from e
+            msg = f"{node.name} is missing and required for {task.name}."
+            raise NodeNotFoundError(msg) from e
 
     # Create directory for product if it does not exist. Maybe this should be a `setup`
     # method for the node classes.

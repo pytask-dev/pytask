@@ -66,7 +66,10 @@ def test_multiple_runs_with_persist(tmp_path):
     with orm.db_session:
 
         create_database(
-            "sqlite", tmp_path.joinpath(".pytask.sqlite3").as_posix(), True, False
+            "sqlite",
+            tmp_path.joinpath(".pytask.sqlite3").as_posix(),
+            create_db=True,
+            create_tables=False,
         )
         task_id = tmp_path.joinpath("task_module.py").as_posix() + "::task_dummy"
         node_id = tmp_path.joinpath("out.txt").as_posix()
