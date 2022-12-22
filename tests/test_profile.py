@@ -32,7 +32,7 @@ def test_duration_is_stored_in_task(tmp_path):
 
     with orm.db_session:
         create_database(
-            "sqlite", tmp_path.joinpath(".pytask.sqlite3").as_posix(), True, False
+            "sqlite", tmp_path.joinpath(".pytask.sqlite3").as_posix(), create_db=True, create_tables=False
         )
 
         task_name = tmp_path.joinpath("task_example.py").as_posix() + "::task_example"

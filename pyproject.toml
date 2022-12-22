@@ -55,7 +55,7 @@ extend-select = [
     "SIM",  # flake8-simplify
     "T10",  # flake8-debugger
     "T20",  # flake8-print
-    # "UP",  # pyupgrade
+    # "UP",  # pyupgrade, changes are not py37 compatible.
     "W",  # pycodestyle warnings
     # "YTT",  # flake8-2020
 ]
