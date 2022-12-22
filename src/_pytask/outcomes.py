@@ -203,7 +203,7 @@ class ExitCode(IntEnum):
     """Failed while resolving dependencies."""
 
 
-class PytaskOutcome(Exception):
+class PytaskOutcome(Exception):  # noqa: N818
     """Base outcome of a task."""
 
 
@@ -227,7 +227,7 @@ class WouldBeExecuted(PytaskOutcome):
     """Outcome if a task would be executed."""
 
 
-class Exit(Exception):
+class Exit(Exception):  # noqa: N818
     """Raised for immediate program exits (no tracebacks/summaries)."""
 
     def __init__(

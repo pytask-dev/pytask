@@ -43,7 +43,7 @@ extend-select = [
     # "FBT",  # flake8-boolean-trap
     # "F",  # pyflakes
     # "ICN",  # flake8-import-conventions
-    # "N",  # pep8-naming
+    "N",  # pep8-naming
     # "PGH",  # pygrep-hooks
     "PLC",  # pylint
     "PLE",  # pylint
