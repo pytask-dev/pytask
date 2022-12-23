@@ -9,6 +9,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`313` refactors the configuration. INI configurations are no longer supported.
 - {pull}`326` fixes the badge for status of the workflow.
+- {pull}`329` adds ruff to pre-commit hooks.
 
 ## 0.2.7 - 2022-12-14
 

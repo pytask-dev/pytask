@@ -1,8 +1,8 @@
 """Configure pytask."""
 from __future__ import annotations
 
-import os
 import tempfile
+from pathlib import Path
 from typing import Any
 
 import pluggy
@@ -52,7 +52,7 @@ IGNORED_TEMPORARY_FILES_AND_FOLDERS: list[str] = [
 def is_file_system_case_sensitive() -> bool:
     """Check whether the file system is case-sensitive."""
     with tempfile.NamedTemporaryFile(prefix="TmP") as tmp_file:
-        return not os.path.exists(tmp_file.name.lower())
+        return not Path(tmp_file.name.lower()).exists()
 
 
 IS_FILE_SYSTEM_CASE_SENSITIVE = is_file_system_case_sensitive()
