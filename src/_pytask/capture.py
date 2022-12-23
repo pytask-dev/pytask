@@ -14,7 +14,6 @@ three ways.
 
 References
 ----------
-
 - `Blog post on redirecting and file descriptors
   <https://eli.thegreenplace.net/2015/redirecting-all-kinds-of-stdout-in-python>`_.
 - `The capture module in pytest
@@ -47,7 +46,7 @@ from _pytask.nodes import Task
 
 
 if sys.version_info >= (3, 8):
-    from typing import final as final
+    from typing import final
 else:
 
     def final(f):
@@ -154,7 +153,7 @@ class DontReadFromInput:
 
     encoding = None
 
-    def read(self, *_args: Any) -> None:  # noqa: U101
+    def read(self, *_args: Any) -> None:
         raise OSError(
             "pytask: reading from stdin while output is captured! Consider using `-s`."
         )
@@ -191,7 +190,7 @@ class NoCapture:
     """Dummy class when capturing is disabled."""
 
     EMPTY_BUFFER = None
-    __init__ = start = done = suspend = resume = lambda *_args: None  # noqa: U101
+    __init__ = start = done = suspend = resume = lambda *_args: None
 
 
 class SysCaptureBinary:
@@ -390,8 +389,12 @@ class FDCaptureBinary:
         return res
 
     def done(self) -> None:
-        """Stop capturing, restore streams, return original capture file, seeked to
-        position zero."""
+        """Stop capturing.
+
+        Stop capturing, restore streams, return original capture file, seeked to
+        position zero.
+
+        """
         self._assert_state("done", ("initialized", "started", "suspended", "done"))
         if self._state == "done":
             return
@@ -481,7 +484,7 @@ class CaptureResult(Generic[AnyStr]):
     def __iter__(self) -> Iterator[AnyStr]:
         return iter((self.out, self.err))
 
-    def __getitem__(self, item: int) -> AnyStr:
+    def __getitem__(self, item: int) -> AnyStr:  # noqa: ARG002
         return tuple(self)[item]
 
     def _replace(
@@ -623,11 +626,11 @@ def _get_multicapture(method: _CaptureMethod) -> MultiCapture[str]:
     """
     if method == _CaptureMethod.FD:
         return MultiCapture(in_=FDCapture(0), out=FDCapture(1), err=FDCapture(2))
-    elif method == _CaptureMethod.SYS:
+    if method == _CaptureMethod.SYS:
         return MultiCapture(in_=SysCapture(0), out=SysCapture(1), err=SysCapture(2))
-    elif method == _CaptureMethod.NO:
+    if method == _CaptureMethod.NO:
         return MultiCapture(in_=None, out=None, err=None)
-    elif method == _CaptureMethod.TEE_SYS:
+    if method == _CaptureMethod.TEE_SYS:
         return MultiCapture(
             in_=None, out=SysCapture(1, tee=True), err=SysCapture(2, tee=True)
         )

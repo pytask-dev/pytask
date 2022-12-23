@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import functools
-import pdb
+import pdb  # noqa: T100
 import sys
 from types import FrameType
 from types import TracebackType
@@ -58,20 +58,18 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 def _pdbcls_callback(
-    ctx: click.Context, name: str, value: str | None  # noqa: U100
+    ctx: click.Context, name: str, value: str | None  # noqa: ARG001
 ) -> tuple[str, str] | None:
     """Validate the debugger class string passed to pdbcls."""
     message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
 
     if value is None:
         return None
-    elif isinstance(value, str):
+    if isinstance(value, str):
         if len(value.split(":")) != 2:
             raise click.BadParameter(message)
-        else:
-            return tuple(value.split(":"))  # type: ignore
-    else:
-        raise click.BadParameter(message)
+        return tuple(value.split(":"))  # type: ignore
+    raise click.BadParameter(message)
 
 
 @hookimpl(trylast=True)
@@ -129,7 +127,7 @@ class PytaskPDB:
     ) -> type[pdb.Pdb]:
         """Create a debugger from an imported class."""
         if not cls._config:
-            import pdb
+            import pdb  # noqa: T100
 
             # Happens when using pytask.set_trace outside of a task.
             return pdb.Pdb
@@ -151,13 +149,13 @@ class PytaskPDB:
                 pdb_cls = getattr(mod, parts[0])
                 for part in parts[1:]:
                     pdb_cls = getattr(pdb_cls, part)
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001
                 value = ":".join((modname, classname))
                 raise ValueError(
                     f"--pdbcls: could not import {value!r}: {exc}."
                 ) from exc
         else:
-            import pdb
+            import pdb  # noqa: T100
 
             pdb_cls = pdb.Pdb
 
@@ -257,7 +255,9 @@ class PytaskPDB:
         return PytaskPdbWrapper
 
     @classmethod
-    def _init_pdb(cls, method: str, *args: Any, **kwargs: Any) -> pdb.Pdb:  # noqa: U100
+    def _init_pdb(
+        cls, method: str, *args: Any, **kwargs: Any  # noqa: ARG003
+    ) -> pdb.Pdb:
         """Initialize PDB debugging, dropping any IO capturing."""
         if cls._pluginmanager is None:
             capman = None
@@ -317,7 +317,6 @@ class PdbDebugger:
 
 def wrap_function_for_post_mortem_debugging(session: Session, task: Task) -> None:
     """Wrap the function for post-mortem debugging."""
-
     task_function = task.function
 
     @functools.wraps(task_function)
@@ -378,7 +377,6 @@ class PdbTrace:
 
 def wrap_function_for_tracing(session: Session, task: Task) -> None:
     """Wrap the task function for tracing."""
-
     _pdb = PytaskPDB._init_pdb("runcall")
     task_function = task.function
 

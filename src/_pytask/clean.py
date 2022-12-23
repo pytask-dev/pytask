@@ -110,7 +110,7 @@ def clean(**raw_config: Any) -> NoReturn:
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
-    except Exception:
+    except Exception:  # noqa: BLE001
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
         exc_info: tuple[
@@ -168,7 +168,7 @@ def clean(**raw_config: Any) -> NoReturn:
             session.exit_code = ExitCode.COLLECTION_FAILED
             console.rule(style="failed")
 
-        except Exception:
+        except Exception:  # noqa: BLE001
             exc_info = sys.exc_info()
             console.print(render_exc_info(*exc_info, show_locals=config["show_locals"]))
             console.rule(style="failed")

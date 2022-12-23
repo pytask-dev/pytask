@@ -88,8 +88,7 @@ def import_optional_dependency(
     except ImportError:
         if errors == "raise":
             raise ImportError(msg) from None
-        else:
-            return None
+        return None
 
     # Handle submodules: if we have submodule, grab parent module from sys.modules
     parent = name.split(".")[0]
@@ -111,7 +110,7 @@ def import_optional_dependency(
             if errors == "warn":
                 warnings.warn(msg, UserWarning)
                 return None
-            elif errors == "raise":
+            if errors == "raise":
                 raise ImportError(msg)
 
     return module
@@ -136,7 +135,7 @@ def check_for_optional_program(
     if not program_exists:
         if errors == "raise":
             raise RuntimeError(msg)
-        elif errors == "warn":
+        if errors == "warn":
             warnings.warn(msg, UserWarning)
 
     return program_exists

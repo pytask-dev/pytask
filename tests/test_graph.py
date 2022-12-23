@@ -124,7 +124,7 @@ def test_raise_error_with_graph_via_cli_missing_optional_dependency(
 
     monkeypatch.setattr(
         "_pytask.compat.importlib.import_module",
-        lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: U100
+        lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: ARG005
     )
 
     result = runner.invoke(
@@ -159,7 +159,7 @@ def test_raise_error_with_graph_via_task_missing_optional_dependency(
 
     monkeypatch.setattr(
         "_pytask.compat.importlib.import_module",
-        lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: U100
+        lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: ARG005
     )
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
@@ -177,9 +177,9 @@ def test_raise_error_with_graph_via_cli_missing_optional_program(
     monkeypatch, tmp_path, runner
 ):
     monkeypatch.setattr(
-        "_pytask.compat.importlib.import_module", lambda x: None  # noqa: U100
+        "_pytask.compat.importlib.import_module", lambda x: None  # noqa: ARG005
     )
-    monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: U100
+    monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: ARG005
 
     source = """
     import pytask
@@ -207,9 +207,9 @@ def test_raise_error_with_graph_via_task_missing_optional_program(
     monkeypatch, tmp_path, runner
 ):
     monkeypatch.setattr(
-        "_pytask.compat.importlib.import_module", lambda x: None  # noqa: U100
+        "_pytask.compat.importlib.import_module", lambda x: None  # noqa: ARG005
     )
-    monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: U100
+    monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: ARG005
 
     source = """
     import pytask

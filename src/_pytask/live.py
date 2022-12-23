@@ -141,8 +141,7 @@ class LiveExecution:
 
     @hookimpl(hookwrapper=True)
     def pytask_execute_build(self) -> Generator[None, None, None]:
-        """Wrap the execution with the live manager and yield a complete table at the
-        end."""
+        """Wrap the execution with the live manager and yield a table at the end."""
         self.live_manager.start()
         yield
         self.live_manager.stop(transient=True)

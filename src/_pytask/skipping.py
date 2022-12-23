@@ -112,5 +112,4 @@ def pytask_execute_task_process_report(
         report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)
     ):
         return True
-    else:
-        return None
+    return None

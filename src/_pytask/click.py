@@ -66,8 +66,8 @@ class ColoredGroup(DefaultGroup):
     """A subclass which colors groups with default commands."""
 
     def format_help(
-        self: DefaultGroup, ctx: click.Context, formatter: Any  # noqa: U100
-    ) -> None:  # noqa: U100
+        self: DefaultGroup, ctx: click.Context, formatter: Any  # noqa: ARG002
+    ) -> None:
         """Format the help text."""
         highlighter = _OptionHighlighter()
 
@@ -115,7 +115,7 @@ class ColoredCommand(click.Command):
     """Override Clicks help with a Richer version."""
 
     def format_help(
-        self: click.Command, ctx: click.Context, formatter: Any  # noqa: U100
+        self: click.Command, ctx: click.Context, formatter: Any  # noqa: ARG002
     ) -> None:
         """Format the help text."""
         console.print(

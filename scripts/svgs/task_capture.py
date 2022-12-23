@@ -11,7 +11,7 @@ def task_func1():
 
 def task_func2():
     print("Debug statement")  # noqa: T201
-    assert False  # noqa: B011, PT015
+    assert False  # noqa: B011
 
 
 if __name__ == "__main__":

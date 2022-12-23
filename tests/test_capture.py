@@ -472,7 +472,7 @@ class TestFDCapture:
                 )
             )
 
-    def test_capfd_sys_stdout_mode(self, capfd):  # noqa: U100
+    def test_capfd_sys_stdout_mode(self, capfd):  # noqa: ARG002
         assert "b" not in sys.stdout.mode
 
 
@@ -612,7 +612,6 @@ class TestTeeStdCapture(TestStdCapture):
     def test_capturing_error_recursive(self):
         r"""For TeeStdCapture since we passthrough stderr/stdout, cap1 should get all
         output, while cap2 should only get "cap2\n"."""
-
         with self.getcapture() as cap1:
             print("cap1")
             with self.getcapture() as cap2:
@@ -657,7 +656,7 @@ class TestStdCaptureFD(TestStdCapture):
         assert out == "123"
         assert err == "abc"
 
-    def test_many(self, capfd):  # noqa: U100
+    def test_many(self, capfd):  # noqa: ARG002
         with lsof_check():
             for _ in range(10):
                 cap = StdCaptureFD()

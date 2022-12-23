@@ -31,8 +31,7 @@ def zsplit(s: str) -> list[str]:
     s = s.strip("\0")
     if s:
         return s.split("\0")
-    else:
-        return []
+    return []
 
 
 def get_all_files(cwd: PathLike[str] | None = None) -> list[Path]:

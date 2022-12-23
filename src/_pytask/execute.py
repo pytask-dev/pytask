@@ -86,8 +86,7 @@ def pytask_execute_build(session: Session) -> bool:
             if session.should_stop:
                 return True
         return True
-    else:
-        return None
+    return None
 
 
 @hookimpl
@@ -102,7 +101,7 @@ def pytask_execute_task_protocol(session: Session, task: Task) -> ExecutionRepor
         short_exc_info = remove_traceback_from_exc_info(sys.exc_info())
         report = ExecutionReport.from_task_and_exception(task, short_exc_info)
         session.should_stop = True
-    except Exception:
+    except Exception:  # noqa: BLE001
         report = ExecutionReport.from_task_and_exception(task, sys.exc_info())
     else:
         report = ExecutionReport.from_task(task)
@@ -125,9 +124,8 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
         try:
             node.state()
         except NodeNotFoundError as e:
-            raise NodeNotFoundError(
-                f"{node.name} is missing and required for {task.name}."
-            ) from e
+            msg = f"{node.name} is missing and required for {task.name}."
+            raise NodeNotFoundError(msg) from e
 
     # Create directory for product if it does not exist. Maybe this should be a `setup`
     # method for the node classes.
@@ -146,16 +144,16 @@ def pytask_execute_task(session: Session, task: Task) -> bool:
     """Execute task."""
     if session.config["dry_run"]:
         raise WouldBeExecuted()
-    else:
-        kwargs = {**task.kwargs}
 
-        func_arg_names = set(inspect.signature(task.function).parameters)
-        for arg_name in ("depends_on", "produces"):
-            if arg_name in func_arg_names:
-                attribute = getattr(task, arg_name)
-                kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
+    kwargs = {**task.kwargs}
 
-        task.execute(**kwargs)
+    func_arg_names = set(inspect.signature(task.function).parameters)
+    for arg_name in ("depends_on", "produces"):
+        if arg_name in func_arg_names:
+            attribute = getattr(task, arg_name)
+            kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
+
+    task.execute(**kwargs)
     return True
 
 
@@ -240,9 +238,12 @@ def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> No
 
 
 class ShowErrorsImmediatelyPlugin:
+    """Namespace for plugin to show errors immediately after the execution."""
+
     @staticmethod
     @hookimpl(tryfirst=True)
     def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:
+        """Print the error report of a task."""
         if report.outcome == TaskOutcome.FAIL:
             _print_errored_task_report(session, report)
 
