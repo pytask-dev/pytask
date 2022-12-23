@@ -183,10 +183,9 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
     Paths belong to tasks and nodes and configuration values.
 
     """
-    known_files = set()
+    known_files: set[Path] = set()
     for task in session.tasks:
-        for path in _yield_paths_from_task(task):
-            known_files.add(path)
+        known_files.update(_yield_paths_from_task(task))
 
     known_directories: set[Path] = set()
     for path in known_files:
