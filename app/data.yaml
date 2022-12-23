@@ -1,0 +1,7 @@
+- id: task_example
+  depends_on: ["in.txt"]
+  produces: ["out.txt"]
+
+- id: task_example_2
+  depends_on: ["out.txt"]
+  produces: ["out_2.txt"]
