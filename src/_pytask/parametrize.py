@@ -1,3 +1,4 @@
+"""This module contains the code for the parametrize plugin."""
 from __future__ import annotations
 
 import copy
@@ -61,6 +62,7 @@ def parametrize(
 
 @hookimpl
 def pytask_parse_config(config: dict[str, Any]) -> None:
+    """Add the marker to the config."""
     config["markers"]["parametrize"] = (
         "The marker for pytest's way of repeating tasks which is explained in this "
         "tutorial: [link https://bit.ly/3uqZqkk]https://bit.ly/3uqZqkk[/]."
@@ -146,6 +148,7 @@ def pytask_parametrize_task(
             )
 
         return names_and_functions
+    return None
 
 
 def _parse_parametrize_marker(

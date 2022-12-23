@@ -29,6 +29,7 @@ class MetaNode(metaclass=ABCMeta):
 
     @abstractmethod
     def state(self) -> str | None:
+        """Check the state of the node."""
         ...
 
 
@@ -64,6 +65,7 @@ class Task:
 
     @property
     def name(self) -> str:
+        """Return the name of the task."""
         return self.path.as_posix() + "::" + self.base_name
 
     def execute(self, **kwargs: Any) -> None:
@@ -107,5 +109,4 @@ class FilePathNode(MetaNode):
         """Return the last modified date for file path."""
         if not self.path.exists():
             raise NodeNotFoundError
-        else:
-            return str(self.path.stat().st_mtime)
+        return str(self.path.stat().st_mtime)

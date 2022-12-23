@@ -65,13 +65,11 @@ def _pdbcls_callback(
 
     if value is None:
         return None
-    elif isinstance(value, str):
+    if isinstance(value, str):
         if len(value.split(":")) != 2:
             raise click.BadParameter(message)
-        else:
-            return tuple(value.split(":"))  # type: ignore
-    else:
-        raise click.BadParameter(message)
+        return tuple(value.split(":"))  # type: ignore
+    raise click.BadParameter(message)
 
 
 @hookimpl(trylast=True)

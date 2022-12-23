@@ -142,10 +142,9 @@ def parse_filterwarnings(x: str | list[str] | None) -> list[str]:
     """Parse filterwarnings."""
     if x is None:
         return []
-    elif isinstance(x, (list, tuple)):
+    if isinstance(x, (list, tuple)):
         return [i.strip() for i in x]
-    else:
-        raise TypeError("'filterwarnings' must be a str, list[str] or None.")
+    raise TypeError("'filterwarnings' must be a str, list[str] or None.")
 
 
 @contextmanager

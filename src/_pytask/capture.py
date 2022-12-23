@@ -626,11 +626,11 @@ def _get_multicapture(method: _CaptureMethod) -> MultiCapture[str]:
     """
     if method == _CaptureMethod.FD:
         return MultiCapture(in_=FDCapture(0), out=FDCapture(1), err=FDCapture(2))
-    elif method == _CaptureMethod.SYS:
+    if method == _CaptureMethod.SYS:
         return MultiCapture(in_=SysCapture(0), out=SysCapture(1), err=SysCapture(2))
-    elif method == _CaptureMethod.NO:
+    if method == _CaptureMethod.NO:
         return MultiCapture(in_=None, out=None, err=None)
-    elif method == _CaptureMethod.TEE_SYS:
+    if method == _CaptureMethod.TEE_SYS:
         return MultiCapture(
             in_=None, out=SysCapture(1, tee=True), err=SysCapture(2, tee=True)
         )

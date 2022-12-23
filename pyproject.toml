@@ -42,14 +42,14 @@ extend-select = [
     "ERA",  # eradicate
     # "FBT",  # flake8-boolean-trap
     "F",  # pyflakes
-    # "ICN",  # flake8-import-conventions
+    "ICN",  # flake8-import-conventions
     "N",  # pep8-naming
     # "PGH",  # pygrep-hooks
     "PLC",  # pylint
     "PLE",  # pylint
     "PLR",  # pylint
     "PLW",  # pylint
-    # "RET",  # flake8-return
+    "RET",  # flake8-return
     "RUF",  # ruff specific
     "S",  # flake8-bandit
     "SIM",  # flake8-simplify
@@ -72,8 +72,10 @@ extend-ignore = [
     "D415",
     "D416",
     "D417",
-    "S101",
-    "B905",  # strict parameter for zip
+    "RET504",  # unnecessary variable assignment before return.
+    # Others.
+    "S101",  # raise errors for asserts.
+    "B905",  # strict parameter for zip that was implemented in py310.
 ]
 
 

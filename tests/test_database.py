@@ -33,7 +33,10 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
     with orm.db_session:
 
         create_database(
-            "sqlite", tmp_path.joinpath(".pytask.sqlite3").as_posix(), create_db=True, create_tables=False
+            "sqlite",
+            tmp_path.joinpath(".pytask.sqlite3").as_posix(),
+            create_db=True,
+            create_tables=False,
         )
 
         task_id = task_path.as_posix() + "::task_write"

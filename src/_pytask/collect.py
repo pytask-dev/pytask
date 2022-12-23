@@ -140,8 +140,7 @@ def pytask_collect_file(
                     collected_reports.append(report)
 
         return collected_reports
-    else:
-        return None
+    return None
 
 
 @hookimpl
@@ -201,8 +200,7 @@ def pytask_collect_task(
             markers=markers,
             kwargs=kwargs,
         )
-    else:
-        return None
+    return None
 
 
 _TEMPLATE_ERROR: str = (
@@ -262,8 +260,7 @@ def pytask_collect_node(
                 raise ValueError(_TEMPLATE_ERROR.format(node, case_sensitive_path))
 
         return FilePathNode.from_path(node)
-    else:
-        return None
+    return None
 
 
 def _not_ignored_paths(

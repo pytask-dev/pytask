@@ -59,5 +59,4 @@ def pytask_collect_file(
                     collected_reports.append(report)
 
         return collected_reports
-    else:
-        return None
+    return None
