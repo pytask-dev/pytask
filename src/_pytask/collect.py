@@ -176,8 +176,8 @@ def pytask_collect_task(
     """Collect a task which is a function.
 
     There is some discussion on how to detect functions in this `thread
-    <https://stackoverflow.com/q/624926/7523785>`_. :class:`types.FunctionType` does not
-    detect built-ins which is not possible anyway.
+
+    <https://stackoverflow.com/q/624926/7523785>`_. :class:`types.FunctionType` does notdetect built-ins which is not possible anyway.
 
     """
     if (name.startswith("task_") or has_mark(obj, "task")) and callable(obj):
