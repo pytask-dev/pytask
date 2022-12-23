@@ -83,8 +83,7 @@ def task(
     # passed as the first argument with the default arguments.
     if callable(name) and kwargs is None:
         return task()(name)
-    else:
-        return wrapper
+    return wrapper
 
 
 def parse_collected_tasks_with_task_marker(
@@ -132,8 +131,8 @@ def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
             "A task function either needs 'name' passed by the ``@pytask.mark.task`` "
             "decorator or the function name of the task function must not be '_'."
         )
-    else:
-        parsed_name = task.__name__ if name is None else name
+
+    parsed_name = task.__name__ if name is None else name
 
     signature_kwargs = _parse_keyword_arguments_from_signature_defaults(task)
     task.pytask_meta.kwargs = {  # type: ignore[attr-defined]

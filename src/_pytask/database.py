@@ -1,21 +1,20 @@
 """Implement the database managed with pony."""
 from __future__ import annotations
 
-from enum import Enum
+import enum
 from pathlib import Path
 from typing import Any
 
 import click
 import networkx as nx
+from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
-from _pytask.config_utils import parse_click_choice
 from _pytask.dag import node_and_neighbors
-from _pytask.shared import convert_truthy_or_falsy_to_bool
-from _pytask.shared import get_first_non_none_value
+from click import Context
 from pony import orm
 
 
-class _DatabaseProviders(str, Enum):
+class _DatabaseProviders(enum.Enum):
     SQLITE = "sqlite"
     POSTGRES = "postgres"
     MYSQL = "mysql"
@@ -37,7 +36,7 @@ class State(db.Entity):  # type: ignore
 
 
 def create_database(
-    provider: str, filename: str, create_db: bool, create_tables: bool
+    provider: str, filename: str, *, create_db: bool, create_tables: bool
 ) -> None:
     """Create the database.
 
@@ -65,83 +64,58 @@ def create_or_update_state(first_key: str, second_key: str, state: str) -> None:
         state_in_db.state = state
 
 
+def _database_filename_callback(
+    ctx: Context, name: str, value: str | None  # noqa: ARG001
+) -> str | None:
+    if value is None:
+        return ctx.params["root"].joinpath(".pytask.sqlite3")
+    return value
+
+
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend command line interface."""
     additional_parameters = [
         click.Option(
             ["--database-provider"],
-            type=click.Choice(_DatabaseProviders),  # type: ignore[arg-type]
+            type=EnumChoice(_DatabaseProviders),
             help=(
                 "Database provider. All providers except sqlite are considered "
-                "experimental. [dim]\\[default: sqlite][/]"
+                "experimental."
             ),
-            default=None,
+            default=_DatabaseProviders.SQLITE,
         ),
         click.Option(
             ["--database-filename"],
-            type=str,
-            help=(
-                "Path to database relative to root. "
-                "[dim]\\[default: .pytask.sqlite3][/]"
-            ),
-            default=None,
+            type=click.Path(file_okay=True, dir_okay=False, path_type=Path),
+            help=("Path to database relative to root."),
+            default=Path(".pytask.sqlite3"),
+            callback=_database_filename_callback,
         ),
         click.Option(
             ["--database-create-db"],
             type=bool,
-            help="Create database if it does not exist. [dim]\\[default: True][/]",
-            default=None,
+            help="Create database if it does not exist.",
+            default=True,
         ),
         click.Option(
             ["--database-create-tables"],
             type=bool,
-            help="Create tables if they do not exist. [dim]\\[default: True][/]",
-            default=None,
+            help="Create tables if they do not exist.",
+            default=True,
         ),
     ]
     cli.commands["build"].params.extend(additional_parameters)
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse the configuration."""
-    config["database_provider"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="database_provider",
-        default=_DatabaseProviders.SQLITE,
-        callback=parse_click_choice("database_provider", _DatabaseProviders),
-    )
-    filename = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="database_filename",
-        default=".pytask.sqlite3",
-    )
-    filename = Path(filename)
-    if not filename.is_absolute():
-        filename = Path(config["root"], filename).resolve()
-    config["database_filename"] = filename
+    if not config["database_filename"].is_absolute():
+        config["database_filename"] = config["root"].joinpath(
+            config["database_filename"]
+        )
 
-    config["database_create_db"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="database_create_db",
-        default=True,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-    config["database_create_tables"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="database_create_tables",
-        default=True,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
     config["database"] = {
         "provider": config["database_provider"].value,
         "filename": config["database_filename"].as_posix(),

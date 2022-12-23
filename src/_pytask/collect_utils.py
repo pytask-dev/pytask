@@ -60,6 +60,7 @@ def produces(
 def parse_nodes(
     session: Session, path: Path, name: str, obj: Any, parser: Callable[..., Any]
 ) -> Any:
+    """Parse nodes from object."""
     objects = _extract_nodes_from_function_markers(obj, parser)
     nodes = _convert_objects_to_node_dictionary(objects, parser.__name__)
     nodes = tree_map(lambda x: _collect_node(session, path, name, x), nodes)
@@ -103,18 +104,16 @@ def _convert_to_dict(x: Any, first_level: bool = True) -> Any | dict[Any, Any]:
     """Convert any object to a dictionary."""
     if isinstance(x, dict):
         return {k: _convert_to_dict(v, False) for k, v in x.items()}
-    elif isinstance(x, Iterable) and not isinstance(x, str):
+    if isinstance(x, Iterable) and not isinstance(x, str):
         if first_level:
             return {
                 _Placeholder(): _convert_to_dict(element, False)
                 for i, element in enumerate(x)
             }
-        else:
-            return {i: _convert_to_dict(element, False) for i, element in enumerate(x)}
-    elif first_level:
+        return {i: _convert_to_dict(element, False) for i, element in enumerate(x)}
+    if first_level:
         return {_Placeholder(scalar=True): x}
-    else:
-        return x
+    return x
 
 
 def _check_that_names_are_not_used_multiple_times(

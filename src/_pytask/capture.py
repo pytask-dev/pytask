@@ -14,7 +14,6 @@ three ways.
 
 References
 ----------
-
 - `Blog post on redirecting and file descriptors
   <https://eli.thegreenplace.net/2015/redirecting-all-kinds-of-stdout-in-python>`_.
 - `The capture module in pytest
@@ -26,11 +25,11 @@ References
 from __future__ import annotations
 
 import contextlib
+import enum
 import functools
 import io
 import os
 import sys
-from enum import Enum
 from tempfile import TemporaryFile
 from typing import Any
 from typing import AnyStr
@@ -40,22 +39,21 @@ from typing import Iterator
 from typing import TextIO
 
 import click
+from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
-from _pytask.config_utils import parse_click_choice
-from _pytask.config_utils import ShowCapture
+from _pytask.enums import ShowCapture
 from _pytask.nodes import Task
-from _pytask.shared import get_first_non_none_value
 
 
 if sys.version_info >= (3, 8):
-    from typing import final as final
+    from typing import final
 else:
 
     def final(f):
         return f
 
 
-class _CaptureMethod(str, Enum):
+class _CaptureMethod(enum.Enum):
     FD = "fd"
     NO = "no"
     SYS = "sys"
@@ -68,55 +66,35 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--capture"],
-            type=click.Choice(_CaptureMethod),  # type: ignore[arg-type]
-            help="Per task capturing method. [dim]\\[default: fd][/]",
+            type=EnumChoice(_CaptureMethod),
+            default=_CaptureMethod.FD,
+            help="Per task capturing method.",
         ),
         click.Option(
             ["-s"],
             is_flag=True,
+            default=False,
             help="Shortcut for --capture=no.",
         ),
         click.Option(
             ["--show-capture"],
-            type=click.Choice(ShowCapture),  # type: ignore[arg-type]
-            help=(
-                "Choose which captured output should be shown for failed tasks. "
-                "[dim]\\[default: all][/]"
-            ),
+            type=EnumChoice(ShowCapture),
+            default=ShowCapture.ALL,
+            help=("Choose which captured output should be shown for failed tasks."),
         ),
     ]
     cli.commands["build"].params.extend(additional_parameters)
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse configuration.
 
     Note that, ``-s`` is a shortcut for ``--capture=no``.
 
     """
-    if config_from_cli.get("s"):
+    if config["s"]:
         config["capture"] = _CaptureMethod.NO
-    else:
-        config["capture"] = get_first_non_none_value(
-            config_from_cli,
-            config_from_file,
-            key="capture",
-            default=_CaptureMethod.FD,
-            callback=parse_click_choice("capture", _CaptureMethod),
-        )
-
-    config["show_capture"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_capture",
-        default=ShowCapture.ALL,
-        callback=parse_click_choice("show_capture", ShowCapture),
-    )
 
 
 @hookimpl
@@ -175,7 +153,7 @@ class DontReadFromInput:
 
     encoding = None
 
-    def read(self, *_args: Any) -> None:  # noqa: U101
+    def read(self, *_args: Any) -> None:
         raise OSError(
             "pytask: reading from stdin while output is captured! Consider using `-s`."
         )
@@ -212,7 +190,7 @@ class NoCapture:
     """Dummy class when capturing is disabled."""
 
     EMPTY_BUFFER = None
-    __init__ = start = done = suspend = resume = lambda *_args: None  # noqa: U101
+    __init__ = start = done = suspend = resume = lambda *_args: None
 
 
 class SysCaptureBinary:
@@ -411,8 +389,12 @@ class FDCaptureBinary:
         return res
 
     def done(self) -> None:
-        """Stop capturing, restore streams, return original capture file, seeked to
-        position zero."""
+        """Stop capturing.
+
+        Stop capturing, restore streams, return original capture file, seeked to
+        position zero.
+
+        """
         self._assert_state("done", ("initialized", "started", "suspended", "done"))
         if self._state == "done":
             return
@@ -502,7 +484,7 @@ class CaptureResult(Generic[AnyStr]):
     def __iter__(self) -> Iterator[AnyStr]:
         return iter((self.out, self.err))
 
-    def __getitem__(self, item: int) -> AnyStr:
+    def __getitem__(self, item: int) -> AnyStr:  # noqa: ARG002
         return tuple(self)[item]
 
     def _replace(
@@ -644,11 +626,11 @@ def _get_multicapture(method: _CaptureMethod) -> MultiCapture[str]:
     """
     if method == _CaptureMethod.FD:
         return MultiCapture(in_=FDCapture(0), out=FDCapture(1), err=FDCapture(2))
-    elif method == _CaptureMethod.SYS:
+    if method == _CaptureMethod.SYS:
         return MultiCapture(in_=SysCapture(0), out=SysCapture(1), err=SysCapture(2))
-    elif method == _CaptureMethod.NO:
+    if method == _CaptureMethod.NO:
         return MultiCapture(in_=None, out=None, err=None)
-    elif method == _CaptureMethod.TEE_SYS:
+    if method == _CaptureMethod.TEE_SYS:
         return MultiCapture(
             in_=None, out=SysCapture(1, tee=True), err=SysCapture(2, tee=True)
         )

@@ -86,7 +86,7 @@ def _is_internal_or_hidden_traceback_frame(
 
     if callable(is_hidden):
         return is_hidden(exc_info)
-    elif is_hidden:
+    if is_hidden:
         return True
 
     path = Path(frame.tb_frame.f_code.co_filename)

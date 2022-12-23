@@ -2,10 +2,8 @@ from __future__ import annotations
 
 import re
 import textwrap
-from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import pytest
-from _pytask.live import _parse_n_entries_in_table
 from _pytask.live import LiveExecution
 from _pytask.live import LiveManager
 from _pytask.report import ExecutionReport
@@ -13,34 +11,6 @@ from pytask import cli
 from pytask import ExitCode
 from pytask import Task
 from pytask import TaskOutcome
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "value, expectation, expected",
-    [
-        pytest.param(None, does_not_raise(), None, id="none parsed"),
-        pytest.param(3, does_not_raise(), 3, id="int parsed"),
-        pytest.param("10", does_not_raise(), 10, id="string int parsed"),
-        pytest.param("all", does_not_raise(), 1_000_000, id="all to large int"),
-        pytest.param(
-            -1,
-            pytest.raises(ValueError, match="'n_entries_in_table' can"),
-            None,
-            id="negative int raises error",
-        ),
-        pytest.param(
-            "-1",
-            pytest.raises(ValueError, match="'n_entries_in_table' can"),
-            None,
-            id="negative int raises error",
-        ),
-    ],
-)
-def test_parse_n_entries_in_table(value, expectation, expected):
-    with expectation:
-        result = _parse_n_entries_in_table(value)
-        assert result == expected
 
 
 @pytest.mark.end_to_end
@@ -308,12 +278,12 @@ def test_full_execution_table_is_displayed_at_the_end_of_execution(tmp_path, run
 
 
 @pytest.mark.end_to_end
-@pytest.mark.parametrize("sort_table", [True, False])
+@pytest.mark.parametrize("sort_table", ["true", "false"])
 def test_sort_table_option(tmp_path, runner, sort_table):
     source = """
     import pytask
 
-    def task_a(produces):
+    def task_a():
         pass
 
     @pytask.mark.try_first
@@ -323,7 +293,7 @@ def test_sort_table_option(tmp_path, runner, sort_table):
     """
     tmp_path.joinpath("task_order.py").write_text(textwrap.dedent(source))
 
-    config = f"[tool.pytask.ini_options]\nsort_table = '{sort_table}'"
+    config = f"[tool.pytask.ini_options]\nsort_table = {sort_table}"
     tmp_path.joinpath("pyproject.toml").write_text(textwrap.dedent(config))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
@@ -332,7 +302,7 @@ def test_sort_table_option(tmp_path, runner, sort_table):
     lines = result.output.split("\n")
     task_names = [re.findall("task_[a|b]", line) for line in lines]
     task_names = [name[0][-1] for name in task_names if name]
-    expected = ["a", "b"] if sort_table else ["b", "a"]
+    expected = ["a", "b"] if sort_table == "true" else ["b", "a"]
     assert expected == task_names
 
 

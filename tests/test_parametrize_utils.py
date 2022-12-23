@@ -17,8 +17,8 @@ from _pytask.parametrize_utils import arg_value_to_id_component
         ("arg", [1], 0, None, "arg0"),
         ("arg", {1, 2}, 0, None, "arg0"),
         ("arg", 1, 0, bool, "True"),
-        ("arg", 1, 1, lambda x: None, "1"),
-        ("arg", [1], 2, lambda x: None, "arg2"),
+        ("arg", 1, 1, lambda x: None, "1"),  # noqa: ARG005
+        ("arg", [1], 2, lambda x: None, "arg2"),  # noqa: ARG005
     ],
 )
 def test_arg_value_to_id_component(arg_name, arg_value, i, id_func, expected):

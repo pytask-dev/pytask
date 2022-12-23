@@ -6,6 +6,7 @@ import sys
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 
+import click
 import pytest
 from _pytask.debugging import _pdbcls_callback
 from pytask import cli
@@ -24,18 +25,16 @@ else:
     "value, expected, expectation",
     [
         (None, None, does_not_raise()),
-        ("None", None, does_not_raise()),
-        ("none", None, does_not_raise()),
         ("module:debugger", ("module", "debugger"), does_not_raise()),
         ("mod.submod:debugger", ("mod.submod", "debugger"), does_not_raise()),
-        ("asd", None, pytest.raises(ValueError)),
-        ("asd:dasd:asdsa", None, pytest.raises(ValueError)),
-        (1, None, pytest.raises(ValueError)),
+        ("asd", None, pytest.raises(click.BadParameter)),
+        ("asd:dasd:asdsa", None, pytest.raises(click.BadParameter)),
+        (1, None, pytest.raises(click.BadParameter)),
     ],
 )
 def test_capture_callback(value, expected, expectation):
     with expectation:
-        result = _pdbcls_callback(value)
+        result = _pdbcls_callback(None, None, value)
         assert result == expected
 
 

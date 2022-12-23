@@ -7,6 +7,7 @@ import subprocess
 import sys
 import textwrap
 from io import UnsupportedOperation
+from pathlib import Path
 from typing import BinaryIO
 from typing import Generator
 
@@ -471,7 +472,7 @@ class TestFDCapture:
                 )
             )
 
-    def test_capfd_sys_stdout_mode(self, capfd):  # noqa: U100
+    def test_capfd_sys_stdout_mode(self, capfd):  # noqa: ARG002
         assert "b" not in sys.stdout.mode
 
 
@@ -611,7 +612,6 @@ class TestTeeStdCapture(TestStdCapture):
     def test_capturing_error_recursive(self):
         r"""For TeeStdCapture since we passthrough stderr/stdout, cap1 should get all
         output, while cap2 should only get "cap2\n"."""
-
         with self.getcapture() as cap1:
             print("cap1")
             with self.getcapture() as cap2:
@@ -656,7 +656,7 @@ class TestStdCaptureFD(TestStdCapture):
         assert out == "123"
         assert err == "abc"
 
-    def test_many(self, capfd):  # noqa: U100
+    def test_many(self, capfd):  # noqa: ARG002
         with lsof_check():
             for _ in range(10):
                 cap = StdCaptureFD()
@@ -712,6 +712,7 @@ class TestStdCaptureFDinvalidFD:
         assert "3  Succeeded" in result.output
 
     def test_fdcapture_invalid_fd_with_fd_reuse(self, tmp_path):
+        cwd = Path.cwd()
         os.chdir(tmp_path)
         with saved_fd(1):
             os.close(1)
@@ -726,8 +727,10 @@ class TestStdCaptureFDinvalidFD:
             cap.done()
             with pytest.raises(OSError):
                 os.write(1, b"done")
+        os.chdir(cwd)
 
     def test_fdcapture_invalid_fd_without_fd_reuse(self, tmp_path):
+        cwd = Path.cwd()
         os.chdir(tmp_path)
         with saved_fd(1), saved_fd(2):
             os.close(1)
@@ -743,6 +746,7 @@ class TestStdCaptureFDinvalidFD:
             cap.done()
             with pytest.raises(OSError):
                 os.write(2, b"done")
+            os.chdir(cwd)
 
 
 @pytest.mark.unit

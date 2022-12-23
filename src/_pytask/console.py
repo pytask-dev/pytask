@@ -211,23 +211,21 @@ def _get_file(function: Callable[..., Any], skipped_paths: list[Path] = None) ->
 
     if isinstance(function, functools.partial):
         return _get_file(function.func)
-    elif (
+    if (
         hasattr(function, "__wrapped__")
         and Path(inspect.getsourcefile(function)) in skipped_paths
     ):
         return _get_file(function.__wrapped__)
-    else:
-        return Path(inspect.getsourcefile(function))
+    return Path(inspect.getsourcefile(function))
 
 
 def _get_source_lines(function: Callable[..., Any]) -> int:
     """Get the source line number of the function."""
     if isinstance(function, functools.partial):
         return _get_source_lines(function.func)
-    elif hasattr(function, "__wrapped__"):
+    if hasattr(function, "__wrapped__"):
         return _get_source_lines(function.__wrapped__)
-    else:
-        return inspect.getsourcelines(function)[1]
+    return inspect.getsourcelines(function)[1]
 
 
 def unify_styles(*styles: str | Style) -> Style:

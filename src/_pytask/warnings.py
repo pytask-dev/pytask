@@ -25,27 +25,22 @@ from rich.panel import Panel
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the cli."""
-    cli.commands["build"].params.append(
-        click.Option(
-            ["--disable-warnings"],
-            is_flag=True,
-            default=False,
-            help="Disables the summary for warnings.",
-        )
+    cli.commands["build"].params.extend(
+        [
+            click.Option(
+                ["--disable-warnings"],
+                is_flag=True,
+                default=False,
+                help="Disables the summary for warnings.",
+            )
+        ]
     )
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_file: dict[str, Any],
-    config_from_cli: dict[str, Any],
-) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse the configuration."""
-    config["disable_warnings"] = config_from_cli.get("disable_warnings", False)
-    config["filterwarnings"] = parse_filterwarnings(
-        config_from_file.get("filterwarnings")
-    )
+    config["filterwarnings"] = parse_filterwarnings(config.get("filterwarnings"))
     config["markers"]["filterwarnings"] = "Add a filter for a warning to a task."
 
 
@@ -105,7 +100,7 @@ class MyRenderable:
     grouped_warnings = attr.ib(type=Dict[str, List[str]])
 
     def __rich_console__(
-        self, console: Console, options: ConsoleOptions  # noqa: U100
+        self, console: Console, options: ConsoleOptions  # noqa: ARG002
     ) -> RenderResult:
         for message, locations in self.grouped_warnings.items():
             yield from locations

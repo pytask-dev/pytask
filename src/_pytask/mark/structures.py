@@ -165,8 +165,9 @@ def store_mark(obj: Callable[..., Any], mark: Mark) -> None:
 
 
 class MarkGenerator:
-    """Factory for :class:`MarkDecorator` objects - exposed as a :class:`pytask.mark`
-    singleton instance.
+    """Factory for :class:`MarkDecorator` objects.
+
+    Exposed as a :class:`pytask.mark` singleton instance.
 
     Example
     -------
