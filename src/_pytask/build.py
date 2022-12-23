@@ -125,7 +125,7 @@ def main(raw_config: dict[str, Any]) -> Session:
         except ExecutionError:
             session.exit_code = ExitCode.FAILED
 
-        except Exception:
+        except Exception:  # noqa: BLE001
             exc_info = sys.exc_info()
             exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
             traceback = Traceback.from_exception(*exc_info)

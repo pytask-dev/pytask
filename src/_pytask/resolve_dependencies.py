@@ -59,7 +59,7 @@ def pytask_resolve_dependencies(session: Session) -> bool | None:
             session=session, dag=session.dag
         )
 
-    except Exception:
+    except Exception:  # noqa: BLE001
         report = ResolvingDependenciesReport.from_exception(sys.exc_info())
         session.hook.pytask_resolve_dependencies_log(session=session, report=report)
         session.resolving_dependencies_report = report

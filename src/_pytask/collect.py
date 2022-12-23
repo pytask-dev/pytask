@@ -44,7 +44,7 @@ def pytask_collect(session: Session) -> bool:
 
     try:
         session.hook.pytask_collect_modify_tasks(session=session, tasks=session.tasks)
-    except Exception:
+    except Exception:  # noqa: BLE001
         report = CollectionReport.from_exception(
             outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info()
         )
@@ -92,7 +92,7 @@ def pytask_collect_file_protocol(
             session=session, path=path, reports=reports
         )
         flat_reports = list(itertools.chain.from_iterable(new_reports))
-    except Exception:
+    except Exception:  # noqa: BLE001
         node = FilePathNode.from_path(path)
         flat_reports = [
             CollectionReport.from_exception(
@@ -159,7 +159,7 @@ def pytask_collect_task_protocol(
             session.hook.pytask_collect_task_teardown(session=session, task=task)
             return CollectionReport(outcome=CollectionOutcome.SUCCESS, node=task)
 
-    except Exception:
+    except Exception:  # noqa: BLE001
         task = Task(base_name=name, path=path, function=None)
         return CollectionReport.from_exception(
             outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info(), node=task

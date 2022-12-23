@@ -120,7 +120,7 @@ def dag(**raw_config: Any) -> NoReturn:
         except ResolvingDependenciesError:
             session.exit_code = ExitCode.RESOLVING_DEPENDENCIES_FAILED
 
-        except Exception:
+        except Exception:  # noqa: BLE001
             session.exit_code = ExitCode.FAILED
             exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
             console.print()

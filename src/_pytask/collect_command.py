@@ -97,7 +97,7 @@ def collect(**raw_config: Any | None) -> NoReturn:
         except ResolvingDependenciesError:
             session.exit_code = ExitCode.RESOLVING_DEPENDENCIES_FAILED
 
-        except Exception:
+        except Exception:  # noqa: BLE001
             session.exit_code = ExitCode.FAILED
             console.print_exception()
             console.rule(style="failed")
