@@ -124,8 +124,10 @@ def task_merge_data(depends_on, produces):
     df.to_pickle(produces)
 ```
 
-:::\{seealso} If you want to learn more about dependencies and products, read the
-[tutorial](../tutorials/defining_dependencies_products.md). :::
+:::{seealso}
+If you want to learn more about dependencies and products, read the
+[tutorial](../tutorials/defining_dependencies_products.md).
+:::
 
 ## Execution
 
@@ -145,5 +147,7 @@ then automatically spawn multiple processes to run tasks in parallel.
 $ pytask -n 4
 ```
 
-:::\{seealso} You can find more information on pytask-parallel in the
-[readme](https://github.com/pytask-dev/pytask-parallel) on Github. :::
+:::{seealso}
+You can find more information on pytask-parallel in the
+[readme](https://github.com/pytask-dev/pytask-parallel) on Github.
+:::
