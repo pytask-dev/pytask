@@ -9,6 +9,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`313` refactors the configuration. INI configurations are no longer supported.
 - {pull}`326` fixes the badge for status of the workflow.
+- {pull}`330` add a guide for migrating from scripts to pytask.
 
 ## 0.2.7 - 2022-12-14
 
