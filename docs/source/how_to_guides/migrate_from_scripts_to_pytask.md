@@ -1,23 +1,24 @@
 # Migrate from scripts to pytask
 
-Many people like you use executable scripts to manage tasks in their research workflows.
-Although it bears a certain simplicity, there are many reasons why you should switch to
-pytask.
+Welcome to pytask! Are you tired of managing tasks in your research workflows with
+scripts that get harder to maintain over time? Then pytask is here to help!
 
-- **Lazy builds**. Only execute the scripts that need to be re-run because something has
-  changed.
-- **Parallelization**. With
-- [pytask-parallel](https://github.com/pytask-dev/pytask-parallel) you, can parallelize
-- the execution of your scripts, giving you an extra speedup.
-- pytask has many other features like [debugging](../tutorials/debugging.md) or
+With pytask, you can enjoy features like:
+
+- **Lazy builds**. Only execute the scripts that need to be run or re-run because
+  something has changed, saving you lots of time.
+- **Parallelization**. Use
+  [pytask-parallel](https://github.com/pytask-dev/pytask-parallel) to speed up your
+  scripts by running them in parallel.
+- **Other features**. [Debugging](../tutorials/debugging.md) or
   [task selection](../tutorials/selecting_tasks.md).
 
-Even if you do not use pytask's other features initially, the speedup will help you
-develop quicker and reduce the time spent on optimizing your code.
+And even if you don't use pytask's other features initially, the speedup alone will help
+you develop quicker and focus on other things.
 
 ## Installation
 
-First, let us install pytask and pytask-parallel either with pip or conda.
+To get started with pytask, simply install it with pip or conda:
 
 ```console
 $ pip install pytask pytask-parallel
@@ -28,7 +29,7 @@ $ conda -c conda-forge pytask pytask-parallel
 ## Conversion to tasks
 
 Next, we need to rewrite your scripts and move the executable part to a task function.
-You might contain the code in the main namespace of your script like
+You might contain the code in the main namespace of your script like in this example.
 
 ```python
 # Content of task_data_management.py
@@ -42,7 +43,7 @@ df = pd.read_csv("data.csv")
 df.to_pickle("data.pkl")
 ```
 
-or you might use an `if __name__ == "__main__"` block like
+Or, you might use an `if __name__ == "__main__"` block like this example.
 
 ```python
 # Content of task_data_management.py
@@ -61,7 +62,7 @@ if __name__ == "__main__":
     main()
 ```
 
-Regardless of your choice, convert your scripts to this structure.
+In both instances, you need to move your code into a task function.
 
 ```python
 # Content of task_data_management.py
@@ -78,12 +79,10 @@ def task_prepare_data():
 
 ## Extracting dependencies and products
 
-pytask needs to know in which order it has to execute the tasks and when to re-run them.
-It infers this information automatically if you assign dependencies and products to a
-task. Use `@pytask.mark.depends_on` for dependencies and `@pytask.mark.produces` for
-products.
-
-Rewriting our example yields this.
+To let pytask know the order in which to execute tasks and when to re-run them, you'll
+need to specify task dependencies and products using `@pytask.mark.depends_on` and
+`@pytask.mark.produces`. For that, extract the paths to the inputs and outputs of your
+script and pass them to the decorator. For example:
 
 ```python
 # Content of task_data_management.py
@@ -101,12 +100,12 @@ def task_prepare_data(depends_on, produces):
     df.to_pickle(produces)
 ```
 
-Using the decorators, you can use `depends_on` and `produces` as arguments to the
+The decorators allow you to use `depends_on` and `produces` as arguments to the
 function and access the paths to the dependencies and products as {class}`pathlib.Path`.
 
-Pass a dictionary to the decorators if you have multiple dependencies or products. The
-dictionary's keys are the dependencies' names, and the values are the paths. Here is an
-example for multiple dependencies, but it applies similarly to products.
+You can pass a dictionary to these decorators if you have multiple dependencies or
+products. The dictionary's keys are the dependencies'/product's names, and the values
+are the paths. Here is an example:
 
 ```python
 import pandas as pd
@@ -131,7 +130,7 @@ If you want to learn more about dependencies and products, read the
 
 ## Execution
 
-At last, execute your newly defined tasks with pytask. Assuming your scripts lie in the
+Finally, execute your newly defined tasks with pytask. Assuming your scripts lie in the
 current directory of your terminal or a subsequent directory, run the following.
 
 ```{include} ../_static/md/migrate-from-scripts-to-pytask.md
