@@ -175,8 +175,8 @@ def pytask_collect_task(
 ) -> Task | None:
     """Collect a task which is a function.
 
-    There is some discussion on how to detect functions in this `thread
-    <https://stackoverflow.com/q/624926/7523785>`_. :class:`types.FunctionType` does not
+    There is some discussion on how to detect functions in this thread:
+    https://stackoverflow.com/q/624926/7523785. :class:`types.FunctionType` does not
     detect built-ins which is not possible anyway.
 
     """
