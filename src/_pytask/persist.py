@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
 from _pytask.dag import node_and_neighbors
-from _pytask.database import update_states_in_database
+from _pytask.database_utils import update_states_in_database
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark_utils import has_mark
 from _pytask.outcomes import Persisted
