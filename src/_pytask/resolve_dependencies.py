@@ -15,7 +15,7 @@ from _pytask.console import TASK_ICON
 from _pytask.dag import node_and_neighbors
 from _pytask.dag import task_and_descending_tasks
 from _pytask.dag import TopologicalSorter
-from _pytask.database import State
+from _pytask.database_utils import State
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark

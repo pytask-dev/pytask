@@ -3,8 +3,8 @@ from __future__ import annotations
 import textwrap
 
 import pytest
-from _pytask.database import create_database
-from _pytask.database import State
+from _pytask.database_utils import create_database
+from _pytask.database_utils import State
 from _pytask.persist import pytask_execute_task_process_report
 from pony import orm
 from pytask import ExitCode

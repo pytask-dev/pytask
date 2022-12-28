@@ -15,7 +15,7 @@ from _pytask.console import format_task_id
 from _pytask.console import unify_styles
 from _pytask.dag import descending_tasks
 from _pytask.dag import TopologicalSorter
-from _pytask.database import update_states_in_database
+from _pytask.database_utils import update_states_in_database
 from _pytask.enums import ShowCapture
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError

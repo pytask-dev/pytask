@@ -19,7 +19,7 @@ from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_id
-from _pytask.database import db
+from _pytask.database_utils import db
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.nodes import FilePathNode
