@@ -1,7 +1,7 @@
-# Migrate from scripts to pytask
+# Migrating from scripts to pytask
 
-Welcome to pytask! Are you tired of managing tasks in your research workflows with
-scripts that get harder to maintain over time? Then pytask is here to help!
+Are you tired of managing tasks in your research workflows with scripts that get harder
+to maintain over time? Then pytask is here to help!
 
 With pytask, you can enjoy features like:
 
@@ -10,11 +10,14 @@ With pytask, you can enjoy features like:
 - **Parallelization**. Use
   [pytask-parallel](https://github.com/pytask-dev/pytask-parallel) to speed up your
   scripts by running them in parallel.
-- **Other features**. [Debugging](../tutorials/debugging.md) or
-  [task selection](../tutorials/selecting_tasks.md).
+- **Cross-language projects**. pytask has several plugins for running scripts written in
+  other popular languages: [pytask-r](https://github.com/pytask-dev/pytask-r),
+  [pytask-julia](https://github.com/pytask-dev/pytask-julia), and
+  [pytask-stata](https://github.com/pytask-dev/pytask-stata).
 
-And even if you don't use pytask's other features initially, the speedup alone will help
-you develop quicker and focus on other things.
+The following guide will walk you through a series of steps to quickly migrate your
+scripts to a workflow managed by pytask. The focus is first on Python scripts, but the
+guide concludes with an additional example of an R script.
 
 ## Installation
 
@@ -26,10 +29,10 @@ $ pip install pytask pytask-parallel
 $ conda -c conda-forge pytask pytask-parallel
 ```
 
-## Conversion to tasks
+## From Python script to task
 
 Next, we need to rewrite your scripts and move the executable part to a task function.
-You might contain the code in the main namespace of your script like in this example.
+You might contain the code in the main namespace of your script, like in this example.
 
 ```python
 # Content of task_data_management.py
@@ -133,7 +136,7 @@ If you want to learn more about dependencies and products, read the
 Finally, execute your newly defined tasks with pytask. Assuming your scripts lie in the
 current directory of your terminal or a subsequent directory, run the following.
 
-```{include} ../_static/md/migrate-from-scripts-to-pytask.md
+```{include} ../_static/md/migrating-from-scripts-to-pytask.md
 ```
 
 Otherwise, pass the paths explicitly to the pytask executable.
@@ -150,3 +153,78 @@ $ pytask -n 4
 You can find more information on pytask-parallel in the
 [readme](https://github.com/pytask-dev/pytask-parallel) on Github.
 :::
+
+## Bonus: From R script to task
+
+pytask wants to help you get your job done, and sometimes a different programming
+language can make your life easier. Thus, pytask has several plugins to integrate code
+written in R, Julia, and Stata. Here, we explore how to incorporate an R script with
+[pytask-r](https://github.com/pytask-dev/pytask-r). You can also find more information
+about the plugin in the repo's readme.
+
+First, we will install the package.
+
+```console
+$ pip install pytask-r
+
+$ conda install -c conda-forge pytask-r
+```
+
+:::{seealso}
+Checkout [pytask-julia](https://github.com/pytask-dev/pytask-julia) and
+[pytask-stata](https://github.com/pytask-dev/pytask-stata), too!
+:::
+
+And here is the R script `prepare_data.r` that we want to integrate.
+
+```r
+# Content of prepare_data.r
+df <- read.csv("data.csv")
+
+# Many operations.
+
+saveRDS(df, "data.rds")
+```
+
+Next, we create a task function to point pytask to the script and the dependencies and
+products.
+
+```python
+# Content of task_data_management.py
+import pytask
+
+
+@pytask.mark.r(script="prepare_data.r")
+@pytask.mark.depends_on("data.csv")
+@pytask.mark.produces("data.rds")
+def task_prepare_data():
+    pass
+```
+
+pytask automatically makes the paths to the dependencies and products available to the
+R file via a JSON file. Let us amend the R script to load the information from the JSON
+file.
+
+```r
+# Content of prepare_data.r
+library(jsonlite)
+
+# Read the JSON file whose path is passed to the script
+args <- commandArgs(trailingOnly=TRUE)
+path_to_json <- args[length(args)]
+config <- read_json(path_to_json)
+
+df <- read.csv(config$depends_on)
+
+# Many operations.
+
+saveRDS(df, config$produces)
+```
+
+## Conclusion
+
+Congrats! You have just set up your first workflow with pytask!
+
+If you enjoyed what you have seen, you should discover the other parts of the
+documentation. The [tutorials](../tutorials/index.md) are a good entry point to start
+with pytask and learn about many concepts step-by-step.

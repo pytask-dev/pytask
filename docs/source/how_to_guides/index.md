@@ -11,11 +11,11 @@ specific tasks with pytask.
 ---
 maxdepth: 1
 ---
+migrating_from_scripts_to_pytask
 invoking_pytask_extended
 capture_warnings
 repeating_tasks_with_different_inputs_the_pytest_way
 how_to_influence_build_order
-migrate_from_scripts_to_pytask
 how_to_write_a_plugin
 ```
 
@@ -26,8 +26,8 @@ experience with pytask and build systems in general, research projects, and soft
 engineering to provide practical and easily understandable instructions.
 
 Contributions - additions, comments, experiences, and requests for clarification - are
-highly appreciated. File either [issue](https://github.com/pytask-dev/pytask/issues) or
-start [discussion](https://github.com/pytask-dev/pytask/discussions).
+highly appreciated. File either an [issue](https://github.com/pytask-dev/pytask/issues)
+or start a [discussion](https://github.com/pytask-dev/pytask/discussions).
 
 ```{toctree}
 ---
