@@ -19,7 +19,7 @@ dependencies:
   - sphinx-panels
 
   # Package dependencies necessary for sphinx-click
-  - attrs >=12.3.0
+  - attrs >=21.3.0
   - click
   - click-default-group
   - networkx >=2.4

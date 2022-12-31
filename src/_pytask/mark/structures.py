@@ -16,7 +16,7 @@ def is_task_function(func: Any) -> bool:
     return callable(func) and getattr(func, "__name__", "<lambda>") != "<lambda>"
 
 
-@define(frozen=True, auto_attribs=True)
+@define(frozen=True)
 class Mark:
     """A class for a mark containing the name, positional and keyword arguments."""
 
