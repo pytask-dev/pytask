@@ -11,6 +11,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`326` fixes the badge for status of the workflow.
 - {pull}`329` adds ruff to pre-commit hooks.
 - {pull}`330` add a guide for migrating from scripts to pytask.
+- {pull}`332` refactors `database.py`.
 
 ## 0.2.7 - 2022-12-14
 
