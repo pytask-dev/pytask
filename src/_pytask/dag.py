@@ -2,17 +2,16 @@
 from __future__ import annotations
 
 import itertools
-from typing import Dict
 from typing import Generator
 from typing import Iterable
-from typing import Set
 
-import attr
 import networkx as nx
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import TASK_ICON
 from _pytask.mark_utils import has_mark
 from _pytask.nodes import Task
+from attrs import define
+from attrs import field
 
 
 def descending_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, None]:
@@ -55,7 +54,7 @@ def node_and_neighbors(dag: nx.DiGraph, node: str) -> Iterable[str]:
     return itertools.chain([node], dag.predecessors(node), dag.successors(node))
 
 
-@attr.s
+@define
 class TopologicalSorter:
     """The topological sorter class.
 
@@ -63,11 +62,11 @@ class TopologicalSorter:
 
     """
 
-    dag = attr.ib(type=nx.DiGraph)
-    priorities = attr.ib(factory=dict, type=Dict[str, int])
-    _dag_backup = attr.ib(default=None, type=nx.DiGraph)
-    _is_prepared = attr.ib(default=False, type=bool)
-    _nodes_out = attr.ib(factory=set, type=Set[str])
+    dag: nx.DiGraph
+    priorities: dict[str, int] = field(factory=dict)
+    _dag_backup: nx.DiGraph | None = None
+    _is_prepared: bool = False
+    _nodes_out: set[str] = field(factory=set)
 
     @classmethod
     def from_dag(cls, dag: nx.DiGraph) -> TopologicalSorter:

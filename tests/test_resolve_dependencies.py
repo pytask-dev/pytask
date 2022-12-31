@@ -3,27 +3,28 @@ from __future__ import annotations
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
+from typing import Any
 
-import attr
 import networkx as nx
 import pytest
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.resolve_dependencies import _check_if_root_nodes_are_available
 from _pytask.resolve_dependencies import pytask_resolve_dependencies_create_dag
+from attrs import define
 from pytask import cli
 from pytask import ExitCode
 from pytask import FilePathNode
 from pytask import Task
 
 
-@attr.s
+@define
 class Node(FilePathNode):
     """See https://github.com/python-attrs/attrs/issues/293 for property hack."""
 
-    name = attr.ib(type=str)
-    value = attr.ib()
-    path = attr.ib()
+    name: str
+    value: Any
+    path: Path
 
     def state(self):
         if "missing" in self.name:

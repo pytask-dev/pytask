@@ -8,13 +8,13 @@ import warnings
 from contextlib import contextmanager
 from typing import cast
 from typing import Generator
-from typing import Tuple
+from typing import NamedTuple
 from typing import TYPE_CHECKING
 
-import attr
 from _pytask.mark_utils import get_marks
 from _pytask.nodes import Task
 from _pytask.outcomes import Exit
+
 
 if TYPE_CHECKING:
     from _pytask.session import Session
@@ -28,11 +28,10 @@ __all__ = [
 ]
 
 
-@attr.s(kw_only=True)
-class WarningReport:
-    message = attr.ib(type=str)
-    fs_location = attr.ib(type=Tuple[str, int])
-    id_ = attr.ib(type=str)
+class WarningReport(NamedTuple):
+    message: str
+    fs_location: tuple[str, int]
+    id_: str | None
 
 
 @functools.lru_cache(maxsize=50)

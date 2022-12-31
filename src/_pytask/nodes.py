@@ -7,14 +7,11 @@ from abc import abstractmethod
 from pathlib import Path
 from typing import Any
 from typing import Callable
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
 from typing import TYPE_CHECKING
 
-import attr
 from _pytask.exceptions import NodeNotFoundError
+from attrs import define
+from attrs import field
 
 
 if TYPE_CHECKING:
@@ -33,29 +30,29 @@ class MetaNode(metaclass=ABCMeta):
         ...
 
 
-@attr.s(kw_only=True)
+@define(kw_only=True)
 class Task:
     """The class for tasks which are Python functions."""
 
-    base_name = attr.ib(type=str)
+    base_name: str
     """str: The base name of the task."""
-    path = attr.ib(type=Path)
+    path: Path
     """pathlib.Path: Path to the file where the task was defined."""
-    function = attr.ib(type=Callable[..., Any])
+    function: Callable[..., Any]
     """Callable[..., Any]: The task function."""
-    short_name = attr.ib(default=None, type=Optional[str], init=False)
+    short_name: str | None = field(default=None, init=False)
     """str: The shortest uniquely identifiable name for task for display."""
-    depends_on = attr.ib(factory=dict, type=Dict[str, MetaNode])
+    depends_on: dict[str, MetaNode] = field(factory=dict)
     """Dict[str, MetaNode]: A list of dependencies of task."""
-    produces = attr.ib(factory=dict, type=Dict[str, MetaNode])
+    produces: dict[str, MetaNode] = field(factory=dict)
     """Dict[str, MetaNode]: A list of products of task."""
-    markers = attr.ib(factory=list, type=List["Mark"])
+    markers: list[Mark] = field(factory=list)
     """Optional[List[Mark]]: A list of markers attached to the task function."""
-    kwargs = attr.ib(factory=dict, type=Dict[str, Any])
+    kwargs: dict[str, Any] = field(factory=dict)
     """Dict[str, Any]: A dictionary with keyword arguments supplied to the task."""
-    _report_sections = attr.ib(factory=list, type=List[Tuple[str, str, str]])
+    _report_sections: list[tuple[str, str, str]] = field(factory=list)
     """List[Tuple[str, str, str]]: Reports with entries for when, what, and content."""
-    attributes = attr.ib(factory=dict, type=Dict[Any, Any])
+    attributes: dict[Any, Any] = field(factory=dict)
     """Dict[Any, Any]: A dictionary to store additional information of the task."""
 
     def __attrs_post_init__(self: Task) -> None:
@@ -82,15 +79,15 @@ class Task:
             self._report_sections.append((when, key, content))
 
 
-@attr.s
+@define
 class FilePathNode(MetaNode):
     """The class for a node which is a path."""
 
-    name = attr.ib(type=str)
+    name: str
     """str: Name of the node which makes it identifiable in the DAG."""
-    value = attr.ib(type=Path)
+    value: Path
     """Any: Value passed to the decorator which can be requested inside the function."""
-    path = attr.ib(type=Path)
+    path: Path
     """pathlib.Path: Path to the FilePathNode."""
 
     @classmethod

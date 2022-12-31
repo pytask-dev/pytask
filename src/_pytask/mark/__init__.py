@@ -4,10 +4,8 @@ from __future__ import annotations
 import sys
 from typing import AbstractSet
 from typing import Any
-from typing import Set
 from typing import TYPE_CHECKING
 
-import attr
 import click
 import networkx as nx
 from _pytask.click import ColoredCommand
@@ -26,6 +24,7 @@ from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import parse_markers
+from attrs import define
 from rich.table import Table
 
 
@@ -115,7 +114,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     config["markers"] = parse_markers(config["markers"])
 
 
-@attr.s(slots=True)
+@define(slots=True)
 class KeywordMatcher:
     """A matcher for keywords.
 
@@ -130,7 +129,7 @@ class KeywordMatcher:
 
     """
 
-    _names = attr.ib(type=AbstractSet[str])
+    _names: AbstractSet[str]
 
     @classmethod
     def from_task(cls, task: Task) -> KeywordMatcher:
@@ -177,7 +176,7 @@ def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str]:
     return remaining
 
 
-@attr.s(slots=True)
+@define(slots=True)
 class MarkMatcher:
     """A matcher for markers which are present.
 
@@ -185,7 +184,7 @@ class MarkMatcher:
 
     """
 
-    own_mark_names = attr.ib(type=Set[str])
+    own_mark_names: set[str]
 
     @classmethod
     def from_task(cls, task: Task) -> MarkMatcher:

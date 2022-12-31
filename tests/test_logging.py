@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
+from typing import NamedTuple
 
-import attr
 import pytest
 from _pytask.logging import _format_plugin_names_and_versions
 from _pytask.logging import _humanize_time
@@ -13,10 +13,9 @@ from _pytask.outcomes import TaskOutcome
 from pytask import cli
 
 
-@attr.s
-class DummyDist:
-    project_name = attr.ib()
-    version = attr.ib()
+class DummyDist(NamedTuple):
+    project_name: str
+    version: str
 
 
 @pytest.mark.unit
