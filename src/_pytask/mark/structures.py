@@ -6,15 +6,17 @@ from typing import Callable
 from typing import Iterable
 from typing import Mapping
 
-import attr
 from _pytask.models import CollectionMetadata
+from attrs import define
+from attrs import field
+from attrs import validators
 
 
 def is_task_function(func: Any) -> bool:
     return callable(func) and getattr(func, "__name__", "<lambda>") != "<lambda>"
 
 
-@attr.s(frozen=True, auto_attribs=True)
+@define(frozen=True, auto_attribs=True)
 class Mark:
     """A class for a mark containing the name, positional and keyword arguments."""
 
@@ -45,7 +47,7 @@ class Mark:
         return Mark(self.name, self.args + other.args, {**self.kwargs, **other.kwargs})
 
 
-@attr.s
+@define
 class MarkDecorator:
     """A decorator for applying a mark on task function.
 
@@ -81,7 +83,7 @@ class MarkDecorator:
 
     """
 
-    mark = attr.ib(type=Mark, validator=attr.validators.instance_of(Mark))
+    mark: Mark = field(validator=validators.instance_of(Mark))
 
     @property
     def name(self) -> str:

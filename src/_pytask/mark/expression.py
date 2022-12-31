@@ -33,7 +33,7 @@ from typing import Mapping
 from typing import Sequence
 from typing import TYPE_CHECKING
 
-import attr
+from attrs import define
 
 
 if TYPE_CHECKING:
@@ -53,11 +53,11 @@ class TokenType(enum.Enum):
     EOF = "end of input"
 
 
-@attr.s(frozen=True, slots=True)
+@define(frozen=True, slots=True)
 class Token:
-    type_ = attr.ib(type=TokenType)
-    value = attr.ib(type=str)
-    pos = attr.ib(type=int)
+    type_: TokenType
+    value: str
+    pos: int
 
 
 class ParseError(Exception):
