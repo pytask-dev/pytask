@@ -31,8 +31,8 @@ $ conda -c conda-forge pytask pytask-parallel
 
 ## From Python script to task
 
-Next, we need to rewrite your scripts and move the executable part to a task function.
-You might contain the code in the main namespace of your script, like in this example.
+We must rewrite your scripts and move the executable part to a task function. You might
+contain the code in the main namespace of your script, like in this example.
 
 ```python
 # Content of task_data_management.py
@@ -65,7 +65,8 @@ if __name__ == "__main__":
     main()
 ```
 
-In both instances, you need to move your code into a task function.
+For pytask, you need to move the code into a task that is a function whose name starts
+with `task_` in a module with the same prefix like `task_data_management.py`.
 
 ```python
 # Content of task_data_management.py
@@ -80,12 +81,14 @@ def task_prepare_data():
     df.to_pickle("data.pkl")
 ```
 
+An `if __name__ == "__main__"` block must be deleted.
+
 ## Extracting dependencies and products
 
 To let pytask know the order in which to execute tasks and when to re-run them, you'll
 need to specify task dependencies and products using `@pytask.mark.depends_on` and
-`@pytask.mark.produces`. For that, extract the paths to the inputs and outputs of your
-script and pass them to the decorator. For example:
+`@pytask.mark.produces`. Extract the paths to the inputs and outputs of your script and
+pass them to the decorator. For example:
 
 ```python
 # Content of task_data_management.py
@@ -143,7 +146,7 @@ Otherwise, pass the paths explicitly to the pytask executable.
 
 If you have rewritten multiple scripts that can be run in parallel, use the
 `-n/--n-workers` option to define the number of parallel tasks. pytask-parallel will
-then automatically spawn multiple processes to run tasks in parallel.
+then automatically spawn multiple processes to run the workflow in parallel.
 
 ```console
 $ pytask -n 4
