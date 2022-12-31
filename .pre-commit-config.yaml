@@ -82,6 +82,7 @@ repos:
             (?x)^(
                 docs/source/how_to_guides/bp_structure_of_task_files.md|
                 docs/source/how_to_guides/how_to_influence_build_order.md|
+                docs/source/how_to_guides/migrating_from_scripts_to_pytask.md|
                 docs/source/how_to_guides/repeating_tasks_with_different_inputs_the_pytest_way.md|
                 docs/source/reference_guides/hookspecs.md|
                 docs/source/tutorials/configuration.md|

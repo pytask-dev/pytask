@@ -10,6 +10,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`313` refactors the configuration. INI configurations are no longer supported.
 - {pull}`326` fixes the badge for status of the workflow.
 - {pull}`329` adds ruff to pre-commit hooks.
+- {pull}`330` add a guide for migrating from scripts to pytask.
 - {pull}`332` refactors `database.py`.
 - {pull}`333` requires attrs v21.3.0 and updates the code accordingly.
 
