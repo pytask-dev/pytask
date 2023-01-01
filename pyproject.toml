@@ -54,6 +54,7 @@ extend-ignore = [
     "EM",  # flake8-errmsg
     "ANN401",  # flake8-annotate typing.Any
     "PD",  # pandas-vet
+    "UP",  # pyupgrade is too aggressive for py<3.10
 ]
 
 

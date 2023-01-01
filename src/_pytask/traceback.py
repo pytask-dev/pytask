@@ -4,7 +4,9 @@ from __future__ import annotations
 from pathlib import Path
 from types import TracebackType
 from typing import Generator
-from typing import Optional
+from typing import Tuple
+from typing import Type
+from typing import Union
 
 import _pytask
 import pluggy
@@ -23,9 +25,7 @@ _PLUGGY_DIRECTORY = Path(pluggy.__file__).parent
 _PYTASK_DIRECTORY = Path(_pytask.__file__).parent
 
 
-ExceptionInfo = tuple[
-    type[BaseException], BaseException, Optional[TracebackType]  # noqa: UP
-]
+ExceptionInfo = Tuple[Type[BaseException], BaseException, Union[TracebackType, None]]
 
 
 def render_exc_info(

@@ -96,7 +96,7 @@ def find_common_ancestor(*paths: str | Path) -> Path:
     return common_ancestor
 
 
-@functools.lru_cache
+@functools.lru_cache()
 def find_case_sensitive_path(path: Path, platform: str) -> Path:
     """Find the case-sensitive path.
 
