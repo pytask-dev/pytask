@@ -54,7 +54,7 @@ def set_defaults_from_config(
     return context.params["config"]
 
 
-def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:
+def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:  # noqa: C901
     """Find the project root and configuration file from a list of paths.
 
     The process is as follows:

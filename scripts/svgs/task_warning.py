@@ -7,14 +7,14 @@ import pytask
 from click.testing import CliRunner
 
 
-def _create_df():
+def _create_df() -> pd.DataFrame:
     df = pd.DataFrame({"a": range(10), "b": range(10, 20)})
     df[df["a"] < 5]["b"] = 1
     return df
 
 
 @pytask.mark.produces("df.pkl")
-def task_warning(produces):
+def task_warning(produces: Path) -> None:
     df = _create_df()
     df.to_pickle(produces)
 

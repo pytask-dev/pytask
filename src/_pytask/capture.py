@@ -30,6 +30,7 @@ import functools
 import io
 import os
 import sys
+from io import UnsupportedOperation
 from tempfile import TemporaryFile
 from typing import Any
 from typing import AnyStr
@@ -49,7 +50,7 @@ if sys.version_info >= (3, 8):
     from typing import final
 else:
 
-    def final(f):
+    def final(f: Any) -> Any:
         return f
 
 
@@ -166,13 +167,40 @@ class DontReadFromInput:
         return self
 
     def fileno(self) -> int:
-        raise io.UnsupportedOperation("redirected stdin is pseudofile, has no fileno()")
+        raise UnsupportedOperation("redirected stdin is pseudofile, has no fileno()")
+
+    def flush(self) -> None:
+        raise UnsupportedOperation("redirected stdin is pseudofile, has no flush()")
 
     def isatty(self) -> bool:
         return False
 
     def close(self) -> None:
         pass
+
+    def readable(self) -> bool:
+        return False
+
+    def seek(self, offset: int) -> int:  # noqa: ARG002
+        raise UnsupportedOperation("Redirected stdin is pseudofile, has no seek(int).")
+
+    def seekable(self) -> bool:
+        return False
+
+    def tell(self) -> int:
+        raise UnsupportedOperation("Redirected stdin is pseudofile, has no tell().")
+
+    def truncate(self, size: int) -> None:  # noqa: ARG002
+        raise UnsupportedOperation("Cannot truncate stdin.")
+
+    def write(self, *args: Any) -> None:  # noqa: ARG002
+        raise UnsupportedOperation("Cannot write to stdin.")
+
+    def writelines(self, *args: Any) -> None:  # noqa: ARG002
+        raise UnsupportedOperation("Cannot write to stdin.")
+
+    def writable(self) -> bool:
+        return False
 
     @property
     def buffer(self) -> DontReadFromInput:
@@ -183,7 +211,7 @@ class DontReadFromInput:
 
 
 patchsysdict = {0: "stdin", 1: "stdout", 2: "stderr"}
-"""Dict[int, str]: Map file descriptors to their names."""
+"""dict[int, str]: Map file descriptors to their names."""
 
 
 class NoCapture:
@@ -205,7 +233,7 @@ class SysCaptureBinary:
     def __init__(  # type: ignore
         self,
         fd: int,
-        tmpfile=None,
+        tmpfile=None,  # noqa: ANN001
         *,
         tee: bool = False,
     ) -> None:
@@ -340,7 +368,7 @@ class FDCaptureBinary:
         self.targetfd_save = os.dup(targetfd)
 
         if targetfd == 0:
-            self.tmpfile = open(os.devnull)
+            self.tmpfile = open(os.devnull, encoding="utf-8")
             self.syscapture = SysCapture(targetfd)
         else:
             self.tmpfile = EncodedFile(

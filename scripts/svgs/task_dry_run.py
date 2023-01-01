@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytask
 
 
 @pytask.mark.produces("out.txt")
-def task_dry_run(produces):
+def task_dry_run(produces: Path) -> None:
     produces.write_text("This text file won't be produced in a dry-run.")
 
 

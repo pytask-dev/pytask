@@ -133,7 +133,7 @@ def _has_node_changed(task_name: str, node_dict: dict[str, MetaNode | Task]) -> 
         out = True
     else:
         try:
-            state_in_db = State[task_name, node.name].state  # type: ignore
+            state_in_db = State[task_name, node.name].state  # type: ignore[misc]
         except orm.ObjectNotFound:
             out = True
         else:

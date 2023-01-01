@@ -12,7 +12,7 @@ __all__ = ["create_database", "db", "update_states_in_database"]
 db = orm.Database()
 
 
-class State(db.Entity):  # type: ignore
+class State(db.Entity):  # type: ignore[name-defined]
     """Represent the state of a node in relation to a task."""
 
     task = orm.Required(str)
@@ -37,7 +37,7 @@ def create_database(
 def _create_or_update_state(first_key: str, second_key: str, state: str) -> None:
     """Create or update a state."""
     try:
-        state_in_db = State[first_key, second_key]  # type: ignore
+        state_in_db = State[first_key, second_key]  # type: ignore[type-arg, valid-type]
     except orm.ObjectNotFound:
         State(task=first_key, node=second_key, state=state)
     else:

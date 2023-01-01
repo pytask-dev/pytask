@@ -10,7 +10,7 @@ from click.testing import CliRunner
 @pytask.mark.persist
 @pytask.mark.depends_on("input.md")
 @pytask.mark.produces("output.md")
-def task_make_input_bold(depends_on, produces):
+def task_make_input_bold(depends_on: Path, produces: Path) -> None:
     produces.write_text("**" + depends_on.read_text() + "**")
 
 

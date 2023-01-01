@@ -5,11 +5,11 @@ import pytask
 from click.testing import CliRunner
 
 
-def task_func1():
+def task_func1() -> None:
     assert True
 
 
-def task_func2():
+def task_func2() -> None:
     print("Debug statement")  # noqa: T201
     assert False  # noqa: B011
 

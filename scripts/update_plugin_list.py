@@ -34,6 +34,7 @@ import pathlib
 import re
 from textwrap import dedent
 from textwrap import indent
+from typing import Generator
 
 import packaging.version
 import requests
@@ -84,7 +85,7 @@ def _escape_rst(text: str) -> str:
     return text
 
 
-def _iter_plugins():
+def _iter_plugins() -> Generator[dict[str, str], None, None]:
     """Iterate over all plugins and format entries."""
     regex = r">([\d\w-]*)</a>"
     response = requests.get("https://pypi.org/simple")
@@ -139,7 +140,7 @@ def _iter_plugins():
         }
 
 
-def _plugin_definitions(plugins):
+def _plugin_definitions(plugins: list[dict[str, str]]) -> Generator[str, None, None]:
     """Return RST for the plugin list that fits better on a vertical page."""
     for plugin in plugins:
         yield dedent(
@@ -154,7 +155,7 @@ def _plugin_definitions(plugins):
         )
 
 
-def main():
+def main() -> None:
     plugins = list(_iter_plugins())
 
     reference_dir = pathlib.Path("docs", "source")

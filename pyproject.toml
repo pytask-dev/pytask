@@ -30,36 +30,6 @@ ignore-words-list = "falsy, hist, ines, unparseable"
 
 [tool.ruff]
 select = ["ALL"]
-# extend-select = [
-#     "A",  # flake8-builtins
-#     "ARG",  # flake8-unused-arguments
-#     "B",  # flake8-bugbear
-#     "BLE",  # flake8-blind-except
-#     "C4",  # flake8-comprehensions
-#     "D",  # flake8-docstring
-#     "DTZ",  # flake8-datetimez
-#     "E",  # pycodestyle errors
-#     # "EM",  # flake8-errmsg
-#     "ERA",  # eradicate
-#     # "FBT",  # flake8-boolean-trap
-#     "F",  # pyflakes
-#     "ICN",  # flake8-import-conventions
-#     "N",  # pep8-naming
-#     # "PGH",  # pygrep-hooks
-#     "PLC",  # pylint
-#     "PLE",  # pylint
-#     "PLR",  # pylint
-#     "PLW",  # pylint
-#     "RET",  # flake8-return
-#     "RUF",  # ruff specific
-#     "S",  # flake8-bandit
-#     "SIM",  # flake8-simplify
-#     "T10",  # flake8-debugger
-#     "T20",  # flake8-print
-#     # "UP",  # pyupgrade, changes are not py37 compatible.
-#     "W",  # pycodestyle warnings
-#     # "YTT",  # flake8-2020
-# ]
 fix = true
 extend-ignore = [
     # Numpy docstyle
@@ -73,17 +43,24 @@ extend-ignore = [
     "D415",
     "D416",
     "D417",
-    "RET504",  # unnecessary variable assignment before return.
     # Others.
+    "RET504",  # unnecessary variable assignment before return.
     "S101",  # raise errors for asserts.
     "B905",  # strict parameter for zip that was implemented in py310.
-    "I",
+    "I",  # ignore isort
+    "ANN101",  # type annotating self
+    "ANN102",  # type annotating cls
+    "FBT",  # flake8-boolean-trap
+    "EM",  # flake8-errmsg
+    "ANN401",  # flake8-annotate typing.Any
+    "PD",  # pandas-vet
 ]
 
 
 [tool.ruff.per-file-ignores]
+"src/_pytask/capture.py" = ["PGH003"]
 "src/_pytask/hookspecs.py" = ["ARG001"]
 "src/_pytask/outcomes.py" = ["N818"]
 "tests/test_capture.py" = ["T201"]
-"tests/*" = ["D"]
+"tests/*" = ["D", "ANN"]
 "scripts/*" = ["D"]

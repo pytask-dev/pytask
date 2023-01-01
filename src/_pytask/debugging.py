@@ -66,9 +66,10 @@ def _pdbcls_callback(
     if value is None:
         return None
     if isinstance(value, str):
-        if len(value.split(":")) != 2:
+        split = value.split(":")
+        if len(split) != 2:
             raise click.BadParameter(message)
-        return tuple(value.split(":"))  # type: ignore
+        return tuple(split)  # type: ignore[return-value]
     raise click.BadParameter(message)
 
 
@@ -164,7 +165,7 @@ class PytaskPDB:
         return wrapped_cls
 
     @classmethod
-    def _get_pdb_wrapper_class(
+    def _get_pdb_wrapper_class(  # noqa: C901
         cls, pdb_cls: type[pdb.Pdb], capman: CaptureManager, live_manager: LiveManager
     ) -> type[pdb.Pdb]:
         """Create a pdf wrapper class."""
@@ -175,13 +176,13 @@ class PytaskPDB:
             _pytask_live_manager = live_manager
             _continued = False
 
-            def do_debug(self, arg):  # type: ignore
+            def do_debug(self, arg: Any) -> None:
                 cls._recursive_debug += 1
                 ret = super().do_debug(arg)
                 cls._recursive_debug -= 1
                 return ret
 
-            def do_continue(self, arg):  # type: ignore
+            def do_continue(self, arg: Any) -> int:
                 ret = super().do_continue(arg)
                 if cls._recursive_debug == 0:
                     assert cls._config is not None
@@ -209,7 +210,7 @@ class PytaskPDB:
 
             do_c = do_cont = do_continue
 
-            def do_quit(self, arg):  # type: ignore
+            def do_quit(self, arg: Any) -> int:
                 """Raise Exit outcome when quit command is used in pdb.
 
                 This is a bit of a hack - it would be better if BdbQuit could be
@@ -227,7 +228,7 @@ class PytaskPDB:
             do_q = do_quit
             do_exit = do_quit
 
-            def setup(self, f, tb):  # type: ignore
+            def setup(self, f: FrameType, tb: TracebackType) -> str:
                 """Suspend on setup().
 
                 Needed after do_continue resumed, and entering another breakpoint again.

@@ -258,7 +258,7 @@ def create_summary_panel(
     )
     for outcome, value in counts.items():
         if value:
-            percentage = f"({100 * value / n_total:.1f}%)"
+            percentage = f"({100 * value / n_total:.1f}%)"  # noqa: F541
             grid.add_row(
                 Padding(str(value), pad=_HORIZONTAL_PADDING),
                 Padding(

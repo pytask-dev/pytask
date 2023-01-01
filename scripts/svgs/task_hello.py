@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytask
 
 
 @pytask.mark.produces("hello_earth.txt")
-def task_hello_earth(produces):
+def task_hello_earth(produces: Path) -> None:
     produces.write_text("Hello, earth!")
 
 

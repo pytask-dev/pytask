@@ -8,7 +8,7 @@ import pytask
 from click.testing import CliRunner
 
 
-def task_example():
+def task_example() -> None:
     pass
 
 
