@@ -44,7 +44,7 @@ class _ExportFormats(enum.Enum):
     CSV = "csv"
 
 
-class Runtime(db.Entity):  # type: ignore
+class Runtime(db.Entity):  # type: ignore[name-defined]
     """Record of runtimes of tasks."""
 
     task = orm.PrimaryKey(str)
@@ -88,7 +88,7 @@ def pytask_execute_task_process_report(report: ExecutionReport) -> None:
 def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
     """Create or update a runtime entry."""
     try:
-        runtime = Runtime[task_name]  # type: ignore
+        runtime = Runtime[task_name]  # type: ignore[type-arg, valid-type]
     except orm.ObjectNotFound:
         Runtime(task=task_name, date=start, duration=end - start)
     else:

@@ -9,7 +9,7 @@ import pytask
 
 
 @pytask.mark.produces("data.pkl")
-def task_create_random_data(produces):
+def task_create_random_data(produces: Path) -> None:
     rng = np.random.default_rng(0)
     beta = 2
 

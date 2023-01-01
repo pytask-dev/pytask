@@ -35,7 +35,7 @@ class WarningReport(NamedTuple):
 
 
 @functools.lru_cache(maxsize=50)
-def parse_warning_filter(
+def parse_warning_filter(  # noqa: C901
     arg: str, *, escape: bool
 ) -> tuple[warnings._ActionKind, str, type[Warning], str, int]:
     """Parse a warnings filter string.
@@ -75,7 +75,8 @@ def parse_warning_filter(
         parts.append("")
     action_, message, category_, module, lineno_ = (s.strip() for s in parts)
     try:
-        action: warnings._ActionKind = warnings._getaction(action_)  # type: ignore
+        action: warnings._ActionKind
+        action = warnings._getaction(action_)  # type: ignore[attr-defined]
     except warnings._OptionError as e:
         raise Exit(error_template.format(error=str(e)))  # noqa: B904
     try:

@@ -87,7 +87,7 @@ def pytask_parametrize_task(
 
     """
     if callable(obj):
-        obj, markers = remove_marks(obj, "parametrize")  # type: ignore
+        obj, markers = remove_marks(obj, "parametrize")  # type: ignore[assignment]
 
         if len(markers) > 1:
             raise NotImplementedError(
@@ -117,7 +117,7 @@ def pytask_parametrize_task(
             )
 
             # Copy function and attributes to allow in-place changes.
-            func = _copy_func(obj)  # type: ignore
+            func = _copy_func(obj)  # type: ignore[arg-type]
             func.pytask_meta = copy.deepcopy(  # type: ignore[attr-defined]
                 obj.pytask_meta  # type: ignore[attr-defined]
             )

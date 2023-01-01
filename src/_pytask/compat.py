@@ -30,7 +30,7 @@ def _get_version(module: types.ModuleType) -> str:
     return version
 
 
-def import_optional_dependency(
+def import_optional_dependency(  # noqa: C901
     name: str,
     extra: str = "",
     errors: str = "raise",

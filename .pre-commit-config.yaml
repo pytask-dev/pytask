@@ -50,11 +50,11 @@ repos:
     hooks:
     -   id: black
 -   repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.191
+    rev: v0.0.205
     hooks:
       - id: ruff
 -   repo: https://github.com/dosisod/refurb
-    rev: v1.9.0
+    rev: v1.9.1
     hooks:
     -   id: refurb
         args: [--ignore, FURB126]

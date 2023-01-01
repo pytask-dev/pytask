@@ -9,7 +9,7 @@ from click.testing import CliRunner
 
 @pytask.mark.depends_on("in.txt")
 @pytask.mark.produces("out.txt")
-def task_write_file(depends_on, produces):
+def task_write_file(depends_on: Path, produces: Path) -> None:
     produces.write_text(depends_on.read_text())
 
 
