@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from types import TracebackType
+from typing import Optional
 from typing import TYPE_CHECKING
 
 from _pytask.outcomes import CollectionOutcome
@@ -16,7 +17,9 @@ if TYPE_CHECKING:
     from _pytask.nodes import Task
 
 
-ExceptionInfo = tuple[type[BaseException], BaseException, TracebackType | None]
+ExceptionInfo = tuple[
+    type[BaseException], BaseException, Optional[TracebackType]  # noqa: UP
+]
 
 
 @define
