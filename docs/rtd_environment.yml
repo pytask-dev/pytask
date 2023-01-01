@@ -19,7 +19,7 @@ dependencies:
   - sphinx-panels
 
   # Package dependencies necessary for sphinx-click
-  - attrs >=19.2.0
+  - attrs >=21.3.0
   - click
   - click-default-group
   - networkx >=2.4
@@ -29,7 +29,6 @@ dependencies:
   - pexpect
   - rich
   - tomli >=1.0.0
-  - tomli-w >=1.0.0
 
   - pip:
     - ../

@@ -347,7 +347,7 @@ def test_task_function_with_partialed_args(tmp_path, runner):
         produces.write_text(content)
 
     task_func = pytask.mark.produces("out.txt")(
-        pytask.mark.skip(functools.partial(func, content="hello"))
+        functools.partial(func, content="hello")
     )
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -357,6 +357,7 @@ def test_task_function_with_partialed_args(tmp_path, runner):
     assert result.exit_code == ExitCode.OK
     assert "Collected 1 task." in result.output
     assert "1  Succeeded" in result.output
+    assert tmp_path.joinpath("out.txt").exists()
 
 
 @pytest.mark.end_to_end

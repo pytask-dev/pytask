@@ -3,10 +3,10 @@ from __future__ import annotations
 import textwrap
 from pathlib import Path
 
-import attr
 import pytest
 from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
+from attrs import define
 from pytask import cli
 from pytask import ExitCode
 from pytask import MetaNode
@@ -276,9 +276,9 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
     assert "out_1.txt>" in captured
 
 
-@attr.s
+@define
 class Node(MetaNode):
-    path = attr.ib()
+    path: Path
 
     def state(self):
         ...

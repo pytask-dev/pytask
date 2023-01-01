@@ -10,10 +10,8 @@ from types import TracebackType
 from typing import Any
 from typing import Generator
 from typing import Iterable
-from typing import List
 from typing import TYPE_CHECKING
 
-import attr
 import click
 from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
@@ -31,6 +29,7 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import to_list
 from _pytask.traceback import render_exc_info
+from attrs import define
 from pybaum.tree_util import tree_just_yield
 
 
@@ -248,7 +247,7 @@ def _find_all_unknown_paths(
     return unknown_paths
 
 
-@attr.s(repr=False)
+@define(repr=False)
 class _RecursivePathNode:
     """A class for a path to a file or directory which recursively instantiates itself.
 
@@ -262,11 +261,11 @@ class _RecursivePathNode:
 
     """
 
-    path = attr.ib(type=Path)
-    sub_nodes = attr.ib(type=List["_RecursivePathNode"])
-    is_dir = attr.ib(type=bool)
-    is_file = attr.ib(type=bool)
-    is_unknown = attr.ib(type=bool)
+    path: Path
+    sub_nodes: list[_RecursivePathNode]
+    is_dir: bool
+    is_file: bool
+    is_unknown: bool
 
     @classmethod
     def from_path(

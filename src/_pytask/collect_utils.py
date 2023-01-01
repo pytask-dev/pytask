@@ -10,10 +10,11 @@ from typing import Generator
 from typing import Iterable
 from typing import TYPE_CHECKING
 
-import attr
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import remove_marks
 from _pytask.shared import find_duplicates
+from attrs import define
+from attrs import field
 from pybaum.tree_util import tree_map
 
 
@@ -92,12 +93,12 @@ def _convert_objects_to_node_dictionary(objects: Any, when: str) -> dict[Any, An
     return nodes
 
 
-@attr.s(frozen=True)
+@define(frozen=True)
 class _Placeholder:
     """A placeholder to mark unspecified keys in dictionaries."""
 
-    scalar = attr.ib(type=bool, default=False)
-    id_ = attr.ib(factory=uuid.uuid4, type=uuid.UUID)
+    scalar: bool = field(default=False)
+    id_: uuid.UUID = field(factory=uuid.uuid4)
 
 
 def _convert_to_dict(x: Any, first_level: bool = True) -> Any | dict[Any, Any]:

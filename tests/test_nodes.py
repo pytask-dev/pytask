@@ -3,9 +3,9 @@ from __future__ import annotations
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
-import attr
 import pytest
 from _pytask.shared import reduce_node_name
+from attrs import define
 from pytask import FilePathNode
 from pytask import MetaNode
 
@@ -26,9 +26,9 @@ def test_instantiation_of_metanode():
     assert isinstance(task, MetaNode)
 
 
-@attr.s
+@define
 class FalseNode:
-    path = attr.ib()
+    path: Path
 
 
 _ROOT = Path.cwd()
