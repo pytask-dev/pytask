@@ -29,36 +29,37 @@ ignore-words-list = "falsy, hist, ines, unparseable"
 
 
 [tool.ruff]
-extend-select = [
-    "A",  # flake8-builtins
-    "ARG",  # flake8-unused-arguments
-    "B",  # flake8-bugbear
-    "BLE",  # flake8-blind-except
-    "C4",  # flake8-comprehensions
-    "D",  # flake8-docstring
-    "DTZ",  # flake8-datetimez
-    "E",  # pycodestyle errors
-    # "EM",  # flake8-errmsg
-    "ERA",  # eradicate
-    # "FBT",  # flake8-boolean-trap
-    "F",  # pyflakes
-    "ICN",  # flake8-import-conventions
-    "N",  # pep8-naming
-    # "PGH",  # pygrep-hooks
-    "PLC",  # pylint
-    "PLE",  # pylint
-    "PLR",  # pylint
-    "PLW",  # pylint
-    "RET",  # flake8-return
-    "RUF",  # ruff specific
-    "S",  # flake8-bandit
-    "SIM",  # flake8-simplify
-    "T10",  # flake8-debugger
-    "T20",  # flake8-print
-    # "UP",  # pyupgrade, changes are not py37 compatible.
-    "W",  # pycodestyle warnings
-    # "YTT",  # flake8-2020
-]
+select = ["ALL"]
+# extend-select = [
+#     "A",  # flake8-builtins
+#     "ARG",  # flake8-unused-arguments
+#     "B",  # flake8-bugbear
+#     "BLE",  # flake8-blind-except
+#     "C4",  # flake8-comprehensions
+#     "D",  # flake8-docstring
+#     "DTZ",  # flake8-datetimez
+#     "E",  # pycodestyle errors
+#     # "EM",  # flake8-errmsg
+#     "ERA",  # eradicate
+#     # "FBT",  # flake8-boolean-trap
+#     "F",  # pyflakes
+#     "ICN",  # flake8-import-conventions
+#     "N",  # pep8-naming
+#     # "PGH",  # pygrep-hooks
+#     "PLC",  # pylint
+#     "PLE",  # pylint
+#     "PLR",  # pylint
+#     "PLW",  # pylint
+#     "RET",  # flake8-return
+#     "RUF",  # ruff specific
+#     "S",  # flake8-bandit
+#     "SIM",  # flake8-simplify
+#     "T10",  # flake8-debugger
+#     "T20",  # flake8-print
+#     # "UP",  # pyupgrade, changes are not py37 compatible.
+#     "W",  # pycodestyle warnings
+#     # "YTT",  # flake8-2020
+# ]
 fix = true
 extend-ignore = [
     # Numpy docstyle
@@ -76,6 +77,7 @@ extend-ignore = [
     # Others.
     "S101",  # raise errors for asserts.
     "B905",  # strict parameter for zip that was implemented in py310.
+    "I",
 ]
 
 
