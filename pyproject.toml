@@ -29,6 +29,7 @@ ignore-words-list = "falsy, hist, ines, unparseable"
 
 
 [tool.ruff]
+target-version = "py37"
 select = ["ALL"]
 fix = true
 extend-ignore = [
@@ -54,7 +55,6 @@ extend-ignore = [
     "EM",  # flake8-errmsg
     "ANN401",  # flake8-annotate typing.Any
     "PD",  # pandas-vet
-    "UP",  # pyupgrade is too aggressive for py<3.10
 ]
 
 
