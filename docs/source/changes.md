@@ -13,6 +13,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`330` add a guide for migrating from scripts to pytask.
 - {pull}`332` refactors `database.py`.
 - {pull}`333` requires attrs v21.3.0 and updates the code accordingly.
+- {pull}`334` adds `target-version` to ruff config.
 
 ## 0.2.7 - 2022-12-14
 
