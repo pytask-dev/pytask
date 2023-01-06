@@ -29,6 +29,7 @@ ignore-words-list = "falsy, hist, ines, unparseable"
 
 
 [tool.ruff]
+target-version = "py37"
 select = ["ALL"]
 fix = true
 extend-ignore = [
@@ -38,12 +39,12 @@ extend-ignore = [
     "D212",
     "D213",
     "D402",
-    "D404",
     "D413",
     "D415",
     "D416",
     "D417",
     # Others.
+    "D404",  # Do not start module docstring with "This".
     "RET504",  # unnecessary variable assignment before return.
     "S101",  # raise errors for asserts.
     "B905",  # strict parameter for zip that was implemented in py310.
@@ -54,7 +55,6 @@ extend-ignore = [
     "EM",  # flake8-errmsg
     "ANN401",  # flake8-annotate typing.Any
     "PD",  # pandas-vet
-    "UP",  # pyupgrade is too aggressive for py<3.10
 ]
 
 
@@ -65,3 +65,7 @@ extend-ignore = [
 "tests/test_capture.py" = ["T201"]
 "tests/*" = ["D", "ANN"]
 "scripts/*" = ["D"]
+
+
+[tool.ruff.pydocstyle]
+convention = "numpy"
