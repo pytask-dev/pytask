@@ -36,7 +36,7 @@ class WarningReport(NamedTuple):
 
 @functools.lru_cache(maxsize=50)
 def parse_warning_filter(  # noqa: C901
-    arg: str, *, escape: bool
+    arg: str, *, escape: bool,
 ) -> tuple[warnings._ActionKind, str, type[Warning], str, int]:
     """Parse a warnings filter string.
 
@@ -54,7 +54,7 @@ def parse_warning_filter(  # noqa: C901
           {arg}
         This error occurred:
         {{error}}
-        """
+        """,
     )
 
     parts = arg.split(":")
@@ -67,7 +67,7 @@ def parse_warning_filter(  # noqa: C901
             Too many fields ({len(parts)}), expected at most 5 separated by colons:
               action:message:category:module:line
             For more information please consult: {doc_url}
-            """
+            """,
         )
         raise Exit(error_template.format(error=error))
 
@@ -94,7 +94,7 @@ def parse_warning_filter(  # noqa: C901
                 raise ValueError("number is negative")
         except ValueError as e:
             raise Exit(  # noqa: B904
-                error_template.format(error=f"invalid lineno {lineno_!r}: {e}")
+                error_template.format(error=f"invalid lineno {lineno_!r}: {e}"),
             )
     else:
         lineno = 0
@@ -174,10 +174,7 @@ def catch_warnings_for_item(
 
         yield
 
-        if task is not None:
-            id_ = task.short_name
-        else:
-            id_ = when
+        id_ = task.short_name if task is not None else when
 
         for warning_message in log:
             fs_location = warning_message.filename, warning_message.lineno
@@ -186,5 +183,5 @@ def catch_warnings_for_item(
                     message=warning_record_to_str(warning_message),
                     fs_location=fs_location,
                     id_=id_,
-                )
+                ),
             )

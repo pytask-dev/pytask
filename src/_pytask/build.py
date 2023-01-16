@@ -170,7 +170,7 @@ def main(raw_config: dict[str, Any]) -> Session:  # noqa: C901
     help=("Choose whether tracebacks should be displayed or not."),
 )
 @click.option(
-    "--dry-run", type=bool, is_flag=True, default=False, help="Perform a dry-run."
+    "--dry-run", type=bool, is_flag=True, default=False, help="Perform a dry-run.",
 )
 def build(**raw_config: Any) -> NoReturn:
     """Collect tasks, execute them and report the results.

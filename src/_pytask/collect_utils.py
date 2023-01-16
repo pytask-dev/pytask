@@ -27,7 +27,7 @@ __all__ = ["depends_on", "parse_nodes", "produces"]
 
 
 def depends_on(
-    objects: Any | Iterable[Any] | dict[Any, Any]
+    objects: Any | Iterable[Any] | dict[Any, Any],
 ) -> Any | Iterable[Any] | dict[Any, Any]:
     """Specify dependencies for a task.
 
@@ -43,7 +43,7 @@ def depends_on(
 
 
 def produces(
-    objects: Any | Iterable[Any] | dict[Any, Any]
+    objects: Any | Iterable[Any] | dict[Any, Any],
 ) -> Any | Iterable[Any] | dict[Any, Any]:
     """Specify products of a task.
 
@@ -59,7 +59,7 @@ def produces(
 
 
 def parse_nodes(
-    session: Session, path: Path, name: str, obj: Any, parser: Callable[..., Any]
+    session: Session, path: Path, name: str, obj: Any, parser: Callable[..., Any],
 ) -> Any:
     """Parse nodes from object."""
     objects = _extract_nodes_from_function_markers(obj, parser)
@@ -69,7 +69,7 @@ def parse_nodes(
 
 
 def _extract_nodes_from_function_markers(
-    function: Callable[..., Any], parser: Callable[..., Any]
+    function: Callable[..., Any], parser: Callable[..., Any],
 ) -> Generator[Any, None, None]:
     """Extract nodes from a marker.
 
@@ -118,7 +118,7 @@ def _convert_to_dict(x: Any, first_level: bool = True) -> Any | dict[Any, Any]:
 
 
 def _check_that_names_are_not_used_multiple_times(
-    list_of_dicts: list[dict[Any, Any]], when: str
+    list_of_dicts: list[dict[Any, Any]], when: str,
 ) -> None:
     """Check that names of nodes are not assigned multiple times.
 
@@ -127,14 +127,14 @@ def _check_that_names_are_not_used_multiple_times(
 
     """
     names_with_provisional_keys = list(
-        itertools.chain.from_iterable(dict_.keys() for dict_ in list_of_dicts)
+        itertools.chain.from_iterable(dict_.keys() for dict_ in list_of_dicts),
     )
     names = [x for x in names_with_provisional_keys if not isinstance(x, _Placeholder)]
     duplicated = find_duplicates(names)
 
     if duplicated:
         raise ValueError(
-            f"'@pytask.mark.{when}' has nodes with the same name: {duplicated}"
+            f"'@pytask.mark.{when}' has nodes with the same name: {duplicated}",
         )
 
 
@@ -177,10 +177,7 @@ def _merge_dictionaries(list_of_dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
 
     if len(merged_dict) == 1 and isinstance(list(merged_dict)[0], _Placeholder):
         placeholder, value = list(merged_dict.items())[0]
-        if placeholder.scalar:
-            out = value
-        else:
-            out = {0: value}
+        out = value if placeholder.scalar else {0: value}
     else:
         counter = itertools.count()
         out = {}
@@ -198,7 +195,7 @@ def _merge_dictionaries(list_of_dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
 
 
 def _collect_node(
-    session: Session, path: Path, name: str, node: str | Path
+    session: Session, path: Path, name: str, node: str | Path,
 ) -> dict[str, MetaNode]:
     """Collect nodes for a task.
 
@@ -225,12 +222,12 @@ def _collect_node(
 
     """
     collected_node = session.hook.pytask_collect_node(
-        session=session, path=path, node=node
+        session=session, path=path, node=node,
     )
     if collected_node is None:
         raise NodeNotCollectedError(
             f"{node!r} cannot be parsed as a dependency or product for task "
-            f"{name!r} in {path!r}."
+            f"{name!r} in {path!r}.",
         )
 
     return collected_node

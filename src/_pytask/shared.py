@@ -82,7 +82,7 @@ def reduce_node_name(node: MetaNode, paths: Sequence[str | Path]) -> str:
 
 
 def reduce_names_of_multiple_nodes(
-    names: list[str], dag: nx.DiGraph, paths: Sequence[str | Path]
+    names: list[str], dag: nx.DiGraph, paths: Sequence[str | Path],
 ) -> list[str]:
     """Reduce the names of multiple nodes in the DAG."""
     short_names = []
@@ -91,7 +91,7 @@ def reduce_names_of_multiple_nodes(
 
         if isinstance(node, Task):
             short_name = format_task_id(
-                node, editor_url_scheme="no_link", short_name=True
+                node, editor_url_scheme="no_link", short_name=True,
             )
         elif isinstance(node, MetaNode):
             short_name = reduce_node_name(node, paths)
@@ -133,13 +133,13 @@ def parse_markers(x: dict[str, str] | list[str] | tuple[str, ...]) -> dict[str, 
         mapping = {name.strip(): description.strip() for name, description in x.items()}
     else:
         raise click.BadParameter(
-            "'markers' must be a mapping from markers to descriptions."
+            "'markers' must be a mapping from markers to descriptions.",
         )
 
     for name in mapping:
         if not name.isidentifier():
             raise click.BadParameter(
-                f"{name} is not a valid Python name and cannot be used as a marker."
+                f"{name} is not a valid Python name and cannot be used as a marker.",
             )
 
     return mapping

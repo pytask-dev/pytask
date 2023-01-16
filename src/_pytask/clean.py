@@ -113,7 +113,7 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
         exc_info: tuple[
-            type[BaseException], BaseException, TracebackType | None
+            type[BaseException], BaseException, TracebackType | None,
         ] = sys.exc_info()
         console.print(render_exc_info(*exc_info))
 
@@ -126,10 +126,10 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901
             exclude = session.config["exclude"]
             include_directories = session.config["directories"]
             unknown_paths = _find_all_unknown_paths(
-                session, known_paths, exclude, include_directories
+                session, known_paths, exclude, include_directories,
             )
             common_ancestor = find_common_ancestor(
-                *unknown_paths, *session.config["paths"]
+                *unknown_paths, *session.config["paths"],
             )
 
             if unknown_paths:
@@ -145,7 +145,7 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901
                         should_be_deleted = session.config[
                             "mode"
                         ] == _CleanMode.FORCE or click.confirm(
-                            f"Would you like to remove {short_path}?"
+                            f"Would you like to remove {short_path}?",
                         )
                         if should_be_deleted:
                             if not session.config["quiet"]:
@@ -157,7 +157,7 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901
             else:
                 console.print()
                 console.print(
-                    "There are no files and directories which can be deleted."
+                    "There are no files and directories which can be deleted.",
                 )
 
             console.print()
@@ -241,8 +241,8 @@ def _find_all_unknown_paths(
             [
                 _find_all_unkown_paths_per_recursive_node(node, include_directories)
                 for node in recursive_nodes
-            ]
-        )
+            ],
+        ),
     )
     return unknown_paths
 
@@ -269,7 +269,7 @@ class _RecursivePathNode:
 
     @classmethod
     def from_path(
-        cls, path: Path, known_paths: Iterable[Path], exclude: tuple[str, ...]
+        cls, path: Path, known_paths: Iterable[Path], exclude: tuple[str, ...],
     ) -> _RecursivePathNode:
         """Create a node from a path.
 
@@ -310,7 +310,7 @@ class _RecursivePathNode:
 
 
 def _find_all_unkown_paths_per_recursive_node(
-    node: _RecursivePathNode, include_directories: bool
+    node: _RecursivePathNode, include_directories: bool,
 ) -> Generator[Path, None, None]:
     """Return unknown paths per recursive file node.
 

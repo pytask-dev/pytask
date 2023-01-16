@@ -51,7 +51,7 @@ def pytask_execute(session: Session) -> None:
     session.scheduler = session.hook.pytask_execute_create_scheduler(session=session)
     session.hook.pytask_execute_build(session=session)
     session.hook.pytask_execute_log_end(
-        session=session, reports=session.execution_reports
+        session=session, reports=session.execution_reports,
     )
 
 
@@ -79,7 +79,7 @@ def pytask_execute_build(session: Session) -> bool:
         for name in session.scheduler.static_order():
             task = session.dag.nodes[name]["task"]
             report = session.hook.pytask_execute_task_protocol(
-                session=session, task=task
+                session=session, task=task,
             )
             session.execution_reports.append(report)
 
@@ -173,14 +173,14 @@ def pytask_execute_task_teardown(session: Session, task: Task) -> None:
     if missing_nodes:
         paths = [reduce_node_name(i, session.config["paths"]) for i in missing_nodes]
         formatted = format_strings_as_flat_tree(
-            paths, "The task did not produce the following files:\n", ""
+            paths, "The task did not produce the following files:\n", "",
         )
         raise NodeNotFoundError(formatted)
 
 
 @hookimpl(trylast=True)
 def pytask_execute_task_process_report(
-    session: Session, report: ExecutionReport
+    session: Session, report: ExecutionReport,
 ) -> bool:
     """Process the execution report of a task.
 
@@ -201,7 +201,7 @@ def pytask_execute_task_process_report(
                     "would_be_executed",
                     (),
                     {"reason": f"Previous task {task.name!r} would be executed."},
-                )
+                ),
             )
     else:
         for descending_task_name in descending_tasks(task.name, session.dag):
@@ -211,7 +211,7 @@ def pytask_execute_task_process_report(
                     "skip_ancestor_failed",
                     (),
                     {"reason": f"Previous task {task.name!r} failed."},
-                )
+                ),
             )
 
         session.n_tasks_failed += 1
@@ -228,7 +228,7 @@ def pytask_execute_task_process_report(
 def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:
     """Log task outcome."""
     url_style = create_url_style_for_task(
-        report.task.function, session.config["editor_url_scheme"]
+        report.task.function, session.config["editor_url_scheme"],
     )
     console.print(
         report.outcome.symbol,

@@ -10,7 +10,7 @@ from pytask import cli
 from pytask import ExitCode
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_existence_of_hashes_in_db(tmp_path, runner):
     """Modification dates of input and output files are stored in database."""
     source = """
@@ -51,22 +51,22 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
             assert float(state) == path.stat().st_mtime
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_rename_database_w_config(tmp_path, runner):
     """Modification dates of input and output files are stored in database."""
     tmp_path.joinpath("pyproject.toml").write_text(
-        "[tool.pytask.ini_options]\ndatabase_filename='.db.sqlite3'"
+        "[tool.pytask.ini_options]\ndatabase_filename='.db.sqlite3'",
     )
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     tmp_path.joinpath(".db.sqlite3").exists()
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_rename_database_w_cli(tmp_path, runner):
     """Modification dates of input and output files are stored in database."""
     result = runner.invoke(
-        cli, ["--database-filename", ".db.sqlite3", tmp_path.as_posix()]
+        cli, ["--database-filename", ".db.sqlite3", tmp_path.as_posix()],
     )
     assert result.exit_code == ExitCode.OK
     tmp_path.joinpath(".db.sqlite3").exists()

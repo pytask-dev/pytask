@@ -42,7 +42,7 @@ class EnumChoice(click.Choice):
         self.enum_type = enum_type
 
     def convert(
-        self, value: Any, param: click.Parameter | None, ctx: click.Context | None
+        self, value: Any, param: click.Parameter | None, ctx: click.Context | None,
     ) -> Any:
         if isinstance(value, enum.Enum):
             value = value.value
@@ -66,17 +66,17 @@ class ColoredGroup(DefaultGroup):
     """A subclass which colors groups with default commands."""
 
     def format_help(
-        self: DefaultGroup, ctx: click.Context, formatter: Any  # noqa: ARG002
+        self: DefaultGroup, ctx: click.Context, formatter: Any,  # noqa: ARG002
     ) -> None:
         """Format the help text."""
         highlighter = _OptionHighlighter()
 
         console.print(
-            f"[b]pytask[/b] [dim]v{version}[/]\n", justify="center", highlight=False
+            f"[b]pytask[/b] [dim]v{version}[/]\n", justify="center", highlight=False,
         )
 
         console.print(
-            "Usage: [b]pytask[/b] [b][OPTIONS][/b] [b][COMMAND][/b] [b][PATHS][/b]\n"
+            "Usage: [b]pytask[/b] [b][OPTIONS][/b] [b][COMMAND][/b] [b][PATHS][/b]\n",
         )
 
         console.print(self.help, style="dim")
@@ -100,7 +100,7 @@ class ColoredGroup(DefaultGroup):
                 title="[bold #f2f2f2]Commands[/]",
                 title_align="left",
                 border_style="grey37",
-            )
+            ),
         )
 
         _print_options(self, ctx)
@@ -115,15 +115,15 @@ class ColoredCommand(click.Command):
     """Override Clicks help with a Richer version."""
 
     def format_help(
-        self: click.Command, ctx: click.Context, formatter: Any  # noqa: ARG002
+        self: click.Command, ctx: click.Context, formatter: Any,  # noqa: ARG002
     ) -> None:
         """Format the help text."""
         console.print(
-            f"[b]pytask[/b] [dim]v{version}[/]\n", justify="center", highlight=False
+            f"[b]pytask[/b] [dim]v{version}[/]\n", justify="center", highlight=False,
         )
 
         console.print(
-            f"Usage: [b]pytask[/b] [b]{self.name}[/b] [b][OPTIONS][/b] [b][PATHS][/b]\n"
+            f"Usage: [b]pytask[/b] [b]{self.name}[/b] [b][OPTIONS][/b] [b][PATHS][/b]\n",
         )
 
         console.print(self.help, style="dim")
@@ -138,7 +138,7 @@ class ColoredCommand(click.Command):
 
 
 def _print_options(
-    group_or_command: click.Command | DefaultGroup, ctx: click.Context
+    group_or_command: click.Command | DefaultGroup, ctx: click.Context,
 ) -> None:
     """Print options formatted with a table in a panel."""
     highlighter = _OptionHighlighter()
@@ -187,7 +187,7 @@ def _print_options(
             title="[bold #f2f2f2]Options[/]",
             title_align="left",
             border_style="grey37",
-        )
+        ),
     )
 
 
@@ -252,7 +252,7 @@ def _format_help_text(param: click.Parameter, ctx: click.Context) -> str:  # noq
             # For boolean flags that have distinct True/False opts,
             # use the opt without prefix instead of the value.
             default_string = split_opt(
-                (param.opts if param.default else param.secondary_opts)[0]
+                (param.opts if param.default else param.secondary_opts)[0],
             )[1]
         elif (
             param.is_bool_flag  # type: ignore[attr-defined]

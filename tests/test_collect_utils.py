@@ -18,7 +18,7 @@ from pytask import produces
 ERROR = "'@pytask.mark.depends_on' has nodes with the same name:"
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
     ("x", "expectation"),
     [
@@ -35,7 +35,7 @@ def test_check_that_names_are_not_used_multiple_times(x, expectation):
         _check_that_names_are_not_used_multiple_times(x, "depends_on")
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 @pytest.mark.parametrize("when", ["depends_on", "produces"])
 @pytest.mark.parametrize(
     "objects, expectation, expected",
@@ -76,9 +76,9 @@ def _convert_placeholders_to_tuples(x):
     }
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "x, first_level, expected",
+    ("x", "first_level", "expected"),
     [
         (1, True, {(0, True): 1}),
         ({1: 0}, False, {1: 0}),
@@ -94,9 +94,9 @@ def test__convert_to_dict(x, first_level, expected):
     assert modified_result == expected
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "list_of_dicts, expected",
+    ("list_of_dicts", "expected"),
     [
         ([{1: 0}, {0: 1}], {1: 0, 0: 1}),
         ([{_Placeholder(): 1}, {0: 0}], {1: 1, 0: 0}),
@@ -109,10 +109,10 @@ def test_merge_dictionaries(list_of_dicts, expected):
     assert result == expected
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize("decorator", [pytask.mark.depends_on, pytask.mark.produces])
 @pytest.mark.parametrize(
-    "values, expected", [("a", ["a"]), (["b"], [["b"]]), (["e", "f"], [["e", "f"]])]
+    "values, expected", [("a", ["a"]), (["b"], [["b"]]), (["e", "f"], [["e", "f"]])],
 )
 def test_extract_args_from_mark(decorator, values, expected):
     @decorator(values)
@@ -124,7 +124,7 @@ def test_extract_args_from_mark(decorator, values, expected):
     assert result == expected
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize("decorator", [pytask.mark.depends_on, pytask.mark.produces])
 @pytest.mark.parametrize(
     "values, expected",
@@ -144,13 +144,13 @@ def test_extract_kwargs_from_mark(decorator, values, expected):
     assert result == expected
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize("decorator", [pytask.mark.depends_on, pytask.mark.produces])
 @pytest.mark.parametrize(
-    "args, kwargs", [(["a", "b"], {"objects": "a"}), (("a"), {"objects": "a"})]
+    "args, kwargs", [(["a", "b"], {"objects": "a"}), (("a"), {"objects": "a"})],
 )
 def test_raise_error_for_invalid_args_to_depends_on_and_produces(
-    decorator, args, kwargs
+    decorator, args, kwargs,
 ):
     @decorator(*args, **kwargs)
     def task_example():  # pragma: no cover

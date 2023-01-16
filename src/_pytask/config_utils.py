@@ -11,7 +11,7 @@ from _pytask.shared import parse_paths
 
 
 def set_defaults_from_config(
-    context: click.Context, param: click.Parameter, value: Any  # noqa: ARG001
+    context: click.Context, param: click.Parameter, value: Any,  # noqa: ARG001
 ) -> Path | None:
     """Set the defaults for the command-line interface from the configuration."""
     # Hack: pytask will later walk through all configuration hooks, even the ones not
@@ -87,7 +87,7 @@ def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:  # no
                 read_config(path)
             except (tomli.TOMLDecodeError, OSError) as e:
                 raise click.FileError(
-                    filename=str(path), hint=f"Error reading {path}:\n{e}"
+                    filename=str(path), hint=f"Error reading {path}:\n{e}",
                 ) from None
             except KeyError:
                 pass
@@ -108,7 +108,7 @@ def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:  # no
 
 
 def read_config(
-    path: Path, sections: str = "tool.pytask.ini_options"
+    path: Path, sections: str = "tool.pytask.ini_options",
 ) -> dict[str, Any]:
     """Read the configuration from a ``*.toml`` file.
 

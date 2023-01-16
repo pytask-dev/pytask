@@ -24,7 +24,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 
 @hookimpl(trylast=True)
 def pytask_collect_file(
-    session: Session, path: Path, reports: list[CollectionReport]
+    session: Session, path: Path, reports: list[CollectionReport],
 ) -> list[CollectionReport] | None:
     """Collect a file."""
     if (
@@ -46,14 +46,14 @@ def pytask_collect_file(
 
             if has_mark(function, "parametrize"):
                 names_and_objects = session.hook.pytask_parametrize_task(
-                    session=session, name=name, obj=function
+                    session=session, name=name, obj=function,
                 )
             else:
                 names_and_objects = [(name, function)]
 
             for name_, obj_ in names_and_objects:
                 report = session.hook.pytask_collect_task_protocol(
-                    session=session, reports=reports, path=path, name=name_, obj=obj_
+                    session=session, reports=reports, path=path, name=name_, obj=obj_,
                 )
                 if report is not None:
                     collected_reports.append(report)

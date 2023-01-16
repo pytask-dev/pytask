@@ -51,7 +51,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
         warnings.warn(
             "Windows Terminal does not support url schemes to applications, yet."
             "See https://github.com/pytask-dev/pytask/issues/171 for more information. "
-            "Resort to `editor_url_scheme='file'`."
+            "Resort to `editor_url_scheme='file'`.",
         )
 
 
@@ -61,7 +61,7 @@ def pytask_log_session_header(session: Session) -> None:
     console.rule("Start pytask session", style=None)
     console.print(
         f"Platform: {sys.platform} -- Python {platform.python_version()}, "
-        f"pytask {_pytask.__version__}, pluggy {pluggy.__version__}"
+        f"pytask {_pytask.__version__}, pluggy {pluggy.__version__}",
     )
     console.print(f"Root: {session.config['root']}")
     if session.config["config"] is not None:
@@ -70,13 +70,13 @@ def pytask_log_session_header(session: Session) -> None:
     plugin_info = session.config["pm"].list_plugin_distinfo()
     if plugin_info:
         formatted_plugins_w_versions = ", ".join(
-            _format_plugin_names_and_versions(plugin_info)
+            _format_plugin_names_and_versions(plugin_info),
         )
         console.print(f"Plugins: {formatted_plugins_w_versions}")
 
 
 def _format_plugin_names_and_versions(
-    plugininfo: list[tuple[str, DistFacade]]
+    plugininfo: list[tuple[str, DistFacade]],
 ) -> list[str]:
     """Format name and version of loaded plugins."""
     values: list[str] = []
@@ -100,7 +100,7 @@ def pytask_log_session_footer(
     """Format the footer of the log message."""
     formatted_duration = _format_duration(duration)
     message = Text(
-        f"{outcome.description} in {formatted_duration}", style=outcome.style
+        f"{outcome.description} in {formatted_duration}", style=outcome.style,
     )
     console.rule(message, style=outcome.style)
 
@@ -128,7 +128,7 @@ def _format_duration(duration: float) -> str:
 
 
 def _humanize_time(  # noqa: C901
-    amount: int | float, unit: str, short_label: bool = False
+    amount: int | float, unit: str, short_label: bool = False,
 ) -> list[tuple[float, str]]:
     """Humanize the time.
 
@@ -187,7 +187,7 @@ def _humanize_time(  # noqa: C901
 
     if not result:
         result.append(
-            (0, _TIME_UNITS[-1].short if short_label else _TIME_UNITS[-1].plural)
+            (0, _TIME_UNITS[-1].short if short_label else _TIME_UNITS[-1].plural),
         )
 
     return result
