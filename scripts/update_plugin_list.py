@@ -88,7 +88,7 @@ def _escape_rst(text: str) -> str:
 def _iter_plugins() -> Generator[dict[str, str], None, None]:
     """Iterate over all plugins and format entries."""
     regex = r">([\d\w-]*)</a>"
-    response = requests.get("https://pypi.org/simple")
+    response = requests.get("https://pypi.org/simple", timeout=20)
 
     matches = [
         match
@@ -99,7 +99,7 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:
 
     for match in tqdm(matches, smoothing=0):
         name = match.groups()[0]
-        response = requests.get(f"https://pypi.org/pypi/{name}/json")
+        response = requests.get(f"https://pypi.org/pypi/{name}/json", timeout=20)
         response.raise_for_status()
         info = response.json()["info"]
 

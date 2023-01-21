@@ -87,7 +87,7 @@ class _WarningsRenderable:
     max_locations: int = 5
 
     def __rich_console__(
-        self, console: Console, options: ConsoleOptions  # noqa: ARG002
+        self, console: Console, options: ConsoleOptions
     ) -> RenderResult:
         """Group, sort, and display warnings."""
         msg_to_loc = defaultdict(list)

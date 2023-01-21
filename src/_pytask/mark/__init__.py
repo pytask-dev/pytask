@@ -149,10 +149,7 @@ class KeywordMatcher:
         subname = subname.lower()
         names = (name.lower() for name in self._names)
 
-        for name in names:
-            if subname in name:
-                return True
-        return False
+        return any(subname in name for name in names)
 
 
 def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str]:

@@ -58,7 +58,7 @@ def parse_warning_filter(  # noqa: C901
     )
 
     parts = arg.split(":")
-    if len(parts) > 5:
+    if len(parts) > 5:  # noqa: PLR2004
         doc_url = (
             "https://docs.python.org/3/library/warnings.html#describing-warning-filters"
         )
@@ -71,7 +71,7 @@ def parse_warning_filter(  # noqa: C901
         )
         raise Exit(error_template.format(error=error))
 
-    while len(parts) < 5:
+    while len(parts) < 5:  # noqa: PLR2004
         parts.append("")
     action_, message, category_, module, lineno_ = (s.strip() for s in parts)
     try:
@@ -174,10 +174,7 @@ def catch_warnings_for_item(
 
         yield
 
-        if task is not None:
-            id_ = task.short_name
-        else:
-            id_ = when
+        id_ = task.short_name if task is not None else when
 
         for warning_message in log:
             fs_location = warning_message.filename, warning_message.lineno

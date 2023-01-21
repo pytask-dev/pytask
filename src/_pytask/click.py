@@ -24,8 +24,8 @@ class EnumChoice(click.Choice):
     """An enum-based choice type.
 
     The implementation is copied from https://github.com/pallets/click/pull/2210 and
-    related discussion can be found in https://github.com/pallets/click/issues/605.
-
+    related discussion can be found in
+    https://github.com/pallets/click/issues/605.
     In contrast to using :class:`click.Choice`, using this type ensures that the error
     message does not show the enum members.
 
@@ -157,7 +157,7 @@ def _print_options(
         if param.name == "help":
             opt1 = highlighter("-h")
             opt2 = highlighter("--help")
-        elif len(param.opts) == 2:
+        elif len(param.opts) == 2:  # noqa: PLR2004
             opt1 = highlighter(param.opts[0])
             opt2 = highlighter(param.opts[1])
         elif len(param.opts) == 1 == len(param.secondary_opts):
@@ -205,13 +205,12 @@ def _format_help_text(param: click.Parameter, ctx: click.Context) -> str:  # noq
     if getattr(param, "show_envvar", None):
         envvar = getattr(param, "envvar", None)
 
-        if envvar is None:
-            if (
-                getattr(param, "allow_from_autoenv", None)
-                and ctx.auto_envvar_prefix is not None
-                and param.name is not None
-            ):
-                envvar = f"{ctx.auto_envvar_prefix}_{param.name.upper()}"
+        if envvar is None and (
+            getattr(param, "allow_from_autoenv", None)
+            and ctx.auto_envvar_prefix is not None
+            and param.name is not None
+        ):
+            envvar = f"{ctx.auto_envvar_prefix}_{param.name.upper()}"
 
         if envvar is not None:
             var_str = (

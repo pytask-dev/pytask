@@ -10,9 +10,9 @@ from pytask import cli
 from pytask import main
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize(
-    "decorator_name, exit_code",
+    ("decorator_name", "exit_code"),
     [
         ("depends_on", ExitCode.RESOLVING_DEPENDENCIES_FAILED),
         ("produces", ExitCode.FAILED),
@@ -53,7 +53,7 @@ def test_task_with_complex_product_did_not_produce_node(
     assert products == expected
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_profile_with_pybaum(tmp_path, runner):
     source = """
     import time

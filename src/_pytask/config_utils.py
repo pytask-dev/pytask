@@ -77,7 +77,7 @@ def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:  # no
 
     config_path = None
     root = None
-    parent_directories = [common_ancestor] + list(common_ancestor.parents)
+    parent_directories = [common_ancestor, *list(common_ancestor.parents)]
 
     for parent in parent_directories:
         path = parent.joinpath("pyproject.toml")

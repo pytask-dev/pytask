@@ -67,7 +67,7 @@ def _pdbcls_callback(
         return None
     if isinstance(value, str):
         split = value.split(":")
-        if len(split) != 2:
+        if len(split) != 2:  # noqa: PLR2004
             raise click.BadParameter(message)
         return tuple(split)  # type: ignore[return-value]
     raise click.BadParameter(message)

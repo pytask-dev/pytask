@@ -9,7 +9,7 @@ from click.testing import CliRunner
 
 def _create_df() -> pd.DataFrame:
     df = pd.DataFrame({"a": range(10), "b": range(10, 20)})
-    df[df["a"] < 5]["b"] = 1
+    df[df["a"] < 5]["b"] = 1  # noqa: PLR2004
     return df
 
 

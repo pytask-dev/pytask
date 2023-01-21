@@ -33,7 +33,7 @@ _PARAMETRIZED_LAYOUTS = [
 _TEST_FORMATS = ["dot", "pdf", "png", "jpeg", "svg"]
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.skipif(not _IS_PYGRAPHVIZ_INSTALLED, reason="pygraphviz is required")
 @pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
@@ -69,7 +69,7 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
     assert tmp_path.joinpath(f"dag.{format_}").exists()
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.skipif(not _IS_PYGRAPHVIZ_INSTALLED, reason="pygraphviz is required")
 @pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
@@ -109,7 +109,7 @@ def _raise_exc(exc):
     raise exc
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_raise_error_with_graph_via_cli_missing_optional_dependency(
     monkeypatch, tmp_path, runner
 ):
@@ -140,7 +140,7 @@ def test_raise_error_with_graph_via_cli_missing_optional_dependency(
     assert not tmp_path.joinpath("dag.png").exists()
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_raise_error_with_graph_via_task_missing_optional_dependency(
     monkeypatch, tmp_path, runner
 ):
@@ -172,7 +172,7 @@ def test_raise_error_with_graph_via_task_missing_optional_dependency(
     assert not tmp_path.joinpath("dag.png").exists()
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_raise_error_with_graph_via_cli_missing_optional_program(
     monkeypatch, tmp_path, runner
 ):
@@ -202,7 +202,7 @@ def test_raise_error_with_graph_via_cli_missing_optional_program(
     assert not tmp_path.joinpath("dag.png").exists()
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_raise_error_with_graph_via_task_missing_optional_program(
     monkeypatch, tmp_path, runner
 ):

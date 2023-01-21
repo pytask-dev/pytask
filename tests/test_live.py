@@ -13,7 +13,7 @@ from pytask import Task
 from pytask import TaskOutcome
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("verbose", [0, 1])
 def test_verbose_mode_execution(tmp_path, runner, verbose):
     source = "def task_example(): pass"
@@ -26,7 +26,7 @@ def test_verbose_mode_execution(tmp_path, runner, verbose):
     assert ("task_module.py::task_example" in result.output) is (verbose >= 1)
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_live_execution_sequentially(capsys, tmp_path):
     path = tmp_path.joinpath("task_module.py")
     task = Task(base_name="task_example", path=path, function=lambda x: x)
@@ -82,7 +82,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
     assert "Completed: 1/x" in captured.out
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize("verbose", [1, 2])
 @pytest.mark.parametrize("outcome", TaskOutcome)
 def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, outcome):
@@ -132,7 +132,7 @@ def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, o
     assert "running" not in captured.out
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize("n_entries_in_table", [1, 2])
 def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_table):
     path = tmp_path.joinpath("task_module.py")
@@ -186,7 +186,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
         assert "│ ." in captured.out
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path):
     path = tmp_path.joinpath("task_module.py")
     task = Task(base_name="task_example", path=path, function=lambda x: x)
@@ -255,7 +255,7 @@ def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path)
     assert "task_skip" not in captured.out
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_full_execution_table_is_displayed_at_the_end_of_execution(tmp_path, runner):
     source = """
     import pytask
@@ -277,7 +277,7 @@ def test_full_execution_table_is_displayed_at_the_end_of_execution(tmp_path, run
         assert f"{i}.txt" in result.output
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("sort_table", ["true", "false"])
 def test_sort_table_option(tmp_path, runner, sort_table):
     source = """
@@ -306,7 +306,7 @@ def test_sort_table_option(tmp_path, runner, sort_table):
     assert expected == task_names
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_execute_w_partialed_functions(tmp_path, runner):
     """Test with partialed function which make it harder to extract info.
 
