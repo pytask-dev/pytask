@@ -245,6 +245,6 @@ class Expression:
 
         """
         ret: bool = eval(  # noqa: PGH001
-            self.code, {"__builtins__": {}}, MatcherAdapter(matcher),
+            self.code, {"__builtins__": {}}, MatcherAdapter(matcher)
         )
         return ret

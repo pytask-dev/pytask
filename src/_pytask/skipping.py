@@ -50,7 +50,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 def pytask_execute_task_setup(task: Task) -> None:
     """Take a short-cut for skipped tasks during setup with an exception."""
     is_unchanged = has_mark(task, "skip_unchanged") and not has_mark(
-        task, "would_be_executed",
+        task, "would_be_executed"
     )
     if is_unchanged:
         raise SkippedUnchanged
@@ -78,7 +78,7 @@ def pytask_execute_task_setup(task: Task) -> None:
 
 @hookimpl
 def pytask_execute_task_process_report(
-    session: Session, report: ExecutionReport,
+    session: Session, report: ExecutionReport
 ) -> bool | None:
     """Process the execution reports for skipped tasks.
 
@@ -101,7 +101,7 @@ def pytask_execute_task_process_report(
                         "skip",
                         (),
                         {"reason": f"Previous task {task.name!r} was skipped."},
-                    ),
+                    )
                 )
 
         elif isinstance(report.exc_info[1], SkippedAncestorFailed):
@@ -109,7 +109,7 @@ def pytask_execute_task_process_report(
             report.exc_info = remove_traceback_from_exc_info(report.exc_info)
 
     if report.exc_info and isinstance(
-        report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed),
+        report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)
     ):
         return True
     return None

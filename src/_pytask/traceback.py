@@ -40,7 +40,7 @@ def render_exc_info(
         renderable = traceback
     else:
         renderable = Traceback.from_exception(
-            exc_type, exc_value, traceback, show_locals=show_locals,
+            exc_type, exc_value, traceback, show_locals=show_locals
         )
 
     return renderable
@@ -74,7 +74,7 @@ def remove_internal_traceback_frames_from_exc_info(
 
 
 def _is_internal_or_hidden_traceback_frame(
-    frame: TracebackType, exc_info: ExceptionInfo,
+    frame: TracebackType, exc_info: ExceptionInfo
 ) -> bool:
     """Returns ``True`` if traceback frame belongs to internal packages or is hidden.
 
@@ -104,7 +104,7 @@ def _filter_internal_traceback_frames(
     frame = exc_info[2]
     for frame_ in _yield_traceback_frames(frame):
         if frame_ is None or not _is_internal_or_hidden_traceback_frame(
-            frame_, exc_info,
+            frame_, exc_info
         ):
             break
     return frame_

@@ -22,7 +22,7 @@ def descending_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, No
 
 
 def task_and_descending_tasks(
-    task_name: str, dag: nx.DiGraph,
+    task_name: str, dag: nx.DiGraph
 ) -> Generator[str, None, None]:
     """Yield task and descending tasks."""
     yield task_name
@@ -37,7 +37,7 @@ def preceding_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, Non
 
 
 def task_and_preceding_tasks(
-    task_name: str, dag: nx.DiGraph,
+    task_name: str, dag: nx.DiGraph
 ) -> Generator[str, None, None]:
     """Yield task and preceding tasks."""
     yield task_name
@@ -105,7 +105,7 @@ class TopologicalSorter:
 
         ready_nodes = {v for v, d in self.dag.in_degree() if d == 0} - self._nodes_out
         prioritized_nodes = sorted(
-            ready_nodes, key=lambda x: self.priorities.get(x, 0),
+            ready_nodes, key=lambda x: self.priorities.get(x, 0)
         )[-n:]
 
         self._nodes_out.update(prioritized_nodes)
@@ -163,11 +163,11 @@ def _extract_priorities_from_tasks(tasks: list[Task]) -> dict[str, int]:
             name_to_task[name].short_name for name in tasks_w_mixed_priorities
         ]
         text = format_strings_as_flat_tree(
-            reduced_names, "Tasks with mixed priorities", TASK_ICON,
+            reduced_names, "Tasks with mixed priorities", TASK_ICON
         )
         raise ValueError(
             "'try_first' and 'try_last' cannot be applied on the same task. See the "
-            f"following tasks for errors:\n\n{text}",
+            f"following tasks for errors:\n\n{text}"
         )
 
     # Recode to numeric values for sorting.

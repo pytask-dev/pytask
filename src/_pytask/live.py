@@ -151,7 +151,7 @@ class LiveExecution:
         yield
         self.live_manager.stop(transient=True)
         table = self._generate_table(
-            reduce_table=False, sort_table=self.sort_final_table, add_caption=False,
+            reduce_table=False, sort_table=self.sort_final_table, add_caption=False
         )
         if table is not None:
             console.print(table)
@@ -169,7 +169,7 @@ class LiveExecution:
         return True
 
     def _generate_table(
-        self, reduce_table: bool, sort_table: bool, add_caption: bool,
+        self, reduce_table: bool, sort_table: bool, add_caption: bool
     ) -> Table | None:
         """Generate the table.
 
@@ -233,7 +233,7 @@ class LiveExecution:
         for task in self._running_tasks.values():
             table.add_row(
                 format_task_id(
-                    task, editor_url_scheme=self.editor_url_scheme, short_name=True,
+                    task, editor_url_scheme=self.editor_url_scheme, short_name=True
                 ),
                 "running",
             )
@@ -252,7 +252,7 @@ class LiveExecution:
     ) -> None:
         """Regenerate the table."""
         table = self._generate_table(
-            reduce_table=reduce_table, sort_table=sort_table, add_caption=add_caption,
+            reduce_table=reduce_table, sort_table=sort_table, add_caption=add_caption
         )
         self.live_manager.update(table)
 
@@ -269,7 +269,7 @@ class LiveExecution:
                 name=new_report.task.short_name,
                 outcome=new_report.outcome,
                 task=new_report.task,
-            ),
+            )
         )
         self._update_table()
 

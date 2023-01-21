@@ -18,7 +18,7 @@ from pytask import Session
 from pytask import Task
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_filepathnode_with_relative_path(tmp_path):
     source = """
     import pytask
@@ -37,7 +37,7 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
     assert tmp_path.joinpath("out.txt").read_text() == "Relative paths work."
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_filepathnode_with_unknown_type(tmp_path):
     """If a node cannot be parsed because unknown type, raise an error."""
     source = """
@@ -57,7 +57,7 @@ def test_collect_filepathnode_with_unknown_type(tmp_path):
     assert isinstance(exc_info[1], NodeNotCollectedError)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_nodes_with_the_same_name(runner, tmp_path):
     """Nodes with the same filename, not path, are not mistaken for each other."""
     source = """
@@ -87,7 +87,7 @@ def test_collect_nodes_with_the_same_name(runner, tmp_path):
     assert tmp_path.joinpath("out_1.txt").read_text() == "in sub"
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("path_extension", ["", "task_module.py"])
 def test_collect_same_test_different_ways(tmp_path, path_extension):
     tmp_path.joinpath("task_module.py").write_text("def task_passes(): pass")
@@ -98,9 +98,9 @@ def test_collect_same_test_different_ways(tmp_path, path_extension):
     assert len(session.tasks) == 1
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
-    ("task_files", "pattern", "expected_collected_tasks"),
+    "task_files, pattern, expected_collected_tasks",
     [
         (["example_task.py"], "'*_task.py'", 1),
         (["tasks_example.py"], "'tasks_*'", 1),
@@ -110,10 +110,10 @@ def test_collect_same_test_different_ways(tmp_path, path_extension):
     ],
 )
 def test_collect_files_w_custom_file_name_pattern(
-    tmp_path, task_files, pattern, expected_collected_tasks,
+    tmp_path, task_files, pattern, expected_collected_tasks
 ):
     tmp_path.joinpath("pyproject.toml").write_text(
-        f"[tool.pytask.ini_options]\ntask_files = {pattern}",
+        f"[tool.pytask.ini_options]\ntask_files = {pattern}"
     )
 
     for file in task_files:
@@ -125,9 +125,9 @@ def test_collect_files_w_custom_file_name_pattern(
     assert len(session.tasks) == expected_collected_tasks
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
-    ("session", "path", "node", "expectation", "expected"),
+    "session, path, node, expectation, expected",
     [
         pytest.param(
             Session({"check_casing_of_paths": False}, None),
@@ -156,9 +156,9 @@ def test_pytask_collect_node(session, path, node, expectation, expected):
             assert str(result.path) == str(expected)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.skipif(
-    sys.platform != "win32", reason="Only works on case-insensitive file systems.",
+    sys.platform != "win32", reason="Only works on case-insensitive file systems."
 )
 def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_path):
     session = Session({"check_casing_of_paths": True}, None)
@@ -171,10 +171,10 @@ def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_pat
         pytask_collect_node(session, task_path, collected_node)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize("is_absolute", [True, False])
 def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
-    tmp_path, is_absolute,
+    tmp_path, is_absolute
 ):
     session = Session({"check_casing_of_paths": True}, None)
     task_path = tmp_path / "task_example.py"
@@ -191,7 +191,7 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
     assert str(result.path) == str(real_node)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
     tasks = []
     expected = {}
@@ -202,7 +202,7 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
 
     for base_name in ("base_name_ident_0", "base_name_ident_1"):
         task = Task(
-            base_name=base_name, path=path_identifiable_by_base_name, function=None,
+            base_name=base_name, path=path_identifiable_by_base_name, function=None
         )
         tasks.append(task)
         expected[task.name] = "t.py::" + base_name

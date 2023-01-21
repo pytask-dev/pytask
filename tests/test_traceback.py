@@ -7,9 +7,9 @@ from pytask import cli
 from pytask import ExitCode
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
-    ("value", "exception", "is_hidden"),
+    "value, exception, is_hidden",
     [
         ("True", "Exception", True),
         ("False", "Exception", False),
@@ -20,7 +20,7 @@ from pytask import ExitCode
     ],
 )
 def test_hide_traceback_from_error_report(
-    runner, tmp_path, value, exception, is_hidden,
+    runner, tmp_path, value, exception, is_hidden
 ):
     source = f"""
     def task_main():

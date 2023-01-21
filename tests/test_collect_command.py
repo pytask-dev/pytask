@@ -13,7 +13,7 @@ from pytask import MetaNode
 from pytask import Task
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_task(runner, tmp_path):
     source = """
     import pytask
@@ -49,7 +49,7 @@ def test_collect_task(runner, tmp_path):
     assert "out.txt>" in captured
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_parametrized_tasks(runner, tmp_path):
     source = """
     import pytask
@@ -73,7 +73,7 @@ def test_collect_parametrized_tasks(runner, tmp_path):
     assert "[1-out_1.txt]>" in captured
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_task_with_expressions(runner, tmp_path):
     source = """
     import pytask
@@ -117,7 +117,7 @@ def test_collect_task_with_expressions(runner, tmp_path):
     assert "out_1.txt>" in captured
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_task_with_marker(runner, tmp_path):
     source = """
     import pytask
@@ -154,7 +154,7 @@ def test_collect_task_with_marker(runner, tmp_path):
     assert "task_example_2>" not in captured
 
     result = runner.invoke(
-        cli, ["collect", tmp_path.as_posix(), "-m", "wip", "--nodes"],
+        cli, ["collect", tmp_path.as_posix(), "-m", "wip", "--nodes"]
     )
 
     assert result.exit_code == ExitCode.OK
@@ -169,7 +169,7 @@ def test_collect_task_with_marker(runner, tmp_path):
     assert "out_1.txt>" in captured
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_task_with_ignore_from_config(runner, tmp_path):
     source = """
     import pytask
@@ -223,7 +223,7 @@ def test_collect_task_with_ignore_from_config(runner, tmp_path):
     assert "out_1.txt>" in captured
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_task_with_ignore_from_cli(runner, tmp_path):
     source = """
     import pytask
@@ -245,7 +245,7 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
     tmp_path.joinpath("task_example_2.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(
-        cli, ["collect", tmp_path.as_posix(), "--ignore", "task_example_2.py"],
+        cli, ["collect", tmp_path.as_posix(), "--ignore", "task_example_2.py"]
     )
 
     assert result.exit_code == ExitCode.OK
@@ -288,7 +288,7 @@ def function():
     ...
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_print_collected_tasks_without_nodes(capsys):
     dictionary = {
         "task_path.py": [
@@ -298,8 +298,8 @@ def test_print_collected_tasks_without_nodes(capsys):
                 function=function,
                 depends_on={0: Node("in.txt")},
                 produces={0: Node("out.txt")},
-            ),
-        ],
+            )
+        ]
     }
 
     _print_collected_tasks(dictionary, False, "file", Path())
@@ -311,7 +311,7 @@ def test_print_collected_tasks_without_nodes(capsys):
     assert "<Product out.txt>" not in captured
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_print_collected_tasks_with_nodes(capsys):
     dictionary = {
         "task_path.py": [
@@ -321,8 +321,8 @@ def test_print_collected_tasks_with_nodes(capsys):
                 function=function,
                 depends_on={0: Node("in.txt")},
                 produces={0: Node("out.txt")},
-            ),
-        ],
+            )
+        ]
     }
 
     _print_collected_tasks(dictionary, True, "file", Path())
@@ -335,8 +335,8 @@ def test_print_collected_tasks_with_nodes(capsys):
     assert "<Product out.txt>" in captured
 
 
-@pytest.mark.unit()
-@pytest.mark.parametrize(("show_nodes", "expected_add"), [(False, "src"), (True, "..")])
+@pytest.mark.unit
+@pytest.mark.parametrize("show_nodes, expected_add", [(False, "src"), (True, "..")])
 def test_find_common_ancestor_of_all_nodes(show_nodes, expected_add):
     tasks = [
         Task(
@@ -345,14 +345,14 @@ def test_find_common_ancestor_of_all_nodes(show_nodes, expected_add):
             function=function,
             depends_on={0: Node(Path.cwd() / "src" / "in.txt")},
             produces={0: Node(Path.cwd().joinpath("..", "bld", "out.txt").resolve())},
-        ),
+        )
     ]
 
     result = _find_common_ancestor_of_all_nodes(tasks, [Path.cwd() / "src"], show_nodes)
     assert result == Path.cwd().joinpath(expected_add).resolve()
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_task_name_is_shortened(runner, tmp_path):
     tmp_path.joinpath("a", "b").mkdir(parents=True)
     tmp_path.joinpath("a", "b", "task_example.py").write_text("def task_example(): ...")

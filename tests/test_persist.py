@@ -18,13 +18,13 @@ class DummyClass:
     pass
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_persist_marker_is_set(tmp_path):
     session = main({"paths": tmp_path})
     assert "persist" in session.config["markers"]
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_multiple_runs_with_persist(tmp_path):
     """Perform multiple consecutive runs and check intermediate outcomes with persist.
 
@@ -85,7 +85,7 @@ def test_multiple_runs_with_persist(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_migrating_a_whole_task_with_persist(tmp_path):
     source = """
     import pytask
@@ -99,7 +99,7 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     for name in ("in.txt", "out.txt"):
         tmp_path.joinpath(name).write_text(
-            "They say oh my god I see the way you shine.",
+            "They say oh my god I see the way you shine."
         )
 
     session = main({"paths": tmp_path})
@@ -110,9 +110,9 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
-    ("exc_info", "expected"),
+    "exc_info, expected",
     [
         (None, None),
         ((None, None, None), None),
@@ -121,7 +121,7 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
 )
 def test_pytask_execute_task_process_report(monkeypatch, exc_info, expected):
     monkeypatch.setattr(
-        "_pytask.persist.update_states_in_database", lambda *x: None,  # noqa: ARG005
+        "_pytask.persist.update_states_in_database", lambda *x: None  # noqa: ARG005
     )
 
     task = DummyClass()

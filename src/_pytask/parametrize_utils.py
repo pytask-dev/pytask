@@ -5,7 +5,7 @@ from typing import Callable
 
 
 def arg_value_to_id_component(
-    arg_name: str, arg_value: Any, i: int, id_func: Callable[..., Any] | None,
+    arg_name: str, arg_value: Any, i: int, id_func: Callable[..., Any] | None
 ) -> str:
     """Create id component from the name and value of the argument.
 

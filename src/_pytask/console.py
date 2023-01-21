@@ -84,7 +84,7 @@ theme = Theme(
         "option": "bold #F4C041",
         "switch": "bold #D54523",
         "metavar": "bold #FFFF00",
-    },
+    }
 )
 
 
@@ -122,7 +122,7 @@ def render_to_string(
                     segment.text,
                     color_system=console._color_system,
                     legacy_windows=console.legacy_windows,
-                ),
+                )
             )
         else:
             output.append(segment.text)
@@ -152,7 +152,7 @@ def format_task_id(
         url_style = create_url_style_for_task(task.function, editor_url_scheme)
 
     task_id = Text.assemble(
-        Text(path + "::", style="dim"), Text(task_name, style=url_style),
+        Text(path + "::", style="dim"), Text(task_name, style=url_style)
     )
     return task_id
 
@@ -167,7 +167,7 @@ def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -
 
 
 def create_url_style_for_task(
-    task_function: Callable[..., Any], edtior_url_scheme: str,
+    task_function: Callable[..., Any], edtior_url_scheme: str
 ) -> Style:
     """Create the style to add a link to a task id."""
     url_scheme = _EDITOR_URL_SCHEMES.get(edtior_url_scheme, edtior_url_scheme)

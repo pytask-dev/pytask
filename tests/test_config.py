@@ -7,7 +7,7 @@ from pytask import ExitCode
 from pytask import main
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_debug_pytask(capsys, tmp_path):
     session = main({"paths": tmp_path, "debug_pytask": True})
 
@@ -23,7 +23,7 @@ def test_debug_pytask(capsys, tmp_path):
     assert "finish pytask_execute --> None [hook]" in captured.out
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_pass_config_to_cli(tmp_path):
     config = """
     [tool.pytask.ini_options]
@@ -37,7 +37,7 @@ def test_pass_config_to_cli(tmp_path):
     assert "elton" in session.config["markers"]
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "file_or_folder",
     ["folder_a", "folder_a/task_a.py", "folder_b", "folder_b/task_b.py"],
@@ -52,7 +52,7 @@ def test_passing_paths_via_configuration_file(tmp_path, file_or_folder):
     for letter in ("a", "b"):
         tmp_path.joinpath(f"folder_{letter}").mkdir()
         tmp_path.joinpath(f"folder_{letter}", f"task_{letter}.py").write_text(
-            "def task_passes(): pass",
+            "def task_passes(): pass"
         )
 
     session = main({"config": tmp_path.joinpath("pyproject.toml")})

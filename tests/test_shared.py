@@ -8,9 +8,9 @@ from _pytask.shared import find_duplicates
 from pytask import main
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
-    ("x", "expected"),
+    "x, expected",
     [([], set()), ([1, 2, 3, 1, 2], {1, 2}), (["a", "a", "b"], {"a"})],
 )
 def test_find_duplicates(x, expected):
@@ -18,7 +18,7 @@ def test_find_duplicates(x, expected):
     assert result == expected
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_parse_markers(tmp_path):
     toml = """
     [tool.pytask.ini_options.markers]

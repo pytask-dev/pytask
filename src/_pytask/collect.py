@@ -46,12 +46,12 @@ def pytask_collect(session: Session) -> bool:
         session.hook.pytask_collect_modify_tasks(session=session, tasks=session.tasks)
     except Exception:  # noqa: BLE001
         report = CollectionReport.from_exception(
-            outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info(),
+            outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info()
         )
         session.collection_reports.append(report)
 
     session.hook.pytask_collect_log(
-        session=session, reports=session.collection_reports, tasks=session.tasks,
+        session=session, reports=session.collection_reports, tasks=session.tasks
     )
 
     return True
@@ -65,7 +65,7 @@ def _collect_from_paths(session: Session) -> None:
     """
     for path in _not_ignored_paths(session.config["paths"], session):
         reports = session.hook.pytask_collect_file_protocol(
-            session=session, path=path, reports=session.collection_reports,
+            session=session, path=path, reports=session.collection_reports
         )
 
         if reports:
@@ -84,20 +84,20 @@ def pytask_ignore_collect(path: Path, config: dict[str, Any]) -> bool:
 
 @hookimpl
 def pytask_collect_file_protocol(
-    session: Session, path: Path, reports: list[CollectionReport],
+    session: Session, path: Path, reports: list[CollectionReport]
 ) -> list[CollectionReport]:
     """Wrap the collection of tasks from a file to collect reports."""
     try:
         new_reports = session.hook.pytask_collect_file(
-            session=session, path=path, reports=reports,
+            session=session, path=path, reports=reports
         )
         flat_reports = list(itertools.chain.from_iterable(new_reports))
     except Exception:  # noqa: BLE001
         node = FilePathNode.from_path(path)
         flat_reports = [
             CollectionReport.from_exception(
-                outcome=CollectionOutcome.FAIL, node=node, exc_info=sys.exc_info(),
-            ),
+                outcome=CollectionOutcome.FAIL, node=node, exc_info=sys.exc_info()
+            )
         ]
 
     session.hook.pytask_collect_file_log(session=session, reports=flat_reports)
@@ -107,7 +107,7 @@ def pytask_collect_file_protocol(
 
 @hookimpl
 def pytask_collect_file(
-    session: Session, path: Path, reports: list[CollectionReport],
+    session: Session, path: Path, reports: list[CollectionReport]
 ) -> list[CollectionReport] | None:
     """Collect a file."""
     if any(path.match(pattern) for pattern in session.config["task_files"]):
@@ -127,14 +127,14 @@ def pytask_collect_file(
 
             if has_mark(obj, "parametrize"):
                 names_and_objects = session.hook.pytask_parametrize_task(
-                    session=session, name=name, obj=obj,
+                    session=session, name=name, obj=obj
                 )
             else:
                 names_and_objects = [(name, obj)]
 
             for name_, obj_ in names_and_objects:
                 report = session.hook.pytask_collect_task_protocol(
-                    session=session, reports=reports, path=path, name=name_, obj=obj_,
+                    session=session, reports=reports, path=path, name=name_, obj=obj_
                 )
                 if report is not None:
                     collected_reports.append(report)
@@ -145,15 +145,15 @@ def pytask_collect_file(
 
 @hookimpl
 def pytask_collect_task_protocol(
-    session: Session, path: Path, name: str, obj: Any,
+    session: Session, path: Path, name: str, obj: Any
 ) -> CollectionReport | None:
     """Start protocol for collecting a task."""
     try:
         session.hook.pytask_collect_task_setup(
-            session=session, path=path, name=name, obj=obj,
+            session=session, path=path, name=name, obj=obj
         )
         task = session.hook.pytask_collect_task(
-            session=session, path=path, name=name, obj=obj,
+            session=session, path=path, name=name, obj=obj
         )
         if task is not None:
             session.hook.pytask_collect_task_teardown(session=session, task=task)
@@ -162,7 +162,7 @@ def pytask_collect_task_protocol(
     except Exception:  # noqa: BLE001
         task = Task(base_name=name, path=path, function=None)
         return CollectionReport.from_exception(
-            outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info(), node=task,
+            outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info(), node=task
         )
 
     else:
@@ -171,7 +171,7 @@ def pytask_collect_task_protocol(
 
 @hookimpl(trylast=True)
 def pytask_collect_task(
-    session: Session, path: Path, name: str, obj: Any,
+    session: Session, path: Path, name: str, obj: Any
 ) -> Task | None:
     """Collect a task which is a function.
 
@@ -218,7 +218,7 @@ _TEMPLATE_ERROR: str = (
 
 @hookimpl(trylast=True)
 def pytask_collect_node(
-    session: Session, path: Path, node: str | Path,
+    session: Session, path: Path, node: str | Path
 ) -> FilePathNode | None:
     """Collect a node of a task as a :class:`pytask.nodes.FilePathNode`.
 
@@ -264,7 +264,7 @@ def pytask_collect_node(
 
 
 def _not_ignored_paths(
-    paths: Iterable[Path], session: Session,
+    paths: Iterable[Path], session: Session
 ) -> Generator[Path, None, None]:
     """Traverse paths and yield not ignored paths.
 
@@ -342,7 +342,7 @@ def _find_shortest_uniquely_identifiable_name_for_tasks(
 
 @hookimpl
 def pytask_collect_log(
-    session: Session, reports: list[CollectionReport], tasks: list[Task],
+    session: Session, reports: list[CollectionReport], tasks: list[Task]
 ) -> None:
     """Log collection."""
     session.collection_end = time.time()
@@ -365,7 +365,7 @@ def pytask_collect_log(
             else:
                 if isinstance(report.node, Task):
                     short_name = format_task_id(
-                        report.node, editor_url_scheme="no_link", short_name=True,
+                        report.node, editor_url_scheme="no_link", short_name=True
                     )
                 else:
                     short_name = reduce_node_name(report.node, session.config["paths"])
@@ -379,13 +379,13 @@ def pytask_collect_log(
             console.print()
 
             console.print(
-                render_exc_info(*report.exc_info, session.config["show_locals"]),
+                render_exc_info(*report.exc_info, session.config["show_locals"])
             )
 
             console.print()
 
         panel = create_summary_panel(
-            counts, CollectionOutcome, "Collected errors and tasks",
+            counts, CollectionOutcome, "Collected errors and tasks"
         )
         console.print(panel)
 

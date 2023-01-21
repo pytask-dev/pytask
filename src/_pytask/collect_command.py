@@ -77,7 +77,7 @@ def collect(**raw_config: Any | None) -> NoReturn:
             tasks = _select_tasks_by_expressions_and_marker(session)
 
             common_ancestor = _find_common_ancestor_of_all_nodes(
-                tasks, session.config["paths"], session.config["nodes"],
+                tasks, session.config["paths"], session.config["nodes"]
             )
             dictionary = _organize_tasks(tasks)
             if dictionary:
@@ -116,7 +116,7 @@ def _select_tasks_by_expressions_and_marker(session: Session) -> list[Task]:
 
 
 def _find_common_ancestor_of_all_nodes(
-    tasks: list[Task], paths: list[Path], show_nodes: bool,
+    tasks: list[Task], paths: list[Path], show_nodes: bool
 ) -> Path:
     """Find common ancestor from all nodes and passed paths."""
     all_paths = []
@@ -181,8 +181,8 @@ def _print_collected_tasks(
         url_style = create_url_style_for_path(module, editor_url_scheme)
         module_branch = tree.add(
             Text.assemble(
-                PYTHON_ICON, "<Module ", Text(str(reduced_module), style=url_style), ">",
-            ),
+                PYTHON_ICON, "<Module ", Text(str(reduced_module), style=url_style), ">"
+            )
         )
 
         for task in tasks:
@@ -198,7 +198,7 @@ def _print_collected_tasks(
 
             if show_nodes:
                 for node in sorted(
-                    tree_just_flatten(task.depends_on), key=lambda x: x.path,
+                    tree_just_flatten(task.depends_on), key=lambda x: x.path
                 ):
                     reduced_node_name = relative_to(node.path, common_ancestor)
                     url_style = create_url_style_for_path(node.path, editor_url_scheme)
@@ -208,11 +208,11 @@ def _print_collected_tasks(
                             "<Dependency ",
                             Text(str(reduced_node_name), style=url_style),
                             ">",
-                        ),
+                        )
                     )
 
                 for node in sorted(
-                    tree_just_flatten(task.produces), key=lambda x: x.path,
+                    tree_just_flatten(task.produces), key=lambda x: x.path
                 ):
                     reduced_node_name = relative_to(node.path, common_ancestor)
                     url_style = create_url_style_for_path(node.path, editor_url_scheme)
@@ -222,7 +222,7 @@ def _print_collected_tasks(
                             "<Product ",
                             Text(str(reduced_node_name), style=url_style),
                             ">",
-                        ),
+                        )
                     )
 
     console.print(tree)

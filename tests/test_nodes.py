@@ -10,7 +10,7 @@ from pytask import FilePathNode
 from pytask import MetaNode
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_instantiation_of_metanode():
     class Node(MetaNode):
         ...
@@ -34,9 +34,9 @@ class FalseNode:
 _ROOT = Path.cwd()
 
 
-@pytest.mark.integration()
+@pytest.mark.integration
 @pytest.mark.parametrize(
-    ("node", "paths", "expectation", "expected"),
+    "node, paths, expectation, expected",
     [
         pytest.param(
             FilePathNode.from_path(_ROOT.joinpath("src/module.py")),

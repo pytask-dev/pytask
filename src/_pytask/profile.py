@@ -122,7 +122,7 @@ def profile(**raw_config: Any) -> NoReturn:
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
         exc_info: tuple[
-            type[BaseException], BaseException, TracebackType | None,
+            type[BaseException], BaseException, TracebackType | None
         ] = sys.exc_info()
         console.print(render_exc_info(*exc_info, show_locals=config["show_locals"]))
 
@@ -136,7 +136,7 @@ def profile(**raw_config: Any) -> NoReturn:
                 task.name: {} for task in session.tasks
             }
             session.hook.pytask_profile_add_info_on_task(
-                session=session, tasks=session.tasks, profile=profile,
+                session=session, tasks=session.tasks, profile=profile
             )
             profile = _process_profile(profile)
 
@@ -158,7 +158,7 @@ def profile(**raw_config: Any) -> NoReturn:
 
 
 def _print_profile_table(
-    profile: dict[str, dict[str, Any]], tasks: list[Task], config: dict[str, Any],
+    profile: dict[str, dict[str, Any]], tasks: list[Task], config: dict[str, Any]
 ) -> None:
     """Print the profile table."""
     name_to_task = {task.name: task for task in tasks}
@@ -190,7 +190,7 @@ class DurationNameSpace:
     @staticmethod
     @hookimpl
     def pytask_profile_add_info_on_task(
-        tasks: list[Task], profile: dict[str, dict[str, Any]],
+        tasks: list[Task], profile: dict[str, dict[str, Any]]
     ) -> None:
         """Add the runtime for tasks to the profile."""
         runtimes = _collect_runtimes([task.name for task in tasks])
@@ -212,7 +212,7 @@ class FileSizeNameSpace:
     @staticmethod
     @hookimpl
     def pytask_profile_add_info_on_task(
-        session: Session, tasks: list[Task], profile: dict[str, dict[str, Any]],
+        session: Session, tasks: list[Task], profile: dict[str, dict[str, Any]]
     ) -> None:
         """Add the total file size of all products for a task."""
         for task in tasks:
@@ -226,7 +226,7 @@ class FileSizeNameSpace:
                             sum_bytes += node.path.stat().st_size
 
                 profile[task.name]["Size of Products"] = _to_human_readable_size(
-                    sum_bytes,
+                    sum_bytes
                 )
 
 
@@ -262,7 +262,7 @@ class ExportNameSpace:
     @staticmethod
     @hookimpl(trylast=True)
     def pytask_profile_export_profile(
-        session: Session, profile: dict[str, dict[str, Any]],
+        session: Session, profile: dict[str, dict[str, Any]]
     ) -> None:
         """Export profiles."""
         export = session.config["export"]

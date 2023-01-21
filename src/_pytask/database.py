@@ -21,7 +21,7 @@ class _DatabaseProviders(enum.Enum):
 
 
 def _database_filename_callback(
-    ctx: Context, name: str, value: str | None,  # noqa: ARG001
+    ctx: Context, name: str, value: str | None  # noqa: ARG001
 ) -> str | None:
     if value is None:
         return ctx.params["root"].joinpath(".pytask.sqlite3")
@@ -69,7 +69,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse the configuration."""
     if not config["database_filename"].is_absolute():
         config["database_filename"] = config["root"].joinpath(
-            config["database_filename"],
+            config["database_filename"]
         )
 
     config["database"] = {

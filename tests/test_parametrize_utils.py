@@ -4,9 +4,9 @@ import pytest
 from _pytask.parametrize_utils import arg_value_to_id_component
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
-    ("arg_name", "arg_value", "i", "id_func", "expected"),
+    "arg_name, arg_value, i, id_func, expected",
     [
         ("arg", 1, 0, None, "1"),
         ("arg", True, 0, None, "True"),

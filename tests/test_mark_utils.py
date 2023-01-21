@@ -13,9 +13,9 @@ from pytask import set_marks
 from pytask import Task
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
-    ("markers", "expected"),
+    "markers, expected",
     [
         ([], []),
         (
@@ -34,9 +34,9 @@ def test_get_all_marks_from_task(markers, expected):
     assert result == expected
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
-    ("markers", "expected"),
+    "markers, expected",
     [
         (None, []),
         ([], []),
@@ -61,9 +61,9 @@ def test_get_all_marks_from_obj(markers, expected):
     assert result == expected
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
-    ("markers", "marker_name", "expected"),
+    "markers, marker_name, expected",
     [
         ([], "not_found", []),
         (
@@ -84,9 +84,9 @@ def test_get_marks_from_task(markers, marker_name, expected):
     assert result == expected
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
-    ("markers", "marker_name", "expected"),
+    "markers, marker_name, expected",
     [
         (None, "not_found", []),
         ([], "not_found", []),
@@ -113,9 +113,9 @@ def test_get_marks_from_obj(markers, marker_name, expected):
     assert result == expected
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
-    ("markers", "marker_name", "expected"),
+    "markers, marker_name, expected",
     [
         ([pytask.mark.produces()], "not_found", False),
         (
@@ -136,9 +136,9 @@ def test_has_mark_for_task(markers, marker_name, expected):
     assert result is expected
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
-    ("markers", "marker_name", "expected"),
+    "markers, marker_name, expected",
     [
         (None, "not_found", False),
         ([], "not_found", False),
@@ -161,9 +161,9 @@ def test_has_mark(markers, marker_name, expected):
     assert result == expected
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
-    ("markers", "marker_name", "expected_markers", "expected_others"),
+    "markers, marker_name, expected_markers, expected_others",
     [
         ([], "not_found", [], []),
         (
@@ -181,7 +181,7 @@ def test_has_mark(markers, marker_name, expected):
     ],
 )
 def test_remove_marks_from_task(
-    markers, marker_name, expected_markers, expected_others,
+    markers, marker_name, expected_markers, expected_others
 ):
     task = Task(base_name="name", path=Path(), function=None, markers=markers)
     _, result_markers = remove_marks(task, marker_name)
@@ -189,9 +189,9 @@ def test_remove_marks_from_task(
     assert result_markers == expected_markers
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
-    ("markers", "marker_name", "expected_markers", "expected_others"),
+    "markers, marker_name, expected_markers, expected_others",
     [
         (None, "not_found", [], []),
         ([], "not_found", [], []),
@@ -210,7 +210,7 @@ def test_remove_marks_from_task(
     ],
 )
 def test_remove_marks_from_func(
-    markers, marker_name, expected_markers, expected_others,
+    markers, marker_name, expected_markers, expected_others
 ):
     def func():
         ...
@@ -224,7 +224,7 @@ def test_remove_marks_from_func(
     assert result_markers == expected_markers
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "markers",
     [
@@ -239,7 +239,7 @@ def test_set_marks_to_task(markers):
     assert result.markers == markers
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "markers",
     [

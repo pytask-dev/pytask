@@ -156,7 +156,7 @@ class DontReadFromInput:
 
     def read(self, *_args: Any) -> None:
         raise OSError(
-            "pytask: reading from stdin while output is captured! Consider using `-s`.",
+            "pytask: reading from stdin while output is captured! Consider using `-s`."
         )
 
     readline = read
@@ -270,7 +270,7 @@ class SysCaptureBinary:
         assert (
             self._state in states
         ), "cannot {} in state {!r}: expected one of {}".format(
-            op, self._state, ", ".join(states),
+            op, self._state, ", ".join(states)
         )
 
     def start(self) -> None:
@@ -398,7 +398,7 @@ class FDCaptureBinary:
         assert (
             self._state in states
         ), "cannot {} in state {!r}: expected one of {}".format(
-            op, self._state, ", ".join(states),
+            op, self._state, ", ".join(states)
         )
 
     def start(self) -> None:
@@ -512,14 +512,14 @@ class CaptureResult(Generic[AnyStr]):
     def __iter__(self) -> Iterator[AnyStr]:
         return iter((self.out, self.err))
 
-    def __getitem__(self, item: int) -> AnyStr:
+    def __getitem__(self, item: int) -> AnyStr:  # noqa: ARG002
         return tuple(self)[item]
 
     def _replace(
-        self, *, out: AnyStr | None = None, err: AnyStr | None = None,
+        self, *, out: AnyStr | None = None, err: AnyStr | None = None
     ) -> CaptureResult[AnyStr]:
         return CaptureResult(
-            out=self.out if out is None else out, err=self.err if err is None else err,
+            out=self.out if out is None else out, err=self.err if err is None else err
         )
 
     def count(self, value: AnyStr) -> int:
@@ -634,8 +634,14 @@ class MultiCapture(Generic[AnyStr]):
         return self._state == "started"
 
     def readouterr(self) -> CaptureResult[AnyStr]:
-        out = self.out.snap() if self.out else ""
-        err = self.err.snap() if self.err else ""
+        if self.out:
+            out = self.out.snap()
+        else:
+            out = ""
+        if self.err:
+            err = self.err.snap()
+        else:
+            err = ""
         return CaptureResult(out, err)  # type: ignore
 
 
@@ -654,7 +660,7 @@ def _get_multicapture(method: _CaptureMethod) -> MultiCapture[str]:
         return MultiCapture(in_=None, out=None, err=None)
     if method == _CaptureMethod.TEE_SYS:
         return MultiCapture(
-            in_=None, out=SysCapture(1, tee=True), err=SysCapture(2, tee=True),
+            in_=None, out=SysCapture(1, tee=True), err=SysCapture(2, tee=True)
         )
     raise ValueError(f"unknown capturing method: {method!r}")
 
@@ -681,7 +687,7 @@ class CaptureManager:
 
     def __repr__(self) -> str:
         return ("<CaptureManager _method={!r} _capturing={!r}>").format(
-            self._method, self._capturing,
+            self._method, self._capturing
         )
 
     def is_capturing(self) -> bool:

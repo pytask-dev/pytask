@@ -31,8 +31,8 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
                 is_flag=True,
                 default=False,
                 help="Disables the summary for warnings.",
-            ),
-        ],
+            )
+        ]
     )
 
 
@@ -63,7 +63,7 @@ class WarningsNameSpace:
     @staticmethod
     @hookimpl(hookwrapper=True)
     def pytask_execute_task(
-        session: Session, task: Task,
+        session: Session, task: Task
     ) -> Generator[None, None, None]:
         """Catch warnings while executing a task."""
         with catch_warnings_for_item(session=session, task=task):
@@ -87,7 +87,7 @@ class _WarningsRenderable:
     max_locations: int = 5
 
     def __rich_console__(
-        self, console: Console, options: ConsoleOptions,
+        self, console: Console, options: ConsoleOptions  # noqa: ARG002
     ) -> RenderResult:
         """Group, sort, and display warnings."""
         msg_to_loc = defaultdict(list)

@@ -231,7 +231,7 @@ class Exit(Exception):  # noqa: N818
     """Raised for immediate program exits (no tracebacks/summaries)."""
 
     def __init__(
-        self, msg: str = "unknown reason", returncode: int | None = None,
+        self, msg: str = "unknown reason", returncode: int | None = None
     ) -> None:
         self.msg = msg
         self.returncode = returncode

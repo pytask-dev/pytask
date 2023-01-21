@@ -8,7 +8,7 @@ from typing import Sequence
 
 
 def relative_to(
-    path: str | Path, source: str | Path, include_source: bool = True,
+    path: str | Path, source: str | Path, include_source: bool = True
 ) -> Path:
     """Make a path relative to another path.
 
@@ -35,7 +35,7 @@ def relative_to(
 
 
 def find_closest_ancestor(
-    path: str | Path, potential_ancestors: Sequence[str | Path],
+    path: str | Path, potential_ancestors: Sequence[str | Path]
 ) -> Path:
     """Find the closest ancestor of a path.
 
@@ -117,5 +117,8 @@ def find_case_sensitive_path(path: Path, platform: str) -> Path:
       a case-sensitive path which it does on Windows.
 
     """
-    out = path.resolve() if platform == "win32" else path
+    if platform == "win32":
+        out = path.resolve()
+    else:
+        out = path
     return out

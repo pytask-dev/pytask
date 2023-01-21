@@ -23,7 +23,7 @@ class State(db.Entity):  # type: ignore[name-defined]
 
 
 def create_database(
-    provider: str, filename: str, *, create_db: bool, create_tables: bool,
+    provider: str, filename: str, *, create_db: bool, create_tables: bool
 ) -> None:
     """Create the database."""
     try:
