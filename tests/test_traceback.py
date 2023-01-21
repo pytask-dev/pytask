@@ -7,9 +7,9 @@ from pytask import cli
 from pytask import ExitCode
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize(
-    "value, exception, is_hidden",
+    ("value", "exception", "is_hidden"),
     [
         ("True", "Exception", True),
         ("False", "Exception", False),

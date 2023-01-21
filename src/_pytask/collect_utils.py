@@ -177,10 +177,7 @@ def _merge_dictionaries(list_of_dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
 
     if len(merged_dict) == 1 and isinstance(list(merged_dict)[0], _Placeholder):
         placeholder, value = list(merged_dict.items())[0]
-        if placeholder.scalar:
-            out = value
-        else:
-            out = {0: value}
+        out = value if placeholder.scalar else {0: value}
     else:
         counter = itertools.count()
         out = {}

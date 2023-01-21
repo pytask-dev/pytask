@@ -129,10 +129,7 @@ class MarkDecorator:
 
 def get_unpacked_marks(obj: Callable[..., Any]) -> list[Mark]:
     """Obtain the unpacked marks that are stored on an object."""
-    if hasattr(obj, "pytask_meta"):
-        mark_list = obj.pytask_meta.markers
-    else:
-        mark_list = []
+    mark_list = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
     return normalize_mark_list(mark_list)
 
 
@@ -163,7 +160,7 @@ def store_mark(obj: Callable[..., Any], mark: Mark) -> None:
     """
     assert isinstance(mark, Mark), mark
     if hasattr(obj, "pytask_meta"):
-        obj.pytask_meta.markers = get_unpacked_marks(obj) + [mark]
+        obj.pytask_meta.markers = [*get_unpacked_marks(obj), mark]
     else:
         obj.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]
             markers=[mark]
@@ -194,21 +191,20 @@ class MarkGenerator:
         if name[0] == "_":
             raise AttributeError("Marker name must NOT start with underscore")
 
-        if self.config is not None:
-            # If the name is not in the set of known marks after updating,
-            # then it really is time to issue a warning or an error.
-            if name not in self.config["markers"]:
-                if self.config["strict_markers"]:
-                    raise ValueError(f"Unknown pytask.mark.{name}.")
-                # Raise a specific error for common misspellings of "parametrize".
-                if name in ("parameterize", "parametrise", "parameterise"):
-                    warnings.warn(f"Unknown {name!r} mark, did you mean 'parametrize'?")
+        # If the name is not in the set of known marks after updating,
+        # then it really is time to issue a warning or an error.
+        if self.config is not None and name not in self.config["markers"]:
+            if self.config["strict_markers"]:
+                raise ValueError(f"Unknown pytask.mark.{name}.")
+            # Raise a specific error for common misspellings of "parametrize".
+            if name in ("parameterize", "parametrise", "parameterise"):
+                warnings.warn(f"Unknown {name!r} mark, did you mean 'parametrize'?")
 
-                warnings.warn(
-                    f"Unknown pytask.mark.{name} - is this a typo? You can register "
-                    "custom marks to avoid this warning.",
-                    stacklevel=2,
-                )
+            warnings.warn(
+                f"Unknown pytask.mark.{name} - is this a typo? You can register "
+                "custom marks to avoid this warning.",
+                stacklevel=2,
+            )
 
         if name == "task":
             from _pytask.task_utils import task

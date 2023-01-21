@@ -55,6 +55,8 @@ extend-ignore = [
     "EM",  # flake8-errmsg
     "ANN401",  # flake8-annotate typing.Any
     "PD",  # pandas-vet
+    "COM812",  # trailing comma missing, but black takes care of that
+    "D401",  # imperative mood for first line. too many false-positives.
 ]
 
 
@@ -62,9 +64,10 @@ extend-ignore = [
 "src/_pytask/capture.py" = ["PGH003"]
 "src/_pytask/hookspecs.py" = ["ARG001"]
 "src/_pytask/outcomes.py" = ["N818"]
-"tests/test_capture.py" = ["T201"]
-"tests/*" = ["D", "ANN"]
-"scripts/*" = ["D"]
+"tests/test_capture.py" = ["T201", "PT011"]
+"tests/*" = ["D", "ANN", "PLR2004"]
+"scripts/*" = ["D", "INP001"]
+"docs/source/conf.py" = ["D401", "INP001"]
 
 
 [tool.ruff.pydocstyle]

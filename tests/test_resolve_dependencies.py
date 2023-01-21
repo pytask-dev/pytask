@@ -31,7 +31,7 @@ class Node(FilePathNode):
             raise NodeNotFoundError
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_pytask_resolve_dependencies_create_dag():
     root = Path.cwd() / "src"
     task = Task(
@@ -51,7 +51,7 @@ def test_pytask_resolve_dependencies_create_dag():
     )
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_check_if_root_nodes_are_available():
     dag = nx.DiGraph()
 
@@ -78,7 +78,7 @@ def test_check_if_root_nodes_are_available():
         _check_if_root_nodes_are_available(dag)
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_check_if_root_nodes_are_available_end_to_end(tmp_path, runner):
     source = """
     import pytask
@@ -104,7 +104,7 @@ def test_check_if_root_nodes_are_available_end_to_end(tmp_path, runner):
     assert tmp_path.name + "/in.txt" in result.output
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_check_if_root_nodes_are_available_with_separate_build_folder_end_to_end(
     tmp_path, runner
 ):
@@ -134,7 +134,7 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder_end_to_end
     assert tmp_path.name + "/bld/in.txt" in result.output
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_cycle_in_dag(tmp_path, runner):
     source = """
     import pytask
@@ -158,7 +158,7 @@ def test_cycle_in_dag(tmp_path, runner):
     assert "The DAG contains cycles which means a dependency" in result.output
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_two_tasks_have_the_same_product(tmp_path, runner):
     source = """
     import pytask
@@ -188,7 +188,7 @@ def test_two_tasks_have_the_same_product(tmp_path, runner):
     assert tmp_path.name + "/out.txt" in result.output
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_has_node_changed_catches_notnotfounderror(runner, tmp_path):
     """Missing nodes raise NodeNotFoundError when they do not exist and their state is
     requested."""

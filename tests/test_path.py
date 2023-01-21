@@ -13,9 +13,9 @@ from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "path, source, include_source, expected",
+    ("path", "source", "include_source", "expected"),
     [
         ("src/hello.py", "src", True, Path("src/hello.py")),
         (Path("src/hello.py"), Path("src"), True, Path("src/hello.py")),
@@ -27,9 +27,9 @@ def test_relative_to(path, source, include_source, expected):
     assert result == expected
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "path, potential_ancestors, expected",
+    ("path", "potential_ancestors", "expected"),
     [
         ("src/task.py", ["src", "bld"], Path("src")),
         (Path("src/task.py"), [Path("src"), Path("bld")], Path("src")),
@@ -46,9 +46,9 @@ def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected)
     assert result == expected
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "path_1, path_2, expectation, expected",
+    ("path_1", "path_2", "expectation", "expected"),
     [
         pytest.param(
             PurePosixPath("relative_1"),
@@ -96,10 +96,10 @@ def test_find_common_ancestor(path_1, path_2, expectation, expected):
         assert result == expected
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.skipif(sys.platform != "win32", reason="Only works on Windows.")
 @pytest.mark.parametrize(
-    "path, existing_paths, expected",
+    ("path", "existing_paths", "expected"),
     [
         pytest.param("text.txt", [], "text.txt", id="non-existing path stays the same"),
         pytest.param("text.txt", ["text.txt"], "text.txt", id="existing path is same"),
@@ -110,7 +110,7 @@ def test_find_common_ancestor(path_1, path_2, expectation, expected):
     ],
 )
 def test_find_case_sensitive_path(tmp_path, path, existing_paths, expected):
-    for p in [path] + existing_paths:
+    for p in (path, *existing_paths):
         p = tmp_path / p
         p.parent.mkdir(parents=True, exist_ok=True)
         p.touch()

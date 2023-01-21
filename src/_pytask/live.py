@@ -181,7 +181,7 @@ class LiveExecution:
         """
         n_reports_to_display = self.n_entries_in_table - len(self._running_tasks)
 
-        if self.verbose < 2:
+        if self.verbose < 2:  # noqa: PLR2004
             reports = [
                 report
                 for report in self._reports

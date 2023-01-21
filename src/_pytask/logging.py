@@ -173,17 +173,16 @@ def _humanize_time(  # noqa: C901
                 label = time_unit.plural
             result.append((last_seconds, label))
 
-        elif whole_units >= 1:
-            if time_unit.singular != "seconds":
-                if short_label:
-                    label = time_unit.short
-                elif whole_units == 1:
-                    label = time_unit.singular
-                else:
-                    label = time_unit.plural
+        elif whole_units >= 1 and time_unit.singular != "seconds":
+            if short_label:
+                label = time_unit.short
+            elif whole_units == 1:
+                label = time_unit.singular
+            else:
+                label = time_unit.plural
 
-                result.append((whole_units, label))
-                remaining_seconds -= whole_units * time_unit.in_seconds
+            result.append((whole_units, label))
+            remaining_seconds -= whole_units * time_unit.in_seconds
 
     if not result:
         result.append(

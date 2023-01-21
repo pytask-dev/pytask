@@ -74,12 +74,14 @@ def find_closest_ancestor(
         if ancestor.is_file():
             ancestor = ancestor.parent
 
-        if ancestor in path.parents:
-            if closest_ancestor is None or (
+        if ancestor in path.parents and (
+            closest_ancestor is None
+            or (
                 len(path.relative_to(ancestor).parts)
                 < len(path.relative_to(closest_ancestor).parts)
-            ):
-                closest_ancestor = ancestor
+            )
+        ):
+            closest_ancestor = ancestor
 
     return closest_ancestor
 
@@ -117,8 +119,5 @@ def find_case_sensitive_path(path: Path, platform: str) -> Path:
       a case-sensitive path which it does on Windows.
 
     """
-    if platform == "win32":
-        out = path.resolve()
-    else:
-        out = path
+    out = path.resolve() if platform == "win32" else path
     return out

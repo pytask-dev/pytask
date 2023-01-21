@@ -368,7 +368,7 @@ class FDCaptureBinary:
         self.targetfd_save = os.dup(targetfd)
 
         if targetfd == 0:
-            self.tmpfile = open(os.devnull, encoding="utf-8")
+            self.tmpfile = open(os.devnull, encoding="utf-8")  # noqa: SIM115
             self.syscapture = SysCapture(targetfd)
         else:
             self.tmpfile = EncodedFile(
@@ -494,9 +494,7 @@ class CaptureResult(Generic[AnyStr]):
     This class was a namedtuple, but due to mypy limitation [0]_ it could not be made
     generic, so was replaced by a regular class which tries to emulate the pertinent
     parts of a namedtuple. If the mypy limitation is ever lifted, can make it a
-    namedtuple again.
-
-    .. [0] https://github.com/python/mypy/issues/685
+    namedtuple again (https://github.com/python/mypy/issues/685).
 
     """
 
@@ -512,7 +510,7 @@ class CaptureResult(Generic[AnyStr]):
     def __iter__(self) -> Iterator[AnyStr]:
         return iter((self.out, self.err))
 
-    def __getitem__(self, item: int) -> AnyStr:  # noqa: ARG002
+    def __getitem__(self, item: int) -> AnyStr:
         return tuple(self)[item]
 
     def _replace(
@@ -634,14 +632,8 @@ class MultiCapture(Generic[AnyStr]):
         return self._state == "started"
 
     def readouterr(self) -> CaptureResult[AnyStr]:
-        if self.out:
-            out = self.out.snap()
-        else:
-            out = ""
-        if self.err:
-            err = self.err.snap()
-        else:
-            err = ""
+        out = self.out.snap() if self.out else ""
+        err = self.err.snap() if self.err else ""
         return CaptureResult(out, err)  # type: ignore
 
 
