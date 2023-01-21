@@ -36,7 +36,7 @@ jobs:
           auto-update-conda: false
           python-version: ${{ matrix.python-version }}
           channels: conda-forge,nodefaults
-          mamba-version: "1.1.0"
+          miniforge-variant: Mambaforge
 
       - name: Install core dependencies.
         shell: bash -l {0}
