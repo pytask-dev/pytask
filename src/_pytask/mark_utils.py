@@ -51,7 +51,7 @@ def has_mark(obj_or_task: Any | Task, marker_name: str) -> bool:
 
 
 def remove_marks(
-    obj_or_task: Any | Task, marker_name: str
+    obj_or_task: Any | Task, marker_name: str,
 ) -> tuple[Any | Task, list[Mark]]:
     """Remove marks from callable or task."""
     marks = get_all_marks(obj_or_task)

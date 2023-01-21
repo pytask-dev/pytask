@@ -129,7 +129,7 @@ def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
     if name is None and task.__name__ == "_":
         raise ValueError(
             "A task function either needs 'name' passed by the ``@pytask.mark.task`` "
-            "decorator or the function name of the task function must not be '_'."
+            "decorator or the function name of the task function must not be '_'.",
         )
 
     parsed_name = task.__name__ if name is None else name
@@ -144,7 +144,7 @@ def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
 
 
 def _parse_keyword_arguments_from_signature_defaults(
-    task: Callable[..., Any]
+    task: Callable[..., Any],
 ) -> dict[str, Any]:
     """Parse keyword arguments from signature defaults."""
     parameters = inspect.signature(task).parameters
@@ -156,7 +156,7 @@ def _parse_keyword_arguments_from_signature_defaults(
 
 
 def _generate_ids_for_tasks(
-    tasks: list[tuple[str, Callable[..., Any]]]
+    tasks: list[tuple[str, Callable[..., Any]]],
 ) -> dict[str, Callable[..., Any]]:
     """Generate unique ids for parametrized tasks."""
     parameters = inspect.signature(tasks[0][1]).parameters
@@ -172,7 +172,7 @@ def _generate_ids_for_tasks(
                 arg_value_to_id_component(
                     arg_name=parameter,
                     arg_value=task.pytask_meta.kwargs.get(  # type: ignore[attr-defined]
-                        parameter
+                        parameter,
                     ),
                     i=i,
                     id_func=None,

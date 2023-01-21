@@ -57,7 +57,7 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
 
 @hookimpl
 def pytask_execute_task_process_report(
-    session: Session, report: ExecutionReport
+    session: Session, report: ExecutionReport,
 ) -> bool | None:
     """Set task status to success.
 

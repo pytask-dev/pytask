@@ -125,7 +125,7 @@ def check_for_optional_program(
     """Check whether an optional program exists."""
     if errors not in ("warn", "raise", "ignore"):
         raise ValueError(
-            f"'errors' must be one of 'warn', 'raise' or 'ignore' and not {errors!r}."
+            f"'errors' must be one of 'warn', 'raise' or 'ignore' and not {errors!r}.",
         )
 
     msg = f"{caller} requires the optional program {name!r}. {extra}"

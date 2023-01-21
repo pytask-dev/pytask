@@ -14,13 +14,13 @@ from pytask import TaskOutcome
 
 
 @pytest.mark.xfail(sys.platform == "win32", reason="See #293.")
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_python_m_pytask(tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
     subprocess.run(["python", "-m", "pytask", tmp_path.as_posix()], check=True)
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_task_did_not_produce_node(tmp_path):
     source = """
     import pytask
@@ -38,7 +38,7 @@ def test_task_did_not_produce_node(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], NodeNotFoundError)
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path):
     source = """
     import pytask
@@ -57,7 +57,7 @@ def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path)
     assert "2.txt" in result.output
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_node_not_found_in_task_setup(tmp_path):
     """Test for :class:`_pytask.exceptions.NodeNotFoundError` in task setup.
 
@@ -98,7 +98,7 @@ def test_node_not_found_in_task_setup(tmp_path):
     assert isinstance(report.exc_info[1], NodeNotFoundError)
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize(
     "dependencies",
     [[], ["in.txt"], ["in_1.txt", "in_2.txt"]],
@@ -127,7 +127,7 @@ def test_execution_w_varying_dependencies_products(tmp_path, dependencies, produ
     assert session.exit_code == ExitCode.OK
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
     source = """
     import pytask
@@ -148,7 +148,7 @@ def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
     assert tmp_path.joinpath("out.txt").read_text() == "Here I am. Once again."
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_assert_multiple_dependencies_are_merged_to_dict(tmp_path, runner):
     source = """
     import pytask
@@ -175,7 +175,7 @@ def test_assert_multiple_dependencies_are_merged_to_dict(tmp_path, runner):
     assert result.exit_code == ExitCode.OK
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_assert_multiple_products_are_merged_to_dict(tmp_path, runner):
     source = """
     import pytask
@@ -202,7 +202,7 @@ def test_assert_multiple_products_are_merged_to_dict(tmp_path, runner):
     assert result.exit_code == ExitCode.OK
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("input_type", ["list", "dict"])
 def test_preserve_input_for_dependencies_and_products(tmp_path, input_type):
     """Input type for dependencies and products is preserved."""
@@ -232,7 +232,7 @@ def test_preserve_input_for_dependencies_and_products(tmp_path, input_type):
     assert session.exit_code == ExitCode.OK
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("n_failures", [1, 2, 3])
 def test_execution_stops_after_n_failures(tmp_path, n_failures):
     source = """
@@ -248,7 +248,7 @@ def test_execution_stops_after_n_failures(tmp_path, n_failures):
     assert len(session.execution_reports) == n_failures
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("stop_after_first_failure", [False, True])
 def test_execution_stop_after_first_failure(tmp_path, stop_after_first_failure):
     source = """
@@ -259,14 +259,14 @@ def test_execution_stop_after_first_failure(tmp_path, stop_after_first_failure):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main(
-        {"paths": tmp_path, "stop_after_first_failure": stop_after_first_failure}
+        {"paths": tmp_path, "stop_after_first_failure": stop_after_first_failure},
     )
 
     assert len(session.tasks) == 3
     assert len(session.execution_reports) == 1 if stop_after_first_failure else 3
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_scheduling_w_priorities(tmp_path):
     source = """
     import pytask
@@ -289,7 +289,7 @@ def test_scheduling_w_priorities(tmp_path):
     assert session.execution_reports[2].task.name.endswith("task_y")
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_scheduling_w_mixed_priorities(runner, tmp_path):
     source = """
     import pytask
@@ -307,7 +307,7 @@ def test_scheduling_w_mixed_priorities(runner, tmp_path):
     assert "'try_first' and 'try_last' cannot be applied" in result.output
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("show_errors_immediately", [True, False])
 def test_show_errors_immediately(runner, tmp_path, show_errors_immediately):
     source = """
@@ -331,7 +331,7 @@ def test_show_errors_immediately(runner, tmp_path, show_errors_immediately):
         assert len(matches_traceback) == 1
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("verbose", [1, 2])
 def test_traceback_of_previous_task_failed_is_not_shown(runner, tmp_path, verbose):
     source = """
@@ -353,7 +353,7 @@ def test_traceback_of_previous_task_failed_is_not_shown(runner, tmp_path, verbos
     )
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
     source = """
     _DEFINITION = '''

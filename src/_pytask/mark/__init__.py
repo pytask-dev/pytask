@@ -149,10 +149,7 @@ class KeywordMatcher:
         subname = subname.lower()
         names = (name.lower() for name in self._names)
 
-        for name in names:
-            if subname in name:
-                return True
-        return False
+        return any(subname in name for name in names)
 
 
 def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str]:
@@ -165,7 +162,7 @@ def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str]:
         expression = Expression.compile_(keywordexpr)
     except ParseError as e:
         raise ValueError(
-            f"Wrong expression passed to '-k': {keywordexpr}: {e}"
+            f"Wrong expression passed to '-k': {keywordexpr}: {e}",
         ) from None
 
     remaining: set[str] = set()
@@ -215,7 +212,7 @@ def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str]:
 
 
 def _deselect_others_with_mark(
-    session: Session, remaining: set[str], mark: Mark
+    session: Session, remaining: set[str], mark: Mark,
 ) -> None:
     """Deselect tasks."""
     for task in session.tasks:
@@ -229,10 +226,10 @@ def pytask_resolve_dependencies_modify_dag(session: Session, dag: nx.DiGraph) ->
     remaining = select_by_keyword(session, dag)
     if remaining is not None:
         _deselect_others_with_mark(
-            session, remaining, Mark("skip", (), {"reason": "Deselected by keyword."})
+            session, remaining, Mark("skip", (), {"reason": "Deselected by keyword."}),
         )
     remaining = select_by_mark(session, dag)
     if remaining is not None:
         _deselect_others_with_mark(
-            session, remaining, Mark("skip", (), {"reason": "Deselected by mark."})
+            session, remaining, Mark("skip", (), {"reason": "Deselected by mark."}),
         )

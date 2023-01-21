@@ -66,7 +66,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookspec(firstresult=True)
 def pytask_configure(
-    pm: pluggy.PluginManager, raw_config: dict[str, Any]
+    pm: pluggy.PluginManager, raw_config: dict[str, Any],
 ) -> dict[str, Any]:
     """Configure pytask.
 
@@ -137,7 +137,7 @@ def pytask_collect_modify_tasks(session: Session, tasks: list[Task]) -> None:
 
 @hookspec(firstresult=True)
 def pytask_collect_file_protocol(
-    session: Session, path: Path, reports: list[CollectionReport]
+    session: Session, path: Path, reports: list[CollectionReport],
 ) -> list[CollectionReport]:
     """Start protocol to collect files.
 
@@ -149,7 +149,7 @@ def pytask_collect_file_protocol(
 
 @hookspec
 def pytask_collect_file(
-    session: Session, path: Path, reports: list[CollectionReport]
+    session: Session, path: Path, reports: list[CollectionReport],
 ) -> list[CollectionReport] | None:
     """Collect tasks from a file.
 
@@ -165,14 +165,14 @@ def pytask_collect_file_log(session: Session, reports: list[CollectionReport]) -
 
 @hookspec(firstresult=True)
 def pytask_collect_task_protocol(
-    session: Session, path: Path, name: str, obj: Any
+    session: Session, path: Path, name: str, obj: Any,
 ) -> CollectionReport | None:
     """Start protocol to collect tasks."""
 
 
 @hookspec
 def pytask_collect_task_setup(
-    session: Session, path: Path, name: str, obj: Any
+    session: Session, path: Path, name: str, obj: Any,
 ) -> None:
     """Steps before collecting a task."""
 
@@ -193,14 +193,14 @@ def pytask_collect_task_teardown(session: Session, task: Task) -> None:
 
 @hookspec(firstresult=True)
 def pytask_collect_node(
-    session: Session, path: Path, node: MetaNode
+    session: Session, path: Path, node: MetaNode,
 ) -> MetaNode | None:
     """Collect a node which is a dependency or a product of a task."""
 
 
 @hookspec(firstresult=True)
 def pytask_collect_log(
-    session: Session, reports: list[CollectionReport], tasks: list[Task]
+    session: Session, reports: list[CollectionReport], tasks: list[Task],
 ) -> None:
     """Log errors occurring during the collection.
 
@@ -214,7 +214,7 @@ def pytask_collect_log(
 
 @hookspec(firstresult=True)
 def pytask_parametrize_task(
-    session: Session, name: str, obj: Any
+    session: Session, name: str, obj: Any,
 ) -> list[tuple[str, Callable[..., Any]]]:
     """Generate multiple tasks from name and object with parametrization."""
 
@@ -245,7 +245,7 @@ def pytask_resolve_dependencies(session: Session) -> None:
 
 @hookspec(firstresult=True)
 def pytask_resolve_dependencies_create_dag(
-    session: Session, tasks: list[Task]
+    session: Session, tasks: list[Task],
 ) -> nx.DiGraph:
     """Create the DAG.
 
@@ -277,7 +277,7 @@ def pytask_resolve_dependencies_validate_dag(session: Session, dag: nx.DiGraph) 
 
 @hookspec
 def pytask_resolve_dependencies_select_execution_dag(
-    session: Session, dag: nx.DiGraph
+    session: Session, dag: nx.DiGraph,
 ) -> None:
     """Select the subgraph which needs to be executed.
 
@@ -289,7 +289,7 @@ def pytask_resolve_dependencies_select_execution_dag(
 
 @hookspec
 def pytask_resolve_dependencies_log(
-    session: Session, report: ResolveDependencyReport
+    session: Session, report: ResolveDependencyReport,
 ) -> None:
     """Log errors during resolving dependencies."""
 
@@ -384,7 +384,7 @@ def pytask_execute_task_teardown(session: Session, task: Task) -> None:
 
 @hookspec(firstresult=True)
 def pytask_execute_task_process_report(
-    session: Session, report: ExecutionReport
+    session: Session, report: ExecutionReport,
 ) -> Any | None:
     """Process the report of a task.
 
@@ -429,7 +429,7 @@ def pytask_log_session_footer(
 
 @hookspec
 def pytask_profile_add_info_on_task(
-    session: Session, tasks: list[Task], profile: dict[str, dict[Any, Any]]
+    session: Session, tasks: list[Task], profile: dict[str, dict[Any, Any]],
 ) -> None:
     """Add information on task for profile.
 
@@ -442,6 +442,6 @@ def pytask_profile_add_info_on_task(
 
 @hookspec
 def pytask_profile_export_profile(
-    session: Session, profile: dict[str, dict[Any, Any]]
+    session: Session, profile: dict[str, dict[Any, Any]],
 ) -> None:
     """Export the profile."""

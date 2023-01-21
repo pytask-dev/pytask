@@ -47,16 +47,16 @@ def pytask_resolve_dependencies(session: Session) -> bool | None:
     """
     try:
         session.dag = session.hook.pytask_resolve_dependencies_create_dag(
-            session=session, tasks=session.tasks
+            session=session, tasks=session.tasks,
         )
         session.hook.pytask_resolve_dependencies_modify_dag(
-            session=session, dag=session.dag
+            session=session, dag=session.dag,
         )
         session.hook.pytask_resolve_dependencies_validate_dag(
-            session=session, dag=session.dag
+            session=session, dag=session.dag,
         )
         session.hook.pytask_resolve_dependencies_select_execution_dag(
-            session=session, dag=session.dag
+            session=session, dag=session.dag,
         )
 
     except Exception:  # noqa: BLE001
@@ -80,7 +80,7 @@ def pytask_resolve_dependencies_create_dag(tasks: list[Task]) -> nx.DiGraph:
 
         tree_map(lambda x: dag.add_node(x.name, node=x), task.depends_on)
         tree_map(
-            lambda x: dag.add_edge(x.name, task.name), task.depends_on  # noqa: B023
+            lambda x: dag.add_edge(x.name, task.name), task.depends_on,  # noqa: B023
         )
 
         tree_map(lambda x: dag.add_node(x.name, node=x), task.produces)
@@ -104,7 +104,7 @@ def pytask_resolve_dependencies_select_execution_dag(dag: nx.DiGraph) -> None:
                 visited_nodes += list(task_and_descending_tasks(task_name, dag))
             else:
                 dag.nodes[task_name]["task"].markers.append(
-                    Mark("skip_unchanged", (), {})
+                    Mark("skip_unchanged", (), {}),
                 )
 
 
@@ -153,7 +153,7 @@ def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:
             "The DAG contains cycles which means a dependency is directly or "
             "indirectly a product of the same task. See the following the path of "
             "nodes in the graph which forms the cycle."
-            f"\n\n{_format_cycles(cycles)}"
+            f"\n\n{_format_cycles(cycles)}",
         )
 
 
@@ -187,7 +187,7 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph) -> None:
         is_without_parents = len(list(dag.predecessors(node))) == 0
         if is_node and is_without_parents:
             are_all_tasks_skipped, is_task_skipped = _check_if_tasks_are_skipped(
-                node, dag, is_task_skipped
+                node, dag, is_task_skipped,
             )
             if not are_all_tasks_skipped:
                 try:
@@ -207,13 +207,13 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph) -> None:
         dictionary = {}
         for node in missing_root_nodes:
             short_node_name = reduce_node_name(
-                dag.nodes[node]["node"], [common_ancestor]
+                dag.nodes[node]["node"], [common_ancestor],
             )
             not_skipped_successors = [
                 task for task in dag.successors(node) if not is_task_skipped[task]
             ]
             short_successors = reduce_names_of_multiple_nodes(
-                not_skipped_successors, dag, [common_ancestor]
+                not_skipped_successors, dag, [common_ancestor],
             )
             dictionary[short_node_name] = short_successors
 
@@ -222,7 +222,7 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph) -> None:
 
 
 def _check_if_tasks_are_skipped(
-    node: MetaNode, dag: nx.DiGraph, is_task_skipped: dict[str, bool]
+    node: MetaNode, dag: nx.DiGraph, is_task_skipped: dict[str, bool],
 ) -> tuple[bool, dict[str, bool]]:
     """Check for a given node whether it is only used by skipped tasks."""
     are_all_tasks_skipped = []
@@ -286,23 +286,23 @@ def _check_if_tasks_have_the_same_products(dag: nx.DiGraph) -> None:
         dictionary = {}
         for node in nodes_created_by_multiple_tasks:
             short_node_name = reduce_node_name(
-                dag.nodes[node]["node"], [common_ancestor]
+                dag.nodes[node]["node"], [common_ancestor],
             )
             short_predecessors = reduce_names_of_multiple_nodes(
-                dag.predecessors(node), dag, [common_ancestor]
+                dag.predecessors(node), dag, [common_ancestor],
             )
             dictionary[short_node_name] = short_predecessors
         text = _format_dictionary_to_tree(dictionary, "Products from multiple tasks:")
         raise ResolvingDependenciesError(
             "There are some tasks which produce the same output. See the following "
             "tree which shows which products are produced by multiple tasks."
-            f"\n\n{text}"
+            f"\n\n{text}",
         )
 
 
 @hookimpl
 def pytask_resolve_dependencies_log(
-    session: Session, report: ResolvingDependenciesReport
+    session: Session, report: ResolvingDependenciesReport,
 ) -> None:
     """Log errors which happened while resolving dependencies."""
     console.print()

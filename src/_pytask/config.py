@@ -60,7 +60,7 @@ IS_FILE_SYSTEM_CASE_SENSITIVE = is_file_system_case_sensitive()
 
 @hookimpl
 def pytask_configure(
-    pm: pluggy.PluginManager, raw_config: dict[str, Any]
+    pm: pluggy.PluginManager, raw_config: dict[str, Any],
 ) -> dict[str, Any]:
     """Configure pytask."""
     # Add all values by default so that many plugins do not need to copy over values.

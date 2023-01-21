@@ -58,7 +58,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 def _pdbcls_callback(
-    ctx: click.Context, name: str, value: str | None  # noqa: ARG001
+    ctx: click.Context, name: str, value: str | None,  # noqa: ARG001
 ) -> tuple[str, str] | None:
     """Validate the debugger class string passed to pdbcls."""
     message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
@@ -88,7 +88,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
         config["pm"].register(PdbTrace)
 
     PytaskPDB._saved.append(
-        (pdb.set_trace, PytaskPDB._pluginmanager, PytaskPDB._config)
+        (pdb.set_trace, PytaskPDB._pluginmanager, PytaskPDB._config),
     )
     pdb.set_trace = PytaskPDB.set_trace
     PytaskPDB._pluginmanager = config["pm"]
@@ -124,7 +124,7 @@ class PytaskPDB:
 
     @classmethod
     def _import_pdb_cls(
-        cls, capman: CaptureManager, live_manager: LiveManager
+        cls, capman: CaptureManager, live_manager: LiveManager,
     ) -> type[pdb.Pdb]:
         """Create a debugger from an imported class."""
         if not cls._config:
@@ -153,7 +153,7 @@ class PytaskPDB:
             except Exception as exc:  # noqa: BLE001
                 value = ":".join((modname, classname))
                 raise ValueError(
-                    f"--pdbcls: could not import {value!r}: {exc}."
+                    f"--pdbcls: could not import {value!r}: {exc}.",
                 ) from exc
         else:
             import pdb  # noqa: T100
@@ -166,7 +166,7 @@ class PytaskPDB:
 
     @classmethod
     def _get_pdb_wrapper_class(  # noqa: C901
-        cls, pdb_cls: type[pdb.Pdb], capman: CaptureManager, live_manager: LiveManager
+        cls, pdb_cls: type[pdb.Pdb], capman: CaptureManager, live_manager: LiveManager,
     ) -> type[pdb.Pdb]:
         """Create a pdf wrapper class."""
         # Type ignored because mypy doesn't support "dynamic"
@@ -257,7 +257,7 @@ class PytaskPDB:
 
     @classmethod
     def _init_pdb(
-        cls, method: str, *args: Any, **kwargs: Any  # noqa: ARG003
+        cls, method: str, *args: Any, **kwargs: Any,  # noqa: ARG003
     ) -> pdb.Pdb:
         """Initialize PDB debugging, dropping any IO capturing."""
         if cls._pluginmanager is None:
@@ -308,7 +308,7 @@ class PdbDebugger:
     @staticmethod
     @hookimpl(hookwrapper=True)
     def pytask_execute_task(
-        session: Session, task: Task
+        session: Session, task: Task,
     ) -> Generator[None, None, None]:
         """Execute a task by wrapping the function with post-mortem debugger."""
         if isinstance(task, Task):
@@ -368,7 +368,7 @@ class PdbTrace:
     @staticmethod
     @hookimpl(hookwrapper=True)
     def pytask_execute_task(
-        session: Session, task: Task
+        session: Session, task: Task,
     ) -> Generator[None, None, None]:
         """Wrapping the task function with a tracer."""
         if isinstance(task, Task):

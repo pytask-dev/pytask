@@ -123,7 +123,7 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:
         for release in sorted(releases, key=packaging.version.parse, reverse=True):
             if releases[release]:
                 release_date = datetime.date.fromisoformat(
-                    releases[release][-1]["upload_time_iso_8601"].split("T")[0]
+                    releases[release][-1]["upload_time_iso_8601"].split("T")[0],
                 )
                 last_release = release_date.strftime("%b %d, %Y")
                 break
@@ -151,7 +151,7 @@ def _plugin_definitions(plugins: list[dict[str, str]]) -> Generator[str, None, N
                *requires*: {plugin["requires"]}
 
                {plugin["summary"]}
-            """
+            """,
         )
 
 
