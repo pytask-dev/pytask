@@ -55,6 +55,7 @@ extend-ignore = [
     "EM",  # flake8-errmsg
     "ANN401",  # flake8-annotate typing.Any
     "PD",  # pandas-vet
+    "COM812",  # trailing comma missing, but black takes care of that
 ]
 
 
