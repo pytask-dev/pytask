@@ -24,8 +24,8 @@ class EnumChoice(click.Choice):
     """An enum-based choice type.
 
     The implementation is copied from https://github.com/pallets/click/pull/2210 and
-    related discussion can be found in
-    https://github.com/pallets/click/issues/605.
+    related discussion can be found in https://github.com/pallets/click/issues/605.
+
     In contrast to using :class:`click.Choice`, using this type ensures that the error
     message does not show the enum members.
 
