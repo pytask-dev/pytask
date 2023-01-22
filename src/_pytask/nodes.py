@@ -18,6 +18,9 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
+__all__ = ["FilePathNode", "MetaNode", "Task"]
+
+
 class MetaNode(metaclass=ABCMeta):
     """Meta class for nodes."""
 
