@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import textwrap
 from pathlib import Path
 
@@ -47,6 +48,32 @@ def test_collect_task(runner, tmp_path):
     assert "in.txt>" in captured
     assert "<Product" in captured
     assert "out.txt>" in captured
+
+
+@pytest.mark.end_to_end()
+def test_collect_task_in_root_dir(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.depends_on("in.txt")
+    @pytask.mark.produces("out.txt")
+    def task_example():
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.txt").touch()
+
+    cwd = Path.cwd()
+    os.chdir(tmp_path)
+    result = runner.invoke(cli, ["collect"])
+    os.chdir(cwd)
+
+    assert result.exit_code == ExitCode.OK
+    captured = result.output.replace("\n", "").replace(" ", "")
+    assert "<Module" in captured
+    assert "task_module.py>" in captured
+    assert "<Function" in captured
+    assert "task_example>" in captured
 
 
 @pytest.mark.end_to_end()
