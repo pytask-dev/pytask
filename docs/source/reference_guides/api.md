@@ -1,5 +1,33 @@
 # API
 
+## Command line interface
+
+To extend pytask's command line interface and set the right types for your options,
+pytask offers the following functionalities.
+
+### Classes
+
+```{eval-rst}
+.. autoclass:: pytask.ColoredCommand
+.. autoclass:: pytask.ColoredGroup
+.. autoclass:: pytask.EnumChoice
+```
+
+## Compatibility
+
+```{eval-rst}
+.. autofunction:: pytask.check_for_optional_program
+.. autofunction:: pytask.import_optional_dependency
+```
+
+## Console
+
+To write to the terminal, use pytask's console.
+
+```{eval-rst}
+.. autoclass:: pytask.console
+```
+
 ## Marks
 
 pytask uses marks to attach additional information to task functions which is processed
@@ -192,7 +220,9 @@ def task_function():
 .. autoclass:: pytask.MarkGenerator
 ```
 
-### Functions to work with marks
+### Functions
+
+These functions help you to handle marks.
 
 ```{eval-rst}
 .. autofunction:: pytask.get_all_marks
@@ -231,24 +261,49 @@ The remaining exceptions convey specific errors.
 
 ```{eval-rst}
 .. autoclass:: pytask.console
-.. autoclass:: pytask.FilePathNode
-.. autoclass:: pytask.MetaNode
-.. autoclass:: pytask.Task
-.. autoclass:: pytask.CollectionMetadata
-.. autoclass:: pytask.CollectionReport
-.. autoclass:: pytask.ExecutionReport
-.. autoclass:: pytask.ResolvingDependenciesReport
 .. autoclass:: pytask.Session
 ```
 
-## General functions
+## Nodes
+
+Nodes are the interface for different kinds of dependencies or products. They inherit
+from {class}`pytask.MetaNode`.
+
+```{eval-rst}
+.. autoclass:: pytask.MetaNode
+```
+
+Then, different kinds of nodes can be implemented.
+
+```{eval-rst}
+.. autoclass:: pytask.FilePathNode
+```
+
+To parse dependencies and products from nodes, use the following functions.
 
 ```{eval-rst}
 .. autofunction:: pytask.depends_on
-.. autofunction:: pytask.produces
 .. autofunction:: pytask.parse_nodes
-.. autofunction:: pytask.check_for_optional_program
-.. autofunction:: pytask.import_optional_dependency
+.. autofunction:: pytask.produces
+```
+
+## Tasks
+
+Task are currently represented by the following class:
+
+```{eval-rst}
+.. autoclass:: pytask.Task
+```
+
+Currently, there are no different types of tasks since changing the `.function`
+attribute with a custom callable proved to be sufficient.
+
+To carry over information from user-defined tasks like task functions to
+{class}`pytask.Task` objects, use a metadata object that is stored in an `.pytask_meta`
+attribute of the task function.
+
+```{eval-rst}
+.. autoclass:: pytask.CollectionMetadata
 ```
 
 ## Outcomes
@@ -284,11 +339,27 @@ outcome.
 .. autoclass:: pytask.SkippedUnchanged
 ```
 
+### Functions
+
+```{eval-rst}
+.. autofunction:: pytask.count_outcomes
+```
+
 ## Programmatic Interfaces
 
 ```{eval-rst}
 .. autofunction:: pytask.build_dag
 .. autofunction:: pytask.main
+```
+
+## Reports
+
+There are some classes to handle different kinds of reports.
+
+```{eval-rst}
+.. autoclass:: pytask.CollectionReport
+.. autoclass:: pytask.ExecutionReport
+.. autoclass:: pytask.ResolvingDependenciesReport
 ```
 
 ## Tracebacks
@@ -298,4 +369,19 @@ outcome.
 .. autofunction:: pytask.remove_internal_traceback_frames_from_exc_info
 .. autofunction:: pytask.remove_traceback_from_exc_info
 .. autofunction:: pytask.render_exc_info
+```
+
+## Warnings
+
+### Classes
+
+```{eval-rst}
+.. autoclass: pytask.WarningReport
+```
+
+### Functions
+
+```{eval-rst}
+.. autofunction:: pytask.parse_warning_filter
+.. autofunction:: pytask.warning_record_to_str
 ```

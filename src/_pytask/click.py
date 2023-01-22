@@ -63,7 +63,7 @@ class _OptionHighlighter(RegexHighlighter):
 
 
 class ColoredGroup(DefaultGroup):
-    """A subclass which colors groups with default commands."""
+    """A command group with colored help pages."""
 
     def format_help(
         self: DefaultGroup, ctx: click.Context, formatter: Any  # noqa: ARG002
@@ -112,7 +112,7 @@ class ColoredGroup(DefaultGroup):
 
 
 class ColoredCommand(click.Command):
-    """Override Clicks help with a Richer version."""
+    """A command with colored help pages."""
 
     def format_help(
         self: click.Command, ctx: click.Context, formatter: Any  # noqa: ARG002
