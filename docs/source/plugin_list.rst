@@ -20,10 +20,10 @@ This list contains 6 plugins.
    ==========================  ====================================================================  ==============  ========  ==============
    :pypi:`pytask-environment`  Detect changes in your pytask environment and abort a project build.  Apr 16, 2022    4 - Beta  pytask (>=0.2)
    :pypi:`pytask-julia`        A Pytask plugin for Julia                                             Apr 16, 2022    4 - Beta  pytask (>=0.2)
-   :pypi:`pytask-latex`        Compile LaTeX documents with pytask.                                  Apr 19, 2022    4 - Beta  pytask (>=0.2)
-   :pypi:`pytask-parallel`     Parallelize the execution of tasks with pytask.                       Aug 19, 2022    4 - Beta  pytask (>=0.2)
+   :pypi:`pytask-latex`        Compile LaTeX documents with pytask.                                  Jan 23, 2023    4 - Beta  pytask (>=0.3)
+   :pypi:`pytask-parallel`     Parallelize the execution of tasks with pytask.                       Jan 23, 2023    4 - Beta  pytask (>=0.3)
    :pypi:`pytask-r`            Run R scripts with pytask.                                            Apr 16, 2022    4 - Beta  pytask (>=0.2)
-   :pypi:`pytask-stata`        Execute do-files with Stata and pytask.                               Apr 16, 2022    4 - Beta  pytask (>=0.2)
+   :pypi:`pytask-stata`        Execute do-files with Stata and pytask.                               Jan 23, 2023    4 - Beta  pytask (>=0.3)
    ==========================  ====================================================================  ==============  ========  ==============
 
 .. only:: latex
@@ -44,16 +44,16 @@ This list contains 6 plugins.
      A Pytask plugin for Julia
 
   :pypi:`pytask-latex`
-     *last release*: Apr 19, 2022,
+     *last release*: Jan 23, 2023,
      *status*: 4 - Beta,
-     *requires*: pytask (>=0.2)
+     *requires*: pytask (>=0.3)
 
      Compile LaTeX documents with pytask.
 
   :pypi:`pytask-parallel`
-     *last release*: Aug 19, 2022,
+     *last release*: Jan 23, 2023,
      *status*: 4 - Beta,
-     *requires*: pytask (>=0.2)
+     *requires*: pytask (>=0.3)
 
      Parallelize the execution of tasks with pytask.
 
@@ -65,8 +65,8 @@ This list contains 6 plugins.
      Run R scripts with pytask.
 
   :pypi:`pytask-stata`
-     *last release*: Apr 16, 2022,
+     *last release*: Jan 23, 2023,
      *status*: 4 - Beta,
-     *requires*: pytask (>=0.2)
+     *requires*: pytask (>=0.3)
 
      Execute do-files with Stata and pytask.
