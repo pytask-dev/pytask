@@ -32,7 +32,7 @@ def set_defaults_from_config(
         context.params["config"] = value
         context.params["root"] = context.params["config"].parent
     else:
-        if context.params["paths"] is None:
+        if not context.params["paths"]:
             context.params["paths"] = (Path.cwd(),)
 
         context.params["paths"] = parse_paths(context.params["paths"])

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import sys
 import textwrap
+from pathlib import Path
 
 import pytest
 from _pytask.exceptions import NodeNotFoundError
@@ -18,6 +20,17 @@ from pytask import TaskOutcome
 def test_python_m_pytask(tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
     subprocess.run(["python", "-m", "pytask", tmp_path.as_posix()], check=True)
+
+
+@pytest.mark.end_to_end()
+def test_execute_w_autocollect(runner, tmp_path):
+    tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
+    cwd = Path.cwd()
+    os.chdir(tmp_path)
+    result = runner.invoke(cli)
+    os.chdir(cwd)
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
 
 
 @pytest.mark.end_to_end()
