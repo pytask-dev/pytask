@@ -5,7 +5,12 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.3.0 - 2022-12-xx
+## 0.3.1 - 2023-12-25
+
+- {pull}`337` fixes fallback to root path when `pytask collect` or `pytask clean` are
+  used without paths.
+
+## 0.3.0 - 2023-12-22
 
 - {pull}`313` refactors the configuration. INI configurations are no longer supported.
 - {pull}`326` fixes the badge for status of the workflow.
