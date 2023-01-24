@@ -122,7 +122,7 @@ def _resolve_warning_category(category: str) -> type[Warning]:
         m = __import__(module, None, None, [klass])
     cat = getattr(m, klass)
     if not issubclass(cat, Warning):
-        raise Exception(f"{cat} is not a Warning subclass")
+        raise TypeError(f"{cat} is not a Warning subclass")
     return cast(type[Warning], cat)
 
 
