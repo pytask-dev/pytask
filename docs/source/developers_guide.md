@@ -24,7 +24,7 @@ The following list covers all steps of a release cycle.
 
 - Once all additions to a release are merged, prepare `changes.rst` in the source folder
   of the documentation listing all changes which made it into the release.
-  
+
 - Update the version numbers in the animations if you create a new major or minor
   release.
 
