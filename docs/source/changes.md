@@ -5,6 +5,10 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.3.2 - 2023-xx-xx
+
+- {pull}`345` updates the version numbers in animations.
+
 ## 0.3.1 - 2023-12-25
 
 - {pull}`337` fixes fallback to root path when `pytask collect` or `pytask clean` are
