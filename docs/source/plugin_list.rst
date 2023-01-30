@@ -19,10 +19,10 @@ This list contains 6 plugins.
    name                        summary                                                               last release    status    requires
    ==========================  ====================================================================  ==============  ========  ==============
    :pypi:`pytask-environment`  Detect changes in your pytask environment and abort a project build.  Apr 16, 2022    4 - Beta  pytask (>=0.2)
-   :pypi:`pytask-julia`        A Pytask plugin for Julia                                             Apr 16, 2022    4 - Beta  pytask (>=0.2)
+   :pypi:`pytask-julia`        A Pytask plugin for Julia                                             Jan 23, 2023    4 - Beta  pytask (>=0.3)
    :pypi:`pytask-latex`        Compile LaTeX documents with pytask.                                  Jan 23, 2023    4 - Beta  pytask (>=0.3)
    :pypi:`pytask-parallel`     Parallelize the execution of tasks with pytask.                       Jan 23, 2023    4 - Beta  pytask (>=0.3)
-   :pypi:`pytask-r`            Run R scripts with pytask.                                            Apr 16, 2022    4 - Beta  pytask (>=0.2)
+   :pypi:`pytask-r`            Run R scripts with pytask.                                            Jan 23, 2023    4 - Beta  pytask (>=0.3)
    :pypi:`pytask-stata`        Execute do-files with Stata and pytask.                               Jan 23, 2023    4 - Beta  pytask (>=0.3)
    ==========================  ====================================================================  ==============  ========  ==============
 
@@ -37,9 +37,9 @@ This list contains 6 plugins.
      Detect changes in your pytask environment and abort a project build.
 
   :pypi:`pytask-julia`
-     *last release*: Apr 16, 2022,
+     *last release*: Jan 23, 2023,
      *status*: 4 - Beta,
-     *requires*: pytask (>=0.2)
+     *requires*: pytask (>=0.3)
 
      A Pytask plugin for Julia
 
@@ -58,9 +58,9 @@ This list contains 6 plugins.
      Parallelize the execution of tasks with pytask.
 
   :pypi:`pytask-r`
-     *last release*: Apr 16, 2022,
+     *last release*: Jan 23, 2023,
      *status*: 4 - Beta,
-     *requires*: pytask (>=0.2)
+     *requires*: pytask (>=0.3)
 
      Run R scripts with pytask.
 
