@@ -8,6 +8,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 ## 0.3.2 - 2023-xx-xx
 
 - {pull}`345` updates the version numbers in animations.
+- {pull}`352` publishes `db` that is required by pytask-environment.
 
 ## 0.3.1 - 2023-12-25
 
