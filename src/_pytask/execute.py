@@ -143,7 +143,7 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
 def pytask_execute_task(session: Session, task: Task) -> bool:
     """Execute task."""
     if session.config["dry_run"]:
-        raise WouldBeExecuted()
+        raise WouldBeExecuted
 
     kwargs = {**task.kwargs}
 
@@ -164,7 +164,6 @@ def pytask_execute_task_teardown(session: Session, task: Task) -> None:
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
         if isinstance(node, FilePathNode):
-
             try:
                 node.state()
             except NodeNotFoundError:

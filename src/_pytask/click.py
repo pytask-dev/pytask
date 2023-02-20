@@ -146,7 +146,6 @@ def _print_options(
     options_table = Table(highlight=True, box=None, show_header=False)
 
     for param in group_or_command.get_params(ctx):
-
         if isinstance(param, click.Argument):
             continue
 

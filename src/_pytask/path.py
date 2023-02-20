@@ -62,7 +62,6 @@ def find_closest_ancestor(
 
     closest_ancestor = None
     for ancestor in potential_ancestors:
-
         if isinstance(ancestor, str):
             ancestor = Path(ancestor)
 

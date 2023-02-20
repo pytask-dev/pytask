@@ -31,7 +31,6 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
     assert result.exit_code == ExitCode.OK
 
     with orm.db_session:
-
         create_database(
             "sqlite",
             tmp_path.joinpath(".pytask.sqlite3").as_posix(),

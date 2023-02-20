@@ -64,7 +64,6 @@ def test_multiple_runs_with_persist(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
 
     with orm.db_session:
-
         create_database(
             "sqlite",
             tmp_path.joinpath(".pytask.sqlite3").as_posix(),
