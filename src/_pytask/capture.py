@@ -368,7 +368,7 @@ class FDCaptureBinary:
         self.targetfd_save = os.dup(targetfd)
 
         if targetfd == 0:
-            self.tmpfile = open(os.devnull, encoding="utf-8")  # noqa: SIM115
+            self.tmpfile = open(os.devnull, encoding="utf-8")  # noqa: SIM115, PTH123
             self.syscapture = SysCapture(targetfd)
         else:
             self.tmpfile = EncodedFile(

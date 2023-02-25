@@ -164,7 +164,7 @@ _THIS_FILE = Path(__file__)
         ),
     ],
 )
-def test_format_task_id(
+def test_format_task_id(  # noqa: PLR0913
     base_name,
     short_name,
     editor_url_scheme,

@@ -193,10 +193,10 @@ class MatcherAdapter(Mapping[str, bool]):
         return self.matcher(key[len(IDENT_PREFIX) :])
 
     def __iter__(self) -> Iterator[str]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def __len__(self) -> int:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class Expression:

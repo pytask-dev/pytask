@@ -70,7 +70,9 @@ from pytask import import_optional_dependency
         ),
     ],
 )
-def test_check_for_optional_program(name, extra, errors, caller, expectation, expected):
+def test_check_for_optional_program(  # noqa: PLR0913
+    name, extra, errors, caller, expectation, expected
+):
     with expectation:
         program_exists = check_for_optional_program(name, extra, errors, caller)
         assert program_exists is expected
