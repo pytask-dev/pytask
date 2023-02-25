@@ -190,7 +190,9 @@ def _print_options(
     )
 
 
-def _format_help_text(param: click.Parameter, ctx: click.Context) -> str:  # noqa: C901
+def _format_help_text(  # noqa: C901, PLR0912, PLR0915
+    param: click.Parameter, ctx: click.Context
+) -> str:
     """Format the help of a click parameter.
 
     A large chunk of the function is copied from

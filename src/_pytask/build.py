@@ -35,7 +35,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli.add_command(build)
 
 
-def main(raw_config: dict[str, Any]) -> Session:  # noqa: C901
+def main(raw_config: dict[str, Any]) -> Session:  # noqa: C901, PLR0912, PLR0915
     """Run pytask.
 
     This is the main command to run pytask which usually receives kwargs from the
