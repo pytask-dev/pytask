@@ -169,6 +169,7 @@ class PytaskPDB:
         cls, pdb_cls: type[pdb.Pdb], capman: CaptureManager, live_manager: LiveManager
     ) -> type[pdb.Pdb]:
         """Create a pdf wrapper class."""
+
         # Type ignored because mypy doesn't support "dynamic"
         # inheritance like this.
         class PytaskPdbWrapper(pdb_cls):  # type: ignore[valid-type,misc]

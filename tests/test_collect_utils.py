@@ -38,7 +38,7 @@ def test_check_that_names_are_not_used_multiple_times(x, expectation):
 @pytest.mark.integration()
 @pytest.mark.parametrize("when", ["depends_on", "produces"])
 @pytest.mark.parametrize(
-    "objects, expectation, expected",
+    ("objects", "expectation", "expected"),
     [
         ([0, 1], does_not_raise, {0: 0, 1: 1}),
         ([{0: 0}, {1: 1}], does_not_raise, {0: 0, 1: 1}),
@@ -112,7 +112,7 @@ def test_merge_dictionaries(list_of_dicts, expected):
 @pytest.mark.unit()
 @pytest.mark.parametrize("decorator", [pytask.mark.depends_on, pytask.mark.produces])
 @pytest.mark.parametrize(
-    "values, expected", [("a", ["a"]), (["b"], [["b"]]), (["e", "f"], [["e", "f"]])]
+    ("values", "expected"), [("a", ["a"]), (["b"], [["b"]]), (["e", "f"], [["e", "f"]])]
 )
 def test_extract_args_from_mark(decorator, values, expected):
     @decorator(values)
@@ -127,7 +127,7 @@ def test_extract_args_from_mark(decorator, values, expected):
 @pytest.mark.unit()
 @pytest.mark.parametrize("decorator", [pytask.mark.depends_on, pytask.mark.produces])
 @pytest.mark.parametrize(
-    "values, expected",
+    ("values", "expected"),
     [
         ({"objects": "a"}, ["a"]),
         ({"objects": ["b"]}, [["b"]]),
@@ -147,7 +147,7 @@ def test_extract_kwargs_from_mark(decorator, values, expected):
 @pytest.mark.unit()
 @pytest.mark.parametrize("decorator", [pytask.mark.depends_on, pytask.mark.produces])
 @pytest.mark.parametrize(
-    "args, kwargs", [(["a", "b"], {"objects": "a"}), (("a"), {"objects": "a"})]
+    ("args", "kwargs"), [(["a", "b"], {"objects": "a"}), (("a"), {"objects": "a"})]
 )
 def test_raise_error_for_invalid_args_to_depends_on_and_produces(
     decorator, args, kwargs

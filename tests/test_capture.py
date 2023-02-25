@@ -433,7 +433,7 @@ class TestFDCapture:
         scap = cap.snap()
         cap.done()
         assert scap == data1.decode("ascii")
-        with open(tmpfile.name, "rb") as stmp_file:
+        with open(tmpfile.name, "rb") as stmp_file:  # noqa: PTH123
             stmp = stmp_file.read()
             assert stmp == data2
 
