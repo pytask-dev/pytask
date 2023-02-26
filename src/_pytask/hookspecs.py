@@ -288,6 +288,18 @@ def pytask_resolve_dependencies_select_execution_dag(
 
 
 @hookspec
+def pytask_resolve_dependencies_has_node_changed(
+    session: Session, dag: nx.DiGraph, node: Task | MetaNode, task_name: str
+) -> None:
+    """Select the subgraph which needs to be executed.
+
+    This hook determines which of the tasks have to be re-run because something has
+    changed.
+
+    """
+
+
+@hookspec
 def pytask_resolve_dependencies_log(
     session: Session, report: ResolveDependencyReport
 ) -> None:

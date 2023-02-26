@@ -9,6 +9,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`345` updates the version numbers in animations.
 - {pull}`352` publishes `db` that is required by pytask-environment.
+- {pull}`355` refactors the logic to identify whether a task or a node has changed with
+  a new hook specification, `pytask_resolve_dependencies_has_node_changed`.
 
 ## 0.3.1 - 2023-12-25
 

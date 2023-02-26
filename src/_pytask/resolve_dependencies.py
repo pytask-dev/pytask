@@ -92,14 +92,17 @@ def pytask_resolve_dependencies_create_dag(tasks: list[Task]) -> nx.DiGraph:
 
 
 @hookimpl
-def pytask_resolve_dependencies_select_execution_dag(dag: nx.DiGraph) -> None:
+def pytask_resolve_dependencies_select_execution_dag(
+    session: Session, dag: nx.DiGraph
+) -> None:
     """Select the tasks which need to be executed."""
     scheduler = TopologicalSorter.from_dag(dag)
     visited_nodes = []
 
     for task_name in scheduler.static_order():
         if task_name not in visited_nodes:
-            have_changed = _have_task_or_neighbors_changed(task_name, dag)
+            task = dag.nodes[task_name]["task"]
+            have_changed = _have_task_or_neighbors_changed(session, dag, task)
             if have_changed:
                 visited_nodes += list(task_and_descending_tasks(task_name, dag))
             else:
@@ -115,31 +118,34 @@ def pytask_resolve_dependencies_validate_dag(dag: nx.DiGraph) -> None:
     _check_if_tasks_have_the_same_products(dag)
 
 
-def _have_task_or_neighbors_changed(task_name: str, dag: nx.DiGraph) -> bool:
+def _have_task_or_neighbors_changed(
+    session: Session, dag: nx.DiGraph, task: Task
+) -> bool:
     """Indicate whether dependencies or products of a task have changed."""
     return any(
-        _has_node_changed(task_name, dag.nodes[node])
-        for node in node_and_neighbors(dag, task_name)
+        session.hook.pytask_resolve_dependencies_has_node_changed(
+            session=session,
+            dag=dag,
+            task_name=task.name,
+            node=dag.nodes[node_name].get("task") or dag.nodes[node_name].get("node"),
+        )
+        for node_name in node_and_neighbors(dag, task.name)
     )
 
 
 @orm.db_session
-def _has_node_changed(task_name: str, node_dict: dict[str, MetaNode | Task]) -> bool:
+@hookimpl(trylast=True)
+def pytask_resolve_dependencies_has_node_changed(
+    node: MetaNode | Task, task_name: str
+) -> bool:
     """Indicate whether a single dependency or product has changed."""
-    node = node_dict.get("task") or node_dict["node"]
     try:
         state = node.state()
-    except NodeNotFoundError:
-        out = True
-    else:
-        try:
-            state_in_db = State[task_name, node.name].state  # type: ignore[misc]
-        except orm.ObjectNotFound:
-            out = True
-        else:
-            out = state != state_in_db
-
-    return out
+        state_in_db = State[task_name, node.name].state  # type: ignore[misc]
+        has_changed = state != state_in_db
+    except (NodeNotFoundError, orm.ObjectNotFound):
+        has_changed = True
+    return has_changed
 
 
 def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:
