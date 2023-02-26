@@ -287,7 +287,7 @@ def pytask_resolve_dependencies_select_execution_dag(
     """
 
 
-@hookspec
+@hookspec(firstresult=True)
 def pytask_resolve_dependencies_has_node_changed(
     session: Session, dag: nx.DiGraph, node: Task | MetaNode, task_name: str
 ) -> None:
