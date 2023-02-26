@@ -44,7 +44,7 @@ def _sort_options_for_each_command_alphabetically(cli: click.Group) -> None:
     """Sort command line options and arguments for each command alphabetically."""
     for command in cli.commands:
         cli.commands[command].params = sorted(
-            cli.commands[command].params, key=lambda x: x.name
+            cli.commands[command].params, key=lambda x: x.opts[0].replace("-", "")
         )
 
 
