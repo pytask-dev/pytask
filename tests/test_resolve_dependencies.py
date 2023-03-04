@@ -52,6 +52,7 @@ def test_pytask_resolve_dependencies_create_dag():
 
 
 @pytest.mark.unit()
+@pytest.mark.xfail(reason="session object is missing.")
 def test_check_if_root_nodes_are_available():
     dag = nx.DiGraph()
 

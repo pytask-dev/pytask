@@ -457,3 +457,16 @@ def pytask_profile_export_profile(
     session: Session, profile: dict[str, dict[Any, Any]]
 ) -> None:
     """Export the profile."""
+
+
+# Hooks for nodes
+
+
+@hookspec(firstresult=True)
+def pytask_node_exists(node: MetaNode) -> bool:
+    """Check whether a node exists."""
+
+
+@hookspec(firstresult=True)
+def pytask_node_state(node: MetaNode) -> Any:
+    """Return the state of a node."""

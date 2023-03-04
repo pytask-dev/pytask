@@ -1,8 +1,8 @@
 """This module contains utilities for the database."""
 from __future__ import annotations
 
-import networkx as nx
 from _pytask.dag import node_and_neighbors
+from _pytask.session import Session
 from pony import orm
 
 
@@ -44,8 +44,9 @@ def _create_or_update_state(first_key: str, second_key: str, state: str) -> None
         state_in_db.state = state
 
 
-def update_states_in_database(dag: nx.DiGraph, task_name: str) -> None:
+def update_states_in_database(session: Session, task_name: str) -> None:
     """Update the state for each node of a task in the database."""
-    for name in node_and_neighbors(dag, task_name):
-        node = dag.nodes[name].get("task") or dag.nodes[name]["node"]
-        _create_or_update_state(task_name, node.name, node.state())
+    for name in node_and_neighbors(session.dag, task_name):
+        node = session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
+        state = session.hook.pytask_node_state(node=node)
+        _create_or_update_state(task_name, node.name, state)

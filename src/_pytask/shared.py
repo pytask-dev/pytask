@@ -10,6 +10,7 @@ from typing import Sequence
 import click
 import networkx as nx
 from _pytask.console import format_task_id
+from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaNode
 from _pytask.nodes import Task
 from _pytask.path import find_closest_ancestor
@@ -66,19 +67,20 @@ def reduce_node_name(node: MetaNode, paths: Sequence[str | Path]) -> str:
     path from one path in ``session.config["paths"]`` to the node.
 
     """
-    ancestor = find_closest_ancestor(node.path, paths)
-    if ancestor is None:
-        try:
-            ancestor = find_common_ancestor(node.path, *paths)
-        except ValueError:
-            ancestor = node.path.parents[-1]
+    if isinstance(node, (Task, FilePathNode)):
+        ancestor = find_closest_ancestor(node.path, paths)
+        if ancestor is None:
+            try:
+                ancestor = find_common_ancestor(node.path, *paths)
+            except ValueError:
+                ancestor = node.path.parents[-1]
 
-    if isinstance(node, MetaNode):
-        name = relative_to(node.path, ancestor).as_posix()
-    else:
-        raise TypeError(f"Unknown node {node} with type {type(node)!r}.")
-
-    return name
+        if isinstance(node, MetaNode):
+            name = relative_to(node.path, ancestor).as_posix()
+        else:
+            raise TypeError(f"Unknown node {node} with type {type(node)!r}.")
+        return name
+    return node.name
 
 
 def reduce_names_of_multiple_nodes(
