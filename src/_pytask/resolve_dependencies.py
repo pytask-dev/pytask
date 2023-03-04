@@ -20,9 +20,9 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
-from _pytask.nodes import FilePathNode
-from _pytask.nodes import MetaNode
-from _pytask.nodes import Task
+from _pytask.nodes_utils import FilePathNode
+from _pytask.nodes_utils import MetaNode
+from _pytask.nodes_utils import Task
 from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import ResolvingDependenciesReport
 from _pytask.session import Session

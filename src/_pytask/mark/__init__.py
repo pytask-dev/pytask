@@ -19,7 +19,7 @@ from _pytask.mark.structures import Mark
 from _pytask.mark.structures import MARK_GEN
 from _pytask.mark.structures import MarkDecorator
 from _pytask.mark.structures import MarkGenerator
-from _pytask.nodes import Task
+from _pytask.nodes_utils import Task
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session

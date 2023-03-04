@@ -64,7 +64,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     from _pytask import live
     from _pytask import logging
     from _pytask import mark
-    from _pytask import nodes_
+    from _pytask import nodes
     from _pytask import parameters
     from _pytask import parametrize
     from _pytask import persist
@@ -87,7 +87,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     pm.register(live)
     pm.register(logging)
     pm.register(mark)
-    pm.register(nodes_)
+    pm.register(nodes)
     pm.register(parameters)
     pm.register(parametrize)
     pm.register(persist)

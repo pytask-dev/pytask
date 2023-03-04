@@ -10,9 +10,9 @@ from typing import Sequence
 import click
 import networkx as nx
 from _pytask.console import format_task_id
-from _pytask.nodes import FilePathNode
-from _pytask.nodes import MetaNode
-from _pytask.nodes import Task
+from _pytask.nodes_utils import FilePathNode
+from _pytask.nodes_utils import MetaNode
+from _pytask.nodes_utils import Task
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to

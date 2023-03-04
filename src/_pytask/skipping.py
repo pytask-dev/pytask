@@ -18,7 +18,7 @@ from _pytask.traceback import remove_traceback_from_exc_info
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import Task
+    from _pytask.nodes_utils import Task
     from _pytask.report import ExecutionReport
 
 

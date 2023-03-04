@@ -14,7 +14,7 @@ from _pytask.outcomes import TaskOutcome
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import Task
+    from _pytask.nodes_utils import Task
     from _pytask.report import ExecutionReport
 
 
