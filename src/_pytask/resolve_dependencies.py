@@ -97,14 +97,14 @@ def pytask_resolve_dependencies_select_execution_dag(
 ) -> None:
     """Select the tasks which need to be executed."""
     scheduler = TopologicalSorter.from_dag(dag)
-    visited_nodes = []
+    visited_nodes: set[str] = set()
 
     for task_name in scheduler.static_order():
         if task_name not in visited_nodes:
             task = dag.nodes[task_name]["task"]
             have_changed = _have_task_or_neighbors_changed(session, dag, task)
             if have_changed:
-                visited_nodes += list(task_and_descending_tasks(task_name, dag))
+                visited_nodes.update(task_and_descending_tasks(task_name, dag))
             else:
                 dag.nodes[task_name]["task"].markers.append(
                     Mark("skip_unchanged", (), {})
