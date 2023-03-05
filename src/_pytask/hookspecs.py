@@ -463,10 +463,5 @@ def pytask_profile_export_profile(
 
 
 @hookspec(firstresult=True)
-def pytask_node_exists(node: MetaNode) -> bool:
-    """Check whether a node exists."""
-
-
-@hookspec(firstresult=True)
 def pytask_node_state(node: MetaNode) -> Any:
     """Return the state of a node."""

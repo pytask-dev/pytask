@@ -121,7 +121,7 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
     """
     for dependency in session.dag.predecessors(task.name):
         node = session.dag.nodes[dependency]["node"]
-        if not session.hook.pytask_node_exists(node=node):
+        if not session.hook.pytask_node_state(node=node):
             msg = f"{node.name} is missing and required for {task.name}."
             raise NodeNotFoundError(msg)
 
@@ -161,7 +161,7 @@ def pytask_execute_task_teardown(session: Session, task: Task) -> None:
     missing_nodes = []
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
-        if not session.hook.pytask_node_exists(node=node):
+        if not session.hook.pytask_node_state(node=node):
             missing_nodes.append(node)
 
     if missing_nodes:

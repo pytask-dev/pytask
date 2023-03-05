@@ -39,7 +39,7 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
     """
     if has_mark(task, "persist"):
         all_nodes_exist = all(
-            session.hook.pytask_node_exists(
+            session.hook.pytask_node_state(
                 node=session.dag.nodes[name].get("task")
                 or session.dag.nodes[name]["node"]
             )

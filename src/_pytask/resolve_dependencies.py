@@ -201,7 +201,7 @@ def _check_if_root_nodes_are_available(session: Session, dag: nx.DiGraph) -> Non
                 node, dag, is_task_skipped
             )
             if not are_all_tasks_skipped:
-                node_exists = session.hook.pytask_node_exists(
+                node_exists = session.hook.pytask_node_state(
                     node=dag.nodes[node]["node"]
                 )
                 if not node_exists:
