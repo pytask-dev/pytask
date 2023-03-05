@@ -267,10 +267,10 @@ The remaining exceptions convey specific errors.
 ## Nodes
 
 Nodes are the interface for different kinds of dependencies or products. They inherit
-from {class}`pytask.MetaNode`.
+from {class}`pytask.Node`.
 
 ```{eval-rst}
-.. autoclass:: pytask.MetaNode
+.. autoclass:: pytask.Node
 ```
 
 Then, different kinds of nodes can be implemented.
@@ -359,7 +359,7 @@ There are some classes to handle different kinds of reports.
 ```{eval-rst}
 .. autoclass:: pytask.CollectionReport
 .. autoclass:: pytask.ExecutionReport
-.. autoclass:: pytask.ResolvingDependenciesReport
+.. autoclass:: pytask.DagReport
 ```
 
 ## Tracebacks

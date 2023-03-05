@@ -20,7 +20,7 @@ except ImportError:
 if TYPE_CHECKING:
     from _pytask.report import CollectionReport
     from _pytask.report import ExecutionReport
-    from _ptytask.report import ResolvingDependenciesReport
+    from _ptytask.report import DagReport
     from _pytask.nodes_utils import Task
 
 
@@ -41,8 +41,8 @@ class Session:
     tasks: list[Task] = field(factory=list)
     """list[Task]: List of collected tasks."""
     dag: nx.DiGraph | None = None
-    resolving_dependencies_report: ResolvingDependenciesReport | None = None
-    """ResolvingDependenciesReport | None: Reports for resolving dependencies failed."""
+    resolving_dependencies_report: DagReport | None = None
+    """DagReport | None: Reports for resolving dependencies failed."""
     execution_reports: list[ExecutionReport] = field(factory=list)
     """list[ExecutionReport]: Reports for executed tasks."""
     exit_code: ExitCode = ExitCode.OK

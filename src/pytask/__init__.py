@@ -33,7 +33,7 @@ from _pytask.mark_utils import remove_marks
 from _pytask.mark_utils import set_marks
 from _pytask.models import CollectionMetadata
 from _pytask.nodes_utils import FilePathNode
-from _pytask.nodes_utils import MetaNode
+from _pytask.nodes_utils import Node
 from _pytask.nodes_utils import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
@@ -45,8 +45,8 @@ from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
 from _pytask.report import CollectionReport
+from _pytask.report import DagReport
 from _pytask.report import ExecutionReport
-from _pytask.report import ResolvingDependenciesReport
 from _pytask.session import Session
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
@@ -78,13 +78,13 @@ __all__ = [
     "Mark",
     "MarkDecorator",
     "MarkGenerator",
-    "MetaNode",
+    "Node",
     "NodeNotCollectedError",
     "NodeNotFoundError",
     "Persisted",
     "PytaskError",
     "ResolvingDependenciesError",
-    "ResolvingDependenciesReport",
+    "DagReport",
     "Session",
     "Skipped",
     "SkippedAncestorFailed",

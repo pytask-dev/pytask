@@ -1,176 +1,211 @@
 from __future__ import annotations
 
+import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
+from typing import Any
 
 import networkx as nx
 import pytest
-from _pytask.dag import _extract_priorities_from_tasks
-from _pytask.dag import descending_tasks
-from _pytask.dag import node_and_neighbors
-from _pytask.dag import task_and_descending_tasks
-from _pytask.dag import TopologicalSorter
-from pytask import Mark
+from _pytask.dag import _check_if_root_nodes_are_available
+from _pytask.dag import pytask_dag_create_dag
+from _pytask.exceptions import NodeNotFoundError
+from _pytask.exceptions import ResolvingDependenciesError
+from attrs import define
+from pytask import cli
+from pytask import ExitCode
+from pytask import FilePathNode
 from pytask import Task
 
 
-@pytest.fixture()
-def dag():
+@define
+class Node(FilePathNode):
+    """See https://github.com/python-attrs/attrs/issues/293 for property hack."""
+
+    name: str
+    value: Any
+    path: Path
+
+    def state(self):
+        if "missing" in self.name:
+            raise NodeNotFoundError
+
+
+@pytest.mark.unit()
+def test_pytask_dag_create_dag():
+    root = Path.cwd() / "src"
+    task = Task(
+        base_name="task_dummy",
+        path=root,
+        function=None,
+        depends_on={
+            0: Node.from_path(root / "node_1"),
+            1: Node.from_path(root / "node_2"),
+        },
+    )
+
+    dag = pytask_dag_create_dag([task])
+
+    assert all(
+        any(i in node for i in ("node_1", "node_2", "task")) for node in dag.nodes
+    )
+
+
+@pytest.mark.unit()
+@pytest.mark.xfail(reason="session object is missing.")
+def test_check_if_root_nodes_are_available():
     dag = nx.DiGraph()
-    for i in range(4):
-        dag.add_node(f".::{i}", task=Task(base_name=str(i), path=Path(), function=None))
-        dag.add_node(
-            f".::{i + 1}", task=Task(base_name=str(i + 1), path=Path(), function=None)
-        )
-        dag.add_edge(f".::{i}", f".::{i + 1}")
 
-    return dag
+    root = Path.cwd() / "src"
 
+    path = root.joinpath("task_dummy")
+    task = Task(base_name="task", path=path, function=None)
+    task.path = path
+    task.base_name = "task_dummy"
+    dag.add_node(task.name, task=task)
 
-@pytest.mark.unit()
-def test_sort_tasks_topologically(dag):
-    topo_ordering = list(TopologicalSorter.from_dag(dag).static_order())
-    assert topo_ordering == [f".::{i}" for i in range(5)]
+    available_node = Node.from_path(root.joinpath("available_node"))
+    dag.add_node(available_node.name, node=available_node)
+    dag.add_edge(available_node.name, task.name)
 
+    with does_not_raise():
+        _check_if_root_nodes_are_available(dag)
 
-@pytest.mark.unit()
-def test_descending_tasks(dag):
-    for i in range(5):
-        descendants = sorted(descending_tasks(f".::{i}", dag))
-        assert descendants == [f".::{i}" for i in range(i + 1, 5)]
+    missing_node = Node.from_path(root.joinpath("missing_node"))
+    dag.add_node(missing_node.name, node=missing_node)
+    dag.add_edge(missing_node.name, task.name)
 
-
-@pytest.mark.unit()
-def test_task_and_descending_tasks(dag):
-    for i in range(5):
-        descendants = sorted(task_and_descending_tasks(f".::{i}", dag))
-        assert descendants == [f".::{i}" for i in range(i, 5)]
+    with pytest.raises(ResolvingDependenciesError):
+        _check_if_root_nodes_are_available(dag)
 
 
-@pytest.mark.unit()
-def test_node_and_neighbors(dag):
-    for i in range(1, 4):
-        nodes = sorted(node_and_neighbors(dag, f".::{i}"))
-        assert nodes == [f".::{j}" for j in range(i - 1, i + 2)]
+@pytest.mark.end_to_end()
+def test_check_if_root_nodes_are_available_end_to_end(tmp_path, runner):
+    source = """
+    import pytask
+
+    @pytask.mark.depends_on("in.txt")
+    @pytask.mark.produces("out.txt")
+    def task_d(produces):
+        produces.write_text("1")
+    """
+    tmp_path.joinpath("task_d.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.DAG_FAILED
+    assert "Failures during resolving dependencies" in result.output
+
+    # Ensure that node names are reduced.
+    assert "Failures during resolving dependencies" in result.output
+    assert "Some dependencies do not exist or are" in result.output
+    assert tmp_path.joinpath("task_d.py").as_posix() + "::task_d" not in result.output
+    assert "task_d.py::task_d" in result.output
+    assert tmp_path.joinpath("in.txt").as_posix() not in result.output
+    assert tmp_path.name + "/in.txt" in result.output
 
 
-@pytest.mark.unit()
-@pytest.mark.parametrize(
-    ("tasks", "expectation", "expected"),
-    [
-        pytest.param(
-            [
-                Task(
-                    base_name="1",
-                    path=Path(),
-                    function=None,
-                    markers=[Mark("try_last", (), {})],
-                )
-            ],
-            does_not_raise(),
-            {".::1": -1},
-            id="test try_last",
-        ),
-        pytest.param(
-            [
-                Task(
-                    base_name="1",
-                    path=Path(),
-                    function=None,
-                    markers=[Mark("try_first", (), {})],
-                )
-            ],
-            does_not_raise(),
-            {".::1": 1},
-            id="test try_first",
-        ),
-        pytest.param(
-            [Task(base_name="1", path=Path(), function=None, markers=[])],
-            does_not_raise(),
-            {".::1": 0},
-            id="test no priority",
-        ),
-        pytest.param(
-            [
-                Task(
-                    base_name="1",
-                    path=Path(),
-                    function=None,
-                    markers=[Mark("try_first", (), {}), Mark("try_last", (), {})],
-                )
-            ],
-            pytest.raises(ValueError, match="'try_first' and 'try_last' cannot be"),
-            {".::1": 1},
-            id="test mixed priorities",
-        ),
-        pytest.param(
-            [
-                Task(
-                    base_name="1",
-                    path=Path(),
-                    function=None,
-                    markers=[Mark("try_first", (), {})],
-                ),
-                Task(base_name="2", path=Path(), function=None, markers=[]),
-                Task(
-                    base_name="3",
-                    path=Path(),
-                    function=None,
-                    markers=[Mark("try_last", (), {})],
-                ),
-            ],
-            does_not_raise(),
-            {".::1": 1, ".::2": 0, ".::3": -1},
-        ),
-    ],
-)
-def test_extract_priorities_from_tasks(tasks, expectation, expected):
-    with expectation:
-        result = _extract_priorities_from_tasks(tasks)
-        assert result == expected
+@pytest.mark.end_to_end()
+def test_check_if_root_nodes_are_available_with_separate_build_folder_end_to_end(
+    tmp_path, runner
+):
+    tmp_path.joinpath("src").mkdir()
+    tmp_path.joinpath("bld").mkdir()
+    source = """
+    import pytask
+
+    @pytask.mark.depends_on("../bld/in.txt")
+    @pytask.mark.produces("out.txt")
+    def task_d(produces):
+        produces.write_text("1")
+    """
+    tmp_path.joinpath("src", "task_d.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.joinpath("src").as_posix()])
+
+    assert result.exit_code == ExitCode.DAG_FAILED
+    assert "Failures during resolving dependencies" in result.output
+
+    # Ensure that node names are reduced.
+    assert "Failures during resolving dependencies" in result.output
+    assert "Some dependencies do not exist" in result.output
+    assert tmp_path.joinpath("task_d.py").as_posix() + "::task_d" not in result.output
+    assert "task_d.py::task_d" in result.output
+    assert tmp_path.joinpath("bld", "in.txt").as_posix() not in result.output
+    assert tmp_path.name + "/bld/in.txt" in result.output
 
 
-@pytest.mark.unit()
-def test_raise_error_for_undirected_graphs(dag):
-    undirected_graph = dag.to_undirected()
-    with pytest.raises(ValueError, match="Only directed graphs have a"):
-        TopologicalSorter.from_dag(undirected_graph)
+@pytest.mark.end_to_end()
+def test_cycle_in_dag(tmp_path, runner):
+    source = """
+    import pytask
+
+    @pytask.mark.depends_on("out_2.txt")
+    @pytask.mark.produces("out_1.txt")
+    def task_1(produces):
+        produces.write_text("1")
+
+    @pytask.mark.depends_on("out_1.txt")
+    @pytask.mark.produces("out_2.txt")
+    def task_2(produces):
+        produces.write_text("2")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.DAG_FAILED
+    assert "Failures during resolving dependencies" in result.output
+    assert "The DAG contains cycles which means a dependency" in result.output
 
 
-@pytest.mark.unit()
-def test_raise_error_for_cycle_in_graph(dag):
-    dag.add_edge(".::4", ".::1")
-    scheduler = TopologicalSorter.from_dag(dag)
-    with pytest.raises(ValueError, match="The DAG contains cycles."):
-        scheduler.prepare()
+@pytest.mark.end_to_end()
+def test_two_tasks_have_the_same_product(tmp_path, runner):
+    source = """
+    import pytask
+
+    @pytask.mark.produces("out.txt")
+    def task_1(produces):
+        produces.write_text("1")
+
+    @pytask.mark.produces("out.txt")
+    def task_2(produces):
+        produces.write_text("2")
+    """
+    tmp_path.joinpath("task_d.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.DAG_FAILED
+    assert "Failures during resolving dependencies" in result.output
+    assert "There are some tasks which produce the same output." in result.output
+
+    # Ensure that nodes names are reduced.
+    assert tmp_path.joinpath("task_d.py").as_posix() + "::task_1" not in result.output
+    assert "task_d.py::task_1" in result.output
+    assert tmp_path.joinpath("task_d.py").as_posix() + "::task_2" not in result.output
+    assert "task_d.py::task_2" in result.output
+    assert tmp_path.joinpath("out.txt").as_posix() not in result.output
+    assert tmp_path.name + "/out.txt" in result.output
 
 
-@pytest.mark.unit()
-def test_raise_if_topological_sorter_is_not_prepared(dag):
-    scheduler = TopologicalSorter.from_dag(dag)
-    with pytest.raises(ValueError, match="The TopologicalSorter needs to be prepared."):
-        scheduler.get_ready(1)
+@pytest.mark.end_to_end()
+def test_has_node_changed_catches_notnotfounderror(runner, tmp_path):
+    """Missing nodes raise NodeNotFoundError when they do not exist and their state is
+    requested."""
+    source = """
+    import pytask
 
+    @pytask.mark.produces("file.txt")
+    def task_example(produces):
+        produces.write_text("test")
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
-@pytest.mark.unit()
-def test_ask_for_invalid_number_of_ready_tasks(dag):
-    scheduler = TopologicalSorter.from_dag(dag)
-    scheduler.prepare()
-    with pytest.raises(ValueError, match="'n' must be"):
-        scheduler.get_ready(0)
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
 
+    tmp_path.joinpath("file.txt").unlink()
 
-@pytest.mark.unit()
-def test_reset_topological_sorter(dag):
-    scheduler = TopologicalSorter.from_dag(dag)
-    scheduler.prepare()
-    name = scheduler.get_ready()[0]
-    scheduler.done(name)
-
-    assert scheduler._is_prepared
-    assert name not in scheduler.dag.nodes
-
-    scheduler.reset()
-
-    assert not scheduler._is_prepared
-    assert name in scheduler.dag.nodes
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK

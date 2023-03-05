@@ -69,7 +69,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     from _pytask import parametrize
     from _pytask import persist
     from _pytask import profile
-    from _pytask import resolve_dependencies
+    from _pytask import dag
     from _pytask import skipping
     from _pytask import task
     from _pytask import warnings
@@ -92,7 +92,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     pm.register(parametrize)
     pm.register(persist)
     pm.register(profile)
-    pm.register(resolve_dependencies)
+    pm.register(dag)
     pm.register(skipping)
     pm.register(task)
     pm.register(warnings)

@@ -1,7 +1,7 @@
 """This module contains utilities for the database."""
 from __future__ import annotations
 
-from _pytask.dag import node_and_neighbors
+from _pytask.dag_utils import node_and_neighbors
 from _pytask.session import Session
 from pony import orm
 

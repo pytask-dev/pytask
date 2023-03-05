@@ -16,10 +16,10 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-__all__ = ["FilePathNode", "MetaNode", "Task"]
+__all__ = ["FilePathNode", "Node", "Task"]
 
 
-class MetaNode(metaclass=ABCMeta):
+class Node(metaclass=ABCMeta):
     """Meta class for nodes."""
 
     name: str
@@ -27,7 +27,7 @@ class MetaNode(metaclass=ABCMeta):
 
 
 @define(kw_only=True)
-class Task(MetaNode):
+class Task(Node):
     """The class for tasks which are Python functions."""
 
     base_name: str
@@ -40,9 +40,9 @@ class Task(MetaNode):
     """The name of the task."""
     short_name: str | None = field(default=None, init=False)
     """The shortest uniquely identifiable name for task for display."""
-    depends_on: dict[str, MetaNode] = field(factory=dict)
+    depends_on: dict[str, Node] = field(factory=dict)
     """A list of dependencies of task."""
-    produces: dict[str, MetaNode] = field(factory=dict)
+    produces: dict[str, Node] = field(factory=dict)
     """A list of products of task."""
     markers: list[Mark] = field(factory=list)
     """A list of markers attached to the task function."""
@@ -72,7 +72,7 @@ class Task(MetaNode):
 
 
 @define
-class FilePathNode(MetaNode):
+class FilePathNode(Node):
     """The class for a node which is a path."""
 
     name: str

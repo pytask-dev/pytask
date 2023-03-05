@@ -5,7 +5,7 @@ from typing import Any
 from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
-from _pytask.dag import descending_tasks
+from _pytask.dag_utils import descending_tasks
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark

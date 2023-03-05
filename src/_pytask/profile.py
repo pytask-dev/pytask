@@ -130,7 +130,7 @@ def profile(**raw_config: Any) -> NoReturn:
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_resolve_dependencies(session=session)
+            session.hook.pytask_dag(session=session)
 
             profile: dict[str, dict[str, Any]] = {
                 task.name: {} for task in session.tasks

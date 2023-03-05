@@ -15,7 +15,7 @@ from attrs import field
 
 
 if TYPE_CHECKING:
-    from _pytask.nodes_utils import MetaNode
+    from _pytask.nodes_utils import Node
     from _pytask.nodes_utils import Task
 
 
@@ -27,7 +27,7 @@ class CollectionReport:
     """A collection report for a task."""
 
     outcome: CollectionOutcome
-    node: MetaNode | None = None
+    node: Node | None = None
     exc_info: ExceptionInfo | None = None
 
     @classmethod
@@ -35,20 +35,20 @@ class CollectionReport:
         cls: type[CollectionReport],
         outcome: CollectionOutcome,
         exc_info: ExceptionInfo,
-        node: MetaNode | None = None,
+        node: Node | None = None,
     ) -> CollectionReport:
         exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(outcome=outcome, node=node, exc_info=exc_info)
 
 
 @define
-class ResolvingDependenciesReport:
-    """A report for an error while resolving dependencies."""
+class DagReport:
+    """A report for an error during the creation of the DAG."""
 
     exc_info: ExceptionInfo
 
     @classmethod
-    def from_exception(cls, exc_info: ExceptionInfo) -> ResolvingDependenciesReport:
+    def from_exception(cls, exc_info: ExceptionInfo) -> DagReport:
         return cls(exc_info)
 
 

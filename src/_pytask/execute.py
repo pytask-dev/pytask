@@ -13,8 +13,8 @@ from _pytask.console import create_url_style_for_task
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import format_task_id
 from _pytask.console import unify_styles
-from _pytask.dag import descending_tasks
-from _pytask.dag import TopologicalSorter
+from _pytask.dag_utils import descending_tasks
+from _pytask.dag_utils import TopologicalSorter
 from _pytask.database_utils import update_states_in_database
 from _pytask.enums import ShowCapture
 from _pytask.exceptions import ExecutionError
