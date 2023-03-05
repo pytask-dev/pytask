@@ -29,22 +29,22 @@ class Session:
     """The session of pytask."""
 
     config: dict[str, Any] = field(factory=dict)
-    """Dict[str, Any]: Configuration of the session."""
+    """Configuration of the session."""
     hook: _HookRelay | None = None
-    """pluggy.hooks._HookRelay | None: Holds all hooks collected by pytask."""
+    """Holds all hooks collected by pytask."""
     collection_reports: list[CollectionReport] = field(factory=list)
-    """list[CollectionReport]: Reports for collected items.
+    """Reports for collected items.
 
     The reports capture errors which happened while collecting tasks.
 
     """
     tasks: list[Task] = field(factory=list)
-    """list[Task]: List of collected tasks."""
+    """List of collected tasks."""
     dag: nx.DiGraph | None = None
     resolving_dependencies_report: DagReport | None = None
-    """DagReport | None: Reports for resolving dependencies failed."""
+    """Reports for resolving dependencies failed."""
     execution_reports: list[ExecutionReport] = field(factory=list)
-    """list[ExecutionReport]: Reports for executed tasks."""
+    """Reports for executed tasks."""
     exit_code: ExitCode = ExitCode.OK
 
     collection_start: float | None = None
@@ -53,10 +53,10 @@ class Session:
     execution_end: float | None = None
 
     n_tasks_failed: int = 0
-    """int | None: Number of tests which have failed."""
+    """Number of tests which have failed."""
     scheduler: Any = None
     should_stop: bool = False
-    """bool | None: Indicates whether the session should be stopped."""
+    """Indicates whether the session should be stopped."""
     warnings: list[WarningReport] = field(factory=list)
 
     @classmethod

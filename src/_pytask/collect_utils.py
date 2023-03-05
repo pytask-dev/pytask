@@ -33,7 +33,7 @@ def depends_on(
 
     Parameters
     ----------
-    objects : Any | Iterable[Any] | dict[Any, Any]
+    objects
         Can be any valid Python object or an iterable of any Python objects. To be
         valid, it must be parsed by some hook implementation for the
         :func:`_pytask.hookspecs.pytask_collect_node` entry-point.
@@ -49,7 +49,7 @@ def produces(
 
     Parameters
     ----------
-    objects : Any | Iterable[Any] | dict[Any, Any]
+    objects
         Can be any valid Python object or an iterable of any Python objects. To be
         valid, it must be parsed by some hook implementation for the
         :func:`_pytask.hookspecs.pytask_collect_node` entry-point.
@@ -201,19 +201,18 @@ def _collect_node(
 
     Parameters
     ----------
-    session : _pytask.session.Session
+    session
         The session.
-    path : Path
+    path
         The path to the task whose nodes are collected.
-    name : str
+    name
         The name of the task.
-    nodes : Dict[str, Union[str, Path]]
+    nodes
         A dictionary of nodes parsed from the ``depends_on`` or ``produces`` markers.
 
     Returns
     -------
-    Dict[str, Node]
-        A dictionary of node names and their paths.
+    A dictionary of node names and their paths.
 
     Raises
     ------
