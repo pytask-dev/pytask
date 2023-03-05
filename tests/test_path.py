@@ -111,7 +111,7 @@ def test_find_common_ancestor(path_1, path_2, expectation, expected):
 )
 def test_find_case_sensitive_path(tmp_path, path, existing_paths, expected):
     for p in (path, *existing_paths):
-        p = tmp_path / p
+        p = tmp_path / p  # noqa: PLW2901
         p.parent.mkdir(parents=True, exist_ok=True)
         p.touch()
 
