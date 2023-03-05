@@ -71,7 +71,7 @@ class Task(Node):
             self._report_sections.append((when, key, content))
 
 
-@define
+@define(kw_only=True)
 class FilePathNode(Node):
     """The class for a node which is a path."""
 
@@ -92,4 +92,4 @@ class FilePathNode(Node):
         """
         if not path.is_absolute():
             raise ValueError("FilePathNode must be instantiated from absolute path.")
-        return cls(path.as_posix(), path, path)
+        return cls(name=path.as_posix(), value=path, path=path)
