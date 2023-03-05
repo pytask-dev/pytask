@@ -46,8 +46,8 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
             (in_path.as_posix(), in_path),
             (out_path.as_posix(), out_path),
         ):
-            state = State[task_id, id_].state
-            assert float(state) == path.stat().st_mtime
+            modification_time = State[task_id, id_].modification_time
+            assert float(modification_time) == path.stat().st_mtime
 
 
 @pytest.mark.end_to_end()

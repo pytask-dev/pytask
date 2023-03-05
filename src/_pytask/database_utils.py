@@ -1,7 +1,10 @@
 """This module contains utilities for the database."""
 from __future__ import annotations
 
+import hashlib
+
 from _pytask.dag_utils import node_and_neighbors
+from _pytask.nodes_utils import Task
 from _pytask.session import Session
 from pony import orm
 
@@ -17,7 +20,8 @@ class State(db.Entity):  # type: ignore[name-defined]
 
     task = orm.Required(str)
     node = orm.Required(str)
-    state = orm.Required(str)
+    modification_time = orm.Required(str)
+    file_hash = orm.Optional(str)
 
     orm.PrimaryKey(task, node)
 
@@ -34,19 +38,34 @@ def create_database(
 
 
 @orm.db_session
-def _create_or_update_state(first_key: str, second_key: str, state: str) -> None:
+def _create_or_update_state(
+    first_key: str, second_key: str, modification_time: str, file_hash: str
+) -> None:
     """Create or update a state."""
     try:
         state_in_db = State[first_key, second_key]  # type: ignore[type-arg, valid-type]
     except orm.ObjectNotFound:
-        State(task=first_key, node=second_key, state=state)
+        State(
+            task=first_key,
+            node=second_key,
+            modification_time=modification_time,
+            file_hash=file_hash,
+        )
     else:
-        state_in_db.state = state
+        state_in_db.modification_time = modification_time
+        state_in_db.file_hash = file_hash
 
 
 def update_states_in_database(session: Session, task_name: str) -> None:
     """Update the state for each node of a task in the database."""
     for name in node_and_neighbors(session.dag, task_name):
         node = session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
-        state = session.hook.pytask_node_state(node=node)
-        _create_or_update_state(task_name, node.name, state)
+
+        modification_time = session.hook.pytask_node_state(node=node)
+
+        if isinstance(node, Task):
+            hash_ = hashlib.sha256(node.path.read_bytes()).hexdigest()
+        else:
+            hash_ = ""
+
+        _create_or_update_state(task_name, node.name, modification_time, hash_)

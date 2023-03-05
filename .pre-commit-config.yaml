@@ -48,6 +48,26 @@ repos:
     hooks:
     -   id: refurb
         args: [--ignore, FURB126]
+-   repo: https://github.com/econchick/interrogate
+    rev: 1.5.0
+    hooks:
+    -   id: interrogate
+        args: [-v, --fail-under=75]
+        exclude: ^(tests/|docs/|scripts/)
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.0.1'
+    hooks:
+    -   id: mypy
+        args: [
+            --no-strict-optional,
+            --ignore-missing-imports,
+        ]
+        additional_dependencies: [
+            attrs>=21.3.0,
+            click,
+            types-setuptools
+        ]
+        pass_filenames: false
 -   repo: https://github.com/executablebooks/mdformat
     rev: 0.7.16
     hooks:
@@ -82,12 +102,6 @@ repos:
                 docs/source/tutorials/selecting_tasks.md|
                 docs/source/tutorials/set_up_a_project.md
             )$
--   repo: https://github.com/econchick/interrogate
-    rev: 1.5.0
-    hooks:
-    -   id: interrogate
-        args: [-v, --fail-under=75]
-        exclude: ^(tests/|docs/|scripts/)
 -   repo: https://github.com/codespell-project/codespell
     rev: v2.2.2
     hooks:
@@ -99,20 +113,6 @@ repos:
     -   id: check-manifest
         args: [--no-build-isolation]
         additional_dependencies: [setuptools-scm, toml]
--   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.0.1'
-    hooks:
-    -   id: mypy
-        args: [
-            --no-strict-optional,
-            --ignore-missing-imports,
-        ]
-        additional_dependencies: [
-            attrs>=21.3.0,
-            click,
-            types-setuptools
-        ]
-        pass_filenames: false
 -   repo: meta
     hooks:
     -   id: check-hooks-apply
