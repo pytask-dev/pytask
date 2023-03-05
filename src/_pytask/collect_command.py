@@ -32,7 +32,7 @@ from rich.tree import Tree
 
 if TYPE_CHECKING:
     from typing import NoReturn
-    from _pytask.nodes import Task
+    from _pytask.nodes_utils import Task
 
 
 @hookimpl(tryfirst=True)
@@ -72,7 +72,7 @@ def collect(**raw_config: Any | None) -> NoReturn:
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_resolve_dependencies(session=session)
+            session.hook.pytask_dag(session=session)
 
             tasks = _select_tasks_by_expressions_and_marker(session)
 
@@ -95,7 +95,7 @@ def collect(**raw_config: Any | None) -> NoReturn:
             session.exit_code = ExitCode.COLLECTION_FAILED
 
         except ResolvingDependenciesError:
-            session.exit_code = ExitCode.RESOLVING_DEPENDENCIES_FAILED
+            session.exit_code = ExitCode.DAG_FAILED
 
         except Exception:  # noqa: BLE001
             session.exit_code = ExitCode.FAILED

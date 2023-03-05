@@ -10,7 +10,7 @@ from _pytask.collect_command import _print_collected_tasks
 from attrs import define
 from pytask import cli
 from pytask import ExitCode
-from pytask import MetaNode
+from pytask import Node
 from pytask import Task
 
 
@@ -304,7 +304,7 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
 
 
 @define
-class Node(MetaNode):
+class Node(Node):
     path: Path
 
     def state(self):

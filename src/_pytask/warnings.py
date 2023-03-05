@@ -8,7 +8,7 @@ from typing import Generator
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.nodes import Task
+from _pytask.nodes_utils import Task
 from _pytask.session import Session
 from _pytask.warnings_utils import catch_warnings_for_item
 from _pytask.warnings_utils import parse_filterwarnings

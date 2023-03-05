@@ -13,16 +13,16 @@ from _pytask.console import create_url_style_for_task
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import format_task_id
 from _pytask.console import unify_styles
-from _pytask.dag import descending_tasks
-from _pytask.dag import TopologicalSorter
+from _pytask.dag_utils import descending_tasks
+from _pytask.dag_utils import TopologicalSorter
 from _pytask.database_utils import update_states_in_database
 from _pytask.enums import ShowCapture
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.mark_utils import has_mark
-from _pytask.nodes import FilePathNode
-from _pytask.nodes import Task
+from _pytask.nodes_utils import FilePathNode
+from _pytask.nodes_utils import Task
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
@@ -121,11 +121,9 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
     """
     for dependency in session.dag.predecessors(task.name):
         node = session.dag.nodes[dependency]["node"]
-        try:
-            node.state()
-        except NodeNotFoundError as e:
+        if not session.hook.pytask_node_state(node=node):
             msg = f"{node.name} is missing and required for {task.name}."
-            raise NodeNotFoundError(msg) from e
+            raise NodeNotFoundError(msg)
 
     # Create directory for product if it does not exist. Maybe this should be a `setup`
     # method for the node classes.
@@ -163,11 +161,8 @@ def pytask_execute_task_teardown(session: Session, task: Task) -> None:
     missing_nodes = []
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
-        if isinstance(node, FilePathNode):
-            try:
-                node.state()
-            except NodeNotFoundError:
-                missing_nodes.append(node)
+        if not session.hook.pytask_node_state(node=node):
+            missing_nodes.append(node)
 
     if missing_nodes:
         paths = [reduce_node_name(i, session.config["paths"]) for i in missing_nodes]
@@ -189,7 +184,7 @@ def pytask_execute_task_process_report(
     """
     task = report.task
     if report.outcome == TaskOutcome.SUCCESS:
-        update_states_in_database(session.dag, task.name)
+        update_states_in_database(session, task.name)
     elif report.exc_info and isinstance(report.exc_info[1], WouldBeExecuted):
         report.outcome = TaskOutcome.WOULD_BE_EXECUTED
 

@@ -5,9 +5,8 @@ from typing import Any
 from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
-from _pytask.dag import node_and_neighbors
+from _pytask.dag_utils import node_and_neighbors
 from _pytask.database_utils import update_states_in_database
-from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark_utils import has_mark
 from _pytask.outcomes import Persisted
 from _pytask.outcomes import TaskOutcome
@@ -15,7 +14,7 @@ from _pytask.outcomes import TaskOutcome
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import Task
+    from _pytask.nodes_utils import Task
     from _pytask.report import ExecutionReport
 
 
@@ -39,17 +38,13 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
 
     """
     if has_mark(task, "persist"):
-        try:
-            for name in node_and_neighbors(session.dag, task.name):
-                node = (
-                    session.dag.nodes[name].get("task")
-                    or session.dag.nodes[name]["node"]
-                )
-                node.state()
-        except NodeNotFoundError:
-            all_nodes_exist = False
-        else:
-            all_nodes_exist = True
+        all_nodes_exist = all(
+            session.hook.pytask_node_state(
+                node=session.dag.nodes[name].get("task")
+                or session.dag.nodes[name]["node"]
+            )
+            for name in node_and_neighbors(session.dag, task.name)
+        )
 
         if all_nodes_exist:
             raise Persisted
@@ -66,6 +61,6 @@ def pytask_execute_task_process_report(
     """
     if report.exc_info and isinstance(report.exc_info[1], Persisted):
         report.outcome = TaskOutcome.PERSISTENCE
-        update_states_in_database(session.dag, report.task.name)
+        update_states_in_database(session, report.task.name)
         return True
     return None

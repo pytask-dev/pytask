@@ -110,7 +110,7 @@ def dag(**raw_config: Any) -> NoReturn:
                 "can install with conda.",
             )
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_resolve_dependencies(session=session)
+            session.hook.pytask_dag(session=session)
             dag = _refine_dag(session)
             _write_graph(dag, session.config["output_path"], session.config["layout"])
 
@@ -118,7 +118,7 @@ def dag(**raw_config: Any) -> NoReturn:
             session.exit_code = ExitCode.COLLECTION_FAILED
 
         except ResolvingDependenciesError:
-            session.exit_code = ExitCode.RESOLVING_DEPENDENCIES_FAILED
+            session.exit_code = ExitCode.DAG_FAILED
 
         except Exception:  # noqa: BLE001
             session.exit_code = ExitCode.FAILED
@@ -214,7 +214,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
                 "can install with conda.",
             )
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_resolve_dependencies(session=session)
+            session.hook.pytask_dag(session=session)
             dag = _refine_dag(session)
 
         except Exception:

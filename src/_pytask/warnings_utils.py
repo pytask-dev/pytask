@@ -12,7 +12,7 @@ from typing import NamedTuple
 from typing import TYPE_CHECKING
 
 from _pytask.mark_utils import get_marks
-from _pytask.nodes import Task
+from _pytask.nodes_utils import Task
 from _pytask.outcomes import Exit
 
 

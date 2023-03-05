@@ -11,7 +11,7 @@ import networkx as nx
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.dag import task_and_preceding_tasks
+from _pytask.dag_utils import task_and_preceding_tasks
 from _pytask.exceptions import ConfigurationError
 from _pytask.mark.expression import Expression
 from _pytask.mark.expression import ParseError
@@ -19,7 +19,7 @@ from _pytask.mark.structures import Mark
 from _pytask.mark.structures import MARK_GEN
 from _pytask.mark.structures import MarkDecorator
 from _pytask.mark.structures import MarkGenerator
-from _pytask.nodes import Task
+from _pytask.nodes_utils import Task
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
@@ -221,7 +221,7 @@ def _deselect_others_with_mark(
 
 
 @hookimpl
-def pytask_resolve_dependencies_modify_dag(session: Session, dag: nx.DiGraph) -> None:
+def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
     """Modify the tasks which are executed with expressions and markers."""
     remaining = select_by_keyword(session, dag)
     if remaining is not None:

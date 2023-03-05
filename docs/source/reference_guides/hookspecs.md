@@ -134,23 +134,23 @@ your plugin.
 :::
 
 ```{eval-rst}
-.. autofunction:: pytask_resolve_dependencies
+.. autofunction:: pytask_dag
 ```
 
 ```{eval-rst}
-.. autofunction:: pytask_resolve_dependencies_create_dag
+.. autofunction:: pytask_dag_create_dag
 ```
 
 ```{eval-rst}
-.. autofunction:: pytask_resolve_dependencies_validate_dag
+.. autofunction:: pytask_dag_validate_dag
 ```
 
 ```{eval-rst}
-.. autofunction:: pytask_resolve_dependencies_select_execution_dag
+.. autofunction:: pytask_dag_select_execution_dag
 ```
 
 ```{eval-rst}
-.. autofunction:: pytask_resolve_dependencies_log
+.. autofunction:: pytask_dag_log
 
 ```
 
