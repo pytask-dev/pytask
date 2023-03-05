@@ -315,7 +315,7 @@ def test_scheduling_w_mixed_priorities(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == ExitCode.RESOLVING_DEPENDENCIES_FAILED
+    assert result.exit_code == ExitCode.DAG_FAILED
     assert "Failures during resolving dependencies" in result.output
     assert "'try_first' and 'try_last' cannot be applied" in result.output
 

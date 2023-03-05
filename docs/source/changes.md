@@ -11,6 +11,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`352` publishes `db` that is required by pytask-environment.
 - {pull}`354` adds a `-f/--force` flag to execute tasks even though nothing may have
   changed.
+- {pull}`355` refactors a lot of things related to nodes.
 
 ## 0.3.1 - 2023-12-25
 

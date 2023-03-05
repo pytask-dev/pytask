@@ -151,7 +151,7 @@ def test_skip_if_dependency_is_missing_only_for_one_task(runner, tmp_path, mark_
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == ExitCode.RESOLVING_DEPENDENCIES_FAILED
+    assert result.exit_code == ExitCode.DAG_FAILED
     assert "in.txt" in result.output
     assert "task_first" not in result.output
     assert "task_second" in result.output

@@ -64,11 +64,12 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     from _pytask import live
     from _pytask import logging
     from _pytask import mark
+    from _pytask import nodes
     from _pytask import parameters
     from _pytask import parametrize
     from _pytask import persist
     from _pytask import profile
-    from _pytask import resolve_dependencies
+    from _pytask import dag
     from _pytask import skipping
     from _pytask import task
     from _pytask import warnings
@@ -86,11 +87,12 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     pm.register(live)
     pm.register(logging)
     pm.register(mark)
+    pm.register(nodes)
     pm.register(parameters)
     pm.register(parametrize)
     pm.register(persist)
     pm.register(profile)
-    pm.register(resolve_dependencies)
+    pm.register(dag)
     pm.register(skipping)
     pm.register(task)
     pm.register(warnings)

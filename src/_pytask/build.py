@@ -113,14 +113,14 @@ def main(raw_config: dict[str, Any]) -> Session:  # noqa: C901, PLR0912, PLR0915
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_resolve_dependencies(session=session)
+            session.hook.pytask_dag(session=session)
             session.hook.pytask_execute(session=session)
 
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED
 
         except ResolvingDependenciesError:
-            session.exit_code = ExitCode.RESOLVING_DEPENDENCIES_FAILED
+            session.exit_code = ExitCode.DAG_FAILED
 
         except ExecutionError:
             session.exit_code = ExitCode.FAILED

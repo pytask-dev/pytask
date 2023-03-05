@@ -18,13 +18,13 @@ import pluggy
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import MetaNode
-    from _pytask.nodes import Task
+    from _pytask.nodes_utils import Node
+    from _pytask.nodes_utils import Task
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
-    from _pytask.reports import ResolveDependencyReport
+    from _pytask.reports import DagReport
 
 
 hookspec = pluggy.HookspecMarker("pytask")
@@ -192,9 +192,7 @@ def pytask_collect_task_teardown(session: Session, task: Task) -> None:
 
 
 @hookspec(firstresult=True)
-def pytask_collect_node(
-    session: Session, path: Path, node: MetaNode
-) -> MetaNode | None:
+def pytask_collect_node(session: Session, path: Path, node: Node) -> Node | None:
     """Collect a node which is a dependency or a product of a task."""
 
 
@@ -234,8 +232,8 @@ def pytask_parametrize_kwarg_to_marker(obj: Any, kwargs: dict[Any, Any]) -> None
 
 
 @hookspec(firstresult=True)
-def pytask_resolve_dependencies(session: Session) -> None:
-    """Resolve dependencies.
+def pytask_dag(session: Session) -> None:
+    """Create a DAG.
 
     The main hook implementation which controls the resolution of dependencies and calls
     subordinated hooks.
@@ -244,9 +242,7 @@ def pytask_resolve_dependencies(session: Session) -> None:
 
 
 @hookspec(firstresult=True)
-def pytask_resolve_dependencies_create_dag(
-    session: Session, tasks: list[Task]
-) -> nx.DiGraph:
+def pytask_dag_create_dag(session: Session, tasks: list[Task]) -> nx.DiGraph:
     """Create the DAG.
 
     This hook creates the DAG from tasks, dependencies and products. The DAG can be used
@@ -256,7 +252,7 @@ def pytask_resolve_dependencies_create_dag(
 
 
 @hookspec
-def pytask_resolve_dependencies_modify_dag(session: Session, dag: nx.DiGraph) -> None:
+def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
     """Modify the DAG.
 
     This hook allows to make some changes to the DAG before it is validated and tasks
@@ -266,7 +262,7 @@ def pytask_resolve_dependencies_modify_dag(session: Session, dag: nx.DiGraph) ->
 
 
 @hookspec(firstresult=True)
-def pytask_resolve_dependencies_validate_dag(session: Session, dag: nx.DiGraph) -> None:
+def pytask_dag_validate_dag(session: Session, dag: nx.DiGraph) -> None:
     """Validate the DAG.
 
     This hook validates the DAG. For example, there can be cycles in the DAG if tasks,
@@ -276,8 +272,18 @@ def pytask_resolve_dependencies_validate_dag(session: Session, dag: nx.DiGraph) 
 
 
 @hookspec
-def pytask_resolve_dependencies_select_execution_dag(
-    session: Session, dag: nx.DiGraph
+def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
+    """Select the subgraph which needs to be executed.
+
+    This hook determines which of the tasks have to be re-run because something has
+    changed.
+
+    """
+
+
+@hookspec(firstresult=True)
+def pytask_dag_has_node_changed(
+    session: Session, dag: nx.DiGraph, node: Node, task_name: str
 ) -> None:
     """Select the subgraph which needs to be executed.
 
@@ -288,9 +294,7 @@ def pytask_resolve_dependencies_select_execution_dag(
 
 
 @hookspec
-def pytask_resolve_dependencies_log(
-    session: Session, report: ResolveDependencyReport
-) -> None:
+def pytask_dag_log(session: Session, report: DagReport) -> None:
     """Log errors during resolving dependencies."""
 
 
@@ -445,3 +449,11 @@ def pytask_profile_export_profile(
     session: Session, profile: dict[str, dict[Any, Any]]
 ) -> None:
     """Export the profile."""
+
+
+# Hooks for nodes
+
+
+@hookspec(firstresult=True)
+def pytask_node_state(node: Node) -> Any:
+    """Return the state of a node."""
