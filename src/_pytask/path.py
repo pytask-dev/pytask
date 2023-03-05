@@ -63,7 +63,7 @@ def find_closest_ancestor(
     closest_ancestor = None
     for ancestor in potential_ancestors:
         if isinstance(ancestor, str):
-            ancestor = Path(ancestor)
+            ancestor = Path(ancestor)  # noqa: PLW2901
 
         if ancestor == path:
             closest_ancestor = path
@@ -71,7 +71,7 @@ def find_closest_ancestor(
 
         # Paths can also point to files in which case we want to take the parent folder.
         if ancestor.is_file():
-            ancestor = ancestor.parent
+            ancestor = ancestor.parent  # noqa: PLW2901
 
         if ancestor in path.parents and (
             closest_ancestor is None
