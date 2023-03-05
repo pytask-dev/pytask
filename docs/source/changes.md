@@ -12,7 +12,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`354` adds a `-f/--force` flag to execute tasks even though nothing may have
   changed.
 - {pull}`355` refactors a lot of things related to nodes.
-- {pull}`356` add hashing for task files to detect changes when modification times do
+- {pull}`357` add hashing for task files to detect changes when modification times do
   not match.
 
 ## 0.3.1 - 2023-12-25
