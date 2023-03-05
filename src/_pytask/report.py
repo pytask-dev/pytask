@@ -49,6 +49,7 @@ class DagReport:
 
     @classmethod
     def from_exception(cls, exc_info: ExceptionInfo) -> DagReport:
+        exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(exc_info)
 
 

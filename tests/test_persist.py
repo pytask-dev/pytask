@@ -73,8 +73,8 @@ def test_multiple_runs_with_persist(tmp_path):
         task_id = tmp_path.joinpath("task_module.py").as_posix() + "::task_dummy"
         node_id = tmp_path.joinpath("out.txt").as_posix()
 
-        state = State[task_id, node_id].state
-        assert float(state) == tmp_path.joinpath("out.txt").stat().st_mtime
+        modification_time = State[task_id, node_id].modification_time
+        assert float(modification_time) == tmp_path.joinpath("out.txt").stat().st_mtime
 
     session = main({"paths": tmp_path})
 
