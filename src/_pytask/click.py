@@ -162,13 +162,12 @@ def _print_options(
         elif len(param.opts) == 1 == len(param.secondary_opts):
             opt1 = Text("")
             opt2 = highlighter(param.opts[0] + "/" + param.secondary_opts[0])
+        elif "--" in param.opts[0]:
+            opt1 = Text("")
+            opt2 = highlighter(param.opts[0])
         else:
-            if "--" in param.opts[0]:
-                opt1 = Text("")
-                opt2 = highlighter(param.opts[0])
-            else:
-                opt1 = highlighter(param.opts[0])
-                opt2 = Text("")
+            opt1 = highlighter(param.opts[0])
+            opt2 = Text("")
 
         if param.metavar:
             opt2 += Text(f" {param.metavar}", style="metavar")

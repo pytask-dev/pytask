@@ -30,11 +30,10 @@ def set_marks(obj_or_task: Any | Task, marks: list[Mark]) -> Any | Task:
     """Set marks on a callable or task."""
     if isinstance(obj_or_task, Task):
         obj_or_task.markers = marks
+    elif hasattr(obj_or_task, "pytask_meta"):
+        obj_or_task.pytask_meta.markers = marks
     else:
-        if hasattr(obj_or_task, "pytask_meta"):
-            obj_or_task.pytask_meta.markers = marks
-        else:
-            obj_or_task.pytask_meta = CollectionMetadata(markers=marks)
+        obj_or_task.pytask_meta = CollectionMetadata(markers=marks)
     return obj_or_task
 
 
