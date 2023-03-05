@@ -385,6 +385,29 @@ def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
     assert "Collect 1 task"
 
 
+def test_task_executed_with_force_although_unchanged(tmp_path):
+    tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
+    session = main({"paths": tmp_path})
+    assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
+    session = main({"paths": tmp_path, "force": True})
+    assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
+
+
+@pytest.mark.end_to_end()
+def test_task_executed_with_force_although_unchanged_runner(runner, tmp_path):
+    tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "Collect 1 task"
+    assert "1  Succeeded"
+
+    result = runner.invoke(cli, [tmp_path.as_posix(), "--force"])
+
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded"
+
+
 @pytest.mark.end_to_end()
 def test_task_is_not_reexecuted_when_modification_changed_file_not(runner, tmp_path):
     tmp_path.joinpath("task_example.py").write_text("def task_example(): pass")

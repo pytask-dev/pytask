@@ -10,6 +10,7 @@ from pytask import cli
 from pytask import ExitCode
 from pytask import main
 from pytask import Mark
+from pytask import Session
 from pytask import Skipped
 from pytask import SkippedAncestorFailed
 from pytask import SkippedUnchanged
@@ -253,18 +254,20 @@ def test_if_skipif_decorator_is_applied_any_condition_matches(tmp_path):
 
 @pytest.mark.unit()
 @pytest.mark.parametrize(
-    ("marker_name", "expectation"),
+    ("marker_name", "force", "expectation"),
     [
-        ("skip_unchanged", pytest.raises(SkippedUnchanged)),
-        ("skip_ancestor_failed", pytest.raises(SkippedAncestorFailed)),
-        ("skip", pytest.raises(Skipped)),
-        ("", does_not_raise()),
+        ("skip_unchanged", False, pytest.raises(SkippedUnchanged)),
+        ("skip_unchanged", True, does_not_raise()),
+        ("skip_ancestor_failed", False, pytest.raises(SkippedAncestorFailed)),
+        ("skip", False, pytest.raises(Skipped)),
+        ("", False, does_not_raise()),
     ],
 )
-def test_pytask_execute_task_setup(marker_name, expectation):
+def test_pytask_execute_task_setup(marker_name, force, expectation):
+    session = Session(config={"force": force})
     task = Task(base_name="task", path=Path(), function=None)
     kwargs = {"reason": ""} if marker_name == "skip_ancestor_failed" else {}
     task.markers = [Mark(marker_name, (), kwargs)]
 
     with expectation:
-        pytask_execute_task_setup(task)
+        pytask_execute_task_setup(session=session, task=task)
