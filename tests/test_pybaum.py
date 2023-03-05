@@ -14,7 +14,7 @@ from pytask import main
 @pytest.mark.parametrize(
     ("decorator_name", "exit_code"),
     [
-        ("depends_on", ExitCode.RESOLVING_DEPENDENCIES_FAILED),
+        ("depends_on", ExitCode.DAG_FAILED),
         ("produces", ExitCode.FAILED),
     ],
 )

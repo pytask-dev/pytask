@@ -233,7 +233,7 @@ def test_keyword_option_wrong_arguments(
         textwrap.dedent("def task_func(arg): pass")
     )
     session = main({"paths": tmp_path, option: expr})
-    assert session.exit_code == ExitCode.RESOLVING_DEPENDENCIES_FAILED
+    assert session.exit_code == ExitCode.DAG_FAILED
 
     captured = capsys.readouterr()
     assert expected_error in captured.out.replace(

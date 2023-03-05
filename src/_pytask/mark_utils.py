@@ -9,7 +9,7 @@ from typing import Any
 from typing import TYPE_CHECKING
 
 from _pytask.models import CollectionMetadata
-from _pytask.nodes import Task
+from _pytask.nodes_utils import Task
 
 
 if TYPE_CHECKING:

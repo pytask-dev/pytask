@@ -9,6 +9,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`345` updates the version numbers in animations.
 - {pull}`352` publishes `db` that is required by pytask-environment.
+- {pull}`355` refactors a lot of things related to nodes.
 
 ## 0.3.1 - 2023-12-25
 

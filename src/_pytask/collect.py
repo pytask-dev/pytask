@@ -22,8 +22,8 @@ from _pytask.console import create_summary_panel
 from _pytask.console import format_task_id
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_mark
-from _pytask.nodes import FilePathNode
-from _pytask.nodes import Task
+from _pytask.nodes_utils import FilePathNode
+from _pytask.nodes_utils import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
