@@ -172,6 +172,13 @@ def main(raw_config: dict[str, Any]) -> Session:  # noqa: C901, PLR0912, PLR0915
 @click.option(
     "--dry-run", type=bool, is_flag=True, default=False, help="Perform a dry-run."
 )
+@click.option(
+    "-f",
+    "--force",
+    is_flag=True,
+    default=False,
+    help="Execute a task even if it succeeded successfully before.",
+)
 def build(**raw_config: Any) -> NoReturn:
     """Collect tasks, execute them and report the results.
 
