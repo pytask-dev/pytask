@@ -35,7 +35,7 @@ class WarningReport(NamedTuple):
 
 
 @functools.lru_cache(maxsize=50)
-def parse_warning_filter(  # noqa: C901, PLR0912
+def parse_warning_filter(  # noqa: PLR0912
     arg: str, *, escape: bool
 ) -> tuple[warnings._ActionKind, str, type[Warning], str, int]:
     """Parse a warnings filter string.
