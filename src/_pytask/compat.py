@@ -30,7 +30,7 @@ def _get_version(module: types.ModuleType) -> str:
     return version
 
 
-def import_optional_dependency(  # noqa: C901
+def import_optional_dependency(
     name: str,
     extra: str = "",
     errors: str = "raise",
@@ -108,7 +108,7 @@ def import_optional_dependency(  # noqa: C901
                 f"{parent!r} (version {version!r} currently installed)."
             )
             if errors == "warn":
-                warnings.warn(msg, UserWarning)
+                warnings.warn(msg, UserWarning, stacklevel=2)
                 return None
             if errors == "raise":
                 raise ImportError(msg)
@@ -136,6 +136,6 @@ def check_for_optional_program(
         if errors == "raise":
             raise RuntimeError(msg)
         if errors == "warn":
-            warnings.warn(msg, UserWarning)
+            warnings.warn(msg, UserWarning, stacklevel=2)
 
     return program_exists

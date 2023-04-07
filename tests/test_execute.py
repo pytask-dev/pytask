@@ -382,7 +382,7 @@ def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
 
     assert result.exit_code == ExitCode.OK
     assert "task_example" in result.output
-    assert "Collect 1 task"
+    assert "Collected 1 task" in result.output
 
 
 def test_task_executed_with_force_although_unchanged(tmp_path):
@@ -399,13 +399,13 @@ def test_task_executed_with_force_although_unchanged_runner(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
-    assert "Collect 1 task"
-    assert "1  Succeeded"
+    assert "Collected 1 task" in result.output
+    assert "1  Succeeded" in result.output
 
     result = runner.invoke(cli, [tmp_path.as_posix(), "--force"])
 
     assert result.exit_code == ExitCode.OK
-    assert "1  Succeeded"
+    assert "1  Succeeded" in result.output
 
 
 @pytest.mark.end_to_end()
