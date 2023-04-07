@@ -45,7 +45,7 @@ def test_mark_with_param():
 def test_pytask_mark_name_starts_with_underscore():
     mark = MarkGenerator()
     with pytest.raises(AttributeError):
-        mark._some_name
+        _ = mark._some_name
 
 
 @pytest.mark.end_to_end()

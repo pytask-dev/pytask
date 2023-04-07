@@ -51,7 +51,8 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
         warnings.warn(
             "Windows Terminal does not support url schemes to applications, yet."
             "See https://github.com/pytask-dev/pytask/issues/171 for more information. "
-            "Resort to `editor_url_scheme='file'`."
+            "Resort to `editor_url_scheme='file'`.",
+            stacklevel=1,
         )
 
 
