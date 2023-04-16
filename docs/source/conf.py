@@ -39,8 +39,8 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
     "sphinx_click",
-    "sphinx_panels",
     "myst_parser",
+    "sphinx_design",
 ]
 
 # List of patterns, relative to source directory, that match files and directories to
@@ -64,10 +64,10 @@ copybutton_prompt_is_regexp = True
 
 _repo = "https://github.com/pytask-dev/pytask"
 extlinks = {
-    "pypi": ("https://pypi.org/project/%s/", ""),
-    "issue": (f"{_repo}/issues/%s", "issue #"),
-    "pull": (f"{_repo}/pull/%s", "pull request #"),
-    "user": ("https://github.com/%s", "@"),
+    "pypi": ("https://pypi.org/project/%s/", "%s"),
+    "issue": (f"{_repo}/issues/%s", "issue #%s"),
+    "pull": (f"{_repo}/pull/%s", "pull request #%s"),
+    "user": ("https://github.com/%s", "@%s"),
 }
 
 intersphinx_mapping = {

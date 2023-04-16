@@ -1,5 +1,3 @@
-(pluggy)=
-
 # pluggy and the Plugin Architecture
 
 pluggy ([^id4], [^id5], [^id6]) is at the heart of pytask and enables its plugin system.

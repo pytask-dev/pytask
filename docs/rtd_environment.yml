@@ -16,7 +16,8 @@ dependencies:
   - sphinx
   - sphinx-click
   - sphinx-copybutton
-  - sphinx-panels
+  - sphinx-design
+  - sphinxext-opengraph
 
   # Package dependencies necessary for sphinx-click
   - attrs >=21.3.0
@@ -32,4 +33,3 @@ dependencies:
 
   - pip:
     - ../
-    - sphinxext-opengraph

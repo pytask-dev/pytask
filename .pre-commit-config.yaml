@@ -90,6 +90,7 @@ repos:
         files: (docs/.)
         exclude: |
             (?x)^(
+                docs/source/index.md|
                 docs/source/how_to_guides/bp_structure_of_task_files.md|
                 docs/source/how_to_guides/how_to_influence_build_order.md|
                 docs/source/how_to_guides/migrating_from_scripts_to_pytask.md|

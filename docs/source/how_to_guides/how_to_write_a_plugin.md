@@ -2,8 +2,8 @@
 
 Since pytask is based on pluggy, it is extensible. In this section, you will learn some
 key concepts you need to know to write a plugin. It won't deal with pluggy in detail,
-but if you are interested feel free to read {ref}`pluggy`. A quick look at the first
-paragraphs might be useful nonetheless.
+but if you are interested feel free to read [pluggy](../explanations/pluggy.md). A quick
+look at the first paragraphs might be useful nonetheless.
 
 ## Preparation
 
@@ -18,8 +18,8 @@ Before you start implementing your plugin, the following notes may help you.
   time.
 - Make a list of hooks you want to implement. Think about how this plugin relates to
   functionality defined in pytask and other plugins. Maybe skim the documentation on
-  {ref}`pluggy` to see whether there is advanced pattern which makes your implementation
-  easier.
+  [pluggy](../explanations/pluggy.md) to see whether there is advanced pattern which
+  makes your implementation easier.
 - File an issue on [Github](https://github.com/pytask-dev/pytask) and make a proposal
   for your plugin to get feedback from other developers. Your proposal should be concise
   and explain what problem you want to solve and how.
