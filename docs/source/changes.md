@@ -14,6 +14,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`355` refactors a lot of things related to nodes.
 - {pull}`357` add hashing for task files to detect changes when modification times do
   not match.
+- {pull}`364` updates `update_plugin_list.py`.
+- {pull}`365` reworks the panel on the index page with sphinx-design.
 
 ## 0.3.1 - 2023-12-25
 
