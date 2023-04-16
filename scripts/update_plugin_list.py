@@ -85,7 +85,7 @@ def _escape_rst(text: str) -> str:
     return text
 
 
-def _iter_plugins() -> Generator[dict[str, str], None, None]:
+def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
     """Iterate over all plugins and format entries."""
     regex = r">([\d\w-]*)</a>"
     response = requests.get("https://pypi.org/simple", timeout=20)
@@ -100,6 +100,10 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:
     for match in tqdm(matches, smoothing=0):
         name = match.groups()[0]
         response = requests.get(f"https://pypi.org/pypi/{name}/json", timeout=20)
+        if response.status_code == 404:  # noqa: PLR2004
+            # Some packages might return a 404.
+            continue
+
         response.raise_for_status()
         info = response.json()["info"]
 
@@ -115,12 +119,24 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:
 
         if info["requires_dist"]:
             for requirement in info["requires_dist"]:
-                if requirement == "pytask" or "pytask " in requirement:
+                if re.match(r"pytest(?![-.\w])", requirement):
                     requires = requirement
                     break
+
+        def _version_sort_key(version_string: str) -> packaging.version.Version:
+            """
+            Return the sort key for the given version string
+            returned by the API.
+            """
+            try:
+                return packaging.version.parse(version_string)
+            except packaging.version.InvalidVersion:
+                # Use a hard-coded pre-release version.
+                return packaging.version.Version("0.0.0alpha")
+
         releases = response.json()["releases"]
 
-        for release in sorted(releases, key=packaging.version.parse, reverse=True):
+        for release in sorted(releases, key=_version_sort_key, reverse=True):
             if releases[release]:
                 release_date = datetime.date.fromisoformat(
                     releases[release][-1]["upload_time_iso_8601"].split("T")[0]
@@ -129,7 +145,9 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:
                 break
 
         name = f':pypi:`{info["name"]}`'
-        summary = _escape_rst(info["summary"].replace("\n", ""))
+        summary = ""
+        if info["summary"]:
+            summary = _escape_rst(info["summary"].replace("\n", ""))
 
         yield {
             "name": name,
