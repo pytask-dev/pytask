@@ -1,10 +1,13 @@
-img.card-img-top {
-    height: 52px;
+/* Classes for the index page. */
+.index-card-image {
+    padding-top: 1rem;
+    height: 68px;
+    text-align: center;
 }
 
-a#index-link {
-    color: #333;
-    text-decoration: none;
+.index-card-link {
+    color: var(--sd-color-card-text);
+    font-weight: bold;
 }
 
 pre {

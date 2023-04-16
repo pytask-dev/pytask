@@ -26,8 +26,8 @@ Glossary
        of one or more :term:`hook implementations <hook implementation>`.
 
    hooking
-       See the reference guide on :ref:`pluggy` or the more general explanation on
-       `Wikipedia <https://en.wikipedia.org/wiki/Hooking>`_.
+       See the reference guide on :doc:`pluggy <explanations/pluggy>` or the more
+       general explanation on `Wikipedia <https://en.wikipedia.org/wiki/Hooking>`_.
 
    hook specification
        Another term for :term:`entry-point` when talking about hooking and pluggy.

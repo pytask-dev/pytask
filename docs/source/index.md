@@ -47,58 +47,89 @@ there.
 
 ## Documentation
 
-If you want to know more about pytask, dive into one of the following topics.
+If you want to know more about pytask, dive into one of the following topics
 
-```{eval-rst}
-.. panels::
-    :container: container pb-4
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
-    :card: shadow pt-4
-    :body: text-center
+::::{grid} 1 2 2 2
+:gutter: 3
 
-    ---
-    :img-top: _static/images/light-bulb.svg
+:::{grid-item-card}
+:text-align: center
+:img-top: _static/images/light-bulb.svg
+:class-img-top: index-card-image
+:shadow: md
 
-    .. link-button:: tutorials/index
-        :type: ref
-        :text: Tutorials
-        :classes: stretched-link font-weight-bold
-
-    Tutorials help you to get started with pytask and how you manage your first project.
-
-    ---
-    :img-top: _static/images/book.svg
-
-    .. link-button:: how_to_guides/index
-        :type: ref
-        :text: How-to Guides
-        :classes: stretched-link font-weight-bold
-
-    How-to guides provide instructions for very specific and advanced tasks and document
-    best-practices.
-
-    ---
-    :img-top: _static/images/books.svg
-
-    .. link-button:: explanations/index
-        :type: ref
-        :text: Explanations
-        :classes: stretched-link font-weight-bold
-
-    Explanations deal with key topics and concepts which underlie the package.
-
-    ---
-    :img-top: _static/images/coding.svg
-
-    .. link-button:: reference_guides/index
-        :type: ref
-        :text: Reference Guides
-        :classes: stretched-link font-weight-bold
-
-    Reference guides explain the implementation and provide an entry-point for
-    developers.
-
+```{button-link} tutorials/index.html
+---
+click-parent:
+ref-type: ref
+class: stretched-link index-card-link
+---
+Tutorials
 ```
+
+Tutorials help you to get started with pytask and how you manage your first project.
+
+:::
+
+:::{grid-item-card}
+:text-align: center
+:img-top: _static/images/book.svg
+:class-img-top: index-card-image
+:shadow: md
+
+```{button-link} how_to_guides/index.html
+---
+click-parent:
+ref-type: ref
+class: stretched-link index-card-link
+---
+How-to Guides
+```
+
+How-to guides provide instructions for very specific and advanced tasks and document
+best-practices.
+
+:::
+
+:::{grid-item-card}
+:text-align: center
+:img-top: _static/images/books.svg
+:class-img-top: index-card-image
+:shadow: md
+
+```{button-link} explanations/index.html
+---
+click-parent:
+ref-type: ref
+class: stretched-link index-card-link
+---
+Explanations
+```
+
+Explanations deal with key topics and concepts which underlie the package.
+
+:::
+
+:::{grid-item-card}
+:text-align: center
+:img-top: _static/images/coding.svg
+:class-img-top: index-card-image
+:shadow: md
+
+```{button-link} reference_guides/index.html
+---
+click-parent:
+ref-type: ref
+class: stretched-link index-card-link
+---
+Reference Guides
+```
+
+Reference guides explain the implementation and provide an entry-point for developers.
+
+:::
+
+::::
 
 ```{toctree}
 ---

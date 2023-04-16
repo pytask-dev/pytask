@@ -40,8 +40,8 @@ dependencies:
   - sphinx
   - sphinx-click
   - sphinx-copybutton
-  - sphinx-panels
+  - sphinx-design
+  - sphinxext-opengraph
 
   - pip:
     - -e .
-    - sphinxext-opengraph
