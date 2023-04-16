@@ -56,7 +56,7 @@ pygments_dark_style = "monokai"
 # -- Extensions configuration ----------------------------------------------------------
 
 # Configuration for autodoc.
-add_module_names = False
+add_module_names = True
 
 # Remove prefixed $ for bash, >>> for Python prompts, and In [1]: for IPython prompts.
 copybutton_prompt_text = r"\$ |>>> |In \[\d\]: "
@@ -79,6 +79,10 @@ intersphinx_mapping = {
 
 # MyST
 myst_enable_extensions = ["colon_fence", "deflist", "dollarmath"]
+myst_footnote_transition = False
+
+# Open Graph
+ogp_social_cards = {"image": "_static/images/pytask_w_text.png"}
 
 
 # -- Options for HTML output -----------------------------------------------------------
@@ -93,10 +97,6 @@ html_theme = "furo"
 html_css_files = ["css/termynal.css", "css/custom.css"]
 
 html_js_files = ["js/termynal.js", "js/custom.js"]
-
-# The name of an image file (within the static path) to use as favicon of the docs.
-# This file should be a Windows icon file (.ico) being 16x16 or 32x32 pixels large.
-html_logo = "_static/images/pytask_w_text.svg"
 
 # The name of an image file (within the static path) to use as favicon of the docs.
 # This file should be a Windows icon file (.ico) being 16x16 or 32x32 pixels large.
@@ -128,6 +128,8 @@ html_show_copyright = True
 html_theme_options = {
     "sidebar_hide_name": True,
     "navigation_with_keys": True,
+    "light_logo": "images/pytask_w_text_light.svg",
+    "dark_logo": "images/pytask_w_text_dark.svg",
 }
 
 

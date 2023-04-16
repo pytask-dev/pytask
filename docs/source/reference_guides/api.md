@@ -25,7 +25,7 @@ pytask offers the following functionalities.
 To write to the terminal, use pytask's console.
 
 ```{eval-rst}
-.. autoclass:: pytask.console
+.. autodata:: pytask.console
 ```
 
 ## Marks
@@ -260,7 +260,6 @@ The remaining exceptions convey specific errors.
 ## General classes
 
 ```{eval-rst}
-.. autoclass:: pytask.console
 .. autoclass:: pytask.Session
 ```
 
@@ -376,7 +375,7 @@ There are some classes to handle different kinds of reports.
 ### Classes
 
 ```{eval-rst}
-.. autoclass: pytask.WarningReport
+.. autoclass:: pytask.WarningReport
 ```
 
 ### Functions

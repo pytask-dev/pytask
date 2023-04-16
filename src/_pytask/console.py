@@ -100,7 +100,7 @@ theme = Theme(
 )
 
 
-console = Console(theme=theme, color_system=_COLOR_SYSTEM)
+console: Console = Console(theme=theme, color_system=_COLOR_SYSTEM)
 
 
 def render_to_string(
