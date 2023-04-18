@@ -30,12 +30,11 @@ There are three ways in which `pytask` can perform capturing:
 
 - `fd` (file descriptor) level capturing (default): All writes going to the operating
   system file descriptors 1 and 2 will be captured.
-- `sys` level capturing: Only writes to Python files {class}`sys.stdout` and
-  {class}`sys.stderr` will be captured. No capturing of writes to file descriptors is
-  performed.
-- `tee-sys` capturing: Python writes to {class}`sys.stdout` and {class}`sys.stderr` will
-  be captured. However, the writes will also be passed through to the actual
-  {class}`sys.stdout` and {class}`sys.stderr`.
+- `sys` level capturing: Only writes to Python files `sys.stdout` and `sys.stderr` will
+  be captured. No capturing of writes to file descriptors is performed.
+- `tee-sys` capturing: Python writes to `sys.stdout` and `sys.stderr` will be captured.
+  However, the writes will also be passed through to the actual `sys.stdout` and
+  `sys.stderr`.
 
 You can influence output-capturing mechanisms from the command line:
 

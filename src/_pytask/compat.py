@@ -44,11 +44,11 @@ def import_optional_dependency(
 
     Parameters
     ----------
-    name : str
+    name
         The module name.
-    extra : str
+    extra
         Additional text to include in the ImportError message.
-    errors : str {'raise', 'warn', 'ignore'}
+    errors
         What to do when a dependency is not found or its version is too old.
 
         * raise : Raise an ImportError
@@ -57,15 +57,15 @@ def import_optional_dependency(
         * ignore: If the module is not installed, return None, otherwise, return the
           module, even if the version is too old. It's expected that users validate the
           version locally when using ``errors="ignore"`` (see. ``io/html.py``)
-    min_version : str, default None
+    min_version
         Specify a minimum version that is different from the global pandas minimum
         version required.
-    caller : str, default "pytask"
+    caller
         The caller of the function.
 
     Returns
     -------
-    maybe_module : Optional[ModuleType]
+    types.ModuleType | None
         The imported module, when found and the version is correct. None is returned
         when the package is not found and `errors` is False, or when the package's
         version is too old and `errors` is ``'warn'``.
