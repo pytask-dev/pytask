@@ -40,7 +40,7 @@ dependencies:
   - sphinx
   - sphinx-click
   - sphinx-copybutton
-  - sphinx-design
+  - sphinx-design >=0.3.0
   - sphinxext-opengraph
 
   - pip:

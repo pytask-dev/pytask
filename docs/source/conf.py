@@ -48,7 +48,6 @@ extensions = [
 # html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 
-suppress_warnings = ["ref.python"]
 
 pygments_style = "sphinx"
 pygments_dark_style = "monokai"
@@ -75,6 +74,7 @@ intersphinx_mapping = {
     "click": ("https://click.palletsprojects.com/en/8.0.x/", None),
     "pluggy": ("https://pluggy.readthedocs.io/en/latest", None),
     "networkx": ("https://networkx.org/documentation/stable", None),
+    "pygraphviz": ("https://pygraphviz.github.io/documentation/stable/", None),
 }
 
 # MyST

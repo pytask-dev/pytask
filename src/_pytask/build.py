@@ -182,7 +182,7 @@ def main(raw_config: dict[str, Any]) -> Session:  # noqa: C901, PLR0912, PLR0915
 def build(**raw_config: Any) -> NoReturn:
     """Collect tasks, execute them and report the results.
 
-    This is pytask's default command. pytask collects tasks from the given paths or the
+    The default command. pytask collects tasks from the given paths or the
     current working directory, executes them and reports the results.
 
     """

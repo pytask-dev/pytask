@@ -25,7 +25,7 @@ pytask offers the following functionalities.
 To write to the terminal, use pytask's console.
 
 ```{eval-rst}
-.. autodata:: pytask.console
+.. class:: pytask.console
 ```
 
 ## Marks

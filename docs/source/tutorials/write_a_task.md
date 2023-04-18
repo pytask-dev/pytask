@@ -6,7 +6,7 @@ you will learn how to write your first task.
 pytask will look for tasks in modules whose name starts with `task_`. Tasks are
 functions in these modules whose name also begins with `task_`.
 
-Our first task, {func}`task_create_random_data`, will be defined in
+Our first task, `task_create_random_data`, will be defined in
 `src/my_project/task_data_preparation.py`, and it will generate artificial data stored
 in `bld/data.pkl`.
 
