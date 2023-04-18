@@ -119,7 +119,7 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
 
         if info["requires_dist"]:
             for requirement in info["requires_dist"]:
-                if re.match(r"pytest(?![-.\w])", requirement):
+                if re.match(r"pytask(?![-.\w])", requirement):
                     requires = requirement
                     break
 
