@@ -18,6 +18,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`365` reworks the panel on the index page with sphinx-design.
 - {pull}`366` adds light and dark logos and fixes some warnings when building the
   documentation.
+- {pull}`368` fixes an error in `update_plugin_list.py` introduced by {pull}`364`.
 
 ## 0.3.1 - 2023-12-25
 
