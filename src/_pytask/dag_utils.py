@@ -9,7 +9,7 @@ import networkx as nx
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import TASK_ICON
 from _pytask.mark_utils import has_mark
-from _pytask.nodes_utils import Task
+from _pytask.nodes import Task
 from attrs import define
 from attrs import field
 

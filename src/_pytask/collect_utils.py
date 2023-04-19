@@ -20,7 +20,7 @@ from pybaum.tree_util import tree_map
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes_utils import Node
+    from _pytask.nodes import Node
 
 
 __all__ = ["depends_on", "parse_nodes", "produces"]

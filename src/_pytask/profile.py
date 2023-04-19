@@ -22,8 +22,8 @@ from _pytask.console import format_task_id
 from _pytask.database_utils import db
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
-from _pytask.nodes_utils import FilePathNode
-from _pytask.nodes_utils import Task
+from _pytask.nodes import FilePathNode
+from _pytask.nodes import Task
 from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import get_plugin_manager

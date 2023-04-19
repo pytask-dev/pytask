@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 
 from _pytask.dag_utils import node_and_neighbors
-from _pytask.nodes_utils import Task
+from _pytask.nodes import Task
 from _pytask.session import Session
 from pony import orm
 
@@ -61,11 +61,11 @@ def update_states_in_database(session: Session, task_name: str) -> None:
     for name in node_and_neighbors(session.dag, task_name):
         node = session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
 
-        modification_time = session.hook.pytask_node_state(node=node)
+        state = node.state()
 
         if isinstance(node, Task):
             hash_ = hashlib.sha256(node.path.read_bytes()).hexdigest()
         else:
             hash_ = ""
 
-        _create_or_update_state(task_name, node.name, modification_time, hash_)
+        _create_or_update_state(task_name, node.name, state, hash_)

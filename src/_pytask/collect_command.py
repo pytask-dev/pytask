@@ -32,7 +32,7 @@ from rich.tree import Tree
 
 if TYPE_CHECKING:
     from typing import NoReturn
-    from _pytask.nodes_utils import Task
+    from _pytask.nodes import Task
 
 
 @hookimpl(tryfirst=True)

@@ -14,7 +14,7 @@ import click
 import pluggy
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.nodes_utils import Task
+from _pytask.nodes import Task
 from _pytask.outcomes import Exit
 from _pytask.session import Session
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info

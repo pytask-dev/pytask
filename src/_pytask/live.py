@@ -9,7 +9,7 @@ import click
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_id
-from _pytask.nodes_utils import Task
+from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
 from _pytask.report import CollectionReport

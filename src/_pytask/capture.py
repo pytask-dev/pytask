@@ -43,7 +43,7 @@ import click
 from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
 from _pytask.enums import ShowCapture
-from _pytask.nodes_utils import Task
+from _pytask.nodes import Task
 
 
 if sys.version_info >= (3, 8):

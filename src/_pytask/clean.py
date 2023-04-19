@@ -21,7 +21,7 @@ from _pytask.exceptions import CollectionError
 from _pytask.git import get_all_files
 from _pytask.git import get_root
 from _pytask.git import is_git_installed
-from _pytask.nodes_utils import Task
+from _pytask.nodes import Task
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to

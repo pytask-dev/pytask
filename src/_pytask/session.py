@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from _pytask.report import CollectionReport
     from _pytask.report import ExecutionReport
     from _ptytask.report import DagReport
-    from _pytask.nodes_utils import Task
+    from _pytask.nodes import Task
 
 
 @define

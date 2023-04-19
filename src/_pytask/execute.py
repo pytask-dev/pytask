@@ -21,8 +21,8 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.mark_utils import has_mark
-from _pytask.nodes_utils import FilePathNode
-from _pytask.nodes_utils import Task
+from _pytask.nodes import FilePathNode
+from _pytask.nodes import Task
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
@@ -121,7 +121,7 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
     """
     for dependency in session.dag.predecessors(task.name):
         node = session.dag.nodes[dependency]["node"]
-        if not session.hook.pytask_node_state(node=node):
+        if not node.state():
             msg = f"{node.name} is missing and required for {task.name}."
             raise NodeNotFoundError(msg)
 
@@ -161,7 +161,7 @@ def pytask_execute_task_teardown(session: Session, task: Task) -> None:
     missing_nodes = []
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
-        if not session.hook.pytask_node_state(node=node):
+        if not node.state():
             missing_nodes.append(node)
 
     if missing_nodes:

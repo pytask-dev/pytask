@@ -21,9 +21,9 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
-from _pytask.nodes_utils import FilePathNode
-from _pytask.nodes_utils import Node
-from _pytask.nodes_utils import Task
+from _pytask.nodes import FilePathNode
+from _pytask.nodes import Node
+from _pytask.nodes import Task
 from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import DagReport
 from _pytask.session import Session
@@ -105,9 +105,9 @@ def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
 
 
 @hookimpl
-def pytask_dag_validate_dag(session: Session, dag: nx.DiGraph) -> None:
+def pytask_dag_validate_dag(dag: nx.DiGraph) -> None:
     """Validate the DAG."""
-    _check_if_root_nodes_are_available(session, dag)
+    _check_if_root_nodes_are_available(dag)
     _check_if_tasks_have_the_same_products(dag)
 
 
@@ -128,11 +128,11 @@ def _have_task_or_neighbors_changed(
 
 @orm.db_session
 @hookimpl(trylast=True)
-def pytask_dag_has_node_changed(session: Session, node: Node, task_name: str) -> bool:
+def pytask_dag_has_node_changed(node: Node, task_name: str) -> bool:
     """Indicate whether a single dependency or product has changed."""
     if isinstance(node, (FilePathNode, Task)):
         # If node does not exist, we receive None.
-        file_state = session.hook.pytask_node_state(node=node)
+        file_state = node.state()
         if file_state is None:
             return True
 
@@ -155,7 +155,7 @@ def pytask_dag_has_node_changed(session: Session, node: Node, task_name: str) ->
         # to avoid unnecessary and expensive reexecutions of tasks.
         file_hash = hashlib.sha256(node.path.read_bytes()).hexdigest()
         return file_hash != db_state.file_hash
-    return None
+    return node.state()
 
 
 def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:
@@ -194,7 +194,7 @@ if IS_FILE_SYSTEM_CASE_SENSITIVE:
     _TEMPLATE_ERROR += "\n\n(Hint: Sometimes case sensitivity is at fault.)"
 
 
-def _check_if_root_nodes_are_available(session: Session, dag: nx.DiGraph) -> None:
+def _check_if_root_nodes_are_available(dag: nx.DiGraph) -> None:
     missing_root_nodes = []
     is_task_skipped: dict[str, bool] = {}
 
@@ -206,9 +206,7 @@ def _check_if_root_nodes_are_available(session: Session, dag: nx.DiGraph) -> Non
                 node, dag, is_task_skipped
             )
             if not are_all_tasks_skipped:
-                node_exists = session.hook.pytask_node_state(
-                    node=dag.nodes[node]["node"]
-                )
+                node_exists = dag.nodes[node]["node"].state()
                 if not node_exists:
                     missing_root_nodes.append(node)
 
