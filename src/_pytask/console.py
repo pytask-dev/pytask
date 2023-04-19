@@ -26,7 +26,7 @@ from rich.tree import Tree
 
 
 if TYPE_CHECKING:
-    from _pytask.nodes_utils import Task
+    from _pytask.nodes import Task
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
 

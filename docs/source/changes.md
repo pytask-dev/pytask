@@ -19,6 +19,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`366` adds light and dark logos and fixes some warnings when building the
   documentation.
 - {pull}`368` fixes an error in `update_plugin_list.py` introduced by {pull}`364`.
+- {pull}`369` reverts the changes that turn `Node.state()` into a hook.
 
 ## 0.3.1 - 2023-12-25
 

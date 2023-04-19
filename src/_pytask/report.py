@@ -15,8 +15,8 @@ from attrs import field
 
 
 if TYPE_CHECKING:
-    from _pytask.nodes_utils import Node
-    from _pytask.nodes_utils import Task
+    from _pytask.nodes import Node
+    from _pytask.nodes import Task
 
 
 ExceptionInfo = Tuple[Type[BaseException], BaseException, Union[TracebackType, None]]

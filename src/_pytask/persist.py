@@ -14,7 +14,7 @@ from _pytask.outcomes import TaskOutcome
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes_utils import Task
+    from _pytask.nodes import Task
     from _pytask.report import ExecutionReport
 
 
@@ -39,10 +39,9 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
     """
     if has_mark(task, "persist"):
         all_nodes_exist = all(
-            session.hook.pytask_node_state(
-                node=session.dag.nodes[name].get("task")
-                or session.dag.nodes[name]["node"]
-            )
+            (
+                session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
+            ).state()
             for name in node_and_neighbors(session.dag, task.name)
         )
 

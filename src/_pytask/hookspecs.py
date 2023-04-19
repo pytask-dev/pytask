@@ -18,8 +18,8 @@ import pluggy
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes_utils import Node
-    from _pytask.nodes_utils import Task
+    from _pytask.nodes import Node
+    from _pytask.nodes import Task
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
     from _pytask.reports import CollectionReport
@@ -453,11 +453,3 @@ def pytask_profile_export_profile(
     session: Session, profile: dict[str, dict[Any, Any]]
 ) -> None:
     """Export the profile."""
-
-
-# Hooks for nodes
-
-
-@hookspec(firstresult=True)
-def pytask_node_state(node: Node) -> Any:
-    """Return the state of a node."""
