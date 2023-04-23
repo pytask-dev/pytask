@@ -16,8 +16,6 @@ from _pytask.console import IS_WINDOWS_TERMINAL
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
 from _pytask.session import Session
-from _pytask.shared import convert_truthy_or_falsy_to_bool
-from _pytask.shared import get_first_non_none_value
 from rich.text import Text
 
 
@@ -39,47 +37,23 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     show_locals_option = click.Option(
         ["--show-locals"],
         is_flag=True,
-        default=None,
+        default=False,
         help="Show local variables in tracebacks.",
     )
     cli.commands["build"].params.append(show_locals_option)
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_file: dict[str, Any],
-    config_from_cli: dict[str, Any],
-) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse configuration."""
-    config["show_locals"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_locals",
-        default=False,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
-    config["editor_url_scheme"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="editor_url_scheme",
-        default="file",
-        callback=lambda x: None if x in (None, "none", "None") else str(x),
-    )
     if config["editor_url_scheme"] not in ("no_link", "file") and IS_WINDOWS_TERMINAL:
         config["editor_url_scheme"] = "file"
         warnings.warn(
             "Windows Terminal does not support url schemes to applications, yet."
             "See https://github.com/pytask-dev/pytask/issues/171 for more information. "
-            "Resort to `editor_url_scheme='file'`."
+            "Resort to `editor_url_scheme='file'`.",
+            stacklevel=1,
         )
-    config["show_traceback"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_traceback",
-        default=True,
-        callback=convert_truthy_or_falsy_to_bool,
-    )
 
 
 @hookimpl
@@ -154,7 +128,7 @@ def _format_duration(duration: float) -> str:
     return formatted_duration
 
 
-def _humanize_time(
+def _humanize_time(  # noqa: C901, PLR0912
     amount: int | float, unit: str, short_label: bool = False
 ) -> list[tuple[float, str]]:
     """Humanize the time.
@@ -200,17 +174,16 @@ def _humanize_time(
                 label = time_unit.plural
             result.append((last_seconds, label))
 
-        elif whole_units >= 1:
-            if time_unit.singular != "seconds":
-                if short_label:
-                    label = time_unit.short
-                elif whole_units == 1:
-                    label = time_unit.singular
-                else:
-                    label = time_unit.plural
+        elif whole_units >= 1 and time_unit.singular != "seconds":
+            if short_label:
+                label = time_unit.short
+            elif whole_units == 1:
+                label = time_unit.singular
+            else:
+                label = time_unit.plural
 
-                result.append((whole_units, label))
-                remaining_seconds -= whole_units * time_unit.in_seconds
+            result.append((whole_units, label))
+            remaining_seconds -= whole_units * time_unit.in_seconds
 
     if not result:
         result.append(

@@ -7,7 +7,7 @@ from pytask import cli
 from pytask import ExitCode
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_execution_failed(runner, tmp_path):
     source = """
     def task_raises():
@@ -19,13 +19,13 @@ def test_execution_failed(runner, tmp_path):
     assert result.exit_code == ExitCode.FAILED
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_configuration_failed(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.joinpath("non_existent_path").as_posix()])
     assert result.exit_code == ExitCode.CONFIGURATION_FAILED
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_collection_failed(runner, tmp_path):
     source = """
     raise Exception
@@ -36,8 +36,8 @@ def test_collection_failed(runner, tmp_path):
     assert result.exit_code == ExitCode.COLLECTION_FAILED
 
 
-@pytest.mark.end_to_end
-def test_resolving_dependencies_failed(runner, tmp_path):
+@pytest.mark.end_to_end()
+def test_building_dag_failed(runner, tmp_path):
     source = """
     import pytask
 
@@ -54,4 +54,4 @@ def test_resolving_dependencies_failed(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.RESOLVING_DEPENDENCIES_FAILED
+    assert result.exit_code == ExitCode.DAG_FAILED

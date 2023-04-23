@@ -41,19 +41,16 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli.add_command(collect)
 
 
-@hookimpl
-def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
-) -> None:
-    """Parse configuration."""
-    config["nodes"] = config_from_cli.get("nodes", False)
-
-
 @click.command(cls=ColoredCommand)
-@click.option("--nodes", is_flag=True, help="Show a task's dependencies and products.")
-def collect(**config_from_cli: Any | None) -> NoReturn:
+@click.option(
+    "--nodes",
+    is_flag=True,
+    default=False,
+    help="Show a task's dependencies and products.",
+)
+def collect(**raw_config: Any | None) -> NoReturn:
     """Collect tasks and report information about them."""
-    config_from_cli["command"] = "collect"
+    raw_config["command"] = "collect"
 
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
@@ -63,7 +60,7 @@ def collect(**config_from_cli: Any | None) -> NoReturn:
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
     except (ConfigurationError, Exception):
@@ -75,7 +72,7 @@ def collect(**config_from_cli: Any | None) -> NoReturn:
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_resolve_dependencies(session=session)
+            session.hook.pytask_dag(session=session)
 
             tasks = _select_tasks_by_expressions_and_marker(session)
 
@@ -98,9 +95,9 @@ def collect(**config_from_cli: Any | None) -> NoReturn:
             session.exit_code = ExitCode.COLLECTION_FAILED
 
         except ResolvingDependenciesError:
-            session.exit_code = ExitCode.RESOLVING_DEPENDENCIES_FAILED
+            session.exit_code = ExitCode.DAG_FAILED
 
-        except Exception:
+        except Exception:  # noqa: BLE001
             session.exit_code = ExitCode.FAILED
             console.print_exception()
             console.rule(style="failed")

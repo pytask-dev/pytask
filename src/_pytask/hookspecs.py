@@ -6,25 +6,25 @@ the message send by the host and may send a response.
 """
 from __future__ import annotations
 
-from pathlib import Path
+import pathlib
 from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
 
 import click
-import networkx as nx
+import networkx
 import pluggy
 
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import MetaNode
+    from _pytask.nodes import Node
     from _pytask.nodes import Task
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
-    from _pytask.reports import ResolveDependencyReport
+    from _pytask.reports import DagReport
 
 
 hookspec = pluggy.HookspecMarker("pytask")
@@ -66,7 +66,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 @hookspec(firstresult=True)
 def pytask_configure(
-    pm: pluggy.PluginManager, config_from_cli: dict[str, Any]
+    pm: pluggy.PluginManager, raw_config: dict[str, Any]
 ) -> dict[str, Any]:
     """Configure pytask.
 
@@ -77,20 +77,8 @@ def pytask_configure(
 
 
 @hookspec
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
-    """Parse configuration from the CLI or from file.
-
-    This hook can be used to unify the configuration from the command line interface,
-    the configuration file and provided defaults. The function
-    :func:`pytask.shared.get_first_non_none_value` might be helpful for that.
-
-    Note that, the configuration is changed in-place.
-
-    """
+def pytask_parse_config(config: dict[str, Any]) -> None:
+    """Parse configuration that is from CLI or file."""
 
 
 @hookspec
@@ -129,7 +117,7 @@ def pytask_collect(session: Session) -> Any:
 
 
 @hookspec(firstresult=True)
-def pytask_ignore_collect(path: Path, config: dict[str, Any]) -> bool:
+def pytask_ignore_collect(path: pathlib.Path, config: dict[str, Any]) -> bool:
     """Ignore collected path.
 
     This hook is indicates for each directory and file whether it should be ignored.
@@ -149,7 +137,7 @@ def pytask_collect_modify_tasks(session: Session, tasks: list[Task]) -> None:
 
 @hookspec(firstresult=True)
 def pytask_collect_file_protocol(
-    session: Session, path: Path, reports: list[CollectionReport]
+    session: Session, path: pathlib.Path, reports: list[CollectionReport]
 ) -> list[CollectionReport]:
     """Start protocol to collect files.
 
@@ -161,7 +149,7 @@ def pytask_collect_file_protocol(
 
 @hookspec
 def pytask_collect_file(
-    session: Session, path: Path, reports: list[CollectionReport]
+    session: Session, path: pathlib.Path, reports: list[CollectionReport]
 ) -> list[CollectionReport] | None:
     """Collect tasks from a file.
 
@@ -177,20 +165,22 @@ def pytask_collect_file_log(session: Session, reports: list[CollectionReport]) -
 
 @hookspec(firstresult=True)
 def pytask_collect_task_protocol(
-    session: Session, path: Path, name: str, obj: Any
+    session: Session, path: pathlib.Path, name: str, obj: Any
 ) -> CollectionReport | None:
     """Start protocol to collect tasks."""
 
 
 @hookspec
 def pytask_collect_task_setup(
-    session: Session, path: Path, name: str, obj: Any
+    session: Session, path: pathlib.Path, name: str, obj: Any
 ) -> None:
     """Steps before collecting a task."""
 
 
 @hookspec(firstresult=True)
-def pytask_collect_task(session: Session, path: Path, name: str, obj: Any) -> Task:
+def pytask_collect_task(
+    session: Session, path: pathlib.Path, name: str, obj: Any
+) -> Task:
     """Collect a single task."""
 
 
@@ -205,8 +195,8 @@ def pytask_collect_task_teardown(session: Session, task: Task) -> None:
 
 @hookspec(firstresult=True)
 def pytask_collect_node(
-    session: Session, path: Path, node: MetaNode
-) -> MetaNode | None:
+    session: Session, path: pathlib.Path, node: Node
+) -> Node | None:
     """Collect a node which is a dependency or a product of a task."""
 
 
@@ -246,8 +236,8 @@ def pytask_parametrize_kwarg_to_marker(obj: Any, kwargs: dict[Any, Any]) -> None
 
 
 @hookspec(firstresult=True)
-def pytask_resolve_dependencies(session: Session) -> None:
-    """Resolve dependencies.
+def pytask_dag(session: Session) -> None:
+    """Create a DAG.
 
     The main hook implementation which controls the resolution of dependencies and calls
     subordinated hooks.
@@ -256,9 +246,7 @@ def pytask_resolve_dependencies(session: Session) -> None:
 
 
 @hookspec(firstresult=True)
-def pytask_resolve_dependencies_create_dag(
-    session: Session, tasks: list[Task]
-) -> nx.DiGraph:
+def pytask_dag_create_dag(session: Session, tasks: list[Task]) -> networkx.DiGraph:
     """Create the DAG.
 
     This hook creates the DAG from tasks, dependencies and products. The DAG can be used
@@ -268,7 +256,7 @@ def pytask_resolve_dependencies_create_dag(
 
 
 @hookspec
-def pytask_resolve_dependencies_modify_dag(session: Session, dag: nx.DiGraph) -> None:
+def pytask_dag_modify_dag(session: Session, dag: networkx.DiGraph) -> None:
     """Modify the DAG.
 
     This hook allows to make some changes to the DAG before it is validated and tasks
@@ -278,7 +266,7 @@ def pytask_resolve_dependencies_modify_dag(session: Session, dag: nx.DiGraph) ->
 
 
 @hookspec(firstresult=True)
-def pytask_resolve_dependencies_validate_dag(session: Session, dag: nx.DiGraph) -> None:
+def pytask_dag_validate_dag(session: Session, dag: networkx.DiGraph) -> None:
     """Validate the DAG.
 
     This hook validates the DAG. For example, there can be cycles in the DAG if tasks,
@@ -288,8 +276,18 @@ def pytask_resolve_dependencies_validate_dag(session: Session, dag: nx.DiGraph) 
 
 
 @hookspec
-def pytask_resolve_dependencies_select_execution_dag(
-    session: Session, dag: nx.DiGraph
+def pytask_dag_select_execution_dag(session: Session, dag: networkx.DiGraph) -> None:
+    """Select the subgraph which needs to be executed.
+
+    This hook determines which of the tasks have to be re-run because something has
+    changed.
+
+    """
+
+
+@hookspec(firstresult=True)
+def pytask_dag_has_node_changed(
+    session: Session, dag: networkx.DiGraph, node: Node, task_name: str
 ) -> None:
     """Select the subgraph which needs to be executed.
 
@@ -300,9 +298,7 @@ def pytask_resolve_dependencies_select_execution_dag(
 
 
 @hookspec
-def pytask_resolve_dependencies_log(
-    session: Session, report: ResolveDependencyReport
-) -> None:
+def pytask_dag_log(session: Session, report: DagReport) -> None:
     """Log errors during resolving dependencies."""
 
 

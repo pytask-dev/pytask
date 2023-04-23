@@ -11,15 +11,15 @@ def evaluate(input_: str, matcher: Callable[[str], bool]) -> bool:
     return Expression.compile_(input_).evaluate(matcher)
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_empty_is_false() -> None:
-    assert not evaluate("", lambda ident: False)  # noqa: U100
-    assert not evaluate("", lambda ident: True)  # noqa: U100
-    assert not evaluate("   ", lambda ident: False)  # noqa: U100
-    assert not evaluate("\t", lambda ident: False)  # noqa: U100
+    assert not evaluate("", lambda ident: False)  # noqa: ARG005
+    assert not evaluate("", lambda ident: True)  # noqa: ARG005
+    assert not evaluate("   ", lambda ident: False)  # noqa: ARG005
+    assert not evaluate("\t", lambda ident: False)  # noqa: ARG005
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
     ("expr", "expected"),
     [
@@ -53,7 +53,7 @@ def test_basic(expr: str, expected: bool) -> None:
     assert evaluate(expr, matcher) is expected
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
     ("expr", "expected"),
     [
@@ -70,7 +70,7 @@ def test_syntax_oddeties(expr: str, expected: bool) -> None:
     assert evaluate(expr, matcher) is expected
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
     ("expr", "column", "message"),
     [
@@ -121,12 +121,12 @@ def test_syntax_oddeties(expr: str, expected: bool) -> None:
 )
 def test_syntax_errors(expr: str, column: int, message: str) -> None:
     with pytest.raises(ParseError) as excinfo:
-        evaluate(expr, lambda ident: True)  # noqa: U100
+        evaluate(expr, lambda ident: True)  # noqa: ARG005
     assert excinfo.value.column == column
     assert excinfo.value.message == message
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
     "ident",
     [
@@ -160,7 +160,7 @@ def test_valid_idents(ident: str) -> None:
     assert evaluate(ident, {ident: True}.__getitem__)
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
     "ident",
     [
@@ -185,10 +185,10 @@ def test_valid_idents(ident: str) -> None:
 )
 def test_invalid_idents(ident: str) -> None:
     with pytest.raises(ParseError):
-        evaluate(ident, lambda ident: True)  # noqa: U100
+        evaluate(ident, lambda ident: True)  # noqa: ARG005
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_backslash_not_treated_specially() -> None:
     r"""When generating nodeids, if the source name contains special characters like a
     newline, they are escaped into two characters like \n.

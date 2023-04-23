@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 from _pytask.cli import cli
-from _pytask.database import create_database
+from _pytask.database_utils import create_database
 from _pytask.profile import _to_human_readable_size
 from _pytask.profile import Runtime
 from pony import orm
@@ -14,7 +14,7 @@ from pytask import ExitCode
 from pytask import main
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_duration_is_stored_in_task(tmp_path):
     source = """
     import time
@@ -32,7 +32,10 @@ def test_duration_is_stored_in_task(tmp_path):
 
     with orm.db_session:
         create_database(
-            "sqlite", tmp_path.joinpath(".pytask.sqlite3").as_posix(), True, False
+            "sqlite",
+            tmp_path.joinpath(".pytask.sqlite3").as_posix(),
+            create_db=True,
+            create_tables=False,
         )
 
         task_name = tmp_path.joinpath("task_example.py").as_posix() + "::task_example"
@@ -41,7 +44,7 @@ def test_duration_is_stored_in_task(tmp_path):
         assert runtime.duration > 2
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_profile_if_no_tasks_are_collected(tmp_path, runner):
     result = runner.invoke(cli, ["profile", tmp_path.as_posix()])
 
@@ -49,7 +52,7 @@ def test_profile_if_no_tasks_are_collected(tmp_path, runner):
     assert "No information is stored on the collected tasks." in result.output
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_profile_if_there_is_no_information_on_collected_tasks(tmp_path, runner):
     source = """
     import time
@@ -64,7 +67,7 @@ def test_profile_if_there_is_no_information_on_collected_tasks(tmp_path, runner)
     assert "No information is stored on the collected tasks." in result.output
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_profile_if_there_is_information_on_collected_tasks(tmp_path, runner):
     source = """
     import time
@@ -89,7 +92,7 @@ def test_profile_if_there_is_information_on_collected_tasks(tmp_path, runner):
     assert "43 bytes" in result.output
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("export", ["csv", "json"])
 def test_export_of_profile(tmp_path, runner, export):
     source = """
@@ -112,9 +115,9 @@ def test_export_of_profile(tmp_path, runner, export):
     assert tmp_path.joinpath(f"profile.{export}").exists()
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "bytes_, units, expected",
+    ("bytes_", "units", "expected"),
     [
         (2**10, None, "1 KB"),
         (2**20, None, "1 MB"),

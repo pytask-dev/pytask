@@ -29,10 +29,10 @@ def session():
     return session
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 def test_pytask_generate_tasks_0(session):
     @pytask.mark.parametrize("i", range(2))
-    def func(i):  # noqa: U100, pragma: no cover
+    def func(i):  # noqa: ARG001, pragma: no cover
         pass
 
     names_and_objs = pytask_parametrize_task(session, "func", func)
@@ -42,31 +42,31 @@ def test_pytask_generate_tasks_0(session):
     assert names_and_objs[1][1].pytask_meta.kwargs["i"] == 1
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 @pytest.mark.xfail(strict=True, reason="Cartesian task product is disabled.")
 def test_pytask_generate_tasks_1(session):
     @pytask.mark.parametrize("j", range(2))
     @pytask.mark.parametrize("i", range(2))
-    def func(i, j):  # noqa: U100, pragma: no cover
+    def func(i, j):  # noqa: ARG001, pragma: no cover
         pass
 
     pytask_parametrize_task(session, "func", func)
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 @pytest.mark.xfail(strict=True, reason="Cartesian task product is disabled.")
 def test_pytask_generate_tasks_2(session):
     @pytask.mark.parametrize("j, k", itertools.product(range(2), range(2)))
     @pytask.mark.parametrize("i", range(2))
-    def func(i, j, k):  # noqa: U100, pragma: no cover
+    def func(i, j, k):  # noqa: ARG001, pragma: no cover
         pass
 
     pytask_parametrize_task(session, "func", func)
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "arg_names, expected",
+    ("arg_names", "expected"),
     [
         ("i", ("i",)),
         ("i,j", ("i", "j")),
@@ -85,9 +85,9 @@ class TaskArguments(NamedTuple):
     b: int
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "arg_values, has_single_arg, expected",
+    ("arg_values", "has_single_arg", "expected"),
     [
         (["a", "b", "c"], True, [("a",), ("b",), ("c",)]),
         ([(0, 0), (0, 1), (1, 0)], False, [(0, 0), (0, 1), (1, 0)]),
@@ -104,9 +104,9 @@ def test_parse_arg_values(arg_values, has_single_arg, expected):
     assert parsed_arg_values == expected
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "arg_names, expectation",
+    ("arg_names", "expectation"),
     [
         ("i", does_not_raise()),
         ("i, j", does_not_raise()),
@@ -122,9 +122,9 @@ def test_parse_argnames_raise_error(arg_names, expectation):
         _parse_arg_names(arg_names)
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 @pytest.mark.parametrize(
-    "markers, exp_base_arg_names, exp_arg_names, exp_arg_values",
+    ("markers", "exp_base_arg_names", "exp_arg_names", "exp_arg_values"),
     [
         (
             [
@@ -153,7 +153,7 @@ def test_parse_parametrize_markers(
     assert arg_values == exp_arg_values
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_parametrizing_tasks(tmp_path):
     source = """
     import pytask
@@ -171,7 +171,7 @@ def test_parametrizing_tasks(tmp_path):
         assert tmp_path.joinpath(f"{i}.txt").read_text() == str(i)
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_parametrizing_dependencies_and_targets(tmp_path):
     source = """
     import pytask
@@ -193,7 +193,7 @@ def test_parametrizing_dependencies_and_targets(tmp_path):
     assert session.exit_code == ExitCode.OK
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_parametrize_iterator(tmp_path):
     """`parametrize` should work with generators."""
     source = """
@@ -212,7 +212,7 @@ def test_parametrize_iterator(tmp_path):
     assert len(session.execution_reports) == 3
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_raise_error_if_function_does_not_use_parametrized_arguments(tmp_path):
     source = """
     import pytask
@@ -229,9 +229,9 @@ def test_raise_error_if_function_does_not_use_parametrized_arguments(tmp_path):
     assert isinstance(session.execution_reports[1].exc_info[1], TypeError)
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize(
-    "arg_values, ids",
+    ("arg_values", "ids"),
     [
         (range(2), ["first_trial", "second_trial"]),
         ([True, False], ["first_trial", "second_trial"]),
@@ -256,7 +256,7 @@ def test_parametrize_w_ids(tmp_path, arg_values, ids):
         assert id_ in task.name
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_two_parametrize_w_ids(runner, tmp_path):
     source = """
     import pytask
@@ -273,7 +273,7 @@ def test_two_parametrize_w_ids(runner, tmp_path):
     assert "You cannot apply @pytask.mark.parametrize multiple" in result.output
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("ids", [["a"], list("abc"), ((1,), (2,)), ({0}, {1})])
 def test_raise_error_for_irregular_ids(tmp_path, ids):
     tmp_path.joinpath("task_module.py").write_text(
@@ -293,7 +293,7 @@ def test_raise_error_for_irregular_ids(tmp_path, ids):
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(
         textwrap.dedent(
@@ -312,9 +312,9 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize(
-    "arg_names, arg_values, content",
+    ("arg_names", "arg_values", "content"),
     [
         (
             ("i", "j"),
@@ -370,7 +370,7 @@ def test_wrong_number_of_names_and_wrong_number_of_arguments(
         assert c in result.output
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_generators_are_removed_from_depends_on_produces(tmp_path):
     source = """
     from pathlib import Path
@@ -392,7 +392,7 @@ def test_generators_are_removed_from_depends_on_produces(tmp_path):
     assert session.tasks[0].function.pytask_meta.markers == []
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_parametrizing_tasks_with_namedtuples(runner, tmp_path):
     source = """
     from typing import NamedTuple
@@ -420,7 +420,7 @@ def test_parametrizing_tasks_with_namedtuples(runner, tmp_path):
         assert tmp_path.joinpath(f"{i}.txt").read_text() == str(i)
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_parametrization_with_different_n_of_arg_names_and_arg_values(runner, tmp_path):
     source = """
     import pytask
@@ -437,9 +437,9 @@ def test_parametrization_with_different_n_of_arg_names_and_arg_values(runner, tm
     assert "Task 'task_write_numbers_to_file' is parametrized with 2" in result.output
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "arg_names, arg_values, name, expectation",
+    ("arg_names", "arg_values", "name", "expectation"),
     [
         pytest.param(
             ("a",),
@@ -478,7 +478,7 @@ def test_check_if_n_arg_names_matches_n_arg_values(
         _check_if_n_arg_names_matches_n_arg_values(arg_names, arg_values, name)
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_parametrize_with_single_dict(tmp_path):
     source = """
     import pytask

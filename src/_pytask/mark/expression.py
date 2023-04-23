@@ -33,7 +33,7 @@ from typing import Mapping
 from typing import Sequence
 from typing import TYPE_CHECKING
 
-import attr
+from attrs import define
 
 
 if TYPE_CHECKING:
@@ -53,11 +53,11 @@ class TokenType(enum.Enum):
     EOF = "end of input"
 
 
-@attr.s(frozen=True, slots=True)
+@define(frozen=True, slots=True)
 class Token:
-    type_ = attr.ib(type=TokenType)
-    value = attr.ib(type=str)
-    pos = attr.ib(type=int)
+    type_: TokenType
+    value: str
+    pos: int
 
 
 class ParseError(Exception):
@@ -180,6 +180,7 @@ def not_expr(s: Scanner) -> ast.expr | None:
     if ident:
         return ast.Name(IDENT_PREFIX + ident.value, ast.Load())
     s.reject((TokenType.NOT, TokenType.LPAREN, TokenType.IDENT))
+    return None
 
 
 class MatcherAdapter(Mapping[str, bool]):
@@ -192,10 +193,10 @@ class MatcherAdapter(Mapping[str, bool]):
         return self.matcher(key[len(IDENT_PREFIX) :])
 
     def __iter__(self) -> Iterator[str]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def __len__(self) -> int:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class Expression:
@@ -243,5 +244,7 @@ class Expression:
             Whether the expression matches or not.
 
         """
-        ret: bool = eval(self.code, {"__builtins__": {}}, MatcherAdapter(matcher))
+        ret: bool = eval(  # noqa: PGH001
+            self.code, {"__builtins__": {}}, MatcherAdapter(matcher)
+        )
         return ret

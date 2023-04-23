@@ -2,11 +2,11 @@
 from __future__ import annotations
 
 import csv
+import enum
 import json
 import sys
 import time
 from contextlib import suppress
-from enum import Enum
 from pathlib import Path
 from types import TracebackType
 from typing import Any
@@ -15,11 +15,11 @@ from typing import TYPE_CHECKING
 
 import click
 from _pytask.click import ColoredCommand
+from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
-from _pytask.config_utils import parse_click_choice
 from _pytask.console import console
 from _pytask.console import format_task_id
-from _pytask.database import db
+from _pytask.database_utils import db
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.nodes import FilePathNode
@@ -29,7 +29,6 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
-from _pytask.shared import get_first_non_none_value
 from _pytask.traceback import render_exc_info
 from pony import orm
 from rich.table import Table
@@ -39,13 +38,13 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
-class _ExportFormats(str, Enum):
+class _ExportFormats(enum.Enum):
     NO = "no"
     JSON = "json"
     CSV = "csv"
 
 
-class Runtime(db.Entity):  # type: ignore
+class Runtime(db.Entity):  # type: ignore[name-defined]
     """Record of runtimes of tasks."""
 
     task = orm.PrimaryKey(str)
@@ -57,19 +56,6 @@ class Runtime(db.Entity):  # type: ignore
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface."""
     cli.add_command(profile)
-
-
-@hookimpl
-def pytask_parse_config(
-    config: dict[str, Any], config_from_cli: dict[str, Any]
-) -> None:
-    """Parse the configuration."""
-    config["export"] = get_first_non_none_value(
-        config_from_cli,
-        key="export",
-        default=_ExportFormats.NO,
-        callback=parse_click_choice("export", _ExportFormats),
-    )
 
 
 @hookimpl
@@ -102,7 +88,7 @@ def pytask_execute_task_process_report(report: ExecutionReport) -> None:
 def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
     """Create or update a runtime entry."""
     try:
-        runtime = Runtime[task_name]  # type: ignore
+        runtime = Runtime[task_name]  # type: ignore[type-arg, valid-type]
     except orm.ObjectNotFound:
         Runtime(task=task_name, date=start, duration=end - start)
     else:
@@ -113,13 +99,13 @@ def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
 @click.command(cls=ColoredCommand)
 @click.option(
     "--export",
-    type=click.Choice(_ExportFormats),  # type: ignore[arg-type]
-    default=None,
-    help="Export the profile in the specified format. [dim]\\[default: no][/]",
+    type=EnumChoice(_ExportFormats),
+    default=_ExportFormats.NO,
+    help="Export the profile in the specified format.",
 )
-def profile(**config_from_cli: Any) -> NoReturn:
+def profile(**raw_config: Any) -> NoReturn:
     """Show information about tasks like runtime and memory consumption of products."""
-    config_from_cli["command"] = "profile"
+    raw_config["command"] = "profile"
 
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
@@ -129,7 +115,7 @@ def profile(**config_from_cli: Any) -> NoReturn:
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
     except (ConfigurationError, Exception):  # pragma: no cover
@@ -144,7 +130,7 @@ def profile(**config_from_cli: Any) -> NoReturn:
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_resolve_dependencies(session=session)
+            session.hook.pytask_dag(session=session)
 
             profile: dict[str, dict[str, Any]] = {
                 task.name: {} for task in session.tasks
@@ -163,7 +149,7 @@ def profile(**config_from_cli: Any) -> NoReturn:
         except CollectionError:  # pragma: no cover
             session.exit_code = ExitCode.COLLECTION_FAILED
 
-        except Exception:  # pragma: no cover
+        except Exception:  # noqa: BLE001; pragma: no cover
             session.exit_code = ExitCode.FAILED
             console.print_exception()
             console.rule(style="failed")
@@ -249,7 +235,7 @@ def _to_human_readable_size(bytes_: int, units: list[str] | None = None) -> str:
     units = [" bytes", " KB", " MB", " GB", " TB"] if units is None else units
     return (
         str(bytes_) + units[0]
-        if bytes_ < 1024 or len(units) == 1
+        if bytes_ < 1024 or len(units) == 1  # noqa: PLR2004
         else _to_human_readable_size(bytes_ >> 10, units[1:])
     )
 

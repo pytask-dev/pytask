@@ -33,7 +33,7 @@ _PARAMETRIZED_LAYOUTS = [
 _TEST_FORMATS = ["dot", "pdf", "png", "jpeg", "svg"]
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.skipif(not _IS_PYGRAPHVIZ_INSTALLED, reason="pygraphviz is required")
 @pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
@@ -69,7 +69,7 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
     assert tmp_path.joinpath(f"dag.{format_}").exists()
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 @pytest.mark.skipif(not _IS_PYGRAPHVIZ_INSTALLED, reason="pygraphviz is required")
 @pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
@@ -109,7 +109,7 @@ def _raise_exc(exc):
     raise exc
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_raise_error_with_graph_via_cli_missing_optional_dependency(
     monkeypatch, tmp_path, runner
 ):
@@ -124,7 +124,7 @@ def test_raise_error_with_graph_via_cli_missing_optional_dependency(
 
     monkeypatch.setattr(
         "_pytask.compat.importlib.import_module",
-        lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: U100
+        lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: ARG005
     )
 
     result = runner.invoke(
@@ -140,7 +140,7 @@ def test_raise_error_with_graph_via_cli_missing_optional_dependency(
     assert not tmp_path.joinpath("dag.png").exists()
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_raise_error_with_graph_via_task_missing_optional_dependency(
     monkeypatch, tmp_path, runner
 ):
@@ -159,7 +159,7 @@ def test_raise_error_with_graph_via_task_missing_optional_dependency(
 
     monkeypatch.setattr(
         "_pytask.compat.importlib.import_module",
-        lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: U100
+        lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: ARG005
     )
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
@@ -172,10 +172,15 @@ def test_raise_error_with_graph_via_task_missing_optional_dependency(
     assert not tmp_path.joinpath("dag.png").exists()
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_raise_error_with_graph_via_cli_missing_optional_program(
     monkeypatch, tmp_path, runner
 ):
+    monkeypatch.setattr(
+        "_pytask.compat.importlib.import_module", lambda x: None  # noqa: ARG005
+    )
+    monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: ARG005
+
     source = """
     import pytask
 
@@ -184,11 +189,6 @@ def test_raise_error_with_graph_via_cli_missing_optional_program(
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("input.txt").touch()
-
-    monkeypatch.setattr(
-        "_pytask.compat.importlib.import_module", lambda x: None  # noqa: U100
-    )
-    monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: U100
 
     result = runner.invoke(
         cli,
@@ -202,10 +202,15 @@ def test_raise_error_with_graph_via_cli_missing_optional_program(
     assert not tmp_path.joinpath("dag.png").exists()
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_raise_error_with_graph_via_task_missing_optional_program(
     monkeypatch, tmp_path, runner
 ):
+    monkeypatch.setattr(
+        "_pytask.compat.importlib.import_module", lambda x: None  # noqa: ARG005
+    )
+    monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: ARG005
+
     source = """
     import pytask
     from pathlib import Path
@@ -218,11 +223,6 @@ def test_raise_error_with_graph_via_task_missing_optional_program(
         graph.draw(path, prog="dot")
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
-
-    monkeypatch.setattr(
-        "_pytask.compat.importlib.import_module", lambda x: None  # noqa: U100
-    )
-    monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: U100
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 

@@ -34,6 +34,7 @@ import pathlib
 import re
 from textwrap import dedent
 from textwrap import indent
+from typing import Generator
 
 import packaging.version
 import requests
@@ -84,10 +85,10 @@ def _escape_rst(text: str) -> str:
     return text
 
 
-def _iter_plugins():
+def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
     """Iterate over all plugins and format entries."""
     regex = r">([\d\w-]*)</a>"
-    response = requests.get("https://pypi.org/simple")
+    response = requests.get("https://pypi.org/simple", timeout=20)
 
     matches = [
         match
@@ -98,7 +99,11 @@ def _iter_plugins():
 
     for match in tqdm(matches, smoothing=0):
         name = match.groups()[0]
-        response = requests.get(f"https://pypi.org/pypi/{name}/json")
+        response = requests.get(f"https://pypi.org/pypi/{name}/json", timeout=20)
+        if response.status_code == 404:  # noqa: PLR2004
+            # Some packages might return a 404.
+            continue
+
         response.raise_for_status()
         info = response.json()["info"]
 
@@ -114,12 +119,24 @@ def _iter_plugins():
 
         if info["requires_dist"]:
             for requirement in info["requires_dist"]:
-                if requirement == "pytask" or "pytask " in requirement:
+                if re.match(r"pytask(?![-.\w])", requirement):
                     requires = requirement
                     break
+
+        def _version_sort_key(version_string: str) -> packaging.version.Version:
+            """
+            Return the sort key for the given version string
+            returned by the API.
+            """
+            try:
+                return packaging.version.parse(version_string)
+            except packaging.version.InvalidVersion:
+                # Use a hard-coded pre-release version.
+                return packaging.version.Version("0.0.0alpha")
+
         releases = response.json()["releases"]
 
-        for release in sorted(releases, key=packaging.version.parse, reverse=True):
+        for release in sorted(releases, key=_version_sort_key, reverse=True):
             if releases[release]:
                 release_date = datetime.date.fromisoformat(
                     releases[release][-1]["upload_time_iso_8601"].split("T")[0]
@@ -128,7 +145,9 @@ def _iter_plugins():
                 break
 
         name = f':pypi:`{info["name"]}`'
-        summary = _escape_rst(info["summary"].replace("\n", ""))
+        summary = ""
+        if info["summary"]:
+            summary = _escape_rst(info["summary"].replace("\n", ""))
 
         yield {
             "name": name,
@@ -139,9 +158,8 @@ def _iter_plugins():
         }
 
 
-def _plugin_definitions(plugins):
+def _plugin_definitions(plugins: list[dict[str, str]]) -> Generator[str, None, None]:
     """Return RST for the plugin list that fits better on a vertical page."""
-
     for plugin in plugins:
         yield dedent(
             f"""
@@ -155,7 +173,7 @@ def _plugin_definitions(plugins):
         )
 
 
-def main():
+def main() -> None:
     plugins = list(_iter_plugins())
 
     reference_dir = pathlib.Path("docs", "source")
@@ -166,7 +184,7 @@ def main():
         f.write(f"This list contains {len(plugins)} plugins.\n\n")
         f.write(".. only:: not latex\n\n")
 
-        wcwidth  # reference library that must exist for tabulate to work
+        assert wcwidth  # reference library that must exist for tabulate to work
         plugin_table = tabulate.tabulate(plugins, headers="keys", tablefmt="rst")
         f.write(indent(plugin_table, "   "))
         f.write("\n\n")

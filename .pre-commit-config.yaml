@@ -17,7 +17,7 @@ repos:
         args: [--branch, main]
     -   id: trailing-whitespace
 -   repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
     -   id: python-check-blanket-noqa
     -   id: python-check-mock-methods
@@ -25,58 +25,49 @@ repos:
         exclude: expression.py
     -   id: python-no-log-warn
     -   id: python-use-type-annotations
-    -   id: rst-backticks
-    -   id: rst-directive-colons
-    -   id: rst-inline-touching-normal
     -   id: text-unicode-replacement-char
 -   repo: https://github.com/asottile/reorder_python_imports
     rev: v3.9.0
     hooks:
     -   id: reorder-python-imports
         args: [--py37-plus, --add-import, 'from __future__ import annotations']
--   repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
-    hooks:
-    -   id: pyupgrade
-        args: [--py37-plus]
 -   repo: https://github.com/asottile/setup-cfg-fmt
     rev: v2.2.0
     hooks:
     -   id: setup-cfg-fmt
--   repo: https://github.com/PyCQA/docformatter
-    rev: v1.5.0
-    hooks:
-    -   id: docformatter
-        args: [--in-place, --wrap-summaries, "88", --wrap-descriptions, "88", --blank]
 -   repo: https://github.com/psf/black
-    rev: 22.12.0
+    rev: 23.3.0
     hooks:
     -   id: black
--   repo: https://github.com/PyCQA/flake8
-    rev: 5.0.4
+-   repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.261
     hooks:
-    -   id: flake8
-        additional_dependencies: [
-            flake8-alfred,
-            flake8-bugbear,
-            flake8-builtins,
-            flake8-comprehensions,
-            flake8-docstrings,
-            flake8-eradicate,
-            flake8-print,
-            flake8-pytest-style,
-            flake8-todo,
-            flake8-typing-imports,
-            flake8-unused-arguments,
-            pep8-naming,
-            pydocstyle,
-            Pygments,
-        ]
+      - id: ruff
 -   repo: https://github.com/dosisod/refurb
-    rev: v1.8.0
+    rev: v1.15.0
     hooks:
     -   id: refurb
         args: [--ignore, FURB126]
+-   repo: https://github.com/econchick/interrogate
+    rev: 1.5.0
+    hooks:
+    -   id: interrogate
+        args: [-v, --fail-under=75]
+        exclude: ^(tests/|docs/|scripts/)
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.2.0'
+    hooks:
+    -   id: mypy
+        args: [
+            --no-strict-optional,
+            --ignore-missing-imports,
+        ]
+        additional_dependencies: [
+            attrs>=21.3.0,
+            click,
+            types-setuptools
+        ]
+        pass_filenames: false
 -   repo: https://github.com/executablebooks/mdformat
     rev: 0.7.16
     hooks:
@@ -99,8 +90,10 @@ repos:
         files: (docs/.)
         exclude: |
             (?x)^(
+                docs/source/index.md|
                 docs/source/how_to_guides/bp_structure_of_task_files.md|
                 docs/source/how_to_guides/how_to_influence_build_order.md|
+                docs/source/how_to_guides/migrating_from_scripts_to_pytask.md|
                 docs/source/how_to_guides/repeating_tasks_with_different_inputs_the_pytest_way.md|
                 docs/source/reference_guides/hookspecs.md|
                 docs/source/tutorials/configuration.md|
@@ -110,14 +103,8 @@ repos:
                 docs/source/tutorials/selecting_tasks.md|
                 docs/source/tutorials/set_up_a_project.md
             )$
--   repo: https://github.com/econchick/interrogate
-    rev: 1.5.0
-    hooks:
-    -   id: interrogate
-        args: [-v, --fail-under=75]
-        exclude: ^(tests/|docs/|scripts/)
 -   repo: https://github.com/codespell-project/codespell
-    rev: v2.2.2
+    rev: v2.2.4
     hooks:
     -   id: codespell
         additional_dependencies: [tomli]
@@ -127,20 +114,6 @@ repos:
     -   id: check-manifest
         args: [--no-build-isolation]
         additional_dependencies: [setuptools-scm, toml]
--   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v0.991'
-    hooks:
-    -   id: mypy
-        args: [
-            --no-strict-optional,
-            --ignore-missing-imports,
-        ]
-        additional_dependencies: [
-            attrs>=19.2.0,
-            click,
-            types-setuptools
-        ]
-        pass_filenames: false
 -   repo: meta
     hooks:
     -   id: check-hooks-apply

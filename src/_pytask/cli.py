@@ -12,7 +12,10 @@ from _pytask.pluginmanager import get_plugin_manager
 from packaging.version import parse as parse_version
 
 
-_CONTEXT_SETTINGS: dict[str, Any] = {"help_option_names": ("-h", "--help")}
+_CONTEXT_SETTINGS: dict[str, Any] = {
+    "help_option_names": ("-h", "--help"),
+    "show_default": True,
+}
 
 
 if parse_version(click.__version__) < parse_version("8"):
@@ -41,7 +44,7 @@ def _sort_options_for_each_command_alphabetically(cli: click.Group) -> None:
     """Sort command line options and arguments for each command alphabetically."""
     for command in cli.commands:
         cli.commands[command].params = sorted(
-            cli.commands[command].params, key=lambda x: x.name
+            cli.commands[command].params, key=lambda x: x.opts[0].replace("-", "")
         )
 
 
@@ -61,11 +64,12 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     from _pytask import live
     from _pytask import logging
     from _pytask import mark
+    from _pytask import nodes
     from _pytask import parameters
     from _pytask import parametrize
     from _pytask import persist
     from _pytask import profile
-    from _pytask import resolve_dependencies
+    from _pytask import dag
     from _pytask import skipping
     from _pytask import task
     from _pytask import warnings
@@ -83,11 +87,12 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     pm.register(live)
     pm.register(logging)
     pm.register(mark)
+    pm.register(nodes)
     pm.register(parameters)
     pm.register(parametrize)
     pm.register(persist)
     pm.register(profile)
-    pm.register(resolve_dependencies)
+    pm.register(dag)
     pm.register(skipping)
     pm.register(task)
     pm.register(warnings)
@@ -102,7 +107,13 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
 @click.version_option(**_VERSION_OPTION_KWARGS)
 def cli() -> None:
     """Manage your tasks with pytask."""
-    pass
 
 
 _extend_command_line_interface(cli)
+
+
+DEFAULTS_FROM_CLI = {
+    option.name: option.default
+    for command in cli.commands.values()
+    for option in command.params
+}

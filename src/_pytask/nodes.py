@@ -7,72 +7,73 @@ from abc import abstractmethod
 from pathlib import Path
 from typing import Any
 from typing import Callable
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
 from typing import TYPE_CHECKING
 
-import attr
-from _pytask.exceptions import NodeNotFoundError
+from attrs import define
+from attrs import field
 
 
 if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-class MetaNode(metaclass=ABCMeta):
+__all__ = ["FilePathNode", "Node", "Task"]
+
+
+class Node(metaclass=ABCMeta):
     """Meta class for nodes."""
 
     name: str
-    path: Path
+    """str: The name of node that must be unique."""
 
     @abstractmethod
-    def state(self) -> str | None:
+    def state(self) -> Any:
         ...
 
 
-@attr.s(kw_only=True)
-class Task:
+@define(kw_only=True)
+class Task(Node):
     """The class for tasks which are Python functions."""
 
-    base_name = attr.ib(type=str)
-    """str: The base name of the task."""
-    path = attr.ib(type=Path)
-    """pathlib.Path: Path to the file where the task was defined."""
-    function = attr.ib(type=Callable[..., Any])
-    """Callable[..., Any]: The task function."""
-    short_name = attr.ib(default=None, type=Optional[str], init=False)
-    """str: The shortest uniquely identifiable name for task for display."""
-    depends_on = attr.ib(factory=dict, type=Dict[str, MetaNode])
-    """Dict[str, MetaNode]: A list of dependencies of task."""
-    produces = attr.ib(factory=dict, type=Dict[str, MetaNode])
-    """Dict[str, MetaNode]: A list of products of task."""
-    markers = attr.ib(factory=list, type=List["Mark"])
-    """Optional[List[Mark]]: A list of markers attached to the task function."""
-    kwargs = attr.ib(factory=dict, type=Dict[str, Any])
-    """Dict[str, Any]: A dictionary with keyword arguments supplied to the task."""
-    _report_sections = attr.ib(factory=list, type=List[Tuple[str, str, str]])
-    """List[Tuple[str, str, str]]: Reports with entries for when, what, and content."""
-    attributes = attr.ib(factory=dict, type=Dict[Any, Any])
-    """Dict[Any, Any]: A dictionary to store additional information of the task."""
+    base_name: str
+    """The base name of the task."""
+    path: Path
+    """Path to the file where the task was defined."""
+    function: Callable[..., Any]
+    """The task function."""
+    name: str | None = field(default=None, init=False)
+    """The name of the task."""
+    short_name: str | None = field(default=None, init=False)
+    """The shortest uniquely identifiable name for task for display."""
+    depends_on: dict[str, Node] = field(factory=dict)
+    """A list of dependencies of task."""
+    produces: dict[str, Node] = field(factory=dict)
+    """A list of products of task."""
+    markers: list[Mark] = field(factory=list)
+    """A list of markers attached to the task function."""
+    kwargs: dict[str, Any] = field(factory=dict)
+    """A dictionary with keyword arguments supplied to the task."""
+    _report_sections: list[tuple[str, str, str]] = field(factory=list)
+    """Reports with entries for when, what, and content."""
+    attributes: dict[Any, Any] = field(factory=dict)
+    """A dictionary to store additional information of the task."""
 
     def __attrs_post_init__(self: Task) -> None:
         """Change class after initialization."""
+        if self.name is None:
+            self.name = self.path.as_posix() + "::" + self.base_name
+
         if self.short_name is None:
             self.short_name = self.name
 
-    @property
-    def name(self) -> str:
-        return self.path.as_posix() + "::" + self.base_name
+    def state(self) -> str | None:
+        if self.path.exists():
+            return str(self.path.stat().st_mtime)
+        return None
 
     def execute(self, **kwargs: Any) -> None:
         """Execute the task."""
         self.function(**kwargs)
-
-    def state(self) -> str:
-        """Return the last modified date of the file where the task is defined."""
-        return str(self.path.stat().st_mtime)
 
     def add_report_section(self, when: str, key: str, content: str) -> None:
         """Add sections which will be displayed in report like stdout or stderr."""
@@ -80,16 +81,21 @@ class Task:
             self._report_sections.append((when, key, content))
 
 
-@attr.s
-class FilePathNode(MetaNode):
+@define(kw_only=True)
+class FilePathNode(Node):
     """The class for a node which is a path."""
 
-    name = attr.ib(type=str)
+    name: str
     """str: Name of the node which makes it identifiable in the DAG."""
-    value = attr.ib(type=Path)
+    value: Path
     """Any: Value passed to the decorator which can be requested inside the function."""
-    path = attr.ib(type=Path)
+    path: Path
     """pathlib.Path: Path to the FilePathNode."""
+
+    def state(self) -> str | None:
+        if self.path.exists():
+            return str(self.path.stat().st_mtime)
+        return None
 
     @classmethod
     @functools.lru_cache()
@@ -101,11 +107,4 @@ class FilePathNode(MetaNode):
         """
         if not path.is_absolute():
             raise ValueError("FilePathNode must be instantiated from absolute path.")
-        return cls(path.as_posix(), path, path)
-
-    def state(self) -> str | None:
-        """Return the last modified date for file path."""
-        if not self.path.exists():
-            raise NodeNotFoundError
-        else:
-            return str(self.path.stat().st_mtime)
+        return cls(name=path.as_posix(), value=path, path=path)

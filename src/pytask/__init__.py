@@ -1,8 +1,11 @@
-"""This module contains the main namespace for pytask."""
+"""Contains the main namespace for pytask."""
 from __future__ import annotations
 
 from _pytask import __version__
 from _pytask.build import main
+from _pytask.click import ColoredCommand
+from _pytask.click import ColoredGroup
+from _pytask.click import EnumChoice
 from _pytask.collect_utils import depends_on
 from _pytask.collect_utils import parse_nodes
 from _pytask.collect_utils import produces
@@ -10,7 +13,7 @@ from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.database import db
+from _pytask.database_utils import db
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
@@ -30,7 +33,7 @@ from _pytask.mark_utils import remove_marks
 from _pytask.mark_utils import set_marks
 from _pytask.models import CollectionMetadata
 from _pytask.nodes import FilePathNode
-from _pytask.nodes import MetaNode
+from _pytask.nodes import Node
 from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
@@ -42,8 +45,8 @@ from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
 from _pytask.report import CollectionReport
+from _pytask.report import DagReport
 from _pytask.report import ExecutionReport
-from _pytask.report import ResolvingDependenciesReport
 from _pytask.session import Session
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
@@ -59,6 +62,36 @@ from _pytask.cli import cli  # noreorder
 
 
 __all__ = [
+    "CollectionError",
+    "CollectionMetadata",
+    "CollectionOutcome",
+    "CollectionReport",
+    "ColoredCommand",
+    "ColoredGroup",
+    "ConfigurationError",
+    "EnumChoice",
+    "ExecutionError",
+    "ExecutionReport",
+    "Exit",
+    "ExitCode",
+    "FilePathNode",
+    "Mark",
+    "MarkDecorator",
+    "MarkGenerator",
+    "Node",
+    "NodeNotCollectedError",
+    "NodeNotFoundError",
+    "Persisted",
+    "PytaskError",
+    "ResolvingDependenciesError",
+    "DagReport",
+    "Session",
+    "Skipped",
+    "SkippedAncestorFailed",
+    "SkippedUnchanged",
+    "Task",
+    "TaskOutcome",
+    "WarningReport",
     "__version__",
     "build_dag",
     "check_for_optional_program",
@@ -69,7 +102,6 @@ __all__ = [
     "depends_on",
     "format_exception_without_traceback",
     "get_all_marks",
-    "get_first_non_none_value",
     "get_marks",
     "has_mark",
     "hookimpl",
@@ -85,31 +117,4 @@ __all__ = [
     "render_exc_info",
     "set_marks",
     "warning_record_to_str",
-    "CollectionError",
-    "CollectionMetadata",
-    "CollectionOutcome",
-    "CollectionReport",
-    "ConfigurationError",
-    "ExecutionReport",
-    "ExecutionError",
-    "Exit",
-    "ExitCode",
-    "FilePathNode",
-    "Mark",
-    "MarkDecorator",
-    "MarkGenerator",
-    "MetaNode",
-    "NodeNotCollectedError",
-    "NodeNotFoundError",
-    "Persisted",
-    "PytaskError",
-    "ResolvingDependenciesError",
-    "ResolvingDependenciesReport",
-    "Session",
-    "Skipped",
-    "SkippedAncestorFailed",
-    "SkippedUnchanged",
-    "Task",
-    "TaskOutcome",
-    "WarningReport",
 ]

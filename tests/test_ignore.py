@@ -9,8 +9,8 @@ from pytask import ExitCode
 from pytask import main
 
 
-@pytest.mark.end_to_end
-@pytest.mark.parametrize("ignored_folder", _IGNORED_FOLDERS + ["pytask.egg-info"])
+@pytest.mark.end_to_end()
+@pytest.mark.parametrize("ignored_folder", [*_IGNORED_FOLDERS, "pytask.egg-info"])
 def test_ignore_default_paths(tmp_path, ignored_folder):
     folder = ignored_folder.split("/*")[0]
     tmp_path.joinpath(folder).mkdir()
@@ -21,25 +21,10 @@ def test_ignore_default_paths(tmp_path, ignored_folder):
     assert len(session.tasks) == 0
 
 
-@pytest.mark.end_to_end
-@pytest.mark.parametrize("config_path", ["pytask.ini", "tox.ini", "setup.cfg"])
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("ignore", ["", "*task_module.py"])
 @pytest.mark.parametrize("new_line", [True, False])
-def test_ignore_paths(tmp_path, config_path, ignore, new_line):
-    tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
-    entry = f"ignore =\n\t{ignore}" if new_line else f"ignore = {ignore}"
-    config = f"[pytask]\n{entry}" if ignore else "[pytask]"
-    tmp_path.joinpath(config_path).write_text(config)
-
-    session = main({"paths": tmp_path})
-    assert session.exit_code == ExitCode.OK
-    assert len(session.tasks) == 0 if ignore else len(session.tasks) == 1
-
-
-@pytest.mark.end_to_end
-@pytest.mark.parametrize("ignore", ["", "*task_module.py"])
-@pytest.mark.parametrize("new_line", [True, False])
-def test_ignore_paths_toml(tmp_path, ignore, new_line):
+def test_ignore_paths(tmp_path, ignore, new_line):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
     entry = f"ignore = ['{ignore}']" if new_line else f"ignore = '{ignore}'"
     config = (
@@ -52,9 +37,9 @@ def test_ignore_paths_toml(tmp_path, ignore, new_line):
     assert len(session.tasks) == 0 if ignore else len(session.tasks) == 1
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "path, ignored_paths, expected",
+    ("path", "ignored_paths", "expected"),
     [
         (Path("example").resolve(), ["example"], True),
         (Path("example", "file.py").resolve(), ["example"], False),

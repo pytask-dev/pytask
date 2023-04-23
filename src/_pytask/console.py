@@ -31,6 +31,18 @@ if TYPE_CHECKING:
     from _pytask.outcomes import TaskOutcome
 
 
+__all__ = [
+    "create_summary_panel",
+    "create_url_style_for_task",
+    "create_url_style_for_path",
+    "console",
+    "format_task_id",
+    "format_strings_as_flat_tree",
+    "render_to_string",
+    "unify_styles",
+]
+
+
 _IS_WSL = "IS_WSL" in os.environ or "WSL_DISTRO_NAME" in os.environ
 IS_WINDOWS_TERMINAL = "WT_SESSION" in os.environ
 _IS_WINDOWS = sys.platform == "win32"
@@ -88,7 +100,7 @@ theme = Theme(
 )
 
 
-console = Console(theme=theme, color_system=_COLOR_SYSTEM)
+console: Console = Console(theme=theme, color_system=_COLOR_SYSTEM)
 
 
 def render_to_string(
@@ -211,23 +223,21 @@ def _get_file(function: Callable[..., Any], skipped_paths: list[Path] = None) ->
 
     if isinstance(function, functools.partial):
         return _get_file(function.func)
-    elif (
+    if (
         hasattr(function, "__wrapped__")
         and Path(inspect.getsourcefile(function)) in skipped_paths
     ):
         return _get_file(function.__wrapped__)
-    else:
-        return Path(inspect.getsourcefile(function))
+    return Path(inspect.getsourcefile(function))
 
 
 def _get_source_lines(function: Callable[..., Any]) -> int:
     """Get the source line number of the function."""
     if isinstance(function, functools.partial):
         return _get_source_lines(function.func)
-    elif hasattr(function, "__wrapped__"):
+    if hasattr(function, "__wrapped__"):
         return _get_source_lines(function.__wrapped__)
-    else:
-        return inspect.getsourcelines(function)[1]
+    return inspect.getsourcelines(function)[1]
 
 
 def unify_styles(*styles: str | Style) -> Style:

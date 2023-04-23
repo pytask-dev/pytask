@@ -14,16 +14,16 @@ if TYPE_CHECKING:
 
 
 __all__ = [
-    "count_outcomes",
     "CollectionOutcome",
     "Exit",
     "ExitCode",
     "Persisted",
     "PytaskOutcome",
     "Skipped",
-    "SkippedUnchanged",
     "SkippedAncestorFailed",
+    "SkippedUnchanged",
     "TaskOutcome",
+    "count_outcomes",
 ]
 
 
@@ -199,8 +199,8 @@ class ExitCode(IntEnum):
     COLLECTION_FAILED = 3
     """Failed while collecting tasks."""
 
-    RESOLVING_DEPENDENCIES_FAILED = 4
-    """Failed while resolving dependencies."""
+    DAG_FAILED = 4
+    """Failed while building the DAG."""
 
 
 class PytaskOutcome(Exception):

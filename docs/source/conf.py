@@ -1,10 +1,9 @@
-# Configuration file for the Sphinx documentation builder.
-# This file only contains a selection of the most common options. For a full list see
-# the documentation: https://www.sphinx-doc.org/en/master/usage/configuration.html
-# -- Path setup ------------------------------------------------------------------------
-# If extensions (or modules to document with autodoc) are in another directory, add
-# these directories to sys.path here. If the directory is relative to the documentation
-# root, use os.path.abspath to make it absolute, like shown here.
+"""Configuration file for the Sphinx documentation builder.
+
+This file only contains a selection of the most common options. For a full list see the
+documentation: https://www.sphinx-doc.org/en/master/usage/configuration.html
+
+"""
 from __future__ import annotations
 
 from importlib.metadata import version
@@ -40,8 +39,8 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
     "sphinx_click",
-    "sphinx_panels",
     "myst_parser",
+    "sphinx_design",
 ]
 
 # List of patterns, relative to source directory, that match files and directories to
@@ -49,7 +48,6 @@ extensions = [
 # html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 
-suppress_warnings = ["ref.python"]
 
 pygments_style = "sphinx"
 pygments_dark_style = "monokai"
@@ -57,7 +55,7 @@ pygments_dark_style = "monokai"
 # -- Extensions configuration ----------------------------------------------------------
 
 # Configuration for autodoc.
-add_module_names = False
+add_module_names = True
 
 # Remove prefixed $ for bash, >>> for Python prompts, and In [1]: for IPython prompts.
 copybutton_prompt_text = r"\$ |>>> |In \[\d\]: "
@@ -65,10 +63,10 @@ copybutton_prompt_is_regexp = True
 
 _repo = "https://github.com/pytask-dev/pytask"
 extlinks = {
-    "pypi": ("https://pypi.org/project/%s/", ""),
-    "issue": (f"{_repo}/issues/%s", "issue #"),
-    "pull": (f"{_repo}/pull/%s", "pull request #"),
-    "user": ("https://github.com/%s", "@"),
+    "pypi": ("https://pypi.org/project/%s/", "%s"),
+    "issue": (f"{_repo}/issues/%s", "issue #%s"),
+    "pull": (f"{_repo}/pull/%s", "pull request #%s"),
+    "user": ("https://github.com/%s", "@%s"),
 }
 
 intersphinx_mapping = {
@@ -76,10 +74,15 @@ intersphinx_mapping = {
     "click": ("https://click.palletsprojects.com/en/8.0.x/", None),
     "pluggy": ("https://pluggy.readthedocs.io/en/latest", None),
     "networkx": ("https://networkx.org/documentation/stable", None),
+    "pygraphviz": ("https://pygraphviz.github.io/documentation/stable/", None),
 }
 
 # MyST
 myst_enable_extensions = ["colon_fence", "deflist", "dollarmath"]
+myst_footnote_transition = False
+
+# Open Graph
+ogp_social_cards = {"image": "_static/images/pytask_w_text.png"}
 
 
 # -- Options for HTML output -----------------------------------------------------------
@@ -94,10 +97,6 @@ html_theme = "furo"
 html_css_files = ["css/termynal.css", "css/custom.css"]
 
 html_js_files = ["js/termynal.js", "js/custom.js"]
-
-# The name of an image file (within the static path) to use as favicon of the docs.
-# This file should be a Windows icon file (.ico) being 16x16 or 32x32 pixels large.
-html_logo = "_static/images/pytask_w_text.svg"
 
 # The name of an image file (within the static path) to use as favicon of the docs.
 # This file should be a Windows icon file (.ico) being 16x16 or 32x32 pixels large.
@@ -129,10 +128,13 @@ html_show_copyright = True
 html_theme_options = {
     "sidebar_hide_name": True,
     "navigation_with_keys": True,
+    "light_logo": "images/pytask_w_text_light.svg",
+    "dark_logo": "images/pytask_w_text_dark.svg",
 }
 
 
 def setup(app: sphinx.application.Sphinx) -> None:
+    """Configure sphinx."""
     app.add_object_type(
         "confval",
         "confval",

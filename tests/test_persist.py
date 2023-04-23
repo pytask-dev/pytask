@@ -3,8 +3,8 @@ from __future__ import annotations
 import textwrap
 
 import pytest
-from _pytask.database import create_database
-from _pytask.database import State
+from _pytask.database_utils import create_database
+from _pytask.database_utils import State
 from _pytask.persist import pytask_execute_task_process_report
 from pony import orm
 from pytask import ExitCode
@@ -18,13 +18,13 @@ class DummyClass:
     pass
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_persist_marker_is_set(tmp_path):
     session = main({"paths": tmp_path})
     assert "persist" in session.config["markers"]
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_multiple_runs_with_persist(tmp_path):
     """Perform multiple consecutive runs and check intermediate outcomes with persist.
 
@@ -64,15 +64,17 @@ def test_multiple_runs_with_persist(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
 
     with orm.db_session:
-
         create_database(
-            "sqlite", tmp_path.joinpath(".pytask.sqlite3").as_posix(), True, False
+            "sqlite",
+            tmp_path.joinpath(".pytask.sqlite3").as_posix(),
+            create_db=True,
+            create_tables=False,
         )
         task_id = tmp_path.joinpath("task_module.py").as_posix() + "::task_dummy"
         node_id = tmp_path.joinpath("out.txt").as_posix()
 
-        state = State[task_id, node_id].state
-        assert float(state) == tmp_path.joinpath("out.txt").stat().st_mtime
+        modification_time = State[task_id, node_id].modification_time
+        assert float(modification_time) == tmp_path.joinpath("out.txt").stat().st_mtime
 
     session = main({"paths": tmp_path})
 
@@ -82,7 +84,7 @@ def test_multiple_runs_with_persist(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
 
 
-@pytest.mark.end_to_end
+@pytest.mark.end_to_end()
 def test_migrating_a_whole_task_with_persist(tmp_path):
     source = """
     import pytask
@@ -107,9 +109,9 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "exc_info, expected",
+    ("exc_info", "expected"),
     [
         (None, None),
         ((None, None, None), None),
@@ -118,7 +120,7 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
 )
 def test_pytask_execute_task_process_report(monkeypatch, exc_info, expected):
     monkeypatch.setattr(
-        "_pytask.persist.update_states_in_database", lambda *x: None  # noqa: U100
+        "_pytask.persist.update_states_in_database", lambda *x: None  # noqa: ARG005
     )
 
     task = DummyClass()

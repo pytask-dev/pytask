@@ -9,6 +9,37 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`323` uses a new Github action to provide mamba.
 
+## 0.3.2 - 2023-xx-xx
+
+- {pull}`345` updates the version numbers in animations.
+- {pull}`352` publishes `db` that is required by pytask-environment.
+- {pull}`354` adds a `-f/--force` flag to execute tasks even though nothing may have
+  changed.
+- {pull}`355` refactors a lot of things related to nodes.
+- {pull}`357` add hashing for task files to detect changes when modification times do
+  not match.
+- {pull}`364` updates `update_plugin_list.py`.
+- {pull}`365` reworks the panel on the index page with sphinx-design.
+- {pull}`366` adds light and dark logos and fixes some warnings when building the
+  documentation.
+- {pull}`368` fixes an error in `update_plugin_list.py` introduced by {pull}`364`.
+- {pull}`369` reverts the changes that turn `Node.state()` into a hook.
+
+## 0.3.1 - 2023-12-25
+
+- {pull}`337` fixes fallback to root path when `pytask collect` or `pytask clean` are
+  used without paths.
+
+## 0.3.0 - 2023-12-22
+
+- {pull}`313` refactors the configuration. INI configurations are no longer supported.
+- {pull}`326` fixes the badge for status of the workflow.
+- {pull}`329` adds ruff to pre-commit hooks.
+- {pull}`330` add a guide for migrating from scripts to pytask.
+- {pull}`332` refactors `database.py`.
+- {pull}`333` requires attrs v21.3.0 and updates the code accordingly.
+- {pull}`334` adds `target-version` to ruff config.
+
 ## 0.2.7 - 2022-12-14
 
 - {pull}`307` adds Python 3.11 to the CI.

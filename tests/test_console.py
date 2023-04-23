@@ -30,9 +30,9 @@ def task_func():
 _SOURCE_LINE_TASK_FUNC = inspect.getsourcelines(task_func)[1]
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "edtior_url_scheme, expected",
+    ("edtior_url_scheme", "expected"),
     [
         ("no_link", ""),
         ("file", "link file:///{path}"),
@@ -50,9 +50,9 @@ def test_create_url_style_for_task(edtior_url_scheme, expected):
     assert style == Style.parse(expected.format(path=path))
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "edtior_url_scheme, expected",
+    ("edtior_url_scheme", "expected"),
     [
         ("no_link", ""),
         ("file", "link file:///{path}"),
@@ -70,9 +70,9 @@ def test_create_url_style_for_path(edtior_url_scheme, expected):
     assert style == Style.parse(expected.format(path=path))
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "outcome, outcome_enum, total_description",
+    ("outcome", "outcome_enum", "total_description"),
     [(outcome, TaskOutcome, "description") for outcome in TaskOutcome]
     + [(outcome, CollectionOutcome, "description") for outcome in CollectionOutcome],
 )
@@ -90,9 +90,9 @@ def test_create_summary_panel(capsys, outcome, outcome_enum, total_description):
     assert "description" in captured
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "color_system, text, strip_styles, expected",
+    ("color_system", "text", "strip_styles", "expected"),
     [
         (None, "[red]text", False, "text\n"),
         ("truecolor", "[red]text", False, "\x1b[31mtext\x1b[0m\n"),
@@ -108,9 +108,16 @@ def test_render_to_string(color_system, text, strip_styles, expected):
 _THIS_FILE = Path(__file__)
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "base_name, short_name, editor_url_scheme, use_short_name, relative_to, expected",
+    (
+        "base_name",
+        "short_name",
+        "editor_url_scheme",
+        "use_short_name",
+        "relative_to",
+        "expected",
+    ),
     [
         pytest.param(
             "task_a",
@@ -157,7 +164,7 @@ _THIS_FILE = Path(__file__)
         ),
     ],
 )
-def test_format_task_id(
+def test_format_task_id(  # noqa: PLR0913
     base_name,
     short_name,
     editor_url_scheme,
@@ -175,9 +182,9 @@ def test_format_task_id(
     assert result == expected
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "task_func, skipped_paths, expected",
+    ("task_func", "skipped_paths", "expected"),
     [
         (task_func, [], _THIS_FILE),
         (
@@ -197,9 +204,9 @@ def test_get_file(task_func, skipped_paths, expected):
     assert result == expected
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 @pytest.mark.parametrize(
-    "task_func, expected",
+    ("task_func", "expected"),
     [
         (task_func, _SOURCE_LINE_TASK_FUNC),
         (empty_decorator(task_func), _SOURCE_LINE_TASK_FUNC),

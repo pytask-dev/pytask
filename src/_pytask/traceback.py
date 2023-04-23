@@ -65,10 +65,9 @@ def remove_internal_traceback_frames_from_exc_info(
     occurrence downwards.
 
     """
-    if exc_info is not None:
-        if isinstance(exc_info[2], TracebackType):
-            filtered_traceback = _filter_internal_traceback_frames(exc_info)
-            exc_info = (*exc_info[:2], filtered_traceback)
+    if exc_info is not None and isinstance(exc_info[2], TracebackType):
+        filtered_traceback = _filter_internal_traceback_frames(exc_info)
+        exc_info = (*exc_info[:2], filtered_traceback)
 
     return exc_info
 
@@ -86,7 +85,7 @@ def _is_internal_or_hidden_traceback_frame(
 
     if callable(is_hidden):
         return is_hidden(exc_info)
-    elif is_hidden:
+    if is_hidden:
         return True
 
     path = Path(frame.tb_frame.f_code.co_filename)

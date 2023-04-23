@@ -1,3 +1,4 @@
+"""This module contains utility functions for warnings."""
 from __future__ import annotations
 
 import functools
@@ -7,35 +8,34 @@ import warnings
 from contextlib import contextmanager
 from typing import cast
 from typing import Generator
-from typing import Tuple
+from typing import NamedTuple
 from typing import TYPE_CHECKING
 
-import attr
 from _pytask.mark_utils import get_marks
 from _pytask.nodes import Task
 from _pytask.outcomes import Exit
+
 
 if TYPE_CHECKING:
     from _pytask.session import Session
 
 
 __all__ = [
+    "WarningReport",
     "catch_warnings_for_item",
     "parse_filterwarnings",
     "parse_warning_filter",
-    "WarningReport",
 ]
 
 
-@attr.s(kw_only=True)
-class WarningReport:
-    message = attr.ib(type=str)
-    fs_location = attr.ib(type=Tuple[str, int])
-    id_ = attr.ib(type=str)
+class WarningReport(NamedTuple):
+    message: str
+    fs_location: tuple[str, int]
+    id_: str | None
 
 
 @functools.lru_cache(maxsize=50)
-def parse_warning_filter(
+def parse_warning_filter(  # noqa: PLR0912
     arg: str, *, escape: bool
 ) -> tuple[warnings._ActionKind, str, type[Warning], str, int]:
     """Parse a warnings filter string.
@@ -58,7 +58,7 @@ def parse_warning_filter(
     )
 
     parts = arg.split(":")
-    if len(parts) > 5:
+    if len(parts) > 5:  # noqa: PLR2004
         doc_url = (
             "https://docs.python.org/3/library/warnings.html#describing-warning-filters"
         )
@@ -71,17 +71,18 @@ def parse_warning_filter(
         )
         raise Exit(error_template.format(error=error))
 
-    while len(parts) < 5:
+    while len(parts) < 5:  # noqa: PLR2004
         parts.append("")
     action_, message, category_, module, lineno_ = (s.strip() for s in parts)
     try:
-        action: warnings._ActionKind = warnings._getaction(action_)  # type: ignore
+        action: warnings._ActionKind
+        action = warnings._getaction(action_)  # type: ignore[attr-defined]
     except warnings._OptionError as e:
-        raise Exit(error_template.format(error=str(e)))
+        raise Exit(error_template.format(error=str(e)))  # noqa: B904
     try:
         category: type[Warning] = _resolve_warning_category(category_)
     except Exit as e:
-        raise Exit(str(e))
+        raise Exit(str(e))  # noqa: B904
     if message and escape:
         message = re.escape(message)
     if module and escape:
@@ -92,15 +93,22 @@ def parse_warning_filter(
             if lineno < 0:
                 raise ValueError("number is negative")
         except ValueError as e:
-            raise Exit(error_template.format(error=f"invalid lineno {lineno_!r}: {e}"))
+            raise Exit(  # noqa: B904
+                error_template.format(error=f"invalid lineno {lineno_!r}: {e}")
+            )
     else:
         lineno = 0
     return action, message, category, module, lineno
 
 
 def _resolve_warning_category(category: str) -> type[Warning]:
-    """Copied from warnings._getcategory, but changed so it lets exceptions (specially
-    ImportErrors) propagate so we can get access to their tracebacks (#9218)."""
+    """Resolve the category of a warning.
+
+    Copied from :func:`warnings._getcategory`, but changed so it lets exceptions
+    (specially ImportErrors) propagate so we can get access to their tracebacks (pytest-
+    dev/pytask/#9218).
+
+    """
     __tracebackhide__ = True
     if not category:
         return Warning
@@ -114,7 +122,7 @@ def _resolve_warning_category(category: str) -> type[Warning]:
         m = __import__(module, None, None, [klass])
     cat = getattr(m, klass)
     if not issubclass(cat, Warning):
-        raise Exception(f"{cat} is not a Warning subclass")
+        raise TypeError(f"{cat} is not a Warning subclass")
     return cast(type[Warning], cat)
 
 
@@ -134,12 +142,9 @@ def parse_filterwarnings(x: str | list[str] | None) -> list[str]:
     """Parse filterwarnings."""
     if x is None:
         return []
-    elif isinstance(x, str):
-        return [i.strip() for i in x.split("\n")]
-    elif isinstance(x, list):
+    if isinstance(x, (list, tuple)):
         return [i.strip() for i in x]
-    else:
-        raise TypeError("'filterwarnings' must be a str, list[str] or None.")
+    raise TypeError("'filterwarnings' must be a str, list[str] or None.")
 
 
 @contextmanager
@@ -169,10 +174,7 @@ def catch_warnings_for_item(
 
         yield
 
-        if task is not None:
-            id_ = task.short_name
-        else:
-            id_ = when
+        id_ = task.short_name if task is not None else when
 
         for warning_message in log:
             fs_location = warning_message.filename, warning_message.lineno

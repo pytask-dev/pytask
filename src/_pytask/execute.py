@@ -7,16 +7,16 @@ import time
 from typing import Any
 
 from _pytask.config import hookimpl
-from _pytask.config_utils import ShowCapture
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_task
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import format_task_id
 from _pytask.console import unify_styles
-from _pytask.dag import descending_tasks
-from _pytask.dag import TopologicalSorter
-from _pytask.database import update_states_in_database
+from _pytask.dag_utils import descending_tasks
+from _pytask.dag_utils import TopologicalSorter
+from _pytask.database_utils import update_states_in_database
+from _pytask.enums import ShowCapture
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
@@ -29,29 +29,12 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
-from _pytask.shared import get_first_non_none_value
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
 from pybaum.tree_util import tree_map
 from rich.text import Text
-
-
-@hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
-    """Parse the configuration."""
-    config["show_errors_immediately"] = get_first_non_none_value(
-        config_from_cli,
-        config_from_file,
-        key="show_errors_immediately",
-        default=False,
-        callback=lambda x: x if x is None else bool(x),
-    )
 
 
 @hookimpl
@@ -103,8 +86,7 @@ def pytask_execute_build(session: Session) -> bool:
             if session.should_stop:
                 return True
         return True
-    else:
-        return None
+    return None
 
 
 @hookimpl
@@ -119,7 +101,7 @@ def pytask_execute_task_protocol(session: Session, task: Task) -> ExecutionRepor
         short_exc_info = remove_traceback_from_exc_info(sys.exc_info())
         report = ExecutionReport.from_task_and_exception(task, short_exc_info)
         session.should_stop = True
-    except Exception:
+    except Exception:  # noqa: BLE001
         report = ExecutionReport.from_task_and_exception(task, sys.exc_info())
     else:
         report = ExecutionReport.from_task(task)
@@ -139,12 +121,9 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
     """
     for dependency in session.dag.predecessors(task.name):
         node = session.dag.nodes[dependency]["node"]
-        try:
-            node.state()
-        except NodeNotFoundError as e:
-            raise NodeNotFoundError(
-                f"{node.name} is missing and required for {task.name}."
-            ) from e
+        if not node.state():
+            msg = f"{node.name} is missing and required for {task.name}."
+            raise NodeNotFoundError(msg)
 
     # Create directory for product if it does not exist. Maybe this should be a `setup`
     # method for the node classes.
@@ -162,17 +141,17 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
 def pytask_execute_task(session: Session, task: Task) -> bool:
     """Execute task."""
     if session.config["dry_run"]:
-        raise WouldBeExecuted()
-    else:
-        kwargs = {**task.kwargs}
+        raise WouldBeExecuted
 
-        func_arg_names = set(inspect.signature(task.function).parameters)
-        for arg_name in ("depends_on", "produces"):
-            if arg_name in func_arg_names:
-                attribute = getattr(task, arg_name)
-                kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
+    kwargs = {**task.kwargs}
 
-        task.execute(**kwargs)
+    func_arg_names = set(inspect.signature(task.function).parameters)
+    for arg_name in ("depends_on", "produces"):
+        if arg_name in func_arg_names:
+            attribute = getattr(task, arg_name)
+            kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
+
+    task.execute(**kwargs)
     return True
 
 
@@ -182,12 +161,8 @@ def pytask_execute_task_teardown(session: Session, task: Task) -> None:
     missing_nodes = []
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
-        if isinstance(node, FilePathNode):
-
-            try:
-                node.state()
-            except NodeNotFoundError:
-                missing_nodes.append(node)
+        if not node.state():
+            missing_nodes.append(node)
 
     if missing_nodes:
         paths = [reduce_node_name(i, session.config["paths"]) for i in missing_nodes]
@@ -209,7 +184,7 @@ def pytask_execute_task_process_report(
     """
     task = report.task
     if report.outcome == TaskOutcome.SUCCESS:
-        update_states_in_database(session.dag, task.name)
+        update_states_in_database(session, task.name)
     elif report.exc_info and isinstance(report.exc_info[1], WouldBeExecuted):
         report.outcome = TaskOutcome.WOULD_BE_EXECUTED
 
@@ -257,9 +232,12 @@ def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> No
 
 
 class ShowErrorsImmediatelyPlugin:
+    """Namespace for plugin to show errors immediately after the execution."""
+
     @staticmethod
     @hookimpl(tryfirst=True)
     def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:
+        """Print the error report of a task."""
         if report.outcome == TaskOutcome.FAIL:
             _print_errored_task_report(session, report)
 
@@ -283,7 +261,7 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
         for report in reports:
             if report.outcome == TaskOutcome.FAIL or (
                 report.outcome == TaskOutcome.SKIP_PREVIOUS_FAILED
-                and session.config["verbose"] >= 2
+                and session.config["verbose"] >= 2  # noqa: PLR2004
             ):
                 _print_errored_task_report(session, report)
 
@@ -326,7 +304,7 @@ def _print_errored_task_report(session: Session, report: ExecutionReport) -> Non
     show_capture = session.config["show_capture"]
     for when, key, content in report.sections:
         if key in ("stdout", "stderr") and show_capture in (
-            ShowCapture[key.upper()],
+            ShowCapture(key),
             ShowCapture.ALL,
         ):
             console.rule(f"Captured {key} during {when}", style=None)

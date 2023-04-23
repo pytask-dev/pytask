@@ -1,21 +1,20 @@
 """Add a command to clean the project from files unknown to pytask."""
 from __future__ import annotations
 
+import enum
 import itertools
 import shutil
 import sys
-from enum import Enum
 from pathlib import Path
 from types import TracebackType
 from typing import Any
 from typing import Generator
 from typing import Iterable
-from typing import List
 from typing import TYPE_CHECKING
 
-import attr
 import click
 from _pytask.click import ColoredCommand
+from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
@@ -28,11 +27,9 @@ from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from _pytask.shared import falsy_to_none_callback
-from _pytask.shared import get_first_non_none_value
-from _pytask.shared import parse_value_or_multiline_option
 from _pytask.shared import to_list
 from _pytask.traceback import render_exc_info
+from attrs import define
 from pybaum.tree_util import tree_just_yield
 
 
@@ -40,19 +37,19 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
-class _CleanMode(str, Enum):
+class _CleanMode(enum.Enum):
     DRY_RUN = "dry-run"
     FORCE = "force"
     INTERACTIVE = "interactive"
 
 
-_DEFAULT_EXCLUDE: list[str] = [".git/*", ".hg/*", ".svn/*"]
+_DEFAULT_EXCLUDE: list[str] = [".git/*"]
 
 
 _HELP_TEXT_MODE = (
     "Choose 'dry-run' to print the paths of files/directories which would be removed, "
     "'interactive' for a confirmation prompt for every path, and 'force' to remove all "
-    "unknown paths at once. [dim]\\[default: dry-run][/]"
+    "unknown paths at once."
 )
 
 
@@ -63,22 +60,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookimpl
-def pytask_parse_config(
-    config: dict[str, Any],
-    config_from_cli: dict[str, Any],
-    config_from_file: dict[str, Any],
-) -> None:
+def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse the configuration."""
-    config["directories"] = config_from_cli.get("directories", False)
-    cli_excludes = parse_value_or_multiline_option(config_from_cli.get("exclude"))
-    file_excludes = parse_value_or_multiline_option(config_from_file.get("exclude"))
-    config["exclude"] = (
-        to_list(cli_excludes or []) + to_list(file_excludes or []) + _DEFAULT_EXCLUDE
-    )
-    config["mode"] = config_from_cli.get("mode", _CleanMode.DRY_RUN)
-    config["quiet"] = get_first_non_none_value(
-        config_from_cli, key="quiet", default=False
-    )
+    config["exclude"] = to_list(config["exclude"]) + _DEFAULT_EXCLUDE
 
 
 @click.command(cls=ColoredCommand)
@@ -86,7 +70,8 @@ def pytask_parse_config(
     "-d",
     "--directories",
     is_flag=True,
-    help="Remove whole directories. [dim]\\[default: False][/]",
+    default=False,
+    help="Remove whole directories.",
 )
 @click.option(
     "-e",
@@ -95,23 +80,23 @@ def pytask_parse_config(
     multiple=True,
     type=str,
     help="A filename pattern to exclude files from the cleaning process.",
-    callback=falsy_to_none_callback,
 )
 @click.option(
     "--mode",
     default=_CleanMode.DRY_RUN,
-    type=click.Choice(_CleanMode),  # type: ignore[arg-type]
+    type=EnumChoice(_CleanMode),
     help=_HELP_TEXT_MODE,
 )
 @click.option(
     "-q",
     "--quiet",
     is_flag=True,
-    help="Do not print the names of the removed paths. [dim]\\[default: quiet][/]",
+    help="Do not print the names of the removed paths.",
+    default=False,
 )
-def clean(**config_from_cli: Any) -> NoReturn:
+def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912, PLR0915
     """Clean the provided paths by removing files unknown to pytask."""
-    config_from_cli["command"] = "clean"
+    raw_config["command"] = "clean"
 
     try:
         # Duplication of the same mechanism in :func:`pytask.main.main`.
@@ -121,10 +106,10 @@ def clean(**config_from_cli: Any) -> NoReturn:
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
 
-        config = pm.hook.pytask_configure(pm=pm, config_from_cli=config_from_cli)
+        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
-    except Exception:
+    except Exception:  # noqa: BLE001
         session = Session({}, None)
         session.exit_code = ExitCode.CONFIGURATION_FAILED
         exc_info: tuple[
@@ -182,7 +167,7 @@ def clean(**config_from_cli: Any) -> NoReturn:
             session.exit_code = ExitCode.COLLECTION_FAILED
             console.rule(style="failed")
 
-        except Exception:
+        except Exception:  # noqa: BLE001
             exc_info = sys.exc_info()
             console.print(render_exc_info(*exc_info, show_locals=config["show_locals"]))
             console.rule(style="failed")
@@ -197,10 +182,9 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
     Paths belong to tasks and nodes and configuration values.
 
     """
-    known_files = set()
+    known_files: set[Path] = set()
     for task in session.tasks:
-        for path in _yield_paths_from_task(task):
-            known_files.add(path)
+        known_files.update(_yield_paths_from_task(task))
 
     known_directories: set[Path] = set()
     for path in known_files:
@@ -263,7 +247,7 @@ def _find_all_unknown_paths(
     return unknown_paths
 
 
-@attr.s(repr=False)
+@define(repr=False)
 class _RecursivePathNode:
     """A class for a path to a file or directory which recursively instantiates itself.
 
@@ -277,11 +261,11 @@ class _RecursivePathNode:
 
     """
 
-    path = attr.ib(type=Path)
-    sub_nodes = attr.ib(type=List["_RecursivePathNode"])
-    is_dir = attr.ib(type=bool)
-    is_file = attr.ib(type=bool)
-    is_unknown = attr.ib(type=bool)
+    path: Path
+    sub_nodes: list[_RecursivePathNode]
+    is_dir: bool
+    is_file: bool
+    is_unknown: bool
 
     @classmethod
     def from_path(

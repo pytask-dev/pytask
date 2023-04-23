@@ -3,40 +3,17 @@ from __future__ import annotations
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
-import attr
 import pytest
 from _pytask.shared import reduce_node_name
 from pytask import FilePathNode
-from pytask import MetaNode
-
-
-@pytest.mark.unit
-def test_instantiation_of_metanode():
-    class Node(MetaNode):
-        ...
-
-    with pytest.raises(TypeError):
-        Node()
-
-    class Node(MetaNode):
-        def state(self):
-            ...
-
-    task = Node()
-    assert isinstance(task, MetaNode)
-
-
-@attr.s
-class FalseNode:
-    path = attr.ib()
 
 
 _ROOT = Path.cwd()
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 @pytest.mark.parametrize(
-    "node, paths, expectation, expected",
+    ("node", "paths", "expectation", "expected"),
     [
         pytest.param(
             FilePathNode.from_path(_ROOT.joinpath("src/module.py")),
@@ -44,13 +21,6 @@ _ROOT = Path.cwd()
             does_not_raise(),
             "pytask/src/module.py",
             id="Common path found for FilePathNode not in 'paths' and 'paths'",
-        ),
-        pytest.param(
-            FalseNode(_ROOT.joinpath("src/module.py")),
-            [_ROOT.joinpath("src")],
-            pytest.raises(TypeError, match="Unknown node"),
-            None,
-            id="throw error on unknown node type.",
         ),
         pytest.param(
             FilePathNode.from_path(_ROOT.joinpath("top/src/module.py")),

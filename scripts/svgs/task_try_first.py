@@ -4,12 +4,12 @@ import pytask
 from click.testing import CliRunner
 
 
-def task_first():
+def task_first() -> None:
     pytask.console.print("I'm second.")
 
 
 @pytask.mark.try_first
-def task_second():
+def task_second() -> None:
     pytask.console.print("I'm first.")
 
 

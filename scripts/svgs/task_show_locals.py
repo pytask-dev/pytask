@@ -1,6 +1,8 @@
 # Content of task_data_preparation.py.
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytask
@@ -8,7 +10,7 @@ from click.testing import CliRunner
 
 
 @pytask.mark.produces("data.pkl")
-def task_create_random_data(produces):
+def task_create_random_data(produces: Path) -> None:
     rng = np.random.default_rng(0)
     beta = 2
 
