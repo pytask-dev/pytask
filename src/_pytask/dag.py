@@ -22,7 +22,7 @@ from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
 from _pytask.nodes import FilePathNode
-from _pytask.nodes import Node
+from _pytask.nodes import MetaNode
 from _pytask.nodes import Task
 from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import DagReport
@@ -128,7 +128,7 @@ def _have_task_or_neighbors_changed(
 
 @orm.db_session
 @hookimpl(trylast=True)
-def pytask_dag_has_node_changed(node: Node, task_name: str) -> bool:
+def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
     """Indicate whether a single dependency or product has changed."""
     if isinstance(node, (FilePathNode, Task)):
         # If node does not exist, we receive None.
@@ -236,7 +236,7 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph) -> None:
 
 
 def _check_if_tasks_are_skipped(
-    node: Node, dag: nx.DiGraph, is_task_skipped: dict[str, bool]
+    node: MetaNode, dag: nx.DiGraph, is_task_skipped: dict[str, bool]
 ) -> tuple[bool, dict[str, bool]]:
     """Check for a given node whether it is only used by skipped tasks."""
     are_all_tasks_skipped = []
