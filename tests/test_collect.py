@@ -7,12 +7,15 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
 import pytest
-from _pytask.collect import (
-    _find_shortest_uniquely_identifiable_name_for_tasks,
-    pytask_collect_node,
-)
+from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
+from _pytask.collect import pytask_collect_node
 from _pytask.exceptions import NodeNotCollectedError
-from pytask import CollectionOutcome, ExitCode, Session, Task, cli, main
+from pytask import cli
+from pytask import CollectionOutcome
+from pytask import ExitCode
+from pytask import main
+from pytask import Session
+from pytask import Task
 
 
 @pytest.mark.end_to_end()
