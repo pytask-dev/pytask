@@ -7,15 +7,12 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
 import pytest
-from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
-from _pytask.collect import pytask_collect_node
+from _pytask.collect import (
+    _find_shortest_uniquely_identifiable_name_for_tasks,
+    pytask_collect_node,
+)
 from _pytask.exceptions import NodeNotCollectedError
-from pytask import cli
-from pytask import CollectionOutcome
-from pytask import ExitCode
-from pytask import main
-from pytask import Session
-from pytask import Task
+from pytask import CollectionOutcome, ExitCode, Session, Task, cli, main
 
 
 @pytest.mark.end_to_end()
@@ -48,9 +45,14 @@ def test_collect_module_name_(tmp_path):
     @dataclasses.dataclass
     class Data:
         x: int
+
+    def task_my_task():
+        pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    main({"paths": tmp_path})
+    session = main({"paths": tmp_path})
+    outcome = session.collection_reports[0].outcome
+    assert outcome == CollectionOutcome.SUCCESS
 
 
 @pytest.mark.end_to_end()
