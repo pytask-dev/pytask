@@ -38,6 +38,22 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
 
 
 @pytest.mark.end_to_end()
+def test_collect_module_name_(tmp_path):
+    source = """
+    # without this import, everything works fine
+    from __future__ import annotations
+
+    import dataclasses
+
+    @dataclasses.dataclass
+    class Data:
+        x: int
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    main({"paths": tmp_path})
+
+
+@pytest.mark.end_to_end()
 def test_collect_filepathnode_with_unknown_type(tmp_path):
     """If a node cannot be parsed because unknown type, raise an error."""
     source = """
