@@ -262,4 +262,5 @@ def _write_graph(dag: nx.DiGraph, path: Path, layout: str) -> None:
     """Write the graph to disk."""
     path.parent.mkdir(exist_ok=True, parents=True)
     graph = nx.nx_agraph.to_agraph(dag)
-    graph.draw(path, prog=layout)
+    format_ = path.suffix[1:] if path.suffix else None
+    graph.draw(path, format=format_, prog=layout)
