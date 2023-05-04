@@ -40,11 +40,11 @@ repos:
     hooks:
     -   id: black
 -   repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.261
+    rev: v0.0.264
     hooks:
       - id: ruff
 -   repo: https://github.com/dosisod/refurb
-    rev: v1.15.0
+    rev: v1.16.0
     hooks:
     -   id: refurb
         args: [--ignore, FURB126]

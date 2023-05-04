@@ -60,6 +60,8 @@ extend-ignore = [
     "COM812",  # trailing comma missing, but black takes care of that
     "D401",  # imperative mood for first line. too many false-positives.
     "SLF001",  # access private members.
+    "S603",
+    "S607",
 ]
 
 
