@@ -23,7 +23,7 @@ It generates a `dag.pdf` in the current working directory.
 If you do not want to generate a PDF, use {option}`pytask dag --output-path` or,
 shorter, {option}`pytask dag -o` to choose a different format inferred from the
 file-ending. Select any format supported by
-[pygraphviz](https://github.com/pygraphviz/pygraphviz).
+[graphviz](https://graphviz.org/docs/outputs/).
 
 ```console
 $ pytask dag -o dag.png
