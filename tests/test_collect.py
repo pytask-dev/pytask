@@ -39,6 +39,7 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
 
 @pytest.mark.end_to_end()
 def test_collect_module_name_(tmp_path):
+    """We need to add a task module to the sys.modules. See #373 and #374."""
     source = """
     # without this import, everything works fine
     from __future__ import annotations
