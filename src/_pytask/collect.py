@@ -117,6 +117,7 @@ def pytask_collect_file(
             raise ImportError(f"Can't find module {path.stem!r} at location {path}.")
 
         mod = importlib_util.module_from_spec(spec)
+        sys.modules[path.stem] = mod
         spec.loader.exec_module(mod)
 
         collected_reports = []

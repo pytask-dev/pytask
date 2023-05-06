@@ -365,6 +365,7 @@ def test_pdb_with_injected_do_debug(tmp_path):
         x = 3
         print("hello18")
         assert count_continue == 2, "unexpected_failure: %d != 2" % count_continue
+        raise Exception("expected_failure")
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -399,7 +400,8 @@ def test_pdb_with_injected_do_debug(tmp_path):
     assert "1" in rest
     assert "failed" in rest
     assert "Failed" in rest
-    assert "AssertionError: unexpected_failure" in rest
+    assert "AssertionError: unexpected_failure" not in rest
+    assert "expected_failure" in rest
     _flush(child)
 
 
