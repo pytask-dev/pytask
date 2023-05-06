@@ -2,8 +2,11 @@
 from __future__ import annotations
 
 import functools
+import importlib.util
 import os
+import sys
 from pathlib import Path
+from types import ModuleType
 from typing import Sequence
 
 
@@ -120,3 +123,18 @@ def find_case_sensitive_path(path: Path, platform: str) -> Path:
     """
     out = path.resolve() if platform == "win32" else path
     return out
+
+
+def import_path(path: Path) -> ModuleType:
+    """Import and return a module from the given path."""
+    module_name = path.stem
+
+    spec = importlib.util.spec_from_file_location(module_name, str(path))
+
+    if spec is None:
+        raise ImportError(f"Can't find module {path.stem!r} at location {path}.")
+
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = mod
+    spec.loader.exec_module(mod)
+    return mod

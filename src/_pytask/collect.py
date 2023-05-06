@@ -6,7 +6,6 @@ import itertools
 import os
 import sys
 import time
-from importlib import util as importlib_util
 from pathlib import Path
 from typing import Any
 from typing import Generator
@@ -27,6 +26,7 @@ from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
+from _pytask.path import import_path
 from _pytask.report import CollectionReport
 from _pytask.session import Session
 from _pytask.shared import find_duplicates
@@ -111,14 +111,7 @@ def pytask_collect_file(
 ) -> list[CollectionReport] | None:
     """Collect a file."""
     if any(path.match(pattern) for pattern in session.config["task_files"]):
-        spec = importlib_util.spec_from_file_location(path.stem, str(path))
-
-        if spec is None:
-            raise ImportError(f"Can't find module {path.stem!r} at location {path}.")
-
-        mod = importlib_util.module_from_spec(spec)
-        sys.modules[path.stem] = mod
-        spec.loader.exec_module(mod)
+        mod = import_path(path)
 
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
