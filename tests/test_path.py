@@ -10,12 +10,12 @@ from types import ModuleType
 from typing import Any
 
 import pytest
+from _pytask.path import _insert_missing_modules
 from _pytask.path import _module_name_from_path
 from _pytask.path import find_case_sensitive_path
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
 from _pytask.path import import_path
-from _pytask.path import insert_missing_modules
 from _pytask.path import relative_to
 
 
@@ -288,14 +288,14 @@ def test_insert_missing_modules(
     # Use 'xxx' and 'xxy' as parent names as they are unlikely to exist and
     # don't end up being imported.
     modules = {"xxx.tests.foo": ModuleType("xxx.tests.foo")}
-    insert_missing_modules(modules, "xxx.tests.foo")
+    _insert_missing_modules(modules, "xxx.tests.foo")
     assert sorted(modules) == ["xxx", "xxx.tests", "xxx.tests.foo"]
 
     mod = ModuleType("mod", doc="My Module")
     modules = {"xxy": mod}
-    insert_missing_modules(modules, "xxy")
+    _insert_missing_modules(modules, "xxy")
     assert modules == {"xxy": mod}
 
     modules = {}
-    insert_missing_modules(modules, "")
+    _insert_missing_modules(modules, "")
     assert not modules
