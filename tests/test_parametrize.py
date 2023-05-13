@@ -508,7 +508,7 @@ def test_deprecation_warning_for_parametrizing_tasks(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
-    assert "The @pytask.mark.parametrize decorator" in result.output
+    assert "FutureWarning" in result.output
 
 
 @pytest.mark.end_to_end()
@@ -528,4 +528,4 @@ def test_silence_deprecation_warning_for_parametrizing_tasks(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
-    assert "The @pytask.mark.parametrize decorator is deprecated" not in result.output
+    assert "FutureWarning" not in result.output
