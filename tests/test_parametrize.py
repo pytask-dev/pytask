@@ -492,3 +492,40 @@ def test_parametrize_with_single_dict(tmp_path):
     session = main({"paths": tmp_path})
 
     assert session.exit_code == ExitCode.OK
+
+
+@pytest.mark.end_to_end()
+def test_deprecation_warning_for_parametrizing_tasks(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.parametrize('i, produces', [(1, "1.txt"), (2, "2.txt")])
+    def task_write_numbers_to_file(produces, i):
+        produces.write_text(str(i))
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "The @pytask.mark.parametrize decorator" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_silence_deprecation_warning_for_parametrizing_tasks(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.parametrize('i, produces', [(1, "1.txt"), (2, "2.txt")])
+    def task_write_numbers_to_file(produces, i):
+        produces.write_text(str(i))
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("pyproject.toml").write_text(
+        "[tool.pytask.ini_options]\nsilence_parametrize_deprecation = true"
+    )
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "The @pytask.mark.parametrize decorator is deprecated" not in result.output
