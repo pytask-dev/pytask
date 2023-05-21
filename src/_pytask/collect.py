@@ -140,7 +140,7 @@ def pytask_collect_file(
                     warnings.warn(
                         message=_PARAMETRIZE_DEPRECATION_WARNING,
                         category=FutureWarning,
-                        stacklevel=2,
+                        stacklevel=1,
                     )
 
                 names_and_objects = session.hook.pytask_parametrize_task(
