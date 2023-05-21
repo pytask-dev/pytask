@@ -20,6 +20,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   documentation.
 - {pull}`368` fixes an error in `update_plugin_list.py` introduced by {pull}`364`.
 - {pull}`369` reverts the changes that turn `Node.state()` into a hook.
+- {pull}`381` deprecates `@pytask.mark.parametrize`. (Closes {issue}`233`.)
 
 ## 0.3.1 - 2023-12-25
 
