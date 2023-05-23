@@ -50,8 +50,9 @@ def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
         report.outcome == CollectionOutcome.SUCCESS
         for report in session.collection_reports
     )
-    assert session.collection_reports[0].node.function.__module__ == "a.task_module"
-    assert session.collection_reports[1].node.function.__module__ == "b.task_module"
+    assert {
+        report.node.function.__module__ for report in session.collection_reports
+    } == {"a.task_module", "b.task_module"}
 
 
 @pytest.mark.end_to_end()
