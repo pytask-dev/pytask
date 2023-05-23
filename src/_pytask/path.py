@@ -150,8 +150,8 @@ def import_path(path: Path, root: Path) -> ModuleType:
 def _module_name_from_path(path: Path, root: Path) -> str:
     """Return a dotted module name based on the given path, anchored on root.
 
-    For example: path="projects/src/tests/test_foo.py" and root="/projects", the
-    resulting module name will be "src.tests.test_foo".
+    For example: path="projects/src/project/task_foo.py" and root="/projects", the
+    resulting module name will be "src.project.task_foo".
 
     """
     path = path.with_suffix("")
@@ -171,9 +171,9 @@ def _module_name_from_path(path: Path, root: Path) -> str:
 def _insert_missing_modules(modules: dict[str, ModuleType], module_name: str) -> None:
     """Insert missing modules when importing modules with :func:`import_path`.
 
-    When we want to import a module as ``src.tests.test_foo`` for example, we need to
-    create empty modules ``src`` and ``src.tests`` after inserting
-    ``src.tests.test_foo``, otherwise ``src.tests.test_foo`` is not importable by
+    When we want to import a module as ``src.project.task_foo`` for example, we need to
+    create empty modules ``src`` and ``src.project`` after inserting
+    ``src.project.task_foo``, otherwise ``src.project.task_foo`` is not importable by
     ``__import__``.
 
     """

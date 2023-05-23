@@ -127,7 +127,7 @@ def test_find_case_sensitive_path(tmp_path, path, existing_paths, expected):
 
 @pytest.fixture()
 def simple_module(tmp_path: Path) -> Path:
-    fn = tmp_path / "_src/tests/mymod.py"
+    fn = tmp_path / "_src/project/mymod.py"
     fn.parent.mkdir(parents=True)
     fn.write_text("def foo(x): return 40 + x")
     return fn
@@ -139,9 +139,9 @@ def test_importmode_importlib(simple_module: Path, tmp_path: Path) -> None:
     assert module.foo(2) == 42  # type: ignore[attr-defined]
     assert str(simple_module.parent) not in sys.path
     assert module.__name__ in sys.modules
-    assert module.__name__ == "_src.tests.mymod"
+    assert module.__name__ == "_src.project.mymod"
     assert "_src" in sys.modules
-    assert "_src.tests" in sys.modules
+    assert "_src.project" in sys.modules
 
 
 def test_importmode_twice_is_different_module(
@@ -172,8 +172,11 @@ def test_no_meta_path_found(
 
 
 def test_importmode_importlib_with_dataclass(tmp_path: Path) -> None:
-    """Ensure that importlib mode works with a module containing dataclasses (#7856)."""
-    fn = tmp_path.joinpath("_src/tests/test_dataclass.py")
+    """
+    Ensure that importlib mode works with a module containing dataclasses (#373,
+    pytest#7856).
+    """
+    fn = tmp_path.joinpath("_src/project/task_dataclass.py")
     fn.parent.mkdir(parents=True)
     fn.write_text(
         textwrap.dedent(
@@ -191,12 +194,12 @@ def test_importmode_importlib_with_dataclass(tmp_path: Path) -> None:
     Data: Any = module.Data  # noqa: N806
     data = Data(value="foo")
     assert data.value == "foo"
-    assert data.__module__ == "_src.tests.test_dataclass"
+    assert data.__module__ == "_src.project.task_dataclass"
 
 
 def test_importmode_importlib_with_pickle(tmp_path: Path) -> None:
-    """Ensure that importlib mode works with pickle (#7859)."""
-    fn = tmp_path.joinpath("_src/tests/test_pickle.py")
+    """Ensure that importlib mode works with pickle (#373, pytest#7859)."""
+    fn = tmp_path.joinpath("_src/project/task_pickle.py")
     fn.parent.mkdir(parents=True)
     fn.write_text(
         textwrap.dedent(
@@ -224,7 +227,7 @@ def test_importmode_importlib_with_pickle_separate_modules(tmp_path: Path) -> No
     Ensure that importlib mode works can load pickles that look similar but are
     defined in separate modules.
     """
-    fn1 = tmp_path.joinpath("_src/m1/tests/test.py")
+    fn1 = tmp_path.joinpath("_src/m1/project/task.py")
     fn1.parent.mkdir(parents=True)
     fn1.write_text(
         textwrap.dedent(
@@ -239,7 +242,7 @@ def test_importmode_importlib_with_pickle_separate_modules(tmp_path: Path) -> No
         )
     )
 
-    fn2 = tmp_path.joinpath("_src/m2/tests/test.py")
+    fn2 = tmp_path.joinpath("_src/m2/project/task.py")
     fn2.parent.mkdir(parents=True)
     fn2.write_text(
         textwrap.dedent(
@@ -268,17 +271,17 @@ def test_importmode_importlib_with_pickle_separate_modules(tmp_path: Path) -> No
 
     assert round_trip(Data1(20)) == Data1(20)
     assert round_trip(Data2("hello")) == Data2("hello")
-    assert Data1.__module__ == "_src.m1.tests.test"
-    assert Data2.__module__ == "_src.m2.tests.test"
+    assert Data1.__module__ == "_src.m1.project.task"
+    assert Data2.__module__ == "_src.m2.project.task"
 
 
 def test_module_name_from_path(tmp_path: Path) -> None:
-    result = _module_name_from_path(tmp_path / "src/tests/test_foo.py", tmp_path)
-    assert result == "src.tests.test_foo"
+    result = _module_name_from_path(tmp_path / "src/project/task_foo.py", tmp_path)
+    assert result == "src.project.task_foo"
 
     # Path is not relative to root dir: use the full path to obtain the module name.
-    result = _module_name_from_path(Path("/home/foo/test_foo.py"), Path("/bar"))
-    assert result == "home.foo.test_foo"
+    result = _module_name_from_path(Path("/home/foo/task_foo.py"), Path("/bar"))
+    assert result == "home.foo.task_foo"
 
 
 def test_insert_missing_modules(
@@ -287,9 +290,9 @@ def test_insert_missing_modules(
     monkeypatch.chdir(tmp_path)
     # Use 'xxx' and 'xxy' as parent names as they are unlikely to exist and
     # don't end up being imported.
-    modules = {"xxx.tests.foo": ModuleType("xxx.tests.foo")}
-    _insert_missing_modules(modules, "xxx.tests.foo")
-    assert sorted(modules) == ["xxx", "xxx.tests", "xxx.tests.foo"]
+    modules = {"xxx.project.foo": ModuleType("xxx.project.foo")}
+    _insert_missing_modules(modules, "xxx.project.foo")
+    assert sorted(modules) == ["xxx", "xxx.project", "xxx.project.foo"]
 
     mod = ModuleType("mod", doc="My Module")
     modules = {"xxy": mod}
