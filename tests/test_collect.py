@@ -38,7 +38,24 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_collect_module_name_(tmp_path):
+def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
+    """We need to check that task modules can have the same name. See #373 and #374."""
+    tmp_path.joinpath("a").mkdir()
+    tmp_path.joinpath("b").mkdir()
+    tmp_path.joinpath("a", "task_module.py").write_text("def task_a(): pass")
+    tmp_path.joinpath("b", "task_module.py").write_text("def task_a(): pass")
+    session = main({"paths": tmp_path})
+    assert len(session.collection_reports) == 2
+    assert all(
+        report.outcome == CollectionOutcome.SUCCESS
+        for report in session.collection_reports
+    )
+    assert session.collection_reports[0].node.function.__module__ == "a.task_module"
+    assert session.collection_reports[1].node.function.__module__ == "b.task_module"
+
+
+@pytest.mark.end_to_end()
+def test_collect_module_name(tmp_path):
     """We need to add a task module to the sys.modules. See #373 and #374."""
     source = """
     # without this import, everything works fine
