@@ -5,6 +5,11 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.4.0 - 2023-xx-xx
+
+- {pull}`384` allows to parse dependencies from every function argument if `depends_on`
+  is not present.
+
 ## 0.3.2 - 2023-xx-xx
 
 - {pull}`345` updates the version numbers in animations.

@@ -38,46 +38,6 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
-    """We need to check that task modules can have the same name. See #373 and #374."""
-    tmp_path.joinpath("a").mkdir()
-    tmp_path.joinpath("b").mkdir()
-    tmp_path.joinpath("a", "task_module.py").write_text("def task_a(): pass")
-    tmp_path.joinpath("b", "task_module.py").write_text("def task_a(): pass")
-    session = main({"paths": tmp_path})
-    assert len(session.collection_reports) == 2
-    assert all(
-        report.outcome == CollectionOutcome.SUCCESS
-        for report in session.collection_reports
-    )
-    assert {
-        report.node.function.__module__ for report in session.collection_reports
-    } == {"a.task_module", "b.task_module"}
-
-
-@pytest.mark.end_to_end()
-def test_collect_module_name(tmp_path):
-    """We need to add a task module to the sys.modules. See #373 and #374."""
-    source = """
-    # without this import, everything works fine
-    from __future__ import annotations
-
-    import dataclasses
-
-    @dataclasses.dataclass
-    class Data:
-        x: int
-
-    def task_my_task():
-        pass
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    session = main({"paths": tmp_path})
-    outcome = session.collection_reports[0].outcome
-    assert outcome == CollectionOutcome.SUCCESS
-
-
-@pytest.mark.end_to_end()
 def test_collect_filepathnode_with_unknown_type(tmp_path):
     """If a node cannot be parsed because unknown type, raise an error."""
     source = """
@@ -129,7 +89,7 @@ def test_collect_nodes_with_the_same_name(runner, tmp_path):
 
 @pytest.mark.end_to_end()
 @pytest.mark.parametrize("path_extension", ["", "task_module.py"])
-def test_collect_same_test_different_ways(tmp_path, path_extension):
+def test_collect_same_task_different_ways(tmp_path, path_extension):
     tmp_path.joinpath("task_module.py").write_text("def task_passes(): pass")
 
     session = main({"paths": tmp_path.joinpath(path_extension)})
@@ -270,3 +230,60 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
 
     result = _find_shortest_uniquely_identifiable_name_for_tasks(tasks)
     assert result == expected
+
+
+def test_collect_dependencies_from_args_if_depends_on_is_missing(tmp_path):
+    source = """
+    from pathlib import Path
+
+    def task_example(path_in = Path("in.txt"), produces = Path("out.txt")):
+        produces.write_text(depends_on.read_text())
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.txt").write_text("hello")
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 1
+    assert session.tasks[0].depends_on[0].path == tmp_path.joinpath("in.txt")
+
+
+@pytest.mark.end_to_end()
+def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
+    """We need to check that task modules can have the same name. See #373 and #374."""
+    tmp_path.joinpath("a").mkdir()
+    tmp_path.joinpath("b").mkdir()
+    tmp_path.joinpath("a", "task_module.py").write_text("def task_a(): pass")
+    tmp_path.joinpath("b", "task_module.py").write_text("def task_a(): pass")
+    session = main({"paths": tmp_path})
+    assert len(session.collection_reports) == 2
+    assert all(
+        report.outcome == CollectionOutcome.SUCCESS
+        for report in session.collection_reports
+    )
+    assert {
+        report.node.function.__module__ for report in session.collection_reports
+    } == {"a.task_module", "b.task_module"}
+
+
+@pytest.mark.end_to_end()
+def test_collect_module_name(tmp_path):
+    """We need to add a task module to the sys.modules. See #373 and #374."""
+    source = """
+    # without this import, everything works fine
+    from __future__ import annotations
+
+    import dataclasses
+
+    @dataclasses.dataclass
+    class Data:
+        x: int
+
+    def task_my_task():
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    session = main({"paths": tmp_path})
+    outcome = session.collection_reports[0].outcome
+    assert outcome == CollectionOutcome.SUCCESS
