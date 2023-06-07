@@ -270,3 +270,11 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
 
     result = _find_shortest_uniquely_identifiable_name_for_tasks(tasks)
     assert result == expected
+
+
+def test_task_has_no_produces_defined(tmp_path):
+    source = "def task_write_text(produces): pass"
+    tmp_path.joinpath("task_module.py").write_text(source)
+    session = main({"paths": tmp_path})
+    assert session.collection_reports[0].outcome == CollectionOutcome.FAILED
+    assert session.collection_reports[0].exc_info

@@ -194,6 +194,8 @@ def pytask_collect_task(
     if (name.startswith("task_") or has_mark(obj, "task")) and callable(obj):
         dependencies = parse_nodes(session, path, name, obj, depends_on)
         products = parse_nodes(session, path, name, obj, produces)
+        if products == {}:
+            raise Exception("Tasks need to declare products.")
 
         markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
         kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
