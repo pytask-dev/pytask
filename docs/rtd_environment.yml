@@ -25,10 +25,10 @@ dependencies:
   - click-default-group
   - networkx >=2.4
   - pluggy
-  - pony >=0.7.15
   - pybaum >=0.1.1
   - pexpect
   - rich
+  - sqlalchemy >=1.4.46
   - tomli >=1.0.0
 
   - pip:

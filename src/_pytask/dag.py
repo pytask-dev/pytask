@@ -16,6 +16,7 @@ from _pytask.console import TASK_ICON
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.dag_utils import task_and_descending_tasks
 from _pytask.dag_utils import TopologicalSorter
+from _pytask.database_utils import DatabaseSession
 from _pytask.database_utils import State
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
@@ -30,7 +31,6 @@ from _pytask.session import Session
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
-from pony import orm
 from pybaum import tree_map
 from rich.text import Text
 from rich.tree import Tree
@@ -126,36 +126,35 @@ def _have_task_or_neighbors_changed(
     )
 
 
-@orm.db_session
 @hookimpl(trylast=True)
 def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
     """Indicate whether a single dependency or product has changed."""
-    if isinstance(node, (FilePathNode, Task)):
-        # If node does not exist, we receive None.
-        file_state = node.state()
-        if file_state is None:
-            return True
+    # TODO: Restructure
+    with DatabaseSession() as session:
+        if isinstance(node, (FilePathNode, Task)):
+            # If node does not exist, we receive None.
+            file_state = node.state()
+            if file_state is None:
+                return True
 
-        # If the node is not in the database.
-        try:
-            name = node.name
-            db_state = State[task_name, name]  # type: ignore[type-arg, valid-type]
-        except orm.ObjectNotFound:
-            return True
+            # If the node is not in the database.
+            db_state = session.get(State, (task_name, node.name))
+            if db_state is None:
+                return True
 
-        # If the modification times match, the node has not been changed.
-        if file_state == db_state.modification_time:
-            return False
+            # If the modification times match, the node has not been changed.
+            if file_state == db_state.modification_time:
+                return False
 
-        # If the modification time changed, quickly return for non-tasks.
-        if isinstance(node, FilePathNode):
-            return True
+            # If the modification time changed, quickly return for non-tasks.
+            if isinstance(node, FilePathNode):
+                return True
 
-        # When modification times changed, we are still comparing the hash of the file
-        # to avoid unnecessary and expensive reexecutions of tasks.
-        file_hash = hashlib.sha256(node.path.read_bytes()).hexdigest()
-        return file_hash != db_state.file_hash
-    return node.state()
+            # When modification times changed, we are still comparing the hash of the file
+            # to avoid unnecessary and expensive reexecutions of tasks.
+            file_hash = hashlib.sha256(node.path.read_bytes()).hexdigest()
+            return file_hash != db_state.file_hash
+        return node.state()
 
 
 def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:

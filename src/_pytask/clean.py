@@ -195,7 +195,8 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
     if session.config["config"]:
         known_paths.add(session.config["config"])
     known_paths.add(session.config["root"])
-    known_paths.add(session.config["database_filename"])
+
+    # TODO: Ignore path to database if filebased.
 
     # Add files tracked by git.
     if is_git_installed():
