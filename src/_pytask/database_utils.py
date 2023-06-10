@@ -6,10 +6,11 @@ import hashlib
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.nodes import Task
 from _pytask.session import Session
-from sqlalchemy import Column, String, create_engine
-from sqlalchemy.orm import sessionmaker
-
+from sqlalchemy import Column
+from sqlalchemy import create_engine
+from sqlalchemy import String
 from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 
 __all__ = ["create_database", "update_states_in_database", "DatabaseSession"]

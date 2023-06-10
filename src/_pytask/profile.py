@@ -32,7 +32,9 @@ from _pytask.report import ExecutionReport
 from _pytask.session import Session
 from _pytask.traceback import render_exc_info
 from rich.table import Table
-from sqlalchemy import Column, Float, String
+from sqlalchemy import Column
+from sqlalchemy import Float
+from sqlalchemy import String
 
 
 if TYPE_CHECKING:
