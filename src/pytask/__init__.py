@@ -15,6 +15,7 @@ from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.database_utils import create_database
 from _pytask.database_utils import DatabaseSession
+from _pytask.database_utils import State
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
@@ -27,8 +28,6 @@ from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
 from _pytask.mark import MarkDecorator
 from _pytask.mark import MarkGenerator
-from _pytask.database_utils import State
-from _pytask.profile import Runtime
 from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
@@ -47,6 +46,7 @@ from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
+from _pytask.profile import Runtime
 from _pytask.report import CollectionReport
 from _pytask.report import DagReport
 from _pytask.report import ExecutionReport
