@@ -31,16 +31,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: mamba-org/provision-with-micromamba@main
+      - uses: mamba-org/setup-micromamba@v1
         with:
           environment-file: false
           environment-name: gha-testing
-          channels: conda-forge,nodefaults
-          extra-specs: |
+          condarc: |
+            channels:
+              - nodefaults
+              - conda-forge
+          create-args: |
             python=${{ matrix.python-version }}
             mamba
             tox-conda
-          cache-downloads: true
+          cache-environment: true
 
       # Unit, integration, and end-to-end tests.
 
