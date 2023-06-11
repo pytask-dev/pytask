@@ -129,32 +129,32 @@ def _have_task_or_neighbors_changed(
 @hookimpl(trylast=True)
 def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
     """Indicate whether a single dependency or product has changed."""
-    # TODO: Restructure
-    with DatabaseSession() as session:
-        if isinstance(node, (FilePathNode, Task)):
-            # If node does not exist, we receive None.
-            file_state = node.state()
-            if file_state is None:
-                return True
+    if isinstance(node, (FilePathNode, Task)):
+        # If node does not exist, we receive None.
+        file_state = node.state()
+        if file_state is None:
+            return True
 
-            # If the node is not in the database.
+        with DatabaseSession() as session:
             db_state = session.get(State, (task_name, node.name))
-            if db_state is None:
-                return True
 
-            # If the modification times match, the node has not been changed.
-            if file_state == db_state.modification_time:
-                return False
+        # If the node is not in the database.
+        if db_state is None:
+            return True
 
-            # If the modification time changed, quickly return for non-tasks.
-            if isinstance(node, FilePathNode):
-                return True
+        # If the modification times match, the node has not been changed.
+        if file_state == db_state.modification_time:
+            return False
 
-            # When modification times changed, we are still comparing the hash of the file
-            # to avoid unnecessary and expensive reexecutions of tasks.
-            file_hash = hashlib.sha256(node.path.read_bytes()).hexdigest()
-            return file_hash != db_state.file_hash
-        return node.state()
+        # If the modification time changed, quickly return for non-tasks.
+        if isinstance(node, FilePathNode):
+            return True
+
+        # When modification times changed, we are still comparing the hash of the file
+        # to avoid unnecessary and expensive reexecutions of tasks.
+        file_hash = hashlib.sha256(node.path.read_bytes()).hexdigest()
+        return file_hash != db_state.file_hash
+    return node.state()
 
 
 def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:

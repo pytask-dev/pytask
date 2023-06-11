@@ -22,7 +22,7 @@ DatabaseSession = sessionmaker()
 Base = declarative_base()
 
 
-class State(Base):
+class State(Base):  # type: ignore[valid-type, misc]
     """Represent the state of a node in relation to a task."""
 
     __tablename__ = "state"

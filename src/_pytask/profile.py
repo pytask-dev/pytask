@@ -47,7 +47,7 @@ class _ExportFormats(enum.Enum):
     CSV = "csv"
 
 
-class Runtime(Base):
+class Runtime(Base):  # type: ignore[valid-type, misc]
     """Record of runtimes of tasks."""
 
     __tablename__ = "runtime"
