@@ -28,7 +28,7 @@ dependencies:
   - pybaum >=0.1.1
   - pexpect
   - rich
-  - sqlalchemy >=1.4..36
+  - sqlalchemy >=1.4.36
   - tomli >=1.0.0
 
   - pip:
