@@ -34,6 +34,7 @@ from io import UnsupportedOperation
 from tempfile import TemporaryFile
 from typing import Any
 from typing import AnyStr
+from typing import final
 from typing import Generator
 from typing import Generic
 from typing import Iterator
@@ -44,9 +45,6 @@ from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
 from _pytask.enums import ShowCapture
 from _pytask.nodes import Task
-
-
-from typing import final
 
 
 class _CaptureMethod(enum.Enum):
