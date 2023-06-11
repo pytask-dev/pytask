@@ -46,12 +46,7 @@ from _pytask.enums import ShowCapture
 from _pytask.nodes import Task
 
 
-if sys.version_info >= (3, 8):
-    from typing import final
-else:
-
-    def final(f: Any) -> Any:
-        return f
+from typing import final
 
 
 class _CaptureMethod(enum.Enum):
