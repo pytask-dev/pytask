@@ -98,7 +98,7 @@ class FilePathNode(MetaNode):
         return None
 
     @classmethod
-    @functools.lru_cache()
+    @functools.lru_cache
     def from_path(cls, path: Path) -> FilePathNode:
         """Instantiate class from path to file.
 
