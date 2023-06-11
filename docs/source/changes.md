@@ -7,7 +7,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.4.0 - 2023-xx-xx
 
-- {pull}`323` uses a new Github action to provide mamba.
+- {pull}`323` remove Python 3.7 support and use a new Github action to provide mamba.
 
 ## 0.3.2 - 2023-xx-xx
 
