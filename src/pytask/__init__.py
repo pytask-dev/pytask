@@ -13,6 +13,7 @@ from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.database_utils import BaseTable
 from _pytask.database_utils import create_database
 from _pytask.database_utils import DatabaseSession
 from _pytask.database_utils import State
@@ -65,6 +66,7 @@ from _pytask.cli import cli  # noreorder
 
 
 __all__ = [
+    "BaseTable",
     "CollectionError",
     "CollectionMetadata",
     "CollectionOutcome",

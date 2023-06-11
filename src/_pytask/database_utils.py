@@ -13,16 +13,21 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
-__all__ = ["create_database", "update_states_in_database", "DatabaseSession"]
+__all__ = [
+    "create_database",
+    "update_states_in_database",
+    "BaseTable",
+    "DatabaseSession",
+]
 
 
 DatabaseSession = sessionmaker()
 
 
-Base = declarative_base()
+BaseTable = declarative_base()
 
 
-class State(Base):  # type: ignore[valid-type, misc]
+class State(BaseTable):  # type: ignore[valid-type, misc]
     """Represent the state of a node in relation to a task."""
 
     __tablename__ = "state"
@@ -37,7 +42,7 @@ def create_database(url: str) -> None:
     """Create the database."""
     try:
         engine = create_engine(url)
-        Base.metadata.create_all(bind=engine)
+        BaseTable.metadata.create_all(bind=engine)
         DatabaseSession.configure(bind=engine)
     except Exception:
         raise

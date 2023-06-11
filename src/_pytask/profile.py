@@ -19,7 +19,7 @@ from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_id
-from _pytask.database_utils import Base
+from _pytask.database_utils import BaseTable
 from _pytask.database_utils import DatabaseSession
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
@@ -47,7 +47,7 @@ class _ExportFormats(enum.Enum):
     CSV = "csv"
 
 
-class Runtime(Base):  # type: ignore[valid-type, misc]
+class Runtime(BaseTable):  # type: ignore[valid-type, misc]
     """Record of runtimes of tasks."""
 
     __tablename__ = "runtime"
