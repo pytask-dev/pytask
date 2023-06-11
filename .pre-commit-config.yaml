@@ -26,13 +26,13 @@ repos:
     -   id: python-no-log-warn
     -   id: python-use-type-annotations
     -   id: text-unicode-replacement-char
--   repo: https://github.com/asottile/reorder_python_imports
+-   repo: https://github.com/asottile/reorder-python-imports
     rev: v3.9.0
     hooks:
     -   id: reorder-python-imports
         args: [--py37-plus, --add-import, 'from __future__ import annotations']
 -   repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v2.2.0
+    rev: v2.3.0
     hooks:
     -   id: setup-cfg-fmt
 -   repo: https://github.com/psf/black
@@ -40,11 +40,11 @@ repos:
     hooks:
     -   id: black
 -   repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.261
+    rev: v0.0.270
     hooks:
       - id: ruff
 -   repo: https://github.com/dosisod/refurb
-    rev: v1.15.0
+    rev: v1.16.0
     hooks:
     -   id: refurb
         args: [--ignore, FURB126]
@@ -55,7 +55,7 @@ repos:
         args: [-v, --fail-under=75]
         exclude: ^(tests/|docs/|scripts/)
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.2.0'
+    rev: 'v1.3.0'
     hooks:
     -   id: mypy
         args: [

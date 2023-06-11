@@ -11,7 +11,7 @@ import click
 import networkx as nx
 from _pytask.console import format_task_id
 from _pytask.nodes import FilePathNode
-from _pytask.nodes import Node
+from _pytask.nodes import MetaNode
 from _pytask.nodes import Task
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
@@ -57,7 +57,7 @@ def parse_paths(x: Any | None) -> list[Path] | None:
     return out
 
 
-def reduce_node_name(node: Node, paths: Sequence[str | Path]) -> str:
+def reduce_node_name(node: MetaNode, paths: Sequence[str | Path]) -> str:
     """Reduce the node name.
 
     The whole name of the node - which includes the drive letter - can be very long
@@ -75,7 +75,7 @@ def reduce_node_name(node: Node, paths: Sequence[str | Path]) -> str:
             except ValueError:
                 ancestor = node.path.parents[-1]
 
-        if isinstance(node, Node):
+        if isinstance(node, MetaNode):
             name = relative_to(node.path, ancestor).as_posix()
         else:
             raise TypeError(f"Unknown node {node} with type {type(node)!r}.")
@@ -95,7 +95,7 @@ def reduce_names_of_multiple_nodes(
             short_name = format_task_id(
                 node, editor_url_scheme="no_link", short_name=True
             )
-        elif isinstance(node, Node):
+        elif isinstance(node, MetaNode):
             short_name = reduce_node_name(node, paths)
         else:
             raise TypeError(f"Requires 'Task' or 'Node' and not {type(node)!r}.")

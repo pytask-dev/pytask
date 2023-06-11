@@ -60,6 +60,8 @@ extend-ignore = [
     "COM812",  # trailing comma missing, but black takes care of that
     "D401",  # imperative mood for first line. too many false-positives.
     "SLF001",  # access private members.
+    "S603",
+    "S607",
 ]
 
 
@@ -75,3 +77,14 @@ extend-ignore = [
 
 [tool.ruff.pydocstyle]
 convention = "numpy"
+
+
+[tool.pytest.ini_options]
+testpaths = ["src", "tests"]
+markers = [
+    "wip: Tests that are work-in-progress.",
+    "unit: Flag for unit tests which target mainly a single function.",
+    "integration: Flag for integration tests which may comprise of multiple unit tests.",
+    "end_to_end: Flag for tests that cover the whole program.",
+]
+norecursedirs = [".idea", ".tox"]

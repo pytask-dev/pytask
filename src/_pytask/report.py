@@ -15,7 +15,7 @@ from attrs import field
 
 
 if TYPE_CHECKING:
-    from _pytask.nodes import Node
+    from _pytask.nodes import MetaNode
     from _pytask.nodes import Task
 
 
@@ -27,7 +27,7 @@ class CollectionReport:
     """A collection report for a task."""
 
     outcome: CollectionOutcome
-    node: Node | None = None
+    node: MetaNode | None = None
     exc_info: ExceptionInfo | None = None
 
     @classmethod
@@ -35,7 +35,7 @@ class CollectionReport:
         cls: type[CollectionReport],
         outcome: CollectionOutcome,
         exc_info: ExceptionInfo,
-        node: Node | None = None,
+        node: MetaNode | None = None,
     ) -> CollectionReport:
         exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(outcome=outcome, node=node, exc_info=exc_info)

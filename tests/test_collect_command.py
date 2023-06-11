@@ -10,7 +10,7 @@ from _pytask.collect_command import _print_collected_tasks
 from attrs import define
 from pytask import cli
 from pytask import ExitCode
-from pytask import Node
+from pytask import MetaNode
 from pytask import Task
 
 
@@ -304,7 +304,7 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
 
 
 @define
-class Node(Node):
+class MetaNode(MetaNode):
     path: Path
 
     def state(self):
@@ -323,8 +323,8 @@ def test_print_collected_tasks_without_nodes(capsys):
                 base_name="function",
                 path=Path("task_path.py"),
                 function=function,
-                depends_on={0: Node("in.txt")},
-                produces={0: Node("out.txt")},
+                depends_on={0: MetaNode("in.txt")},
+                produces={0: MetaNode("out.txt")},
             )
         ]
     }
@@ -346,8 +346,8 @@ def test_print_collected_tasks_with_nodes(capsys):
                 base_name="function",
                 path=Path("task_path.py"),
                 function=function,
-                depends_on={0: Node("in.txt")},
-                produces={0: Node("out.txt")},
+                depends_on={0: MetaNode("in.txt")},
+                produces={0: MetaNode("out.txt")},
             )
         ]
     }
@@ -370,8 +370,10 @@ def test_find_common_ancestor_of_all_nodes(show_nodes, expected_add):
             base_name="function",
             path=Path.cwd() / "src" / "task_path.py",
             function=function,
-            depends_on={0: Node(Path.cwd() / "src" / "in.txt")},
-            produces={0: Node(Path.cwd().joinpath("..", "bld", "out.txt").resolve())},
+            depends_on={0: MetaNode(Path.cwd() / "src" / "in.txt")},
+            produces={
+                0: MetaNode(Path.cwd().joinpath("..", "bld", "out.txt").resolve())
+            },
         )
     ]
 

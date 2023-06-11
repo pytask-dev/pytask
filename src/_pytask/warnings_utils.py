@@ -155,8 +155,7 @@ def catch_warnings_for_item(
 ) -> Generator[None, None, None]:
     """Context manager that catches warnings generated in the contained execution block.
 
-    ``item`` can be None if we are not in the context of an item execution. Each warning
-    captured triggers the ``pytest_warning_recorded`` hook.
+    ``item`` can be None if we are not in the context of an item execution.
 
     """
     with warnings.catch_warnings(record=True) as log:

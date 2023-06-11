@@ -38,6 +38,46 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
 
 
 @pytest.mark.end_to_end()
+def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
+    """We need to check that task modules can have the same name. See #373 and #374."""
+    tmp_path.joinpath("a").mkdir()
+    tmp_path.joinpath("b").mkdir()
+    tmp_path.joinpath("a", "task_module.py").write_text("def task_a(): pass")
+    tmp_path.joinpath("b", "task_module.py").write_text("def task_a(): pass")
+    session = main({"paths": tmp_path})
+    assert len(session.collection_reports) == 2
+    assert all(
+        report.outcome == CollectionOutcome.SUCCESS
+        for report in session.collection_reports
+    )
+    assert {
+        report.node.function.__module__ for report in session.collection_reports
+    } == {"a.task_module", "b.task_module"}
+
+
+@pytest.mark.end_to_end()
+def test_collect_module_name(tmp_path):
+    """We need to add a task module to the sys.modules. See #373 and #374."""
+    source = """
+    # without this import, everything works fine
+    from __future__ import annotations
+
+    import dataclasses
+
+    @dataclasses.dataclass
+    class Data:
+        x: int
+
+    def task_my_task():
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    session = main({"paths": tmp_path})
+    outcome = session.collection_reports[0].outcome
+    assert outcome == CollectionOutcome.SUCCESS
+
+
+@pytest.mark.end_to_end()
 def test_collect_filepathnode_with_unknown_type(tmp_path):
     """If a node cannot be parsed because unknown type, raise an error."""
     source = """

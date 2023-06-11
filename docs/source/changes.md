@@ -22,8 +22,14 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`365` reworks the panel on the index page with sphinx-design.
 - {pull}`366` adds light and dark logos and fixes some warnings when building the
   documentation.
-- {pull}`368` fixes an error in `update_plugin_list.py` introduced by {pull}`364`.
-- {pull}`369` reverts the changes that turn `Node.state()` into a hook.
+- {pull}`369` fixes an error in `update_plugin_list.py` introduced by {pull}`364`.
+- {pull}`370` reverts the changes that turn `Node.state()` into a hook.
+- {pull}`371` renames `Node` to `MetaNode`.
+- {pull}`373` adds importing task modules to `sys.modules` and fully adopting pytest's
+  importlib mode. Thanks to {user}`NickCrews`. (Fixes {issue}`374`.)
+- {pull}`376` enhances the documentation for `pytask dag`.
+- {pull}`378` conditionally skips test on MacOS.
+- {pull}`381` deprecates `@pytask.mark.parametrize`. (Closes {issue}`233`.)
 
 ## 0.3.1 - 2023-12-25
 

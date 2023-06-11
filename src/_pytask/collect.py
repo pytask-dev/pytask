@@ -6,7 +6,7 @@ import itertools
 import os
 import sys
 import time
-from importlib import util as importlib_util
+import warnings
 from pathlib import Path
 from typing import Any
 from typing import Generator
@@ -27,6 +27,7 @@ from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
+from _pytask.path import import_path
 from _pytask.report import CollectionReport
 from _pytask.session import Session
 from _pytask.shared import find_duplicates
@@ -105,19 +106,22 @@ def pytask_collect_file_protocol(
     return flat_reports
 
 
+_PARAMETRIZE_DEPRECATION_WARNING = """\
+The @pytask.mark.parametrize decorator is deprecated and will be removed in pytask \
+v0.4. Either upgrade your code to the new syntax explained in \
+https://tinyurl.com/pytask-loops or silence the warning by setting \
+`silence_parametrize_deprecation = true` in your pyproject.toml under \
+[tool.pytask.ini_options] and pin pytask to <0.4.
+"""
+
+
 @hookimpl
 def pytask_collect_file(
     session: Session, path: Path, reports: list[CollectionReport]
 ) -> list[CollectionReport] | None:
     """Collect a file."""
     if any(path.match(pattern) for pattern in session.config["task_files"]):
-        spec = importlib_util.spec_from_file_location(path.stem, str(path))
-
-        if spec is None:
-            raise ImportError(f"Can't find module {path.stem!r} at location {path}.")
-
-        mod = importlib_util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
+        mod = import_path(path, session.config["root"])
 
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
@@ -126,6 +130,13 @@ def pytask_collect_file(
                 continue
 
             if has_mark(obj, "parametrize"):
+                if not session.config.get("silence_parametrize_deprecation", False):
+                    warnings.warn(
+                        message=_PARAMETRIZE_DEPRECATION_WARNING,
+                        category=FutureWarning,
+                        stacklevel=1,
+                    )
+
                 names_and_objects = session.hook.pytask_parametrize_task(
                     session=session, name=name, obj=obj
                 )

@@ -20,7 +20,7 @@ from pybaum.tree_util import tree_map
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import Node
+    from _pytask.nodes import MetaNode
 
 
 __all__ = ["depends_on", "parse_nodes", "produces"]
@@ -196,7 +196,7 @@ def _merge_dictionaries(list_of_dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
 
 def _collect_node(
     session: Session, path: Path, name: str, node: str | Path
-) -> dict[str, Node]:
+) -> dict[str, MetaNode]:
     """Collect nodes for a task.
 
     Parameters
