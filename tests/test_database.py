@@ -53,11 +53,11 @@ def test_rename_database_w_config(tmp_path, runner):
     """Modification dates of input and output files are stored in database."""
     path_to_db = tmp_path.joinpath(".db.sqlite")
     tmp_path.joinpath("pyproject.toml").write_text(
-        f"[tool.pytask.ini_options]\ndatabase_url='sqlite:///{path_to_db.as_posix()}'"
+        "[tool.pytask.ini_options]\ndatabase_url='sqlite:///.db.sqlite'"
     )
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
-    path_to_db.exists()
+    assert path_to_db.exists()
 
 
 @pytest.mark.end_to_end()
@@ -66,7 +66,7 @@ def test_rename_database_w_cli(tmp_path, runner):
     path_to_db = tmp_path.joinpath(".db.sqlite")
     result = runner.invoke(
         cli,
-        ["--database-url", f"sqlite:///{path_to_db.as_posix()}", tmp_path.as_posix()],
+        ["--database-url", "sqlite:///.db.sqlite", tmp_path.as_posix()],
     )
     assert result.exit_code == ExitCode.OK
-    path_to_db.exists()
+    assert path_to_db.exists()
