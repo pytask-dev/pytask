@@ -5,7 +5,11 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.3.2 - 2023-xx-xx
+## 0.4.0 - 2023-xx-xx
+
+- {pull}`323` remove Python 3.7 support and use a new Github action to provide mamba.
+
+## 0.3.2 - 2023-06-07
 
 - {pull}`345` updates the version numbers in animations.
 - {pull}`352` publishes `db` that is required by pytask-environment.
