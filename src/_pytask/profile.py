@@ -19,7 +19,8 @@ from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_id
-from _pytask.database_utils import db
+from _pytask.database_utils import Base
+from _pytask.database_utils import DatabaseSession
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.nodes import FilePathNode
@@ -30,8 +31,10 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
 from _pytask.traceback import render_exc_info
-from pony import orm
 from rich.table import Table
+from sqlalchemy import Column
+from sqlalchemy import Float
+from sqlalchemy import String
 
 
 if TYPE_CHECKING:
@@ -44,12 +47,14 @@ class _ExportFormats(enum.Enum):
     CSV = "csv"
 
 
-class Runtime(db.Entity):  # type: ignore[name-defined]
+class Runtime(Base):  # type: ignore[valid-type, misc]
     """Record of runtimes of tasks."""
 
-    task = orm.PrimaryKey(str)
-    date = orm.Required(float)
-    duration = orm.Required(float)
+    __tablename__ = "runtime"
+
+    task = Column(String, primary_key=True)
+    date = Column(Float)
+    duration = Column(Float)
 
 
 @hookimpl(tryfirst=True)
@@ -84,16 +89,18 @@ def pytask_execute_task_process_report(report: ExecutionReport) -> None:
         _create_or_update_runtime(task.name, *duration)
 
 
-@orm.db_session
 def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
     """Create or update a runtime entry."""
-    try:
-        runtime = Runtime[task_name]  # type: ignore[type-arg, valid-type]
-    except orm.ObjectNotFound:
-        Runtime(task=task_name, date=start, duration=end - start)
-    else:
-        for attr, val in (("date", start), ("duration", end - start)):
-            setattr(runtime, attr, val)
+    with DatabaseSession() as session:
+        runtime = session.get(Runtime, task_name)
+
+        if not runtime:
+            session.add(Runtime(task=task_name, date=start, duration=end - start))
+        else:
+            for attr, val in (("date", start), ("duration", end - start)):
+                setattr(runtime, attr, val)
+
+        session.commit()
 
 
 @click.command(cls=ColoredCommand)
@@ -198,10 +205,10 @@ class DurationNameSpace:
             profile[name]["Duration (in s)"] = round(duration, 2)
 
 
-@orm.db_session
 def _collect_runtimes(task_names: list[str]) -> dict[str, float]:
     """Collect runtimes."""
-    runtimes = [Runtime.get(task=task_name) for task_name in task_names]
+    with DatabaseSession() as session:
+        runtimes = [session.get(Runtime, task_name) for task_name in task_names]
     runtimes = [r for r in runtimes if r is not None]
     return {r.task: r.duration for r in runtimes}
 

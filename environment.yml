@@ -16,9 +16,9 @@ dependencies:
   - click-default-group
   - networkx >=2.4
   - pluggy
-  - pony >=0.7.15
   - pybaum >=0.1.1
   - rich
+  - sqlalchemy >=1.4.36
   - tomli >=1.0.0
 
   # Misc

@@ -6,54 +6,64 @@ import hashlib
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.nodes import Task
 from _pytask.session import Session
-from pony import orm
+from sqlalchemy import Column
+from sqlalchemy import create_engine
+from sqlalchemy import String
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 
-__all__ = ["create_database", "db", "update_states_in_database"]
+__all__ = ["create_database", "update_states_in_database", "DatabaseSession"]
 
 
-db = orm.Database()
+DatabaseSession = sessionmaker()
 
 
-class State(db.Entity):  # type: ignore[name-defined]
+Base = declarative_base()
+
+
+class State(Base):  # type: ignore[valid-type, misc]
     """Represent the state of a node in relation to a task."""
 
-    task = orm.Required(str)
-    node = orm.Required(str)
-    modification_time = orm.Required(str)
-    file_hash = orm.Optional(str)
+    __tablename__ = "state"
 
-    orm.PrimaryKey(task, node)
+    task = Column(String, primary_key=True)
+    node = Column(String, primary_key=True)
+    modification_time = Column(String)
+    file_hash = Column(String)
 
 
-def create_database(
-    provider: str, filename: str, *, create_db: bool, create_tables: bool
-) -> None:
+def create_database(url: str) -> None:
     """Create the database."""
     try:
-        db.bind(provider=provider, filename=filename, create_db=create_db)
-        db.generate_mapping(create_tables=create_tables)
-    except orm.BindingError:
-        pass
+        engine = create_engine(url)
+        Base.metadata.create_all(bind=engine)
+        DatabaseSession.configure(bind=engine)
+    except Exception:
+        raise
 
 
-@orm.db_session
 def _create_or_update_state(
     first_key: str, second_key: str, modification_time: str, file_hash: str
 ) -> None:
     """Create or update a state."""
-    try:
-        state_in_db = State[first_key, second_key]  # type: ignore[type-arg, valid-type]
-    except orm.ObjectNotFound:
-        State(
-            task=first_key,
-            node=second_key,
-            modification_time=modification_time,
-            file_hash=file_hash,
-        )
-    else:
-        state_in_db.modification_time = modification_time
-        state_in_db.file_hash = file_hash
+    with DatabaseSession() as session:
+        state_in_db = session.get(State, (first_key, second_key))
+
+        if not state_in_db:
+            session.add(
+                State(
+                    task=first_key,
+                    node=second_key,
+                    modification_time=modification_time,
+                    file_hash=file_hash,
+                )
+            )
+        else:
+            state_in_db.modification_time = modification_time
+            state_in_db.file_hash = file_hash
+
+        session.commit()
 
 
 def update_states_in_database(session: Session, task_name: str) -> None:

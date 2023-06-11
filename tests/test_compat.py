@@ -91,9 +91,9 @@ def test_import_optional():
 
 
 @pytest.mark.unit()
-def test_pony_version_fallback():
-    pytest.importorskip("pony")
-    import_optional_dependency("pony")
+def test_sqlalchemy_version_fallback():
+    pytest.importorskip("sqlalchemy")
+    import_optional_dependency("sqlalchemy")
 
 
 @pytest.mark.unit()
