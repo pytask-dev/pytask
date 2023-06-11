@@ -29,7 +29,7 @@ ignore-words-list = "falsy, hist, ines, unparseable"
 
 
 [tool.ruff]
-target-version = "py37"
+target-version = "py38"
 select = ["ALL"]
 fix = true
 extend-ignore = [
