@@ -195,7 +195,10 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
     if session.config["config"]:
         known_paths.add(session.config["config"])
     known_paths.add(session.config["root"])
-    known_paths.add(session.config["database_filename"])
+
+    database_url = session.config["database_url"]
+    if database_url.drivername == "sqlite" and database_url.database:
+        known_paths.add(Path(database_url.database))
 
     # Add files tracked by git.
     if is_git_installed():

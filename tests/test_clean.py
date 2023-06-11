@@ -57,10 +57,28 @@ def git_project(tmp_path):
 
 
 @pytest.mark.end_to_end()
+def test_clean_database_ignored(project, runner):
+    cwd = Path.cwd()
+    os.chdir(project)
+    result = runner.invoke(cli, ["build"])
+    assert result.exit_code == ExitCode.OK
+    result = runner.invoke(cli, ["clean"])
+    assert result.exit_code == ExitCode.OK
+    os.chdir(cwd)
+
+    assert result.exit_code == ExitCode.OK
+    text_without_linebreaks = result.output.replace("\n", "")
+    assert "to_be_deleted_file_1.txt" in text_without_linebreaks
+    assert "to_be_deleted_file_2.txt" in text_without_linebreaks
+    assert ".pytask.sqlite3" not in text_without_linebreaks
+
+
+@pytest.mark.end_to_end()
 def test_clean_with_auto_collect(project, runner):
     cwd = Path.cwd()
     os.chdir(project)
     result = runner.invoke(cli, ["clean"])
+    assert result.exit_code == ExitCode.OK
     os.chdir(cwd)
 
     assert result.exit_code == ExitCode.OK
