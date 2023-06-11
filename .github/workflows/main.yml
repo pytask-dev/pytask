@@ -34,7 +34,7 @@ jobs:
       - uses: mamba-org/setup-micromamba@v1
         with:
           environment-name: gha-testing
-          condarc: |
+          condarc: >-
             channels:
               - nodefaults
               - conda-forge
