@@ -34,35 +34,6 @@ def test_task_with_task_decorator(tmp_path, func_name, task_name):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.parametrize("func_name", ["task_example", "func"])
-@pytest.mark.parametrize("task_name", ["the_only_task", None])
-def test_task_with_task_decorator_with_parametrize(tmp_path, func_name, task_name):
-    task_decorator_input = f"{task_name!r}" if task_name else task_name
-    source = f"""
-    import pytask
-
-    @pytask.mark.task({task_decorator_input})
-    @pytask.mark.parametrize("produces", ["out_1.txt", "out_2.txt"])
-    def {func_name}(produces):
-        produces.write_text("Hello. It's me.")
-    """
-    path_to_module = tmp_path.joinpath("task_module.py")
-    path_to_module.write_text(textwrap.dedent(source))
-
-    session = main({"paths": tmp_path})
-
-    assert session.exit_code == ExitCode.OK
-
-    file_name = path_to_module.name
-    if task_name:
-        assert session.tasks[0].name.endswith(f"{file_name}::{task_name}[out_1.txt]")
-        assert session.tasks[1].name.endswith(f"{file_name}::{task_name}[out_2.txt]")
-    else:
-        assert session.tasks[0].name.endswith(f"{file_name}::{func_name}[out_1.txt]")
-        assert session.tasks[1].name.endswith(f"{file_name}::{func_name}[out_2.txt]")
-
-
-@pytest.mark.end_to_end()
 def test_parametrization_in_for_loop(tmp_path, runner):
     source = """
     import pytask
@@ -429,3 +400,40 @@ def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
     assert "task_example[0]" in result.output
     assert "task_example[1]" in result.output
     assert "Collected 2 tasks" in result.output
+
+
+@pytest.mark.end_to_end()
+@pytest.mark.parametrize(
+    "irregular_id", [1, (1,), [1], {1}, ["a"], list("abc"), ((1,), (2,)), ({0}, {1})]
+)
+def test_raise_errors_for_irregular_ids(runner, tmp_path, irregular_id):
+    source = f"""
+    import pytask
+
+    @pytask.mark.task(id={irregular_id})
+    def task_example():
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Argument 'id' of @pytask.mark.task" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
+    source = """
+    import pytask
+
+    for i in [0, 0]:
+        @pytask.mark.task
+        def task_func(i=i):
+            pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == ExitCode.COLLECTION_FAILED
+    assert isinstance(session.collection_reports[0].exc_info[1], ValueError)

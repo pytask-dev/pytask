@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any
 
 from _pytask.config import hookimpl
-from _pytask.mark_utils import has_mark
 from _pytask.report import CollectionReport
 from _pytask.session import Session
 from _pytask.task_utils import COLLECTED_TASKS
@@ -39,24 +38,11 @@ def pytask_collect_file(
 
         collected_reports = []
         for name, function in name_to_function.items():
-            session.hook.pytask_parametrize_kwarg_to_marker(
-                obj=function,
-                kwargs=function.pytask_meta.kwargs,  # type: ignore[attr-defined]
+            report = session.hook.pytask_collect_task_protocol(
+                session=session, reports=reports, path=path, name=name, obj=function
             )
-
-            if has_mark(function, "parametrize"):
-                names_and_objects = session.hook.pytask_parametrize_task(
-                    session=session, name=name, obj=function
-                )
-            else:
-                names_and_objects = [(name, function)]
-
-            for name_, obj_ in names_and_objects:
-                report = session.hook.pytask_collect_task_protocol(
-                    session=session, reports=reports, path=path, name=name_, obj=obj_
-                )
-                if report is not None:
-                    collected_reports.append(report)
+            if report is not None:
+                collected_reports.append(report)
 
         return collected_reports
     return None

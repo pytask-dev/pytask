@@ -66,7 +66,6 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     from _pytask import mark
     from _pytask import nodes
     from _pytask import parameters
-    from _pytask import parametrize
     from _pytask import persist
     from _pytask import profile
     from _pytask import dag
@@ -89,7 +88,6 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     pm.register(mark)
     pm.register(nodes)
     pm.register(parameters)
-    pm.register(parametrize)
     pm.register(persist)
     pm.register(profile)
     pm.register(dag)

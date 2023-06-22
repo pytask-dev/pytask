@@ -6,7 +6,6 @@ import itertools
 import os
 import sys
 import time
-import warnings
 from pathlib import Path
 from typing import Any
 from typing import Generator
@@ -106,15 +105,6 @@ def pytask_collect_file_protocol(
     return flat_reports
 
 
-_PARAMETRIZE_DEPRECATION_WARNING = """\
-The @pytask.mark.parametrize decorator is deprecated and will be removed in pytask \
-v0.4. Either upgrade your code to the new syntax explained in \
-https://tinyurl.com/pytask-loops or silence the warning by setting \
-`silence_parametrize_deprecation = true` in your pyproject.toml under \
-[tool.pytask.ini_options] and pin pytask to <0.4.
-"""
-
-
 @hookimpl
 def pytask_collect_file(
     session: Session, path: Path, reports: list[CollectionReport]
@@ -129,26 +119,11 @@ def pytask_collect_file(
             if has_mark(obj, "task"):
                 continue
 
-            if has_mark(obj, "parametrize"):
-                if not session.config.get("silence_parametrize_deprecation", False):
-                    warnings.warn(
-                        message=_PARAMETRIZE_DEPRECATION_WARNING,
-                        category=FutureWarning,
-                        stacklevel=1,
-                    )
-
-                names_and_objects = session.hook.pytask_parametrize_task(
-                    session=session, name=name, obj=obj
-                )
-            else:
-                names_and_objects = [(name, obj)]
-
-            for name_, obj_ in names_and_objects:
-                report = session.hook.pytask_collect_task_protocol(
-                    session=session, reports=reports, path=path, name=name_, obj=obj_
-                )
-                if report is not None:
-                    collected_reports.append(report)
+            report = session.hook.pytask_collect_task_protocol(
+                session=session, reports=reports, path=path, name=name, obj=obj
+            )
+            if report is not None:
+                collected_reports.append(report)
 
         return collected_reports
     return None

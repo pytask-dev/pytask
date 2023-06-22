@@ -9,7 +9,6 @@ from typing import Callable
 
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
-from _pytask.parametrize_utils import arg_value_to_id_component
 from _pytask.shared import find_duplicates
 
 
@@ -51,6 +50,13 @@ def task(
     """
 
     def wrapper(func: Callable[..., Any]) -> None:
+        for arg, arg_name in ((name, "name"), (id, "id")):
+            if not (isinstance(arg, str) or arg is None):
+                raise ValueError(
+                    f"Argument {arg_name!r} of @pytask.mark.task must be a str, but it "
+                    f"is {arg!r}."
+                )
+
         unwrapped = inspect.unwrap(func)
 
         raw_path = inspect.getfile(unwrapped)
@@ -169,7 +175,7 @@ def _generate_ids_for_tasks(
             id_ = f"{name}[{i}]"
         else:
             stringified_args = [
-                arg_value_to_id_component(
+                _arg_value_to_id_component(
                     arg_name=parameter,
                     arg_value=task.pytask_meta.kwargs.get(  # type: ignore[attr-defined]
                         parameter
@@ -183,3 +189,42 @@ def _generate_ids_for_tasks(
             id_ = f"{name}[{id_}]"
         out[id_] = task
     return out
+
+
+def _arg_value_to_id_component(
+    arg_name: str, arg_value: Any, i: int, id_func: Callable[..., Any] | None
+) -> str:
+    """Create id component from the name and value of the argument.
+
+    First, transform the value of the argument with a user-defined function if given.
+    Otherwise, take the original value. Then, if the value is a :obj:`bool`,
+    :obj:`float`, :obj:`int`, or :obj:`str`, cast it to a string. Otherwise, define a
+    placeholder value from the name of the argument and the iteration.
+
+    Parameters
+    ----------
+    arg_name : str
+        Name of the parametrized function argument.
+    arg_value : Any
+        Value of the argument.
+    i : int
+        The ith iteration of the parametrization.
+    id_func : Union[Callable[..., Any], None]
+        A callable which maps argument values to :obj:`bool`, :obj:`float`, :obj:`int`,
+        or :obj:`str` or anything else. Any object with a different dtype than the first
+        will be mapped to an auto-generated id component.
+
+    Returns
+    -------
+    id_component : str
+        A part of the final parametrized id.
+
+    """
+    id_component = id_func(arg_value) if id_func is not None else None
+    if isinstance(id_component, (bool, float, int, str)):
+        id_component = str(id_component)
+    elif isinstance(arg_value, (bool, float, int, str)):
+        id_component = str(arg_value)
+    else:
+        id_component = arg_name + str(i)
+    return id_component

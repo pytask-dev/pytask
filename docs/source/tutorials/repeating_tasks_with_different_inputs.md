@@ -2,16 +2,6 @@
 
 Do you want to repeat a task over a range of inputs? Loop over your task function!
 
-:::{important}
-Before v0.2.0, pytask supported only one approach to repeat tasks. It is also called
-parametrizations, and similarly to pytest, it uses a
-{func}`@pytask.mark.parametrize <pytask.mark.parametrize>` decorator. If you want to
-know more about it, you can find it
-{doc}`here <../how_to_guides/repeating_tasks_with_different_inputs_the_pytest_way>`.
-
-Here you find the new and preferred approach.
-:::
-
 ## An example
 
 We reuse the task from the previous {doc}`tutorial <write_a_task>`, which generates
