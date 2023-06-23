@@ -196,11 +196,13 @@ class MarkGenerator:
         if self.config is not None and name not in self.config["markers"]:
             if self.config["strict_markers"]:
                 raise ValueError(f"Unknown pytask.mark.{name}.")
-            # Raise a specific error for common misspellings of "parametrize".
-            if name in ("parameterize", "parametrise", "parameterise"):
-                warnings.warn(
-                    f"Unknown {name!r} mark, did you mean 'parametrize'?", stacklevel=1
-                )
+
+            if name in ("parametrize", "parameterize", "parametrise", "parameterise"):
+                raise NotImplementedError(
+                    "@pytask.mark.parametrize has been removed since pytask v0.4. "
+                    "Upgrade your parametrized tasks to the new syntax defined in"
+                    "https://tinyurl.com/pytask-loops or revert to v0.3."
+                ) from None
 
             warnings.warn(
                 f"Unknown pytask.mark.{name} - is this a typo? You can register "

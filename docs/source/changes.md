@@ -11,6 +11,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`384` allows to parse dependencies from every function argument if `depends_on`
   is not present.
 - {pull}`387` replaces pony with sqlalchemy.
+- {pull}`391` removes `@pytask.mark.parametrize`.
 
 ## 0.3.2 - 2023-06-07
 

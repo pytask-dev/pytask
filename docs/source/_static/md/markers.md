@@ -10,10 +10,6 @@ $ pytask markers
 │                                  │ tutorial for more information:          │
 │                                  │ <a href="https://bit.ly/3JlxylS">https://bit.ly/3JlxylS</a>.                 │
 │                                  │                                         │
-│ pytask.mark.parametrize          │ The marker for pytest&#x27;s way of          │
-│                                  │ repeating tasks which is explained in   │
-│                                  │ this tutorial: <a href="https://bit.ly/3uqZqkk">https://bit.ly/3uqZqkk</a>.  │
-│                                  │                                         │
 │ pytask.mark.persist              │ Prevent execution of a task if all      │
 │                                  │ products exist and even ifsomething has │
 │                                  │ changed (dependencies, source file,     │
