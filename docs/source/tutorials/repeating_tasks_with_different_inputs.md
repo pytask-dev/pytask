@@ -73,7 +73,7 @@ For example, a task function that receives four arguments, `True`, `1.0`, `2`, a
 `"hello"`, one of each dtype, has the following id.
 
 ```
-task_example.py::task_example[True-1.0-2-hello]
+task_data_preparation.py::task_create_random_data[True-1.0-2-hello]
 ```
 
 Arguments with other dtypes cannot be converted to strings and, thus, are replaced with
@@ -82,16 +82,18 @@ a combination of the argument name and the iteration counter.
 For example, the following function is parametrized with tuples.
 
 ```python
-@pytask.mark.parametrize("i", [(0,), (1,)])
-def task_example(i):
-    pass
+for i in [(0,), (1,)]:
+
+    @pytask.mark.task
+    def task_create_random_data(i=i):
+        pass
 ```
 
 Since the tuples are not converted to strings, the ids of the two tasks are
 
 ```
-task_example.py::task_example[i0]
-task_example.py::task_example[i1]
+task_data_preparation.py::task_create_random_data[i0]
+task_data_preparation.py::task_create_random_data[i1]
 ```
 
 (ids)=
