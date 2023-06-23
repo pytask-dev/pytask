@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import pathlib
 from typing import Any
-from typing import Callable
 from typing import TYPE_CHECKING
 
 import click
@@ -207,27 +206,6 @@ def pytask_collect_log(
     """Log errors occurring during the collection.
 
     This hook reports errors during the collection.
-
-    """
-
-
-# Hooks to parametrize tasks.
-
-
-@hookspec(firstresult=True)
-def pytask_parametrize_task(
-    session: Session, name: str, obj: Any
-) -> list[tuple[str, Callable[..., Any]]]:
-    """Generate multiple tasks from name and object with parametrization."""
-
-
-@hookspec
-def pytask_parametrize_kwarg_to_marker(obj: Any, kwargs: dict[Any, Any]) -> None:
-    """Add some keyword arguments as markers to object.
-
-    This hook moves arguments defined in the parametrization to marks of the same
-    function. This allows an argument like ``depends_on`` be transformed to the usual
-    ``@pytask.mark.depends_on`` marker which receives special treatment.
 
     """
 

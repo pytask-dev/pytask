@@ -262,9 +262,11 @@ def test_full_execution_table_is_displayed_at_the_end_of_execution(tmp_path, run
     source = """
     import pytask
 
-    @pytask.mark.parametrize("produces", [f"{i}.txt" for i in range(4)])
-    def task_create_file(produces):
-        produces.touch()
+    for produces in [f"{i}.txt" for i in range(4)]:
+
+        @pytask.mark.task
+        def task_create_file(produces=produces):
+            produces.touch()
     """
     # Subfolder to reduce task id and be able to check the output later.
     tmp_path.joinpath("d").mkdir()

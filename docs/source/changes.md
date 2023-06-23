@@ -9,6 +9,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`323` remove Python 3.7 support and use a new Github action to provide mamba.
 - {pull}`387` replaces pony with sqlalchemy.
+- {pull}`391` removes `@pytask.mark.parametrize`.
 
 ## 0.3.2 - 2023-06-07
 

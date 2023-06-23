@@ -81,10 +81,12 @@ def test_collect_parametrized_tasks(runner, tmp_path):
     source = """
     import pytask
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.parametrize("arg, produces", [(0, "out_0.txt"), (1, "out_1.txt")])
-    def task_example(arg):
-        pass
+    for arg, produces in [(0, "out_0.txt"), (1, "out_1.txt")]:
+
+        @pytask.mark.task
+        @pytask.mark.depends_on("in.txt")
+        def task_example(arg=arg, produces=produces):
+            pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").touch()

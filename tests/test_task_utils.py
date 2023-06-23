@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import pytest
-from _pytask.parametrize_utils import arg_value_to_id_component
+from _pytask.task_utils import _arg_value_to_id_component
 
 
 @pytest.mark.unit()
@@ -22,5 +22,5 @@ from _pytask.parametrize_utils import arg_value_to_id_component
     ],
 )
 def test_arg_value_to_id_component(arg_name, arg_value, i, id_func, expected):
-    result = arg_value_to_id_component(arg_name, arg_value, i, id_func)
+    result = _arg_value_to_id_component(arg_name, arg_value, i, id_func)
     assert result == expected
