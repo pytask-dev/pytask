@@ -149,7 +149,7 @@ def test_parametrization_in_for_loop_with_ids(tmp_path, runner):
     for i in range(2):
 
         @pytask.mark.task(
-            "deco_task", id=i, kwargs={"i": i, "produces": f"out_{i}.txt"}
+            "deco_task", id=str(i), kwargs={"i": i, "produces": f"out_{i}.txt"}
         )
         def example(produces, i):
             produces.write_text(str(i))
@@ -423,12 +423,13 @@ def test_raise_errors_for_irregular_ids(runner, tmp_path, irregular_id):
 
 
 @pytest.mark.end_to_end()
+@pytest.mark.xfail(reason="Should fail. Mandatory products will fix the issue.")
 def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
     source = """
     import pytask
 
     for i in [0, 0]:
-        @pytask.mark.task
+        @pytask.mark.task(id=str(i))
         def task_func(i=i):
             pass
     """

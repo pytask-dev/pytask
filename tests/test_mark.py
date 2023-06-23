@@ -176,7 +176,9 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
     import pytask
 
     for arg in [None, 1.3, "2-3"]:
-        def task_func(arg):
+
+        @pytask.mark.task
+        def task_func(arg=arg):
             pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))

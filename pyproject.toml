@@ -62,6 +62,9 @@ extend-ignore = [
     "SLF001",  # access private members.
     "S603",
     "S607",
+    # Temporary
+    "TD002",
+    "TD003",
 ]
 
 

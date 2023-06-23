@@ -110,6 +110,15 @@ def parse_collected_tasks_with_task_marker(
         else:
             collected_tasks[name] = [i[1] for i in parsed_tasks if i[0] == name][0]
 
+    # TODO: Remove when parsing dependencies and products from all arguments is
+    # implemented.
+    for task in collected_tasks.values():
+        meta = task.pytask_meta  # type: ignore[attr-defined]
+        for marker_name in ("depends_on", "produces"):
+            if marker_name in meta.kwargs:
+                value = meta.kwargs.pop(marker_name)
+                meta.markers.append(Mark(marker_name, (value,), {}))
+
     return collected_tasks
 
 
