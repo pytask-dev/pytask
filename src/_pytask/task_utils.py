@@ -12,6 +12,9 @@ from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
 
 
+__all__ = ["parse_keyword_arguments_from_signature_defaults"]
+
+
 COLLECTED_TASKS: dict[Path, list[Callable[..., Any]]] = defaultdict(list)
 """A container for collecting tasks.
 
@@ -149,7 +152,7 @@ def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
 
     parsed_name = task.__name__ if name is None else name
 
-    signature_kwargs = _parse_keyword_arguments_from_signature_defaults(task)
+    signature_kwargs = parse_keyword_arguments_from_signature_defaults(task)
     task.pytask_meta.kwargs = {  # type: ignore[attr-defined]
         **task.pytask_meta.kwargs,  # type: ignore[attr-defined]
         **signature_kwargs,
@@ -158,7 +161,7 @@ def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
     return parsed_name, task
 
 
-def _parse_keyword_arguments_from_signature_defaults(
+def parse_keyword_arguments_from_signature_defaults(
     task: Callable[..., Any]
 ) -> dict[str, Any]:
     """Parse keyword arguments from signature defaults."""

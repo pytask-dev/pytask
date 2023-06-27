@@ -3,13 +3,11 @@ from __future__ import annotations
 import sys
 import textwrap
 import warnings
-from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
 import pytest
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
-from _pytask.exceptions import NodeNotCollectedError
 from pytask import cli
 from pytask import CollectionOutcome
 from pytask import ExitCode
@@ -54,7 +52,7 @@ def test_collect_filepathnode_with_unknown_type(tmp_path):
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
     exc_info = session.collection_reports[0].exc_info
-    assert isinstance(exc_info[1], NodeNotCollectedError)
+    assert isinstance(exc_info[1], ValueError)
 
 
 @pytest.mark.end_to_end()
@@ -127,13 +125,12 @@ def test_collect_files_w_custom_file_name_pattern(
 
 @pytest.mark.unit()
 @pytest.mark.parametrize(
-    ("session", "path", "node", "expectation", "expected"),
+    ("session", "path", "node", "expected"),
     [
         pytest.param(
             Session({"check_casing_of_paths": False}, None),
             Path(),
             Path.cwd() / "text.txt",
-            does_not_raise(),
             Path.cwd() / "text.txt",
             id="test with absolute string path",
         ),
@@ -141,19 +138,17 @@ def test_collect_files_w_custom_file_name_pattern(
             Session({"check_casing_of_paths": False}, None),
             Path(),
             1,
-            does_not_raise(),
-            None,
-            id="test cannot collect node",
+            "1",
+            id="test with python node",
         ),
     ],
 )
-def test_pytask_collect_node(session, path, node, expectation, expected):
-    with expectation:
-        result = pytask_collect_node(session, path, node)
-        if result is None:
-            assert result is expected
-        else:
-            assert str(result.path) == str(expected)
+def test_pytask_collect_node(session, path, node, expected):
+    result = pytask_collect_node(session, path, node)
+    if result is None:
+        assert result is expected
+    else:
+        assert str(result.value) == str(expected)
 
 
 @pytest.mark.unit()
@@ -180,7 +175,7 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
     task_path = tmp_path / "task_example.py"
     real_node = tmp_path / "text.txt"
 
-    collected_node = f"../{tmp_path.name}/text.txt"
+    collected_node = Path("..", tmp_path.name, "text.txt")
     if is_absolute:
         collected_node = tmp_path / collected_node
 
@@ -237,7 +232,7 @@ def test_collect_dependencies_from_args_if_depends_on_is_missing(tmp_path):
     from pathlib import Path
 
     def task_example(path_in = Path("in.txt"), produces = Path("out.txt")):
-        produces.write_text(depends_on.read_text())
+        produces.write_text(path_in.read_text())
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("hello")
@@ -246,7 +241,7 @@ def test_collect_dependencies_from_args_if_depends_on_is_missing(tmp_path):
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
-    assert session.tasks[0].depends_on[0].path == tmp_path.joinpath("in.txt")
+    assert session.tasks[0].depends_on["path_in"].path == tmp_path.joinpath("in.txt")
 
 
 @pytest.mark.end_to_end()

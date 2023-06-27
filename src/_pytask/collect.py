@@ -12,6 +12,7 @@ from typing import Generator
 from typing import Iterable
 
 from _pytask.collect_utils import depends_on
+from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_nodes
 from _pytask.collect_utils import produces
 from _pytask.config import hookimpl
@@ -22,6 +23,7 @@ from _pytask.console import format_task_id
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_mark
 from _pytask.nodes import FilePathNode
+from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
@@ -167,11 +169,17 @@ def pytask_collect_task(
 
     """
     if (name.startswith("task_") or has_mark(obj, "task")) and callable(obj):
-        dependencies = parse_nodes(session, path, name, obj, depends_on)
+        if has_mark(obj, "depends_on"):
+            nodes = parse_nodes(session, path, name, obj, depends_on)
+            dependencies = {"depends_on": nodes}
+        else:
+            dependencies = parse_dependencies_from_task_function(
+                session, path, name, obj
+            )
+
         products = parse_nodes(session, path, name, obj, produces)
 
         markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
-        kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
 
         # Get the underlying function to avoid having different states of the function,
         # e.g. due to pytask_meta, in different layers of the wrapping.
@@ -184,7 +192,6 @@ def pytask_collect_task(
             depends_on=dependencies,
             produces=products,
             markers=markers,
-            kwargs=kwargs,
         )
     return None
 
@@ -205,7 +212,7 @@ _TEMPLATE_ERROR: str = (
 @hookimpl(trylast=True)
 def pytask_collect_node(
     session: Session, path: Path, node: str | Path
-) -> FilePathNode | None:
+) -> FilePathNode | PythonNode:
     """Collect a node of a task as a :class:`pytask.nodes.FilePathNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
@@ -226,8 +233,6 @@ def pytask_collect_node(
         handled by this function.
 
     """
-    if isinstance(node, str):
-        node = Path(node)
     if isinstance(node, Path):
         if not node.is_absolute():
             node = path.parent.joinpath(node)
@@ -246,7 +251,7 @@ def pytask_collect_node(
                 raise ValueError(_TEMPLATE_ERROR.format(node, case_sensitive_path))
 
         return FilePathNode.from_path(node)
-    return None
+    return PythonNode(value=node)
 
 
 def _not_ignored_paths(

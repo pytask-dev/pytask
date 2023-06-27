@@ -86,7 +86,7 @@ def test_create_graph_via_task(tmp_path, runner, format_, layout, rankdir):
     import networkx as nx
 
     @pytask.mark.depends_on("input.txt")
-    def task_example(): pass
+    def task_example(depends_on): pass
 
     def task_create_graph():
         dag = pytask.build_dag({{"paths": Path(__file__).parent}})

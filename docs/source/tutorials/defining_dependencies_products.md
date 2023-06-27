@@ -4,8 +4,8 @@ To ensure pytask executes all tasks in the correct order, define which dependenc
 required and which products are produced by a task.
 
 :::{important}
-If you do not specify dependencies and products as explained below, pytask will not be able
-to build a graph, a {term}`DAG`, and will not be able to execute all tasks in the
+If you do not specify dependencies and products as explained below, pytask will not be
+able to build a graph, a {term}`DAG`, and will not be able to execute all tasks in the
 project correctly!
 :::
 
@@ -19,15 +19,16 @@ def task_create_random_data(produces):
     ...
 ```
 
-The {func}`@pytask.mark.produces <pytask.mark.produces>` marker attaches a
-product to a task which is a {class}`pathlib.Path` to file. After the task has finished,
-pytask will check whether the file exists.
+The {func}`@pytask.mark.produces <pytask.mark.produces>` marker attaches a product to a
+task which is a {class}`pathlib.Path` to file. After the task has finished, pytask will
+check whether the file exists.
 
-Optionally, you can use `produces` as an argument of the task function and get access to
-the same path inside the task function.
+Add `produces` as an argument of the task function to get access to the same path inside
+the task function.
 
 :::{tip}
-If you do not know about {mod}`pathlib` check out [^id3] and [^id4]. The module is beneficial for handling paths conveniently and across platforms.
+If you do not know about {mod}`pathlib` check out [^id3] and [^id4]. The module is
+beneficial for handling paths conveniently and across platforms.
 :::
 
 ## Dependencies
@@ -44,7 +45,7 @@ def task_plot_data(depends_on, produces):
     ...
 ```
 
-Use `depends_on` as a function argument to work with the dependency path and, for
+Add `depends_on` as a function argument to work with the path of the dependency and, for
 example, load the data.
 
 ## Conversion
@@ -60,9 +61,6 @@ You can also use absolute and relative paths as strings that obey the same rules
 def task_create_random_data(produces):
     ...
 ```
-
-If you use `depends_on` or `produces` as arguments for the task function, you will have
-access to the paths of the targets as {class}`pathlib.Path`.
 
 ## Multiple dependencies and products
 
@@ -108,7 +106,9 @@ Why does pytask recommend dictionaries and convert lists, tuples, or other
 iterators to dictionaries? First, dictionaries with positions as keys behave very
 similarly to lists.
 
-Secondly, dictionaries use keys instead of positions that are more verbose and descriptive and do not assume a fixed ordering. Both attributes are especially desirable in complex projects.
+Secondly, dictionaries use keys instead of positions that are more verbose and
+descriptive and do not assume a fixed ordering. Both attributes are especially desirable
+in complex projects.
 
 ## Multiple decorators
 

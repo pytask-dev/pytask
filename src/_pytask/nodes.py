@@ -51,8 +51,6 @@ class Task(MetaNode):
     """A list of products of task."""
     markers: list[Mark] = field(factory=list)
     """A list of markers attached to the task function."""
-    kwargs: dict[str, Any] = field(factory=dict)
-    """A dictionary with keyword arguments supplied to the task."""
     _report_sections: list[tuple[str, str, str]] = field(factory=list)
     """Reports with entries for when, what, and content."""
     attributes: dict[Any, Any] = field(factory=dict)
@@ -108,3 +106,20 @@ class FilePathNode(MetaNode):
         if not path.is_absolute():
             raise ValueError("FilePathNode must be instantiated from absolute path.")
         return cls(name=path.as_posix(), value=path, path=path)
+
+
+@define(kw_only=True)
+class PythonNode(MetaNode):
+    """The class for a node which is a Python object."""
+
+    value: Any
+    hash: bool = False  # noqa: A003
+    name: str = ""
+
+    def __attrs_post_init__(self) -> None:
+        self.name = str(self.value)
+
+    def state(self) -> str | None:
+        if self.hash:
+            return str(hash(self.value))
+        return str(0)
