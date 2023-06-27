@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
+from _pytask.nodes import FilePathNode
 from attrs import define
 from pytask import cli
 from pytask import ExitCode
@@ -22,6 +23,42 @@ def test_collect_task(runner, tmp_path):
     @pytask.mark.depends_on("in.txt")
     @pytask.mark.produces("out.txt")
     def task_example():
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.txt").touch()
+
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    captured = result.output.replace("\n", "").replace(" ", "")
+    assert "<Module" in captured
+    assert "task_module.py>" in captured
+    assert "<Function" in captured
+    assert "task_example>" in captured
+
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
+
+    assert result.exit_code == ExitCode.OK
+    captured = result.output.replace("\n", "").replace(" ", "")
+    assert "<Module" in captured
+    assert "task_module.py>" in captured
+    assert "<Function" in captured
+    assert "task_example>" in captured
+    assert "<Dependency" in captured
+    assert "in.txt>" in captured
+    assert "<Product" in captured
+    assert "out.txt>" in captured
+
+
+@pytest.mark.end_to_end()
+def test_collect_task_new_interface(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.depends_on("in.txt")
+    @pytask.mark.produces("out.txt")
+    def task_example(depends_on="in.txt", arg=1, produces="out.txt"):
         pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -313,7 +350,7 @@ class MetaNode(MetaNode):
         ...
 
 
-def function():
+def function(depends_on, produces):  # noqa: ARG001
     ...
 
 
@@ -348,8 +385,16 @@ def test_print_collected_tasks_with_nodes(capsys):
                 base_name="function",
                 path=Path("task_path.py"),
                 function=function,
-                depends_on={0: MetaNode("in.txt")},
-                produces={0: MetaNode("out.txt")},
+                depends_on={
+                    "depends_on": FilePathNode(
+                        name="in.txt", value=Path("in.txt"), path=Path("in.txt")
+                    )
+                },
+                produces={
+                    0: FilePathNode(
+                        name="out.txt", value=Path("out.txt"), path=Path("out.txt")
+                    )
+                },
             )
         ]
     }
@@ -372,9 +417,13 @@ def test_find_common_ancestor_of_all_nodes(show_nodes, expected_add):
             base_name="function",
             path=Path.cwd() / "src" / "task_path.py",
             function=function,
-            depends_on={0: MetaNode(Path.cwd() / "src" / "in.txt")},
+            depends_on={
+                "depends_on": FilePathNode.from_path(Path.cwd() / "src" / "in.txt")
+            },
             produces={
-                0: MetaNode(Path.cwd().joinpath("..", "bld", "out.txt").resolve())
+                0: FilePathNode.from_path(
+                    Path.cwd().joinpath("..", "bld", "out.txt").resolve()
+                )
             },
         )
     ]
