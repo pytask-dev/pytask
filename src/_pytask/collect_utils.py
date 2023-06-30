@@ -1,6 +1,7 @@
 """This module provides utility functions for :mod:`_pytask.collect`."""
 from __future__ import annotations
 
+import inspect
 import itertools
 import uuid
 from pathlib import Path
@@ -206,21 +207,6 @@ def _collect_node(
 ) -> dict[str, MetaNode]:
     """Collect nodes for a task.
 
-    Parameters
-    ----------
-    session
-        The session.
-    path
-        The path to the task whose nodes are collected.
-    name
-        The name of the task.
-    nodes
-        A dictionary of nodes parsed from the ``depends_on`` or ``produces`` markers.
-
-    Returns
-    -------
-    A dictionary of node names and their paths.
-
     Raises
     ------
     NodeNotCollectedError
@@ -229,7 +215,7 @@ def _collect_node(
     """
     if not isinstance(node, (str, Path)):
         raise ValueError(
-            "'@pytask.mark.depends_on' and '@pytask.mark.produces' can only accept"
+            "'@pytask.mark.depends_on' and '@pytask.mark.produces' can only accept "
             "values of type 'str' and 'pathlib.Path' or the same values nested in "
             f"tuples, lists, and dictionaries. Here, {node} has type {type(node)}."
         )
@@ -258,26 +244,57 @@ def parse_dependencies_from_task_function(
     kwargs = {**signature_defaults, **task_kwargs}
     kwargs.pop("produces", None)
 
-    def _collect_node(
-        session: Session, path: Path, name: str, node: Any
-    ) -> dict[str, MetaNode]:
-        collected_node = session.hook.pytask_collect_node(
-            session=session, path=path, node=node
-        )
-        if collected_node is None:
-            raise NodeNotCollectedError(
-                f"{node!r} cannot be parsed as a dependency for task "
-                f"{name!r} in {path!r}."
-            )
-        return collected_node
-
     dependencies = {}
     for name, value in kwargs.items():
         parsed_value = tree_map(
-            lambda x: _collect_node(session, path, name, x), value  # noqa: B023
+            lambda x: _collect_new_node(session, path, name, x), value  # noqa: B023
         )
         dependencies[name] = (
             PythonNode(value=None) if parsed_value is None else parsed_value
         )
 
     return dependencies
+
+
+def parse_products_from_task_function(
+    session: Session, path: Path, name: str, obj: Any
+) -> dict[str, Any]:
+    """Parse dependencies from task function."""
+    task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
+    if "produces" in task_kwargs:
+        return tree_map(
+            lambda x: _collect_new_node(session, path, name, x),
+            task_kwargs["produces"],
+        )
+
+    parameters = inspect.signature(obj).parameters
+    if "produces" in parameters:
+        parameter = parameters["produces"]
+        if parameter.default is not parameter.empty:
+            return tree_map(
+                lambda x: _collect_new_node(session, path, name, x),
+                parameter.default,
+            )
+    return {}
+
+
+def _collect_new_node(
+    session: Session, path: Path, name: str, node: Any
+) -> dict[str, MetaNode]:
+    """Collect nodes for a task.
+
+    Raises
+    ------
+    NodeNotCollectedError
+        If the node could not collected.
+
+    """
+    collected_node = session.hook.pytask_collect_node(
+        session=session, path=path, node=node
+    )
+    if collected_node is None:
+        raise NodeNotCollectedError(
+            f"{node!r} cannot be parsed as a dependency for task "
+            f"{name!r} in {path!r}."
+        )
+    return collected_node

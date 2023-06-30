@@ -36,7 +36,7 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_collect_filepathnode_with_unknown_type(tmp_path):
+def test_collect_depends_on_that_is_not_str_or_path(tmp_path):
     """If a node cannot be parsed because unknown type, raise an error."""
     source = """
     import pytask
@@ -53,6 +53,28 @@ def test_collect_filepathnode_with_unknown_type(tmp_path):
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
     exc_info = session.collection_reports[0].exc_info
     assert isinstance(exc_info[1], ValueError)
+    assert "'@pytask.mark.depends_on'" in str(exc_info[1])
+
+
+@pytest.mark.end_to_end()
+def test_collect_produces_that_is_not_str_or_path(tmp_path):
+    """If a node cannot be parsed because unknown type, raise an error."""
+    source = """
+    import pytask
+
+    @pytask.mark.produces(True)
+    def task_with_non_path_dependency():
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == ExitCode.COLLECTION_FAILED
+    assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
+    exc_info = session.collection_reports[0].exc_info
+    assert isinstance(exc_info[1], ValueError)
+    assert "'@pytask.mark.depends_on'" in str(exc_info[1])
 
 
 @pytest.mark.end_to_end()

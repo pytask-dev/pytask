@@ -129,11 +129,7 @@ def _find_common_ancestor_of_all_nodes(
                 for x in tree_just_flatten(task.depends_on)
                 if isinstance(x, FilePathNode)
             )
-            all_paths.extend(
-                x.path
-                for x in tree_just_flatten(task.produces)
-                if isinstance(x, FilePathNode)
-            )
+            all_paths.extend(x.path for x in tree_just_flatten(task.produces))
 
     common_ancestor = find_common_ancestor(*all_paths, *paths)
 

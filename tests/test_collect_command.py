@@ -56,8 +56,6 @@ def test_collect_task_new_interface(runner, tmp_path):
     source = """
     import pytask
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
     def task_example(depends_on="in.txt", arg=1, produces="out.txt"):
         pass
     """
@@ -85,6 +83,7 @@ def test_collect_task_new_interface(runner, tmp_path):
     assert "in.txt>" in captured
     assert "<Product" in captured
     assert "out.txt>" in captured
+    assert "arg" in captured
 
 
 @pytest.mark.end_to_end()
