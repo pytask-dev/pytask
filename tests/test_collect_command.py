@@ -51,12 +51,14 @@ def test_collect_task(runner, tmp_path):
     assert "out.txt>" in captured
 
 
+@pytest.mark.xfail(reason="Only FilePathNodes are supported.")
 @pytest.mark.end_to_end()
 def test_collect_task_new_interface(runner, tmp_path):
     source = """
     import pytask
+    from pathlib import Path
 
-    def task_example(depends_on="in.txt", arg=1, produces="out.txt"):
+    def task_example(depends_on=Path("in.txt"), arg=1, produces=Path("out.txt")):
         pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))

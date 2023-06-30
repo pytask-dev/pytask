@@ -304,3 +304,18 @@ def test_collect_module_name(tmp_path):
     session = main({"paths": tmp_path})
     outcome = session.collection_reports[0].outcome
     assert outcome == CollectionOutcome.SUCCESS
+
+
+@pytest.mark.end_to_end()
+def test_collect_string_product_as_function_default_fails(tmp_path):
+    source = """
+    import pytask
+
+    def task_write_text(produces="out.txt"):
+        produces.touch()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    session = main({"paths": tmp_path})
+    report = session.collection_reports[0]
+    assert report.outcome == CollectionOutcome.FAIL
+    assert "If you use 'produces'" in str(report.exc_info[1])

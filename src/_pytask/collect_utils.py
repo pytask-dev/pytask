@@ -202,6 +202,52 @@ def _merge_dictionaries(list_of_dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
     return out
 
 
+def parse_dependencies_from_task_function(
+    session: Session, path: Path, name: str, obj: Any
+) -> dict[str, Any]:
+    """Parse dependencies from task function."""
+    task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
+    signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
+    kwargs = {**signature_defaults, **task_kwargs}
+    kwargs.pop("produces", None)
+
+    dependencies = {}
+    for name, value in kwargs.items():
+        parsed_value = tree_map(
+            lambda x: _collect_new_node(session, path, name, x), value  # noqa: B023
+        )
+        dependencies[name] = (
+            PythonNode(value=None) if parsed_value is None else parsed_value
+        )
+
+    return dependencies
+
+
+def parse_products_from_task_function(
+    session: Session, path: Path, name: str, obj: Any
+) -> dict[str, Any]:
+    """Parse dependencies from task function."""
+    task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
+    if "produces" in task_kwargs:
+        return tree_map(
+            lambda x: _collect_product(session, path, name, x, is_string_allowed=True),
+            task_kwargs["produces"],
+        )
+
+    parameters = inspect.signature(obj).parameters
+    if "produces" in parameters:
+        parameter = parameters["produces"]
+        if parameter.default is not parameter.empty:
+            # Use _collect_new_node to not collect strings.
+            return tree_map(
+                lambda x: _collect_product(
+                    session, path, name, x, is_string_allowed=False
+                ),
+                parameter.default,
+            )
+    return {}
+
+
 def _collect_node(
     session: Session, path: Path, name: str, node: str | Path
 ) -> dict[str, MetaNode]:
@@ -235,49 +281,6 @@ def _collect_node(
     return collected_node
 
 
-def parse_dependencies_from_task_function(
-    session: Session, path: Path, name: str, obj: Any
-) -> dict[str, Any]:
-    """Parse dependencies from task function."""
-    task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
-    signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
-    kwargs = {**signature_defaults, **task_kwargs}
-    kwargs.pop("produces", None)
-
-    dependencies = {}
-    for name, value in kwargs.items():
-        parsed_value = tree_map(
-            lambda x: _collect_new_node(session, path, name, x), value  # noqa: B023
-        )
-        dependencies[name] = (
-            PythonNode(value=None) if parsed_value is None else parsed_value
-        )
-
-    return dependencies
-
-
-def parse_products_from_task_function(
-    session: Session, path: Path, name: str, obj: Any
-) -> dict[str, Any]:
-    """Parse dependencies from task function."""
-    task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
-    if "produces" in task_kwargs:
-        return tree_map(
-            lambda x: _collect_new_node(session, path, name, x),
-            task_kwargs["produces"],
-        )
-
-    parameters = inspect.signature(obj).parameters
-    if "produces" in parameters:
-        parameter = parameters["produces"]
-        if parameter.default is not parameter.empty:
-            return tree_map(
-                lambda x: _collect_new_node(session, path, name, x),
-                parameter.default,
-            )
-    return {}
-
-
 def _collect_new_node(
     session: Session, path: Path, name: str, node: Any
 ) -> dict[str, MetaNode]:
@@ -297,4 +300,52 @@ def _collect_new_node(
             f"{node!r} cannot be parsed as a dependency for task "
             f"{name!r} in {path!r}."
         )
+    return collected_node
+
+
+def _collect_product(
+    session: Session,
+    path: Path,
+    name: str,
+    node: str | Path,
+    is_string_allowed: bool = False,
+) -> dict[str, MetaNode]:
+    """Collect products for a task.
+
+    Defining products with strings is only allowed when using the decorator. Parameter
+    defaults can only be :class:`pathlib.Path`s.
+
+    Raises
+    ------
+    NodeNotCollectedError
+        If the node could not collected.
+
+    """
+    # For historical reasons, task.kwargs is like the deco and supports str and Path.
+    if not isinstance(node, (str, Path)) and is_string_allowed:
+        raise ValueError(
+            "`@pytask.mark.task(kwargs={'produces': ...}` can only accept values of "
+            "type 'str' and 'pathlib.Path' or the same values nested in "
+            f"tuples, lists, and dictionaries. Here, {node} has type {type(node)}."
+        )
+    # The parameter defaults only support Path objects.
+    if not isinstance(node, Path) and not is_string_allowed:
+        raise ValueError(
+            "If you use 'produces' as an argument of a task, it can only accept values "
+            "of type 'pathlib.Path' or the same value nested in "
+            f"tuples, lists, and dictionaries. Here, {node} has type {type(node)}."
+        )
+
+    if isinstance(node, str):
+        node = Path(node)
+
+    collected_node = session.hook.pytask_collect_node(
+        session=session, path=path, node=node
+    )
+    if collected_node is None:
+        raise NodeNotCollectedError(
+            f"{node!r} cannot be parsed as a dependency or product for task "
+            f"{name!r} in {path!r}."
+        )
+
     return collected_node
