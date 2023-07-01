@@ -18,6 +18,10 @@ li pre {
   padding-left: 20px
 }
 
+.highlight {
+    background: var(--color-sidebar-background)
+}
+
 .termynal-comment {
     color: #4a968f;
     font-style: italic;

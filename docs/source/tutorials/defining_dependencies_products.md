@@ -4,8 +4,8 @@ To ensure pytask executes all tasks in the correct order, define which dependenc
 required and which products are produced by a task.
 
 :::{important}
-If you do not specify dependencies and products as explained below, pytask will not be able
-to build a graph, a {term}`DAG`, and will not be able to execute all tasks in the
+If you do not specify dependencies and products as explained below, pytask will not be
+able to build a graph, a {term}`DAG`, and will not be able to execute all tasks in the
 project correctly!
 :::
 
@@ -13,11 +13,33 @@ project correctly!
 
 Let's revisit the task from the {doc}`previous tutorial <write_a_task>`.
 
+::::{tab-set}
+
+:::{tab-item} Function Defaults
 ```python
-@pytask.mark.produces(BLD / "data.pkl")
-def task_create_random_data(produces):
+from pathlib import Path
+
+from my_project.config import BLD
+
+
+def task_create_random_data(produces: Path = BLD / "data.pkl") -> None:
     ...
 ```
+:::
+
+:::{tab-item} Decorators (deprecated)
+```python
+from pathlib import Path
+
+from my_project.config import BLD
+
+
+@pytask.mark.produces(BLD / "data.pkl")
+def task_create_random_data(produces: Path) -> None:
+    ...
+```
+:::
+::::
 
 The {func}`@pytask.mark.produces <pytask.mark.produces>` marker attaches a
 product to a task which is a {class}`pathlib.Path` to file. After the task has finished,
@@ -27,7 +49,8 @@ Optionally, you can use `produces` as an argument of the task function and get a
 the same path inside the task function.
 
 :::{tip}
-If you do not know about {mod}`pathlib` check out [^id3] and [^id4]. The module is beneficial for handling paths conveniently and across platforms.
+If you do not know about {mod}`pathlib` check out [^id3] and [^id4]. The module is
+beneficial for handling paths conveniently and across platforms.
 :::
 
 ## Dependencies
@@ -36,13 +59,28 @@ Most tasks have dependencies. Like products, you can use the
 {func}`@pytask.mark.depends_on <pytask.mark.depends_on>` marker to attach a
 dependency to a task.
 
+::::{tab-set}
+:::{tab-item} Function Defaults
+```python
+def task_plot_data(
+    path_to_data: Path = BLD / "data.pkl",
+    produces: Path = BLD / "plot.png"
+) -> None:
+    df = pd.read_pickle(path_to_data)
+    ...
+```
+:::
+
+:::{tab-item} Decorators (deprecated)
 ```python
 @pytask.mark.depends_on(BLD / "data.pkl")
 @pytask.mark.produces(BLD / "plot.png")
-def task_plot_data(depends_on, produces):
+def task_plot_data(depends_on: Path, produces: Path) -> None:
     df = pd.read_pickle(depends_on)
     ...
 ```
+:::
+::::
 
 Use `depends_on` as a function argument to work with the dependency path and, for
 example, load the data.
@@ -55,11 +93,21 @@ are assumed to point to a location relative to the task module.
 You can also use absolute and relative paths as strings that obey the same rules as the
 {class}`pathlib.Path`.
 
+::::{tab-set}
+:::{tab-item} Function Defaults
 ```python
-@pytask.mark.produces("../bld/data.pkl")
-def task_create_random_data(produces):
+def task_create_random_data(produces: Path = Path("../bld/data.pkl")) -> None:
     ...
 ```
+:::
+:::{tab-item} Decorators (deprecated)
+```python
+@pytask.mark.produces("../bld/data.pkl")
+def task_create_random_data(produces: Path) -> None:
+    ...
+```
+:::
+::::
 
 If you use `depends_on` or `produces` as arguments for the task function, you will have
 access to the paths of the targets as {class}`pathlib.Path`.
@@ -72,9 +120,23 @@ containing the paths.
 
 To assign labels to dependencies or products, pass a dictionary. For example,
 
+::::{tab-set}
+:::{tab-item} Function Defaults
 ```python
+def task_create_random_data(
+    path_to_data_0: Path = BLD / "data_0.pkl",
+    path_to_data_1: Path = BLD / "data_1.pkl",
+) -> None:
+    ...
+```
+:::
+:::{tab-item} Decorators (deprecated)
+```python
+from typing import Dict
+
+
 @pytask.mark.produces({"first": BLD / "data_0.pkl", "second": BLD / "data_1.pkl"})
-def task_create_random_data(produces):
+def task_create_random_data(produces: Dict[str, Path]) -> None:
     ...
 ```
 
@@ -87,6 +149,8 @@ BLD / "data_0.pkl"
 >>> produces["second"]
 BLD / "data_1.pkl"
 ```
+:::
+::::
 
 You can also use lists and other iterables.
 
