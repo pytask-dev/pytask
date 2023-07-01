@@ -72,7 +72,7 @@ def parse_nodes(
     """Parse nodes from object."""
     objects = _extract_nodes_from_function_markers(obj, parser)
     nodes = _convert_objects_to_node_dictionary(objects, parser.__name__)
-    nodes = tree_map(lambda x: _collect_node(session, path, name, x), nodes)
+    nodes = tree_map(lambda x: _collect_old_dependencies(session, path, name, x), nodes)
     return nodes
 
 
@@ -214,7 +214,7 @@ def parse_dependencies_from_task_function(
     dependencies = {}
     for name, value in kwargs.items():
         parsed_value = tree_map(
-            lambda x: _collect_new_node(session, path, name, x), value  # noqa: B023
+            lambda x: _collect_dependencies(session, path, name, x), value  # noqa: B023
         )
         dependencies[name] = (
             PythonNode(value=None) if parsed_value is None else parsed_value
@@ -248,7 +248,7 @@ def parse_products_from_task_function(
     return {}
 
 
-def _collect_node(
+def _collect_old_dependencies(
     session: Session, path: Path, name: str, node: str | Path
 ) -> dict[str, MetaNode]:
     """Collect nodes for a task.
@@ -281,7 +281,7 @@ def _collect_node(
     return collected_node
 
 
-def _collect_new_node(
+def _collect_dependencies(
     session: Session, path: Path, name: str, node: Any
 ) -> dict[str, MetaNode]:
     """Collect nodes for a task.

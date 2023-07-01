@@ -38,7 +38,6 @@ def test_collection_failed(runner, tmp_path):
 
 @pytest.mark.end_to_end()
 def test_building_dag_failed(runner, tmp_path):
-    # TODO: Should maybe fail because depends_on and produces are not used.
     source = """
     import pytask
 

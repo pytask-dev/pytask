@@ -117,7 +117,8 @@ class PythonNode(MetaNode):
     name: str = ""
 
     def __attrs_post_init__(self) -> None:
-        self.name = str(self.value)
+        if not self.name:
+            self.name = str(self.value)
 
     def state(self) -> str | None:
         if self.hash:
