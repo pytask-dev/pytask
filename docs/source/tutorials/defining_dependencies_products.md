@@ -15,19 +15,53 @@ Let's revisit the task from the {doc}`previous tutorial <write_a_task>`.
 
 ::::{tab-set}
 
-:::{tab-item} Function Defaults
+:::{tab-item} Python 3.10+
+:sync: python310plus
+
+```python
+from pathlib import Path
+from typing import Annotated
+
+from my_project.config import BLD
+from pytask import Product
+
+
+def task_create_random_data(
+    path_to_data: Annotated[Path, Product] = BLD / "data.pkl"
+) -> None:
+    ...
+```
+
+Using {class}`~pytask.Product` allows to declare an argument as a product. After the
+task has finished, pytask will check whether the file exists.
+
+:::
+
+:::{tab-item} Python 3.7+
+:sync: python37plus
+
 ```python
 from pathlib import Path
 
 from my_project.config import BLD
+from pytask import Product
+from typing_extensions import Annotated
 
 
-def task_create_random_data(produces: Path = BLD / "data.pkl") -> None:
+def task_create_random_data(
+    path_to_data: Annotated[Path, Product] = BLD / "data.pkl"
+) -> None:
     ...
 ```
+
+Using {class}`~pytask.Product` allows to declare an argument as a product. After the
+task has finished, pytask will check whether the file exists.
+
 :::
 
 :::{tab-item} Decorators (deprecated)
+:sync: decorators
+
 ```python
 from pathlib import Path
 
@@ -38,8 +72,6 @@ from my_project.config import BLD
 def task_create_random_data(produces: Path) -> None:
     ...
 ```
-:::
-::::
 
 The {func}`@pytask.mark.produces <pytask.mark.produces>` marker attaches a
 product to a task which is a {class}`pathlib.Path` to file. After the task has finished,
@@ -48,6 +80,9 @@ pytask will check whether the file exists.
 Optionally, you can use `produces` as an argument of the task function and get access to
 the same path inside the task function.
 
+:::
+::::
+
 :::{tip}
 If you do not know about {mod}`pathlib` check out [^id3] and [^id4]. The module is
 beneficial for handling paths conveniently and across platforms.
@@ -55,16 +90,48 @@ beneficial for handling paths conveniently and across platforms.
 
 ## Dependencies
 
-Most tasks have dependencies. Like products, you can use the
-{func}`@pytask.mark.depends_on <pytask.mark.depends_on>` marker to attach a
-dependency to a task.
+Most tasks have dependencies. Here, you see how you can declare dependencies for a task
+so that pytask can make sure the dependencies are present or created before the task is
+executed.
 
 ::::{tab-set}
-:::{tab-item} Function Defaults
+
+:::{tab-item} Python 3.10+
+:sync: python310plus
+
+
 ```python
+from pathlib import Path
+from typing import Annotated
+
+from my_project.config import BLD
+from pytask import Product
+
+
 def task_plot_data(
     path_to_data: Path = BLD / "data.pkl",
-    produces: Path = BLD / "plot.png"
+    path_to_plot: Annotated[Path, Product] = BLD / "plot.png"
+) -> None:
+    df = pd.read_pickle(path_to_data)
+    ...
+```
+:::
+
+:::{tab-item} Python 3.7+
+:sync: python37plus
+
+
+```python
+from pathlib import Path
+
+from my_project.config import BLD
+from pytask import Product
+from typing_extensions import Annotated
+
+
+def task_plot_data(
+    path_to_data: Path = BLD / "data.pkl",
+    path_to_plot: Annotated[Path, Product] = BLD / "plot.png"
 ) -> None:
     df = pd.read_pickle(path_to_data)
     ...
@@ -72,20 +139,28 @@ def task_plot_data(
 :::
 
 :::{tab-item} Decorators (deprecated)
+:sync: decorators
+
 ```python
+from pathlib import Path
+
+from my_project.config import BLD
+
+
 @pytask.mark.depends_on(BLD / "data.pkl")
 @pytask.mark.produces(BLD / "plot.png")
 def task_plot_data(depends_on: Path, produces: Path) -> None:
     df = pd.read_pickle(depends_on)
     ...
 ```
+
+Use `depends_on` as a function argument to access the dependency path inside the
+function and load the data.
+
 :::
 ::::
 
-Use `depends_on` as a function argument to work with the dependency path and, for
-example, load the data.
-
-## Conversion
+## Relative paths
 
 Dependencies and products do not have to be absolute paths. If paths are relative, they
 are assumed to point to a location relative to the task module.
@@ -94,25 +169,156 @@ You can also use absolute and relative paths as strings that obey the same rules
 {class}`pathlib.Path`.
 
 ::::{tab-set}
-:::{tab-item} Function Defaults
+
+:::{tab-item} Python 3.10+
+:sync: python310plus
+
 ```python
-def task_create_random_data(produces: Path = Path("../bld/data.pkl")) -> None:
+from pathlib import Path
+from typing import Annotated
+
+from pytask import Product
+
+
+def task_create_random_data(
+    path_to_data: Annotated[Path, Product] = Path("../bld/data.pkl")
+) -> None:
     ...
 ```
 :::
-:::{tab-item} Decorators (deprecated)
+
+:::{tab-item} Python 3.7+
+:sync: python37plus
+
 ```python
+from pathlib import Path
+
+from pytask import Product
+from typing_extensions import Annotated
+
+
+def task_create_random_data(
+    path_to_data: Annotated[Path, Product] = Path("../bld/data.pkl")
+) -> None:
+    ...
+```
+:::
+
+:::{tab-item} Decorators (deprecated)
+:sync: decorators
+
+```python
+from pathlib import Path
+
+
 @pytask.mark.produces("../bld/data.pkl")
 def task_create_random_data(produces: Path) -> None:
     ...
 ```
-:::
-::::
 
 If you use `depends_on` or `produces` as arguments for the task function, you will have
 access to the paths of the targets as {class}`pathlib.Path`.
 
+:::
+::::
+
 ## Multiple dependencies and products
+
+Tasks can have multiple dependencies and products.
+
+::::{tab-set}
+
+:::{tab-item} Python 3.10+
+:sync: python310plus
+
+```python
+from pathlib import Path
+from typing import Annotated
+
+from my_project.config import BLD
+from pytask import Product
+
+
+def task_plot_data(
+    path_to_data_0: Path = BLD / "data_0.pkl",
+    path_to_data_1: Path = BLD / "data_1.pkl",
+    path_to_plot_0: Annotated[Path, Product] = BLD / "plot_0.png",
+    path_to_plot_1: Annotated[Path, Product] = BLD / "plot_1.png",
+) -> None:
+    ...
+```
+
+You can group your dependencies and product if you prefer not having a function argument
+per input. Use dictionaries (recommended), tuples, lists, or more nested structures if
+you need.
+
+```python
+from pathlib import Path
+from typing import Annotated
+
+from my_project.config import BLD
+from pytask import Product
+
+
+_DEPENDENCIES = {"data_0": BLD / "data_0.pkl", "data_1": BLD / "data_1.pkl"}
+_PRODUCTS = {"plot_0": BLD / "plot_0.png", "plot_1": BLD / "plot_1.png"}
+
+def task_plot_data(
+    path_to_data: dict[str, Path] = _DEPENDENCIES,
+    path_to_plots: Annotated[dict[str, Path], Product] = _PRODUCTS,
+) -> None:
+    ...
+```
+
+:::
+
+:::{tab-item} Python 3.7+
+:sync: python37plus
+
+```python
+from pathlib import Path
+
+from my_project.config import BLD
+from pytask import Product
+from typing_extensions import Annotated
+
+
+def task_plot_data(
+    path_to_data_0: Path = BLD / "data_0.pkl",
+    path_to_data_1: Path = BLD / "data_1.pkl",
+    path_to_plot_0: Annotated[Path, Product] = BLD / "plot_0.png",
+    path_to_plot_1: Annotated[Path, Product] = BLD / "plot_1.png",
+) -> None:
+    ...
+```
+
+You can group your dependencies and product if you prefer not having a function argument
+per input. Use dictionaries (recommended), tuples, lists, or more nested structures if
+you need.
+
+```python
+from pathlib import Path
+from typing import Dict
+
+from my_project.config import BLD
+from pytask import Product
+from typing_extensions import Annotated
+
+
+_DEPENDENCIES = {"data_0": BLD / "data_0.pkl", "data_1": BLD / "data_1.pkl"}
+_PRODUCTS = {"plot_0": BLD / "plot_0.png", "plot_1": BLD / "plot_1.png"}
+
+def task_plot_data(
+    path_to_data: Dict[str, Path] = _DEPENDENCIES,
+    path_to_plots: Annotated[Dict[str, Path], Product] = _PRODUCTS,
+) -> None:
+    ...
+```
+
+:::
+
+:::{tab-item} Decorators (deprecated)
+:sync: decorators
 
 The easiest way to attach multiple dependencies or products to a task is to pass a
 {class}`dict` (highly recommended), {class}`list`, or another iterator to the marker
@@ -120,17 +326,6 @@ containing the paths.
 
 To assign labels to dependencies or products, pass a dictionary. For example,
 
-::::{tab-set}
-:::{tab-item} Function Defaults
-```python
-def task_create_random_data(
-    path_to_data_0: Path = BLD / "data_0.pkl",
-    path_to_data_1: Path = BLD / "data_1.pkl",
-) -> None:
-    ...
-```
-:::
-:::{tab-item} Decorators (deprecated)
 ```python
 from typing import Dict
 
@@ -149,8 +344,6 @@ BLD / "data_0.pkl"
 >>> produces["second"]
 BLD / "data_1.pkl"
 ```
-:::
-::::
 
 You can also use lists and other iterables.
 
@@ -172,7 +365,9 @@ Why does pytask recommend dictionaries and convert lists, tuples, or other
 iterators to dictionaries? First, dictionaries with positions as keys behave very
 similarly to lists.
 
-Secondly, dictionaries use keys instead of positions that are more verbose and descriptive and do not assume a fixed ordering. Both attributes are especially desirable in complex projects.
+Secondly, dictionaries use keys instead of positions that are more verbose and
+descriptive and do not assume a fixed ordering. Both attributes are especially desirable
+in complex projects.
 
 ## Multiple decorators
 
@@ -227,6 +422,10 @@ def task_fit_model(depends_on, produces):
     "data": {"a": SRC / "data" / "a.pkl", "b": SRC / "data" / "b.pkl"},
 }
 ```
+
+:::
+::::
+
 
 ## References
 

@@ -27,9 +27,45 @@ my_project
     └────data.pkl
 ```
 
-Here, we define the function.
+Let us define the task.
 
 ::::{tab-set}
+
+:::{tab-item} Python 3.10+
+
+```python
+# Content of task_data_preparation.py.
+import pytask
+import numpy as np
+import pandas as pd
+
+from pathlib import Path
+from typing import Annotated
+
+from my_project.config import BLD
+from pytask import Product
+
+
+def task_create_random_data(path: Annotated[Path, Product] = BLD / "data.pkl") -> None:
+    rng = np.random.default_rng(0)
+    beta = 2
+
+    x = rng.normal(loc=5, scale=10, size=1_000)
+    epsilon = rng.standard_normal(1_000)
+
+    y = beta * x + epsilon
+
+    df = pd.DataFrame({"x": x, "y": y})
+    df.to_pickle(produces)
+```
+
+To let pytask track the product of the task, you need to use type hints with
+{class}`~typing.Annotated`. The first entry in {class}`~typing.Annotated` defines the
+type of the argument, a {class}`~pathlib.Path`, and the second argument adds metadata to
+the argument. Adding {class}`~pytask.Product` signals pytask that the argument is a
+product of a task.
+
+:::
 
 :::{tab-item} Python 3.7+
 
@@ -59,43 +95,11 @@ def task_create_random_data(path: Annotated[Path, Product] = BLD / "data.pkl") -
     df.to_pickle(produces)
 ```
 
-To let pytask track the product of the task, you need to use the magical function
-argument `produces`. pytask will collect any {class}`pathlib.Path` from it and treat it
-as a product of the task.
-
-:::
-
-:::{tab-item} Python 3.9+
-
-```python
-# Content of task_data_preparation.py.
-import pytask
-import numpy as np
-import pandas as pd
-
-from pathlib import Path
-from typing import Annotated
-
-from my_project.config import BLD
-from pytask import Product
-
-
-def task_create_random_data(path: Annotated[Path, Product] = BLD / "data.pkl") -> None:
-    rng = np.random.default_rng(0)
-    beta = 2
-
-    x = rng.normal(loc=5, scale=10, size=1_000)
-    epsilon = rng.standard_normal(1_000)
-
-    y = beta * x + epsilon
-
-    df = pd.DataFrame({"x": x, "y": y})
-    df.to_pickle(produces)
-```
-
-To let pytask track the product of the task, you need to use the magical function
-argument `produces`. pytask will collect any {class}`pathlib.Path` from it and treat it
-as a product of the task.
+To let pytask track the product of the task, you need to use type hints with
+{class}`~typing.Annotated`. The first entry in {class}`~typing.Annotated` defines the
+type of the argument, a {class}`~pathlib.Path`, and the second argument adds metadata to
+the argument. Adding {class}`~pytask.Product` signals pytask that the argument is a
+product of a task.
 
 :::
 
