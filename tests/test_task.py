@@ -438,3 +438,15 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
 
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
+
+
+def test_task_receives_unknown_kwarg(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.task(kwargs={"i": 1})
+    def task_example(): pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED

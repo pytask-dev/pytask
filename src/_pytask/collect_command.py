@@ -20,6 +20,7 @@ from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import select_by_keyword
 from _pytask.mark import select_by_mark
+from _pytask.nodes import FilePathNode
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
@@ -123,7 +124,11 @@ def _find_common_ancestor_of_all_nodes(
     for task in tasks:
         all_paths.append(task.path)
         if show_nodes:
-            all_paths.extend(x.path for x in tree_just_flatten(task.depends_on))
+            all_paths.extend(
+                x.path
+                for x in tree_just_flatten(task.depends_on)
+                if isinstance(x, FilePathNode)
+            )
             all_paths.extend(x.path for x in tree_just_flatten(task.produces))
 
     common_ancestor = find_common_ancestor(*all_paths, *paths)
@@ -160,14 +165,14 @@ def _print_collected_tasks(
 
     Parameters
     ----------
-    dictionary : Dict[Path, List["Task"]]
+    dictionary
         A dictionary with path on the first level, tasks on the second, dependencies and
         products on the third.
-    show_nodes : bool
+    show_nodes
         Indicator for whether dependencies and products should be displayed.
-    editor_url_scheme : str
+    editor_url_scheme
         The scheme to create an url.
-    common_ancestor : Path
+    common_ancestor
         The path common to all tasks and nodes.
 
     """
@@ -197,9 +202,13 @@ def _print_collected_tasks(
             )
 
             if show_nodes:
-                for node in sorted(
-                    tree_just_flatten(task.depends_on), key=lambda x: x.path
-                ):
+                file_path_nodes = [
+                    i
+                    for i in tree_just_flatten(task.depends_on)
+                    if isinstance(i, FilePathNode)
+                ]
+                sorted_nodes = sorted(file_path_nodes, key=lambda x: x.path)
+                for node in sorted_nodes:
                     reduced_node_name = relative_to(node.path, common_ancestor)
                     url_style = create_url_style_for_path(node.path, editor_url_scheme)
                     task_branch.add(
