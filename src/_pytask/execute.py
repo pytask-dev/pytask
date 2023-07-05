@@ -143,13 +143,14 @@ def pytask_execute_task(session: Session, task: Task) -> bool:
     if session.config["dry_run"]:
         raise WouldBeExecuted
 
-    kwargs = {**task.kwargs}
+    parameters = inspect.signature(task.function).parameters
 
-    func_arg_names = set(inspect.signature(task.function).parameters)
-    for arg_name in ("depends_on", "produces"):
-        if arg_name in func_arg_names:
-            attribute = getattr(task, arg_name)
-            kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
+    kwargs = {}
+    for name, value in task.depends_on.items():
+        kwargs[name] = tree_map(lambda x: x.value, value)
+
+    if task.produces and "produces" in parameters:
+        kwargs["produces"] = tree_map(lambda x: x.value, task.produces)
 
     task.execute(**kwargs)
     return True

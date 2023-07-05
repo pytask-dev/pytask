@@ -33,7 +33,7 @@ def test_dry_run_w_subsequent_task(runner, tmp_path):
 
     @pytask.mark.depends_on("out.txt")
     @pytask.mark.produces("out_2.txt")
-    def task_example(produces):
+    def task_example(depends_on, produces):
         produces.touch()
     """
     tmp_path.joinpath("task_example_second.py").write_text(textwrap.dedent(source))
@@ -80,7 +80,7 @@ def test_dry_run_w_subsequent_skipped_task(runner, tmp_path):
 
     @pytask.mark.depends_on("out.txt")
     @pytask.mark.produces("out_2.txt")
-    def task_example(produces):
+    def task_example(depends_on, produces):
         produces.touch()
     """
     tmp_path.joinpath("task_example_second.py").write_text(textwrap.dedent(source_2))

@@ -3,13 +3,11 @@ from __future__ import annotations
 import sys
 import textwrap
 import warnings
-from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
 import pytest
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
-from _pytask.exceptions import NodeNotCollectedError
 from pytask import cli
 from pytask import CollectionOutcome
 from pytask import ExitCode
@@ -38,47 +36,7 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
-    """We need to check that task modules can have the same name. See #373 and #374."""
-    tmp_path.joinpath("a").mkdir()
-    tmp_path.joinpath("b").mkdir()
-    tmp_path.joinpath("a", "task_module.py").write_text("def task_a(): pass")
-    tmp_path.joinpath("b", "task_module.py").write_text("def task_a(): pass")
-    session = main({"paths": tmp_path})
-    assert len(session.collection_reports) == 2
-    assert all(
-        report.outcome == CollectionOutcome.SUCCESS
-        for report in session.collection_reports
-    )
-    assert {
-        report.node.function.__module__ for report in session.collection_reports
-    } == {"a.task_module", "b.task_module"}
-
-
-@pytest.mark.end_to_end()
-def test_collect_module_name(tmp_path):
-    """We need to add a task module to the sys.modules. See #373 and #374."""
-    source = """
-    # without this import, everything works fine
-    from __future__ import annotations
-
-    import dataclasses
-
-    @dataclasses.dataclass
-    class Data:
-        x: int
-
-    def task_my_task():
-        pass
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    session = main({"paths": tmp_path})
-    outcome = session.collection_reports[0].outcome
-    assert outcome == CollectionOutcome.SUCCESS
-
-
-@pytest.mark.end_to_end()
-def test_collect_filepathnode_with_unknown_type(tmp_path):
+def test_collect_depends_on_that_is_not_str_or_path(tmp_path):
     """If a node cannot be parsed because unknown type, raise an error."""
     source = """
     import pytask
@@ -94,7 +52,29 @@ def test_collect_filepathnode_with_unknown_type(tmp_path):
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
     exc_info = session.collection_reports[0].exc_info
-    assert isinstance(exc_info[1], NodeNotCollectedError)
+    assert isinstance(exc_info[1], ValueError)
+    assert "'@pytask.mark.depends_on'" in str(exc_info[1])
+
+
+@pytest.mark.end_to_end()
+def test_collect_produces_that_is_not_str_or_path(tmp_path):
+    """If a node cannot be parsed because unknown type, raise an error."""
+    source = """
+    import pytask
+
+    @pytask.mark.produces(True)
+    def task_with_non_path_dependency():
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == ExitCode.COLLECTION_FAILED
+    assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
+    exc_info = session.collection_reports[0].exc_info
+    assert isinstance(exc_info[1], ValueError)
+    assert "'@pytask.mark.depends_on'" in str(exc_info[1])
 
 
 @pytest.mark.end_to_end()
@@ -129,7 +109,7 @@ def test_collect_nodes_with_the_same_name(runner, tmp_path):
 
 @pytest.mark.end_to_end()
 @pytest.mark.parametrize("path_extension", ["", "task_module.py"])
-def test_collect_same_test_different_ways(tmp_path, path_extension):
+def test_collect_same_task_different_ways(tmp_path, path_extension):
     tmp_path.joinpath("task_module.py").write_text("def task_passes(): pass")
 
     session = main({"paths": tmp_path.joinpath(path_extension)})
@@ -167,13 +147,12 @@ def test_collect_files_w_custom_file_name_pattern(
 
 @pytest.mark.unit()
 @pytest.mark.parametrize(
-    ("session", "path", "node", "expectation", "expected"),
+    ("session", "path", "node", "expected"),
     [
         pytest.param(
             Session({"check_casing_of_paths": False}, None),
             Path(),
             Path.cwd() / "text.txt",
-            does_not_raise(),
             Path.cwd() / "text.txt",
             id="test with absolute string path",
         ),
@@ -181,19 +160,17 @@ def test_collect_files_w_custom_file_name_pattern(
             Session({"check_casing_of_paths": False}, None),
             Path(),
             1,
-            does_not_raise(),
-            None,
-            id="test cannot collect node",
+            "1",
+            id="test with python node",
         ),
     ],
 )
-def test_pytask_collect_node(session, path, node, expectation, expected):
-    with expectation:
-        result = pytask_collect_node(session, path, node)
-        if result is None:
-            assert result is expected
-        else:
-            assert str(result.path) == str(expected)
+def test_pytask_collect_node(session, path, node, expected):
+    result = pytask_collect_node(session, path, node)
+    if result is None:
+        assert result is expected
+    else:
+        assert str(result.value) == str(expected)
 
 
 @pytest.mark.unit()
@@ -220,7 +197,7 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
     task_path = tmp_path / "task_example.py"
     real_node = tmp_path / "text.txt"
 
-    collected_node = f"../{tmp_path.name}/text.txt"
+    collected_node = Path("..", tmp_path.name, "text.txt")
     if is_absolute:
         collected_node = tmp_path / collected_node
 
@@ -270,3 +247,75 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
 
     result = _find_shortest_uniquely_identifiable_name_for_tasks(tasks)
     assert result == expected
+
+
+def test_collect_dependencies_from_args_if_depends_on_is_missing(tmp_path):
+    source = """
+    from pathlib import Path
+
+    def task_example(path_in = Path("in.txt"), produces = Path("out.txt")):
+        produces.write_text(path_in.read_text())
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.txt").write_text("hello")
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 1
+    assert session.tasks[0].depends_on["path_in"].path == tmp_path.joinpath("in.txt")
+
+
+@pytest.mark.end_to_end()
+def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
+    """We need to check that task modules can have the same name. See #373 and #374."""
+    tmp_path.joinpath("a").mkdir()
+    tmp_path.joinpath("b").mkdir()
+    tmp_path.joinpath("a", "task_module.py").write_text("def task_a(): pass")
+    tmp_path.joinpath("b", "task_module.py").write_text("def task_a(): pass")
+    session = main({"paths": tmp_path})
+    assert len(session.collection_reports) == 2
+    assert all(
+        report.outcome == CollectionOutcome.SUCCESS
+        for report in session.collection_reports
+    )
+    assert {
+        report.node.function.__module__ for report in session.collection_reports
+    } == {"a.task_module", "b.task_module"}
+
+
+@pytest.mark.end_to_end()
+def test_collect_module_name(tmp_path):
+    """We need to add a task module to the sys.modules. See #373 and #374."""
+    source = """
+    # without this import, everything works fine
+    from __future__ import annotations
+
+    import dataclasses
+
+    @dataclasses.dataclass
+    class Data:
+        x: int
+
+    def task_my_task():
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    session = main({"paths": tmp_path})
+    outcome = session.collection_reports[0].outcome
+    assert outcome == CollectionOutcome.SUCCESS
+
+
+@pytest.mark.end_to_end()
+def test_collect_string_product_as_function_default_fails(tmp_path):
+    source = """
+    import pytask
+
+    def task_write_text(produces="out.txt"):
+        produces.touch()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    session = main({"paths": tmp_path})
+    report = session.collection_reports[0]
+    assert report.outcome == CollectionOutcome.FAIL
+    assert "If you use 'produces'" in str(report.exc_info[1])

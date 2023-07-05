@@ -19,7 +19,7 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
 
     @pytask.mark.depends_on("in.txt")
     @pytask.mark.produces("out.txt")
-    def task_write(produces):
+    def task_write(depends_on, produces):
         produces.touch()
     """
     task_path = tmp_path.joinpath("task_module.py")

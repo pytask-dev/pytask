@@ -8,6 +8,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 ## 0.4.0 - 2023-xx-xx
 
 - {pull}`323` remove Python 3.7 support and use a new Github action to provide mamba.
+- {pull}`384` allows to parse dependencies from every function argument if `depends_on`
+  is not present.
 - {pull}`387` replaces pony with sqlalchemy.
 - {pull}`391` removes `@pytask.mark.parametrize`.
 

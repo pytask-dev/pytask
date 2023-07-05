@@ -190,7 +190,10 @@ _TEMPLATE_ERROR: str = (
     "tree which shows which dependencies are missing for which tasks.\n\n{}"
 )
 if IS_FILE_SYSTEM_CASE_SENSITIVE:
-    _TEMPLATE_ERROR += "\n\n(Hint: Sometimes case sensitivity is at fault.)"
+    _TEMPLATE_ERROR += (
+        "\n\n(Hint: Your file-system is case-sensitive. Check the paths' "
+        "capitalization carefully.)"
+    )
 
 
 def _check_if_root_nodes_are_available(dag: nx.DiGraph) -> None:
