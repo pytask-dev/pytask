@@ -179,7 +179,8 @@ def pytask_collect_task(
             )
 
         if has_mark(obj, "produces"):
-            products = parse_nodes(session, path, name, obj, produces)
+            nodes = parse_nodes(session, path, name, obj, produces)
+            products = {"produces": nodes}
         else:
             products = parse_products_from_task_function(session, path, name, obj)
 

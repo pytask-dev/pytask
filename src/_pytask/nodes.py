@@ -17,7 +17,10 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-__all__ = ["FilePathNode", "MetaNode", "Task"]
+__all__ = ["FilePathNode", "MetaNode", "Product", "Task"]
+
+
+Product = object()
 
 
 class MetaNode(metaclass=ABCMeta):

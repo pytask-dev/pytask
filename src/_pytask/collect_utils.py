@@ -226,25 +226,27 @@ def parse_dependencies_from_task_function(
 def parse_products_from_task_function(
     session: Session, path: Path, name: str, obj: Any
 ) -> dict[str, Any]:
-    """Parse dependencies from task function."""
+    """Parse products from task function."""
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
     if "produces" in task_kwargs:
-        return tree_map(
+        collected_products = tree_map(
             lambda x: _collect_product(session, path, name, x, is_string_allowed=True),
             task_kwargs["produces"],
         )
+        return {"produces": collected_products}
 
     parameters = inspect.signature(obj).parameters
     if "produces" in parameters:
         parameter = parameters["produces"]
         if parameter.default is not parameter.empty:
             # Use _collect_new_node to not collect strings.
-            return tree_map(
+            collected_products = tree_map(
                 lambda x: _collect_product(
                     session, path, name, x, is_string_allowed=False
                 ),
                 parameter.default,
             )
+            return {"produces": collected_products}
     return {}
 
 

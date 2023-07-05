@@ -435,7 +435,7 @@ def test_task_with_product_annotation(tmp_path):
 
     session = main({"paths": tmp_path})
 
-    assert session.exit_code == ExitCode.SUCCESS
+    assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 0
     task = session.tasks[0]
     assert len(task.produces) == 1
