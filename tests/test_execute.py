@@ -419,3 +419,23 @@ def test_task_is_not_reexecuted_when_modification_changed_file_not(runner, tmp_p
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert "1  Skipped" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_task_with_product_annotation(tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import Product
+
+    def task_example(path_to_file: Annotated[Path, Product]) -> None:
+        path_to_file.touch()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == ExitCode.SUCCESS
+    assert len(session.tasks) == 0
+    task = session.tasks[0]
+    assert len(task.produces) == 1
