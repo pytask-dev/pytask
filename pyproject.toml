@@ -76,6 +76,7 @@ extend-ignore = [
 "tests/*" = ["D", "ANN", "PLR2004"]
 "scripts/*" = ["D", "INP001"]
 "docs/source/conf.py" = ["D401", "INP001"]
+"docs_src/*" = ["ARG001", "D", "INP001"]
 
 
 [tool.ruff.pydocstyle]

@@ -18,18 +18,20 @@ Let's revisit the task from the {doc}`previous tutorial <write_a_task>`.
 :::{tab-item} Python 3.10+
 :sync: python310plus
 
-```python
-from pathlib import Path
-from typing import Annotated
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py310.py
+:emphasize-lines: 11
+```
 
-from my_project.config import BLD
-from pytask import Product
+{class}`~pytask.Product` allows to declare an argument as a product. After the
+task has finished, pytask will check whether the file exists.
 
+:::
 
-def task_create_random_data(
-    path_to_data: Annotated[Path, Product] = BLD / "data.pkl"
-) -> None:
-    ...
+:::{tab-item} Python 3.8+
+:sync: python38plus
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py38.py
+:emphasize-lines: 11
 ```
 
 Using {class}`~pytask.Product` allows to declare an argument as a product. After the
@@ -37,40 +39,15 @@ task has finished, pytask will check whether the file exists.
 
 :::
 
-:::{tab-item} Python 3.7+
-:sync: python37plus
-
-```python
-from pathlib import Path
-
-from my_project.config import BLD
-from pytask import Product
-from typing_extensions import Annotated
-
-
-def task_create_random_data(
-    path_to_data: Annotated[Path, Product] = BLD / "data.pkl"
-) -> None:
-    ...
-```
-
-Using {class}`~pytask.Product` allows to declare an argument as a product. After the
-task has finished, pytask will check whether the file exists.
-
-:::
-
-:::{tab-item} Decorators (deprecated)
+:::{tab-item} Decorators
 :sync: decorators
 
-```python
-from pathlib import Path
+```{warning}
+This approach is deprecated and will be removed in v0.5
+```
 
-from my_project.config import BLD
-
-
-@pytask.mark.produces(BLD / "data.pkl")
-def task_create_random_data(produces: Path) -> None:
-    ...
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_decorators.py
+:emphasize-lines: 9, 10
 ```
 
 The {func}`@pytask.mark.produces <pytask.mark.produces>` marker attaches a
@@ -90,72 +67,58 @@ beneficial for handling paths conveniently and across platforms.
 
 ## Dependencies
 
-Most tasks have dependencies. Here, you see how you can declare dependencies for a task
-so that pytask can make sure the dependencies are present or created before the task is
-executed.
+Most tasks have dependencies and it is important to specify. Then, pytask ensures that
+the dependencies are available before executing the task.
+
+In the example you see a task that creates a plot while relying on some data set.
 
 ::::{tab-set}
 
 :::{tab-item} Python 3.10+
 :sync: python310plus
 
+To specify that the task relies on the data set `data.pkl`, you can simply add the path
+to the function signature while choosing any argument name, here `path_to_data`.
 
-```python
-from pathlib import Path
-from typing import Annotated
+pytask assumes that all function arguments that do not have the {class}`~pytask.Product`
+annotation are dependencies of the task.
 
-from my_project.config import BLD
-from pytask import Product
-
-
-def task_plot_data(
-    path_to_data: Path = BLD / "data.pkl",
-    path_to_plot: Annotated[Path, Product] = BLD / "plot.png"
-) -> None:
-    df = pd.read_pickle(path_to_data)
-    ...
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_py310.py
+:emphasize-lines: 9
 ```
+
 :::
 
-:::{tab-item} Python 3.7+
-:sync: python37plus
+:::{tab-item} Python 3.8+
+:sync: python38plus
 
+To specify that the task relies on the data set `data.pkl`, you can simply add the path
+to the function signature while choosing any argument name, here `path_to_data`.
 
-```python
-from pathlib import Path
+pytask assumes that all function arguments that do not have the {class}`~pytask.Product`
+annotation are dependencies of the task.
 
-from my_project.config import BLD
-from pytask import Product
-from typing_extensions import Annotated
-
-
-def task_plot_data(
-    path_to_data: Path = BLD / "data.pkl",
-    path_to_plot: Annotated[Path, Product] = BLD / "plot.png"
-) -> None:
-    df = pd.read_pickle(path_to_data)
-    ...
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_py38.py
+:emphasize-lines: 9
 ```
+
 :::
 
-:::{tab-item} Decorators (deprecated)
+:::{tab-item} Decorators
 :sync: decorators
 
-```python
-from pathlib import Path
-
-from my_project.config import BLD
-
-
-@pytask.mark.depends_on(BLD / "data.pkl")
-@pytask.mark.produces(BLD / "plot.png")
-def task_plot_data(depends_on: Path, produces: Path) -> None:
-    df = pd.read_pickle(depends_on)
-    ...
+```{warning}
+This approach is deprecated and will be removed in v0.5
 ```
 
-Use `depends_on` as a function argument to access the dependency path inside the
-function and load the data.
+Equivalent to products, you can use the
+{func}`@pytask.mark.depends_on <pytask.mark.depends_on>` decorator to specify that
+`data.pkl` is a dependency of the task. Use `depends_on` as a function argument to
+access the dependency path inside the function and load the data.
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_decorators.py
+:emphasize-lines: 7, 9
+```
 
 :::
 ::::
@@ -165,55 +128,38 @@ function and load the data.
 Dependencies and products do not have to be absolute paths. If paths are relative, they
 are assumed to point to a location relative to the task module.
 
-You can also use absolute and relative paths as strings that obey the same rules as the
-{class}`pathlib.Path`.
-
 ::::{tab-set}
 
 :::{tab-item} Python 3.10+
 :sync: python310plus
 
-```python
-from pathlib import Path
-from typing import Annotated
-
-from pytask import Product
-
-
-def task_create_random_data(
-    path_to_data: Annotated[Path, Product] = Path("../bld/data.pkl")
-) -> None:
-    ...
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_py310.py
+:emphasize-lines: 8
 ```
+
 :::
 
-:::{tab-item} Python 3.7+
-:sync: python37plus
+:::{tab-item} Python 3.8+
+:sync: python38plus
 
-```python
-from pathlib import Path
-
-from pytask import Product
-from typing_extensions import Annotated
-
-
-def task_create_random_data(
-    path_to_data: Annotated[Path, Product] = Path("../bld/data.pkl")
-) -> None:
-    ...
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_py38.py
+:emphasize-lines: 8
 ```
+
 :::
 
-:::{tab-item} Decorators (deprecated)
+:::{tab-item} Decorators
 :sync: decorators
 
-```python
-from pathlib import Path
+```{warning}
+This approach is deprecated and will be removed in v0.5
+```
 
+You can also use absolute and relative paths as strings that obey the same rules as the
+{class}`pathlib.Path`.
 
-@pytask.mark.produces("../bld/data.pkl")
-def task_create_random_data(produces: Path) -> None:
-    ...
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_decorators.py
+:emphasize-lines: 6
 ```
 
 If you use `depends_on` or `produces` as arguments for the task function, you will have
@@ -224,101 +170,46 @@ access to the paths of the targets as {class}`pathlib.Path`.
 
 ## Multiple dependencies and products
 
-Tasks can have multiple dependencies and products.
+Of course, tasks can have multiple dependencies and products.
 
 ::::{tab-set}
 
 :::{tab-item} Python 3.10+
 :sync: python310plus
 
-```python
-from pathlib import Path
-from typing import Annotated
-
-from my_project.config import BLD
-from pytask import Product
-
-
-def task_plot_data(
-    path_to_data_0: Path = BLD / "data_0.pkl",
-    path_to_data_1: Path = BLD / "data_1.pkl",
-    path_to_plot_0: Annotated[Path, Product] = BLD / "plot_0.png",
-    path_to_plot_1: Annotated[Path, Product] = BLD / "plot_1.png",
-) -> None:
-    ...
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple1_py310.py
 ```
 
 You can group your dependencies and product if you prefer not having a function argument
 per input. Use dictionaries (recommended), tuples, lists, or more nested structures if
 you need.
 
-```python
-from pathlib import Path
-from typing import Annotated
-
-from my_project.config import BLD
-from pytask import Product
-
-
-_DEPENDENCIES = {"data_0": BLD / "data_0.pkl", "data_1": BLD / "data_1.pkl"}
-_PRODUCTS = {"plot_0": BLD / "plot_0.png", "plot_1": BLD / "plot_1.png"}
-
-def task_plot_data(
-    path_to_data: dict[str, Path] = _DEPENDENCIES,
-    path_to_plots: Annotated[dict[str, Path], Product] = _PRODUCTS,
-) -> None:
-    ...
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple2_py310.py
 ```
 
 :::
 
-:::{tab-item} Python 3.7+
-:sync: python37plus
+:::{tab-item} Python 3.8+
+:sync: python38plus
 
-```python
-from pathlib import Path
-
-from my_project.config import BLD
-from pytask import Product
-from typing_extensions import Annotated
-
-
-def task_plot_data(
-    path_to_data_0: Path = BLD / "data_0.pkl",
-    path_to_data_1: Path = BLD / "data_1.pkl",
-    path_to_plot_0: Annotated[Path, Product] = BLD / "plot_0.png",
-    path_to_plot_1: Annotated[Path, Product] = BLD / "plot_1.png",
-) -> None:
-    ...
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple1_py38.py
 ```
 
 You can group your dependencies and product if you prefer not having a function argument
 per input. Use dictionaries (recommended), tuples, lists, or more nested structures if
 you need.
 
-```python
-from pathlib import Path
-from typing import Dict
-
-from my_project.config import BLD
-from pytask import Product
-from typing_extensions import Annotated
-
-
-_DEPENDENCIES = {"data_0": BLD / "data_0.pkl", "data_1": BLD / "data_1.pkl"}
-_PRODUCTS = {"plot_0": BLD / "plot_0.png", "plot_1": BLD / "plot_1.png"}
-
-def task_plot_data(
-    path_to_data: Dict[str, Path] = _DEPENDENCIES,
-    path_to_plots: Annotated[Dict[str, Path], Product] = _PRODUCTS,
-) -> None:
-    ...
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple2_py38.py
 ```
 
 :::
 
-:::{tab-item} Decorators (deprecated)
+:::{tab-item} Decorators
 :sync: decorators
+
+```{warning}
+This approach is deprecated and will be removed in v0.5
+```
 
 The easiest way to attach multiple dependencies or products to a task is to pass a
 {class}`dict` (highly recommended), {class}`list`, or another iterator to the marker
@@ -431,4 +322,4 @@ def task_fit_model(depends_on, produces):
 
 [^id3]: The official documentation for {mod}`pathlib`.
 
-[^id4]: A guide for pathlib by [realpython](https://realpython.com/python-pathlib/).
+[^id4]: A guide for pathlib by [RealPython](https://realpython.com/python-pathlib/).

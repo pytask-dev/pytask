@@ -31,6 +31,13 @@ repos:
     hooks:
     -   id: reorder-python-imports
         args: [--py38-plus, --add-import, 'from __future__ import annotations']
+        exclude: ^(docs_src/)
+-   repo: https://github.com/asottile/reorder-python-imports
+    rev: v3.9.0
+    hooks:
+    -   id: reorder-python-imports
+        args: [--py38-plus]
+        files: ^(docs_src/)
 -   repo: https://github.com/asottile/setup-cfg-fmt
     rev: v2.3.0
     hooks:
@@ -53,7 +60,7 @@ repos:
     hooks:
     -   id: interrogate
         args: [-v, --fail-under=75]
-        exclude: ^(tests/|docs/|scripts/)
+        exclude: ^(tests/|docs/|scripts/|docs_src/)
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: 'v1.3.0'
     hooks:
