@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pytest
 from _pytask.cli import cli
-from _pytask.database_utils import create_database
 from _pytask.profile import _to_human_readable_size
 from _pytask.profile import Runtime
-from pony import orm
+from pytask import create_database
+from pytask import DatabaseSession
 from pytask import ExitCode
 from pytask import main
 
@@ -30,17 +30,12 @@ def test_duration_is_stored_in_task(tmp_path):
     duration = task.attributes["duration"]
     assert duration[1] - duration[0] > 2
 
-    with orm.db_session:
-        create_database(
-            "sqlite",
-            tmp_path.joinpath(".pytask.sqlite3").as_posix(),
-            create_db=True,
-            create_tables=False,
-        )
+    create_database("sqlite:///" + tmp_path.joinpath(".pytask.sqlite3").as_posix())
 
+    with DatabaseSession() as session:
         task_name = tmp_path.joinpath("task_example.py").as_posix() + "::task_example"
 
-        runtime = Runtime[task_name]
+        runtime = session.get(Runtime, task_name)
         assert runtime.duration > 2
 
 

@@ -172,16 +172,16 @@ def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> Non
     ],
 )
 def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -> None:
-    tmp_path.joinpath("task_module.py").write_text(
-        textwrap.dedent(
-            """
-            import pytask
-            @pytask.mark.parametrize("arg", [None, 1.3, "2-3"])
-            def task_func(arg):
-                pass
-            """
-        )
-    )
+    source = """
+    import pytask
+
+    for arg in [None, 1.3, "2-3"]:
+
+        @pytask.mark.task
+        def task_func(arg=arg):
+            pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path, "expression": expr})
     assert session.exit_code == ExitCode.OK

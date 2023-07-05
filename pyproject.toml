@@ -29,7 +29,7 @@ ignore-words-list = "falsy, hist, ines, unparseable"
 
 
 [tool.ruff]
-target-version = "py37"
+target-version = "py38"
 select = ["ALL"]
 fix = true
 extend-ignore = [
@@ -62,6 +62,9 @@ extend-ignore = [
     "SLF001",  # access private members.
     "S603",
     "S607",
+    # Temporary
+    "TD002",
+    "TD003",
 ]
 
 

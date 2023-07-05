@@ -107,9 +107,6 @@
 <div><span class="r1">│ </span><span class="r1">pytask.mark.depends_on          </span><span class="r1"> │ Add dependencies to a task. See this tutorial for more          │</span></div>
 <div><span class="r1">│                                  │ information: </span><span class="r3"><a href="https://bit.ly/3JlxylS">https://bit.ly/3JlxylS</a></span><span class="r1">.                            │</span></div>
 <div><span class="r1">│                                  │                                                                 │</span></div>
-<div><span class="r1">│ </span><span class="r1">pytask.mark.parametrize         </span><span class="r1"> │ The marker for pytest&#x27;s way of repeating tasks which is         │</span></div>
-<div><span class="r1">│                                  │ explained in this tutorial: </span><span class="r3"><a href="https://bit.ly/3uqZqkk">https://bit.ly/3uqZqkk</a></span><span class="r1">.             │</span></div>
-<div><span class="r1">│                                  │                                                                 │</span></div>
 <div><span class="r1">│ </span><span class="r1">pytask.mark.persist             </span><span class="r1"> │ </span><span class="r1">Prevent execution of a task if all products exist and even if  </span><span class="r1"> │</span></div>
 <div><span class="r1">│                                  │ </span><span class="r1">something has changed (dependencies, source file, products).   </span><span class="r1"> │</span></div>
 <div><span class="r1">│                                  │ </span><span class="r1">This decorator might be useful for expensive tasks where only  </span><span class="r1"> │</span></div>
