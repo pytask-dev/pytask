@@ -13,12 +13,15 @@ from typing import TYPE_CHECKING
 
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import remove_marks
+from _pytask.nodes import ProductType
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
 from attrs import define
 from attrs import field
 from pybaum.tree_util import tree_map
+from typing_extensions import Annotated
+from typing_extensions import get_origin
 
 
 if TYPE_CHECKING:
@@ -211,8 +214,12 @@ def parse_dependencies_from_task_function(
     kwargs = {**signature_defaults, **task_kwargs}
     kwargs.pop("produces", None)
 
+    parameters_with_product_annot = _find_args_with_product_annotation(obj)
+
     dependencies = {}
     for name, value in kwargs.items():
+        if name in parameters_with_product_annot:
+            continue
         parsed_value = tree_map(
             lambda x: _collect_dependencies(session, path, name, x), value  # noqa: B023
         )
@@ -247,7 +254,39 @@ def parse_products_from_task_function(
                 parameter.default,
             )
             return {"produces": collected_products}
+
+    parameters_with_product_annot = _find_args_with_product_annotation(obj)
+    if parameters_with_product_annot:
+        for parameter_name in parameters_with_product_annot:
+            parameter = parameters[parameter_name]
+            if parameter.default is not parameter.empty:
+                # Use _collect_new_node to not collect strings.
+                collected_products = tree_map(
+                    lambda x: _collect_product(
+                        session, path, name, x, is_string_allowed=False
+                    ),
+                    parameter.default,
+                )
+                return {parameter_name: collected_products}
     return {}
+
+
+def _find_args_with_product_annotation(func: Callable[..., Any]) -> list[str]:
+    """Find args with product annotation."""
+    annotations = inspect.get_annotations(func, eval_str=True)
+    metas = {
+        name: annotation.__metadata__
+        for name, annotation in annotations.items()
+        if get_origin(annotation) is Annotated
+    }
+
+    args_with_product_annot = []
+    for name, meta in metas.items():
+        has_product_annot = any(isinstance(i, ProductType) for i in meta)
+        if has_product_annot:
+            args_with_product_annot.append(name)
+
+    return args_with_product_annot
 
 
 def _collect_old_dependencies(

@@ -20,6 +20,7 @@ dependencies:
   - rich
   - sqlalchemy >=1.4.36
   - tomli >=1.0.0
+  - typing_extensions
 
   # Misc
   - black

@@ -8,6 +8,7 @@ import textwrap
 from pathlib import Path
 
 import pytest
+from _pytask.capture import _CaptureMethod
 from _pytask.exceptions import NodeNotFoundError
 from pytask import cli
 from pytask import ExitCode
@@ -425,17 +426,17 @@ def test_task_is_not_reexecuted_when_modification_changed_file_not(runner, tmp_p
 def test_task_with_product_annotation(tmp_path):
     source = """
     from pathlib import Path
-    from typing import Annotated
+    from typing_extensions import Annotated
     from pytask import Product
 
-    def task_example(path_to_file: Annotated[Path, Product]) -> None:
+    def task_example(path_to_file: Annotated[Path, Product] = Path("out.txt")) -> None:
         path_to_file.touch()
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = main({"paths": tmp_path, "capture": _CaptureMethod.NO})
 
     assert session.exit_code == ExitCode.OK
-    assert len(session.tasks) == 0
+    assert len(session.tasks) == 1
     task = session.tasks[0]
-    assert len(task.produces) == 1
+    assert "path_to_file" in task.produces

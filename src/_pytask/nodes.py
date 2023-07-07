@@ -20,7 +20,12 @@ if TYPE_CHECKING:
 __all__ = ["FilePathNode", "MetaNode", "Product", "Task"]
 
 
-Product = object()
+@define(frozen=True)
+class ProductType:
+    """A class to mark products."""
+
+
+Product = ProductType()
 
 
 class MetaNode(metaclass=ABCMeta):
