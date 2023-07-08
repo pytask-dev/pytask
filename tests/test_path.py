@@ -133,6 +133,7 @@ def simple_module(tmp_path: Path) -> Path:
     return fn
 
 
+@pytest.mark.unit()
 def test_importmode_importlib(simple_module: Path, tmp_path: Path) -> None:
     """`importlib` mode does not change sys.path."""
     module = import_path(simple_module, root=tmp_path)
@@ -144,6 +145,7 @@ def test_importmode_importlib(simple_module: Path, tmp_path: Path) -> None:
     assert "_src.project" in sys.modules
 
 
+@pytest.mark.unit()
 def test_importmode_twice_is_different_module(
     simple_module: Path, tmp_path: Path
 ) -> None:
@@ -153,6 +155,7 @@ def test_importmode_twice_is_different_module(
     assert module1 is not module2
 
 
+@pytest.mark.unit()
 def test_no_meta_path_found(
     simple_module: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -171,6 +174,7 @@ def test_no_meta_path_found(
         import_path(simple_module, root=tmp_path)
 
 
+@pytest.mark.unit()
 def test_importmode_importlib_with_dataclass(tmp_path: Path) -> None:
     """
     Ensure that importlib mode works with a module containing dataclasses (#373,
@@ -197,6 +201,7 @@ def test_importmode_importlib_with_dataclass(tmp_path: Path) -> None:
     assert data.__module__ == "_src.project.task_dataclass"
 
 
+@pytest.mark.unit()
 def test_importmode_importlib_with_pickle(tmp_path: Path) -> None:
     """Ensure that importlib mode works with pickle (#373, pytest#7859)."""
     fn = tmp_path.joinpath("_src/project/task_pickle.py")
@@ -222,6 +227,7 @@ def test_importmode_importlib_with_pickle(tmp_path: Path) -> None:
     assert action() == 42
 
 
+@pytest.mark.unit()
 def test_importmode_importlib_with_pickle_separate_modules(tmp_path: Path) -> None:
     """
     Ensure that importlib mode works can load pickles that look similar but are
@@ -275,6 +281,7 @@ def test_importmode_importlib_with_pickle_separate_modules(tmp_path: Path) -> No
     assert Data2.__module__ == "_src.m2.project.task"
 
 
+@pytest.mark.unit()
 def test_module_name_from_path(tmp_path: Path) -> None:
     result = _module_name_from_path(tmp_path / "src/project/task_foo.py", tmp_path)
     assert result == "src.project.task_foo"
@@ -284,6 +291,7 @@ def test_module_name_from_path(tmp_path: Path) -> None:
     assert result == "home.foo.task_foo"
 
 
+@pytest.mark.unit()
 def test_insert_missing_modules(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

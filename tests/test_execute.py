@@ -386,6 +386,7 @@ def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
     assert "Collected 1 task" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_task_executed_with_force_although_unchanged(tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
     session = main({"paths": tmp_path})

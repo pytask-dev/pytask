@@ -440,6 +440,7 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
 
 
+@pytest.mark.end_to_end()
 def test_task_receives_unknown_kwarg(runner, tmp_path):
     source = """
     import pytask

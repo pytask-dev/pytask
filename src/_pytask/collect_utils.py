@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 
 from _pytask._inspect import get_annotations
 from _pytask.exceptions import NodeNotCollectedError
+from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.nodes import ProductType
 from _pytask.nodes import PythonNode
@@ -231,22 +232,52 @@ def parse_dependencies_from_task_function(
     return dependencies
 
 
+_ERROR_MULTIPLE_PRODUCT_DEFINITIONS = (
+    "The task uses multiple ways to define products. Products should be defined with "
+    "either\n\n- 'typing.Annotated[Path(...), Product]' (recommended)\n"
+    "- '@pytask.mark.task(kwargs={'produces': Path(...)})'\n"
+    "- as a default argument for 'produces': 'produces = Path(...)'\n"
+    "- '@pytask.mark.produces(Path(...))' (deprecated).\n\n"
+    "Read more about products in the documentation: https://tinyurl.com/yrezszr4."
+)
+
+
 def parse_products_from_task_function(
     session: Session, path: Path, name: str, obj: Any
 ) -> dict[str, Any]:
-    """Parse products from task function."""
+    """Parse products from task function.
+
+    Raises
+    ------
+    NodeNotCollectedError
+        If multiple ways were used to specify products.
+
+    """
+    has_produces_decorator = False
+    has_task_decorator = False
+    has_signature_default = False
+    has_annotation = False
+    out = {}
+
+    if has_mark(obj, "produces"):
+        has_produces_decorator = True
+        nodes = parse_nodes(session, path, name, obj, produces)
+        out = {"produces": nodes}
+
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
     if "produces" in task_kwargs:
         collected_products = tree_map(
             lambda x: _collect_product(session, path, name, x, is_string_allowed=True),
             task_kwargs["produces"],
         )
-        return {"produces": collected_products}
+        out = {"produces": collected_products}
 
     parameters = inspect.signature(obj).parameters
-    if "produces" in parameters:
+
+    if not has_mark(obj, "task") and "produces" in parameters:
         parameter = parameters["produces"]
         if parameter.default is not parameter.empty:
+            has_signature_default = True
             # Use _collect_new_node to not collect strings.
             collected_products = tree_map(
                 lambda x: _collect_product(
@@ -254,10 +285,11 @@ def parse_products_from_task_function(
                 ),
                 parameter.default,
             )
-            return {"produces": collected_products}
+            out = {"produces": collected_products}
 
     parameters_with_product_annot = _find_args_with_product_annotation(obj)
     if parameters_with_product_annot:
+        has_annotation = True
         for parameter_name in parameters_with_product_annot:
             parameter = parameters[parameter_name]
             if parameter.default is not parameter.empty:
@@ -268,8 +300,22 @@ def parse_products_from_task_function(
                     ),
                     parameter.default,
                 )
-                return {parameter_name: collected_products}
-    return {}
+                out = {parameter_name: collected_products}
+
+    if (
+        sum(
+            (
+                has_produces_decorator,
+                has_task_decorator,
+                has_signature_default,
+                has_annotation,
+            )
+        )
+        >= 2  # noqa: PLR2004
+    ):
+        raise NodeNotCollectedError(_ERROR_MULTIPLE_PRODUCT_DEFINITIONS)
+
+    return out
 
 
 def _find_args_with_product_annotation(func: Callable[..., Any]) -> list[str]:
@@ -373,9 +419,10 @@ def _collect_product(
     # The parameter defaults only support Path objects.
     if not isinstance(node, Path) and not is_string_allowed:
         raise ValueError(
-            "If you use 'produces' as an argument of a task, it can only accept values "
-            "of type 'pathlib.Path' or the same value nested in "
-            f"tuples, lists, and dictionaries. Here, {node} has type {type(node)}."
+            "If you use 'produces' as a function argument of a task and pass values as "
+            "function defaults, it can only accept values of type 'pathlib.Path' or "
+            "the same value nested in tuples, lists, and dictionaries. Here, "
+            f"{node!r} has type {type(node)}."
         )
 
     if isinstance(node, str):
