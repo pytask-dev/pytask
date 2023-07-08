@@ -19,9 +19,9 @@ from _pytask.nodes import ProductType
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
+from _pytask.tree_util import tree_map
 from attrs import define
 from attrs import field
-from pybaum.tree_util import tree_map
 from typing_extensions import Annotated
 from typing_extensions import get_origin
 
