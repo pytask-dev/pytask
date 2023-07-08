@@ -11,6 +11,7 @@ from typing import Generator
 from typing import Iterable
 from typing import TYPE_CHECKING
 
+from _pytask._inspect import get_annotations
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import remove_marks
 from _pytask.nodes import ProductType
@@ -273,7 +274,7 @@ def parse_products_from_task_function(
 
 def _find_args_with_product_annotation(func: Callable[..., Any]) -> list[str]:
     """Find args with product annotation."""
-    annotations = inspect.get_annotations(func, eval_str=True)
+    annotations = get_annotations(func, eval_str=True)
     metas = {
         name: annotation.__metadata__
         for name, annotation in annotations.items()

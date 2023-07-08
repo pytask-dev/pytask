@@ -440,3 +440,26 @@ def test_task_with_product_annotation(tmp_path):
     assert len(session.tasks) == 1
     task = session.tasks[0]
     assert "path_to_file" in task.produces
+
+
+@pytest.mark.end_to_end()
+@pytest.mark.xfail(reason="Nested annotations are not parsed.", raises=AssertionError)
+def test_task_with_nested_product_annotation(tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product
+
+    def task_example(
+        paths_to_file: dict[str, Annotated[Path, Product]] = {"a": Path("out.txt")}
+    ) -> None:
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path, "capture": _CaptureMethod.NO})
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 1
+    task = session.tasks[0]
+    assert "paths_to_file" in task.produces
