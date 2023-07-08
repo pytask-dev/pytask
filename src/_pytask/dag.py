@@ -31,7 +31,7 @@ from _pytask.session import Session
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
-from pybaum import tree_map
+from _pytask.tree_util import tree_map
 from rich.text import Text
 from rich.tree import Tree
 

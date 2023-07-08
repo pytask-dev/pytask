@@ -33,7 +33,7 @@ from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
-from pybaum.tree_util import tree_map
+from _pytask.tree_util import tree_map
 from rich.text import Text
 
 

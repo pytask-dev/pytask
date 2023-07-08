@@ -26,7 +26,7 @@ from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from pybaum.tree_util import tree_just_flatten
+from _pytask.tree_util import tree_just_flatten
 from rich.text import Text
 from rich.tree import Tree
 

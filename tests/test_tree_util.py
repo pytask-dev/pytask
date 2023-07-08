@@ -1,11 +1,11 @@
-"""This module contains tests for pybaum and flexible dependencies and products."""
+"""This module contains tests for tree_util and flexible dependencies and products."""
 from __future__ import annotations
 
 import textwrap
 
 import pytest
 from _pytask.outcomes import ExitCode
-from pybaum import tree_map
+from _pytask.tree_util import tree_map
 from pytask import cli
 from pytask import main
 
@@ -55,11 +55,11 @@ def test_task_with_complex_product_did_not_produce_node(
 
 
 @pytest.mark.end_to_end()
-def test_profile_with_pybaum(tmp_path, runner):
+def test_profile_with_pytree(tmp_path, runner):
     source = """
     import time
     import pytask
-    from pybaum.tree_util import tree_just_flatten
+    from _pytask.tree_util import tree_just_flatten
 
     @pytask.mark.produces([{"out_1": "out_1.txt"}, {"out_2": "out_2.txt"}])
     def task_example(produces):

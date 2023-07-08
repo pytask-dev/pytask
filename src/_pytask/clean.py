@@ -29,8 +29,8 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import to_list
 from _pytask.traceback import render_exc_info
+from _pytask.tree_util import tree_just_yield
 from attrs import define
-from pybaum.tree_util import tree_just_yield
 
 
 if TYPE_CHECKING:

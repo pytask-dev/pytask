@@ -12,6 +12,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   is not present.
 - {pull}`387` replaces pony with sqlalchemy.
 - {pull}`391` removes `@pytask.mark.parametrize`.
+- {pull}`394` allows to add products with {obj}`typing.Annotation` and
+  {obj}`~pytask.Product`.
+- {pull}`395` refactors all occurrences of pybaum to {mod}`_pytask.tree_util`.
 
 ## 0.3.2 - 2023-06-07
 
