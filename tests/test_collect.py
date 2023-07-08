@@ -249,6 +249,7 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
     assert result == expected
 
 
+@pytest.mark.end_to_end()
 def test_collect_dependencies_from_args_if_depends_on_is_missing(tmp_path):
     source = """
     from pathlib import Path
@@ -307,6 +308,21 @@ def test_collect_module_name(tmp_path):
 
 
 @pytest.mark.end_to_end()
+def test_collect_string_product_with_task_decorator(tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.task
+    def task_write_text(produces="out.txt"):
+        produces.touch()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    session = main({"paths": tmp_path})
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").exists()
+
+
+@pytest.mark.end_to_end()
 def test_collect_string_product_as_function_default_fails(tmp_path):
     source = """
     import pytask
@@ -319,3 +335,27 @@ def test_collect_string_product_as_function_default_fails(tmp_path):
     report = session.collection_reports[0]
     assert report.outcome == CollectionOutcome.FAIL
     assert "If you use 'produces'" in str(report.exc_info[1])
+
+
+@pytest.mark.end_to_end()
+def test_product_cannot_mix_different_product_types(tmp_path):
+    source = """
+    import pytask
+    from typing_extensions import Annotated
+    from pytask import Product
+    from pathlib import Path
+
+    @pytask.mark.produces("out_deco.txt")
+    def task_example(
+        path: Annotated[Path, Product], produces: Path = Path("out_sig.txt")
+    ):
+        ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == ExitCode.COLLECTION_FAILED
+    assert len(session.tasks) == 0
+    report = session.collection_reports[0]
+    assert report.outcome == CollectionOutcome.FAIL
+    assert "The task uses multiple ways" in str(report.exc_info[1])

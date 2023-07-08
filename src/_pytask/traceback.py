@@ -10,6 +10,7 @@ from typing import Union
 
 import _pytask
 import pluggy
+import pybaum
 from rich.traceback import Traceback
 
 
@@ -22,6 +23,7 @@ __all__ = [
 
 
 _PLUGGY_DIRECTORY = Path(pluggy.__file__).parent
+_PYBAUM_DIRECTORY = Path(pybaum.__file__).parent
 _PYTASK_DIRECTORY = Path(_pytask.__file__).parent
 
 
@@ -89,7 +91,10 @@ def _is_internal_or_hidden_traceback_frame(
         return True
 
     path = Path(frame.tb_frame.f_code.co_filename)
-    return any(root in path.parents for root in (_PLUGGY_DIRECTORY, _PYTASK_DIRECTORY))
+    return any(
+        root in path.parents
+        for root in (_PLUGGY_DIRECTORY, _PYBAUM_DIRECTORY, _PYTASK_DIRECTORY)
+    )
 
 
 def _filter_internal_traceback_frames(

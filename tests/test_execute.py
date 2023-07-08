@@ -8,6 +8,7 @@ import textwrap
 from pathlib import Path
 
 import pytest
+from _pytask.capture import _CaptureMethod
 from _pytask.exceptions import NodeNotFoundError
 from pytask import cli
 from pytask import ExitCode
@@ -385,6 +386,7 @@ def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
     assert "Collected 1 task" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_task_executed_with_force_although_unchanged(tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
     session = main({"paths": tmp_path})
@@ -419,3 +421,46 @@ def test_task_is_not_reexecuted_when_modification_changed_file_not(runner, tmp_p
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert "1  Skipped" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_task_with_product_annotation(tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product
+
+    def task_example(path_to_file: Annotated[Path, Product] = Path("out.txt")) -> None:
+        path_to_file.touch()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path, "capture": _CaptureMethod.NO})
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 1
+    task = session.tasks[0]
+    assert "path_to_file" in task.produces
+
+
+@pytest.mark.end_to_end()
+@pytest.mark.xfail(reason="Nested annotations are not parsed.", raises=AssertionError)
+def test_task_with_nested_product_annotation(tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product
+
+    def task_example(
+        paths_to_file: dict[str, Annotated[Path, Product]] = {"a": Path("out.txt")}
+    ) -> None:
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path, "capture": _CaptureMethod.NO})
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 1
+    task = session.tasks[0]
+    assert "paths_to_file" in task.produces

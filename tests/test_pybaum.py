@@ -50,8 +50,7 @@ def test_task_with_complex_product_did_not_produce_node(
         2: {0: tmp_path / "list_out.txt"},
         3: {"a": tmp_path / "dict_out.txt", "b": {"c": tmp_path / "dict_out_2.txt"}},
     }
-    if decorator_name == "depends_on":
-        expected = {"depends_on": expected}
+    expected = {decorator_name: expected}
     assert products == expected
 
 

@@ -17,7 +17,15 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-__all__ = ["FilePathNode", "MetaNode", "Task"]
+__all__ = ["FilePathNode", "MetaNode", "Product", "Task"]
+
+
+@define(frozen=True)
+class ProductType:
+    """A class to mark products."""
+
+
+Product = ProductType()
 
 
 class MetaNode(metaclass=ABCMeta):

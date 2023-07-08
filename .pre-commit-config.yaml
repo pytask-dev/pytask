@@ -21,10 +21,7 @@ repos:
     hooks:
     -   id: python-check-blanket-noqa
     -   id: python-check-mock-methods
-    -   id: python-no-eval
-        exclude: expression.py
     -   id: python-no-log-warn
-    -   id: python-use-type-annotations
     -   id: text-unicode-replacement-char
 -   repo: https://github.com/asottile/reorder-python-imports
     rev: v3.9.0

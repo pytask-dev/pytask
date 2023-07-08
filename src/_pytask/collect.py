@@ -15,7 +15,6 @@ from _pytask.collect_utils import depends_on
 from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_nodes
 from _pytask.collect_utils import parse_products_from_task_function
-from _pytask.collect_utils import produces
 from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
@@ -178,10 +177,7 @@ def pytask_collect_task(
                 session, path, name, obj
             )
 
-        if has_mark(obj, "produces"):
-            products = parse_nodes(session, path, name, obj, produces)
-        else:
-            products = parse_products_from_task_function(session, path, name, obj)
+        products = parse_products_from_task_function(session, path, name, obj)
 
         markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
 

@@ -83,6 +83,7 @@ convention = "numpy"
 
 
 [tool.pytest.ini_options]
+addopts = ["--doctest-modules"]
 testpaths = ["src", "tests"]
 markers = [
     "wip: Tests that are work-in-progress.",
