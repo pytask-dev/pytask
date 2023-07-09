@@ -1,11 +1,12 @@
+"""Contains code for tree utilities."""
 from __future__ import annotations
 
 from pathlib import Path
 
-import pybaum
-from pybaum.tree_util import tree_just_flatten
-from pybaum.tree_util import tree_just_yield
-from pybaum.tree_util import tree_map
+import optree
+from optree import tree_leaves as tree_just_flatten
+from optree import tree_leaves as tree_just_yield
+from optree import tree_map
 
 
 __all__ = [
@@ -15,4 +16,4 @@ __all__ = [
     "TREE_UTIL_LIB_DIRECTORY",
 ]
 
-TREE_UTIL_LIB_DIRECTORY = Path(pybaum.__file__).parent
+TREE_UTIL_LIB_DIRECTORY = Path(optree.__file__).parent
