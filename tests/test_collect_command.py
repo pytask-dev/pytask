@@ -448,7 +448,7 @@ def test_task_name_is_shortened(runner, tmp_path):
 def test_python_node_is_collected(runner, tmp_path):
     source = """
     from pytask import Product
-    from typing import Annotated
+    from typing_extensions import Annotated
     from pathlib import Path
 
     def task_example(
@@ -473,7 +473,7 @@ def test_python_node_is_collected(runner, tmp_path):
 def test_none_is_a_python_node(runner, tmp_path):
     source = """
     from pytask import Product
-    from typing import Annotated
+    from typing_extensions import Annotated
     from pathlib import Path
 
     def task_example(
@@ -498,7 +498,7 @@ def test_none_is_a_python_node(runner, tmp_path):
 def test_python_nodes_are_aggregated_into_one(runner, tmp_path):
     source = """
     from pytask import Product
-    from typing import Annotated
+    from typing_extensions import Annotated
     from pathlib import Path
 
     def task_example(
