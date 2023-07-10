@@ -150,7 +150,7 @@ def _organize_tasks(tasks: list[Task]) -> dict[Path, list[Task]]:
 
     sorted_dict = {}
     for k in sorted(dictionary):
-        sorted_dict[k] = sorted(dictionary[k], key=lambda x: x.path)
+        sorted_dict[k] = sorted(dictionary[k], key=lambda x: x.name)
 
     return sorted_dict
 
@@ -202,36 +202,26 @@ def _print_collected_tasks(
             )
 
             if show_nodes:
-                file_path_nodes = [
-                    i
-                    for i in tree_just_flatten(task.depends_on)
-                    if isinstance(i, FilePathNode)
-                ]
-                sorted_nodes = sorted(file_path_nodes, key=lambda x: x.path)
+                file_path_nodes = list(tree_just_flatten(task.depends_on))
+                sorted_nodes = sorted(file_path_nodes, key=lambda x: x.name)
                 for node in sorted_nodes:
-                    reduced_node_name = relative_to(node.path, common_ancestor)
-                    url_style = create_url_style_for_path(node.path, editor_url_scheme)
-                    task_branch.add(
-                        Text.assemble(
-                            FILE_ICON,
-                            "<Dependency ",
-                            Text(str(reduced_node_name), style=url_style),
-                            ">",
+                    if isinstance(node, FilePathNode):
+                        reduced_node_name = relative_to(node.path, common_ancestor)
+                        url_style = create_url_style_for_path(
+                            node.path, editor_url_scheme
                         )
-                    )
+                        text = Text(str(reduced_node_name), style=url_style)
+                    else:
+                        text = node.name
+
+                    task_branch.add(Text.assemble(FILE_ICON, "<Dependency ", text, ">"))
 
                 for node in sorted(
                     tree_just_flatten(task.produces), key=lambda x: x.path
                 ):
                     reduced_node_name = relative_to(node.path, common_ancestor)
                     url_style = create_url_style_for_path(node.path, editor_url_scheme)
-                    task_branch.add(
-                        Text.assemble(
-                            FILE_ICON,
-                            "<Product ",
-                            Text(str(reduced_node_name), style=url_style),
-                            ">",
-                        )
-                    )
+                    text = Text(str(reduced_node_name), style=url_style)
+                    task_branch.add(Text.assemble(FILE_ICON, "<Product ", text, ">"))
 
     console.print(tree)

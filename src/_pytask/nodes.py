@@ -9,6 +9,7 @@ from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
 
+from _pytask.tree_util import PyTree
 from attrs import define
 from attrs import field
 
@@ -53,9 +54,9 @@ class Task(MetaNode):
     """The name of the task."""
     short_name: str | None = field(default=None, init=False)
     """The shortest uniquely identifiable name for task for display."""
-    depends_on: dict[str, MetaNode] = field(factory=dict)
+    depends_on: PyTree[MetaNode] = field(factory=dict)
     """A list of dependencies of task."""
-    produces: dict[str, MetaNode] = field(factory=dict)
+    produces: PyTree[MetaNode] = field(factory=dict)
     """A list of products of task."""
     markers: list[Mark] = field(factory=list)
     """A list of markers attached to the task function."""

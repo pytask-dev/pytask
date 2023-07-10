@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 import click
 import networkx
 import pluggy
+from _pytask.models import NodeInfo
 
 
 if TYPE_CHECKING:
@@ -194,7 +195,7 @@ def pytask_collect_task_teardown(session: Session, task: Task) -> None:
 
 @hookspec(firstresult=True)
 def pytask_collect_node(
-    session: Session, path: pathlib.Path, node: MetaNode
+    session: Session, path: pathlib.Path, node_info: NodeInfo, node: MetaNode
 ) -> MetaNode | None:
     """Collect a node which is a dependency or a product of a task."""
 

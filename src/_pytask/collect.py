@@ -22,6 +22,7 @@ from _pytask.console import create_summary_panel
 from _pytask.console import format_task_id
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_mark
+from _pytask.models import NodeInfo
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
@@ -211,7 +212,7 @@ _TEMPLATE_ERROR: str = (
 
 @hookimpl(trylast=True)
 def pytask_collect_node(
-    session: Session, path: Path, node: str | Path
+    session: Session, path: Path, node_info: NodeInfo, node: str | Path
 ) -> FilePathNode | PythonNode:
     """Collect a node of a task as a :class:`pytask.nodes.FilePathNode`.
 
@@ -221,16 +222,6 @@ def pytask_collect_node(
 
     ``trylast=True`` might be necessary if other plugins try to parse strings themselves
     like a plugin for downloading files which depends on URLs given as strings.
-
-    Parameters
-    ----------
-    session : _pytask.session.Session
-        The session.
-    path : Union[str, pathlib.Path]
-        The path to file where the task and node are specified.
-    node : Union[str, pathlib.Path]
-        The value of the node which can be a str, a path or anything which cannot be
-        handled by this function.
 
     """
     if isinstance(node, Path):
@@ -251,7 +242,10 @@ def pytask_collect_node(
                 raise ValueError(_TEMPLATE_ERROR.format(node, case_sensitive_path))
 
         return FilePathNode.from_path(node)
-    return PythonNode(value=node)
+
+    suffix = "-" + "-".join(map(str, node_info.path)) if node_info.path else ""
+    node_name = node_info.arg_name + suffix
+    return PythonNode(value=node, name=node_name)
 
 
 def _not_ignored_paths(
@@ -262,18 +256,6 @@ def _not_ignored_paths(
     The paths passed by the user can either point to files or directories. For
     directories, all subsequent files and folders are considered, but one level after
     another, so that files of ignored folders are not checked.
-
-    Parameters
-    ----------
-    paths : Iterable[pathlib.Path]
-        List of paths from which tasks are collected.
-    session : _pytask.session.Session
-        The session.
-
-    Yields
-    ------
-    path : pathlib.Path
-        A path which is not ignored.
 
     """
     for path in paths:
@@ -287,11 +269,7 @@ def _not_ignored_paths(
 
 @hookimpl(trylast=True)
 def pytask_collect_modify_tasks(tasks: list[Task]) -> None:
-    """Given all tasks, assign a short uniquely identifiable name to each task.
-
-    The shorter ids are necessary to display
-
-    """
+    """Given all tasks, assign a short uniquely identifiable name to each task."""
     id_to_short_id = _find_shortest_uniquely_identifiable_name_for_tasks(tasks)
     for task in tasks:
         short_id = id_to_short_id[task.name]

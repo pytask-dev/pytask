@@ -15,11 +15,13 @@ from _pytask._inspect import get_annotations
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
+from _pytask.models import NodeInfo
 from _pytask.nodes import ProductType
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
 from _pytask.tree_util import tree_map
+from _pytask.tree_util import tree_map_with_path
 from attrs import define
 from attrs import field
 from typing_extensions import Annotated
@@ -219,13 +221,16 @@ def parse_dependencies_from_task_function(
     parameters_with_product_annot = _find_args_with_product_annotation(obj)
 
     dependencies = {}
-    for name, value in kwargs.items():
-        if name in parameters_with_product_annot:
+    for parameter_name, value in kwargs.items():
+        if parameter_name in parameters_with_product_annot:
             continue
-        parsed_value = tree_map(
-            lambda x: _collect_dependencies(session, path, name, x), value  # noqa: B023
+        parsed_value = tree_map_with_path(
+            lambda p, x: _collect_dependencies(
+                session, path, name, NodeInfo(parameter_name, p), x  # noqa: B023
+            ),
+            value,
         )
-        dependencies[name] = (
+        dependencies[parameter_name] = (
             PythonNode(value=None) if parsed_value is None else parsed_value
         )
 
@@ -266,8 +271,15 @@ def parse_products_from_task_function(
 
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
     if "produces" in task_kwargs:
-        collected_products = tree_map(
-            lambda x: _collect_product(session, path, name, x, is_string_allowed=True),
+        collected_products = tree_map_with_path(
+            lambda p, x: _collect_product(
+                session,
+                path,
+                name,
+                NodeInfo(arg_name="produces", path=p),
+                x,
+                is_string_allowed=True,
+            ),
             task_kwargs["produces"],
         )
         out = {"produces": collected_products}
@@ -279,9 +291,14 @@ def parse_products_from_task_function(
         if parameter.default is not parameter.empty:
             has_signature_default = True
             # Use _collect_new_node to not collect strings.
-            collected_products = tree_map(
-                lambda x: _collect_product(
-                    session, path, name, x, is_string_allowed=False
+            collected_products = tree_map_with_path(
+                lambda p, x: _collect_product(
+                    session,
+                    path,
+                    name,
+                    NodeInfo(arg_name="produces", path=p),
+                    x,
+                    is_string_allowed=False,
                 ),
                 parameter.default,
             )
@@ -294,9 +311,14 @@ def parse_products_from_task_function(
             parameter = parameters[parameter_name]
             if parameter.default is not parameter.empty:
                 # Use _collect_new_node to not collect strings.
-                collected_products = tree_map(
-                    lambda x: _collect_product(
-                        session, path, name, x, is_string_allowed=False
+                collected_products = tree_map_with_path(
+                    lambda p, x: _collect_product(
+                        session,
+                        path,
+                        name,
+                        NodeInfo(arg_name=parameter_name, path=p),  # noqa: B023
+                        x,
+                        is_string_allowed=False,
                     ),
                     parameter.default,
                 )
@@ -358,7 +380,7 @@ def _collect_old_dependencies(
         node = Path(node)
 
     collected_node = session.hook.pytask_collect_node(
-        session=session, path=path, node=node
+        session=session, path=path, node_info=NodeInfo("produces", ()), node=node
     )
     if collected_node is None:
         raise NodeNotCollectedError(
@@ -370,7 +392,7 @@ def _collect_old_dependencies(
 
 
 def _collect_dependencies(
-    session: Session, path: Path, name: str, node: Any
+    session: Session, path: Path, name: str, node_info: NodeInfo, node: Any
 ) -> dict[str, MetaNode]:
     """Collect nodes for a task.
 
@@ -381,7 +403,7 @@ def _collect_dependencies(
 
     """
     collected_node = session.hook.pytask_collect_node(
-        session=session, path=path, node=node
+        session=session, path=path, node_info=node_info, node=node
     )
     if collected_node is None:
         raise NodeNotCollectedError(
@@ -391,10 +413,11 @@ def _collect_dependencies(
     return collected_node
 
 
-def _collect_product(
+def _collect_product(  # noqa: PLR0913
     session: Session,
     path: Path,
-    name: str,
+    task_name: str,
+    node_info: NodeInfo,
     node: str | Path,
     is_string_allowed: bool = False,
 ) -> dict[str, MetaNode]:
@@ -429,12 +452,12 @@ def _collect_product(
         node = Path(node)
 
     collected_node = session.hook.pytask_collect_node(
-        session=session, path=path, node=node
+        session=session, path=path, node_info=node_info, node=node
     )
     if collected_node is None:
         raise NodeNotCollectedError(
             f"{node!r} cannot be parsed as a dependency or product for task "
-            f"{name!r} in {path!r}."
+            f"{task_name!r} in {path!r}."
         )
 
     return collected_node
