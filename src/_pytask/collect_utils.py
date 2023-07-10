@@ -17,8 +17,10 @@ from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.models import NodeInfo
 from _pytask.nodes import ProductType
+from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
+from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
 from attrs import define
@@ -233,7 +235,16 @@ def parse_dependencies_from_task_function(
             ),
             value,
         )
-        dependencies[parameter_name] = nodes
+
+        # If all nodes are python nodes, we simplify the parameter value and store it in
+        # one node.
+        are_all_nodes_python_nodes_without_hash = all(
+            isinstance(x, PythonNode) and not x.hash for x in tree_leaves(nodes)
+        )
+        if are_all_nodes_python_nodes_without_hash:
+            dependencies[parameter_name] = PythonNode(value=value, name=parameter_name)
+        else:
+            dependencies[parameter_name] = nodes
     return dependencies
 
 
