@@ -17,7 +17,6 @@ from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.models import NodeInfo
 from _pytask.nodes import ProductType
-from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
 from _pytask.tree_util import tree_map
@@ -228,16 +227,13 @@ def parse_dependencies_from_task_function(
     for parameter_name, value in kwargs.items():
         if parameter_name in parameters_with_product_annot:
             continue
-        parsed_value = tree_map_with_path(
+        nodes = tree_map_with_path(
             lambda p, x: _collect_dependencies(
                 session, path, name, NodeInfo(parameter_name, p), x  # noqa: B023
             ),
             value,
         )
-        dependencies[parameter_name] = (
-            PythonNode(value=None) if parsed_value is None else parsed_value
-        )
-
+        dependencies[parameter_name] = nodes
     return dependencies
 
 
