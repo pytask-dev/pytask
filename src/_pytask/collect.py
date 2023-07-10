@@ -11,9 +11,7 @@ from typing import Any
 from typing import Generator
 from typing import Iterable
 
-from _pytask.collect_utils import depends_on
 from _pytask.collect_utils import parse_dependencies_from_task_function
-from _pytask.collect_utils import parse_nodes
 from _pytask.collect_utils import parse_products_from_task_function
 from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
@@ -170,13 +168,7 @@ def pytask_collect_task(
 
     """
     if (name.startswith("task_") or has_mark(obj, "task")) and callable(obj):
-        if has_mark(obj, "depends_on"):
-            nodes = parse_nodes(session, path, name, obj, depends_on)
-            dependencies = {"depends_on": nodes}
-        else:
-            dependencies = parse_dependencies_from_task_function(
-                session, path, name, obj
-            )
+        dependencies = parse_dependencies_from_task_function(session, path, name, obj)
 
         products = parse_products_from_task_function(session, path, name, obj)
 

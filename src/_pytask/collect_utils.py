@@ -213,6 +213,10 @@ def parse_dependencies_from_task_function(
     session: Session, path: Path, name: str, obj: Any
 ) -> dict[str, Any]:
     """Parse dependencies from task function."""
+    if has_mark(obj, "depends_on"):
+        nodes = parse_nodes(session, path, name, obj, depends_on)
+        return {"depends_on": nodes}
+
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
     signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
     kwargs = {**signature_defaults, **task_kwargs}
