@@ -26,7 +26,7 @@ from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from _pytask.tree_util import tree_just_flatten
+from _pytask.tree_util import tree_leaves
 from rich.text import Text
 from rich.tree import Tree
 
@@ -126,10 +126,10 @@ def _find_common_ancestor_of_all_nodes(
         if show_nodes:
             all_paths.extend(
                 x.path
-                for x in tree_just_flatten(task.depends_on)
+                for x in tree_leaves(task.depends_on)
                 if isinstance(x, FilePathNode)
             )
-            all_paths.extend(x.path for x in tree_just_flatten(task.produces))
+            all_paths.extend(x.path for x in tree_leaves(task.produces))
 
     common_ancestor = find_common_ancestor(*all_paths, *paths)
 
@@ -202,7 +202,7 @@ def _print_collected_tasks(
             )
 
             if show_nodes:
-                file_path_nodes = list(tree_just_flatten(task.depends_on))
+                file_path_nodes = list(tree_leaves(task.depends_on))
                 sorted_nodes = sorted(file_path_nodes, key=lambda x: x.name)
                 for node in sorted_nodes:
                     if isinstance(node, FilePathNode):
@@ -216,9 +216,7 @@ def _print_collected_tasks(
 
                     task_branch.add(Text.assemble(FILE_ICON, "<Dependency ", text, ">"))
 
-                for node in sorted(
-                    tree_just_flatten(task.produces), key=lambda x: x.path
-                ):
+                for node in sorted(tree_leaves(task.produces), key=lambda x: x.path):
                     reduced_node_name = relative_to(node.path, common_ancestor)
                     url_style = create_url_style_for_path(node.path, editor_url_scheme)
                     text = Text(str(reduced_node_name), style=url_style)

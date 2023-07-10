@@ -241,14 +241,16 @@ def parse_dependencies_from_task_function(
     return dependencies
 
 
-_ERROR_MULTIPLE_PRODUCT_DEFINITIONS = (
-    "The task uses multiple ways to define products. Products should be defined with "
-    "either\n\n- 'typing.Annotated[Path(...), Product]' (recommended)\n"
-    "- '@pytask.mark.task(kwargs={'produces': Path(...)})'\n"
-    "- as a default argument for 'produces': 'produces = Path(...)'\n"
-    "- '@pytask.mark.produces(Path(...))' (deprecated).\n\n"
-    "Read more about products in the documentation: https://tinyurl.com/yrezszr4."
-)
+_ERROR_MULTIPLE_PRODUCT_DEFINITIONS = """The task uses multiple ways to define \
+products. Products should be defined with either
+
+- 'typing.Annotated[Path(...), Product]' (recommended)
+- '@pytask.mark.task(kwargs={'produces': Path(...)})'
+- as a default argument for 'produces': 'produces = Path(...)'
+- '@pytask.mark.produces(Path(...))' (deprecated)
+
+Read more about products in the documentation: https://tinyurl.com/yrezszr4.
+"""
 
 
 def parse_products_from_task_function(
@@ -388,8 +390,7 @@ def _collect_old_dependencies(
     )
     if collected_node is None:
         raise NodeNotCollectedError(
-            f"{node!r} cannot be parsed as a dependency or product for task "
-            f"{name!r} in {path!r}."
+            f"{node!r} cannot be parsed as a dependency for task {name!r} in {path!r}."
         )
 
     return collected_node
@@ -460,8 +461,7 @@ def _collect_product(  # noqa: PLR0913
     )
     if collected_node is None:
         raise NodeNotCollectedError(
-            f"{node!r} cannot be parsed as a dependency or product for task "
-            f"{task_name!r} in {path!r}."
+            f"{node!r} can't be parsed as a product for task {task_name!r} in {path!r}."
         )
 
     return collected_node
