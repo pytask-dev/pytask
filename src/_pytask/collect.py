@@ -22,6 +22,7 @@ from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_mark
 from _pytask.models import NodeInfo
 from _pytask.nodes import FilePathNode
+from _pytask.nodes import MetaNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
@@ -204,8 +205,8 @@ _TEMPLATE_ERROR: str = (
 
 @hookimpl(trylast=True)
 def pytask_collect_node(
-    session: Session, path: Path, node_info: NodeInfo, node: str | Path
-) -> FilePathNode | PythonNode:
+    session: Session, path: Path, node_info: NodeInfo, node: str | Path | MetaNode
+) -> MetaNode:
     """Collect a node of a task as a :class:`pytask.nodes.FilePathNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
@@ -216,6 +217,15 @@ def pytask_collect_node(
     like a plugin for downloading files which depends on URLs given as strings.
 
     """
+    if isinstance(node, PythonNode):
+        if not node.name:
+            suffix = "-" + "-".join(map(str, node_info.path)) if node_info.path else ""
+            node.name = node_info.arg_name + suffix
+        return node
+
+    if isinstance(node, MetaNode):
+        return node
+
     if isinstance(node, Path):
         if not node.is_absolute():
             node = path.parent.joinpath(node)

@@ -464,3 +464,45 @@ def test_task_with_nested_product_annotation(tmp_path):
     assert len(session.tasks) == 1
     task = session.tasks[0]
     assert "paths_to_file" in task.produces
+
+
+@pytest.mark.end_to_end()
+@pytest.mark.parametrize(
+    "definition",
+    [
+        " = PythonNode(value=kwargs['dep'], hash=True)",
+        ": Annotated[Any, PythonNode(hash=True)] = kwargs['dep']",
+    ],
+)
+def test_task_with_hashed_python_node(runner, tmp_path, definition):
+    source = f"""
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PythonNode
+    from _pytask.path import import_path
+    import inspect
+    from typing import Any
+
+    _OTHER_MODULE = Path(__file__).parent / "module.py"
+    _ROOT = Path("{tmp_path}")
+
+    kwargs = dict(inspect.getmembers(import_path(_OTHER_MODULE, _ROOT)))
+
+    def task_example(
+        dependency{definition},
+        path: Annotated[Path, Product] = Path("out.txt")
+    ) -> None:
+        path.write_text(dependency)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("module.py").write_text("dep = 'hello'")
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").read_text() == "hello"
+
+    tmp_path.joinpath("module.py").write_text("dep = 'world'")
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").read_text() == "world"

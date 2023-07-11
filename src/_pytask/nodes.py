@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import functools
+import hashlib
 from abc import ABCMeta
 from abc import abstractmethod
 from pathlib import Path
@@ -121,15 +122,13 @@ class FilePathNode(MetaNode):
 class PythonNode(MetaNode):
     """The class for a node which is a Python object."""
 
-    value: Any
+    value: Any | None = None
     hash: bool = False  # noqa: A003
     name: str = ""
 
-    def __attrs_post_init__(self) -> None:
-        if not self.name:
-            self.name = str(self.value)
-
     def state(self) -> str | None:
         if self.hash:
+            if isinstance(self.value, str):
+                return str(hashlib.sha256(self.value.encode()).hexdigest())
             return str(hash(self.value))
         return str(0)

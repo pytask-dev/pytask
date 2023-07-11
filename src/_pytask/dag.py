@@ -129,21 +129,21 @@ def _have_task_or_neighbors_changed(
 @hookimpl(trylast=True)
 def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
     """Indicate whether a single dependency or product has changed."""
+    # If node does not exist, we receive None.
+    node_state = node.state()
+    if node_state is None:
+        return True
+
+    with DatabaseSession() as session:
+        db_state = session.get(State, (task_name, node.name))
+
+    # If the node is not in the database.
+    if db_state is None:
+        return True
+
     if isinstance(node, (FilePathNode, Task)):
-        # If node does not exist, we receive None.
-        file_state = node.state()
-        if file_state is None:
-            return True
-
-        with DatabaseSession() as session:
-            db_state = session.get(State, (task_name, node.name))
-
-        # If the node is not in the database.
-        if db_state is None:
-            return True
-
         # If the modification times match, the node has not been changed.
-        if file_state == db_state.modification_time:
+        if node_state == db_state.modification_time:
             return False
 
         # If the modification time changed, quickly return for non-tasks.
@@ -152,9 +152,10 @@ def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
 
         # When modification times changed, we are still comparing the hash of the file
         # to avoid unnecessary and expensive reexecutions of tasks.
-        file_hash = hashlib.sha256(node.path.read_bytes()).hexdigest()
-        return file_hash != db_state.file_hash
-    return node.state()
+        hash_ = hashlib.sha256(node.path.read_bytes()).hexdigest()
+        return hash_ != db_state.hash_
+
+    return node_state != db_state.hash_
 
 
 def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:

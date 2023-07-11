@@ -38,6 +38,7 @@ from _pytask.models import CollectionMetadata
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaNode
 from _pytask.nodes import Product
+from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
@@ -92,6 +93,7 @@ __all__ = [
     "Persisted",
     "Product",
     "PytaskError",
+    "PythonNode",
     "ResolvingDependenciesError",
     "Runtime",
     "Session",

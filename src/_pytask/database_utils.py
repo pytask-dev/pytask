@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 
 from _pytask.dag_utils import node_and_neighbors
+from _pytask.nodes import FilePathNode
 from _pytask.nodes import Task
 from _pytask.session import Session
 from sqlalchemy import Column
@@ -35,7 +36,7 @@ class State(BaseTable):  # type: ignore[valid-type, misc]
     task = Column(String, primary_key=True)
     node = Column(String, primary_key=True)
     modification_time = Column(String)
-    file_hash = Column(String)
+    hash_ = Column(String)
 
 
 def create_database(url: str) -> None:
@@ -49,7 +50,7 @@ def create_database(url: str) -> None:
 
 
 def _create_or_update_state(
-    first_key: str, second_key: str, modification_time: str, file_hash: str
+    first_key: str, second_key: str, modification_time: str, hash_: str
 ) -> None:
     """Create or update a state."""
     with DatabaseSession() as session:
@@ -61,12 +62,12 @@ def _create_or_update_state(
                     task=first_key,
                     node=second_key,
                     modification_time=modification_time,
-                    file_hash=file_hash,
+                    hash_=hash_,
                 )
             )
         else:
             state_in_db.modification_time = modification_time
-            state_in_db.file_hash = file_hash
+            state_in_db.hash_ = hash_
 
         session.commit()
 
@@ -76,11 +77,14 @@ def update_states_in_database(session: Session, task_name: str) -> None:
     for name in node_and_neighbors(session.dag, task_name):
         node = session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
 
-        state = node.state()
-
         if isinstance(node, Task):
+            modification_time = node.state()
             hash_ = hashlib.sha256(node.path.read_bytes()).hexdigest()
-        else:
+        elif isinstance(node, FilePathNode):
+            modification_time = node.state()
             hash_ = ""
+        else:
+            modification_time = ""
+            hash_ = node.state()
 
-        _create_or_update_state(task_name, node.name, state, hash_)
+        _create_or_update_state(task_name, node.name, modification_time, hash_)
