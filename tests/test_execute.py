@@ -476,11 +476,11 @@ def test_task_with_nested_product_annotation(tmp_path):
 )
 def test_task_with_hashed_python_node(runner, tmp_path, definition):
     source = f"""
+    import json
     from pathlib import Path
-    from typing_extensions import Annotated
     from pytask import Product, PythonNode
     from typing import Any
-    import json
+    from typing_extensions import Annotated
 
     data = json.loads(Path(__file__).parent.joinpath("data.json").read_text())
 
