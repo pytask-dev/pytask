@@ -470,8 +470,8 @@ def test_task_with_nested_product_annotation(tmp_path):
 @pytest.mark.parametrize(
     "definition",
     [
-        " = PythonNode(value=kwargs['dep'], hash=True)",
-        ": Annotated[Any, PythonNode(hash=True)] = kwargs['dep']",
+        " = PythonNode(value=data['dependency'], hash=True)",
+        ": Annotated[Any, PythonNode(hash=True)] = data['dependency']",
     ],
 )
 def test_task_with_hashed_python_node(runner, tmp_path, definition):
@@ -479,14 +479,10 @@ def test_task_with_hashed_python_node(runner, tmp_path, definition):
     from pathlib import Path
     from typing_extensions import Annotated
     from pytask import Product, PythonNode
-    from _pytask.path import import_path
-    import inspect
     from typing import Any
+    import json
 
-    _OTHER_MODULE = Path(__file__).parent / "module.py"
-    _ROOT = Path("{tmp_path}")
-
-    kwargs = dict(inspect.getmembers(import_path(_OTHER_MODULE, _ROOT)))
+    data = json.loads(Path(__file__).parent.joinpath("data.json").read_text())
 
     def task_example(
         dependency{definition},
@@ -495,13 +491,13 @@ def test_task_with_hashed_python_node(runner, tmp_path, definition):
         path.write_text(dependency)
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    tmp_path.joinpath("module.py").write_text("dep = 'hello'")
+    tmp_path.joinpath("data.json").write_text('{"dependency": "hello"}')
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").read_text() == "hello"
 
-    tmp_path.joinpath("module.py").write_text("dep = 'world'")
+    tmp_path.joinpath("data.json").write_text('{"dependency": "world"}')
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
