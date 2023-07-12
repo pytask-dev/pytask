@@ -93,12 +93,12 @@ class Task(MetaNode):
 class FilePathNode(MetaNode):
     """The class for a node which is a path."""
 
-    name: str
-    """str: Name of the node which makes it identifiable in the DAG."""
-    value: Path
-    """Any: Value passed to the decorator which can be requested inside the function."""
-    path: Path
-    """pathlib.Path: Path to the FilePathNode."""
+    name: str = ""
+    """Name of the node which makes it identifiable in the DAG."""
+    value: Path | None = None
+    """Value passed to the decorator which can be requested inside the function."""
+    path: Path | None = None
+    """Path to the FilePathNode."""
 
     def state(self) -> str | None:
         if self.path.exists():
@@ -127,6 +127,13 @@ class PythonNode(MetaNode):
     name: str = ""
 
     def state(self) -> str | None:
+        """Calculate state of the node.
+
+        The hash for strings is calculated using hashlib because ``hash("asd")`` returns
+        a different value every invocation since the hash of strings is salted with a
+        random integer and it would confuse users.
+
+        """
         if self.hash:
             if isinstance(self.value, str):
                 return str(hashlib.sha256(self.value.encode()).hexdigest())

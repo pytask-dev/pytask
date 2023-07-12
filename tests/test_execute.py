@@ -525,9 +525,6 @@ def test_error_with_multiple_dep_annotations(runner, tmp_path):
     assert "Parameter 'dependency'" in result.output
 
 
-@pytest.mark.xfail(
-    reason="FilePathNode does not have optional inputs yet.", strict=True
-)
 @pytest.mark.end_to_end()
 def test_error_with_multiple_different_dep_annotations(runner, tmp_path):
     source = """
@@ -537,7 +534,7 @@ def test_error_with_multiple_different_dep_annotations(runner, tmp_path):
     from typing import Any
 
     def task_example(
-        dependency: Annotated[Any, PythonNode(), FileNathNode()] = "hello",
+        dependency: Annotated[Any, PythonNode(), FilePathNode()] = "hello",
         path: Annotated[Path, Product] = Path("out.txt")
     ) -> None:
         path.write_text(dependency)
