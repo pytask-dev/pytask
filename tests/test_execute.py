@@ -506,3 +506,48 @@ def test_task_with_hashed_python_node(runner, tmp_path, definition):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").read_text() == "world"
+
+
+@pytest.mark.end_to_end()
+def test_error_with_multiple_dep_annotations(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PythonNode
+    from typing import Any
+
+    def task_example(
+        dependency: Annotated[Any, PythonNode(), PythonNode()] = "hello",
+        path: Annotated[Path, Product] = Path("out.txt")
+    ) -> None:
+        path.write_text(dependency)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Parameter 'dependency'" in result.output
+
+
+@pytest.mark.xfail(
+    reason="FilePathNode does not have optional inputs yet.", strict=True
+)
+@pytest.mark.end_to_end()
+def test_error_with_multiple_different_dep_annotations(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PythonNode, FilePathNode
+    from typing import Any
+
+    def task_example(
+        dependency: Annotated[Any, PythonNode(), FileNathNode()] = "hello",
+        path: Annotated[Path, Product] = Path("out.txt")
+    ) -> None:
+        path.write_text(dependency)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Parameter 'dependency'" in result.output

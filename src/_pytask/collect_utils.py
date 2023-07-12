@@ -11,11 +11,13 @@ from typing import Generator
 from typing import Iterable
 from typing import TYPE_CHECKING
 
+import attrs
 from _pytask._inspect import get_annotations
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.models import NodeInfo
+from _pytask.nodes import MetaNode
 from _pytask.nodes import ProductType
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
@@ -31,7 +33,6 @@ from typing_extensions import get_origin
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import MetaNode
 
 
 __all__ = [
@@ -224,14 +225,31 @@ def parse_dependencies_from_task_function(
     kwargs.pop("produces", None)
 
     parameters_with_product_annot = _find_args_with_product_annotation(obj)
+    parameters_with_node_annot = _find_args_with_node_annotation(obj)
 
     dependencies = {}
     for parameter_name, value in kwargs.items():
         if parameter_name in parameters_with_product_annot:
             continue
+
+        if parameter_name in parameters_with_node_annot:
+
+            def _evolve(x: Any) -> Any:
+                instance = parameters_with_node_annot[parameter_name]  # noqa: B023
+                return attrs.evolve(instance, value=x)  # type: ignore[misc]
+
+        else:
+
+            def _evolve(x: Any) -> Any:
+                return x
+
         nodes = tree_map_with_path(
             lambda p, x: _collect_dependencies(
-                session, path, name, NodeInfo(parameter_name, p), x  # noqa: B023
+                session,
+                path,
+                name,
+                NodeInfo(parameter_name, p),  # noqa: B023
+                _evolve(x),
             ),
             value,
         )
@@ -246,6 +264,33 @@ def parse_dependencies_from_task_function(
         else:
             dependencies[parameter_name] = nodes
     return dependencies
+
+
+def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, MetaNode]:
+    """Find args with node annotations."""
+    annotations = get_annotations(func, eval_str=True)
+    metas = {
+        name: annotation.__metadata__
+        for name, annotation in annotations.items()
+        if get_origin(annotation) is Annotated
+    }
+
+    args_with_node_annotation = {}
+    for name, meta in metas.items():
+        annot = [
+            i
+            for i in meta
+            if not isinstance(i, ProductType) and isinstance(i, MetaNode)
+        ]
+        if len(annot) >= 2:  # noqa: PLR2004
+            raise ValueError(
+                f"Parameter {name!r} has multiple node annotations although only one "
+                f"is allowed. Annotations: {annot}"
+            )
+        if annot:
+            args_with_node_annotation[name] = annot[0]
+
+    return args_with_node_annotation
 
 
 _ERROR_MULTIPLE_PRODUCT_DEFINITIONS = """The task uses multiple ways to define \
@@ -354,7 +399,7 @@ def parse_products_from_task_function(
 
 
 def _find_args_with_product_annotation(func: Callable[..., Any]) -> list[str]:
-    """Find args with product annotation."""
+    """Find args with product annotations."""
     annotations = get_annotations(func, eval_str=True)
     metas = {
         name: annotation.__metadata__
