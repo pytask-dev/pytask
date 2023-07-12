@@ -100,11 +100,6 @@ class FilePathNode(MetaNode):
     path: Path | None = None
     """Path to the FilePathNode."""
 
-    def state(self) -> str | None:
-        if self.path.exists():
-            return str(self.path.stat().st_mtime)
-        return None
-
     @classmethod
     @functools.lru_cache
     def from_path(cls, path: Path) -> FilePathNode:
@@ -117,6 +112,16 @@ class FilePathNode(MetaNode):
             raise ValueError("FilePathNode must be instantiated from absolute path.")
         return cls(name=path.as_posix(), value=path, path=path)
 
+    def state(self) -> str | None:
+        """Calculate the state of the node.
+
+        The state is given by the modification timestamp.
+
+        """
+        if self.path.exists():
+            return str(self.path.stat().st_mtime)
+        return None
+
 
 @define(kw_only=True)
 class PythonNode(MetaNode):
@@ -128,6 +133,11 @@ class PythonNode(MetaNode):
 
     def state(self) -> str | None:
         """Calculate state of the node.
+
+        If ``hash = False``, the function returns ``"0"``, a constant hash value, so the
+        :class:`PythonNode` is ignored when checking for a changed state of the task.
+
+        If ``hash = True``, :func:`hash` is used for all types except strings.
 
         The hash for strings is calculated using hashlib because ``hash("asd")`` returns
         a different value every invocation since the hash of strings is salted with a
