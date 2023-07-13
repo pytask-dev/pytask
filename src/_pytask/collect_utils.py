@@ -321,13 +321,18 @@ def parse_products_from_task_function(
     has_annotation = False
     out = {}
 
+    # Parse products from decorators.
     if has_mark(obj, "produces"):
         has_produces_decorator = True
         nodes = parse_nodes(session, path, name, obj, produces)
         out = {"produces": nodes}
 
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
-    if "produces" in task_kwargs:
+    signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
+    kwargs = {**signature_defaults, **task_kwargs}
+
+    # Parse products from task decorated with @task and that uses produces.
+    if "produces" in kwargs:
         collected_products = tree_map_with_path(
             lambda p, x: _collect_product(
                 session,
@@ -336,12 +341,13 @@ def parse_products_from_task_function(
                 NodeInfo(arg_name="produces", path=p, value=x),
                 is_string_allowed=True,
             ),
-            task_kwargs["produces"],
+            kwargs["produces"],
         )
         out = {"produces": collected_products}
 
     parameters = inspect.signature(obj).parameters
 
+    # Parse products from default arguments
     if not has_mark(obj, "task") and "produces" in parameters:
         parameter = parameters["produces"]
         if parameter.default is not parameter.empty:
@@ -363,20 +369,18 @@ def parse_products_from_task_function(
     if parameters_with_product_annot:
         has_annotation = True
         for parameter_name in parameters_with_product_annot:
-            parameter = parameters[parameter_name]
-            if parameter.default is not parameter.empty:
-                # Use _collect_new_node to not collect strings.
-                collected_products = tree_map_with_path(
-                    lambda p, x: _collect_product(
-                        session,
-                        path,
-                        name,
-                        NodeInfo(parameter_name, p, x),  # noqa: B023
-                        is_string_allowed=False,
-                    ),
-                    parameter.default,
-                )
-                out = {parameter_name: collected_products}
+            # Use _collect_new_node to not collect strings.
+            collected_products = tree_map_with_path(
+                lambda p, x: _collect_product(
+                    session,
+                    path,
+                    name,
+                    NodeInfo(parameter_name, p, x),  # noqa: B023
+                    is_string_allowed=False,
+                ),
+                kwargs[parameter_name],
+            )
+            out = {parameter_name: collected_products}
 
     if (
         sum(

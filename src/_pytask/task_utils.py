@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 from typing import Callable
 
+import attrs
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
@@ -143,22 +144,36 @@ def _parse_tasks_with_preliminary_names(
 
 def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
     """Parse a single task."""
-    name = task.pytask_meta.name  # type: ignore[attr-defined]
-    if name is None and task.__name__ == "_":
+    meta = task.pytask_meta  # type: ignore[attr-defined]
+
+    if meta.name is None and task.__name__ == "_":
         raise ValueError(
             "A task function either needs 'name' passed by the ``@pytask.mark.task`` "
             "decorator or the function name of the task function must not be '_'."
         )
 
-    parsed_name = task.__name__ if name is None else name
+    parsed_name = task.__name__ if meta.name is None else meta.name
+    parsed_kwargs = _parse_task_kwargs(meta.kwargs)
 
     signature_kwargs = parse_keyword_arguments_from_signature_defaults(task)
-    task.pytask_meta.kwargs = {  # type: ignore[attr-defined]
-        **task.pytask_meta.kwargs,  # type: ignore[attr-defined]
-        **signature_kwargs,
-    }
+    meta.kwargs = {**signature_kwargs, **parsed_kwargs}
 
     return parsed_name, task
+
+
+def _parse_task_kwargs(kwargs: Any) -> dict[str, Any]:
+    """Parse task kwargs."""
+    if isinstance(kwargs, dict):
+        return kwargs
+    # Handle namedtuples.
+    if callable(getattr(kwargs, "_asdict", None)):
+        return kwargs._asdict()
+    if attrs.has(type(kwargs)):
+        return attrs.asdict(kwargs)
+    raise ValueError(
+        "'@pytask.mark.task(kwargs=...) needs to be a dictionary, namedtuple or an "
+        "instance of an attrs class."
+    )
 
 
 def parse_keyword_arguments_from_signature_defaults(

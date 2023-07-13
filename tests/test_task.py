@@ -451,3 +451,63 @@ def test_task_receives_unknown_kwarg(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.FAILED
+
+
+@pytest.mark.end_to_end()
+def test_task_receives_namedtuple(runner, tmp_path):
+    source = """
+    import pytask
+    from typing_extensions import NamedTuple, Annotated
+    from pathlib import Path
+    from pytask import Product, PythonNode
+
+    class Args(NamedTuple):
+        path_in: Path
+        arg: str
+        path_out: Path
+
+
+    args = Args(Path("input.txt"), "world!", Path("output.txt"))
+
+    @pytask.mark.task(kwargs=args)
+    def task_example(
+        path_in: Path,
+        arg: Annotated[str, PythonNode(hash=True)],
+        path_out: Annotated[Path, Product]
+    ) -> None:
+        path_out.write_text(path_in.read_text() + " " + arg)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("input.txt").write_text("hello")
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("output.txt").read_text() == "Hello world!"
+
+
+@pytest.mark.end_to_end()
+def test_task_kwargs_overwrite_default_arguments(runner, tmp_path):
+    source = """
+    import pytask
+    from pytask import Product
+    from pathlib import Path
+    from typing_extensions import Annotated
+
+    @pytask.mark.task(kwargs={
+        "in_path": Path("in.txt"), "addition": "world!", "out_path": Path("out.txt")
+    })
+    def task_example(
+        in_path: Path = Path("not_used_in.txt"),
+        addition: str = "planet!",
+        out_path: Annotated[Path, Product] = Path("not_used_out.txt"),
+    ) -> None:
+        out_path.write_text(in_path.read_text() + addition)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.txt").write_text("Hello ")
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").read_text() == "Hello world!"
+    assert not tmp_path.joinpath("not_used_out.txt").exists()
