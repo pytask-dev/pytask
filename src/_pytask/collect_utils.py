@@ -11,15 +11,20 @@ from typing import Generator
 from typing import Iterable
 from typing import TYPE_CHECKING
 
+import attrs
 from _pytask._inspect import get_annotations
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
+from _pytask.models import NodeInfo
+from _pytask.nodes import MetaNode
 from _pytask.nodes import ProductType
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
+from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
+from _pytask.tree_util import tree_map_with_path
 from attrs import define
 from attrs import field
 from typing_extensions import Annotated
@@ -28,7 +33,6 @@ from typing_extensions import get_origin
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import MetaNode
 
 
 __all__ = [
@@ -211,35 +215,93 @@ def parse_dependencies_from_task_function(
     session: Session, path: Path, name: str, obj: Any
 ) -> dict[str, Any]:
     """Parse dependencies from task function."""
+    if has_mark(obj, "depends_on"):
+        nodes = parse_nodes(session, path, name, obj, depends_on)
+        return {"depends_on": nodes}
+
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
     signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
     kwargs = {**signature_defaults, **task_kwargs}
     kwargs.pop("produces", None)
 
     parameters_with_product_annot = _find_args_with_product_annotation(obj)
+    parameters_with_node_annot = _find_args_with_node_annotation(obj)
 
     dependencies = {}
-    for name, value in kwargs.items():
-        if name in parameters_with_product_annot:
+    for parameter_name, value in kwargs.items():
+        if parameter_name in parameters_with_product_annot:
             continue
-        parsed_value = tree_map(
-            lambda x: _collect_dependencies(session, path, name, x), value  # noqa: B023
-        )
-        dependencies[name] = (
-            PythonNode(value=None) if parsed_value is None else parsed_value
+
+        if parameter_name in parameters_with_node_annot:
+
+            def _evolve(x: Any) -> Any:
+                instance = parameters_with_node_annot[parameter_name]  # noqa: B023
+                return attrs.evolve(instance, value=x)  # type: ignore[misc]
+
+        else:
+
+            def _evolve(x: Any) -> Any:
+                return x
+
+        nodes = tree_map_with_path(
+            lambda p, x: _collect_dependencies(
+                session,
+                path,
+                name,
+                NodeInfo(parameter_name, p, _evolve(x)),  # noqa: B023
+            ),
+            value,
         )
 
+        # If all nodes are python nodes, we simplify the parameter value and store it in
+        # one node.
+        are_all_nodes_python_nodes_without_hash = all(
+            isinstance(x, PythonNode) and not x.hash for x in tree_leaves(nodes)
+        )
+        if are_all_nodes_python_nodes_without_hash:
+            dependencies[parameter_name] = PythonNode(value=value, name=parameter_name)
+        else:
+            dependencies[parameter_name] = nodes
     return dependencies
 
 
-_ERROR_MULTIPLE_PRODUCT_DEFINITIONS = (
-    "The task uses multiple ways to define products. Products should be defined with "
-    "either\n\n- 'typing.Annotated[Path(...), Product]' (recommended)\n"
-    "- '@pytask.mark.task(kwargs={'produces': Path(...)})'\n"
-    "- as a default argument for 'produces': 'produces = Path(...)'\n"
-    "- '@pytask.mark.produces(Path(...))' (deprecated).\n\n"
-    "Read more about products in the documentation: https://tinyurl.com/yrezszr4."
-)
+def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, MetaNode]:
+    """Find args with node annotations."""
+    annotations = get_annotations(func, eval_str=True)
+    metas = {
+        name: annotation.__metadata__
+        for name, annotation in annotations.items()
+        if get_origin(annotation) is Annotated
+    }
+
+    args_with_node_annotation = {}
+    for name, meta in metas.items():
+        annot = [
+            i
+            for i in meta
+            if not isinstance(i, ProductType) and isinstance(i, MetaNode)
+        ]
+        if len(annot) >= 2:  # noqa: PLR2004
+            raise ValueError(
+                f"Parameter {name!r} has multiple node annotations although only one "
+                f"is allowed. Annotations: {annot}"
+            )
+        if annot:
+            args_with_node_annotation[name] = annot[0]
+
+    return args_with_node_annotation
+
+
+_ERROR_MULTIPLE_PRODUCT_DEFINITIONS = """The task uses multiple ways to define \
+products. Products should be defined with either
+
+- 'typing.Annotated[Path(...), Product]' (recommended)
+- '@pytask.mark.task(kwargs={'produces': Path(...)})'
+- as a default argument for 'produces': 'produces = Path(...)'
+- '@pytask.mark.produces(Path(...))' (deprecated)
+
+Read more about products in the documentation: https://tinyurl.com/yrezszr4.
+"""
 
 
 def parse_products_from_task_function(
@@ -266,8 +328,14 @@ def parse_products_from_task_function(
 
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
     if "produces" in task_kwargs:
-        collected_products = tree_map(
-            lambda x: _collect_product(session, path, name, x, is_string_allowed=True),
+        collected_products = tree_map_with_path(
+            lambda p, x: _collect_product(
+                session,
+                path,
+                name,
+                NodeInfo(arg_name="produces", path=p, value=x),
+                is_string_allowed=True,
+            ),
             task_kwargs["produces"],
         )
         out = {"produces": collected_products}
@@ -279,9 +347,13 @@ def parse_products_from_task_function(
         if parameter.default is not parameter.empty:
             has_signature_default = True
             # Use _collect_new_node to not collect strings.
-            collected_products = tree_map(
-                lambda x: _collect_product(
-                    session, path, name, x, is_string_allowed=False
+            collected_products = tree_map_with_path(
+                lambda p, x: _collect_product(
+                    session,
+                    path,
+                    name,
+                    NodeInfo(arg_name="produces", path=p, value=x),
+                    is_string_allowed=False,
                 ),
                 parameter.default,
             )
@@ -294,9 +366,13 @@ def parse_products_from_task_function(
             parameter = parameters[parameter_name]
             if parameter.default is not parameter.empty:
                 # Use _collect_new_node to not collect strings.
-                collected_products = tree_map(
-                    lambda x: _collect_product(
-                        session, path, name, x, is_string_allowed=False
+                collected_products = tree_map_with_path(
+                    lambda p, x: _collect_product(
+                        session,
+                        path,
+                        name,
+                        NodeInfo(parameter_name, p, x),  # noqa: B023
+                        is_string_allowed=False,
                     ),
                     parameter.default,
                 )
@@ -319,7 +395,7 @@ def parse_products_from_task_function(
 
 
 def _find_args_with_product_annotation(func: Callable[..., Any]) -> list[str]:
-    """Find args with product annotation."""
+    """Find args with product annotations."""
     annotations = get_annotations(func, eval_str=True)
     metas = {
         name: annotation.__metadata__
@@ -358,19 +434,18 @@ def _collect_old_dependencies(
         node = Path(node)
 
     collected_node = session.hook.pytask_collect_node(
-        session=session, path=path, node=node
+        session=session, path=path, node_info=NodeInfo("produces", (), node)
     )
     if collected_node is None:
         raise NodeNotCollectedError(
-            f"{node!r} cannot be parsed as a dependency or product for task "
-            f"{name!r} in {path!r}."
+            f"{node!r} cannot be parsed as a dependency for task {name!r} in {path!r}."
         )
 
     return collected_node
 
 
 def _collect_dependencies(
-    session: Session, path: Path, name: str, node: Any
+    session: Session, path: Path, name: str, node_info: NodeInfo
 ) -> dict[str, MetaNode]:
     """Collect nodes for a task.
 
@@ -380,8 +455,10 @@ def _collect_dependencies(
         If the node could not collected.
 
     """
+    node = node_info.value
+
     collected_node = session.hook.pytask_collect_node(
-        session=session, path=path, node=node
+        session=session, path=path, node_info=node_info, node=node
     )
     if collected_node is None:
         raise NodeNotCollectedError(
@@ -394,8 +471,8 @@ def _collect_dependencies(
 def _collect_product(
     session: Session,
     path: Path,
-    name: str,
-    node: str | Path,
+    task_name: str,
+    node_info: NodeInfo,
     is_string_allowed: bool = False,
 ) -> dict[str, MetaNode]:
     """Collect products for a task.
@@ -409,6 +486,7 @@ def _collect_product(
         If the node could not collected.
 
     """
+    node = node_info.value
     # For historical reasons, task.kwargs is like the deco and supports str and Path.
     if not isinstance(node, (str, Path)) and is_string_allowed:
         raise ValueError(
@@ -429,12 +507,11 @@ def _collect_product(
         node = Path(node)
 
     collected_node = session.hook.pytask_collect_node(
-        session=session, path=path, node=node
+        session=session, path=path, node_info=node_info, node=node
     )
     if collected_node is None:
         raise NodeNotCollectedError(
-            f"{node!r} cannot be parsed as a dependency or product for task "
-            f"{name!r} in {path!r}."
+            f"{node!r} can't be parsed as a product for task {task_name!r} in {path!r}."
         )
 
     return collected_node

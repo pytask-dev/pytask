@@ -35,9 +35,11 @@ from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.mark_utils import set_marks
 from _pytask.models import CollectionMetadata
+from _pytask.models import NodeInfo
 from _pytask.nodes import FilePathNode
 from _pytask.nodes import MetaNode
 from _pytask.nodes import Product
+from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
@@ -87,11 +89,13 @@ __all__ = [
     "MarkDecorator",
     "MarkGenerator",
     "MetaNode",
+    "NodeInfo",
     "NodeNotCollectedError",
     "NodeNotFoundError",
     "Persisted",
     "Product",
     "PytaskError",
+    "PythonNode",
     "ResolvingDependenciesError",
     "Runtime",
     "Session",

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import functools
+import hashlib
 from abc import ABCMeta
 from abc import abstractmethod
 from pathlib import Path
@@ -9,6 +10,7 @@ from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
 
+from _pytask.tree_util import PyTree
 from attrs import define
 from attrs import field
 
@@ -53,9 +55,9 @@ class Task(MetaNode):
     """The name of the task."""
     short_name: str | None = field(default=None, init=False)
     """The shortest uniquely identifiable name for task for display."""
-    depends_on: dict[str, MetaNode] = field(factory=dict)
+    depends_on: PyTree[MetaNode] = field(factory=dict)
     """A list of dependencies of task."""
-    produces: dict[str, MetaNode] = field(factory=dict)
+    produces: PyTree[MetaNode] = field(factory=dict)
     """A list of products of task."""
     markers: list[Mark] = field(factory=list)
     """A list of markers attached to the task function."""
@@ -72,8 +74,10 @@ class Task(MetaNode):
         if self.short_name is None:
             self.short_name = self.name
 
-    def state(self) -> str | None:
-        if self.path.exists():
+    def state(self, hash: bool = False) -> str | None:  # noqa: A002
+        if hash and self.path.exists():
+            return hashlib.sha256(self.path.read_bytes()).hexdigest()
+        if not hash and self.path.exists():
             return str(self.path.stat().st_mtime)
         return None
 
@@ -91,17 +95,12 @@ class Task(MetaNode):
 class FilePathNode(MetaNode):
     """The class for a node which is a path."""
 
-    name: str
-    """str: Name of the node which makes it identifiable in the DAG."""
-    value: Path
-    """Any: Value passed to the decorator which can be requested inside the function."""
-    path: Path
-    """pathlib.Path: Path to the FilePathNode."""
-
-    def state(self) -> str | None:
-        if self.path.exists():
-            return str(self.path.stat().st_mtime)
-        return None
+    name: str = ""
+    """Name of the node which makes it identifiable in the DAG."""
+    value: Path | None = None
+    """Value passed to the decorator which can be requested inside the function."""
+    path: Path | None = None
+    """Path to the FilePathNode."""
 
     @classmethod
     @functools.lru_cache
@@ -115,20 +114,43 @@ class FilePathNode(MetaNode):
             raise ValueError("FilePathNode must be instantiated from absolute path.")
         return cls(name=path.as_posix(), value=path, path=path)
 
+    def state(self) -> str | None:
+        """Calculate the state of the node.
+
+        The state is given by the modification timestamp.
+
+        """
+        if self.path.exists():
+            return str(self.path.stat().st_mtime)
+        return None
+
 
 @define(kw_only=True)
 class PythonNode(MetaNode):
     """The class for a node which is a Python object."""
 
-    value: Any
-    hash: bool = False  # noqa: A003
     name: str = ""
-
-    def __attrs_post_init__(self) -> None:
-        if not self.name:
-            self.name = str(self.value)
+    """Name of the node."""
+    value: Any | None = None
+    """Value of the node."""
+    hash: bool = False  # noqa: A003
+    """Whether the value should be hashed to determine the state."""
 
     def state(self) -> str | None:
+        """Calculate state of the node.
+
+        If ``hash = False``, the function returns ``"0"``, a constant hash value, so the
+        :class:`PythonNode` is ignored when checking for a changed state of the task.
+
+        If ``hash = True``, :func:`hash` is used for all types except strings.
+
+        The hash for strings is calculated using hashlib because ``hash("asd")`` returns
+        a different value every invocation since the hash of strings is salted with a
+        random integer and it would confuse users.
+
+        """
         if self.hash:
+            if isinstance(self.value, str):
+                return str(hashlib.sha256(self.value.encode()).hexdigest())
             return str(hash(self.value))
         return str(0)

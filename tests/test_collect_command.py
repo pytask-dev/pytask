@@ -51,7 +51,6 @@ def test_collect_task(runner, tmp_path):
     assert "out.txt>" in captured
 
 
-@pytest.mark.xfail(reason="Only FilePathNodes are supported.")
 @pytest.mark.end_to_end()
 def test_collect_task_new_interface(runner, tmp_path):
     source = """
@@ -443,3 +442,79 @@ def test_task_name_is_shortened(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
     assert "task_example.py::task_example" in result.output
     assert "a/b/task_example.py::task_example" not in result.output
+
+
+@pytest.mark.end_to_end()
+def test_python_node_is_collected(runner, tmp_path):
+    source = """
+    from pytask import Product
+    from typing_extensions import Annotated
+    from pathlib import Path
+
+    def task_example(
+        dependency: int = 1, path: Annotated[Path, Product] = Path("out.txt")
+    ):
+        ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
+
+    assert result.exit_code == ExitCode.OK
+    captured = result.output.replace("\n", "").replace(" ", "")
+    assert "<Module" in captured
+    assert "task_module.py>" in captured
+    assert "<Function" in captured
+    assert "task_example>" in captured
+    assert "<Dependency dependency>" in result.output
+    assert "Product" in captured
+
+
+@pytest.mark.end_to_end()
+def test_none_is_a_python_node(runner, tmp_path):
+    source = """
+    from pytask import Product
+    from typing_extensions import Annotated
+    from pathlib import Path
+
+    def task_example(
+        dependency = None, path: Annotated[Path, Product] = Path("out.txt")
+    ):
+        ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
+
+    assert result.exit_code == ExitCode.OK
+    captured = result.output.replace("\n", "").replace(" ", "")
+    assert "<Module" in captured
+    assert "task_module.py>" in captured
+    assert "<Function" in captured
+    assert "task_example>" in captured
+    assert "<Dependency dependency>" in result.output
+    assert "Product" in captured
+
+
+@pytest.mark.end_to_end()
+def test_python_nodes_are_aggregated_into_one(runner, tmp_path):
+    source = """
+    from pytask import Product
+    from typing_extensions import Annotated
+    from pathlib import Path
+
+    def task_example(
+        nested = {"a": (1, 2), 2: {"b": None}},
+        path: Annotated[Path, Product] = Path("out.txt")
+    ):
+        ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
+
+    assert result.exit_code == ExitCode.OK
+    captured = result.output.replace("\n", "").replace(" ", "")
+    assert "<Module" in captured
+    assert "task_module.py>" in captured
+    assert "<Function" in captured
+    assert "task_example>" in captured
+    assert "<Dependency nested>" in result.output
+    assert "Product" in captured

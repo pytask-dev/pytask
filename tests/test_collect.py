@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
+from _pytask.models import NodeInfo
 from pytask import cli
 from pytask import CollectionOutcome
 from pytask import ExitCode
@@ -147,26 +148,26 @@ def test_collect_files_w_custom_file_name_pattern(
 
 @pytest.mark.unit()
 @pytest.mark.parametrize(
-    ("session", "path", "node", "expected"),
+    ("session", "path", "node_info", "expected"),
     [
         pytest.param(
             Session({"check_casing_of_paths": False}, None),
             Path(),
-            Path.cwd() / "text.txt",
+            NodeInfo("", (), Path.cwd() / "text.txt"),
             Path.cwd() / "text.txt",
             id="test with absolute string path",
         ),
         pytest.param(
             Session({"check_casing_of_paths": False}, None),
             Path(),
-            1,
+            NodeInfo("", (), 1),
             "1",
             id="test with python node",
         ),
     ],
 )
-def test_pytask_collect_node(session, path, node, expected):
-    result = pytask_collect_node(session, path, node)
+def test_pytask_collect_node(session, path, node_info, expected):
+    result = pytask_collect_node(session, path, node_info)
     if result is None:
         assert result is expected
     else:
@@ -185,7 +186,7 @@ def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_pat
     collected_node = tmp_path / "TeXt.TxT"
 
     with pytest.raises(Exception, match="The provided path of"):
-        pytask_collect_node(session, task_path, collected_node)
+        pytask_collect_node(session, task_path, NodeInfo("", (), collected_node))
 
 
 @pytest.mark.unit()
@@ -202,7 +203,9 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
         collected_node = tmp_path / collected_node
 
     with warnings.catch_warnings(record=True) as record:
-        result = pytask_collect_node(session, task_path, collected_node)
+        result = pytask_collect_node(
+            session, task_path, NodeInfo("", (), collected_node)
+        )
         assert not record
 
     assert str(result.path) == str(real_node)

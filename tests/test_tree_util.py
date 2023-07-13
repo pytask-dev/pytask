@@ -59,12 +59,12 @@ def test_profile_with_pytree(tmp_path, runner):
     source = """
     import time
     import pytask
-    from _pytask.tree_util import tree_just_flatten
+    from _pytask.tree_util import tree_leaves
 
     @pytask.mark.produces([{"out_1": "out_1.txt"}, {"out_2": "out_2.txt"}])
     def task_example(produces):
         time.sleep(2)
-        for p in tree_just_flatten(produces):
+        for p in tree_leaves(produces):
             p.write_text("There are nine billion bicycles in Beijing.")
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
