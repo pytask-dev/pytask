@@ -204,9 +204,7 @@ _TEMPLATE_ERROR: str = (
 
 
 @hookimpl(trylast=True)
-def pytask_collect_node(
-    session: Session, path: Path, node_info: NodeInfo, node: str | Path | MetaNode
-) -> MetaNode:
+def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> MetaNode:
     """Collect a node of a task as a :class:`pytask.nodes.FilePathNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
@@ -217,6 +215,8 @@ def pytask_collect_node(
     like a plugin for downloading files which depends on URLs given as strings.
 
     """
+    node = node_info.value
+
     if isinstance(node, PythonNode):
         if not node.name:
             suffix = "-" + "-".join(map(str, node_info.path)) if node_info.path else ""

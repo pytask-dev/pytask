@@ -29,3 +29,4 @@ class CollectionMetadata:
 class NodeInfo(NamedTuple):
     arg_name: str
     path: tuple[str | int, ...]
+    value: Any

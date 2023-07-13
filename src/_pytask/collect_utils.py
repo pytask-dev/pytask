@@ -248,8 +248,7 @@ def parse_dependencies_from_task_function(
                 session,
                 path,
                 name,
-                NodeInfo(parameter_name, p),  # noqa: B023
-                _evolve(x),
+                NodeInfo(parameter_name, p, _evolve(x)),  # noqa: B023
             ),
             value,
         )
@@ -334,8 +333,7 @@ def parse_products_from_task_function(
                 session,
                 path,
                 name,
-                NodeInfo(arg_name="produces", path=p),
-                x,
+                NodeInfo(arg_name="produces", path=p, value=x),
                 is_string_allowed=True,
             ),
             task_kwargs["produces"],
@@ -354,8 +352,7 @@ def parse_products_from_task_function(
                     session,
                     path,
                     name,
-                    NodeInfo(arg_name="produces", path=p),
-                    x,
+                    NodeInfo(arg_name="produces", path=p, value=x),
                     is_string_allowed=False,
                 ),
                 parameter.default,
@@ -374,8 +371,7 @@ def parse_products_from_task_function(
                         session,
                         path,
                         name,
-                        NodeInfo(arg_name=parameter_name, path=p),  # noqa: B023
-                        x,
+                        NodeInfo(parameter_name, p, x),  # noqa: B023
                         is_string_allowed=False,
                     ),
                     parameter.default,
@@ -438,7 +434,7 @@ def _collect_old_dependencies(
         node = Path(node)
 
     collected_node = session.hook.pytask_collect_node(
-        session=session, path=path, node_info=NodeInfo("produces", ()), node=node
+        session=session, path=path, node_info=NodeInfo("produces", (), node)
     )
     if collected_node is None:
         raise NodeNotCollectedError(
@@ -449,7 +445,7 @@ def _collect_old_dependencies(
 
 
 def _collect_dependencies(
-    session: Session, path: Path, name: str, node_info: NodeInfo, node: Any
+    session: Session, path: Path, name: str, node_info: NodeInfo
 ) -> dict[str, MetaNode]:
     """Collect nodes for a task.
 
@@ -459,6 +455,8 @@ def _collect_dependencies(
         If the node could not collected.
 
     """
+    node = node_info.value
+
     collected_node = session.hook.pytask_collect_node(
         session=session, path=path, node_info=node_info, node=node
     )
@@ -470,12 +468,11 @@ def _collect_dependencies(
     return collected_node
 
 
-def _collect_product(  # noqa: PLR0913
+def _collect_product(
     session: Session,
     path: Path,
     task_name: str,
     node_info: NodeInfo,
-    node: str | Path,
     is_string_allowed: bool = False,
 ) -> dict[str, MetaNode]:
     """Collect products for a task.
@@ -489,6 +486,7 @@ def _collect_product(  # noqa: PLR0913
         If the node could not collected.
 
     """
+    node = node_info.value
     # For historical reasons, task.kwargs is like the deco and supports str and Path.
     if not isinstance(node, (str, Path)) and is_string_allowed:
         raise ValueError(

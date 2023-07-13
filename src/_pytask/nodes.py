@@ -127,9 +127,12 @@ class FilePathNode(MetaNode):
 class PythonNode(MetaNode):
     """The class for a node which is a Python object."""
 
-    value: Any | None = None
-    hash: bool = False  # noqa: A003
     name: str = ""
+    """Name of the node."""
+    value: Any | None = None
+    """Value of the node."""
+    hash: bool = False  # noqa: A003
+    """Whether the value should be hashed to determine the state."""
 
     def state(self) -> str | None:
         """Calculate state of the node.

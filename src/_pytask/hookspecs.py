@@ -195,7 +195,7 @@ def pytask_collect_task_teardown(session: Session, task: Task) -> None:
 
 @hookspec(firstresult=True)
 def pytask_collect_node(
-    session: Session, path: pathlib.Path, node_info: NodeInfo, node: MetaNode
+    session: Session, path: pathlib.Path, node_info: NodeInfo
 ) -> MetaNode | None:
     """Collect a node which is a dependency or a product of a task."""
 

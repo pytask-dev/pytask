@@ -148,28 +148,26 @@ def test_collect_files_w_custom_file_name_pattern(
 
 @pytest.mark.unit()
 @pytest.mark.parametrize(
-    ("session", "path", "node_info", "node", "expected"),
+    ("session", "path", "node_info", "expected"),
     [
         pytest.param(
             Session({"check_casing_of_paths": False}, None),
             Path(),
-            NodeInfo("", ()),
-            Path.cwd() / "text.txt",
+            NodeInfo("", (), Path.cwd() / "text.txt"),
             Path.cwd() / "text.txt",
             id="test with absolute string path",
         ),
         pytest.param(
             Session({"check_casing_of_paths": False}, None),
             Path(),
-            NodeInfo("", ()),
-            1,
+            NodeInfo("", (), 1),
             "1",
             id="test with python node",
         ),
     ],
 )
-def test_pytask_collect_node(session, path, node_info, node, expected):
-    result = pytask_collect_node(session, path, node_info, node)
+def test_pytask_collect_node(session, path, node_info, expected):
+    result = pytask_collect_node(session, path, node_info)
     if result is None:
         assert result is expected
     else:
@@ -188,7 +186,7 @@ def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_pat
     collected_node = tmp_path / "TeXt.TxT"
 
     with pytest.raises(Exception, match="The provided path of"):
-        pytask_collect_node(session, task_path, NodeInfo("", ()), collected_node)
+        pytask_collect_node(session, task_path, NodeInfo("", (), collected_node))
 
 
 @pytest.mark.unit()
@@ -206,7 +204,7 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
 
     with warnings.catch_warnings(record=True) as record:
         result = pytask_collect_node(
-            session, task_path, NodeInfo("", ()), collected_node
+            session, task_path, NodeInfo("", (), collected_node)
         )
         assert not record
 
