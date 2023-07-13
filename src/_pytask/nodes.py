@@ -74,8 +74,10 @@ class Task(MetaNode):
         if self.short_name is None:
             self.short_name = self.name
 
-    def state(self) -> str | None:
-        if self.path.exists():
+    def state(self, hash: bool = False) -> str | None:  # noqa: A002
+        if hash and self.path.exists():
+            return hashlib.sha256(self.path.read_bytes()).hexdigest()
+        if not hash and self.path.exists():
             return str(self.path.stat().st_mtime)
         return None
 

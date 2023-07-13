@@ -1,7 +1,6 @@
 """This module contains code related to resolving dependencies."""
 from __future__ import annotations
 
-import hashlib
 import itertools
 import sys
 
@@ -152,7 +151,7 @@ def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
 
         # When modification times changed, we are still comparing the hash of the file
         # to avoid unnecessary and expensive reexecutions of tasks.
-        hash_ = hashlib.sha256(node.path.read_bytes()).hexdigest()
+        hash_ = node.state(hash=True)
         return hash_ != db_state.hash_
 
     return node_state != db_state.hash_
