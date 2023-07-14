@@ -478,7 +478,7 @@ def test_task_receives_namedtuple(runner, tmp_path):
         path_out.write_text(path_in.read_text() + " " + arg)
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    tmp_path.joinpath("input.txt").write_text("hello")
+    tmp_path.joinpath("input.txt").write_text("Hello")
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK

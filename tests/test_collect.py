@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
+from _pytask.exceptions import NodeNotCollectedError
 from _pytask.models import NodeInfo
 from pytask import cli
 from pytask import CollectionOutcome
@@ -53,7 +54,7 @@ def test_collect_depends_on_that_is_not_str_or_path(tmp_path):
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
     exc_info = session.collection_reports[0].exc_info
-    assert isinstance(exc_info[1], ValueError)
+    assert isinstance(exc_info[1], NodeNotCollectedError)
     assert "'@pytask.mark.depends_on'" in str(exc_info[1])
 
 
@@ -74,7 +75,7 @@ def test_collect_produces_that_is_not_str_or_path(tmp_path):
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
     exc_info = session.collection_reports[0].exc_info
-    assert isinstance(exc_info[1], ValueError)
+    assert isinstance(exc_info[1], NodeNotCollectedError)
     assert "'@pytask.mark.depends_on'" in str(exc_info[1])
 
 
@@ -326,7 +327,7 @@ def test_collect_string_product_with_task_decorator(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_collect_string_product_as_function_default_fails(tmp_path):
+def test_collect_string_product_as_function_default(tmp_path):
     source = """
     import pytask
 
@@ -335,9 +336,8 @@ def test_collect_string_product_as_function_default_fails(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     session = main({"paths": tmp_path})
-    report = session.collection_reports[0]
-    assert report.outcome == CollectionOutcome.FAIL
-    assert "If you use 'produces'" in str(report.exc_info[1])
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").exists()
 
 
 @pytest.mark.end_to_end()
