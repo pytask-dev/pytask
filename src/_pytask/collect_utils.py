@@ -216,9 +216,13 @@ def _merge_dictionaries(list_of_dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
     return out
 
 
-_ERROR_MULTIPLE_DEPENDENCY_DEFINITIONS = """"Dependencies are defined via \
-'@pytask.mark.depends_on' and as default arguments for the argument 'depends_on'. Use \
-only one way and not both.
+_ERROR_MULTIPLE_DEPENDENCY_DEFINITIONS = """The task uses multiple ways to define \
+dependencies. Dependencies should be defined with either
+
+- '@pytask.mark.depends_on'
+- as default arguments for the argument 'depends_on'
+
+Use only one of the two ways.
 
 Hint: You do not need to use 'depends_on' since pytask v0.4. Every function argument \
 that is not a product is treated as a dependency. Read more about dependencies in the \
@@ -232,17 +236,18 @@ def parse_dependencies_from_task_function(  # noqa: C901
     """Parse dependencies from task function."""
     has_depends_on_decorator = False
     has_depends_on_argument = False
+    dependencies = {}
 
     if has_mark(obj, "depends_on"):
+        has_depends_on_decorator = True
         nodes = parse_nodes(session, path, name, obj, depends_on)
-        return {"depends_on": nodes}
+        dependencies["depends_on"] = nodes
 
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
     signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
     kwargs = {**signature_defaults, **task_kwargs}
     kwargs.pop("produces", None)
 
-    dependencies = {}
     # Parse products from task decorated with @task and that uses produces.
     if "depends_on" in kwargs:
         has_depends_on_argument = True
@@ -254,7 +259,7 @@ def parse_dependencies_from_task_function(  # noqa: C901
         )
 
     if has_depends_on_decorator and has_depends_on_argument:
-        raise NodeNotCollectedError(_ERROR_MULTIPLE_PRODUCT_DEFINITIONS)
+        raise NodeNotCollectedError(_ERROR_MULTIPLE_DEPENDENCY_DEFINITIONS)
 
     parameters_with_product_annot = _find_args_with_product_annotation(obj)
     parameters_with_node_annot = _find_args_with_node_annotation(obj)

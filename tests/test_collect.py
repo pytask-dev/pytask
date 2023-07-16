@@ -362,3 +362,30 @@ def test_product_cannot_mix_different_product_types(tmp_path):
     report = session.collection_reports[0]
     assert report.outcome == CollectionOutcome.FAIL
     assert "The task uses multiple ways" in str(report.exc_info[1])
+
+
+@pytest.mark.end_to_end()
+def test_depends_on_cannot_mix_different_definitions(tmp_path):
+    source = """
+    import pytask
+    from typing_extensions import Annotated
+    from pytask import Product
+    from pathlib import Path
+
+    @pytask.mark.depends_on("input_1.txt")
+    def task_example(
+        depends_on: Path = "input_2.txt",
+        path: Annotated[Path, Product] = Path("out.txt")
+    ):
+        ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("input_1.txt").touch()
+    tmp_path.joinpath("input_2.txt").touch()
+    session = main({"paths": tmp_path})
+
+    assert session.exit_code == ExitCode.COLLECTION_FAILED
+    assert len(session.tasks) == 0
+    report = session.collection_reports[0]
+    assert report.outcome == CollectionOutcome.FAIL
+    assert "The task uses multiple" in str(report.exc_info[1])
