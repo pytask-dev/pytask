@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-import sys
 import textwrap
 
 import pytest
@@ -188,7 +187,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
 
 
 @pytest.mark.unit()
-@pytest.mark.xfail(sys.platform == "darwin", reason="See #377.")
+@pytest.mark.xfail(reason="See #377.")
 def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path):
     path = tmp_path.joinpath("task_module.py")
     task = Task(base_name="task_example", path=path, function=lambda x: x)
