@@ -46,7 +46,7 @@ class ExampleAttrs:
     [
         ({"hello": 1}, does_not_raise(), {"hello": 1}),
         (ExampleNT(), does_not_raise(), {"a": 1}),
-        (ExampleNT, pytest.raises(TypeError, match="_asdict() missing 1"), None),
+        (ExampleNT, pytest.raises(TypeError, match=r"(_asdict\(\) missing 1)"), None),
         (ExampleAttrs(), does_not_raise(), {"b": "wonderful"}),
         (ExampleAttrs, pytest.raises(ValueError, match="@pytask.mark.task"), None),
         (1, pytest.raises(ValueError, match="@pytask.mark.task"), None),
