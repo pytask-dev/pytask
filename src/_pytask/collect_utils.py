@@ -21,6 +21,7 @@ from _pytask.nodes import ProductType
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
+from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
@@ -42,9 +43,7 @@ __all__ = [
 ]
 
 
-def depends_on(
-    objects: Any | Iterable[Any] | dict[Any, Any]
-) -> Any | Iterable[Any] | dict[Any, Any]:
+def depends_on(objects: PyTree[Any]) -> PyTree[Any]:
     """Specify dependencies for a task.
 
     Parameters
@@ -58,9 +57,7 @@ def depends_on(
     return objects
 
 
-def produces(
-    objects: Any | Iterable[Any] | dict[Any, Any]
-) -> Any | Iterable[Any] | dict[Any, Any]:
+def produces(objects: PyTree[Any]) -> PyTree[Any]:
     """Specify products of a task.
 
     Parameters
