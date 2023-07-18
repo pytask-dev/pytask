@@ -15,14 +15,14 @@ def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str]: ...
 
 class MARK_GEN:  # noqa: N801
     @deprecated(
-        "'@pytask.mark.produces' is deprecated starting pytask v0.4.0. To upgrade your project to the new syntax, read the tutorial on product and dependencies: https://tinyurl.com/yrezszr4.",  # noqa: E501
+        "'@pytask.mark.produces' is deprecated starting pytask v0.4.0 and will be removed in v0.5.0. To upgrade your project to the new syntax, read the tutorial on product and dependencies: https://tinyurl.com/yrezszr4.",  # noqa: E501
         category=DeprecationWarning,
         stacklevel=1,
     )
     @staticmethod
     def produces(objects: PyTree[str | Path]) -> None: ...
     @deprecated(
-        "'@pytask.mark.depends_on' is deprecated starting pytask v0.4.0. To upgrade your project to the new syntax, read the tutorial on product and dependencies: https://tinyurl.com/yrezszr4.",  # noqa: E501
+        "'@pytask.mark.depends_on' is deprecated starting pytask v0.4.0 and will be removed in v0.5.0. To upgrade your project to the new syntax, read the tutorial on product and dependencies: https://tinyurl.com/yrezszr4.",  # noqa: E501
         category=DeprecationWarning,
         stacklevel=1,
     )

@@ -167,6 +167,12 @@ def store_mark(obj: Callable[..., Any], mark: Mark) -> None:
         )
 
 
+_DEPRECATION_DECORATOR = """'@pytask.mark.{}' is deprecated starting pytask \
+v0.4.0 and will be removed in v0.5.0. To upgrade your project to the new syntax, read \
+the tutorial on product and dependencies: https://tinyurl.com/yrezszr4.
+"""
+
+
 class MarkGenerator:
     """Factory for :class:`MarkDecorator` objects.
 
@@ -190,6 +196,13 @@ class MarkGenerator:
     def __getattr__(self, name: str) -> MarkDecorator | Any:
         if name[0] == "_":
             raise AttributeError("Marker name must NOT start with underscore")
+
+        if name in ("depends_on", "produces"):
+            warnings.warn(
+                _DEPRECATION_DECORATOR.format(name),
+                category=DeprecationWarning,
+                stacklevel=1,
+            )
 
         # If the name is not in the set of known marks after updating,
         # then it really is time to issue a warning or an error.
