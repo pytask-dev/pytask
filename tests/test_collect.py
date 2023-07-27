@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 import sys
 import textwrap
 import warnings
@@ -312,7 +313,7 @@ def test_collect_module_name(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_collect_string_product_with_task_decorator(tmp_path):
+def test_collect_string_product_with_task_decorator(runner, tmp_path):
     source = """
     import pytask
 
@@ -321,23 +322,36 @@ def test_collect_string_product_with_task_decorator(tmp_path):
         produces.touch()
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    session = main({"paths": tmp_path})
-    assert session.exit_code == ExitCode.OK
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").exists()
 
 
 @pytest.mark.end_to_end()
-def test_collect_string_product_as_function_default(tmp_path):
+def test_collect_string_product_as_function_default(runner, tmp_path):
     source = """
-    import pytask
-
     def task_write_text(produces="out.txt"):
         produces.touch()
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    session = main({"paths": tmp_path})
-    assert session.exit_code == ExitCode.OK
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").exists()
+
+
+@pytest.mark.end_to_end()
+def test_collect_string_product_raises_error_with_annotation(runner, tmp_path):
+    source = """
+    from pytask import Product
+    from typing_extensions import Annotated
+
+    def task_write_text(out: Annotated[str, Product] = "out.txt") -> None:
+        out.touch()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "If you declare products with 'Annotated[..., Product]'" in result.output
 
 
 @pytest.mark.end_to_end()
@@ -389,3 +403,25 @@ def test_depends_on_cannot_mix_different_definitions(tmp_path):
     report = session.collection_reports[0]
     assert report.outcome == CollectionOutcome.FAIL
     assert "The task uses multiple" in str(report.exc_info[1])
+
+
+@pytest.mark.end_to_end()
+def test_deprecation_warning_for_strings_in_depends_on(tmp_path):
+    source = """
+    import pytask
+    from pathlib import Path
+
+    @pytask.mark.depends_on("in.txt")
+    @pytask.mark.produces("out.txt")
+    def task_write_text(depends_on, produces):
+        ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.txt").touch()
+
+    result = subprocess.run(
+        ("pytask", tmp_path.joinpath("task_module.py").as_posix()), capture_output=True
+    )
+    assert b"FutureWarning" in result.stdout
+    assert b"Using strings to specify a dependency" in result.stdout
+    assert b"Using strings to specify a product" in result.stdout

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import itertools
 import uuid
+import warnings
 from pathlib import Path
 from typing import Any
 from typing import Callable
@@ -433,6 +434,11 @@ or the same values nested in tuples, lists, and dictionaries. Here, {node} has t
 """
 
 
+_WARNING_STRING_DEPRECATED = """Using strings to specify a {kind} is deprecated. Pass \
+a 'pathlib.Path' instead with 'Path("{node}")'.
+"""
+
+
 def _collect_decorator_nodes(
     session: Session, path: Path, name: str, node_info: NodeInfo
 ) -> dict[str, MetaNode]:
@@ -445,6 +451,7 @@ def _collect_decorator_nodes(
 
     """
     node = node_info.value
+    kind = {"depends_on": "dependency", "produces": "product"}.get(node_info.arg_name)
 
     if not isinstance(node, (str, Path)):
         raise NodeNotCollectedError(
@@ -452,6 +459,11 @@ def _collect_decorator_nodes(
         )
 
     if isinstance(node, str):
+        warnings.warn(
+            _WARNING_STRING_DEPRECATED.format(kind=kind, node=node),
+            category=FutureWarning,
+            stacklevel=1,
+        )
         node = Path(node)
         node_info = node_info._replace(value=node)
 
@@ -459,9 +471,6 @@ def _collect_decorator_nodes(
         session=session, path=path, node_info=node_info
     )
     if collected_node is None:
-        kind = {"depends_on": "dependency", "produces": "product"}.get(
-            node_info.arg_name
-        )
         raise NodeNotCollectedError(
             f"{node!r} cannot be parsed as a {kind} for task {name!r} in {path!r}."
         )
@@ -522,10 +531,9 @@ def _collect_product(
     # The parameter defaults only support Path objects.
     if not isinstance(node, Path) and not is_string_allowed:
         raise ValueError(
-            "If you use 'produces' as a function argument of a task and pass values as "
-            "function defaults, it can only accept values of type 'pathlib.Path' or "
-            "the same value nested in tuples, lists, and dictionaries. Here, "
-            f"{node!r} has type {type(node)}."
+            "If you declare products with 'Annotated[..., Product]', only values of "
+            "type 'pathlib.Path' optionally nested in tuples, lists, and "
+            f"dictionaries are allowed. Here, {node!r} has type {type(node)}."
         )
 
     if isinstance(node, str):
