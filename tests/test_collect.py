@@ -406,7 +406,7 @@ def test_depends_on_cannot_mix_different_definitions(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_deprecation_warning_for_strings_in_depends_on(tmp_path):
+def test_deprecation_warning_for_strings_in_depends_on(runner, tmp_path):
     source = """
     import pytask
     from pathlib import Path
@@ -419,9 +419,7 @@ def test_deprecation_warning_for_strings_in_depends_on(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").touch()
 
-    result = subprocess.run(
-        ("pytask", tmp_path.joinpath("task_module.py").as_posix()), capture_output=True
-    )
-    assert b"FutureWarning" in result.stdout
-    assert b"Using strings to specify a dependency" in result.stdout
-    assert b"Using strings to specify a product" in result.stdout
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert "FutureWarning" in result.output
+    assert "Using strings to specify a dependency" in result.output
+    assert "Using strings to specify a product" in result.output
