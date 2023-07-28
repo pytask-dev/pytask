@@ -414,7 +414,7 @@ def test_deprecation_warning_for_strings_in_depends_on(tmp_path):
     @pytask.mark.depends_on("in.txt")
     @pytask.mark.produces("out.txt")
     def task_write_text(depends_on, produces):
-        ...
+        produces.touch()
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").touch()
