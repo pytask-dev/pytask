@@ -92,3 +92,4 @@ markers = [
     "end_to_end: Flag for tests that cover the whole program.",
 ]
 norecursedirs = [".idea", ".tox"]
+filterwarnings = ["ignore:'@pytask.mark.*. is deprecated:DeprecationWarning"]

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import itertools
 import uuid
+import warnings
 from pathlib import Path
 from typing import Any
 from typing import Callable
@@ -21,6 +22,7 @@ from _pytask.nodes import ProductType
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
+from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
@@ -42,9 +44,7 @@ __all__ = [
 ]
 
 
-def depends_on(
-    objects: Any | Iterable[Any] | dict[Any, Any]
-) -> Any | Iterable[Any] | dict[Any, Any]:
+def depends_on(objects: PyTree[Any]) -> PyTree[Any]:
     """Specify dependencies for a task.
 
     Parameters
@@ -58,9 +58,7 @@ def depends_on(
     return objects
 
 
-def produces(
-    objects: Any | Iterable[Any] | dict[Any, Any]
-) -> Any | Iterable[Any] | dict[Any, Any]:
+def produces(objects: PyTree[Any]) -> PyTree[Any]:
     """Specify products of a task.
 
     Parameters
@@ -342,6 +340,18 @@ products. Products should be defined with either
 Read more about products in the documentation: https://tinyurl.com/yrezszr4.
 """
 
+_WARNING_PRODUCES_AS_KWARG = """Using 'produces' as an argument name to specify \
+products is deprecated and won't be available in pytask v0.5. Instead, use the product \
+annotation, described in this tutorial: https://tinyurl.com/yrezszr4.
+
+    from typing_extensions import Annotated
+    from pytask import Product
+
+    def task_example(produces: Annotated[..., Product]):
+        ...
+
+"""
+
 
 def parse_products_from_task_function(
     session: Session, path: Path, name: str, obj: Any
@@ -369,8 +379,14 @@ def parse_products_from_task_function(
     signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
     kwargs = {**signature_defaults, **task_kwargs}
 
+    parameters_with_product_annot = _find_args_with_product_annotation(obj)
+
     # Parse products from task decorated with @task and that uses produces.
     if "produces" in kwargs:
+        if "produces" not in parameters_with_product_annot:
+            warnings.warn(
+                _WARNING_PRODUCES_AS_KWARG, category=FutureWarning, stacklevel=1
+            )
         has_produces_argument = True
         collected_products = tree_map_with_path(
             lambda p, x: _collect_product(
@@ -384,7 +400,6 @@ def parse_products_from_task_function(
         )
         out = {"produces": collected_products}
 
-    parameters_with_product_annot = _find_args_with_product_annotation(obj)
     if parameters_with_product_annot:
         has_annotation = True
         for parameter_name in parameters_with_product_annot:
@@ -436,6 +451,11 @@ or the same values nested in tuples, lists, and dictionaries. Here, {node} has t
 """
 
 
+_WARNING_STRING_DEPRECATED = """Using strings to specify a {kind} is deprecated. Pass \
+a 'pathlib.Path' instead with 'Path("{node}")'.
+"""
+
+
 def _collect_decorator_nodes(
     session: Session, path: Path, name: str, node_info: NodeInfo
 ) -> dict[str, MetaNode]:
@@ -448,6 +468,7 @@ def _collect_decorator_nodes(
 
     """
     node = node_info.value
+    kind = {"depends_on": "dependency", "produces": "product"}.get(node_info.arg_name)
 
     if not isinstance(node, (str, Path)):
         raise NodeNotCollectedError(
@@ -455,6 +476,11 @@ def _collect_decorator_nodes(
         )
 
     if isinstance(node, str):
+        warnings.warn(
+            _WARNING_STRING_DEPRECATED.format(kind=kind, node=node),
+            category=FutureWarning,
+            stacklevel=1,
+        )
         node = Path(node)
         node_info = node_info._replace(value=node)
 
@@ -462,9 +488,6 @@ def _collect_decorator_nodes(
         session=session, path=path, node_info=node_info
     )
     if collected_node is None:
-        kind = {"depends_on": "dependency", "produces": "product"}.get(
-            node_info.arg_name
-        )
         raise NodeNotCollectedError(
             f"{node!r} cannot be parsed as a {kind} for task {name!r} in {path!r}."
         )
@@ -525,10 +548,9 @@ def _collect_product(
     # The parameter defaults only support Path objects.
     if not isinstance(node, Path) and not is_string_allowed:
         raise ValueError(
-            "If you use 'produces' as a function argument of a task and pass values as "
-            "function defaults, it can only accept values of type 'pathlib.Path' or "
-            "the same value nested in tuples, lists, and dictionaries. Here, "
-            f"{node!r} has type {type(node)}."
+            "If you declare products with 'Annotated[..., Product]', only values of "
+            "type 'pathlib.Path' optionally nested in tuples, lists, and "
+            f"dictionaries are allowed. Here, {node!r} has type {type(node)}."
         )
 
     if isinstance(node, str):
