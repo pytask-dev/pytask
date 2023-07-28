@@ -340,6 +340,18 @@ products. Products should be defined with either
 Read more about products in the documentation: https://tinyurl.com/yrezszr4.
 """
 
+_WARNING_PRODUCES_AS_KWARG = """Using 'produces' as an argument name to specify \
+products is deprecated and won't be available in pytask v0.5. Instead, use the product \
+annotation, described in this tutorial: https://tinyurl.com/yrezszr4.
+
+    from typing_extensions import Annotated
+    from pytask import Product
+
+    def task_example(produces: Annotated[..., Product]):
+        ...
+
+"""
+
 
 def parse_products_from_task_function(
     session: Session, path: Path, name: str, obj: Any
@@ -367,8 +379,14 @@ def parse_products_from_task_function(
     signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
     kwargs = {**signature_defaults, **task_kwargs}
 
+    parameters_with_product_annot = _find_args_with_product_annotation(obj)
+
     # Parse products from task decorated with @task and that uses produces.
     if "produces" in kwargs:
+        if "produces" not in parameters_with_product_annot:
+            warnings.warn(
+                _WARNING_PRODUCES_AS_KWARG, category=FutureWarning, stacklevel=1
+            )
         has_produces_argument = True
         collected_products = tree_map_with_path(
             lambda p, x: _collect_product(
@@ -382,7 +400,6 @@ def parse_products_from_task_function(
         )
         out = {"produces": collected_products}
 
-    parameters_with_product_annot = _find_args_with_product_annotation(obj)
     if parameters_with_product_annot:
         has_annotation = True
         for parameter_name in parameters_with_product_annot:
