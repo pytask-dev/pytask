@@ -17,7 +17,7 @@ from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.models import NodeInfo
-from _pytask.nodes import MetaNode
+from _pytask.node_protocols import Node
 from _pytask.nodes import ProductType
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
@@ -80,7 +80,7 @@ def parse_nodes(
     objects = _extract_nodes_from_function_markers(obj, parser)
     nodes = _convert_objects_to_node_dictionary(objects, arg_name)
     nodes = tree_map(
-        lambda x: _collect_decorator_nodes(
+        lambda x: _collect_decorator_node(
             session, path, name, NodeInfo(arg_name, (), x)
         ),
         nodes,
@@ -250,7 +250,7 @@ def parse_dependencies_from_task_function(  # noqa: C901
     if "depends_on" in kwargs:
         has_depends_on_argument = True
         dependencies["depends_on"] = tree_map(
-            lambda x: _collect_decorator_nodes(
+            lambda x: _collect_decorator_node(
                 session, path, name, NodeInfo(arg_name="depends_on", path=(), value=x)
             ),
             kwargs["depends_on"],
@@ -281,7 +281,7 @@ def parse_dependencies_from_task_function(  # noqa: C901
                 return x
 
         nodes = tree_map_with_path(
-            lambda p, x: _collect_dependencies(
+            lambda p, x: _collect_dependency(
                 session,
                 path,
                 name,
@@ -302,7 +302,7 @@ def parse_dependencies_from_task_function(  # noqa: C901
     return dependencies
 
 
-def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, MetaNode]:
+def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, Node]:
     """Find args with node annotations."""
     annotations = get_annotations(func, eval_str=True)
     metas = {
@@ -314,9 +314,7 @@ def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, MetaN
     args_with_node_annotation = {}
     for name, meta in metas.items():
         annot = [
-            i
-            for i in meta
-            if not isinstance(i, ProductType) and isinstance(i, MetaNode)
+            i for i in meta if not isinstance(i, ProductType) and isinstance(i, Node)
         ]
         if len(annot) >= 2:  # noqa: PLR2004
             raise ValueError(
@@ -456,9 +454,9 @@ a 'pathlib.Path' instead with 'Path("{node}")'.
 """
 
 
-def _collect_decorator_nodes(
+def _collect_decorator_node(
     session: Session, path: Path, name: str, node_info: NodeInfo
-) -> dict[str, MetaNode]:
+) -> Node:
     """Collect nodes for a task.
 
     Raises
@@ -495,9 +493,9 @@ def _collect_decorator_nodes(
     return collected_node
 
 
-def _collect_dependencies(
+def _collect_dependency(
     session: Session, path: Path, name: str, node_info: NodeInfo
-) -> dict[str, MetaNode]:
+) -> Node:
     """Collect nodes for a task.
 
     Raises
@@ -525,7 +523,7 @@ def _collect_product(
     task_name: str,
     node_info: NodeInfo,
     is_string_allowed: bool = False,
-) -> dict[str, MetaNode]:
+) -> Node:
     """Collect products for a task.
 
     Defining products with strings is only allowed when using the decorator. Parameter

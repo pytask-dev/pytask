@@ -246,7 +246,7 @@ from {class}`pytask.MetaNode`.
 Then, different kinds of nodes can be implemented.
 
 ```{eval-rst}
-.. autoclass:: pytask.FilePathNode
+.. autoclass:: pytask.PathNode
     :members:
 ```
 

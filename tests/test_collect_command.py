@@ -7,11 +7,10 @@ from pathlib import Path
 import pytest
 from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
-from _pytask.nodes import FilePathNode
+from _pytask.nodes import PathNode
 from attrs import define
 from pytask import cli
 from pytask import ExitCode
-from pytask import MetaNode
 from pytask import Task
 
 
@@ -343,7 +342,7 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
 
 
 @define
-class MetaNode(MetaNode):
+class Node:
     path: Path
 
     def state(self):
@@ -362,8 +361,8 @@ def test_print_collected_tasks_without_nodes(capsys):
                 base_name="function",
                 path=Path("task_path.py"),
                 function=function,
-                depends_on={0: MetaNode("in.txt")},
-                produces={0: MetaNode("out.txt")},
+                depends_on={0: Node("in.txt")},
+                produces={0: Node("out.txt")},
             )
         ]
     }
@@ -386,12 +385,12 @@ def test_print_collected_tasks_with_nodes(capsys):
                 path=Path("task_path.py"),
                 function=function,
                 depends_on={
-                    "depends_on": FilePathNode(
+                    "depends_on": PathNode(
                         name="in.txt", value=Path("in.txt"), path=Path("in.txt")
                     )
                 },
                 produces={
-                    0: FilePathNode(
+                    0: PathNode(
                         name="out.txt", value=Path("out.txt"), path=Path("out.txt")
                     )
                 },
@@ -418,10 +417,10 @@ def test_find_common_ancestor_of_all_nodes(show_nodes, expected_add):
             path=Path.cwd() / "src" / "task_path.py",
             function=function,
             depends_on={
-                "depends_on": FilePathNode.from_path(Path.cwd() / "src" / "in.txt")
+                "depends_on": PathNode.from_path(Path.cwd() / "src" / "in.txt")
             },
             produces={
-                0: FilePathNode.from_path(
+                0: PathNode.from_path(
                     Path.cwd().joinpath("..", "bld", "out.txt").resolve()
                 )
             },

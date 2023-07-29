@@ -530,11 +530,11 @@ def test_error_with_multiple_different_dep_annotations(runner, tmp_path):
     source = """
     from pathlib import Path
     from typing_extensions import Annotated
-    from pytask import Product, PythonNode, FilePathNode
+    from pytask import Product, PythonNode, PathNode
     from typing import Any
 
     def task_example(
-        dependency: Annotated[Any, PythonNode(), FilePathNode()] = "hello",
+        dependency: Annotated[Any, PythonNode(), PathNode()] = "hello",
         path: Annotated[Path, Product] = Path("out.txt")
     ) -> None:
         path.write_text(dependency)

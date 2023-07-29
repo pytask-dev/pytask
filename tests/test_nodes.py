@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 from _pytask.shared import reduce_node_name
-from pytask import FilePathNode
+from pytask import PathNode
 
 
 _ROOT = Path.cwd()
@@ -16,14 +16,14 @@ _ROOT = Path.cwd()
     ("node", "paths", "expectation", "expected"),
     [
         pytest.param(
-            FilePathNode.from_path(_ROOT.joinpath("src/module.py")),
+            PathNode.from_path(_ROOT.joinpath("src/module.py")),
             [_ROOT.joinpath("alternative_src")],
             does_not_raise(),
             "pytask/src/module.py",
-            id="Common path found for FilePathNode not in 'paths' and 'paths'",
+            id="Common path found for PathNode not in 'paths' and 'paths'",
         ),
         pytest.param(
-            FilePathNode.from_path(_ROOT.joinpath("top/src/module.py")),
+            PathNode.from_path(_ROOT.joinpath("top/src/module.py")),
             [_ROOT.joinpath("top/src")],
             does_not_raise(),
             "src/module.py",

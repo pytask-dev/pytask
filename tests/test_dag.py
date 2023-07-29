@@ -14,12 +14,12 @@ from _pytask.exceptions import ResolvingDependenciesError
 from attrs import define
 from pytask import cli
 from pytask import ExitCode
-from pytask import FilePathNode
+from pytask import PathNode
 from pytask import Task
 
 
 @define
-class Node(FilePathNode):
+class Node(PathNode):
     """See https://github.com/python-attrs/attrs/issues/293 for property hack."""
 
     name: str
