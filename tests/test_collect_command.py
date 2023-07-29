@@ -520,6 +520,35 @@ def test_python_nodes_are_aggregated_into_one(runner, tmp_path):
     assert "Product" in captured
 
 
+def test_node_protocol_for_custom_nodes(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import Product
+    from attrs import define
+    from pathlib import Path
+
+    @define
+    class CustomNode:
+        name: str
+        value: str
+
+        def state(self):
+            return self.value
+
+
+    def task_example(
+        data = CustomNode("custom", "text"),
+        out: Annotated[Path, Product] = Path("out.txt"),
+    ) -> None:
+        out.write_text(data)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "<Dependency custom>" in result.output
+
+
 def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
