@@ -21,7 +21,7 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.mark_utils import has_mark
-from _pytask.nodes import FilePathNode
+from _pytask.node_protocols import PPathNode
 from _pytask.nodes import Task
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
@@ -129,7 +129,7 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
     # method for the node classes.
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
-        if isinstance(node, FilePathNode):
+        if isinstance(node, PPathNode):
             node.path.parent.mkdir(parents=True, exist_ok=True)
 
     would_be_executed = has_mark(task, "would_be_executed")
@@ -159,7 +159,7 @@ def pytask_execute_task(session: Session, task: Task) -> bool:
 
 @hookimpl
 def pytask_execute_task_teardown(session: Session, task: Task) -> None:
-    """Check if :class:`_pytask.nodes.FilePathNode` are produced by a task."""
+    """Check if :class:`_pytask.nodes.PathNode` are produced by a task."""
     missing_nodes = []
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]

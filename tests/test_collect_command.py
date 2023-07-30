@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 import os
+import pickle
 import textwrap
 from pathlib import Path
 
 import pytest
 from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
-from _pytask.nodes import FilePathNode
+from _pytask.nodes import PathNode
 from attrs import define
 from pytask import cli
 from pytask import ExitCode
-from pytask import MetaNode
 from pytask import Task
 
 
@@ -343,7 +343,7 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
 
 
 @define
-class MetaNode(MetaNode):
+class Node:
     path: Path
 
     def state(self):
@@ -362,8 +362,8 @@ def test_print_collected_tasks_without_nodes(capsys):
                 base_name="function",
                 path=Path("task_path.py"),
                 function=function,
-                depends_on={0: MetaNode("in.txt")},
-                produces={0: MetaNode("out.txt")},
+                depends_on={0: Node("in.txt")},
+                produces={0: Node("out.txt")},
             )
         ]
     }
@@ -386,15 +386,9 @@ def test_print_collected_tasks_with_nodes(capsys):
                 path=Path("task_path.py"),
                 function=function,
                 depends_on={
-                    "depends_on": FilePathNode(
-                        name="in.txt", value=Path("in.txt"), path=Path("in.txt")
-                    )
+                    "depends_on": PathNode(name="in.txt", value=Path("in.txt"))
                 },
-                produces={
-                    0: FilePathNode(
-                        name="out.txt", value=Path("out.txt"), path=Path("out.txt")
-                    )
-                },
+                produces={0: PathNode(name="out.txt", value=Path("out.txt"))},
             )
         ]
     }
@@ -418,10 +412,10 @@ def test_find_common_ancestor_of_all_nodes(show_nodes, expected_add):
             path=Path.cwd() / "src" / "task_path.py",
             function=function,
             depends_on={
-                "depends_on": FilePathNode.from_path(Path.cwd() / "src" / "in.txt")
+                "depends_on": PathNode.from_path(Path.cwd() / "src" / "in.txt")
             },
             produces={
-                0: FilePathNode.from_path(
+                0: PathNode.from_path(
                     Path.cwd().joinpath("..", "bld", "out.txt").resolve()
                 )
             },
@@ -518,3 +512,92 @@ def test_python_nodes_are_aggregated_into_one(runner, tmp_path):
     assert "task_example>" in captured
     assert "<Dependency nested>" in result.output
     assert "Product" in captured
+
+
+def test_node_protocol_for_custom_nodes(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import Product
+    from attrs import define
+    from pathlib import Path
+
+    @define
+    class CustomNode:
+        name: str
+        value: str
+
+        def state(self):
+            return self.value
+
+
+    def task_example(
+        data = CustomNode("custom", "text"),
+        out: Annotated[Path, Product] = Path("out.txt"),
+    ) -> None:
+        out.write_text(data)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "<Dependency custom>" in result.output
+
+
+def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import Product
+    from pathlib import Path
+    from attrs import define
+    import pickle
+
+    @define
+    class PickleFile:
+        name: str
+        path: Path
+
+        @property
+        def value(self):
+            with self.path.open("rb") as f:
+                out = pickle.load(f)
+            return out
+
+        def state(self):
+            return str(self.path.stat().st_mtime)
+
+
+    _PATH = Path(__file__).parent.joinpath("in.pkl")
+
+    def task_example(
+        data = PickleFile(_PATH.as_posix(), _PATH),
+        out: Annotated[Path, Product] = Path("out.txt"),
+    ) -> None:
+        out.write_text(data)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.pkl").write_bytes(pickle.dumps("text"))
+
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "in.pkl" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_setting_name_for_python_node_via_annotation(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PythonNode
+    from typing import Any
+
+    def task_example(
+        input: Annotated[str, PythonNode(name="node-name")] = "text",
+        path: Annotated[Path, Product] = Path("out.txt"),
+    ) -> None:
+        path.write_text(input)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "node-name" in result.output

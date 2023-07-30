@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 
 from _pytask.dag_utils import node_and_neighbors
-from _pytask.nodes import FilePathNode
+from _pytask.node_protocols import PPathNode
 from _pytask.nodes import Task
 from _pytask.session import Session
 from sqlalchemy import Column
@@ -80,7 +80,7 @@ def update_states_in_database(session: Session, task_name: str) -> None:
         if isinstance(node, Task):
             modification_time = node.state()
             hash_ = hashlib.sha256(node.path.read_bytes()).hexdigest()
-        elif isinstance(node, FilePathNode):
+        elif isinstance(node, PPathNode):
             modification_time = node.state()
             hash_ = ""
         else:

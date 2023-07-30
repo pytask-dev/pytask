@@ -21,8 +21,8 @@ from _pytask.console import format_task_id
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_mark
 from _pytask.models import NodeInfo
-from _pytask.nodes import FilePathNode
-from _pytask.nodes import MetaNode
+from _pytask.node_protocols import Node
+from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
@@ -95,7 +95,7 @@ def pytask_collect_file_protocol(
         )
         flat_reports = list(itertools.chain.from_iterable(new_reports))
     except Exception:  # noqa: BLE001
-        node = FilePathNode.from_path(path)
+        node = PathNode.from_path(path)
         flat_reports = [
             CollectionReport.from_exception(
                 outcome=CollectionOutcome.FAIL, node=node, exc_info=sys.exc_info()
@@ -204,8 +204,8 @@ _TEMPLATE_ERROR: str = (
 
 
 @hookimpl(trylast=True)
-def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> MetaNode:
-    """Collect a node of a task as a :class:`pytask.nodes.FilePathNode`.
+def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> Node:
+    """Collect a node of a task as a :class:`pytask.nodes.PathNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
     hook is executed at last and possible errors will be shown, it seems reasonable and
@@ -223,7 +223,7 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> Me
             node.name = node_info.arg_name + suffix
         return node
 
-    if isinstance(node, MetaNode):
+    if isinstance(node, Node):
         return node
 
     if isinstance(node, Path):
@@ -243,7 +243,7 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> Me
             if str(node) != str(case_sensitive_path):
                 raise ValueError(_TEMPLATE_ERROR.format(node, case_sensitive_path))
 
-        return FilePathNode.from_path(node)
+        return PathNode.from_path(node)
 
     suffix = "-" + "-".join(map(str, node_info.path)) if node_info.path else ""
     node_name = node_info.arg_name + suffix

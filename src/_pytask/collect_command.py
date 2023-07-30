@@ -20,7 +20,7 @@ from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import select_by_keyword
 from _pytask.mark import select_by_mark
-from _pytask.nodes import FilePathNode
+from _pytask.node_protocols import PPathNode
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
@@ -125,9 +125,7 @@ def _find_common_ancestor_of_all_nodes(
         all_paths.append(task.path)
         if show_nodes:
             all_paths.extend(
-                x.path
-                for x in tree_leaves(task.depends_on)
-                if isinstance(x, FilePathNode)
+                x.path for x in tree_leaves(task.depends_on) if isinstance(x, PPathNode)
             )
             all_paths.extend(x.path for x in tree_leaves(task.produces))
 
@@ -202,24 +200,29 @@ def _print_collected_tasks(
             )
 
             if show_nodes:
-                file_path_nodes = list(tree_leaves(task.depends_on))
-                sorted_nodes = sorted(file_path_nodes, key=lambda x: x.name)
+                nodes = list(tree_leaves(task.depends_on))
+                sorted_nodes = sorted(nodes, key=lambda x: x.name)
                 for node in sorted_nodes:
-                    if isinstance(node, FilePathNode):
-                        reduced_node_name = relative_to(node.path, common_ancestor)
+                    if isinstance(node, PPathNode):
+                        if node.path.as_posix() in node.name:
+                            reduced_node_name = str(
+                                relative_to(node.path, common_ancestor)
+                            )
+                        else:
+                            reduced_node_name = node.name
                         url_style = create_url_style_for_path(
                             node.path, editor_url_scheme
                         )
-                        text = Text(str(reduced_node_name), style=url_style)
+                        text = Text(reduced_node_name, style=url_style)
                     else:
                         text = node.name
 
                     task_branch.add(Text.assemble(FILE_ICON, "<Dependency ", text, ">"))
 
                 for node in sorted(tree_leaves(task.produces), key=lambda x: x.path):
-                    reduced_node_name = relative_to(node.path, common_ancestor)
+                    reduced_node_name = str(relative_to(node.path, common_ancestor))
                     url_style = create_url_style_for_path(node.path, editor_url_scheme)
-                    text = Text(str(reduced_node_name), style=url_style)
+                    text = Text(reduced_node_name, style=url_style)
                     task_branch.add(Text.assemble(FILE_ICON, "<Product ", text, ">"))
 
     console.print(tree)

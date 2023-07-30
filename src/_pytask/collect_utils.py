@@ -1,6 +1,7 @@
 """This module provides utility functions for :mod:`_pytask.collect`."""
 from __future__ import annotations
 
+import functools
 import itertools
 import uuid
 import warnings
@@ -11,13 +12,13 @@ from typing import Generator
 from typing import Iterable
 from typing import TYPE_CHECKING
 
-import attrs
 from _pytask._inspect import get_annotations
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.models import NodeInfo
-from _pytask.nodes import MetaNode
+from _pytask.node_protocols import Node
+from _pytask.node_protocols import PPathNode
 from _pytask.nodes import ProductType
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
@@ -80,7 +81,7 @@ def parse_nodes(
     objects = _extract_nodes_from_function_markers(obj, parser)
     nodes = _convert_objects_to_node_dictionary(objects, arg_name)
     nodes = tree_map(
-        lambda x: _collect_decorator_nodes(
+        lambda x: _collect_decorator_node(
             session, path, name, NodeInfo(arg_name, (), x)
         ),
         nodes,
@@ -228,7 +229,7 @@ documentation: https://tinyurl.com/yrezszr4.
 """
 
 
-def parse_dependencies_from_task_function(  # noqa: C901
+def parse_dependencies_from_task_function(
     session: Session, path: Path, name: str, obj: Any
 ) -> dict[str, Any]:
     """Parse dependencies from task function."""
@@ -250,7 +251,7 @@ def parse_dependencies_from_task_function(  # noqa: C901
     if "depends_on" in kwargs:
         has_depends_on_argument = True
         dependencies["depends_on"] = tree_map(
-            lambda x: _collect_decorator_nodes(
+            lambda x: _collect_decorator_node(
                 session, path, name, NodeInfo(arg_name="depends_on", path=(), value=x)
             ),
             kwargs["depends_on"],
@@ -269,23 +270,17 @@ def parse_dependencies_from_task_function(  # noqa: C901
         if parameter_name == "depends_on":
             continue
 
-        if parameter_name in parameters_with_node_annot:
-
-            def _evolve(x: Any) -> Any:
-                instance = parameters_with_node_annot[parameter_name]  # noqa: B023
-                return attrs.evolve(instance, value=x)  # type: ignore[misc]
-
-        else:
-
-            def _evolve(x: Any) -> Any:
-                return x
+        partialed_evolve = functools.partial(
+            _evolve_instance,
+            instance_from_annot=parameters_with_node_annot.get(parameter_name),
+        )
 
         nodes = tree_map_with_path(
-            lambda p, x: _collect_dependencies(
+            lambda p, x: _collect_dependency(
                 session,
                 path,
                 name,
-                NodeInfo(parameter_name, p, _evolve(x)),  # noqa: B023
+                NodeInfo(parameter_name, p, partialed_evolve(x)),  # noqa: B023
             ),
             value,
         )
@@ -295,14 +290,14 @@ def parse_dependencies_from_task_function(  # noqa: C901
         are_all_nodes_python_nodes_without_hash = all(
             isinstance(x, PythonNode) and not x.hash for x in tree_leaves(nodes)
         )
-        if are_all_nodes_python_nodes_without_hash:
+        if not isinstance(nodes, Node) and are_all_nodes_python_nodes_without_hash:
             dependencies[parameter_name] = PythonNode(value=value, name=parameter_name)
         else:
             dependencies[parameter_name] = nodes
     return dependencies
 
 
-def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, MetaNode]:
+def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, Node]:
     """Find args with node annotations."""
     annotations = get_annotations(func, eval_str=True)
     metas = {
@@ -314,9 +309,7 @@ def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, MetaN
     args_with_node_annotation = {}
     for name, meta in metas.items():
         annot = [
-            i
-            for i in meta
-            if not isinstance(i, ProductType) and isinstance(i, MetaNode)
+            i for i in meta if not isinstance(i, ProductType) and isinstance(i, Node)
         ]
         if len(annot) >= 2:  # noqa: PLR2004
             raise ValueError(
@@ -380,6 +373,7 @@ def parse_products_from_task_function(
     kwargs = {**signature_defaults, **task_kwargs}
 
     parameters_with_product_annot = _find_args_with_product_annotation(obj)
+    parameters_with_node_annot = _find_args_with_node_annotation(obj)
 
     # Parse products from task decorated with @task and that uses produces.
     if "produces" in kwargs:
@@ -404,13 +398,17 @@ def parse_products_from_task_function(
         has_annotation = True
         for parameter_name in parameters_with_product_annot:
             if parameter_name in kwargs:
-                # Use _collect_new_node to not collect strings.
+                partialed_evolve = functools.partial(
+                    _evolve_instance,
+                    instance_from_annot=parameters_with_node_annot.get(parameter_name),
+                )
+
                 collected_products = tree_map_with_path(
                     lambda p, x: _collect_product(
                         session,
                         path,
                         name,
-                        NodeInfo(parameter_name, p, x),  # noqa: B023
+                        NodeInfo(parameter_name, p, partialed_evolve(x)),  # noqa: B023
                         is_string_allowed=False,
                     ),
                     kwargs[parameter_name],
@@ -456,9 +454,9 @@ a 'pathlib.Path' instead with 'Path("{node}")'.
 """
 
 
-def _collect_decorator_nodes(
+def _collect_decorator_node(
     session: Session, path: Path, name: str, node_info: NodeInfo
-) -> dict[str, MetaNode]:
+) -> Node:
     """Collect nodes for a task.
 
     Raises
@@ -495,9 +493,9 @@ def _collect_decorator_nodes(
     return collected_node
 
 
-def _collect_dependencies(
+def _collect_dependency(
     session: Session, path: Path, name: str, node_info: NodeInfo
-) -> dict[str, MetaNode]:
+) -> Node:
     """Collect nodes for a task.
 
     Raises
@@ -525,7 +523,7 @@ def _collect_product(
     task_name: str,
     node_info: NodeInfo,
     is_string_allowed: bool = False,
-) -> dict[str, MetaNode]:
+) -> Node:
     """Collect products for a task.
 
     Defining products with strings is only allowed when using the decorator. Parameter
@@ -546,7 +544,7 @@ def _collect_product(
             f"tuples, lists, and dictionaries. Here, {node} has type {type(node)}."
         )
     # The parameter defaults only support Path objects.
-    if not isinstance(node, Path) and not is_string_allowed:
+    if not isinstance(node, (Path, PPathNode)) and not is_string_allowed:
         raise ValueError(
             "If you declare products with 'Annotated[..., Product]', only values of "
             "type 'pathlib.Path' optionally nested in tuples, lists, and "
@@ -566,3 +564,12 @@ def _collect_product(
         )
 
     return collected_node
+
+
+def _evolve_instance(x: Any, instance_from_annot: Node | None) -> Any:
+    """Evolve a value to a node if it is given by annotations."""
+    if not instance_from_annot:
+        return x
+
+    instance_from_annot.value = x
+    return instance_from_annot

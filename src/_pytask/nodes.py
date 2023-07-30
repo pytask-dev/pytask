@@ -3,13 +3,13 @@ from __future__ import annotations
 
 import functools
 import hashlib
-from abc import ABCMeta
-from abc import abstractmethod
 from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
 
+from _pytask.node_protocols import MetaNode
+from _pytask.node_protocols import Node
 from _pytask.tree_util import PyTree
 from attrs import define
 from attrs import field
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-__all__ = ["FilePathNode", "MetaNode", "Product", "Task"]
+__all__ = ["PathNode", "Product", "Task"]
 
 
 @define(frozen=True)
@@ -28,17 +28,6 @@ class ProductType:
 
 
 Product = ProductType()
-
-
-class MetaNode(metaclass=ABCMeta):
-    """Meta class for nodes."""
-
-    name: str
-    """str: The name of node that must be unique."""
-
-    @abstractmethod
-    def state(self) -> Any:
-        ...
 
 
 @define(kw_only=True)
@@ -55,9 +44,9 @@ class Task(MetaNode):
     """The name of the task."""
     short_name: str | None = field(default=None, init=False)
     """The shortest uniquely identifiable name for task for display."""
-    depends_on: PyTree[MetaNode] = field(factory=dict)
+    depends_on: PyTree[Node] = field(factory=dict)
     """A list of dependencies of task."""
-    produces: PyTree[MetaNode] = field(factory=dict)
+    produces: PyTree[Node] = field(factory=dict)
     """A list of products of task."""
     markers: list[Mark] = field(factory=list)
     """A list of markers attached to the task function."""
@@ -92,27 +81,41 @@ class Task(MetaNode):
 
 
 @define(kw_only=True)
-class FilePathNode(MetaNode):
+class PathNode(Node):
     """The class for a node which is a path."""
 
     name: str = ""
     """Name of the node which makes it identifiable in the DAG."""
-    value: Path | None = None
+    _value: Path | None = None
     """Value passed to the decorator which can be requested inside the function."""
-    path: Path | None = None
-    """Path to the FilePathNode."""
+
+    @property
+    def path(self) -> Path:
+        return self.value
+
+    @property
+    def value(self) -> Path:
+        return self._value
+
+    @value.setter
+    def value(self, value: Path) -> None:
+        if not isinstance(value, Path):
+            raise TypeError("'value' must be a 'pathlib.Path'.")
+        if not self.name:
+            self.name = value.as_posix()
+        self._value = value
 
     @classmethod
     @functools.lru_cache
-    def from_path(cls, path: Path) -> FilePathNode:
+    def from_path(cls, path: Path) -> PathNode:
         """Instantiate class from path to file.
 
         The `lru_cache` decorator ensures that the same object is not collected twice.
 
         """
         if not path.is_absolute():
-            raise ValueError("FilePathNode must be instantiated from absolute path.")
-        return cls(name=path.as_posix(), value=path, path=path)
+            raise ValueError("Node must be instantiated from absolute path.")
+        return cls(name=path.as_posix(), value=path)
 
     def state(self) -> str | None:
         """Calculate the state of the node.
@@ -126,7 +129,7 @@ class FilePathNode(MetaNode):
 
 
 @define(kw_only=True)
-class PythonNode(MetaNode):
+class PythonNode(Node):
     """The class for a node which is a Python object."""
 
     name: str = ""
@@ -153,4 +156,4 @@ class PythonNode(MetaNode):
             if isinstance(self.value, str):
                 return str(hashlib.sha256(self.value.encode()).hexdigest())
             return str(hash(self.value))
-        return str(0)
+        return "0"

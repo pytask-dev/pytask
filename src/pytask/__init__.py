@@ -36,8 +36,8 @@ from _pytask.mark_utils import remove_marks
 from _pytask.mark_utils import set_marks
 from _pytask.models import CollectionMetadata
 from _pytask.models import NodeInfo
-from _pytask.nodes import FilePathNode
-from _pytask.nodes import MetaNode
+from _pytask.node_protocols import MetaNode
+from _pytask.nodes import PathNode
 from _pytask.nodes import Product
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
@@ -84,7 +84,7 @@ __all__ = [
     "ExecutionReport",
     "Exit",
     "ExitCode",
-    "FilePathNode",
+    "PathNode",
     "Mark",
     "MarkDecorator",
     "MarkGenerator",
