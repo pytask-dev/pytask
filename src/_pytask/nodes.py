@@ -89,7 +89,7 @@ class PathNode(Node):
     value: Path | None = None
     """Value passed to the decorator which can be requested inside the function."""
     path: Path | None = None
-    """Path to the FilePathNode."""
+    """Path to the file."""
 
     @classmethod
     @functools.lru_cache
@@ -100,7 +100,7 @@ class PathNode(Node):
 
         """
         if not path.is_absolute():
-            raise ValueError("FilePathNode must be instantiated from absolute path.")
+            raise ValueError("Node must be instantiated from absolute path.")
         return cls(name=path.as_posix(), value=path, path=path)
 
     def state(self) -> str | None:
@@ -142,4 +142,4 @@ class PythonNode(Node):
             if isinstance(self.value, str):
                 return str(hashlib.sha256(self.value.encode()).hexdigest())
             return str(hash(self.value))
-        return str(0)
+        return "0"
