@@ -127,14 +127,7 @@ _THIS_FILE = Path(__file__)
             None,
             Text(
                 _THIS_FILE.as_posix() + "::task_a",
-                spans=[
-                    Span(0, len(_THIS_FILE.as_posix()) + 2, "dim"),
-                    Span(
-                        len(_THIS_FILE.as_posix()) + 2,
-                        len(_THIS_FILE.as_posix()) + 2 + 6,
-                        Style(),
-                    ),
-                ],
+                spans=[Span(0, len(_THIS_FILE.as_posix()) + 2, "dim")],
             ),
             id="format full id",
         ),
@@ -146,7 +139,7 @@ _THIS_FILE = Path(__file__)
             None,
             Text(
                 "test_console.py::task_a",
-                spans=[Span(0, 17, "dim"), Span(17, 23, Style())],
+                spans=[Span(0, 17, "dim")],
             ),
             id="format short id",
         ),
@@ -158,7 +151,7 @@ _THIS_FILE = Path(__file__)
             _THIS_FILE.parent,
             Text(
                 "tests/test_console.py::task_a",
-                spans=[Span(0, 23, "dim"), Span(23, 29, Style())],
+                spans=[Span(0, 23, "dim")],
             ),
             id="format relative to id",
         ),
