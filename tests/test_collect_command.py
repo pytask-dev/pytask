@@ -386,15 +386,9 @@ def test_print_collected_tasks_with_nodes(capsys):
                 path=Path("task_path.py"),
                 function=function,
                 depends_on={
-                    "depends_on": PathNode(
-                        name="in.txt", value=Path("in.txt"), path=Path("in.txt")
-                    )
+                    "depends_on": PathNode(name="in.txt", value=Path("in.txt"))
                 },
-                produces={
-                    0: PathNode(
-                        name="out.txt", value=Path("out.txt"), path=Path("out.txt")
-                    )
-                },
+                produces={0: PathNode(name="out.txt", value=Path("out.txt"))},
             )
         ]
     }
@@ -586,3 +580,24 @@ def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert "in.pkl" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_setting_name_for_python_node_via_annotation(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PythonNode
+    from typing import Any
+
+    def task_example(
+        input: Annotated[str, PythonNode(name="node-name")] = "text",
+        path: Annotated[Path, Product] = Path("out.txt"),
+    ) -> None:
+        path.write_text(input)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "node-name" in result.output

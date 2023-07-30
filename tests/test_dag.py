@@ -3,7 +3,6 @@ from __future__ import annotations
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
-from typing import Any
 
 import networkx as nx
 import pytest
@@ -21,10 +20,6 @@ from pytask import Task
 @define
 class Node(PathNode):
     """See https://github.com/python-attrs/attrs/issues/293 for property hack."""
-
-    name: str
-    value: Any
-    path: Path
 
     def state(self):
         if "missing" in self.name:

@@ -422,3 +422,24 @@ def test_deprecation_warning_for_strings_in_depends_on(runner, tmp_path):
     assert "FutureWarning" in result.output
     assert "Using strings to specify a dependency" in result.output
     assert "Using strings to specify a product" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_setting_name_for_path_node_via_annotation(tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PathNode
+    from typing import Any
+
+    def task_example(
+        path: Annotated[Path, Product, PathNode(name="product")] = Path("out.txt"),
+    ) -> None:
+        path.write_text("text")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": [tmp_path]})
+    assert session.exit_code == ExitCode.OK
+    product = session.tasks[0].produces["path"]
+    assert product.name == "product"

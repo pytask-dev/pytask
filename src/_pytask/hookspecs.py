@@ -14,6 +14,7 @@ import click
 import networkx
 import pluggy
 from _pytask.models import NodeInfo
+from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import Node
 
 
@@ -266,7 +267,7 @@ def pytask_dag_select_execution_dag(session: Session, dag: networkx.DiGraph) -> 
 
 @hookspec(firstresult=True)
 def pytask_dag_has_node_changed(
-    session: Session, dag: networkx.DiGraph, node: Node, task_name: str
+    session: Session, dag: networkx.DiGraph, node: MetaNode, task_name: str
 ) -> None:
     """Select the subgraph which needs to be executed.
 

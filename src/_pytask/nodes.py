@@ -86,10 +86,24 @@ class PathNode(Node):
 
     name: str = ""
     """Name of the node which makes it identifiable in the DAG."""
-    value: Path | None = None
+    _value: Path | None = None
     """Value passed to the decorator which can be requested inside the function."""
-    path: Path | None = None
-    """Path to the file."""
+
+    @property
+    def path(self) -> Path:
+        return self.value
+
+    @property
+    def value(self) -> Path:
+        return self._value
+
+    @value.setter
+    def value(self, value: Path) -> None:
+        if not isinstance(value, Path):
+            raise TypeError("'value' must be a 'pathlib.Path'.")
+        if not self.name:
+            self.name = value.as_posix()
+        self._value = value
 
     @classmethod
     @functools.lru_cache
@@ -101,7 +115,7 @@ class PathNode(Node):
         """
         if not path.is_absolute():
             raise ValueError("Node must be instantiated from absolute path.")
-        return cls(name=path.as_posix(), value=path, path=path)
+        return cls(name=path.as_posix(), value=path)
 
     def state(self) -> str | None:
         """Calculate the state of the node.
