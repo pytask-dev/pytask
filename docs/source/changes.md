@@ -17,8 +17,12 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`395` refactors all occurrences of pybaum to {mod}`_pytask.tree_util`.
 - {pull}`396` replaces pybaum with optree and adds paths to the name of
   {class}`pytask.PythonNode`'s allowing for better hashing.
-- {class}`397` adds support for {class}`typing.NamedTuple` and attrs classes in
+- {pull}`397` adds support for {class}`typing.NamedTuple` and attrs classes in
   `@pytask.mark.task(kwargs=...)`.
+- {pull}`398` deprecates the decorators `@pytask.mark.depends_on` and
+  `@pytask.mark.produces`.
+- {pull}`402` replaces ABCs with protocols allowing for more flexibility for users
+  implementing their own nodes.
 
 ## 0.3.2 - 2023-06-07
 
