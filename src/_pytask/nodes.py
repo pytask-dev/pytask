@@ -72,7 +72,10 @@ class Task(MetaNode):
 
     def execute(self, **kwargs: Any) -> None:
         """Execute the task."""
-        self.function(**kwargs)
+        out = self.function(**kwargs)
+
+        if "return" in self.produces:
+            self.produces["return"].save(out)
 
     def add_report_section(self, when: str, key: str, content: str) -> None:
         """Add sections which will be displayed in report like stdout or stderr."""
@@ -126,6 +129,9 @@ class PathNode(Node):
         if self.path.exists():
             return str(self.path.stat().st_mtime)
         return None
+
+    def load(self) -> Path:
+        return self.value
 
 
 @define(kw_only=True)

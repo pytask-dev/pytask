@@ -360,6 +360,7 @@ def parse_products_from_task_function(
     has_produces_decorator = False
     has_produces_argument = False
     has_annotation = False
+    has_return = False
     out = {}
 
     # Parse products from decorators.
@@ -415,8 +416,12 @@ def parse_products_from_task_function(
                 )
                 out = {parameter_name: collected_products}
 
+    if "return" in parameters_with_node_annot:
+        has_return = True
+        out = {"return": parameters_with_node_annot["return"]}
+
     if (
-        sum((has_produces_decorator, has_produces_argument, has_annotation))
+        sum((has_produces_decorator, has_produces_argument, has_annotation, has_return))
         >= 2  # noqa: PLR2004
     ):
         raise NodeNotCollectedError(_ERROR_MULTIPLE_PRODUCT_DEFINITIONS)

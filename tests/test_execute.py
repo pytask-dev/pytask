@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import pickle
 import re
 import subprocess
 import sys
@@ -544,3 +545,42 @@ def test_error_with_multiple_different_dep_annotations(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.COLLECTION_FAILED
     assert "Parameter 'dependency'" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    import pickle
+    from typing import Any
+    from typing_extensions import Annotated
+    import attrs
+
+    @attrs.define
+    class PickleNode:
+        name: str = ""
+        path: Path | None = None
+        value: None = None
+
+        def state(self) -> str | None:
+            if self.path.exists():
+                return str(self.path.stat().st_mtime)
+            return None
+
+        def load(self) -> Any:
+            return pickle.loads(self.path.read_bytes())
+
+        def save(self, value: Any) -> None:
+            self.path.write_bytes(pickle.dumps(value))
+
+    node = PickleNode("pickled_data", Path(__file__).parent.joinpath("data.pkl"))
+
+    def task_example() -> Annotated[int, node]:
+        return 1
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+
+    data = pickle.loads(tmp_path.joinpath("data.pkl").read_bytes())  # noqa: S301
+    assert data == 1
