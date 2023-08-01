@@ -64,6 +64,7 @@ class Task(MetaNode):
             self.short_name = self.name
 
     def state(self, hash: bool = False) -> str | None:  # noqa: A002
+        """Return the state of the node."""
         if hash and self.path.exists():
             return hashlib.sha256(self.path.read_bytes()).hexdigest()
         if not hash and self.path.exists():
@@ -102,6 +103,7 @@ class PathNode(Node):
 
     @value.setter
     def value(self, value: Path) -> None:
+        """Set path and if other attributes are not set, set sensible defaults."""
         if not isinstance(value, Path):
             raise TypeError("'value' must be a 'pathlib.Path'.")
         if not self.name:
@@ -132,6 +134,17 @@ class PathNode(Node):
 
     def load(self) -> Path:
         return self.value
+
+    def save(self, value: bytes | str) -> None:
+        """Save strings or bytes to file."""
+        if isinstance(value, str):
+            self.path.write_text(value)
+        elif isinstance(value, bytes):
+            self.path.write_bytes(value)
+        else:
+            raise TypeError(
+                f"'PathNode' can only save 'str' and 'bytes', not {type(value)}"
+            )
 
 
 @define(kw_only=True)

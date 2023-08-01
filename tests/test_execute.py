@@ -532,7 +532,6 @@ def test_error_with_multiple_different_dep_annotations(runner, tmp_path):
     from pathlib import Path
     from typing_extensions import Annotated
     from pytask import Product, PythonNode, PathNode
-    from typing import Any
 
     def task_example(
         dependency: Annotated[Any, PythonNode(), PathNode()] = "hello",
@@ -545,6 +544,25 @@ def test_error_with_multiple_different_dep_annotations(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.COLLECTION_FAILED
     assert "Parameter 'dependency'" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_return_with_pathnode_annotation_as_return(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Any
+    from typing_extensions import Annotated
+    from pytask import PathNode
+
+    node = PathNode.from_path(Path(__file__).parent.joinpath("file.txt"))
+
+    def task_example() -> Annotated[str, node]:
+        return "Hello, World!"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
 
 
 @pytest.mark.end_to_end()
