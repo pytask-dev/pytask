@@ -309,7 +309,10 @@ def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, Node]
     args_with_node_annotation = {}
     for name, meta in metas.items():
         annot = [
-            i for i in meta if not isinstance(i, ProductType) and isinstance(i, Node)
+            i
+            for i in meta
+            if not isinstance(i, ProductType)
+            and all(isinstance(x, Node) for x in tree_leaves(i))
         ]
         if len(annot) >= 2:  # noqa: PLR2004
             raise ValueError(
@@ -418,7 +421,17 @@ def parse_products_from_task_function(
 
     if "return" in parameters_with_node_annot:
         has_return = True
-        out = {"return": parameters_with_node_annot["return"]}
+        collected_products = tree_map_with_path(
+            lambda p, x: _collect_product(
+                session,
+                path,
+                name,
+                NodeInfo("return", p, x),
+                is_string_allowed=False,
+            ),
+            parameters_with_node_annot["return"],
+        )
+        out = {"return": collected_products}
 
     if (
         sum((has_produces_decorator, has_produces_argument, has_annotation, has_return))
@@ -576,5 +589,5 @@ def _evolve_instance(x: Any, instance_from_annot: Node | None) -> Any:
     if not instance_from_annot:
         return x
 
-    instance_from_annot.value = x
+    instance_from_annot.set_value(x)
     return instance_from_annot

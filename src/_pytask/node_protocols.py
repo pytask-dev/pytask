@@ -25,6 +25,15 @@ class Node(MetaNode, Protocol):
 
     value: Any
 
+    def load(self) -> Any:
+        ...
+
+    def save(self, value: Any) -> Any:
+        ...
+
+    def set_value(self, value: Any) -> Any:
+        ...
+
 
 @runtime_checkable
 class PPathNode(Node, Protocol):

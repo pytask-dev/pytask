@@ -172,7 +172,7 @@ def test_pytask_collect_node(session, path, node_info, expected):
     if result is None:
         assert result is expected
     else:
-        assert str(result.value) == str(expected)
+        assert str(result.load()) == str(expected)
 
 
 @pytest.mark.unit()

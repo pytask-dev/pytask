@@ -43,7 +43,7 @@ def test_task_with_complex_product_did_not_produce_node(
 
     assert session.exit_code == exit_code
 
-    products = tree_map(lambda x: x.value, getattr(session.tasks[0], decorator_name))
+    products = tree_map(lambda x: x.load(), getattr(session.tasks[0], decorator_name))
     expected = {
         0: tmp_path / "out.txt",
         1: {0: tmp_path / "tuple_out.txt"},
