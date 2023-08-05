@@ -589,5 +589,5 @@ def _evolve_instance(x: Any, instance_from_annot: Node | None) -> Any:
     if not instance_from_annot:
         return x
 
-    instance_from_annot.set_value(x)
+    instance_from_annot.from_annot(x)
     return instance_from_annot

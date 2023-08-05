@@ -594,7 +594,7 @@ def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
         def save(self, value: Any) -> None:
             self.path.write_bytes(pickle.dumps(value))
 
-        def set_value(self, value: Any) -> None: ...
+        def from_annot(self, value: Any) -> None: ...
 
     node = PickleNode("pickled_data", Path(__file__).parent.joinpath("data.pkl"))
 

@@ -31,7 +31,7 @@ class Node(MetaNode, Protocol):
     def save(self, value: Any) -> Any:
         ...
 
-    def set_value(self, value: Any) -> Any:
+    def from_annot(self, value: Any) -> Any:
         ...
 
 

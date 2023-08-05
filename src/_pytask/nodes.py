@@ -111,7 +111,7 @@ class PathNode(Node):
     def path(self) -> Path:
         return self.value
 
-    def set_value(self, value: Path) -> None:
+    def from_annot(self, value: Path) -> None:
         """Set path and if other attributes are not set, set sensible defaults."""
         if not isinstance(value, Path):
             raise TypeError("'value' must be a 'pathlib.Path'.")
@@ -173,7 +173,7 @@ class PythonNode(Node):
     def save(self, value: Any) -> NoReturn:
         raise NotImplementedError
 
-    def set_value(self, value: Any) -> None:
+    def from_annot(self, value: Any) -> None:
         self.value = value
 
     def state(self) -> str | None:
