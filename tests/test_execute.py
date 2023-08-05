@@ -569,6 +569,8 @@ def test_return_with_pathnode_annotation_as_return(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
     source = """
+    from __future__ import annotations
+
     from pathlib import Path
     import pickle
     from typing import Any
