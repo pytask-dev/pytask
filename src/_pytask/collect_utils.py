@@ -359,6 +359,7 @@ def parse_products_from_task_function(
     has_produces_argument = False
     has_annotation = False
     has_return = False
+    has_task_decorator = False
     out = {}
 
     # Parse products from decorators.
@@ -428,8 +429,31 @@ def parse_products_from_task_function(
         )
         out = {"return": collected_products}
 
+    task_produces = obj.pytask_meta.produces if hasattr(obj, "pytask_meta") else None
+    if task_produces:
+        has_task_decorator = True
+        collected_products = tree_map_with_path(
+            lambda p, x: _collect_product(
+                session,
+                path,
+                name,
+                NodeInfo("return", p, x),
+                is_string_allowed=False,
+            ),
+            task_produces,
+        )
+        out = {"return": collected_products}
+
     if (
-        sum((has_produces_decorator, has_produces_argument, has_annotation, has_return))
+        sum(
+            (
+                has_produces_decorator,
+                has_produces_argument,
+                has_annotation,
+                has_return,
+                has_task_decorator,
+            )
+        )
         >= 2  # noqa: PLR2004
     ):
         raise NodeNotCollectedError(_ERROR_MULTIPLE_PRODUCT_DEFINITIONS)

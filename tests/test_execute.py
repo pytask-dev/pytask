@@ -586,6 +586,27 @@ def test_return_with_pathnode_annotation_as_return(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
+def test_return_with_tuple_pathnode_annotation_as_return(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Any
+    from typing_extensions import Annotated
+    from pytask import PathNode
+
+    node1 = PathNode.from_path(Path(__file__).parent.joinpath("file1.txt"))
+    node2 = PathNode.from_path(Path(__file__).parent.joinpath("file2.txt"))
+
+    def task_example() -> Annotated[str, (node1, node2)]:
+        return "Hello,", "World!"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("file1.txt").read_text() == "Hello,"
+    assert tmp_path.joinpath("file2.txt").read_text() == "World!"
+
+
+@pytest.mark.end_to_end()
 def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
     source = """
     from __future__ import annotations
@@ -626,24 +647,3 @@ def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
 
     data = pickle.loads(tmp_path.joinpath("data.pkl").read_bytes())  # noqa: S301
     assert data == 1
-
-
-@pytest.mark.end_to_end()
-def test_return_with_tuple_pathnode_annotation_as_return(runner, tmp_path):
-    source = """
-    from pathlib import Path
-    from typing import Any
-    from typing_extensions import Annotated
-    from pytask import PathNode
-
-    node1 = PathNode.from_path(Path(__file__).parent.joinpath("file1.txt"))
-    node2 = PathNode.from_path(Path(__file__).parent.joinpath("file2.txt"))
-
-    def task_example() -> Annotated[str, (node1, node2)]:
-        return "Hello,", "World!"
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert tmp_path.joinpath("file1.txt").read_text() == "Hello,"
-    assert tmp_path.joinpath("file2.txt").read_text() == "World!"
