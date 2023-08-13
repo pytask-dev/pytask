@@ -308,12 +308,7 @@ def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, Node]
 
     args_with_node_annotation = {}
     for name, meta in metas.items():
-        annot = [
-            i
-            for i in meta
-            if not isinstance(i, ProductType)
-            and all(isinstance(x, Node) for x in tree_leaves(i))
-        ]
+        annot = [i for i in meta if not isinstance(i, ProductType)]
         if len(annot) >= 2:  # noqa: PLR2004
             raise ValueError(
                 f"Parameter {name!r} has multiple node annotations although only one "
