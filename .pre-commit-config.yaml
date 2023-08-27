@@ -24,24 +24,24 @@ repos:
     -   id: python-no-log-warn
     -   id: text-unicode-replacement-char
 -   repo: https://github.com/asottile/reorder-python-imports
-    rev: v3.9.0
+    rev: v3.10.0
     hooks:
     -   id: reorder-python-imports
         args: [--py38-plus, --add-import, 'from __future__ import annotations']
 -   repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v2.3.0
+    rev: v2.4.0
     hooks:
     -   id: setup-cfg-fmt
 -   repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.7.0
     hooks:
     -   id: black
 -   repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.270
+    rev: v0.0.286
     hooks:
       - id: ruff
 -   repo: https://github.com/dosisod/refurb
-    rev: v1.16.0
+    rev: v1.20.0
     hooks:
     -   id: refurb
         args: [--ignore, FURB126]
@@ -52,7 +52,7 @@ repos:
         args: [-vv, --fail-under=75]
         exclude: ^(tests/|docs/|scripts/)
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.3.0'
+    rev: 'v1.5.1'
     hooks:
     -   id: mypy
         args: [
@@ -66,7 +66,7 @@ repos:
         ]
         pass_filenames: false
 -   repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.16
+    rev: 0.7.17
     hooks:
     -   id: mdformat
         additional_dependencies: [
@@ -76,7 +76,7 @@ repos:
         args: [--wrap, "88"]
         files: (README\.md)
 -   repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.16
+    rev: 0.7.17
     hooks:
     -   id: mdformat
         additional_dependencies: [
@@ -101,7 +101,7 @@ repos:
                 docs/source/tutorials/set_up_a_project.md
             )$
 -   repo: https://github.com/codespell-project/codespell
-    rev: v2.2.4
+    rev: v2.2.5
     hooks:
     -   id: codespell
         additional_dependencies: [tomli]
