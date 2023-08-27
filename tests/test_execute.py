@@ -555,9 +555,7 @@ def test_return_with_path_annotation_as_return(runner, tmp_path):
     from typing_extensions import Annotated
     from pytask import PathNode
 
-    path = Path(__file__).parent.joinpath("file.txt")
-
-    def task_example() -> Annotated[str, path]:
+    def task_example() -> Annotated[str, Path("file.txt")]:
         return "Hello, World!"
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -647,3 +645,24 @@ def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
 
     data = pickle.loads(tmp_path.joinpath("data.pkl").read_bytes())  # noqa: S301
     assert data == 1
+
+
+@pytest.mark.end_to_end()
+def test_error_when_return_pytree_mismatch(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Any
+    from typing_extensions import Annotated
+    from pytask import PathNode
+
+    node1 = PathNode.from_path(Path(__file__).parent.joinpath("file1.txt"))
+    node2 = PathNode.from_path(Path(__file__).parent.joinpath("file2.txt"))
+
+    def task_example() -> Annotated[str, (node1, node2)]:
+        return "Hello,"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+    assert "Function return: PyTreeSpec(*, NoneIsLeaf)" in result.output
+    assert "Return annotation: PyTreeSpec((*, *), NoneIsLeaf)" in result.output

@@ -31,6 +31,7 @@ class ProductType:
 
 
 Product = ProductType()
+"""ProductType: A singleton to mark products in annotations."""
 
 
 @define(kw_only=True)
@@ -84,7 +85,8 @@ class Task(MetaNode):
             if not structure_out == structure_return:
                 raise ValueError(
                     "The structure of the function return does not match the structure "
-                    "of the return annotation."
+                    f"of the return annotation.\n\nFunction return: {structure_out}\n\n"
+                    f"Return annotation: {structure_return}"
                 )
 
             for out_, return_ in zip(
@@ -142,6 +144,7 @@ class PathNode(Node):
         return None
 
     def load(self) -> Path:
+        """Load the value."""
         return self.value
 
     def save(self, value: bytes | str) -> None:
@@ -168,12 +171,15 @@ class PythonNode(Node):
     """Whether the value should be hashed to determine the state."""
 
     def load(self) -> Any:
+        """Load the value."""
         return self.value
 
     def save(self, value: Any) -> NoReturn:
+        """Save the value."""
         raise NotImplementedError
 
     def from_annot(self, value: Any) -> None:
+        """Set the value from a function annotation."""
         self.value = value
 
     def state(self) -> str | None:
