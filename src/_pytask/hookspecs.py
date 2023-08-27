@@ -8,17 +8,18 @@ from __future__ import annotations
 
 import pathlib
 from typing import Any
-from typing import Callable
 from typing import TYPE_CHECKING
 
 import click
 import networkx
 import pluggy
+from _pytask.models import NodeInfo
+from _pytask.node_protocols import MetaNode
+from _pytask.node_protocols import Node
 
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import MetaNode
     from _pytask.nodes import Task
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
@@ -195,8 +196,8 @@ def pytask_collect_task_teardown(session: Session, task: Task) -> None:
 
 @hookspec(firstresult=True)
 def pytask_collect_node(
-    session: Session, path: pathlib.Path, node: MetaNode
-) -> MetaNode | None:
+    session: Session, path: pathlib.Path, node_info: NodeInfo
+) -> Node | None:
     """Collect a node which is a dependency or a product of a task."""
 
 
@@ -207,27 +208,6 @@ def pytask_collect_log(
     """Log errors occurring during the collection.
 
     This hook reports errors during the collection.
-
-    """
-
-
-# Hooks to parametrize tasks.
-
-
-@hookspec(firstresult=True)
-def pytask_parametrize_task(
-    session: Session, name: str, obj: Any
-) -> list[tuple[str, Callable[..., Any]]]:
-    """Generate multiple tasks from name and object with parametrization."""
-
-
-@hookspec
-def pytask_parametrize_kwarg_to_marker(obj: Any, kwargs: dict[Any, Any]) -> None:
-    """Add some keyword arguments as markers to object.
-
-    This hook moves arguments defined in the parametrization to marks of the same
-    function. This allows an argument like ``depends_on`` be transformed to the usual
-    ``@pytask.mark.depends_on`` marker which receives special treatment.
 
     """
 

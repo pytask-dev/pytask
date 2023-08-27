@@ -106,21 +106,6 @@ The following hooks traverse directories and collect tasks from files.
 
 ```
 
-## Parametrization
-
-The hooks to parametrize a task are called during the collection when a function is
-collected. Then, the function is duplicated according to the parametrization and the
-duplicates are collected with {func}`pytask_collect_task`.
-
-```{eval-rst}
-.. autofunction:: pytask_parametrize_task
-```
-
-```{eval-rst}
-.. autofunction:: pytask_parametrize_kwarg_to_marker
-
-```
-
 ## Resolving Dependencies
 
 The following hooks are designed to build a DAG from tasks and dependencies and check

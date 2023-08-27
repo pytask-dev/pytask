@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-import sys
 import textwrap
 
 import pytest
@@ -188,7 +187,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
 
 
 @pytest.mark.unit()
-@pytest.mark.xfail(sys.platform == "darwin", reason="See #377.")
+@pytest.mark.xfail(reason="See #377.")
 def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path):
     path = tmp_path.joinpath("task_module.py")
     task = Task(base_name="task_example", path=path, function=lambda x: x)
@@ -262,9 +261,11 @@ def test_full_execution_table_is_displayed_at_the_end_of_execution(tmp_path, run
     source = """
     import pytask
 
-    @pytask.mark.parametrize("produces", [f"{i}.txt" for i in range(4)])
-    def task_create_file(produces):
-        produces.touch()
+    for produces in [f"{i}.txt" for i in range(4)]:
+
+        @pytask.mark.task
+        def task_create_file(produces=produces):
+            produces.touch()
     """
     # Subfolder to reduce task id and be able to check the output later.
     tmp_path.joinpath("d").mkdir()

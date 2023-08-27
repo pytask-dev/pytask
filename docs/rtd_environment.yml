@@ -3,7 +3,7 @@ channels:
   - nodefaults
 
 dependencies:
-  - python >=3.7
+  - python >=3.8
   - pip
   - setuptools_scm
   - toml
@@ -25,11 +25,12 @@ dependencies:
   - click-default-group
   - networkx >=2.4
   - pluggy
-  - pony >=0.7.15
-  - pybaum >=0.1.1
+  - optree >=0.9
   - pexpect
   - rich
+  - sqlalchemy >=1.4.36
   - tomli >=1.0.0
+  - typing_extensions
 
   - pip:
     - ../

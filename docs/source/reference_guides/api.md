@@ -48,35 +48,6 @@ by the host or by plugins. The following marks are available by default.
 ```
 
 ```{eval-rst}
-.. function:: pytask.mark.parametrize(arg_names, arg_values, *, ids)
-
-    Parametrize a task function.
-
-    Parametrizing a task allows to execute the same task with different arguments.
-
-    :type arg_names: str | list[str] | tuple[str, ...]
-    :param arg_names:
-        The names of the arguments which can either be given as a comma-separated
-        string, a tuple of strings, or a list of strings.
-    :type arg_values: Iterable[Sequence[Any] | Any]
-    :param arg_values:
-        The values which correspond to names in ``arg_names``. For one argument, it is a
-        single iterable. For multiple argument names it is an iterable of iterables.
-    :type ids: None | (Iterable[None | str | float | int | bool] | Callable[..., Any])
-    :param ids:
-        This argument can either be a list with ids or a function which is called with
-        every value passed to the parametrized function.
-
-        If you pass an iterable with ids, make sure to only use :obj:`bool`,
-        :obj:`float`, :obj:`int`, or :obj:`str` as values which are used to create task
-        ids like ``"task_dummpy.py::task_dummy[first_task_id]"``.
-
-        If you pass a function, the function receives each value of the parametrization
-        and may return a boolean, number, string or None. For the latter, the
-        auto-generated value is used.
-```
-
-```{eval-rst}
 .. function:: pytask.mark.persist()
 
     A marker for a task which should be peristed.
@@ -275,7 +246,13 @@ from {class}`pytask.MetaNode`.
 Then, different kinds of nodes can be implemented.
 
 ```{eval-rst}
-.. autoclass:: pytask.FilePathNode
+.. autoclass:: pytask.PathNode
+    :members:
+```
+
+```{eval-rst}
+.. autoclass:: pytask.PythonNode
+    :members:
 ```
 
 To parse dependencies and products from nodes, use the following functions.

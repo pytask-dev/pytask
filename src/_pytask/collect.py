@@ -6,15 +6,13 @@ import itertools
 import os
 import sys
 import time
-import warnings
 from pathlib import Path
 from typing import Any
 from typing import Generator
 from typing import Iterable
 
-from _pytask.collect_utils import depends_on
-from _pytask.collect_utils import parse_nodes
-from _pytask.collect_utils import produces
+from _pytask.collect_utils import parse_dependencies_from_task_function
+from _pytask.collect_utils import parse_products_from_task_function
 from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
@@ -22,7 +20,10 @@ from _pytask.console import create_summary_panel
 from _pytask.console import format_task_id
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_mark
-from _pytask.nodes import FilePathNode
+from _pytask.models import NodeInfo
+from _pytask.node_protocols import Node
+from _pytask.nodes import PathNode
+from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
@@ -94,7 +95,7 @@ def pytask_collect_file_protocol(
         )
         flat_reports = list(itertools.chain.from_iterable(new_reports))
     except Exception:  # noqa: BLE001
-        node = FilePathNode.from_path(path)
+        node = PathNode.from_path(path)
         flat_reports = [
             CollectionReport.from_exception(
                 outcome=CollectionOutcome.FAIL, node=node, exc_info=sys.exc_info()
@@ -104,15 +105,6 @@ def pytask_collect_file_protocol(
     session.hook.pytask_collect_file_log(session=session, reports=flat_reports)
 
     return flat_reports
-
-
-_PARAMETRIZE_DEPRECATION_WARNING = """\
-The @pytask.mark.parametrize decorator is deprecated and will be removed in pytask \
-v0.4. Either upgrade your code to the new syntax explained in \
-https://tinyurl.com/pytask-loops or silence the warning by setting \
-`silence_parametrize_deprecation = true` in your pyproject.toml under \
-[tool.pytask.ini_options] and pin pytask to <0.4.
-"""
 
 
 @hookimpl
@@ -129,26 +121,11 @@ def pytask_collect_file(
             if has_mark(obj, "task"):
                 continue
 
-            if has_mark(obj, "parametrize"):
-                if not session.config.get("silence_parametrize_deprecation", False):
-                    warnings.warn(
-                        message=_PARAMETRIZE_DEPRECATION_WARNING,
-                        category=FutureWarning,
-                        stacklevel=1,
-                    )
-
-                names_and_objects = session.hook.pytask_parametrize_task(
-                    session=session, name=name, obj=obj
-                )
-            else:
-                names_and_objects = [(name, obj)]
-
-            for name_, obj_ in names_and_objects:
-                report = session.hook.pytask_collect_task_protocol(
-                    session=session, reports=reports, path=path, name=name_, obj=obj_
-                )
-                if report is not None:
-                    collected_reports.append(report)
+            report = session.hook.pytask_collect_task_protocol(
+                session=session, reports=reports, path=path, name=name, obj=obj
+            )
+            if report is not None:
+                collected_reports.append(report)
 
         return collected_reports
     return None
@@ -192,11 +169,11 @@ def pytask_collect_task(
 
     """
     if (name.startswith("task_") or has_mark(obj, "task")) and callable(obj):
-        dependencies = parse_nodes(session, path, name, obj, depends_on)
-        products = parse_nodes(session, path, name, obj, produces)
+        dependencies = parse_dependencies_from_task_function(session, path, name, obj)
+
+        products = parse_products_from_task_function(session, path, name, obj)
 
         markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
-        kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
 
         # Get the underlying function to avoid having different states of the function,
         # e.g. due to pytask_meta, in different layers of the wrapping.
@@ -209,7 +186,6 @@ def pytask_collect_task(
             depends_on=dependencies,
             produces=products,
             markers=markers,
-            kwargs=kwargs,
         )
     return None
 
@@ -228,10 +204,8 @@ _TEMPLATE_ERROR: str = (
 
 
 @hookimpl(trylast=True)
-def pytask_collect_node(
-    session: Session, path: Path, node: str | Path
-) -> FilePathNode | None:
-    """Collect a node of a task as a :class:`pytask.nodes.FilePathNode`.
+def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> Node:
+    """Collect a node of a task as a :class:`pytask.nodes.PathNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
     hook is executed at last and possible errors will be shown, it seems reasonable and
@@ -240,19 +214,18 @@ def pytask_collect_node(
     ``trylast=True`` might be necessary if other plugins try to parse strings themselves
     like a plugin for downloading files which depends on URLs given as strings.
 
-    Parameters
-    ----------
-    session : _pytask.session.Session
-        The session.
-    path : Union[str, pathlib.Path]
-        The path to file where the task and node are specified.
-    node : Union[str, pathlib.Path]
-        The value of the node which can be a str, a path or anything which cannot be
-        handled by this function.
-
     """
-    if isinstance(node, str):
-        node = Path(node)
+    node = node_info.value
+
+    if isinstance(node, PythonNode):
+        if not node.name:
+            suffix = "-" + "-".join(map(str, node_info.path)) if node_info.path else ""
+            node.name = node_info.arg_name + suffix
+        return node
+
+    if isinstance(node, Node):
+        return node
+
     if isinstance(node, Path):
         if not node.is_absolute():
             node = path.parent.joinpath(node)
@@ -270,8 +243,11 @@ def pytask_collect_node(
             if str(node) != str(case_sensitive_path):
                 raise ValueError(_TEMPLATE_ERROR.format(node, case_sensitive_path))
 
-        return FilePathNode.from_path(node)
-    return None
+        return PathNode.from_path(node)
+
+    suffix = "-" + "-".join(map(str, node_info.path)) if node_info.path else ""
+    node_name = node_info.arg_name + suffix
+    return PythonNode(value=node, name=node_name)
 
 
 def _not_ignored_paths(
@@ -282,18 +258,6 @@ def _not_ignored_paths(
     The paths passed by the user can either point to files or directories. For
     directories, all subsequent files and folders are considered, but one level after
     another, so that files of ignored folders are not checked.
-
-    Parameters
-    ----------
-    paths : Iterable[pathlib.Path]
-        List of paths from which tasks are collected.
-    session : _pytask.session.Session
-        The session.
-
-    Yields
-    ------
-    path : pathlib.Path
-        A path which is not ignored.
 
     """
     for path in paths:
@@ -307,11 +271,7 @@ def _not_ignored_paths(
 
 @hookimpl(trylast=True)
 def pytask_collect_modify_tasks(tasks: list[Task]) -> None:
-    """Given all tasks, assign a short uniquely identifiable name to each task.
-
-    The shorter ids are necessary to display
-
-    """
+    """Given all tasks, assign a short uniquely identifiable name to each task."""
     id_to_short_id = _find_shortest_uniquely_identifiable_name_for_tasks(tasks)
     for task in tasks:
         short_id = id_to_short_id[task.name]

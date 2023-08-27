@@ -39,6 +39,8 @@ __all__ = [
     "MarkDecorator",
     "MarkGenerator",
     "ParseError",
+    "select_by_keyword",
+    "select_by_mark",
 ]
 
 

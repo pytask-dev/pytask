@@ -195,11 +195,10 @@ def test_if_skipif_decorator_is_applied_execute(tmp_path):
     @pytask.mark.skipif(False, reason="bla")
     @pytask.mark.produces("out.txt")
     def task_first(produces):
-        with open(produces, "w") as f:
-            f.write("hello world.")
+        produces.touch()
 
     @pytask.mark.depends_on("out.txt")
-    def task_second():
+    def task_second(depends_on):
         pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))

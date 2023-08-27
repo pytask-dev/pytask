@@ -14,7 +14,6 @@ maxdepth: 1
 migrating_from_scripts_to_pytask
 invoking_pytask_extended
 capture_warnings
-repeating_tasks_with_different_inputs_the_pytest_way
 how_to_influence_build_order
 how_to_write_a_plugin
 ```

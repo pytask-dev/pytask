@@ -5,7 +5,26 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.3.2 - 2023-xx-xx
+## 0.4.0 - 2023-xx-xx
+
+- {pull}`323` remove Python 3.7 support and use a new Github action to provide mamba.
+- {pull}`384` allows to parse dependencies from every function argument if `depends_on`
+  is not present.
+- {pull}`387` replaces pony with sqlalchemy.
+- {pull}`391` removes `@pytask.mark.parametrize`.
+- {pull}`394` allows to add products with {obj}`typing.Annotation` and
+  {obj}`~pytask.Product`.
+- {pull}`395` refactors all occurrences of pybaum to {mod}`_pytask.tree_util`.
+- {pull}`396` replaces pybaum with optree and adds paths to the name of
+  {class}`pytask.PythonNode`'s allowing for better hashing.
+- {pull}`397` adds support for {class}`typing.NamedTuple` and attrs classes in
+  `@pytask.mark.task(kwargs=...)`.
+- {pull}`398` deprecates the decorators `@pytask.mark.depends_on` and
+  `@pytask.mark.produces`.
+- {pull}`402` replaces ABCs with protocols allowing for more flexibility for users
+  implementing their own nodes.
+
+## 0.3.2 - 2023-06-07
 
 - {pull}`345` updates the version numbers in animations.
 - {pull}`352` publishes `db` that is required by pytask-environment.

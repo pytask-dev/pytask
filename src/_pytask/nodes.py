@@ -2,13 +2,18 @@
 from __future__ import annotations
 
 import functools
-from abc import ABCMeta
-from abc import abstractmethod
+import hashlib
 from pathlib import Path
 from typing import Any
 from typing import Callable
+from typing import NoReturn
 from typing import TYPE_CHECKING
 
+from _pytask.node_protocols import MetaNode
+from _pytask.node_protocols import Node
+from _pytask.tree_util import PyTree
+from _pytask.tree_util import tree_leaves
+from _pytask.tree_util import tree_structure
 from attrs import define
 from attrs import field
 
@@ -17,18 +22,16 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-__all__ = ["FilePathNode", "MetaNode", "Task"]
+__all__ = ["PathNode", "Product", "Task"]
 
 
-class MetaNode(metaclass=ABCMeta):
-    """Meta class for nodes."""
+@define(frozen=True)
+class ProductType:
+    """A class to mark products."""
 
-    name: str
-    """str: The name of node that must be unique."""
 
-    @abstractmethod
-    def state(self) -> Any:
-        ...
+Product = ProductType()
+"""ProductType: A singleton to mark products in annotations."""
 
 
 @define(kw_only=True)
@@ -45,14 +48,12 @@ class Task(MetaNode):
     """The name of the task."""
     short_name: str | None = field(default=None, init=False)
     """The shortest uniquely identifiable name for task for display."""
-    depends_on: dict[str, MetaNode] = field(factory=dict)
+    depends_on: PyTree[Node] = field(factory=dict)
     """A list of dependencies of task."""
-    produces: dict[str, MetaNode] = field(factory=dict)
+    produces: PyTree[Node] = field(factory=dict)
     """A list of products of task."""
     markers: list[Mark] = field(factory=list)
     """A list of markers attached to the task function."""
-    kwargs: dict[str, Any] = field(factory=dict)
-    """A dictionary with keyword arguments supplied to the task."""
     _report_sections: list[tuple[str, str, str]] = field(factory=list)
     """Reports with entries for when, what, and content."""
     attributes: dict[Any, Any] = field(factory=dict)
@@ -66,14 +67,32 @@ class Task(MetaNode):
         if self.short_name is None:
             self.short_name = self.name
 
-    def state(self) -> str | None:
-        if self.path.exists():
+    def state(self, hash: bool = False) -> str | None:  # noqa: A002
+        """Return the state of the node."""
+        if hash and self.path.exists():
+            return hashlib.sha256(self.path.read_bytes()).hexdigest()
+        if not hash and self.path.exists():
             return str(self.path.stat().st_mtime)
         return None
 
     def execute(self, **kwargs: Any) -> None:
         """Execute the task."""
-        self.function(**kwargs)
+        out = self.function(**kwargs)
+
+        if "return" in self.produces:
+            structure_out = tree_structure(out)
+            structure_return = tree_structure(self.produces["return"])
+            if not structure_out == structure_return:
+                raise ValueError(
+                    "The structure of the function return does not match the structure "
+                    f"of the return annotation.\n\nFunction return: {structure_out}\n\n"
+                    f"Return annotation: {structure_return}"
+                )
+
+            for out_, return_ in zip(
+                tree_leaves(out), tree_leaves(self.produces["return"])
+            ):
+                return_.save(out_)
 
     def add_report_section(self, when: str, key: str, content: str) -> None:
         """Add sections which will be displayed in report like stdout or stderr."""
@@ -82,29 +101,102 @@ class Task(MetaNode):
 
 
 @define(kw_only=True)
-class FilePathNode(MetaNode):
+class PathNode(Node):
     """The class for a node which is a path."""
 
-    name: str
-    """str: Name of the node which makes it identifiable in the DAG."""
-    value: Path
-    """Any: Value passed to the decorator which can be requested inside the function."""
-    path: Path
-    """pathlib.Path: Path to the FilePathNode."""
+    name: str = ""
+    """Name of the node which makes it identifiable in the DAG."""
+    value: Path | None = None
+    """Value passed to the decorator which can be requested inside the function."""
 
-    def state(self) -> str | None:
-        if self.path.exists():
-            return str(self.path.stat().st_mtime)
-        return None
+    @property
+    def path(self) -> Path:
+        return self.value
+
+    def from_annot(self, value: Path) -> None:
+        """Set path and if other attributes are not set, set sensible defaults."""
+        if not isinstance(value, Path):
+            raise TypeError("'value' must be a 'pathlib.Path'.")
+        if not self.name:
+            self.name = value.as_posix()
+        self.value = value
 
     @classmethod
-    @functools.lru_cache()
-    def from_path(cls, path: Path) -> FilePathNode:
+    @functools.lru_cache
+    def from_path(cls, path: Path) -> PathNode:
         """Instantiate class from path to file.
 
         The `lru_cache` decorator ensures that the same object is not collected twice.
 
         """
         if not path.is_absolute():
-            raise ValueError("FilePathNode must be instantiated from absolute path.")
-        return cls(name=path.as_posix(), value=path, path=path)
+            raise ValueError("Node must be instantiated from absolute path.")
+        return cls(name=path.as_posix(), value=path)
+
+    def state(self) -> str | None:
+        """Calculate the state of the node.
+
+        The state is given by the modification timestamp.
+
+        """
+        if self.path.exists():
+            return str(self.path.stat().st_mtime)
+        return None
+
+    def load(self) -> Path:
+        """Load the value."""
+        return self.value
+
+    def save(self, value: bytes | str) -> None:
+        """Save strings or bytes to file."""
+        if isinstance(value, str):
+            self.path.write_text(value)
+        elif isinstance(value, bytes):
+            self.path.write_bytes(value)
+        else:
+            raise TypeError(
+                f"'PathNode' can only save 'str' and 'bytes', not {type(value)}"
+            )
+
+
+@define(kw_only=True)
+class PythonNode(Node):
+    """The class for a node which is a Python object."""
+
+    name: str = ""
+    """Name of the node."""
+    value: Any = None
+    """Value of the node."""
+    hash: bool = False  # noqa: A003
+    """Whether the value should be hashed to determine the state."""
+
+    def load(self) -> Any:
+        """Load the value."""
+        return self.value
+
+    def save(self, value: Any) -> NoReturn:
+        """Save the value."""
+        raise NotImplementedError
+
+    def from_annot(self, value: Any) -> None:
+        """Set the value from a function annotation."""
+        self.value = value
+
+    def state(self) -> str | None:
+        """Calculate state of the node.
+
+        If ``hash = False``, the function returns ``"0"``, a constant hash value, so the
+        :class:`PythonNode` is ignored when checking for a changed state of the task.
+
+        If ``hash = True``, :func:`hash` is used for all types except strings.
+
+        The hash for strings is calculated using hashlib because ``hash("asd")`` returns
+        a different value every invocation since the hash of strings is salted with a
+        random integer and it would confuse users.
+
+        """
+        if self.hash:
+            if isinstance(self.value, str):
+                return str(hashlib.sha256(self.value.encode()).hexdigest())
+            return str(hash(self.value))
+        return "0"

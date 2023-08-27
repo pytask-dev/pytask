@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 import sys
 import textwrap
 
@@ -172,16 +173,16 @@ def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> Non
     ],
 )
 def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -> None:
-    tmp_path.joinpath("task_module.py").write_text(
-        textwrap.dedent(
-            """
-            import pytask
-            @pytask.mark.parametrize("arg", [None, 1.3, "2-3"])
-            def task_func(arg):
-                pass
-            """
-        )
-    )
+    source = """
+    import pytask
+
+    for arg in [None, 1.3, "2-3"]:
+
+        @pytask.mark.task
+        def task_func(arg=arg):
+            pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = main({"paths": tmp_path, "expression": expr})
     assert session.exit_code == ExitCode.OK
@@ -354,3 +355,23 @@ def test_selecting_task_with_unknown_marker_raises_warning(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
     assert "Warnings" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_deprecation_warnings_for_decorators(tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.depends_on("in.txt")
+    @pytask.mark.produces("out.txt")
+    def task_write_text(depends_on, produces):
+        ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.txt").touch()
+
+    result = subprocess.run(
+        ("pytest", tmp_path.joinpath("task_module.py").as_posix()), capture_output=True
+    )
+    assert b"DeprecationWarning: '@pytask.mark.depends_on'" in result.stdout
+    assert b"DeprecationWarning: '@pytask.mark.produces'" in result.stdout

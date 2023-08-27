@@ -13,7 +13,10 @@ from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.database_utils import db
+from _pytask.database_utils import BaseTable
+from _pytask.database_utils import create_database
+from _pytask.database_utils import DatabaseSession
+from _pytask.database_utils import State
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
@@ -32,8 +35,11 @@ from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.mark_utils import set_marks
 from _pytask.models import CollectionMetadata
-from _pytask.nodes import FilePathNode
-from _pytask.nodes import MetaNode
+from _pytask.models import NodeInfo
+from _pytask.node_protocols import MetaNode
+from _pytask.nodes import PathNode
+from _pytask.nodes import Product
+from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
@@ -44,6 +50,7 @@ from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
+from _pytask.profile import Runtime
 from _pytask.report import CollectionReport
 from _pytask.report import DagReport
 from _pytask.report import ExecutionReport
@@ -62,6 +69,7 @@ from _pytask.cli import cli  # noreorder
 
 
 __all__ = [
+    "BaseTable",
     "CollectionError",
     "CollectionMetadata",
     "CollectionOutcome",
@@ -69,26 +77,32 @@ __all__ = [
     "ColoredCommand",
     "ColoredGroup",
     "ConfigurationError",
+    "DagReport",
+    "DatabaseSession",
     "EnumChoice",
     "ExecutionError",
     "ExecutionReport",
     "Exit",
     "ExitCode",
-    "FilePathNode",
+    "PathNode",
     "Mark",
     "MarkDecorator",
     "MarkGenerator",
     "MetaNode",
+    "NodeInfo",
     "NodeNotCollectedError",
     "NodeNotFoundError",
     "Persisted",
+    "Product",
     "PytaskError",
+    "PythonNode",
     "ResolvingDependenciesError",
-    "DagReport",
+    "Runtime",
     "Session",
     "Skipped",
     "SkippedAncestorFailed",
     "SkippedUnchanged",
+    "State",
     "Task",
     "TaskOutcome",
     "WarningReport",
@@ -98,7 +112,7 @@ __all__ = [
     "cli",
     "console",
     "count_outcomes",
-    "db",
+    "create_database",
     "depends_on",
     "format_exception_without_traceback",
     "get_all_marks",

@@ -11,18 +11,29 @@ from pytask import cli
 from pytask import ExitCode
 
 
-@pytest.fixture()
-def project(tmp_path):
-    """Create a sample project to be cleaned."""
-    source = """
-    import pytask
+_PROJECT_TASK = """
+import pytask
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_write_text(produces):
-        produces.write_text("a")
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+@pytask.mark.depends_on("in.txt")
+@pytask.mark.produces("out.txt")
+def task_write_text(depends_on, produces):
+    produces.write_text("a")
+"""
+
+
+_PROJECT_TASK_NEW_INTERFACE = """
+import pytask
+from pathlib import Path
+
+def task_write_text(in_path=Path("in.txt"), produces=Path("out.txt")):
+    produces.write_text("a")
+"""
+
+
+@pytest.fixture(params=[_PROJECT_TASK, _PROJECT_TASK_NEW_INTERFACE])
+def project(request, tmp_path):
+    """Create a sample project to be cleaned."""
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(request.param))
     tmp_path.joinpath("in.txt").touch()
 
     tmp_path.joinpath("to_be_deleted_file_1.txt").touch()
@@ -32,18 +43,29 @@ def project(tmp_path):
     return tmp_path
 
 
-@pytest.fixture()
-def git_project(tmp_path):
-    """Create a sample project to be cleaned."""
-    source = """
-    import pytask
+_GIT_PROJECT_TASK = """
+import pytask
 
-    @pytask.mark.depends_on("in_tracked.txt")
-    @pytask.mark.produces("out.txt")
-    def task_write_text(produces):
-        produces.write_text("a")
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+@pytask.mark.depends_on("in_tracked.txt")
+@pytask.mark.produces("out.txt")
+def task_write_text(depends_on, produces):
+    produces.write_text("a")
+"""
+
+
+_GIT_PROJECT_TASK_NEW_INTERFACE = """
+import pytask
+from pathlib import Path
+
+def task_write_text(in_path=Path("in_tracked.txt"), produces=Path("out.txt")):
+    produces.write_text("a")
+"""
+
+
+@pytest.fixture(params=[_GIT_PROJECT_TASK, _GIT_PROJECT_TASK_NEW_INTERFACE])
+def git_project(request, tmp_path):
+    """Create a sample project to be cleaned."""
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(request.param))
     tmp_path.joinpath("in_tracked.txt").touch()
     tmp_path.joinpath("tracked.txt").touch()
 
@@ -57,10 +79,28 @@ def git_project(tmp_path):
 
 
 @pytest.mark.end_to_end()
+def test_clean_database_ignored(project, runner):
+    cwd = Path.cwd()
+    os.chdir(project)
+    result = runner.invoke(cli, ["build"])
+    assert result.exit_code == ExitCode.OK
+    result = runner.invoke(cli, ["clean"])
+    assert result.exit_code == ExitCode.OK
+    os.chdir(cwd)
+
+    assert result.exit_code == ExitCode.OK
+    text_without_linebreaks = result.output.replace("\n", "")
+    assert "to_be_deleted_file_1.txt" in text_without_linebreaks
+    assert "to_be_deleted_file_2.txt" in text_without_linebreaks
+    assert ".pytask.sqlite3" not in text_without_linebreaks
+
+
+@pytest.mark.end_to_end()
 def test_clean_with_auto_collect(project, runner):
     cwd = Path.cwd()
     os.chdir(project)
     result = runner.invoke(cli, ["clean"])
+    assert result.exit_code == ExitCode.OK
     os.chdir(cwd)
 
     assert result.exit_code == ExitCode.OK

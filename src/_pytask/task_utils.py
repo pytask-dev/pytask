@@ -7,10 +7,14 @@ from pathlib import Path
 from typing import Any
 from typing import Callable
 
+import attrs
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
-from _pytask.parametrize_utils import arg_value_to_id_component
 from _pytask.shared import find_duplicates
+from _pytask.tree_util import PyTree
+
+
+__all__ = ["parse_keyword_arguments_from_signature_defaults"]
 
 
 COLLECTED_TASKS: dict[Path, list[Callable[..., Any]]] = defaultdict(list)
@@ -28,6 +32,7 @@ def task(
     *,
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
+    produces: PyTree[Any] = None,
 ) -> Callable[..., None]:
     """Parse inputs of the ``@pytask.mark.task`` decorator.
 
@@ -40,17 +45,26 @@ def task(
 
     Parameters
     ----------
-    name : str | None
+    name
         The name of the task.
-    id : str | None
+    id
         An id for the task if it is part of a parametrization.
-    kwargs : dict[Any, Any] | None
+    kwargs
         A dictionary containing keyword arguments which are passed to the task when it
         is executed.
+    produces
+        Definition of products to handle returns.
 
     """
 
     def wrapper(func: Callable[..., Any]) -> None:
+        for arg, arg_name in ((name, "name"), (id, "id")):
+            if not (isinstance(arg, str) or arg is None):
+                raise ValueError(
+                    f"Argument {arg_name!r} of @pytask.mark.task must be a str, but it "
+                    f"is {arg!r}."
+                )
+
         unwrapped = inspect.unwrap(func)
 
         raw_path = inspect.getfile(unwrapped)
@@ -67,12 +81,14 @@ def task(
             unwrapped.pytask_meta.kwargs = parsed_kwargs
             unwrapped.pytask_meta.markers.append(Mark("task", (), {}))
             unwrapped.pytask_meta.id_ = id
+            unwrapped.pytask_meta.produces = produces
         else:
             unwrapped.pytask_meta = CollectionMetadata(
                 name=parsed_name,
                 kwargs=parsed_kwargs,
                 markers=[Mark("task", (), {})],
                 id_=id,
+                produces=produces,
             )
 
         COLLECTED_TASKS[path].append(unwrapped)
@@ -125,25 +141,39 @@ def _parse_tasks_with_preliminary_names(
 
 def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
     """Parse a single task."""
-    name = task.pytask_meta.name  # type: ignore[attr-defined]
-    if name is None and task.__name__ == "_":
+    meta = task.pytask_meta  # type: ignore[attr-defined]
+
+    if meta.name is None and task.__name__ == "_":
         raise ValueError(
             "A task function either needs 'name' passed by the ``@pytask.mark.task`` "
             "decorator or the function name of the task function must not be '_'."
         )
 
-    parsed_name = task.__name__ if name is None else name
+    parsed_name = task.__name__ if meta.name is None else meta.name
+    parsed_kwargs = _parse_task_kwargs(meta.kwargs)
 
-    signature_kwargs = _parse_keyword_arguments_from_signature_defaults(task)
-    task.pytask_meta.kwargs = {  # type: ignore[attr-defined]
-        **task.pytask_meta.kwargs,  # type: ignore[attr-defined]
-        **signature_kwargs,
-    }
+    signature_kwargs = parse_keyword_arguments_from_signature_defaults(task)
+    meta.kwargs = {**signature_kwargs, **parsed_kwargs}
 
     return parsed_name, task
 
 
-def _parse_keyword_arguments_from_signature_defaults(
+def _parse_task_kwargs(kwargs: Any) -> dict[str, Any]:
+    """Parse task kwargs."""
+    if isinstance(kwargs, dict):
+        return kwargs
+    # Handle namedtuples.
+    if callable(getattr(kwargs, "_asdict", None)):
+        return kwargs._asdict()
+    if attrs.has(type(kwargs)):
+        return attrs.asdict(kwargs)
+    raise ValueError(
+        "'@pytask.mark.task(kwargs=...) needs to be a dictionary, namedtuple or an "
+        "instance of an attrs class."
+    )
+
+
+def parse_keyword_arguments_from_signature_defaults(
     task: Callable[..., Any]
 ) -> dict[str, Any]:
     """Parse keyword arguments from signature defaults."""
@@ -169,7 +199,7 @@ def _generate_ids_for_tasks(
             id_ = f"{name}[{i}]"
         else:
             stringified_args = [
-                arg_value_to_id_component(
+                _arg_value_to_id_component(
                     arg_name=parameter,
                     arg_value=task.pytask_meta.kwargs.get(  # type: ignore[attr-defined]
                         parameter
@@ -183,3 +213,42 @@ def _generate_ids_for_tasks(
             id_ = f"{name}[{id_}]"
         out[id_] = task
     return out
+
+
+def _arg_value_to_id_component(
+    arg_name: str, arg_value: Any, i: int, id_func: Callable[..., Any] | None
+) -> str:
+    """Create id component from the name and value of the argument.
+
+    First, transform the value of the argument with a user-defined function if given.
+    Otherwise, take the original value. Then, if the value is a :obj:`bool`,
+    :obj:`float`, :obj:`int`, or :obj:`str`, cast it to a string. Otherwise, define a
+    placeholder value from the name of the argument and the iteration.
+
+    Parameters
+    ----------
+    arg_name : str
+        Name of the parametrized function argument.
+    arg_value : Any
+        Value of the argument.
+    i : int
+        The ith iteration of the parametrization.
+    id_func : Union[Callable[..., Any], None]
+        A callable which maps argument values to :obj:`bool`, :obj:`float`, :obj:`int`,
+        or :obj:`str` or anything else. Any object with a different dtype than the first
+        will be mapped to an auto-generated id component.
+
+    Returns
+    -------
+    id_component : str
+        A part of the final parametrized id.
+
+    """
+    id_component = id_func(arg_value) if id_func is not None else None
+    if isinstance(id_component, (bool, float, int, str)):
+        id_component = str(id_component)
+    elif isinstance(arg_value, (bool, float, int, str)):
+        id_component = str(arg_value)
+    else:
+        id_component = arg_name + str(i)
+    return id_component
