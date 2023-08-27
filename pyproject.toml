@@ -77,6 +77,9 @@ extend-ignore = [
 "scripts/*" = ["D", "INP001"]
 "docs/source/conf.py" = ["D401", "INP001"]
 "docs_src/*" = ["ARG001", "D", "INP001"]
+"docs_src/*/*_py310.py" = ["FA102"]
+"docs_src/*/*_py38.py" = ["FA100"]
+"docs_src/*/*_decorators.py" = ["FA100"]
 
 
 [tool.ruff.pydocstyle]
