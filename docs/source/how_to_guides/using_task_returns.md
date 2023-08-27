@@ -1,7 +1,7 @@
 # Using task returns
 
-The tutorial {doc}`../tutorials/defining_dependencies_products` presented different
-ways to specify products. What might seem unintuitive at first is that usually one would
+The tutorial {doc}`../tutorials/defining_dependencies_products` presented different ways
+to specify products. What might seem unintuitive at first is that usually one would
 associate the return of functions with their products. But, none of the approaches uses
 function returns.
 
@@ -23,6 +23,7 @@ defines where the return of the function, a string, should be stored.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_1_py310.py
 ```
+
 :::
 
 :::{tab-item} Python 3.8+
@@ -30,8 +31,8 @@ defines where the return of the function, a string, should be stored.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_1_py38.py
 ```
-:::
-::::
+
+::: ::::
 
 It works because internally the path is converted to a {class}`pytask.PathNode` that is
 able to store objects of type {class}`str` and {class}`bytes`.

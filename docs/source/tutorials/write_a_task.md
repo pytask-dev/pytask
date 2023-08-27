@@ -31,7 +31,7 @@ Generally, a task is a function whose name starts with `task_`. Tasks produce ou
 and the most common output is a file which we will focus on throughout the tutorials.
 
 The following interfaces allow specifying the products of a task. It enables pytask to
-peform some checks. For example, whether the file is created after the task was
+perform some checks. For example, whether the file is created after the task was
 executed. The interfaces are ordered from most (left) to least recommended (right).
 
 :::::{tab-set}
