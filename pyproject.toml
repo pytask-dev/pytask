@@ -32,7 +32,7 @@ ignore-words-list = "falsy, hist, ines, unparseable"
 target-version = "py38"
 select = ["ALL"]
 fix = true
-extend-ignore = [
+ignore = [
     "TRY",  # ignore tryceratops.
     "TCH",  # ignore non-guarded type imports.
     # Numpy docstyle
