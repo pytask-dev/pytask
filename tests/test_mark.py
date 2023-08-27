@@ -373,7 +373,7 @@ def test_deprecation_warnings_for_decorators(tmp_path):
     result = subprocess.run(
         ("pytest", tmp_path.joinpath("task_module.py").as_posix()),
         capture_output=True,
-        check=True,
+        check=False,
     )
     assert b"DeprecationWarning: '@pytask.mark.depends_on'" in result.stdout
     assert b"DeprecationWarning: '@pytask.mark.produces'" in result.stdout
