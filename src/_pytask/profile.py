@@ -23,7 +23,7 @@ from _pytask.database_utils import BaseTable
 from _pytask.database_utils import DatabaseSession
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
-from _pytask.nodes import FilePathNode
+from _pytask.node_protocols import PPathNode
 from _pytask.nodes import Task
 from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
@@ -47,7 +47,7 @@ class _ExportFormats(enum.Enum):
     CSV = "csv"
 
 
-class Runtime(BaseTable):  # type: ignore[valid-type, misc]
+class Runtime(BaseTable):
     """Record of runtimes of tasks."""
 
     __tablename__ = "runtime"
@@ -228,7 +228,7 @@ class FileSizeNameSpace:
                 sum_bytes = 0
                 for successor in successors:
                     node = session.dag.nodes[successor]["node"]
-                    if isinstance(node, FilePathNode):
+                    if isinstance(node, PPathNode):
                         with suppress(FileNotFoundError):
                             sum_bytes += node.path.stat().st_size
 

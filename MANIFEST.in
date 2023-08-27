@@ -1,6 +1,7 @@
 include CITATION
 include LICENSE
 
+recursive-include src *.pyi
 recursive-include src py.typed
 
 exclude .coveragerc

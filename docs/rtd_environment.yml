@@ -25,11 +25,12 @@ dependencies:
   - click-default-group
   - networkx >=2.4
   - pluggy
-  - pybaum >=0.1.1
+  - optree >=0.9
   - pexpect
   - rich
   - sqlalchemy >=1.4.36
   - tomli >=1.0.0
+  - typing_extensions
 
   - pip:
     - ../

@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 from typing import Any
+from typing import NamedTuple
 from typing import TYPE_CHECKING
 
+from _pytask.tree_util import PyTree
 from attrs import define
 from attrs import field
 
@@ -23,3 +25,11 @@ class CollectionMetadata:
     """Contains the markers of the function."""
     name: str | None = None
     """The name of the task function."""
+    produces: PyTree[Any] = None
+    """Definition of products to handle returns."""
+
+
+class NodeInfo(NamedTuple):
+    arg_name: str
+    path: tuple[str | int, ...]
+    value: Any

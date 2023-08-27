@@ -50,12 +50,12 @@ This approach is deprecated and will be removed in v0.5
 :emphasize-lines: 9, 10
 ```
 
-The {func}`@pytask.mark.produces <pytask.mark.produces>` marker attaches a
-product to a task which is a {class}`pathlib.Path` to file. After the task has finished,
-pytask will check whether the file exists.
+The {func}`@pytask.mark.produces <pytask.mark.produces>` marker attaches a product to a
+task which is a {class}`pathlib.Path` to file. After the task has finished, pytask will
+check whether the file exists.
 
-Optionally, you can use `produces` as an argument of the task function and get access to
-the same path inside the task function.
+Add `produces` as an argument of the task function to get access to the same path inside
+the task function.
 
 :::
 ::::

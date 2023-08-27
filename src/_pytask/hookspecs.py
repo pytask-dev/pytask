@@ -11,13 +11,15 @@ from typing import Any
 from typing import TYPE_CHECKING
 
 import click
-import networkx
+import networkx as nx
 import pluggy
+from _pytask.models import NodeInfo
+from _pytask.node_protocols import MetaNode
+from _pytask.node_protocols import Node
 
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import MetaNode
     from _pytask.nodes import Task
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
@@ -194,8 +196,8 @@ def pytask_collect_task_teardown(session: Session, task: Task) -> None:
 
 @hookspec(firstresult=True)
 def pytask_collect_node(
-    session: Session, path: pathlib.Path, node: MetaNode
-) -> MetaNode | None:
+    session: Session, path: pathlib.Path, node_info: NodeInfo
+) -> Node | None:
     """Collect a node which is a dependency or a product of a task."""
 
 
@@ -224,7 +226,7 @@ def pytask_dag(session: Session) -> None:
 
 
 @hookspec(firstresult=True)
-def pytask_dag_create_dag(session: Session, tasks: list[Task]) -> networkx.DiGraph:
+def pytask_dag_create_dag(session: Session, tasks: list[Task]) -> nx.DiGraph:
     """Create the DAG.
 
     This hook creates the DAG from tasks, dependencies and products. The DAG can be used
@@ -234,7 +236,7 @@ def pytask_dag_create_dag(session: Session, tasks: list[Task]) -> networkx.DiGra
 
 
 @hookspec
-def pytask_dag_modify_dag(session: Session, dag: networkx.DiGraph) -> None:
+def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
     """Modify the DAG.
 
     This hook allows to make some changes to the DAG before it is validated and tasks
@@ -244,7 +246,7 @@ def pytask_dag_modify_dag(session: Session, dag: networkx.DiGraph) -> None:
 
 
 @hookspec(firstresult=True)
-def pytask_dag_validate_dag(session: Session, dag: networkx.DiGraph) -> None:
+def pytask_dag_validate_dag(session: Session, dag: nx.DiGraph) -> None:
     """Validate the DAG.
 
     This hook validates the DAG. For example, there can be cycles in the DAG if tasks,
@@ -254,7 +256,7 @@ def pytask_dag_validate_dag(session: Session, dag: networkx.DiGraph) -> None:
 
 
 @hookspec
-def pytask_dag_select_execution_dag(session: Session, dag: networkx.DiGraph) -> None:
+def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
     """Select the subgraph which needs to be executed.
 
     This hook determines which of the tasks have to be re-run because something has
@@ -265,7 +267,7 @@ def pytask_dag_select_execution_dag(session: Session, dag: networkx.DiGraph) -> 
 
 @hookspec(firstresult=True)
 def pytask_dag_has_node_changed(
-    session: Session, dag: networkx.DiGraph, node: MetaNode, task_name: str
+    session: Session, dag: nx.DiGraph, node: MetaNode, task_name: str
 ) -> None:
     """Select the subgraph which needs to be executed.
 

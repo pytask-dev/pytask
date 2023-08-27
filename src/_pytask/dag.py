@@ -1,7 +1,6 @@
 """This module contains code related to resolving dependencies."""
 from __future__ import annotations
 
-import hashlib
 import itertools
 import sys
 
@@ -22,8 +21,9 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
-from _pytask.nodes import FilePathNode
-from _pytask.nodes import MetaNode
+from _pytask.node_protocols import MetaNode
+from _pytask.node_protocols import Node
+from _pytask.node_protocols import PPathNode
 from _pytask.nodes import Task
 from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import DagReport
@@ -31,7 +31,7 @@ from _pytask.session import Session
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
-from pybaum import tree_map
+from _pytask.tree_util import tree_map
 from rich.text import Text
 from rich.tree import Tree
 
@@ -129,32 +129,33 @@ def _have_task_or_neighbors_changed(
 @hookimpl(trylast=True)
 def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
     """Indicate whether a single dependency or product has changed."""
-    if isinstance(node, (FilePathNode, Task)):
-        # If node does not exist, we receive None.
-        file_state = node.state()
-        if file_state is None:
-            return True
+    # If node does not exist, we receive None.
+    node_state = node.state()
+    if node_state is None:
+        return True
 
-        with DatabaseSession() as session:
-            db_state = session.get(State, (task_name, node.name))
+    with DatabaseSession() as session:
+        db_state = session.get(State, (task_name, node.name))
 
-        # If the node is not in the database.
-        if db_state is None:
-            return True
+    # If the node is not in the database.
+    if db_state is None:
+        return True
 
+    if isinstance(node, (PPathNode, Task)):
         # If the modification times match, the node has not been changed.
-        if file_state == db_state.modification_time:
+        if node_state == db_state.modification_time:
             return False
 
         # If the modification time changed, quickly return for non-tasks.
-        if isinstance(node, FilePathNode):
+        if not isinstance(node, Task):
             return True
 
         # When modification times changed, we are still comparing the hash of the file
         # to avoid unnecessary and expensive reexecutions of tasks.
-        file_hash = hashlib.sha256(node.path.read_bytes()).hexdigest()
-        return file_hash != db_state.file_hash
-    return node.state()
+        hash_ = node.state(hash=True)
+        return hash_ != db_state.hash_
+
+    return node_state != db_state.hash_
 
 
 def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:
@@ -190,7 +191,10 @@ _TEMPLATE_ERROR: str = (
     "tree which shows which dependencies are missing for which tasks.\n\n{}"
 )
 if IS_FILE_SYSTEM_CASE_SENSITIVE:
-    _TEMPLATE_ERROR += "\n\n(Hint: Sometimes case sensitivity is at fault.)"
+    _TEMPLATE_ERROR += (
+        "\n\n(Hint: Your file-system is case-sensitive. Check the paths' "
+        "capitalization carefully.)"
+    )
 
 
 def _check_if_root_nodes_are_available(dag: nx.DiGraph) -> None:
@@ -235,7 +239,7 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph) -> None:
 
 
 def _check_if_tasks_are_skipped(
-    node: MetaNode, dag: nx.DiGraph, is_task_skipped: dict[str, bool]
+    node: Node, dag: nx.DiGraph, is_task_skipped: dict[str, bool]
 ) -> tuple[bool, dict[str, bool]]:
     """Check for a given node whether it is only used by skipped tasks."""
     are_all_tasks_skipped = []

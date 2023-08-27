@@ -244,7 +244,7 @@ class Expression:
             Whether the expression matches or not.
 
         """
-        ret: bool = eval(  # noqa: PGH001
+        ret: bool = eval(  # noqa: PGH001, S307
             self.code, {"__builtins__": {}}, MatcherAdapter(matcher)
         )
         return ret

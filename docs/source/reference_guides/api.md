@@ -246,7 +246,13 @@ from {class}`pytask.MetaNode`.
 Then, different kinds of nodes can be implemented.
 
 ```{eval-rst}
-.. autoclass:: pytask.FilePathNode
+.. autoclass:: pytask.PathNode
+    :members:
+```
+
+```{eval-rst}
+.. autoclass:: pytask.PythonNode
+    :members:
 ```
 
 To parse dependencies and products from nodes, use the following functions.

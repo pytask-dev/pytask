@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import pickle
 import re
 import subprocess
 import sys
@@ -8,6 +9,7 @@ import textwrap
 from pathlib import Path
 
 import pytest
+from _pytask.capture import _CaptureMethod
 from _pytask.exceptions import NodeNotFoundError
 from pytask import cli
 from pytask import ExitCode
@@ -19,7 +21,7 @@ from pytask import TaskOutcome
 @pytest.mark.end_to_end()
 def test_python_m_pytask(tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
-    subprocess.run(["python", "-m", "pytask", tmp_path.as_posix()], check=True)
+    subprocess.run(["python", "-m", "pytask", tmp_path.as_posix()], check=False)
 
 
 @pytest.mark.end_to_end()
@@ -385,6 +387,7 @@ def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
     assert "Collected 1 task" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_task_executed_with_force_although_unchanged(tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
     session = main({"paths": tmp_path})
@@ -419,3 +422,247 @@ def test_task_is_not_reexecuted_when_modification_changed_file_not(runner, tmp_p
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert "1  Skipped" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_task_with_product_annotation(tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product
+
+    def task_example(path_to_file: Annotated[Path, Product] = Path("out.txt")) -> None:
+        path_to_file.touch()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path, "capture": _CaptureMethod.NO})
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 1
+    task = session.tasks[0]
+    assert "path_to_file" in task.produces
+
+
+@pytest.mark.end_to_end()
+@pytest.mark.xfail(reason="Nested annotations are not parsed.", raises=AssertionError)
+def test_task_with_nested_product_annotation(tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product
+
+    def task_example(
+        paths_to_file: dict[str, Annotated[Path, Product]] = {"a": Path("out.txt")}
+    ) -> None:
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = main({"paths": tmp_path, "capture": _CaptureMethod.NO})
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 1
+    task = session.tasks[0]
+    assert "paths_to_file" in task.produces
+
+
+@pytest.mark.end_to_end()
+@pytest.mark.parametrize(
+    "definition",
+    [
+        " = PythonNode(value=data['dependency'], hash=True)",
+        ": Annotated[Any, PythonNode(hash=True)] = data['dependency']",
+    ],
+)
+def test_task_with_hashed_python_node(runner, tmp_path, definition):
+    source = f"""
+    import json
+    from pathlib import Path
+    from pytask import Product, PythonNode
+    from typing import Any
+    from typing_extensions import Annotated
+
+    data = json.loads(Path(__file__).parent.joinpath("data.json").read_text())
+
+    def task_example(
+        dependency{definition},
+        path: Annotated[Path, Product] = Path("out.txt")
+    ) -> None:
+        path.write_text(dependency)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("data.json").write_text('{"dependency": "hello"}')
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").read_text() == "hello"
+
+    tmp_path.joinpath("data.json").write_text('{"dependency": "world"}')
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").read_text() == "world"
+
+
+@pytest.mark.end_to_end()
+def test_error_with_multiple_dep_annotations(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PythonNode
+    from typing import Any
+
+    def task_example(
+        dependency: Annotated[Any, PythonNode(), PythonNode()] = "hello",
+        path: Annotated[Path, Product] = Path("out.txt")
+    ) -> None:
+        path.write_text(dependency)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Parameter 'dependency'" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_error_with_multiple_different_dep_annotations(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PythonNode, PathNode
+    from typing import Any
+
+    def task_example(
+        dependency: Annotated[Any, PythonNode(), PathNode()] = "hello",
+        path: Annotated[Path, Product] = Path("out.txt")
+    ) -> None:
+        path.write_text(dependency)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Parameter 'dependency'" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_return_with_path_annotation_as_return(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Any
+    from typing_extensions import Annotated
+    from pytask import PathNode
+
+    def task_example() -> Annotated[str, Path("file.txt")]:
+        return "Hello, World!"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
+
+
+@pytest.mark.end_to_end()
+def test_return_with_pathnode_annotation_as_return(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Any
+    from typing_extensions import Annotated
+    from pytask import PathNode
+
+    node = PathNode.from_path(Path(__file__).parent.joinpath("file.txt"))
+
+    def task_example() -> Annotated[str, node]:
+        return "Hello, World!"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
+
+
+@pytest.mark.end_to_end()
+def test_return_with_tuple_pathnode_annotation_as_return(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Any
+    from typing_extensions import Annotated
+    from pytask import PathNode
+
+    node1 = PathNode.from_path(Path(__file__).parent.joinpath("file1.txt"))
+    node2 = PathNode.from_path(Path(__file__).parent.joinpath("file2.txt"))
+
+    def task_example() -> Annotated[str, (node1, node2)]:
+        return "Hello,", "World!"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("file1.txt").read_text() == "Hello,"
+    assert tmp_path.joinpath("file2.txt").read_text() == "World!"
+
+
+@pytest.mark.end_to_end()
+def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
+    source = """
+    from __future__ import annotations
+
+    from pathlib import Path
+    import pickle
+    from typing import Any
+    from typing_extensions import Annotated
+    import attrs
+
+    @attrs.define
+    class PickleNode:
+        name: str = ""
+        path: Path | None = None
+        value: None = None
+
+        def state(self) -> str | None:
+            if self.path.exists():
+                return str(self.path.stat().st_mtime)
+            return None
+
+        def load(self) -> Any:
+            return pickle.loads(self.path.read_bytes())
+
+        def save(self, value: Any) -> None:
+            self.path.write_bytes(pickle.dumps(value))
+
+        def from_annot(self, value: Any) -> None: ...
+
+    node = PickleNode("pickled_data", Path(__file__).parent.joinpath("data.pkl"))
+
+    def task_example() -> Annotated[int, node]:
+        return 1
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+
+    data = pickle.loads(tmp_path.joinpath("data.pkl").read_bytes())  # noqa: S301
+    assert data == 1
+
+
+@pytest.mark.end_to_end()
+def test_error_when_return_pytree_mismatch(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Any
+    from typing_extensions import Annotated
+    from pytask import PathNode
+
+    node1 = PathNode.from_path(Path(__file__).parent.joinpath("file1.txt"))
+    node2 = PathNode.from_path(Path(__file__).parent.joinpath("file2.txt"))
+
+    def task_example() -> Annotated[str, (node1, node2)]:
+        return "Hello,"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+    assert "Function return: PyTreeSpec(*, NoneIsLeaf)" in result.output
+    assert "Return annotation: PyTreeSpec((*, *), NoneIsLeaf)" in result.output

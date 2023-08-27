@@ -74,6 +74,11 @@ _EDITOR_URL_SCHEME_OPTION = click.Option(
 def _database_url_callback(
     ctx: Context, name: str, value: str | None  # noqa: ARG001
 ) -> URL:
+    """Check the url for the database."""
+    # Since sqlalchemy v2.0.19, we need to shortcircuit here.
+    if value is None:
+        return None
+
     try:
         return make_url(value)
     except ArgumentError:

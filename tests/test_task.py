@@ -438,3 +438,120 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
 
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
+
+
+@pytest.mark.end_to_end()
+def test_task_receives_unknown_kwarg(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.task(kwargs={"i": 1})
+    def task_example(): pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+
+
+@pytest.mark.end_to_end()
+def test_task_receives_namedtuple(runner, tmp_path):
+    source = """
+    import pytask
+    from typing_extensions import NamedTuple, Annotated
+    from pathlib import Path
+    from pytask import Product, PythonNode
+
+    class Args(NamedTuple):
+        path_in: Path
+        arg: str
+        path_out: Path
+
+
+    args = Args(Path("input.txt"), "world!", Path("output.txt"))
+
+    @pytask.mark.task(kwargs=args)
+    def task_example(
+        path_in: Path,
+        arg: Annotated[str, PythonNode(hash=True)],
+        path_out: Annotated[Path, Product]
+    ) -> None:
+        path_out.write_text(path_in.read_text() + " " + arg)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("input.txt").write_text("Hello")
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("output.txt").read_text() == "Hello world!"
+
+
+@pytest.mark.end_to_end()
+def test_task_kwargs_overwrite_default_arguments(runner, tmp_path):
+    source = """
+    import pytask
+    from pytask import Product
+    from pathlib import Path
+    from typing_extensions import Annotated
+
+    @pytask.mark.task(kwargs={
+        "in_path": Path("in.txt"), "addition": "world!", "out_path": Path("out.txt")
+    })
+    def task_example(
+        in_path: Path = Path("not_used_in.txt"),
+        addition: str = "planet!",
+        out_path: Annotated[Path, Product] = Path("not_used_out.txt"),
+    ) -> None:
+        out_path.write_text(in_path.read_text() + addition)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.txt").write_text("Hello ")
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").read_text() == "Hello world!"
+    assert not tmp_path.joinpath("not_used_out.txt").exists()
+
+
+@pytest.mark.end_to_end()
+def test_return_with_task_decorator(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Any
+    from typing_extensions import Annotated
+    from pytask import PathNode
+    import pytask
+
+    node = PathNode.from_path(Path(__file__).parent.joinpath("file.txt"))
+
+    @pytask.mark.task(produces=node)
+    def task_example():
+        return "Hello, World!"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
+
+
+@pytest.mark.end_to_end()
+def test_return_with_tuple_and_task_decorator(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Any
+    from typing_extensions import Annotated
+    from pytask import PathNode
+    import pytask
+
+    node1 = PathNode.from_path(Path(__file__).parent.joinpath("file1.txt"))
+    node2 = PathNode.from_path(Path(__file__).parent.joinpath("file2.txt"))
+
+    @pytask.mark.task(produces=(node1, node2))
+    def task_example():
+        return "Hello,", "World!"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("file1.txt").read_text() == "Hello,"
+    assert tmp_path.joinpath("file2.txt").read_text() == "World!"

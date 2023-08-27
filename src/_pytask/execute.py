@@ -21,7 +21,7 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.mark_utils import has_mark
-from _pytask.nodes import FilePathNode
+from _pytask.node_protocols import PPathNode
 from _pytask.nodes import Task
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
@@ -33,7 +33,7 @@ from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
-from pybaum.tree_util import tree_map
+from _pytask.tree_util import tree_map
 from rich.text import Text
 
 
@@ -129,7 +129,7 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
     # method for the node classes.
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
-        if isinstance(node, FilePathNode):
+        if isinstance(node, PPathNode):
             node.path.parent.mkdir(parents=True, exist_ok=True)
 
     would_be_executed = has_mark(task, "would_be_executed")
@@ -143,13 +143,15 @@ def pytask_execute_task(session: Session, task: Task) -> bool:
     if session.config["dry_run"]:
         raise WouldBeExecuted
 
-    kwargs = {**task.kwargs}
+    parameters = inspect.signature(task.function).parameters
 
-    func_arg_names = set(inspect.signature(task.function).parameters)
-    for arg_name in ("depends_on", "produces"):
-        if arg_name in func_arg_names:
-            attribute = getattr(task, arg_name)
-            kwargs[arg_name] = tree_map(lambda x: x.value, attribute)
+    kwargs = {}
+    for name, value in task.depends_on.items():
+        kwargs[name] = tree_map(lambda x: x.load(), value)
+
+    for name, value in task.produces.items():
+        if name in parameters:
+            kwargs[name] = tree_map(lambda x: x.load(), value)
 
     task.execute(**kwargs)
     return True
@@ -157,7 +159,7 @@ def pytask_execute_task(session: Session, task: Task) -> bool:
 
 @hookimpl
 def pytask_execute_task_teardown(session: Session, task: Task) -> None:
-    """Check if :class:`_pytask.nodes.FilePathNode` are produced by a task."""
+    """Check if :class:`_pytask.nodes.PathNode` are produced by a task."""
     missing_nodes = []
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]

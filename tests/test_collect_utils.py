@@ -9,10 +9,13 @@ from _pytask.collect_utils import _check_that_names_are_not_used_multiple_times
 from _pytask.collect_utils import _convert_objects_to_node_dictionary
 from _pytask.collect_utils import _convert_to_dict
 from _pytask.collect_utils import _extract_nodes_from_function_markers
+from _pytask.collect_utils import _find_args_with_product_annotation
 from _pytask.collect_utils import _merge_dictionaries
 from _pytask.collect_utils import _Placeholder
 from pytask import depends_on
 from pytask import produces
+from pytask import Product
+from typing_extensions import Annotated
 
 
 ERROR = "'@pytask.mark.depends_on' has nodes with the same name:"
@@ -159,3 +162,12 @@ def test_raise_error_for_invalid_args_to_depends_on_and_produces(
     parser = depends_on if decorator.name == "depends_on" else produces
     with pytest.raises(TypeError):
         list(_extract_nodes_from_function_markers(task_example, parser))
+
+
+@pytest.mark.unit()
+def test_find_args_with_product_annotation():
+    def func(a: Annotated[int, Product], b: float, c, d: Annotated[int, float]):
+        return a, b, c, d
+
+    result = _find_args_with_product_annotation(func)
+    assert result == ["a"]

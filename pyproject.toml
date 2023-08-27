@@ -84,6 +84,7 @@ convention = "numpy"
 
 
 [tool.pytest.ini_options]
+addopts = ["--doctest-modules"]
 testpaths = ["src", "tests"]
 markers = [
     "wip: Tests that are work-in-progress.",
@@ -92,3 +93,8 @@ markers = [
     "end_to_end: Flag for tests that cover the whole program.",
 ]
 norecursedirs = [".idea", ".tox"]
+filterwarnings = ["ignore:'@pytask.mark.*. is deprecated:DeprecationWarning"]
+
+
+[tool.refurb]
+python_version = "3.8"
