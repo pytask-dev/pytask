@@ -331,7 +331,7 @@ def test_captureresult() -> None:
     assert err == "err"
     assert cr[0] == "out"
     assert cr[1] == "err"
-    assert cr == cr
+    assert cr == cr  # noqa: PLR0124
     assert cr == CaptureResult("out", "err")
     assert cr != CaptureResult("wrong", "err")
     assert cr == ("out", "err")

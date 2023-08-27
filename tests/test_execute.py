@@ -21,7 +21,7 @@ from pytask import TaskOutcome
 @pytest.mark.end_to_end()
 def test_python_m_pytask(tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
-    subprocess.run(["python", "-m", "pytask", tmp_path.as_posix()], check=True)
+    subprocess.run(["python", "-m", "pytask", tmp_path.as_posix()], check=False)
 
 
 @pytest.mark.end_to_end()

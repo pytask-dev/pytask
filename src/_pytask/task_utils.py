@@ -118,7 +118,7 @@ def parse_collected_tasks_with_task_marker(
             for unique_name, task in names_to_functions.items():
                 collected_tasks[unique_name] = task
         else:
-            collected_tasks[name] = [i[1] for i in parsed_tasks if i[0] == name][0]
+            collected_tasks[name] = next(i[1] for i in parsed_tasks if i[0] == name)
 
     return collected_tasks
 

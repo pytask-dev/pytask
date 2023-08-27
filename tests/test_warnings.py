@@ -155,7 +155,7 @@ def test_deprecation_warnings_are_not_captured(tmp_path, warning):
     path_to_warn_module.write_text(textwrap.dedent(warn_module))
 
     # Cannot use runner since then warnings are not ignored by default.
-    result = subprocess.run(("pytask"), cwd=tmp_path, capture_output=True)
+    result = subprocess.run(("pytask"), cwd=tmp_path, capture_output=True, check=False)
 
     assert result.returncode == ExitCode.OK
     assert "Warnings" not in result.stdout.decode()

@@ -15,7 +15,7 @@ def is_git_installed() -> bool:
 
 def cmd_output(*cmd: str, **kwargs: Any) -> tuple[int, str, str]:
     """Execute a command and capture the output."""
-    r = subprocess.run(cmd, capture_output=True, **kwargs)
+    r = subprocess.run(cmd, capture_output=True, check=False, **kwargs)
     stdout = r.stdout.decode() if r.stdout is not None else None
     stderr = r.stderr.decode() if r.stderr is not None else None
     return r.returncode, stdout, stderr
@@ -23,7 +23,7 @@ def cmd_output(*cmd: str, **kwargs: Any) -> tuple[int, str, str]:
 
 def init_repo(path: Path) -> None:
     """Initialize a git repository."""
-    subprocess.run(("git", "init"), cwd=path)
+    subprocess.run(("git", "init"), check=False, cwd=path)
 
 
 def zsplit(s: str) -> list[str]:

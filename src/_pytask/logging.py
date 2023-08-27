@@ -129,7 +129,7 @@ def _format_duration(duration: float) -> str:
 
 
 def _humanize_time(  # noqa: C901, PLR0912
-    amount: int | float, unit: str, short_label: bool = False
+    amount: float, unit: str, short_label: bool = False
 ) -> list[tuple[float, str]]:
     """Humanize the time.
 

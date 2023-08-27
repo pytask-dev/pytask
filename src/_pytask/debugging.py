@@ -7,6 +7,7 @@ import sys
 from types import FrameType
 from types import TracebackType
 from typing import Any
+from typing import ClassVar
 from typing import Generator
 from typing import TYPE_CHECKING
 
@@ -111,7 +112,7 @@ class PytaskPDB:
 
     _pluginmanager: pluggy.PluginManager | None = None
     _config: dict[str, Any] | None = None
-    _saved: list[tuple[Any, ...]] = []
+    _saved: ClassVar[list[tuple[Any, ...]]] = []
     _recursive_debug: int = 0
     _wrapped_pdb_cls: tuple[type[pdb.Pdb], type[pdb.Pdb]] | None = None
 

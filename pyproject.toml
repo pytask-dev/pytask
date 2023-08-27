@@ -93,3 +93,7 @@ markers = [
 ]
 norecursedirs = [".idea", ".tox"]
 filterwarnings = ["ignore:'@pytask.mark.*. is deprecated:DeprecationWarning"]
+
+
+[tool.refurb]
+python_version = "3.8"

@@ -71,9 +71,11 @@ def git_project(request, tmp_path):
 
     init_repo(tmp_path)
     subprocess.run(
-        ("git", "add", "task_module.py", "in_tracked.txt", "tracked.txt"), cwd=tmp_path
+        ("git", "add", "task_module.py", "in_tracked.txt", "tracked.txt"),
+        cwd=tmp_path,
+        check=False,
     )
-    subprocess.run(("git", "commit", "-m", "'COMMIT'"), cwd=tmp_path)
+    subprocess.run(("git", "commit", "-m", "'COMMIT'"), cwd=tmp_path, check=False)
 
     return tmp_path
 

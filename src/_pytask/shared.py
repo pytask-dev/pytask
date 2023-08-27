@@ -49,7 +49,9 @@ def parse_paths(x: Any | None) -> list[Path] | None:
     if x is not None:
         paths = [Path(p) for p in to_list(x)]
         paths = [
-            Path(p).resolve() for path in paths for p in glob.glob(path.as_posix())
+            Path(p).resolve()
+            for path in paths
+            for p in glob.glob(path.as_posix())  # noqa: PTH207
         ]
         out = paths
     else:
