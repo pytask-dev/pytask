@@ -5,6 +5,7 @@ import enum
 import inspect
 from gettext import gettext as _
 from typing import Any
+from typing import ClassVar
 
 import click
 from _pytask import __version__ as version
@@ -55,7 +56,7 @@ class EnumChoice(click.Choice):
 class _OptionHighlighter(RegexHighlighter):
     """A highlighter for help texts."""
 
-    highlights = [
+    highlights: ClassVar = [
         r"(?P<switch>\-\w)\b",
         r"(?P<option>\-\-[\w\-]+)",
         r"\-\-[\w\-]+(?P<metavar>[ |=][\w\.:]+)",

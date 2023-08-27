@@ -210,7 +210,9 @@ def create_url_style_for_path(path: Path, edtior_url_scheme: str) -> Style:
     )
 
 
-def _get_file(function: Callable[..., Any], skipped_paths: list[Path] = None) -> Path:
+def _get_file(
+    function: Callable[..., Any], skipped_paths: list[Path] | None = None
+) -> Path:
     """Get path to module where the function is defined.
 
     When the ``pdb`` or ``trace`` mode is activated, every task function is wrapped with
@@ -255,7 +257,7 @@ def unify_styles(*styles: str | Style) -> Style:
 
 def create_summary_panel(
     counts: dict[Enum, int],
-    outcome_enum: type[CollectionOutcome] | type[TaskOutcome],
+    outcome_enum: type[CollectionOutcome | TaskOutcome],
     description_total: str,
 ) -> Panel:
     """Create a summary panel."""

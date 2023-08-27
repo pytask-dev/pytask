@@ -196,8 +196,8 @@ def _merge_dictionaries(list_of_dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
     """
     merged_dict = _union_of_dictionaries(list_of_dicts)
 
-    if len(merged_dict) == 1 and isinstance(list(merged_dict)[0], _Placeholder):
-        placeholder, value = list(merged_dict.items())[0]
+    if len(merged_dict) == 1 and isinstance(next(iter(merged_dict)), _Placeholder):
+        placeholder, value = next(iter(merged_dict.items()))
         out = value if placeholder.scalar else {0: value}
     else:
         counter = itertools.count()

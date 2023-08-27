@@ -10,7 +10,7 @@ from pytask import ExitCode
 
 @pytest.mark.end_to_end()
 def test_version_option():
-    process = subprocess.run(["pytask", "--version"], capture_output=True)
+    process = subprocess.run(["pytask", "--version"], capture_output=True, check=False)
     assert "pytask, version " + __version__ in process.stdout.decode("utf-8")
 
 
