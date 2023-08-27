@@ -529,6 +529,9 @@ def test_node_protocol_for_custom_nodes(runner, tmp_path):
         def state(self):
             return self.value
 
+        def load(self): ...
+        def save(self, value): ...
+        def from_annot(self, value): ...
 
     def task_example(
         data = CustomNode("custom", "text"),
@@ -555,21 +558,27 @@ def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     class PickleFile:
         name: str
         path: Path
+        value: Path
 
-        @property
-        def value(self):
+        def state(self):
+            return str(self.path.stat().st_mtime)
+
+        def load(self):
             with self.path.open("rb") as f:
                 out = pickle.load(f)
             return out
 
-        def state(self):
-            return str(self.path.stat().st_mtime)
+        def save(self, value):
+            with self.path.open("wb") as f:
+                pickle.dump(value, f)
+
+        def from_annot(self, value): ...
 
 
     _PATH = Path(__file__).parent.joinpath("in.pkl")
 
     def task_example(
-        data = PickleFile(_PATH.as_posix(), _PATH),
+        data = PickleFile(_PATH.as_posix(), _PATH, _PATH),
         out: Annotated[Path, Product] = Path("out.txt"),
     ) -> None:
         out.write_text(data)

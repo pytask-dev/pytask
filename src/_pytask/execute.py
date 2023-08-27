@@ -147,11 +147,11 @@ def pytask_execute_task(session: Session, task: Task) -> bool:
 
     kwargs = {}
     for name, value in task.depends_on.items():
-        kwargs[name] = tree_map(lambda x: x.value, value)
+        kwargs[name] = tree_map(lambda x: x.load(), value)
 
     for name, value in task.produces.items():
         if name in parameters:
-            kwargs[name] = tree_map(lambda x: x.value, value)
+            kwargs[name] = tree_map(lambda x: x.load(), value)
 
     task.execute(**kwargs)
     return True

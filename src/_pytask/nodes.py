@@ -6,11 +6,14 @@ import hashlib
 from pathlib import Path
 from typing import Any
 from typing import Callable
+from typing import NoReturn
 from typing import TYPE_CHECKING
 
 from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import Node
 from _pytask.tree_util import PyTree
+from _pytask.tree_util import tree_leaves
+from _pytask.tree_util import tree_structure
 from attrs import define
 from attrs import field
 
@@ -28,6 +31,7 @@ class ProductType:
 
 
 Product = ProductType()
+"""ProductType: A singleton to mark products in annotations."""
 
 
 @define(kw_only=True)
@@ -64,6 +68,7 @@ class Task(MetaNode):
             self.short_name = self.name
 
     def state(self, hash: bool = False) -> str | None:  # noqa: A002
+        """Return the state of the node."""
         if hash and self.path.exists():
             return hashlib.sha256(self.path.read_bytes()).hexdigest()
         if not hash and self.path.exists():
@@ -72,7 +77,22 @@ class Task(MetaNode):
 
     def execute(self, **kwargs: Any) -> None:
         """Execute the task."""
-        self.function(**kwargs)
+        out = self.function(**kwargs)
+
+        if "return" in self.produces:
+            structure_out = tree_structure(out)
+            structure_return = tree_structure(self.produces["return"])
+            if not structure_out == structure_return:
+                raise ValueError(
+                    "The structure of the function return does not match the structure "
+                    f"of the return annotation.\n\nFunction return: {structure_out}\n\n"
+                    f"Return annotation: {structure_return}"
+                )
+
+            for out_, return_ in zip(
+                tree_leaves(out), tree_leaves(self.produces["return"])
+            ):
+                return_.save(out_)
 
     def add_report_section(self, when: str, key: str, content: str) -> None:
         """Add sections which will be displayed in report like stdout or stderr."""
@@ -86,24 +106,20 @@ class PathNode(Node):
 
     name: str = ""
     """Name of the node which makes it identifiable in the DAG."""
-    _value: Path | None = None
+    value: Path | None = None
     """Value passed to the decorator which can be requested inside the function."""
 
     @property
     def path(self) -> Path:
         return self.value
 
-    @property
-    def value(self) -> Path:
-        return self._value
-
-    @value.setter
-    def value(self, value: Path) -> None:
+    def from_annot(self, value: Path) -> None:
+        """Set path and if other attributes are not set, set sensible defaults."""
         if not isinstance(value, Path):
             raise TypeError("'value' must be a 'pathlib.Path'.")
         if not self.name:
             self.name = value.as_posix()
-        self._value = value
+        self.value = value
 
     @classmethod
     @functools.lru_cache
@@ -127,6 +143,21 @@ class PathNode(Node):
             return str(self.path.stat().st_mtime)
         return None
 
+    def load(self) -> Path:
+        """Load the value."""
+        return self.value
+
+    def save(self, value: bytes | str) -> None:
+        """Save strings or bytes to file."""
+        if isinstance(value, str):
+            self.path.write_text(value)
+        elif isinstance(value, bytes):
+            self.path.write_bytes(value)
+        else:
+            raise TypeError(
+                f"'PathNode' can only save 'str' and 'bytes', not {type(value)}"
+            )
+
 
 @define(kw_only=True)
 class PythonNode(Node):
@@ -134,10 +165,22 @@ class PythonNode(Node):
 
     name: str = ""
     """Name of the node."""
-    value: Any | None = None
+    value: Any = None
     """Value of the node."""
     hash: bool = False  # noqa: A003
     """Whether the value should be hashed to determine the state."""
+
+    def load(self) -> Any:
+        """Load the value."""
+        return self.value
+
+    def save(self, value: Any) -> NoReturn:
+        """Save the value."""
+        raise NotImplementedError
+
+    def from_annot(self, value: Any) -> None:
+        """Set the value from a function annotation."""
+        self.value = value
 
     def state(self) -> str | None:
         """Calculate state of the node.

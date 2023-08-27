@@ -11,6 +11,7 @@ import attrs
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
+from _pytask.tree_util import PyTree
 
 
 __all__ = ["parse_keyword_arguments_from_signature_defaults"]
@@ -31,6 +32,7 @@ def task(
     *,
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
+    produces: PyTree[Any] = None,
 ) -> Callable[..., None]:
     """Parse inputs of the ``@pytask.mark.task`` decorator.
 
@@ -43,13 +45,15 @@ def task(
 
     Parameters
     ----------
-    name : str | None
+    name
         The name of the task.
-    id : str | None
+    id
         An id for the task if it is part of a parametrization.
-    kwargs : dict[Any, Any] | None
+    kwargs
         A dictionary containing keyword arguments which are passed to the task when it
         is executed.
+    produces
+        Definition of products to handle returns.
 
     """
 
@@ -77,12 +81,14 @@ def task(
             unwrapped.pytask_meta.kwargs = parsed_kwargs
             unwrapped.pytask_meta.markers.append(Mark("task", (), {}))
             unwrapped.pytask_meta.id_ = id
+            unwrapped.pytask_meta.produces = produces
         else:
             unwrapped.pytask_meta = CollectionMetadata(
                 name=parsed_name,
                 kwargs=parsed_kwargs,
                 markers=[Mark("task", (), {})],
                 id_=id,
+                produces=produces,
             )
 
         COLLECTED_TASKS[path].append(unwrapped)

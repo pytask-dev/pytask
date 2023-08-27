@@ -308,9 +308,7 @@ def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, Node]
 
     args_with_node_annotation = {}
     for name, meta in metas.items():
-        annot = [
-            i for i in meta if not isinstance(i, ProductType) and isinstance(i, Node)
-        ]
+        annot = [i for i in meta if not isinstance(i, ProductType)]
         if len(annot) >= 2:  # noqa: PLR2004
             raise ValueError(
                 f"Parameter {name!r} has multiple node annotations although only one "
@@ -360,6 +358,8 @@ def parse_products_from_task_function(
     has_produces_decorator = False
     has_produces_argument = False
     has_annotation = False
+    has_return = False
+    has_task_decorator = False
     out = {}
 
     # Parse products from decorators.
@@ -415,8 +415,45 @@ def parse_products_from_task_function(
                 )
                 out = {parameter_name: collected_products}
 
+    if "return" in parameters_with_node_annot:
+        has_return = True
+        collected_products = tree_map_with_path(
+            lambda p, x: _collect_product(
+                session,
+                path,
+                name,
+                NodeInfo("return", p, x),
+                is_string_allowed=False,
+            ),
+            parameters_with_node_annot["return"],
+        )
+        out = {"return": collected_products}
+
+    task_produces = obj.pytask_meta.produces if hasattr(obj, "pytask_meta") else None
+    if task_produces:
+        has_task_decorator = True
+        collected_products = tree_map_with_path(
+            lambda p, x: _collect_product(
+                session,
+                path,
+                name,
+                NodeInfo("return", p, x),
+                is_string_allowed=False,
+            ),
+            task_produces,
+        )
+        out = {"return": collected_products}
+
     if (
-        sum((has_produces_decorator, has_produces_argument, has_annotation))
+        sum(
+            (
+                has_produces_decorator,
+                has_produces_argument,
+                has_annotation,
+                has_return,
+                has_task_decorator,
+            )
+        )
         >= 2  # noqa: PLR2004
     ):
         raise NodeNotCollectedError(_ERROR_MULTIPLE_PRODUCT_DEFINITIONS)
@@ -571,5 +608,5 @@ def _evolve_instance(x: Any, instance_from_annot: Node | None) -> Any:
     if not instance_from_annot:
         return x
 
-    instance_from_annot.value = x
+    instance_from_annot.from_annot(x)
     return instance_from_annot
