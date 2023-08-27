@@ -32,7 +32,8 @@ defines where the return of the function, a string, should be stored.
 ```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_1_py38.py
 ```
 
-::: ::::
+:::
+::::
 
 It works because internally the path is converted to a {class}`pytask.PathNode` that is
 able to store objects of type {class}`str` and {class}`bytes`.
