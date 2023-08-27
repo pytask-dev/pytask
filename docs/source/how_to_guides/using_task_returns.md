@@ -47,7 +47,42 @@ more about how nodes work.
 
 In case you are not able to set a return type annotation to the task function, for
 example, because it is a lambda or a third-party function, you can use
-:func:`@pytask.mark.task(produces=...) <pytask.mark.task>`.
+{func}`@pytask.mark.task(produces=...) <pytask.mark.task>`.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_2.py
 ```
+
+## Multiple returns
+
+If a task function has multiple returns, you can use multiple nodes to store each of the
+returns in a different place. The following example shows how to accomplish it with both
+of the previous interfaces.
+
+::::{tab-set}
+
+:::{tab-item} Python 3.10+
+:sync: python310plus
+
+```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_3_py310.py
+```
+
+:::
+
+:::{tab-item} Python 3.8+
+:sync: python38plus
+
+```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_3_py38.py
+```
+
+:::
+
+:::{tab-item} &#8203;`@pytask.mark.task`
+
+```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_3_task.py
+```
+
+:::
+::::
+
+Each return is mapped to its node by respecting its position in the tuple. In fact, any
+{term}`PyTree` can be used, for example, a dictionary.
