@@ -669,7 +669,7 @@ def test_error_when_return_pytree_mismatch(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_pytree_and_python_node(runner, tmp_path):
+def test_pytree_and_python_node_as_return(runner, tmp_path):
     source = """
     from pathlib import Path
     from typing import Any
@@ -678,6 +678,28 @@ def test_pytree_and_python_node(runner, tmp_path):
 
     def task_example() -> Annotated[dict[str, str], PythonNode(name="result")]:
         return {"first": "a", "second": "b"}
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+
+
+@pytest.mark.end_to_end()
+def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Any
+    from typing_extensions import Annotated
+    from pytask import PythonNode
+
+    nodes = [
+        PythonNode(name="dict"),
+        (PythonNode(name="tuple1"), PythonNode(name="tuple2")),
+        PythonNode(name="int")
+    ]
+
+    def task_example() -> Annotated[dict[str, str], nodes]:
+        return [{"first": "a", "second": "b"}, (1, 2), 1]
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.as_posix()])
