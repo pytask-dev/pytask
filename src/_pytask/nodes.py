@@ -81,7 +81,7 @@ class Task(MetaNode):
         if "return" in self.produces:
             structure_out = tree_structure(out)
             structure_return = tree_structure(self.produces["return"])
-            # strict must be false.
+            # strict must be false when none is leaf.
             if not structure_return.is_prefix(structure_out, strict=False):
                 raise ValueError(
                     "The structure of the return annotation is not a subtree of the "
