@@ -6,6 +6,7 @@ import textwrap
 import pytest
 from _pytask.outcomes import ExitCode
 from _pytask.tree_util import tree_map
+from _pytask.tree_util import tree_structure
 from pytask import cli
 from pytask import main
 
@@ -80,3 +81,20 @@ def test_profile_with_pytree(tmp_path, runner):
     assert "0." in result.output
     assert "Size of Products" in result.output
     assert "86 bytes" in result.output
+
+
+@pytest.mark.unit()
+@pytest.mark.parametrize(
+    ("prefix_tree", "full_tree", "strict", "expected"),
+    [
+        # This is why strict cannot be true when parsing function returns.
+        (1, 1, True, False),
+        (1, 1, False, True),
+        ({"a": 1, "b": 1}, {"a": 1, "b": {"c": 1, "d": 1}}, False, True),
+        ({"a": 1, "b": 1}, {"a": 1, "b": {"c": 1, "d": 1}}, True, True),
+    ],
+)
+def test_is_prefix(prefix_tree, full_tree, strict, expected):
+    prefix_structure = tree_structure(prefix_tree)
+    full_tree_structure = tree_structure(full_tree)
+    assert prefix_structure.is_prefix(full_tree_structure, strict=strict) is expected

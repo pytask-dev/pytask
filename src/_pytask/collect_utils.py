@@ -18,7 +18,6 @@ from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import Node
-from _pytask.node_protocols import PPathNode
 from _pytask.nodes import ProductType
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
@@ -580,15 +579,9 @@ def _collect_product(
             "type 'str' and 'pathlib.Path' or the same values nested in "
             f"tuples, lists, and dictionaries. Here, {node} has type {type(node)}."
         )
-    # The parameter defaults only support Path objects.
-    if not isinstance(node, (Path, PPathNode)) and not is_string_allowed:
-        raise ValueError(
-            "If you declare products with 'Annotated[..., Product]', only values of "
-            "type 'pathlib.Path' optionally nested in tuples, lists, and "
-            f"dictionaries are allowed. Here, {node!r} has type {type(node)}."
-        )
 
-    if isinstance(node, str):
+    # If we encounter a string and it is allowed, convert it to a path.
+    if isinstance(node, str) and is_string_allowed:
         node = Path(node)
         node_info = node_info._replace(value=node)
 
