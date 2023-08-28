@@ -23,6 +23,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   `@pytask.mark.produces`.
 - {pull}`402` replaces ABCs with protocols allowing for more flexibility for users
   implementing their own nodes.
+- {pull}`404` allows to use function returns to define task products.
+- {pull}`405` allows to match function returns to node annotations with prefix trees.
 
 ## 0.3.2 - 2023-06-07
 

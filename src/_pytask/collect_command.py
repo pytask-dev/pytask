@@ -127,7 +127,9 @@ def _find_common_ancestor_of_all_nodes(
             all_paths.extend(
                 x.path for x in tree_leaves(task.depends_on) if isinstance(x, PPathNode)
             )
-            all_paths.extend(x.path for x in tree_leaves(task.produces))
+            all_paths.extend(
+                x.path for x in tree_leaves(task.produces) if isinstance(x, PPathNode)
+            )
 
     common_ancestor = find_common_ancestor(*all_paths, *paths)
 
@@ -219,10 +221,17 @@ def _print_collected_tasks(
 
                     task_branch.add(Text.assemble(FILE_ICON, "<Dependency ", text, ">"))
 
-                for node in sorted(tree_leaves(task.produces), key=lambda x: x.path):
-                    reduced_node_name = str(relative_to(node.path, common_ancestor))
-                    url_style = create_url_style_for_path(node.path, editor_url_scheme)
-                    text = Text(reduced_node_name, style=url_style)
+                for node in sorted(
+                    tree_leaves(task.produces), key=lambda x: getattr(x, "path", x.name)
+                ):
+                    if isinstance(node, PPathNode):
+                        reduced_node_name = str(relative_to(node.path, common_ancestor))
+                        url_style = create_url_style_for_path(
+                            node.path, editor_url_scheme
+                        )
+                        text = Text(reduced_node_name, style=url_style)
+                    else:
+                        text = Text(node.name)
                     task_branch.add(Text.assemble(FILE_ICON, "<Product ", text, ">"))
 
     console.print(tree)

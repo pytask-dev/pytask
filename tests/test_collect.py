@@ -340,6 +340,7 @@ def test_collect_string_product_as_function_default(runner, tmp_path):
 
 @pytest.mark.end_to_end()
 def test_collect_string_product_raises_error_with_annotation(runner, tmp_path):
+    """The string is not converted to a path."""
     source = """
     from pytask import Product
     from typing_extensions import Annotated
@@ -349,8 +350,7 @@ def test_collect_string_product_raises_error_with_annotation(runner, tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.COLLECTION_FAILED
-    assert "If you declare products with 'Annotated[..., Product]'" in result.output
+    assert result.exit_code == ExitCode.FAILED
 
 
 @pytest.mark.end_to_end()
