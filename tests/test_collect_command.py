@@ -619,6 +619,7 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
     from typing import Any
     from typing_extensions import Annotated
     from pytask import PythonNode
+    from typing import Dict
 
     nodes = [
         PythonNode(name="dict"),
@@ -626,7 +627,7 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
         PythonNode(name="int")
     ]
 
-    def task_example() -> Annotated[dict[str, str], nodes]:
+    def task_example() -> Annotated[Dict[str, str], nodes]:
         return [{"first": "a", "second": "b"}, (1, 2), 1]
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
