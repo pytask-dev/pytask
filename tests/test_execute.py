@@ -666,3 +666,19 @@ def test_error_when_return_pytree_mismatch(runner, tmp_path):
     assert result.exit_code == ExitCode.FAILED
     assert "Function return: PyTreeSpec(*, NoneIsLeaf)" in result.output
     assert "Return annotation: PyTreeSpec((*, *), NoneIsLeaf)" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_pytree_and_python_node(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Any
+    from typing_extensions import Annotated
+    from pytask import PythonNode
+
+    def task_example() -> Annotated[dict[str, str], PythonNode(name="result")]:
+        return {"first": "a", "second": "b"}
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK

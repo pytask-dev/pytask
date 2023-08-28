@@ -6,7 +6,6 @@ import hashlib
 from pathlib import Path
 from typing import Any
 from typing import Callable
-from typing import NoReturn
 from typing import TYPE_CHECKING
 
 from _pytask.node_protocols import MetaNode
@@ -82,17 +81,17 @@ class Task(MetaNode):
         if "return" in self.produces:
             structure_out = tree_structure(out)
             structure_return = tree_structure(self.produces["return"])
-            if not structure_out == structure_return:
+            if not structure_return.is_prefix(structure_out, strict=False):
                 raise ValueError(
-                    "The structure of the function return does not match the structure "
-                    f"of the return annotation.\n\nFunction return: {structure_out}\n\n"
-                    f"Return annotation: {structure_return}"
+                    "The structure of the return annotation is not a subtree of the "
+                    "structure of the function return.\n\nFunction return: "
+                    f"{structure_out}\n\nReturn annotation: {structure_return}"
                 )
 
-            for out_, return_ in zip(
-                tree_leaves(out), tree_leaves(self.produces["return"])
-            ):
-                return_.save(out_)
+            nodes = tree_leaves(self.produces["return"])
+            values = structure_return.flatten_up_to(out)
+            for node, value in zip(nodes, values):
+                node.save(value)
 
     def add_report_section(self, when: str, key: str, content: str) -> None:
         """Add sections which will be displayed in report like stdout or stderr."""
@@ -174,9 +173,9 @@ class PythonNode(Node):
         """Load the value."""
         return self.value
 
-    def save(self, value: Any) -> NoReturn:
+    def save(self, value: Any) -> None:
         """Save the value."""
-        raise NotImplementedError
+        self.value = value
 
     def from_annot(self, value: Any) -> None:
         """Set the value from a function annotation."""
