@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import Node
+from _pytask.node_protocols import PPathNode
 from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_structure
@@ -101,7 +102,7 @@ class Task(MetaNode):
 
 
 @define(kw_only=True)
-class PathNode(Node):
+class PathNode(PPathNode):
     """The class for a node which is a path."""
 
     name: str = ""

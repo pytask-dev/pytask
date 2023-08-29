@@ -25,6 +25,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   implementing their own nodes.
 - {pull}`404` allows to use function returns to define task products.
 - {pull}`405` allows to match function returns to node annotations with prefix trees.
+- {pull}`406` removes `.value` from `Node` protocol.
 
 ## 0.3.2 - 2023-06-07
 
