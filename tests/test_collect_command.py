@@ -385,10 +385,8 @@ def test_print_collected_tasks_with_nodes(capsys):
                 base_name="function",
                 path=Path("task_path.py"),
                 function=function,
-                depends_on={
-                    "depends_on": PathNode(name="in.txt", value=Path("in.txt"))
-                },
-                produces={0: PathNode(name="out.txt", value=Path("out.txt"))},
+                depends_on={"depends_on": PathNode(name="in.txt", path=Path("in.txt"))},
+                produces={0: PathNode(name="out.txt", path=Path("out.txt"))},
             )
         ]
     }

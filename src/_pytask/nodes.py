@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import Node
+from _pytask.node_protocols import PPathNode
 from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_structure
@@ -101,17 +102,13 @@ class Task(MetaNode):
 
 
 @define(kw_only=True)
-class PathNode(Node):
+class PathNode(PPathNode):
     """The class for a node which is a path."""
 
     name: str = ""
     """Name of the node which makes it identifiable in the DAG."""
-    value: Path | None = None
-    """Value passed to the decorator which can be requested inside the function."""
-
-    @property
-    def path(self) -> Path:
-        return self.value
+    path: Path | None = None
+    """The path to the file."""
 
     def from_annot(self, value: Path) -> None:
         """Set path and if other attributes are not set, set sensible defaults."""
@@ -119,7 +116,7 @@ class PathNode(Node):
             raise TypeError("'value' must be a 'pathlib.Path'.")
         if not self.name:
             self.name = value.as_posix()
-        self.value = value
+        self.path = value
 
     @classmethod
     @functools.lru_cache
@@ -131,7 +128,7 @@ class PathNode(Node):
         """
         if not path.is_absolute():
             raise ValueError("Node must be instantiated from absolute path.")
-        return cls(name=path.as_posix(), value=path)
+        return cls(name=path.as_posix(), path=path)
 
     def state(self) -> str | None:
         """Calculate the state of the node.
@@ -145,7 +142,7 @@ class PathNode(Node):
 
     def load(self) -> Path:
         """Load the value."""
-        return self.value
+        return self.path
 
     def save(self, value: bytes | str) -> None:
         """Save strings or bytes to file."""
