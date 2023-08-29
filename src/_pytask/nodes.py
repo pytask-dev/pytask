@@ -111,7 +111,17 @@ class PathNode(PPathNode):
     """The path to the file."""
 
     def from_annot(self, value: Path) -> None:
-        """Set path and if other attributes are not set, set sensible defaults."""
+        """Set path and if other attributes are not set, set sensible defaults.
+
+        Use it, if you want to control the name of the node.
+
+        .. codeblock: python
+
+            def task_example(value: Annotated[Any, PathNode(name="value")]):
+                ...
+
+
+        """
         if not isinstance(value, Path):
             raise TypeError("'value' must be a 'pathlib.Path'.")
         if not self.name:
@@ -176,7 +186,18 @@ class PythonNode(Node):
         self.value = value
 
     def from_annot(self, value: Any) -> None:
-        """Set the value from a function annotation."""
+        """Set the value from a function annotation.
+
+        Use it, if you want to add information on how a node handles an argument while
+        keeping the type of the value unrelated to pytask. For example, the node could
+        be hashed.
+
+        .. codeblock: python
+
+            def task_example(value: Annotated[Any, PythonNode(hash=True)]):
+                ...
+
+        """
         self.value = value
 
     def state(self) -> str | None:
