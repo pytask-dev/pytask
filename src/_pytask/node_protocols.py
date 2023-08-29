@@ -29,8 +29,6 @@ class MetaNode(Protocol):
 class Node(MetaNode, Protocol):
     """Protocol for nodes."""
 
-    value: Any
-
     def load(self) -> Any:
         """Return the value of the node that will be injected into the task."""
         ...
