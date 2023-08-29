@@ -19,20 +19,12 @@ class PickleNode:
         self.name = name
         self.path = path
 
-    def from_annot(self, value: Path) -> None:
-        """Set path and if other attributes are not set, set sensible defaults."""
-        if not isinstance(value, Path):
-            raise TypeError("'value' must be a 'pathlib.Path'.")
-        if not self.name:
-            self.name = value.as_posix()
-        self.path = value
-
     @classmethod
     def from_path(cls, path: Path) -> "PickleNode":
         """Instantiate class from path to file."""
         if not path.is_absolute():
             raise ValueError("Node must be instantiated from absolute path.")
-        return cls(name=path.as_posix(), value=path)
+        return cls(name=path.as_posix(), path=path)
 
     def state(self) -> str | None:
         """Return the modification timestamp as the state."""

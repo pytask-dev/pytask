@@ -15,8 +15,8 @@ migrating_from_scripts_to_pytask
 invoking_pytask_extended
 capture_warnings
 how_to_influence_build_order
-writing_custom_nodes
 using_task_returns
+writing_custom_nodes
 how_to_write_a_plugin
 ```
 

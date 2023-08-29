@@ -9,8 +9,8 @@ your own to improve your workflows.
 
 ## Use-case
 
-A common task operation is to load data like a {class}`pandas.DataFrame` from a pickle
-file, transform it and store it on disk. The usual way would be to use paths to point to
+A typical task operation is to load data like a {class}`pandas.DataFrame` from a pickle
+file, transform it, and store it on disk. The usual way would be to use paths to point to
 inputs and outputs and call {func}`pandas.read_pickle` and
 {meth}`pandas.DataFrame.to_pickle`.
 
@@ -57,6 +57,8 @@ follow at least the protocol {class}`pytask.Node` or, even better,
 {class}`pytask.PPathNode` if it is based on a path. The common node for paths,
 {class}`pytask.PathNode`, follows the protocol {class}`pytask.PPathNode`.
 
+## `PickleNode`
+
 Since our {class}`PickleNode` will only vary slightly from {class}`pytask.PathNode`, we
 use it as a template, and with some minor modifications, we arrive at the following
 class.
@@ -84,15 +86,39 @@ Here are some explanations.
 
 - The node does not need to inherit from the protocol {class}`pytask.PPathNode`, but you
   can do it to be more explicit.
-- The node has three attributes
+- The node has two attributes
   - `name` identifies the node in the DAG, so the name must be unique.
   - `path` holds the path to the file and identifies the node as a path node that is
-    handled a little bit differently than normal nodes within pytask.
+    handled slightly differently than normal nodes within pytask.
+- The {func}`classmethod` {meth}`PickleNode.from_path` is a convenient method to
+  instantiate the class.
+- The method {meth}`PickleNode.state` yields a value that signals the node's state. If
+  the value changes, pytask knows it needs to regenerate the workflow. We can use
+  the timestamp of when the node was last modified.
+- pytask calls {meth}`PickleNode.load` when it collects the values of function arguments
+  to run the function. In our example, we read the file and unpickle the data.
+- {meth}`PickleNode.save` is called when a task function returns and allows to save the
+  return values.
 
+## Conclusion
+
+Nodes are an important in concept pytask. They allow to pytask to build a DAG and
+generate a workflow, and they also allow users to extract IO operations from the task
+function into the nodes.
+
+pytask only implements two node types, {class}`PathNode` and {class}`PythonNode`, but
+many more are possible. In the future, there should probably be a plugin that implements
+nodes for many other data sources like AWS S3 or databases. [^kedro]
+
+## References
 
 [^structural-subtyping]:
     Structural subtyping is similar to ABCs an approach in Python to
-    enforce interfaces. Hynek Schlawack wrote a comprehensive
+    enforce interfaces, but it can be considered more pythonic since it is closer to
+    duck typing. Hynek Schlawack wrote a comprehensive
     [guide on subclassing](https://hynek.me/articles/python-subclassing-redux/) that
     features protocols under "Type 2". Glyph wrote an introduction to protocols called
     [I want a new duck](https://glyph.twistedmatrix.com/2020/07/new-duck.html).
+[^kedro]
+    Kedro, another workflow system, provides many adapters to data sources:
+    https://docs.kedro.org/en/stable/kedro_datasets.html.
