@@ -601,5 +601,11 @@ def _evolve_instance(x: Any, instance_from_annot: Node | None) -> Any:
     if not instance_from_annot:
         return x
 
-    instance_from_annot.from_annot(x)
+    if not hasattr(instance_from_annot, "from_annot"):
+        raise AttributeError(
+            f"The node {instance_from_annot!r} does not define '.from_annot' which is "
+            f"necessary to complete the node with the value {x!r}."
+        )
+
+    instance_from_annot.from_annot(x)  # type: ignore[attr-defined]
     return instance_from_annot

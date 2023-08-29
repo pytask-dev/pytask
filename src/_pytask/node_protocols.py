@@ -37,21 +37,6 @@ class Node(MetaNode, Protocol):
         """Save the value that was returned from a task."""
         ...
 
-    def from_annot(self, value: Any) -> Any:
-        """Complete the node by setting the value from an default argument.
-
-        Use it, if you want to add information on how a node handles an argument while
-        keeping the type of the value unrelated to pytask.
-
-        .. codeblock: python
-
-            def task_example(value: Annotated[Any, PythonNode(hash=True)], produces):
-                ...
-
-
-        """
-        ...
-
 
 @runtime_checkable
 class PPathNode(Node, Protocol):
