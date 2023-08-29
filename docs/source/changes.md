@@ -28,6 +28,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`408` removes `.value` from `Node` protocol.
 - {pull}`409` make `.from_annot` an optional feature of nodes.
 - {pull}`410` allows to pass functions to `PythonNode(hash=...)`.
+- {pull}`411` implements a new functional interface.
 
 ## 0.3.2 - 2023-06-07
 
