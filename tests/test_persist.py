@@ -5,10 +5,10 @@ import textwrap
 import pytest
 from _pytask.database_utils import State
 from _pytask.persist import pytask_execute_task_process_report
+from pytask import build
 from pytask import create_database
 from pytask import DatabaseSession
 from pytask import ExitCode
-from pytask import main
 from pytask import Persisted
 from pytask import SkippedUnchanged
 from pytask import TaskOutcome
@@ -20,7 +20,7 @@ class DummyClass:
 
 @pytest.mark.end_to_end()
 def test_persist_marker_is_set(tmp_path):
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
     assert "persist" in session.config["markers"]
 
 
@@ -46,7 +46,7 @@ def test_multiple_runs_with_persist(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("I'm not the reason you care.")
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
 
     assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1
@@ -56,7 +56,7 @@ def test_multiple_runs_with_persist(tmp_path):
 
     tmp_path.joinpath("out.txt").write_text("Never again in despair.")
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
 
     assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1
@@ -72,7 +72,7 @@ def test_multiple_runs_with_persist(tmp_path):
         modification_time = session.get(State, (task_id, node_id)).modification_time
         assert float(modification_time) == tmp_path.joinpath("out.txt").stat().st_mtime
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
 
     assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1
@@ -97,7 +97,7 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
             "They say oh my god I see the way you shine."
         )
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
 
     assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1

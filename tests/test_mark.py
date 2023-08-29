@@ -6,9 +6,9 @@ import textwrap
 
 import pytask
 import pytest
+from pytask import build
 from pytask import cli
 from pytask import ExitCode
-from pytask import main
 from pytask import MarkGenerator
 
 
@@ -109,7 +109,7 @@ def test_mark_option(tmp_path, expr: str, expected_passed: str) -> None:
             """
         )
     )
-    session = main({"paths": tmp_path, "marker_expression": expr})
+    session = build({"paths": tmp_path, "marker_expression": expr})
 
     tasks_that_run = [
         report.task.name.rsplit("::")[1]
@@ -152,7 +152,7 @@ def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> Non
             """
         )
     )
-    session = main({"paths": tmp_path, "expression": expr})
+    session = build({"paths": tmp_path, "expression": expr})
     assert session.exit_code == ExitCode.OK
 
     tasks_that_run = [
@@ -184,7 +184,7 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path, "expression": expr})
+    session = build({"paths": tmp_path, "expression": expr})
     assert session.exit_code == ExitCode.OK
 
     tasks_that_run = [
@@ -233,7 +233,7 @@ def test_keyword_option_wrong_arguments(
     tmp_path.joinpath("task_module.py").write_text(
         textwrap.dedent("def task_func(arg): pass")
     )
-    session = main({"paths": tmp_path, option: expr})
+    session = build({"paths": tmp_path, option: expr})
     assert session.exit_code == ExitCode.DAG_FAILED
 
     captured = capsys.readouterr()

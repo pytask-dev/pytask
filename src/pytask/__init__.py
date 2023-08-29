@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from _pytask import __version__
-from _pytask.build import main
+from _pytask.build import build
 from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
 from _pytask.click import EnumChoice
@@ -120,7 +120,7 @@ __all__ = [
     "has_mark",
     "hookimpl",
     "import_optional_dependency",
-    "main",
+    "build",
     "mark",
     "parse_nodes",
     "parse_warning_filter",

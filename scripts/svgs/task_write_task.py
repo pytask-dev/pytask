@@ -24,7 +24,7 @@ def task_create_random_data(produces: Path) -> None:
 
 if __name__ == "__main__":
     pytask.console.record = True
-    pytask.main({"paths": __file__})
+    pytask.build({"paths": __file__})
     pytask.console.save_svg("write-a-task.svg", title="pytask")
 
     Path(__file__).parent.joinpath("data.pkl").unlink()

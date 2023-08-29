@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 from _pytask.skipping import pytask_execute_task_setup
+from pytask import build
 from pytask import cli
 from pytask import ExitCode
-from pytask import main
 from pytask import Mark
 from pytask import Session
 from pytask import Skipped
@@ -30,10 +30,10 @@ def test_skip_unchanged(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
     assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
     assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
 
 
@@ -50,12 +50,12 @@ def test_skip_unchanged_w_dependencies_and_products(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Original content of in.txt.")
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
 
     assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
     assert tmp_path.joinpath("out.txt").read_text() == "Original content of in.txt."
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
 
     assert session.execution_reports[0].outcome == TaskOutcome.SKIP_UNCHANGED
     assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
@@ -77,7 +77,7 @@ def test_skipif_ancestor_failed(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
 
     assert session.execution_reports[0].outcome == TaskOutcome.FAIL
     assert isinstance(session.execution_reports[0].exc_info[1], Exception)
@@ -101,7 +101,7 @@ def test_if_skip_decorator_is_applied_to_following_tasks(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
 
     assert session.execution_reports[0].outcome == TaskOutcome.SKIP
     assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
@@ -124,7 +124,7 @@ def test_skip_if_dependency_is_missing(tmp_path, mark_string):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
 
     assert session.execution_reports[0].outcome == TaskOutcome.SKIP
     assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
@@ -173,7 +173,7 @@ def test_if_skipif_decorator_is_applied_skipping(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
     node = session.collection_reports[0].node
     assert len(node.markers) == 1
     assert node.markers[0].name == "skipif"
@@ -203,7 +203,7 @@ def test_if_skipif_decorator_is_applied_execute(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
     node = session.collection_reports[0].node
 
     assert len(node.markers) == 1
@@ -234,7 +234,7 @@ def test_if_skipif_decorator_is_applied_any_condition_matches(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
     node = session.collection_reports[0].node
     assert len(node.markers) == 2
     assert node.markers[0].name == "skipif"

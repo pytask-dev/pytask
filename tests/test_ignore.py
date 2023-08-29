@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 from _pytask.collect import pytask_ignore_collect
 from _pytask.config import _IGNORED_FOLDERS
+from pytask import build
 from pytask import ExitCode
-from pytask import main
 
 
 @pytest.mark.end_to_end()
@@ -16,7 +16,7 @@ def test_ignore_default_paths(tmp_path, ignored_folder):
     tmp_path.joinpath(folder).mkdir()
     tmp_path.joinpath(folder, "task_module.py").write_text("def task_d(): pass")
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 0
 
@@ -32,7 +32,7 @@ def test_ignore_paths(tmp_path, ignore, new_line):
     )
     tmp_path.joinpath("pyproject.toml").write_text(config)
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 0 if ignore else len(session.tasks) == 1
 

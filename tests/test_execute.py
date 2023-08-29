@@ -11,9 +11,9 @@ from pathlib import Path
 import pytest
 from _pytask.capture import _CaptureMethod
 from _pytask.exceptions import NodeNotFoundError
+from pytask import build
 from pytask import cli
 from pytask import ExitCode
-from pytask import main
 from pytask import TaskOutcome
 
 
@@ -46,7 +46,7 @@ def test_task_did_not_produce_node(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
 
     assert session.exit_code == ExitCode.FAILED
     assert len(session.execution_reports) == 1
@@ -103,7 +103,7 @@ def test_node_not_found_in_task_setup(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
 
     assert session.exit_code == ExitCode.FAILED
     assert sum(i.outcome == TaskOutcome.SUCCESS for i in session.execution_reports) == 2
@@ -138,7 +138,7 @@ def test_execution_w_varying_dependencies_products(tmp_path, dependencies, produ
     for dependency in dependencies:
         tmp_path.joinpath(dependency).touch()
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
     assert session.exit_code == ExitCode.OK
 
 
@@ -157,7 +157,7 @@ def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Here I am. Once again.")
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
 
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").read_text() == "Here I am. Once again."
@@ -243,7 +243,7 @@ def test_preserve_input_for_dependencies_and_products(tmp_path, input_type):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
     assert session.exit_code == ExitCode.OK
 
 
@@ -257,7 +257,7 @@ def test_execution_stops_after_n_failures(tmp_path, n_failures):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path, "max_failures": n_failures})
+    session = build({"paths": tmp_path, "max_failures": n_failures})
 
     assert len(session.tasks) == 3
     assert len(session.execution_reports) == n_failures
@@ -273,7 +273,7 @@ def test_execution_stop_after_first_failure(tmp_path, stop_after_first_failure):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main(
+    session = build(
         {"paths": tmp_path, "stop_after_first_failure": stop_after_first_failure}
     )
 
@@ -296,7 +296,7 @@ def test_scheduling_w_priorities(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
 
     assert session.exit_code == ExitCode.OK
     assert session.execution_reports[0].task.name.endswith("task_z")
@@ -390,9 +390,9 @@ def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_task_executed_with_force_although_unchanged(tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
     assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
-    session = main({"paths": tmp_path, "force": True})
+    session = build({"paths": tmp_path, "force": True})
     assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
 
 
@@ -436,7 +436,7 @@ def test_task_with_product_annotation(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path, "capture": _CaptureMethod.NO})
+    session = build({"paths": tmp_path, "capture": _CaptureMethod.NO})
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
@@ -459,7 +459,7 @@ def test_task_with_nested_product_annotation(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path, "capture": _CaptureMethod.NO})
+    session = build({"paths": tmp_path, "capture": _CaptureMethod.NO})
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1

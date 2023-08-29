@@ -32,10 +32,10 @@ if TYPE_CHECKING:
 @hookimpl(tryfirst=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface."""
-    cli.add_command(build)
+    cli.add_command(build_command)
 
 
-def main(raw_config: dict[str, Any]) -> Session:  # noqa: C901, PLR0912, PLR0915
+def build(raw_config: dict[str, Any]) -> Session:  # noqa: C901, PLR0912, PLR0915
     """Run pytask.
 
     This is the main command to run pytask which usually receives kwargs from the
@@ -137,7 +137,7 @@ def main(raw_config: dict[str, Any]) -> Session:  # noqa: C901, PLR0912, PLR0915
     return session
 
 
-@click.command(cls=ColoredCommand)
+@click.command(cls=ColoredCommand, name="build")
 @click.option(
     "--debug-pytask",
     is_flag=True,
@@ -179,7 +179,7 @@ def main(raw_config: dict[str, Any]) -> Session:  # noqa: C901, PLR0912, PLR0915
     default=False,
     help="Execute a task even if it succeeded successfully before.",
 )
-def build(**raw_config: Any) -> NoReturn:
+def build_command(**raw_config: Any) -> NoReturn:
     """Collect tasks, execute them and report the results.
 
     The default command. pytask collects tasks from the given paths or the
@@ -187,5 +187,5 @@ def build(**raw_config: Any) -> NoReturn:
 
     """
     raw_config["command"] = "build"
-    session = main(raw_config)
+    session = build(raw_config)
     sys.exit(session.exit_code)

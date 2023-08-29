@@ -285,7 +285,7 @@ def parse_dependencies_from_task_function(
         )
 
         # If all nodes are python nodes, we simplify the parameter value and store it in
-        # one node.
+        # one node. If it is a node, we keep it.
         are_all_nodes_python_nodes_without_hash = all(
             isinstance(x, PythonNode) and not x.hash for x in tree_leaves(nodes)
         )

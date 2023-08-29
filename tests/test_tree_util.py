@@ -7,8 +7,8 @@ import pytest
 from _pytask.outcomes import ExitCode
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_structure
+from pytask import build
 from pytask import cli
-from pytask import main
 
 
 @pytest.mark.end_to_end()
@@ -40,7 +40,7 @@ def test_task_with_complex_product_did_not_produce_node(
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build({"paths": tmp_path})
 
     assert session.exit_code == exit_code
 
