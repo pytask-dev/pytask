@@ -174,7 +174,7 @@ class PythonNode(Node):
     """Name of the node."""
     value: Any = None
     """Value of the node."""
-    hash: bool = False  # noqa: A003
+    hash: bool | Callable[[Any], bool] = False  # noqa: A003
     """Whether the value should be hashed to determine the state."""
 
     def load(self) -> Any:
@@ -206,6 +206,8 @@ class PythonNode(Node):
         If ``hash = False``, the function returns ``"0"``, a constant hash value, so the
         :class:`PythonNode` is ignored when checking for a changed state of the task.
 
+        If ``hash`` is a callable, then use this function to calculate a hash.
+
         If ``hash = True``, :func:`hash` is used for all types except strings.
 
         The hash for strings is calculated using hashlib because ``hash("asd")`` returns
@@ -214,6 +216,8 @@ class PythonNode(Node):
 
         """
         if self.hash:
+            if callable(self.hash):
+                return str(self.hash(self.value))
             if isinstance(self.value, str):
                 return str(hashlib.sha256(self.value.encode()).hexdigest())
             return str(hash(self.value))
