@@ -10,27 +10,14 @@ class PickleNode:
     ----------
     name
         Name of the node which makes it identifiable in the DAG.
-    value
-        Value which can be requested inside the function.
     path
         The path to the file.
 
     """
 
-    def __init__(
-        self, name: str = "", value: Path | None = None, path: Path | None = None
-    ) -> None:
+    def __init__(self, name: str = "", path: Path | None = None) -> None:
         self.name = name
-        self.value = value
         self.path = path
-
-    @property
-    def path(self) -> Path:
-        return self.value
-
-    @path.setter
-    def path(self, value: Path) -> None:
-        self.value = value
 
     def from_annot(self, value: Path) -> None:
         """Set path and if other attributes are not set, set sensible defaults."""
@@ -38,7 +25,7 @@ class PickleNode:
             raise TypeError("'value' must be a 'pathlib.Path'.")
         if not self.name:
             self.name = value.as_posix()
-        self.value = value
+        self.path = value
 
     @classmethod
     def from_path(cls, path: Path) -> "PickleNode":
@@ -55,8 +42,8 @@ class PickleNode:
 
     def load(self) -> Path:
         """Load the value from the path."""
-        return pickle.loads(self.value.read_bytes())
+        return pickle.loads(self.path.read_bytes())
 
     def save(self, value: Any) -> None:
         """Save any value with pickle to the file."""
-        self.value.write_bytes(pickle.dumps(value))
+        self.path.write_bytes(pickle.dumps(value))

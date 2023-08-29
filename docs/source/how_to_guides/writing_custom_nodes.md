@@ -82,12 +82,11 @@ class.
 
 Here are some explanations.
 
-- The node does not need to inherit from the protocol {class}`pytask.PPathNode`, but you can do it to be more explicit.
+- The node does not need to inherit from the protocol {class}`pytask.PPathNode`, but you
+  can do it to be more explicit.
 - The node has three attributes
-  - `name` identifies the node in the DAG so the name must be unique.
-  - `value` is the general way for a node to carry a value. Here, it is the path to the
-    file.
-  - `path` is a duplicate of `value` and identfies the node as a path node that is
+  - `name` identifies the node in the DAG, so the name must be unique.
+  - `path` holds the path to the file and identifies the node as a path node that is
     handled a little bit differently than normal nodes within pytask.
 
 

@@ -11,18 +11,13 @@ class PickleNode:
     ----------
     name
         Name of the node which makes it identifiable in the DAG.
-    value
-        Value which can be requested inside the function.
     path
         The path to the file.
 
     """
 
-    def __init__(
-        self, name: str = "", value: Optional[Path] = None, path: Optional[Path] = None
-    ) -> None:
+    def __init__(self, name: str = "", path: Optional[Path] = None) -> None:
         self.name = name
-        self.value = value
         self.path = path
 
     def from_annot(self, value: Path) -> None:
@@ -31,14 +26,14 @@ class PickleNode:
             raise TypeError("'value' must be a 'pathlib.Path'.")
         if not self.name:
             self.name = value.as_posix()
-        self.value = value
+        self.path = value
 
     @classmethod
     def from_path(cls, path: Path) -> "PickleNode":
         """Instantiate class from path to file."""
         if not path.is_absolute():
             raise ValueError("Node must be instantiated from absolute path.")
-        return cls(name=path.as_posix(), value=path, path=path)
+        return cls(name=path.as_posix(), path=path)
 
     def state(self) -> Optional[str]:
         """Return the modification timestamp as the state."""
