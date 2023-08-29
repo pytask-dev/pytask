@@ -48,5 +48,5 @@ def test_marker_names(tmp_path, marker_name):
     markers = ['{marker_name}']
     """
     tmp_path.joinpath("pyproject.toml").write_text(textwrap.dedent(toml))
-    session = build({"paths": tmp_path, "markers": True})
+    session = build(paths=tmp_path, markers=True)
     assert session.exit_code == ExitCode.CONFIGURATION_FAILED

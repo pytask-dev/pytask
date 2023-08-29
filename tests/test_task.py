@@ -23,7 +23,7 @@ def test_task_with_task_decorator(tmp_path, func_name, task_name):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = build({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
 
@@ -434,7 +434,7 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
             pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    session = build({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)

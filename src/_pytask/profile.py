@@ -115,7 +115,7 @@ def profile(**raw_config: Any) -> NoReturn:
     raw_config["command"] = "profile"
 
     try:
-        # Duplication of the same mechanism in :func:`pytask.main.main`.
+        # Duplication of the same mechanism in :func:`pytask.build`.
         pm = get_plugin_manager()
         from _pytask import cli
 

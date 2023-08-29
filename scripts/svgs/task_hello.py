@@ -12,5 +12,5 @@ def task_hello_earth(produces: Path) -> None:
 
 if __name__ == "__main__":
     pytask.console.record = True
-    pytask.build({"paths": __file__})
+    pytask.build(paths=__file__)
     pytask.console.save_svg("readme.svg", title="pytask")

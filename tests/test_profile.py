@@ -22,7 +22,7 @@ def test_duration_is_stored_in_task(tmp_path):
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
-    session = build({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1

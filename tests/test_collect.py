@@ -31,7 +31,7 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Relative paths work.")
 
-    session = build({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.collection_reports[0].outcome == CollectionOutcome.SUCCESS
     assert tmp_path.joinpath("out.txt").read_text() == "Relative paths work."
@@ -49,7 +49,7 @@ def test_collect_depends_on_that_is_not_str_or_path(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = build({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
@@ -70,7 +70,7 @@ def test_collect_produces_that_is_not_str_or_path(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = build({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
@@ -114,7 +114,7 @@ def test_collect_nodes_with_the_same_name(runner, tmp_path):
 def test_collect_same_task_different_ways(tmp_path, path_extension):
     tmp_path.joinpath("task_module.py").write_text("def task_passes(): pass")
 
-    session = build({"paths": tmp_path.joinpath(path_extension)})
+    session = build(paths=tmp_path.joinpath(path_extension))
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
@@ -141,7 +141,7 @@ def test_collect_files_w_custom_file_name_pattern(
     for file in task_files:
         tmp_path.joinpath(file).write_text("def task_example(): pass")
 
-    session = build({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == expected_collected_tasks
@@ -264,7 +264,7 @@ def test_collect_dependencies_from_args_if_depends_on_is_missing(tmp_path):
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("hello")
 
-    session = build({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
@@ -278,7 +278,7 @@ def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
     tmp_path.joinpath("b").mkdir()
     tmp_path.joinpath("a", "task_module.py").write_text("def task_a(): pass")
     tmp_path.joinpath("b", "task_module.py").write_text("def task_a(): pass")
-    session = build({"paths": tmp_path})
+    session = build(paths=tmp_path)
     assert len(session.collection_reports) == 2
     assert all(
         report.outcome == CollectionOutcome.SUCCESS
@@ -306,7 +306,7 @@ def test_collect_module_name(tmp_path):
         pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    session = build({"paths": tmp_path})
+    session = build(paths=tmp_path)
     outcome = session.collection_reports[0].outcome
     assert outcome == CollectionOutcome.SUCCESS
 
@@ -368,7 +368,7 @@ def test_product_cannot_mix_different_product_types(tmp_path):
         ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    session = build({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert len(session.tasks) == 0
@@ -395,7 +395,7 @@ def test_depends_on_cannot_mix_different_definitions(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("input_1.txt").touch()
     tmp_path.joinpath("input_2.txt").touch()
-    session = build({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert len(session.tasks) == 0
@@ -439,7 +439,7 @@ def test_setting_name_for_path_node_via_annotation(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = build({"paths": [tmp_path]})
+    session = build(paths=tmp_path)
     assert session.exit_code == ExitCode.OK
     product = session.tasks[0].produces["path"]
     assert product.name == "product"

@@ -46,7 +46,7 @@ def test_disable_warnings(tmp_path, disable_warnings):
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
-    session = build({"paths": tmp_path, "disable_warnings": disable_warnings})
+    session = build(paths=tmp_path, disable_warnings=disable_warnings)
 
     assert session.exit_code == ExitCode.OK
     if disable_warnings:

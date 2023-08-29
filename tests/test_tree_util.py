@@ -40,7 +40,7 @@ def test_task_with_complex_product_did_not_produce_node(
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = build({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == exit_code
 

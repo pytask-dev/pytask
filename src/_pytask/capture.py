@@ -47,7 +47,7 @@ from _pytask.enums import ShowCapture
 from _pytask.nodes import Task
 
 
-class _CaptureMethod(enum.Enum):
+class CaptureMethod(enum.Enum):
     FD = "fd"
     NO = "no"
     SYS = "sys"
@@ -60,8 +60,8 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     additional_parameters = [
         click.Option(
             ["--capture"],
-            type=EnumChoice(_CaptureMethod),
-            default=_CaptureMethod.FD,
+            type=EnumChoice(CaptureMethod),
+            default=CaptureMethod.FD,
             help="Per task capturing method.",
         ),
         click.Option(
@@ -88,7 +88,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 
     """
     if config["s"]:
-        config["capture"] = _CaptureMethod.NO
+        config["capture"] = CaptureMethod.NO
 
 
 @hookimpl
@@ -630,20 +630,20 @@ class MultiCapture(Generic[AnyStr]):
         return CaptureResult(out, err)  # type: ignore
 
 
-def _get_multicapture(method: _CaptureMethod) -> MultiCapture[str]:
+def _get_multicapture(method: CaptureMethod) -> MultiCapture[str]:
     """Set up the MultiCapture class with the passed method.
 
     For each valid method, the function instantiates the :class:`MultiCapture` class
     with the specified buffers for ``stdin``, ``stdout``, and ``stderr``.
 
     """
-    if method == _CaptureMethod.FD:
+    if method == CaptureMethod.FD:
         return MultiCapture(in_=FDCapture(0), out=FDCapture(1), err=FDCapture(2))
-    if method == _CaptureMethod.SYS:
+    if method == CaptureMethod.SYS:
         return MultiCapture(in_=SysCapture(0), out=SysCapture(1), err=SysCapture(2))
-    if method == _CaptureMethod.NO:
+    if method == CaptureMethod.NO:
         return MultiCapture(in_=None, out=None, err=None)
-    if method == _CaptureMethod.TEE_SYS:
+    if method == CaptureMethod.TEE_SYS:
         return MultiCapture(
             in_=None, out=SysCapture(1, tee=True), err=SysCapture(2, tee=True)
         )
@@ -666,7 +666,7 @@ class CaptureManager:
 
     """
 
-    def __init__(self, method: _CaptureMethod) -> None:
+    def __init__(self, method: CaptureMethod) -> None:
         self._method = method
         self._capturing: MultiCapture[str] | None = None
 

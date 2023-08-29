@@ -4,9 +4,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from typing import Any
+from typing import Iterable
 from typing import TYPE_CHECKING
 
 import click
+from _pytask.capture import CaptureMethod
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.config_utils import _find_project_root_and_config
@@ -35,7 +37,37 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli.add_command(build_command)
 
 
-def build(raw_config: dict[str, Any]) -> Session:  # noqa: C901, PLR0912, PLR0915
+def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
+    capture: CaptureMethod = CaptureMethod.NO,
+    check_casing_of_paths: bool = True,
+    config: Path | None = None,
+    database_url: str = "",
+    debug_pytask: bool = False,
+    disable_warnings: bool = False,
+    dry_run: bool = False,
+    editor_url_scheme: str = "file",
+    expression: str = "",
+    force: bool = False,
+    ignore: Iterable[str] = (),
+    marker_expression: str = "",
+    max_failures: float = float("inf"),
+    n_entries_in_table: int = 15,
+    paths: str | Path | Iterable[str | Path] = (),
+    pdb: bool = False,
+    pdb_cls: str = "",
+    s: bool = False,
+    show_capture: bool = True,
+    show_errors_immediately: bool = False,
+    show_locals: bool = False,
+    show_traceback: bool = True,
+    sort_table: bool = True,
+    stop_after_first_failure: bool = False,
+    strict_markers: bool = False,
+    task_files: str | Iterable[str] = "task_*.py",
+    trace: bool = False,
+    verbose: int = 1,
+    **kwargs: Any,
+) -> Session:
     """Run pytask.
 
     This is the main command to run pytask which usually receives kwargs from the
@@ -44,9 +76,8 @@ def build(raw_config: dict[str, Any]) -> Session:  # noqa: C901, PLR0912, PLR091
 
     Parameters
     ----------
-    raw_config : dict[str, Any]
-        A dictionary with options passed to pytask. In general, this dictionary holds
-        the information passed via the command line interface.
+    capture
+        Defines the capture method.
 
     Returns
     -------
@@ -60,6 +91,38 @@ def build(raw_config: dict[str, Any]) -> Session:  # noqa: C901, PLR0912, PLR091
 
         pm.register(cli)
         pm.hook.pytask_add_hooks(pm=pm)
+
+        raw_config = {
+            "capture": capture,
+            "check_casing_of_paths": check_casing_of_paths,
+            "config": config,
+            "database_url": database_url,
+            "debug_pytask": debug_pytask,
+            "disable_warnings": disable_warnings,
+            "dry_run": dry_run,
+            "editor_url_scheme": editor_url_scheme,
+            "expression": expression,
+            "force": force,
+            "ignore": ignore,
+            "marker_expression": marker_expression,
+            "max_failures": max_failures,
+            "n_entries_in_table": n_entries_in_table,
+            "paths": paths,
+            "pdb": pdb,
+            "pdb_cls": pdb_cls,
+            "s": s,
+            "show_capture": show_capture,
+            "show_errors_immediately": show_errors_immediately,
+            "show_locals": show_locals,
+            "show_traceback": show_traceback,
+            "sort_table": sort_table,
+            "stop_after_first_failure": stop_after_first_failure,
+            "strict_markers": strict_markers,
+            "task_files": task_files,
+            "trace": trace,
+            "verbose": verbose,
+            **kwargs,
+        }
 
         # If someone called the programmatic interface, we need to do some parsing.
         if "command" not in raw_config:
@@ -97,9 +160,9 @@ def build(raw_config: dict[str, Any]) -> Session:  # noqa: C901, PLR0912, PLR091
 
                 raw_config = {**raw_config, **config_from_file}
 
-        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
+        config_ = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
 
-        session = Session.from_config(config)
+        session = Session.from_config(config_)
 
     except (ConfigurationError, Exception):
         exc_info = sys.exc_info()
@@ -187,5 +250,5 @@ def build_command(**raw_config: Any) -> NoReturn:
 
     """
     raw_config["command"] = "build"
-    session = build(raw_config)
+    session = build(**raw_config)
     sys.exit(session.exit_code)

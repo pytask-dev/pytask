@@ -12,5 +12,5 @@ def task_dry_run(produces: Path) -> None:
 
 if __name__ == "__main__":
     pytask.console.record = True
-    pytask.build({"paths": __file__, "dry_run": True})
+    pytask.build(paths=__file__, dry_run=True)
     pytask.console.save_svg("dry-run.svg", title="pytask")

@@ -27,7 +27,7 @@ def test_parse_markers(tmp_path):
     """
     tmp_path.joinpath("pyproject.toml").write_text(textwrap.dedent(toml))
 
-    session = build({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert "a1" in session.config["markers"]

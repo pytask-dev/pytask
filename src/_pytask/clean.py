@@ -99,7 +99,7 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912, PLR0915
     raw_config["command"] = "clean"
 
     try:
-        # Duplication of the same mechanism in :func:`pytask.main.main`.
+        # Duplication of the same mechanism in :func:`pytask.build`.
         pm = get_plugin_manager()
         from _pytask import cli
 

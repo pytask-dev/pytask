@@ -9,7 +9,7 @@ from pytask import ExitCode
 
 @pytest.mark.end_to_end()
 def test_debug_pytask(capsys, tmp_path):
-    session = build({"paths": tmp_path, "debug_pytask": True})
+    session = build(paths=tmp_path, debug_pytask=True)
 
     assert session.exit_code == ExitCode.OK
 
@@ -31,7 +31,7 @@ def test_pass_config_to_cli(tmp_path):
     """
     tmp_path.joinpath("pyproject.toml").write_text(textwrap.dedent(config))
 
-    session = build({"config": tmp_path.joinpath("pyproject.toml"), "paths": tmp_path})
+    session = build(config=tmp_path.joinpath("pyproject.toml"), paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert "elton" in session.config["markers"]
@@ -55,7 +55,7 @@ def test_passing_paths_via_configuration_file(tmp_path, file_or_folder):
             "def task_passes(): pass"
         )
 
-    session = build({"config": tmp_path.joinpath("pyproject.toml")})
+    session = build(config=tmp_path.joinpath("pyproject.toml"))
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
