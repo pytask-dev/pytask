@@ -751,14 +751,16 @@ def test_execute_tasks_via_functional_api(tmp_path):
         return text
 
     if __name__ == "__main__":
-        session = pytask.build(tasks=[create_file, create_text], verbose=0)
+        session = pytask.build(tasks=[create_file, create_text])
 
         assert len(session.tasks) == 2
         assert len(session.dag.nodes) == 4
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = subprocess.run(
-        ("python", tmp_path.joinpath("task_module.py").as_posix()), check=False
+        ("python", tmp_path.joinpath("task_module.py").as_posix()),
+        check=False,
+        capture_output=True,
     )
     assert result.returncode == ExitCode.OK
     assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
