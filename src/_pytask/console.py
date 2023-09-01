@@ -297,3 +297,23 @@ def create_summary_panel(
     )
 
     return panel
+
+
+def is_jupyter() -> bool:  # pragma: no cover
+    """Check if we're running in a Jupyter notebook."""
+    try:
+        get_ipython  # type: ignore[name-defined]
+    except NameError:
+        return False
+    ipython = get_ipython()  # type: ignore[name-defined]
+    shell = ipython.__class__.__name__
+    if (
+        "google.colab" in str(ipython.__class__)
+        or os.getenv("DATABRICKS_RUNTIME_VERSION")
+        or shell == "ZMQInteractiveShell"
+    ):
+        return True  # Jupyter notebook or qtconsole
+    elif shell == "TerminalInteractiveShell":
+        return False  # Terminal running IPython
+    else:
+        return False  # Other type (?)

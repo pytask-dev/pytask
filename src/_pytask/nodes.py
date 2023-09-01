@@ -55,7 +55,10 @@ class Task(MetaNode):
     def __attrs_post_init__(self: Task) -> None:
         """Change class after initialization."""
         if self.name is None:
-            self.name = self.path.as_posix() + "::" + self.base_name
+            if self.path is None:
+                self.name = self.base_name
+            else:
+                self.name = self.path.as_posix() + "::" + self.base_name
 
         if self.short_name is None:
             self.short_name = self.name

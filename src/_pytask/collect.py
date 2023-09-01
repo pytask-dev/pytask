@@ -19,6 +19,7 @@ from _pytask.console import _get_file
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import format_task_id
+from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_mark
 from _pytask.models import NodeInfo
@@ -103,6 +104,9 @@ def _collect_from_tasks(session: Session) -> None:
 
         path = _get_file(raw_task)
         if path.name == "<stdin>":
+            path = None
+
+        if is_jupyter():
             path = None
 
         name = raw_task.pytask_meta.name
@@ -363,6 +367,8 @@ def pytask_collect_log(
     session.collection_end = time.time()
 
     console.print(f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}.")
+
+    print(tasks)
 
     failed_reports = [r for r in reports if r.outcome == CollectionOutcome.FAIL]
     if failed_reports:

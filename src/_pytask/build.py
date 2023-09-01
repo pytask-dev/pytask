@@ -78,11 +78,6 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
     command line interface. It can also be used to run pytask interactively. Pass
     configuration in a dictionary.
 
-    Parameters
-    ----------
-    capture
-        Defines the capture method.
-
     Returns
     -------
     session : _pytask.session.Session
