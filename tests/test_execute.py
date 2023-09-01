@@ -760,7 +760,7 @@ def test_execute_tasks_via_functional_api(tmp_path):
     result = subprocess.run(
         ("python", tmp_path.joinpath("task_module.py").as_posix()),
         check=False,
-        capture_output=True,
+        env={**os.environ, "TERM": "unknown"},
     )
     assert result.returncode == ExitCode.OK
     assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
