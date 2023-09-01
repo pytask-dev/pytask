@@ -40,7 +40,7 @@ class Task(MetaNode):
 
     base_name: str
     """The base name of the task."""
-    path: Path
+    path: Path | None
     """Path to the file where the task was defined."""
     function: Callable[..., Any]
     """The task function."""

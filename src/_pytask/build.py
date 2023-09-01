@@ -4,6 +4,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from typing import Any
+from typing import Callable
 from typing import Iterable
 from typing import TYPE_CHECKING
 
@@ -18,6 +19,7 @@ from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import ResolvingDependenciesError
+from _pytask.nodes import Task
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
@@ -38,6 +40,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
+    *,
     capture: CaptureMethod = CaptureMethod.NO,
     check_casing_of_paths: bool = True,
     config: Path | None = None,
@@ -63,6 +66,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
     sort_table: bool = True,
     stop_after_first_failure: bool = False,
     strict_markers: bool = False,
+    tasks: Callable[..., Any] | Task | Iterable[Callable[..., Any] | Task] = (),
     task_files: str | Iterable[str] = "task_*.py",
     trace: bool = False,
     verbose: int = 1,
@@ -118,6 +122,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
             "sort_table": sort_table,
             "stop_after_first_failure": stop_after_first_failure,
             "strict_markers": strict_markers,
+            "tasks": tasks,
             "task_files": task_files,
             "trace": trace,
             "verbose": verbose,

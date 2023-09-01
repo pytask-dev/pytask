@@ -262,8 +262,17 @@ def parse_dependencies_from_task_function(
     parameters_with_product_annot = _find_args_with_product_annotation(obj)
     parameters_with_node_annot = _find_args_with_node_annotation(obj)
 
+    # Complete kwargs with node annotations, when no value is given by kwargs.
+    for name in list(parameters_with_node_annot):
+        if name not in kwargs:
+            kwargs[name] = parameters_with_node_annot[name]
+            parameters_with_node_annot.pop(name)
+
     for parameter_name, value in kwargs.items():
-        if parameter_name in parameters_with_product_annot:
+        if (
+            parameter_name in parameters_with_product_annot
+            or parameter_name == "return"
+        ):
             continue
 
         if parameter_name == "depends_on":

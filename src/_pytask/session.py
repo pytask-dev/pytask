@@ -20,7 +20,7 @@ except ImportError:
 if TYPE_CHECKING:
     from _pytask.report import CollectionReport
     from _pytask.report import ExecutionReport
-    from _ptytask.report import DagReport
+    from _pytask.report import DagReport
     from _pytask.nodes import Task
 
 

@@ -15,6 +15,7 @@ from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_products_from_task_function
 from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
+from _pytask.console import _get_file
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import format_task_id
@@ -33,6 +34,7 @@ from _pytask.report import CollectionReport
 from _pytask.session import Session
 from _pytask.shared import find_duplicates
 from _pytask.shared import reduce_node_name
+from _pytask.task_utils import task as task_decorator
 from _pytask.traceback import render_exc_info
 from rich.text import Text
 
@@ -43,6 +45,13 @@ def pytask_collect(session: Session) -> bool:
     session.collection_start = time.time()
 
     _collect_from_paths(session)
+    _collect_from_tasks(session)
+
+    session.tasks.extend(
+        i.node
+        for i in session.collection_reports
+        if i.outcome == CollectionOutcome.SUCCESS and isinstance(i.node, Task)
+    )
 
     try:
         session.hook.pytask_collect_modify_tasks(session=session, tasks=session.tasks)
@@ -72,9 +81,42 @@ def _collect_from_paths(session: Session) -> None:
 
         if reports:
             session.collection_reports.extend(reports)
-            session.tasks.extend(
-                i.node for i in reports if i.outcome == CollectionOutcome.SUCCESS
+
+
+def _collect_from_tasks(session: Session) -> None:
+    """Collect tasks from user provided tasks via the functional interface."""
+    for raw_task in session.config.get("tasks", ()):
+        if isinstance(raw_task, Task):
+            report = session.hook.pytask_collect_task_protocol(
+                session=session,
+                reports=session.collection_reports,
+                path=None,
+                name=None,
+                obj=raw_task,
             )
+
+        if not callable(raw_task):
+            raise ValueError("Not a function.")
+
+        if not hasattr(raw_task, "pytask_meta"):
+            raw_task = task_decorator()(raw_task)  # noqa: PLW2901
+
+        path = _get_file(raw_task)
+        if path.name == "<stdin>":
+            path = None
+
+        name = raw_task.pytask_meta.name
+
+        report = session.hook.pytask_collect_task_protocol(
+            session=session,
+            reports=session.collection_reports,
+            path=path,
+            name=name,
+            obj=raw_task,
+        )
+
+        if report is not None:
+            session.collection_reports.append(report)
 
 
 @hookimpl
@@ -187,6 +229,8 @@ def pytask_collect_task(
             produces=products,
             markers=markers,
         )
+    if isinstance(obj, Task):
+        return obj
     return None
 
 
