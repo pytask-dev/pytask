@@ -18,7 +18,6 @@ from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import Node
-from _pytask.nodes import ProductType
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
@@ -26,6 +25,7 @@ from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
+from _pytask.typing import ProductType
 from attrs import define
 from attrs import field
 from typing_extensions import Annotated

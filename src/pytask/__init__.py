@@ -38,7 +38,6 @@ from _pytask.models import CollectionMetadata
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import MetaNode
 from _pytask.nodes import PathNode
-from _pytask.nodes import Product
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
@@ -59,6 +58,7 @@ from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
+from _pytask.typing import Product
 from _pytask.warnings_utils import parse_warning_filter
 from _pytask.warnings_utils import warning_record_to_str
 from _pytask.warnings_utils import WarningReport
@@ -92,6 +92,7 @@ __all__ = [
     "NodeInfo",
     "NodeNotCollectedError",
     "NodeNotFoundError",
+    "PathNode",
     "Persisted",
     "Product",
     "PytaskError",

@@ -14,6 +14,8 @@ from _pytask.node_protocols import PPathNode
 from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_structure
+from _pytask.typing import no_value
+from _pytask.typing import NoValue
 from attrs import define
 from attrs import field
 
@@ -22,16 +24,7 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-__all__ = ["PathNode", "Product", "Task"]
-
-
-@define(frozen=True)
-class ProductType:
-    """A class to mark products."""
-
-
-Product = ProductType()
-"""ProductType: A singleton to mark products in annotations."""
+__all__ = ["PathNode", "PythonNode", "Task"]
 
 
 @define(kw_only=True)
@@ -107,7 +100,7 @@ class PathNode(PPathNode):
 
     name: str = ""
     """Name of the node which makes it identifiable in the DAG."""
-    path: Path | None = None
+    path: Path | NoValue = no_value
     """The path to the file."""
 
     def from_annot(self, value: Path) -> None:
@@ -122,6 +115,8 @@ class PathNode(PPathNode):
 
 
         """
+        if self.path is not no_value:
+            raise ValueError("'path' is already defined.")
         if not isinstance(value, Path):
             raise TypeError("'value' must be a 'pathlib.Path'.")
         if not self.name:
@@ -146,16 +141,22 @@ class PathNode(PPathNode):
         The state is given by the modification timestamp.
 
         """
+        if self.path is no_value:
+            return None
         if self.path.exists():
             return str(self.path.stat().st_mtime)
         return None
 
     def load(self) -> Path:
         """Load the value."""
+        if self.path is no_value:
+            raise ValueError("PathNode has no path defined.")
         return self.path
 
     def save(self, value: bytes | str) -> None:
         """Save strings or bytes to file."""
+        if self.path is no_value:
+            raise TypeError("'path' must be a 'pathlib.Path' to store data.")
         if isinstance(value, str):
             self.path.write_text(value)
         elif isinstance(value, bytes):
@@ -172,13 +173,15 @@ class PythonNode(Node):
 
     name: str = ""
     """Name of the node."""
-    value: Any = None
+    value: Any | NoValue = no_value
     """Value of the node."""
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
     """Whether the value should be hashed to determine the state."""
 
     def load(self) -> Any:
         """Load the value."""
+        if self.value is no_value:
+            raise ValueError("PythonNode has no value defined.")
         return self.value
 
     def save(self, value: Any) -> None:
@@ -198,6 +201,8 @@ class PythonNode(Node):
                 ...
 
         """
+        if self.value is not no_value:
+            raise ValueError("'value' is already defined.")
         self.value = value
 
     def state(self) -> str | None:
@@ -215,6 +220,8 @@ class PythonNode(Node):
         random integer and it would confuse users.
 
         """
+        if self.value is no_value:
+            return None
         if self.hash:
             if callable(self.hash):
                 return str(self.hash(self.value))

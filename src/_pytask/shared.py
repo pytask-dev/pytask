@@ -16,6 +16,7 @@ from _pytask.nodes import Task
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
+from _pytask.typing import no_value
 
 
 def to_list(scalar_or_iter: Any) -> list[Any]:
@@ -70,6 +71,7 @@ def reduce_node_name(node: MetaNode, paths: Sequence[str | Path]) -> str:
 
     """
     if isinstance(node, (PPathNode, Task)):
+        assert node.path is not no_value
         ancestor = find_closest_ancestor(node.path, paths)
         if ancestor is None:
             try:

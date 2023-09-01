@@ -12,9 +12,9 @@ from _pytask.collect_utils import _extract_nodes_from_function_markers
 from _pytask.collect_utils import _find_args_with_product_annotation
 from _pytask.collect_utils import _merge_dictionaries
 from _pytask.collect_utils import _Placeholder
+from _pytask.typing import Product
 from pytask import depends_on
 from pytask import produces
-from pytask import Product
 from typing_extensions import Annotated
 
 

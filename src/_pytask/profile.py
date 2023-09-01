@@ -31,6 +31,7 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
 from _pytask.traceback import render_exc_info
+from _pytask.typing import no_value
 from rich.table import Table
 from sqlalchemy import Column
 from sqlalchemy import Float
@@ -230,6 +231,7 @@ class FileSizeNameSpace:
                     node = session.dag.nodes[successor]["node"]
                     if isinstance(node, PPathNode):
                         with suppress(FileNotFoundError):
+                            assert node.path is not no_value
                             sum_bytes += node.path.stat().st_size
 
                 profile[task.name]["Size of Products"] = _to_human_readable_size(

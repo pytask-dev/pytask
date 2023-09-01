@@ -27,6 +27,7 @@ from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.tree_util import tree_leaves
+from _pytask.typing import no_value
 from rich.text import Text
 from rich.tree import Tree
 
@@ -125,10 +126,14 @@ def _find_common_ancestor_of_all_nodes(
         all_paths.append(task.path)
         if show_nodes:
             all_paths.extend(
-                x.path for x in tree_leaves(task.depends_on) if isinstance(x, PPathNode)
+                x.path
+                for x in tree_leaves(task.depends_on)
+                if isinstance(x, PPathNode) and x.path is not no_value
             )
             all_paths.extend(
-                x.path for x in tree_leaves(task.produces) if isinstance(x, PPathNode)
+                x.path
+                for x in tree_leaves(task.produces)
+                if isinstance(x, PPathNode) and x.path is not no_value
             )
 
     common_ancestor = find_common_ancestor(*all_paths, *paths)
@@ -206,6 +211,7 @@ def _print_collected_tasks(
                 sorted_nodes = sorted(nodes, key=lambda x: x.name)
                 for node in sorted_nodes:
                     if isinstance(node, PPathNode):
+                        assert node.path is not no_value
                         if node.path.as_posix() in node.name:
                             reduced_node_name = str(
                                 relative_to(node.path, common_ancestor)
@@ -225,6 +231,7 @@ def _print_collected_tasks(
                     tree_leaves(task.produces), key=lambda x: getattr(x, "path", x.name)
                 ):
                     if isinstance(node, PPathNode):
+                        assert node.path is not no_value
                         reduced_node_name = str(relative_to(node.path, common_ancestor))
                         url_style = create_url_style_for_path(
                             node.path, editor_url_scheme

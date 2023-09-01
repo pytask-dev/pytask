@@ -6,6 +6,8 @@ from typing import Any
 from typing import Protocol
 from typing import runtime_checkable
 
+from _pytask.typing import NoValue
+
 
 @runtime_checkable
 class MetaNode(Protocol):
@@ -46,4 +48,4 @@ class PPathNode(Node, Protocol):
 
     """
 
-    path: Path
+    path: Path | NoValue
