@@ -731,6 +731,8 @@ def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
 
 
+@pytest.mark.end_to_end()
+@pytest.mark.xfail(sys.platform == "win32", reason="Decoding issues in Gitlab Actions.")
 def test_execute_tasks_via_functional_api(tmp_path):
     source = """
     from _pytask.nodes import PathNode
@@ -758,9 +760,7 @@ def test_execute_tasks_via_functional_api(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = subprocess.run(
-        ("python", tmp_path.joinpath("task_module.py").as_posix()),
-        check=False,
-        env={**os.environ, "TERM": "unknown"},
+        ("python", tmp_path.joinpath("task_module.py").as_posix()), check=False
     )
     assert result.returncode == ExitCode.OK
     assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
