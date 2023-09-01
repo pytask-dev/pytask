@@ -758,7 +758,8 @@ def test_execute_tasks_via_functional_api(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = subprocess.run(
-        ("python", tmp_path.joinpath("task_module.py").as_posix()), check=False
+        ("python", tmp_path.joinpath("task_module.py").as_posix(), "-v", "0"),
+        check=False,
     )
     assert result.returncode == ExitCode.OK
     assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
