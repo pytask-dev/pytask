@@ -24,6 +24,7 @@ from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import Node
+from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import find_common_ancestor_of_nodes
@@ -144,7 +145,7 @@ def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
         return True
 
     # TODO: Could be MetaNode with Path?
-    if isinstance(node, Task):
+    if isinstance(node, (PPathNode, Task)):
         # If the modification times match, the node has not been changed.
         if node_state == db_state.modification_time:
             return False

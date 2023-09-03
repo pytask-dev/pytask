@@ -6,9 +6,12 @@ from typing import Any
 from typing import Callable
 from typing import Protocol
 from typing import runtime_checkable
+from typing import TYPE_CHECKING
 
-from _pytask.mark import Mark
 from _pytask.tree_util import PyTree
+
+if TYPE_CHECKING:
+    from _pytask.mark import Mark
 
 
 @runtime_checkable
