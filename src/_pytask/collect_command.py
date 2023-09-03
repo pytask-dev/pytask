@@ -192,10 +192,7 @@ def _print_collected_tasks(
 
         for task in tasks:
             reduced_task_name = format_task_id(
-                task,
-                editor_url_scheme=editor_url_scheme,
-                short_name=True,
-                relative_to=common_ancestor,
+                task, editor_url_scheme=editor_url_scheme
             )
             task_branch = module_branch.add(
                 Text.assemble(TASK_ICON, "<Function ", reduced_task_name, ">"),

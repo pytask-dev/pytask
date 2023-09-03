@@ -337,7 +337,7 @@ def pytask_collect_log(
             else:
                 if isinstance(report.node, PTask):
                     short_name = format_task_id(
-                        report.node, editor_url_scheme="no_link", short_name=True
+                        report.node, editor_url_scheme="no_link"
                     )
                 else:
                     short_name = reduce_node_name(report.node, session.config["paths"])

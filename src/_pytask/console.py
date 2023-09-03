@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 
 import rich
 from _pytask.node_protocols import PTask
-from _pytask.path import relative_to as relative_to_
+from _pytask.nodes import Task
 from rich.console import Console
 from rich.padding import Padding
 from rich.panel import Panel
@@ -143,29 +143,20 @@ def render_to_string(
     return rendered
 
 
-def format_task_id(
-    task: PTask,
-    editor_url_scheme: str,
-    short_name: bool = False,
-    relative_to: Path | None = None,
-) -> Text:
+def format_task_id(task: PTask, editor_url_scheme: str) -> Text:
     """Format a task id."""
-    if short_name:
-        path, task_name = task.short_name.split("::")
-    elif relative_to:
-        path = relative_to_(task.path, relative_to).as_posix()
-        task_name = task.base_name
-    else:
-        path, task_name = task.name.split("::")
-
     if task.function is None:
         url_style = Style()
     else:
         url_style = create_url_style_for_task(task.function, editor_url_scheme)
 
-    task_id = Text.assemble(
-        Text(path + "::", style="dim"), Text(task_name, style=url_style)
-    )
+    if isinstance(task, Task):
+        path, task_name = task.short_name.split("::")
+        task_id = Text.assemble(
+            Text(path + "::", style="dim"), Text(task_name, style=url_style)
+        )
+    else:
+        task_id = Text(task.name, style=url_style)
     return task_id
 
 
@@ -173,7 +164,7 @@ def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -
     """Format list of strings as flat tree."""
     tree = Tree(title)
     for name in strings:
-        tree.add(icon + name)
+        tree.add(Text.assemble(icon, name))
     text = render_to_string(tree, console=console)
     return text
 

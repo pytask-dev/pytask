@@ -223,18 +223,12 @@ class LiveExecution:
         table.add_column("Outcome")
         for report in relevant_reports:
             table.add_row(
-                format_task_id(
-                    report.task,
-                    editor_url_scheme=self.editor_url_scheme,
-                    short_name=True,
-                ),
+                format_task_id(report.task, editor_url_scheme=self.editor_url_scheme),
                 Text(report.outcome.symbol, style=report.outcome.style),
             )
         for task in self._running_tasks.values():
             table.add_row(
-                format_task_id(
-                    task, editor_url_scheme=self.editor_url_scheme, short_name=True
-                ),
+                format_task_id(task, editor_url_scheme=self.editor_url_scheme),
                 "running",
             )
 

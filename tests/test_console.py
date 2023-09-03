@@ -114,8 +114,6 @@ _THIS_FILE = Path(__file__)
         "base_name",
         "short_name",
         "editor_url_scheme",
-        "use_short_name",
-        "relative_to",
         "expected",
     ),
     [
@@ -123,46 +121,18 @@ _THIS_FILE = Path(__file__)
             "task_a",
             None,
             "no_link",
-            False,
-            None,
             Text(
                 _THIS_FILE.as_posix() + "::task_a",
                 spans=[Span(0, len(_THIS_FILE.as_posix()) + 2, "dim")],
             ),
             id="format full id",
-        ),
-        pytest.param(
-            "task_a",
-            "test_console.py::task_a",
-            "no_link",
-            True,
-            None,
-            Text(
-                "test_console.py::task_a",
-                spans=[Span(0, 17, "dim")],
-            ),
-            id="format short id",
-        ),
-        pytest.param(
-            "task_a",
-            None,
-            "no_link",
-            False,
-            _THIS_FILE.parent,
-            Text(
-                "tests/test_console.py::task_a",
-                spans=[Span(0, 23, "dim")],
-            ),
-            id="format relative to id",
-        ),
+        )
     ],
 )
-def test_format_task_id(  # noqa: PLR0913
+def test_format_task_id(
     base_name,
     short_name,
     editor_url_scheme,
-    use_short_name,
-    relative_to,
     expected,
 ):
     path = _THIS_FILE
@@ -171,7 +141,7 @@ def test_format_task_id(  # noqa: PLR0913
     if short_name is not None:
         task.short_name = short_name
 
-    result = format_task_id(task, editor_url_scheme, use_short_name, relative_to)
+    result = format_task_id(task, editor_url_scheme)
     assert result == expected
 
 

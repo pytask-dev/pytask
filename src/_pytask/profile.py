@@ -181,7 +181,6 @@ def _print_profile_table(
             task_id = format_task_id(
                 task=name_to_task[task_name],
                 editor_url_scheme=config["editor_url_scheme"],
-                short_name=True,
             )
             infos = [str(i) for i in info.values()]
             table.add_row(task_id, *infos)

@@ -288,9 +288,7 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
 def _print_errored_task_report(session: Session, report: ExecutionReport) -> None:
     """Print the traceback and the exception of an errored report."""
     task_name = format_task_id(
-        task=report.task,
-        editor_url_scheme=session.config["editor_url_scheme"],
-        short_name=True,
+        task=report.task, editor_url_scheme=session.config["editor_url_scheme"]
     )
     text = Text.assemble("Task ", task_name, " failed", style="failed")
     console.rule(text, style=report.outcome.style)
