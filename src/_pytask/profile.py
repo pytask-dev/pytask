@@ -18,7 +18,7 @@ from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.console import format_task_id
+from _pytask.console import format_task_name
 from _pytask.database_utils import BaseTable
 from _pytask.database_utils import DatabaseSession
 from _pytask.exceptions import CollectionError
@@ -178,7 +178,7 @@ def _print_profile_table(
             table.add_column(name, justify="right")
 
         for task_name, info in profile.items():
-            task_id = format_task_id(
+            task_id = format_task_name(
                 task=name_to_task[task_name],
                 editor_url_scheme=config["editor_url_scheme"],
             )

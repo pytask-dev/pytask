@@ -173,10 +173,7 @@ def catch_warnings_for_item(
 
         yield
 
-        if task is not None:
-            id_ = task.short_name if hasattr(task, "short_name") else task.name
-        else:
-            id_ = when
+        id_ = getattr(task, "display_name", task.name) if task is not None else when
 
         for warning_message in log:
             fs_location = warning_message.filename, warning_message.lineno

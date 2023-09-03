@@ -8,7 +8,7 @@ from typing import NamedTuple
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.console import format_task_id
+from _pytask.console import format_task_name
 from _pytask.node_protocols import PTask
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
@@ -223,12 +223,12 @@ class LiveExecution:
         table.add_column("Outcome")
         for report in relevant_reports:
             table.add_row(
-                format_task_id(report.task, editor_url_scheme=self.editor_url_scheme),
+                format_task_name(report.task, editor_url_scheme=self.editor_url_scheme),
                 Text(report.outcome.symbol, style=report.outcome.style),
             )
         for task in self._running_tasks.values():
             table.add_row(
-                format_task_id(task, editor_url_scheme=self.editor_url_scheme),
+                format_task_name(task, editor_url_scheme=self.editor_url_scheme),
                 "running",
             )
 
@@ -260,7 +260,7 @@ class LiveExecution:
         self._running_tasks.pop(new_report.task.name)
         self._reports.append(
             _ReportEntry(
-                name=new_report.task.short_name,
+                name=getattr(new_report.task, "display_name", new_report.task.name),
                 outcome=new_report.outcome,
                 task=new_report.task,
             )

@@ -9,7 +9,7 @@ from _pytask.console import _get_source_lines
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_path
 from _pytask.console import create_url_style_for_task
-from _pytask.console import format_task_id
+from _pytask.console import format_task_name
 from _pytask.console import render_to_string
 from pytask import CollectionOutcome
 from pytask import console
@@ -139,9 +139,9 @@ def test_format_task_id(
 
     task = Task(base_name=base_name, path=path, function=task_func)
     if short_name is not None:
-        task.short_name = short_name
+        task.display_name = short_name
 
-    result = format_task_id(task, editor_url_scheme)
+    result = format_task_name(task, editor_url_scheme)
     assert result == expected
 
 

@@ -9,7 +9,7 @@ from typing import Sequence
 
 import click
 import networkx as nx
-from _pytask.console import format_task_id
+from _pytask.console import format_task_name
 from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
@@ -92,7 +92,7 @@ def reduce_names_of_multiple_nodes(
         node = dag.nodes[name].get("node") or dag.nodes[name].get("task")
 
         if isinstance(node, PTask):
-            short_name = format_task_id(node, editor_url_scheme="no_link")
+            short_name = format_task_name(node, editor_url_scheme="no_link")
         elif isinstance(node, MetaNode):
             short_name = reduce_node_name(node, paths)
         else:

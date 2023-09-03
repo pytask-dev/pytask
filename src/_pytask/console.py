@@ -36,7 +36,7 @@ __all__ = [
     "create_url_style_for_task",
     "create_url_style_for_path",
     "console",
-    "format_task_id",
+    "format_task_name",
     "format_strings_as_flat_tree",
     "render_to_string",
     "unify_styles",
@@ -143,7 +143,7 @@ def render_to_string(
     return rendered
 
 
-def format_task_id(task: PTask, editor_url_scheme: str) -> Text:
+def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
     """Format a task id."""
     if task.function is None:
         url_style = Style()
@@ -151,12 +151,13 @@ def format_task_id(task: PTask, editor_url_scheme: str) -> Text:
         url_style = create_url_style_for_task(task.function, editor_url_scheme)
 
     if isinstance(task, Task):
-        path, task_name = task.short_name.split("::")
+        path, task_name = task.display_name.split("::")
         task_id = Text.assemble(
             Text(path + "::", style="dim"), Text(task_name, style=url_style)
         )
     else:
-        task_id = Text(task.name, style=url_style)
+        name = getattr(task, "display_name", task.name)
+        task_id = Text(name, style=url_style)
     return task_id
 
 

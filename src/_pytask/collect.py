@@ -17,7 +17,7 @@ from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.console import create_summary_panel
-from _pytask.console import format_task_id
+from _pytask.console import format_task_name
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_mark
 from _pytask.models import NodeInfo
@@ -275,8 +275,8 @@ def pytask_collect_modify_tasks(tasks: list[PTask]) -> None:
     """Given all tasks, assign a short uniquely identifiable name to each task."""
     id_to_short_id = _find_shortest_uniquely_identifiable_name_for_tasks(tasks)
     for task in tasks:
-        short_id = id_to_short_id[task.name]
-        task.short_name = short_id
+        if task.name in id_to_short_id and isinstance(task, Task):
+            task.display_name = id_to_short_id[task.name]
 
 
 def _find_shortest_uniquely_identifiable_name_for_tasks(
@@ -292,7 +292,7 @@ def _find_shortest_uniquely_identifiable_name_for_tasks(
     id_to_short_id = {}
 
     # Make attempt to add up to twenty parts of the path to ensure uniqueness.
-    id_to_task = {task.name: task for task in tasks}
+    id_to_task = {task.name: task for task in tasks if isinstance(task, Task)}
     for n_parts in range(1, 20):
         dupl_id_to_short_id = {
             id_: "/".join(task.path.parts[-n_parts:]) + "::" + task.base_name
@@ -336,7 +336,7 @@ def pytask_collect_log(
                 header = "Error"
             else:
                 if isinstance(report.node, PTask):
-                    short_name = format_task_id(
+                    short_name = format_task_name(
                         report.node, editor_url_scheme="no_link"
                     )
                 else:

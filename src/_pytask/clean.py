@@ -21,6 +21,7 @@ from _pytask.exceptions import CollectionError
 from _pytask.git import get_all_files
 from _pytask.git import get_root
 from _pytask.git import is_git_installed
+from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
@@ -219,7 +220,7 @@ def _yield_paths_from_task(task: PTask) -> Generator[Path, None, None]:
     yield task.path
     for attribute in ("depends_on", "produces"):
         for node in tree_leaves(getattr(task, attribute)):
-            if hasattr(node, "path") and isinstance(node.path, Path):
+            if isinstance(node, PPathNode):
                 yield node.path
 
 

@@ -11,7 +11,7 @@ from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_task
 from _pytask.console import format_strings_as_flat_tree
-from _pytask.console import format_task_id
+from _pytask.console import format_task_name
 from _pytask.console import unify_styles
 from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import TopologicalSorter
@@ -287,7 +287,7 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
 
 def _print_errored_task_report(session: Session, report: ExecutionReport) -> None:
     """Print the traceback and the exception of an errored report."""
-    task_name = format_task_id(
+    task_name = format_task_name(
         task=report.task, editor_url_scheme=session.config["editor_url_scheme"]
     )
     text = Text.assemble("Task ", task_name, " failed", style="failed")

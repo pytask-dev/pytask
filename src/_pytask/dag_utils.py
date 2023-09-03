@@ -7,7 +7,7 @@ from typing import Iterable
 
 import networkx as nx
 from _pytask.console import format_strings_as_flat_tree
-from _pytask.console import format_task_id
+from _pytask.console import format_task_name
 from _pytask.console import TASK_ICON
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PTask
@@ -162,7 +162,7 @@ def _extract_priorities_from_tasks(tasks: list[PTask]) -> dict[str, int]:
         name_to_task = {task.name: task for task in tasks}
         reduced_names = []
         for name in tasks_w_mixed_priorities:
-            reduced_name = format_task_id(name_to_task[name], "no_link")
+            reduced_name = format_task_name(name_to_task[name], "no_link")
             reduced_names.append(reduced_name.plain)
 
         text = format_strings_as_flat_tree(

@@ -12,7 +12,7 @@ from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_url_style_for_path
 from _pytask.console import FILE_ICON
-from _pytask.console import format_task_id
+from _pytask.console import format_task_name
 from _pytask.console import PYTHON_ICON
 from _pytask.console import TASK_ICON
 from _pytask.exceptions import CollectionError
@@ -191,7 +191,7 @@ def _print_collected_tasks(
         )
 
         for task in tasks:
-            reduced_task_name = format_task_id(
+            reduced_task_name = format_task_name(
                 task, editor_url_scheme=editor_url_scheme
             )
             task_branch = module_branch.add(

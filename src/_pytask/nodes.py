@@ -46,7 +46,7 @@ class Task(MetaNode):
     """The task function."""
     name: str | None = field(default=None, init=False)
     """The name of the task."""
-    short_name: str | None = field(default=None, init=False)
+    display_name: str | None = field(default=None, init=False)
     """The shortest uniquely identifiable name for task for display."""
     depends_on: PyTree[Node] = field(factory=dict)
     """A list of dependencies of task."""
@@ -64,8 +64,8 @@ class Task(MetaNode):
         if self.name is None:
             self.name = self.path.as_posix() + "::" + self.base_name
 
-        if self.short_name is None:
-            self.short_name = self.name
+        if self.display_name is None:
+            self.display_name = self.name
 
     def state(self) -> str | None:
         """Return the state of the node."""
