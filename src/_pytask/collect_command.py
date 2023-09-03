@@ -21,6 +21,7 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import select_by_keyword
 from _pytask.mark import select_by_mark
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PTask
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
@@ -33,7 +34,6 @@ from rich.tree import Tree
 
 if TYPE_CHECKING:
     from typing import NoReturn
-    from _pytask.nodes import Task
 
 
 @hookimpl(tryfirst=True)
@@ -106,7 +106,7 @@ def collect(**raw_config: Any | None) -> NoReturn:
     sys.exit(session.exit_code)
 
 
-def _select_tasks_by_expressions_and_marker(session: Session) -> list[Task]:
+def _select_tasks_by_expressions_and_marker(session: Session) -> list[PTask]:
     """Select tasks by expressions and marker."""
     all_tasks = {task.name for task in session.tasks}
     remaining_by_mark = select_by_mark(session, session.dag) or all_tasks
@@ -117,7 +117,7 @@ def _select_tasks_by_expressions_and_marker(session: Session) -> list[Task]:
 
 
 def _find_common_ancestor_of_all_nodes(
-    tasks: list[Task], paths: list[Path], show_nodes: bool
+    tasks: list[PTask], paths: list[Path], show_nodes: bool
 ) -> Path:
     """Find common ancestor from all nodes and passed paths."""
     all_paths = []
@@ -136,14 +136,14 @@ def _find_common_ancestor_of_all_nodes(
     return common_ancestor
 
 
-def _organize_tasks(tasks: list[Task]) -> dict[Path, list[Task]]:
+def _organize_tasks(tasks: list[PTask]) -> dict[Path, list[PTask]]:
     """Organize tasks in a dictionary.
 
     The dictionary has file names as keys and then a dictionary with task names and
     below a dictionary with dependencies and targets.
 
     """
-    dictionary: dict[Path, list[Task]] = {}
+    dictionary: dict[Path, list[PTask]] = {}
     for task in tasks:
         dictionary[task.path] = dictionary.get(task.path, [])
         dictionary[task.path].append(task)
@@ -156,7 +156,7 @@ def _organize_tasks(tasks: list[Task]) -> dict[Path, list[Task]]:
 
 
 def _print_collected_tasks(
-    dictionary: dict[Path, list[Task]],
+    dictionary: dict[Path, list[PTask]],
     show_nodes: bool,
     editor_url_scheme: str,
     common_ancestor: Path,

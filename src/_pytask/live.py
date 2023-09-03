@@ -9,7 +9,7 @@ import click
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_id
-from _pytask.nodes import Task
+from _pytask.node_protocols import PTask
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
 from _pytask.report import CollectionReport
@@ -128,7 +128,7 @@ class LiveManager:
 class _ReportEntry(NamedTuple):
     name: str
     outcome: TaskOutcome
-    task: Task
+    task: PTask
 
 
 @define(eq=False, kw_only=True)
@@ -142,7 +142,7 @@ class LiveExecution:
     sort_final_table: bool = False
     n_tasks: int | str = "x"
     _reports: list[_ReportEntry] = field(factory=list)
-    _running_tasks: dict[str, Task] = field(factory=dict)
+    _running_tasks: dict[str, PTask] = field(factory=dict)
 
     @hookimpl(hookwrapper=True)
     def pytask_execute_build(self) -> Generator[None, None, None]:
@@ -157,7 +157,7 @@ class LiveExecution:
             console.print(table)
 
     @hookimpl(tryfirst=True)
-    def pytask_execute_task_log_start(self, task: Task) -> bool:
+    def pytask_execute_task_log_start(self, task: PTask) -> bool:
         """Mark a new task as running."""
         self.update_running_tasks(task)
         return True
@@ -256,7 +256,7 @@ class LiveExecution:
         )
         self.live_manager.update(table)
 
-    def update_running_tasks(self, new_running_task: Task) -> None:
+    def update_running_tasks(self, new_running_task: PTask) -> None:
         """Add a new running task."""
         self._running_tasks[new_running_task.name] = new_running_task
         self._update_table()

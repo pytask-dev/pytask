@@ -12,7 +12,8 @@ import networkx as nx
 from _pytask.console import format_task_id
 from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import PPathNode
-from _pytask.nodes import Task
+from _pytask.node_protocols import PTask
+from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
@@ -69,7 +70,7 @@ def reduce_node_name(node: MetaNode, paths: Sequence[str | Path]) -> str:
     path from one path in ``session.config["paths"]`` to the node.
 
     """
-    if isinstance(node, (PPathNode, Task)):
+    if isinstance(node, (PPathNode, PTaskWithPath)):
         ancestor = find_closest_ancestor(node.path, paths)
         if ancestor is None:
             try:
@@ -90,7 +91,7 @@ def reduce_names_of_multiple_nodes(
     for name in names:
         node = dag.nodes[name].get("node") or dag.nodes[name].get("task")
 
-        if isinstance(node, Task):
+        if isinstance(node, PTask):
             short_name = format_task_id(
                 node, editor_url_scheme="no_link", short_name=True
             )

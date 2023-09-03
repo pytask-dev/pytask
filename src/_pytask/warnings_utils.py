@@ -12,7 +12,7 @@ from typing import NamedTuple
 from typing import TYPE_CHECKING
 
 from _pytask.mark_utils import get_marks
-from _pytask.nodes import Task
+from _pytask.node_protocols import PTask
 from _pytask.outcomes import Exit
 
 
@@ -150,7 +150,7 @@ def parse_filterwarnings(x: str | list[str] | None) -> list[str]:
 @contextmanager
 def catch_warnings_for_item(
     session: Session,
-    task: Task | None = None,
+    task: PTask | None = None,
     when: str | None = None,
 ) -> Generator[None, None, None]:
     """Context manager that catches warnings generated in the contained execution block.
@@ -173,7 +173,10 @@ def catch_warnings_for_item(
 
         yield
 
-        id_ = task.short_name if task is not None else when
+        if task is not None:
+            id_ = task.short_name if hasattr(task, "short_name") else task.name
+        else:
+            id_ = when
 
         for warning_message in log:
             fs_location = warning_message.filename, warning_message.lineno

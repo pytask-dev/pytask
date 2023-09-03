@@ -67,11 +67,9 @@ class Task(MetaNode):
         if self.short_name is None:
             self.short_name = self.name
 
-    def state(self, hash: bool = False) -> str | None:  # noqa: A002
+    def state(self) -> str | None:
         """Return the state of the node."""
-        if hash and self.path.exists():
-            return hashlib.sha256(self.path.read_bytes()).hexdigest()
-        if not hash and self.path.exists():
+        if self.path.exists():
             return str(self.path.stat().st_mtime)
         return None
 
@@ -79,6 +77,7 @@ class Task(MetaNode):
         """Execute the task."""
         out = self.function(**kwargs)
 
+        # TODO: Move to pytask_execute_task.
         if "return" in self.produces:
             structure_out = tree_structure(out)
             structure_return = tree_structure(self.produces["return"])
@@ -97,6 +96,7 @@ class Task(MetaNode):
 
     def add_report_section(self, when: str, key: str, content: str) -> None:
         """Add sections which will be displayed in report like stdout or stderr."""
+        # TODO: Remove method.
         if content:
             self._report_sections.append((when, key, content))
 

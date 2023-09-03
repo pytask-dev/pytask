@@ -22,6 +22,7 @@ from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_mark
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import Node
+from _pytask.node_protocols import PTask
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
@@ -270,7 +271,7 @@ def _not_ignored_paths(
 
 
 @hookimpl(trylast=True)
-def pytask_collect_modify_tasks(tasks: list[Task]) -> None:
+def pytask_collect_modify_tasks(tasks: list[PTask]) -> None:
     """Given all tasks, assign a short uniquely identifiable name to each task."""
     id_to_short_id = _find_shortest_uniquely_identifiable_name_for_tasks(tasks)
     for task in tasks:
@@ -279,7 +280,7 @@ def pytask_collect_modify_tasks(tasks: list[Task]) -> None:
 
 
 def _find_shortest_uniquely_identifiable_name_for_tasks(
-    tasks: list[Task],
+    tasks: list[PTask],
 ) -> dict[str, str]:
     """Find the shortest uniquely identifiable name for tasks.
 
@@ -313,7 +314,7 @@ def _find_shortest_uniquely_identifiable_name_for_tasks(
 
 @hookimpl
 def pytask_collect_log(
-    session: Session, reports: list[CollectionReport], tasks: list[Task]
+    session: Session, reports: list[CollectionReport], tasks: list[PTask]
 ) -> None:
     """Log collection."""
     session.collection_end = time.time()
@@ -334,7 +335,7 @@ def pytask_collect_log(
             if report.node is None:
                 header = "Error"
             else:
-                if isinstance(report.node, Task):
+                if isinstance(report.node, PTask):
                     short_name = format_task_id(
                         report.node, editor_url_scheme="no_link", short_name=True
                     )

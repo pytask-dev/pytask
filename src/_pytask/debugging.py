@@ -15,7 +15,7 @@ import click
 import pluggy
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.nodes import Task
+from _pytask.node_protocols import PTask
 from _pytask.outcomes import Exit
 from _pytask.session import Session
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
@@ -310,15 +310,15 @@ class PdbDebugger:
     @staticmethod
     @hookimpl(hookwrapper=True)
     def pytask_execute_task(
-        session: Session, task: Task
+        session: Session, task: PTask
     ) -> Generator[None, None, None]:
         """Execute a task by wrapping the function with post-mortem debugger."""
-        if isinstance(task, Task):
+        if isinstance(task, PTask):
             wrap_function_for_post_mortem_debugging(session, task)
         yield
 
 
-def wrap_function_for_post_mortem_debugging(session: Session, task: Task) -> None:
+def wrap_function_for_post_mortem_debugging(session: Session, task: PTask) -> None:
     """Wrap the function for post-mortem debugging."""
     task_function = task.function
 
@@ -370,15 +370,15 @@ class PdbTrace:
     @staticmethod
     @hookimpl(hookwrapper=True)
     def pytask_execute_task(
-        session: Session, task: Task
+        session: Session, task: PTask
     ) -> Generator[None, None, None]:
         """Wrapping the task function with a tracer."""
-        if isinstance(task, Task):
+        if isinstance(task, PTask):
             wrap_function_for_tracing(session, task)
         yield
 
 
-def wrap_function_for_tracing(session: Session, task: Task) -> None:
+def wrap_function_for_tracing(session: Session, task: PTask) -> None:
     """Wrap the task function for tracing."""
     _pdb = PytaskPDB._init_pdb("runcall")
     task_function = task.function

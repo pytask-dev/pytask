@@ -9,7 +9,7 @@ import networkx as nx
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import TASK_ICON
 from _pytask.mark_utils import has_mark
-from _pytask.nodes import Task
+from _pytask.node_protocols import PTask
 from attrs import define
 from attrs import field
 
@@ -136,7 +136,7 @@ class TopologicalSorter:
             self.done(new_task)
 
 
-def _extract_priorities_from_tasks(tasks: list[Task]) -> dict[str, int]:
+def _extract_priorities_from_tasks(tasks: list[PTask]) -> dict[str, int]:
     """Extract priorities from tasks.
 
     Priorities are set via the ``pytask.mark.try_first`` and ``pytask.mark.try_last``

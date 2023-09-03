@@ -5,6 +5,7 @@ from typing import Any
 from typing import TYPE_CHECKING
 
 import networkx as nx
+from _pytask.node_protocols import PTask
 from _pytask.outcomes import ExitCode
 from _pytask.warnings_utils import WarningReport
 from attrs import define
@@ -21,7 +22,6 @@ if TYPE_CHECKING:
     from _pytask.report import CollectionReport
     from _pytask.report import ExecutionReport
     from _ptytask.report import DagReport
-    from _pytask.nodes import Task
 
 
 @define
@@ -38,7 +38,7 @@ class Session:
     The reports capture errors which happened while collecting tasks.
 
     """
-    tasks: list[Task] = field(factory=list)
+    tasks: list[PTask] = field(factory=list)
     """List of collected tasks."""
     dag: nx.DiGraph | None = None
     resolving_dependencies_report: DagReport | None = None

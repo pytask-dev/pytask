@@ -21,7 +21,7 @@ from _pytask.exceptions import CollectionError
 from _pytask.git import get_all_files
 from _pytask.git import get_root
 from _pytask.git import is_git_installed
-from _pytask.nodes import Task
+from _pytask.node_protocols import PTask
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
@@ -214,7 +214,7 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
     return known_paths
 
 
-def _yield_paths_from_task(task: Task) -> Generator[Path, None, None]:
+def _yield_paths_from_task(task: PTask) -> Generator[Path, None, None]:
     """Yield all paths attached to a task."""
     yield task.path
     for attribute in ("depends_on", "produces"):

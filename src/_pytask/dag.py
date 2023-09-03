@@ -1,6 +1,7 @@
 """This module contains code related to resolving dependencies."""
 from __future__ import annotations
 
+import hashlib
 import itertools
 import sys
 
@@ -23,8 +24,8 @@ from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import Node
-from _pytask.node_protocols import PPathNode
-from _pytask.nodes import Task
+from _pytask.node_protocols import PTask
+from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import DagReport
 from _pytask.session import Session
@@ -32,6 +33,7 @@ from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_map
+from pytask import Task
 from rich.text import Text
 from rich.tree import Tree
 
@@ -66,7 +68,7 @@ def pytask_dag(session: Session) -> bool | None:
 
 
 @hookimpl
-def pytask_dag_create_dag(tasks: list[Task]) -> nx.DiGraph:
+def pytask_dag_create_dag(tasks: list[PTask]) -> nx.DiGraph:
     """Create the DAG from tasks, dependencies and products."""
     dag = nx.DiGraph()
 
@@ -112,7 +114,7 @@ def pytask_dag_validate_dag(dag: nx.DiGraph) -> None:
 
 
 def _have_task_or_neighbors_changed(
-    session: Session, dag: nx.DiGraph, task: Task
+    session: Session, dag: nx.DiGraph, task: PTask
 ) -> bool:
     """Indicate whether dependencies or products of a task have changed."""
     return any(
@@ -141,18 +143,19 @@ def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
     if db_state is None:
         return True
 
-    if isinstance(node, (PPathNode, Task)):
+    # TODO: Could be MetaNode with Path?
+    if isinstance(node, Task):
         # If the modification times match, the node has not been changed.
         if node_state == db_state.modification_time:
             return False
 
         # If the modification time changed, quickly return for non-tasks.
-        if not isinstance(node, Task):
+        if not isinstance(node, PTaskWithPath):
             return True
 
         # When modification times changed, we are still comparing the hash of the file
         # to avoid unnecessary and expensive reexecutions of tasks.
-        hash_ = node.state(hash=True)
+        hash_ = hashlib.sha256(node.path.read_bytes()).hexdigest()
         return hash_ != db_state.hash_
 
     return node_state != db_state.hash_

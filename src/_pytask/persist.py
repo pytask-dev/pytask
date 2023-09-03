@@ -8,13 +8,13 @@ from _pytask.config import hookimpl
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.database_utils import update_states_in_database
 from _pytask.mark_utils import has_mark
+from _pytask.node_protocols import PTask
 from _pytask.outcomes import Persisted
 from _pytask.outcomes import TaskOutcome
 
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import Task
     from _pytask.report import ExecutionReport
 
 
@@ -31,7 +31,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 
 
 @hookimpl
-def pytask_execute_task_setup(session: Session, task: Task) -> None:
+def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     """Exit persisting tasks early.
 
     The decorator needs to be set and all nodes need to exist.

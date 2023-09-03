@@ -13,6 +13,7 @@ from typing import Iterable
 from typing import TYPE_CHECKING
 
 import rich
+from _pytask.node_protocols import PTask
 from _pytask.path import relative_to as relative_to_
 from rich.console import Console
 from rich.padding import Padding
@@ -26,7 +27,6 @@ from rich.tree import Tree
 
 
 if TYPE_CHECKING:
-    from _pytask.nodes import Task
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
 
@@ -144,7 +144,7 @@ def render_to_string(
 
 
 def format_task_id(
-    task: Task,
+    task: PTask,
     editor_url_scheme: str,
     short_name: bool = False,
     relative_to: Path | None = None,

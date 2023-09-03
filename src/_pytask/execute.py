@@ -22,7 +22,7 @@ from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PPathNode
-from _pytask.nodes import Task
+from _pytask.node_protocols import PTask
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
@@ -90,7 +90,7 @@ def pytask_execute_build(session: Session) -> bool:
 
 
 @hookimpl
-def pytask_execute_task_protocol(session: Session, task: Task) -> ExecutionReport:
+def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionReport:
     """Follow the protocol to execute each task."""
     session.hook.pytask_execute_task_log_start(session=session, task=task)
     try:
@@ -112,7 +112,7 @@ def pytask_execute_task_protocol(session: Session, task: Task) -> ExecutionRepor
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task_setup(session: Session, task: Task) -> None:
+def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     """Set up the execution of a task.
 
     1. Check whether all dependencies of a task are available.
@@ -138,7 +138,7 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task(session: Session, task: Task) -> bool:
+def pytask_execute_task(session: Session, task: PTask) -> bool:
     """Execute task."""
     if session.config["dry_run"]:
         raise WouldBeExecuted
@@ -158,7 +158,7 @@ def pytask_execute_task(session: Session, task: Task) -> bool:
 
 
 @hookimpl
-def pytask_execute_task_teardown(session: Session, task: Task) -> None:
+def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
     """Check if :class:`_pytask.nodes.PathNode` are produced by a task."""
     missing_nodes = []
     for product in session.dag.successors(task.name):

@@ -9,16 +9,16 @@ from typing import Any
 from typing import TYPE_CHECKING
 
 from _pytask.models import CollectionMetadata
-from _pytask.nodes import Task
+from _pytask.node_protocols import PTask
 
 
 if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-def get_all_marks(obj_or_task: Any | Task) -> list[Mark]:
+def get_all_marks(obj_or_task: Any | PTask) -> list[Mark]:
     """Get all marks from a callable or task."""
-    if isinstance(obj_or_task, Task):
+    if isinstance(obj_or_task, PTask):
         marks = obj_or_task.markers
     else:
         obj = obj_or_task
@@ -26,9 +26,9 @@ def get_all_marks(obj_or_task: Any | Task) -> list[Mark]:
     return marks
 
 
-def set_marks(obj_or_task: Any | Task, marks: list[Mark]) -> Any | Task:
+def set_marks(obj_or_task: Any | PTask, marks: list[Mark]) -> Any | PTask:
     """Set marks on a callable or task."""
-    if isinstance(obj_or_task, Task):
+    if isinstance(obj_or_task, PTask):
         obj_or_task.markers = marks
     elif hasattr(obj_or_task, "pytask_meta"):
         obj_or_task.pytask_meta.markers = marks
@@ -37,21 +37,21 @@ def set_marks(obj_or_task: Any | Task, marks: list[Mark]) -> Any | Task:
     return obj_or_task
 
 
-def get_marks(obj_or_task: Any | Task, marker_name: str) -> list[Mark]:
+def get_marks(obj_or_task: Any | PTask, marker_name: str) -> list[Mark]:
     """Get marks from callable or task."""
     marks = get_all_marks(obj_or_task)
     return [mark for mark in marks if mark.name == marker_name]
 
 
-def has_mark(obj_or_task: Any | Task, marker_name: str) -> bool:
+def has_mark(obj_or_task: Any | PTask, marker_name: str) -> bool:
     """Test if callable or task has a certain mark."""
     marks = get_all_marks(obj_or_task)
     return any(mark.name == marker_name for mark in marks)
 
 
 def remove_marks(
-    obj_or_task: Any | Task, marker_name: str
-) -> tuple[Any | Task, list[Mark]]:
+    obj_or_task: Any | PTask, marker_name: str
+) -> tuple[Any | PTask, list[Mark]]:
     """Remove marks from callable or task."""
     marks = get_all_marks(obj_or_task)
     selected = [mark for mark in marks if mark.name == marker_name]
