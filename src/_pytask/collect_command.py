@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import sys
+from collections import defaultdict
 from pathlib import Path
 from typing import Any
 from typing import TYPE_CHECKING
@@ -22,6 +23,7 @@ from _pytask.mark import select_by_keyword
 from _pytask.mark import select_by_mark
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
+from _pytask.node_protocols import PTaskWithPath
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
@@ -76,11 +78,12 @@ def collect(**raw_config: Any | None) -> NoReturn:
             session.hook.pytask_dag(session=session)
 
             tasks = _select_tasks_by_expressions_and_marker(session)
+            task_with_path = [t for t in tasks if isinstance(t, PTaskWithPath)]
 
             common_ancestor = _find_common_ancestor_of_all_nodes(
-                tasks, session.config["paths"], session.config["nodes"]
+                task_with_path, session.config["paths"], session.config["nodes"]
             )
-            dictionary = _organize_tasks(tasks)
+            dictionary = _organize_tasks(task_with_path)
             if dictionary:
                 _print_collected_tasks(
                     dictionary,
@@ -117,7 +120,7 @@ def _select_tasks_by_expressions_and_marker(session: Session) -> list[PTask]:
 
 
 def _find_common_ancestor_of_all_nodes(
-    tasks: list[PTask], paths: list[Path], show_nodes: bool
+    tasks: list[PTaskWithPath], paths: list[Path], show_nodes: bool
 ) -> Path:
     """Find common ancestor from all nodes and passed paths."""
     all_paths = []
@@ -136,16 +139,15 @@ def _find_common_ancestor_of_all_nodes(
     return common_ancestor
 
 
-def _organize_tasks(tasks: list[PTask]) -> dict[Path, list[PTask]]:
+def _organize_tasks(tasks: list[PTaskWithPath]) -> dict[Path, list[PTaskWithPath]]:
     """Organize tasks in a dictionary.
 
     The dictionary has file names as keys and then a dictionary with task names and
     below a dictionary with dependencies and targets.
 
     """
-    dictionary: dict[Path, list[PTask]] = {}
+    dictionary: dict[Path, list[PTaskWithPath]] = defaultdict(list)
     for task in tasks:
-        dictionary[task.path] = dictionary.get(task.path, [])
         dictionary[task.path].append(task)
 
     sorted_dict = {}
@@ -156,7 +158,7 @@ def _organize_tasks(tasks: list[PTask]) -> dict[Path, list[PTask]]:
 
 
 def _print_collected_tasks(
-    dictionary: dict[Path, list[PTask]],
+    dictionary: dict[Path, list[PTaskWithPath]],
     show_nodes: bool,
     editor_url_scheme: str,
     common_ancestor: Path,

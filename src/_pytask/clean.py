@@ -23,6 +23,7 @@ from _pytask.git import get_root
 from _pytask.git import is_git_installed
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
+from _pytask.node_protocols import PTaskWithPath
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
@@ -217,7 +218,8 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
 
 def _yield_paths_from_task(task: PTask) -> Generator[Path, None, None]:
     """Yield all paths attached to a task."""
-    yield task.path
+    if isinstance(task, PTaskWithPath):
+        yield task.path
     for attribute in ("depends_on", "produces"):
         for node in tree_leaves(getattr(task, attribute)):
             if isinstance(node, PPathNode):
