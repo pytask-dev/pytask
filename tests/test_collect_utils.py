@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import itertools
 from contextlib import ExitStack as does_not_raise  # noqa: N813
-from typing import TYPE_CHECKING
 
 import pytask
 import pytest
@@ -16,9 +15,7 @@ from _pytask.collect_utils import _Placeholder
 from pytask import depends_on
 from pytask import produces
 from pytask import Product
-
-if TYPE_CHECKING:
-    from typing_extensions import Annotated
+from typing_extensions import Annotated  # noqa: TCH002
 
 
 ERROR = "'@pytask.mark.depends_on' has nodes with the same name:"
