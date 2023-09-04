@@ -716,8 +716,10 @@ class CaptureManager:
             self.suspend(in_=False)
 
         out, err = self.read()
-        task.add_report_section(when, "stdout", out)
-        task.add_report_section(when, "stderr", err)
+        if out:
+            task.report_sections.append((when, "stdout", out))
+        if err:
+            task.report_sections.append((when, "stderr", err))
 
     # Hooks
 

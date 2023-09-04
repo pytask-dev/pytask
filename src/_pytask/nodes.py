@@ -52,7 +52,7 @@ class Task(MetaNode):
     """A list of products of task."""
     markers: list[Mark] = field(factory=list)
     """A list of markers attached to the task function."""
-    _report_sections: list[tuple[str, str, str]] = field(factory=list)
+    report_sections: list[tuple[str, str, str]] = field(factory=list)
     """Reports with entries for when, what, and content."""
     attributes: dict[Any, Any] = field(factory=dict)
     """A dictionary to store additional information of the task."""
@@ -75,12 +75,6 @@ class Task(MetaNode):
         """Execute the task."""
         out = self.function(**kwargs)
         return out
-
-    def add_report_section(self, when: str, key: str, content: str) -> None:
-        """Add sections which will be displayed in report like stdout or stderr."""
-        # TODO: Remove method.
-        if content:
-            self._report_sections.append((when, key, content))
 
 
 @define(kw_only=True)

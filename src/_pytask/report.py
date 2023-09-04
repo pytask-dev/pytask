@@ -68,9 +68,9 @@ class ExecutionReport:
     ) -> ExecutionReport:
         """Create a report from a task and an exception."""
         exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
-        return cls(task, TaskOutcome.FAIL, exc_info, task._report_sections)
+        return cls(task, TaskOutcome.FAIL, exc_info, task.report_sections)
 
     @classmethod
     def from_task(cls, task: PTask) -> ExecutionReport:
         """Create a report from a task."""
-        return cls(task, TaskOutcome.SUCCESS, None, task._report_sections)
+        return cls(task, TaskOutcome.SUCCESS, None, task.report_sections)

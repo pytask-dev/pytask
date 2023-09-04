@@ -64,16 +64,12 @@ class PTask(MetaNode, Protocol):
     depends_on: PyTree[Node]
     produces: PyTree[Node]
     markers: list[Mark]
-    _report_sections: list[tuple[str, str, str]]
+    report_sections: list[tuple[str, str, str]]
     attributes: dict[Any, Any]
     function: Callable[..., Any]
 
     def execute(self, **kwargs: Any) -> Any:
         """Return the value of the node that will be injected into the task."""
-        ...
-
-    def add_report_section(self, when: str, key: str, content: str) -> None:
-        """Add sections which will be displayed in report like stdout and stderr."""
         ...
 
 
