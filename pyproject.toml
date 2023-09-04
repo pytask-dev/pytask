@@ -33,6 +33,7 @@ target-version = "py38"
 select = ["ALL"]
 fix = true
 extend-ignore = [
+    "I",  # ignore isort
     "TRY",  # ignore tryceratops.
     # Numpy docstyle
     "D107",
@@ -45,9 +46,7 @@ extend-ignore = [
     "D416",
     "D417",
     # Others.
-    # "D404",  # Do not start module docstring with "This".
     "S101",  # raise errors for asserts.
-    "I",  # ignore isort
     "ANN101",  # type annotating self
     "ANN102",  # type annotating cls
     "FBT",  # flake8-boolean-trap
@@ -66,7 +65,7 @@ extend-ignore = [
 "src/_pytask/hookspecs.py" = ["ARG001"]
 "src/_pytask/outcomes.py" = ["N818"]
 "tests/test_capture.py" = ["T201", "PT011"]
-"tests/*" = ["D", "ANN", "PLR2004"]
+"tests/*" = ["D", "ANN", "PLR2004", "S101"]
 "scripts/*" = ["D", "INP001"]
 "docs/source/conf.py" = ["D401", "INP001"]
 
