@@ -357,7 +357,7 @@ def function(depends_on, produces):  # noqa: ARG001
 @pytest.mark.unit()
 def test_print_collected_tasks_without_nodes(capsys):
     dictionary = {
-        "task_path.py": [
+        Path("task_path.py"): [
             Task(
                 base_name="function",
                 path=Path("task_path.py"),
@@ -380,7 +380,7 @@ def test_print_collected_tasks_without_nodes(capsys):
 @pytest.mark.unit()
 def test_print_collected_tasks_with_nodes(capsys):
     dictionary = {
-        "task_path.py": [
+        Path("task_path.py"): [
             Task(
                 base_name="function",
                 path=Path("task_path.py"),

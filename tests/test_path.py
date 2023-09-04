@@ -23,7 +23,6 @@ from _pytask.path import relative_to
 @pytest.mark.parametrize(
     ("path", "source", "include_source", "expected"),
     [
-        ("src/hello.py", "src", True, Path("src/hello.py")),
         (Path("src/hello.py"), Path("src"), True, Path("src/hello.py")),
         (Path("src/hello.py"), Path("src"), False, Path("hello.py")),
     ],

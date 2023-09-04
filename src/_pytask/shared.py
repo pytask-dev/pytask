@@ -63,7 +63,7 @@ def parse_paths(x: Any | None) -> list[Path] | None:
     return out
 
 
-def reduce_node_name(node: MetaNode, paths: Sequence[str | Path]) -> str:
+def reduce_node_name(node: MetaNode, paths: Sequence[Path]) -> str:
     """Reduce the node name.
 
     The whole name of the node - which includes the drive letter - can be very long
@@ -86,7 +86,7 @@ def reduce_node_name(node: MetaNode, paths: Sequence[str | Path]) -> str:
 
 
 def reduce_names_of_multiple_nodes(
-    names: list[str], dag: nx.DiGraph, paths: Sequence[str | Path]
+    names: list[str], dag: nx.DiGraph, paths: Sequence[Path]
 ) -> list[str]:
     """Reduce the names of multiple nodes in the DAG."""
     short_names = []
