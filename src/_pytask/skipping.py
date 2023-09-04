@@ -1,4 +1,4 @@
-"""This module contains everything related to skipping tasks."""
+"""Contains everything related to skipping tasks."""
 from __future__ import annotations
 
 from typing import Any
@@ -9,7 +9,6 @@ from _pytask.dag_utils import descending_tasks
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
-from _pytask.node_protocols import PTask
 from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
@@ -18,6 +17,7 @@ from _pytask.traceback import remove_traceback_from_exc_info
 
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
     from _pytask.session import Session
     from _pytask.report import ExecutionReport
 

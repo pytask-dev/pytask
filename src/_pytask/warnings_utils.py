@@ -1,4 +1,4 @@
-"""This module contains utility functions for warnings."""
+"""Contains utility functions for warnings."""
 from __future__ import annotations
 
 import functools
@@ -12,11 +12,11 @@ from typing import NamedTuple
 from typing import TYPE_CHECKING
 
 from _pytask.mark_utils import get_marks
-from _pytask.node_protocols import PTask
 from _pytask.outcomes import Exit
 
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
     from _pytask.session import Session
 
 
@@ -91,7 +91,8 @@ def parse_warning_filter(  # noqa: PLR0912
         try:
             lineno = int(lineno_)
             if lineno < 0:
-                raise ValueError("number is negative")
+                msg = "number is negative"
+                raise ValueError(msg)
         except ValueError as e:
             raise Exit(  # noqa: B904
                 error_template.format(error=f"invalid lineno {lineno_!r}: {e}")
@@ -122,20 +123,20 @@ def _resolve_warning_category(category: str) -> type[Warning]:
         m = __import__(module, None, None, [klass])
     cat = getattr(m, klass)
     if not issubclass(cat, Warning):
-        raise TypeError(f"{cat} is not a Warning subclass")
+        msg = f"{cat} is not a Warning subclass"
+        raise TypeError(msg)
     return cast(type[Warning], cat)
 
 
 def warning_record_to_str(warning_message: warnings.WarningMessage) -> str:
     """Convert a warnings.WarningMessage to a string."""
-    msg = warnings.formatwarning(
+    return warnings.formatwarning(
         message=warning_message.message,
         category=warning_message.category,
         filename=warning_message.filename,
         lineno=warning_message.lineno,
         line=warning_message.line,
     )
-    return msg
 
 
 def parse_filterwarnings(x: str | list[str] | None) -> list[str]:
@@ -144,7 +145,8 @@ def parse_filterwarnings(x: str | list[str] | None) -> list[str]:
         return []
     if isinstance(x, (list, tuple)):
         return [i.strip() for i in x]
-    raise TypeError("'filterwarnings' must be a str, list[str] or None.")
+    msg = "'filterwarnings' must be a str, list[str] or None."
+    raise TypeError(msg)
 
 
 @contextmanager

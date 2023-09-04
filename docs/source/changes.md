@@ -30,6 +30,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`410` allows to pass functions to `PythonNode(hash=...)`.
 - {pull}`412` adds protocols for tasks.
 - {pull}`413` removes scripts to generate `.svg`s.
+- {pull}`414` allow more ruff rules.
 
 ## 0.3.2 - 2023-06-07
 

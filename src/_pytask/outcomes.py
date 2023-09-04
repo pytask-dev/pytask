@@ -1,4 +1,4 @@
-"""This module contains code related to outcomes."""
+"""Contains code related to outcomes."""
 from __future__ import annotations
 
 from enum import auto

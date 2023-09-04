@@ -1,4 +1,4 @@
-"""This module contains everything related to reports."""
+"""Contains everything related to reports."""
 from __future__ import annotations
 
 from types import TracebackType
@@ -7,7 +7,6 @@ from typing import Type
 from typing import TYPE_CHECKING
 from typing import Union
 
-from _pytask.node_protocols import PTask
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
@@ -16,6 +15,7 @@ from attrs import field
 
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
     from _pytask.node_protocols import MetaNode
 
 

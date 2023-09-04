@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import Protocol
 from typing import runtime_checkable
 from typing import TYPE_CHECKING
 
-from _pytask.tree_util import PyTree
 
 if TYPE_CHECKING:
+    from _pytask.tree_util import PyTree
+    from pathlib import Path
     from _pytask.mark import Mark
 
 

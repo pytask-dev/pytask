@@ -1,17 +1,20 @@
-"""This module contains utilities for the database."""
+"""Contains utilities for the database."""
 from __future__ import annotations
 
 import hashlib
+from typing import TYPE_CHECKING
 
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTaskWithPath
-from _pytask.session import Session
 from sqlalchemy import Column
 from sqlalchemy import create_engine
 from sqlalchemy import String
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
+
+if TYPE_CHECKING:
+    from _pytask.session import Session
 
 
 __all__ = [

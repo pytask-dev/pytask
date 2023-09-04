@@ -1,20 +1,17 @@
-"""This module contains code related to live objects."""
+"""Contains code related to live objects."""
 from __future__ import annotations
 
 from typing import Any
 from typing import Generator
 from typing import NamedTuple
+from typing import TYPE_CHECKING
 
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_name
-from _pytask.node_protocols import PTask
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
-from _pytask.report import CollectionReport
-from _pytask.report import ExecutionReport
-from _pytask.session import Session
 from attrs import define
 from attrs import field
 from rich.box import ROUNDED
@@ -23,6 +20,12 @@ from rich.status import Status
 from rich.style import Style
 from rich.table import Table
 from rich.text import Text
+
+if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
+    from _pytask.report import ExecutionReport
+    from _pytask.session import Session
+    from _pytask.report import CollectionReport
 
 
 @hookimpl
@@ -314,5 +317,4 @@ class LiveCollection:
         msg = f"Collected {self._n_collected_tasks} tasks."
         if self._n_errors > 0:
             msg += f" {self._n_errors} errors."
-        status = Status(msg, spinner="dots")
-        return status
+        return Status(msg, spinner="dots")

@@ -1,4 +1,4 @@
-"""This module contains the code to profile the execution."""
+"""Contains the code to profile the execution."""
 from __future__ import annotations
 
 import csv
@@ -8,7 +8,6 @@ import sys
 import time
 from contextlib import suppress
 from pathlib import Path
-from types import TracebackType
 from typing import Any
 from typing import Generator
 from typing import TYPE_CHECKING
@@ -28,7 +27,6 @@ from _pytask.node_protocols import PTask
 from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import get_plugin_manager
-from _pytask.report import ExecutionReport
 from _pytask.session import Session
 from _pytask.traceback import render_exc_info
 from rich.table import Table
@@ -38,6 +36,8 @@ from sqlalchemy import String
 
 
 if TYPE_CHECKING:
+    from _pytask.report import ExecutionReport
+    from types import TracebackType
     from typing import NoReturn
 
 
@@ -280,7 +280,8 @@ class ExportNameSpace:
         elif export == _ExportFormats.NO:
             pass
         else:  # pragma: no cover
-            raise ValueError(f"The export option {export.value!r} cannot be handled.")
+            msg = f"The export option {export.value!r} cannot be handled."
+            raise ValueError(msg)
 
 
 def _export_to_csv(profile: dict[str, dict[str, Any]]) -> None:

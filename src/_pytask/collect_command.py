@@ -1,9 +1,8 @@
-"""This module contains the implementation of ``pytask collect``."""
+"""Contains the implementation of ``pytask collect``."""
 from __future__ import annotations
 
 import sys
 from collections import defaultdict
-from pathlib import Path
 from typing import Any
 from typing import TYPE_CHECKING
 
@@ -35,6 +34,7 @@ from rich.tree import Tree
 
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import NoReturn
 
 
@@ -134,9 +134,7 @@ def _find_common_ancestor_of_all_nodes(
                 x.path for x in tree_leaves(task.produces) if isinstance(x, PPathNode)
             )
 
-    common_ancestor = find_common_ancestor(*all_paths, *paths)
-
-    return common_ancestor
+    return find_common_ancestor(*all_paths, *paths)
 
 
 def _organize_tasks(tasks: list[PTaskWithPath]) -> dict[Path, list[PTaskWithPath]]:

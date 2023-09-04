@@ -1,10 +1,11 @@
-"""This module contains hook implementations concerning the execution."""
+"""Contains hook implementations concerning the execution."""
 from __future__ import annotations
 
 import inspect
 import sys
 import time
 from typing import Any
+from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
 from _pytask.console import console
@@ -28,7 +29,6 @@ from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
 from _pytask.report import ExecutionReport
-from _pytask.session import Session
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
@@ -37,6 +37,9 @@ from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_structure
 from rich.text import Text
+
+if TYPE_CHECKING:
+    from _pytask.session import Session
 
 
 @hookimpl
@@ -162,11 +165,12 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
         structure_return = tree_structure(task.produces["return"])
         # strict must be false when none is leaf.
         if not structure_return.is_prefix(structure_out, strict=False):
-            raise ValueError(
-                "The structure of the return annotation is not a subtree of the "
-                "structure of the function return.\n\nFunction return: "
-                f"{structure_out}\n\nReturn annotation: {structure_return}"
+            msg = (
+                f"The structure of the return annotation is not a subtree of the "
+                f"structure of the function return.\n\nFunction return: {structure_out}"
+                f"\n\nReturn annotation: {structure_return}"
             )
+            raise ValueError(msg)
 
         nodes = tree_leaves(task.produces["return"])
         values = structure_return.flatten_up_to(out)

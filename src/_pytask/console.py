@@ -1,11 +1,10 @@
-"""This module contains the code to format output on the command line."""
+"""Contains the code to format output on the command line."""
 from __future__ import annotations
 
 import functools
 import inspect
 import os
 import sys
-from enum import Enum
 from pathlib import Path
 from typing import Any
 from typing import Callable
@@ -13,7 +12,6 @@ from typing import Iterable
 from typing import TYPE_CHECKING
 
 import rich
-from _pytask.node_protocols import PTask
 from _pytask.nodes import Task
 from rich.console import Console
 from rich.padding import Padding
@@ -27,6 +25,8 @@ from rich.tree import Tree
 
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
+    from enum import Enum
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
 
@@ -139,8 +139,7 @@ def render_to_string(
         else:
             output.append(segment.text)
 
-    rendered = "".join(output)
-    return rendered
+    return "".join(output)
 
 
 def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
@@ -166,8 +165,7 @@ def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -
     tree = Tree(title)
     for name in strings:
         tree.add(Text.assemble(icon, name))
-    text = render_to_string(tree, console=console)
-    return text
+    return render_to_string(tree, console=console)
 
 
 def create_url_style_for_task(
@@ -278,7 +276,7 @@ def create_summary_panel(
                 style=outcome.style_textonly,  # type: ignore[attr-defined]
             )
 
-    panel = Panel(
+    return Panel(
         grid,
         title="[bold #f2f2f2]Summary[/]",
         expand=False,
@@ -287,5 +285,3 @@ def create_summary_panel(
         if counts[outcome_enum.FAIL]
         else outcome_enum.SUCCESS.style,
     )
-
-    return panel

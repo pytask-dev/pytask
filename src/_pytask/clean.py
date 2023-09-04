@@ -6,7 +6,6 @@ import itertools
 import shutil
 import sys
 from pathlib import Path
-from types import TracebackType
 from typing import Any
 from typing import Generator
 from typing import Iterable
@@ -36,6 +35,7 @@ from attrs import define
 
 
 if TYPE_CHECKING:
+    from types import TracebackType
     from typing import NoReturn
 
 
@@ -242,7 +242,7 @@ def _find_all_unknown_paths(
         _RecursivePathNode.from_path(path, known_paths, exclude)
         for path in session.config["paths"]
     ]
-    unknown_paths = list(
+    return list(
         itertools.chain.from_iterable(
             [
                 _find_all_unkown_paths_per_recursive_node(node, include_directories)
@@ -250,7 +250,6 @@ def _find_all_unknown_paths(
             ]
         )
     )
-    return unknown_paths
 
 
 @define(repr=False)

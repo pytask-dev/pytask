@@ -1,4 +1,4 @@
-"""This module contains helper functions for the configuration."""
+"""Contains helper functions for the configuration."""
 from __future__ import annotations
 
 import os

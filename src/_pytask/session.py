@@ -1,24 +1,19 @@
-"""This module contains code related to the session object."""
+"""Contains code related to the session object."""
 from __future__ import annotations
 
 from typing import Any
 from typing import TYPE_CHECKING
 
-import networkx as nx
-from _pytask.node_protocols import PTask
 from _pytask.outcomes import ExitCode
-from _pytask.warnings_utils import WarningReport
 from attrs import define
 from attrs import field
 
-# Location was moved from pluggy v0.13.1 to v1.0.0.
-try:
-    from pluggy._hooks import _HookRelay
-except ImportError:
-    from pluggy.hooks import _HookRelay
-
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
+    from _pytask.warnings_utils import WarningReport
+    from pluggy._hooks import _HookRelay
+    import networkx as nx
     from _pytask.report import CollectionReport
     from _pytask.report import ExecutionReport
     from _ptytask.report import DagReport

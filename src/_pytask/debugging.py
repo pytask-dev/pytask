@@ -1,28 +1,28 @@
-"""This module contains everything related to debugging."""
+"""Contains everything related to debugging."""
 from __future__ import annotations
 
 import functools
 import pdb  # noqa: T100
 import sys
-from types import FrameType
-from types import TracebackType
 from typing import Any
 from typing import ClassVar
 from typing import Generator
 from typing import TYPE_CHECKING
 
 import click
-import pluggy
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.node_protocols import PTask
 from _pytask.outcomes import Exit
-from _pytask.session import Session
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import render_exc_info
 
 
 if TYPE_CHECKING:
+    import pluggy
+    from _pytask.session import Session
+    from types import TracebackType
+    from types import FrameType
     from _pytask.capture import CaptureManager
     from _pytask.live import LiveManager
 
@@ -153,9 +153,8 @@ class PytaskPDB:
                     pdb_cls = getattr(pdb_cls, part)
             except Exception as exc:  # noqa: BLE001
                 value = f"{modname}:{classname}"
-                raise ValueError(
-                    f"--pdbcls: could not import {value!r}: {exc}."
-                ) from exc
+                msg = f"--pdbcls: could not import {value!r}: {exc}."
+                raise ValueError(msg) from exc
         else:
             import pdb  # noqa: T100
 
@@ -223,7 +222,8 @@ class PytaskPDB:
                 ret = super().do_quit(arg)
 
                 if cls._recursive_debug == 0:
-                    raise Exit("Quitting debugger")
+                    msg = "Quitting debugger"
+                    raise Exit(msg)
 
                 return ret
 
@@ -292,9 +292,7 @@ class PytaskPDB:
                     else:
                         console.rule(f"PDB {method}", characters=">", style=None)
 
-        _pdb = cls._import_pdb_cls(capman, live_manager)(**kwargs)
-
-        return _pdb
+        return cls._import_pdb_cls(capman, live_manager)(**kwargs)
 
     @classmethod
     def set_trace(cls, *args: Any, **kwargs: Any) -> None:
@@ -422,4 +420,5 @@ def post_mortem(t: TracebackType) -> None:
     p.reset()
     p.interaction(None, t)
     if p.quitting:
-        raise Exit("Quitting debugger")
+        msg = "Quitting debugger"
+        raise Exit(msg)
