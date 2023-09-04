@@ -5,7 +5,7 @@ import hashlib
 
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.node_protocols import PPathNode
-from _pytask.nodes import Task
+from _pytask.node_protocols import PTaskWithPath
 from _pytask.session import Session
 from sqlalchemy import Column
 from sqlalchemy import create_engine
@@ -77,7 +77,7 @@ def update_states_in_database(session: Session, task_name: str) -> None:
     for name in node_and_neighbors(session.dag, task_name):
         node = session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
 
-        if isinstance(node, Task):
+        if isinstance(node, PTaskWithPath):
             modification_time = node.state()
             hash_ = hashlib.sha256(node.path.read_bytes()).hexdigest()
         elif isinstance(node, PPathNode):

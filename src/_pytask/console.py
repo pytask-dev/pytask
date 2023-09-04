@@ -13,7 +13,8 @@ from typing import Iterable
 from typing import TYPE_CHECKING
 
 import rich
-from _pytask.path import relative_to as relative_to_
+from _pytask.node_protocols import PTask
+from _pytask.nodes import Task
 from rich.console import Console
 from rich.padding import Padding
 from rich.panel import Panel
@@ -26,7 +27,6 @@ from rich.tree import Tree
 
 
 if TYPE_CHECKING:
-    from _pytask.nodes import Task
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
 
@@ -36,7 +36,7 @@ __all__ = [
     "create_url_style_for_task",
     "create_url_style_for_path",
     "console",
-    "format_task_id",
+    "format_task_name",
     "format_strings_as_flat_tree",
     "render_to_string",
     "unify_styles",
@@ -143,29 +143,21 @@ def render_to_string(
     return rendered
 
 
-def format_task_id(
-    task: Task,
-    editor_url_scheme: str,
-    short_name: bool = False,
-    relative_to: Path | None = None,
-) -> Text:
+def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
     """Format a task id."""
-    if short_name:
-        path, task_name = task.short_name.split("::")
-    elif relative_to:
-        path = relative_to_(task.path, relative_to).as_posix()
-        task_name = task.base_name
-    else:
-        path, task_name = task.name.split("::")
-
     if task.function is None:
         url_style = Style()
     else:
         url_style = create_url_style_for_task(task.function, editor_url_scheme)
 
-    task_id = Text.assemble(
-        Text(path + "::", style="dim"), Text(task_name, style=url_style)
-    )
+    if isinstance(task, Task):
+        path, task_name = task.display_name.split("::")
+        task_id = Text.assemble(
+            Text(path + "::", style="dim"), Text(task_name, style=url_style)
+        )
+    else:
+        name = getattr(task, "display_name", task.name)
+        task_id = Text(name, style=url_style)
     return task_id
 
 
@@ -173,7 +165,7 @@ def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -
     """Format list of strings as flat tree."""
     tree = Tree(title)
     for name in strings:
-        tree.add(icon + name)
+        tree.add(Text.assemble(icon, name))
     text = render_to_string(tree, console=console)
     return text
 

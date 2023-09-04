@@ -12,8 +12,6 @@ from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import Node
 from _pytask.node_protocols import PPathNode
 from _pytask.tree_util import PyTree
-from _pytask.tree_util import tree_leaves
-from _pytask.tree_util import tree_structure
 from attrs import define
 from attrs import field
 
@@ -46,7 +44,7 @@ class Task(MetaNode):
     """The task function."""
     name: str | None = field(default=None, init=False)
     """The name of the task."""
-    short_name: str | None = field(default=None, init=False)
+    display_name: str | None = field(default=None, init=False)
     """The shortest uniquely identifiable name for task for display."""
     depends_on: PyTree[Node] = field(factory=dict)
     """A list of dependencies of task."""
@@ -54,7 +52,7 @@ class Task(MetaNode):
     """A list of products of task."""
     markers: list[Mark] = field(factory=list)
     """A list of markers attached to the task function."""
-    _report_sections: list[tuple[str, str, str]] = field(factory=list)
+    report_sections: list[tuple[str, str, str]] = field(factory=list)
     """Reports with entries for when, what, and content."""
     attributes: dict[Any, Any] = field(factory=dict)
     """A dictionary to store additional information of the task."""
@@ -64,41 +62,19 @@ class Task(MetaNode):
         if self.name is None:
             self.name = self.path.as_posix() + "::" + self.base_name
 
-        if self.short_name is None:
-            self.short_name = self.name
+        if self.display_name is None:
+            self.display_name = self.name
 
-    def state(self, hash: bool = False) -> str | None:  # noqa: A002
+    def state(self) -> str | None:
         """Return the state of the node."""
-        if hash and self.path.exists():
-            return hashlib.sha256(self.path.read_bytes()).hexdigest()
-        if not hash and self.path.exists():
+        if self.path.exists():
             return str(self.path.stat().st_mtime)
         return None
 
     def execute(self, **kwargs: Any) -> None:
         """Execute the task."""
         out = self.function(**kwargs)
-
-        if "return" in self.produces:
-            structure_out = tree_structure(out)
-            structure_return = tree_structure(self.produces["return"])
-            # strict must be false when none is leaf.
-            if not structure_return.is_prefix(structure_out, strict=False):
-                raise ValueError(
-                    "The structure of the return annotation is not a subtree of the "
-                    "structure of the function return.\n\nFunction return: "
-                    f"{structure_out}\n\nReturn annotation: {structure_return}"
-                )
-
-            nodes = tree_leaves(self.produces["return"])
-            values = structure_return.flatten_up_to(out)
-            for node, value in zip(nodes, values):
-                node.save(value)
-
-    def add_report_section(self, when: str, key: str, content: str) -> None:
-        """Add sections which will be displayed in report like stdout or stderr."""
-        if content:
-            self._report_sections.append((when, key, content))
+        return out
 
 
 @define(kw_only=True)

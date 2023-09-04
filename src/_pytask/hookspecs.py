@@ -16,6 +16,7 @@ import pluggy
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import Node
+from _pytask.node_protocols import PTask
 
 
 if TYPE_CHECKING:
@@ -128,7 +129,7 @@ def pytask_ignore_collect(path: pathlib.Path, config: dict[str, Any]) -> bool:
 
 
 @hookspec
-def pytask_collect_modify_tasks(session: Session, tasks: list[Task]) -> None:
+def pytask_collect_modify_tasks(session: Session, tasks: list[PTask]) -> None:
     """Modify tasks after they have been collected.
 
     This hook can be used to deselect tasks when they match a certain keyword or mark.
@@ -186,7 +187,7 @@ def pytask_collect_task(
 
 
 @hookspec
-def pytask_collect_task_teardown(session: Session, task: Task) -> None:
+def pytask_collect_task_teardown(session: Session, task: PTask) -> None:
     """Perform tear-down operations when a task was collected.
 
     Use this hook specification to, for example, perform checks on the collected task.
@@ -203,7 +204,7 @@ def pytask_collect_node(
 
 @hookspec(firstresult=True)
 def pytask_collect_log(
-    session: Session, reports: list[CollectionReport], tasks: list[Task]
+    session: Session, reports: list[CollectionReport], tasks: list[PTask]
 ) -> None:
     """Log errors occurring during the collection.
 
@@ -226,7 +227,7 @@ def pytask_dag(session: Session) -> None:
 
 
 @hookspec(firstresult=True)
-def pytask_dag_create_dag(session: Session, tasks: list[Task]) -> nx.DiGraph:
+def pytask_dag_create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
     """Create the DAG.
 
     This hook creates the DAG from tasks, dependencies and products. The DAG can be used
@@ -324,7 +325,7 @@ def pytask_execute_build(session: Session) -> Any:
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task_protocol(session: Session, task: Task) -> ExecutionReport:
+def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionReport:
     """Run the protocol for executing a test.
 
     This hook runs all stages of the execution process, setup, execution, and teardown
@@ -336,7 +337,7 @@ def pytask_execute_task_protocol(session: Session, task: Task) -> ExecutionRepor
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task_log_start(session: Session, task: Task) -> None:
+def pytask_execute_task_log_start(session: Session, task: PTask) -> None:
     """Start logging of task execution.
 
     This hook can be used to provide more verbose output during the execution.
@@ -345,7 +346,7 @@ def pytask_execute_task_log_start(session: Session, task: Task) -> None:
 
 
 @hookspec
-def pytask_execute_task_setup(session: Session, task: Task) -> None:
+def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     """Set up the task execution.
 
     This hook is called before the task is executed and can provide an entry-point to
@@ -356,12 +357,12 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task(session: Session, task: Task) -> Any:
+def pytask_execute_task(session: Session, task: PTask) -> Any:
     """Execute a task."""
 
 
 @hookspec
-def pytask_execute_task_teardown(session: Session, task: Task) -> None:
+def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
     """Tear down task execution.
 
     This hook is executed after the task has been executed. It allows to perform clean-
@@ -417,7 +418,7 @@ def pytask_log_session_footer(
 
 @hookspec
 def pytask_profile_add_info_on_task(
-    session: Session, tasks: list[Task], profile: dict[str, dict[Any, Any]]
+    session: Session, tasks: list[PTask], profile: dict[str, dict[Any, Any]]
 ) -> None:
     """Add information on task for profile.
 

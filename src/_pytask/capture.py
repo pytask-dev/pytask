@@ -44,7 +44,7 @@ import click
 from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
 from _pytask.enums import ShowCapture
-from _pytask.nodes import Task
+from _pytask.node_protocols import PTask
 
 
 class _CaptureMethod(enum.Enum):
@@ -706,7 +706,7 @@ class CaptureManager:
     # Helper context managers
 
     @contextlib.contextmanager
-    def task_capture(self, when: str, task: Task) -> Generator[None, None, None]:
+    def task_capture(self, when: str, task: PTask) -> Generator[None, None, None]:
         """Pipe captured stdout and stderr into report sections."""
         self.resume()
 
@@ -716,25 +716,27 @@ class CaptureManager:
             self.suspend(in_=False)
 
         out, err = self.read()
-        task.add_report_section(when, "stdout", out)
-        task.add_report_section(when, "stderr", err)
+        if out:
+            task.report_sections.append((when, "stdout", out))
+        if err:
+            task.report_sections.append((when, "stderr", err))
 
     # Hooks
 
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task_setup(self, task: Task) -> Generator[None, None, None]:
+    def pytask_execute_task_setup(self, task: PTask) -> Generator[None, None, None]:
         """Capture output during setup."""
         with self.task_capture("setup", task):
             yield
 
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task(self, task: Task) -> Generator[None, None, None]:
+    def pytask_execute_task(self, task: PTask) -> Generator[None, None, None]:
         """Capture output during execution."""
         with self.task_capture("call", task):
             yield
 
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task_teardown(self, task: Task) -> Generator[None, None, None]:
+    def pytask_execute_task_teardown(self, task: PTask) -> Generator[None, None, None]:
         """Capture output during teardown."""
         with self.task_capture("teardown", task):
             yield

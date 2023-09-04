@@ -18,13 +18,13 @@ from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.console import format_task_id
+from _pytask.console import format_task_name
 from _pytask.database_utils import BaseTable
 from _pytask.database_utils import DatabaseSession
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.node_protocols import PPathNode
-from _pytask.nodes import Task
+from _pytask.node_protocols import PTask
 from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import get_plugin_manager
@@ -72,7 +72,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 
 
 @hookimpl(hookwrapper=True)
-def pytask_execute_task(task: Task) -> Generator[None, None, None]:
+def pytask_execute_task(task: PTask) -> Generator[None, None, None]:
     """Attach the duration of the execution to the task."""
     start = time.time()
     yield
@@ -165,7 +165,7 @@ def profile(**raw_config: Any) -> NoReturn:
 
 
 def _print_profile_table(
-    profile: dict[str, dict[str, Any]], tasks: list[Task], config: dict[str, Any]
+    profile: dict[str, dict[str, Any]], tasks: list[PTask], config: dict[str, Any]
 ) -> None:
     """Print the profile table."""
     name_to_task = {task.name: task for task in tasks}
@@ -178,10 +178,9 @@ def _print_profile_table(
             table.add_column(name, justify="right")
 
         for task_name, info in profile.items():
-            task_id = format_task_id(
+            task_id = format_task_name(
                 task=name_to_task[task_name],
                 editor_url_scheme=config["editor_url_scheme"],
-                short_name=True,
             )
             infos = [str(i) for i in info.values()]
             table.add_row(task_id, *infos)
@@ -197,7 +196,7 @@ class DurationNameSpace:
     @staticmethod
     @hookimpl
     def pytask_profile_add_info_on_task(
-        tasks: list[Task], profile: dict[str, dict[str, Any]]
+        tasks: list[PTask], profile: dict[str, dict[str, Any]]
     ) -> None:
         """Add the runtime for tasks to the profile."""
         runtimes = _collect_runtimes([task.name for task in tasks])
@@ -219,7 +218,7 @@ class FileSizeNameSpace:
     @staticmethod
     @hookimpl
     def pytask_profile_add_info_on_task(
-        session: Session, tasks: list[Task], profile: dict[str, dict[str, Any]]
+        session: Session, tasks: list[PTask], profile: dict[str, dict[str, Any]]
     ) -> None:
         """Add the total file size of all products for a task."""
         for task in tasks:

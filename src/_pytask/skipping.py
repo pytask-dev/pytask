@@ -9,6 +9,7 @@ from _pytask.dag_utils import descending_tasks
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
+from _pytask.node_protocols import PTask
 from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
@@ -18,7 +19,6 @@ from _pytask.traceback import remove_traceback_from_exc_info
 
 if TYPE_CHECKING:
     from _pytask.session import Session
-    from _pytask.nodes import Task
     from _pytask.report import ExecutionReport
 
 
@@ -47,7 +47,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 
 
 @hookimpl
-def pytask_execute_task_setup(session: Session, task: Task) -> None:
+def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     """Take a short-cut for skipped tasks during setup with an exception."""
     is_unchanged = has_mark(task, "skip_unchanged") and not has_mark(
         task, "would_be_executed"
