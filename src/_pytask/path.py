@@ -38,7 +38,7 @@ def relative_to(
 
 
 def find_closest_ancestor(
-    path: str | Path, potential_ancestors: Sequence[str | Path]
+    path: Path, potential_ancestors: Sequence[str | Path]
 ) -> Path:
     """Find the closest ancestor of a path.
 
@@ -60,9 +60,6 @@ def find_closest_ancestor(
     'folder/subfolder'
 
     """
-    if isinstance(path, str):
-        path = Path(path)
-
     closest_ancestor = None
     for ancestor in potential_ancestors:
         if isinstance(ancestor, str):

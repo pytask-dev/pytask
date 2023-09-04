@@ -37,7 +37,6 @@ def test_relative_to(path, source, include_source, expected):
 @pytest.mark.parametrize(
     ("path", "potential_ancestors", "expected"),
     [
-        ("src/task.py", ["src", "bld"], Path("src")),
         (Path("src/task.py"), [Path("src"), Path("bld")], Path("src")),
         (Path("tasks/task.py"), [Path("src"), Path("bld")], None),
         (Path("src/ts/task.py"), [Path("src"), Path("src/ts")], Path("src/ts")),
