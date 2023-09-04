@@ -15,7 +15,7 @@ dependencies:
   - click
   - click-default-group
   - networkx >=2.4
-  - pluggy
+  - pluggy >=1.0.0
   - optree >=0.9
   - rich
   - sqlalchemy >=1.4.36
