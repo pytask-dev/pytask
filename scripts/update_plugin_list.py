@@ -81,8 +81,7 @@ def _escape_rst(text: str) -> str:
         .replace(">", "\\>")
         .replace("`", "\\`")
     )
-    text = re.sub(r"_\b", "", text)
-    return text
+    return re.sub(r"_\b", "", text)
 
 
 def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901

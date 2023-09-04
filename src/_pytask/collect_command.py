@@ -1,8 +1,8 @@
-"""This module contains the implementation of ``pytask collect``."""
+"""Contains the implementation of ``pytask collect``."""
 from __future__ import annotations
 
 import sys
-from pathlib import Path
+from collections import defaultdict
 from typing import Any
 from typing import TYPE_CHECKING
 
@@ -12,7 +12,7 @@ from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_url_style_for_path
 from _pytask.console import FILE_ICON
-from _pytask.console import format_task_id
+from _pytask.console import format_task_name
 from _pytask.console import PYTHON_ICON
 from _pytask.console import TASK_ICON
 from _pytask.exceptions import CollectionError
@@ -21,6 +21,8 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import select_by_keyword
 from _pytask.mark import select_by_mark
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PTask
+from _pytask.node_protocols import PTaskWithPath
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
@@ -33,8 +35,8 @@ from rich.tree import Tree
 
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import NoReturn
-    from _pytask.nodes import Task
 
 
 @hookimpl(tryfirst=True)
@@ -77,11 +79,12 @@ def collect(**raw_config: Any | None) -> NoReturn:
             session.hook.pytask_dag(session=session)
 
             tasks = _select_tasks_by_expressions_and_marker(session)
+            task_with_path = [t for t in tasks if isinstance(t, PTaskWithPath)]
 
             common_ancestor = _find_common_ancestor_of_all_nodes(
-                tasks, session.config["paths"], session.config["nodes"]
+                task_with_path, session.config["paths"], session.config["nodes"]
             )
-            dictionary = _organize_tasks(tasks)
+            dictionary = _organize_tasks(task_with_path)
             if dictionary:
                 _print_collected_tasks(
                     dictionary,
@@ -107,7 +110,7 @@ def collect(**raw_config: Any | None) -> NoReturn:
     sys.exit(session.exit_code)
 
 
-def _select_tasks_by_expressions_and_marker(session: Session) -> list[Task]:
+def _select_tasks_by_expressions_and_marker(session: Session) -> list[PTask]:
     """Select tasks by expressions and marker."""
     all_tasks = {task.name for task in session.tasks}
     remaining_by_mark = select_by_mark(session, session.dag) or all_tasks
@@ -118,7 +121,7 @@ def _select_tasks_by_expressions_and_marker(session: Session) -> list[Task]:
 
 
 def _find_common_ancestor_of_all_nodes(
-    tasks: list[Task], paths: list[Path], show_nodes: bool
+    tasks: list[PTaskWithPath], paths: list[Path], show_nodes: bool
 ) -> Path:
     """Find common ancestor from all nodes and passed paths."""
     all_paths = []
@@ -136,21 +139,18 @@ def _find_common_ancestor_of_all_nodes(
                 if isinstance(x, PPathNode) and x.path is not no_value
             )
 
-    common_ancestor = find_common_ancestor(*all_paths, *paths)
-
-    return common_ancestor
+    return find_common_ancestor(*all_paths, *paths)
 
 
-def _organize_tasks(tasks: list[Task]) -> dict[Path, list[Task]]:
+def _organize_tasks(tasks: list[PTaskWithPath]) -> dict[Path, list[PTaskWithPath]]:
     """Organize tasks in a dictionary.
 
     The dictionary has file names as keys and then a dictionary with task names and
     below a dictionary with dependencies and targets.
 
     """
-    dictionary: dict[Path, list[Task]] = {}
+    dictionary: dict[Path, list[PTaskWithPath]] = defaultdict(list)
     for task in tasks:
-        dictionary[task.path] = dictionary.get(task.path, [])
         dictionary[task.path].append(task)
 
     sorted_dict = {}
@@ -161,7 +161,7 @@ def _organize_tasks(tasks: list[Task]) -> dict[Path, list[Task]]:
 
 
 def _print_collected_tasks(
-    dictionary: dict[Path, list[Task]],
+    dictionary: dict[Path, list[PTaskWithPath]],
     show_nodes: bool,
     editor_url_scheme: str,
     common_ancestor: Path,
@@ -196,11 +196,8 @@ def _print_collected_tasks(
         )
 
         for task in tasks:
-            reduced_task_name = format_task_id(
-                task,
-                editor_url_scheme=editor_url_scheme,
-                short_name=True,
-                relative_to=common_ancestor,
+            reduced_task_name = format_task_name(
+                task, editor_url_scheme=editor_url_scheme
             )
             task_branch = module_branch.add(
                 Text.assemble(TASK_ICON, "<Function ", reduced_task_name, ">"),

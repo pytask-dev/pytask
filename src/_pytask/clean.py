@@ -6,7 +6,6 @@ import itertools
 import shutil
 import sys
 from pathlib import Path
-from types import TracebackType
 from typing import Any
 from typing import Generator
 from typing import Iterable
@@ -21,7 +20,9 @@ from _pytask.exceptions import CollectionError
 from _pytask.git import get_all_files
 from _pytask.git import get_root
 from _pytask.git import is_git_installed
-from _pytask.nodes import Task
+from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PTask
+from _pytask.node_protocols import PTaskWithPath
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
@@ -34,6 +35,7 @@ from attrs import define
 
 
 if TYPE_CHECKING:
+    from types import TracebackType
     from typing import NoReturn
 
 
@@ -214,12 +216,13 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
     return known_paths
 
 
-def _yield_paths_from_task(task: Task) -> Generator[Path, None, None]:
+def _yield_paths_from_task(task: PTask) -> Generator[Path, None, None]:
     """Yield all paths attached to a task."""
-    yield task.path
+    if isinstance(task, PTaskWithPath):
+        yield task.path
     for attribute in ("depends_on", "produces"):
         for node in tree_leaves(getattr(task, attribute)):
-            if hasattr(node, "path") and isinstance(node.path, Path):
+            if isinstance(node, PPathNode):
                 yield node.path
 
 
@@ -239,7 +242,7 @@ def _find_all_unknown_paths(
         _RecursivePathNode.from_path(path, known_paths, exclude)
         for path in session.config["paths"]
     ]
-    unknown_paths = list(
+    return list(
         itertools.chain.from_iterable(
             [
                 _find_all_unkown_paths_per_recursive_node(node, include_directories)
@@ -247,7 +250,6 @@ def _find_all_unknown_paths(
             ]
         )
     )
-    return unknown_paths
 
 
 @define(repr=False)

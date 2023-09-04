@@ -33,8 +33,8 @@ target-version = "py38"
 select = ["ALL"]
 fix = true
 extend-ignore = [
+    "I",  # ignore isort
     "TRY",  # ignore tryceratops.
-    "TCH",  # ignore non-guarded type imports.
     # Numpy docstyle
     "D107",
     "D203",
@@ -46,15 +46,10 @@ extend-ignore = [
     "D416",
     "D417",
     # Others.
-    "D404",  # Do not start module docstring with "This".
-    "RET504",  # unnecessary variable assignment before return.
     "S101",  # raise errors for asserts.
-    "B905",  # strict parameter for zip that was implemented in py310.
-    "I",  # ignore isort
     "ANN101",  # type annotating self
     "ANN102",  # type annotating cls
     "FBT",  # flake8-boolean-trap
-    "EM",  # flake8-errmsg
     "ANN401",  # flake8-annotate typing.Any
     "PD",  # pandas-vet
     "COM812",  # trailing comma missing, but black takes care of that
@@ -62,9 +57,6 @@ extend-ignore = [
     "SLF001",  # access private members.
     "S603",
     "S607",
-    # Temporary
-    "TD002",
-    "TD003",
 ]
 
 
@@ -73,7 +65,7 @@ extend-ignore = [
 "src/_pytask/hookspecs.py" = ["ARG001"]
 "src/_pytask/outcomes.py" = ["N818"]
 "tests/test_capture.py" = ["T201", "PT011"]
-"tests/*" = ["D", "ANN", "PLR2004"]
+"tests/*" = ["D", "ANN", "PLR2004", "S101"]
 "scripts/*" = ["D", "INP001"]
 "docs/source/conf.py" = ["D401", "INP001"]
 

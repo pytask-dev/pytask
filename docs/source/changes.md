@@ -29,6 +29,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`409` make `.from_annot` an optional feature of nodes.
 - {pull}`410` allows to pass functions to `PythonNode(hash=...)`.
 - {pull}`411` implements a new functional interface.
+- {pull}`412` adds protocols for tasks.
+- {pull}`413` removes scripts to generate `.svg`s.
+- {pull}`414` allow more ruff rules.
 
 ## 0.3.2 - 2023-06-07
 

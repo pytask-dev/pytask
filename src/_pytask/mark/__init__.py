@@ -1,4 +1,4 @@
-"""This module contains the main code for the markers plugin."""
+"""Contains the main code for the markers plugin."""
 from __future__ import annotations
 
 import sys
@@ -7,7 +7,6 @@ from typing import Any
 from typing import TYPE_CHECKING
 
 import click
-import networkx as nx
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.console import console
@@ -19,7 +18,6 @@ from _pytask.mark.structures import Mark
 from _pytask.mark.structures import MARK_GEN
 from _pytask.mark.structures import MarkDecorator
 from _pytask.mark.structures import MarkGenerator
-from _pytask.nodes import Task
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
@@ -29,6 +27,8 @@ from rich.table import Table
 
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
+    import networkx as nx
     from typing import NoReturn
 
 
@@ -134,7 +134,7 @@ class KeywordMatcher:
     _names: AbstractSet[str]
 
     @classmethod
-    def from_task(cls, task: Task) -> KeywordMatcher:
+    def from_task(cls, task: PTask) -> KeywordMatcher:
         mapped_names = {task.name}
 
         # Add the names attached to the current function through direct assignment.
@@ -163,9 +163,8 @@ def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str]:
     try:
         expression = Expression.compile_(keywordexpr)
     except ParseError as e:
-        raise ValueError(
-            f"Wrong expression passed to '-k': {keywordexpr}: {e}"
-        ) from None
+        msg = f"Wrong expression passed to '-k': {keywordexpr}: {e}"
+        raise ValueError(msg) from None
 
     remaining: set[str] = set()
     for task in session.tasks:
@@ -186,7 +185,7 @@ class MarkMatcher:
     own_mark_names: set[str]
 
     @classmethod
-    def from_task(cls, task: Task) -> MarkMatcher:
+    def from_task(cls, task: PTask) -> MarkMatcher:
         mark_names = {mark.name for mark in task.markers}
         return cls(mark_names)
 
@@ -203,7 +202,8 @@ def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str]:
     try:
         expression = Expression.compile_(matchexpr)
     except ParseError as e:
-        raise ValueError(f"Wrong expression passed to '-m': {matchexpr}: {e}") from None
+        msg = f"Wrong expression passed to '-m': {matchexpr}: {e}"
+        raise ValueError(msg) from None
 
     remaining: set[str] = set()
     for task in session.tasks:

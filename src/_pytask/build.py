@@ -19,7 +19,6 @@ from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import ResolvingDependenciesError
-from _pytask.nodes import Task
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
@@ -30,6 +29,7 @@ from rich.traceback import Traceback
 
 
 if TYPE_CHECKING:
+    from _pytask.nodes import Task
     from typing import NoReturn
 
 

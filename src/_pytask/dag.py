@@ -1,8 +1,10 @@
-"""This module contains code related to resolving dependencies."""
+"""Contains code related to resolving dependencies."""
 from __future__ import annotations
 
+import hashlib
 import itertools
 import sys
+from typing import TYPE_CHECKING
 
 import networkx as nx
 from _pytask.config import hookimpl
@@ -24,16 +26,19 @@ from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import Node
 from _pytask.node_protocols import PPathNode
-from _pytask.nodes import Task
+from _pytask.node_protocols import PTask
+from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import DagReport
-from _pytask.session import Session
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_map
 from rich.text import Text
 from rich.tree import Tree
+
+if TYPE_CHECKING:
+    from _pytask.session import Session
 
 
 @hookimpl
@@ -66,7 +71,7 @@ def pytask_dag(session: Session) -> bool | None:
 
 
 @hookimpl
-def pytask_dag_create_dag(tasks: list[Task]) -> nx.DiGraph:
+def pytask_dag_create_dag(tasks: list[PTask]) -> nx.DiGraph:
     """Create the DAG from tasks, dependencies and products."""
     dag = nx.DiGraph()
 
@@ -112,7 +117,7 @@ def pytask_dag_validate_dag(dag: nx.DiGraph) -> None:
 
 
 def _have_task_or_neighbors_changed(
-    session: Session, dag: nx.DiGraph, task: Task
+    session: Session, dag: nx.DiGraph, task: PTask
 ) -> bool:
     """Indicate whether dependencies or products of a task have changed."""
     return any(
@@ -141,18 +146,18 @@ def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
     if db_state is None:
         return True
 
-    if isinstance(node, (PPathNode, Task)):
+    if isinstance(node, (PPathNode, PTaskWithPath)):
         # If the modification times match, the node has not been changed.
         if node_state == db_state.modification_time:
             return False
 
         # If the modification time changed, quickly return for non-tasks.
-        if not isinstance(node, Task):
+        if not isinstance(node, PTaskWithPath):
             return True
 
         # When modification times changed, we are still comparing the hash of the file
         # to avoid unnecessary and expensive reexecutions of tasks.
-        hash_ = node.state(hash=True)
+        hash_ = hashlib.sha256(node.path.read_bytes()).hexdigest()
         return hash_ != db_state.hash_
 
     return node_state != db_state.hash_
@@ -165,12 +170,12 @@ def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:
     except nx.NetworkXNoCycle:
         pass
     else:
-        raise ResolvingDependenciesError(
-            "The DAG contains cycles which means a dependency is directly or "
+        msg = (
+            f"The DAG contains cycles which means a dependency is directly or "
             "indirectly a product of the same task. See the following the path of "
-            "nodes in the graph which forms the cycle."
-            f"\n\n{_format_cycles(cycles)}"
+            f"nodes in the graph which forms the cycle.\n\n{_format_cycles(cycles)}"
         )
+        raise ResolvingDependenciesError(msg)
 
 
 def _format_cycles(cycles: list[tuple[str, ...]]) -> str:
@@ -181,9 +186,7 @@ def _format_cycles(cycles: list[tuple[str, ...]]) -> str:
     lines = chain[:1]
     for x in chain[1:]:
         lines.extend(("     " + ARROW_DOWN_ICON, x))
-    text = "\n".join(lines)
-
-    return text
+    return "\n".join(lines)
 
 
 _TEMPLATE_ERROR: str = (
@@ -259,10 +262,7 @@ def _check_if_task_is_skipped(task_name: str, dag: nx.DiGraph) -> bool:
         return True
 
     skip_if_markers = get_marks(task, "skipif")
-    is_any_true = any(
-        _skipif(*marker.args, **marker.kwargs)[0] for marker in skip_if_markers
-    )
-    return is_any_true
+    return any(_skipif(*marker.args, **marker.kwargs)[0] for marker in skip_if_markers)
 
 
 def _skipif(condition: bool, *, reason: str) -> tuple[bool, str]:
@@ -279,8 +279,7 @@ def _format_dictionary_to_tree(dict_: dict[str, list[str]], title: str) -> str:
         for task in tasks:
             branch.add(Text.assemble(TASK_ICON, task))
 
-    text = render_to_string(tree, console=console, strip_styles=True)
-    return text
+    return render_to_string(tree, console=console, strip_styles=True)
 
 
 def _check_if_tasks_have_the_same_products(dag: nx.DiGraph) -> None:
@@ -310,11 +309,11 @@ def _check_if_tasks_have_the_same_products(dag: nx.DiGraph) -> None:
             )
             dictionary[short_node_name] = short_predecessors
         text = _format_dictionary_to_tree(dictionary, "Products from multiple tasks:")
-        raise ResolvingDependenciesError(
-            "There are some tasks which produce the same output. See the following "
-            "tree which shows which products are produced by multiple tasks."
-            f"\n\n{text}"
+        msg = (
+            f"There are some tasks which produce the same output. See the following "
+            f"tree which shows which products are produced by multiple tasks.\n\n{text}"
         )
+        raise ResolvingDependenciesError(msg)
 
 
 @hookimpl

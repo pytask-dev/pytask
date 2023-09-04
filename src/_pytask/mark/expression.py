@@ -26,7 +26,6 @@ from __future__ import annotations
 import ast
 import enum
 import re
-import types
 from typing import Callable
 from typing import Iterator
 from typing import Mapping
@@ -37,6 +36,7 @@ from attrs import define
 
 
 if TYPE_CHECKING:
+    import types
     from typing import NoReturn
 
 

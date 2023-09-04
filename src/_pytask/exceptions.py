@@ -1,4 +1,4 @@
-"""This module contains custom exceptions."""
+"""Contains custom exceptions."""
 from __future__ import annotations
 
 

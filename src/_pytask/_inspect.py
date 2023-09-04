@@ -99,13 +99,15 @@ else:
             obj_locals = None
             unwrap = obj
         else:
-            raise TypeError(f"{obj!r} is not a module, class, or callable.")
+            msg = f"{obj!r} is not a module, class, or callable."
+            raise TypeError(msg)
 
         if ann is None:
             return {}
 
         if not isinstance(ann, dict):
-            raise ValueError(f"{obj!r}.__annotations__ is neither a dict nor None")
+            msg = f"{obj!r}.__annotations__ is neither a dict nor None"
+            raise ValueError(msg)
 
         if not ann:
             return {}
@@ -131,10 +133,9 @@ else:
             locals = obj_locals  # noqa: A001
 
         eval_func = eval
-        return_value = {
+        return {
             key: value
             if not isinstance(value, str)
             else eval_func(value, globals, locals)
             for key, value in ann.items()
         }
-        return return_value

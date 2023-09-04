@@ -1,17 +1,20 @@
-"""This module contains utilities for the database."""
+"""Contains utilities for the database."""
 from __future__ import annotations
 
 import hashlib
+from typing import TYPE_CHECKING
 
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.node_protocols import PPathNode
-from _pytask.nodes import Task
-from _pytask.session import Session
+from _pytask.node_protocols import PTaskWithPath
 from sqlalchemy import Column
 from sqlalchemy import create_engine
 from sqlalchemy import String
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
+
+if TYPE_CHECKING:
+    from _pytask.session import Session
 
 
 __all__ = [
@@ -77,7 +80,7 @@ def update_states_in_database(session: Session, task_name: str) -> None:
     for name in node_and_neighbors(session.dag, task_name):
         node = session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
 
-        if isinstance(node, Task):
+        if isinstance(node, PTaskWithPath):
             modification_time = node.state()
             hash_ = hashlib.sha256(node.path.read_bytes()).hexdigest()
         elif isinstance(node, PPathNode):
