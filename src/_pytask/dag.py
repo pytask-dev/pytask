@@ -34,7 +34,6 @@ from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_map
-from pytask import Task
 from rich.text import Text
 from rich.tree import Tree
 
@@ -144,8 +143,7 @@ def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
     if db_state is None:
         return True
 
-    # TODO: Could be MetaNode with Path?
-    if isinstance(node, (PPathNode, Task)):
+    if isinstance(node, (PPathNode, PTaskWithPath)):
         # If the modification times match, the node has not been changed.
         if node_state == db_state.modification_time:
             return False
