@@ -1,4 +1,4 @@
-"""This module contains hook implementations concerning the execution."""
+"""Contains hook implementations concerning the execution."""
 from __future__ import annotations
 
 import inspect

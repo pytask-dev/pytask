@@ -133,10 +133,9 @@ else:
             locals = obj_locals  # noqa: A001
 
         eval_func = eval
-        return_value = {
+        return {
             key: value
             if not isinstance(value, str)
             else eval_func(value, globals, locals)
             for key, value in ann.items()
         }
-        return return_value

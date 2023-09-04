@@ -1,4 +1,4 @@
-"""This module contains the main code for the markers plugin."""
+"""Contains the main code for the markers plugin."""
 from __future__ import annotations
 
 import sys

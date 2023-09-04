@@ -1,4 +1,4 @@
-"""This module contains everything related to debugging."""
+"""Contains everything related to debugging."""
 from __future__ import annotations
 
 import functools
@@ -292,9 +292,7 @@ class PytaskPDB:
                     else:
                         console.rule(f"PDB {method}", characters=">", style=None)
 
-        _pdb = cls._import_pdb_cls(capman, live_manager)(**kwargs)
-
-        return _pdb
+        return cls._import_pdb_cls(capman, live_manager)(**kwargs)
 
     @classmethod
     def set_trace(cls, *args: Any, **kwargs: Any) -> None:

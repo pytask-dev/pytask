@@ -1,4 +1,4 @@
-"""This module contains code for capturing warnings."""
+"""Contains code for capturing warnings."""
 from __future__ import annotations
 
 from collections import defaultdict

@@ -1,4 +1,4 @@
-"""This module holds the plugin manager."""
+"""Contains the plugin manager."""
 from __future__ import annotations
 
 import pluggy

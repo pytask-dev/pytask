@@ -1,4 +1,4 @@
-"""This module contains code related to the session object."""
+"""Contains code related to the session object."""
 from __future__ import annotations
 
 from typing import Any

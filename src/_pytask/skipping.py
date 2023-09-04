@@ -1,4 +1,4 @@
-"""This module contains everything related to skipping tasks."""
+"""Contains everything related to skipping tasks."""
 from __future__ import annotations
 
 from typing import Any

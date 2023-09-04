@@ -1,4 +1,4 @@
-"""This module contains utility functions related to marker.
+"""Contains utility functions related to marker.
 
 The utility functions are stored here to be separate from the plugin.
 

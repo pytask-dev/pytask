@@ -1,4 +1,4 @@
-"""This module contains utilities for the database."""
+"""Contains utilities for the database."""
 from __future__ import annotations
 
 import hashlib

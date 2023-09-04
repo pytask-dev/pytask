@@ -73,8 +73,7 @@ class Task(MetaNode):
 
     def execute(self, **kwargs: Any) -> None:
         """Execute the task."""
-        out = self.function(**kwargs)
-        return out
+        return self.function(**kwargs)
 
 
 @define(kw_only=True)

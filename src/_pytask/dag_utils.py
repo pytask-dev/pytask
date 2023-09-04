@@ -183,9 +183,7 @@ def _extract_priorities_from_tasks(tasks: list[PTask]) -> dict[str, int]:
 
     # Recode to numeric values for sorting.
     numeric_mapping = {(True, False): 1, (False, False): 0, (False, True): -1}
-    numeric_priorities = {
+    return {
         name: numeric_mapping[(p["try_first"], p["try_last"])]
         for name, p in priorities.items()
     }
-
-    return numeric_priorities

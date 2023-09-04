@@ -1,4 +1,4 @@
-"""This module contains code related to resolving dependencies."""
+"""Contains code related to resolving dependencies."""
 from __future__ import annotations
 
 import hashlib
@@ -186,9 +186,7 @@ def _format_cycles(cycles: list[tuple[str, ...]]) -> str:
     lines = chain[:1]
     for x in chain[1:]:
         lines.extend(("     " + ARROW_DOWN_ICON, x))
-    text = "\n".join(lines)
-
-    return text
+    return "\n".join(lines)
 
 
 _TEMPLATE_ERROR: str = (
@@ -264,10 +262,7 @@ def _check_if_task_is_skipped(task_name: str, dag: nx.DiGraph) -> bool:
         return True
 
     skip_if_markers = get_marks(task, "skipif")
-    is_any_true = any(
-        _skipif(*marker.args, **marker.kwargs)[0] for marker in skip_if_markers
-    )
-    return is_any_true
+    return any(_skipif(*marker.args, **marker.kwargs)[0] for marker in skip_if_markers)
 
 
 def _skipif(condition: bool, *, reason: str) -> tuple[bool, str]:
@@ -284,8 +279,7 @@ def _format_dictionary_to_tree(dict_: dict[str, list[str]], title: str) -> str:
         for task in tasks:
             branch.add(Text.assemble(TASK_ICON, task))
 
-    text = render_to_string(tree, console=console, strip_styles=True)
-    return text
+    return render_to_string(tree, console=console, strip_styles=True)
 
 
 def _check_if_tasks_have_the_same_products(dag: nx.DiGraph) -> None:

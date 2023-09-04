@@ -1,4 +1,4 @@
-"""This module contains utilities related to the ``@pytask.mark.task`` decorator."""
+"""Contains utilities related to the ``@pytask.mark.task`` decorator."""
 from __future__ import annotations
 
 import inspect

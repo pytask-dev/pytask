@@ -81,8 +81,7 @@ def reduce_node_name(node: MetaNode, paths: Sequence[str | Path]) -> str:
             except ValueError:
                 ancestor = node.path.parents[-1]
 
-        name = relative_to(node.path, ancestor).as_posix()
-        return name
+        return relative_to(node.path, ancestor).as_posix()
     return node.name
 
 

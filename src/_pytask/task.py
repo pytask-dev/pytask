@@ -1,4 +1,4 @@
-"""This module contain hooks related to the ``@pytask.mark.task`` decorator."""
+"""Contain hooks related to the ``@pytask.mark.task`` decorator."""
 from __future__ import annotations
 
 from typing import Any

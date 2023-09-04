@@ -1,4 +1,4 @@
-"""This module contains code on models, containers and there like."""
+"""Contains code on models, containers and there like."""
 from __future__ import annotations
 
 from typing import Any

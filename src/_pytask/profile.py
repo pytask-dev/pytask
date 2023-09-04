@@ -1,4 +1,4 @@
-"""This module contains the code to profile the execution."""
+"""Contains the code to profile the execution."""
 from __future__ import annotations
 
 import csv

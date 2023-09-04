@@ -1,4 +1,4 @@
-"""This module provides utility functions for :mod:`_pytask.collect`."""
+"""Contains utility functions for :mod:`_pytask.collect`."""
 from __future__ import annotations
 
 import functools
@@ -79,13 +79,12 @@ def parse_nodes(
     arg_name = parser.__name__
     objects = _extract_nodes_from_function_markers(obj, parser)
     nodes = _convert_objects_to_node_dictionary(objects, arg_name)
-    nodes = tree_map(
+    return tree_map(
         lambda x: _collect_decorator_node(
             session, path, name, NodeInfo(arg_name, (), x)
         ),
         nodes,
     )
-    return nodes
 
 
 def _extract_nodes_from_function_markers(
@@ -109,8 +108,7 @@ def _convert_objects_to_node_dictionary(objects: Any, when: str) -> dict[Any, An
     """Convert objects to node dictionary."""
     list_of_dicts = [_convert_to_dict(x) for x in objects]
     _check_that_names_are_not_used_multiple_times(list_of_dicts, when)
-    nodes = _merge_dictionaries(list_of_dicts)
-    return nodes
+    return _merge_dictionaries(list_of_dicts)
 
 
 @define(frozen=True)

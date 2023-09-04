@@ -1,4 +1,4 @@
-"""This module contains everything related to reports."""
+"""Contains everything related to reports."""
 from __future__ import annotations
 
 from types import TracebackType

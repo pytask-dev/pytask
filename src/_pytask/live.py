@@ -1,4 +1,4 @@
-"""This module contains code related to live objects."""
+"""Contains code related to live objects."""
 from __future__ import annotations
 
 from typing import Any
@@ -317,5 +317,4 @@ class LiveCollection:
         msg = f"Collected {self._n_collected_tasks} tasks."
         if self._n_errors > 0:
             msg += f" {self._n_errors} errors."
-        status = Status(msg, spinner="dots")
-        return status
+        return Status(msg, spinner="dots")

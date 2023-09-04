@@ -1,4 +1,4 @@
-"""This module contains utility functions for warnings."""
+"""Contains utility functions for warnings."""
 from __future__ import annotations
 
 import functools
@@ -130,14 +130,13 @@ def _resolve_warning_category(category: str) -> type[Warning]:
 
 def warning_record_to_str(warning_message: warnings.WarningMessage) -> str:
     """Convert a warnings.WarningMessage to a string."""
-    msg = warnings.formatwarning(
+    return warnings.formatwarning(
         message=warning_message.message,
         category=warning_message.category,
         filename=warning_message.filename,
         lineno=warning_message.lineno,
         line=warning_message.line,
     )
-    return msg
 
 
 def parse_filterwarnings(x: str | list[str] | None) -> list[str]:

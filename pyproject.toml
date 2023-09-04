@@ -45,15 +45,12 @@ extend-ignore = [
     "D416",
     "D417",
     # Others.
-    "D404",  # Do not start module docstring with "This".
-    "RET504",  # unnecessary variable assignment before return.
+    # "D404",  # Do not start module docstring with "This".
     "S101",  # raise errors for asserts.
-    "B905",  # strict parameter for zip that was implemented in py310.
     "I",  # ignore isort
     "ANN101",  # type annotating self
     "ANN102",  # type annotating cls
     "FBT",  # flake8-boolean-trap
-    # "EM",  # flake8-errmsg
     "ANN401",  # flake8-annotate typing.Any
     "PD",  # pandas-vet
     "COM812",  # trailing comma missing, but black takes care of that
