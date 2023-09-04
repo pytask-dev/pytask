@@ -39,12 +39,15 @@ from typing import Generator
 from typing import Generic
 from typing import Iterator
 from typing import TextIO
+from typing import TYPE_CHECKING
 
 import click
 from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
 from _pytask.enums import ShowCapture
-from _pytask.node_protocols import PTask
+
+if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
 
 
 class _CaptureMethod(enum.Enum):

@@ -5,6 +5,7 @@ import inspect
 import sys
 import time
 from typing import Any
+from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
 from _pytask.console import console
@@ -28,7 +29,6 @@ from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
 from _pytask.report import ExecutionReport
-from _pytask.session import Session
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
@@ -37,6 +37,9 @@ from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_structure
 from rich.text import Text
+
+if TYPE_CHECKING:
+    from _pytask.session import Session
 
 
 @hookimpl

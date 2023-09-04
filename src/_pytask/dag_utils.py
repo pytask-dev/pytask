@@ -4,15 +4,18 @@ from __future__ import annotations
 import itertools
 from typing import Generator
 from typing import Iterable
+from typing import TYPE_CHECKING
 
 import networkx as nx
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import format_task_name
 from _pytask.console import TASK_ICON
 from _pytask.mark_utils import has_mark
-from _pytask.node_protocols import PTask
 from attrs import define
 from attrs import field
+
+if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
 
 
 def descending_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, None]:

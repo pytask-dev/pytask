@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 from typing import Generator
 from typing import Iterable
+from typing import TYPE_CHECKING
 
 from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_products_from_task_function
@@ -20,7 +21,6 @@ from _pytask.console import create_summary_panel
 from _pytask.console import format_task_name
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_mark
-from _pytask.models import NodeInfo
 from _pytask.node_protocols import Node
 from _pytask.node_protocols import PTask
 from _pytask.nodes import PathNode
@@ -31,11 +31,14 @@ from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
 from _pytask.path import import_path
 from _pytask.report import CollectionReport
-from _pytask.session import Session
 from _pytask.shared import find_duplicates
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
 from rich.text import Text
+
+if TYPE_CHECKING:
+    from _pytask.session import Session
+    from _pytask.models import NodeInfo
 
 
 @hookimpl

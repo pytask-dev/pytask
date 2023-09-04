@@ -6,7 +6,6 @@ import itertools
 import shutil
 import sys
 from pathlib import Path
-from types import TracebackType
 from typing import Any
 from typing import Generator
 from typing import Iterable
@@ -36,6 +35,7 @@ from attrs import define
 
 
 if TYPE_CHECKING:
+    from types import TracebackType
     from typing import NoReturn
 
 

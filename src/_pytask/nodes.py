@@ -11,12 +11,12 @@ from typing import TYPE_CHECKING
 from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import Node
 from _pytask.node_protocols import PPathNode
-from _pytask.tree_util import PyTree
 from attrs import define
 from attrs import field
 
 
 if TYPE_CHECKING:
+    from _pytask.tree_util import PyTree
     from _pytask.mark import Mark
 
 

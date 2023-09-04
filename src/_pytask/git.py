@@ -3,9 +3,12 @@ from __future__ import annotations
 
 import shutil
 import subprocess
-from os import PathLike
 from pathlib import Path
 from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from os import PathLike
 
 
 def is_git_installed() -> bool:

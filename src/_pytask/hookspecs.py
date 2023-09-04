@@ -6,20 +6,20 @@ the message send by the host and may send a response.
 """
 from __future__ import annotations
 
-import pathlib
 from typing import Any
 from typing import TYPE_CHECKING
 
-import click
-import networkx as nx
 import pluggy
-from _pytask.models import NodeInfo
-from _pytask.node_protocols import MetaNode
-from _pytask.node_protocols import Node
-from _pytask.node_protocols import PTask
 
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import MetaNode
+    from _pytask.models import NodeInfo
+    from _pytask.node_protocols import Node
+    import click
+    from _pytask.node_protocols import PTask
+    import networkx as nx
+    import pathlib
     from _pytask.session import Session
     from _pytask.nodes import Task
     from _pytask.outcomes import CollectionOutcome

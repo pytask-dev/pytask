@@ -4,10 +4,13 @@ from __future__ import annotations
 import importlib
 import shutil
 import sys
-import types
 import warnings
+from typing import TYPE_CHECKING
 
 from packaging.version import parse as parse_version
+
+if TYPE_CHECKING:
+    import types
 
 
 __all__ = ["check_for_optional_program", "import_optional_dependency"]

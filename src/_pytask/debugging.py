@@ -4,25 +4,25 @@ from __future__ import annotations
 import functools
 import pdb  # noqa: T100
 import sys
-from types import FrameType
-from types import TracebackType
 from typing import Any
 from typing import ClassVar
 from typing import Generator
 from typing import TYPE_CHECKING
 
 import click
-import pluggy
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.node_protocols import PTask
 from _pytask.outcomes import Exit
-from _pytask.session import Session
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import render_exc_info
 
 
 if TYPE_CHECKING:
+    import pluggy
+    from _pytask.session import Session
+    from types import TracebackType
+    from types import FrameType
     from _pytask.capture import CaptureManager
     from _pytask.live import LiveManager
 

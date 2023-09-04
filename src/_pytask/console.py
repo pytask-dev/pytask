@@ -5,7 +5,6 @@ import functools
 import inspect
 import os
 import sys
-from enum import Enum
 from pathlib import Path
 from typing import Any
 from typing import Callable
@@ -13,7 +12,6 @@ from typing import Iterable
 from typing import TYPE_CHECKING
 
 import rich
-from _pytask.node_protocols import PTask
 from _pytask.nodes import Task
 from rich.console import Console
 from rich.padding import Padding
@@ -27,6 +25,8 @@ from rich.tree import Tree
 
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
+    from enum import Enum
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
 

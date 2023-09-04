@@ -6,12 +6,15 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 from typing import Callable
+from typing import TYPE_CHECKING
 
 import attrs
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
-from _pytask.tree_util import PyTree
+
+if TYPE_CHECKING:
+    from _pytask.tree_util import PyTree
 
 
 __all__ = ["parse_keyword_arguments_from_signature_defaults"]

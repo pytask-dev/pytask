@@ -6,9 +6,9 @@ from pathlib import Path
 from typing import Any
 from typing import Iterable
 from typing import Sequence
+from typing import TYPE_CHECKING
 
 import click
-import networkx as nx
 from _pytask.console import format_task_name
 from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import PPathNode
@@ -17,6 +17,9 @@ from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
+
+if TYPE_CHECKING:
+    import networkx as nx
 
 
 def to_list(scalar_or_iter: Any) -> list[Any]:

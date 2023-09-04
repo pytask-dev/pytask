@@ -12,11 +12,11 @@ from typing import NamedTuple
 from typing import TYPE_CHECKING
 
 from _pytask.mark_utils import get_marks
-from _pytask.node_protocols import PTask
 from _pytask.outcomes import Exit
 
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
     from _pytask.session import Session
 
 

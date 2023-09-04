@@ -34,7 +34,6 @@ select = ["ALL"]
 fix = true
 extend-ignore = [
     "TRY",  # ignore tryceratops.
-    "TCH",  # ignore non-guarded type imports.
     # Numpy docstyle
     "D107",
     "D203",

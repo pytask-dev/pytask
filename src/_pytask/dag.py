@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import itertools
 import sys
+from typing import TYPE_CHECKING
 
 import networkx as nx
 from _pytask.config import hookimpl
@@ -29,13 +30,15 @@ from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import DagReport
-from _pytask.session import Session
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_map
 from rich.text import Text
 from rich.tree import Tree
+
+if TYPE_CHECKING:
+    from _pytask.session import Session
 
 
 @hookimpl

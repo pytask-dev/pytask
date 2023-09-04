@@ -4,21 +4,24 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Any
 from typing import Generator
+from typing import TYPE_CHECKING
 
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.node_protocols import PTask
-from _pytask.session import Session
 from _pytask.warnings_utils import catch_warnings_for_item
 from _pytask.warnings_utils import parse_filterwarnings
 from _pytask.warnings_utils import WarningReport
 from attrs import define
-from rich.console import Console
-from rich.console import ConsoleOptions
-from rich.console import RenderResult
 from rich.padding import Padding
 from rich.panel import Panel
+
+if TYPE_CHECKING:
+    from rich.console import Console
+    from _pytask.node_protocols import PTask
+    from rich.console import ConsoleOptions
+    from _pytask.session import Session
+    from rich.console import RenderResult
 
 
 @hookimpl

@@ -7,7 +7,6 @@ from typing import Any
 from typing import TYPE_CHECKING
 
 import click
-import networkx as nx
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.console import console
@@ -19,7 +18,6 @@ from _pytask.mark.structures import Mark
 from _pytask.mark.structures import MARK_GEN
 from _pytask.mark.structures import MarkDecorator
 from _pytask.mark.structures import MarkGenerator
-from _pytask.node_protocols import PTask
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
@@ -29,6 +27,8 @@ from rich.table import Table
 
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
+    import networkx as nx
     from typing import NoReturn
 
 
