@@ -33,7 +33,9 @@ from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
+from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
+from _pytask.tree_util import tree_structure
 from rich.text import Text
 
 
@@ -153,7 +155,24 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
         if name in parameters:
             kwargs[name] = tree_map(lambda x: x.load(), value)
 
-    task.execute(**kwargs)
+    out = task.execute(**kwargs)
+
+    if "return" in task.produces:
+        structure_out = tree_structure(out)
+        structure_return = tree_structure(task.produces["return"])
+        # strict must be false when none is leaf.
+        if not structure_return.is_prefix(structure_out, strict=False):
+            raise ValueError(
+                "The structure of the return annotation is not a subtree of the "
+                "structure of the function return.\n\nFunction return: "
+                f"{structure_out}\n\nReturn annotation: {structure_return}"
+            )
+
+        nodes = tree_leaves(task.produces["return"])
+        values = structure_return.flatten_up_to(out)
+        for node, value in zip(nodes, values):
+            node.save(value)
+
     return True
 
 

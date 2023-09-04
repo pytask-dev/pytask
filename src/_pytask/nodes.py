@@ -12,8 +12,6 @@ from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import Node
 from _pytask.node_protocols import PPathNode
 from _pytask.tree_util import PyTree
-from _pytask.tree_util import tree_leaves
-from _pytask.tree_util import tree_structure
 from attrs import define
 from attrs import field
 
@@ -76,23 +74,7 @@ class Task(MetaNode):
     def execute(self, **kwargs: Any) -> None:
         """Execute the task."""
         out = self.function(**kwargs)
-
-        # TODO: Move to pytask_execute_task.
-        if "return" in self.produces:
-            structure_out = tree_structure(out)
-            structure_return = tree_structure(self.produces["return"])
-            # strict must be false when none is leaf.
-            if not structure_return.is_prefix(structure_out, strict=False):
-                raise ValueError(
-                    "The structure of the return annotation is not a subtree of the "
-                    "structure of the function return.\n\nFunction return: "
-                    f"{structure_out}\n\nReturn annotation: {structure_return}"
-                )
-
-            nodes = tree_leaves(self.produces["return"])
-            values = structure_return.flatten_up_to(out)
-            for node, value in zip(nodes, values):
-                node.save(value)
+        return out
 
     def add_report_section(self, when: str, key: str, content: str) -> None:
         """Add sections which will be displayed in report like stdout or stderr."""
