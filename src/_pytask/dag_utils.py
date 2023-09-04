@@ -76,7 +76,8 @@ class TopologicalSorter:
     def from_dag(cls, dag: nx.DiGraph) -> TopologicalSorter:
         """Instantiate from a DAG."""
         if not dag.is_directed():
-            raise ValueError("Only directed graphs have a topological order.")
+            msg = "Only directed graphs have a topological order."
+            raise ValueError(msg)
 
         tasks = [
             dag.nodes[node]["task"] for node in dag.nodes if "task" in dag.nodes[node]
@@ -96,16 +97,19 @@ class TopologicalSorter:
         except nx.NetworkXNoCycle:
             pass
         else:
-            raise ValueError("The DAG contains cycles.")
+            msg = "The DAG contains cycles."
+            raise ValueError(msg)
 
         self._is_prepared = True
 
     def get_ready(self, n: int = 1) -> list[str]:
         """Get up to ``n`` tasks which are ready."""
         if not self._is_prepared:
-            raise ValueError("The TopologicalSorter needs to be prepared.")
+            msg = "The TopologicalSorter needs to be prepared."
+            raise ValueError(msg)
         if not isinstance(n, int) or n < 1:
-            raise ValueError("'n' must be an integer greater or equal than 1.")
+            msg = "'n' must be an integer greater or equal than 1."
+            raise ValueError(msg)
 
         ready_nodes = {v for v, d in self.dag.in_degree() if d == 0} - self._nodes_out
         prioritized_nodes = sorted(
@@ -171,10 +175,11 @@ def _extract_priorities_from_tasks(tasks: list[PTask]) -> dict[str, int]:
         text = format_strings_as_flat_tree(
             reduced_names, "Tasks with mixed priorities", TASK_ICON
         )
-        raise ValueError(
-            "'try_first' and 'try_last' cannot be applied on the same task. See the "
+        msg = (
+            f"'try_first' and 'try_last' cannot be applied on the same task. See the "
             f"following tasks for errors:\n\n{text}"
         )
+        raise ValueError(msg)
 
     # Recode to numeric values for sorting.
     numeric_mapping = {(True, False): 1, (False, False): 0, (False, True): -1}

@@ -99,7 +99,8 @@ class PathNode(PPathNode):
 
         """
         if not isinstance(value, Path):
-            raise TypeError("'value' must be a 'pathlib.Path'.")
+            msg = "'value' must be a 'pathlib.Path'."
+            raise TypeError(msg)
         if not self.name:
             self.name = value.as_posix()
         self.path = value
@@ -113,7 +114,8 @@ class PathNode(PPathNode):
 
         """
         if not path.is_absolute():
-            raise ValueError("Node must be instantiated from absolute path.")
+            msg = "Node must be instantiated from absolute path."
+            raise ValueError(msg)
         return cls(name=path.as_posix(), path=path)
 
     def state(self) -> str | None:
@@ -137,9 +139,8 @@ class PathNode(PPathNode):
         elif isinstance(value, bytes):
             self.path.write_bytes(value)
         else:
-            raise TypeError(
-                f"'PathNode' can only save 'str' and 'bytes', not {type(value)}"
-            )
+            msg = f"'PathNode' can only save 'str' and 'bytes', not {type(value)}"
+            raise TypeError(msg)
 
 
 @define(kw_only=True)

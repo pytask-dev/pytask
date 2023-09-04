@@ -158,7 +158,8 @@ def _humanize_time(  # noqa: C901, PLR0912
             index = i
             break
     else:
-        raise ValueError(f"The time unit {unit!r} is not known.")
+        msg = f"The time unit {unit!r} is not known."
+        raise ValueError(msg)
 
     seconds = amount * _TIME_UNITS[index].in_seconds
     result: list[tuple[float, str]] = []

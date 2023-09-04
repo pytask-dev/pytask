@@ -163,9 +163,8 @@ def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str]:
     try:
         expression = Expression.compile_(keywordexpr)
     except ParseError as e:
-        raise ValueError(
-            f"Wrong expression passed to '-k': {keywordexpr}: {e}"
-        ) from None
+        msg = f"Wrong expression passed to '-k': {keywordexpr}: {e}"
+        raise ValueError(msg) from None
 
     remaining: set[str] = set()
     for task in session.tasks:
@@ -203,7 +202,8 @@ def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str]:
     try:
         expression = Expression.compile_(matchexpr)
     except ParseError as e:
-        raise ValueError(f"Wrong expression passed to '-m': {matchexpr}: {e}") from None
+        msg = f"Wrong expression passed to '-m': {matchexpr}: {e}"
+        raise ValueError(msg) from None
 
     remaining: set[str] = set()
     for task in session.tasks:

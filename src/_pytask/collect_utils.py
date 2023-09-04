@@ -153,9 +153,8 @@ def _check_that_names_are_not_used_multiple_times(
     duplicated = find_duplicates(names)
 
     if duplicated:
-        raise ValueError(
-            f"'@pytask.mark.{when}' has nodes with the same name: {duplicated}"
-        )
+        msg = f"'@pytask.mark.{when}' has nodes with the same name: {duplicated}"
+        raise ValueError(msg)
 
 
 def _union_of_dictionaries(dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
@@ -309,10 +308,11 @@ def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, Node]
     for name, meta in metas.items():
         annot = [i for i in meta if not isinstance(i, ProductType)]
         if len(annot) >= 2:  # noqa: PLR2004
-            raise ValueError(
+            msg = (
                 f"Parameter {name!r} has multiple node annotations although only one "
                 f"is allowed. Annotations: {annot}"
             )
+            raise ValueError(msg)
         if annot:
             args_with_node_annotation[name] = annot[0]
 
@@ -522,9 +522,8 @@ def _collect_decorator_node(
         session=session, path=path, node_info=node_info
     )
     if collected_node is None:
-        raise NodeNotCollectedError(
-            f"{node!r} cannot be parsed as a {kind} for task {name!r} in {path!r}."
-        )
+        msg = f"{node!r} cannot be parsed as a {kind} for task {name!r} in {path!r}."
+        raise NodeNotCollectedError(msg)
 
     return collected_node
 
@@ -546,10 +545,10 @@ def _collect_dependency(
         session=session, path=path, node_info=node_info
     )
     if collected_node is None:
-        raise NodeNotCollectedError(
-            f"{node!r} cannot be parsed as a dependency for task "
-            f"{name!r} in {path!r}."
+        msg = (
+            f"{node!r} cannot be parsed as a dependency for task {name!r} in {path!r}."
         )
+        raise NodeNotCollectedError(msg)
     return collected_node
 
 
@@ -574,11 +573,12 @@ def _collect_product(
     node = node_info.value
     # For historical reasons, task.kwargs is like the deco and supports str and Path.
     if not isinstance(node, (str, Path)) and is_string_allowed:
-        raise ValueError(
-            "`@pytask.mark.task(kwargs={'produces': ...}` can only accept values of "
-            "type 'str' and 'pathlib.Path' or the same values nested in "
-            f"tuples, lists, and dictionaries. Here, {node} has type {type(node)}."
+        msg = (
+            f"`@pytask.mark.task(kwargs={{'produces': ...}}` can only accept values of "
+            "type 'str' and 'pathlib.Path' or the same values nested in tuples, lists, "
+            f"and dictionaries. Here, {node} has type {type(node)}."
         )
+        raise ValueError(msg)
 
     # If we encounter a string and it is allowed, convert it to a path.
     if isinstance(node, str) and is_string_allowed:
@@ -589,9 +589,10 @@ def _collect_product(
         session=session, path=path, node_info=node_info
     )
     if collected_node is None:
-        raise NodeNotCollectedError(
+        msg = (
             f"{node!r} can't be parsed as a product for task {task_name!r} in {path!r}."
         )
+        raise NodeNotCollectedError(msg)
 
     return collected_node
 
@@ -602,10 +603,11 @@ def _evolve_instance(x: Any, instance_from_annot: Node | None) -> Any:
         return x
 
     if not hasattr(instance_from_annot, "from_annot"):
-        raise AttributeError(
+        msg = (
             f"The node {instance_from_annot!r} does not define '.from_annot' which is "
             f"necessary to complete the node with the value {x!r}."
         )
+        raise AttributeError(msg)
 
     instance_from_annot.from_annot(x)  # type: ignore[attr-defined]
     return instance_from_annot

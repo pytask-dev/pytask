@@ -151,9 +151,10 @@ class DontReadFromInput:
     encoding = None
 
     def read(self, *_args: Any) -> None:
-        raise OSError(
+        msg = (
             "pytask: reading from stdin while output is captured! Consider using `-s`."
         )
+        raise OSError(msg)
 
     readline = read
     readlines = read
@@ -163,10 +164,12 @@ class DontReadFromInput:
         return self
 
     def fileno(self) -> int:
-        raise UnsupportedOperation("redirected stdin is pseudofile, has no fileno()")
+        msg = "redirected stdin is pseudofile, has no fileno()"
+        raise UnsupportedOperation(msg)
 
     def flush(self) -> None:
-        raise UnsupportedOperation("redirected stdin is pseudofile, has no flush()")
+        msg = "redirected stdin is pseudofile, has no flush()"
+        raise UnsupportedOperation(msg)
 
     def isatty(self) -> bool:
         return False
@@ -178,22 +181,27 @@ class DontReadFromInput:
         return False
 
     def seek(self, offset: int) -> int:  # noqa: ARG002
-        raise UnsupportedOperation("Redirected stdin is pseudofile, has no seek(int).")
+        msg = "Redirected stdin is pseudofile, has no seek(int)."
+        raise UnsupportedOperation(msg)
 
     def seekable(self) -> bool:
         return False
 
     def tell(self) -> int:
-        raise UnsupportedOperation("Redirected stdin is pseudofile, has no tell().")
+        msg = "Redirected stdin is pseudofile, has no tell()."
+        raise UnsupportedOperation(msg)
 
     def truncate(self, size: int) -> None:  # noqa: ARG002
-        raise UnsupportedOperation("Cannot truncate stdin.")
+        msg = "Cannot truncate stdin."
+        raise UnsupportedOperation(msg)
 
     def write(self, *args: Any) -> None:  # noqa: ARG002
-        raise UnsupportedOperation("Cannot write to stdin.")
+        msg = "Cannot write to stdin."
+        raise UnsupportedOperation(msg)
 
     def writelines(self, *args: Any) -> None:  # noqa: ARG002
-        raise UnsupportedOperation("Cannot write to stdin.")
+        msg = "Cannot write to stdin."
+        raise UnsupportedOperation(msg)
 
     def writable(self) -> bool:
         return False
@@ -614,7 +622,8 @@ class MultiCapture(Generic[AnyStr]):
     def stop_capturing(self) -> None:
         """Stop capturing and reset capturing streams."""
         if self._state == "stopped":
-            raise ValueError("was already stopped")
+            msg = "was already stopped"
+            raise ValueError(msg)
         self._state = "stopped"
         if self.out:
             self.out.done()
@@ -650,7 +659,8 @@ def _get_multicapture(method: _CaptureMethod) -> MultiCapture[str]:
         return MultiCapture(
             in_=None, out=SysCapture(1, tee=True), err=SysCapture(2, tee=True)
         )
-    raise ValueError(f"unknown capturing method: {method!r}")
+    msg = f"unknown capturing method: {method!r}"
+    raise ValueError(msg)
 
 
 # Own implementation of the CaptureManager.

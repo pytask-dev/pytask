@@ -29,7 +29,8 @@ def _get_version(module: types.ModuleType) -> str:
     """Get version from a package."""
     version = getattr(module, "__version__", None)
     if version is None:
-        raise ImportError(f"Can't determine version for {module.__name__}")
+        msg = f"Can't determine version for {module.__name__}"
+        raise ImportError(msg)
     return version
 
 
@@ -75,7 +76,8 @@ def import_optional_dependency(
 
     """
     if errors not in ("warn", "raise", "ignore"):  # pragma: no cover
-        raise ValueError("'errors' must be one of 'warn', 'raise' or 'ignore'.")
+        msg = "'errors' must be one of 'warn', 'raise' or 'ignore'."
+        raise ValueError(msg)
 
     package_name = _IMPORT_TO_PACKAGE_NAME.get(name)
     install_name = package_name if package_name is not None else name
@@ -127,9 +129,8 @@ def check_for_optional_program(
 ) -> bool | None:
     """Check whether an optional program exists."""
     if errors not in ("warn", "raise", "ignore"):
-        raise ValueError(
-            f"'errors' must be one of 'warn', 'raise' or 'ignore' and not {errors!r}."
-        )
+        msg = f"'errors' must be one of 'warn', 'raise' or 'ignore' and not {errors!r}."
+        raise ValueError(msg)
 
     msg = f"{caller} requires the optional program {name!r}. {extra}"
 

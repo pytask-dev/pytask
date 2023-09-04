@@ -99,13 +99,15 @@ else:
             obj_locals = None
             unwrap = obj
         else:
-            raise TypeError(f"{obj!r} is not a module, class, or callable.")
+            msg = f"{obj!r} is not a module, class, or callable."
+            raise TypeError(msg)
 
         if ann is None:
             return {}
 
         if not isinstance(ann, dict):
-            raise ValueError(f"{obj!r}.__annotations__ is neither a dict nor None")
+            msg = f"{obj!r}.__annotations__ is neither a dict nor None"
+            raise ValueError(msg)
 
         if not ann:
             return {}

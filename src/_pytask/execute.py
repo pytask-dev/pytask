@@ -165,11 +165,12 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
         structure_return = tree_structure(task.produces["return"])
         # strict must be false when none is leaf.
         if not structure_return.is_prefix(structure_out, strict=False):
-            raise ValueError(
-                "The structure of the return annotation is not a subtree of the "
-                "structure of the function return.\n\nFunction return: "
-                f"{structure_out}\n\nReturn annotation: {structure_return}"
+            msg = (
+                f"The structure of the return annotation is not a subtree of the "
+                f"structure of the function return.\n\nFunction return: {structure_out}"
+                f"\n\nReturn annotation: {structure_return}"
             )
+            raise ValueError(msg)
 
         nodes = tree_leaves(task.produces["return"])
         values = structure_return.flatten_up_to(out)

@@ -153,9 +153,8 @@ class PytaskPDB:
                     pdb_cls = getattr(pdb_cls, part)
             except Exception as exc:  # noqa: BLE001
                 value = f"{modname}:{classname}"
-                raise ValueError(
-                    f"--pdbcls: could not import {value!r}: {exc}."
-                ) from exc
+                msg = f"--pdbcls: could not import {value!r}: {exc}."
+                raise ValueError(msg) from exc
         else:
             import pdb  # noqa: T100
 
@@ -223,7 +222,8 @@ class PytaskPDB:
                 ret = super().do_quit(arg)
 
                 if cls._recursive_debug == 0:
-                    raise Exit("Quitting debugger")
+                    msg = "Quitting debugger"
+                    raise Exit(msg)
 
                 return ret
 
@@ -422,4 +422,5 @@ def post_mortem(t: TracebackType) -> None:
     p.reset()
     p.interaction(None, t)
     if p.quitting:
-        raise Exit("Quitting debugger")
+        msg = "Quitting debugger"
+        raise Exit(msg)

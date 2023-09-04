@@ -280,7 +280,8 @@ class ExportNameSpace:
         elif export == _ExportFormats.NO:
             pass
         else:  # pragma: no cover
-            raise ValueError(f"The export option {export.value!r} cannot be handled.")
+            msg = f"The export option {export.value!r} cannot be handled."
+            raise ValueError(msg)
 
 
 def _export_to_csv(profile: dict[str, dict[str, Any]]) -> None:

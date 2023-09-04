@@ -63,10 +63,11 @@ def task(
     def wrapper(func: Callable[..., Any]) -> None:
         for arg, arg_name in ((name, "name"), (id, "id")):
             if not (isinstance(arg, str) or arg is None):
-                raise ValueError(
+                msg = (
                     f"Argument {arg_name!r} of @pytask.mark.task must be a str, but it "
                     f"is {arg!r}."
                 )
+                raise ValueError(msg)
 
         unwrapped = inspect.unwrap(func)
 
@@ -147,10 +148,11 @@ def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
     meta = task.pytask_meta  # type: ignore[attr-defined]
 
     if meta.name is None and task.__name__ == "_":
-        raise ValueError(
+        msg = (
             "A task function either needs 'name' passed by the ``@pytask.mark.task`` "
             "decorator or the function name of the task function must not be '_'."
         )
+        raise ValueError(msg)
 
     parsed_name = task.__name__ if meta.name is None else meta.name
     parsed_kwargs = _parse_task_kwargs(meta.kwargs)
@@ -170,10 +172,11 @@ def _parse_task_kwargs(kwargs: Any) -> dict[str, Any]:
         return kwargs._asdict()
     if attrs.has(type(kwargs)):
         return attrs.asdict(kwargs)
-    raise ValueError(
+    msg = (
         "'@pytask.mark.task(kwargs=...) needs to be a dictionary, namedtuple or an "
         "instance of an attrs class."
     )
+    raise ValueError(msg)
 
 
 def parse_keyword_arguments_from_signature_defaults(

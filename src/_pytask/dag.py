@@ -170,12 +170,12 @@ def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:
     except nx.NetworkXNoCycle:
         pass
     else:
-        raise ResolvingDependenciesError(
-            "The DAG contains cycles which means a dependency is directly or "
+        msg = (
+            f"The DAG contains cycles which means a dependency is directly or "
             "indirectly a product of the same task. See the following the path of "
-            "nodes in the graph which forms the cycle."
-            f"\n\n{_format_cycles(cycles)}"
+            f"nodes in the graph which forms the cycle.\n\n{_format_cycles(cycles)}"
         )
+        raise ResolvingDependenciesError(msg)
 
 
 def _format_cycles(cycles: list[tuple[str, ...]]) -> str:
@@ -315,11 +315,11 @@ def _check_if_tasks_have_the_same_products(dag: nx.DiGraph) -> None:
             )
             dictionary[short_node_name] = short_predecessors
         text = _format_dictionary_to_tree(dictionary, "Products from multiple tasks:")
-        raise ResolvingDependenciesError(
-            "There are some tasks which produce the same output. See the following "
-            "tree which shows which products are produced by multiple tasks."
-            f"\n\n{text}"
+        msg = (
+            f"There are some tasks which produce the same output. See the following "
+            f"tree which shows which products are produced by multiple tasks.\n\n{text}"
         )
+        raise ResolvingDependenciesError(msg)
 
 
 @hookimpl

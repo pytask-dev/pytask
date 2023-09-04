@@ -138,7 +138,8 @@ def import_path(path: Path, root: Path) -> ModuleType:
     spec = importlib.util.spec_from_file_location(module_name, str(path))
 
     if spec is None:
-        raise ImportError(f"Can't find module {module_name!r} at location {path}.")
+        msg = f"Can't find module {module_name!r} at location {path}."
+        raise ImportError(msg)
 
     mod = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = mod
