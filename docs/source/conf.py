@@ -7,8 +7,10 @@ documentation: https://www.sphinx-doc.org/en/master/usage/configuration.html
 from __future__ import annotations
 
 from importlib.metadata import version
+from typing import TYPE_CHECKING
 
-import sphinx
+if TYPE_CHECKING:
+    import sphinx
 
 
 # -- Project information ---------------------------------------------------------------

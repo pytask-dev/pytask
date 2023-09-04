@@ -1,17 +1,18 @@
-"""This module contains hook implementations concerning the execution."""
+"""Contains hook implementations concerning the execution."""
 from __future__ import annotations
 
 import inspect
 import sys
 import time
 from typing import Any
+from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_task
 from _pytask.console import format_strings_as_flat_tree
-from _pytask.console import format_task_id
+from _pytask.console import format_task_name
 from _pytask.console import unify_styles
 from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import TopologicalSorter
@@ -22,19 +23,23 @@ from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PPathNode
-from _pytask.nodes import Task
+from _pytask.node_protocols import PTask
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
 from _pytask.report import ExecutionReport
-from _pytask.session import Session
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
+from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
+from _pytask.tree_util import tree_structure
 from rich.text import Text
+
+if TYPE_CHECKING:
+    from _pytask.session import Session
 
 
 @hookimpl
@@ -90,7 +95,7 @@ def pytask_execute_build(session: Session) -> bool:
 
 
 @hookimpl
-def pytask_execute_task_protocol(session: Session, task: Task) -> ExecutionReport:
+def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionReport:
     """Follow the protocol to execute each task."""
     session.hook.pytask_execute_task_log_start(session=session, task=task)
     try:
@@ -112,7 +117,7 @@ def pytask_execute_task_protocol(session: Session, task: Task) -> ExecutionRepor
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task_setup(session: Session, task: Task) -> None:
+def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     """Set up the execution of a task.
 
     1. Check whether all dependencies of a task are available.
@@ -138,7 +143,7 @@ def pytask_execute_task_setup(session: Session, task: Task) -> None:
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task(session: Session, task: Task) -> bool:
+def pytask_execute_task(session: Session, task: PTask) -> bool:
     """Execute task."""
     if session.config["dry_run"]:
         raise WouldBeExecuted
@@ -153,12 +158,30 @@ def pytask_execute_task(session: Session, task: Task) -> bool:
         if name in parameters:
             kwargs[name] = tree_map(lambda x: x.load(), value)
 
-    task.execute(**kwargs)
+    out = task.execute(**kwargs)
+
+    if "return" in task.produces:
+        structure_out = tree_structure(out)
+        structure_return = tree_structure(task.produces["return"])
+        # strict must be false when none is leaf.
+        if not structure_return.is_prefix(structure_out, strict=False):
+            msg = (
+                f"The structure of the return annotation is not a subtree of the "
+                f"structure of the function return.\n\nFunction return: {structure_out}"
+                f"\n\nReturn annotation: {structure_return}"
+            )
+            raise ValueError(msg)
+
+        nodes = tree_leaves(task.produces["return"])
+        values = structure_return.flatten_up_to(out)
+        for node, value in zip(nodes, values):
+            node.save(value)
+
     return True
 
 
 @hookimpl
-def pytask_execute_task_teardown(session: Session, task: Task) -> None:
+def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
     """Check if :class:`_pytask.nodes.PathNode` are produced by a task."""
     missing_nodes = []
     for product in session.dag.successors(task.name):
@@ -287,10 +310,8 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
 
 def _print_errored_task_report(session: Session, report: ExecutionReport) -> None:
     """Print the traceback and the exception of an errored report."""
-    task_name = format_task_id(
-        task=report.task,
-        editor_url_scheme=session.config["editor_url_scheme"],
-        short_name=True,
+    task_name = format_task_name(
+        task=report.task, editor_url_scheme=session.config["editor_url_scheme"]
     )
     text = Text.assemble("Task ", task_name, " failed", style="failed")
     console.rule(text, style=report.outcome.style)

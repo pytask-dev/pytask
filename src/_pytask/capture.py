@@ -39,12 +39,15 @@ from typing import Generator
 from typing import Generic
 from typing import Iterator
 from typing import TextIO
+from typing import TYPE_CHECKING
 
 import click
 from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
 from _pytask.enums import ShowCapture
-from _pytask.nodes import Task
+
+if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
 
 
 class _CaptureMethod(enum.Enum):
@@ -148,9 +151,10 @@ class DontReadFromInput:
     encoding = None
 
     def read(self, *_args: Any) -> None:
-        raise OSError(
+        msg = (
             "pytask: reading from stdin while output is captured! Consider using `-s`."
         )
+        raise OSError(msg)
 
     readline = read
     readlines = read
@@ -160,10 +164,12 @@ class DontReadFromInput:
         return self
 
     def fileno(self) -> int:
-        raise UnsupportedOperation("redirected stdin is pseudofile, has no fileno()")
+        msg = "redirected stdin is pseudofile, has no fileno()"
+        raise UnsupportedOperation(msg)
 
     def flush(self) -> None:
-        raise UnsupportedOperation("redirected stdin is pseudofile, has no flush()")
+        msg = "redirected stdin is pseudofile, has no flush()"
+        raise UnsupportedOperation(msg)
 
     def isatty(self) -> bool:
         return False
@@ -175,22 +181,27 @@ class DontReadFromInput:
         return False
 
     def seek(self, offset: int) -> int:  # noqa: ARG002
-        raise UnsupportedOperation("Redirected stdin is pseudofile, has no seek(int).")
+        msg = "Redirected stdin is pseudofile, has no seek(int)."
+        raise UnsupportedOperation(msg)
 
     def seekable(self) -> bool:
         return False
 
     def tell(self) -> int:
-        raise UnsupportedOperation("Redirected stdin is pseudofile, has no tell().")
+        msg = "Redirected stdin is pseudofile, has no tell()."
+        raise UnsupportedOperation(msg)
 
     def truncate(self, size: int) -> None:  # noqa: ARG002
-        raise UnsupportedOperation("Cannot truncate stdin.")
+        msg = "Cannot truncate stdin."
+        raise UnsupportedOperation(msg)
 
     def write(self, *args: Any) -> None:  # noqa: ARG002
-        raise UnsupportedOperation("Cannot write to stdin.")
+        msg = "Cannot write to stdin."
+        raise UnsupportedOperation(msg)
 
     def writelines(self, *args: Any) -> None:  # noqa: ARG002
-        raise UnsupportedOperation("Cannot write to stdin.")
+        msg = "Cannot write to stdin."
+        raise UnsupportedOperation(msg)
 
     def writable(self) -> bool:
         return False
@@ -611,7 +622,8 @@ class MultiCapture(Generic[AnyStr]):
     def stop_capturing(self) -> None:
         """Stop capturing and reset capturing streams."""
         if self._state == "stopped":
-            raise ValueError("was already stopped")
+            msg = "was already stopped"
+            raise ValueError(msg)
         self._state = "stopped"
         if self.out:
             self.out.done()
@@ -647,7 +659,8 @@ def _get_multicapture(method: _CaptureMethod) -> MultiCapture[str]:
         return MultiCapture(
             in_=None, out=SysCapture(1, tee=True), err=SysCapture(2, tee=True)
         )
-    raise ValueError(f"unknown capturing method: {method!r}")
+    msg = f"unknown capturing method: {method!r}"
+    raise ValueError(msg)
 
 
 # Own implementation of the CaptureManager.
@@ -706,7 +719,7 @@ class CaptureManager:
     # Helper context managers
 
     @contextlib.contextmanager
-    def task_capture(self, when: str, task: Task) -> Generator[None, None, None]:
+    def task_capture(self, when: str, task: PTask) -> Generator[None, None, None]:
         """Pipe captured stdout and stderr into report sections."""
         self.resume()
 
@@ -716,25 +729,27 @@ class CaptureManager:
             self.suspend(in_=False)
 
         out, err = self.read()
-        task.add_report_section(when, "stdout", out)
-        task.add_report_section(when, "stderr", err)
+        if out:
+            task.report_sections.append((when, "stdout", out))
+        if err:
+            task.report_sections.append((when, "stderr", err))
 
     # Hooks
 
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task_setup(self, task: Task) -> Generator[None, None, None]:
+    def pytask_execute_task_setup(self, task: PTask) -> Generator[None, None, None]:
         """Capture output during setup."""
         with self.task_capture("setup", task):
             yield
 
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task(self, task: Task) -> Generator[None, None, None]:
+    def pytask_execute_task(self, task: PTask) -> Generator[None, None, None]:
         """Capture output during execution."""
         with self.task_capture("call", task):
             yield
 
     @hookimpl(hookwrapper=True)
-    def pytask_execute_task_teardown(self, task: Task) -> Generator[None, None, None]:
+    def pytask_execute_task_teardown(self, task: PTask) -> Generator[None, None, None]:
         """Capture output during teardown."""
         with self.task_capture("teardown", task):
             yield

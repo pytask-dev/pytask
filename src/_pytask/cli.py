@@ -3,13 +3,16 @@ from __future__ import annotations
 
 import sys
 from typing import Any
+from typing import TYPE_CHECKING
 
 import click
-import pluggy
 from _pytask.click import ColoredGroup
 from _pytask.config import hookimpl
 from _pytask.pluginmanager import get_plugin_manager
 from packaging.version import parse as parse_version
+
+if TYPE_CHECKING:
+    import pluggy
 
 
 _CONTEXT_SETTINGS: dict[str, Any] = {

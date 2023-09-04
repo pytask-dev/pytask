@@ -1,4 +1,4 @@
-"""This module contains everything related to reports."""
+"""Contains everything related to reports."""
 from __future__ import annotations
 
 from types import TracebackType
@@ -15,8 +15,8 @@ from attrs import field
 
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
     from _pytask.node_protocols import MetaNode
-    from _pytask.nodes import Task
 
 
 ExceptionInfo = Tuple[Type[BaseException], BaseException, Union[TracebackType, None]]
@@ -57,20 +57,20 @@ class DagReport:
 class ExecutionReport:
     """A report for an executed task."""
 
-    task: Task
+    task: PTask
     outcome: TaskOutcome
     exc_info: ExceptionInfo | None = None
     sections: list[tuple[str, str, str]] = field(factory=list)
 
     @classmethod
     def from_task_and_exception(
-        cls, task: Task, exc_info: ExceptionInfo
+        cls, task: PTask, exc_info: ExceptionInfo
     ) -> ExecutionReport:
         """Create a report from a task and an exception."""
         exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
-        return cls(task, TaskOutcome.FAIL, exc_info, task._report_sections)
+        return cls(task, TaskOutcome.FAIL, exc_info, task.report_sections)
 
     @classmethod
-    def from_task(cls, task: Task) -> ExecutionReport:
+    def from_task(cls, task: PTask) -> ExecutionReport:
         """Create a report from a task."""
-        return cls(task, TaskOutcome.SUCCESS, None, task._report_sections)
+        return cls(task, TaskOutcome.SUCCESS, None, task.report_sections)

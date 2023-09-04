@@ -1,11 +1,14 @@
-"""This module contains all functions related to git."""
+"""Contains all functions related to git."""
 from __future__ import annotations
 
 import shutil
 import subprocess
-from os import PathLike
 from pathlib import Path
 from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from os import PathLike
 
 
 def is_git_installed() -> bool:
@@ -37,8 +40,7 @@ def zsplit(s: str) -> list[str]:
 def get_all_files(cwd: PathLike[str] | None = None) -> list[Path]:
     """Get all files tracked by git - even new, staged files."""
     str_paths = zsplit(cmd_output("git", "ls-files", "-z", cwd=cwd)[1])
-    paths = [Path(x) for x in str_paths]
-    return paths
+    return [Path(x) for x in str_paths]
 
 
 def get_root(cwd: PathLike[str] | None) -> Path | None:

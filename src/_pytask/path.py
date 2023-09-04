@@ -1,4 +1,4 @@
-"""This module contains code to handle paths."""
+"""Contains code to handle paths."""
 from __future__ import annotations
 
 import functools
@@ -96,8 +96,7 @@ def find_common_ancestor_of_nodes(*names: str) -> Path:
 
 def find_common_ancestor(*paths: str | Path) -> Path:
     """Find a common ancestor of many paths."""
-    common_ancestor = Path(os.path.commonpath(paths))
-    return common_ancestor
+    return Path(os.path.commonpath(paths))
 
 
 @functools.lru_cache
@@ -121,8 +120,7 @@ def find_case_sensitive_path(path: Path, platform: str) -> Path:
       a case-sensitive path which it does on Windows.
 
     """
-    out = path.resolve() if platform == "win32" else path
-    return out
+    return path.resolve() if platform == "win32" else path
 
 
 def import_path(path: Path, root: Path) -> ModuleType:
@@ -138,7 +136,8 @@ def import_path(path: Path, root: Path) -> ModuleType:
     spec = importlib.util.spec_from_file_location(module_name, str(path))
 
     if spec is None:
-        raise ImportError(f"Can't find module {module_name!r} at location {path}.")
+        msg = f"Can't find module {module_name!r} at location {path}."
+        raise ImportError(msg)
 
     mod = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = mod

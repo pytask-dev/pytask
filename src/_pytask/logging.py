@@ -1,11 +1,13 @@
 """Add general logging capabilities."""
 from __future__ import annotations
 
+import contextlib
 import platform
 import sys
 import warnings
 from typing import Any
 from typing import NamedTuple
+from typing import TYPE_CHECKING
 
 import _pytask
 import click
@@ -13,16 +15,17 @@ import pluggy
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import IS_WINDOWS_TERMINAL
-from _pytask.outcomes import CollectionOutcome
-from _pytask.outcomes import TaskOutcome
-from _pytask.session import Session
 from rich.text import Text
 
-
-try:
+if TYPE_CHECKING:
     from pluggy._manager import DistFacade
-except ImportError:
-    from pluggy.manager import DistFacade
+    from _pytask.outcomes import TaskOutcome
+    from _pytask.session import Session
+    from _pytask.outcomes import CollectionOutcome
+
+
+with contextlib.suppress(ImportError):
+    pass
 
 
 class _TimeUnit(NamedTuple):
@@ -124,8 +127,7 @@ def _format_duration(duration: float) -> str:
             i for i in duration_tuples if i[1] not in ("second", "seconds")
         ]
 
-    formatted_duration = ", ".join([" ".join(map(str, i)) for i in duration_tuples])
-    return formatted_duration
+    return ", ".join([" ".join(map(str, i)) for i in duration_tuples])
 
 
 def _humanize_time(  # noqa: C901, PLR0912
@@ -155,7 +157,8 @@ def _humanize_time(  # noqa: C901, PLR0912
             index = i
             break
     else:
-        raise ValueError(f"The time unit {unit!r} is not known.")
+        msg = f"The time unit {unit!r} is not known."
+        raise ValueError(msg)
 
     seconds = amount * _TIME_UNITS[index].in_seconds
     result: list[tuple[float, str]] = []

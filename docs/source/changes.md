@@ -24,7 +24,13 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`402` replaces ABCs with protocols allowing for more flexibility for users
   implementing their own nodes.
 - {pull}`404` allows to use function returns to define task products.
-- {pull}`405` allows to match function returns to node annotations with prefix trees.
+- {pull}`406` allows to match function returns to node annotations with prefix trees.
+- {pull}`408` removes `.value` from `Node` protocol.
+- {pull}`409` make `.from_annot` an optional feature of nodes.
+- {pull}`410` allows to pass functions to `PythonNode(hash=...)`.
+- {pull}`412` adds protocols for tasks.
+- {pull}`413` removes scripts to generate `.svg`s.
+- {pull}`414` allow more ruff rules.
 
 ## 0.3.2 - 2023-06-07
 

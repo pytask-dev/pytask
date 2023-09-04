@@ -1,15 +1,15 @@
-"""This module contains code on models, containers and there like."""
+"""Contains code on models, containers and there like."""
 from __future__ import annotations
 
 from typing import Any
 from typing import NamedTuple
 from typing import TYPE_CHECKING
 
-from _pytask.tree_util import PyTree
 from attrs import define
 from attrs import field
 
 if TYPE_CHECKING:
+    from _pytask.tree_util import PyTree
     from _pytask.mark import Mark
 
 

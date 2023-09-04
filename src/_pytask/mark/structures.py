@@ -148,7 +148,8 @@ def normalize_mark_list(mark_list: Iterable[Mark | MarkDecorator]) -> list[Mark]
     extracted = [getattr(mark, "mark", mark) for mark in mark_list]
     for mark in extracted:
         if not isinstance(mark, Mark):
-            raise TypeError(f"Got {mark!r} instead of Mark.")
+            msg = f"Got {mark!r} instead of Mark."
+            raise TypeError(msg)
     return [x for x in extracted if isinstance(x, Mark)]
 
 
@@ -195,7 +196,8 @@ class MarkGenerator:
 
     def __getattr__(self, name: str) -> MarkDecorator | Any:
         if name[0] == "_":
-            raise AttributeError("Marker name must NOT start with underscore")
+            msg = "Marker name must NOT start with underscore"
+            raise AttributeError(msg)
 
         if name in ("depends_on", "produces"):
             warnings.warn(
@@ -208,14 +210,16 @@ class MarkGenerator:
         # then it really is time to issue a warning or an error.
         if self.config is not None and name not in self.config["markers"]:
             if self.config["strict_markers"]:
-                raise ValueError(f"Unknown pytask.mark.{name}.")
+                msg = f"Unknown pytask.mark.{name}."
+                raise ValueError(msg)
 
             if name in ("parametrize", "parameterize", "parametrise", "parameterise"):
-                raise NotImplementedError(
+                msg = (
                     "@pytask.mark.parametrize has been removed since pytask v0.4. "
-                    "Upgrade your parametrized tasks to the new syntax defined in"
+                    "Upgrade your parametrized tasks to the new syntax defined in "
                     "https://tinyurl.com/pytask-loops or revert to v0.3."
-                ) from None
+                )
+                raise NotImplementedError(msg) from None
 
             warnings.warn(
                 f"Unknown pytask.mark.{name} - is this a typo? You can register "
