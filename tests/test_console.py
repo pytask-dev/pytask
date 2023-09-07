@@ -4,12 +4,12 @@ import inspect
 from pathlib import Path
 
 import pytest
-from _pytask.console import _get_file
 from _pytask.console import _get_source_lines
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_path
 from _pytask.console import create_url_style_for_task
 from _pytask.console import format_task_name
+from _pytask.console import get_file
 from _pytask.console import render_to_string
 from pytask import CollectionOutcome
 from pytask import console
@@ -163,7 +163,7 @@ def test_format_task_id(
     ],
 )
 def test_get_file(task_func, skipped_paths, expected):
-    result = _get_file(task_func, skipped_paths)
+    result = get_file(task_func, skipped_paths)
     assert result == expected
 
 

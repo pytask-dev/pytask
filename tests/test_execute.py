@@ -734,7 +734,7 @@ def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
 @pytest.mark.xfail(sys.platform == "win32", reason="Decoding issues in Gitlab Actions.")
 def test_execute_tasks_via_functional_api(tmp_path):
     source = """
-    from _pytask.nodes import PathNode
+    from pytask import PathNode
     import pytask
     from pytask import PythonNode
     from typing_extensions import Annotated

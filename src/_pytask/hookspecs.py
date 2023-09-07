@@ -21,7 +21,6 @@ if TYPE_CHECKING:
     import networkx as nx
     import pathlib
     from _pytask.session import Session
-    from _pytask.nodes import Task
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
     from _pytask.reports import CollectionReport
@@ -182,7 +181,7 @@ def pytask_collect_task_setup(
 @hookspec(firstresult=True)
 def pytask_collect_task(
     session: Session, path: pathlib.Path, name: str, obj: Any
-) -> Task:
+) -> PTask:
     """Collect a single task."""
 
 

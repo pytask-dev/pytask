@@ -3,14 +3,16 @@ from __future__ import annotations
 
 import functools
 import hashlib
+import inspect
 from pathlib import Path  # noqa: TCH003
 from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
 
-from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import Node
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PTask
+from _pytask.node_protocols import PTaskWithPath
 from attrs import define
 from attrs import field
 
@@ -24,7 +26,47 @@ __all__ = ["PathNode", "PythonNode", "Task"]
 
 
 @define(kw_only=True)
-class Task(MetaNode):
+class TempTask(PTask):
+    """The class for tasks which are Python functions."""
+
+    name: str
+    """The base name of the task."""
+    function: Callable[..., Any]
+    """The task function."""
+    display_name: str | None = field(default=None, init=False)
+    """The shortest uniquely identifiable name for task for display."""
+    depends_on: PyTree[Node] = field(factory=dict)
+    """A list of dependencies of task."""
+    produces: PyTree[Node] = field(factory=dict)
+    """A list of products of task."""
+    markers: list[Mark] = field(factory=list)
+    """A list of markers attached to the task function."""
+    report_sections: list[tuple[str, str, str]] = field(factory=list)
+    """Reports with entries for when, what, and content."""
+    attributes: dict[Any, Any] = field(factory=dict)
+    """A dictionary to store additional information of the task."""
+
+    def __attrs_post_init__(self: TempTask) -> None:
+        """Change class after initialization."""
+        if self.display_name is None:
+            self.display_name = self.name
+
+    def state(self) -> str | None:
+        """Return the state of the node."""
+        try:
+            source = inspect.getsource(self.function)
+        except OSError:
+            return None
+        else:
+            return hashlib.sha256(source.encode()).hexdigest()
+
+    def execute(self, **kwargs: Any) -> None:
+        """Execute the task."""
+        return self.function(**kwargs)
+
+
+@define(kw_only=True)
+class Task(PTaskWithPath):
     """The class for tasks which are Python functions."""
 
     base_name: str

@@ -16,18 +16,20 @@ from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_products_from_task_function
 from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
-from _pytask.console import _get_file
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import format_task_name
+from _pytask.console import get_file
 from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import Node
 from _pytask.node_protocols import PTask
+from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
+from _pytask.nodes import TempTask
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
@@ -55,7 +57,7 @@ def pytask_collect(session: Session) -> bool:
     session.tasks.extend(
         i.node
         for i in session.collection_reports
-        if i.outcome == CollectionOutcome.SUCCESS and isinstance(i.node, Task)
+        if i.outcome == CollectionOutcome.SUCCESS and isinstance(i.node, PTask)
     )
 
     try:
@@ -91,7 +93,7 @@ def _collect_from_paths(session: Session) -> None:
 def _collect_from_tasks(session: Session) -> None:
     """Collect tasks from user provided tasks via the functional interface."""
     for raw_task in session.config.get("tasks", ()):
-        if isinstance(raw_task, Task):
+        if isinstance(raw_task, PTask):
             report = session.hook.pytask_collect_task_protocol(
                 session=session,
                 reports=session.collection_reports,
@@ -107,7 +109,7 @@ def _collect_from_tasks(session: Session) -> None:
         if not hasattr(raw_task, "pytask_meta"):
             raw_task = task_decorator()(raw_task)  # noqa: PLW2901
 
-        path = _get_file(raw_task)
+        path = get_file(raw_task)
         if path.name == "<stdin>":
             path = None
 
@@ -210,7 +212,7 @@ def pytask_collect_task_protocol(
 @hookimpl(trylast=True)
 def pytask_collect_task(
     session: Session, path: Path, name: str, obj: Any
-) -> Task | None:
+) -> PTask | None:
     """Collect a task which is a function.
 
     There is some discussion on how to detect functions in this thread:
@@ -229,6 +231,14 @@ def pytask_collect_task(
         # e.g. due to pytask_meta, in different layers of the wrapping.
         unwrapped = inspect.unwrap(obj)
 
+        if path is None:
+            return TempTask(
+                name=name,
+                function=unwrapped,
+                depends_on=dependencies,
+                produces=products,
+                markers=markers,
+            )
         return Task(
             base_name=name,
             path=path,
@@ -237,7 +247,7 @@ def pytask_collect_task(
             produces=products,
             markers=markers,
         )
-    if isinstance(obj, Task):
+    if isinstance(obj, PTask):
         return obj
     return None
 
@@ -326,7 +336,7 @@ def pytask_collect_modify_tasks(tasks: list[PTask]) -> None:
     """Given all tasks, assign a short uniquely identifiable name to each task."""
     id_to_short_id = _find_shortest_uniquely_identifiable_name_for_tasks(tasks)
     for task in tasks:
-        if task.name in id_to_short_id and isinstance(task, Task):
+        if task.name in id_to_short_id and isinstance(task, PTaskWithPath):
             task.display_name = id_to_short_id[task.name]
 
 
