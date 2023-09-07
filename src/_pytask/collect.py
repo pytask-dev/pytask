@@ -113,7 +113,8 @@ def _collect_from_tasks(session: Session) -> None:
         if path.name == "<stdin>":
             path = None
 
-        if is_jupyter():
+        # Detect whether a path is defined in a Jupyter notebook.
+        if is_jupyter() and "ipykernel" in path.as_posix() and path.suffix == ".py":
             path = None
 
         name = raw_task.pytask_meta.name
