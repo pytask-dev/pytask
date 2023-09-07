@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import functools
 import hashlib
-from pathlib import Path
+from pathlib import Path  # noqa: TCH003
 from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
@@ -11,8 +11,6 @@ from typing import TYPE_CHECKING
 from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import Node
 from _pytask.node_protocols import PPathNode
-from _pytask.typing import no_value
-from _pytask.typing import NoValue
 from attrs import define
 from attrs import field
 
@@ -76,32 +74,10 @@ class Task(MetaNode):
 class PathNode(PPathNode):
     """The class for a node which is a path."""
 
-    name: str = ""
+    name: str
     """Name of the node which makes it identifiable in the DAG."""
-    path: Path | NoValue = no_value
+    path: Path
     """The path to the file."""
-
-    def from_annot(self, value: Path) -> None:
-        """Set path and if other attributes are not set, set sensible defaults.
-
-        Use it, if you want to control the name of the node.
-
-        .. codeblock: python
-
-            def task_example(value: Annotated[Any, PathNode(name="value")]):
-                ...
-
-
-        """
-        if self.path is not no_value:
-            msg = "'path' is already defined."
-            raise ValueError(msg)
-        if not isinstance(value, Path):
-            msg = "'value' must be a 'pathlib.Path'."
-            raise TypeError(msg)
-        if not self.name:
-            self.name = value.as_posix()
-        self.path = value
 
     @classmethod
     @functools.lru_cache
@@ -122,24 +98,16 @@ class PathNode(PPathNode):
         The state is given by the modification timestamp.
 
         """
-        if self.path is no_value:
-            return None
         if self.path.exists():
             return str(self.path.stat().st_mtime)
         return None
 
     def load(self) -> Path:
         """Load the value."""
-        if self.path is no_value:
-            msg = "PathNode has no path defined."
-            raise ValueError(msg)
         return self.path
 
     def save(self, value: bytes | str) -> None:
         """Save strings or bytes to file."""
-        if self.path is no_value:
-            msg = "'path' must be a 'pathlib.Path' to store data."
-            raise TypeError(msg)
         if isinstance(value, str):
             self.path.write_text(value)
         elif isinstance(value, bytes):
@@ -155,38 +123,17 @@ class PythonNode(Node):
 
     name: str = ""
     """Name of the node."""
-    value: Any | NoValue = no_value
+    value: Any | None = None
     """Value of the node."""
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
     """Whether the value should be hashed to determine the state."""
 
     def load(self) -> Any:
         """Load the value."""
-        if self.value is no_value:
-            msg = "PythonNode has no value defined."
-            raise ValueError(msg)
         return self.value
 
     def save(self, value: Any) -> None:
         """Save the value."""
-        self.value = value
-
-    def from_annot(self, value: Any) -> None:
-        """Set the value from a function annotation.
-
-        Use it, if you want to add information on how a node handles an argument while
-        keeping the type of the value unrelated to pytask. For example, the node could
-        be hashed.
-
-        .. codeblock: python
-
-            def task_example(value: Annotated[Any, PythonNode(hash=True)]):
-                ...
-
-        """
-        if self.value is not no_value:
-            msg = "'value' is already defined."
-            raise ValueError(msg)
         self.value = value
 
     def state(self) -> str | None:
@@ -204,8 +151,6 @@ class PythonNode(Node):
         random integer and it would confuse users.
 
         """
-        if self.value is no_value:
-            return None
         if self.hash:
             if callable(self.hash):
                 return str(self.hash(self.value))

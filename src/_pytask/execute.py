@@ -36,7 +36,6 @@ from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_structure
-from _pytask.typing import no_value
 from rich.text import Text
 
 if TYPE_CHECKING:
@@ -136,7 +135,6 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]
         if isinstance(node, PPathNode):
-            assert node.path is not no_value
             node.path.parent.mkdir(parents=True, exist_ok=True)
 
     would_be_executed = has_mark(task, "would_be_executed")

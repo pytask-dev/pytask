@@ -1,7 +1,6 @@
 """Contains utility functions for :mod:`_pytask.collect`."""
 from __future__ import annotations
 
-import functools
 import itertools
 import uuid
 import warnings
@@ -275,17 +274,12 @@ def parse_dependencies_from_task_function(
         if parameter_name == "depends_on":
             continue
 
-        partialed_evolve = functools.partial(
-            _evolve_instance,
-            instance_from_annot=parameters_with_node_annot.get(parameter_name),
-        )
-
         nodes = tree_map_with_path(
             lambda p, x: _collect_dependency(
                 session,
                 path,
                 name,
-                NodeInfo(parameter_name, p, partialed_evolve(x)),  # noqa: B023
+                NodeInfo(parameter_name, p, x),  # noqa: B023
             ),
             value,
         )
@@ -402,22 +396,21 @@ def parse_products_from_task_function(
 
     if parameters_with_product_annot:
         has_annotation = True
-        for parameter_name in parameters_with_product_annot:
-            if parameter_name in kwargs:
-                partialed_evolve = functools.partial(
-                    _evolve_instance,
-                    instance_from_annot=parameters_with_node_annot.get(parameter_name),
-                )
 
+        for parameter_name in parameters_with_product_annot:
+            value = kwargs.get(parameter_name) or parameters_with_node_annot.get(
+                parameter_name
+            )
+            if value:
                 collected_products = tree_map_with_path(
                     lambda p, x: _collect_product(
                         session,
                         path,
                         name,
-                        NodeInfo(parameter_name, p, partialed_evolve(x)),  # noqa: B023
+                        NodeInfo(parameter_name, p, x),  # noqa: B023
                         is_string_allowed=False,
                     ),
-                    kwargs[parameter_name],
+                    value,
                 )
                 out = {parameter_name: collected_products}
 
@@ -602,19 +595,3 @@ def _collect_product(
         raise NodeNotCollectedError(msg)
 
     return collected_node
-
-
-def _evolve_instance(x: Any, instance_from_annot: Node | None) -> Any:
-    """Evolve a value to a node if it is given by annotations."""
-    if not instance_from_annot:
-        return x
-
-    if not hasattr(instance_from_annot, "from_annot"):
-        msg = (
-            f"The node {instance_from_annot!r} does not define '.from_annot' which is "
-            f"necessary to complete the node with the value {x!r}."
-        )
-        raise AttributeError(msg)
-
-    instance_from_annot.from_annot(x)  # type: ignore[attr-defined]
-    return instance_from_annot

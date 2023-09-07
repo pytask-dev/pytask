@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from _pytask.typing import NoValue
     from _pytask.tree_util import PyTree
     from pathlib import Path
     from _pytask.mark import Mark
@@ -54,7 +53,7 @@ class PPathNode(Node, Protocol):
 
     """
 
-    path: Path | NoValue
+    path: Path
 
 
 @runtime_checkable
@@ -82,4 +81,4 @@ class PTaskWithPath(PTask, Protocol):
 
     """
 
-    path: Path | NoValue
+    path: Path
