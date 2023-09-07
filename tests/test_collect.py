@@ -433,7 +433,7 @@ def test_setting_name_for_path_node_via_annotation(tmp_path):
     from typing import Any
 
     def task_example(
-        path: Annotated[Path, Product, PathNode(name="product")] = Path("out.txt"),
+        path: Annotated[Path, Product, PathNode(path=Path("out.txt"), name="product")],
     ) -> None:
         path.write_text("text")
     """

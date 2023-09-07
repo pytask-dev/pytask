@@ -470,7 +470,7 @@ def test_task_with_nested_product_annotation(tmp_path):
     "definition",
     [
         " = PythonNode(value=data['dependency'], hash=True)",
-        ": Annotated[Any, PythonNode(hash=True)] = data['dependency']",
+        ": Annotated[Any, PythonNode(value=data['dependency'], hash=True)]",
     ],
 )
 def test_task_with_hashed_python_node(runner, tmp_path, definition):
@@ -532,8 +532,10 @@ def test_error_with_multiple_different_dep_annotations(runner, tmp_path):
     from pytask import Product, PythonNode, PathNode
     from typing import Any
 
+    annotation = Annotated[Any, PythonNode(), PathNode(name="a", path=Path("a.txt"))]
+
     def task_example(
-        dependency: Annotated[Any, PythonNode(), PathNode()] = "hello",
+        dependency: annotation = "hello",
         path: Annotated[Path, Product] = Path("out.txt")
     ) -> None:
         path.write_text(dependency)
@@ -615,9 +617,8 @@ def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
 
     @attrs.define
     class PickleNode:
-        name: str = ""
-        path: Path | None = None
-        value: None = None
+        name: str
+        path: Path
 
         def state(self) -> str | None:
             if self.path.exists():
@@ -629,8 +630,6 @@ def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
 
         def save(self, value: Any) -> None:
             self.path.write_bytes(pickle.dumps(value))
-
-        def from_annot(self, value: Any) -> None: ...
 
     node = PickleNode("pickled_data", Path(__file__).parent.joinpath("data.pkl"))
 

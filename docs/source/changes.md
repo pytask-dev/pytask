@@ -32,6 +32,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`412` adds protocols for tasks.
 - {pull}`413` removes scripts to generate `.svg`s.
 - {pull}`414` allow more ruff rules.
+- {pull}`416` removes `.from_annot` again.
 
 ## 0.3.2 - 2023-06-07
 
