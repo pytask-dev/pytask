@@ -261,8 +261,14 @@ def parse_dependencies_from_task_function(
     # Complete kwargs with node annotations, when no value is given by kwargs.
     for name in list(parameters_with_node_annot):
         if name not in kwargs:
-            kwargs[name] = parameters_with_node_annot[name]
-            parameters_with_node_annot.pop(name)
+            kwargs[name] = parameters_with_node_annot.pop(name)
+        else:
+            msg = (
+                f"The value for the parameter {name!r} is defined twice in "
+                "'@pytask.mark.task(kwargs=...)' and in the type annotation. Choose "
+                "only one option."
+            )
+            raise ValueError(msg)
 
     for parameter_name, value in kwargs.items():
         if (
@@ -344,7 +350,7 @@ annotation, described in this tutorial: https://tinyurl.com/yrezszr4.
 """
 
 
-def parse_products_from_task_function(
+def parse_products_from_task_function(  # noqa: C901
     session: Session, path: Path, name: str, obj: Any
 ) -> dict[str, Any]:
     """Parse products from task function.
@@ -398,21 +404,38 @@ def parse_products_from_task_function(
         has_annotation = True
 
         for parameter_name in parameters_with_product_annot:
+            if (
+                parameter_name not in kwargs
+                and parameter_name not in parameters_with_node_annot
+            ):
+                continue
+
+            if (
+                parameter_name in kwargs
+                and parameter_name in parameters_with_node_annot
+            ):
+                msg = (
+                    f"The value for the parameter {name!r} is defined twice in "
+                    "'@pytask.mark.task(kwargs=...)' and in the type annotation. "
+                    "Choose only one option."
+                )
+                raise ValueError(msg)
+
             value = kwargs.get(parameter_name) or parameters_with_node_annot.get(
                 parameter_name
             )
-            if value:
-                collected_products = tree_map_with_path(
-                    lambda p, x: _collect_product(
-                        session,
-                        path,
-                        name,
-                        NodeInfo(parameter_name, p, x),  # noqa: B023
-                        is_string_allowed=False,
-                    ),
-                    value,
-                )
-                out = {parameter_name: collected_products}
+
+            collected_products = tree_map_with_path(
+                lambda p, x: _collect_product(
+                    session,
+                    path,
+                    name,
+                    NodeInfo(parameter_name, p, x),  # noqa: B023
+                    is_string_allowed=False,
+                ),
+                value,
+            )
+            out = {parameter_name: collected_products}
 
     if "return" in parameters_with_node_annot:
         has_return = True

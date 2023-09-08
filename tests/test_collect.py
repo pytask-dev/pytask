@@ -443,3 +443,45 @@ def test_setting_name_for_path_node_via_annotation(tmp_path):
     assert session.exit_code == ExitCode.OK
     product = session.tasks[0].produces["path"]
     assert product.name == "product"
+
+
+@pytest.mark.end_to_end()
+def test_error_when_dependency_is_defined_in_kwargs_and_annotation(runner, tmp_path):
+    source = """
+    import pytask
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PathNode
+    from pytask import PythonNode
+
+    @pytask.mark.task(kwargs={"in_": "world"})
+    def task_example(
+        in_: Annotated[str, PythonNode(name="string", value="hello")],
+        path: Annotated[Path, Product, PathNode(path=Path("out.txt"), name="product")],
+    ) -> None:
+        path.write_text(in_)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert "ValueError: The value for the parameter 'in_'" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_error_when_product_is_defined_in_kwargs_and_annotation(runner, tmp_path):
+    source = """
+    import pytask
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PathNode
+
+    node = PathNode(path=Path("out.txt"), name="product")
+
+    @pytask.mark.task(kwargs={"path": node})
+    def task_example(path: Annotated[Path, Product, node]) -> None:
+        path.write_text("text")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert "ValueError: The value for the parameter 'path'" in result.output

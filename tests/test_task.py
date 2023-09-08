@@ -471,9 +471,7 @@ def test_task_receives_namedtuple(runner, tmp_path):
 
     @pytask.mark.task(kwargs=args)
     def task_example(
-        path_in: Path,
-        arg: Annotated[str, PythonNode(hash=True)],
-        path_out: Annotated[Path, Product]
+        path_in: Path, arg: str, path_out: Annotated[Path, Product]
     ) -> None:
         path_out.write_text(path_in.read_text() + " " + arg)
     """
