@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import Iterable
+from typing import Literal
 from typing import TYPE_CHECKING
 
 import click
@@ -41,14 +42,15 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
     *,
-    capture: CaptureMethod = CaptureMethod.NO,
+    capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.NO,
     check_casing_of_paths: bool = True,
     config: Path | None = None,
     database_url: str = "",
     debug_pytask: bool = False,
     disable_warnings: bool = False,
     dry_run: bool = False,
-    editor_url_scheme: str = "file",
+    editor_url_scheme: Literal["no_link", "file", "vscode", "pycharm"]  # noqa: PYI051
+    | str = "file",
     expression: str = "",
     force: bool = False,
     ignore: Iterable[str] = (),
@@ -78,9 +80,75 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
     command line interface. It can also be used to run pytask interactively. Pass
     configuration in a dictionary.
 
+    Parameters
+    ----------
+    capture
+        The capture method for stdout and stderr.
+    check_casing_of_paths
+        Whether errors should be raised when file names have different casings.
+    config
+        A path to the configuration file.
+    database_url
+        An URL to the database that tracks the status of tasks.
+    debug_pytask
+        Whether debug information should be shown.
+    disable_warnings
+        Whether warnings should be disabled and not displayed.
+    dry_run
+        Whether a dry-run should be performed that shows which tasks need to be rerun.
+    editor_url_scheme
+        An url scheme that allows to click on task names, node names and filenames and
+        jump right into you preferred edior to the right line.
+    expression
+        Same as ``-k`` on the command line. Select tasks via expressions on task ids.
+    force
+        Run tasks even though they would be skipped since nothing has changed.
+    ignore
+        A pattern to ignore files or directories. Refer to ``pathlib.Path.match``
+        for more info.
+    marker_expression
+        Same as ``-m`` on the command line. Select tasks via marker expressions.
+    max_failures
+        Stop after some failures.
+    n_entries_in_table
+        How many entries to display in the table during the execution. Tasks which are
+        running are always displayed.
+    paths
+        A path or collection of paths where pytask looks for the configuration and
+        tasks.
+    pdb
+        Start the interactive debugger on errors.
+    pdb_cls
+        Start a custom debugger on errors. For example:
+        ``--pdbcls=IPython.terminal.debugger:TerminalPdb``
+    s
+        Shortcut for ``pytask.build(capture"no")``.
+    show_capture
+        Choose which captured output should be shown for failed tasks.
+    show_errors_immediately
+        Show errors with tracebacks as soon as the task fails.
+    show_locals
+        Show local variables in tracebacks.
+    show_traceback
+        Choose whether tracebacks should be displayed or not.
+    sort_table
+        Sort the table of tasks at the end of the execution.
+    stop_after_first_failure
+        Stop after the first failure.
+    strict_markers
+        Raise errors for unknown markers.
+    tasks
+        A task or a collection of tasks that is passed to ``pytask.build(tasks=...)``.
+    task_files
+        A pattern to describe modules that contain tasks.
+    trace
+        Enter debugger in the beginning of each task.
+    verbose
+        Make pytask verbose (>= 0) or quiet (= 0).
+
     Returns
     -------
-    session : _pytask.session.Session
+    session : pytask.Session
         The session captures all the information of the current run.
 
     """
@@ -224,13 +292,13 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
     "--show-errors-immediately",
     is_flag=True,
     default=False,
-    help="Print errors with tracebacks as soon as the task fails.",
+    help="Show errors with tracebacks as soon as the task fails.",
 )
 @click.option(
     "--show-traceback/--show-no-traceback",
     type=bool,
     default=True,
-    help=("Choose whether tracebacks should be displayed or not."),
+    help="Choose whether tracebacks should be displayed or not.",
 )
 @click.option(
     "--dry-run", type=bool, is_flag=True, default=False, help="Perform a dry-run."

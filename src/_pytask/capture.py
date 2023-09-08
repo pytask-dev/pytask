@@ -77,7 +77,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             ["--show-capture"],
             type=EnumChoice(ShowCapture),
             default=ShowCapture.ALL,
-            help=("Choose which captured output should be shown for failed tasks."),
+            help="Choose which captured output should be shown for failed tasks.",
         ),
     ]
     cli.commands["build"].params.extend(additional_parameters)
@@ -90,6 +90,9 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
     Note that, ``-s`` is a shortcut for ``--capture=no``.
 
     """
+    if isinstance(config["capture"], str):
+        config["capture"] = CaptureMethod(config["capture"])
+
     if config["s"]:
         config["capture"] = CaptureMethod.NO
 
