@@ -29,7 +29,7 @@ from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
-from _pytask.nodes import TempTask
+from _pytask.nodes import TaskWithoutSource
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
@@ -233,7 +233,7 @@ def pytask_collect_task(
         unwrapped = inspect.unwrap(obj)
 
         if path is None:
-            return TempTask(
+            return TaskWithoutSource(
                 name=name,
                 function=unwrapped,
                 depends_on=dependencies,

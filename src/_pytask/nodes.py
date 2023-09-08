@@ -1,4 +1,4 @@
-"""Deals with nodes which are dependencies or products of a task."""
+"""Contains implementations of tasks and nodes following the node protocols."""
 from __future__ import annotations
 
 import functools
@@ -26,8 +26,14 @@ __all__ = ["PathNode", "PythonNode", "Task"]
 
 
 @define(kw_only=True)
-class TempTask(PTask):
-    """The class for tasks which are Python functions."""
+class TaskWithoutSource(PTask):
+    """The class for tasks without a source file.
+
+    Tasks may have no source file because
+    - they are dynamically created in a REPL.
+    - they are created in a Jupyter notebook.
+
+    """
 
     name: str
     """The base name of the task."""
@@ -46,7 +52,7 @@ class TempTask(PTask):
     attributes: dict[Any, Any] = field(factory=dict)
     """A dictionary to store additional information of the task."""
 
-    def __attrs_post_init__(self: TempTask) -> None:
+    def __attrs_post_init__(self: TaskWithoutSource) -> None:
         """Change class after initialization."""
         if self.display_name is None:
             self.display_name = self.name
