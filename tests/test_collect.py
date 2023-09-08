@@ -181,13 +181,12 @@ def test_pytask_collect_node(session, path, node_info, expected):
 )
 def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_path):
     session = Session({"check_casing_of_paths": True}, None)
-    task_path = tmp_path / "task_example.py"
     real_node = tmp_path / "text.txt"
     real_node.touch()
     collected_node = tmp_path / "TeXt.TxT"
 
     with pytest.raises(Exception, match="The provided path of"):
-        pytask_collect_node(session, task_path, NodeInfo("", (), collected_node))
+        pytask_collect_node(session, tmp_path, NodeInfo("", (), collected_node))
 
 
 @pytest.mark.unit()
@@ -196,7 +195,6 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
     tmp_path, is_absolute
 ):
     session = Session({"check_casing_of_paths": True}, None)
-    task_path = tmp_path / "task_example.py"
     real_node = tmp_path / "text.txt"
 
     collected_node = Path("..", tmp_path.name, "text.txt")
@@ -205,7 +203,7 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
 
     with warnings.catch_warnings(record=True) as record:
         result = pytask_collect_node(
-            session, task_path, NodeInfo("", (), collected_node)
+            session, tmp_path, NodeInfo("", (), collected_node)
         )
         assert not record
 

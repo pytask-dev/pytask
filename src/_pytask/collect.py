@@ -186,7 +186,7 @@ def pytask_collect_file(
 
 @hookimpl
 def pytask_collect_task_protocol(
-    session: Session, path: Path, name: str, obj: Any
+    session: Session, path: Path | None, name: str, obj: Any
 ) -> CollectionReport | None:
     """Start protocol for collecting a task."""
     try:
@@ -222,9 +222,11 @@ def pytask_collect_task(
 
     """
     if (name.startswith("task_") or has_mark(obj, "task")) and callable(obj):
-        dependencies = parse_dependencies_from_task_function(session, path, name, obj)
-
-        products = parse_products_from_task_function(session, path, name, obj)
+        path_nodes = Path.cwd() if path is None else path.parent
+        dependencies = parse_dependencies_from_task_function(
+            session, path_nodes, name, obj
+        )
+        products = parse_products_from_task_function(session, path_nodes, name, obj)
 
         markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
 
@@ -296,7 +298,7 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
         return node
 
     if isinstance(node, PPathNode) and not node.path.is_absolute():
-        node.path = path.parent.joinpath(node.path)
+        node.path = path.joinpath(node.path)
 
         # ``normpath`` removes ``../`` from the path which is necessary for the casing
         # check which will fail since ``.resolves()`` also normalizes a path.
@@ -310,7 +312,7 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
 
     if isinstance(node, Path):
         if not node.is_absolute():
-            node = path.parent.joinpath(node)
+            node = path.joinpath(node)
 
         # ``normpath`` removes ``../`` from the path which is necessary for the casing
         # check which will fail since ``.resolves()`` also normalizes a path.

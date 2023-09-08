@@ -198,7 +198,16 @@ def pytask_collect_task_teardown(session: Session, task: PTask) -> None:
 def pytask_collect_node(
     session: Session, path: Path, node_info: NodeInfo
 ) -> PNode | None:
-    """Collect a node which is a dependency or a product of a task."""
+    """Collect a node which is a dependency or a product of a task.
+
+    Parameters
+    ----------
+    path
+        The path helps if the path of the node is given relative to the task. The path
+        either points to the parent directory of the task module or to the current
+        working directory for tasks defined in the REPL or in Jupyter notebooks.
+
+    """
 
 
 @hookspec(firstresult=True)
