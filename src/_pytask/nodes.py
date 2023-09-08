@@ -26,7 +26,7 @@ __all__ = ["PathNode", "PythonNode", "Task"]
 
 
 @define(kw_only=True)
-class TaskWithoutSource(PTask):
+class TaskWithoutPath(PTask):
     """The class for tasks without a source file.
 
     Tasks may have no source file because
@@ -52,7 +52,7 @@ class TaskWithoutSource(PTask):
     attributes: dict[Any, Any] = field(factory=dict)
     """A dictionary to store additional information of the task."""
 
-    def __attrs_post_init__(self: TaskWithoutSource) -> None:
+    def __attrs_post_init__(self: TaskWithoutPath) -> None:
         """Change class after initialization."""
         if self.display_name is None:
             self.display_name = self.name
