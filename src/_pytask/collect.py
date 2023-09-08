@@ -288,6 +288,13 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
     ``trylast=True`` might be necessary if other plugins try to parse strings themselves
     like a plugin for downloading files which depends on URLs given as strings.
 
+    Parameters
+    ----------
+    path
+        The path helps if the path of the node is given relative to the task. The path
+        either points to the parent directory of the task module or to the current
+        working directory for tasks defined in the REPL or in Jupyter notebooks.
+
     """
     node = node_info.value
 
