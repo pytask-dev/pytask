@@ -23,9 +23,9 @@ from _pytask.console import get_file
 from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import has_mark
-from _pytask.node_protocols import Node
+from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
-from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
@@ -253,21 +253,30 @@ def pytask_collect_task(
     return None
 
 
-_TEMPLATE_ERROR: str = (
-    "The provided path of the dependency/product in the marker is\n\n{}\n\n, but the "
-    "path of the file on disk is\n\n{}\n\nCase-sensitive file systems would raise an "
-    "error because the upper and lower case format of the paths does not match.\n\n"
-    "Please, align the names to ensure reproducibility on case-sensitive file systems "
-    "(often Linux or macOS) or disable this error with 'check_casing_of_paths = false' "
-    " in your pytask configuration file.\n\n"
-    "Hint: If parts of the path preceding your project directory are not properly "
-    "formatted, check whether you need to call `.resolve()` on `SRC`, `BLD` or other "
-    "paths created from the `__file__` attribute of a module."
-)
+_TEMPLATE_ERROR: str = """\
+The provided path of the dependency/product is
+
+{}
+
+, but the path of the file on disk is
+
+{}
+
+Case-sensitive file systems would raise an error because the upper and lower case \
+format of the paths does not match.
+
+Please, align the names to ensure reproducibility on case-sensitive file systems \
+(often Linux or macOS) or disable this error with 'check_casing_of_paths = false' in \
+your pytask configuration file.
+
+Hint: If parts of the path preceding your project directory are not properly \
+formatted, check whether you need to call `.resolve()` on `SRC`, `BLD` or other paths \
+created from the `__file__` attribute of a module.
+"""
 
 
 @hookimpl(trylast=True)
-def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> Node:
+def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PNode:
     """Collect a node of a task as a :class:`pytask.nodes.PathNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
@@ -286,7 +295,17 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> No
             node.name = node_info.arg_name + suffix
         return node
 
-    if isinstance(node, Node):
+    if isinstance(node, PPathNode) and not node.path.is_absolute():
+        node.path = path.parent.joinpath(node.path)
+
+        # ``normpath`` removes ``../`` from the path which is necessary for the casing
+        # check which will fail since ``.resolves()`` also normalizes a path.
+        node.path = Path(os.path.normpath(node.path))
+        _raise_error_if_casing_of_path_is_wrong(
+            node.path, session.config["check_casing_of_paths"]
+        )
+
+    if isinstance(node, PNode):
         return node
 
     if isinstance(node, Path):
@@ -296,21 +315,28 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> No
         # ``normpath`` removes ``../`` from the path which is necessary for the casing
         # check which will fail since ``.resolves()`` also normalizes a path.
         node = Path(os.path.normpath(node))
-
-        if (
-            not IS_FILE_SYSTEM_CASE_SENSITIVE
-            and session.config["check_casing_of_paths"]
-            and sys.platform == "win32"
-        ):
-            case_sensitive_path = find_case_sensitive_path(node, "win32")
-            if str(node) != str(case_sensitive_path):
-                raise ValueError(_TEMPLATE_ERROR.format(node, case_sensitive_path))
-
+        _raise_error_if_casing_of_path_is_wrong(
+            node, session.config["check_casing_of_paths"]
+        )
         return PathNode.from_path(node)
 
     suffix = "-" + "-".join(map(str, node_info.path)) if node_info.path else ""
     node_name = node_info.arg_name + suffix
     return PythonNode(value=node, name=node_name)
+
+
+def _raise_error_if_casing_of_path_is_wrong(
+    path: Path, check_casing_of_paths: bool
+) -> None:
+    """Raise an error if the path does not have the correct casing."""
+    if (
+        not IS_FILE_SYSTEM_CASE_SENSITIVE
+        and sys.platform == "win32"
+        and check_casing_of_paths
+    ):
+        case_sensitive_path = find_case_sensitive_path(path, "win32")
+        if str(path) != str(case_sensitive_path):
+            raise ValueError(_TEMPLATE_ERROR.format(path, case_sensitive_path))
 
 
 def _not_ignored_paths(
@@ -337,7 +363,7 @@ def pytask_collect_modify_tasks(tasks: list[PTask]) -> None:
     """Given all tasks, assign a short uniquely identifiable name to each task."""
     id_to_short_id = _find_shortest_uniquely_identifiable_name_for_tasks(tasks)
     for task in tasks:
-        if task.name in id_to_short_id and isinstance(task, PTaskWithPath):
+        if task.name in id_to_short_id and isinstance(task, Task):
             task.display_name = id_to_short_id[task.name]
 
 

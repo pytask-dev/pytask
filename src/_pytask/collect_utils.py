@@ -16,7 +16,7 @@ from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.models import NodeInfo
-from _pytask.node_protocols import Node
+from _pytask.node_protocols import PNode
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
@@ -295,14 +295,14 @@ def parse_dependencies_from_task_function(
         are_all_nodes_python_nodes_without_hash = all(
             isinstance(x, PythonNode) and not x.hash for x in tree_leaves(nodes)
         )
-        if not isinstance(nodes, Node) and are_all_nodes_python_nodes_without_hash:
+        if not isinstance(nodes, PNode) and are_all_nodes_python_nodes_without_hash:
             dependencies[parameter_name] = PythonNode(value=value, name=parameter_name)
         else:
             dependencies[parameter_name] = nodes
     return dependencies
 
 
-def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, Node]:
+def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, PNode]:
     """Find args with node annotations."""
     annotations = get_annotations(func, eval_str=True)
     metas = {
@@ -515,7 +515,7 @@ a 'pathlib.Path' instead with 'Path("{node}")'.
 
 def _collect_decorator_node(
     session: Session, path: Path, name: str, node_info: NodeInfo
-) -> Node:
+) -> PNode:
     """Collect nodes for a task.
 
     Raises
@@ -553,7 +553,7 @@ def _collect_decorator_node(
 
 def _collect_dependency(
     session: Session, path: Path, name: str, node_info: NodeInfo
-) -> Node:
+) -> PNode:
     """Collect nodes for a task.
 
     Raises
@@ -581,7 +581,7 @@ def _collect_product(
     task_name: str,
     node_info: NodeInfo,
     is_string_allowed: bool = False,
-) -> Node:
+) -> PNode:
     """Collect products for a task.
 
     Defining products with strings is only allowed when using the decorator. Parameter

@@ -24,7 +24,7 @@ from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import MetaNode
-from _pytask.node_protocols import Node
+from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
@@ -242,7 +242,7 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph) -> None:
 
 
 def _check_if_tasks_are_skipped(
-    node: Node, dag: nx.DiGraph, is_task_skipped: dict[str, bool]
+    node: PNode, dag: nx.DiGraph, is_task_skipped: dict[str, bool]
 ) -> tuple[bool, dict[str, bool]]:
     """Check for a given node whether it is only used by skipped tasks."""
     are_all_tasks_skipped = []

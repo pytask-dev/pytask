@@ -9,7 +9,7 @@ from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
 
-from _pytask.node_protocols import Node
+from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-__all__ = ["PathNode", "PythonNode", "Task"]
+__all__ = ["PathNode", "PythonNode", "Task", "TaskWithoutPath"]
 
 
 @define(kw_only=True)
@@ -39,11 +39,9 @@ class TaskWithoutPath(PTask):
     """The base name of the task."""
     function: Callable[..., Any]
     """The task function."""
-    display_name: str | None = field(default=None, init=False)
-    """The shortest uniquely identifiable name for task for display."""
-    depends_on: PyTree[Node] = field(factory=dict)
+    depends_on: PyTree[PNode] = field(factory=dict)
     """A list of dependencies of task."""
-    produces: PyTree[Node] = field(factory=dict)
+    produces: PyTree[PNode] = field(factory=dict)
     """A list of products of task."""
     markers: list[Mark] = field(factory=list)
     """A list of markers attached to the task function."""
@@ -51,11 +49,6 @@ class TaskWithoutPath(PTask):
     """Reports with entries for when, what, and content."""
     attributes: dict[Any, Any] = field(factory=dict)
     """A dictionary to store additional information of the task."""
-
-    def __attrs_post_init__(self: TaskWithoutPath) -> None:
-        """Change class after initialization."""
-        if self.display_name is None:
-            self.display_name = self.name
 
     def state(self) -> str | None:
         """Return the state of the node."""
@@ -85,9 +78,9 @@ class Task(PTaskWithPath):
     """The name of the task."""
     display_name: str | None = field(default=None, init=False)
     """The shortest uniquely identifiable name for task for display."""
-    depends_on: PyTree[Node] = field(factory=dict)
+    depends_on: PyTree[PNode] = field(factory=dict)
     """A list of dependencies of task."""
-    produces: PyTree[Node] = field(factory=dict)
+    produces: PyTree[PNode] = field(factory=dict)
     """A list of products of task."""
     markers: list[Mark] = field(factory=list)
     """A list of markers attached to the task function."""
@@ -166,12 +159,12 @@ class PathNode(PPathNode):
 
 
 @define(kw_only=True)
-class PythonNode(Node):
+class PythonNode(PNode):
     """The class for a node which is a Python object."""
 
     name: str = ""
     """Name of the node."""
-    value: Any | None = None
+    value: Any = None
     """Value of the node."""
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
     """Whether the value should be hashed to determine the state."""

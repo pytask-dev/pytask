@@ -430,7 +430,6 @@ def test_setting_name_for_path_node_via_annotation(tmp_path):
     from pathlib import Path
     from typing_extensions import Annotated
     from pytask import Product, PathNode
-    from typing import Any
 
     def task_example(
         path: Annotated[Path, Product, PathNode(path=Path("out.txt"), name="product")],
@@ -485,3 +484,23 @@ def test_error_when_product_is_defined_in_kwargs_and_annotation(runner, tmp_path
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert "ValueError: The value for the parameter 'path'" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_relative_path_of_path_node(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PathNode
+
+    def task_example(
+        path: Annotated[Path, Product, PathNode(path=Path("out.txt"), name="product")],
+    ) -> None:
+        path.write_text("text")
+    """
+    tmp_path.joinpath("subfolder").mkdir()
+    tmp_path.joinpath("subfolder", "task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("subfolder", "out.txt").exists()

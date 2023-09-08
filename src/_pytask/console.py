@@ -12,7 +12,7 @@ from typing import Iterable
 from typing import TYPE_CHECKING
 
 import rich
-from _pytask.node_protocols import PTaskWithPath
+from _pytask.nodes import Task
 from rich.console import Console
 from rich.padding import Padding
 from rich.panel import Panel
@@ -151,7 +151,7 @@ def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
     else:
         url_style = create_url_style_for_task(task.function, editor_url_scheme)
 
-    if isinstance(task, PTaskWithPath):
+    if isinstance(task, Task):
         path, task_name = task.display_name.split("::")
         task_id = Text.assemble(
             Text(path + "::", style="dim"), Text(task_name, style=url_style)
