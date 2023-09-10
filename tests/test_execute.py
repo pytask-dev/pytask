@@ -8,6 +8,7 @@ import sys
 import textwrap
 from pathlib import Path
 
+import pytask
 import pytest
 from _pytask.capture import CaptureMethod
 from _pytask.exceptions import NodeNotFoundError
@@ -705,6 +706,7 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
 
 
+@pytest.mark.end_to_end()
 def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     source = """
     from _pytask.nodes import PathNode
@@ -763,3 +765,9 @@ def test_execute_tasks_via_functional_api(tmp_path):
     )
     assert result.returncode == ExitCode.OK
     assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
+
+
+@pytest.mark.end_to_end()
+def test_pass_non_task_to_functional_api_that_are_ignored():
+    session = pytask.build(tasks=None)
+    assert len(session.tasks) == 0

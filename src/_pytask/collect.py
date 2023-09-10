@@ -102,22 +102,29 @@ def _collect_from_tasks(session: Session) -> None:
                 obj=raw_task,
             )
 
-        if not callable(raw_task):
-            msg = "Not a function."
-            raise ValueError(msg)
+        if callable(raw_task):
+            if not hasattr(raw_task, "pytask_meta"):
+                raw_task = task_decorator()(raw_task)  # noqa: PLW2901
 
-        if not hasattr(raw_task, "pytask_meta"):
-            raw_task = task_decorator()(raw_task)  # noqa: PLW2901
+            try:
+                path = get_file(raw_task)
+            except (TypeError, OSError):
+                path = None
+            else:
+                if path.name == "<stdin>":
+                    path = None  # pragma: no cover
 
-        path = get_file(raw_task)
-        if path.name == "<stdin>":
+            # Detect whether a path is defined in a Jupyter notebook.
+            if is_jupyter() and "ipykernel" in path.as_posix() and path.suffix == ".py":
+                path = None  # pragma: no cover
+
+            name = raw_task.pytask_meta.name
+
+        # When a task is not a PTask and a callable, set arbitrary values and it will
+        # pass without errors and not collected.
+        else:
+            name = ""
             path = None
-
-        # Detect whether a path is defined in a Jupyter notebook.
-        if is_jupyter() and "ipykernel" in path.as_posix() and path.suffix == ".py":
-            path = None
-
-        name = raw_task.pytask_meta.name
 
         report = session.hook.pytask_collect_task_protocol(
             session=session,
