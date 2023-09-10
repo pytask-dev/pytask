@@ -10,9 +10,7 @@ from types import ModuleType
 from typing import Sequence
 
 
-def relative_to(
-    path: str | Path, source: str | Path, include_source: bool = True
-) -> Path:
+def relative_to(path: Path, source: Path, include_source: bool = True) -> Path:
     """Make a path relative to another path.
 
     In contrast to :meth:`pathlib.Path.relative_to`, this function allows to keep the
@@ -23,23 +21,21 @@ def relative_to(
     The default behavior of :mod:`pathlib` is to exclude the source path from the
     relative path.
 
-    >>> relative_to("folder/file.py", "folder", False).as_posix()
+    >>> relative_to(Path("folder/file.py"), Path("folder"), False).as_posix()
     'file.py'
 
     To provide relative locations to users, it is sometimes more helpful to provide the
     source as an orientation.
 
-    >>> relative_to("folder/file.py", "folder").as_posix()
+    >>> relative_to(Path("folder/file.py"), Path("folder")).as_posix()
     'folder/file.py'
 
     """
-    source_name = Path(source).name if include_source else ""
-    return Path(source_name, Path(path).relative_to(source))
+    source_name = source.name if include_source else ""
+    return Path(source_name, path.relative_to(source))
 
 
-def find_closest_ancestor(
-    path: str | Path, potential_ancestors: Sequence[str | Path]
-) -> Path:
+def find_closest_ancestor(path: Path, potential_ancestors: Sequence[Path]) -> Path:
     """Find the closest ancestor of a path.
 
     In case a path is the path to the task file itself, we return the path.
@@ -60,14 +56,8 @@ def find_closest_ancestor(
     'folder/subfolder'
 
     """
-    if isinstance(path, str):
-        path = Path(path)
-
     closest_ancestor = None
     for ancestor in potential_ancestors:
-        if isinstance(ancestor, str):
-            ancestor = Path(ancestor)  # noqa: PLW2901
-
         if ancestor == path:
             closest_ancestor = path
             break
@@ -90,11 +80,11 @@ def find_closest_ancestor(
 
 def find_common_ancestor_of_nodes(*names: str) -> Path:
     """Find the common ancestor from task names and nodes."""
-    cleaned_names = [name.split("::")[0] for name in names]
+    cleaned_names = [Path(name.split("::")[0]) for name in names]
     return find_common_ancestor(*cleaned_names)
 
 
-def find_common_ancestor(*paths: str | Path) -> Path:
+def find_common_ancestor(*paths: Path) -> Path:
     """Find a common ancestor of many paths."""
     return Path(os.path.commonpath(paths))
 

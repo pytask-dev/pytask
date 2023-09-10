@@ -1,7 +1,6 @@
 """Contains utility functions for :mod:`_pytask.collect`."""
 from __future__ import annotations
 
-import functools
 import itertools
 import uuid
 import warnings
@@ -17,8 +16,7 @@ from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.models import NodeInfo
-from _pytask.node_protocols import Node
-from _pytask.nodes import ProductType
+from _pytask.node_protocols import PNode
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
@@ -26,6 +24,7 @@ from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
+from _pytask.typing import ProductType
 from attrs import define
 from attrs import field
 from typing_extensions import Annotated
@@ -259,41 +258,51 @@ def parse_dependencies_from_task_function(
     parameters_with_product_annot = _find_args_with_product_annotation(obj)
     parameters_with_node_annot = _find_args_with_node_annotation(obj)
 
+    # Complete kwargs with node annotations, when no value is given by kwargs.
+    for name in list(parameters_with_node_annot):
+        if name not in kwargs:
+            kwargs[name] = parameters_with_node_annot.pop(name)
+        else:
+            msg = (
+                f"The value for the parameter {name!r} is defined twice in "
+                "'@pytask.mark.task(kwargs=...)' and in the type annotation. Choose "
+                "only one option."
+            )
+            raise ValueError(msg)
+
     for parameter_name, value in kwargs.items():
-        if parameter_name in parameters_with_product_annot:
+        if (
+            parameter_name in parameters_with_product_annot
+            or parameter_name == "return"
+        ):
             continue
 
         if parameter_name == "depends_on":
             continue
-
-        partialed_evolve = functools.partial(
-            _evolve_instance,
-            instance_from_annot=parameters_with_node_annot.get(parameter_name),
-        )
 
         nodes = tree_map_with_path(
             lambda p, x: _collect_dependency(
                 session,
                 path,
                 name,
-                NodeInfo(parameter_name, p, partialed_evolve(x)),  # noqa: B023
+                NodeInfo(parameter_name, p, x),  # noqa: B023
             ),
             value,
         )
 
         # If all nodes are python nodes, we simplify the parameter value and store it in
-        # one node.
+        # one node. If it is a node, we keep it.
         are_all_nodes_python_nodes_without_hash = all(
             isinstance(x, PythonNode) and not x.hash for x in tree_leaves(nodes)
         )
-        if not isinstance(nodes, Node) and are_all_nodes_python_nodes_without_hash:
+        if not isinstance(nodes, PNode) and are_all_nodes_python_nodes_without_hash:
             dependencies[parameter_name] = PythonNode(value=value, name=parameter_name)
         else:
             dependencies[parameter_name] = nodes
     return dependencies
 
 
-def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, Node]:
+def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, PNode]:
     """Find args with node annotations."""
     annotations = get_annotations(func, eval_str=True)
     metas = {
@@ -341,7 +350,7 @@ annotation, described in this tutorial: https://tinyurl.com/yrezszr4.
 """
 
 
-def parse_products_from_task_function(
+def parse_products_from_task_function(  # noqa: C901
     session: Session, path: Path, name: str, obj: Any
 ) -> dict[str, Any]:
     """Parse products from task function.
@@ -393,24 +402,40 @@ def parse_products_from_task_function(
 
     if parameters_with_product_annot:
         has_annotation = True
-        for parameter_name in parameters_with_product_annot:
-            if parameter_name in kwargs:
-                partialed_evolve = functools.partial(
-                    _evolve_instance,
-                    instance_from_annot=parameters_with_node_annot.get(parameter_name),
-                )
 
-                collected_products = tree_map_with_path(
-                    lambda p, x: _collect_product(
-                        session,
-                        path,
-                        name,
-                        NodeInfo(parameter_name, p, partialed_evolve(x)),  # noqa: B023
-                        is_string_allowed=False,
-                    ),
-                    kwargs[parameter_name],
+        for parameter_name in parameters_with_product_annot:
+            if (
+                parameter_name not in kwargs
+                and parameter_name not in parameters_with_node_annot
+            ):
+                continue
+
+            if (
+                parameter_name in kwargs
+                and parameter_name in parameters_with_node_annot
+            ):
+                msg = (
+                    f"The value for the parameter {name!r} is defined twice in "
+                    "'@pytask.mark.task(kwargs=...)' and in the type annotation. "
+                    "Choose only one option."
                 )
-                out = {parameter_name: collected_products}
+                raise ValueError(msg)
+
+            value = kwargs.get(parameter_name) or parameters_with_node_annot.get(
+                parameter_name
+            )
+
+            collected_products = tree_map_with_path(
+                lambda p, x: _collect_product(
+                    session,
+                    path,
+                    name,
+                    NodeInfo(parameter_name, p, x),  # noqa: B023
+                    is_string_allowed=False,
+                ),
+                value,
+            )
+            out = {parameter_name: collected_products}
 
     if "return" in parameters_with_node_annot:
         has_return = True
@@ -490,7 +515,7 @@ a 'pathlib.Path' instead with 'Path("{node}")'.
 
 def _collect_decorator_node(
     session: Session, path: Path, name: str, node_info: NodeInfo
-) -> Node:
+) -> PNode:
     """Collect nodes for a task.
 
     Raises
@@ -528,7 +553,7 @@ def _collect_decorator_node(
 
 def _collect_dependency(
     session: Session, path: Path, name: str, node_info: NodeInfo
-) -> Node:
+) -> PNode:
     """Collect nodes for a task.
 
     Raises
@@ -556,7 +581,7 @@ def _collect_product(
     task_name: str,
     node_info: NodeInfo,
     is_string_allowed: bool = False,
-) -> Node:
+) -> PNode:
     """Collect products for a task.
 
     Defining products with strings is only allowed when using the decorator. Parameter
@@ -593,19 +618,3 @@ def _collect_product(
         raise NodeNotCollectedError(msg)
 
     return collected_node
-
-
-def _evolve_instance(x: Any, instance_from_annot: Node | None) -> Any:
-    """Evolve a value to a node if it is given by annotations."""
-    if not instance_from_annot:
-        return x
-
-    if not hasattr(instance_from_annot, "from_annot"):
-        msg = (
-            f"The node {instance_from_annot!r} does not define '.from_annot' which is "
-            f"necessary to complete the node with the value {x!r}."
-        )
-        raise AttributeError(msg)
-
-    instance_from_annot.from_annot(x)  # type: ignore[attr-defined]
-    return instance_from_annot

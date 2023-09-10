@@ -36,8 +36,8 @@ _IGNORE_OPTION = click.Option(
     type=str,
     multiple=True,
     help=(
-        "A pattern to ignore files or directories. Refer to pathlib.Path.match for "
-        "more info."
+        "A pattern to ignore files or directories. Refer to 'pathlib.Path.match' "
+        "for more info."
     ),
     default=[],
 )

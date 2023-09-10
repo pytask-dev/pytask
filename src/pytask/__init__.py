@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from _pytask import __version__
-from _pytask.build import main
+from _pytask.build import build
 from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
 from _pytask.click import EnumChoice
@@ -37,8 +37,11 @@ from _pytask.mark_utils import set_marks
 from _pytask.models import CollectionMetadata
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import MetaNode
+from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PTask
+from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import PathNode
-from _pytask.nodes import Product
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
@@ -59,6 +62,7 @@ from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
+from _pytask.typing import Product
 from _pytask.warnings_utils import parse_warning_filter
 from _pytask.warnings_utils import warning_record_to_str
 from _pytask.warnings_utils import WarningReport
@@ -92,8 +96,13 @@ __all__ = [
     "NodeInfo",
     "NodeNotCollectedError",
     "NodeNotFoundError",
+    "PathNode",
     "Persisted",
+    "PNode",
+    "PPathNode",
     "Product",
+    "PTask",
+    "PTaskWithPath",
     "PytaskError",
     "PythonNode",
     "ResolvingDependenciesError",
@@ -107,6 +116,7 @@ __all__ = [
     "TaskOutcome",
     "WarningReport",
     "__version__",
+    "build",
     "build_dag",
     "check_for_optional_program",
     "cli",
@@ -120,7 +130,6 @@ __all__ = [
     "has_mark",
     "hookimpl",
     "import_optional_dependency",
-    "main",
     "mark",
     "parse_nodes",
     "parse_warning_filter",

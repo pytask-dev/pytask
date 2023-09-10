@@ -56,7 +56,7 @@ def collect(**raw_config: Any | None) -> NoReturn:
     raw_config["command"] = "collect"
 
     try:
-        # Duplication of the same mechanism in :func:`pytask.main.main`.
+        # Duplication of the same mechanism in :func:`pytask.build`.
         pm = get_plugin_manager()
         from _pytask import cli
 

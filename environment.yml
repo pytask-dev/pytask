@@ -26,6 +26,7 @@ dependencies:
   - black
   - jupyterlab
   - matplotlib
+  - nbval
   - pre-commit
   - pygraphviz
   - pytest

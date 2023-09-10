@@ -473,7 +473,7 @@ def test_set_trace_is_returned_after_pytask_finishes(tmp_path):
     import pytask
 
     def test_function():
-        pytask.main({{"paths": "{tmp_path.as_posix()}"}})
+        pytask.build(paths={tmp_path.as_posix()!r})
         breakpoint()
     """
     tmp_path.joinpath("test_example.py").write_text(textwrap.dedent(source))

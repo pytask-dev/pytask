@@ -14,11 +14,14 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
+__all__ = ["MetaNode", "PNode", "PPathNode", "PTask", "PTaskWithPath"]
+
+
 @runtime_checkable
 class MetaNode(Protocol):
     """Protocol for an intersection between nodes and tasks."""
 
-    name: str | None
+    name: str
     """The name of node that must be unique."""
 
     @abstractmethod
@@ -33,7 +36,7 @@ class MetaNode(Protocol):
 
 
 @runtime_checkable
-class Node(MetaNode, Protocol):
+class PNode(MetaNode, Protocol):
     """Protocol for nodes."""
 
     def load(self) -> Any:
@@ -46,7 +49,7 @@ class Node(MetaNode, Protocol):
 
 
 @runtime_checkable
-class PPathNode(Node, Protocol):
+class PPathNode(PNode, Protocol):
     """Nodes with paths.
 
     Nodes with paths receive special handling when it comes to printing their names.
@@ -61,8 +64,8 @@ class PTask(MetaNode, Protocol):
     """Protocol for nodes."""
 
     name: str
-    depends_on: PyTree[Node]
-    produces: PyTree[Node]
+    depends_on: PyTree[PNode]
+    produces: PyTree[PNode]
     markers: list[Mark]
     report_sections: list[tuple[str, str, str]]
     attributes: dict[Any, Any]

@@ -8,12 +8,13 @@ import sys
 import textwrap
 from pathlib import Path
 
+import pytask
 import pytest
-from _pytask.capture import _CaptureMethod
+from _pytask.capture import CaptureMethod
 from _pytask.exceptions import NodeNotFoundError
+from pytask import build
 from pytask import cli
 from pytask import ExitCode
-from pytask import main
 from pytask import TaskOutcome
 
 
@@ -46,7 +47,7 @@ def test_task_did_not_produce_node(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.FAILED
     assert len(session.execution_reports) == 1
@@ -103,7 +104,7 @@ def test_node_not_found_in_task_setup(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.FAILED
     assert sum(i.outcome == TaskOutcome.SUCCESS for i in session.execution_reports) == 2
@@ -138,7 +139,7 @@ def test_execution_w_varying_dependencies_products(tmp_path, dependencies, produ
     for dependency in dependencies:
         tmp_path.joinpath(dependency).touch()
 
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
     assert session.exit_code == ExitCode.OK
 
 
@@ -157,7 +158,7 @@ def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Here I am. Once again.")
 
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").read_text() == "Here I am. Once again."
@@ -243,7 +244,7 @@ def test_preserve_input_for_dependencies_and_products(tmp_path, input_type):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
     assert session.exit_code == ExitCode.OK
 
 
@@ -257,7 +258,7 @@ def test_execution_stops_after_n_failures(tmp_path, n_failures):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path, "max_failures": n_failures})
+    session = build(paths=tmp_path, max_failures=n_failures)
 
     assert len(session.tasks) == 3
     assert len(session.execution_reports) == n_failures
@@ -273,9 +274,7 @@ def test_execution_stop_after_first_failure(tmp_path, stop_after_first_failure):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main(
-        {"paths": tmp_path, "stop_after_first_failure": stop_after_first_failure}
-    )
+    session = build(paths=tmp_path, stop_after_first_failure=stop_after_first_failure)
 
     assert len(session.tasks) == 3
     assert len(session.execution_reports) == 1 if stop_after_first_failure else 3
@@ -296,7 +295,7 @@ def test_scheduling_w_priorities(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert session.execution_reports[0].task.name.endswith("task_z")
@@ -390,9 +389,9 @@ def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_task_executed_with_force_although_unchanged(tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
     assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
-    session = main({"paths": tmp_path, "force": True})
+    session = build(paths=tmp_path, force=True)
     assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
 
 
@@ -436,7 +435,7 @@ def test_task_with_product_annotation(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path, "capture": _CaptureMethod.NO})
+    session = build(paths=tmp_path, capture=CaptureMethod.NO)
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
@@ -459,7 +458,7 @@ def test_task_with_nested_product_annotation(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path, "capture": _CaptureMethod.NO})
+    session = build(paths=tmp_path, capture=CaptureMethod.NO)
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
@@ -472,7 +471,7 @@ def test_task_with_nested_product_annotation(tmp_path):
     "definition",
     [
         " = PythonNode(value=data['dependency'], hash=True)",
-        ": Annotated[Any, PythonNode(hash=True)] = data['dependency']",
+        ": Annotated[Any, PythonNode(value=data['dependency'], hash=True)]",
     ],
 )
 def test_task_with_hashed_python_node(runner, tmp_path, definition):
@@ -534,8 +533,10 @@ def test_error_with_multiple_different_dep_annotations(runner, tmp_path):
     from pytask import Product, PythonNode, PathNode
     from typing import Any
 
+    annotation = Annotated[Any, PythonNode(), PathNode(name="a", path=Path("a.txt"))]
+
     def task_example(
-        dependency: Annotated[Any, PythonNode(), PathNode()] = "hello",
+        dependency: annotation = "hello",
         path: Annotated[Path, Product] = Path("out.txt")
     ) -> None:
         path.write_text(dependency)
@@ -617,9 +618,8 @@ def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
 
     @attrs.define
     class PickleNode:
-        name: str = ""
-        path: Path | None = None
-        value: None = None
+        name: str
+        path: Path
 
         def state(self) -> str | None:
             if self.path.exists():
@@ -631,8 +631,6 @@ def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
 
         def save(self, value: Any) -> None:
             self.path.write_bytes(pickle.dumps(value))
-
-        def from_annot(self, value: Any) -> None: ...
 
     node = PickleNode("pickled_data", Path(__file__).parent.joinpath("data.pkl"))
 
@@ -706,3 +704,70 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
+
+
+@pytest.mark.end_to_end()
+def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
+    source = """
+    from _pytask.nodes import PathNode
+    from pytask import PythonNode
+    from typing_extensions import Annotated
+    from pathlib import Path
+
+
+    node_text = PythonNode(name="text")
+
+
+    def task_create_text() -> Annotated[int, node_text]:
+        return "This is the text."
+
+    node_file = PathNode.from_path(Path(__file__).parent.joinpath("file.txt"))
+
+    def task_create_file(text: Annotated[int, node_text]) -> Annotated[str, node_file]:
+        return text
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
+
+
+@pytest.mark.end_to_end()
+@pytest.mark.xfail(sys.platform == "win32", reason="Decoding issues in Gitlab Actions.")
+def test_execute_tasks_via_functional_api(tmp_path):
+    source = """
+    from pytask import PathNode
+    import pytask
+    from pytask import PythonNode
+    from typing_extensions import Annotated
+    from pathlib import Path
+
+
+    node_text = PythonNode(name="text", hash=True)
+
+    def create_text() -> Annotated[int, node_text]:
+        return "This is the text."
+
+    node_file = PathNode.from_path(Path(__file__).parent.joinpath("file.txt"))
+
+    def create_file(text: Annotated[int, node_text]) -> Annotated[str, node_file]:
+        return text
+
+    if __name__ == "__main__":
+        session = pytask.build(tasks=[create_file, create_text])
+
+        assert len(session.tasks) == 2
+        assert len(session.dag.nodes) == 4
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = subprocess.run(
+        ("python", tmp_path.joinpath("task_module.py").as_posix()), check=False
+    )
+    assert result.returncode == ExitCode.OK
+    assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
+
+
+@pytest.mark.end_to_end()
+def test_pass_non_task_to_functional_api_that_are_ignored():
+    session = pytask.build(tasks=None)
+    assert len(session.tasks) == 0

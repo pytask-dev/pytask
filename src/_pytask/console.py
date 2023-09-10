@@ -38,6 +38,8 @@ __all__ = [
     "console",
     "format_task_name",
     "format_strings_as_flat_tree",
+    "get_file",
+    "is_jupyter",
     "render_to_string",
     "unify_styles",
 ]
@@ -179,7 +181,7 @@ def create_url_style_for_task(
 
     try:
         info = {
-            "path": _get_file(task_function),
+            "path": get_file(task_function),
             "line_number": _get_source_lines(task_function),
         }
     except (OSError, TypeError):
@@ -200,7 +202,7 @@ def create_url_style_for_path(path: Path, edtior_url_scheme: str) -> Style:
     )
 
 
-def _get_file(
+def get_file(
     function: Callable[..., Any], skipped_paths: list[Path] | None = None
 ) -> Path:
     """Get path to module where the function is defined.
@@ -214,12 +216,12 @@ def _get_file(
         skipped_paths = _SKIPPED_PATHS
 
     if isinstance(function, functools.partial):
-        return _get_file(function.func)
+        return get_file(function.func)
     if (
         hasattr(function, "__wrapped__")
         and Path(inspect.getsourcefile(function)) in skipped_paths
     ):
-        return _get_file(function.__wrapped__)
+        return get_file(function.__wrapped__)
     return Path(inspect.getsourcefile(function))
 
 
@@ -285,3 +287,26 @@ def create_summary_panel(
         if counts[outcome_enum.FAIL]
         else outcome_enum.SUCCESS.style,
     )
+
+
+def is_jupyter() -> bool:  # pragma: no cover
+    """Check if we're running in a Jupyter notebook.
+
+    Copied from rich.
+
+    """
+    try:
+        get_ipython  # type: ignore[name-defined]  # noqa: B018
+    except NameError:
+        return False
+    ipython = get_ipython()  # type: ignore[name-defined]  # noqa: F821
+    shell = ipython.__class__.__name__
+    if (
+        "google.colab" in str(ipython.__class__)
+        or os.getenv("DATABRICKS_RUNTIME_VERSION")
+        or shell == "ZMQInteractiveShell"
+    ):
+        return True  # Jupyter notebook or qtconsole
+    if shell == "TerminalInteractiveShell":
+        return False  # Terminal running IPython
+    return False  # Other type (?)

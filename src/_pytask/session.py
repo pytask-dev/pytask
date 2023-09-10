@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     import networkx as nx
     from _pytask.report import CollectionReport
     from _pytask.report import ExecutionReport
-    from _ptytask.report import DagReport
+    from _pytask.report import DagReport
 
 
 @define

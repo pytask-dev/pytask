@@ -15,13 +15,12 @@ import pluggy
 if TYPE_CHECKING:
     from _pytask.node_protocols import MetaNode
     from _pytask.models import NodeInfo
-    from _pytask.node_protocols import Node
+    from _pytask.node_protocols import PNode
     import click
     from _pytask.node_protocols import PTask
     import networkx as nx
-    import pathlib
+    from pathlib import Path
     from _pytask.session import Session
-    from _pytask.nodes import Task
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
     from _pytask.reports import CollectionReport
@@ -119,7 +118,7 @@ def pytask_collect(session: Session) -> Any:
 
 
 @hookspec(firstresult=True)
-def pytask_ignore_collect(path: pathlib.Path, config: dict[str, Any]) -> bool:
+def pytask_ignore_collect(path: Path, config: dict[str, Any]) -> bool:
     """Ignore collected path.
 
     This hook is indicates for each directory and file whether it should be ignored.
@@ -139,7 +138,7 @@ def pytask_collect_modify_tasks(session: Session, tasks: list[PTask]) -> None:
 
 @hookspec(firstresult=True)
 def pytask_collect_file_protocol(
-    session: Session, path: pathlib.Path, reports: list[CollectionReport]
+    session: Session, path: Path, reports: list[CollectionReport]
 ) -> list[CollectionReport]:
     """Start protocol to collect files.
 
@@ -151,7 +150,7 @@ def pytask_collect_file_protocol(
 
 @hookspec
 def pytask_collect_file(
-    session: Session, path: pathlib.Path, reports: list[CollectionReport]
+    session: Session, path: Path, reports: list[CollectionReport]
 ) -> list[CollectionReport] | None:
     """Collect tasks from a file.
 
@@ -167,22 +166,22 @@ def pytask_collect_file_log(session: Session, reports: list[CollectionReport]) -
 
 @hookspec(firstresult=True)
 def pytask_collect_task_protocol(
-    session: Session, path: pathlib.Path, name: str, obj: Any
+    session: Session, path: Path | None, name: str, obj: Any
 ) -> CollectionReport | None:
     """Start protocol to collect tasks."""
 
 
 @hookspec
 def pytask_collect_task_setup(
-    session: Session, path: pathlib.Path, name: str, obj: Any
+    session: Session, path: Path | None, name: str, obj: Any
 ) -> None:
     """Steps before collecting a task."""
 
 
 @hookspec(firstresult=True)
 def pytask_collect_task(
-    session: Session, path: pathlib.Path, name: str, obj: Any
-) -> Task:
+    session: Session, path: Path | None, name: str, obj: Any
+) -> PTask:
     """Collect a single task."""
 
 
@@ -197,8 +196,8 @@ def pytask_collect_task_teardown(session: Session, task: PTask) -> None:
 
 @hookspec(firstresult=True)
 def pytask_collect_node(
-    session: Session, path: pathlib.Path, node_info: NodeInfo
-) -> Node | None:
+    session: Session, path: Path, node_info: NodeInfo
+) -> PNode | None:
     """Collect a node which is a dependency or a product of a task."""
 
 
