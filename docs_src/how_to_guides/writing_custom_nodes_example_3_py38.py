@@ -24,7 +24,8 @@ class PickleNode:
     def from_path(cls, path: Path) -> "PickleNode":
         """Instantiate class from path to file."""
         if not path.is_absolute():
-            raise ValueError("Node must be instantiated from absolute path.")
+            msg = "Node must be instantiated from absolute path."
+            raise ValueError(msg)
         return cls(name=path.as_posix(), path=path)
 
     def state(self) -> Optional[str]:

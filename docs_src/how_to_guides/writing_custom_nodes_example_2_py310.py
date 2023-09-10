@@ -15,5 +15,4 @@ out_node = PickleNode.from_path(Path(__file__).parent / "out.pkl")
 def task_example(
     df: Annotated[pd.DataFrame, in_node]
 ) -> Annotated[pd.DataFrame, out_node]:
-    df = df.apply(...)
-    return df
+    return df.apply(...)
