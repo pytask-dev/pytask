@@ -230,6 +230,13 @@ class MarkGenerator:
         if name == "task":
             from _pytask.task_utils import task
 
+            warnings.warn(
+                "'@pytask.mark.task' is deprecated starting pytask v0.4.0 and will be "
+                "removed in v0.5.0. Use '@pytask.task' instead.",
+                category=DeprecationWarning,
+                stacklevel=1,
+            )
+
             return task
 
         return MarkDecorator(Mark(name, (), {}))

@@ -377,3 +377,21 @@ def test_deprecation_warnings_for_decorators(tmp_path):
     )
     assert b"DeprecationWarning: '@pytask.mark.depends_on'" in result.stdout
     assert b"DeprecationWarning: '@pytask.mark.produces'" in result.stdout
+
+
+@pytest.mark.end_to_end()
+def test_deprecation_warnings_for_task_decorator(tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.task
+    def task_write_text(): ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = subprocess.run(
+        ("pytest", tmp_path.joinpath("task_module.py").as_posix()),
+        capture_output=True,
+        check=False,
+    )
+    assert b"DeprecationWarning: '@pytask.mark.task'" in result.stdout
