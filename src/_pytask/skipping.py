@@ -1,4 +1,4 @@
-"""This module contains everything related to skipping tasks."""
+"""Contains everything related to skipping tasks."""
 from __future__ import annotations
 
 from typing import Any
@@ -17,8 +17,8 @@ from _pytask.traceback import remove_traceback_from_exc_info
 
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
     from _pytask.session import Session
-    from _pytask.nodes import Task
     from _pytask.report import ExecutionReport
 
 
@@ -47,7 +47,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 
 
 @hookimpl
-def pytask_execute_task_setup(session: Session, task: Task) -> None:
+def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     """Take a short-cut for skipped tasks during setup with an exception."""
     is_unchanged = has_mark(task, "skip_unchanged") and not has_mark(
         task, "would_be_executed"

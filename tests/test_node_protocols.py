@@ -28,9 +28,6 @@ def test_node_protocol_for_custom_nodes(runner, tmp_path):
         def save(self, value):
             self.value = value
 
-        def from_annot(self, value): ...
-
-
     def task_example(
         data = CustomNode("custom", "text"),
         out: Annotated[Path, Product] = Path("out.txt"),
@@ -69,9 +66,6 @@ def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
         def save(self, value):
             with self.path.open("wb") as f:
                 pickle.dump(value, f)
-
-        def from_annot(self, value): ...
-
 
     _PATH = Path(__file__).parent.joinpath("in.pkl")
 

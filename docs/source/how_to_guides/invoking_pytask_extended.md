@@ -10,7 +10,7 @@ Invoke pytask programmatically with
 import pytask
 
 
-session = pytask.main({"paths": ...})
+session = pytask.build(paths=...)
 ```
 
 Pass command line arguments with their long name and hyphens replaced by underscores as

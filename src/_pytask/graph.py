@@ -1,4 +1,4 @@
-"""This file contains the command and code for drawing the DAG."""
+"""Contains the command and code for drawing the DAG."""
 from __future__ import annotations
 
 import enum
@@ -240,8 +240,7 @@ def _shorten_node_labels(dag: nx.DiGraph, paths: list[Path]) -> nx.DiGraph:
     short_names = reduce_names_of_multiple_nodes(node_names, dag, paths)
     short_names = [i.plain if isinstance(i, Text) else i for i in short_names]
     old_to_new = dict(zip(node_names, short_names))
-    dag = nx.relabel_nodes(dag, old_to_new)
-    return dag
+    return nx.relabel_nodes(dag, old_to_new)
 
 
 def _clean_dag(dag: nx.DiGraph) -> nx.DiGraph:

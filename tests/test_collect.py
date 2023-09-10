@@ -10,10 +10,10 @@ from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.models import NodeInfo
+from pytask import build
 from pytask import cli
 from pytask import CollectionOutcome
 from pytask import ExitCode
-from pytask import main
 from pytask import Session
 from pytask import Task
 
@@ -31,7 +31,7 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Relative paths work.")
 
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.collection_reports[0].outcome == CollectionOutcome.SUCCESS
     assert tmp_path.joinpath("out.txt").read_text() == "Relative paths work."
@@ -49,7 +49,7 @@ def test_collect_depends_on_that_is_not_str_or_path(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
@@ -70,7 +70,7 @@ def test_collect_produces_that_is_not_str_or_path(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
@@ -114,7 +114,7 @@ def test_collect_nodes_with_the_same_name(runner, tmp_path):
 def test_collect_same_task_different_ways(tmp_path, path_extension):
     tmp_path.joinpath("task_module.py").write_text("def task_passes(): pass")
 
-    session = main({"paths": tmp_path.joinpath(path_extension)})
+    session = build(paths=tmp_path.joinpath(path_extension))
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
@@ -141,7 +141,7 @@ def test_collect_files_w_custom_file_name_pattern(
     for file in task_files:
         tmp_path.joinpath(file).write_text("def task_example(): pass")
 
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == expected_collected_tasks
@@ -181,13 +181,12 @@ def test_pytask_collect_node(session, path, node_info, expected):
 )
 def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_path):
     session = Session({"check_casing_of_paths": True}, None)
-    task_path = tmp_path / "task_example.py"
     real_node = tmp_path / "text.txt"
     real_node.touch()
     collected_node = tmp_path / "TeXt.TxT"
 
     with pytest.raises(Exception, match="The provided path of"):
-        pytask_collect_node(session, task_path, NodeInfo("", (), collected_node))
+        pytask_collect_node(session, tmp_path, NodeInfo("", (), collected_node))
 
 
 @pytest.mark.unit()
@@ -196,7 +195,6 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
     tmp_path, is_absolute
 ):
     session = Session({"check_casing_of_paths": True}, None)
-    task_path = tmp_path / "task_example.py"
     real_node = tmp_path / "text.txt"
 
     collected_node = Path("..", tmp_path.name, "text.txt")
@@ -205,7 +203,7 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
 
     with warnings.catch_warnings(record=True) as record:
         result = pytask_collect_node(
-            session, task_path, NodeInfo("", (), collected_node)
+            session, tmp_path, NodeInfo("", (), collected_node)
         )
         assert not record
 
@@ -264,7 +262,7 @@ def test_collect_dependencies_from_args_if_depends_on_is_missing(tmp_path):
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("hello")
 
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
@@ -278,7 +276,7 @@ def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
     tmp_path.joinpath("b").mkdir()
     tmp_path.joinpath("a", "task_module.py").write_text("def task_a(): pass")
     tmp_path.joinpath("b", "task_module.py").write_text("def task_a(): pass")
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
     assert len(session.collection_reports) == 2
     assert all(
         report.outcome == CollectionOutcome.SUCCESS
@@ -306,7 +304,7 @@ def test_collect_module_name(tmp_path):
         pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
     outcome = session.collection_reports[0].outcome
     assert outcome == CollectionOutcome.SUCCESS
 
@@ -368,7 +366,7 @@ def test_product_cannot_mix_different_product_types(tmp_path):
         ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert len(session.tasks) == 0
@@ -395,7 +393,7 @@ def test_depends_on_cannot_mix_different_definitions(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("input_1.txt").touch()
     tmp_path.joinpath("input_2.txt").touch()
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert len(session.tasks) == 0
@@ -430,16 +428,77 @@ def test_setting_name_for_path_node_via_annotation(tmp_path):
     from pathlib import Path
     from typing_extensions import Annotated
     from pytask import Product, PathNode
-    from typing import Any
 
     def task_example(
-        path: Annotated[Path, Product, PathNode(name="product")] = Path("out.txt"),
+        path: Annotated[Path, Product, PathNode(path=Path("out.txt"), name="product")],
     ) -> None:
         path.write_text("text")
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": [tmp_path]})
+    session = build(paths=tmp_path)
     assert session.exit_code == ExitCode.OK
     product = session.tasks[0].produces["path"]
     assert product.name == "product"
+
+
+@pytest.mark.end_to_end()
+def test_error_when_dependency_is_defined_in_kwargs_and_annotation(runner, tmp_path):
+    source = """
+    import pytask
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PathNode
+    from pytask import PythonNode
+
+    @pytask.mark.task(kwargs={"in_": "world"})
+    def task_example(
+        in_: Annotated[str, PythonNode(name="string", value="hello")],
+        path: Annotated[Path, Product, PathNode(path=Path("out.txt"), name="product")],
+    ) -> None:
+        path.write_text(in_)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert "ValueError: The value for the parameter 'in_'" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_error_when_product_is_defined_in_kwargs_and_annotation(runner, tmp_path):
+    source = """
+    import pytask
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PathNode
+
+    node = PathNode(path=Path("out.txt"), name="product")
+
+    @pytask.mark.task(kwargs={"path": node})
+    def task_example(path: Annotated[Path, Product, node]) -> None:
+        path.write_text("text")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert "ValueError: The value for the parameter 'path'" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_relative_path_of_path_node(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PathNode
+
+    def task_example(
+        path: Annotated[Path, Product, PathNode(path=Path("out.txt"), name="product")],
+    ) -> None:
+        path.write_text("text")
+    """
+    tmp_path.joinpath("subfolder").mkdir()
+    tmp_path.joinpath("subfolder", "task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("subfolder", "out.txt").exists()

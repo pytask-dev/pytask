@@ -3,9 +3,9 @@ from __future__ import annotations
 import textwrap
 
 import pytest
+from pytask import build
 from pytask import cli
 from pytask import ExitCode
-from pytask import main
 
 
 @pytest.mark.end_to_end()
@@ -23,7 +23,7 @@ def test_task_with_task_decorator(tmp_path, func_name, task_name):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
 
@@ -434,7 +434,7 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
             pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.COLLECTION_FAILED
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
@@ -471,9 +471,7 @@ def test_task_receives_namedtuple(runner, tmp_path):
 
     @pytask.mark.task(kwargs=args)
     def task_example(
-        path_in: Path,
-        arg: Annotated[str, PythonNode(hash=True)],
-        path_out: Annotated[Path, Product]
+        path_in: Path, arg: str, path_out: Annotated[Path, Product]
     ) -> None:
         path_out.write_text(path_in.read_text() + " " + arg)
     """

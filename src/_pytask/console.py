@@ -1,11 +1,10 @@
-"""This module contains the code to format output on the command line."""
+"""Contains the code to format output on the command line."""
 from __future__ import annotations
 
 import functools
 import inspect
 import os
 import sys
-from enum import Enum
 from pathlib import Path
 from typing import Any
 from typing import Callable
@@ -13,7 +12,7 @@ from typing import Iterable
 from typing import TYPE_CHECKING
 
 import rich
-from _pytask.path import relative_to as relative_to_
+from _pytask.nodes import Task
 from rich.console import Console
 from rich.padding import Padding
 from rich.panel import Panel
@@ -26,7 +25,8 @@ from rich.tree import Tree
 
 
 if TYPE_CHECKING:
-    from _pytask.nodes import Task
+    from _pytask.node_protocols import PTask
+    from enum import Enum
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
 
@@ -36,8 +36,10 @@ __all__ = [
     "create_url_style_for_task",
     "create_url_style_for_path",
     "console",
-    "format_task_id",
+    "format_task_name",
     "format_strings_as_flat_tree",
+    "get_file",
+    "is_jupyter",
     "render_to_string",
     "unify_styles",
 ]
@@ -139,33 +141,24 @@ def render_to_string(
         else:
             output.append(segment.text)
 
-    rendered = "".join(output)
-    return rendered
+    return "".join(output)
 
 
-def format_task_id(
-    task: Task,
-    editor_url_scheme: str,
-    short_name: bool = False,
-    relative_to: Path | None = None,
-) -> Text:
+def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
     """Format a task id."""
-    if short_name:
-        path, task_name = task.short_name.split("::")
-    elif relative_to:
-        path = relative_to_(task.path, relative_to).as_posix()
-        task_name = task.base_name
-    else:
-        path, task_name = task.name.split("::")
-
     if task.function is None:
         url_style = Style()
     else:
         url_style = create_url_style_for_task(task.function, editor_url_scheme)
 
-    task_id = Text.assemble(
-        Text(path + "::", style="dim"), Text(task_name, style=url_style)
-    )
+    if isinstance(task, Task):
+        path, task_name = task.display_name.split("::")
+        task_id = Text.assemble(
+            Text(path + "::", style="dim"), Text(task_name, style=url_style)
+        )
+    else:
+        name = getattr(task, "display_name", task.name)
+        task_id = Text(name, style=url_style)
     return task_id
 
 
@@ -173,9 +166,8 @@ def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -
     """Format list of strings as flat tree."""
     tree = Tree(title)
     for name in strings:
-        tree.add(icon + name)
-    text = render_to_string(tree, console=console)
-    return text
+        tree.add(Text.assemble(icon, name))
+    return render_to_string(tree, console=console)
 
 
 def create_url_style_for_task(
@@ -189,7 +181,7 @@ def create_url_style_for_task(
 
     try:
         info = {
-            "path": _get_file(task_function),
+            "path": get_file(task_function),
             "line_number": _get_source_lines(task_function),
         }
     except (OSError, TypeError):
@@ -210,7 +202,7 @@ def create_url_style_for_path(path: Path, edtior_url_scheme: str) -> Style:
     )
 
 
-def _get_file(
+def get_file(
     function: Callable[..., Any], skipped_paths: list[Path] | None = None
 ) -> Path:
     """Get path to module where the function is defined.
@@ -224,12 +216,12 @@ def _get_file(
         skipped_paths = _SKIPPED_PATHS
 
     if isinstance(function, functools.partial):
-        return _get_file(function.func)
+        return get_file(function.func)
     if (
         hasattr(function, "__wrapped__")
         and Path(inspect.getsourcefile(function)) in skipped_paths
     ):
-        return _get_file(function.__wrapped__)
+        return get_file(function.__wrapped__)
     return Path(inspect.getsourcefile(function))
 
 
@@ -286,7 +278,7 @@ def create_summary_panel(
                 style=outcome.style_textonly,  # type: ignore[attr-defined]
             )
 
-    panel = Panel(
+    return Panel(
         grid,
         title="[bold #f2f2f2]Summary[/]",
         expand=False,
@@ -296,4 +288,25 @@ def create_summary_panel(
         else outcome_enum.SUCCESS.style,
     )
 
-    return panel
+
+def is_jupyter() -> bool:  # pragma: no cover
+    """Check if we're running in a Jupyter notebook.
+
+    Copied from rich.
+
+    """
+    try:
+        get_ipython  # type: ignore[name-defined]  # noqa: B018
+    except NameError:
+        return False
+    ipython = get_ipython()  # type: ignore[name-defined]  # noqa: F821
+    shell = ipython.__class__.__name__
+    if (
+        "google.colab" in str(ipython.__class__)
+        or os.getenv("DATABRICKS_RUNTIME_VERSION")
+        or shell == "ZMQInteractiveShell"
+    ):
+        return True  # Jupyter notebook or qtconsole
+    if shell == "TerminalInteractiveShell":
+        return False  # Terminal running IPython
+    return False  # Other type (?)

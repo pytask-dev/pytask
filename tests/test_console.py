@@ -4,12 +4,12 @@ import inspect
 from pathlib import Path
 
 import pytest
-from _pytask.console import _get_file
 from _pytask.console import _get_source_lines
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_path
 from _pytask.console import create_url_style_for_task
-from _pytask.console import format_task_id
+from _pytask.console import format_task_name
+from _pytask.console import get_file
 from _pytask.console import render_to_string
 from pytask import CollectionOutcome
 from pytask import console
@@ -114,8 +114,6 @@ _THIS_FILE = Path(__file__)
         "base_name",
         "short_name",
         "editor_url_scheme",
-        "use_short_name",
-        "relative_to",
         "expected",
     ),
     [
@@ -123,55 +121,27 @@ _THIS_FILE = Path(__file__)
             "task_a",
             None,
             "no_link",
-            False,
-            None,
             Text(
                 _THIS_FILE.as_posix() + "::task_a",
                 spans=[Span(0, len(_THIS_FILE.as_posix()) + 2, "dim")],
             ),
             id="format full id",
-        ),
-        pytest.param(
-            "task_a",
-            "test_console.py::task_a",
-            "no_link",
-            True,
-            None,
-            Text(
-                "test_console.py::task_a",
-                spans=[Span(0, 17, "dim")],
-            ),
-            id="format short id",
-        ),
-        pytest.param(
-            "task_a",
-            None,
-            "no_link",
-            False,
-            _THIS_FILE.parent,
-            Text(
-                "tests/test_console.py::task_a",
-                spans=[Span(0, 23, "dim")],
-            ),
-            id="format relative to id",
-        ),
+        )
     ],
 )
-def test_format_task_id(  # noqa: PLR0913
+def test_format_task_id(
     base_name,
     short_name,
     editor_url_scheme,
-    use_short_name,
-    relative_to,
     expected,
 ):
     path = _THIS_FILE
 
     task = Task(base_name=base_name, path=path, function=task_func)
     if short_name is not None:
-        task.short_name = short_name
+        task.display_name = short_name
 
-    result = format_task_id(task, editor_url_scheme, use_short_name, relative_to)
+    result = format_task_name(task, editor_url_scheme)
     assert result == expected
 
 
@@ -193,7 +163,7 @@ def test_format_task_id(  # noqa: PLR0913
     ],
 )
 def test_get_file(task_func, skipped_paths, expected):
-    result = _get_file(task_func, skipped_paths)
+    result = get_file(task_func, skipped_paths)
     assert result == expected
 
 

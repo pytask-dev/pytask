@@ -1,4 +1,4 @@
-"""This module contains code related to click."""
+"""Contains code related to click."""
 from __future__ import annotations
 
 import enum

@@ -1,4 +1,4 @@
-"""This module contains code to handle paths."""
+"""Contains code to handle paths."""
 from __future__ import annotations
 
 import functools
@@ -10,9 +10,7 @@ from types import ModuleType
 from typing import Sequence
 
 
-def relative_to(
-    path: str | Path, source: str | Path, include_source: bool = True
-) -> Path:
+def relative_to(path: Path, source: Path, include_source: bool = True) -> Path:
     """Make a path relative to another path.
 
     In contrast to :meth:`pathlib.Path.relative_to`, this function allows to keep the
@@ -23,23 +21,21 @@ def relative_to(
     The default behavior of :mod:`pathlib` is to exclude the source path from the
     relative path.
 
-    >>> relative_to("folder/file.py", "folder", False).as_posix()
+    >>> relative_to(Path("folder/file.py"), Path("folder"), False).as_posix()
     'file.py'
 
     To provide relative locations to users, it is sometimes more helpful to provide the
     source as an orientation.
 
-    >>> relative_to("folder/file.py", "folder").as_posix()
+    >>> relative_to(Path("folder/file.py"), Path("folder")).as_posix()
     'folder/file.py'
 
     """
-    source_name = Path(source).name if include_source else ""
-    return Path(source_name, Path(path).relative_to(source))
+    source_name = source.name if include_source else ""
+    return Path(source_name, path.relative_to(source))
 
 
-def find_closest_ancestor(
-    path: str | Path, potential_ancestors: Sequence[str | Path]
-) -> Path:
+def find_closest_ancestor(path: Path, potential_ancestors: Sequence[Path]) -> Path:
     """Find the closest ancestor of a path.
 
     In case a path is the path to the task file itself, we return the path.
@@ -60,14 +56,8 @@ def find_closest_ancestor(
     'folder/subfolder'
 
     """
-    if isinstance(path, str):
-        path = Path(path)
-
     closest_ancestor = None
     for ancestor in potential_ancestors:
-        if isinstance(ancestor, str):
-            ancestor = Path(ancestor)  # noqa: PLW2901
-
         if ancestor == path:
             closest_ancestor = path
             break
@@ -90,14 +80,13 @@ def find_closest_ancestor(
 
 def find_common_ancestor_of_nodes(*names: str) -> Path:
     """Find the common ancestor from task names and nodes."""
-    cleaned_names = [name.split("::")[0] for name in names]
+    cleaned_names = [Path(name.split("::")[0]) for name in names]
     return find_common_ancestor(*cleaned_names)
 
 
-def find_common_ancestor(*paths: str | Path) -> Path:
+def find_common_ancestor(*paths: Path) -> Path:
     """Find a common ancestor of many paths."""
-    common_ancestor = Path(os.path.commonpath(paths))
-    return common_ancestor
+    return Path(os.path.commonpath(paths))
 
 
 @functools.lru_cache
@@ -121,8 +110,7 @@ def find_case_sensitive_path(path: Path, platform: str) -> Path:
       a case-sensitive path which it does on Windows.
 
     """
-    out = path.resolve() if platform == "win32" else path
-    return out
+    return path.resolve() if platform == "win32" else path
 
 
 def import_path(path: Path, root: Path) -> ModuleType:
@@ -138,7 +126,8 @@ def import_path(path: Path, root: Path) -> ModuleType:
     spec = importlib.util.spec_from_file_location(module_name, str(path))
 
     if spec is None:
-        raise ImportError(f"Can't find module {module_name!r} at location {path}.")
+        msg = f"Can't find module {module_name!r} at location {path}."
+        raise ImportError(msg)
 
     mod = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = mod

@@ -36,8 +36,8 @@ _IGNORE_OPTION = click.Option(
     type=str,
     multiple=True,
     help=(
-        "A pattern to ignore files or directories. Refer to pathlib.Path.match for "
-        "more info."
+        "A pattern to ignore files or directories. Refer to 'pathlib.Path.match' "
+        "for more info."
     ),
     default=[],
 )
@@ -82,11 +82,8 @@ def _database_url_callback(
     try:
         return make_url(value)
     except ArgumentError:
-        raise click.BadParameter(
-            "The 'database_url' must conform to sqlalchemy's url standard: "
-            "https://docs.sqlalchemy.org/en/latest/core/engines.html"
-            "#backend-specific-urls."
-        ) from None
+        msg = "The 'database_url' must conform to sqlalchemy's url standard: https://docs.sqlalchemy.org/en/latest/core/engines.html#backend-specific-urls."
+        raise click.BadParameter(msg) from None
 
 
 _DATABASE_URL_OPTION = click.Option(

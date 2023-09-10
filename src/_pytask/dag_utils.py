@@ -4,14 +4,18 @@ from __future__ import annotations
 import itertools
 from typing import Generator
 from typing import Iterable
+from typing import TYPE_CHECKING
 
 import networkx as nx
 from _pytask.console import format_strings_as_flat_tree
+from _pytask.console import format_task_name
 from _pytask.console import TASK_ICON
 from _pytask.mark_utils import has_mark
-from _pytask.nodes import Task
 from attrs import define
 from attrs import field
+
+if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
 
 
 def descending_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, None]:
@@ -72,7 +76,8 @@ class TopologicalSorter:
     def from_dag(cls, dag: nx.DiGraph) -> TopologicalSorter:
         """Instantiate from a DAG."""
         if not dag.is_directed():
-            raise ValueError("Only directed graphs have a topological order.")
+            msg = "Only directed graphs have a topological order."
+            raise ValueError(msg)
 
         tasks = [
             dag.nodes[node]["task"] for node in dag.nodes if "task" in dag.nodes[node]
@@ -92,16 +97,19 @@ class TopologicalSorter:
         except nx.NetworkXNoCycle:
             pass
         else:
-            raise ValueError("The DAG contains cycles.")
+            msg = "The DAG contains cycles."
+            raise ValueError(msg)
 
         self._is_prepared = True
 
     def get_ready(self, n: int = 1) -> list[str]:
         """Get up to ``n`` tasks which are ready."""
         if not self._is_prepared:
-            raise ValueError("The TopologicalSorter needs to be prepared.")
+            msg = "The TopologicalSorter needs to be prepared."
+            raise ValueError(msg)
         if not isinstance(n, int) or n < 1:
-            raise ValueError("'n' must be an integer greater or equal than 1.")
+            msg = "'n' must be an integer greater or equal than 1."
+            raise ValueError(msg)
 
         ready_nodes = {v for v, d in self.dag.in_degree() if d == 0} - self._nodes_out
         prioritized_nodes = sorted(
@@ -136,7 +144,7 @@ class TopologicalSorter:
             self.done(new_task)
 
 
-def _extract_priorities_from_tasks(tasks: list[Task]) -> dict[str, int]:
+def _extract_priorities_from_tasks(tasks: list[PTask]) -> dict[str, int]:
     """Extract priorities from tasks.
 
     Priorities are set via the ``pytask.mark.try_first`` and ``pytask.mark.try_last``
@@ -159,22 +167,23 @@ def _extract_priorities_from_tasks(tasks: list[Task]) -> dict[str, int]:
 
     if tasks_w_mixed_priorities:
         name_to_task = {task.name: task for task in tasks}
-        reduced_names = [
-            name_to_task[name].short_name for name in tasks_w_mixed_priorities
-        ]
+        reduced_names = []
+        for name in tasks_w_mixed_priorities:
+            reduced_name = format_task_name(name_to_task[name], "no_link")
+            reduced_names.append(reduced_name.plain)
+
         text = format_strings_as_flat_tree(
             reduced_names, "Tasks with mixed priorities", TASK_ICON
         )
-        raise ValueError(
-            "'try_first' and 'try_last' cannot be applied on the same task. See the "
+        msg = (
+            f"'try_first' and 'try_last' cannot be applied on the same task. See the "
             f"following tasks for errors:\n\n{text}"
         )
+        raise ValueError(msg)
 
     # Recode to numeric values for sorting.
     numeric_mapping = {(True, False): 1, (False, False): 0, (False, True): -1}
-    numeric_priorities = {
+    return {
         name: numeric_mapping[(p["try_first"], p["try_last"])]
         for name, p in priorities.items()
     }
-
-    return numeric_priorities

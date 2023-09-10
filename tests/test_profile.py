@@ -8,10 +8,10 @@ import pytest
 from _pytask.cli import cli
 from _pytask.profile import _to_human_readable_size
 from _pytask.profile import Runtime
+from pytask import build
 from pytask import create_database
 from pytask import DatabaseSession
 from pytask import ExitCode
-from pytask import main
 
 
 @pytest.mark.end_to_end()
@@ -22,7 +22,7 @@ def test_duration_is_stored_in_task(tmp_path):
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
-    session = main({"paths": tmp_path})
+    session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1

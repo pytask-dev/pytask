@@ -1,20 +1,17 @@
-"""This module contains code related to live objects."""
+"""Contains code related to live objects."""
 from __future__ import annotations
 
 from typing import Any
 from typing import Generator
 from typing import NamedTuple
+from typing import TYPE_CHECKING
 
 import click
 from _pytask.config import hookimpl
 from _pytask.console import console
-from _pytask.console import format_task_id
-from _pytask.nodes import Task
+from _pytask.console import format_task_name
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
-from _pytask.report import CollectionReport
-from _pytask.report import ExecutionReport
-from _pytask.session import Session
 from attrs import define
 from attrs import field
 from rich.box import ROUNDED
@@ -23,6 +20,12 @@ from rich.status import Status
 from rich.style import Style
 from rich.table import Table
 from rich.text import Text
+
+if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
+    from _pytask.report import ExecutionReport
+    from _pytask.session import Session
+    from _pytask.report import CollectionReport
 
 
 @hookimpl
@@ -128,7 +131,7 @@ class LiveManager:
 class _ReportEntry(NamedTuple):
     name: str
     outcome: TaskOutcome
-    task: Task
+    task: PTask
 
 
 @define(eq=False, kw_only=True)
@@ -142,7 +145,7 @@ class LiveExecution:
     sort_final_table: bool = False
     n_tasks: int | str = "x"
     _reports: list[_ReportEntry] = field(factory=list)
-    _running_tasks: dict[str, Task] = field(factory=dict)
+    _running_tasks: dict[str, PTask] = field(factory=dict)
 
     @hookimpl(hookwrapper=True)
     def pytask_execute_build(self) -> Generator[None, None, None]:
@@ -157,7 +160,7 @@ class LiveExecution:
             console.print(table)
 
     @hookimpl(tryfirst=True)
-    def pytask_execute_task_log_start(self, task: Task) -> bool:
+    def pytask_execute_task_log_start(self, task: PTask) -> bool:
         """Mark a new task as running."""
         self.update_running_tasks(task)
         return True
@@ -223,18 +226,12 @@ class LiveExecution:
         table.add_column("Outcome")
         for report in relevant_reports:
             table.add_row(
-                format_task_id(
-                    report.task,
-                    editor_url_scheme=self.editor_url_scheme,
-                    short_name=True,
-                ),
+                format_task_name(report.task, editor_url_scheme=self.editor_url_scheme),
                 Text(report.outcome.symbol, style=report.outcome.style),
             )
         for task in self._running_tasks.values():
             table.add_row(
-                format_task_id(
-                    task, editor_url_scheme=self.editor_url_scheme, short_name=True
-                ),
+                format_task_name(task, editor_url_scheme=self.editor_url_scheme),
                 "running",
             )
 
@@ -256,7 +253,7 @@ class LiveExecution:
         )
         self.live_manager.update(table)
 
-    def update_running_tasks(self, new_running_task: Task) -> None:
+    def update_running_tasks(self, new_running_task: PTask) -> None:
         """Add a new running task."""
         self._running_tasks[new_running_task.name] = new_running_task
         self._update_table()
@@ -266,7 +263,7 @@ class LiveExecution:
         self._running_tasks.pop(new_report.task.name)
         self._reports.append(
             _ReportEntry(
-                name=new_report.task.short_name,
+                name=getattr(new_report.task, "display_name", new_report.task.name),
                 outcome=new_report.outcome,
                 task=new_report.task,
             )
@@ -320,5 +317,4 @@ class LiveCollection:
         msg = f"Collected {self._n_collected_tasks} tasks."
         if self._n_errors > 0:
             msg += f" {self._n_errors} errors."
-        status = Status(msg, spinner="dots")
-        return status
+        return Status(msg, spinner="dots")

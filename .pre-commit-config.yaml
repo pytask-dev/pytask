@@ -43,7 +43,7 @@ repos:
     rev: 23.7.0
     hooks:
     -   id: black
--   repo: https://github.com/charliermarsh/ruff-pre-commit
+-   repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.0.286
     hooks:
       - id: ruff
@@ -69,6 +69,7 @@ repos:
         additional_dependencies: [
             attrs>=21.3.0,
             click,
+            pluggy,
             types-setuptools
         ]
         pass_filenames: false
@@ -111,6 +112,10 @@ repos:
                 docs/source/tutorials/set_up_a_project.md|
                 docs/source/tutorials/write_a_task.md
             )$
+- repo: https://github.com/kynan/nbstripout
+  rev: 0.6.1
+  hooks:
+    - id: nbstripout
 -   repo: https://github.com/codespell-project/codespell
     rev: v2.2.5
     hooks:

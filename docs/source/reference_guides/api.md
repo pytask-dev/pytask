@@ -325,7 +325,7 @@ outcome.
 
 ```{eval-rst}
 .. autofunction:: pytask.build_dag
-.. autofunction:: pytask.main
+.. autofunction:: pytask.build
 ```
 
 ## Reports

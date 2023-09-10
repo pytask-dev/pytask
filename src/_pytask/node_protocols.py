@@ -1,17 +1,27 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from pathlib import Path
 from typing import Any
+from typing import Callable
 from typing import Protocol
 from typing import runtime_checkable
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from _pytask.tree_util import PyTree
+    from pathlib import Path
+    from _pytask.mark import Mark
+
+
+__all__ = ["MetaNode", "PNode", "PPathNode", "PTask", "PTaskWithPath"]
 
 
 @runtime_checkable
 class MetaNode(Protocol):
     """Protocol for an intersection between nodes and tasks."""
 
-    name: str | None
+    name: str
     """The name of node that must be unique."""
 
     @abstractmethod
@@ -26,10 +36,8 @@ class MetaNode(Protocol):
 
 
 @runtime_checkable
-class Node(MetaNode, Protocol):
+class PNode(MetaNode, Protocol):
     """Protocol for nodes."""
-
-    value: Any
 
     def load(self) -> Any:
         """Return the value of the node that will be injected into the task."""
@@ -39,27 +47,40 @@ class Node(MetaNode, Protocol):
         """Save the value that was returned from a task."""
         ...
 
-    def from_annot(self, value: Any) -> Any:
-        """Complete the node by setting the value from an default argument.
 
-        Use it, if you want to add information on how a node handles an argument while
-        keeping the type of the value unrelated to pytask.
+@runtime_checkable
+class PPathNode(PNode, Protocol):
+    """Nodes with paths.
 
-        .. codeblock: python
+    Nodes with paths receive special handling when it comes to printing their names.
 
-            def task_example(value: Annotated[Any, PythonNode(hash=True)], produces):
-                ...
+    """
+
+    path: Path
 
 
-        """
+@runtime_checkable
+class PTask(MetaNode, Protocol):
+    """Protocol for nodes."""
+
+    name: str
+    depends_on: PyTree[PNode]
+    produces: PyTree[PNode]
+    markers: list[Mark]
+    report_sections: list[tuple[str, str, str]]
+    attributes: dict[Any, Any]
+    function: Callable[..., Any]
+
+    def execute(self, **kwargs: Any) -> Any:
+        """Return the value of the node that will be injected into the task."""
         ...
 
 
 @runtime_checkable
-class PPathNode(Node, Protocol):
-    """Nodes with paths.
+class PTaskWithPath(PTask, Protocol):
+    """Tasks with paths.
 
-    Nodes with paths receive special handling when it comes to printing their names.
+    Tasks with paths receive special handling when it comes to printing their names.
 
     """
 
