@@ -58,6 +58,7 @@ from _pytask.report import CollectionReport
 from _pytask.report import DagReport
 from _pytask.report import ExecutionReport
 from _pytask.session import Session
+from _pytask.task_utils import task
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import remove_traceback_from_exc_info
@@ -139,5 +140,6 @@ __all__ = [
     "remove_traceback_from_exc_info",
     "render_exc_info",
     "set_marks",
+    "task",
     "warning_record_to_str",
 ]

@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 from typing_extensions import deprecated
 from _pytask.mark.expression import Expression
 from _pytask.mark.expression import ParseError
@@ -28,6 +29,19 @@ class MARK_GEN:  # noqa: N801
     )
     @staticmethod
     def depends_on(objects: PyTree[str | Path]) -> None: ...
+    @deprecated(
+        "'@pytask.mark.task' is deprecated starting pytask v0.4.0 and will be removed in v0.5.0. Use '@pytask.task' instead.",  # noqa: E501, PYI053
+        category=DeprecationWarning,
+        stacklevel=1,
+    )
+    @staticmethod
+    def task(
+        name: str | None = None,
+        *,
+        id: str | None = None,  # noqa: A002
+        kwargs: dict[Any, Any] | None = None,
+        produces: PyTree[Any] = None,
+    ) -> None: ...
 
 __all__ = [
     "Expression",

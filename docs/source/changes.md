@@ -34,6 +34,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`413` removes scripts to generate `.svg`s.
 - {pull}`414` allow more ruff rules.
 - {pull}`416` removes `.from_annot` again.
+- {pull}`417` deprecates {func}`pytask.mark.task` in favor of {func}`pytask.task`.
 
 ## 0.3.2 - 2023-06-07
 
