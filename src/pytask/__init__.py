@@ -17,7 +17,7 @@ from _pytask.database_utils import BaseTable
 from _pytask.database_utils import create_database
 from _pytask.database_utils import DatabaseSession
 from _pytask.database_utils import State
-from _pytask.datastore import DataStore
+from _pytask.datastore import DataCatalog
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
@@ -43,6 +43,7 @@ from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import PathNode
+from _pytask.nodes import PickleNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
 from _pytask.outcomes import CollectionOutcome
@@ -85,7 +86,7 @@ __all__ = [
     "ConfigurationError",
     "DagReport",
     "DatabaseSession",
-    "DataStore",
+    "DataCatalog",
     "EnumChoice",
     "ExecutionError",
     "ExecutionReport",
@@ -101,6 +102,7 @@ __all__ = [
     "NodeNotFoundError",
     "PathNode",
     "Persisted",
+    "PickleNode",
     "PNode",
     "PPathNode",
     "Product",

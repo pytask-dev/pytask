@@ -4,7 +4,7 @@ from __future__ import annotations
 import functools
 import hashlib
 import inspect
-from pathlib import Path  # noqa: TCH003
+import pickle
 from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
@@ -18,6 +18,7 @@ from attrs import field
 
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from _pytask.tree_util import PyTree
     from _pytask.mark import Mark
 
@@ -199,3 +200,37 @@ class PythonNode(PNode):
                 return str(hashlib.sha256(self.value.encode()).hexdigest())
             return str(hash(self.value))
         return "0"
+
+
+@define
+class PickleNode:
+    """A node for pickle files."""
+
+    name: str
+    """Name of the node which makes it identifiable in the DAG."""
+    path: Path
+    """The path to the file."""
+
+    @classmethod
+    @functools.lru_cache
+    def from_path(cls, path: Path) -> PickleNode:
+        """Instantiate class from path to file.
+
+        The `lru_cache` decorator ensures that the same object is not collected twice.
+
+        """
+        if not path.is_absolute():
+            msg = "Node must be instantiated from absolute path."
+            raise ValueError(msg)
+        return cls(name=path.as_posix(), path=path)
+
+    def state(self) -> str | None:
+        if self.path.exists():
+            return str(self.path.stat().st_mtime)
+        return None
+
+    def load(self) -> Any:
+        return pickle.loads(self.path.read_bytes())  # noqa: S301
+
+    def save(self, value: Any) -> None:
+        self.path.write_bytes(pickle.dumps(value))

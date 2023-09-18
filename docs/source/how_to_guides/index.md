@@ -16,6 +16,7 @@ invoking_pytask_extended
 capture_warnings
 how_to_influence_build_order
 how_to_write_a_plugin
+using_a_data_catalog
 ```
 
 ## Best Practice Guides

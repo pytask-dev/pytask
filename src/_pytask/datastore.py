@@ -1,16 +1,15 @@
-"""Contains the implementation of a datastore.
+"""Contains the implementation of a data catalog.
 
-The datastore is an abstraction layer between users and nodes.
+The data catalog is an abstraction layer between users and nodes.
 
 """
 from __future__ import annotations
 
 import hashlib
-import pickle
 from pathlib import Path
-from typing import Any
 from typing import TYPE_CHECKING
 
+from _pytask.nodes import PickleNode
 from attrs import define
 from attrs import Factory
 
@@ -18,49 +17,46 @@ if TYPE_CHECKING:
     from _pytask.node_protocols import PNode
 
 
-__all__ = ["DataStore", "PickleNode"]
+__all__ = ["DataCatalog"]
 
 
 @define
-class DataStore:
+class DataCatalog:
+    """A data catalog.
+
+    Parameters
+    ----------
+    directory
+        A directory where automatically created files are stored.
+    entries
+        A collection of entries in the catalog. Entries can be :class:`pytask.PNode` or
+        a :class:`DataCatalog` itself for nesting catalogs.
+
+    """
+
     directory: Path = Path.cwd().joinpath(".pytask").resolve()
-    nodes: dict[str, PNode] = Factory(dict)
+    entries: dict[str, DataCatalog | PNode] = Factory(dict)
 
-    def __getitem__(self, name: str) -> PNode:
-        if name not in self.nodes:
+    def __getitem__(self, name: str) -> DataCatalog | PNode:
+        if name not in self.entries:
             self.add(name)
-        return self.nodes[name]
+        return self.entries[name]
 
-    def add(self, name: str, node: PNode | None = None) -> None:
+    def add(self, name: str, node: DataCatalog | PNode | None = None) -> None:
         if not isinstance(name, str):
-            msg = "The name of a datastore entry must be a string."
+            msg = "The name of a catalog entry must be a string."
             raise TypeError(msg)
 
-        if name in self.nodes:
-            msg = f"There is already an entry with the name {name!r} in the datastore."
+        if name in self.entries:
+            msg = (
+                f"There is already an entry with the name {name!r} in the data catalog."
+            )
             raise ValueError(msg)
 
         if node is None:
             filename = str(hashlib.sha256(name.encode()).hexdigest())
-            self.nodes[name] = PickleNode(
+            self.entries[name] = PickleNode(
                 name=name, path=self.directory / f"{filename}.pkl"
             )
         else:
-            self.nodes[name] = node
-
-
-@define
-class PickleNode:
-    name: str
-    path: Path
-
-    def state(self) -> str | None:
-        if self.path.exists():
-            return str(self.path.stat().st_mtime)
-        return None
-
-    def load(self) -> Any:
-        return pickle.loads(self.path.read_bytes())  # noqa: S301
-
-    def save(self, value: Any) -> None:
-        self.path.write_bytes(pickle.dumps(value))
+            self.entries[name] = node

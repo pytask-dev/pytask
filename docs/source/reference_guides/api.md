@@ -232,6 +232,7 @@ The remaining exceptions convey specific errors.
 
 ```{eval-rst}
 .. autoclass:: pytask.Session
+.. autoclass:: pytask.DataCatalog
 ```
 
 ## Nodes
@@ -248,10 +249,11 @@ Then, different kinds of nodes can be implemented.
 ```{eval-rst}
 .. autoclass:: pytask.PathNode
     :members:
-```
 
-```{eval-rst}
 .. autoclass:: pytask.PythonNode
+    :members:
+
+.. autoclass:: pytask.PickleNode
     :members:
 ```
 
