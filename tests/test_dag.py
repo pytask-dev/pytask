@@ -1,18 +1,14 @@
 from __future__ import annotations
 
 import textwrap
-from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
-import networkx as nx
 import pytest
-from _pytask.dag import _check_if_root_nodes_are_available
 from _pytask.dag import pytask_dag_create_dag
-from _pytask.exceptions import NodeNotFoundError
-from _pytask.exceptions import ResolvingDependenciesError
 from attrs import define
 from pytask import cli
 from pytask import ExitCode
+from pytask import NodeNotFoundError
 from pytask import PathNode
 from pytask import Task
 
@@ -46,36 +42,8 @@ def test_pytask_dag_create_dag():
     )
 
 
-@pytest.mark.unit()
-@pytest.mark.xfail(reason="session object is missing.")
-def test_check_if_root_nodes_are_available():
-    dag = nx.DiGraph()
-
-    root = Path.cwd() / "src"
-
-    path = root.joinpath("task_dummy")
-    task = Task(base_name="task", path=path, function=None)
-    task.path = path
-    task.base_name = "task_dummy"
-    dag.add_node(task.name, task=task)
-
-    available_node = Node.from_path(root.joinpath("available_node"))
-    dag.add_node(available_node.name, node=available_node)
-    dag.add_edge(available_node.name, task.name)
-
-    with does_not_raise():
-        _check_if_root_nodes_are_available(dag)
-
-    missing_node = Node.from_path(root.joinpath("missing_node"))
-    dag.add_node(missing_node.name, node=missing_node)
-    dag.add_edge(missing_node.name, task.name)
-
-    with pytest.raises(ResolvingDependenciesError):
-        _check_if_root_nodes_are_available(dag)
-
-
 @pytest.mark.end_to_end()
-def test_check_if_root_nodes_are_available_end_to_end(tmp_path, runner):
+def test_check_if_root_nodes_are_available(tmp_path, runner):
     source = """
     import pytask
 
@@ -101,9 +69,35 @@ def test_check_if_root_nodes_are_available_end_to_end(tmp_path, runner):
 
 
 @pytest.mark.end_to_end()
-def test_check_if_root_nodes_are_available_with_separate_build_folder_end_to_end(
-    tmp_path, runner
-):
+def test_check_if_root_nodes_are_available_w_name(tmp_path, runner):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated, Any
+    from pytask import PathNode, PythonNode
+
+    node1 = PathNode(name="input1", path=Path(__file__).parent / "in.txt")
+    node2 = PythonNode(name="input2")
+
+    def task_e(in1_: Annotated[Path, node1], in2_: Annotated[Any, node2]): ...
+    """
+    tmp_path.joinpath("task_e.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.DAG_FAILED
+    assert "Failures during resolving dependencies" in result.output
+
+    # Ensure that node names are reduced.
+    assert "Failures during resolving dependencies" in result.output
+    assert "Some dependencies do not exist or are" in result.output
+    assert tmp_path.joinpath("task_e.py").as_posix() + "::task_e" not in result.output
+    assert "task_e.py::task_e" in result.output
+    assert tmp_path.joinpath("in.txt").as_posix() not in result.output
+    assert tmp_path.name + "/in.txt" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_check_if_root_nodes_are_available_with_separate_build_folder(tmp_path, runner):
     tmp_path.joinpath("src").mkdir()
     tmp_path.joinpath("bld").mkdir()
     source = """

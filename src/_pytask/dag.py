@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import itertools
 import sys
+from typing import Sequence
 from typing import TYPE_CHECKING
 
 import networkx as nx
@@ -38,6 +39,7 @@ from rich.text import Text
 from rich.tree import Tree
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from _pytask.session import Session
 
 
@@ -79,12 +81,10 @@ def pytask_dag_create_dag(tasks: list[PTask]) -> nx.DiGraph:
         dag.add_node(task.name, task=task)
 
         tree_map(lambda x: dag.add_node(x.name, node=x), task.depends_on)
-        tree_map(
-            lambda x: dag.add_edge(x.name, task.name), task.depends_on  # noqa: B023
-        )
+        tree_map(lambda x: dag.add_edge(x.name, task.name), task.depends_on)
 
         tree_map(lambda x: dag.add_node(x.name, node=x), task.produces)
-        tree_map(lambda x: dag.add_edge(task.name, x.name), task.produces)  # noqa: B023
+        tree_map(lambda x: dag.add_edge(task.name, x.name), task.produces)
 
     _check_if_dag_has_cycles(dag)
 
@@ -110,9 +110,9 @@ def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
 
 
 @hookimpl
-def pytask_dag_validate_dag(dag: nx.DiGraph) -> None:
+def pytask_dag_validate_dag(session: Session, dag: nx.DiGraph) -> None:
     """Validate the DAG."""
-    _check_if_root_nodes_are_available(dag)
+    _check_if_root_nodes_are_available(dag, session.config["paths"])
     _check_if_tasks_have_the_same_products(dag)
 
 
@@ -200,7 +200,7 @@ if IS_FILE_SYSTEM_CASE_SENSITIVE:
     )
 
 
-def _check_if_root_nodes_are_available(dag: nx.DiGraph) -> None:
+def _check_if_root_nodes_are_available(dag: nx.DiGraph, paths: Sequence[Path]) -> None:
     missing_root_nodes = []
     is_task_skipped: dict[str, bool] = {}
 
@@ -217,23 +217,14 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph) -> None:
                     missing_root_nodes.append(node)
 
     if missing_root_nodes:
-        all_names = missing_root_nodes + [
-            successor
-            for node in missing_root_nodes
-            for successor in dag.successors(node)
-            if not is_task_skipped[successor]
-        ]
-        common_ancestor = find_common_ancestor_of_nodes(*all_names)
         dictionary = {}
         for node in missing_root_nodes:
-            short_node_name = reduce_node_name(
-                dag.nodes[node]["node"], [common_ancestor]
-            )
+            short_node_name = reduce_node_name(dag.nodes[node]["node"], paths)
             not_skipped_successors = [
                 task for task in dag.successors(node) if not is_task_skipped[task]
             ]
             short_successors = reduce_names_of_multiple_nodes(
-                not_skipped_successors, dag, [common_ancestor]
+                not_skipped_successors, dag, paths
             )
             dictionary[short_node_name] = short_successors
 
