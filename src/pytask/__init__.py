@@ -17,6 +17,7 @@ from _pytask.database_utils import BaseTable
 from _pytask.database_utils import create_database
 from _pytask.database_utils import DatabaseSession
 from _pytask.database_utils import State
+from _pytask.datastore import DataStore
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
@@ -84,6 +85,7 @@ __all__ = [
     "ConfigurationError",
     "DagReport",
     "DatabaseSession",
+    "DataStore",
     "EnumChoice",
     "ExecutionError",
     "ExecutionReport",
