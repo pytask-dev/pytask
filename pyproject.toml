@@ -64,6 +64,7 @@ extend-ignore = [
 "src/_pytask/capture.py" = ["PGH003"]
 "src/_pytask/hookspecs.py" = ["ARG001"]
 "src/_pytask/outcomes.py" = ["N818"]
+"src/_pytask/dag.py" = ["B023"]
 "tests/test_capture.py" = ["T201", "PT011"]
 "tests/*" = ["D", "ANN", "PLR2004", "S101"]
 "scripts/*" = ["D", "INP001"]
