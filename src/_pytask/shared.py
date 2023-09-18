@@ -13,7 +13,6 @@ from _pytask.console import format_task_name
 from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
-from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
@@ -73,7 +72,7 @@ def reduce_node_name(node: MetaNode, paths: Sequence[Path]) -> str:
     path from one path in ``session.config["paths"]`` to the node.
 
     """
-    if isinstance(node, (PPathNode, PTaskWithPath)):
+    if isinstance(node, PPathNode):
         ancestor = find_closest_ancestor(node.path, paths)
         if ancestor is None:
             try:
