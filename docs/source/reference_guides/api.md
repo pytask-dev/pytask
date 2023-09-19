@@ -236,6 +236,7 @@ The remaining exceptions convey specific errors.
 
 ```{eval-rst}
 .. autoclass:: pytask.Session
+
 ```
 
 ## Nodes
@@ -346,6 +347,20 @@ There are some classes to handle different kinds of reports.
 .. autoclass:: pytask.CollectionReport
 .. autoclass:: pytask.ExecutionReport
 .. autoclass:: pytask.DagReport
+```
+
+## Typing
+
+```{eval-rst}
+..  class:: pytask.Product
+
+    An indicator to mark arguments of tasks as products.
+
+    Examples
+    --------
+    >>> def task_example(path: Annotated[Path, Product]) -> None:
+    ...     path.write_text("Hello, World!")
+
 ```
 
 ## Tracebacks

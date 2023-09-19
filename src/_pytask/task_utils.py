@@ -17,7 +17,12 @@ if TYPE_CHECKING:
     from _pytask.tree_util import PyTree
 
 
-__all__ = ["parse_keyword_arguments_from_signature_defaults"]
+__all__ = [
+    "COLLECTED_TASKS",
+    "parse_collected_tasks_with_task_marker",
+    "parse_keyword_arguments_from_signature_defaults",
+    "task",
+]
 
 
 COLLECTED_TASKS: dict[Path, list[Callable[..., Any]]] = defaultdict(list)

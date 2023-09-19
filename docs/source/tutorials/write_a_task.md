@@ -30,9 +30,12 @@ my_project
 Generally, a task is a function whose name starts with `task_`. Tasks produce outputs
 and the most common output is a file which we will focus on throughout the tutorials.
 
-The following interfaces allow specifying the products of a task. It enables pytask to
-perform some checks. For example, whether the file is created after the task was
-executed. The interfaces are ordered from most (left) to least recommended (right).
+The following interfaces are different ways to specify the products of a task which is necessary for pytask to
+correctly run a workflow. The interfaces are ordered from most (left) to least recommended (right).
+
+:::{important}
+You cannot mix different interfaces for the same task. Choose only one.
+:::
 
 :::::{tab-set}
 
@@ -42,7 +45,7 @@ The task accepts the argument `path` that points to the file where the data set 
 stored. The path is passed to the task via the default value, `BLD / "data.pkl"`. To
 indicate that this file is a product we add some metadata to the argument.
 
-Look at the type hint `Annotated[Path, BLD / "data.pkl"]`. It uses the new
+Look at the type hint `Annotated[Path, Product]`. It uses the
 {obj}`~typing.Annotated` syntax. The first entry is the type of the argument,
 {class}`~pathlib.Path`. The second entry is {class}`pytask.Product` that marks this
 argument as a product.
@@ -64,7 +67,7 @@ The task accepts the argument `path` that points to the file where the data set 
 stored. The path is passed to the task via the default value, `BLD / "data.pkl"`. To
 indicate that this file is a product we add some metadata to the argument.
 
-Look at the type hint `Annotated[Path, BLD / "data.pkl"]`. It uses the new
+Look at the type hint `Annotated[Path, Product]`. It uses the
 {obj}`~typing.Annotated` syntax. The first entry is the type of the argument,
 {class}`~pathlib.Path`. The second entry is {class}`pytask.Product` that marks this
 argument as a product.
