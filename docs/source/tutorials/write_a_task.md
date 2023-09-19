@@ -119,15 +119,17 @@ Now, execute pytask to collect tasks in the current and subsequent directories.
 
 ## Customize task names
 
-Use the {func}`@pytask.mark.task <pytask.mark.task>` decorator to mark a function as a
+Use the {func}`@task <pytask.task>` decorator to mark a function as a
 task regardless of its function name. You can optionally pass a new name for the task.
 Otherwise, pytask uses the function name.
 
 ```python
+from pytask import task
+
 # The id will be ".../task_data_preparation.py::create_random_data".
 
 
-@pytask.mark.task
+@task
 def create_random_data():
     ...
 
@@ -135,10 +137,15 @@ def create_random_data():
 # The id will be ".../task_data_preparation.py::create_data".
 
 
-@pytask.mark.task(name="create_data")
+@task(name="create_data")
 def create_random_data():
     ...
 ```
+
+:::{warning}
+Since v0.4 users should use {func}`@task <pytask.task>` over
+{func}`@pytask.mark.task <pytask.mark.task>` which will be removed in v0.5.
+:::
 
 ## Customize task module names
 

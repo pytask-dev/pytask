@@ -1,5 +1,5 @@
-import pytask
 from pytask import PythonNode
+from pytask import task
 
 
 nodes = [
@@ -12,4 +12,4 @@ nodes = [
 func = lambda *x: [{"first": "a", "second": {"b": 1, "c": 2}}, (3, 4), 5]
 
 
-task_example = pytask.mark.task(produces=nodes)(func)
+task_example = task(produces=nodes)(func)
