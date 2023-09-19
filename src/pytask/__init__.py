@@ -13,11 +13,11 @@ from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.data_catalog import DataCatalog
 from _pytask.database_utils import BaseTable
 from _pytask.database_utils import create_database
 from _pytask.database_utils import DatabaseSession
 from _pytask.database_utils import State
-from _pytask.datastore import DataCatalog
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError

@@ -233,6 +233,7 @@ The remaining exceptions convey specific errors.
 ```{eval-rst}
 .. autoclass:: pytask.Session
 .. autoclass:: pytask.DataCatalog
+   :members:
 ```
 
 ## Nodes

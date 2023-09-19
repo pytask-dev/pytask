@@ -34,15 +34,17 @@ class DataCatalog:
 
     """
 
-    directory: Path = Path.cwd().joinpath(".pytask").resolve()
+    directory: Path = Factory(lambda *x: Path.cwd().joinpath(".pytask").resolve())
     entries: dict[str, DataCatalog | PNode] = Factory(dict)
 
     def __getitem__(self, name: str) -> DataCatalog | PNode:
+        """Allow to access entries with the squared brackets syntax."""
         if name not in self.entries:
             self.add(name)
         return self.entries[name]
 
     def add(self, name: str, node: DataCatalog | PNode | None = None) -> None:
+        """Add an entry to the data catalog."""
         if not isinstance(name, str):
             msg = "The name of a catalog entry must be a string."
             raise TypeError(msg)

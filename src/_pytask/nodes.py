@@ -114,12 +114,17 @@ class Task(PTaskWithPath):
 
 @define(kw_only=True)
 class PathNode(PPathNode):
-    """The class for a node which is a path."""
+    """The class for a node which is a path.
+
+    name
+        Name of the node which makes it identifiable in the DAG.
+    path
+        The path to the file.
+
+    """
 
     name: str
-    """Name of the node which makes it identifiable in the DAG."""
     path: Path
-    """The path to the file."""
 
     @classmethod
     @functools.lru_cache
@@ -161,14 +166,35 @@ class PathNode(PPathNode):
 
 @define(kw_only=True)
 class PythonNode(PNode):
-    """The class for a node which is a Python object."""
+    """The class for a node which is a Python object.
+
+    Parameters
+    ----------
+    name
+        The name of the node.
+    value
+        The value of the node.
+    hash
+        Whether the value should be hashed to determine the state. Use ``True`` for
+        objects that are hashable like strings and tuples. For dictionaries and other
+        non-hashable objects, you need to provide a function that can hash these
+        objects.
+
+    Examples
+    --------
+    To allow a :class:`~pytask.PythonNode` to hash a dictionary, you need to pass your
+    own hashing function. For example, from the :mod:`deepdiff` library.
+
+    >>> from deepdiff import DeepHash
+    >>> node = PythonNode(name="node", value={"a": 1}, hash=lambda x: DeepHash(x)[x])
+
+    .. warning:: Hashing big objects can require some time.
+
+    """
 
     name: str = ""
-    """Name of the node."""
     value: Any = None
-    """Value of the node."""
-    hash: bool | Callable[[Any], bool] = False  # noqa: A003
-    """Whether the value should be hashed to determine the state."""
+    hash: bool | Callable[[Any], str] = False  # noqa: A003
 
     def load(self) -> Any:
         """Load the value."""
@@ -204,12 +230,25 @@ class PythonNode(PNode):
 
 @define
 class PickleNode:
-    """A node for pickle files."""
+    """A node for pickle files.
+
+    Parameters
+    ----------
+    name
+        Name of the node which makes it identifiable in the DAG.
+    path
+        The path to the file.
+    load_func
+        A function to convert :obj:`bytes` from a pickle file to a Python object.
+    dump_func
+        A function to convert a Python object to :obj:`bytes`.
+
+    """
 
     name: str
-    """Name of the node which makes it identifiable in the DAG."""
     path: Path
-    """The path to the file."""
+    load_func: Callable[[bytes], Any] = pickle.loads
+    dump_func: Callable[[Any], bytes] = pickle.dumps
 
     @classmethod
     @functools.lru_cache
@@ -230,7 +269,7 @@ class PickleNode:
         return None
 
     def load(self) -> Any:
-        return pickle.loads(self.path.read_bytes())  # noqa: S301
+        return self.load_func(self.path.read_bytes())
 
     def save(self, value: Any) -> None:
-        self.path.write_bytes(pickle.dumps(value))
+        self.path.write_bytes(self.dump_func(value))
