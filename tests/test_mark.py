@@ -375,8 +375,8 @@ def test_deprecation_warnings_for_decorators(tmp_path):
         capture_output=True,
         check=False,
     )
-    assert b"DeprecationWarning: '@pytask.mark.depends_on'" in result.stdout
-    assert b"DeprecationWarning: '@pytask.mark.produces'" in result.stdout
+    assert b"FutureWarning: '@pytask.mark.depends_on'" in result.stdout
+    assert b"FutureWarning: '@pytask.mark.produces'" in result.stdout
 
 
 @pytest.mark.end_to_end()
@@ -394,4 +394,4 @@ def test_deprecation_warnings_for_task_decorator(tmp_path):
         capture_output=True,
         check=False,
     )
-    assert b"DeprecationWarning: '@pytask.mark.task'" in result.stdout
+    assert b"FutureWarning: '@pytask.mark.task'" in result.stdout
