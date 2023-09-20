@@ -64,6 +64,7 @@ ignore = [
 "src/_pytask/capture.py" = ["PGH003"]
 "src/_pytask/hookspecs.py" = ["ARG001"]
 "src/_pytask/outcomes.py" = ["N818"]
+"src/_pytask/dag.py" = ["B023"]
 "tests/test_capture.py" = ["T201", "PT011"]
 "tests/*" = ["D", "ANN", "PLR2004", "S101"]
 "scripts/*" = ["D", "INP001"]
@@ -90,7 +91,7 @@ markers = [
     "end_to_end: Flag for tests that cover the whole program.",
 ]
 norecursedirs = [".idea", ".tox"]
-filterwarnings = ["ignore:'@pytask.mark.*. is deprecated:DeprecationWarning"]
+filterwarnings = ["ignore:'@pytask.mark.*. is deprecated:FutureWarning"]
 
 
 [tool.refurb]

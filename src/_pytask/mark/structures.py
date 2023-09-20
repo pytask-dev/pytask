@@ -202,7 +202,7 @@ class MarkGenerator:
         if name in ("depends_on", "produces"):
             warnings.warn(
                 _DEPRECATION_DECORATOR.format(name),
-                category=DeprecationWarning,
+                category=FutureWarning,
                 stacklevel=1,
             )
 
@@ -233,7 +233,7 @@ class MarkGenerator:
             warnings.warn(
                 "'@pytask.mark.task' is deprecated starting pytask v0.4.0 and will be "
                 "removed in v0.5.0. Use '@pytask.task' instead.",
-                category=DeprecationWarning,
+                category=FutureWarning,
                 stacklevel=1,
             )
 
