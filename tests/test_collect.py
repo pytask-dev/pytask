@@ -406,7 +406,6 @@ def test_depends_on_cannot_mix_different_definitions(tmp_path):
 def test_deprecation_warning_for_strings_in_depends_on(runner, tmp_path):
     source = """
     import pytask
-    from pathlib import Path
 
     @pytask.mark.depends_on("in.txt")
     @pytask.mark.produces("out.txt")
@@ -420,6 +419,22 @@ def test_deprecation_warning_for_strings_in_depends_on(runner, tmp_path):
     assert "FutureWarning" in result.output
     assert "Using strings to specify a dependency" in result.output
     assert "Using strings to specify a product" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_no_deprecation_warning_for_using_magic_produces(runner, tmp_path):
+    source = """
+    import pytask
+    from pathlib import Path
+
+    def task_write_text(depends_on, produces=Path("out.txt")):
+        produces.touch()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert "FutureWarning" not in result.output
+    assert "Using 'produces' as an argument name" not in result.output
 
 
 @pytest.mark.end_to_end()
