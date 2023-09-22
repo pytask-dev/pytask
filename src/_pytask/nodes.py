@@ -185,7 +185,9 @@ class PythonNode(PNode):
 
         If ``hash`` is a callable, then use this function to calculate a hash.
 
-        If ``hash = True``, :func:`hash` is used for all types except strings.
+        If ``hash = True``, the builtin ``hash()`` function (`link
+        <https://docs.python.org/3.11/library/functions.html?highlight=hash#hash>`_) is
+        used for all types except strings.
 
         The hash for strings is calculated using hashlib because ``hash("asd")`` returns
         a different value every invocation since the hash of strings is salted with a

@@ -36,6 +36,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`416` removes `.from_annot` again.
 - {pull}`417` deprecates {func}`pytask.mark.task` in favor of {func}`pytask.task`.
 - {pull}`418` fixes and error and simplifies code in `dag.py`.
+- {pull}`420` converts `DeprecationWarning`s to `FutureWarning`s for the deprecated
+  decorators.
+- {pull}`421` removes the deprecation warning when `produces` is used as an magic
+  function keyword to define products.
 
 ## 0.3.2 - 2023-06-07
 

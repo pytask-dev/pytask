@@ -350,7 +350,7 @@ annotation, described in this tutorial: https://tinyurl.com/yrezszr4.
 """
 
 
-def parse_products_from_task_function(  # noqa: C901
+def parse_products_from_task_function(
     session: Session, path: Path, name: str, obj: Any
 ) -> dict[str, Any]:
     """Parse products from task function.
@@ -383,10 +383,6 @@ def parse_products_from_task_function(  # noqa: C901
 
     # Parse products from task decorated with @task and that uses produces.
     if "produces" in kwargs:
-        if "produces" not in parameters_with_product_annot:
-            warnings.warn(
-                _WARNING_PRODUCES_AS_KWARG, category=FutureWarning, stacklevel=1
-            )
         has_produces_argument = True
         collected_products = tree_map_with_path(
             lambda p, x: _collect_product(
