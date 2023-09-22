@@ -24,8 +24,9 @@ In the following example, the argument `text` will be parsed as a
 By default, pytask does not detect changes in {class}`~pytask.PythonNode` and if the
 value would change (without changing the task module), pytask would not rerun the task.
 
-We can also hash the value of PythonNode s so that pytask knows when the input changed.
-For that, we need to use the PythonNode explicitly and set `hash = True`.
+We can also hash the value of {class}`~pytask.PythonNode` s so that pytask knows when
+the input changed. For that, we need to use the {class}`~pytask.PythonNode` explicitly
+and set `hash = True`.
 
 :::::{tab-set}
 
@@ -62,7 +63,7 @@ from interpreter session to interpreter session for security reasons (see
 
 {class}`list` and {class}`dict` are not hashable by default. Luckily, there are
 libraries who provide this functionality like `deepdiff`. We can use them to pass a
-function to the PythonNode that generates a stable hash.
+function to the {class}`~pytask.PythonNode` that generates a stable hash.
 
 First, install `deepdiff`.
 
