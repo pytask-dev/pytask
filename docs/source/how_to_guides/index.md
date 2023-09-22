@@ -12,7 +12,7 @@ specific tasks with pytask.
 maxdepth: 1
 ---
 migrating_from_scripts_to_pytask
-invoking_pytask_extended
+functional_interface
 capture_warnings
 how_to_influence_build_order
 hashing_inputs_of_tasks

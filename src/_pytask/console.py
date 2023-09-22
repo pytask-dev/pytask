@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import Iterable
+from typing import Literal
 from typing import TYPE_CHECKING
 
 import rich
@@ -56,7 +57,7 @@ else:
     _IS_LEGACY_WINDOWS = False
 
 
-_COLOR_SYSTEM = None if _IS_LEGACY_WINDOWS else "auto"
+_COLOR_SYSTEM: Literal["auto"] | None = None if _IS_LEGACY_WINDOWS else "auto"
 
 
 _HORIZONTAL_PADDING = (0, 1, 0, 1)

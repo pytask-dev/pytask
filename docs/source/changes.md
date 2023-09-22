@@ -40,6 +40,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   decorators.
 - {pull}`421` removes the deprecation warning when `produces` is used as an magic
   function keyword to define products.
+- {pull}`422` adds a notebook to explain the functional interface.
 
 ## 0.3.2 - 2023-06-07
 

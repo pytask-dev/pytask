@@ -42,7 +42,7 @@ tree_flatten_with_path = functools.partial(
 )
 
 
-def tree_index(path: tuple[Any, ...], tree: PyTree) -> Any:
+def tree_index(path: tuple[Any, ...], tree: PyTree[Any]) -> Any:
     """Index a tree with a path."""
     if not path:
         return tree
