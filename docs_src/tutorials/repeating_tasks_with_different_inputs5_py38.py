@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import NamedTuple
 
-import pytask
 from pytask import Product
+from pytask import task
 from typing_extensions import Annotated
 
 
@@ -19,7 +19,7 @@ ID_TO_KWARGS = {
 
 for id_, arguments in ID_TO_KWARGS.items():
 
-    @pytask.mark.task(id=id_)
+    @task(id=id_)
     def task_create_random_data(
         seed: int = arguments.seed,
         path_to_data: Annotated[Path, Product] = arguments.path_to_data,

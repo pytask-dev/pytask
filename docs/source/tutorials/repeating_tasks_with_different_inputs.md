@@ -8,7 +8,7 @@ We reuse the task from the previous {doc}`tutorial <write_a_task>`, which genera
 random data and repeats the same operation over several seeds to receive multiple,
 reproducible samples.
 
-Apply the {func}`@pytask.mark.task <pytask.mark.task>` decorator, loop over the function
+Apply the {func}`@task <pytask.task>` decorator, loop over the function
 and supply different seeds and output paths as default arguments of the function.
 
 ::::{tab-set}
@@ -158,7 +158,7 @@ task_data_preparation.py::task_create_random_data[seed1]
 
 ### User-defined ids
 
-The {func}`@pytask.mark.task <pytask.mark.task>` decorator has an `id` keyword, allowing
+The {func}`@task <pytask.task>` decorator has an `id` keyword, allowing
 the user to set a unique name for the iteration.
 
 ::::{tab-set}
@@ -243,7 +243,7 @@ and arguments. Here are three tips to organize the repetitions.
    :::
    ::::
 
-2. {func}`@pytask.mark.task <pytask.mark.task>` has a `kwargs` argument that allows you
+2. {func}`@task <pytask.task>` has a `kwargs` argument that allows you
    inject arguments to the function instead of adding them as default arguments.
 
 3. If the generation of arguments for the task function is complex, we should use a
@@ -283,13 +283,13 @@ This approach is deprecated and will be removed in v0.5
 ::::
 
 Unpacking all the arguments can become tedious. Instead, use the `kwargs` argument of
-the {func}`@pytask.mark.task <pytask.mark.task>` decorator to pass keyword arguments to
+the {func}`@task <pytask.task>` decorator to pass keyword arguments to
 the task.
 
 ```python
 for id_, kwargs in ID_TO_KWARGS.items():
 
-    @pytask.mark.task(id=id_, kwargs=kwargs)
+    @task(id=id_, kwargs=kwargs)
     def task_create_random_data(seed, produces):
         ...
 ```
@@ -310,7 +310,7 @@ ID_TO_KWARGS = create_parametrization()
 
 for id_, kwargs in ID_TO_KWARGS.items():
 
-    @pytask.mark.task(id=id_, kwargs=kwargs)
+    @task(id=id_, kwargs=kwargs)
     def task_create_random_data(i, produces):
         ...
 ```
@@ -331,12 +331,13 @@ some content.
 
 ```python
 import pytask
+from pytask import task
 from pathlib import Path
 
 
 for i in range(3):
 
-    @pytask.mark.task
+    @task
     @pytask.mark.produces(f"out_{i}.txt")
     def task_example():
         path_of_module_folder = Path(__file__).parent
@@ -365,20 +366,20 @@ or the last state of the loop.
 So, all three tasks create the same file, `out_2.txt`.
 
 The solution is to use the intended channels to pass variables to tasks which are the
-`kwargs` argument of `@pytask.mark.task <pytask.mark.task>` or the default value in the
+`kwargs` argument of {func}`@task <pytask.task>` or the default value in the
 function signature.
 
 ```python
 for i in range(3):
 
-    @pytask.mark.task(kwargs={"i": i})
+    @task(kwargs={"i": i})
     @pytask.mark.produces(f"out_{i}.txt")
     def task_example(i):
         ...
 
     # or
 
-    @pytask.mark.task
+    @task
     @pytask.mark.produces(f"out_{i}.txt")
     def task_example(i=i):
         ...

@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import NamedTuple
 
-import pytask
+from pytask import task
 
 
 class _Arguments(NamedTuple):
@@ -17,7 +17,7 @@ ID_TO_KWARGS = {
 
 for id_, kwargs in ID_TO_KWARGS.items():
 
-    @pytask.mark.task(id=id_)
+    @task(id=id_)
     def task_create_random_data(
         seed: int = kwargs["seed"], produces: Path = kwargs["produces"]
     ) -> None:

@@ -189,9 +189,10 @@ class PythonNode(PNode):
         <https://docs.python.org/3.11/library/functions.html?highlight=hash#hash>`_) is
         used for all types except strings.
 
-        The hash for strings is calculated using hashlib because ``hash("asd")`` returns
-        a different value every invocation since the hash of strings is salted with a
-        random integer and it would confuse users.
+        The hash for strings and bytes is calculated using hashlib because
+        ``hash("asd")`` returns a different value every invocation since the hash of
+        strings is salted with a random integer and it would confuse users. See
+        {meth}`object.__hash__` for more information.
 
         """
         if self.hash:
@@ -199,5 +200,7 @@ class PythonNode(PNode):
                 return str(self.hash(self.value))
             if isinstance(self.value, str):
                 return str(hashlib.sha256(self.value.encode()).hexdigest())
+            if isinstance(self.value, bytes):
+                return str(hashlib.sha256(self.value).hexdigest())
             return str(hash(self.value))
         return "0"
