@@ -213,14 +213,15 @@ def _merge_dictionaries(list_of_dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
 _ERROR_MULTIPLE_DEPENDENCY_DEFINITIONS = """The task uses multiple ways to define \
 dependencies. Dependencies should be defined with either
 
-- '@pytask.mark.depends_on' and a 'depends_on' function argument.
 - as default value for the function argument 'depends_on'.
+- as '@pytask.task(kwargs={"depends_on": ...})'
+- or with the deprecated '@pytask.mark.depends_on' and a 'depends_on' function argument.
 
 Use only one of the two ways!
 
-Hint: You do not need to use 'depends_on' since pytask v0.4. Every function argument \
-that is not a product is treated as a dependency. Read more about dependencies in the \
-documentation: https://tinyurl.com/yrezszr4.
+Hint: You do not need to use 'depends_on' as the argument name since pytask v0.4. \
+Every function argument that is not a product is treated as a dependency. Read more \
+about dependencies in the documentation: https://tinyurl.com/yrezszr4.
 """
 
 
