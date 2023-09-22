@@ -32,7 +32,7 @@ ignore-words-list = "falsy, hist, ines, unparseable"
 target-version = "py38"
 select = ["ALL"]
 fix = true
-extend-ignore = [
+ignore = [
     "I",  # ignore isort
     "TRY",  # ignore tryceratops.
     # Numpy docstyle
@@ -69,6 +69,12 @@ extend-ignore = [
 "tests/*" = ["D", "ANN", "PLR2004", "S101"]
 "scripts/*" = ["D", "INP001"]
 "docs/source/conf.py" = ["D401", "INP001"]
+"docs_src/*" = ["ARG001", "D", "INP001"]
+"docs_src/*/*_py310.py" = ["FA102"]
+"docs_src/*/*_py38.py" = ["FA100"]
+"docs_src/*/*_decorators.py" = ["FA100"]
+"docs_src/how_to_guides/using_task_returns_*_task.py" = ["ARG005", "E731"]
+"docs_src/how_to_guides/writing_custom_nodes_*.py" = ["S301"]
 
 
 [tool.ruff.pydocstyle]

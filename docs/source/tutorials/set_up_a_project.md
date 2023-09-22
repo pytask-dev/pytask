@@ -1,12 +1,12 @@
 # Set up a project
 
-This tutorial shows you how to set up your first project.
+This tutorial shows you how to structure your first project.
 
 Use the
 [cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project)
-template to start right away.
+template to set up the structure or create the necessary folders and files manually.
 
-Then, follow the tutorial to become familiar with its parts.
+The remaining tutorial will explain the setup.
 
 ## The directory structure
 
@@ -32,7 +32,7 @@ my_project
 
 ### The configuration
 
-The configuration resides in a `pyproject.toml` file in the project's root folder and
+The configuration is defined in `pyproject.toml` in the project's root folder and
 contains a `[tool.pytask.ini_options]` section.
 
 ```toml

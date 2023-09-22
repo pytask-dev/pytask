@@ -13,10 +13,41 @@ project correctly!
 
 Let's revisit the task from the {doc}`previous tutorial <write_a_task>`.
 
-```python
-@pytask.mark.produces(BLD / "data.pkl")
-def task_create_random_data(produces):
-    ...
+::::{tab-set}
+
+:::{tab-item} Python 3.10+
+:sync: python310plus
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py310.py
+:emphasize-lines: 11
+```
+
+{class}`~pytask.Product` allows to declare an argument as a product. After the
+task has finished, pytask will check whether the file exists.
+
+:::
+
+:::{tab-item} Python 3.8+
+:sync: python38plus
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py38.py
+:emphasize-lines: 11
+```
+
+Using {class}`~pytask.Product` allows to declare an argument as a product. After the
+task has finished, pytask will check whether the file exists.
+
+:::
+
+:::{tab-item} Decorators
+:sync: decorators
+
+```{warning}
+This approach is deprecated and will be removed in v0.5
+```
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_decorators.py
+:emphasize-lines: 9, 10
 ```
 
 The {func}`@pytask.mark.produces <pytask.mark.produces>` marker attaches a product to a
@@ -26,6 +57,9 @@ check whether the file exists.
 Add `produces` as an argument of the task function to get access to the same path inside
 the task function.
 
+:::
+::::
+
 :::{tip}
 If you do not know about {mod}`pathlib` check out [^id3] and [^id4]. The module is
 beneficial for handling paths conveniently and across platforms.
@@ -33,36 +67,149 @@ beneficial for handling paths conveniently and across platforms.
 
 ## Dependencies
 
-Most tasks have dependencies. Like products, you can use the
-{func}`@pytask.mark.depends_on <pytask.mark.depends_on>` marker to attach a
-dependency to a task.
+Most tasks have dependencies and it is important to specify. Then, pytask ensures that
+the dependencies are available before executing the task.
 
-```python
-@pytask.mark.depends_on(BLD / "data.pkl")
-@pytask.mark.produces(BLD / "plot.png")
-def task_plot_data(depends_on, produces):
-    df = pd.read_pickle(depends_on)
-    ...
+In the example you see a task that creates a plot while relying on some data set.
+
+::::{tab-set}
+
+:::{tab-item} Python 3.10+
+:sync: python310plus
+
+To specify that the task relies on the data set `data.pkl`, you can simply add the path
+to the function signature while choosing any argument name, here `path_to_data`.
+
+pytask assumes that all function arguments that do not have the {class}`~pytask.Product`
+annotation are dependencies of the task.
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_py310.py
+:emphasize-lines: 9
 ```
 
-Add `depends_on` as a function argument to work with the path of the dependency and, for
-example, load the data.
+:::
 
-## Conversion
+:::{tab-item} Python 3.8+
+:sync: python38plus
+
+To specify that the task relies on the data set `data.pkl`, you can simply add the path
+to the function signature while choosing any argument name, here `path_to_data`.
+
+pytask assumes that all function arguments that do not have the {class}`~pytask.Product`
+annotation are dependencies of the task.
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_py38.py
+:emphasize-lines: 9
+```
+
+:::
+
+:::{tab-item} Decorators
+:sync: decorators
+
+```{warning}
+This approach is deprecated and will be removed in v0.5
+```
+
+Equivalent to products, you can use the
+{func}`@pytask.mark.depends_on <pytask.mark.depends_on>` decorator to specify that
+`data.pkl` is a dependency of the task. Use `depends_on` as a function argument to
+access the dependency path inside the function and load the data.
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_decorators.py
+:emphasize-lines: 7, 9
+```
+
+:::
+::::
+
+## Relative paths
 
 Dependencies and products do not have to be absolute paths. If paths are relative, they
 are assumed to point to a location relative to the task module.
 
+::::{tab-set}
+
+:::{tab-item} Python 3.10+
+:sync: python310plus
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_py310.py
+:emphasize-lines: 8
+```
+
+:::
+
+:::{tab-item} Python 3.8+
+:sync: python38plus
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_py38.py
+:emphasize-lines: 8
+```
+
+:::
+
+:::{tab-item} Decorators
+:sync: decorators
+
+```{warning}
+This approach is deprecated and will be removed in v0.5
+```
+
 You can also use absolute and relative paths as strings that obey the same rules as the
 {class}`pathlib.Path`.
 
-```python
-@pytask.mark.produces("../bld/data.pkl")
-def task_create_random_data(produces):
-    ...
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_decorators.py
+:emphasize-lines: 6
 ```
 
+If you use `depends_on` or `produces` as arguments for the task function, you will have
+access to the paths of the targets as {class}`pathlib.Path`.
+
+:::
+::::
+
 ## Multiple dependencies and products
+
+Of course, tasks can have multiple dependencies and products.
+
+::::{tab-set}
+
+:::{tab-item} Python 3.10+
+:sync: python310plus
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple1_py310.py
+```
+
+You can group your dependencies and product if you prefer not having a function argument
+per input. Use dictionaries (recommended), tuples, lists, or more nested structures if
+you need.
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple2_py310.py
+```
+
+:::
+
+:::{tab-item} Python 3.8+
+:sync: python38plus
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple1_py38.py
+```
+
+You can group your dependencies and product if you prefer not having a function argument
+per input. Use dictionaries (recommended), tuples, lists, or more nested structures if
+you need.
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple2_py38.py
+```
+
+:::
+
+:::{tab-item} Decorators
+:sync: decorators
+
+```{warning}
+This approach is deprecated and will be removed in v0.5
+```
 
 The easiest way to attach multiple dependencies or products to a task is to pass a
 {class}`dict` (highly recommended), {class}`list`, or another iterator to the marker
@@ -71,8 +218,11 @@ containing the paths.
 To assign labels to dependencies or products, pass a dictionary. For example,
 
 ```python
+from typing import Dict
+
+
 @pytask.mark.produces({"first": BLD / "data_0.pkl", "second": BLD / "data_1.pkl"})
-def task_create_random_data(produces):
+def task_create_random_data(produces: Dict[str, Path]) -> None:
     ...
 ```
 
@@ -164,8 +314,12 @@ def task_fit_model(depends_on, produces):
 }
 ```
 
+:::
+::::
+
+
 ## References
 
 [^id3]: The official documentation for {mod}`pathlib`.
 
-[^id4]: A guide for pathlib by [realpython](https://realpython.com/python-pathlib/).
+[^id4]: A guide for pathlib by [RealPython](https://realpython.com/python-pathlib/).

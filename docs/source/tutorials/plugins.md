@@ -1,12 +1,12 @@
 # Plugins
 
 Users employ pytask in many different contexts, making it impossible for pytask's
-maintainers to support all possible use cases.
+maintainers to cater to all possible use cases.
 
 Therefore, pytask uses [pluggy](https://github.com/pytest-dev/pluggy), a plugin
 framework, to allow users to extend pytask.
 
-## Where to find plugins
+## Where can I find plugins?
 
 You can find plugins in many places.
 
@@ -16,7 +16,8 @@ You can find plugins in many places.
   organization for a collection of officially supported plugins.
 - Check out the [pytask Github topic](https://github.com/topics/pytask), which shows an
   overview of repositories linked to pytask.
-- Search on [anaconda.org](https://anaconda.org/search?q=pytask) for related packages.
+- Search on [anaconda.org](https://anaconda.org/search?q=pytask) or
+  [prefix.dev](https://prefix.dev) for related packages.
 
 ## How to implement your plugin
 

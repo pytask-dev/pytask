@@ -105,6 +105,10 @@ by the host or by plugins. The following marks are available by default.
     It also allows to repeat tasks in for-loops by adding a specific ``id`` or keyword
     arguments via ``kwargs``.
 
+    .. deprecated:: 0.4.0
+
+       Will be removed in v0.5.0. Use :func:`~pytask.task` instead.
+
     :type name: str | None
     :param name: The name of the task.
     :type id: str | None
@@ -232,6 +236,7 @@ The remaining exceptions convey specific errors.
 
 ```{eval-rst}
 .. autoclass:: pytask.Session
+
 ```
 
 ## Nodes
@@ -264,6 +269,12 @@ To parse dependencies and products from nodes, use the following functions.
 ```
 
 ## Tasks
+
+To mark any callable as a task use
+
+```{eval-rst}
+.. autofunction:: pytask.task
+```
 
 Task are currently represented by the following class:
 
@@ -336,6 +347,20 @@ There are some classes to handle different kinds of reports.
 .. autoclass:: pytask.CollectionReport
 .. autoclass:: pytask.ExecutionReport
 .. autoclass:: pytask.DagReport
+```
+
+## Typing
+
+```{eval-rst}
+..  class:: pytask.Product
+
+    An indicator to mark arguments of tasks as products.
+
+    Examples
+    --------
+    >>> def task_example(path: Annotated[Path, Product]) -> None:
+    ...     path.write_text("Hello, World!")
+
 ```
 
 ## Tracebacks

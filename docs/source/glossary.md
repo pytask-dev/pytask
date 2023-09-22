@@ -38,4 +38,9 @@ private function
 public function
     A function whose does not start with an underscore. The function can be imported
     in other modules.
+
+PyTree
+    A PyTree is a tree-like structure built out of tuples, lists, and dictionaries and
+    other container types if registered. Any other object that is not a registered
+    container is treated as a node in the tree.
 ```
