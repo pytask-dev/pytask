@@ -85,7 +85,7 @@ The task file `task_prepare_data.py` uses these objects to build the parametriza
 ```python
 # Content of task_prepare_data.py
 
-import pytask
+from pytask import task
 
 from my_project.data_preparation.config import DATA
 from my_project.data_preparation.config import path_to_input_data
@@ -107,14 +107,13 @@ _ID_TO_KWARGS = _create_parametrization(DATA)
 
 for id_, kwargs in _ID_TO_KWARGS.items():
 
-    @pytask.mark.task(id=id_, kwargs=kwargs)
+    @task(id=id_, kwargs=kwargs)
     def task_prepare_data(depends_on, produces):
         ...
 ```
 
-All arguments for the loop and the {func}`@pytask.mark.task <pytask.mark.task>`
-decorator is built within a function to keep the logic in one place and the module's
-namespace clean.
+All arguments for the loop and the {func}`@task <pytask.task>` decorator is built within
+a function to keep the logic in one place and the module's namespace clean.
 
 Ids are used to make the task {ref}`ids <ids>` more descriptive and to simplify their
 selection with {ref}`expressions <expressions>`. Here is an example of the task ids with
@@ -163,7 +162,7 @@ And here is the task file.
 ```python
 # Content of task_estimate_models.py
 
-import pytask
+from pytask import task
 
 from my_project.data_preparation.config import path_to_processed_data
 from my_project.estimations.config import ESTIMATIONS
@@ -190,7 +189,7 @@ _ID_TO_KWARGS = _create_parametrization(ESTIMATIONS)
 
 for id_, kwargs in _ID_TO_KWARGS.items():
 
-    @pytask.mark.task(id=id_, kwargs=kwars)
+    @task(id=id_, kwargs=kwars)
     def task_estmate_models(depends_on, model, produces):
         if model == "linear_probability":
             ...

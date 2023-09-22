@@ -8,45 +8,80 @@ We reuse the task from the previous {doc}`tutorial <write_a_task>`, which genera
 random data and repeats the same operation over several seeds to receive multiple,
 reproducible samples.
 
-Apply the {func}`@pytask.mark.task <pytask.mark.task>` decorator, loop over the function
+Apply the {func}`@task <pytask.task>` decorator, loop over the function
 and supply different seeds and output paths as default arguments of the function.
 
-```python
-import numpy as np
-import pytask
+::::{tab-set}
 
+:::{tab-item} Python 3.10+
+:sync: python310plus
 
-for i in range(10):
-
-    @pytask.mark.task
-    def task_create_random_data(produces=f"data_{i}.pkl", seed=i):
-        rng = np.random.default_rng(seed)
-        ...
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs1_py310.py
 ```
+
+
+:::
+
+:::{tab-item} Python 3.8+
+:sync: python38plus
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs1_py38.py
+```
+
+:::
+
+:::{tab-item} Decorators
+:sync: decorators
+
+```{warning}
+This approach is deprecated and will be removed in v0.5
+```
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs1_decorators.py
+```
+
+:::
+::::
 
 Executing pytask gives you this:
 
 ```{include} ../_static/md/repeating-tasks.md
 ```
 
-## `depends_on` and `produces`
+## Dependencies
 
-You can also use decorators to supply values to the function.
+You can also add dependencies to repeated tasks just like with any other task.
 
-To specify a dependency that is the same for all iterations, add it with
-{func}`@pytask.mark.depends_on <pytask.mark.depends_on>`. And add a product with
-{func}`@pytask.mark.produces <pytask.mark.produces>`
+::::{tab-set}
 
-```python
-for i in range(10):
+:::{tab-item} Python 3.10+
+:sync: python310plus
 
-    @pytask.mark.task
-    @pytask.mark.depends_on(SRC / "common_dependency.file")
-    @pytask.mark.produces(f"data_{i}.pkl")
-    def task_create_random_data(produces, seed=i):
-        rng = np.random.default_rng(seed)
-        ...
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs2_py310.py
 ```
+
+:::
+
+:::{tab-item} Python 3.8+
+:sync: python38plus
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs2_py38.py
+```
+
+:::
+
+:::{tab-item} Decorators
+:sync: decorators
+
+```{warning}
+This approach is deprecated and will be removed in v0.5
+```
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs2_decorators.py
+```
+
+:::
+::::
 
 (how-to-repeat-a-task-with-different-inputs-the-id)=
 
@@ -81,35 +116,81 @@ a combination of the argument name and the iteration counter.
 
 For example, the following function is parametrized with tuples.
 
-```python
-for i in [(0,), (1,)]:
+::::{tab-set}
 
-    @pytask.mark.task
-    def task_create_random_data(i=i):
-        pass
+:::{tab-item} Python 3.10+
+:sync: python310plus
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs3_py310.py
 ```
+
+:::
+
+:::{tab-item} Python 3.8+
+:sync: python38plus
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs3_py38.py
+```
+
+:::
+
+:::{tab-item} Decorators
+:sync: decorators
+
+```{warning}
+This approach is deprecated and will be removed in v0.5
+```
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs3_decorators.py
+```
+
+:::
+::::
 
 Since the tuples are not converted to strings, the ids of the two tasks are
 
 ```
-task_data_preparation.py::task_create_random_data[i0]
-task_data_preparation.py::task_create_random_data[i1]
+task_data_preparation.py::task_create_random_data[seed0]
+task_data_preparation.py::task_create_random_data[seed1]
 ```
 
 (ids)=
 
 ### User-defined ids
 
-The {func}`@pytask.mark.task <pytask.mark.task>` decorator has an `id` keyword, allowing
+The {func}`@task <pytask.task>` decorator has an `id` keyword, allowing
 the user to set a unique name for the iteration.
 
-```python
-for seed, id_ in [(0, "first"), (1, "second")]:
+::::{tab-set}
 
-    @pytask.mark.task(id=id_)
-    def task_create_random_data(seed=i, produces=f"out_{i}.txt"):
-        ...
+:::{tab-item} Python 3.10+
+:sync: python310plus
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs4_py310.py
 ```
+
+:::
+
+:::{tab-item} Python 3.8+
+:sync: python38plus
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs4_py38.py
+```
+
+:::
+
+:::{tab-item} Decorators
+:sync: decorators
+
+```{warning}
+This approach is deprecated and will be removed in v0.5
+```
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs4_decorators.py
+```
+
+:::
+::::
 
 produces these ids
 
@@ -121,42 +202,94 @@ task_data_preparation.py::task_create_random_data[second]
 ## Complex example
 
 Parametrizations are becoming more complex quickly. Often, there are many tasks with ids
-and arguments.
+and arguments. Here are three tips to organize the repetitions.
 
-To organize your ids and arguments, use nested dictionaries where keys are ids and
-values are dictionaries mapping from argument names to values.
+1. Use suitable containers to organize your ids and the function arguments.
 
-```python
-ID_TO_KWARGS = {
-    "first": {
-        "seed": 0,
-        "produces": "data_0.pkl",
-    },
-    "second": {
-        "seed": 1,
-        "produces": "data_1.pkl",
-    },
-}
+   ::::{tab-set}
+   :::{tab-item} NamedTuple
+
+   {obj}`typing.NamedTuple` or {obj}`collections.namedtuple` are useful containers to
+   organize the arguments of the parametrizations. They also provide better support for
+   heterogeneous types than dictionaries.
+
+   ```python
+   from pathlib import Path
+   from typing import NamedTuple
+
+
+   class Arguments(NamedTuple):
+      seed: int
+      path_to_data: Path
+
+
+   ID_TO_KWARGS = {
+      "first": Arguments(seed=0, path_to_data=Path("data_0.pkl")),
+      "second": Arguments(seed=1, path_to_data=Path("data_1.pkl")),
+   }
+   ```
+
+   :::
+
+   :::{tab-item} Dictionary
+
+   ```python
+   ID_TO_KWARGS = {
+      "first": {"seed": 0, "produces": "data_0.pkl"},
+      "second": {"seed": 1, "produces": "data_1.pkl"},
+   }
+   ```
+
+   :::
+   ::::
+
+2. {func}`@task <pytask.task>` has a `kwargs` argument that allows you
+   inject arguments to the function instead of adding them as default arguments.
+
+3. If the generation of arguments for the task function is complex, we should use a
+   function.
+
+Following these three tips, the parametrization becomes
+
+::::{tab-set}
+
+:::{tab-item} Python 3.10+
+:sync: python310plus
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs5_py310.py
 ```
 
-The parametrization becomes
+:::
 
-```python
-for id_, kwargs in ID_TO_KWARGS.items():
+:::{tab-item} Python 3.8+
+:sync: python38plus
 
-    @pytask.mark.task(id=id_)
-    def task_create_random_data(seed=kwargs["seed"], produces=kwargs["produces"]):
-        ...
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs5_py38.py
 ```
+
+:::
+
+:::{tab-item} Decorators
+:sync: decorators
+
+```{warning}
+This approach is deprecated and will be removed in v0.5
+```
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs5_decorators.py
+```
+
+:::
+::::
 
 Unpacking all the arguments can become tedious. Instead, use the `kwargs` argument of
-the {func}`@pytask.mark.task <pytask.mark.task>` decorator to pass keyword arguments to
+the {func}`@task <pytask.task>` decorator to pass keyword arguments to
 the task.
 
 ```python
 for id_, kwargs in ID_TO_KWARGS.items():
 
-    @pytask.mark.task(id=id_, kwargs=kwargs)
+    @task(id=id_, kwargs=kwargs)
     def task_create_random_data(seed, produces):
         ...
 ```
@@ -177,7 +310,7 @@ ID_TO_KWARGS = create_parametrization()
 
 for id_, kwargs in ID_TO_KWARGS.items():
 
-    @pytask.mark.task(id=id_, kwargs=kwargs)
+    @task(id=id_, kwargs=kwargs)
     def task_create_random_data(i, produces):
         ...
 ```
@@ -198,12 +331,13 @@ some content.
 
 ```python
 import pytask
+from pytask import task
 from pathlib import Path
 
 
 for i in range(3):
 
-    @pytask.mark.task
+    @task
     @pytask.mark.produces(f"out_{i}.txt")
     def task_example():
         path_of_module_folder = Path(__file__).parent
@@ -232,20 +366,20 @@ or the last state of the loop.
 So, all three tasks create the same file, `out_2.txt`.
 
 The solution is to use the intended channels to pass variables to tasks which are the
-`kwargs` argument of `@pytask.mark.task <pytask.mark.task>` or the default value in the
+`kwargs` argument of {func}`@task <pytask.task>` or the default value in the
 function signature.
 
 ```python
 for i in range(3):
 
-    @pytask.mark.task(kwargs={"i": i})
+    @task(kwargs={"i": i})
     @pytask.mark.produces(f"out_{i}.txt")
     def task_example(i):
         ...
 
     # or
 
-    @pytask.mark.task
+    @task
     @pytask.mark.produces(f"out_{i}.txt")
     def task_example(i=i):
         ...

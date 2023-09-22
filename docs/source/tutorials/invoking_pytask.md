@@ -25,14 +25,13 @@ identical.
 
 ```console
 $ pytask
-
 $ pytask build
 ```
 
-To see command-specific, use the help flag after the command.
+To display command-specific information, use the help flag after the command.
 
 ```console
-$ pytask <command-name> --help
+$ pytask <command-name> -h/--help
 ```
 
 ## The build command
@@ -42,7 +41,7 @@ passed via the command line interface, pytask will look for the `paths` key in t
 configuration file. At last, pytask will collect tasks from the current working
 directory and subsequent folders.
 
-You can also pass any number of paths of directories or modules to cli.
+You can also pass any number of paths of directories or modules to the program.
 
 ```console
 $ pytask path/to/task_module.py path/to/folder
@@ -55,7 +54,7 @@ might run your tasks with missing or outdated dependencies.
 
 ## Options
 
-Here are some valuable options for the build command.
+Here are a few selected options for the build command.
 
 ### Showing errors immediately
 

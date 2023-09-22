@@ -28,6 +28,13 @@ repos:
     hooks:
     -   id: reorder-python-imports
         args: [--py38-plus, --add-import, 'from __future__ import annotations']
+        exclude: ^(docs_src/)
+-   repo: https://github.com/asottile/reorder-python-imports
+    rev: v3.9.0
+    hooks:
+    -   id: reorder-python-imports
+        args: [--py38-plus]
+        files: ^(docs_src/)
 -   repo: https://github.com/asottile/setup-cfg-fmt
     rev: v2.4.0
     hooks:
@@ -49,8 +56,8 @@ repos:
     rev: 1.5.0
     hooks:
     -   id: interrogate
-        args: [-vv, --fail-under=75]
-        exclude: ^(tests/|docs/|scripts/)
+        args: [-v, --fail-under=75]
+        exclude: ^(tests/|docs/|scripts/|docs_src/)
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: 'v1.5.1'
     hooks:
@@ -93,13 +100,18 @@ repos:
                 docs/source/how_to_guides/how_to_influence_build_order.md|
                 docs/source/how_to_guides/migrating_from_scripts_to_pytask.md|
                 docs/source/how_to_guides/repeating_tasks_with_different_inputs_the_pytest_way.md|
+                docs/source/how_to_guides/using_task_returns.md|
+                docs/source/how_to_guides/writing_custom_nodes.md|
+                docs/source/how_to_guides/hashing_inputs_of_tasks.md|
                 docs/source/reference_guides/hookspecs.md|
                 docs/source/tutorials/configuration.md|
+                docs/source/tutorials/debugging.md|
                 docs/source/tutorials/defining_dependencies_products.md|
                 docs/source/tutorials/making_tasks_persist.md|
                 docs/source/tutorials/repeating_tasks_with_different_inputs.md|
                 docs/source/tutorials/selecting_tasks.md|
-                docs/source/tutorials/set_up_a_project.md
+                docs/source/tutorials/set_up_a_project.md|
+                docs/source/tutorials/write_a_task.md
             )$
 - repo: https://github.com/kynan/nbstripout
   rev: 0.6.1

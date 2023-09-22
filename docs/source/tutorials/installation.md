@@ -31,5 +31,5 @@ $ pytask <command-name> --help
 ```
 
 Color support is automatically available on non-Windows platforms. On Windows, please,
-use [Windows Terminal](https://github.com/microsoft/terminal), which can be, for
-example, installed via the [Microsoft Store](https://aka.ms/terminal).
+use [Windows Terminal](https://github.com/microsoft/terminal), which can be installed
+via the [Microsoft Store](https://aka.ms/terminal).
