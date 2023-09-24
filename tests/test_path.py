@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 import sys
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
@@ -10,6 +11,7 @@ from types import ModuleType
 from typing import Any
 
 import pytest
+from _pytask.outcomes import ExitCode
 from _pytask.path import _insert_missing_modules
 from _pytask.path import _module_name_from_path
 from _pytask.path import find_case_sensitive_path
@@ -308,3 +310,27 @@ def test_insert_missing_modules(
     modules = {}
     _insert_missing_modules(modules, "")
     assert not modules
+
+
+def test_parallel_execution_with_import_path(tmp_path):
+    tmp_path.joinpath("task_example.py").write_text("def task_example(): pass")
+    source = """
+    from concurrent.futures import ProcessPoolExecutor
+    from pathlib import Path
+    from _pytask.path import import_path
+
+    _PATH = Path(__file__).parent
+
+    if __name__ == "__main__":
+        module = import_path(_PATH / "task_example.py", _PATH)
+
+        function = module.task_example
+
+        with ProcessPoolExecutor() as executor:
+            res = executor.submit(function)
+    """
+    tmp_path.joinpath("script.py").write_text(textwrap.dedent(source))
+    result = subprocess.run(
+        ("python", tmp_path.joinpath("script.py").as_posix()), check=True
+    )
+    assert result.returncode == ExitCode.OK
