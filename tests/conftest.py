@@ -9,18 +9,6 @@ import pytest
 from click.testing import CliRunner
 
 
-class CustomCliRunner(CliRunner):
-    def invoke(self, *args, **kwargs):
-        """Restore sys.path and sys.modules after an invocation."""
-        with restore_sys_path_and_module_after_test_execution():
-            return super().invoke(*args, **kwargs)
-
-
-@pytest.fixture()
-def runner():
-    return CustomCliRunner()
-
-
 @pytest.fixture(autouse=True)
 def _add_objects_to_doctest_namespace(doctest_namespace):
     doctest_namespace["Path"] = Path
@@ -75,3 +63,15 @@ def _restore_sys_path_and_module_after_test_execution():
     """
     with restore_sys_path_and_module_after_test_execution():
         yield
+
+
+class CustomCliRunner(CliRunner):
+    def invoke(self, *args, **kwargs):
+        """Restore sys.path and sys.modules after an invocation."""
+        with restore_sys_path_and_module_after_test_execution():
+            return super().invoke(*args, **kwargs)
+
+
+@pytest.fixture()
+def runner():
+    return CustomCliRunner()
