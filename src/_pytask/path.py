@@ -1,6 +1,7 @@
 """Contains code to handle paths."""
 from __future__ import annotations
 
+import contextlib
 import functools
 import importlib.util
 import os
@@ -122,6 +123,8 @@ def import_path(path: Path, root: Path) -> ModuleType:
 
     """
     module_name = _module_name_from_path(path, root)
+    with contextlib.suppress(KeyError):
+        return sys.modules[module_name]
 
     spec = importlib.util.spec_from_file_location(module_name, str(path))
 
@@ -153,6 +156,11 @@ def _module_name_from_path(path: Path, root: Path) -> str:
     else:
         # Use the parts for the relative path to the root path.
         path_parts = relative_path.parts
+
+    # Module name for packages do not contain the __init__ file, unless the
+    # `__init__.py` file is at the root.
+    if len(path_parts) >= 2 and path_parts[-1] == "__init__":  # noqa: PLR2004
+        path_parts = path_parts[:-1]
 
     return ".".join(path_parts)
 

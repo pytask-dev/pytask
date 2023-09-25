@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import subprocess
 import sys
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
@@ -11,7 +10,6 @@ from types import ModuleType
 from typing import Any
 
 import pytest
-from _pytask.outcomes import ExitCode
 from _pytask.path import _insert_missing_modules
 from _pytask.path import _module_name_from_path
 from _pytask.path import find_case_sensitive_path
@@ -126,33 +124,34 @@ def test_find_case_sensitive_path(tmp_path, path, existing_paths, expected):
 
 
 @pytest.fixture()
-def simple_module(tmp_path: Path) -> Path:
-    fn = tmp_path / "_src/project/mymod.py"
+def simple_module(request, tmp_path: Path) -> Path:
+    name = f"mymod_{request.node.name}"
+    fn = tmp_path / f"_src/project/{name}.py"
     fn.parent.mkdir(parents=True)
     fn.write_text("def foo(x): return 40 + x")
-    return fn
+    module_name = _module_name_from_path(fn, root=tmp_path)
+    yield fn
+    sys.modules.pop(module_name, None)
 
 
 @pytest.mark.unit()
-def test_importmode_importlib(simple_module: Path, tmp_path: Path) -> None:
+def test_importmode_importlib(request, simple_module: Path, tmp_path: Path) -> None:
     """`importlib` mode does not change sys.path."""
     module = import_path(simple_module, root=tmp_path)
     assert module.foo(2) == 42  # type: ignore[attr-defined]
     assert str(simple_module.parent) not in sys.path
     assert module.__name__ in sys.modules
-    assert module.__name__ == "_src.project.mymod"
+    assert module.__name__ == f"_src.project.mymod_{request.node.name}"
     assert "_src" in sys.modules
     assert "_src.project" in sys.modules
 
 
 @pytest.mark.unit()
-def test_importmode_twice_is_different_module(
-    simple_module: Path, tmp_path: Path
-) -> None:
-    """`importlib` mode always returns a new module."""
+def test_remembers_previous_imports(simple_module: Path, tmp_path: Path) -> None:
+    """importlib mode called remembers previous module (pytest#10341, pytest#10811)."""
     module1 = import_path(simple_module, root=tmp_path)
     module2 = import_path(simple_module, root=tmp_path)
-    assert module1 is not module2
+    assert module1 is module2
 
 
 @pytest.mark.unit()
@@ -166,6 +165,9 @@ def test_no_meta_path_found(
 
     # mode='importlib' fails if no spec is found to load the module
     import importlib.util
+
+    # Force module to be re-imported.
+    del sys.modules[module.__name__]
 
     monkeypatch.setattr(
         importlib.util, "spec_from_file_location", lambda *args: None  # noqa: ARG005
@@ -290,6 +292,10 @@ def test_module_name_from_path(tmp_path: Path) -> None:
     result = _module_name_from_path(Path("/home/foo/task_foo.py"), Path("/bar"))
     assert result == "home.foo.task_foo"
 
+    # Importing __init__.py files should return the package as module name.
+    result = _module_name_from_path(tmp_path / "src/app/__init__.py", tmp_path)
+    assert result == "src.app"
+
 
 @pytest.mark.unit()
 def test_insert_missing_modules(
@@ -312,25 +318,40 @@ def test_insert_missing_modules(
     assert not modules
 
 
-def test_parallel_execution_with_import_path(tmp_path):
-    tmp_path.joinpath("task_example.py").write_text("def task_example(): pass")
-    source = """
-    from concurrent.futures import ProcessPoolExecutor
-    from pathlib import Path
-    from _pytask.path import import_path
-
-    _PATH = Path(__file__).parent
-
-    if __name__ == "__main__":
-        module = import_path(_PATH / "task_example.py", _PATH)
-
-        function = module.task_example
-
-        with ProcessPoolExecutor() as executor:
-            res = executor.submit(function)
+def test_importlib_package(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     """
-    tmp_path.joinpath("script.py").write_text(textwrap.dedent(source))
-    result = subprocess.run(
-        ("python", tmp_path.joinpath("script.py").as_posix()), check=True
+    Importing a package using --importmode=importlib should not import the
+    package's __init__.py file more than once (#11306).
+    """
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.syspath_prepend(tmp_path)
+
+    package_name = "importlib_import_package"
+    tmp_path.joinpath(package_name).mkdir()
+    init = tmp_path.joinpath(f"{package_name}/__init__.py")
+    init.write_text(
+        textwrap.dedent(
+            """
+            from .singleton import Singleton
+            instance = Singleton()
+            """
+        ),
+        encoding="ascii",
     )
-    assert result.returncode == ExitCode.OK
+    singleton = tmp_path.joinpath(f"{package_name}/singleton.py")
+    singleton.write_text(
+        textwrap.dedent(
+            """
+            class Singleton:
+                INSTANCES = []
+                def __init__(self) -> None:
+                    self.INSTANCES.append(self)
+                    if len(self.INSTANCES) > 1:
+                        raise RuntimeError("Already initialized")
+            """
+        ),
+        encoding="ascii",
+    )
+
+    mod = import_path(init, root=tmp_path)
+    assert len(mod.instance.INSTANCES) == 1
