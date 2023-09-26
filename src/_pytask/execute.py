@@ -175,7 +175,7 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
         nodes = tree_leaves(task.produces["return"])
         values = structure_return.flatten_up_to(out)
         for node, value in zip(nodes, values):
-            node.save(value)
+            node.save(value)  # type: ignore[attr-defined]
 
     return True
 
