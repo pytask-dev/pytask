@@ -39,9 +39,9 @@ class TaskWithoutPath(PTask):
     """The base name of the task."""
     function: Callable[..., Any]
     """The task function."""
-    depends_on: PyTree[PNode] = field(factory=dict)
+    depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
     """A list of dependencies of task."""
-    produces: PyTree[PNode] = field(factory=dict)
+    produces: dict[str, PyTree[PNode]] = field(factory=dict)
     """A list of products of task."""
     markers: list[Mark] = field(factory=list)
     """A list of markers attached to the task function."""
@@ -78,9 +78,9 @@ class Task(PTaskWithPath):
     """The name of the task."""
     display_name: str | None = field(default=None, init=False)
     """The shortest uniquely identifiable name for task for display."""
-    depends_on: PyTree[PNode] = field(factory=dict)
+    depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
     """A list of dependencies of task."""
-    produces: PyTree[PNode] = field(factory=dict)
+    produces: dict[str, PyTree[PNode]] = field(factory=dict)
     """A list of products of task."""
     markers: list[Mark] = field(factory=list)
     """A list of markers attached to the task function."""

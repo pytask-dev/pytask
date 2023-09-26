@@ -64,8 +64,8 @@ class PTask(MetaNode, Protocol):
     """Protocol for nodes."""
 
     name: str
-    depends_on: PyTree[PNode]
-    produces: PyTree[PNode]
+    depends_on: dict[str, PyTree[PNode]]
+    produces: dict[str, PyTree[PNode]]
     markers: list[Mark]
     report_sections: list[tuple[str, str, str]]
     attributes: dict[Any, Any]
