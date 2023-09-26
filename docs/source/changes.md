@@ -41,6 +41,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`421` removes the deprecation warning when `produces` is used as an magic
   function keyword to define products.
 - {pull}`423` adds a notebook to explain the functional interface.
+- {pull}`424` fixes problems with {func}`~_pytask.path.import_path`.
 
 ## 0.3.2 - 2023-06-07
 
