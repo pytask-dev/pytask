@@ -69,8 +69,9 @@ repos:
         additional_dependencies: [
             attrs>=21.3.0,
             click,
+            optree,
             pluggy,
-            types-setuptools
+            types-setuptools,
         ]
         pass_filenames: false
 -   repo: https://github.com/executablebooks/mdformat
@@ -113,15 +114,25 @@ repos:
                 docs/source/tutorials/set_up_a_project.md|
                 docs/source/tutorials/write_a_task.md
             )$
-- repo: https://github.com/kynan/nbstripout
-  rev: 0.6.1
-  hooks:
-    - id: nbstripout
+-   repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.7.0
+    hooks:
+    -   id: nbqa-black
+    -   id: nbqa-isort
+    -   id: nbqa-mypy
+        args: [--ignore-missing-imports]
+    -   id: nbqa-ruff
+-   repo: https://github.com/kynan/nbstripout
+    rev: 0.6.1
+    hooks:
+    -   id: nbstripout
+        exclude: (docs)
 -   repo: https://github.com/codespell-project/codespell
     rev: v2.2.5
     hooks:
     -   id: codespell
         additional_dependencies: [tomli]
+        exclude: (\.ipynb)
 -   repo: https://github.com/mgedmin/check-manifest
     rev: "0.49"
     hooks:

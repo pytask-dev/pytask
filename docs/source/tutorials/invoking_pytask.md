@@ -82,3 +82,8 @@ You can do a dry run to see which tasks would be executed without executing them
 
 ```{include} ../_static/md/dry-run.md
 ```
+
+## Functional interface
+
+pytask also has a functional interface that is explained in this
+[article](../how_to_guides/functional_interface.ipynb).
