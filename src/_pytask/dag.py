@@ -33,6 +33,7 @@ from _pytask.path import find_common_ancestor_of_nodes
 from _pytask.report import DagReport
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
+from _pytask.traceback import remove_internal_traceback_frames_from_exception
 from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_map
 from rich.text import Text
@@ -201,6 +202,8 @@ if IS_FILE_SYSTEM_CASE_SENSITIVE:
 
 
 def _check_if_root_nodes_are_available(dag: nx.DiGraph, paths: Sequence[Path]) -> None:
+    __tracebackhide__ = True
+
     missing_root_nodes = []
     is_task_skipped: dict[str, bool] = {}
 
@@ -212,7 +215,12 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph, paths: Sequence[Path]) -
                 node, dag, is_task_skipped
             )
             if not are_all_tasks_skipped:
-                node_exists = dag.nodes[node]["node"].state()
+                try:
+                    node_exists = dag.nodes[node]["node"].state()
+                except Exception as e:  # noqa: BLE001
+                    e = remove_internal_traceback_frames_from_exception(e)
+                    msg = _format_exception_from_failed_node_state(node, dag)
+                    raise ResolvingDependenciesError(msg) from e
                 if not node_exists:
                     missing_root_nodes.append(node)
 
@@ -230,6 +238,17 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph, paths: Sequence[Path]) -
 
         text = _format_dictionary_to_tree(dictionary, "Missing dependencies:")
         raise ResolvingDependenciesError(_TEMPLATE_ERROR.format(text)) from None
+
+
+def _format_exception_from_failed_node_state(node_name: str, dag: nx.DiGraph) -> str:
+    """Format message when ``node.state()`` threw an exception."""
+    tasks = [dag.nodes[i]["task"] for i in dag.successors(node_name)]
+    names = [getattr(x, "display_name", x.name) for x in tasks]
+    successors = ", ".join([f"{name!r}" for name in names])
+    return (
+        f"While checking whether dependency {node_name!r} from task(s) "
+        f"{successors} exists, an error was raised."
+    )
 
 
 def _check_if_tasks_are_skipped(

@@ -16,6 +16,7 @@ from rich.traceback import Traceback
 
 __all__ = [
     "format_exception_without_traceback",
+    "remove_internal_traceback_frames_from_exception",
     "remove_internal_traceback_frames_from_exc_info",
     "remove_traceback_from_exc_info",
     "render_exc_info",
@@ -55,6 +56,20 @@ def format_exception_without_traceback(exc_info: ExceptionInfo) -> str:
 def remove_traceback_from_exc_info(exc_info: ExceptionInfo) -> ExceptionInfo:
     """Remove traceback from exception."""
     return (*exc_info[:2], None)
+
+
+def remove_internal_traceback_frames_from_exception(exc: Exception) -> Exception:
+    """Remove internal traceback frames from exception.
+
+    The conversion between exceptions and ``sys.exc_info`` is explained here:
+    https://stackoverflow.com/a/59041463/7523785.
+
+    """
+    _, _, tb = remove_internal_traceback_frames_from_exc_info(
+        (type(exc), exc, exc.__traceback__)
+    )
+    exc.__traceback__ = tb
+    return exc
 
 
 def remove_internal_traceback_frames_from_exc_info(

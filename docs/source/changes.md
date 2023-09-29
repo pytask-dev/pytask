@@ -46,6 +46,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`427` fixes type annotations for {attr}`pytask.PTask.depends_on` and
   {attr}`pytask.PTask.produces`.
 - {pull}`428` updates the example in the readme.
+- {pull}`429` implements a more informative error message when `node.state()` throws an
+  exception. Now, it is easy to see which tasks are affected.
 
 ## 0.3.2 - 2023-06-07
 
