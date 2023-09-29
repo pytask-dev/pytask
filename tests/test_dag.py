@@ -198,3 +198,17 @@ def test_has_node_changed_catches_notnotfounderror(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
+
+
+def test_error_when_node_state_throws_error(runner, tmp_path):
+    source = """
+    from pytask import PythonNode
+
+    def task_example(a = PythonNode(value={"a": 1}, hash=True)):
+        pass
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.DAG_FAILED
+    assert "task_example" in result.output
