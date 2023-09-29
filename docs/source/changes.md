@@ -45,6 +45,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`426` publishes the {mod}`pytask.tree_util` module.
 - {pull}`427` fixes type annotations for {attr}`pytask.PTask.depends_on` and
   {attr}`pytask.PTask.produces`.
+- {pull}`428` updates the example in the readme.
 
 ## 0.3.2 - 2023-06-07
 

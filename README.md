@@ -79,22 +79,26 @@ with `task_`. Here is an example.
 ```python
 # Content of task_hello.py.
 
-import pytask
+from pathlib import Path
+
+from pytask import Product
+from typing_extensions import Annotated
 
 
-@pytask.mark.produces("hello_earth.txt")
-def task_hello_earth(produces):
-    produces.write_text("Hello, earth!")
+def task_hello_earth(path: Annotated[Path, Product] = Path("hello_earth.txt")):
+    path.write_text("Hello, earth!")
 ```
 
-Here are some details:
+- The purpose of the task is to create the file `hello_earth.txt` and add some content.
 
-- Dependencies and products of a task are tracked via markers. Use
-  `@pytask.mark.depends_on` for dependencies and `@pytask.mark.produces` for products.
-  Values are strings or `pathlib.Path` and point to files on the disk.
-- Use `produces` (and `depends_on`) as function arguments to access the paths inside the
-  function. pytask converts all paths to `pathlib.Path`'s. Here, `produces` holds the
-  path to `"hello_earth.txt"`.
+- To tell pytask that `hello_earth.txt` is a product and not an input, use the `Product`
+  annotation.
+
+  (If you are not used to type annotations, do not worry. pytask also offers simpler
+  interfaces without type annotations.)
+
+- Since you pass a `pathlib.Path` to the function, pytask will check whether the file
+  exists after the function is executed.
 
 To execute the task, enter `pytask` on the command-line
 
