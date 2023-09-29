@@ -5,7 +5,7 @@ Do you want to repeat a task over a range of inputs? Loop over your task functio
 ## An example
 
 We reuse the task from the previous {doc}`tutorial <write_a_task>`, which generates
-random data and repeats the same operation over several seeds to receive multiple,
+random data and repeat the same operation over several seeds to receive multiple,
 reproducible samples.
 
 Apply the {func}`@task <pytask.task>` decorator, loop over the function
@@ -19,13 +19,20 @@ and supply different seeds and output paths as default arguments of the function
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs1_py310.py
 ```
 
-
 :::
 
 :::{tab-item} Python 3.8+
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs1_py38.py
+```
+
+:::
+
+:::{tab-item} &#8203;`produces`
+:sync: produces
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs1_produces.py
 ```
 
 :::
@@ -66,6 +73,14 @@ You can also add dependencies to repeated tasks just like with any other task.
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs2_py38.py
+```
+
+:::
+
+:::{tab-item} &#8203;`produces`
+:sync: produces
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs2_produces.py
 ```
 
 :::
@@ -134,6 +149,14 @@ For example, the following function is parametrized with tuples.
 
 :::
 
+:::{tab-item} &#8203;`produces`
+:sync: produces
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs3_produces.py
+```
+
+:::
+
 :::{tab-item} Decorators
 :sync: decorators
 
@@ -175,6 +198,14 @@ the user to set a unique name for the iteration.
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs4_py38.py
+```
+
+:::
+
+:::{tab-item} &#8203;`produces`
+:sync: produces
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs4_produces.py
 ```
 
 :::
@@ -269,6 +300,14 @@ Following these three tips, the parametrization becomes
 
 :::
 
+:::{tab-item} &#8203;`produces`
+:sync: produces
+
+```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs5_produces.py
+```
+
+:::
+
 :::{tab-item} Decorators
 :sync: decorators
 
@@ -330,7 +369,7 @@ Look at this repeated task which runs three times and tries to produce a text fi
 some content.
 
 ```python
-import pytask
+from pytask import Product
 from pytask import task
 from pathlib import Path
 
@@ -338,8 +377,7 @@ from pathlib import Path
 for i in range(3):
 
     @task
-    @pytask.mark.produces(f"out_{i}.txt")
-    def task_example():
+    def task_example(path: Annotated[Path, Product] = Path(f"out_{i}.txt")):
         path_of_module_folder = Path(__file__).parent
         path_to_product = path_of_module_folder.joinpath(f"out_{i}.txt")
         path_to_product.write_text("I use running globals. How funny.")
@@ -352,7 +390,7 @@ The other tasks would fail because they did not produce `out_0.txt` and `out_1.t
 
 Why did the first two tasks fail?
 
-```{dropdown} Explanation
+````{dropdown} Explanation
 
 The problem with this example is the running variable `i` which is a global variable
 with changing state.
@@ -373,14 +411,14 @@ function signature.
 for i in range(3):
 
     @task(kwargs={"i": i})
-    @pytask.mark.produces(f"out_{i}.txt")
-    def task_example(i):
+    def task_example(i, path: Annotated[Path, Product] = Path(f"out_{i}.txt")):
         ...
 
     # or
 
     @task
-    @pytask.mark.produces(f"out_{i}.txt")
-    def task_example(i=i):
+    def task_example(i=i, path: Annotated[Path, Product] = Path(f"out_{i}.txt")):
         ...
 ```
+
+````

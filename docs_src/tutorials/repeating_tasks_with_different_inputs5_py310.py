@@ -17,11 +17,10 @@ ID_TO_KWARGS = {
 }
 
 
-for id_, arguments in ID_TO_KWARGS.items():
+for id_, kwargs in ID_TO_KWARGS.items():
 
-    @task(id=id_)
+    @task(id=id_, kwargs=kwargs)
     def task_create_random_data(
-        seed: int = arguments.seed,
-        path_to_data: Annotated[Path, Product] = arguments.path_to_data,
+        seed: int, path_to_data: Annotated[Path, Product]
     ) -> None:
         ...

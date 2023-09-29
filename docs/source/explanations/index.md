@@ -8,6 +8,7 @@ systems in general as well as its design.
 maxdepth: 1
 ---
 why_pytask
+interfaces_for_dependencies_products
 comparison_to_other_tools
 pluggy
 ```
