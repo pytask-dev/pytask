@@ -50,6 +50,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   exception. Now, it is easy to see which tasks are affected.
 - {pull}`430` updates some parts of the documentation.
 - {pull}`431` enables colors for WSL.
+- {pull}`432` fixes type checking of `pytask.mark.xxx`.
 
 ## 0.3.2 - 2023-06-07
 
