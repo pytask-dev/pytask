@@ -80,11 +80,11 @@ example registers all hooks implemented in `config.py`.
 ```python
 # Content of plugin.py
 
-import pytask
+from pytask import hookimpl
 from pytask_plugin import config
 
 
-@pytask.hookimpl
+@hookimpl
 def pytask_add_hooks(pm):
     pm.register(config)
 ```

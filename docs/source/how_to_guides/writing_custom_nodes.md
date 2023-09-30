@@ -21,8 +21,9 @@ To remove IO operations from the task and delegate them to pytask, we will write
 `PickleNode` that automatically loads and stores Python objects.
 
 We will also use the feature explained in {doc}`using_task_returns` to define products
-of the task function via the function's return value and the feature from ??? that
-allows us to define nodes in annotations.
+of the task function via the function's return value.
+
+And we pass the value to `df` via {obj}`Annotated` to preserve the type hint.
 
 The result will be the following task.
 
@@ -119,6 +120,7 @@ nodes for many other data sources like AWS S3 or databases. [^kedro]
     [guide on subclassing](https://hynek.me/articles/python-subclassing-redux/) that
     features protocols under "Type 2". Glyph wrote an introduction to protocols called
     [I want a new duck](https://glyph.twistedmatrix.com/2020/07/new-duck.html).
-[^kedro]
+
+[^kedro]:
     Kedro, another workflow system, provides many adapters to data sources:
     https://docs.kedro.org/en/stable/kedro_datasets.html.

@@ -10,14 +10,7 @@ check whether skipped tasks are consistent with the DAG of the project.
 For example, you can use the {func}`@pytask.mark.skip <pytask.mark.skip>` decorator to
 skip tasks during development that take too much time to compute right now.
 
-```python
-# Content of task_create_dependency.py
-
-
-@pytask.mark.skip
-@pytask.mark.produces("time_intensive_product.pkl")
-def task_long_running(produces):
-    ...
+```{literalinclude} ../../../docs_src/tutorials/skipping_tasks_example_1.py
 ```
 
 Not only will this task be skipped, but all tasks that depend on
@@ -29,7 +22,10 @@ In large projects, you may have many long-running tasks that you only want to ex
 a remote server but not when you are not working locally.
 
 In this case, use the {func}`@pytask.mark.skipif <pytask.mark.skipif>` decorator, which
-requires a condition and a reason as arguments:
+requires a condition and a reason as arguments.
+
+Place the condition variable in a different module than the task, so you can change it
+without causing a rerun of the task.
 
 ```python
 # Content of a config.py
@@ -38,23 +34,15 @@ NO_LONG_RUNNING_TASKS = True
 ```
 
 ```python
-# Content of task_create_dependency.py
-
-
-@pytask.mark.produces("run_always.md")
-def task_always(produces):
-    ...
-```
-
-```python
 # Content of task_long_running.py
+from pathlib import Path
 
+import pytask
 from config import NO_LONG_RUNNING_TASKS
 
 
 @pytask.mark.skipif(NO_LONG_RUNNING_TASKS, reason="Skip long-running tasks.")
-@pytask.mark.depends_on("time_intensive_product.pkl")
-def task_that_takes_really_long_to_run(depends_on):
+def task_that_takes_really_long_to_run(path: Path = Path("time_intensive_product.pkl")):
     ...
 ```
 

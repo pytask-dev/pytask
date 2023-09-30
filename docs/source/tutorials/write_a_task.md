@@ -30,8 +30,9 @@ my_project
 Generally, a task is a function whose name starts with `task_`. Tasks produce outputs
 and the most common output is a file which we will focus on throughout the tutorials.
 
-The following interfaces are different ways to specify the products of a task which is necessary for pytask to
-correctly run a workflow. The interfaces are ordered from most (left) to least recommended (right).
+The following interfaces are different ways to specify the products of a task which is
+necessary for pytask to correctly run a workflow. The interfaces are ordered from most
+(left) to least recommended (right).
 
 :::{important}
 You cannot mix different interfaces for the same task. Choose only one.
