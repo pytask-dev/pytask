@@ -41,6 +41,7 @@ class MarkGenerator:
         kwargs: dict[Any, Any] | None = None,
         produces: PyTree[Any] = None,
     ) -> None: ...
+    def __getattr__(self, name: str) -> MarkDecorator | Any: ...
 
 MARK_GEN = MarkGenerator()
 
