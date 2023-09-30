@@ -1,0 +1,16 @@
+# Content of config.py
+from pathlib import Path
+
+from my_project.config import BLD
+from my_project.config import SRC
+
+
+DATA = ["data_0", "data_1", "data_2", "data_3"]
+
+
+def path_to_input_data(name: str) -> Path:
+    return SRC / "data" / f"{name}.csv"
+
+
+def path_to_processed_data(name: str) -> Path:
+    return BLD / "data" / f"processed_{name}.pkl"
