@@ -49,6 +49,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`429` implements a more informative error message when `node.state()` throws an
   exception. Now, it is easy to see which tasks are affected.
 - {pull}`430` updates some parts of the documentation.
+- {pull}`431` enables colors for WSL.
 
 ## 0.3.2 - 2023-06-07
 

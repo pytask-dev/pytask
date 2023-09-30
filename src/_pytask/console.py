@@ -46,15 +46,11 @@ __all__ = [
 ]
 
 
-_IS_WSL = "IS_WSL" in os.environ or "WSL_DISTRO_NAME" in os.environ
 IS_WINDOWS_TERMINAL = "WT_SESSION" in os.environ
 _IS_WINDOWS = sys.platform == "win32"
 
 
-if (_IS_WINDOWS or _IS_WSL) and not IS_WINDOWS_TERMINAL:
-    _IS_LEGACY_WINDOWS = True
-else:
-    _IS_LEGACY_WINDOWS = False
+_IS_LEGACY_WINDOWS = _IS_WINDOWS and not IS_WINDOWS_TERMINAL
 
 
 _COLOR_SYSTEM: Literal["auto"] | None = None if _IS_LEGACY_WINDOWS else "auto"
