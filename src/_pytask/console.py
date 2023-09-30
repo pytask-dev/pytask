@@ -50,7 +50,7 @@ IS_WINDOWS_TERMINAL = "WT_SESSION" in os.environ
 _IS_WINDOWS = sys.platform == "win32"
 
 
-_IS_LEGACY_WINDOWS = bool(_IS_WINDOWS and not IS_WINDOWS_TERMINAL)
+_IS_LEGACY_WINDOWS = _IS_WINDOWS and not IS_WINDOWS_TERMINAL
 
 
 _COLOR_SYSTEM: Literal["auto"] | None = None if _IS_LEGACY_WINDOWS else "auto"
@@ -156,7 +156,6 @@ def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
     else:
         name = getattr(task, "display_name", task.name)
         task_id = Text(name, style=url_style)
-
     return task_id
 
 
