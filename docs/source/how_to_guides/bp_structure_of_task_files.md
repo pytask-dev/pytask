@@ -72,44 +72,7 @@ leading underscore which are used to accomplish this and only this task.
 
 Here is an example of a task module which conforms to all advices.
 
-```python
-# Content of task_census_data.py.
-
-import pandas as pd
-import pytask
-
-from checks import perform_general_checks_on_data
-
-
-@pytask.mark.depends_on("raw_census.csv")
-@pytask.mark.produces("census.pkl")
-def task_prepare_census_data(depends_on, produces):
-    """Prepare the census data.
-
-    This task prepares the data in three steps.
-
-    1. Clean the data.
-    2. Create new variables.
-    3. Perform some checks on the new data.
-
-    """
-    df = pd.read_csv(depends_on)
-
-    df = _clean_data(df)
-
-    df = _create_new_variables(df)
-
-    perform_general_checks_on_data(df)
-
-    df.to_pickle(produces)
-
-
-def _clean_data(df):
-    ...
-
-
-def _create_new_variables(df):
-    ...
+```{literalinclude} ../../../docs_src/how_to_guides/bp_structure_of_task_files.py
 ```
 
 :::{seealso}

@@ -40,23 +40,11 @@ The programmatic and interactive interface allows customizing the figure.
 Similar to {func}`pytask.build`, there exists {func}`pytask.build_dag` which returns the
 DAG as a {class}`networkx.DiGraph`.
 
-```python
-@pytask.mark.produces(BLD / "dag.svg")
-def task_draw_dag(produces):
-    dag = pytask.build_dag({"paths": SRC})
+```{literalinclude} ../../../docs_src/tutorials/visualizing_the_dag.py
 ```
 
 Customization works best on the {class}`networkx.DiGraph`. For example, here, we set the
 shape of all nodes to hexagons by adding the property to the node attributes.
 
-```python
-nx.set_node_attributes(dag, "hexagon", "shape")
-```
-
 For drawing, you better switch to pygraphviz since the matplotlib backend handles shapes
 with texts poorly. Here we store the graph as a `.svg`.
-
-```python
-graph = nx.nx_agraph.to_agraph(dag)
-graph.draw(path, prog=layout)
-```

@@ -62,54 +62,12 @@ What is new are the local configuration files in each subfolder of `my_project`,
 contain objects shared across tasks. For example, `config.py` holds the paths to the
 processed data and the names of the data sets.
 
-```python
-# Content of config.py
-
-from my_project.config import BLD
-from my_project.config import SRC
-
-
-DATA = ["data_0", "data_1", "data_2", "data_3"]
-
-
-def path_to_input_data(name):
-    return SRC / "data" / f"{name}.csv"
-
-
-def path_to_processed_data(name):
-    return BLD / "data" / f"processed_{name}.pkl"
+```{literalinclude} ../../../docs_src/how_to_guides/bp_scalable_repetitions_of_tasks_1.py
 ```
 
 The task file `task_prepare_data.py` uses these objects to build the parametrization.
 
-```python
-# Content of task_prepare_data.py
-
-from pytask import task
-
-from my_project.data_preparation.config import DATA
-from my_project.data_preparation.config import path_to_input_data
-from my_project.data_preparation.config import path_to_processed_data
-
-
-def _create_parametrization(data):
-    id_to_kwargs = {}
-    for data_name in data:
-        depends_on = path_to_input_data(data_name)
-        produces = path_to_processed_data(data_name)
-
-        id_to_kwargs[data_name] = {"depends_on": depends_on, "produces": produces}
-
-    return id_to_kwargs
-
-
-_ID_TO_KWARGS = _create_parametrization(DATA)
-
-for id_, kwargs in _ID_TO_KWARGS.items():
-
-    @task(id=id_, kwargs=kwargs)
-    def task_prepare_data(depends_on, produces):
-        ...
+```{literalinclude} ../../../docs_src/how_to_guides/bp_scalable_repetitions_of_tasks_2.py
 ```
 
 All arguments for the loop and the {func}`@task <pytask.task>` decorator is built within
@@ -127,25 +85,7 @@ an explicit id.
 Next, we move to the estimation to see how we can build another parametrization upon the
 previous one.
 
-```python
-# Content of config.py
-
-from my_project.config import BLD
-from my_project.data_preparation.config import DATA
-
-
-_MODELS = ["linear_probability", "logistic_model", "decision_tree"]
-
-
-ESTIMATIONS = {
-    f"{data_name}_{model_name}": {"model": model_name, "data": data_name}
-    for model_name in _MODELS
-    for data_name in DATA
-}
-
-
-def path_to_estimation_result(name):
-    return BLD / "estimation" / f"estimation_{name}.pkl"
+```{literalinclude} ../../../docs_src/how_to_guides/bp_scalable_repetitions_of_tasks_3.py
 ```
 
 In the local configuration, we define `ESTIMATIONS` which combines the information on
@@ -159,40 +99,7 @@ pytask -k linear_probability_data_0
 
 And here is the task file.
 
-```python
-# Content of task_estimate_models.py
-
-from pytask import task
-
-from my_project.data_preparation.config import path_to_processed_data
-from my_project.estimations.config import ESTIMATIONS
-from my_project.estimations.config import path_to_estimation_result
-
-
-def _create_parametrization(estimations):
-    id_to_kwargs = {}
-    for name, config in estimations.items():
-        depends_on = path_to_processed_data(config["data"])
-        produces = path_to_estimation_result(name)
-
-        id_to_kwargs[name] = {
-            "depends_on": depends_on,
-            "model": config["model"],
-            "produces": produces,
-        }
-
-    return id_to_kwargs
-
-
-_ID_TO_KWARGS = _create_parametrization(ESTIMATIONS)
-
-
-for id_, kwargs in _ID_TO_KWARGS.items():
-
-    @task(id=id_, kwargs=kwars)
-    def task_estmate_models(depends_on, model, produces):
-        if model == "linear_probability":
-            ...
+```{literalinclude} ../../../docs_src/how_to_guides/bp_scalable_repetitions_of_tasks_4.py
 ```
 
 Replicating this pattern across a project allows a clean way to define parametrizations.

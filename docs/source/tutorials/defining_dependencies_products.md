@@ -1,13 +1,20 @@
 # Defining dependencies and products
 
-To ensure pytask executes all tasks in the correct order, define which dependencies are
-required and which products are produced by a task.
+To ensure pytask executes all tasks in the correct order, you need to define
+dependencies and products for each task.
 
-:::{important}
-If you do not specify dependencies and products as explained below, pytask will not be
-able to build a graph, a {term}`DAG`, and will not be able to execute all tasks in the
-project correctly!
-:::
+This tutorial offers you different interfaces. One important difference between them is
+that if you are comfortable with type annotations or not afraid to try them, take a look
+at the tabs named `Python 3.10+` or `Python 3.8+`.
+
+If you want to avoid type annotations for now, look at the tab named `produces`.
+
+```{seealso}
+An overview on the different interfaces and their strength and weaknesses is given in
+{doc}`../explanations/interfaces_for_dependencies_products`.
+```
+
+Let's first focus on how to define products which should already be familiar to you.
 
 ## Products
 
@@ -36,6 +43,19 @@ task has finished, pytask will check whether the file exists.
 
 Using {class}`~pytask.Product` allows to declare an argument as a product. After the
 task has finished, pytask will check whether the file exists.
+
+:::
+
+:::{tab-item} &#8203;`produces`
+:sync: produces
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_produces.py
+:emphasize-lines: 8
+```
+
+Tasks can use `produces` as an "magic" argument name. Every value, or in this case path,
+passed to this argument is automatically treated as a task product. Here, the path is
+given by the default value of the argument.
 
 :::
 
@@ -104,6 +124,21 @@ annotation are dependencies of the task.
 
 :::
 
+:::{tab-item} &#8203;`produces`
+:sync: produces
+
+To specify that the task relies on the data set `data.pkl`, you can simply add the path
+to the function signature while choosing any argument name, here `path_to_data`.
+
+pytask assumes that all function arguments that are not passed to the argument
+`produces` are dependencies of the task.
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_produces.py
+:emphasize-lines: 7
+```
+
+:::
+
 :::{tab-item} Decorators
 :sync: decorators
 
@@ -144,6 +179,15 @@ are assumed to point to a location relative to the task module.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_py38.py
 :emphasize-lines: 8
+```
+
+:::
+
+:::{tab-item} &#8203;`produces`
+:sync: produces
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_produces.py
+:emphasize-lines: 4
 ```
 
 :::
@@ -200,6 +244,22 @@ per input. Use dictionaries (recommended), tuples, lists, or more nested structu
 you need.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple2_py38.py
+```
+
+:::
+
+:::{tab-item} &#8203;`produces`
+:sync: produces
+
+If your task has multiple products, group them in one container like a dictionary
+(recommended), tuples, lists or a more nested structures.
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple1_produces.py
+```
+
+You can do the same with dependencies.
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple2_produces.py
 ```
 
 :::

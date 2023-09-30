@@ -24,6 +24,7 @@ dependencies:
 
   # Misc
   - black
+  - ipywidgets
   - jupyterlab
   - matplotlib
   - nbval

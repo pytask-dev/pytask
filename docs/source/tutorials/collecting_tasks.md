@@ -5,16 +5,7 @@ If you want to inspect your project and see a summary of all the tasks, you can 
 
 Let us take the following task.
 
-```python
-# Content of task_module.py
-
-import pytask
-
-
-@pytask.mark.depends_on("in.txt")
-@pytask.mark.produces("out.txt")
-def task_write_file(depends_on, produces):
-    produces.write_text(depends_on.read_text())
+```{literalinclude} ../../../docs_src/tutorials/collecting_tasks.py
 ```
 
 Now, running `pytask collect` will produce the following output.
