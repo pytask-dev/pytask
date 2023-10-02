@@ -156,7 +156,7 @@ def _organize_tasks(tasks: list[PTaskWithPath]) -> dict[Path, list[PTaskWithPath
     return sorted_dict
 
 
-def _print_collected_tasks(
+def _print_collected_tasks(  # noqa: PLR0912
     dictionary: dict[Path, list[PTaskWithPath]],
     show_nodes: bool,
     editor_url_scheme: str,
@@ -217,11 +217,14 @@ def _print_collected_tasks(
                         )
                         text = Text(reduced_node_name, style=url_style)
                     else:
-                        path_part, rest = node.name.split("::", maxsplit=1)
-                        reduced_path = str(
-                            relative_to(Path(path_part), common_ancestor)
-                        )
-                        text = reduced_path + "::" + rest
+                        try:
+                            path_part, rest = node.name.split("::", maxsplit=1)
+                            reduced_path = str(
+                                relative_to(Path(path_part), common_ancestor)
+                            )
+                            text = reduced_path + "::" + rest
+                        except Exception:  # noqa: BLE001
+                            text = node.name
 
                     task_branch.add(Text.assemble(FILE_ICON, "<Dependency ", text, ">"))
 

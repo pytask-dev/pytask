@@ -326,7 +326,10 @@ def parse_dependencies_from_task_function(
             isinstance(x, PythonNode) and not x.hash for x in tree_leaves(nodes)
         )
         if not isinstance(nodes, PNode) and are_all_nodes_python_nodes_without_hash:
-            dependencies[parameter_name] = PythonNode(value=value, name=parameter_name)
+            prefix = task_path.as_posix() + "::" + task_name if task_path else task_name
+            node_name = prefix + "::" + parameter_name
+
+            dependencies[parameter_name] = PythonNode(value=value, name=node_name)
         else:
             dependencies[parameter_name] = nodes
     return dependencies
