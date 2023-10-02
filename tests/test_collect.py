@@ -198,7 +198,17 @@ def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_pat
     collected_node = tmp_path / "TeXt.TxT"
 
     with pytest.raises(Exception, match="The provided path of"):
-        pytask_collect_node(session, tmp_path, NodeInfo("", (), collected_node))
+        pytask_collect_node(
+            session,
+            tmp_path,
+            NodeInfo(
+                arg_name="",
+                path=(),
+                value=collected_node,
+                task_path=tmp_path.joinpath("task_example.py"),
+                task_name="task_example",
+            ),
+        )
 
 
 @pytest.mark.unit()
