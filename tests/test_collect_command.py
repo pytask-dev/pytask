@@ -508,7 +508,7 @@ def test_python_nodes_are_aggregated_into_one(runner, tmp_path):
     assert "task_module.py>" in captured
     assert "<Function" in captured
     assert "task_example>" in captured
-    assert "nested" in result.output
+    assert "Dependency" in result.output
     assert "Product" in captured
 
 
