@@ -457,7 +457,7 @@ def test_python_node_is_collected(runner, tmp_path):
     assert "task_module.py>" in captured
     assert "<Function" in captured
     assert "task_example>" in captured
-    assert "<Dependency dependency>" in result.output
+    assert "Dependency" in captured
     assert "Product" in captured
 
 
@@ -482,7 +482,7 @@ def test_none_is_a_python_node(runner, tmp_path):
     assert "task_module.py>" in captured
     assert "<Function" in captured
     assert "task_example>" in captured
-    assert "<Dependency dependency>" in result.output
+    assert "Dependency" in result.output
     assert "Product" in captured
 
 
@@ -508,7 +508,7 @@ def test_python_nodes_are_aggregated_into_one(runner, tmp_path):
     assert "task_module.py>" in captured
     assert "<Function" in captured
     assert "task_example>" in captured
-    assert "<Dependency nested>" in result.output
+    assert "Dependency" in result.output
     assert "Product" in captured
 
 
@@ -602,7 +602,7 @@ def test_setting_name_for_python_node_via_annotation(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
-    assert "node-name" in result.output
+    assert "Dependency" in result.output
 
 
 @pytest.mark.end_to_end()

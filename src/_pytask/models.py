@@ -9,6 +9,7 @@ from attrs import define
 from attrs import field
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from _pytask.tree_util import PyTree
     from _pytask.mark import Mark
 
@@ -33,3 +34,5 @@ class NodeInfo(NamedTuple):
     arg_name: str
     path: tuple[str | int, ...]
     value: Any
+    task_path: Path
+    task_name: str

@@ -154,14 +154,26 @@ def test_collect_files_w_custom_file_name_pattern(
         pytest.param(
             Session({"check_casing_of_paths": False}, None),
             Path(),
-            NodeInfo("", (), Path.cwd() / "text.txt"),
+            NodeInfo(
+                arg_name="",
+                path=(),
+                value=Path.cwd() / "text.txt",
+                task_path=Path.cwd() / "task_example.py",
+                task_name="task_example",
+            ),
             Path.cwd() / "text.txt",
             id="test with absolute string path",
         ),
         pytest.param(
             Session({"check_casing_of_paths": False}, None),
             Path(),
-            NodeInfo("", (), 1),
+            NodeInfo(
+                arg_name="",
+                path=(),
+                value=1,
+                task_path=Path.cwd() / "task_example.py",
+                task_name="task_example",
+            ),
             "1",
             id="test with python node",
         ),
@@ -186,7 +198,17 @@ def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_pat
     collected_node = tmp_path / "TeXt.TxT"
 
     with pytest.raises(Exception, match="The provided path of"):
-        pytask_collect_node(session, tmp_path, NodeInfo("", (), collected_node))
+        pytask_collect_node(
+            session,
+            tmp_path,
+            NodeInfo(
+                arg_name="",
+                path=(),
+                value=collected_node,
+                task_path=tmp_path.joinpath("task_example.py"),
+                task_name="task_example",
+            ),
+        )
 
 
 @pytest.mark.unit()
@@ -203,7 +225,15 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
 
     with warnings.catch_warnings(record=True) as record:
         result = pytask_collect_node(
-            session, tmp_path, NodeInfo("", (), collected_node)
+            session,
+            tmp_path,
+            NodeInfo(
+                arg_name="",
+                path=(),
+                value=collected_node,
+                task_path=tmp_path / "task_example.py",
+                task_name="task_example",
+            ),
         )
         assert not record
 

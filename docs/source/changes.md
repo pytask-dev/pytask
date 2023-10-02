@@ -51,6 +51,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`430` updates some parts of the documentation.
 - {pull}`431` enables colors for WSL.
 - {pull}`432` fixes type checking of `pytask.mark.xxx`.
+- {pull}`433` fixes the ids generated for {class}`~pytask.PythonNode`s.
 
 ## 0.3.2 - 2023-06-07
 
