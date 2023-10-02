@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12.0.rc3']
 
     steps:
       - uses: actions/checkout@v4
@@ -36,8 +36,9 @@ jobs:
           environment-name: gha-testing
           condarc: |
             channels:
-              - nodefaults
               - conda-forge
+              - conda-forge/label/python_rc_debug
+              - nodefaults
           create-args: >-
             python=${{ matrix.python-version }}
             mamba
