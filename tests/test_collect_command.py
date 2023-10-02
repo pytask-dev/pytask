@@ -457,7 +457,7 @@ def test_python_node_is_collected(runner, tmp_path):
     assert "task_module.py>" in captured
     assert "<Function" in captured
     assert "task_example>" in captured
-    assert "<Dependency dependency>" in result.output
+    assert "task_example::dependency>" in result.output
     assert "Product" in captured
 
 
@@ -482,7 +482,7 @@ def test_none_is_a_python_node(runner, tmp_path):
     assert "task_module.py>" in captured
     assert "<Function" in captured
     assert "task_example>" in captured
-    assert "<Dependency dependency>" in result.output
+    assert "task_example::dependency>" in result.output
     assert "Product" in captured
 
 

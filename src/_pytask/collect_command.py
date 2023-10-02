@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import sys
 from collections import defaultdict
+from pathlib import Path
 from typing import Any
 from typing import TYPE_CHECKING
 
@@ -35,7 +36,6 @@ from rich.tree import Tree
 
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from typing import NoReturn
 
 
@@ -217,7 +217,11 @@ def _print_collected_tasks(
                         )
                         text = Text(reduced_node_name, style=url_style)
                     else:
-                        text = node.name
+                        path_part, rest = node.name.split("::", maxsplit=1)
+                        reduced_path = str(
+                            relative_to(Path(path_part), common_ancestor)
+                        )
+                        text = reduced_path + "::" + rest
 
                     task_branch.add(Text.assemble(FILE_ICON, "<Dependency ", text, ">"))
 
