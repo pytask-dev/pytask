@@ -36,9 +36,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           allow-prereleases: true
-      - run: |
-          sudo apt-get update
-          sudo apt-get install graphviz
       - run: pip install tox
 
       # Unit, integration, and end-to-end tests.
