@@ -71,8 +71,13 @@ def produces(objects: PyTree[Any]) -> PyTree[Any]:
     return objects
 
 
-def parse_nodes(
-    session: Session, path: Path, name: str, obj: Any, parser: Callable[..., Any]
+def parse_nodes(  # noqa: PLR0913
+    session: Session,
+    task_path: Path,
+    task_name: str,
+    node_path: Path,
+    obj: Any,
+    parser: Callable[..., Any],
 ) -> Any:
     """Parse nodes from object."""
     arg_name = parser.__name__
@@ -80,7 +85,16 @@ def parse_nodes(
     nodes = _convert_objects_to_node_dictionary(objects, arg_name)
     return tree_map(
         lambda x: _collect_decorator_node(
-            session, path, name, NodeInfo(arg_name, (), x)
+            session,
+            node_path,
+            task_name,
+            NodeInfo(
+                arg_name=arg_name,
+                path=(),
+                value=x,
+                task_path=task_path,
+                task_name=task_name,
+            ),
         ),
         nodes,
     )
@@ -226,7 +240,7 @@ about dependencies in the documentation: https://tinyurl.com/yrezszr4.
 
 
 def parse_dependencies_from_task_function(
-    session: Session, path: Path, name: str, obj: Any
+    session: Session, task_path: Path, task_name: str, node_path: Path, obj: Any
 ) -> dict[str, Any]:
     """Parse dependencies from task function."""
     has_depends_on_decorator = False
@@ -235,7 +249,7 @@ def parse_dependencies_from_task_function(
 
     if has_mark(obj, "depends_on"):
         has_depends_on_decorator = True
-        nodes = parse_nodes(session, path, name, obj, depends_on)
+        nodes = parse_nodes(session, task_path, task_name, node_path, obj, depends_on)
         dependencies["depends_on"] = nodes
 
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
@@ -248,7 +262,16 @@ def parse_dependencies_from_task_function(
         has_depends_on_argument = True
         dependencies["depends_on"] = tree_map(
             lambda x: _collect_decorator_node(
-                session, path, name, NodeInfo(arg_name="depends_on", path=(), value=x)
+                session,
+                node_path,
+                task_name,
+                NodeInfo(
+                    arg_name="depends_on",
+                    path=(),
+                    value=x,
+                    task_path=task_path,
+                    task_name=task_name,
+                ),
             ),
             kwargs["depends_on"],
         )
@@ -284,9 +307,15 @@ def parse_dependencies_from_task_function(
         nodes = tree_map_with_path(
             lambda p, x: _collect_dependency(
                 session,
-                path,
-                name,
-                NodeInfo(parameter_name, p, x),  # noqa: B023
+                node_path,
+                task_name,
+                NodeInfo(
+                    arg_name=parameter_name,  # noqa: B023
+                    path=p,
+                    value=x,
+                    task_path=task_path,
+                    task_name=task_name,
+                ),
             ),
             value,
         )
@@ -352,7 +381,7 @@ annotation, described in this tutorial: https://tinyurl.com/yrezszr4.
 
 
 def parse_products_from_task_function(
-    session: Session, path: Path, name: str, obj: Any
+    session: Session, task_path: Path, task_name: str, node_path: Path, obj: Any
 ) -> dict[str, Any]:
     """Parse products from task function.
 
@@ -372,7 +401,7 @@ def parse_products_from_task_function(
     # Parse products from decorators.
     if has_mark(obj, "produces"):
         has_produces_decorator = True
-        nodes = parse_nodes(session, path, name, obj, produces)
+        nodes = parse_nodes(session, task_path, task_name, node_path, obj, produces)
         out = {"produces": nodes}
 
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
@@ -388,9 +417,15 @@ def parse_products_from_task_function(
         collected_products = tree_map_with_path(
             lambda p, x: _collect_product(
                 session,
-                path,
-                name,
-                NodeInfo(arg_name="produces", path=p, value=x),
+                node_path,
+                task_name,
+                NodeInfo(
+                    arg_name="produces",
+                    path=p,
+                    value=x,
+                    task_path=task_path,
+                    task_name=task_name,
+                ),
                 is_string_allowed=True,
             ),
             kwargs["produces"],
@@ -412,8 +447,8 @@ def parse_products_from_task_function(
                 and parameter_name in parameters_with_node_annot
             ):
                 msg = (
-                    f"The value for the parameter {name!r} is defined twice in "
-                    "'@pytask.mark.task(kwargs=...)' and in the type annotation. "
+                    f"The value for the parameter {parameter_name!r} is defined twice "
+                    "in '@pytask.mark.task(kwargs=...)' and in the type annotation. "
                     "Choose only one option."
                 )
                 raise ValueError(msg)
@@ -425,9 +460,15 @@ def parse_products_from_task_function(
             collected_products = tree_map_with_path(
                 lambda p, x: _collect_product(
                     session,
-                    path,
-                    name,
-                    NodeInfo(parameter_name, p, x),  # noqa: B023
+                    node_path,
+                    task_name,
+                    NodeInfo(
+                        arg_name=parameter_name,  # noqa: B023
+                        path=p,
+                        value=x,
+                        task_path=task_path,
+                        task_name=task_name,
+                    ),
                     is_string_allowed=False,
                 ),
                 value,
@@ -439,9 +480,15 @@ def parse_products_from_task_function(
         collected_products = tree_map_with_path(
             lambda p, x: _collect_product(
                 session,
-                path,
-                name,
-                NodeInfo("return", p, x),
+                node_path,
+                task_name,
+                NodeInfo(
+                    arg_name="return",
+                    path=p,
+                    value=x,
+                    task_path=task_path,
+                    task_name=task_name,
+                ),
                 is_string_allowed=False,
             ),
             parameters_with_node_annot["return"],
@@ -454,9 +501,15 @@ def parse_products_from_task_function(
         collected_products = tree_map_with_path(
             lambda p, x: _collect_product(
                 session,
-                path,
-                name,
-                NodeInfo("return", p, x),
+                node_path,
+                task_name,
+                NodeInfo(
+                    arg_name="return",
+                    path=p,
+                    value=x,
+                    task_path=task_path,
+                    task_name=task_name,
+                ),
                 is_string_allowed=False,
             ),
             task_produces,

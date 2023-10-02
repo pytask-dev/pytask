@@ -231,9 +231,11 @@ def pytask_collect_task(
     if (name.startswith("task_") or has_mark(obj, "task")) and callable(obj):
         path_nodes = Path.cwd() if path is None else path.parent
         dependencies = parse_dependencies_from_task_function(
-            session, path_nodes, name, obj
+            session, path, name, path_nodes, obj
         )
-        products = parse_products_from_task_function(session, path_nodes, name, obj)
+        products = parse_products_from_task_function(
+            session, path, name, path_nodes, obj
+        )
 
         markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
 
@@ -306,9 +308,20 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
     node = node_info.value
 
     if isinstance(node, PythonNode):
-        if not node.name:
-            suffix = "-" + "-".join(map(str, node_info.path)) if node_info.path else ""
-            node.name = node_info.arg_name + suffix
+        prefix = (
+            node_info.task_path.as_posix() + "::" + node_info.task_name
+            if node_info.task_path
+            else node_info.task_name
+        )
+        if node.name:
+            node.name = prefix + "::" + node.name
+        else:
+            node.name = prefix + "::" + node_info.arg_name
+
+        suffix = "-".join(map(str, node_info.path)) if node_info.path else ""
+        if suffix:
+            node.name += "::" + suffix
+
         return node
 
     if isinstance(node, PPathNode) and not node.path.is_absolute():
@@ -336,8 +349,15 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
         )
         return PathNode.from_path(node)
 
-    suffix = "-" + "-".join(map(str, node_info.path)) if node_info.path else ""
-    node_name = node_info.arg_name + suffix
+    prefix = (
+        node_info.task_path.as_posix() + "::" + node_info.task_name
+        if node_info.task_path
+        else node_info.task_name
+    )
+    node_name = prefix + "::" + node_info.arg_name
+    suffix = "-".join(map(str, node_info.path)) if node_info.path else ""
+    if suffix:
+        node_name += "::" + suffix
     return PythonNode(value=node, name=node_name)
 
 
