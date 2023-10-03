@@ -38,6 +38,7 @@ if TYPE_CHECKING:
 __all__ = [
     "depends_on",
     "parse_dependencies_from_task_function",
+    "parse_products_from_task_function",
     "parse_nodes",
     "produces",
 ]
@@ -368,18 +369,6 @@ products. Products should be defined with either
 - '@pytask.mark.produces(Path(...))' (deprecated)
 
 Read more about products in the documentation: https://tinyurl.com/yrezszr4.
-"""
-
-_WARNING_PRODUCES_AS_KWARG = """Using 'produces' as an argument name to specify \
-products is deprecated and won't be available in pytask v0.5. Instead, use the product \
-annotation, described in this tutorial: https://tinyurl.com/yrezszr4.
-
-    from typing_extensions import Annotated
-    from pytask import Product
-
-    def task_example(produces: Annotated[..., Product]):
-        ...
-
 """
 
 

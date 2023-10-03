@@ -12,6 +12,7 @@ import attrs
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
+from _pytask.typing import is_task_function
 
 if TYPE_CHECKING:
     from _pytask.tree_util import PyTree
@@ -123,7 +124,7 @@ def task(
 
     # In case the decorator is used without parentheses, wrap the function which is
     # passed as the first argument with the default arguments.
-    if callable(name) and kwargs is None:
+    if is_task_function(name) and kwargs is None:
         return task()(name)
     return wrapper
 

@@ -39,6 +39,7 @@ from _pytask.shared import find_duplicates
 from _pytask.shared import reduce_node_name
 from _pytask.task_utils import task as task_decorator
 from _pytask.traceback import render_exc_info
+from _pytask.typing import is_task_function
 from rich.text import Text
 
 if TYPE_CHECKING:
@@ -102,7 +103,7 @@ def _collect_from_tasks(session: Session) -> None:
                 obj=raw_task,
             )
 
-        if callable(raw_task):
+        if is_task_function(raw_task):
             if not hasattr(raw_task, "pytask_meta"):
                 raw_task = task_decorator()(raw_task)  # noqa: PLW2901
 

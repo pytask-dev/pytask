@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import functools
 import warnings
 from typing import Any
 from typing import Callable
@@ -8,16 +7,10 @@ from typing import Iterable
 from typing import Mapping
 
 from _pytask.models import CollectionMetadata
+from _pytask.typing import is_task_function
 from attrs import define
 from attrs import field
 from attrs import validators
-
-
-def is_task_function(func: Any) -> bool:
-    return (callable(func) and getattr(func, "__name__", "<lambda>") != "<lambda>") or (
-        isinstance(func, functools.partial)
-        and getattr(func.func, "__name__", "<lambda>") != "<lambda>"
-    )
 
 
 @define(frozen=True)
