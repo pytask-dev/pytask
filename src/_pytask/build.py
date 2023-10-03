@@ -98,7 +98,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
         Whether a dry-run should be performed that shows which tasks need to be rerun.
     editor_url_scheme
         An url scheme that allows to click on task names, node names and filenames and
-        jump right into you preferred edior to the right line.
+        jump right into you preferred editor to the right line.
     expression
         Same as ``-k`` on the command line. Select tasks via expressions on task ids.
     force
