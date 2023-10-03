@@ -264,7 +264,8 @@ To parse dependencies and products from nodes, use the following functions.
 
 ```{eval-rst}
 .. autofunction:: pytask.depends_on
-.. autofunction:: pytask.parse_nodes
+.. autofunction:: pytask.parse_dependencies_from_task_function
+.. autofunction:: pytask.parse_products_from_task_function
 .. autofunction:: pytask.produces
 ```
 
