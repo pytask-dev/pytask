@@ -50,7 +50,7 @@ by the host or by plugins. The following marks are available by default.
 ```{eval-rst}
 .. function:: pytask.mark.persist()
 
-    A marker for a task which should be peristed.
+    A marker for a task which should be persisted.
 ```
 
 ```{eval-rst}
