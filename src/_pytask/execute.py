@@ -78,7 +78,7 @@ def pytask_execute_create_scheduler(session: Session) -> TopologicalSorter:
 
 
 @hookimpl
-def pytask_execute_build(session: Session) -> bool:
+def pytask_execute_build(session: Session) -> bool | None:
     """Execute tasks."""
     if isinstance(session.scheduler, TopologicalSorter):
         for name in session.scheduler.static_order():
@@ -321,7 +321,10 @@ def _print_errored_task_report(session: Session, report: ExecutionReport) -> Non
     if report.exc_info and isinstance(report.exc_info[1], Exit):
         console.print(format_exception_without_traceback(report.exc_info))
     else:
-        console.print(render_exc_info(*report.exc_info, session.config["show_locals"]))
+        assert report.exc_info
+        console.print(
+            render_exc_info(*report.exc_info, show_locals=session.config["show_locals"])
+        )
 
     console.print()
     show_capture = session.config["show_capture"]
@@ -330,5 +333,5 @@ def _print_errored_task_report(session: Session, report: ExecutionReport) -> Non
             ShowCapture(key),
             ShowCapture.ALL,
         ):
-            console.rule(f"Captured {key} during {when}", style=None)
+            console.rule(f"Captured {key} during {when}", style="default")
             console.print(content)

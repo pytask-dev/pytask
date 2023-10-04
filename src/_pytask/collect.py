@@ -112,11 +112,16 @@ def _collect_from_tasks(session: Session) -> None:
             except (TypeError, OSError):
                 path = None
             else:
-                if path.name == "<stdin>":
+                if path and path.name == "<stdin>":
                     path = None  # pragma: no cover
 
             # Detect whether a path is defined in a Jupyter notebook.
-            if is_jupyter() and "ipykernel" in path.as_posix() and path.suffix == ".py":
+            if (
+                is_jupyter()
+                and path
+                and "ipykernel" in path.as_posix()
+                and path.suffix == ".py"
+            ):
                 path = None  # pragma: no cover
 
             name = raw_task.pytask_meta.name
@@ -209,7 +214,11 @@ def pytask_collect_task_protocol(
             return CollectionReport(outcome=CollectionOutcome.SUCCESS, node=task)
 
     except Exception:  # noqa: BLE001
-        task = Task(base_name=name, path=path, function=None)
+        if path:
+            task = Task(base_name=name, path=path, function=obj)
+        else:
+            task = TaskWithoutPath(name=name, function=obj)
+
         return CollectionReport.from_exception(
             outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info(), node=task
         )
@@ -463,7 +472,7 @@ def pytask_collect_log(
                 if isinstance(report.node, PTask):
                     short_name = format_task_name(
                         report.node, editor_url_scheme="no_link"
-                    )
+                    ).plain
                 else:
                     short_name = reduce_node_name(report.node, session.config["paths"])
                 header = f"Could not collect {short_name}"
@@ -475,8 +484,11 @@ def pytask_collect_log(
 
             console.print()
 
+            assert report.exc_info
             console.print(
-                render_exc_info(*report.exc_info, session.config["show_locals"])
+                render_exc_info(
+                    *report.exc_info, show_locals=session.config["show_locals"]
+                )
             )
 
             console.print()

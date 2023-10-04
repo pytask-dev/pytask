@@ -37,7 +37,6 @@ from sqlalchemy import String
 
 if TYPE_CHECKING:
     from _pytask.report import ExecutionReport
-    from types import TracebackType
     from typing import NoReturn
 
 
@@ -126,12 +125,10 @@ def profile(**raw_config: Any) -> NoReturn:
         session = Session.from_config(config)
 
     except (ConfigurationError, Exception):  # pragma: no cover
-        session = Session({}, None)
-        session.exit_code = ExitCode.CONFIGURATION_FAILED
-        exc_info: tuple[
-            type[BaseException], BaseException, TracebackType | None
-        ] = sys.exc_info()
-        console.print(render_exc_info(*exc_info, show_locals=config["show_locals"]))
+        session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
+        console.print(
+            render_exc_info(*sys.exc_info(), show_locals=config["show_locals"])
+        )
 
     else:
         try:
@@ -208,8 +205,7 @@ def _collect_runtimes(task_names: list[str]) -> dict[str, float]:
     """Collect runtimes."""
     with DatabaseSession() as session:
         runtimes = [session.get(Runtime, task_name) for task_name in task_names]
-    runtimes = [r for r in runtimes if r is not None]
-    return {r.task: r.duration for r in runtimes}
+    return {r.task: r.duration for r in runtimes if r}  # type: ignore[misc]
 
 
 class FileSizeNameSpace:

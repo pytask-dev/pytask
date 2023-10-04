@@ -619,7 +619,7 @@ class MultiCapture(Generic[AnyStr]):
         if self.err:
             self.err.resume()
         if self._in_suspended:
-            self.in_.resume()
+            self.in_.resume()  # type: ignore[union-attr]
             self._in_suspended = False
 
     def stop_capturing(self) -> None:

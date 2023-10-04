@@ -65,7 +65,7 @@ def pytask_dag(session: Session) -> bool | None:
     except Exception:  # noqa: BLE001
         report = DagReport.from_exception(sys.exc_info())
         session.hook.pytask_dag_log(session=session, report=report)
-        session.resolving_dependencies_report = report
+        session.dag_reports = report
 
         raise ResolvingDependenciesError from None
 
@@ -336,7 +336,9 @@ def pytask_dag_log(session: Session, report: DagReport) -> None:
     )
 
     console.print()
-    console.print(render_exc_info(*report.exc_info, session.config["show_locals"]))
+    console.print(
+        render_exc_info(*report.exc_info, show_locals=session.config["show_locals"])
+    )
 
     console.print()
     console.rule(style="failed")

@@ -97,8 +97,7 @@ def dag(**raw_config: Any) -> NoReturn:
 
     except (ConfigurationError, Exception):
         console.print_exception()
-        session = Session({}, None)
-        session.exit_code = ExitCode.CONFIGURATION_FAILED
+        session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 
     else:
         try:
@@ -201,8 +200,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
 
     except (ConfigurationError, Exception):
         console.print_exception()
-        session = Session({}, None)
-        session.exit_code = ExitCode.CONFIGURATION_FAILED
+        session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 
     else:
         try:
@@ -238,7 +236,7 @@ def _shorten_node_labels(dag: nx.DiGraph, paths: list[Path]) -> nx.DiGraph:
     """Shorten the node labels in the graph for a better experience."""
     node_names = dag.nodes
     short_names = reduce_names_of_multiple_nodes(node_names, dag, paths)
-    short_names = [i.plain if isinstance(i, Text) else i for i in short_names]
+    short_names = [i.plain if isinstance(i, Text) else i for i in short_names]  # type: ignore[attr-defined]
     old_to_new = dict(zip(node_names, short_names))
     return nx.relabel_nodes(dag, old_to_new)
 

@@ -23,6 +23,14 @@ module = "tests.*"
 disallow_untyped_defs = false
 ignore_errors = true
 
+[[tool.mypy.overrides]]
+module = ["click_default_group", "networkx"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["_pytask.hookspecs"]
+disable_error_code = ["empty-body"]
+
 
 [tool.codespell]
 ignore-words-list = "falsy, hist, ines, unparseable"

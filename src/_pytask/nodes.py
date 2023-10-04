@@ -70,13 +70,13 @@ class Task(PTaskWithPath):
 
     base_name: str
     """The base name of the task."""
-    path: Path | None
+    path: Path
     """Path to the file where the task was defined."""
     function: Callable[..., Any]
     """The task function."""
-    name: str | None = field(default=None, init=False)
+    name: str = field(default="", init=False)
     """The name of the task."""
-    display_name: str | None = field(default=None, init=False)
+    display_name: str = field(default="", init=False)
     """The shortest uniquely identifiable name for task for display."""
     depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
     """A list of dependencies of task."""
@@ -91,13 +91,10 @@ class Task(PTaskWithPath):
 
     def __attrs_post_init__(self: Task) -> None:
         """Change class after initialization."""
-        if self.name is None:
-            if self.path is None:
-                self.name = self.base_name
-            else:
-                self.name = self.path.as_posix() + "::" + self.base_name
+        if not self.name:
+            self.name = self.path.as_posix() + "::" + self.base_name
 
-        if self.display_name is None:
+        if not self.display_name:
             self.display_name = self.name
 
     def state(self) -> str | None:

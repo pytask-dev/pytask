@@ -93,7 +93,7 @@ def reduce_names_of_multiple_nodes(
         node = dag.nodes[name].get("node") or dag.nodes[name].get("task")
 
         if isinstance(node, PTask):
-            short_name = format_task_name(node, editor_url_scheme="no_link")
+            short_name = format_task_name(node, editor_url_scheme="no_link").plain
         elif isinstance(node, MetaNode):
             short_name = reduce_node_name(node, paths)
         else:

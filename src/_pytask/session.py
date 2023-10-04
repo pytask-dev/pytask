@@ -4,57 +4,71 @@ from __future__ import annotations
 from typing import Any
 from typing import TYPE_CHECKING
 
+import networkx as nx
 from _pytask.outcomes import ExitCode
 from attrs import define
 from attrs import field
+from pluggy import HookRelay
 
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
     from _pytask.warnings_utils import WarningReport
-    from pluggy._hooks import _HookRelay
-    import networkx as nx
     from _pytask.report import CollectionReport
     from _pytask.report import ExecutionReport
     from _pytask.report import DagReport
 
 
-@define
+@define(kw_only=True)
 class Session:
-    """The session of pytask."""
+    """The session of pytask.
 
-    config: dict[str, Any] = field(factory=dict)
-    """Configuration of the session."""
-    hook: _HookRelay | None = None
-    """Holds all hooks collected by pytask."""
-    collection_reports: list[CollectionReport] = field(factory=list)
-    """Reports for collected items.
-
-    The reports capture errors which happened while collecting tasks.
+    Parameters
+    ----------
+    config
+        Configuration of the session.
+    collection_reports
+        Reports for collected items.
+    dag
+        The DAG of the project.
+    hook
+        Holds all hooks collected by pytask.
+    tasks
+        List of collected tasks.
+    resolving_dependencies_reports
+        Reports for resolving dependencies failed.
+    execution_reports
+        Reports for executed tasks.
+    n_tasks_failed
+        Number of tests which have failed.
+    should_stop
+        Indicates whether the session should be stopped.
+    warnings
+        A list of warnings captured during the run.
 
     """
+
+    config: dict[str, Any] = field(factory=dict)
+    collection_reports: list[CollectionReport] = field(factory=list)
+    dag: nx.DiGraph = field(factory=nx.DiGraph)
+    hook: HookRelay = field(factory=HookRelay)
     tasks: list[PTask] = field(factory=list)
-    """List of collected tasks."""
-    dag: nx.DiGraph | None = None
-    resolving_dependencies_report: DagReport | None = None
-    """Reports for resolving dependencies failed."""
+    dag_reports: DagReport | None = None
     execution_reports: list[ExecutionReport] = field(factory=list)
-    """Reports for executed tasks."""
     exit_code: ExitCode = ExitCode.OK
 
-    collection_start: float | None = None
-    collection_end: float | None = None
-    execution_start: float | None = None
-    execution_end: float | None = None
+    collection_start: float = float("inf")
+    collection_end: float = float("inf")
+    execution_start: float = float("inf")
+    execution_end: float = float("inf")
 
     n_tasks_failed: int = 0
-    """Number of tests which have failed."""
     scheduler: Any = None
     should_stop: bool = False
-    """Indicates whether the session should be stopped."""
     warnings: list[WarningReport] = field(factory=list)
 
     @classmethod
     def from_config(cls, config: dict[str, Any]) -> Session:
         """Construct the class from a config."""
-        return cls(config, config["pm"].hook)
+        hook = config["pm"].hook if "pm" in config else HookRelay()
+        return cls(config=config, hook=hook)

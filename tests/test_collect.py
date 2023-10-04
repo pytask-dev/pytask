@@ -152,7 +152,7 @@ def test_collect_files_w_custom_file_name_pattern(
     ("session", "path", "node_info", "expected"),
     [
         pytest.param(
-            Session({"check_casing_of_paths": False}, None),
+            Session.from_config({"check_casing_of_paths": False}),
             Path(),
             NodeInfo(
                 arg_name="",
@@ -165,7 +165,7 @@ def test_collect_files_w_custom_file_name_pattern(
             id="test with absolute string path",
         ),
         pytest.param(
-            Session({"check_casing_of_paths": False}, None),
+            Session.from_config({"check_casing_of_paths": False}),
             Path(),
             NodeInfo(
                 arg_name="",
@@ -192,7 +192,7 @@ def test_pytask_collect_node(session, path, node_info, expected):
     sys.platform != "win32", reason="Only works on case-insensitive file systems."
 )
 def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_path):
-    session = Session({"check_casing_of_paths": True}, None)
+    session = Session.from_config({"check_casing_of_paths": True})
     real_node = tmp_path / "text.txt"
     real_node.touch()
     collected_node = tmp_path / "TeXt.TxT"
@@ -216,7 +216,7 @@ def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_pat
 def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
     tmp_path, is_absolute
 ):
-    session = Session({"check_casing_of_paths": True}, None)
+    session = Session.from_config({"check_casing_of_paths": True})
     real_node = tmp_path / "text.txt"
 
     collected_node = Path("..", tmp_path.name, "text.txt")
