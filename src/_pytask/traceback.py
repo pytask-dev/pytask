@@ -6,7 +6,7 @@ from types import TracebackType
 from typing import Generator
 from typing import Tuple
 from typing import Type
-from typing import TypeAlias
+from typing_extensions import TypeAlias
 from typing import Union
 
 import _pytask
