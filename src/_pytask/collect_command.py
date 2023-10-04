@@ -68,8 +68,7 @@ def collect(**raw_config: Any | None) -> NoReturn:
         session = Session.from_config(config)
 
     except (ConfigurationError, Exception):
-        session = Session({}, None)
-        session.exit_code = ExitCode.CONFIGURATION_FAILED
+        session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
         console.print_exception()
 
     else:
@@ -222,17 +221,15 @@ def _print_collected_tasks(  # noqa: PLR0912
                             reduced_path = str(
                                 relative_to(Path(path_part), common_ancestor)
                             )
-                            text = reduced_path + "::" + rest
+                            text = Text(reduced_path + "::" + rest)
                         except Exception:  # noqa: BLE001
-                            text = node.name
+                            text = Text(node.name)
 
                     task_branch.add(Text.assemble(FILE_ICON, "<Dependency ", text, ">"))
 
                 for node in sorted(  # type: ignore[assignment]
                     tree_leaves(task.produces),
-                    key=lambda x: getattr(
-                        x, "path", x.name  # type: ignore[attr-defined]
-                    ),
+                    key=lambda x: x.path if isinstance(x, PPathNode) else x.name,  # type: ignore[attr-defined]
                 ):
                     if isinstance(node, PPathNode):
                         reduced_node_name = str(relative_to(node.path, common_ancestor))

@@ -146,7 +146,7 @@ IDENT_PREFIX = "$"
 
 def expression(s: Scanner) -> ast.Expression:
     if s.accept(TokenType.EOF):
-        ret: ast.expr = ast.NameConstant(False)
+        ret: ast.expr = ast.Constant(False)
     else:
         ret = expr(s)
         s.accept(TokenType.EOF, reject=True)
@@ -169,7 +169,7 @@ def and_expr(s: Scanner) -> ast.expr:
     return ret
 
 
-def not_expr(s: Scanner) -> ast.expr | None:
+def not_expr(s: Scanner) -> ast.expr:
     if s.accept(TokenType.NOT):
         return ast.UnaryOp(ast.Not(), not_expr(s))
     if s.accept(TokenType.LPAREN):

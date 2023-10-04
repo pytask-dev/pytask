@@ -5,10 +5,6 @@ import shutil
 import subprocess
 from pathlib import Path
 from typing import Any
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from os import PathLike
 
 
 def is_git_installed() -> bool:
@@ -37,13 +33,13 @@ def zsplit(s: str) -> list[str]:
     return []
 
 
-def get_all_files(cwd: PathLike[str] | None = None) -> list[Path]:
+def get_all_files(cwd: Path | None = None) -> list[Path]:
     """Get all files tracked by git - even new, staged files."""
     str_paths = zsplit(cmd_output("git", "ls-files", "-z", cwd=cwd)[1])
     return [Path(x) for x in str_paths]
 
 
-def get_root(cwd: PathLike[str] | None) -> Path | None:
+def get_root(cwd: Path) -> Path | None:
     """Get the root path of a git repository.
 
     Git 2.25 introduced a change to ``rev-parse --show-toplevel`` that exposed

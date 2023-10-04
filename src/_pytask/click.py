@@ -56,7 +56,7 @@ class EnumChoice(click.Choice):
 class _OptionHighlighter(RegexHighlighter):
     """A highlighter for help texts."""
 
-    highlights: ClassVar = [
+    highlights: ClassVar = [  # type: ignore[misc]
         r"(?P<switch>\-\w)\b",
         r"(?P<option>\-\-[\w\-]+)",
         r"\-\-[\w\-]+(?P<metavar>[ |=][\w\.:]+)",
@@ -192,7 +192,7 @@ def _print_options(
 
 def _format_help_text(  # noqa: C901, PLR0912, PLR0915
     param: click.Parameter, ctx: click.Context
-) -> str:
+) -> Text:
     """Format the help of a click parameter.
 
     A large chunk of the function is copied from

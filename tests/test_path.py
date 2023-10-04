@@ -37,7 +37,7 @@ def test_relative_to(path, source, include_source, expected):
     ("path", "potential_ancestors", "expected"),
     [
         (Path("src/task.py"), [Path("src"), Path("bld")], Path("src")),
-        (Path("tasks/task.py"), [Path("src"), Path("bld")], None),
+        (Path("tasks/task.py"), [Path("src"), Path("bld")], Path()),
         (Path("src/ts/task.py"), [Path("src"), Path("src/ts")], Path("src/ts")),
         (Path("src/in.txt"), [Path("src/task_d.py")], Path("src")),
         (Path("src/task.py"), [Path("src/task.py")], Path("src/task.py")),

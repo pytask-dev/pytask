@@ -23,9 +23,9 @@ if TYPE_CHECKING:
     from _pytask.session import Session
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
-    from _pytask.reports import CollectionReport
-    from _pytask.reports import ExecutionReport
-    from _pytask.reports import DagReport
+    from _pytask.report import CollectionReport
+    from _pytask.report import ExecutionReport
+    from _pytask.report import DagReport
 
 
 hookspec = pluggy.HookspecMarker("pytask")

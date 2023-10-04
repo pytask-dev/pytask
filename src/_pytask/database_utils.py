@@ -69,8 +69,10 @@ def _create_or_update_state(
                 )
             )
         else:
-            state_in_db.modification_time = modification_time
-            state_in_db.hash_ = hash_
+            state_in_db.modification_time = (
+                modification_time  # type: ignore[assignment]
+            )
+            state_in_db.hash_ = hash_  # type: ignore[assignment]
 
         session.commit()
 
@@ -90,4 +92,6 @@ def update_states_in_database(session: Session, task_name: str) -> None:
             modification_time = ""
             hash_ = node.state()
 
-        _create_or_update_state(task_name, node.name, modification_time, hash_)
+        _create_or_update_state(
+            task_name, node.name, modification_time, hash_  # type: ignore[arg-type]
+        )

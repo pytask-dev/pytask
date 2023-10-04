@@ -39,7 +39,7 @@ class MarkGenerator:
         *,
         id: str | None = None,  # noqa: A002
         kwargs: dict[Any, Any] | None = None,
-        produces: PyTree[Any] = None,
+        produces: PyTree[Any] | None = None,
     ) -> None: ...
     def __getattr__(self, name: str) -> MarkDecorator | Any: ...
 

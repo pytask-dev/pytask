@@ -26,7 +26,7 @@ class CollectionMetadata:
     """Contains the markers of the function."""
     name: str | None = None
     """The name of the task function."""
-    produces: PyTree[Any] = None
+    produces: PyTree[Any] | None = None
     """Definition of products to handle returns."""
 
 

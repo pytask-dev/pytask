@@ -57,26 +57,15 @@ def find_closest_ancestor(path: Path, potential_ancestors: Sequence[Path]) -> Pa
     'folder/subfolder'
 
     """
-    closest_ancestor = None
+    potential_closest_ancestors = []
     for ancestor in potential_ancestors:
         if ancestor == path:
-            closest_ancestor = path
-            break
+            return path
 
-        # Paths can also point to files in which case we want to take the parent folder.
-        if ancestor.is_file():
-            ancestor = ancestor.parent  # noqa: PLW2901
+        candidate = find_common_ancestor(path, ancestor)
+        potential_closest_ancestors.append(candidate)
 
-        if ancestor in path.parents and (
-            closest_ancestor is None
-            or (
-                len(path.relative_to(ancestor).parts)
-                < len(path.relative_to(closest_ancestor).parts)
-            )
-        ):
-            closest_ancestor = ancestor
-
-    return closest_ancestor
+    return sorted(potential_closest_ancestors, key=lambda x: len(x.parts))[-1]
 
 
 def find_common_ancestor_of_nodes(*names: str) -> Path:
@@ -134,7 +123,7 @@ def import_path(path: Path, root: Path) -> ModuleType:
 
     mod = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = mod
-    spec.loader.exec_module(mod)
+    spec.loader.exec_module(mod)  # type: ignore[union-attr]
     _insert_missing_modules(sys.modules, module_name)
     return mod
 

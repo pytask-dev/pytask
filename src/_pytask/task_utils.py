@@ -41,8 +41,8 @@ def task(
     *,
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
-    produces: PyTree[Any] = None,
-) -> Callable[..., None]:
+    produces: PyTree[Any] | None = None,
+) -> Callable[..., Callable[..., Any]]:
     """Decorate a task function.
 
     This decorator declares every callable as a pytask task.
@@ -75,13 +75,15 @@ def task(
     .. code-block:: python
 
         from typing_extensions import Annotated
+        from pytask import task
 
-        @pytask.task def create_text_file() -> Annotated[str, Path("file.txt")]:
+        @task
+        def create_text_file() -> Annotated[str, Path("file.txt")]:
             return "Hello, World!"
 
     """
 
-    def wrapper(func: Callable[..., Any]) -> None:
+    def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
         for arg, arg_name in ((name, "name"), (id, "id")):
             if not (isinstance(arg, str) or arg is None):
                 msg = (

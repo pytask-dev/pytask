@@ -114,7 +114,6 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder(tmp_path, 
     result = runner.invoke(cli, [tmp_path.joinpath("src").as_posix()])
 
     assert result.exit_code == ExitCode.DAG_FAILED
-    assert "Failures during resolving dependencies" in result.output
 
     # Ensure that node names are reduced.
     assert "Failures during resolving dependencies" in result.output
