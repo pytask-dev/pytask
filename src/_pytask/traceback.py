@@ -6,7 +6,8 @@ from types import TracebackType
 from typing import Generator
 from typing import Tuple
 from typing import Type
-from typing import Union, TYPE_CHECKING
+from typing import TYPE_CHECKING
+from typing import Union
 
 import _pytask
 import pluggy
