@@ -6,13 +6,15 @@ from types import TracebackType
 from typing import Generator
 from typing import Tuple
 from typing import Type
-from typing_extensions import TypeAlias
-from typing import Union
+from typing import Union, TYPE_CHECKING
 
 import _pytask
 import pluggy
 from _pytask.tree_util import TREE_UTIL_LIB_DIRECTORY
 from rich.traceback import Traceback
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 
 __all__ = [
