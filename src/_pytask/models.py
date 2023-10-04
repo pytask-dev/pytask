@@ -34,5 +34,5 @@ class NodeInfo(NamedTuple):
     arg_name: str
     path: tuple[str | int, ...]
     value: Any
-    task_path: Path
+    task_path: Path | None
     task_name: str

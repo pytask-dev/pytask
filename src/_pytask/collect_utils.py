@@ -74,7 +74,7 @@ def produces(objects: PyTree[Any]) -> PyTree[Any]:
 
 def parse_nodes(  # noqa: PLR0913
     session: Session,
-    task_path: Path,
+    task_path: Path | None,
     task_name: str,
     node_path: Path,
     obj: Any,
@@ -241,7 +241,7 @@ about dependencies in the documentation: https://tinyurl.com/yrezszr4.
 
 
 def parse_dependencies_from_task_function(
-    session: Session, task_path: Path, task_name: str, node_path: Path, obj: Any
+    session: Session, task_path: Path | None, task_name: str, node_path: Path, obj: Any
 ) -> dict[str, Any]:
     """Parse dependencies from task function."""
     has_depends_on_decorator = False
@@ -373,7 +373,7 @@ Read more about products in the documentation: https://tinyurl.com/yrezszr4.
 
 
 def parse_products_from_task_function(
-    session: Session, task_path: Path, task_name: str, node_path: Path, obj: Any
+    session: Session, task_path: Path | None, task_name: str, node_path: Path, obj: Any
 ) -> dict[str, Any]:
     """Parse products from task function.
 

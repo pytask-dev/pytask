@@ -220,7 +220,7 @@ def pytask_collect_task_protocol(
 
 @hookimpl(trylast=True)
 def pytask_collect_task(
-    session: Session, path: Path, name: str, obj: Any
+    session: Session, path: Path | None, name: str, obj: Any
 ) -> PTask | None:
     """Collect a task which is a function.
 

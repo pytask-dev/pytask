@@ -54,6 +54,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`433` fixes the ids generated for {class}`~pytask.PythonNode`s.
 - {pull}`437` fixes the detection of task functions and publishes
   {func}`pytask.is_task_function`.
+- {pull}`438` clarifies some types.
 
 ## 0.3.2 - 2023-06-07
 
