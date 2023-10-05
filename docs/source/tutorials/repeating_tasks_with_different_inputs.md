@@ -8,8 +8,8 @@ We reuse the task from the previous {doc}`tutorial <write_a_task>`, which genera
 random data and repeat the same operation over several seeds to receive multiple,
 reproducible samples.
 
-Apply the {func}`@task <pytask.task>` decorator, loop over the function
-and supply different seeds and output paths as default arguments of the function.
+Apply the {func}`@task <pytask.task>` decorator, loop over the function and supply
+different seeds and output paths as default arguments of the function.
 
 ::::{tab-set}
 
