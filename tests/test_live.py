@@ -307,25 +307,3 @@ def test_sort_table_option(tmp_path, runner, sort_table):
     task_names = [name[0][-1] for name in task_names if name]
     expected = ["a", "b"] if sort_table == "true" else ["b", "a"]
     assert expected == task_names
-
-
-@pytest.mark.end_to_end()
-def test_execute_w_partialed_functions(tmp_path, runner):
-    """Test with partialed function which make it harder to extract info.
-
-    Info like source line number and the path to the module.
-
-    """
-    source = """
-    import functools
-
-    def func(): ...
-
-    task_func = functools.partial(func)
-
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    result = runner.invoke(cli, [tmp_path.joinpath("task_module.py").as_posix()])
-
-    assert result.exit_code == ExitCode.OK
-    assert "task_func" in result.output

@@ -20,13 +20,9 @@ def task_prepare_census_data(
 
     """
     df = pd.read_csv(path_to_raw_census)
-
     df = _clean_data(df)
-
     df = _create_new_variables(df)
-
     perform_general_checks_on_data(df)
-
     df.to_pickle(path_to_census)
 
 

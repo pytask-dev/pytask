@@ -12,11 +12,9 @@ def test_is_task_function():
     assert is_task_function(func)
 
     partialed_func = functools.partial(func)
-
     assert is_task_function(partialed_func)
 
     assert is_task_function(lambda x: x)
 
     partialed_lambda = functools.partial(lambda x: x)
-
     assert is_task_function(partialed_lambda)

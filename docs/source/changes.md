@@ -56,6 +56,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   {func}`pytask.is_task_function`.
 - {pull}`438` clarifies some types.
 - {pull}`440` refines more types.
+- {pull}`441` updates more parts of the documentation.
 
 ## 0.3.2 - 2023-06-07
 
