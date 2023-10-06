@@ -395,3 +395,17 @@ def test_deprecation_warnings_for_task_decorator(tmp_path):
         check=False,
     )
     assert b"FutureWarning: '@pytask.mark.task'" in result.stdout
+
+
+@pytest.mark.end_to_end()
+def test_different_mark_import(runner, tmp_path):
+    source = """
+    from pytask import mark
+
+    @mark.skip
+    def task_write_text(): ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "Skipped" in result.output

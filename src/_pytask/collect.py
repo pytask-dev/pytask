@@ -22,6 +22,7 @@ from _pytask.console import format_task_name
 from _pytask.console import get_file
 from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
+from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
@@ -183,6 +184,12 @@ def pytask_collect_file(
 
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
+            # Skip mark generator since it overrides __getattr__ and seems like any
+            # object. Happens when people do ``from pytask import mark`` and
+            # ``@mark.x``.
+            if isinstance(obj, MarkGenerator):
+                continue
+
             # Ensures that tasks with this decorator are only collected once.
             if has_mark(obj, "task"):
                 continue
