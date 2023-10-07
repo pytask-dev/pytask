@@ -5,7 +5,7 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.4.0 - 2023-xx-xx
+## 0.4.0 - 2023-10-07
 
 - {pull}`323` remove Python 3.7 support and use a new Github action to provide mamba.
 - {pull}`384` allows to parse dependencies from every function argument if `depends_on`
@@ -56,6 +56,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   {func}`pytask.is_task_function`.
 - {pull}`438` clarifies some types.
 - {pull}`440` refines more types.
+- {pull}`441` updates more parts of the documentation.
 - {pull}`442` allows users to import `from pytask import mark` and use `@mark.skip`.
 
 ## 0.3.2 - 2023-06-07

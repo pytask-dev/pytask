@@ -10,8 +10,8 @@ your own to improve your workflows.
 ## Use-case
 
 A typical task operation is to load data like a {class}`pandas.DataFrame` from a pickle
-file, transform it, and store it on disk. The usual way would be to use paths to point to
-inputs and outputs and call {func}`pandas.read_pickle` and
+file, transform it, and store it on disk. The usual way would be to use paths to point
+to inputs and outputs and call {func}`pandas.read_pickle` and
 {meth}`pandas.DataFrame.to_pickle`.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_1.py
@@ -54,7 +54,7 @@ A custom node needs to follow an interface so that pytask can perform several ac
 - Load and save values when tasks are executed.
 
 This interface is defined by protocols [^structural-subtyping]. A custom node must
-follow at least the protocol {class}`pytask.Node` or, even better,
+follow at least the protocol {class}`pytask.PNode` or, even better,
 {class}`pytask.PPathNode` if it is based on a path. The common node for paths,
 {class}`pytask.PathNode`, follows the protocol {class}`pytask.PPathNode`.
 

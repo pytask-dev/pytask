@@ -8,8 +8,8 @@ We reuse the task from the previous {doc}`tutorial <write_a_task>`, which genera
 random data and repeat the same operation over several seeds to receive multiple,
 reproducible samples.
 
-Apply the {func}`@task <pytask.task>` decorator, loop over the function
-and supply different seeds and output paths as default arguments of the function.
+Apply the {func}`@task <pytask.task>` decorator, loop over the function and supply
+different seeds and output paths as default arguments of the function.
 
 ::::{tab-set}
 
@@ -355,7 +355,7 @@ for id_, kwargs in ID_TO_KWARGS.items():
 ```
 
 The
-{doc}`best-practices guide on parametrizations <../how_to_guides/bp_scalable_repetitions_of_tasks>`
+{doc}`best-practices guide on parametrizations <../how_to_guides/bp_scaling_tasks>`
 goes into even more detail on how to scale parametrizations.
 
 ## A warning on globals

@@ -1,16 +1,20 @@
 # Structure of task files
 
-This section provides advice on how to structure task files.
+This guide presents some best-practices for structuring your task files. You do not have
+to follow them to use pytask or to create a reproducible research project. But, if you
+are looking for orientation or inspiration, here are some tips.
 
 ## TL;DR
 
-- There might be multiple task functions in a task module, but only if the code is still
-  readable and not too complex and if runtime for all tasks is low.
+- Use task modules to separate task functions from another. Separating tasks by the
+  stages in research project like data management, analysis, plotting is a good start.
+  Separate further when task modules become crowded.
 
-- A task function should be the first function in a task module.
+- Task functions should be at the top of a task module to easily identify what the
+  module is for.
 
   :::{seealso}
-  The only exception might be for {doc}`repetitions <bp_scalable_repetitions_of_tasks>`.
+  The only exception might be for {doc}`repetitions <bp_scaling_tasks>`.
   :::
 
 - The purpose of the task function is to handle IO operations like loading and saving
@@ -20,8 +24,9 @@ This section provides advice on how to structure task files.
 - Non-task functions in the task module are {term}`private functions <private function>`
   and only used within this task module. The functions should not have side-effects.
 
-- Functions used to accomplish tasks in multiple task modules should have their own
-  module.
+- It should never be necessary to import from task modules. So if you need a function in
+  multiple task modules, put it in a separate module (which does not start with
+  `task_`).
 
 ## Best Practices
 
@@ -29,15 +34,21 @@ This section provides advice on how to structure task files.
 
 There are two reasons to split tasks across several modules.
 
-The first reason concerns readability and complexity. Multiple tasks deal with
-(slightly) different concepts and, thus, should be split content-wise. Even if tasks
-deal with the same concept, they might be very complex on its own and separate modules
-help the reader (most likely you or your colleagues) to focus on one thing.
+The first reason concerns readability and complexity. Tasks deal with different concepts
+and, thus, should be split. Even if tasks deal with the same concept, they might becna
+very complex and separate modules help the reader (most likely you or your colleagues)
+to focus on one thing.
 
 The second reason is about runtime. If a task module is changed, all tasks within the
 module are re-run. If the runtime of all tasks in the module is high, you wait longer
 for your tasks to finish or until an error occurs which prolongs your feedback loops and
 hurts your productivity.
+
+:::{seealso}
+Use {func}`@pytask.mark.persist <pytask.mark.persist>` if you want to avoid accidentally
+triggering an expensive task. It is also explained in [this
+tutorial](../tutorials/making_tasks_persist).
+:::
 
 ### Structure of the module
 

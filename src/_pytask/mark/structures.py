@@ -163,7 +163,7 @@ def store_mark(obj: Callable[..., Any], mark: Mark) -> None:
 
 _DEPRECATION_DECORATOR = """'@pytask.mark.{}' is deprecated starting pytask \
 v0.4.0 and will be removed in v0.5.0. To upgrade your project to the new syntax, read \
-the tutorial on product and dependencies: https://tinyurl.com/yrezszr4.
+the tutorial on product and dependencies: https://tinyurl.com/pytask-deps-prods.
 """
 
 

@@ -236,7 +236,7 @@ Use only one of the two ways!
 
 Hint: You do not need to use 'depends_on' as the argument name since pytask v0.4. \
 Every function argument that is not a product is treated as a dependency. Read more \
-about dependencies in the documentation: https://tinyurl.com/yrezszr4.
+about dependencies in the documentation: https://tinyurl.com/pytask-deps-prods.
 """
 
 
@@ -368,7 +368,7 @@ products. Products should be defined with either
 - as a default argument for 'produces': 'produces = Path(...)'
 - '@pytask.mark.produces(Path(...))' (deprecated)
 
-Read more about products in the documentation: https://tinyurl.com/yrezszr4.
+Read more about products in the documentation: https://tinyurl.com/pytask-deps-prods.
 """
 
 
