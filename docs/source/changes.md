@@ -5,7 +5,7 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.4.0 - 2023-xx-xx
+## 0.4.0 - 2023-10-07
 
 - {pull}`323` remove Python 3.7 support and use a new Github action to provide mamba.
 - {pull}`384` allows to parse dependencies from every function argument if `depends_on`
