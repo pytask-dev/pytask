@@ -22,7 +22,7 @@ class MetaNode(Protocol):
     """Protocol for an intersection between nodes and tasks."""
 
     name: str
-    """The name of node that must be unique."""
+    """Name of the node that must be unique."""
 
     @abstractmethod
     def state(self) -> str | None:

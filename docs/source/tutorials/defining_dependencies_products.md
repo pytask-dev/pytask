@@ -320,7 +320,7 @@ Secondly, dictionaries use keys instead of positions that are more verbose and
 descriptive and do not assume a fixed ordering. Both attributes are especially desirable
 in complex projects.
 
-## Multiple decorators
+**Multiple decorators**
 
 pytask merges multiple decorators of one kind into a single dictionary. This might help
 you to group dependencies and apply them to multiple tasks.
@@ -344,7 +344,7 @@ Inside the task, `depends_on` will be
 {"first_text": ... / "text_1.txt", "second_text": "text_2.txt", 0: "text_3.txt"}
 ```
 
-## Nested dependencies and products
+**Nested dependencies and products**
 
 Dependencies and products can be nested containers consisting of tuples, lists, and
 dictionaries. It is beneficial if you want more structure and nesting.
