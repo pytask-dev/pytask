@@ -44,8 +44,8 @@ dependencies:
   - sphinx-click
   - sphinx-copybutton
   - sphinx-design >=0.3.0
-  - sphinx-toolbox
   - sphinxext-opengraph
 
   - pip:
+    - sphinx-toolbox
     - -e .

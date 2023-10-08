@@ -262,9 +262,7 @@ Nodes are the interface for different kinds of dependencies or products.
 
 ```{eval-rst}
 .. autoclass:: pytask.PathNode
-    :members:
 .. autoclass:: pytask.PythonNode
-    :members:
 ```
 
 To parse dependencies and products from nodes, use the following functions.
