@@ -33,22 +33,33 @@ class TaskWithoutPath(PTask):
     - they are dynamically created in a REPL.
     - they are created in a Jupyter notebook.
 
+    Attributes
+    ----------
+    name
+        The name of the task.
+    function
+        The task function.
+    depends_on
+        A list of dependencies of task.
+    produces
+        A list of products of task.
+    markers
+        A list of markers attached to the task function.
+    report_sections
+        Reports with entries for when, what, and content.
+
+    Attributes
+    ----------
+        A dictionary to store additional information of the task.
     """
 
     name: str
-    """The base name of the task."""
     function: Callable[..., Any]
-    """The task function."""
     depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
-    """A list of dependencies of task."""
     produces: dict[str, PyTree[PNode]] = field(factory=dict)
-    """A list of products of task."""
     markers: list[Mark] = field(factory=list)
-    """A list of markers attached to the task function."""
     report_sections: list[tuple[str, str, str]] = field(factory=list)
-    """Reports with entries for when, what, and content."""
     attributes: dict[Any, Any] = field(factory=dict)
-    """A dictionary to store additional information of the task."""
 
     def state(self) -> str | None:
         """Return the state of the node."""
@@ -66,28 +77,43 @@ class TaskWithoutPath(PTask):
 
 @define(kw_only=True)
 class Task(PTaskWithPath):
-    """The class for tasks which are Python functions."""
+    """The class for tasks which are Python functions.
+
+    base_name
+        The base name of the task.
+    path
+        Path to the file where the task was defined.
+    function
+        The task function.
+    name
+        The name of the task.
+    display_name
+        The shortest uniquely identifiable name for task for display.
+    depends_on
+        A list of dependencies of task.
+    produces
+        A list of products of task.
+    markers
+        A list of markers attached to the task function.
+    report_sections
+        Reports with entries for when, what, and content.
+
+    Attributes
+    ----------
+        A dictionary to store additional information of the task.
+
+    """
 
     base_name: str
-    """The base name of the task."""
     path: Path
-    """Path to the file where the task was defined."""
     function: Callable[..., Any]
-    """The task function."""
     name: str = field(default="", init=False)
-    """The name of the task."""
     display_name: str = field(default="", init=False)
-    """The shortest uniquely identifiable name for task for display."""
     depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
-    """A list of dependencies of task."""
     produces: dict[str, PyTree[PNode]] = field(factory=dict)
-    """A list of products of task."""
     markers: list[Mark] = field(factory=list)
-    """A list of markers attached to the task function."""
     report_sections: list[tuple[str, str, str]] = field(factory=list)
-    """Reports with entries for when, what, and content."""
     attributes: dict[Any, Any] = field(factory=dict)
-    """A dictionary to store additional information of the task."""
 
     def __attrs_post_init__(self: Task) -> None:
         """Change class after initialization."""
@@ -110,12 +136,19 @@ class Task(PTaskWithPath):
 
 @define(kw_only=True)
 class PathNode(PPathNode):
-    """The class for a node which is a path."""
+    """The class for a node which is a path.
+
+    Attributes
+    ----------
+    name
+        Name of the node which makes it identifiable in the DAG.
+    path
+        The path to the file.
+
+    """
 
     name: str
-    """Name of the node which makes it identifiable in the DAG."""
     path: Path
-    """The path to the file."""
 
     @classmethod
     @functools.lru_cache
@@ -157,14 +190,22 @@ class PathNode(PPathNode):
 
 @define(kw_only=True)
 class PythonNode(PNode):
-    """The class for a node which is a Python object."""
+    """The class for a node which is a Python object.
+
+    Attributes
+    ----------
+    name
+        Name of the node that is set internally.
+    value
+        Value of the node.
+    hash
+        Whether the value should be hashed to determine the state.
+
+    """
 
     name: str = ""
-    """Name of the node."""
     value: Any = None
-    """Value of the node."""
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
-    """Whether the value should be hashed to determine the state."""
 
     def load(self) -> Any:
         """Load the value."""

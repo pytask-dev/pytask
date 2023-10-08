@@ -239,23 +239,30 @@ The remaining exceptions convey specific errors.
 
 ```
 
-## Nodes
+## Protocols
 
-Nodes are the interface for different kinds of dependencies or products. They inherit
-from {class}`pytask.MetaNode`.
+Protocols define how tasks and nodes for dependencies and products have to be set up.
 
 ```{eval-rst}
-.. autoclass:: pytask.MetaNode
+.. autoprotocol:: pytask.MetaNode
+   :show-inheritance:
+.. autoprotocol:: pytask.PNode
+   :show-inheritance:
+.. autoprotocol:: pytask.PPathNode
+   :show-inheritance:
+.. autoprotocol:: pytask.PTask
+   :show-inheritance:
+.. autoprotocol:: pytask.PTaskWithPath
+   :show-inheritance:
 ```
 
-Then, different kinds of nodes can be implemented.
+## Nodes
+
+Nodes are the interface for different kinds of dependencies or products.
 
 ```{eval-rst}
 .. autoclass:: pytask.PathNode
     :members:
-```
-
-```{eval-rst}
 .. autoclass:: pytask.PythonNode
     :members:
 ```
@@ -357,8 +364,6 @@ There are some classes to handle different kinds of reports.
 
     An indicator to mark arguments of tasks as products.
 
-    Examples
-    --------
     >>> def task_example(path: Annotated[Path, Product]) -> None:
     ...     path.write_text("Hello, World!")
 
