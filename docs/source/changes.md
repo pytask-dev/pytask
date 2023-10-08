@@ -9,6 +9,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`443` ensures that `PythonNode.name` is always unique by only handling it
   internally.
+- {pull}`444` moves all content of `setup.cfg` to `pyproject.toml`.
 
 ## 0.4.0 - 2023-10-07
 
