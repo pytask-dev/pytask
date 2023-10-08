@@ -35,10 +35,10 @@ repos:
     -   id: reorder-python-imports
         args: [--py38-plus]
         files: ^(docs_src/)
--   repo: https://github.com/tox-dev/pyproject-fmt
-    rev: 1.2.0
-    hooks:
-    -   id: pyproject-fmt
+# -   repo: https://github.com/tox-dev/pyproject-fmt
+#     rev: 1.2.0
+#     hooks:
+#     -   id: pyproject-fmt
 -   repo: https://github.com/psf/black
     rev: 23.9.1
     hooks:
