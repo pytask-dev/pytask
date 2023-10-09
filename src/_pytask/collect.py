@@ -12,6 +12,8 @@ from typing import Generator
 from typing import Iterable
 from typing import TYPE_CHECKING
 
+import attrs
+from _pytask.collect_utils import create_name_of_python_node
 from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_products_from_task_function
 from _pytask.config import hookimpl
@@ -325,9 +327,8 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
     node = node_info.value
 
     if isinstance(node, PythonNode):
-        node_name = _create_name_of_python_node(node_info)
-        node.name = node_name
-        return node
+        node_name = create_name_of_python_node(node_info)
+        return attrs.evolve(node, name=node_name)
 
     if isinstance(node, PPathNode) and not node.path.is_absolute():
         node.path = path.joinpath(node.path)
@@ -354,7 +355,7 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
         )
         return PathNode.from_path(node)
 
-    node_name = _create_name_of_python_node(node_info)
+    node_name = create_name_of_python_node(node_info)
     return PythonNode(value=node, name=node_name)
 
 
@@ -494,17 +495,3 @@ def pytask_collect_log(
         )
 
         raise CollectionError
-
-
-def _create_name_of_python_node(node_info: NodeInfo) -> str:
-    """Create name of PythonNode."""
-    prefix = (
-        node_info.task_path.as_posix() + "::" + node_info.task_name
-        if node_info.task_path
-        else node_info.task_name
-    )
-    node_name = prefix + "::" + node_info.arg_name
-    if node_info.path:
-        suffix = "-".join(map(str, node_info.path))
-        node_name += "::" + suffix
-    return node_name

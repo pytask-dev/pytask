@@ -47,9 +47,7 @@ class TaskWithoutPath(PTask):
         A list of markers attached to the task function.
     report_sections
         Reports with entries for when, what, and content.
-
-    Attributes
-    ----------
+    attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
     """
 
@@ -79,6 +77,8 @@ class TaskWithoutPath(PTask):
 class Task(PTaskWithPath):
     """The class for tasks which are Python functions.
 
+    Attributes
+    ----------
     base_name
         The base name of the task.
     path
@@ -97,9 +97,7 @@ class Task(PTaskWithPath):
         A list of markers attached to the task function.
     report_sections
         Reports with entries for when, what, and content.
-
-    Attributes
-    ----------
+    attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
 
     """

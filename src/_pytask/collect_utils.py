@@ -327,9 +327,15 @@ def parse_dependencies_from_task_function(
             isinstance(x, PythonNode) and not x.hash for x in tree_leaves(nodes)
         )
         if not isinstance(nodes, PNode) and are_all_nodes_python_nodes_without_hash:
-            prefix = task_path.as_posix() + "::" + task_name if task_path else task_name
-            node_name = prefix + "::" + parameter_name
-
+            node_name = create_name_of_python_node(
+                NodeInfo(
+                    arg_name=parameter_name,
+                    path=(),
+                    value=value,
+                    task_path=task_path,
+                    task_name=task_name,
+                )
+            )
             dependencies[parameter_name] = PythonNode(value=value, name=node_name)
         else:
             dependencies[parameter_name] = nodes
@@ -660,3 +666,17 @@ def _collect_product(
         raise NodeNotCollectedError(msg)
 
     return collected_node
+
+
+def create_name_of_python_node(node_info: NodeInfo) -> str:
+    """Create name of PythonNode."""
+    prefix = (
+        node_info.task_path.as_posix() + "::" + node_info.task_name
+        if node_info.task_path
+        else node_info.task_name
+    )
+    node_name = prefix + "::" + node_info.arg_name
+    if node_info.path:
+        suffix = "-".join(map(str, node_info.path))
+        node_name += "::" + suffix
+    return node_name
