@@ -771,3 +771,27 @@ def test_execute_tasks_via_functional_api(tmp_path):
 def test_pass_non_task_to_functional_api_that_are_ignored():
     session = pytask.build(tasks=None)
     assert len(session.tasks) == 0
+
+
+@pytest.mark.end_to_end()
+def test_multiple_product_annotations(runner, tmp_path):
+    source = """
+    from pytask import Product
+    from typing_extensions import Annotated
+    from pathlib import Path
+
+    def task_first(
+        first: Annotated[Path, Product] = Path("first.txt"),
+        second: Annotated[Path, Product] = Path("second.txt")
+    ):
+        first.write_text("first")
+        second.write_text("second")
+
+    def task_second(
+        first: Path = Path("first.txt"), second: Path = Path("second.txt")
+    ):
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK

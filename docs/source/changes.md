@@ -5,11 +5,12 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.4.1 - 2023-10-08
+## 0.4.1 - 2023-10-xx
 
 - {pull}`443` ensures that `PythonNode.name` is always unique by only handling it
   internally.
 - {pull}`444` moves all content of `setup.cfg` to `pyproject.toml`.
+- {pull}`447` fixes handling multiple product annotations of a task.
 
 ## 0.4.0 - 2023-10-07
 
