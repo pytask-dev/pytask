@@ -82,16 +82,16 @@ def pytask_dag_create_dag(tasks: list[PTask]) -> nx.DiGraph:
         dag.add_node(node.name, node=node)
         dag.add_edge(node.name, task.name)
 
-    def _add_product(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
-        """Add a product to the DAG."""
-        dag.add_node(node.name, node=node)
-        dag.add_edge(node.name, task.name)
-
         # If a node is a PythonNode wrapped in another PythonNode, it is a product from
         # another task that is a dependency in the current task. Thus, draw an edge
         # connecting the two nodes.
         if isinstance(node, PythonNode) and isinstance(node.value, PythonNode):
             dag.add_edge(node.value.name, node.name)
+
+    def _add_product(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
+        """Add a product to the DAG."""
+        dag.add_node(node.name, node=node)
+        dag.add_edge(task.name, node.name)
 
     dag = nx.DiGraph()
 
@@ -99,7 +99,7 @@ def pytask_dag_create_dag(tasks: list[PTask]) -> nx.DiGraph:
         dag.add_node(task.name, task=task)
 
         tree_map(lambda x: _add_dependency(dag, task, x), task.depends_on)
-        tree_map(lambda x: _add_product(dag, task, x), task.depends_on)
+        tree_map(lambda x: _add_product(dag, task, x), task.produces)
 
     _check_if_dag_has_cycles(dag)
 
