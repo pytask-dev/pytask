@@ -76,26 +76,30 @@ def pytask_dag(session: Session) -> bool | None:
 @hookimpl
 def pytask_dag_create_dag(tasks: list[PTask]) -> nx.DiGraph:
     """Create the DAG from tasks, dependencies and products."""
+
+    def _add_dependency(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
+        """Add a dependency to the DAG."""
+        dag.add_node(node.name, node=node)
+        dag.add_edge(node.name, task.name)
+
+    def _add_product(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
+        """Add a product to the DAG."""
+        dag.add_node(node.name, node=node)
+        dag.add_edge(node.name, task.name)
+
+        # If a node is a PythonNode wrapped in another PythonNode, it is a product from
+        # another task that is a dependency in the current task. Thus, draw an edge
+        # connecting the two nodes.
+        if isinstance(node, PythonNode) and isinstance(node.value, PythonNode):
+            dag.add_edge(node.value.name, node.name)
+
     dag = nx.DiGraph()
 
     for task in tasks:
         dag.add_node(task.name, task=task)
 
-        tree_map(lambda x: dag.add_node(x.name, node=x), task.depends_on)
-        tree_map(lambda x: dag.add_edge(x.name, task.name), task.depends_on)
-
-        tree_map(lambda x: dag.add_node(x.name, node=x), task.produces)
-        tree_map(lambda x: dag.add_edge(task.name, x.name), task.produces)
-
-        # If a node is a PythonNode wrapped in another PythonNode, it is a product from
-        # another task that is a dependency in the current task. Thus, draw an edge
-        # connecting the two nodes.
-        tree_map(
-            lambda x: dag.add_edge(x.value.name, x.name)
-            if isinstance(x, PythonNode) and isinstance(x.value, PythonNode)
-            else None,
-            task.depends_on,
-        )
+        tree_map(lambda x: _add_dependency(dag, task, x), task.depends_on)
+        tree_map(lambda x: _add_product(dag, task, x), task.depends_on)
 
     _check_if_dag_has_cycles(dag)
 

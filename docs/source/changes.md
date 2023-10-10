@@ -10,7 +10,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`443` ensures that `PythonNode.name` is always unique by only handling it
   internally.
 - {pull}`444` moves all content of `setup.cfg` to `pyproject.toml`.
-- {pull}`445` refactors `create_name_of_python_node` and fixes `PythonNode`s as returns.
+- {pull}`446` refactors `create_name_of_python_node` and fixes `PythonNode`s as returns.
+- {pull}`447` simplifies the `tree_map` code while generating the DAG.
 
 ## 0.4.0 - 2023-10-07
 
