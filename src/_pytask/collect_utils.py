@@ -615,6 +615,9 @@ def _collect_dependency(
     node = node_info.value
 
     if isinstance(node, PythonNode) and node.value is no_default:
+        # If a node is a dependency and its value is not set, the node is a product in
+        # another task and the value will be set there. Thus, we wrap the original node
+        # in another node to retrieve the value after it is set.
         new_node = attrs.evolve(node, value=node)
         node_info = node_info._replace(value=new_node)
 
