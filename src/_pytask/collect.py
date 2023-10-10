@@ -12,7 +12,6 @@ from typing import Generator
 from typing import Iterable
 from typing import TYPE_CHECKING
 
-import attrs
 from _pytask.collect_utils import create_name_of_python_node
 from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_products_from_task_function
@@ -307,7 +306,7 @@ created from the `__file__` attribute of a module.
 
 @hookimpl(trylast=True)
 def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PNode:
-    """Collect a node of a task as a :class:`pytask.nodes.PathNode`.
+    """Collect a node of a task as a :class:`pytask.PNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
     hook is executed at last and possible errors will be shown, it seems reasonable and
@@ -327,8 +326,8 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
     node = node_info.value
 
     if isinstance(node, PythonNode):
-        node_name = create_name_of_python_node(node_info)
-        return attrs.evolve(node, name=node_name)
+        node.name = create_name_of_python_node(node_info)
+        return node
 
     if isinstance(node, PPathNode) and not node.path.is_absolute():
         node.path = path.joinpath(node.path)

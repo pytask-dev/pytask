@@ -11,6 +11,7 @@ from typing import Generator
 from typing import Iterable
 from typing import TYPE_CHECKING
 
+import attrs
 from _pytask._inspect import get_annotations
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import has_mark
@@ -24,6 +25,7 @@ from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
+from _pytask.typing import no_default
 from _pytask.typing import ProductType
 from attrs import define
 from attrs import field
@@ -612,6 +614,10 @@ def _collect_dependency(
     """
     node = node_info.value
 
+    if isinstance(node, PythonNode) and node.value is no_default:
+        new_node = attrs.evolve(node, value=node)
+        node_info = node_info._replace(value=new_node)
+
     collected_node = session.hook.pytask_collect_node(
         session=session, path=path, node_info=node_info
     )
@@ -659,6 +665,7 @@ def _collect_product(
     collected_node = session.hook.pytask_collect_node(
         session=session, path=path, node_info=node_info
     )
+
     if collected_node is None:
         msg = (
             f"{node!r} can't be parsed as a product for task {task_name!r} in {path!r}."
