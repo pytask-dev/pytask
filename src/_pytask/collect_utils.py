@@ -433,9 +433,9 @@ def parse_products_from_task_function(
         out = {"produces": collected_products}
 
     if parameters_with_product_annot:
-        has_annotation = True
-
+        out = {}
         for parameter_name in parameters_with_product_annot:
+            has_annotation = True
             if (
                 parameter_name not in kwargs
                 and parameter_name not in parameters_with_node_annot
@@ -473,7 +473,7 @@ def parse_products_from_task_function(
                 ),
                 value,
             )
-            out = {parameter_name: collected_products}
+            out[parameter_name] = collected_products
 
     if "return" in parameters_with_node_annot:
         has_return = True

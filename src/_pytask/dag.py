@@ -101,6 +101,16 @@ def pytask_dag_create_dag(tasks: list[PTask]) -> nx.DiGraph:
         tree_map(lambda x: _add_dependency(dag, task, x), task.depends_on)
         tree_map(lambda x: _add_product(dag, task, x), task.produces)
 
+        # If a node is a PythonNode wrapped in another PythonNode, it is a product from
+        # another task that is a dependency in the current task. Thus, draw an edge
+        # connecting the two nodes.
+        tree_map(
+            lambda x: dag.add_edge(x.value.name, x.name)
+            if isinstance(x, PythonNode) and isinstance(x.value, PythonNode)
+            else None,
+            task.depends_on,
+        )
+
     _check_if_dag_has_cycles(dag)
 
     return dag

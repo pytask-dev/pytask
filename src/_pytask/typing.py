@@ -33,9 +33,18 @@ def is_task_function(obj: Any) -> bool:
 
 
 class _NoDefault(Enum):
-    """An enum for missing defaults."""
+    """A singleton for no defaults.
 
-    no_default = ...
+    We make this an Enum
+    1) because it round-trips through pickle correctly (see GH#40397)
+    2) because mypy does not understand singletons
+
+    """
+
+    no_default = "NO_DEFAULT"
+
+    def __repr__(self) -> str:
+        return "<no_default>"
 
 
 no_default: Final = _NoDefault.no_default
