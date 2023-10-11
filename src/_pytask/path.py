@@ -68,12 +68,6 @@ def find_closest_ancestor(path: Path, potential_ancestors: Sequence[Path]) -> Pa
     return sorted(potential_closest_ancestors, key=lambda x: len(x.parts))[-1]
 
 
-def find_common_ancestor_of_nodes(*names: str) -> Path:
-    """Find the common ancestor from task names and nodes."""
-    cleaned_names = [Path(name.split("::")[0]) for name in names]
-    return find_common_ancestor(*cleaned_names)
-
-
 def find_common_ancestor(*paths: Path) -> Path:
     """Find a common ancestor of many paths."""
     return Path(os.path.commonpath(paths))

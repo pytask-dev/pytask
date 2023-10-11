@@ -13,6 +13,8 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
+from _pytask.typing import no_default
+from _pytask.typing import NoDefault
 from attrs import define
 from attrs import field
 
@@ -47,9 +49,7 @@ class TaskWithoutPath(PTask):
         A list of markers attached to the task function.
     report_sections
         Reports with entries for when, what, and content.
-
-    Attributes
-    ----------
+    attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
     """
 
@@ -79,6 +79,8 @@ class TaskWithoutPath(PTask):
 class Task(PTaskWithPath):
     """The class for tasks which are Python functions.
 
+    Attributes
+    ----------
     base_name
         The base name of the task.
     path
@@ -97,9 +99,7 @@ class Task(PTaskWithPath):
         A list of markers attached to the task function.
     report_sections
         Reports with entries for when, what, and content.
-
-    Attributes
-    ----------
+    attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
 
     """
@@ -204,11 +204,13 @@ class PythonNode(PNode):
     """
 
     name: str = ""
-    value: Any = None
+    value: Any | NoDefault = no_default
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
 
     def load(self) -> Any:
         """Load the value."""
+        if isinstance(self.value, PythonNode):
+            return self.value.load()
         return self.value
 
     def save(self, value: Any) -> None:
@@ -234,11 +236,12 @@ class PythonNode(PNode):
 
         """
         if self.hash:
+            value = self.load()
             if callable(self.hash):
-                return str(self.hash(self.value))
-            if isinstance(self.value, str):
-                return str(hashlib.sha256(self.value.encode()).hexdigest())
-            if isinstance(self.value, bytes):
-                return str(hashlib.sha256(self.value).hexdigest())
-            return str(hash(self.value))
+                return str(self.hash(value))
+            if isinstance(value, str):
+                return str(hashlib.sha256(value.encode()).hexdigest())
+            if isinstance(value, bytes):
+                return str(hashlib.sha256(value).hexdigest())
+            return str(hash(value))
         return "0"

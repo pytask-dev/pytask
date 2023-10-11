@@ -29,7 +29,7 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
-from _pytask.path import find_common_ancestor_of_nodes
+from _pytask.nodes import PythonNode
 from _pytask.report import DagReport
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
@@ -87,6 +87,16 @@ def pytask_dag_create_dag(tasks: list[PTask]) -> nx.DiGraph:
         tree_map(lambda x: dag.add_node(x.name, node=x), task.produces)
         tree_map(lambda x: dag.add_edge(task.name, x.name), task.produces)
 
+        # If a node is a PythonNode wrapped in another PythonNode, it is a product from
+        # another task that is a dependency in the current task. Thus, draw an edge
+        # connecting the two nodes.
+        tree_map(
+            lambda x: dag.add_edge(x.value.name, x.name)
+            if isinstance(x, PythonNode) and isinstance(x.value, PythonNode)
+            else None,
+            task.depends_on,
+        )
+
     _check_if_dag_has_cycles(dag)
 
     return dag
@@ -114,7 +124,7 @@ def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
 def pytask_dag_validate_dag(session: Session, dag: nx.DiGraph) -> None:
     """Validate the DAG."""
     _check_if_root_nodes_are_available(dag, session.config["paths"])
-    _check_if_tasks_have_the_same_products(dag)
+    _check_if_tasks_have_the_same_products(dag, session.config["paths"])
 
 
 def _have_task_or_neighbors_changed(
@@ -292,7 +302,7 @@ def _format_dictionary_to_tree(dict_: dict[str, list[str]], title: str) -> str:
     return render_to_string(tree, console=console, strip_styles=True)
 
 
-def _check_if_tasks_have_the_same_products(dag: nx.DiGraph) -> None:
+def _check_if_tasks_have_the_same_products(dag: nx.DiGraph, paths: list[Path]) -> None:
     nodes_created_by_multiple_tasks = []
 
     for node in dag.nodes:
@@ -303,19 +313,11 @@ def _check_if_tasks_have_the_same_products(dag: nx.DiGraph) -> None:
                 nodes_created_by_multiple_tasks.append(node)
 
     if nodes_created_by_multiple_tasks:
-        all_names = nodes_created_by_multiple_tasks + [
-            predecessor
-            for node in nodes_created_by_multiple_tasks
-            for predecessor in dag.predecessors(node)
-        ]
-        common_ancestor = find_common_ancestor_of_nodes(*all_names)
         dictionary = {}
         for node in nodes_created_by_multiple_tasks:
-            short_node_name = reduce_node_name(
-                dag.nodes[node]["node"], [common_ancestor]
-            )
+            short_node_name = reduce_node_name(dag.nodes[node]["node"], paths)
             short_predecessors = reduce_names_of_multiple_nodes(
-                dag.predecessors(node), dag, [common_ancestor]
+                dag.predecessors(node), dag, paths
             )
             dictionary[short_node_name] = short_predecessors
         text = _format_dictionary_to_tree(dictionary, "Products from multiple tasks:")
