@@ -12,6 +12,7 @@ from typing import Generator
 from typing import Iterable
 from typing import TYPE_CHECKING
 
+from _pytask.collect_utils import create_name_of_python_node
 from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_products_from_task_function
 from _pytask.config import hookimpl
@@ -22,6 +23,7 @@ from _pytask.console import format_task_name
 from _pytask.console import get_file
 from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
+from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
@@ -39,6 +41,7 @@ from _pytask.shared import find_duplicates
 from _pytask.shared import reduce_node_name
 from _pytask.task_utils import task as task_decorator
 from _pytask.traceback import render_exc_info
+from _pytask.typing import is_task_function
 from rich.text import Text
 
 if TYPE_CHECKING:
@@ -102,7 +105,7 @@ def _collect_from_tasks(session: Session) -> None:
                 obj=raw_task,
             )
 
-        if callable(raw_task):
+        if is_task_function(raw_task):
             if not hasattr(raw_task, "pytask_meta"):
                 raw_task = task_decorator()(raw_task)  # noqa: PLW2901
 
@@ -111,11 +114,16 @@ def _collect_from_tasks(session: Session) -> None:
             except (TypeError, OSError):
                 path = None
             else:
-                if path.name == "<stdin>":
+                if path and path.name == "<stdin>":
                     path = None  # pragma: no cover
 
             # Detect whether a path is defined in a Jupyter notebook.
-            if is_jupyter() and "ipykernel" in path.as_posix() and path.suffix == ".py":
+            if (
+                is_jupyter()
+                and path
+                and "ipykernel" in path.as_posix()
+                and path.suffix == ".py"
+            ):
                 path = None  # pragma: no cover
 
             name = raw_task.pytask_meta.name
@@ -177,6 +185,12 @@ def pytask_collect_file(
 
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
+            # Skip mark generator since it overrides __getattr__ and seems like any
+            # object. Happens when people do ``from pytask import mark`` and
+            # ``@mark.x``.
+            if isinstance(obj, MarkGenerator):
+                continue
+
             # Ensures that tasks with this decorator are only collected once.
             if has_mark(obj, "task"):
                 continue
@@ -208,7 +222,11 @@ def pytask_collect_task_protocol(
             return CollectionReport(outcome=CollectionOutcome.SUCCESS, node=task)
 
     except Exception:  # noqa: BLE001
-        task = Task(base_name=name, path=path, function=None)
+        if path:
+            task = Task(base_name=name, path=path, function=obj)
+        else:
+            task = TaskWithoutPath(name=name, function=obj)
+
         return CollectionReport.from_exception(
             outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info(), node=task
         )
@@ -219,7 +237,7 @@ def pytask_collect_task_protocol(
 
 @hookimpl(trylast=True)
 def pytask_collect_task(
-    session: Session, path: Path, name: str, obj: Any
+    session: Session, path: Path | None, name: str, obj: Any
 ) -> PTask | None:
     """Collect a task which is a function.
 
@@ -231,9 +249,11 @@ def pytask_collect_task(
     if (name.startswith("task_") or has_mark(obj, "task")) and callable(obj):
         path_nodes = Path.cwd() if path is None else path.parent
         dependencies = parse_dependencies_from_task_function(
-            session, path_nodes, name, obj
+            session, path, name, path_nodes, obj
         )
-        products = parse_products_from_task_function(session, path_nodes, name, obj)
+        products = parse_products_from_task_function(
+            session, path, name, path_nodes, obj
+        )
 
         markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
 
@@ -286,7 +306,7 @@ created from the `__file__` attribute of a module.
 
 @hookimpl(trylast=True)
 def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PNode:
-    """Collect a node of a task as a :class:`pytask.nodes.PathNode`.
+    """Collect a node of a task as a :class:`pytask.PNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
     hook is executed at last and possible errors will be shown, it seems reasonable and
@@ -306,9 +326,7 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
     node = node_info.value
 
     if isinstance(node, PythonNode):
-        if not node.name:
-            suffix = "-" + "-".join(map(str, node_info.path)) if node_info.path else ""
-            node.name = node_info.arg_name + suffix
+        node.name = create_name_of_python_node(node_info)
         return node
 
     if isinstance(node, PPathNode) and not node.path.is_absolute():
@@ -336,8 +354,7 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
         )
         return PathNode.from_path(node)
 
-    suffix = "-" + "-".join(map(str, node_info.path)) if node_info.path else ""
-    node_name = node_info.arg_name + suffix
+    node_name = create_name_of_python_node(node_info)
     return PythonNode(value=node, name=node_name)
 
 
@@ -442,7 +459,7 @@ def pytask_collect_log(
                 if isinstance(report.node, PTask):
                     short_name = format_task_name(
                         report.node, editor_url_scheme="no_link"
-                    )
+                    ).plain
                 else:
                     short_name = reduce_node_name(report.node, session.config["paths"])
                 header = f"Could not collect {short_name}"
@@ -454,8 +471,11 @@ def pytask_collect_log(
 
             console.print()
 
+            assert report.exc_info
             console.print(
-                render_exc_info(*report.exc_info, session.config["show_locals"])
+                render_exc_info(
+                    *report.exc_info, show_locals=session.config["show_locals"]
+                )
             )
 
             console.print()

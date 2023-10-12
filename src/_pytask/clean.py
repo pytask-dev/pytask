@@ -35,7 +35,6 @@ from attrs import define
 
 
 if TYPE_CHECKING:
-    from types import TracebackType
     from typing import NoReturn
 
 
@@ -112,12 +111,8 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912, PLR0915
         session = Session.from_config(config)
 
     except Exception:  # noqa: BLE001
-        session = Session({}, None)
-        session.exit_code = ExitCode.CONFIGURATION_FAILED
-        exc_info: tuple[
-            type[BaseException], BaseException, TracebackType | None
-        ] = sys.exc_info()
-        console.print(render_exc_info(*exc_info))
+        session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
+        console.print(render_exc_info(*sys.exc_info()))
 
     else:
         try:
@@ -163,7 +158,7 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912, PLR0915
                 )
 
             console.print()
-            console.rule(style=None)
+            console.rule(style="default")
 
         except CollectionError:
             session.exit_code = ExitCode.COLLECTION_FAILED

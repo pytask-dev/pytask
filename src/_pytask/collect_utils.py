@@ -11,6 +11,7 @@ from typing import Generator
 from typing import Iterable
 from typing import TYPE_CHECKING
 
+import attrs
 from _pytask._inspect import get_annotations
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import has_mark
@@ -24,6 +25,7 @@ from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
+from _pytask.typing import no_default
 from _pytask.typing import ProductType
 from attrs import define
 from attrs import field
@@ -38,6 +40,7 @@ if TYPE_CHECKING:
 __all__ = [
     "depends_on",
     "parse_dependencies_from_task_function",
+    "parse_products_from_task_function",
     "parse_nodes",
     "produces",
 ]
@@ -71,8 +74,13 @@ def produces(objects: PyTree[Any]) -> PyTree[Any]:
     return objects
 
 
-def parse_nodes(
-    session: Session, path: Path, name: str, obj: Any, parser: Callable[..., Any]
+def parse_nodes(  # noqa: PLR0913
+    session: Session,
+    task_path: Path | None,
+    task_name: str,
+    node_path: Path,
+    obj: Any,
+    parser: Callable[..., Any],
 ) -> Any:
     """Parse nodes from object."""
     arg_name = parser.__name__
@@ -80,7 +88,16 @@ def parse_nodes(
     nodes = _convert_objects_to_node_dictionary(objects, arg_name)
     return tree_map(
         lambda x: _collect_decorator_node(
-            session, path, name, NodeInfo(arg_name, (), x)
+            session,
+            node_path,
+            task_name,
+            NodeInfo(
+                arg_name=arg_name,
+                path=(),
+                value=x,
+                task_path=task_path,
+                task_name=task_name,
+            ),
         ),
         nodes,
     )
@@ -213,19 +230,20 @@ def _merge_dictionaries(list_of_dicts: list[dict[Any, Any]]) -> dict[Any, Any]:
 _ERROR_MULTIPLE_DEPENDENCY_DEFINITIONS = """The task uses multiple ways to define \
 dependencies. Dependencies should be defined with either
 
-- '@pytask.mark.depends_on' and a 'depends_on' function argument.
 - as default value for the function argument 'depends_on'.
+- as '@pytask.task(kwargs={"depends_on": ...})'
+- or with the deprecated '@pytask.mark.depends_on' and a 'depends_on' function argument.
 
 Use only one of the two ways!
 
-Hint: You do not need to use 'depends_on' since pytask v0.4. Every function argument \
-that is not a product is treated as a dependency. Read more about dependencies in the \
-documentation: https://tinyurl.com/yrezszr4.
+Hint: You do not need to use 'depends_on' as the argument name since pytask v0.4. \
+Every function argument that is not a product is treated as a dependency. Read more \
+about dependencies in the documentation: https://tinyurl.com/pytask-deps-prods.
 """
 
 
 def parse_dependencies_from_task_function(
-    session: Session, path: Path, name: str, obj: Any
+    session: Session, task_path: Path | None, task_name: str, node_path: Path, obj: Any
 ) -> dict[str, Any]:
     """Parse dependencies from task function."""
     has_depends_on_decorator = False
@@ -234,7 +252,7 @@ def parse_dependencies_from_task_function(
 
     if has_mark(obj, "depends_on"):
         has_depends_on_decorator = True
-        nodes = parse_nodes(session, path, name, obj, depends_on)
+        nodes = parse_nodes(session, task_path, task_name, node_path, obj, depends_on)
         dependencies["depends_on"] = nodes
 
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
@@ -247,7 +265,16 @@ def parse_dependencies_from_task_function(
         has_depends_on_argument = True
         dependencies["depends_on"] = tree_map(
             lambda x: _collect_decorator_node(
-                session, path, name, NodeInfo(arg_name="depends_on", path=(), value=x)
+                session,
+                node_path,
+                task_name,
+                NodeInfo(
+                    arg_name="depends_on",
+                    path=(),
+                    value=x,
+                    task_path=task_path,
+                    task_name=task_name,
+                ),
             ),
             kwargs["depends_on"],
         )
@@ -283,9 +310,15 @@ def parse_dependencies_from_task_function(
         nodes = tree_map_with_path(
             lambda p, x: _collect_dependency(
                 session,
-                path,
-                name,
-                NodeInfo(parameter_name, p, x),  # noqa: B023
+                node_path,
+                task_name,
+                NodeInfo(
+                    arg_name=parameter_name,  # noqa: B023
+                    path=p,
+                    value=x,
+                    task_path=task_path,
+                    task_name=task_name,
+                ),
             ),
             value,
         )
@@ -296,7 +329,16 @@ def parse_dependencies_from_task_function(
             isinstance(x, PythonNode) and not x.hash for x in tree_leaves(nodes)
         )
         if not isinstance(nodes, PNode) and are_all_nodes_python_nodes_without_hash:
-            dependencies[parameter_name] = PythonNode(value=value, name=parameter_name)
+            node_name = create_name_of_python_node(
+                NodeInfo(
+                    arg_name=parameter_name,
+                    path=(),
+                    value=value,
+                    task_path=task_path,
+                    task_name=task_name,
+                )
+            )
+            dependencies[parameter_name] = PythonNode(value=value, name=node_name)
         else:
             dependencies[parameter_name] = nodes
     return dependencies
@@ -334,24 +376,12 @@ products. Products should be defined with either
 - as a default argument for 'produces': 'produces = Path(...)'
 - '@pytask.mark.produces(Path(...))' (deprecated)
 
-Read more about products in the documentation: https://tinyurl.com/yrezszr4.
-"""
-
-_WARNING_PRODUCES_AS_KWARG = """Using 'produces' as an argument name to specify \
-products is deprecated and won't be available in pytask v0.5. Instead, use the product \
-annotation, described in this tutorial: https://tinyurl.com/yrezszr4.
-
-    from typing_extensions import Annotated
-    from pytask import Product
-
-    def task_example(produces: Annotated[..., Product]):
-        ...
-
+Read more about products in the documentation: https://tinyurl.com/pytask-deps-prods.
 """
 
 
-def parse_products_from_task_function(  # noqa: C901
-    session: Session, path: Path, name: str, obj: Any
+def parse_products_from_task_function(
+    session: Session, task_path: Path | None, task_name: str, node_path: Path, obj: Any
 ) -> dict[str, Any]:
     """Parse products from task function.
 
@@ -371,7 +401,7 @@ def parse_products_from_task_function(  # noqa: C901
     # Parse products from decorators.
     if has_mark(obj, "produces"):
         has_produces_decorator = True
-        nodes = parse_nodes(session, path, name, obj, produces)
+        nodes = parse_nodes(session, task_path, task_name, node_path, obj, produces)
         out = {"produces": nodes}
 
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
@@ -383,17 +413,19 @@ def parse_products_from_task_function(  # noqa: C901
 
     # Parse products from task decorated with @task and that uses produces.
     if "produces" in kwargs:
-        if "produces" not in parameters_with_product_annot:
-            warnings.warn(
-                _WARNING_PRODUCES_AS_KWARG, category=FutureWarning, stacklevel=1
-            )
         has_produces_argument = True
         collected_products = tree_map_with_path(
             lambda p, x: _collect_product(
                 session,
-                path,
-                name,
-                NodeInfo(arg_name="produces", path=p, value=x),
+                node_path,
+                task_name,
+                NodeInfo(
+                    arg_name="produces",
+                    path=p,
+                    value=x,
+                    task_path=task_path,
+                    task_name=task_name,
+                ),
                 is_string_allowed=True,
             ),
             kwargs["produces"],
@@ -401,9 +433,9 @@ def parse_products_from_task_function(  # noqa: C901
         out = {"produces": collected_products}
 
     if parameters_with_product_annot:
-        has_annotation = True
-
+        out = {}
         for parameter_name in parameters_with_product_annot:
+            has_annotation = True
             if (
                 parameter_name not in kwargs
                 and parameter_name not in parameters_with_node_annot
@@ -415,8 +447,8 @@ def parse_products_from_task_function(  # noqa: C901
                 and parameter_name in parameters_with_node_annot
             ):
                 msg = (
-                    f"The value for the parameter {name!r} is defined twice in "
-                    "'@pytask.mark.task(kwargs=...)' and in the type annotation. "
+                    f"The value for the parameter {parameter_name!r} is defined twice "
+                    "in '@pytask.mark.task(kwargs=...)' and in the type annotation. "
                     "Choose only one option."
                 )
                 raise ValueError(msg)
@@ -428,23 +460,35 @@ def parse_products_from_task_function(  # noqa: C901
             collected_products = tree_map_with_path(
                 lambda p, x: _collect_product(
                     session,
-                    path,
-                    name,
-                    NodeInfo(parameter_name, p, x),  # noqa: B023
+                    node_path,
+                    task_name,
+                    NodeInfo(
+                        arg_name=parameter_name,  # noqa: B023
+                        path=p,
+                        value=x,
+                        task_path=task_path,
+                        task_name=task_name,
+                    ),
                     is_string_allowed=False,
                 ),
                 value,
             )
-            out = {parameter_name: collected_products}
+            out[parameter_name] = collected_products
 
     if "return" in parameters_with_node_annot:
         has_return = True
         collected_products = tree_map_with_path(
             lambda p, x: _collect_product(
                 session,
-                path,
-                name,
-                NodeInfo("return", p, x),
+                node_path,
+                task_name,
+                NodeInfo(
+                    arg_name="return",
+                    path=p,
+                    value=x,
+                    task_path=task_path,
+                    task_name=task_name,
+                ),
                 is_string_allowed=False,
             ),
             parameters_with_node_annot["return"],
@@ -457,9 +501,15 @@ def parse_products_from_task_function(  # noqa: C901
         collected_products = tree_map_with_path(
             lambda p, x: _collect_product(
                 session,
-                path,
-                name,
-                NodeInfo("return", p, x),
+                node_path,
+                task_name,
+                NodeInfo(
+                    arg_name="return",
+                    path=p,
+                    value=x,
+                    task_path=task_path,
+                    task_name=task_name,
+                ),
                 is_string_allowed=False,
             ),
             task_produces,
@@ -564,6 +614,13 @@ def _collect_dependency(
     """
     node = node_info.value
 
+    if isinstance(node, PythonNode) and node.value is no_default:
+        # If a node is a dependency and its value is not set, the node is a product in
+        # another task and the value will be set there. Thus, we wrap the original node
+        # in another node to retrieve the value after it is set.
+        new_node = attrs.evolve(node, value=node)
+        node_info = node_info._replace(value=new_node)
+
     collected_node = session.hook.pytask_collect_node(
         session=session, path=path, node_info=node_info
     )
@@ -611,6 +668,7 @@ def _collect_product(
     collected_node = session.hook.pytask_collect_node(
         session=session, path=path, node_info=node_info
     )
+
     if collected_node is None:
         msg = (
             f"{node!r} can't be parsed as a product for task {task_name!r} in {path!r}."
@@ -618,3 +676,17 @@ def _collect_product(
         raise NodeNotCollectedError(msg)
 
     return collected_node
+
+
+def create_name_of_python_node(node_info: NodeInfo) -> str:
+    """Create name of PythonNode."""
+    prefix = (
+        node_info.task_path.as_posix() + "::" + node_info.task_name
+        if node_info.task_path
+        else node_info.task_name
+    )
+    node_name = prefix + "::" + node_info.arg_name
+    if node_info.path:
+        suffix = "-".join(map(str, node_info.path))
+        node_name += "::" + suffix
+    return node_name

@@ -5,7 +5,16 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.4.0 - 2023-xx-xx
+## 0.4.1 - 2023-10-11
+
+- {pull}`443` ensures that `PythonNode.name` is always unique by only handling it
+  internally.
+- {pull}`444` moves all content of `setup.cfg` to `pyproject.toml`.
+- {pull}`446` refactors `create_name_of_python_node` and fixes `PythonNode`s as returns.
+- {pull}`447` simplifies the `tree_map` code while generating the DAG.
+- {pull}`448` fixes handling multiple product annotations of a task.
+
+## 0.4.0 - 2023-10-07
 
 - {pull}`323` remove Python 3.7 support and use a new Github action to provide mamba.
 - {pull}`384` allows to parse dependencies from every function argument if `depends_on`
@@ -36,6 +45,28 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`416` removes `.from_annot` again.
 - {pull}`417` deprecates {func}`pytask.mark.task` in favor of {func}`pytask.task`.
 - {pull}`418` fixes and error and simplifies code in `dag.py`.
+- {pull}`420` converts `DeprecationWarning`s to `FutureWarning`s for the deprecated
+  decorators.
+- {pull}`421` removes the deprecation warning when `produces` is used as an magic
+  function keyword to define products.
+- {pull}`423` adds a notebook to explain the functional interface.
+- {pull}`424` fixes problems with {func}`~_pytask.path.import_path`.
+- {pull}`426` publishes the {mod}`pytask.tree_util` module.
+- {pull}`427` fixes type annotations for {attr}`pytask.PTask.depends_on` and
+  {attr}`pytask.PTask.produces`.
+- {pull}`428` updates the example in the readme.
+- {pull}`429` implements a more informative error message when `node.state()` throws an
+  exception. Now, it is easy to see which tasks are affected.
+- {pull}`430` updates some parts of the documentation.
+- {pull}`431` enables colors for WSL.
+- {pull}`432` fixes type checking of `pytask.mark.xxx`.
+- {pull}`433` fixes the ids generated for {class}`~pytask.PythonNode`s.
+- {pull}`437` fixes the detection of task functions and publishes
+  {func}`pytask.is_task_function`.
+- {pull}`438` clarifies some types.
+- {pull}`440` refines more types.
+- {pull}`441` updates more parts of the documentation.
+- {pull}`442` allows users to import `from pytask import mark` and use `@mark.skip`.
 
 ## 0.3.2 - 2023-06-07
 

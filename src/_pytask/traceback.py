@@ -6,6 +6,7 @@ from types import TracebackType
 from typing import Generator
 from typing import Tuple
 from typing import Type
+from typing import TYPE_CHECKING
 from typing import Union
 
 import _pytask
@@ -13,9 +14,13 @@ import pluggy
 from _pytask.tree_util import TREE_UTIL_LIB_DIRECTORY
 from rich.traceback import Traceback
 
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
+
 
 __all__ = [
     "format_exception_without_traceback",
+    "remove_internal_traceback_frames_from_exception",
     "remove_internal_traceback_frames_from_exc_info",
     "remove_traceback_from_exc_info",
     "render_exc_info",
@@ -26,25 +31,26 @@ _PLUGGY_DIRECTORY = Path(pluggy.__file__).parent
 _PYTASK_DIRECTORY = Path(_pytask.__file__).parent
 
 
-ExceptionInfo = Tuple[Type[BaseException], BaseException, Union[TracebackType, None]]
+ExceptionInfo: TypeAlias = Tuple[
+    Type[BaseException], BaseException, Union[TracebackType, None]
+]
+OptionalExceptionInfo: TypeAlias = Union[ExceptionInfo, Tuple[None, None, None]]
 
 
 def render_exc_info(
     exc_type: type[BaseException],
     exc_value: BaseException,
     traceback: str | TracebackType,
+    *,
     show_locals: bool = False,
 ) -> str | Traceback:
     """Render an exception info."""
     # Can be string if send from subprocess by pytask-parallel.
     if isinstance(traceback, str):  # pragma: no cover
-        renderable = traceback
-    else:
-        renderable = Traceback.from_exception(
-            exc_type, exc_value, traceback, show_locals=show_locals
-        )
-
-    return renderable
+        return traceback
+    return Traceback.from_exception(
+        exc_type, exc_value, traceback, show_locals=show_locals
+    )
 
 
 def format_exception_without_traceback(exc_info: ExceptionInfo) -> str:
@@ -52,24 +58,39 @@ def format_exception_without_traceback(exc_info: ExceptionInfo) -> str:
     return f"[red bold]{exc_info[0].__name__}:[/] {exc_info[1]}"
 
 
-def remove_traceback_from_exc_info(exc_info: ExceptionInfo) -> ExceptionInfo:
+def remove_traceback_from_exc_info(
+    exc_info: OptionalExceptionInfo,
+) -> OptionalExceptionInfo:
     """Remove traceback from exception."""
-    return (*exc_info[:2], None)
+    return (exc_info[0], exc_info[1], None)  # type: ignore[return-value]
+
+
+def remove_internal_traceback_frames_from_exception(exc: Exception) -> Exception:
+    """Remove internal traceback frames from exception.
+
+    The conversion between exceptions and ``sys.exc_info`` is explained here:
+    https://stackoverflow.com/a/59041463/7523785.
+
+    """
+    _, _, tb = remove_internal_traceback_frames_from_exc_info(
+        (type(exc), exc, exc.__traceback__)
+    )
+    exc.__traceback__ = tb
+    return exc
 
 
 def remove_internal_traceback_frames_from_exc_info(
-    exc_info: ExceptionInfo,
-) -> ExceptionInfo:
+    exc_info: OptionalExceptionInfo,
+) -> OptionalExceptionInfo:
     """Remove internal traceback frames from exception info.
 
     If a non-internal traceback frame is found, return the traceback from the first
     occurrence downwards.
 
     """
-    if exc_info is not None and isinstance(exc_info[2], TracebackType):
+    if isinstance(exc_info[2], TracebackType):
         filtered_traceback = _filter_internal_traceback_frames(exc_info)
         exc_info = (*exc_info[:2], filtered_traceback)
-
     return exc_info
 
 
@@ -98,7 +119,7 @@ def _is_internal_or_hidden_traceback_frame(
 
 def _filter_internal_traceback_frames(
     exc_info: ExceptionInfo,
-) -> TracebackType:
+) -> TracebackType | None:
     """Filter internal traceback frames from traceback.
 
     If the first external frame is visited, return the frame. Else return ``None``.
@@ -114,8 +135,9 @@ def _filter_internal_traceback_frames(
 
 
 def _yield_traceback_frames(
-    frame: TracebackType,
-) -> Generator[TracebackType, None, None]:
+    frame: TracebackType | None,
+) -> Generator[TracebackType | None, None, None]:
     """Yield traceback frames."""
     yield frame
+    assert frame
     yield from _yield_traceback_frames(frame.tb_next)

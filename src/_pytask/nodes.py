@@ -14,6 +14,8 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
+from _pytask.typing import no_default
+from _pytask.typing import NoDefault
 from attrs import define
 from attrs import field
 
@@ -34,22 +36,31 @@ class TaskWithoutPath(PTask):
     - they are dynamically created in a REPL.
     - they are created in a Jupyter notebook.
 
+    Attributes
+    ----------
+    name
+        The name of the task.
+    function
+        The task function.
+    depends_on
+        A list of dependencies of task.
+    produces
+        A list of products of task.
+    markers
+        A list of markers attached to the task function.
+    report_sections
+        Reports with entries for when, what, and content.
+    attributes: dict[Any, Any]
+        A dictionary to store additional information of the task.
     """
 
     name: str
-    """The base name of the task."""
     function: Callable[..., Any]
-    """The task function."""
-    depends_on: PyTree[PNode] = field(factory=dict)
-    """A list of dependencies of task."""
-    produces: PyTree[PNode] = field(factory=dict)
-    """A list of products of task."""
+    depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
+    produces: dict[str, PyTree[PNode]] = field(factory=dict)
     markers: list[Mark] = field(factory=list)
-    """A list of markers attached to the task function."""
     report_sections: list[tuple[str, str, str]] = field(factory=list)
-    """Reports with entries for when, what, and content."""
     attributes: dict[Any, Any] = field(factory=dict)
-    """A dictionary to store additional information of the task."""
 
     def state(self) -> str | None:
         """Return the state of the node."""
@@ -67,38 +78,50 @@ class TaskWithoutPath(PTask):
 
 @define(kw_only=True)
 class Task(PTaskWithPath):
-    """The class for tasks which are Python functions."""
+    """The class for tasks which are Python functions.
+
+    Attributes
+    ----------
+    base_name
+        The base name of the task.
+    path
+        Path to the file where the task was defined.
+    function
+        The task function.
+    name
+        The name of the task.
+    display_name
+        The shortest uniquely identifiable name for task for display.
+    depends_on
+        A list of dependencies of task.
+    produces
+        A list of products of task.
+    markers
+        A list of markers attached to the task function.
+    report_sections
+        Reports with entries for when, what, and content.
+    attributes: dict[Any, Any]
+        A dictionary to store additional information of the task.
+
+    """
 
     base_name: str
-    """The base name of the task."""
-    path: Path | None
-    """Path to the file where the task was defined."""
+    path: Path
     function: Callable[..., Any]
-    """The task function."""
-    name: str | None = field(default=None, init=False)
-    """The name of the task."""
-    display_name: str | None = field(default=None, init=False)
-    """The shortest uniquely identifiable name for task for display."""
-    depends_on: PyTree[PNode] = field(factory=dict)
-    """A list of dependencies of task."""
-    produces: PyTree[PNode] = field(factory=dict)
-    """A list of products of task."""
+    name: str = field(default="", init=False)
+    display_name: str = field(default="", init=False)
+    depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
+    produces: dict[str, PyTree[PNode]] = field(factory=dict)
     markers: list[Mark] = field(factory=list)
-    """A list of markers attached to the task function."""
     report_sections: list[tuple[str, str, str]] = field(factory=list)
-    """Reports with entries for when, what, and content."""
     attributes: dict[Any, Any] = field(factory=dict)
-    """A dictionary to store additional information of the task."""
 
     def __attrs_post_init__(self: Task) -> None:
         """Change class after initialization."""
-        if self.name is None:
-            if self.path is None:
-                self.name = self.base_name
-            else:
-                self.name = self.path.as_posix() + "::" + self.base_name
+        if not self.name:
+            self.name = self.path.as_posix() + "::" + self.base_name
 
-        if self.display_name is None:
+        if not self.display_name:
             self.display_name = self.name
 
     def state(self) -> str | None:
@@ -116,6 +139,8 @@ class Task(PTaskWithPath):
 class PathNode(PPathNode):
     """The class for a node which is a path.
 
+    Attributes
+    ----------
     name
         Name of the node which makes it identifiable in the DAG.
     path
@@ -168,7 +193,7 @@ class PathNode(PPathNode):
 class PythonNode(PNode):
     """The class for a node which is a Python object.
 
-    Parameters
+    Attributes
     ----------
     name
         The name of the node.
@@ -193,11 +218,13 @@ class PythonNode(PNode):
     """
 
     name: str = ""
-    value: Any = None
-    hash: bool | Callable[[Any], str] = False  # noqa: A003
+    value: Any | NoDefault = no_default
+    hash: bool | Callable[[Any], bool] = False  # noqa: A003
 
     def load(self) -> Any:
         """Load the value."""
+        if isinstance(self.value, PythonNode):
+            return self.value.load()
         return self.value
 
     def save(self, value: Any) -> None:
@@ -212,19 +239,25 @@ class PythonNode(PNode):
 
         If ``hash`` is a callable, then use this function to calculate a hash.
 
-        If ``hash = True``, :func:`hash` is used for all types except strings.
+        If ``hash = True``, the builtin ``hash()`` function (`link
+        <https://docs.python.org/3.11/library/functions.html?highlight=hash#hash>`_) is
+        used for all types except strings.
 
-        The hash for strings is calculated using hashlib because ``hash("asd")`` returns
-        a different value every invocation since the hash of strings is salted with a
-        random integer and it would confuse users.
+        The hash for strings and bytes is calculated using hashlib because
+        ``hash("asd")`` returns a different value every invocation since the hash of
+        strings is salted with a random integer and it would confuse users. See
+        {meth}`object.__hash__` for more information.
 
         """
         if self.hash:
+            value = self.load()
             if callable(self.hash):
-                return str(self.hash(self.value))
-            if isinstance(self.value, str):
-                return str(hashlib.sha256(self.value.encode()).hexdigest())
-            return str(hash(self.value))
+                return str(self.hash(value))
+            if isinstance(value, str):
+                return str(hashlib.sha256(value.encode()).hexdigest())
+            if isinstance(value, bytes):
+                return str(hashlib.sha256(value).hexdigest())
+            return str(hash(value))
         return "0"
 
 

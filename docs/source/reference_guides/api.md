@@ -50,7 +50,7 @@ by the host or by plugins. The following marks are available by default.
 ```{eval-rst}
 .. function:: pytask.mark.persist()
 
-    A marker for a task which should be peristed.
+    A marker for a task which should be persisted.
 ```
 
 ```{eval-rst}
@@ -104,6 +104,10 @@ by the host or by plugins. The following marks are available by default.
 
     It also allows to repeat tasks in for-loops by adding a specific ``id`` or keyword
     arguments via ``kwargs``.
+
+    .. deprecated:: 0.4.0
+
+       Will be removed in v0.5.0. Use :func:`~pytask.task` instead.
 
     :type name: str | None
     :param name: The name of the task.
@@ -236,37 +240,48 @@ The remaining exceptions convey specific errors.
    :members:
 ```
 
-## Nodes
+## Protocols
 
-Nodes are the interface for different kinds of dependencies or products. They inherit
-from {class}`pytask.MetaNode`.
+Protocols define how tasks and nodes for dependencies and products have to be set up.
 
 ```{eval-rst}
-.. autoclass:: pytask.MetaNode
+.. autoprotocol:: pytask.MetaNode
+   :show-inheritance:
+.. autoprotocol:: pytask.PNode
+   :show-inheritance:
+.. autoprotocol:: pytask.PPathNode
+   :show-inheritance:
+.. autoprotocol:: pytask.PTask
+   :show-inheritance:
+.. autoprotocol:: pytask.PTaskWithPath
+   :show-inheritance:
 ```
 
-Then, different kinds of nodes can be implemented.
+## Nodes
+
+Nodes are the interface for different kinds of dependencies or products.
 
 ```{eval-rst}
 .. autoclass:: pytask.PathNode
-    :members:
-
 .. autoclass:: pytask.PythonNode
-    :members:
-
-.. autoclass:: pytask.PickleNode
-    :members:
 ```
 
 To parse dependencies and products from nodes, use the following functions.
 
 ```{eval-rst}
 .. autofunction:: pytask.depends_on
-.. autofunction:: pytask.parse_nodes
+.. autofunction:: pytask.parse_dependencies_from_task_function
+.. autofunction:: pytask.parse_products_from_task_function
 .. autofunction:: pytask.produces
 ```
 
 ## Tasks
+
+To mark any callable as a task use
+
+```{eval-rst}
+.. autofunction:: pytask.task
+```
 
 Task are currently represented by the following class:
 
@@ -339,6 +354,18 @@ There are some classes to handle different kinds of reports.
 .. autoclass:: pytask.CollectionReport
 .. autoclass:: pytask.ExecutionReport
 .. autoclass:: pytask.DagReport
+```
+
+## Typing
+
+```{eval-rst}
+..  class:: pytask.Product
+
+    An indicator to mark arguments of tasks as products.
+
+    >>> def task_example(path: Annotated[Path, Product]) -> None:
+    ...     path.write_text("Hello, World!")
+
 ```
 
 ## Tracebacks

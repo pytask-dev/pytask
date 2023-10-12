@@ -457,7 +457,7 @@ def test_python_node_is_collected(runner, tmp_path):
     assert "task_module.py>" in captured
     assert "<Function" in captured
     assert "task_example>" in captured
-    assert "<Dependency dependency>" in result.output
+    assert "Dependency" in captured
     assert "Product" in captured
 
 
@@ -482,7 +482,7 @@ def test_none_is_a_python_node(runner, tmp_path):
     assert "task_module.py>" in captured
     assert "<Function" in captured
     assert "task_example>" in captured
-    assert "<Dependency dependency>" in result.output
+    assert "Dependency" in result.output
     assert "Product" in captured
 
 
@@ -508,7 +508,7 @@ def test_python_nodes_are_aggregated_into_one(runner, tmp_path):
     assert "task_module.py>" in captured
     assert "<Function" in captured
     assert "task_example>" in captured
-    assert "<Dependency nested>" in result.output
+    assert "Dependency" in result.output
     assert "Product" in captured
 
 
@@ -602,7 +602,7 @@ def test_setting_name_for_python_node_via_annotation(runner, tmp_path):
 
     result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
-    assert "node-name" in result.output
+    assert "Dependency" in result.output
 
 
 @pytest.mark.end_to_end()
@@ -626,7 +626,7 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
-    assert "dict" in result.output
-    assert "tuple1" in result.output
-    assert "tuple2" in result.output
-    assert "int" in result.output
+    assert "return::0" in result.output
+    assert "return::1-0" in result.output
+    assert "return::1-1" in result.output
+    assert "return::2" in result.output

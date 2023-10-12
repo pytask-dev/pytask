@@ -67,8 +67,8 @@ class TopologicalSorter:
     """
 
     dag: nx.DiGraph
+    dag_backup: nx.DiGraph
     priorities: dict[str, int] = field(factory=dict)
-    _dag_backup: nx.DiGraph | None = None
     _is_prepared: bool = False
     _nodes_out: set[str] = field(factory=set)
 
@@ -88,7 +88,7 @@ class TopologicalSorter:
         task_dict = {name: nx.ancestors(dag, name) & task_names for name in task_names}
         task_dag = nx.DiGraph(task_dict).reverse()
 
-        return cls(task_dag, priorities, task_dag.copy())
+        return cls(dag=task_dag, priorities=priorities, dag_backup=task_dag.copy())
 
     def prepare(self) -> None:
         """Perform some checks before creating a topological ordering."""
@@ -131,7 +131,8 @@ class TopologicalSorter:
 
     def reset(self) -> None:
         """Reset an exhausted topological sorter."""
-        self.dag = self._dag_backup.copy()
+        if self.dag_backup:
+            self.dag = self.dag_backup.copy()
         self._is_prepared = False
         self._nodes_out = set()
 

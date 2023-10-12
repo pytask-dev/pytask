@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 from _pytask.dag import pytask_dag_create_dag
 from attrs import define
+from pytask import build
 from pytask import cli
 from pytask import ExitCode
 from pytask import NodeNotFoundError
@@ -113,7 +114,6 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder(tmp_path, 
     result = runner.invoke(cli, [tmp_path.joinpath("src").as_posix()])
 
     assert result.exit_code == ExitCode.DAG_FAILED
-    assert "Failures during resolving dependencies" in result.output
 
     # Ensure that node names are reduced.
     assert "Failures during resolving dependencies" in result.output
@@ -198,3 +198,29 @@ def test_has_node_changed_catches_notnotfounderror(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
+
+
+def test_error_when_node_state_throws_error(runner, tmp_path):
+    source = """
+    from pytask import PythonNode
+
+    def task_example(a = PythonNode(value={"a": 1}, hash=True)):
+        pass
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.DAG_FAILED
+    assert "task_example" in result.output
+
+
+def test_python_nodes_are_unique(tmp_path):
+    tmp_path.joinpath("a").mkdir()
+    tmp_path.joinpath("a", "task_example.py").write_text("def task_example(a=1): pass")
+    tmp_path.joinpath("b").mkdir()
+    tmp_path.joinpath("b", "task_example.py").write_text("def task_example(a=2): pass")
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.dag.nodes) == 4

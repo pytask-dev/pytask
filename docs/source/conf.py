@@ -41,6 +41,8 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
     "sphinx_click",
+    "sphinx_toolbox.more_autodoc.autoprotocol",
+    "nbsphinx",
     "myst_parser",
     "sphinx_design",
 ]
@@ -72,12 +74,13 @@ extlinks = {
 }
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.9", None),
     "click": ("https://click.palletsprojects.com/en/8.0.x/", None),
     "deepdiff": ("https://zepworks.com/deepdiff/current/", None),
-    "pluggy": ("https://pluggy.readthedocs.io/en/latest", None),
     "networkx": ("https://networkx.org/documentation/stable", None),
+    "pandas": ("https://pandas.pydata.org/docs", None),
+    "pluggy": ("https://pluggy.readthedocs.io/en/latest", None),
     "pygraphviz": ("https://pygraphviz.github.io/documentation/stable/", None),
+    "python": ("https://docs.python.org/3.10", None),
 }
 
 # MyST
@@ -97,7 +100,7 @@ html_theme = "furo"
 # Add any paths that contain custom static files (such as style sheets) here, relative
 # to this directory. They are copied after the built-in static files, so a file named
 # "default.css" will overwrite the built-in "default.css".
-html_css_files = ["css/termynal.css", "css/custom.css"]
+html_css_files = ["css/termynal.css", "css/termynal_custom.css", "css/custom.css"]
 
 html_js_files = ["js/termynal.js", "js/custom.js"]
 

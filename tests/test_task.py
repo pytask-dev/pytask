@@ -332,6 +332,28 @@ def test_task_function_with_partialed_args(tmp_path, runner):
 
 
 @pytest.mark.end_to_end()
+def test_task_function_with_partialed_args_and_task_decorator(tmp_path, runner):
+    source = """
+    from pytask import task
+    import functools
+    from pathlib import Path
+
+    def func(content):
+        return content
+
+    task_func = task(produces=Path("out.txt"))(
+        functools.partial(func, content="hello")
+    )
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "1  Collected errors and tasks" in result.output
+
+
+@pytest.mark.end_to_end()
 def test_parametrized_tasks_without_arguments_in_signature(tmp_path, runner):
     """This happens when plugins replace the function with its own implementation.
 

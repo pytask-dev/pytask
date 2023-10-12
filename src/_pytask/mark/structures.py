@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import functools
 import warnings
 from typing import Any
 from typing import Callable
@@ -8,16 +7,10 @@ from typing import Iterable
 from typing import Mapping
 
 from _pytask.models import CollectionMetadata
+from _pytask.typing import is_task_function
 from attrs import define
 from attrs import field
 from attrs import validators
-
-
-def is_task_function(func: Any) -> bool:
-    return (callable(func) and getattr(func, "__name__", "<lambda>") != "<lambda>") or (
-        isinstance(func, functools.partial)
-        and getattr(func.func, "__name__", "<lambda>") != "<lambda>"
-    )
 
 
 @define(frozen=True)
@@ -170,7 +163,7 @@ def store_mark(obj: Callable[..., Any], mark: Mark) -> None:
 
 _DEPRECATION_DECORATOR = """'@pytask.mark.{}' is deprecated starting pytask \
 v0.4.0 and will be removed in v0.5.0. To upgrade your project to the new syntax, read \
-the tutorial on product and dependencies: https://tinyurl.com/yrezszr4.
+the tutorial on product and dependencies: https://tinyurl.com/pytask-deps-prods.
 """
 
 
@@ -202,7 +195,7 @@ class MarkGenerator:
         if name in ("depends_on", "produces"):
             warnings.warn(
                 _DEPRECATION_DECORATOR.format(name),
-                category=DeprecationWarning,
+                category=FutureWarning,
                 stacklevel=1,
             )
 
@@ -233,7 +226,7 @@ class MarkGenerator:
             warnings.warn(
                 "'@pytask.mark.task' is deprecated starting pytask v0.4.0 and will be "
                 "removed in v0.5.0. Use '@pytask.task' instead.",
-                category=DeprecationWarning,
+                category=FutureWarning,
                 stacklevel=1,
             )
 

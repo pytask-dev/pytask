@@ -62,7 +62,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 @hookimpl
 def pytask_log_session_header(session: Session) -> None:
     """Log the header of a pytask session."""
-    console.rule("Start pytask session", style=None)
+    console.rule("Start pytask session", style="default")
     console.print(
         f"Platform: {sys.platform} -- Python {platform.python_version()}, "
         f"pytask {_pytask.__version__}, pluggy {pluggy.__version__}"

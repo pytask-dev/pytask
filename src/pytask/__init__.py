@@ -7,7 +7,8 @@ from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
 from _pytask.click import EnumChoice
 from _pytask.collect_utils import depends_on
-from _pytask.collect_utils import parse_nodes
+from _pytask.collect_utils import parse_dependencies_from_task_function
+from _pytask.collect_utils import parse_products_from_task_function
 from _pytask.collect_utils import produces
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
@@ -46,6 +47,7 @@ from _pytask.nodes import PathNode
 from _pytask.nodes import PickleNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
+from _pytask.nodes import TaskWithoutPath
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
@@ -65,6 +67,7 @@ from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
+from _pytask.typing import is_task_function
 from _pytask.typing import Product
 from _pytask.warnings_utils import parse_warning_filter
 from _pytask.warnings_utils import warning_record_to_str
@@ -119,6 +122,7 @@ __all__ = [
     "State",
     "Task",
     "TaskOutcome",
+    "TaskWithoutPath",
     "WarningReport",
     "__version__",
     "build",
@@ -135,8 +139,10 @@ __all__ = [
     "has_mark",
     "hookimpl",
     "import_optional_dependency",
+    "is_task_function",
     "mark",
-    "parse_nodes",
+    "parse_dependencies_from_task_function",
+    "parse_products_from_task_function",
     "parse_warning_filter",
     "produces",
     "remove_internal_traceback_frames_from_exc_info",

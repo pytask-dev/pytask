@@ -18,94 +18,14 @@ li pre {
   padding-left: 20px
 }
 
-.termynal-comment {
-    color: #4a968f;
-    font-style: italic;
-    display: block;
+.highlight {
+    background: #f5f5f5
 }
 
-.termy [data-termynal] {
-    white-space: pre-wrap;
+.highlight button.copybtn{
+    background-color: #f5f5f5;
 }
 
-a.external-link::after {
-    /* \00A0 is a non-breaking space
-        to make the mark be on the same line as the link
-    */
-    content: "\00A0[↪]";
-}
-
-a.internal-link::after {
-    /* \00A0 is a non-breaking space
-        to make the mark be on the same line as the link
-    */
-    content: "\00A0↪";
-}
-
-
-:root {
-    --termynal-green: #137C39;
-    --termynal-red: #BF2D2D;
-    --termynal-yellow: #F4C041;
-    --termynal-white: #f2f2f2;
-    --termynal-black: #0c0c0c;
-    --termynal-blue: #11a8cd;
-    --termynal-grey: #7f7f7f;
-}
-
-
-.termynal-failed {
-    color: var(--termynal-red);
-}
-
-.termynal-failed-textonly {
-    color: var(--termynal-white);
-    background: var(--termynal-red);
-    font-weight: bold;
-}
-
-.termynal-success {
-    color: var(--termynal-green);
-}
-
-.termynal-success-textonly {
-    color: var(--termynal-white);
-    background: var(--termynal-green);
-    font-weight: bold;
-}
-
-.termynal-skipped {
-    color: var(--termynal-yellow);
-}
-
-.termynal-skipped-textonly {
-    color: var(--termynal-black);
-    background: var(--termynal-yellow);
-    font-weight: bold;
-}
-
-.termynal-warning {
-    color: var(--termynal-yellow);
-}
-.termynal-command {
-    color: var(--termynal-green);
-    font-weight: bold;
-}
-.termynal-option {
-    color: var(--termynal-yellow);
-    font-weight: bold;
-}
-.termynal-switch {
-    color: var(--termynal-red);
-    font-weight: bold;
-}
-.termynal-metavar {
-    color: yellow;
-    font-weight: bold;
-}
-.termynal-dim {
-    color: var(--termynal-grey);
-}
-.termynal-number {
-    color: var(--termynal-blue);
+.highlight button.copybtn:hover {
+    background-color: #f5f5f5;
 }

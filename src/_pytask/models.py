@@ -9,6 +9,7 @@ from attrs import define
 from attrs import field
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from _pytask.tree_util import PyTree
     from _pytask.mark import Mark
 
@@ -25,7 +26,7 @@ class CollectionMetadata:
     """Contains the markers of the function."""
     name: str | None = None
     """The name of the task function."""
-    produces: PyTree[Any] = None
+    produces: PyTree[Any] | None = None
     """Definition of products to handle returns."""
 
 
@@ -33,3 +34,5 @@ class NodeInfo(NamedTuple):
     arg_name: str
     path: tuple[str | int, ...]
     value: Any
+    task_path: Path | None
+    task_name: str

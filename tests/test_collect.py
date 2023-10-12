@@ -152,16 +152,28 @@ def test_collect_files_w_custom_file_name_pattern(
     ("session", "path", "node_info", "expected"),
     [
         pytest.param(
-            Session({"check_casing_of_paths": False}, None),
+            Session.from_config({"check_casing_of_paths": False}),
             Path(),
-            NodeInfo("", (), Path.cwd() / "text.txt"),
+            NodeInfo(
+                arg_name="",
+                path=(),
+                value=Path.cwd() / "text.txt",
+                task_path=Path.cwd() / "task_example.py",
+                task_name="task_example",
+            ),
             Path.cwd() / "text.txt",
             id="test with absolute string path",
         ),
         pytest.param(
-            Session({"check_casing_of_paths": False}, None),
+            Session.from_config({"check_casing_of_paths": False}),
             Path(),
-            NodeInfo("", (), 1),
+            NodeInfo(
+                arg_name="",
+                path=(),
+                value=1,
+                task_path=Path.cwd() / "task_example.py",
+                task_name="task_example",
+            ),
             "1",
             id="test with python node",
         ),
@@ -180,13 +192,23 @@ def test_pytask_collect_node(session, path, node_info, expected):
     sys.platform != "win32", reason="Only works on case-insensitive file systems."
 )
 def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_path):
-    session = Session({"check_casing_of_paths": True}, None)
+    session = Session.from_config({"check_casing_of_paths": True})
     real_node = tmp_path / "text.txt"
     real_node.touch()
     collected_node = tmp_path / "TeXt.TxT"
 
     with pytest.raises(Exception, match="The provided path of"):
-        pytask_collect_node(session, tmp_path, NodeInfo("", (), collected_node))
+        pytask_collect_node(
+            session,
+            tmp_path,
+            NodeInfo(
+                arg_name="",
+                path=(),
+                value=collected_node,
+                task_path=tmp_path.joinpath("task_example.py"),
+                task_name="task_example",
+            ),
+        )
 
 
 @pytest.mark.unit()
@@ -194,7 +216,7 @@ def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_pat
 def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
     tmp_path, is_absolute
 ):
-    session = Session({"check_casing_of_paths": True}, None)
+    session = Session.from_config({"check_casing_of_paths": True})
     real_node = tmp_path / "text.txt"
 
     collected_node = Path("..", tmp_path.name, "text.txt")
@@ -203,7 +225,15 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
 
     with warnings.catch_warnings(record=True) as record:
         result = pytask_collect_node(
-            session, tmp_path, NodeInfo("", (), collected_node)
+            session,
+            tmp_path,
+            NodeInfo(
+                arg_name="",
+                path=(),
+                value=collected_node,
+                task_path=tmp_path / "task_example.py",
+                task_name="task_example",
+            ),
         )
         assert not record
 
@@ -406,7 +436,6 @@ def test_depends_on_cannot_mix_different_definitions(tmp_path):
 def test_deprecation_warning_for_strings_in_depends_on(runner, tmp_path):
     source = """
     import pytask
-    from pathlib import Path
 
     @pytask.mark.depends_on("in.txt")
     @pytask.mark.produces("out.txt")
@@ -420,6 +449,22 @@ def test_deprecation_warning_for_strings_in_depends_on(runner, tmp_path):
     assert "FutureWarning" in result.output
     assert "Using strings to specify a dependency" in result.output
     assert "Using strings to specify a product" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_no_deprecation_warning_for_using_magic_produces(runner, tmp_path):
+    source = """
+    import pytask
+    from pathlib import Path
+
+    def task_write_text(depends_on, produces=Path("out.txt")):
+        produces.touch()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert "FutureWarning" not in result.output
+    assert "Using 'produces' as an argument name" not in result.output
 
 
 @pytest.mark.end_to_end()

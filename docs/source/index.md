@@ -148,6 +148,7 @@ Furthermore, the documentation includes the following topics.
 maxdepth: 1
 ---
 plugin_list
+type_hints
 developers_guide
 glossary
 changes

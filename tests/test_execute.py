@@ -714,9 +714,7 @@ def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     from typing_extensions import Annotated
     from pathlib import Path
 
-
     node_text = PythonNode(name="text")
-
 
     def task_create_text() -> Annotated[int, node_text]:
         return "This is the text."
@@ -743,21 +741,21 @@ def test_execute_tasks_via_functional_api(tmp_path):
     from pathlib import Path
 
 
-    node_text = PythonNode(name="text", hash=True)
+    node_text = PythonNode()
 
     def create_text() -> Annotated[int, node_text]:
         return "This is the text."
 
     node_file = PathNode.from_path(Path(__file__).parent.joinpath("file.txt"))
 
-    def create_file(text: Annotated[int, node_text]) -> Annotated[str, node_file]:
-        return text
+    def create_file(content: Annotated[str, node_text]) -> Annotated[str, node_file]:
+        return content
 
     if __name__ == "__main__":
         session = pytask.build(tasks=[create_file, create_text])
 
         assert len(session.tasks) == 2
-        assert len(session.dag.nodes) == 4
+        assert len(session.dag.nodes) == 5
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = subprocess.run(
@@ -771,3 +769,27 @@ def test_execute_tasks_via_functional_api(tmp_path):
 def test_pass_non_task_to_functional_api_that_are_ignored():
     session = pytask.build(tasks=None)
     assert len(session.tasks) == 0
+
+
+@pytest.mark.end_to_end()
+def test_multiple_product_annotations(runner, tmp_path):
+    source = """
+    from pytask import Product
+    from typing_extensions import Annotated
+    from pathlib import Path
+
+    def task_first(
+        first: Annotated[Path, Product] = Path("first.txt"),
+        second: Annotated[Path, Product] = Path("second.txt")
+    ):
+        first.write_text("first")
+        second.write_text("second")
+
+    def task_second(
+        first: Path = Path("first.txt"), second: Path = Path("second.txt")
+    ):
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK

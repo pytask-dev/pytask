@@ -19,7 +19,7 @@ def set_defaults_from_config(
     # command-line options during parsing. Here, we add their defaults to the
     # configuration.
     command_option_names = [option.name for option in context.command.params]
-    commands = context.parent.command.commands  # type: ignore[attr-defined]
+    commands = context.parent.command.commands  # type: ignore[union-attr]
     all_defaults_from_cli = {
         option.name: option.default
         for name, command in commands.items()
@@ -54,7 +54,7 @@ def set_defaults_from_config(
     return context.params["config"]
 
 
-def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:
+def _find_project_root_and_config(paths: list[Path] | None) -> tuple[Path, Path | None]:
     """Find the project root and configuration file from a list of paths.
 
     The process is as follows:
@@ -68,7 +68,7 @@ def _find_project_root_and_config(paths: list[Path]) -> tuple[Path, Path]:
 
     """
     try:
-        common_ancestor = Path(os.path.commonpath(paths))
+        common_ancestor = Path(os.path.commonpath(paths))  # type: ignore[arg-type]
     except ValueError:
         common_ancestor = Path.cwd()
 

@@ -98,7 +98,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
         Whether a dry-run should be performed that shows which tasks need to be rerun.
     editor_url_scheme
         An url scheme that allows to click on task names, node names and filenames and
-        jump right into you preferred edior to the right line.
+        jump right into you preferred editor to the right line.
     expression
         Same as ``-k`` on the command line. Select tasks via expressions on task ids.
     force
@@ -233,12 +233,10 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
         session = Session.from_config(config_)
 
     except (ConfigurationError, Exception):
-        exc_info = sys.exc_info()
-        exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
+        exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
         traceback = Traceback.from_exception(*exc_info)
         console.print(traceback)
-        session = Session({}, None)
-        session.exit_code = ExitCode.CONFIGURATION_FAILED
+        session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 
     else:
         try:
@@ -257,8 +255,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
             session.exit_code = ExitCode.FAILED
 
         except Exception:  # noqa: BLE001
-            exc_info = sys.exc_info()
-            exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
+            exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
             traceback = Traceback.from_exception(*exc_info)
             console.print(traceback)
             session.exit_code = ExitCode.FAILED

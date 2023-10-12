@@ -124,7 +124,7 @@ class LiveManager:
         self._live.refresh()
 
     @property
-    def is_started(self) -> None:
+    def is_started(self) -> bool:
         return self._live.is_started
 
 
@@ -209,19 +209,20 @@ class LiveExecution:
         if sort_table:
             relevant_reports = sorted(relevant_reports, key=lambda report: report.name)
 
+        table: Table | None
         if add_caption:
-            caption_kwargs = {
-                "caption": Text(
+            table = Table(
+                caption=Text(
                     f"Completed: {len(self._reports)}/{self.n_tasks}",
                     style=Style(dim=True, italic=False),
                 ),
-                "caption_justify": "right",
-                "caption_style": None,
-            }
+                caption_justify="right",
+                caption_style=None,
+                box=ROUNDED,
+            )
         else:
-            caption_kwargs = {}
+            table = Table(box=ROUNDED)
 
-        table = Table(**caption_kwargs, box=ROUNDED)
         table.add_column("Task", overflow="fold")
         table.add_column("Outcome")
         for report in relevant_reports:

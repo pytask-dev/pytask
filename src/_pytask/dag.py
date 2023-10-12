@@ -29,10 +29,11 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
-from _pytask.path import find_common_ancestor_of_nodes
+from _pytask.nodes import PythonNode
 from _pytask.report import DagReport
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import reduce_node_name
+from _pytask.traceback import remove_internal_traceback_frames_from_exception
 from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_map
 from rich.text import Text
@@ -64,7 +65,7 @@ def pytask_dag(session: Session) -> bool | None:
     except Exception:  # noqa: BLE001
         report = DagReport.from_exception(sys.exc_info())
         session.hook.pytask_dag_log(session=session, report=report)
-        session.resolving_dependencies_report = report
+        session.dag_reports = report
 
         raise ResolvingDependenciesError from None
 
@@ -75,16 +76,40 @@ def pytask_dag(session: Session) -> bool | None:
 @hookimpl
 def pytask_dag_create_dag(tasks: list[PTask]) -> nx.DiGraph:
     """Create the DAG from tasks, dependencies and products."""
+
+    def _add_dependency(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
+        """Add a dependency to the DAG."""
+        dag.add_node(node.name, node=node)
+        dag.add_edge(node.name, task.name)
+
+        # If a node is a PythonNode wrapped in another PythonNode, it is a product from
+        # another task that is a dependency in the current task. Thus, draw an edge
+        # connecting the two nodes.
+        if isinstance(node, PythonNode) and isinstance(node.value, PythonNode):
+            dag.add_edge(node.value.name, node.name)
+
+    def _add_product(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
+        """Add a product to the DAG."""
+        dag.add_node(node.name, node=node)
+        dag.add_edge(task.name, node.name)
+
     dag = nx.DiGraph()
 
     for task in tasks:
         dag.add_node(task.name, task=task)
 
-        tree_map(lambda x: dag.add_node(x.name, node=x), task.depends_on)
-        tree_map(lambda x: dag.add_edge(x.name, task.name), task.depends_on)
+        tree_map(lambda x: _add_dependency(dag, task, x), task.depends_on)
+        tree_map(lambda x: _add_product(dag, task, x), task.produces)
 
-        tree_map(lambda x: dag.add_node(x.name, node=x), task.produces)
-        tree_map(lambda x: dag.add_edge(task.name, x.name), task.produces)
+        # If a node is a PythonNode wrapped in another PythonNode, it is a product from
+        # another task that is a dependency in the current task. Thus, draw an edge
+        # connecting the two nodes.
+        tree_map(
+            lambda x: dag.add_edge(x.value.name, x.name)
+            if isinstance(x, PythonNode) and isinstance(x.value, PythonNode)
+            else None,
+            task.depends_on,
+        )
 
     _check_if_dag_has_cycles(dag)
 
@@ -113,7 +138,7 @@ def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
 def pytask_dag_validate_dag(session: Session, dag: nx.DiGraph) -> None:
     """Validate the DAG."""
     _check_if_root_nodes_are_available(dag, session.config["paths"])
-    _check_if_tasks_have_the_same_products(dag)
+    _check_if_tasks_have_the_same_products(dag, session.config["paths"])
 
 
 def _have_task_or_neighbors_changed(
@@ -201,6 +226,8 @@ if IS_FILE_SYSTEM_CASE_SENSITIVE:
 
 
 def _check_if_root_nodes_are_available(dag: nx.DiGraph, paths: Sequence[Path]) -> None:
+    __tracebackhide__ = True
+
     missing_root_nodes = []
     is_task_skipped: dict[str, bool] = {}
 
@@ -212,7 +239,12 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph, paths: Sequence[Path]) -
                 node, dag, is_task_skipped
             )
             if not are_all_tasks_skipped:
-                node_exists = dag.nodes[node]["node"].state()
+                try:
+                    node_exists = dag.nodes[node]["node"].state()
+                except Exception as e:  # noqa: BLE001
+                    e = remove_internal_traceback_frames_from_exception(e)
+                    msg = _format_exception_from_failed_node_state(node, dag)
+                    raise ResolvingDependenciesError(msg) from e
                 if not node_exists:
                     missing_root_nodes.append(node)
 
@@ -230,6 +262,17 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph, paths: Sequence[Path]) -
 
         text = _format_dictionary_to_tree(dictionary, "Missing dependencies:")
         raise ResolvingDependenciesError(_TEMPLATE_ERROR.format(text)) from None
+
+
+def _format_exception_from_failed_node_state(node_name: str, dag: nx.DiGraph) -> str:
+    """Format message when ``node.state()`` threw an exception."""
+    tasks = [dag.nodes[i]["task"] for i in dag.successors(node_name)]
+    names = [getattr(x, "display_name", x.name) for x in tasks]
+    successors = ", ".join([f"{name!r}" for name in names])
+    return (
+        f"While checking whether dependency {node_name!r} from task(s) "
+        f"{successors} exists, an error was raised."
+    )
 
 
 def _check_if_tasks_are_skipped(
@@ -273,7 +316,7 @@ def _format_dictionary_to_tree(dict_: dict[str, list[str]], title: str) -> str:
     return render_to_string(tree, console=console, strip_styles=True)
 
 
-def _check_if_tasks_have_the_same_products(dag: nx.DiGraph) -> None:
+def _check_if_tasks_have_the_same_products(dag: nx.DiGraph, paths: list[Path]) -> None:
     nodes_created_by_multiple_tasks = []
 
     for node in dag.nodes:
@@ -284,19 +327,11 @@ def _check_if_tasks_have_the_same_products(dag: nx.DiGraph) -> None:
                 nodes_created_by_multiple_tasks.append(node)
 
     if nodes_created_by_multiple_tasks:
-        all_names = nodes_created_by_multiple_tasks + [
-            predecessor
-            for node in nodes_created_by_multiple_tasks
-            for predecessor in dag.predecessors(node)
-        ]
-        common_ancestor = find_common_ancestor_of_nodes(*all_names)
         dictionary = {}
         for node in nodes_created_by_multiple_tasks:
-            short_node_name = reduce_node_name(
-                dag.nodes[node]["node"], [common_ancestor]
-            )
+            short_node_name = reduce_node_name(dag.nodes[node]["node"], paths)
             short_predecessors = reduce_names_of_multiple_nodes(
-                dag.predecessors(node), dag, [common_ancestor]
+                dag.predecessors(node), dag, paths
             )
             dictionary[short_node_name] = short_predecessors
         text = _format_dictionary_to_tree(dictionary, "Products from multiple tasks:")
@@ -317,7 +352,9 @@ def pytask_dag_log(session: Session, report: DagReport) -> None:
     )
 
     console.print()
-    console.print(render_exc_info(*report.exc_info, session.config["show_locals"]))
+    console.print(
+        render_exc_info(*report.exc_info, show_locals=session.config["show_locals"])
+    )
 
     console.print()
     console.rule(style="failed")

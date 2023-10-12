@@ -1,16 +1,20 @@
 # Structure of task files
 
-This section provides advice on how to structure task files.
+This guide presents some best-practices for structuring your task files. You do not have
+to follow them to use pytask or to create a reproducible research project. But, if you
+are looking for orientation or inspiration, here are some tips.
 
 ## TL;DR
 
-- There might be multiple task functions in a task module, but only if the code is still
-  readable and not too complex and if runtime for all tasks is low.
+- Use task modules to separate task functions from another. Separating tasks by the
+  stages in research project like data management, analysis, plotting is a good start.
+  Separate further when task modules become crowded.
 
-- A task function should be the first function in a task module.
+- Task functions should be at the top of a task module to easily identify what the
+  module is for.
 
   :::{seealso}
-  The only exception might be for {doc}`repititions <bp_scalable_repetitions_of_tasks>`.
+  The only exception might be for {doc}`repetitions <bp_scaling_tasks>`.
   :::
 
 - The purpose of the task function is to handle IO operations like loading and saving
@@ -20,8 +24,9 @@ This section provides advice on how to structure task files.
 - Non-task functions in the task module are {term}`private functions <private function>`
   and only used within this task module. The functions should not have side-effects.
 
-- Functions used to accomplish tasks in multiple task modules should have their own
-  module.
+- It should never be necessary to import from task modules. So if you need a function in
+  multiple task modules, put it in a separate module (which does not start with
+  `task_`).
 
 ## Best Practices
 
@@ -29,15 +34,21 @@ This section provides advice on how to structure task files.
 
 There are two reasons to split tasks across several modules.
 
-The first reason concerns readability and complexity. Multiple tasks deal with
-(slightly) different concepts and, thus, should be split content-wise. Even if tasks
-deal with the same concept, they might be very complex on its own and separate modules
-help the reader (most likely you or your colleagues) to focus on one thing.
+The first reason concerns readability and complexity. Tasks deal with different concepts
+and, thus, should be split. Even if tasks deal with the same concept, they might becna
+very complex and separate modules help the reader (most likely you or your colleagues)
+to focus on one thing.
 
 The second reason is about runtime. If a task module is changed, all tasks within the
 module are re-run. If the runtime of all tasks in the module is high, you wait longer
 for your tasks to finish or until an error occurs which prolongs your feedback loops and
 hurts your productivity.
+
+:::{seealso}
+Use {func}`@pytask.mark.persist <pytask.mark.persist>` if you want to avoid accidentally
+triggering an expensive task. It is also explained in [this
+tutorial](../tutorials/making_tasks_persist).
+:::
 
 ### Structure of the module
 
@@ -72,44 +83,7 @@ leading underscore which are used to accomplish this and only this task.
 
 Here is an example of a task module which conforms to all advices.
 
-```python
-# Content of task_census_data.py.
-
-import pandas as pd
-import pytask
-
-from checks import perform_general_checks_on_data
-
-
-@pytask.mark.depends_on("raw_census.csv")
-@pytask.mark.produces("census.pkl")
-def task_prepare_census_data(depends_on, produces):
-    """Prepare the census data.
-
-    This task prepares the data in three steps.
-
-    1. Clean the data.
-    2. Create new variables.
-    3. Perform some checks on the new data.
-
-    """
-    df = pd.read_csv(depends_on)
-
-    df = _clean_data(df)
-
-    df = _create_new_variables(df)
-
-    perform_general_checks_on_data(df)
-
-    df.to_pickle(produces)
-
-
-def _clean_data(df):
-    ...
-
-
-def _create_new_variables(df):
-    ...
+```{literalinclude} ../../../docs_src/how_to_guides/bp_structure_of_task_files.py
 ```
 
 :::{seealso}

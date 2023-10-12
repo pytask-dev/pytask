@@ -12,9 +12,12 @@ specific tasks with pytask.
 maxdepth: 1
 ---
 migrating_from_scripts_to_pytask
-invoking_pytask_extended
+functional_interface
 capture_warnings
 how_to_influence_build_order
+hashing_inputs_of_tasks
+using_task_returns
+writing_custom_nodes
 how_to_write_a_plugin
 using_a_data_catalog
 ```
@@ -36,5 +39,5 @@ maxdepth: 1
 bp_structure_of_a_research_project
 bp_structure_of_task_files
 bp_templates_and_projects
-bp_scalable_repetitions_of_tasks
+bp_scaling_tasks
 ```

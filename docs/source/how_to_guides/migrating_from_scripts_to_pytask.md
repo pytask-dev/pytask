@@ -34,51 +34,18 @@ $ conda -c conda-forge pytask pytask-parallel
 We must rewrite your scripts and move the executable part to a task function. You might
 contain the code in the main namespace of your script, like in this example.
 
-```python
-# Content of task_data_management.py
-import pandas as pd
-
-
-df = pd.read_csv("data.csv")
-
-# Many operations.
-
-df.to_pickle("data.pkl")
+```{literalinclude} ../../../docs_src/how_to_guides/migrating_from_scripts_to_pytask_1.py
 ```
 
 Or, you might use an `if __name__ == "__main__"` block like this example.
 
-```python
-# Content of task_data_management.py
-import pandas as pd
-
-
-def main():
-    df = pd.read_csv("data.csv")
-
-    # Many operations.
-
-    df.to_pickle("data.pkl")
-
-
-if __name__ == "__main__":
-    main()
+```{literalinclude} ../../../docs_src/how_to_guides/migrating_from_scripts_to_pytask_2.py
 ```
 
 For pytask, you need to move the code into a task that is a function whose name starts
 with `task_` in a module with the same prefix like `task_data_management.py`.
 
-```python
-# Content of task_data_management.py
-import pandas as pd
-
-
-def task_prepare_data():
-    df = pd.read_csv("data.csv")
-
-    # Many operations.
-
-    df.to_pickle("data.pkl")
+```{literalinclude} ../../../docs_src/how_to_guides/migrating_from_scripts_to_pytask_3.py
 ```
 
 An `if __name__ == "__main__"` block must be deleted.
@@ -86,47 +53,16 @@ An `if __name__ == "__main__"` block must be deleted.
 ## Extracting dependencies and products
 
 To let pytask know the order in which to execute tasks and when to re-run them, you'll
-need to specify task dependencies and products using `@pytask.mark.depends_on` and
-`@pytask.mark.produces`. Extract the paths to the inputs and outputs of your script and
-pass them to the decorator. For example:
+need to specify task dependencies and products. Add dependencies as arguments to the
+function with default values. Do the same for products, but also add the special
+{obj}`~pytask.Product` annotation with {obj}`Annotated[Path, Product]`. For example:
 
-```python
-# Content of task_data_management.py
-import pandas as pd
-import pytask
-
-
-@pytask.mark.depends_on("data.csv")
-@pytask.mark.produces("data.pkl")
-def task_prepare_data(depends_on, produces):
-    df = pd.read_csv(depends_on)
-
-    # Many operations.
-
-    df.to_pickle(produces)
+```{literalinclude} ../../../docs_src/how_to_guides/migrating_from_scripts_to_pytask_4.py
 ```
 
-The decorators allow you to use `depends_on` and `produces` as arguments to the
-function and access the paths to the dependencies and products as {class}`pathlib.Path`.
+You can also use a dictionary to group multiple dependencies or products.
 
-You can pass a dictionary to these decorators if you have multiple dependencies or
-products. The dictionary's keys are the dependencies'/product's names, and the values
-are the paths. Here is an example:
-
-```python
-import pandas as pd
-import pytask
-
-
-@pytask.mark.depends_on({"data_1": "data_1.csv", "data_2": "data_2.csv"})
-@pytask.mark.produces("data.pkl")
-def task_merge_data(depends_on, produces):
-    df1 = pd.read_csv(depends_on["data_1"])
-    df2 = pd.read_csv(depends_on["data_2"])
-
-    df = df1.merge(df2, on=...)
-
-    df.to_pickle(produces)
+```{literalinclude} ../../../docs_src/how_to_guides/migrating_from_scripts_to_pytask_5.py
 ```
 
 :::{seealso}
@@ -192,16 +128,7 @@ saveRDS(df, "data.rds")
 Next, we create a task function to point pytask to the script and the dependencies and
 products.
 
-```python
-# Content of task_data_management.py
-import pytask
-
-
-@pytask.mark.r(script="prepare_data.r")
-@pytask.mark.depends_on("data.csv")
-@pytask.mark.produces("data.rds")
-def task_prepare_data():
-    pass
+```{literalinclude} ../../../docs_src/how_to_guides/migrating_from_scripts_to_pytask_6.py
 ```
 
 pytask automatically makes the paths to the dependencies and products available to the

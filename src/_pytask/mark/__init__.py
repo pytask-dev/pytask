@@ -62,8 +62,7 @@ def markers(**raw_config: Any) -> NoReturn:
 
     except (ConfigurationError, Exception):
         console.print_exception()
-        session = Session({}, None)
-        session.exit_code = ExitCode.CONFIGURATION_FAILED
+        session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 
     else:
         table = Table("Marker", "Description", leading=1)

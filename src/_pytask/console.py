@@ -9,11 +9,13 @@ from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import Iterable
+from typing import Literal
 from typing import TYPE_CHECKING
 
 import rich
 from _pytask.nodes import Task
 from rich.console import Console
+from rich.console import RenderableType
 from rich.padding import Padding
 from rich.panel import Panel
 from rich.segment import Segment
@@ -45,18 +47,14 @@ __all__ = [
 ]
 
 
-_IS_WSL = "IS_WSL" in os.environ or "WSL_DISTRO_NAME" in os.environ
 IS_WINDOWS_TERMINAL = "WT_SESSION" in os.environ
 _IS_WINDOWS = sys.platform == "win32"
 
 
-if (_IS_WINDOWS or _IS_WSL) and not IS_WINDOWS_TERMINAL:
-    _IS_LEGACY_WINDOWS = True
-else:
-    _IS_LEGACY_WINDOWS = False
+_IS_LEGACY_WINDOWS = _IS_WINDOWS and not IS_WINDOWS_TERMINAL
 
 
-_COLOR_SYSTEM = None if _IS_LEGACY_WINDOWS else "auto"
+_COLOR_SYSTEM: Literal["auto"] | None = None if _IS_LEGACY_WINDOWS else "auto"
 
 
 _HORIZONTAL_PADDING = (0, 1, 0, 1)
@@ -106,7 +104,7 @@ console: Console = Console(theme=theme, color_system=_COLOR_SYSTEM)
 
 
 def render_to_string(
-    text: str | Text,
+    text: RenderableType,
     *,
     console: Console | None = None,
     strip_styles: bool = False,
@@ -204,7 +202,7 @@ def create_url_style_for_path(path: Path, edtior_url_scheme: str) -> Style:
 
 def get_file(
     function: Callable[..., Any], skipped_paths: list[Path] | None = None
-) -> Path:
+) -> Path | None:
     """Get path to module where the function is defined.
 
     When the ``pdb`` or ``trace`` mode is activated, every task function is wrapped with
@@ -217,12 +215,14 @@ def get_file(
 
     if isinstance(function, functools.partial):
         return get_file(function.func)
-    if (
-        hasattr(function, "__wrapped__")
-        and Path(inspect.getsourcefile(function)) in skipped_paths
-    ):
-        return get_file(function.__wrapped__)
-    return Path(inspect.getsourcefile(function))
+    if hasattr(function, "__wrapped__"):
+        source_file = inspect.getsourcefile(function)
+        if source_file and Path(source_file) in skipped_paths:
+            return get_file(function.__wrapped__)
+    source_file = inspect.getsourcefile(function)
+    if source_file:
+        return Path(source_file)
+    return None
 
 
 def _get_source_lines(function: Callable[..., Any]) -> int:

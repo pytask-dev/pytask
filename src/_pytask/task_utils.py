@@ -12,12 +12,18 @@ import attrs
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
+from _pytask.typing import is_task_function
 
 if TYPE_CHECKING:
     from _pytask.tree_util import PyTree
 
 
-__all__ = ["parse_keyword_arguments_from_signature_defaults"]
+__all__ = [
+    "COLLECTED_TASKS",
+    "parse_collected_tasks_with_task_marker",
+    "parse_keyword_arguments_from_signature_defaults",
+    "task",
+]
 
 
 COLLECTED_TASKS: dict[Path, list[Callable[..., Any]]] = defaultdict(list)
@@ -35,13 +41,11 @@ def task(
     *,
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
-    produces: PyTree[Any] = None,
-) -> Callable[..., None]:
-    """Parse inputs of the ``@pytask.mark.task`` decorator.
+    produces: PyTree[Any] | None = None,
+) -> Callable[..., Callable[..., Any]]:
+    """Decorate a task function.
 
-    The decorator wraps task functions and stores it in the global variable
-    :obj:`COLLECTED_TASKS` to avoid garbage collection when the function definition is
-    overwritten in a loop.
+    This decorator declares every callable as a pytask task.
 
     The function also attaches some metadata to the function like parsed kwargs and
     markers.
@@ -49,18 +53,37 @@ def task(
     Parameters
     ----------
     name
-        The name of the task.
+        Use it to override the name of the task that is, by default, the name of the
+        callable.
     id
-        An id for the task if it is part of a parametrization.
+        An id for the task if it is part of a parametrization. Otherwise, an automatic
+        id will be generated. See
+        :doc:`this tutorial <../tutorials/repeating_tasks_with_different_inputs>` for
+        more information.
     kwargs
         A dictionary containing keyword arguments which are passed to the task when it
         is executed.
     produces
-        Definition of products to handle returns.
+        Definition of products to parse the function returns and store them. See
+        :doc:`this how-to guide <../how_to_guides/using_task_returns>` for more
+        information.
+
+    Examples
+    --------
+    To mark a function without the ``task_`` prefix as a task, attach the decorator.
+
+    .. code-block:: python
+
+        from typing_extensions import Annotated
+        from pytask import task
+
+        @task
+        def create_text_file() -> Annotated[str, Path("file.txt")]:
+            return "Hello, World!"
 
     """
 
-    def wrapper(func: Callable[..., Any]) -> None:
+    def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
         for arg, arg_name in ((name, "name"), (id, "id")):
             if not (isinstance(arg, str) or arg is None):
                 msg = (
@@ -95,13 +118,15 @@ def task(
                 produces=produces,
             )
 
+        # Store it in the global variable ``COLLECTED_TASKS`` to avoid garbage
+        # collection when the function definition is overwritten in a loop.
         COLLECTED_TASKS[path].append(unwrapped)
 
         return unwrapped
 
     # In case the decorator is used without parentheses, wrap the function which is
     # passed as the first argument with the default arguments.
-    if callable(name) and kwargs is None:
+    if is_task_function(name) and kwargs is None:
         return task()(name)
     return wrapper
 

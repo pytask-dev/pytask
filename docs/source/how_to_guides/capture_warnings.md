@@ -4,21 +4,7 @@ pytask captures warnings during the execution.
 
 Here is an example with the most infamous warning in the world of scientific Python.
 
-```python
-import pandas as pd
-import pytask
-
-
-def _create_df():
-    df = pd.DataFrame({"a": range(10), "b": range(10, 20)})
-    df[df["a"] < 5]["b"] = 1
-    return df
-
-
-@pytask.mark.products("df.pkl")
-def task_warning(produces):
-    df = _create_df()
-    df.to_pickle(produces)
+```{literalinclude} ../../../docs_src/how_to_guides/capturing_warnings_1.py
 ```
 
 Running pytask produces
@@ -66,22 +52,7 @@ You can use the `@pytask.mark.filterwarnings` to add warning filters to specific
 items, allowing you to have finer control of which warnings should be captured at test,
 class or even module level:
 
-```python
-import pandas as pd
-import pytask
-
-
-def _create_df():
-    df = pd.DataFrame({"a": range(10), "b": range(10, 20)})
-    df[df["a"] < 5]["b"] = 1
-    return df
-
-
-@pytask.mark.filterwarnings("ignore:.*:SettingWithCopyWarning")
-@pytask.mark.products("df.pkl")
-def task_warning(produces):
-    df = _create_df()
-    df.to_pickle(produces)
+```{literalinclude} ../../../docs_src/how_to_guides/capturing_warnings_2.py
 ```
 
 Filters applied using a mark take precedence over filters passed on the command line or

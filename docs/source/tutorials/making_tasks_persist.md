@@ -2,7 +2,8 @@
 
 Sometimes you want to skip the execution of a task and pretend nothing has changed.
 
-A typical scenario is that you formatted the task's source files with [black](https://github.com/psf/black) which would rerun the task.
+A typical scenario is that you formatted the task's source files with
+[black](https://github.com/psf/black) which would rerun the task.
 
 In this case, you can apply the {func}`@pytask.mark.persist <pytask.mark.persist>`
 decorator to the task, which will skip its execution as long as all products exist.
@@ -29,17 +30,7 @@ To create a persisting task, apply the correct decorator, and, et voilà, it is 
 
 First, we create a task and its dependency.
 
-```python
-# Content of task_module.py
-
-import pytask
-
-
-@pytask.mark.persist
-@pytask.mark.depends_on("input.md")
-@pytask.mark.produces("output.md")
-def task_make_input_bold(depends_on, produces):
-    produces.write_text("**" + depends_on.read_text() + "**")
+```{literalinclude} ../../../docs_src/tutorials/making_tasks_persist.py
 ```
 
 ```md

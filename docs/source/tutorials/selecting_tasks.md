@@ -85,9 +85,12 @@ $ pytask -k task_run_this_one
 If you have a parametrized task, you can select individual parametrizations.
 
 ```python
+from pytask import task
+
+
 for i in range(2):
 
-    @pytask.mark.task
+    @task
     def task_parametrized(i=i):
         ...
 ```

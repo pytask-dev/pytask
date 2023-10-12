@@ -195,12 +195,12 @@ class PytaskPDB:
                         console.rule(
                             "PDB continue (IO-capturing resumed)",
                             characters=">",
-                            style=None,
+                            style="default",
                         )
                         assert capman is not None
                         capman.resume()
                     else:
-                        console.rule("PDB continue", characters=">", style=None)
+                        console.rule("PDB continue", characters=">", style="default")
 
                     if not self._pytask_live_manager.is_started:
                         self._pytask_live_manager.resume()
@@ -280,17 +280,17 @@ class PytaskPDB:
                 # Handle header similar to pdb.set_trace in py37+.
                 header = kwargs.pop("header", None)
                 if header is not None:
-                    console.rule(header, characters=">", style=None)
+                    console.rule(header, characters=">", style="default")
                 else:
                     capturing = cls._is_capturing(capman)
                     if capturing:
                         console.rule(
                             f"PDB {method} (IO-capturing turned off)",
                             characters=">",
-                            style=None,
+                            style="default",
                         )
                     else:
-                        console.rule(f"PDB {method}", characters=">", style=None)
+                        console.rule(f"PDB {method}", characters=">", style="default")
 
         return cls._import_pdb_cls(capman, live_manager)(**kwargs)
 
@@ -339,20 +339,22 @@ def wrap_function_for_post_mortem_debugging(session: Session, task: PTask) -> No
                 console.print()
 
             if out:
-                console.rule("Captured stdout", style=None)
+                console.rule("Captured stdout", style="default")
                 console.print(out)
 
             if err:
-                console.rule("Captured stderr", style=None)
+                console.rule("Captured stderr", style="default")
                 console.print(err)
 
             exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
 
             console.print()
-            console.rule("Traceback", characters=">", style=None)
-            console.print(render_exc_info(*exc_info, session.config["show_locals"]))
+            console.rule("Traceback", characters=">", style="default")
+            console.print(
+                render_exc_info(*exc_info, show_locals=session.config["show_locals"])
+            )
 
-            post_mortem(exc_info[2])
+            post_mortem(exc_info[2])  # type: ignore[arg-type]
 
             live_manager.resume()
             capman.resume()
@@ -399,11 +401,11 @@ def wrap_function_for_tracing(session: Session, task: PTask) -> None:
             console.print()
 
         if out:
-            console.rule("Captured stdout", style=None)
+            console.rule("Captured stdout", style="default")
             console.print(out)
 
         if err:
-            console.rule("Captured stderr", style=None)
+            console.rule("Captured stderr", style="default")
             console.print(err)
 
         _pdb.runcall(task_function, *args, **kwargs)

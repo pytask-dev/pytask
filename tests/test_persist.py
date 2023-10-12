@@ -13,6 +13,8 @@ from pytask import Persisted
 from pytask import SkippedUnchanged
 from pytask import TaskOutcome
 
+from tests.conftest import restore_sys_path_and_module_after_test_execution
+
 
 class DummyClass:
     pass
@@ -46,7 +48,8 @@ def test_multiple_runs_with_persist(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("I'm not the reason you care.")
 
-    session = build(paths=tmp_path)
+    with restore_sys_path_and_module_after_test_execution():
+        session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1
