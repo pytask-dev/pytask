@@ -95,17 +95,13 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
     help="Do not print the names of the removed paths.",
     default=False,
 )
-def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912, PLR0915
+def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
     """Clean the provided paths by removing files unknown to pytask."""
     raw_config["command"] = "clean"
 
     try:
         # Duplication of the same mechanism in :func:`pytask.build`.
         pm = get_plugin_manager()
-        from _pytask import cli
-
-        pm.register(cli)
-        pm.hook.pytask_add_hooks(pm=pm)
 
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)

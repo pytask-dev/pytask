@@ -5,6 +5,10 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.4.2 - 2023-xx-xx
+
+- {pull}`449` simplifies the code building the plugin manager.
+
 ## 0.4.1 - 2023-10-11
 
 - {pull}`443` ensures that `PythonNode.name` is always unique by only handling it

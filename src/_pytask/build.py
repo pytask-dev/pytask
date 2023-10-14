@@ -40,7 +40,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli.add_command(build_command)
 
 
-def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
+def build(  # noqa: C901, PLR0912, PLR0913
     *,
     capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.NO,
     check_casing_of_paths: bool = True,
@@ -154,10 +154,6 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
     """
     try:
         pm = get_plugin_manager()
-        from _pytask import cli
-
-        pm.register(cli)
-        pm.hook.pytask_add_hooks(pm=pm)
 
         raw_config = {
             "capture": capture,

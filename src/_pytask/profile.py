@@ -114,13 +114,7 @@ def profile(**raw_config: Any) -> NoReturn:
     raw_config["command"] = "profile"
 
     try:
-        # Duplication of the same mechanism in :func:`pytask.build`.
         pm = get_plugin_manager()
-        from _pytask import cli
-
-        pm.register(cli)
-        pm.hook.pytask_add_hooks(pm=pm)
-
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
