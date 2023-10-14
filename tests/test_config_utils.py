@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from _pytask.config_utils import _find_project_root_and_config
+from _pytask.config_utils import find_project_root_and_config
 
 
 @pytest.mark.unit()
@@ -34,7 +34,7 @@ def test_find_project_root_and_config(
             path.parent.mkdir(exist_ok=True, parents=True)
             path.touch()
 
-    root, config = _find_project_root_and_config(paths)
+    root, config = find_project_root_and_config(paths)
 
     assert root == tmp_path.joinpath(expected_root)
     if expected_config is None:
@@ -51,7 +51,7 @@ def test_find_project_root_and_config(
 def test_find_project_root_and_config_w_no_intersecting_paths(
     paths, expected_root, expected_config
 ):
-    root, config = _find_project_root_and_config(paths)
+    root, config = find_project_root_and_config(paths)
     assert root == expected_root
     assert config == expected_config
 
@@ -68,7 +68,7 @@ def test_root_stops_at_version_control_folder(tmp_path, vc_folder, path, expecte
     if vc_folder:
         tmp_path.joinpath(vc_folder).mkdir(parents=True)
 
-    root, ini = _find_project_root_and_config([tmp_path.joinpath(path)])
+    root, ini = find_project_root_and_config([tmp_path.joinpath(path)])
 
     assert ini is None
     assert root == tmp_path.joinpath(expected)

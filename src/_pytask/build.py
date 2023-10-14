@@ -13,7 +13,7 @@ import click
 from _pytask.capture import CaptureMethod
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
-from _pytask.config_utils import _find_project_root_and_config
+from _pytask.config_utils import find_project_root_and_config
 from _pytask.config_utils import read_config
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
@@ -213,7 +213,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
                 (
                     raw_config["root"],
                     raw_config["config"],
-                ) = _find_project_root_and_config(raw_config["paths"])
+                ) = find_project_root_and_config(raw_config["paths"])
 
             if raw_config["config"] is not None:
                 config_from_file = read_config(raw_config["config"])
