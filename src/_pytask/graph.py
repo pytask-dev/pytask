@@ -86,13 +86,7 @@ def dag(**raw_config: Any) -> NoReturn:
     """Create a visualization of the project's directed acyclic graph."""
     try:
         pm = get_plugin_manager()
-        from _pytask import cli
-
-        pm.register(cli)
-        pm.hook.pytask_add_hooks(pm=pm)
-
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
-
         session = Session.from_config(config)
 
     except (ConfigurationError, Exception):
@@ -153,10 +147,6 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
     """
     try:
         pm = get_plugin_manager()
-        from _pytask import cli
-
-        pm.register(cli)
-        pm.hook.pytask_add_hooks(pm=pm)
 
         # If someone called the programmatic interface, we need to do some parsing.
         if "command" not in raw_config:

@@ -1,7 +1,6 @@
 """Implements the command line interface."""
 from __future__ import annotations
 
-import sys
 from typing import Any
 from typing import TYPE_CHECKING
 
@@ -29,18 +28,10 @@ else:
 
 def _extend_command_line_interface(cli: click.Group) -> click.Group:
     """Add parameters from plugins to the commandline interface."""
-    pm = _prepare_plugin_manager()
+    pm = get_plugin_manager()
     pm.hook.pytask_extend_command_line_interface(cli=cli)
     _sort_options_for_each_command_alphabetically(cli)
     return cli
-
-
-def _prepare_plugin_manager() -> pluggy.PluginManager:
-    """Prepare the plugin manager."""
-    pm = get_plugin_manager()
-    pm.register(sys.modules[__name__])
-    pm.hook.pytask_add_hooks(pm=pm)
-    return pm
 
 
 def _sort_options_for_each_command_alphabetically(cli: click.Group) -> None:

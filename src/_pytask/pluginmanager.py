@@ -11,4 +11,9 @@ def get_plugin_manager() -> pluggy.PluginManager:
     pm.add_hookspecs(hookspecs)
     pm.load_setuptools_entrypoints("pytask")
 
+    from _pytask import cli
+
+    pm.register(cli)
+    pm.hook.pytask_add_hooks(pm=pm)
+
     return pm
