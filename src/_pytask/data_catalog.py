@@ -10,9 +10,13 @@ import pickle
 from typing import TYPE_CHECKING
 
 from _pytask.config_utils import find_project_root_and_config
+from _pytask.exceptions import NodeNotCollectedError
+from _pytask.models import NodeInfo
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.nodes import PickleNode
+from _pytask.pluginmanager import get_plugin_manager
+from _pytask.session import Session
 from attrs import define
 from attrs import Factory
 
@@ -26,6 +30,12 @@ __all__ = ["DataCatalog"]
 def _find_directory() -> Path:
     root_path, _ = find_project_root_and_config(None)
     return root_path.joinpath(".pytask", "data_catalogs")
+
+
+def _create_default_session() -> Session:
+    return Session(
+        config={"check_casing_of_paths": True}, hook=get_plugin_manager().hook
+    )
 
 
 @define(kw_only=True)
@@ -51,6 +61,7 @@ class DataCatalog:
     directory: Path | None = None
     entries: dict[str, DataCatalog | PNode] = Factory(dict)
     name: str = "default"
+    _session: Session = Factory(_create_default_session)
 
     def __attrs_post_init__(self) -> None:
         if not self.directory:
@@ -78,12 +89,6 @@ class DataCatalog:
             msg = "The name of a catalog entry must be a string."
             raise TypeError(msg)
 
-        if name in self.entries:
-            msg = (
-                f"There is already an entry with the name {name!r} in the data catalog."
-            )
-            raise ValueError(msg)
-
         if node is None:
             filename = str(hashlib.sha256(name.encode()).hexdigest())
             if isinstance(self.default_node, PPathNode):
@@ -95,5 +100,17 @@ class DataCatalog:
             self.directory.joinpath(f"{filename}-node.pkl").write_bytes(  # type: ignore[union-attr]
                 pickle.dumps(self.entries[name])
             )
-        else:
+        elif isinstance(node, PNode):
             self.entries[name] = node
+        else:
+            collected_node = self._session.hook.pytask_collect_node(
+                session=self._session,
+                path=None,
+                node_info=NodeInfo(
+                    arg_name=name, path=(), value=node, task_path=None, task_name=""
+                ),
+            )
+            if collected_node is None:
+                msg = f"{node!r} cannot be parsed."
+                raise NodeNotCollectedError(msg)
+            self.entries[name] = collected_node
