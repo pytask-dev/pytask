@@ -8,7 +8,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 ## 0.4.2 - 2023-xx-xx
 
 - {pull}`449` simplifies the code building the plugin manager.
-- {pull}`450` improves `collect_command.py` and renames `graph.py` to `dag_command.py`.
+- {pull}`451` improves `collect_command.py` and renames `graph.py` to `dag_command.py`.
 
 ## 0.4.1 - 2023-10-11
 
