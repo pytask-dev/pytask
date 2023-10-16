@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import sys
 from collections import defaultdict
-from pathlib import Path
 from typing import Any
 from typing import TYPE_CHECKING
 
@@ -36,6 +35,7 @@ from rich.tree import Tree
 
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import NoReturn
 
 
@@ -149,7 +149,7 @@ def _organize_tasks(tasks: list[PTaskWithPath]) -> dict[Path, list[PTaskWithPath
     return sorted_dict
 
 
-def _print_collected_tasks(  # noqa: PLR0912
+def _print_collected_tasks(
     dictionary: dict[Path, list[PTaskWithPath]],
     show_nodes: bool,
     editor_url_scheme: str,
@@ -193,37 +193,31 @@ def _print_collected_tasks(  # noqa: PLR0912
             )
 
             if show_nodes:
-                nodes: list[PNode] = list(
-                    tree_leaves(task.depends_on)  # type: ignore[arg-type]
-                )
-                sorted_nodes = sorted(nodes, key=lambda x: x.name)
-                for node in sorted_nodes:
+                deps: list[PNode] = list(tree_leaves(task.depends_on))  # type: ignore[arg-type]
+                for node in sorted(
+                    deps,
+                    key=(
+                        lambda x: x.path.as_posix()
+                        if isinstance(x, PPathNode)
+                        else x.name
+                    ),
+                ):
                     if isinstance(node, PPathNode):
-                        if node.path.as_posix() in node.name:
-                            reduced_node_name = str(
-                                relative_to(node.path, common_ancestor)
-                            )
-                        else:
-                            reduced_node_name = node.name
+                        reduced_node_name = str(relative_to(node.path, common_ancestor))
                         url_style = create_url_style_for_path(
                             node.path, editor_url_scheme
                         )
                         text = Text(reduced_node_name, style=url_style)
                     else:
-                        try:
-                            path_part, rest = node.name.split("::", maxsplit=1)
-                            reduced_path = str(
-                                relative_to(Path(path_part), common_ancestor)
-                            )
-                            text = Text(reduced_path + "::" + rest)
-                        except Exception:  # noqa: BLE001
-                            text = Text(node.name)
-
+                        text = Text(node.name)
                     task_branch.add(Text.assemble(FILE_ICON, "<Dependency ", text, ">"))
 
-                for node in sorted(  # type: ignore[assignment]
-                    tree_leaves(task.produces),
-                    key=lambda x: x.path if isinstance(x, PPathNode) else x.name,  # type: ignore[attr-defined]
+                products: list[PNode] = list(tree_leaves(task.produces))  # type: ignore[arg-type]
+                for node in sorted(
+                    products,
+                    key=lambda x: x.path.as_posix()
+                    if isinstance(x, PPathNode)
+                    else x.name,
                 ):
                     if isinstance(node, PPathNode):
                         reduced_node_name = str(relative_to(node.path, common_ancestor))
