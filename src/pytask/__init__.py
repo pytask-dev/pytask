@@ -14,6 +14,7 @@ from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.dag_command import build_dag
 from _pytask.database_utils import BaseTable
 from _pytask.database_utils import create_database
 from _pytask.database_utils import DatabaseSession
@@ -25,7 +26,6 @@ from _pytask.exceptions import NodeNotCollectedError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import PytaskError
 from _pytask.exceptions import ResolvingDependenciesError
-from _pytask.graph import build_dag
 from _pytask.mark import Mark
 from _pytask.mark import MARK_GEN as mark  # noqa: N811
 from _pytask.mark import MarkDecorator
