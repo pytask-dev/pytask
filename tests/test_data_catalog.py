@@ -40,12 +40,10 @@ def test_use_data_catalog_in_workflow(runner, tmp_path):
     from pytask import DataCatalog
 
 
-    _SRC = Path(__file__).parent.resolve()
-
     # Generate input data
     _DataCatalog = DataCatalog()
-    _DataCatalog.add("file", _SRC / "file.txt")
-    _DataCatalog.add("output", _SRC / "output.txt")
+    _DataCatalog.add("file", Path("file.txt"))
+    _DataCatalog.add("output", Path("output.txt"))
 
 
     def task_add_content(
