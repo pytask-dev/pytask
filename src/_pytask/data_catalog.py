@@ -6,8 +6,9 @@ The data catalog is an abstraction layer between users and nodes.
 from __future__ import annotations
 
 import hashlib
+import inspect
 import pickle
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from _pytask.config_utils import find_project_root_and_config
 from _pytask.exceptions import NodeNotCollectedError
@@ -20,19 +21,27 @@ from _pytask.session import Session
 from attrs import define
 from attrs import Factory
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
 
 __all__ = ["DataCatalog"]
 
 
-def _find_directory() -> Path:
-    root_path, _ = find_project_root_and_config(None)
+def _find_directory(path: Path) -> Path:
+    """Find directory where data catalog can store its data."""
+    root_path, _ = find_project_root_and_config([path])
     return root_path.joinpath(".pytask", "data_catalogs")
 
 
+def _get_parent_path_of_data_catalog_module(stacklevel: int = 2) -> Path:
+    """Get the parent path of the module where the data catalog is defined."""
+    stack = inspect.stack()
+    potential_path = stack[stacklevel].frame.f_globals.get("__file__")
+    if potential_path:
+        return Path(potential_path).parent
+    return Path.cwd()
+
+
 def _create_default_session() -> Session:
+    """Create a default session to use the hooks and collect nodes."""
     return Session(
         config={"check_casing_of_paths": True}, hook=get_plugin_manager().hook
     )
@@ -49,7 +58,7 @@ class DataCatalog:
     directory
         A directory where automatically created files are stored.
     entries
-        A collection of entries in the catalog. Entries can be :class:`pytask.PNode` or
+        A collection of entries in the catalog. Entries can be :class:`~pytask.PNode` or
         a :class:`DataCatalog` itself for nesting catalogs.
     name
         The name of the data catalog. Use it when you are working with multiple data
@@ -62,10 +71,11 @@ class DataCatalog:
     entries: dict[str, DataCatalog | PNode] = Factory(dict)
     name: str = "default"
     _session: Session = Factory(_create_default_session)
+    _instance_path: Path = Factory(_get_parent_path_of_data_catalog_module)
 
     def __attrs_post_init__(self) -> None:
         if not self.directory:
-            root = _find_directory()
+            root = _find_directory(self._instance_path)
             self.directory = root / self.name
             self.directory.mkdir(parents=True, exist_ok=True)
 
@@ -85,6 +95,8 @@ class DataCatalog:
 
     def add(self, name: str, node: DataCatalog | PNode | None = None) -> None:
         """Add an entry to the data catalog."""
+        assert isinstance(self.directory, Path)
+
         if not isinstance(name, str):
             msg = "The name of a catalog entry must be a string."
             raise TypeError(msg)
@@ -97,7 +109,7 @@ class DataCatalog:
                 )
             else:
                 self.entries[name] = self.default_node(name=name)  # type: ignore[call-arg]
-            self.directory.joinpath(f"{filename}-node.pkl").write_bytes(  # type: ignore[union-attr]
+            self.directory.joinpath(f"{filename}-node.pkl").write_bytes(
                 pickle.dumps(self.entries[name])
             )
         elif isinstance(node, PNode):
@@ -105,7 +117,7 @@ class DataCatalog:
         else:
             collected_node = self._session.hook.pytask_collect_node(
                 session=self._session,
-                path=None,
+                path=self._instance_path,
                 node_info=NodeInfo(
                     arg_name=name, path=(), value=node, task_path=None, task_name=""
                 ),
