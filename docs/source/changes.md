@@ -9,7 +9,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`449` simplifies the code building the plugin manager.
 - {pull}`451` improves `collect_command.py` and renames `graph.py` to `dag_command.py`.
-- {pull}`453` removes more `.svg`s and replaces them with animations.
+- {pull}`454` removes more `.svg`s and replaces them with animations.
 
 ## 0.4.1 - 2023-10-11
 
