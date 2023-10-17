@@ -8,5 +8,5 @@ $ pytask profile
 
 Here is an example
 
-```{image} /_static/images/profile.svg
+```{include} ../_static/md/profiling-tasks.md
 ```
