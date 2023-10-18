@@ -318,6 +318,7 @@ def test_insert_missing_modules(
     assert not modules
 
 
+@pytest.mark.unit()
 def test_importlib_package(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     """
     Importing a package using --importmode=importlib should not import the

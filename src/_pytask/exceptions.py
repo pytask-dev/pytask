@@ -14,6 +14,10 @@ class NodeNotCollectedError(PytaskError):
     """Exception for nodes which could not be collected."""
 
 
+class NodeLoadError(PytaskError):
+    """Exception for nodes whose value could not be loaded."""
+
+
 class ConfigurationError(PytaskError):
     """Exception during the configuration."""
 
