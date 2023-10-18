@@ -774,6 +774,7 @@ def test_pass_non_task_to_functional_api_that_are_ignored():
 @pytest.mark.end_to_end()
 def test_multiple_product_annotations(runner, tmp_path):
     source = """
+    from __future__ import annotations
     from pytask import Product
     from typing_extensions import Annotated
     from pathlib import Path
