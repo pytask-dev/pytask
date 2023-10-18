@@ -19,9 +19,11 @@ from _pytask.dag_utils import TopologicalSorter
 from _pytask.database_utils import update_states_in_database
 from _pytask.enums import ShowCapture
 from _pytask.exceptions import ExecutionError
+from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.mark_utils import has_mark
+from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.outcomes import count_outcomes
@@ -31,6 +33,7 @@ from _pytask.outcomes import WouldBeExecuted
 from _pytask.report import ExecutionReport
 from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
+from _pytask.traceback import remove_internal_traceback_frames_from_exception
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_leaves
@@ -142,6 +145,16 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
         raise WouldBeExecuted
 
 
+def _safe_load(node: PNode, task: PTask) -> Any:
+    try:
+        return node.load()
+    except Exception as e:  # noqa: BLE001
+        e = remove_internal_traceback_frames_from_exception(e)
+        task_name = getattr(task, "display_name", task.name)
+        msg = f"Exception while loading node {node.name!r} of task {task_name!r}"
+        raise NodeLoadError(msg) from e
+
+
 @hookimpl(trylast=True)
 def pytask_execute_task(session: Session, task: PTask) -> bool:
     """Execute task."""
@@ -152,11 +165,11 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
 
     kwargs = {}
     for name, value in task.depends_on.items():
-        kwargs[name] = tree_map(lambda x: x.load(), value)
+        kwargs[name] = tree_map(lambda x: _safe_load(x, task), value)
 
     for name, value in task.produces.items():
         if name in parameters:
-            kwargs[name] = tree_map(lambda x: x.load(), value)
+            kwargs[name] = tree_map(lambda x: _safe_load(x, task), value)
 
     out = task.execute(**kwargs)
 

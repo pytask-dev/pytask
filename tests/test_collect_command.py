@@ -512,6 +512,7 @@ def test_python_nodes_are_aggregated_into_one(runner, tmp_path):
     assert "Product" in captured
 
 
+@pytest.mark.end_to_end()
 def test_node_protocol_for_custom_nodes(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -543,6 +544,7 @@ def test_node_protocol_for_custom_nodes(runner, tmp_path):
     assert "<Dependency custom>" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
