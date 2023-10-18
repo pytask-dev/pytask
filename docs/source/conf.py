@@ -6,8 +6,15 @@ documentation: https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 from __future__ import annotations
 
+import inspect
+import os
+import sys
+import warnings
 from importlib.metadata import version
+from pathlib import Path
 from typing import TYPE_CHECKING
+
+import pytask
 
 if TYPE_CHECKING:
     import sphinx
@@ -36,9 +43,9 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.linkcode",
     "sphinx.ext.napoleon",
     "sphinxext.opengraph",
-    "sphinx.ext.viewcode",
     "sphinx_copybutton",
     "sphinx_click",
     "sphinx_toolbox.more_autodoc.autoprotocol",
@@ -88,6 +95,63 @@ myst_footnote_transition = False
 
 # Open Graph
 ogp_social_cards = {"image": "_static/images/pytask_w_text.png"}
+
+
+# Linkcode, based on numpy doc/source/conf.py
+def linkcode_resolve(domain: str, info: dict[str, str]) -> str:  # noqa: C901, PLR0912
+    """Determine the URL corresponding to Python object."""
+    if domain != "py":
+        return None
+
+    modname = info["module"]
+    fullname = info["fullname"]
+
+    submod = sys.modules.get(modname)
+    if submod is None:
+        return None
+
+    obj = submod
+    for part in fullname.split("."):
+        try:
+            with warnings.catch_warnings():
+                # Accessing deprecated objects will generate noisy warnings
+                warnings.simplefilter("ignore", FutureWarning)
+                obj = getattr(obj, part)
+        except AttributeError:  # noqa: PERF203
+            return None
+
+    try:
+        fn = inspect.getsourcefile(inspect.unwrap(obj))
+    except TypeError:
+        try:  # property
+            fn = inspect.getsourcefile(inspect.unwrap(obj.fget))
+        except (AttributeError, TypeError):
+            fn = None
+    if not fn:
+        return None
+
+    try:
+        source, lineno = inspect.getsourcelines(obj)
+    except TypeError:
+        try:  # property
+            source, lineno = inspect.getsourcelines(obj.fget)
+        except (AttributeError, TypeError):
+            lineno = None
+    except OSError:
+        lineno = None
+
+    linespec = f"#L{lineno}-L{lineno + len(source) - 1}" if lineno else ""
+
+    fn = os.path.relpath(fn, start=Path(pytask.__file__).parent)
+
+    if "+" in pytask.__version__:
+        return (
+            f"https://github.com/pytask-dev/pytask/blob/main/src/pytask/{fn}{linespec}"
+        )
+    return (
+        f"https://github.com/pytask-dev/pytask/blob/"
+        f"v{pytask.__version__}/src/pytask/{fn}{linespec}"
+    )
 
 
 # -- Options for HTML output -----------------------------------------------------------
