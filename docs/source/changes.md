@@ -12,6 +12,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`454` removes more `.svg`s and replaces them with animations.
 - {pull}`455` adds more explanation when {meth}`~pytask.PNode.load` fails during the
   execution.
+- {pull}`456` refers to the source code on Github when clicking on a source link.
 
 ## 0.4.1 - 2023-10-11
 
