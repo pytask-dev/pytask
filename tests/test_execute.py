@@ -793,3 +793,41 @@ def test_multiple_product_annotations(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
+
+
+@pytest.mark.end_to_end()
+def test_errors_during_loading_nodes_have_info(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Any
+    import attrs
+    import pickle
+
+    @attrs.define
+    class PickleNode:
+        name: str
+        path: Path
+
+        def state(self) -> str | None:
+            if self.path.exists():
+                return str(self.path.stat().st_mtime)
+            return None
+
+        def load(self) -> Any:
+            return pickle.loads(self.path.read_bytes())
+
+        def save(self, value: Any) -> None:
+            self.path.write_bytes(pickle.dumps(value))
+
+    def task_example(
+        value=PickleNode(name="node", path=Path(__file__).parent / "file.txt")
+    ): pass
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("file.txt").touch()
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+    assert "task_example.py::task_example" in result.output
+    assert "Exception while loading node" in result.output
+    assert "_pytask/execute.py" not in result.output
