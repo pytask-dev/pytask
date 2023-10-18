@@ -799,6 +799,7 @@ def test_multiple_product_annotations(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_errors_during_loading_nodes_have_info(runner, tmp_path):
     source = """
+    from __future__ import annotations
     from pathlib import Path
     from typing import Any
     import attrs
