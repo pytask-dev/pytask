@@ -103,6 +103,4 @@ from pytask import PythonNode
 data_catalog = DataCatalog(default_node=PythonNode)
 ```
 
-```{seealso}
-If you want to learn more about custom nodes, read {doc}`writing_custom_nodes`.
-```
+Or, learn to write your own node by reading {doc}`writing_custom_nodes`.
