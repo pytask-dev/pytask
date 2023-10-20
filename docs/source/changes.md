@@ -13,6 +13,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`455` adds more explanation when {meth}`~pytask.PNode.load` fails during the
   execution.
 - {pull}`456` refers to the source code on Github when clicking on a source link.
+- {pull}`457` refactors everything around formatting node names.
 
 ## 0.4.1 - 2023-10-11
 

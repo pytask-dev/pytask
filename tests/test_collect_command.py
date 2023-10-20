@@ -628,7 +628,8 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
-    assert "return::0" in result.output
-    assert "return::1-0" in result.output
-    assert "return::1-1" in result.output
-    assert "return::2" in result.output
+    assert "return" in result.output
+    assert "::0" in result.output
+    assert "::1-0" in result.output
+    assert "::1-1" in result.output
+    assert "::2" in result.output
