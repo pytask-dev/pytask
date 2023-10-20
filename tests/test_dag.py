@@ -94,7 +94,7 @@ def test_check_if_root_nodes_are_available_w_name(tmp_path, runner):
     assert tmp_path.joinpath("task_e.py").as_posix() + "::task_e" not in result.output
     assert "task_e.py::task_e" in result.output
     assert tmp_path.joinpath("in.txt").as_posix() not in result.output
-    assert tmp_path.name + "/in.txt" in result.output
+    assert "input1" in result.output
 
 
 @pytest.mark.end_to_end()

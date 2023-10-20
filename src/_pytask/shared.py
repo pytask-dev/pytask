@@ -9,13 +9,10 @@ from typing import Sequence
 from typing import TYPE_CHECKING
 
 import click
+from _pytask.console import format_node_name
 from _pytask.console import format_task_name
-from _pytask.node_protocols import MetaNode
-from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PTask
-from _pytask.path import find_closest_ancestor
-from _pytask.path import find_common_ancestor
-from _pytask.path import relative_to
 
 if TYPE_CHECKING:
     import networkx as nx
@@ -62,28 +59,6 @@ def parse_paths(x: Any | None) -> list[Path] | None:
     return out
 
 
-def reduce_node_name(node: MetaNode, paths: Sequence[Path]) -> str:
-    """Reduce the node name.
-
-    The whole name of the node - which includes the drive letter - can be very long
-    when using nested folder structures in bigger projects.
-
-    Thus, the part of the name which contains the path is replaced by the relative
-    path from one path in ``session.config["paths"]`` to the node.
-
-    """
-    if isinstance(node, PPathNode):
-        ancestor = find_closest_ancestor(node.path, paths)
-        if ancestor is None:
-            try:
-                ancestor = find_common_ancestor(node.path, *paths)
-            except ValueError:
-                ancestor = node.path.parents[-1]
-
-        return relative_to(node.path, ancestor).as_posix()
-    return node.name
-
-
 def reduce_names_of_multiple_nodes(
     names: list[str], dag: nx.DiGraph, paths: Sequence[Path]
 ) -> list[str]:
@@ -94,10 +69,10 @@ def reduce_names_of_multiple_nodes(
 
         if isinstance(node, PTask):
             short_name = format_task_name(node, editor_url_scheme="no_link").plain
-        elif isinstance(node, MetaNode):
-            short_name = reduce_node_name(node, paths)
+        elif isinstance(node, PNode):
+            short_name = format_node_name(node, paths).plain
         else:
-            msg = f"Requires 'Task' or 'Node' and not {type(node)!r}."
+            msg = f"Requires a 'PTask' or a 'PNode' and not {type(node)!r}."
             raise TypeError(msg)
 
         short_names.append(short_name)

@@ -11,6 +11,7 @@ from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_task
+from _pytask.console import format_node_name
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import format_task_name
 from _pytask.console import unify_styles
@@ -31,7 +32,6 @@ from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
 from _pytask.report import ExecutionReport
-from _pytask.shared import reduce_node_name
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_internal_traceback_frames_from_exception
 from _pytask.traceback import remove_traceback_from_exc_info
@@ -203,7 +203,9 @@ def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
             missing_nodes.append(node)
 
     if missing_nodes:
-        paths = [reduce_node_name(i, session.config["paths"]) for i in missing_nodes]
+        paths = [
+            format_node_name(i, session.config["paths"]).plain for i in missing_nodes
+        ]
         formatted = format_strings_as_flat_tree(
             paths, "The task did not produce the following files:\n", ""
         )

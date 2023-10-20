@@ -5,15 +5,20 @@ import functools
 import inspect
 import os
 import sys
+from contextlib import suppress
 from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import Iterable
 from typing import Literal
+from typing import Sequence
 from typing import TYPE_CHECKING
 
 import rich
-from _pytask.nodes import Task
+from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PTaskWithPath
+from _pytask.path import shorten_path
 from rich.console import Console
 from rich.console import RenderableType
 from rich.padding import Padding
@@ -149,15 +154,31 @@ def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
     else:
         url_style = create_url_style_for_task(task.function, editor_url_scheme)
 
-    if isinstance(task, Task):
+    if isinstance(task, PTaskWithPath) and hasattr(task, "display_name"):
         path, task_name = task.display_name.split("::")
-        task_id = Text.assemble(
+        return Text.assemble(
             Text(path + "::", style="dim"), Text(task_name, style=url_style)
         )
-    else:
-        name = getattr(task, "display_name", task.name)
-        task_id = Text(name, style=url_style)
-    return task_id
+
+    name = getattr(task, "display_name", task.name)
+    return Text(name, style=url_style)
+
+
+def format_node_name(node: PNode, paths: Sequence[Path] = ()) -> Text:
+    """Format the name of a node."""
+    if isinstance(node, PPathNode):
+        if node.name != node.path.as_posix():
+            return Text(node.name)
+        name = shorten_path(node.path, paths)
+        return Text(name)
+
+    if "::" in node.name:
+        with suppress(Exception):
+            path, rest = node.name.split("::", maxsplit=1)
+            reduced_name = shorten_path(Path(path), paths)
+            return Text(f"{reduced_name}::{rest}")
+
+    return Text(node.name)
 
 
 def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -> str:

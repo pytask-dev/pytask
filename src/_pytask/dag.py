@@ -13,6 +13,7 @@ from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import ARROW_DOWN_ICON
 from _pytask.console import console
 from _pytask.console import FILE_ICON
+from _pytask.console import format_node_name
 from _pytask.console import render_to_string
 from _pytask.console import TASK_ICON
 from _pytask.dag_utils import node_and_neighbors
@@ -32,7 +33,6 @@ from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import PythonNode
 from _pytask.report import DagReport
 from _pytask.shared import reduce_names_of_multiple_nodes
-from _pytask.shared import reduce_node_name
 from _pytask.traceback import remove_internal_traceback_frames_from_exception
 from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_map
@@ -251,7 +251,7 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph, paths: Sequence[Path]) -
     if missing_root_nodes:
         dictionary = {}
         for node in missing_root_nodes:
-            short_node_name = reduce_node_name(dag.nodes[node]["node"], paths)
+            short_node_name = format_node_name(dag.nodes[node]["node"], paths).plain
             not_skipped_successors = [
                 task for task in dag.successors(node) if not is_task_skipped[task]
             ]
@@ -329,7 +329,7 @@ def _check_if_tasks_have_the_same_products(dag: nx.DiGraph, paths: list[Path]) -
     if nodes_created_by_multiple_tasks:
         dictionary = {}
         for node in nodes_created_by_multiple_tasks:
-            short_node_name = reduce_node_name(dag.nodes[node]["node"], paths)
+            short_node_name = format_node_name(dag.nodes[node]["node"], paths).plain
             short_predecessors = reduce_names_of_multiple_nodes(
                 dag.predecessors(node), dag, paths
             )

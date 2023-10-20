@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
 import pytest
@@ -8,11 +9,14 @@ from _pytask.console import _get_source_lines
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_path
 from _pytask.console import create_url_style_for_task
+from _pytask.console import format_node_name
 from _pytask.console import format_task_name
 from _pytask.console import get_file
 from _pytask.console import render_to_string
 from pytask import CollectionOutcome
 from pytask import console
+from pytask import PathNode
+from pytask import PythonNode
 from pytask import Task
 from pytask import TaskOutcome
 from rich.console import Console
@@ -143,6 +147,49 @@ def test_format_task_id(
 
     result = format_task_name(task, editor_url_scheme)
     assert result == expected
+
+
+_ROOT = Path.cwd()
+
+
+@pytest.mark.integration()
+@pytest.mark.parametrize(
+    ("node", "paths", "expectation", "expected"),
+    [
+        pytest.param(
+            PathNode.from_path(_ROOT.joinpath("src/module.py")),
+            [_ROOT.joinpath("alternative_src")],
+            does_not_raise(),
+            Text("pytask/src/module.py"),
+            id="Common path found for PathNode not in 'paths' and 'paths'",
+        ),
+        pytest.param(
+            PathNode.from_path(_ROOT.joinpath("top/src/module.py")),
+            [_ROOT.joinpath("top/src")],
+            does_not_raise(),
+            Text("src/module.py"),
+            id="make filepathnode relative to 'paths'.",
+        ),
+        pytest.param(
+            PythonNode(name="hello", value=None),
+            [_ROOT],
+            does_not_raise(),
+            Text("hello"),
+            id="PythonNode with name",
+        ),
+        pytest.param(
+            PythonNode(name=_ROOT.as_posix() + "/task_a.py::task_a::a", value=None),
+            [_ROOT],
+            does_not_raise(),
+            Text("pytask/task_a.py::task_a::a"),
+            id="PythonNode with automatically assigned name",
+        ),
+    ],
+)
+def test_reduce_node_name(node, paths, expectation, expected):
+    with expectation:
+        result = format_node_name(node, paths)
+        assert result == expected
 
 
 @pytest.mark.unit()
