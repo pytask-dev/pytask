@@ -12,6 +12,7 @@ from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_url_style_for_path
 from _pytask.console import FILE_ICON
+from _pytask.console import format_node_name
 from _pytask.console import format_task_name
 from _pytask.console import PYTHON_ICON
 from _pytask.console import TASK_ICON
@@ -202,14 +203,7 @@ def _print_collected_tasks(
                         else x.name
                     ),
                 ):
-                    if isinstance(node, PPathNode):
-                        reduced_node_name = str(relative_to(node.path, common_ancestor))
-                        url_style = create_url_style_for_path(
-                            node.path, editor_url_scheme
-                        )
-                        text = Text(reduced_node_name, style=url_style)
-                    else:
-                        text = Text(node.name)
+                    text = format_node_name(node, (common_ancestor,))
                     task_branch.add(Text.assemble(FILE_ICON, "<Dependency ", text, ">"))
 
                 products: list[PNode] = list(tree_leaves(task.produces))  # type: ignore[arg-type]
@@ -219,14 +213,7 @@ def _print_collected_tasks(
                     if isinstance(x, PPathNode)
                     else x.name,
                 ):
-                    if isinstance(node, PPathNode):
-                        reduced_node_name = str(relative_to(node.path, common_ancestor))
-                        url_style = create_url_style_for_path(
-                            node.path, editor_url_scheme
-                        )
-                        text = Text(reduced_node_name, style=url_style)
-                    else:
-                        text = Text(node.name)
+                    text = format_node_name(node, (common_ancestor,))
                     task_branch.add(Text.assemble(FILE_ICON, "<Product ", text, ">"))
 
     console.print(tree)

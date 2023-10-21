@@ -19,6 +19,7 @@ from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.console import create_summary_panel
+from _pytask.console import format_node_name
 from _pytask.console import format_task_name
 from _pytask.console import get_file
 from _pytask.console import is_jupyter
@@ -38,7 +39,6 @@ from _pytask.path import find_case_sensitive_path
 from _pytask.path import import_path
 from _pytask.report import CollectionReport
 from _pytask.shared import find_duplicates
-from _pytask.shared import reduce_node_name
 from _pytask.task_utils import task as task_decorator
 from _pytask.traceback import render_exc_info
 from _pytask.typing import is_task_function
@@ -460,8 +460,17 @@ def pytask_collect_log(
                     short_name = format_task_name(
                         report.node, editor_url_scheme="no_link"
                     ).plain
+                elif isinstance(report.node, PNode):
+                    short_name = format_node_name(
+                        report.node, session.config["paths"]
+                    ).plain
                 else:
-                    short_name = reduce_node_name(report.node, session.config["paths"])
+                    msg = (
+                        "Requires a 'PTask' or a 'PNode' and not "
+                        f"{type(report.node)!r}."
+                    )
+                    raise TypeError(msg)
+
                 header = f"Could not collect {short_name}"
 
             console.rule(

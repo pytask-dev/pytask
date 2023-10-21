@@ -11,6 +11,16 @@ from types import ModuleType
 from typing import Sequence
 
 
+__all__ = [
+    "find_case_sensitive_path",
+    "find_closest_ancestor",
+    "find_common_ancestor",
+    "import_path",
+    "relative_to",
+    "shorten_path",
+]
+
+
 def relative_to(path: Path, source: Path, include_source: bool = True) -> Path:
     """Make a path relative to another path.
 
@@ -176,3 +186,23 @@ def _insert_missing_modules(modules: dict[str, ModuleType], module_name: str) ->
                 modules[module_name] = module
         module_parts.pop(-1)
         module_name = ".".join(module_parts)
+
+
+def shorten_path(path: Path, paths: Sequence[Path]) -> str:
+    """Shorten a path.
+
+    The whole path of a node - which includes the drive letter - can be very long
+    when using nested folder structures in bigger projects.
+
+    Thus, the part of the name which contains the path is replaced by the relative
+    path from one path in ``session.config["paths"]`` to the node.
+
+    """
+    ancestor = find_closest_ancestor(path, paths)
+    if ancestor is None:
+        try:
+            ancestor = find_common_ancestor(path, *paths)
+        except ValueError:
+            ancestor = path.parents[-1]
+
+    return relative_to(path, ancestor).as_posix()
