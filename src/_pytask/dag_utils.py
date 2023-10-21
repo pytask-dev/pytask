@@ -67,7 +67,6 @@ class TopologicalSorter:
     """
 
     dag: nx.DiGraph
-    dag_backup: nx.DiGraph
     priorities: dict[str, int] = field(factory=dict)
     _nodes_out: set[str] = field(factory=set)
 
@@ -85,7 +84,7 @@ class TopologicalSorter:
         task_dict = {name: nx.ancestors(dag, name) & task_names for name in task_names}
         task_dag = nx.DiGraph(task_dict).reverse()
 
-        return cls(dag=task_dag, priorities=priorities, dag_backup=task_dag.copy())
+        return cls(dag=task_dag, priorities=priorities)
 
     @staticmethod
     def check_dag(dag: nx.DiGraph) -> None:
