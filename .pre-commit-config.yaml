@@ -16,6 +16,7 @@ repos:
     -   id: no-commit-to-branch
         args: [--branch, main]
     -   id: trailing-whitespace
+        exclude: (__snapshots__)
 -   repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
