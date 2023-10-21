@@ -29,7 +29,12 @@ def dag():
 
 @pytest.mark.unit()
 def test_sort_tasks_topologically(dag):
-    topo_ordering = list(TopologicalSorter.from_dag(dag).static_order())
+    dag = TopologicalSorter.from_dag(dag)
+    topo_ordering = []
+    while dag.is_active():
+        task_name = dag.get_ready()[0]
+        topo_ordering.append(task_name)
+        dag.done(task_name)
     assert topo_ordering == [f".::{i}" for i in range(5)]
 
 

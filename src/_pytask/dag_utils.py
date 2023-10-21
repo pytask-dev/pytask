@@ -125,13 +125,6 @@ class TopologicalSorter:
         self._nodes_out = self._nodes_out - set(nodes)
         self.dag.remove_nodes_from(nodes)
 
-    def static_order(self) -> Generator[str, None, None]:
-        """Return a topological order of tasks as an iterable."""
-        while self.is_active():
-            new_task = self.get_ready()[0]
-            yield new_task
-            self.done(new_task)
-
 
 def _extract_priorities_from_tasks(tasks: list[PTask]) -> dict[str, int]:
     """Extract priorities from tasks.
