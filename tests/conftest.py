@@ -7,11 +7,17 @@ from typing import Callable
 
 import pytest
 from click.testing import CliRunner
+from pytask import console
 
 
 @pytest.fixture(autouse=True)
 def _add_objects_to_doctest_namespace(doctest_namespace):
     doctest_namespace["Path"] = Path
+
+
+@pytest.fixture(autouse=True, scope="session")
+def _path_for_snapshots():
+    console.width = 80
 
 
 class SysPathsSnapshot:
