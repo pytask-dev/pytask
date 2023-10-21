@@ -69,15 +69,12 @@ class TopologicalSorter:
     dag: nx.DiGraph
     dag_backup: nx.DiGraph
     priorities: dict[str, int] = field(factory=dict)
-    _is_prepared: bool = False
     _nodes_out: set[str] = field(factory=set)
 
     @classmethod
     def from_dag(cls, dag: nx.DiGraph) -> TopologicalSorter:
         """Instantiate from a DAG."""
-        if not dag.is_directed():
-            msg = "Only directed graphs have a topological order."
-            raise ValueError(msg)
+        cls.check_dag(dag)
 
         tasks = [
             dag.nodes[node]["task"] for node in dag.nodes if "task" in dag.nodes[node]
@@ -90,23 +87,22 @@ class TopologicalSorter:
 
         return cls(dag=task_dag, priorities=priorities, dag_backup=task_dag.copy())
 
-    def prepare(self) -> None:
-        """Perform some checks before creating a topological ordering."""
+    @staticmethod
+    def check_dag(dag: nx.DiGraph) -> None:
+        if not dag.is_directed():
+            msg = "Only directed graphs have a topological order."
+            raise ValueError(msg)
+
         try:
-            nx.algorithms.cycles.find_cycle(self.dag)
+            nx.algorithms.cycles.find_cycle(dag)
         except nx.NetworkXNoCycle:
             pass
         else:
             msg = "The DAG contains cycles."
             raise ValueError(msg)
 
-        self._is_prepared = True
-
     def get_ready(self, n: int = 1) -> list[str]:
         """Get up to ``n`` tasks which are ready."""
-        if not self._is_prepared:
-            msg = "The TopologicalSorter needs to be prepared."
-            raise ValueError(msg)
         if not isinstance(n, int) or n < 1:
             msg = "'n' must be an integer greater or equal than 1."
             raise ValueError(msg)
@@ -129,16 +125,8 @@ class TopologicalSorter:
         self._nodes_out = self._nodes_out - set(nodes)
         self.dag.remove_nodes_from(nodes)
 
-    def reset(self) -> None:
-        """Reset an exhausted topological sorter."""
-        if self.dag_backup:
-            self.dag = self.dag_backup.copy()
-        self._is_prepared = False
-        self._nodes_out = set()
-
     def static_order(self) -> Generator[str, None, None]:
         """Return a topological order of tasks as an iterable."""
-        self.prepare()
         while self.is_active():
             new_task = self.get_ready()[0]
             yield new_task

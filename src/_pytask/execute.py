@@ -75,9 +75,7 @@ def pytask_execute_log_start(session: Session) -> None:
 @hookimpl(trylast=True)
 def pytask_execute_create_scheduler(session: Session) -> TopologicalSorter:
     """Create a scheduler based on topological sorting."""
-    scheduler = TopologicalSorter.from_dag(session.dag)
-    scheduler.prepare()
-    return scheduler
+    return TopologicalSorter.from_dag(session.dag)
 
 
 @hookimpl
