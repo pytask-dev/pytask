@@ -62,13 +62,22 @@ def node_and_neighbors(dag: nx.DiGraph, node: str) -> Iterable[str]:
 class TopologicalSorter:
     """The topological sorter class.
 
-    This class allows to perform a topological sort
+    This class allows to perform a topological sort#
+
+    Attributes
+    ----------
+    dag
+        Not the full DAG, but a reduced version that only considers tasks.
+    priorities
+        A dictionary of task names to a priority value. 1 for try first, 0 for the
+        default priority and, -1 for try last.
 
     """
 
     dag: nx.DiGraph
     priorities: dict[str, int] = field(factory=dict)
-    _nodes_out: set[str] = field(factory=set)
+    _nodes_processing: set[str] = field(factory=set)
+    _nodes_done: set[str] = field(factory=set)
 
     @classmethod
     def from_dag(cls, dag: nx.DiGraph) -> TopologicalSorter:
@@ -85,6 +94,16 @@ class TopologicalSorter:
         task_dag = nx.DiGraph(task_dict).reverse()
 
         return cls(dag=task_dag, priorities=priorities)
+
+    @classmethod
+    def from_dag_and_sorter(
+        cls, dag: nx.DiGraph, sorter: TopologicalSorter
+    ) -> TopologicalSorter:
+        """Instantiate a sorter from another sorter and a DAG."""
+        new_sorter = cls.from_dag(dag)
+        new_sorter.done(*sorter._nodes_done)
+        new_sorter._nodes_processing = sorter._nodes_processing
+        return new_sorter
 
     @staticmethod
     def check_dag(dag: nx.DiGraph) -> None:
@@ -106,12 +125,14 @@ class TopologicalSorter:
             msg = "'n' must be an integer greater or equal than 1."
             raise ValueError(msg)
 
-        ready_nodes = {v for v, d in self.dag.in_degree() if d == 0} - self._nodes_out
+        ready_nodes = {
+            v for v, d in self.dag.in_degree() if d == 0
+        } - self._nodes_processing
         prioritized_nodes = sorted(
             ready_nodes, key=lambda x: self.priorities.get(x, 0)
         )[-n:]
 
-        self._nodes_out.update(prioritized_nodes)
+        self._nodes_processing.update(prioritized_nodes)
 
         return prioritized_nodes
 
@@ -121,8 +142,9 @@ class TopologicalSorter:
 
     def done(self, *nodes: str) -> None:
         """Mark some tasks as done."""
-        self._nodes_out = self._nodes_out - set(nodes)
+        self._nodes_processing = self._nodes_processing - set(nodes)
         self.dag.remove_nodes_from(nodes)
+        self._nodes_done.update(nodes)
 
 
 def _extract_priorities_from_tasks(tasks: list[PTask]) -> dict[str, int]:

@@ -16,6 +16,7 @@ from pytask import Task
 
 @pytest.fixture()
 def dag():
+    """Create a dag with five nodes in a line."""
     dag = nx.DiGraph()
     for i in range(4):
         dag.add_node(f".::{i}", task=Task(base_name=str(i), path=Path(), function=None))
@@ -154,3 +155,21 @@ def test_ask_for_invalid_number_of_ready_tasks(dag):
     scheduler = TopologicalSorter.from_dag(dag)
     with pytest.raises(ValueError, match="'n' must be"):
         scheduler.get_ready(0)
+
+
+@pytest.mark.unit()
+def test_instantiate_sorter_from_other_sorter(dag):
+    scheduler = TopologicalSorter.from_dag(dag)
+    for _ in range(2):
+        task_name = scheduler.get_ready()[0]
+        scheduler.done(task_name)
+    assert scheduler._nodes_done == {".::0", ".::1"}
+
+    dag.add_node(".::5", task=Task(base_name="5", path=Path(), function=None))
+    dag.add_edge(".::4", ".::5")
+
+    new_scheduler = TopologicalSorter.from_dag_and_sorter(dag, scheduler)
+    while new_scheduler.is_active():
+        task_name = new_scheduler.get_ready()[0]
+        new_scheduler.done(task_name)
+    assert new_scheduler._nodes_done == {".::0", ".::1", ".::2", ".::3", ".::4", ".::5"}
