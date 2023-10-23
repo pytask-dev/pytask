@@ -330,7 +330,7 @@ def pytask_collect_node(  # noqa: C901
     node = node_info.value
 
     if isinstance(node, PDelayedNode):
-        if not node_info.is_delayed:
+        if not node_info.allow_delayed:
             msg = (
                 "Only a delayed task can depend on a delayed node. The delayed "
                 f"dependency is {node!r}."

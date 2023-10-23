@@ -156,7 +156,7 @@ def test_collect_files_w_custom_file_name_pattern(
             Path(),
             NodeInfo(
                 arg_name="",
-                is_delayed=False,
+                allow_delayed=False,
                 path=(),
                 value=Path.cwd() / "text.txt",
                 task_path=Path.cwd() / "task_example.py",
@@ -170,7 +170,7 @@ def test_collect_files_w_custom_file_name_pattern(
             Path(),
             NodeInfo(
                 arg_name="",
-                is_delayed=False,
+                allow_delayed=False,
                 path=(),
                 value=1,
                 task_path=Path.cwd() / "task_example.py",

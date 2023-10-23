@@ -35,7 +35,7 @@ class CollectionMetadata:
 
 class NodeInfo(NamedTuple):
     arg_name: str
-    is_delayed: bool
+    allow_delayed: bool
     path: tuple[str | int, ...]
     task_path: Path | None
     task_name: str

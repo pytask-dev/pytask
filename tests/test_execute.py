@@ -836,7 +836,7 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_task_with_delayed_path_node(tmp_path):
+def test_task_that_produces_delayed_path_node(tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DelayedPathNode
@@ -856,3 +856,34 @@ def test_task_with_delayed_path_node(tmp_path):
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
     assert len(session.tasks[0].produces["return"]) == 2
+
+
+@pytest.mark.end_to_end()
+def test_task_that_depends_on_delayed_path_node(tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DelayedPathNode
+    from pathlib import Path
+    from pytask import task
+
+    def task_produces(
+        path = Path(__file__).parent
+    ) -> Annotated[None, DelayedPathNode(pattern="*.txt")]:
+        path.joinpath("a.txt").write_text("Hello, ")
+        path.joinpath("b.txt").write_text("World!")
+
+    @task(is_ready=lambda x: Path(__file__).parent.joinpath("a.txt").exists())
+    def task_depends(
+        paths = DelayedPathNode(pattern="[ab].txt")
+    ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
+        path_dict = {path.stem: path for path in paths}
+        return path_dict["a"].read_text() + path_dict["b"].read_text()
+        """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 2
+    assert len(session.tasks[0].produces["return"]) == 2
+    assert len(session.tasks[1].depends_on["paths"]) == 2
