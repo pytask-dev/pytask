@@ -231,6 +231,7 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
             tmp_path,
             NodeInfo(
                 arg_name="",
+                allow_delayed=False,
                 path=(),
                 value=collected_node,
                 task_path=tmp_path / "task_example.py",
@@ -563,3 +564,20 @@ def test_task_missing_is_ready_cannot_depend_on_delayed_node(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.COLLECTION_FAILED
     assert "Only a delayed task can depend on a delayed dependency." in result.output
+
+
+@pytest.mark.end_to_end()
+def test_gracefully_fail_with_failing_is_ready_condition(runner, tmp_path):
+    source = """
+    from pytask import task
+
+    def raise_(): raise Exception("ERROR")
+
+    @task(is_ready=raise_)
+    def task_example(): ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "The function for the 'is_ready' condition failed." in result.output

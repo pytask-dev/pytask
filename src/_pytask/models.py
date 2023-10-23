@@ -40,3 +40,9 @@ class NodeInfo(NamedTuple):
     task_path: Path | None
     task_name: str
     value: Any
+
+
+class DelayedTask(NamedTuple):
+    path: Path | None
+    name: str
+    obj: Any

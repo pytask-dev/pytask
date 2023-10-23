@@ -26,6 +26,7 @@ from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
 from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import has_mark
+from _pytask.models import DelayedTask
 from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
@@ -249,6 +250,17 @@ def pytask_collect_task(
 
     """
     if (name.startswith("task_") or has_mark(obj, "task")) and callable(obj):
+        if hasattr(obj, "pytask_meta") and obj.pytask_meta.is_ready is not None:
+            try:
+                is_ready = obj.pytask_meta.is_ready()
+            except Exception as e:  # noqa: BLE001
+                msg = "The function for the 'is_ready' condition failed."
+                raise ValueError(msg) from e
+
+            if not is_ready:
+                session.delayed_tasks.append(DelayedTask(path=path, name=name, obj=obj))
+                return None
+
         path_nodes = Path.cwd() if path is None else path.parent
         dependencies = parse_dependencies_from_task_function(
             session, path, name, path_nodes, obj
