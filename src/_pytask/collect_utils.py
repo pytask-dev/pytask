@@ -40,8 +40,8 @@ if TYPE_CHECKING:
 __all__ = [
     "depends_on",
     "parse_dependencies_from_task_function",
-    "parse_products_from_task_function",
     "parse_nodes",
+    "parse_products_from_task_function",
     "produces",
 ]
 

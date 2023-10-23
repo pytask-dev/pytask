@@ -10,10 +10,10 @@ from _pytask.tree_util import tree_structure
 
 
 __all__ = [
+    "PyTree",
     "tree_flatten_with_path",
     "tree_leaves",
     "tree_map",
     "tree_map_with_path",
     "tree_structure",
-    "PyTree",
 ]
