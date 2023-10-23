@@ -21,7 +21,6 @@ if TYPE_CHECKING:
 __all__ = [
     "format_exception_without_traceback",
     "remove_internal_traceback_frames_from_exc_info",
-    "remove_internal_traceback_frames_from_exception",
     "remove_traceback_from_exc_info",
     "render_exc_info",
 ]
@@ -65,13 +64,18 @@ def remove_traceback_from_exc_info(
     return (exc_info[0], exc_info[1], None)  # type: ignore[return-value]
 
 
-def remove_internal_traceback_frames_from_exception(exc: Exception) -> Exception:
+def _remove_internal_traceback_frames_from_exception(
+    exc: BaseException | None,
+) -> BaseException | None:
     """Remove internal traceback frames from exception.
 
     The conversion between exceptions and ``sys.exc_info`` is explained here:
     https://stackoverflow.com/a/59041463/7523785.
 
     """
+    if exc is None:
+        return exc
+
     _, _, tb = remove_internal_traceback_frames_from_exc_info(
         (type(exc), exc, exc.__traceback__)
     )
@@ -88,6 +92,11 @@ def remove_internal_traceback_frames_from_exc_info(
     occurrence downwards.
 
     """
+    if isinstance(exc_info[1], Exception):
+        exc_info[1].__cause__ = _remove_internal_traceback_frames_from_exception(
+            exc_info[1].__cause__
+        )
+
     if isinstance(exc_info[2], TracebackType):
         filtered_traceback = _filter_internal_traceback_frames(exc_info)
         exc_info = (*exc_info[:2], filtered_traceback)
