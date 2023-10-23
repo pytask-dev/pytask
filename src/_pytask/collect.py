@@ -249,7 +249,8 @@ def pytask_collect_task(
     detect built-ins which is not possible anyway.
 
     """
-    if (name.startswith("task_") or has_mark(obj, "task")) and callable(obj):
+    if (name.startswith("task_") or has_mark(obj, "task")) and is_task_function(obj):
+        # Collect delayed tasks separately and exit.
         if hasattr(obj, "pytask_meta") and obj.pytask_meta.is_ready is not None:
             try:
                 is_ready = obj.pytask_meta.is_ready()

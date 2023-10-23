@@ -14,13 +14,13 @@ from optree import tree_structure as _optree_tree_structure
 
 
 __all__ = [
+    "PyTree",
+    "TREE_UTIL_LIB_DIRECTORY",
     "tree_flatten_with_path",
     "tree_leaves",
     "tree_map",
     "tree_map_with_path",
     "tree_structure",
-    "PyTree",
-    "TREE_UTIL_LIB_DIRECTORY",
 ]
 
 TREE_UTIL_LIB_DIRECTORY = Path(optree.__file__).parent

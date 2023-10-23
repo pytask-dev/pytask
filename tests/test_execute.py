@@ -832,6 +832,8 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
     assert result.exit_code == ExitCode.FAILED
     assert "task_example.py::task_example" in result.output
     assert "Exception while loading node" in result.output
+
+    # Test that traceback is hidden.
     assert "_pytask/execute.py" not in result.output
 
 
