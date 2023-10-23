@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from typing import Any
+from typing import Callable
 from typing import NamedTuple
 from typing import TYPE_CHECKING
 
@@ -20,6 +21,8 @@ class CollectionMetadata:
 
     id_: str | None = None
     """The id for a single parametrization."""
+    is_ready: Callable[..., bool] | None = None
+    """A callable that indicates whether a delayed task is ready."""
     kwargs: dict[str, Any] = field(factory=dict)
     """Contains kwargs which are necessary for the task function on execution."""
     markers: list[Mark] = field(factory=list)
@@ -32,7 +35,8 @@ class CollectionMetadata:
 
 class NodeInfo(NamedTuple):
     arg_name: str
+    is_delayed: bool
     path: tuple[str | int, ...]
-    value: Any
     task_path: Path | None
     task_name: str
+    value: Any

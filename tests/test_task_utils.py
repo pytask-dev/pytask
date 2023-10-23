@@ -7,6 +7,8 @@ import pytest
 from _pytask.task_utils import _arg_value_to_id_component
 from _pytask.task_utils import _parse_task_kwargs
 from attrs import define
+from pytask import Mark
+from pytask import task
 
 
 @pytest.mark.unit()
@@ -56,3 +58,17 @@ def test_parse_task_kwargs(kwargs, expectation, expected):
     with expectation:
         result = _parse_task_kwargs(kwargs)
         assert result == expected
+
+
+@pytest.mark.integration()
+def test_default_values_of_pytask_meta():
+    @task()
+    def task_example():
+        ...
+
+    assert task_example.pytask_meta.id_ is None
+    assert task_example.pytask_meta.is_ready is None
+    assert task_example.pytask_meta.kwargs == {}
+    assert task_example.pytask_meta.markers == [Mark("task", (), {})]
+    assert task_example.pytask_meta.name == "task_example"
+    assert task_example.pytask_meta.produces is None

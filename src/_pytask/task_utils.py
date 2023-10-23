@@ -40,6 +40,7 @@ def task(
     name: str | None = None,
     *,
     id: str | None = None,  # noqa: A002
+    is_ready: Callable[..., bool] | None = None,
     kwargs: dict[Any, Any] | None = None,
     produces: PyTree[Any] | None = None,
 ) -> Callable[..., Callable[..., Any]]:
@@ -60,6 +61,9 @@ def task(
         id will be generated. See
         :doc:`this tutorial <../tutorials/repeating_tasks_with_different_inputs>` for
         more information.
+    is_ready
+        A callable that indicates when a delayed task is ready. The value is ``None``
+        for a normal task.
     kwargs
         A dictionary containing keyword arguments which are passed to the task when it
         is executed.
@@ -77,7 +81,7 @@ def task(
         from typing_extensions import Annotated
         from pytask import task
 
-        @task
+        @task()
         def create_text_file() -> Annotated[str, Path("file.txt")]:
             return "Hello, World!"
 
@@ -104,17 +108,19 @@ def task(
         parsed_name = name if isinstance(name, str) else func.__name__
 
         if hasattr(unwrapped, "pytask_meta"):
-            unwrapped.pytask_meta.name = parsed_name
+            unwrapped.pytask_meta.id_ = id
+            unwrapped.pytask_meta.is_ready = is_ready
             unwrapped.pytask_meta.kwargs = parsed_kwargs
             unwrapped.pytask_meta.markers.append(Mark("task", (), {}))
-            unwrapped.pytask_meta.id_ = id
+            unwrapped.pytask_meta.name = parsed_name
             unwrapped.pytask_meta.produces = produces
         else:
             unwrapped.pytask_meta = CollectionMetadata(
-                name=parsed_name,
+                id_=id,
+                is_ready=is_ready,
                 kwargs=parsed_kwargs,
                 markers=[Mark("task", (), {})],
-                id_=id,
+                name=parsed_name,
                 produces=produces,
             )
 

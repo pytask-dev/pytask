@@ -93,6 +93,7 @@ def parse_nodes(  # noqa: PLR0913
             task_name,
             NodeInfo(
                 arg_name=arg_name,
+                is_delayed=False,
                 path=(),
                 value=x,
                 task_path=task_path,
@@ -256,6 +257,9 @@ def parse_dependencies_from_task_function(
         dependencies["depends_on"] = nodes
 
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
+    is_delayed = (
+        obj.pytask_meta.is_ready is not None if hasattr(obj, "pytask_meta") else False
+    )
     signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
     kwargs = {**signature_defaults, **task_kwargs}
     kwargs.pop("produces", None)
@@ -270,6 +274,7 @@ def parse_dependencies_from_task_function(
                 task_name,
                 NodeInfo(
                     arg_name="depends_on",
+                    is_delayed=is_delayed,
                     path=(),
                     value=x,
                     task_path=task_path,
@@ -314,6 +319,7 @@ def parse_dependencies_from_task_function(
                 task_name,
                 NodeInfo(
                     arg_name=parameter_name,  # noqa: B023
+                    is_delayed=is_delayed,
                     path=p,
                     value=x,
                     task_path=task_path,
@@ -332,6 +338,7 @@ def parse_dependencies_from_task_function(
             node_name = create_name_of_python_node(
                 NodeInfo(
                     arg_name=parameter_name,
+                    is_delayed=is_delayed,
                     path=(),
                     value=value,
                     task_path=task_path,
@@ -421,6 +428,7 @@ def parse_products_from_task_function(
                 task_name,
                 NodeInfo(
                     arg_name="produces",
+                    is_delayed=False,
                     path=p,
                     value=x,
                     task_path=task_path,
@@ -464,6 +472,7 @@ def parse_products_from_task_function(
                     task_name,
                     NodeInfo(
                         arg_name=parameter_name,  # noqa: B023
+                        is_delayed=False,
                         path=p,
                         value=x,
                         task_path=task_path,
@@ -484,6 +493,7 @@ def parse_products_from_task_function(
                 task_name,
                 NodeInfo(
                     arg_name="return",
+                    is_delayed=False,
                     path=p,
                     value=x,
                     task_path=task_path,
@@ -505,6 +515,7 @@ def parse_products_from_task_function(
                 task_name,
                 NodeInfo(
                     arg_name="return",
+                    is_delayed=False,
                     path=p,
                     value=x,
                     task_path=task_path,

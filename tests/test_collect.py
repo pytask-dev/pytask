@@ -156,6 +156,7 @@ def test_collect_files_w_custom_file_name_pattern(
             Path(),
             NodeInfo(
                 arg_name="",
+                is_delayed=False,
                 path=(),
                 value=Path.cwd() / "text.txt",
                 task_path=Path.cwd() / "task_example.py",
@@ -169,6 +170,7 @@ def test_collect_files_w_custom_file_name_pattern(
             Path(),
             NodeInfo(
                 arg_name="",
+                is_delayed=False,
                 path=(),
                 value=1,
                 task_path=Path.cwd() / "task_example.py",
@@ -550,5 +552,14 @@ def test_relative_path_of_path_node(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_task_missing_is_ready_cannot_depend_on_delayed_node():
-    raise NotImplementedError
+def test_task_missing_is_ready_cannot_depend_on_delayed_node(runner, tmp_path):
+    source = """
+    from pytask import DelayedPathNode
+
+    def task_example(a = DelayedPathNode(pattern="*.txt")): ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Only a delayed task can depend on a delayed dependency." in result.output
