@@ -246,7 +246,7 @@ def pytask_collect_task(
     detect built-ins which is not possible anyway.
 
     """
-    if (name.startswith("task_") or has_mark(obj, "task")) and callable(obj):
+    if (name.startswith("task_") or has_mark(obj, "task")) and is_task_function(obj):
         path_nodes = Path.cwd() if path is None else path.parent
         dependencies = parse_dependencies_from_task_function(
             session, path, name, path_nodes, obj

@@ -39,12 +39,12 @@ if TYPE_CHECKING:
 
 
 __all__ = [
-    "create_summary_panel",
-    "create_url_style_for_task",
-    "create_url_style_for_path",
     "console",
-    "format_task_name",
+    "create_summary_panel",
+    "create_url_style_for_path",
+    "create_url_style_for_task",
     "format_strings_as_flat_tree",
+    "format_task_name",
     "get_file",
     "is_jupyter",
     "render_to_string",
