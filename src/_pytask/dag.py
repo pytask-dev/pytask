@@ -33,7 +33,6 @@ from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import PythonNode
 from _pytask.report import DagReport
 from _pytask.shared import reduce_names_of_multiple_nodes
-from _pytask.traceback import remove_internal_traceback_frames_from_exception
 from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_map
 from rich.text import Text
@@ -242,7 +241,6 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph, paths: Sequence[Path]) -
                 try:
                     node_exists = dag.nodes[node]["node"].state()
                 except Exception as e:  # noqa: BLE001
-                    e = remove_internal_traceback_frames_from_exception(e)
                     msg = _format_exception_from_failed_node_state(node, dag)
                     raise ResolvingDependenciesError(msg) from e
                 if not node_exists:
