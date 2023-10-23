@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 
 
 __all__ = [
-    "_remove_internal_traceback_frames_from_exception",
     "format_exception_without_traceback",
     "remove_internal_traceback_frames_from_exc_info",
     "remove_traceback_from_exc_info",
