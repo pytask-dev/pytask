@@ -833,3 +833,26 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
     assert "task_example.py::task_example" in result.output
     assert "Exception while loading node" in result.output
     assert "_pytask/execute.py" not in result.output
+
+
+@pytest.mark.end_to_end()
+def test_task_with_delayed_path_node(tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DelayedPathNode
+    from pathlib import Path
+
+
+    def task_example(
+        path = Path(__file__).parent
+    ) -> Annotated[None, DelayedPathNode(pattern="*.txt")]:
+        path.joinpath("a.txt").touch()
+        path.joinpath("b.txt").touch()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 1
+    assert len(session.tasks[0].produces["return"]) == 2

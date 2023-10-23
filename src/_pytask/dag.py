@@ -26,6 +26,7 @@ from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import MetaNode
+from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
@@ -90,6 +91,9 @@ def pytask_dag_create_dag(tasks: list[PTask]) -> nx.DiGraph:
 
     def _add_product(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
         """Add a product to the DAG."""
+        if isinstance(node, PDelayedNode):
+            return
+
         dag.add_node(node.name, node=node)
         dag.add_edge(task.name, node.name)
 

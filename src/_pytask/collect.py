@@ -29,6 +29,7 @@ from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
+from _pytask.nodes import DelayedPathNode
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
@@ -329,6 +330,11 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
         node.name = create_name_of_python_node(node_info)
         return node
 
+    if isinstance(node, DelayedPathNode):
+        if node.root_dir is None:
+            node.root_dir = path
+        node.name = node.root_dir.joinpath(node.pattern).as_posix()
+
     if isinstance(node, PPathNode) and not node.path.is_absolute():
         node.path = path.joinpath(node.path)
 
@@ -340,6 +346,8 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
         )
 
     if isinstance(node, PNode):
+        if not node.name:
+            node.name = create_name_of_python_node(node_info)
         return node
 
     if isinstance(node, Path):

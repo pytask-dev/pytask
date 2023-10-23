@@ -38,10 +38,12 @@ from _pytask.mark_utils import set_marks
 from _pytask.models import CollectionMetadata
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import MetaNode
+from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
+from _pytask.nodes import DelayedPathNode
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
@@ -87,6 +89,7 @@ __all__ = [
     "ConfigurationError",
     "DagReport",
     "DatabaseSession",
+    "DelayedPathNode",
     "EnumChoice",
     "ExecutionError",
     "ExecutionReport",
@@ -100,6 +103,7 @@ __all__ = [
     "NodeInfo",
     "NodeNotCollectedError",
     "NodeNotFoundError",
+    "PDelayedNode",
     "PathNode",
     "Persisted",
     "PNode",

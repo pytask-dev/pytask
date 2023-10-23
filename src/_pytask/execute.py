@@ -24,6 +24,7 @@ from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.mark_utils import has_mark
+from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
@@ -195,7 +196,12 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
 
 @hookimpl
 def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
-    """Check if :class:`_pytask.nodes.PathNode` are produced by a task."""
+    """Check if nodes are produced by a task."""
+    # Replace delayed nodes with their actually resolved nodes.
+    task.produces = tree_map(  # type: ignore[assignment]
+        lambda x: x.collect() if isinstance(x, PDelayedNode) else x, task.produces
+    )
+
     missing_nodes = []
     for product in session.dag.successors(task.name):
         node = session.dag.nodes[product]["node"]

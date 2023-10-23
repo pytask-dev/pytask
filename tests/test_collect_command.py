@@ -633,3 +633,56 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
     assert "return::1-0" in output
     assert "return::1-1" in output
     assert "return::2" in output
+
+
+@pytest.mark.end_to_end()
+def test_collect_task_with_delayed_path_node(runner, tmp_path):
+    source = """
+    from pytask import DelayedPathNode
+    from typing_extensions import Annotated
+
+    def task_example() -> Annotated[None, DelayedPathNode(pattern="*.txt")]: ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    captured = result.output.replace("\n", "").replace(" ", "")
+    assert "<Module" in captured
+    assert "task_module.py>" in captured
+    assert "<Function" in captured
+    assert "task_example>" in captured
+
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
+
+    assert result.exit_code == ExitCode.OK
+    captured = result.output.replace("\n", "").replace(" ", "")
+    assert "<Module" in captured
+    assert "task_module.py>" in captured
+    assert "<Function" in captured
+    assert "task_example>" in captured
+    assert "<Product" in captured
+    assert "/*.txt>" in captured
+
+
+@pytest.mark.end_to_end()
+def test_collect_custom_node_receives_default_name(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from attrs import define
+
+    @define
+    class CustomNode:
+        name: str = ""
+
+        def state(): return None
+
+
+    def task_example() -> Annotated[None, CustomNode()]: ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    output = result.output.replace(" ", "").replace("\n", "")
+    assert "task_example::return" in output

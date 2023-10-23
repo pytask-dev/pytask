@@ -4,7 +4,7 @@ from __future__ import annotations
 import functools
 import hashlib
 import inspect
-from pathlib import Path  # noqa: TCH003
+from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-__all__ = ["PathNode", "PythonNode", "Task", "TaskWithoutPath"]
+__all__ = ["DelayedPathNode", "PathNode", "PythonNode", "Task", "TaskWithoutPath"]
 
 
 @define(kw_only=True)
@@ -245,3 +245,46 @@ class PythonNode(PNode):
                 return str(hashlib.sha256(value).hexdigest())
             return str(hash(value))
         return "0"
+
+
+@define(kw_only=True)
+class DelayedPathNode(PNode):
+    """A class for delayed :class:`PathNode`s.
+
+    Attributes
+    ----------
+    root_dir
+        The pattern is interpreted relative to the path given by ``root_dir``. If
+        ``root_dir = None``, it is the directory where the path is defined.
+    pattern
+        Patterns are the same as for :mod:`fnmatch`, with the addition of ``**`` which
+        means "this directory and all subdirectories, recursively".
+    name
+        The name of the node.
+
+    .. warning::
+
+        The node inherits from PNode although it does not provide a state, load, and
+        save method.
+
+    """
+
+    root_dir: Path | None = None
+    pattern: str
+    name: str = ""
+
+    def load(self) -> None:
+        raise NotImplementedError
+
+    def save(self, value: Any) -> None:
+        raise NotImplementedError
+
+    def state(self) -> None:
+        return None
+
+    def collect(self) -> list[Path]:
+        """Collect paths defined by the pattern."""
+        if not isinstance(self.root_dir, Path):
+            msg = f"'root_dir' should be a 'pathlib.Path', but it is {self.root_dir!r}"
+            raise TypeError(msg)
+        return list(self.root_dir.glob(self.pattern))

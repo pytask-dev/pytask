@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-__all__ = ["MetaNode", "PNode", "PPathNode", "PTask", "PTaskWithPath"]
+__all__ = ["MetaNode", "PDelayedNode", "PNode", "PPathNode", "PTask", "PTaskWithPath"]
 
 
 @runtime_checkable
@@ -85,3 +85,17 @@ class PTaskWithPath(PTask, Protocol):
     """
 
     path: Path
+
+
+@runtime_checkable
+class PDelayedNode(Protocol):
+    """A protocol for delayed nodes.
+
+    Delayed nodes are nodes that define how nodes look like instead of the actual nodes.
+    Situations like this can happen if tasks produce an unknown amount of nodes, but the
+    style is known.
+
+    """
+
+    def collect(self) -> list[Any]:
+        """Collect the objects that are defined by the fuzzy node."""
