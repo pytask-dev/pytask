@@ -204,7 +204,7 @@ def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:
 
 def _format_cycles(cycles: list[tuple[str, ...]]) -> str:
     """Format cycles as a paths connected by arrows."""
-    chain = [x for i, x in enumerate(itertools.chain(*cycles)) if i % 2 == 0]
+    chain = [x for i, x in enumerate(itertools.chain.from_iterable(cycles)) if i % 2 == 0]
     chain += [cycles[-1][1]]
 
     lines = chain[:1]
