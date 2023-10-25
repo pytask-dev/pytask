@@ -16,6 +16,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`457` refactors everything around formatting node names.
 - {pull}`459` adds a pre-commit hook to sort `__all__`.
 - {pull}`460` simplifies removing internal tracebacks from exceptions with a cause.
+- {pull}`461` raise error when a task function is not defined inside the loop body.
 
 ## 0.4.1 - 2023-10-11
 

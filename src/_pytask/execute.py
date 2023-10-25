@@ -205,7 +205,8 @@ def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
             format_node_name(i, session.config["paths"]).plain for i in missing_nodes
         ]
         formatted = format_strings_as_flat_tree(
-            paths, "The task did not produce the following files:\n", ""
+            paths,
+            "The task did not produce the following files:\n",
         )
         raise NodeNotFoundError(formatted)
 
