@@ -580,7 +580,7 @@ def test_return_with_tuple_and_task_decorator(runner, tmp_path):
 def test_error_when_function_is_defined_outside_loop_body(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing import Annotated
+    from typing_extensions import Annotated
     from pytask import task
     from pytask import Product
 
@@ -602,7 +602,7 @@ def test_error_when_function_is_defined_outside_loop_body(runner, tmp_path):
 def test_error_when_function_is_defined_outside_loop_body_with_id(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing import Annotated
+    from typing_extensions import Annotated
     from pytask import task
     from pytask import Product
 
