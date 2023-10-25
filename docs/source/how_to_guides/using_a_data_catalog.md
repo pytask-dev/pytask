@@ -88,7 +88,7 @@ WindowsPath('C:\Users\pytask-dev\git\my_project\output.txt')
 text whereas {class}`pathlib.Path`s become {class}`~pytask.PathNode`s and return their
 path.
 
-:::{info}
+:::{note}
 Whether the module `task_data_catalog.py` is importable depends on whether it is on your
 `PYTHONPATH`, a variable that defines where modules can be found. It is easy, if you
 develop your workflow as a Python package as explained in the tutorials. Then, you can
