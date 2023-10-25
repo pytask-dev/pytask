@@ -2,12 +2,17 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from typing import Any
 
 import click
-import tomli
 from _pytask.shared import parse_paths
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 
 def set_defaults_from_config(
@@ -85,7 +90,7 @@ def _find_project_root_and_config(paths: list[Path] | None) -> tuple[Path, Path 
         if path.exists():
             try:
                 read_config(path)
-            except (tomli.TOMLDecodeError, OSError) as e:
+            except (tomllib.TOMLDecodeError, OSError) as e:
                 raise click.FileError(
                     filename=str(path), hint=f"Error reading {path}:\n{e}"
                 ) from None
@@ -114,7 +119,7 @@ def read_config(
 
     Raises
     ------
-    tomli.TOMLDecodeError
+    tomllib.TOMLDecodeError
         Raised if ``*.toml`` could not be read.
     KeyError
         Raised if the specified sections do not exist.
@@ -122,7 +127,7 @@ def read_config(
     """
     sections_ = sections.split(".")
 
-    config = tomli.loads(path.read_text(encoding="utf-8"))
+    config = tomllib.loads(path.read_text(encoding="utf-8"))
 
     for section in sections_:
         config = config[section]
