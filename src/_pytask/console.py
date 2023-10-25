@@ -181,7 +181,9 @@ def format_node_name(node: PNode, paths: Sequence[Path] = ()) -> Text:
     return Text(node.name)
 
 
-def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -> str:
+def format_strings_as_flat_tree(
+    strings: Iterable[str], title: str = "", icon: str = ""
+) -> str:
     """Format list of strings as flat tree."""
     tree = Tree(title)
     for name in strings:
