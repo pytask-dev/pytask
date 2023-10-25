@@ -19,14 +19,14 @@ from _pytask.nodes import PickleNode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from attrs import define
-from attrs import Factory
+from attrs import field
 
 
 __all__ = ["DataCatalog"]
 
 
-def _find_directory(path: Path) -> Path:
-    """Find directory where data catalog can store its data."""
+def _find_root_path(path: Path) -> Path:
+    """Find path where data catalog can store its data."""
     root_path, _ = find_project_root_and_config([path])
     return root_path.joinpath(".pytask", "data_catalogs")
 
@@ -54,36 +54,40 @@ class DataCatalog:
     Parameters
     ----------
     default_node
-        A default node for loading and saving values.
-    directory
-        A directory where automatically created files are stored.
+        A default node for loading and saving values. By default,
+        :class:`~pytask.PickleNode` is used to serialize any Python object with the
+        :mod:`pickle` module.
     entries
         A collection of entries in the catalog. Entries can be :class:`~pytask.PNode` or
         a :class:`DataCatalog` itself for nesting catalogs.
     name
         The name of the data catalog. Use it when you are working with multiple data
         catalogs that store data under the same keys.
+    path
+        A path where automatically created files are stored. By default, it will be
+        ``.pytask/data_catalogs/default``.
 
     """
 
     default_node: type[PNode] = PickleNode
-    directory: Path | None = None
-    entries: dict[str, DataCatalog | PNode] = Factory(dict)
+    entries: dict[str, PNode] = field(factory=dict)
     name: str = "default"
-    _session: Session = Factory(_create_default_session)
-    _instance_path: Path = Factory(_get_parent_path_of_data_catalog_module)
+    path: Path | None = None
+    _session: Session = field(factory=_create_default_session)
+    _instance_path: Path = field(factory=_get_parent_path_of_data_catalog_module)
 
     def __attrs_post_init__(self) -> None:
-        if not self.directory:
-            root = _find_directory(self._instance_path)
-            self.directory = root / self.name
-            self.directory.mkdir(parents=True, exist_ok=True)
+        if not self.path:
+            root = _find_root_path(self._instance_path)
+            self.path = root / self.name
+
+        self.path.mkdir(parents=True, exist_ok=True)
 
         self._initialize()
 
     def _initialize(self) -> None:
         """Initialize the data catalog with persisted nodes from previous runs."""
-        for path in self.directory.glob("*-node.pkl"):  # type: ignore[union-attr]
+        for path in self.path.glob("*-node.pkl"):  # type: ignore[union-attr]
             node = pickle.loads(path.read_bytes())  # noqa: S301
             self.entries[node.name] = node
 
@@ -95,7 +99,7 @@ class DataCatalog:
 
     def add(self, name: str, node: DataCatalog | PNode | None = None) -> None:
         """Add an entry to the data catalog."""
-        assert isinstance(self.directory, Path)
+        assert isinstance(self.path, Path)
 
         if not isinstance(name, str):
             msg = "The name of a catalog entry must be a string."
@@ -105,11 +109,11 @@ class DataCatalog:
             filename = str(hashlib.sha256(name.encode()).hexdigest())
             if isinstance(self.default_node, PPathNode):
                 self.entries[name] = self.default_node(
-                    name=name, path=self.directory / f"{filename}.pkl"
+                    name=name, path=self.path / f"{filename}.pkl"
                 )
             else:
                 self.entries[name] = self.default_node(name=name)  # type: ignore[call-arg]
-            self.directory.joinpath(f"{filename}-node.pkl").write_bytes(
+            self.path.joinpath(f"{filename}-node.pkl").write_bytes(
                 pickle.dumps(self.entries[name])
             )
         elif isinstance(node, PNode):

@@ -88,6 +88,13 @@ WindowsPath('C:\Users\pytask-dev\git\my_project\output.txt')
 text whereas {class}`pathlib.Path`s become {class}`~pytask.PathNode`s and return their
 path.
 
+:::{info}
+Whether the module `task_data_catalog.py` is importable depends on whether it is on your
+`PYTHONPATH`, a variable that defines where modules can be found. It is easy, if you
+develop your workflow as a Python package as explained in the tutorials. Then, you can
+import the data catalog with, for example, `from myproject.config import data_catalog`.
+:::
+
 ## Changing the default node
 
 The data catalog uses the {class}`~pytask.PickleNode` by default to serialize any kind
@@ -104,3 +111,47 @@ data_catalog = DataCatalog(default_node=PythonNode)
 ```
 
 Or, learn to write your own node by reading {doc}`writing_custom_nodes`.
+
+## Changing the name and the default path
+
+By default, the data catalogs store their data in a directory `.pytask/data_catalogs`.
+If you use a `pyproject.toml` with a `[tool.pytask.ini_options]` section, then the
+`.pytask` folder is in the same folder as the configuration file.
+
+The default name for a catalog is `"default"` and so you will find its data in
+`.pytask/data_catalogs/default`. If you assign a different name like
+`"data_management"`, you will find the data in `.pytask/data_catalogs/data_management`.
+
+```python
+data_catalog = DataCatalog(name="data_management")
+```
+
+You can also change the path where the data catalogs will be stored by changing the
+`path` attribute. Here, we store the data catalog's data next to the module where the
+data catalog is defined in `.data`.
+
+```python
+from pathlib import Path
+
+
+data_catalog = DataCatalog(path=Path(__file__).parent / ".data")
+```
+
+## Multiple data catalogs
+
+You can use multiple data catalogs when you want to separate your datasets across
+multiple catalogs or when you want to use the same names multiple times (although it is
+not recommended!).
+
+Make sure you assign different names to the data catalogs so that their data is stored
+in different directories.
+
+```python
+# Stored in .pytask/data_catalog/a
+data_catalog = DataCatalog(name="a")
+
+# Stored in .pytask/data_catalog/b
+data_catalog = DataCatalog(name="b")
+```
+
+Or, use different paths as explained above.

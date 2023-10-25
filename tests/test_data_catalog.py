@@ -79,6 +79,10 @@ def test_use_data_catalog_in_workflow(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("output.txt").read_text() == "Hello, World!"
+    assert (
+        len(list(tmp_path.joinpath(".pytask", "data_catalogs", "default").iterdir()))
+        == 2
+    )
 
 
 @pytest.mark.end_to_end()
@@ -143,3 +147,43 @@ def test_use_data_catalog_in_terminal(runner, tmp_path):
     assert "new_content" in rest
     assert "Hello, World!" in rest
     _flush(child)
+
+
+@pytest.mark.end_to_end()
+def test_use_data_catalog_with_different_name(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import DataCatalog
+
+    data_catalog = DataCatalog(name="blob")
+
+    def task_add_content() -> Annotated[str, data_catalog["new_content"]]:
+        return "Hello, World!"
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert (
+        len(list(tmp_path.joinpath(".pytask", "data_catalogs", "blob").iterdir())) == 2
+    )
+
+
+@pytest.mark.end_to_end()
+def test_use_data_catalog_with_different_path(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import DataCatalog
+
+    data_catalog = DataCatalog(name="blob", path=Path(__file__).parent / ".data")
+
+    def task_add_content() -> Annotated[str, data_catalog["new_content"]]:
+        return "Hello, World!"
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert len(list(tmp_path.joinpath(".data").iterdir())) == 2
