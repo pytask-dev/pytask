@@ -563,7 +563,7 @@ def test_task_missing_is_ready_cannot_depend_on_delayed_node(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.COLLECTION_FAILED
-    assert "Only a delayed task can depend on a delayed dependency." in result.output
+    assert "Only a delayed task can depend on a delayed node." in result.output
 
 
 @pytest.mark.end_to_end()

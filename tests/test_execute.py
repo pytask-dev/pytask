@@ -874,7 +874,7 @@ def test_task_that_depends_on_delayed_path_node(tmp_path):
         path.joinpath("a.txt").write_text("Hello, ")
         path.joinpath("b.txt").write_text("World!")
 
-    @task(is_ready=lambda x: Path(__file__).parent.joinpath("a.txt").exists())
+    @task(is_ready=lambda *x: Path(__file__).parent.joinpath("a.txt").exists())
     def task_depends(
         paths = DelayedPathNode(pattern="[ab].txt")
     ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:

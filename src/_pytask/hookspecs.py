@@ -391,6 +391,11 @@ def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> No
 
 
 @hookspec
+def pytask_execute_collect_delayed_tasks(session: Session) -> list[PTask]:
+    """Collect delayed tasks."""
+
+
+@hookspec
 def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> None:
     """Log the footer of the execution report."""
 

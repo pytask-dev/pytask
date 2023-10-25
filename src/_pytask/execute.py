@@ -91,6 +91,8 @@ def pytask_execute_build(session: Session) -> bool | None:
             session.execution_reports.append(report)
             session.scheduler.done(task_name)
 
+            session.hook.pytask_execute_collect_delayed_tasks(session=session)
+
             if session.should_stop:
                 return True
         return True
