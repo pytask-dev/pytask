@@ -213,6 +213,10 @@ def test_error_when_node_state_throws_error(runner, tmp_path):
     assert result.exit_code == ExitCode.DAG_FAILED
     assert "task_example" in result.output
 
+    # Assert that the traceback is hidden.
+    assert "_pytask/nodes.py" not in result.output
+    assert "in state" not in result.output
+
 
 def test_python_nodes_are_unique(tmp_path):
     tmp_path.joinpath("a").mkdir()

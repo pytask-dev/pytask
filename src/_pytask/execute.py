@@ -33,7 +33,6 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
 from _pytask.report import ExecutionReport
 from _pytask.traceback import format_exception_without_traceback
-from _pytask.traceback import remove_internal_traceback_frames_from_exception
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_leaves
@@ -149,7 +148,6 @@ def _safe_load(node: PNode, task: PTask) -> Any:
     try:
         return node.load()
     except Exception as e:  # noqa: BLE001
-        e = remove_internal_traceback_frames_from_exception(e)
         task_name = getattr(task, "display_name", task.name)
         msg = f"Exception while loading node {node.name!r} of task {task_name!r}"
         raise NodeLoadError(msg) from e
@@ -207,7 +205,8 @@ def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
             format_node_name(i, session.config["paths"]).plain for i in missing_nodes
         ]
         formatted = format_strings_as_flat_tree(
-            paths, "The task did not produce the following files:\n", ""
+            paths,
+            "The task did not produce the following files:\n",
         )
         raise NodeNotFoundError(formatted)
 

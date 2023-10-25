@@ -39,12 +39,12 @@ if TYPE_CHECKING:
 
 
 __all__ = [
-    "create_summary_panel",
-    "create_url_style_for_task",
-    "create_url_style_for_path",
     "console",
-    "format_task_name",
+    "create_summary_panel",
+    "create_url_style_for_path",
+    "create_url_style_for_task",
     "format_strings_as_flat_tree",
+    "format_task_name",
     "get_file",
     "is_jupyter",
     "render_to_string",
@@ -181,7 +181,9 @@ def format_node_name(node: PNode, paths: Sequence[Path] = ()) -> Text:
     return Text(node.name)
 
 
-def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -> str:
+def format_strings_as_flat_tree(
+    strings: Iterable[str], title: str = "", icon: str = ""
+) -> str:
     """Format list of strings as flat tree."""
     tree = Tree(title)
     for name in strings:

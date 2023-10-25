@@ -31,6 +31,7 @@ class CollectionReport:
         exc_info: OptionalExceptionInfo,
         node: MetaNode | None = None,
     ) -> CollectionReport:
+        exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(outcome=outcome, node=node, exc_info=exc_info)
 
 

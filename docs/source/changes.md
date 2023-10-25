@@ -14,6 +14,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   execution.
 - {pull}`456` refers to the source code on Github when clicking on a source link.
 - {pull}`457` refactors everything around formatting node names.
+- {pull}`459` adds a pre-commit hook to sort `__all__`.
+- {pull}`460` simplifies removing internal tracebacks from exceptions with a cause.
+- {pull}`463` raise error when a task function is not defined inside the loop body.
 
 ## 0.4.1 - 2023-10-11
 
