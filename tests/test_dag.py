@@ -68,6 +68,9 @@ def test_check_if_root_nodes_are_available(tmp_path, runner):
     assert tmp_path.joinpath("in.txt").as_posix() not in result.output
     assert tmp_path.name + "/in.txt" in result.output
 
+    # Test whether reports remove inner tracebacks
+    assert "/_pytask/dag.py" not in result.output
+
 
 @pytest.mark.end_to_end()
 def test_check_if_root_nodes_are_available_w_name(tmp_path, runner):
