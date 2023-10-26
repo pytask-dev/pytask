@@ -17,7 +17,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`459` adds a pre-commit hook to sort `__all__`.
 - {pull}`460` simplifies removing internal tracebacks from exceptions with a cause.
 - {pull}`463` raise error when a task function is not defined inside the loop body.
-- {pull}`464` adds test to ensure internal tracebacks are removed by reports.
+- {pull}`465` adds test to ensure internal tracebacks are removed by reports.
 
 ## 0.4.1 - 2023-10-11
 
