@@ -14,7 +14,6 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
-from _pytask.path import hash_path
 from _pytask.typing import no_default
 from _pytask.typing import NoDefault
 from attrs import define
@@ -146,14 +145,11 @@ class PathNode(PPathNode):
         Name of the node which makes it identifiable in the DAG.
     path
         The path to the file.
-    hash
-        Whether the file should be hashed to determine the state.
 
     """
 
     name: str
     path: Path
-    hash: bool = False  # noqa: A003
 
     @classmethod
     @functools.lru_cache
@@ -174,8 +170,6 @@ class PathNode(PPathNode):
         The state is given by the modification timestamp.
 
         """
-        if self.hash and self.path.exists():
-            return str(hash_path(self.path, "sha256"))
         if self.path.exists():
             return str(self.path.stat().st_mtime)
         return None
@@ -281,8 +275,6 @@ class PickleNode:
         A function to convert :obj:`bytes` from a pickle file to a Python object.
     dump_func
         A function to convert a Python object to :obj:`bytes`.
-    hash
-        Whether the file should be hashed to determine the state.
 
     """
 
@@ -306,8 +298,6 @@ class PickleNode:
         return cls(name=path.as_posix(), path=path)
 
     def state(self) -> str | None:
-        if self.hash and self.path.exists():
-            return str(hash_path(self.path, "sha256"))
         if self.path.exists():
             return str(self.path.stat().st_mtime)
         return None
