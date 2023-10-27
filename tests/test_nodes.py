@@ -54,11 +54,11 @@ def test_hash_of_path_node(tmp_path, value, hash_, expected):
     ("value", "hash_", "expected"),
     [
         ("0", False, "0"),
-        ("0", True, "ac57d54dcc34f2ebf6f410f6d7fab436eb84f8f6b640782134b3d8062ebf71d0"),
+        (0, True, "ac57d54dcc34f2ebf6f410f6d7fab436eb84f8f6b640782134b3d8062ebf71d0"),
         (
             "0",
             lambda x: 1,  # noqa: ARG005
-            "ac57d54dcc34f2ebf6f410f6d7fab436eb84f8f6b640782134b3d8062ebf71d0",
+            "2e81f502b7a28f824c4f1451c946b952eebe65a8521925ef8f6135ef6f422e8e",
         ),
         ("0", True, "2e81f502b7a28f824c4f1451c946b952eebe65a8521925ef8f6135ef6f422e8e"),
     ],
