@@ -17,6 +17,7 @@ __all__ = [
     "find_case_sensitive_path",
     "find_closest_ancestor",
     "find_common_ancestor",
+    "hash_path",
     "import_path",
     "relative_to",
     "shorten_path",
@@ -210,7 +211,7 @@ def shorten_path(path: Path, paths: Sequence[Path]) -> str:
     return relative_to(path, ancestor).as_posix()
 
 
-def hash_path(path: Path, digest: str) -> str:
+def hash_path(path: Path, digest: str = "sha256") -> str:
     """Compute the hash of a file."""
     with path.open("rb") as f:
         hash_ = file_digest(f, digest)

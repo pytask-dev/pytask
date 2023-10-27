@@ -6,6 +6,7 @@ import pytest
 from _pytask.database_utils import create_database
 from _pytask.database_utils import DatabaseSession
 from _pytask.database_utils import State
+from _pytask.path import hash_path
 from pytask import cli
 from pytask import ExitCode
 from sqlalchemy.engine import make_url
@@ -44,8 +45,8 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
             (in_path.as_posix(), in_path),
             (out_path.as_posix(), out_path),
         ):
-            modification_time = session.get(State, (task_id, id_)).modification_time
-            assert float(modification_time) == path.stat().st_mtime
+            hash_ = session.get(State, (task_id, id_)).hash_
+            assert hash_ == hash_path(path)
 
 
 @pytest.mark.end_to_end()

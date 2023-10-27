@@ -14,6 +14,7 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
+from _pytask.path import hash_path
 from _pytask.typing import no_default
 from _pytask.typing import NoDefault
 from attrs import define
@@ -127,7 +128,7 @@ class Task(PTaskWithPath):
     def state(self) -> str | None:
         """Return the state of the node."""
         if self.path.exists():
-            return str(self.path.stat().st_mtime)
+            return hash_path(self.path)
         return None
 
     def execute(self, **kwargs: Any) -> None:
@@ -171,7 +172,7 @@ class PathNode(PPathNode):
 
         """
         if self.path.exists():
-            return str(self.path.stat().st_mtime)
+            return hash_path(self.path)
         return None
 
     def load(self) -> Path:
@@ -282,7 +283,6 @@ class PickleNode:
     path: Path
     load_func: Callable[[bytes], Any] = pickle.loads
     dump_func: Callable[[Any], bytes] = pickle.dumps
-    hash: bool = False  # noqa: A003
 
     @classmethod
     @functools.lru_cache
@@ -299,7 +299,7 @@ class PickleNode:
 
     def state(self) -> str | None:
         if self.path.exists():
-            return str(self.path.stat().st_mtime)
+            return hash_path(self.path)
         return None
 
     def load(self) -> Any:
