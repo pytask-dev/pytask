@@ -282,7 +282,6 @@ class PickleNode:
     path: Path
     load_func: Callable[[bytes], Any] = pickle.loads
     dump_func: Callable[[Any], bytes] = pickle.dumps
-    hash: bool = False  # noqa: A003
 
     @classmethod
     @functools.lru_cache
