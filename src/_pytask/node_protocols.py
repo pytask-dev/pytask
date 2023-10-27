@@ -19,10 +19,19 @@ __all__ = ["MetaNode", "PNode", "PPathNode", "PTask", "PTaskWithPath"]
 
 @runtime_checkable
 class MetaNode(Protocol):
-    """Protocol for an intersection between nodes and tasks."""
+    """Protocol for an intersection between nodes and tasks.
+
+    Attributes
+    ----------
+    name
+        Name of the node that must be unique.
+    signature
+        The signature of the node.
+
+    """
 
     name: str
-    """Name of the node that must be unique."""
+    signature: str
 
     @abstractmethod
     def state(self) -> str | None:
@@ -63,7 +72,6 @@ class PPathNode(PNode, Protocol):
 class PTask(MetaNode, Protocol):
     """Protocol for nodes."""
 
-    name: str
     depends_on: dict[str, PyTree[PNode]]
     produces: dict[str, PyTree[PNode]]
     markers: list[Mark]

@@ -51,6 +51,9 @@ class TaskWithoutPath(PTask):
         Reports with entries for when, what, and content.
     attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
+    signature
+        The signature of the task.
+
     """
 
     name: str
@@ -101,6 +104,8 @@ class Task(PTaskWithPath):
         Reports with entries for when, what, and content.
     attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
+    signature
+        The signature of the task.
 
     """
 
@@ -144,11 +149,14 @@ class PathNode(PPathNode):
         Name of the node which makes it identifiable in the DAG.
     path
         The path to the file.
+    signature
+        The signature of the node.
 
     """
 
     name: str
     path: Path
+    signature: str = field(init=False)
 
     @classmethod
     @functools.lru_cache
@@ -200,12 +208,15 @@ class PythonNode(PNode):
         Value of the node.
     hash
         Whether the value should be hashed to determine the state.
+    signature
+        The signature of the node.
 
     """
 
     name: str = ""
     value: Any | NoDefault = no_default
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
+    signature: str = field(init=False)
 
     def load(self) -> Any:
         """Load the value."""
