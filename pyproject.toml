@@ -125,6 +125,7 @@ ignore = [
 
 
 [tool.ruff.per-file-ignores]
+"src/_pytask/_hashlib.py" = ["ALL"]
 "src/_pytask/capture.py" = ["PGH003"]
 "src/_pytask/hookspecs.py" = ["ARG001"]
 "src/_pytask/outcomes.py" = ["N818"]

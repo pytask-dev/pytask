@@ -10,6 +10,8 @@ from pathlib import Path
 from types import ModuleType
 from typing import Sequence
 
+from _pytask._hashlib import file_digest
+
 
 __all__ = [
     "find_case_sensitive_path",
@@ -206,3 +208,10 @@ def shorten_path(path: Path, paths: Sequence[Path]) -> str:
             ancestor = path.parents[-1]
 
     return relative_to(path, ancestor).as_posix()
+
+
+def hash_path(path: Path, digest: str) -> str:
+    """Compute the hash of a file."""
+    with path.open("rb") as f:
+        hash_ = file_digest(f, digest)
+    return hash_.hexdigest()
