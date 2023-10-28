@@ -18,14 +18,21 @@ actions.
 1. Read the data from pickle, adding additional text and storing it as a text file under
    `output.txt`.
 
-At first, we build the data catalog by registering the data that we provide or that we
-later want to access.
+At first, we create the file `input.txt` and add some content.
+
+```ipython
+>>> from pathlib import Path
+>>> Path("input.txt").write_text("Hello, ")
+```
+
+Secondly, we build the data catalog by registering the data that we provide or that we
+later want to access. You can add nodes, objects that are converted to nodes like
+`~pathlib.Path` or any other object.
 
 ```python
 from pathlib import Path
 
 from pytask import DataCatalog
-from pytask import PathNode
 
 
 # Create the data catalog.
@@ -36,10 +43,6 @@ data_catalog = DataCatalog()
 data_catalog.add("input", Path("input.txt"))
 data_catalog.add("output", Path("output.txt"))
 ```
-
-We also have to create `input.txt` and add some content like `Hello, `.
-
-We do not register the intermediate pickle file, yet.
 
 Next, let us define the two tasks.
 
@@ -60,8 +63,8 @@ def task_add_content_and_save_text(
 
 The important bit here is that we reference the intermediate pickle file with
 `data_catalog["pickle_file"]`. Since the entry does not exist, the catalog creates a
-{class}`~pytask.PickleNode` for this entry and saves the pickle file in the directory
-given to the {class}`~pytask.DataCatalog`.
+{class}`~pytask.PickleNode` for this entry and saves the pickle file in a `.pytask`
+directory.
 
 Now, we can execute the tasks.
 
@@ -77,22 +80,22 @@ of a node to access its value.
 ```pycon
 >>> from task_data_catalog import data_catalog
 >>> data_catalog.entries
-['new_content', 'file', 'output']
->>> data_catalog["new_content"].load()
-'This is the text.World!'
+['pickle_file', 'input', 'output']
+>>> data_catalog["pickle_file"].load()
+'Hello, World!'
 >>> data_catalog["output"].load()
 WindowsPath('C:\Users\pytask-dev\git\my_project\output.txt')
 ```
 
-`data_catalog["new_content"]` was stored with a {class}`~pytask.PickleNode` and returns
+`data_catalog["pickle_file"]` was stored with a {class}`~pytask.PickleNode` and returns
 text whereas {class}`pathlib.Path`s become {class}`~pytask.PathNode`s and return their
 path.
 
 :::{note}
 Whether the module `task_data_catalog.py` is importable depends on whether it is on your
-`PYTHONPATH`, a variable that defines where modules can be found. It is easy, if you
-develop your workflow as a Python package as explained in the tutorials. Then, you can
-import the data catalog with, for example, `from myproject.config import data_catalog`.
+`PYTHONPATH`, a variable that defines where modules can be found. If you develop your
+workflow as a Python package as explained in the tutorials, then, you can import the
+data catalog with `from myproject.config import data_catalog`.
 :::
 
 ## Changing the default node
