@@ -46,7 +46,7 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
             (out_path.as_posix(), out_path),
         ):
             hash_ = session.get(State, (task_id, id_)).hash_
-            assert hash_ == hash_path(path)
+            assert hash_ == hash_path(path, path.stat().st_mtime)
 
 
 @pytest.mark.end_to_end()

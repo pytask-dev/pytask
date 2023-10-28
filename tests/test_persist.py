@@ -74,7 +74,8 @@ def test_multiple_runs_with_persist(tmp_path):
         node_id = tmp_path.joinpath("out.txt").as_posix()
 
         hash_ = session.get(State, (task_id, node_id)).hash_
-        assert hash_ == hash_path(tmp_path.joinpath("out.txt"))
+        path = tmp_path.joinpath("out.txt")
+        assert hash_ == hash_path(path, path.stat().st_mtime)
 
     session = build(paths=tmp_path)
 

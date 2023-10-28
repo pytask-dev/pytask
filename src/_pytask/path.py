@@ -11,6 +11,7 @@ from types import ModuleType
 from typing import Sequence
 
 from _pytask._hashlib import file_digest
+from _pytask.cache import Cache
 
 
 __all__ = [
@@ -211,7 +212,13 @@ def shorten_path(path: Path, paths: Sequence[Path]) -> str:
     return relative_to(path, ancestor).as_posix()
 
 
-def hash_path(path: Path, digest: str = "sha256") -> str:
+HashPathCache = Cache()
+
+
+@HashPathCache.memoize
+def hash_path(
+    path: Path, modification_time: float, digest: str = "sha256"  # noqa: ARG001
+) -> str:
     """Compute the hash of a file."""
     with path.open("rb") as f:
         hash_ = file_digest(f, digest)

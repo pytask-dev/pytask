@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import pickle
 import re
@@ -835,3 +836,27 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
 
     # Test that traceback is hidden.
     assert "_pytask/execute.py" not in result.output
+
+
+def test_hashing_works(tmp_path):
+    """Use subprocess or otherwise the cache is filled from other tests."""
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+
+    def task_example() -> Annotated[str, Path("file.txt")]:
+        return "Hello, World!"
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = subprocess.run(("pytask"), cwd=tmp_path)  # noqa: PLW1510
+    assert result.returncode == ExitCode.OK
+
+    hashes = json.loads(tmp_path.joinpath(".pytask", "file_hashes.json").read_text())
+    assert len(hashes) == 2
+
+    result = subprocess.run(("pytask"), cwd=tmp_path)  # noqa: PLW1510
+    assert result.returncode == ExitCode.OK
+
+    hashes_ = json.loads(tmp_path.joinpath(".pytask", "file_hashes.json").read_text())
+    assert hashes == hashes_
