@@ -20,7 +20,7 @@ actions.
 
 At first, we create the file `input.txt` and add some content.
 
-```ipython
+```pycon
 >>> from pathlib import Path
 >>> Path("input.txt").write_text("Hello, ")
 ```
