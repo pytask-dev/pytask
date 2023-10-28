@@ -33,7 +33,9 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
     assert result.exit_code == ExitCode.OK
 
     create_database(
-        make_url("sqlite:///" + tmp_path.joinpath(".pytask.sqlite3").as_posix())
+        make_url(
+            "sqlite:///" + tmp_path.joinpath(".pytask", "pytask.sqlite3").as_posix()
+        )
     )
 
     with DatabaseSession() as session:

@@ -30,7 +30,9 @@ def test_duration_is_stored_in_task(tmp_path):
     duration = task.attributes["duration"]
     assert duration[1] - duration[0] > 2
 
-    create_database("sqlite:///" + tmp_path.joinpath(".pytask.sqlite3").as_posix())
+    create_database(
+        "sqlite:///" + tmp_path.joinpath(".pytask", "pytask.sqlite3").as_posix()
+    )
 
     with DatabaseSession() as session:
         task_name = tmp_path.joinpath("task_example.py").as_posix() + "::task_example"

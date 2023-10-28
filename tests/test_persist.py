@@ -67,7 +67,9 @@ def test_multiple_runs_with_persist(tmp_path):
     assert session.execution_reports[0].outcome == TaskOutcome.PERSISTENCE
     assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
 
-    create_database("sqlite:///" + tmp_path.joinpath(".pytask.sqlite3").as_posix())
+    create_database(
+        "sqlite:///" + tmp_path.joinpath(".pytask", "pytask.sqlite3").as_posix()
+    )
 
     with DatabaseSession() as session:
         task_id = tmp_path.joinpath("task_module.py").as_posix() + "::task_dummy"

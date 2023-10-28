@@ -42,7 +42,8 @@ my_project
 │
 ├───setup.py
 │
-├───.pytask.sqlite3
+├───.pytask
+│   └───...
 │
 └───bld
 ```

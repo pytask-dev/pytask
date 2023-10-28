@@ -58,9 +58,9 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 @hookimpl
 def pytask_unconfigure(session: Session) -> None:
     """Save calculated file hashes to file."""
-    path = session.config["root"] / ".pytask"
-    path.mkdir(exist_ok=True, parents=True)
-    path.joinpath("file_hashes.json").write_text(json.dumps(HashPathCache._cache))
+    session.config["root"].joinpath(".pytask", "file_hashes.json").write_text(
+        json.dumps(HashPathCache._cache)
+    )
 
 
 def build(  # noqa: C901, PLR0912, PLR0913
