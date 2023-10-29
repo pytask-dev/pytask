@@ -12,8 +12,25 @@ from attrs import field
 
 
 if TYPE_CHECKING:
+    from rich.console import RenderResult
+    from rich.console import ConsoleOptions
+    from rich.console import Console
     from _pytask.node_protocols import PTask
     from _pytask.node_protocols import MetaNode
+
+
+@define
+class Report:
+    """A report."""
+
+    outcome: CollectionOutcome | TaskOutcome
+    node: MetaNode | None = None
+    exc_info: OptionalExceptionInfo | None = None
+
+    def __rich_console__(
+        self, console: Console, options: ConsoleOptions
+    ) -> RenderResult:
+        ...
 
 
 @define
@@ -33,6 +50,11 @@ class CollectionReport:
     ) -> CollectionReport:
         exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(outcome=outcome, node=node, exc_info=exc_info)
+
+    def __rich_console__(
+        self, console: Console, options: ConsoleOptions
+    ) -> RenderResult:
+        ...
 
 
 @define
