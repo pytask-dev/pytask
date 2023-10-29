@@ -68,11 +68,11 @@ def test_multiple_runs_with_persist(tmp_path):
 
     create_database("sqlite:///" + tmp_path.joinpath(".pytask.sqlite3").as_posix())
 
-    with DatabaseSession() as session:
-        task_id = tmp_path.joinpath("task_module.py").as_posix() + "::task_dummy"
-        node_id = tmp_path.joinpath("out.txt").as_posix()
+    with DatabaseSession() as db_session:
+        task_id = session.tasks[0].signature
+        node_id = session.tasks[0].produces["produces"].signature
 
-        modification_time = session.get(State, (task_id, node_id)).modification_time
+        modification_time = db_session.get(State, (task_id, node_id)).modification_time
         assert float(modification_time) == tmp_path.joinpath("out.txt").stat().st_mtime
 
     session = build(paths=tmp_path)
@@ -124,6 +124,7 @@ def test_pytask_execute_task_process_report(monkeypatch, exc_info, expected):
 
     task = DummyClass()
     task.name = None
+    task.signature = "id"
 
     session = DummyClass()
     session.dag = None

@@ -84,8 +84,10 @@ class TopologicalSorter:
         ]
         priorities = _extract_priorities_from_tasks(tasks)
 
-        task_names = {task.name for task in tasks}
-        task_dict = {name: nx.ancestors(dag, name) & task_names for name in task_names}
+        task_signatures = {task.signature for task in tasks}
+        task_dict = {
+            name: nx.ancestors(dag, name) & task_signatures for name in task_signatures
+        }
         task_dag = nx.DiGraph(task_dict).reverse()
 
         return cls(dag=task_dag, priorities=priorities, dag_backup=task_dag.copy())
@@ -156,7 +158,7 @@ def _extract_priorities_from_tasks(tasks: list[PTask]) -> dict[str, int]:
 
     """
     priorities = {
-        task.name: {
+        task.signature: {
             "try_first": has_mark(task, "try_first"),
             "try_last": has_mark(task, "try_last"),
         }
@@ -167,7 +169,7 @@ def _extract_priorities_from_tasks(tasks: list[PTask]) -> dict[str, int]:
     ]
 
     if tasks_w_mixed_priorities:
-        name_to_task = {task.name: task for task in tasks}
+        name_to_task = {task.signature: task for task in tasks}
         reduced_names = []
         for name in tasks_w_mixed_priorities:
             reduced_name = format_task_name(name_to_task[name], "no_link")

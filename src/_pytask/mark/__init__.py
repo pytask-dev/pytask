@@ -162,7 +162,7 @@ def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str]:
     remaining: set[str] = set()
     for task in session.tasks:
         if keywordexpr and expression.evaluate(KeywordMatcher.from_task(task)):
-            remaining.update(task_and_preceding_tasks(task.name, dag))
+            remaining.update(task_and_preceding_tasks(task.signature, dag))
 
     return remaining
 
@@ -201,7 +201,7 @@ def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str]:
     remaining: set[str] = set()
     for task in session.tasks:
         if expression.evaluate(MarkMatcher.from_task(task)):
-            remaining.update(task_and_preceding_tasks(task.name, dag))
+            remaining.update(task_and_preceding_tasks(task.signature, dag))
 
     return remaining
 
@@ -211,7 +211,7 @@ def _deselect_others_with_mark(
 ) -> None:
     """Deselect tasks."""
     for task in session.tasks:
-        if task.name not in remaining:
+        if task.signature not in remaining:
             task.markers.append(mark)
 
 

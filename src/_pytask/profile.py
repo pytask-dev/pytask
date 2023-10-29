@@ -212,7 +212,7 @@ class FileSizeNameSpace:
     ) -> None:
         """Add the total file size of all products for a task."""
         for task in tasks:
-            successors = list(session.dag.successors(task.name))
+            successors = list(session.dag.successors(task.signature))
             if successors:
                 sum_bytes = 0
                 for successor in successors:

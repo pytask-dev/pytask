@@ -78,24 +78,24 @@ def pytask_dag_create_dag(tasks: list[PTask]) -> nx.DiGraph:
 
     def _add_dependency(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
         """Add a dependency to the DAG."""
-        dag.add_node(node.name, node=node)
-        dag.add_edge(node.name, task.name)
+        dag.add_node(node.signature, node=node)
+        dag.add_edge(node.signature, task.signature)
 
         # If a node is a PythonNode wrapped in another PythonNode, it is a product from
         # another task that is a dependency in the current task. Thus, draw an edge
         # connecting the two nodes.
         if isinstance(node, PythonNode) and isinstance(node.value, PythonNode):
-            dag.add_edge(node.value.name, node.name)
+            dag.add_edge(node.value.signature, node.signature)
 
     def _add_product(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
         """Add a product to the DAG."""
-        dag.add_node(node.name, node=node)
-        dag.add_edge(task.name, node.name)
+        dag.add_node(node.signature, node=node)
+        dag.add_edge(task.signature, node.signature)
 
     dag = nx.DiGraph()
 
     for task in tasks:
-        dag.add_node(task.name, task=task)
+        dag.add_node(task.signature, task=task)
 
         tree_map(lambda x: _add_dependency(dag, task, x), task.depends_on)
         tree_map(lambda x: _add_product(dag, task, x), task.produces)
@@ -104,7 +104,7 @@ def pytask_dag_create_dag(tasks: list[PTask]) -> nx.DiGraph:
         # another task that is a dependency in the current task. Thus, draw an edge
         # connecting the two nodes.
         tree_map(
-            lambda x: dag.add_edge(x.value.name, x.name)
+            lambda x: dag.add_edge(x.value.signature, x.signature)
             if isinstance(x, PythonNode) and isinstance(x.value, PythonNode)
             else None,
             task.depends_on,
@@ -121,14 +121,14 @@ def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
     scheduler = TopologicalSorter.from_dag(dag)
     visited_nodes: set[str] = set()
 
-    for task_name in scheduler.static_order():
-        if task_name not in visited_nodes:
-            task = dag.nodes[task_name]["task"]
+    for task_signature in scheduler.static_order():
+        if task_signature not in visited_nodes:
+            task = dag.nodes[task_signature]["task"]
             have_changed = _have_task_or_neighbors_changed(session, dag, task)
             if have_changed:
-                visited_nodes.update(task_and_descending_tasks(task_name, dag))
+                visited_nodes.update(task_and_descending_tasks(task_signature, dag))
             else:
-                dag.nodes[task_name]["task"].markers.append(
+                dag.nodes[task_signature]["task"].markers.append(
                     Mark("skip_unchanged", (), {})
                 )
 
@@ -148,10 +148,10 @@ def _have_task_or_neighbors_changed(
         session.hook.pytask_dag_has_node_changed(
             session=session,
             dag=dag,
-            task_name=task.name,
+            task_name=task.signature,
             node=dag.nodes[node_name].get("task") or dag.nodes[node_name].get("node"),
         )
-        for node_name in node_and_neighbors(dag, task.name)
+        for node_name in node_and_neighbors(dag, task.signature)
     )
 
 
@@ -164,7 +164,7 @@ def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
         return True
 
     with DatabaseSession() as session:
-        db_state = session.get(State, (task_name, node.name))
+        db_state = session.get(State, (task_name, node.signature))
 
     # If the node is not in the database.
     if db_state is None:
@@ -264,11 +264,14 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph, paths: Sequence[Path]) -
         raise ResolvingDependenciesError(_TEMPLATE_ERROR.format(text)) from None
 
 
-def _format_exception_from_failed_node_state(node_name: str, dag: nx.DiGraph) -> str:
+def _format_exception_from_failed_node_state(
+    node_signature: str, dag: nx.DiGraph
+) -> str:
     """Format message when ``node.state()`` threw an exception."""
-    tasks = [dag.nodes[i]["task"] for i in dag.successors(node_name)]
+    tasks = [dag.nodes[i]["task"] for i in dag.successors(node_signature)]
     names = [getattr(x, "display_name", x.name) for x in tasks]
     successors = ", ".join([f"{name!r}" for name in names])
+    node_name = dag.nodes[node_signature]["node"].name
     return (
         f"While checking whether dependency {node_name!r} from task(s) "
         f"{successors} exists, an error was raised."

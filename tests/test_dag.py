@@ -38,9 +38,12 @@ def test_pytask_dag_create_dag():
 
     dag = pytask_dag_create_dag([task])
 
-    assert all(
-        any(i in node for i in ("node_1", "node_2", "task")) for node in dag.nodes
-    )
+    for signature in (
+        "a5a678cddeaeb64e11a107b5d6edbd2b823f2b2d449f47e61987be48bdf05420",
+        "6499ba9b5a681119a62b779b602b76b9b4bfad71a838d913555c23cf67ab36be",
+        "57774b3aab544ebaee5ce95818a93096bf412c327ef290efccca771110b1f035",
+    ):
+        assert signature in dag.nodes
 
 
 @pytest.mark.end_to_end()

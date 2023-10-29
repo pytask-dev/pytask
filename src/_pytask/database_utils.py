@@ -93,5 +93,5 @@ def update_states_in_database(session: Session, task_name: str) -> None:
             hash_ = node.state()
 
         _create_or_update_state(
-            task_name, node.name, modification_time, hash_  # type: ignore[arg-type]
+            task_name, node.signature, modification_time, hash_  # type: ignore[arg-type]
         )
