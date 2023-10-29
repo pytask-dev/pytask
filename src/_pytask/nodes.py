@@ -51,8 +51,6 @@ class TaskWithoutPath(PTask):
         Reports with entries for when, what, and content.
     attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
-    signature
-        The signature of the task.
 
     """
 
@@ -63,11 +61,11 @@ class TaskWithoutPath(PTask):
     markers: list[Mark] = field(factory=list)
     report_sections: list[tuple[str, str, str]] = field(factory=list)
     attributes: dict[Any, Any] = field(factory=dict)
-    signature: str = field(init=False)
 
-    def __attrs_post_init__(self) -> None:
+    @property
+    def signature(self) -> str:  # type: ignore[override]
         raw_key = "".join(str(hash_value(arg)) for arg in (self.name,))
-        self.signature = hashlib.sha256(raw_key.encode()).hexdigest()
+        return hashlib.sha256(raw_key.encode()).hexdigest()
 
     def state(self) -> str | None:
         """Return the state of the node."""
@@ -109,8 +107,6 @@ class Task(PTaskWithPath):
         Reports with entries for when, what, and content.
     attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
-    signature
-        The signature of the task.
 
     """
 
@@ -124,7 +120,6 @@ class Task(PTaskWithPath):
     markers: list[Mark] = field(factory=list)
     report_sections: list[tuple[str, str, str]] = field(factory=list)
     attributes: dict[Any, Any] = field(factory=dict)
-    signature: str = field(init=False)
 
     def __attrs_post_init__(self: Task) -> None:
         """Change class after initialization."""
@@ -134,8 +129,10 @@ class Task(PTaskWithPath):
         if not self.display_name:
             self.display_name = self.name
 
+    @property
+    def signature(self) -> str:  # type: ignore[override]
         raw_key = "".join(str(hash_value(arg)) for arg in (self.base_name, self.path))
-        self.signature = hashlib.sha256(raw_key.encode()).hexdigest()
+        return hashlib.sha256(raw_key.encode()).hexdigest()
 
     def state(self) -> str | None:
         """Return the state of the node."""
@@ -165,11 +162,11 @@ class PathNode(PPathNode):
 
     name: str
     path: Path
-    signature: str = field(init=False)
 
-    def __attrs_post_init__(self) -> None:
+    @property
+    def signature(self) -> str:  # type: ignore[override]
         raw_key = "".join(str(hash_value(arg)) for arg in (self.name, self.path))
-        self.signature = hashlib.sha256(raw_key.encode()).hexdigest()
+        return hashlib.sha256(raw_key.encode()).hexdigest()
 
     @classmethod
     def from_path(cls, path: Path) -> PathNode:
@@ -221,11 +218,11 @@ class PythonNode(PNode):
     name: str = ""
     value: Any | NoDefault = no_default
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
-    signature: str = field(init=False)
 
-    def __attrs_post_init__(self) -> None:
+    @property
+    def signature(self) -> str:  # type: ignore[override]
         raw_key = "".join(str(hash_value(arg)) for arg in (self.name,))
-        self.signature = hashlib.sha256(raw_key.encode()).hexdigest()
+        return hashlib.sha256(raw_key.encode()).hexdigest()
 
     def load(self) -> Any:
         """Load the value."""
