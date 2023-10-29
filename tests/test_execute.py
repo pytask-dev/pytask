@@ -620,6 +620,7 @@ def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
     class PickleNode:
         name: str
         path: Path
+        signature: str = "id"
 
         def state(self) -> str | None:
             if self.path.exists():
@@ -809,6 +810,7 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
     class PickleNode:
         name: str
         path: Path
+        signature: str = "id"
 
         def state(self) -> str | None:
             if self.path.exists():

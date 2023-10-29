@@ -1,7 +1,6 @@
 """Contains implementations of tasks and nodes following the node protocols."""
 from __future__ import annotations
 
-import functools
 import hashlib
 import inspect
 from pathlib import Path  # noqa: TCH003
@@ -9,6 +8,7 @@ from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
 
+from _pytask._hashlib import hash_value
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
@@ -63,6 +63,11 @@ class TaskWithoutPath(PTask):
     markers: list[Mark] = field(factory=list)
     report_sections: list[tuple[str, str, str]] = field(factory=list)
     attributes: dict[Any, Any] = field(factory=dict)
+    signature: str = field(init=False)
+
+    def __attrs_post_init__(self) -> None:
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.name,))
+        self.signature = hashlib.sha256(raw_key.encode()).hexdigest()
 
     def state(self) -> str | None:
         """Return the state of the node."""
@@ -119,6 +124,7 @@ class Task(PTaskWithPath):
     markers: list[Mark] = field(factory=list)
     report_sections: list[tuple[str, str, str]] = field(factory=list)
     attributes: dict[Any, Any] = field(factory=dict)
+    signature: str = field(init=False)
 
     def __attrs_post_init__(self: Task) -> None:
         """Change class after initialization."""
@@ -127,6 +133,9 @@ class Task(PTaskWithPath):
 
         if not self.display_name:
             self.display_name = self.name
+
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.base_name, self.path))
+        self.signature = hashlib.sha256(raw_key.encode()).hexdigest()
 
     def state(self) -> str | None:
         """Return the state of the node."""
@@ -158,17 +167,13 @@ class PathNode(PPathNode):
     path: Path
     signature: str = field(init=False)
 
+    def __attrs_post_init__(self) -> None:
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.name, self.path))
+        self.signature = hashlib.sha256(raw_key.encode()).hexdigest()
+
     @classmethod
-    @functools.lru_cache
     def from_path(cls, path: Path) -> PathNode:
-        """Instantiate class from path to file.
-
-        The `lru_cache` decorator ensures that the same object is not collected twice.
-
-        """
-        if not path.is_absolute():
-            msg = "Node must be instantiated from absolute path."
-            raise ValueError(msg)
+        """Instantiate class from path to file."""
         return cls(name=path.as_posix(), path=path)
 
     def state(self) -> str | None:
@@ -217,6 +222,10 @@ class PythonNode(PNode):
     value: Any | NoDefault = no_default
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
     signature: str = field(init=False)
+
+    def __attrs_post_init__(self) -> None:
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.name,))
+        self.signature = hashlib.sha256(raw_key.encode()).hexdigest()
 
     def load(self) -> Any:
         """Load the value."""
