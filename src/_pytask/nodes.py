@@ -174,7 +174,7 @@ class PathNode(PPathNode):
             return str(self.path.stat().st_mtime)
         return None
 
-    def load(self) -> Path:
+    def load(self, is_product: bool = False) -> Path:  # noqa: ARG002
         """Load the value."""
         return self.path
 
@@ -221,8 +221,10 @@ class PythonNode(PNode):
     value: Any | NoDefault = no_default
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
 
-    def load(self) -> Any:
+    def load(self, is_product: bool = False) -> Any:
         """Load the value."""
+        if is_product:
+            return self
         if isinstance(self.value, PythonNode):
             return self.value.load()
         return self.value
@@ -301,7 +303,9 @@ class PickleNode:
             return str(self.path.stat().st_mtime)
         return None
 
-    def load(self) -> Any:
+    def load(self, is_product: bool) -> Any:
+        if is_product:
+            return self
         return self.load_func(self.path.read_bytes())
 
     def save(self, value: Any) -> None:

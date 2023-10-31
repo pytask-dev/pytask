@@ -51,6 +51,7 @@ repos:
     rev: v0.1.1
     hooks:
       - id: ruff
+        args: [--unsafe-fixes]
 -   repo: https://github.com/dosisod/refurb
     rev: v1.22.1
     hooks:

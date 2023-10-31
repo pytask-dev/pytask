@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import pytest
+from pytask import PathNode
+from pytask import PNode
+from pytask import PPathNode
 from pytask import PythonNode
 
 
@@ -19,3 +22,16 @@ def test_hash_of_python_node(value, hash_, expected):
     node = PythonNode(name="test", value=value, hash=hash_)
     state = node.state()
     assert state == expected
+
+
+@pytest.mark.parametrize(
+    ("node", "protocol", "expected"),
+    [
+        (PathNode, PNode, True),
+        (PathNode, PPathNode, True),
+        (PythonNode, PNode, True),
+        (PythonNode, PPathNode, False),
+    ],
+)
+def test_comply_with_protocol(node, protocol, expected):
+    assert isinstance(node, protocol) is expected
