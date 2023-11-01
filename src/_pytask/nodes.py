@@ -293,7 +293,7 @@ class PickleNode:
             return str(self.path.stat().st_mtime)
         return None
 
-    def load(self, is_product: bool) -> Any:
+    def load(self, is_product: bool = False) -> Any:
         if is_product:
             return self
         with self.path.open("rb") as f:
