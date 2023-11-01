@@ -15,6 +15,7 @@ _generated
 .eggs
 
 .pytask.sqlite3
+.pytask
 
 build
 dist
