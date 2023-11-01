@@ -151,6 +151,11 @@ Use `data_catalog["key"]` as an default argument to access the
 :::
 ::::
 
+Finally, let's execute the two tasks.
+
+```{include} ../_static/md/defining-dependencies-products.md
+```
+
 ## Adding data to the catalog
 
 In most projects, you have other data sets that you would like to access via the data
