@@ -900,3 +900,23 @@ def test_python_node_as_product_with_product_annotation(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
+
+
+def test_pickle_node_as_product_with_product_annotation(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import Product, PickleNode
+    from pathlib import Path
+
+    node = PickleNode(name="node", path=Path(__file__).parent / "file.txt")
+
+    def task_create_string(node: Annotated[PickleNode, node, Product]) -> None:
+        node.save("Hello, World!")
+
+    def task_write_file(text: Annotated[str, node]) -> Annotated[str, Path("file.txt")]:
+        return text
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
