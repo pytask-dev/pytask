@@ -11,7 +11,7 @@ Two things will quickly become a nuisance in bigger projects.
 
 As a solution, pytask offers a {class}`~pytask.DataCatalog` which is a purely optional
 feature. The tutorial focuses on the main features. To learn about all features, read
-the [how-to guide](../how_to_guides/using_a_data_catalog.md).
+the [how-to guide](../how_to_guides/the_data_catalog.md).
 
 Let us focus on the previous example and see how the {class}`~pytask.DataCatalog` helps
 us.
@@ -218,3 +218,23 @@ You can now use the data catalog as in previous example and use the
 
 :::
 ::::
+
+## Developing with the `DataCatalog`
+
+You can also use the data catalog in a Jupyter notebook or in the terminal in the Python
+interpreter. Simply import the data catalog, select a node and call the
+{meth}`~pytask.PNode.load` method of a node to access its value.
+
+```pycon
+>>> from myproject.config import data_catalog
+>>> data_catalog.entries
+['csv', 'data', 'transformed_csv']
+>>> data_catalog["data"].load()
+DataFrame(...)
+>>> data_catalog["csv"].load()
+WindowsPath('C:\Users\pytask-dev\git\my_project\file.csv')
+```
+
+`data_catalog["data"]` was stored with a {class}`~pytask.PickleNode` and returns the
+{class}`~pandas.DataFrame` whereas `data_catalog["csv"]` becomes a
+{class}`~pytask.PathNode` and {meth}`~pytask.PNode.load` returns the path.
