@@ -33,7 +33,7 @@ my_project
 │
 ├───setup.py
 │
-├───.pytask.sqlite3
+├───.pytask
 │
 └───bld
     └────plot.png
@@ -179,7 +179,7 @@ my_project
 │
 ├───setup.py
 │
-├───.pytask.sqlite3
+├───.pytask
 │
 └───bld
     ├────file.pkl
