@@ -343,6 +343,13 @@ outcome.
 .. autofunction:: pytask.count_outcomes
 ```
 
+## Path utilities
+
+```{eval-rst}
+.. autofunction:: pytask.path.import_path
+.. autofunction:: pytask.path.hash_path
+```
+
 ## Programmatic Interfaces
 
 ```{eval-rst}
@@ -358,6 +365,17 @@ There are some classes to handle different kinds of reports.
 .. autoclass:: pytask.CollectionReport
 .. autoclass:: pytask.ExecutionReport
 .. autoclass:: pytask.DagReport
+```
+
+## Tree utilities
+
+```{eval-rst}
+.. autofunction:: pytask.tree_util.PyTree
+.. autofunction:: pytask.tree_util.tree_flatten_with_path
+.. autofunction:: pytask.tree_util.tree_leaves
+.. autofunction:: pytask.tree_util.tree_map
+.. autofunction:: pytask.tree_util.tree_map_with_path
+.. autofunction:: pytask.tree_util.tree_structure
 ```
 
 ## Typing

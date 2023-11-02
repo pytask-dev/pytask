@@ -116,7 +116,7 @@ def import_path(path: Path, root: Path) -> ModuleType:
 
     The function is taken from pytest when the import mode is set to ``importlib``. It
     pytest's recommended import mode for new projects although the default is set to
-    ``prepend``. More discussion and information can be found in :gh:`373`.
+    ``prepend``. More discussion and information can be found in :issue:`373`.
 
     """
     module_name = _module_name_from_path(path, root)
@@ -219,7 +219,12 @@ HashPathCache = Cache()
 def hash_path(
     path: Path, modification_time: float, digest: str = "sha256"  # noqa: ARG001
 ) -> str:
-    """Compute the hash of a file."""
+    """Compute the hash of a file.
+
+    The function is connected to a cache that is warmed up with previous hashes during
+    the configuration phase.
+
+    """
     with path.open("rb") as f:
         hash_ = file_digest(f, digest)
     return hash_.hexdigest()
