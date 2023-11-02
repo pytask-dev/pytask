@@ -20,9 +20,6 @@ to inputs and outputs and call {func}`pandas.read_pickle` and
 To remove IO operations from the task and delegate them to pytask, we will write a
 `PickleNode` that automatically loads and stores Python objects.
 
-We will also use the feature explained in {doc}`using_task_returns` to define products
-of the task function via the function's return value.
-
 And we pass the value to `df` via {obj}`Annotated` to preserve the type hint.
 
 The result will be the following task.
@@ -37,10 +34,26 @@ The result will be the following task.
 
 :::
 
+:::{tab-item} Python 3.10+ & Return
+:sync: python310plus
+
+```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py310_return.py
+```
+
+:::
+
 :::{tab-item} Python 3.8+
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py38.py
+```
+
+:::
+
+:::{tab-item} Python 3.8+ & Return
+:sync: python38plus
+
+```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py38_return.py
 ```
 
 :::
@@ -97,7 +110,12 @@ Here are some explanations.
   the value changes, pytask knows it needs to regenerate the workflow. We can use
   the timestamp of when the node was last modified.
 - pytask calls {meth}`PickleNode.load` when it collects the values of function arguments
-  to run the function. In our example, we read the file and unpickle the data.
+  to run the function. The argument `is_product` signals that the node is loaded as a
+  product with a {class}`~pytask.Product` annotation or via `produces`.
+
+  When the node is loaded as a dependency, we want to inject the value of the pickle
+  file. In the other case, the node returns itself so users can call
+  {meth}`PickleNode.save` themselves.
 - {meth}`PickleNode.save` is called when a task function returns and allows to save the
   return values.
 

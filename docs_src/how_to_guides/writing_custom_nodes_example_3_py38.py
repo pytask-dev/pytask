@@ -34,8 +34,10 @@ class PickleNode:
             return str(self.path.stat().st_mtime)
         return None
 
-    def load(self) -> Path:
+    def load(self, is_product: bool) -> Path:
         """Load the value from the path."""
+        if is_product:
+            return self
         return pickle.loads(self.path.read_bytes())
 
     def save(self, value: Any) -> None:

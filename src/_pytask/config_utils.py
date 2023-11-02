@@ -15,6 +15,9 @@ else:
     import tomli as tomllib
 
 
+__all__ = ["find_project_root_and_config", "read_config", "set_defaults_from_config"]
+
+
 def set_defaults_from_config(
     context: click.Context, param: click.Parameter, value: Any  # noqa: ARG001
 ) -> Path | None:
@@ -44,7 +47,7 @@ def set_defaults_from_config(
         (
             context.params["root"],
             context.params["config"],
-        ) = _find_project_root_and_config(context.params["paths"])
+        ) = find_project_root_and_config(context.params["paths"])
 
     if context.params["config"] is None:
         return None
@@ -59,7 +62,7 @@ def set_defaults_from_config(
     return context.params["config"]
 
 
-def _find_project_root_and_config(paths: list[Path] | None) -> tuple[Path, Path | None]:
+def find_project_root_and_config(paths: list[Path] | None) -> tuple[Path, Path | None]:
     """Find the project root and configuration file from a list of paths.
 
     The process is as follows:

@@ -1,7 +1,9 @@
 """Implement the build command."""
 from __future__ import annotations
 
+import json
 import sys
+from contextlib import suppress
 from pathlib import Path
 from typing import Any
 from typing import Callable
@@ -13,7 +15,7 @@ import click
 from _pytask.capture import CaptureMethod
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
-from _pytask.config_utils import _find_project_root_and_config
+from _pytask.config_utils import find_project_root_and_config
 from _pytask.config_utils import read_config
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
@@ -21,6 +23,7 @@ from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
+from _pytask.path import HashPathCache
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import parse_paths
@@ -38,6 +41,24 @@ if TYPE_CHECKING:
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface."""
     cli.add_command(build_command)
+
+
+@hookimpl
+def pytask_post_parse(config: dict[str, Any]) -> None:
+    """Fill cache of file hashes with stored hashes."""
+    with suppress(Exception):
+        path = config["root"] / ".pytask" / "file_hashes.json"
+        cache = json.loads(path.read_text())
+
+        for key, value in cache.items():
+            HashPathCache.add(key, value)
+
+
+@hookimpl
+def pytask_unconfigure(session: Session) -> None:
+    """Save calculated file hashes to file."""
+    path = session.config["root"] / ".pytask" / "file_hashes.json"
+    path.write_text(json.dumps(HashPathCache._cache))
 
 
 def build(  # noqa: C901, PLR0912, PLR0913
@@ -209,7 +230,7 @@ def build(  # noqa: C901, PLR0912, PLR0913
                 (
                     raw_config["root"],
                     raw_config["config"],
-                ) = _find_project_root_and_config(raw_config["paths"])
+                ) = find_project_root_and_config(raw_config["paths"])
 
             if raw_config["config"] is not None:
                 config_from_file = read_config(raw_config["config"])
