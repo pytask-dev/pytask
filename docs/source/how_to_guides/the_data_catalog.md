@@ -1,4 +1,4 @@
-# The `DataCatalog`
+# The `DataCatalog` - Revisited
 
 An introduction to the data catalog can be found in the
 [tutorial](../tutorials/using_a_data_catalog.md).
@@ -21,6 +21,12 @@ data_catalog = DataCatalog(default_node=PythonNode)
 ```
 
 Or, learn to write your own node by reading {doc}`writing_custom_nodes`.
+
+Here, is an example for a `PickleNode` that uses cloudpickle instead of the normal
+`pickle` module.
+
+```{literalinclude} ../../../docs_src/how_to_guides/the_data_catalog.py
+```
 
 ## Changing the name and the default path
 

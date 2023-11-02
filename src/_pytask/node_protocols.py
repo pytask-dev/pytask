@@ -45,7 +45,10 @@ class PNode(MetaNode, Protocol):
         Parameters
         ----------
         is_product
-            Indicates whether the node is loaded as a dependency or as a product.
+            Indicates whether the node is loaded as a dependency or as a product. It can
+            be used to return a different value when the node is loaded with a product
+            annotation. Then, we usually want to insert the node itself to allow the
+            user calling :meth:`PNode.load`.
 
         """
         ...
