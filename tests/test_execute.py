@@ -607,7 +607,7 @@ def test_return_with_tuple_pathnode_annotation_as_return(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
+def test_return_with_custom_node_and_return_annotation(runner, tmp_path):
     source = """
     from __future__ import annotations
 
@@ -627,7 +627,9 @@ def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
                 return str(self.path.stat().st_mtime)
             return None
 
-        def load(self) -> Any:
+        def load(self, is_product) -> Any:
+            if is_product:
+                return self
             return pickle.loads(self.path.read_bytes())
 
         def save(self, value: Any) -> None:
@@ -637,6 +639,49 @@ def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
 
     def task_example() -> Annotated[int, node]:
         return 1
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+
+    data = pickle.loads(tmp_path.joinpath("data.pkl").read_bytes())  # noqa: S301
+    assert data == 1
+
+
+@pytest.mark.end_to_end()
+def test_return_with_custom_node_with_product_annotation(runner, tmp_path):
+    source = """
+    from __future__ import annotations
+
+    from pathlib import Path
+    import pickle
+    from typing import Any
+    from typing_extensions import Annotated
+    import attrs
+    from pytask import Product
+
+    @attrs.define
+    class PickleNode:
+        name: str
+        path: Path
+
+        def state(self) -> str | None:
+            if self.path.exists():
+                return str(self.path.stat().st_mtime)
+            return None
+
+        def load(self, is_product) -> Any:
+            if is_product:
+                return self
+            return pickle.loads(self.path.read_bytes())
+
+        def save(self, value: Any) -> None:
+            self.path.write_bytes(pickle.dumps(value))
+
+    node = PickleNode("pickled_data", Path(__file__).parent.joinpath("data.pkl"))
+
+    def task_example(node: Annotated[PickleNode, node, Product]) -> None:
+        node.save(1)
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.as_posix()])
@@ -860,3 +905,43 @@ def test_hashing_works(tmp_path):
 
     hashes_ = json.loads(tmp_path.joinpath(".pytask", "file_hashes.json").read_text())
     assert hashes == hashes_
+
+
+def test_python_node_as_product_with_product_annotation(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import Product, PythonNode
+    from pathlib import Path
+
+    node = PythonNode()
+
+    def task_create_string(node: Annotated[PythonNode, node, Product]) -> None:
+        node.save("Hello, World!")
+
+    def task_write_file(text: Annotated[str, node]) -> Annotated[str, Path("file.txt")]:
+        return text
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
+
+
+def test_pickle_node_as_product_with_product_annotation(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import Product, PickleNode
+    from pathlib import Path
+
+    node = PickleNode(name="node", path=Path(__file__).parent / "file.txt")
+
+    def task_create_string(node: Annotated[PickleNode, node, Product]) -> None:
+        node.save("Hello, World!")
+
+    def task_write_file(text: Annotated[str, node]) -> Annotated[str, Path("file.txt")]:
+        return text
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"

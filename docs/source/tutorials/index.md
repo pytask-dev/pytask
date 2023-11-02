@@ -11,6 +11,7 @@ installation
 set_up_a_project
 write_a_task
 defining_dependencies_products
+using_a_data_catalog
 invoking_pytask
 configuration
 plugins

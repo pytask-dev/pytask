@@ -33,7 +33,7 @@ To write to the terminal, use pytask's console.
 pytask uses marks to attach additional information to task functions which is processed
 by the host or by plugins. The following marks are available by default.
 
-### Marks
+### Built-in marks
 
 ```{eval-rst}
 .. function:: pytask.mark.depends_on(objects: Any | Iterable[Any] | dict[Any, Any])
@@ -263,8 +263,11 @@ Nodes are the interface for different kinds of dependencies or products.
 
 ```{eval-rst}
 .. autoclass:: pytask.PathNode
+   :members: load, save
 .. autoclass:: pytask.PickleNode
+   :members: load, save
 .. autoclass:: pytask.PythonNode
+   :members: load, save
 ```
 
 To parse dependencies and products from nodes, use the following functions.
@@ -340,6 +343,13 @@ outcome.
 .. autofunction:: pytask.count_outcomes
 ```
 
+## Path utilities
+
+```{eval-rst}
+.. autofunction:: pytask.path.import_path
+.. autofunction:: pytask.path.hash_path
+```
+
 ## Programmatic Interfaces
 
 ```{eval-rst}
@@ -355,6 +365,17 @@ There are some classes to handle different kinds of reports.
 .. autoclass:: pytask.CollectionReport
 .. autoclass:: pytask.ExecutionReport
 .. autoclass:: pytask.DagReport
+```
+
+## Tree utilities
+
+```{eval-rst}
+.. autofunction:: pytask.tree_util.PyTree
+.. autofunction:: pytask.tree_util.tree_flatten_with_path
+.. autofunction:: pytask.tree_util.tree_leaves
+.. autofunction:: pytask.tree_util.tree_map
+.. autofunction:: pytask.tree_util.tree_map_with_path
+.. autofunction:: pytask.tree_util.tree_structure
 ```
 
 ## Typing

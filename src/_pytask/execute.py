@@ -144,9 +144,9 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
         raise WouldBeExecuted
 
 
-def _safe_load(node: PNode, task: PTask) -> Any:
+def _safe_load(node: PNode, task: PTask, is_product: bool) -> Any:
     try:
-        return node.load()
+        return node.load(is_product=is_product)
     except Exception as e:  # noqa: BLE001
         task_name = getattr(task, "display_name", task.name)
         msg = f"Exception while loading node {node.name!r} of task {task_name!r}"
@@ -163,11 +163,11 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
 
     kwargs = {}
     for name, value in task.depends_on.items():
-        kwargs[name] = tree_map(lambda x: _safe_load(x, task), value)
+        kwargs[name] = tree_map(lambda x: _safe_load(x, task, False), value)
 
     for name, value in task.produces.items():
         if name in parameters:
-            kwargs[name] = tree_map(lambda x: _safe_load(x, task), value)
+            kwargs[name] = tree_map(lambda x: _safe_load(x, task, True), value)
 
     out = task.execute(**kwargs)
 

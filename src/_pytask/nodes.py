@@ -54,6 +54,7 @@ class TaskWithoutPath(PTask):
         Reports with entries for when, what, and content.
     attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
+
     """
 
     name: str
@@ -178,7 +179,7 @@ class PathNode(PPathNode):
             return hash_path(self.path, modification_time)
         return None
 
-    def load(self) -> Path:
+    def load(self, is_product: bool = False) -> Path:  # noqa: ARG002
         """Load the value."""
         return self.path
 
@@ -225,8 +226,10 @@ class PythonNode(PNode):
     value: Any | NoDefault = no_default
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
 
-    def load(self) -> Any:
+    def load(self, is_product: bool = False) -> Any:
         """Load the value."""
+        if is_product:
+            return self
         if isinstance(self.value, PythonNode):
             return self.value.load()
         return self.value
@@ -265,32 +268,21 @@ class PythonNode(PNode):
 class PickleNode:
     """A node for pickle files.
 
-    Parameters
+    Attributes
     ----------
     name
         Name of the node which makes it identifiable in the DAG.
     path
         The path to the file.
-    load_func
-        A function to convert :obj:`bytes` from a pickle file to a Python object.
-    dump_func
-        A function to convert a Python object to :obj:`bytes`.
 
     """
 
     name: str
     path: Path
-    load_func: Callable[[bytes], Any] = pickle.loads
-    dump_func: Callable[[Any], bytes] = pickle.dumps
 
     @classmethod
-    @functools.lru_cache
     def from_path(cls, path: Path) -> PickleNode:
-        """Instantiate class from path to file.
-
-        The `lru_cache` decorator ensures that the same object is not collected twice.
-
-        """
+        """Instantiate class from path to file."""
         if not path.is_absolute():
             msg = "Node must be instantiated from absolute path."
             raise ValueError(msg)
@@ -302,8 +294,12 @@ class PickleNode:
             return hash_path(self.path, modification_time)
         return None
 
-    def load(self) -> Any:
-        return self.load_func(self.path.read_bytes())
+    def load(self, is_product: bool = False) -> Any:
+        if is_product:
+            return self
+        with self.path.open("rb") as f:
+            return pickle.load(f)  # noqa: S301
 
     def save(self, value: Any) -> None:
-        self.path.write_bytes(self.dump_func(value))
+        with self.path.open("wb") as f:
+            pickle.dump(value, f)
