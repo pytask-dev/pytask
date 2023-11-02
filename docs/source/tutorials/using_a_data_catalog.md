@@ -21,7 +21,6 @@ The project structure is the same as in the previous example with the exception 
 
 ```text
 my_project
-├───.pytask
 │
 ├───pyproject.toml
 │
@@ -33,7 +32,8 @@ my_project
 │
 ├───setup.py
 │
-├───.pytask.sqlite3
+├───.pytask
+│   └────...
 │
 └───bld
     └────plot.png
@@ -166,7 +166,6 @@ Let's add `file.csv` to the data catalog.
 
 ```text
 my_project
-├───.pytask
 │
 ├───pyproject.toml
 │
@@ -179,7 +178,8 @@ my_project
 │
 ├───setup.py
 │
-├───.pytask.sqlite3
+├───.pytask
+│   └────...
 │
 └───bld
     ├────file.pkl

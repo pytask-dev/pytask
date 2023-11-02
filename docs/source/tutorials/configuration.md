@@ -4,7 +4,7 @@ pytask can be configured via the command-line interface or permanently with a
 `pyproject.toml` file.
 
 The file also indicates the root of your project where pytask stores information in a
-`.pytask.sqlite3` database.
+`.pytask` folder.
 
 ## The configuration file
 

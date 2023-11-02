@@ -14,7 +14,6 @@ _generated
 *.egg-info
 .eggs
 
-.pytask.sqlite3
 .pytask
 
 build
