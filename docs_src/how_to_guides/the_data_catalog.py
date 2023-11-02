@@ -1,13 +1,15 @@
-import pickle
 from pathlib import Path
 from typing import Any
-from typing import Optional
+
+import cloudpickle
+from attrs import define
 
 
+@define
 class PickleNode:
-    """The class for a node that persists values with pickle to files.
+    """A node for pickle files.
 
-    Parameters
+    Attributes
     ----------
     name
         Name of the node which makes it identifiable in the DAG.
@@ -16,9 +18,8 @@ class PickleNode:
 
     """
 
-    def __init__(self, name: str = "", path: Optional[Path] = None) -> None:
-        self.name = name
-        self.path = path
+    name: str
+    path: Path
 
     @classmethod
     def from_path(cls, path: Path) -> "PickleNode":
@@ -28,18 +29,17 @@ class PickleNode:
             raise ValueError(msg)
         return cls(name=path.as_posix(), path=path)
 
-    def state(self) -> Optional[str]:
-        """Return the modification timestamp as the state."""
+    def state(self) -> str | None:
         if self.path.exists():
             return str(self.path.stat().st_mtime)
         return None
 
-    def load(self, is_product: bool) -> Path:
-        """Load the value from the path."""
+    def load(self, is_product: bool = False) -> Any:
         if is_product:
             return self
-        return pickle.loads(self.path.read_bytes())
+        with self.path.open("rb") as f:
+            return cloudpickle.load(f)
 
     def save(self, value: Any) -> None:
-        """Save any value with pickle to the file."""
-        self.path.write_bytes(pickle.dumps(value))
+        with self.path.open("wb") as f:
+            cloudpickle.dump(value, f)

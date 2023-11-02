@@ -5,6 +5,8 @@ import pickle
 import pytest
 from pytask import PathNode
 from pytask import PickleNode
+from pytask import PNode
+from pytask import PPathNode
 from pytask import PythonNode
 
 
@@ -63,3 +65,18 @@ def test_hash_of_pickle_node(tmp_path, value, exists, expected):
         assert state == expected
     else:
         assert state is expected
+
+
+@pytest.mark.parametrize(
+    ("node", "protocol", "expected"),
+    [
+        (PathNode, PNode, True),
+        (PathNode, PPathNode, True),
+        (PythonNode, PNode, True),
+        (PythonNode, PPathNode, False),
+        (PickleNode, PNode, True),
+        (PickleNode, PPathNode, True),
+    ],
+)
+def test_comply_with_protocol(node, protocol, expected):
+    assert isinstance(node, protocol) is expected
