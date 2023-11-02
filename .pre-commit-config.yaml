@@ -115,6 +115,7 @@ repos:
                 docs/source/tutorials/repeating_tasks_with_different_inputs.md|
                 docs/source/tutorials/selecting_tasks.md|
                 docs/source/tutorials/set_up_a_project.md|
+                docs/source/tutorials/using_a_data_catalog.md|
                 docs/source/tutorials/write_a_task.md
             )$
 -   repo: https://github.com/nbQA-dev/nbQA

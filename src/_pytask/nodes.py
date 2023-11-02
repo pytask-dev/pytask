@@ -4,6 +4,7 @@ from __future__ import annotations
 import functools
 import hashlib
 import inspect
+import pickle
 from pathlib import Path  # noqa: TCH003
 from typing import Any
 from typing import Callable
@@ -51,6 +52,7 @@ class TaskWithoutPath(PTask):
         Reports with entries for when, what, and content.
     attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
+
     """
 
     name: str
@@ -195,11 +197,24 @@ class PythonNode(PNode):
     Attributes
     ----------
     name
-        Name of the node that is set internally.
+        The name of the node.
     value
-        Value of the node.
+        The value of the node.
     hash
-        Whether the value should be hashed to determine the state.
+        Whether the value should be hashed to determine the state. Use ``True`` for
+        objects that are hashable like strings and tuples. For dictionaries and other
+        non-hashable objects, you need to provide a function that can hash these
+        objects.
+
+    Examples
+    --------
+    To allow a :class:`~pytask.PythonNode` to hash a dictionary, you need to pass your
+    own hashing function. For example, from the :mod:`deepdiff` library.
+
+    >>> from deepdiff import DeepHash
+    >>> node = PythonNode(name="node", value={"a": 1}, hash=lambda x: DeepHash(x)[x])
+
+    .. warning:: Hashing big objects can require some time.
 
     """
 
@@ -247,3 +262,43 @@ class PythonNode(PNode):
                 return str(hashlib.sha256(value).hexdigest())
             return str(hash(value))
         return "0"
+
+
+@define
+class PickleNode:
+    """A node for pickle files.
+
+    Attributes
+    ----------
+    name
+        Name of the node which makes it identifiable in the DAG.
+    path
+        The path to the file.
+
+    """
+
+    name: str
+    path: Path
+
+    @classmethod
+    def from_path(cls, path: Path) -> PickleNode:
+        """Instantiate class from path to file."""
+        if not path.is_absolute():
+            msg = "Node must be instantiated from absolute path."
+            raise ValueError(msg)
+        return cls(name=path.as_posix(), path=path)
+
+    def state(self) -> str | None:
+        if self.path.exists():
+            return str(self.path.stat().st_mtime)
+        return None
+
+    def load(self, is_product: bool = False) -> Any:
+        if is_product:
+            return self
+        with self.path.open("rb") as f:
+            return pickle.load(f)  # noqa: S301
+
+    def save(self, value: Any) -> None:
+        with self.path.open("wb") as f:
+            pickle.dump(value, f)

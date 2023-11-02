@@ -62,10 +62,10 @@ from interpreter session to interpreter session for security reasons (see
 ```
 
 {class}`list` and {class}`dict` are not hashable by default. Luckily, there are
-libraries who provide this functionality like `deepdiff`. We can use them to pass a
+libraries who provide this functionality like {mod}`deepdiff`. We can use them to pass a
 function to the {class}`~pytask.PythonNode` that generates a stable hash.
 
-First, install `deepdiff`.
+First, install {mod}`deepdiff`.
 
 ```console
 $ pip install deepdiff

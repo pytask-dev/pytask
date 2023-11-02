@@ -19,6 +19,7 @@ hashing_inputs_of_tasks
 using_task_returns
 writing_custom_nodes
 how_to_write_a_plugin
+the_data_catalog
 ```
 
 ## Best Practice Guides
