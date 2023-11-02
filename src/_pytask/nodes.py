@@ -10,10 +10,12 @@ from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
 
+from _pytask._hashlib import hash_value
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
+from _pytask.path import hash_path
 from _pytask.typing import no_default
 from _pytask.typing import NoDefault
 from attrs import define
@@ -128,7 +130,8 @@ class Task(PTaskWithPath):
     def state(self) -> str | None:
         """Return the state of the node."""
         if self.path.exists():
-            return str(self.path.stat().st_mtime)
+            modification_time = self.path.stat().st_mtime
+            return hash_path(self.path, modification_time)
         return None
 
     def execute(self, **kwargs: Any) -> None:
@@ -172,7 +175,8 @@ class PathNode(PPathNode):
 
         """
         if self.path.exists():
-            return str(self.path.stat().st_mtime)
+            modification_time = self.path.stat().st_mtime
+            return hash_path(self.path, modification_time)
         return None
 
     def load(self, is_product: bool = False) -> Path:  # noqa: ARG002
@@ -256,11 +260,7 @@ class PythonNode(PNode):
             value = self.load()
             if callable(self.hash):
                 return str(self.hash(value))
-            if isinstance(value, str):
-                return str(hashlib.sha256(value.encode()).hexdigest())
-            if isinstance(value, bytes):
-                return str(hashlib.sha256(value).hexdigest())
-            return str(hash(value))
+            return str(hash_value(value))
         return "0"
 
 
@@ -290,7 +290,8 @@ class PickleNode:
 
     def state(self) -> str | None:
         if self.path.exists():
-            return str(self.path.stat().st_mtime)
+            modification_time = self.path.stat().st_mtime
+            return hash_path(self.path, modification_time)
         return None
 
     def load(self, is_product: bool = False) -> Any:

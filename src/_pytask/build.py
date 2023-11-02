@@ -1,6 +1,7 @@
 """Implement the build command."""
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 from typing import Any
@@ -21,6 +22,7 @@ from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
+from _pytask.path import HashPathCache
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import parse_paths
@@ -38,6 +40,27 @@ if TYPE_CHECKING:
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface."""
     cli.add_command(build_command)
+
+
+@hookimpl
+def pytask_post_parse(config: dict[str, Any]) -> None:
+    """Fill cache of file hashes with stored hashes."""
+    try:
+        path = config["root"] / ".pytask" / "file_hashes.json"
+        cache = json.loads(path.read_text())
+    except Exception:  # noqa: BLE001
+        cache = {}
+
+    for key, value in cache.items():
+        HashPathCache.add(key, value)
+
+
+@hookimpl
+def pytask_unconfigure(session: Session) -> None:
+    """Save calculated file hashes to file."""
+    path = session.config["root"] / ".pytask"
+    path.mkdir(exist_ok=True, parents=True)
+    path.joinpath("file_hashes.json").write_text(json.dumps(HashPathCache._cache))
 
 
 def build(  # noqa: C901, PLR0912, PLR0913

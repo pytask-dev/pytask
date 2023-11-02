@@ -4,6 +4,7 @@ import textwrap
 
 import pytest
 from _pytask.database_utils import State
+from _pytask.path import hash_path
 from _pytask.persist import pytask_execute_task_process_report
 from pytask import build
 from pytask import create_database
@@ -72,8 +73,9 @@ def test_multiple_runs_with_persist(tmp_path):
         task_id = tmp_path.joinpath("task_module.py").as_posix() + "::task_dummy"
         node_id = tmp_path.joinpath("out.txt").as_posix()
 
-        modification_time = session.get(State, (task_id, node_id)).modification_time
-        assert float(modification_time) == tmp_path.joinpath("out.txt").stat().st_mtime
+        hash_ = session.get(State, (task_id, node_id)).hash_
+        path = tmp_path.joinpath("out.txt")
+        assert hash_ == hash_path(path, path.stat().st_mtime)
 
     session = build(paths=tmp_path)
 

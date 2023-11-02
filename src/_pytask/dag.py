@@ -1,7 +1,6 @@
 """Contains code related to resolving dependencies."""
 from __future__ import annotations
 
-import hashlib
 import itertools
 import sys
 from typing import Sequence
@@ -25,11 +24,6 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
-from _pytask.node_protocols import MetaNode
-from _pytask.node_protocols import PNode
-from _pytask.node_protocols import PPathNode
-from _pytask.node_protocols import PTask
-from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import PythonNode
 from _pytask.report import DagReport
 from _pytask.shared import reduce_names_of_multiple_nodes
@@ -39,6 +33,9 @@ from rich.text import Text
 from rich.tree import Tree
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import MetaNode
+    from _pytask.node_protocols import PTask
+    from _pytask.node_protocols import PNode
     from pathlib import Path
     from _pytask.session import Session
 
@@ -169,20 +166,6 @@ def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
     # If the node is not in the database.
     if db_state is None:
         return True
-
-    if isinstance(node, (PPathNode, PTaskWithPath)):
-        # If the modification times match, the node has not been changed.
-        if node_state == db_state.modification_time:
-            return False
-
-        # If the modification time changed, quickly return for non-tasks.
-        if not isinstance(node, PTaskWithPath):
-            return True
-
-        # When modification times changed, we are still comparing the hash of the file
-        # to avoid unnecessary and expensive reexecutions of tasks.
-        hash_ = hashlib.sha256(node.path.read_bytes()).hexdigest()
-        return hash_ != db_state.hash_
 
     return node_state != db_state.hash_
 
