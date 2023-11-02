@@ -43,7 +43,7 @@ my_project
 ├───setup.py
 │
 ├───.pytask
-│   └───...
+│   └────...
 │
 └───bld
 ```

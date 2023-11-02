@@ -25,6 +25,7 @@ my_project
 ├───pyproject.toml
 │
 ├───.pytask
+│   └───...
 │
 └───bld
     └────...

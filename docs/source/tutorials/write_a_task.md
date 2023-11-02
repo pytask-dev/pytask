@@ -12,6 +12,7 @@ automatically discovers them.
 
 ```text
 my_project
+│
 ├───pyproject.toml
 │
 ├───src
@@ -22,6 +23,7 @@ my_project
 ├───setup.py
 │
 ├───.pytask
+│   └────...
 │
 └───bld
     └────data.pkl

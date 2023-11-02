@@ -34,6 +34,7 @@ my_project
 ├───setup.py
 │
 ├───.pytask
+│   └────...
 │
 └───bld
     ├────data.pkl
