@@ -4,15 +4,18 @@ from __future__ import annotations
 import functools
 import hashlib
 import inspect
+import pickle
 from pathlib import Path  # noqa: TCH003
 from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
 
+from _pytask._hashlib import hash_value
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
+from _pytask.path import hash_path
 from _pytask.typing import no_default
 from _pytask.typing import NoDefault
 from attrs import define
@@ -51,6 +54,7 @@ class TaskWithoutPath(PTask):
         Reports with entries for when, what, and content.
     attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
+
     """
 
     name: str
@@ -126,7 +130,8 @@ class Task(PTaskWithPath):
     def state(self) -> str | None:
         """Return the state of the node."""
         if self.path.exists():
-            return str(self.path.stat().st_mtime)
+            modification_time = self.path.stat().st_mtime
+            return hash_path(self.path, modification_time)
         return None
 
     def execute(self, **kwargs: Any) -> None:
@@ -170,10 +175,11 @@ class PathNode(PPathNode):
 
         """
         if self.path.exists():
-            return str(self.path.stat().st_mtime)
+            modification_time = self.path.stat().st_mtime
+            return hash_path(self.path, modification_time)
         return None
 
-    def load(self) -> Path:
+    def load(self, is_product: bool = False) -> Path:  # noqa: ARG002
         """Load the value."""
         return self.path
 
@@ -195,11 +201,24 @@ class PythonNode(PNode):
     Attributes
     ----------
     name
-        Name of the node that is set internally.
+        The name of the node.
     value
-        Value of the node.
+        The value of the node.
     hash
-        Whether the value should be hashed to determine the state.
+        Whether the value should be hashed to determine the state. Use ``True`` for
+        objects that are hashable like strings and tuples. For dictionaries and other
+        non-hashable objects, you need to provide a function that can hash these
+        objects.
+
+    Examples
+    --------
+    To allow a :class:`~pytask.PythonNode` to hash a dictionary, you need to pass your
+    own hashing function. For example, from the :mod:`deepdiff` library.
+
+    >>> from deepdiff import DeepHash
+    >>> node = PythonNode(name="node", value={"a": 1}, hash=lambda x: DeepHash(x)[x])
+
+    .. warning:: Hashing big objects can require some time.
 
     """
 
@@ -207,8 +226,10 @@ class PythonNode(PNode):
     value: Any | NoDefault = no_default
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
 
-    def load(self) -> Any:
+    def load(self, is_product: bool = False) -> Any:
         """Load the value."""
+        if is_product:
+            return self
         if isinstance(self.value, PythonNode):
             return self.value.load()
         return self.value
@@ -239,9 +260,46 @@ class PythonNode(PNode):
             value = self.load()
             if callable(self.hash):
                 return str(self.hash(value))
-            if isinstance(value, str):
-                return str(hashlib.sha256(value.encode()).hexdigest())
-            if isinstance(value, bytes):
-                return str(hashlib.sha256(value).hexdigest())
-            return str(hash(value))
+            return str(hash_value(value))
         return "0"
+
+
+@define
+class PickleNode:
+    """A node for pickle files.
+
+    Attributes
+    ----------
+    name
+        Name of the node which makes it identifiable in the DAG.
+    path
+        The path to the file.
+
+    """
+
+    name: str
+    path: Path
+
+    @classmethod
+    def from_path(cls, path: Path) -> PickleNode:
+        """Instantiate class from path to file."""
+        if not path.is_absolute():
+            msg = "Node must be instantiated from absolute path."
+            raise ValueError(msg)
+        return cls(name=path.as_posix(), path=path)
+
+    def state(self) -> str | None:
+        if self.path.exists():
+            modification_time = self.path.stat().st_mtime
+            return hash_path(self.path, modification_time)
+        return None
+
+    def load(self, is_product: bool = False) -> Any:
+        if is_product:
+            return self
+        with self.path.open("rb") as f:
+            return pickle.load(f)  # noqa: S301
+
+    def save(self, value: Any) -> None:
+        with self.path.open("wb") as f:
+            pickle.dump(value, f)

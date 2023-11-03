@@ -12,6 +12,7 @@ from _pytask.debugging import _pdbcls_callback
 from pytask import cli
 from pytask import ExitCode
 
+
 try:
     import pexpect
 except ModuleNotFoundError:  # pragma: no cover

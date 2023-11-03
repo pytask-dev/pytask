@@ -14,7 +14,7 @@ from _pytask.click import EnumChoice
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
-from _pytask.config_utils import _find_project_root_and_config
+from _pytask.config_utils import find_project_root_and_config
 from _pytask.config_utils import read_config
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
@@ -169,7 +169,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
                 (
                     raw_config["root"],
                     raw_config["config"],
-                ) = _find_project_root_and_config(raw_config["paths"])
+                ) = find_project_root_and_config(raw_config["paths"])
 
             if raw_config["config"] is not None:
                 config_from_file = read_config(raw_config["config"])
