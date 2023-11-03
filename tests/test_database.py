@@ -9,6 +9,7 @@ from _pytask.database_utils import State
 from pytask import build
 from pytask import cli
 from pytask import ExitCode
+from pytask.path import hash_path
 from sqlalchemy.engine import make_url
 
 
@@ -33,7 +34,9 @@ def test_existence_of_hashes_in_db(tmp_path):
     assert session.exit_code == ExitCode.OK
 
     create_database(
-        make_url("sqlite:///" + tmp_path.joinpath(".pytask.sqlite3").as_posix())
+        make_url(
+            "sqlite:///" + tmp_path.joinpath(".pytask", "pytask.sqlite3").as_posix()
+        )
     )
 
     with DatabaseSession() as db_session:
@@ -47,8 +50,8 @@ def test_existence_of_hashes_in_db(tmp_path):
             (in_id, in_path),
             (out_id, out_path),
         ):
-            modification_time = db_session.get(State, (task_id, id_)).modification_time
-            assert float(modification_time) == path.stat().st_mtime
+            hash_ = db_session.get(State, (task_id, id_)).hash_
+            assert hash_ == hash_path(path, path.stat().st_mtime)
 
 
 @pytest.mark.end_to_end()

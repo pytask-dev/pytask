@@ -48,8 +48,18 @@ class MetaNode(Protocol):
 class PNode(MetaNode, Protocol):
     """Protocol for nodes."""
 
-    def load(self) -> Any:
-        """Return the value of the node that will be injected into the task."""
+    def load(self, is_product: bool) -> Any:
+        """Return the value of the node that will be injected into the task.
+
+        Parameters
+        ----------
+        is_product
+            Indicates whether the node is loaded as a dependency or as a product. It can
+            be used to return a different value when the node is loaded with a product
+            annotation. Then, we usually want to insert the node itself to allow the
+            user calling :meth:`PNode.load`.
+
+        """
         ...
 
     def save(self, value: Any) -> Any:

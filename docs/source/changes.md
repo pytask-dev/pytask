@@ -19,6 +19,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`463` raise error when a task function is not defined inside the loop body.
 - {pull}`464` improves pinned dependencies.
 - {pull}`465` adds test to ensure internal tracebacks are removed by reports.
+- {pull}`466` implements hashing for files instead of modification timestamps.
+- {pull}`470` moves `.pytask.sqlite3` to `.pytask`.
+- {pull}`472` adds `is_product` to {meth}`PNode.load`.
 
 ## 0.4.1 - 2023-10-11
 

@@ -68,7 +68,6 @@ def pytask_configure(
     config["markers"] = parse_markers(config["markers"])
 
     pm.hook.pytask_parse_config(config=config)
-
     pm.hook.pytask_post_parse(config=config)
 
     return config
@@ -77,6 +76,8 @@ def pytask_configure(
 @hookimpl
 def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse the configuration."""
+    config["root"].joinpath(".pytask").mkdir(exist_ok=True, parents=True)
+
     config["paths"] = parse_paths(config["paths"])
 
     config["markers"] = {
