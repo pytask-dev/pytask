@@ -5,6 +5,9 @@ from typing import Protocol
 from typing import runtime_checkable
 from typing import TYPE_CHECKING
 
+from _pytask.console import format_node_name
+from _pytask.console import format_task_name
+from _pytask.node_protocols import PTask
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
 from _pytask.traceback import OptionalExceptionInfo
@@ -17,7 +20,6 @@ if TYPE_CHECKING:
     from rich.console import Console
     from rich.console import RenderResult
     from rich.console import ConsoleOptions
-    from _pytask.node_protocols import PTask
     from _pytask.node_protocols import MetaNode
 
 
@@ -53,6 +55,29 @@ class CollectionReport:
     ) -> CollectionReport:
         exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(outcome=outcome, node=node, exc_info=exc_info)
+
+    def __rich_console__(
+        self, console: Console, console_options: ConsoleOptions
+    ) -> RenderResult:
+        if self.node is None:
+            header = "Error"
+        else:
+            if isinstance(self.node, PTask):
+                short_name = format_task_name(
+                    self.node, editor_url_scheme="no_link"
+                ).plain
+            elif isinstance(self.node, PNode):
+                short_name = format_node_name(self.node, session.config["paths"]).plain
+            else:
+                msg = "Requires a 'PTask' or a 'PNode' and not " f"{type(self.node)!r}."
+                raise TypeError(msg)
+
+            header = f"Could not collect {short_name}"
+
+        console.rule(
+            Text(header, style=CollectionOutcome.FAIL.style),
+            style=CollectionOutcome.FAIL.style,
+        )
 
 
 @define
