@@ -1,6 +1,8 @@
 """Contains everything related to reports."""
 from __future__ import annotations
 
+from typing import Protocol
+from typing import runtime_checkable
 from typing import TYPE_CHECKING
 
 from _pytask.outcomes import CollectionOutcome
@@ -12,8 +14,26 @@ from attrs import field
 
 
 if TYPE_CHECKING:
+    from rich.console import Console
+    from rich.console import RenderResult
+    from rich.console import ConsoleOptions
     from _pytask.node_protocols import PTask
     from _pytask.node_protocols import MetaNode
+
+
+@runtime_checkable
+class PReport(Protocol):
+    """The protocol for reports."""
+
+    outcome: CollectionOutcome | TaskOutcome
+    node: MetaNode | None = None
+    exc_info: OptionalExceptionInfo | None = None
+
+    def __rich_console__(
+        self, console: Console, console_options: ConsoleOptions
+    ) -> RenderResult:
+        """Render a report."""
+        ...
 
 
 @define

@@ -58,9 +58,10 @@ from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
 from _pytask.profile import Runtime
-from _pytask.report import CollectionReport
-from _pytask.report import DagReport
-from _pytask.report import ExecutionReport
+from _pytask.reports import CollectionReport
+from _pytask.reports import DagReport
+from _pytask.reports import ExecutionReport
+from _pytask.reports import PReport
 from _pytask.session import Session
 from _pytask.task_utils import task
 from _pytask.traceback import format_exception_without_traceback
@@ -104,6 +105,7 @@ __all__ = [
     "NodeNotFoundError",
     "PNode",
     "PPathNode",
+    "PReport",
     "PTask",
     "PTaskWithPath",
     "PathNode",

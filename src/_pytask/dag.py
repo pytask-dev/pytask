@@ -25,7 +25,7 @@ from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
 from _pytask.nodes import PythonNode
-from _pytask.report import DagReport
+from _pytask.reports import DagReport
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_map

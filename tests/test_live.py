@@ -6,7 +6,7 @@ import textwrap
 import pytest
 from _pytask.live import LiveExecution
 from _pytask.live import LiveManager
-from _pytask.report import ExecutionReport
+from _pytask.reports import ExecutionReport
 from pytask import cli
 from pytask import ExitCode
 from pytask import Task

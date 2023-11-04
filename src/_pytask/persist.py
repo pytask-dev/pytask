@@ -15,7 +15,7 @@ from _pytask.outcomes import TaskOutcome
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
     from _pytask.session import Session
-    from _pytask.report import ExecutionReport
+    from _pytask.reports import ExecutionReport
 
 
 @hookimpl

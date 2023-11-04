@@ -37,7 +37,7 @@ from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
 from _pytask.path import import_path
-from _pytask.report import CollectionReport
+from _pytask.reports import CollectionReport
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import task as task_decorator
 from _pytask.traceback import render_exc_info

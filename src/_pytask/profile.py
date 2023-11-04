@@ -36,7 +36,7 @@ from sqlalchemy import String
 
 
 if TYPE_CHECKING:
-    from _pytask.report import ExecutionReport
+    from _pytask.reports import ExecutionReport
     from typing import NoReturn
 
 

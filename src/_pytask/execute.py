@@ -31,7 +31,7 @@ from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
-from _pytask.report import ExecutionReport
+from _pytask.reports import ExecutionReport
 from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info

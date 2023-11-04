@@ -23,9 +23,9 @@ from rich.text import Text
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
-    from _pytask.report import ExecutionReport
+    from _pytask.reports import ExecutionReport
     from _pytask.session import Session
-    from _pytask.report import CollectionReport
+    from _pytask.reports import CollectionReport
 
 
 @hookimpl

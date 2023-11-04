@@ -19,7 +19,7 @@ from _pytask.traceback import remove_traceback_from_exc_info
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
     from _pytask.session import Session
-    from _pytask.report import ExecutionReport
+    from _pytask.reports import ExecutionReport
 
 
 def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
