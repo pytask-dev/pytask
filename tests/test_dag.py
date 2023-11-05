@@ -25,7 +25,7 @@ class Node(PathNode):
 
 @pytest.mark.unit()
 def test_pytask_dag_create_dag():
-    root = Path.cwd() / "src"
+    root = Path("src")
     task = Task(
         base_name="task_dummy",
         path=root,
@@ -39,9 +39,9 @@ def test_pytask_dag_create_dag():
     dag = pytask_dag_create_dag([task])
 
     for signature in (
-        "a5a678cddeaeb64e11a107b5d6edbd2b823f2b2d449f47e61987be48bdf05420",
-        "1d3ed61ac75f6e642c8dbb500dcab35dd496657e9168d707756e5523c4698e17",
-        "92a70cfbaa40b14746a305bdd172abc57b6f8811178df0f993b781d1c42b4fb6",
+        "90bb899a1b60da28ff70352cfb9f34a8bed485597c7f40eed9bd4c6449147525",
+        "59e9f20637ce34e9bcecc7bafffb5c593bac9388ac3a60d7ed0210444146c705",
+        "638a01e495bb8e263036ef2b3009795bb118926cc7f20f005a64c351d820a669",
     ):
         assert signature in dag.nodes
 
