@@ -5,6 +5,7 @@ import os
 import sys
 from pathlib import Path
 from typing import Any
+from typing import Sequence
 
 import click
 from _pytask.shared import parse_paths
@@ -62,7 +63,9 @@ def set_defaults_from_config(
     return context.params["config"]
 
 
-def find_project_root_and_config(paths: list[Path] | None) -> tuple[Path, Path | None]:
+def find_project_root_and_config(
+    paths: Sequence[Path] | None,
+) -> tuple[Path, Path | None]:
     """Find the project root and configuration file from a list of paths.
 
     The process is as follows:

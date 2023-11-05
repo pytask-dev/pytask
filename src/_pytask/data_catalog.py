@@ -25,12 +25,6 @@ from attrs import field
 __all__ = ["DataCatalog"]
 
 
-def _find_root_path(path: Path) -> Path:
-    """Find path where data catalog can store its data."""
-    root_path, _ = find_project_root_and_config([path])
-    return root_path.joinpath(".pytask", "data_catalogs")
-
-
 def _get_parent_path_of_data_catalog_module(stacklevel: int = 2) -> Path:
     """Get the parent path of the module where the data catalog is defined."""
     stack = inspect.stack()
@@ -77,9 +71,11 @@ class DataCatalog:
     _instance_path: Path = field(factory=_get_parent_path_of_data_catalog_module)
 
     def __attrs_post_init__(self) -> None:
+        root_path, _ = find_project_root_and_config((self._instance_path,))
+        self._session.config["paths"] = (root_path,)
+
         if not self.path:
-            root = _find_root_path(self._instance_path)
-            self.path = root / self.name
+            self.path = root_path / ".pytask" / "data_catalogs" / self.name
 
         self.path.mkdir(parents=True, exist_ok=True)
 
