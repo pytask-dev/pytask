@@ -608,7 +608,7 @@ def test_setting_name_for_python_node_via_annotation(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_more_nested_pytree_and_python_node_as_return(runner, snapshot, tmp_path):
+def test_more_nested_pytree_and_python_node_as_return(runner, snapshot_cli, tmp_path):
     source = """
     from pathlib import Path
     from typing import Any
@@ -628,5 +628,4 @@ def test_more_nested_pytree_and_python_node_as_return(runner, snapshot, tmp_path
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
-    output = "Collected" + result.output.split("Collected", maxsplit=1)[1]
-    assert output == snapshot()
+    assert result.output == snapshot_cli()

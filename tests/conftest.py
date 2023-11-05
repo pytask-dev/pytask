@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import re
 import sys
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Any
 from typing import Callable
 
 import pytest
 from click.testing import CliRunner
+from packaging import version
 from pytask import console
 
 
@@ -18,6 +21,29 @@ def _add_objects_to_doctest_namespace(doctest_namespace):
 @pytest.fixture(autouse=True, scope="session")
 def _path_for_snapshots():
     console.width = 80
+
+
+def _remove_variable_info_from_output(data: str, path: Any) -> str:  # noqa: ARG001
+    new_lines = []
+    for line in data.splitlines():
+        if line.startswith("Platform"):
+            for platform in ("linux", "win32", "debian"):
+                line = line.replace(platform, "<platform>")  # noqa: PLW2901
+            pattern = re.compile(
+                version.VERSION_PATTERN, flags=re.IGNORECASE | re.VERBOSE
+            )
+            line = re.sub(  # noqa: PLW2901
+                pattern=pattern, repl="<version>", string=line
+            )
+        elif line.startswith("Root:"):
+            line = "Root: <path>"  # noqa: PLW2901
+        new_lines.append(line)
+    return "\n".join(new_lines)
+
+
+@pytest.fixture()
+def snapshot_cli(snapshot):
+    return snapshot.with_defaults(matcher=_remove_variable_info_from_output)
 
 
 class SysPathsSnapshot:

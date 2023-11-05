@@ -44,7 +44,7 @@ def test_pytask_dag_create_dag():
 
 
 @pytest.mark.end_to_end()
-def test_check_if_root_nodes_are_available(tmp_path, runner):
+def test_check_if_root_nodes_are_available(tmp_path, runner, snapshot_cli):
     source = """
     import pytask
 
@@ -58,22 +58,22 @@ def test_check_if_root_nodes_are_available(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.DAG_FAILED
-    assert "Failures during resolving dependencies" in result.output
+    assert result.output == snapshot_cli()
 
-    # Ensure that node names are reduced.
+    # Specific tests
     assert "Failures during resolving dependencies" in result.output
     assert "Some dependencies do not exist or are" in result.output
+    # Ensure that node names are reduced.
     assert tmp_path.joinpath("task_d.py").as_posix() + "::task_d" not in result.output
     assert "task_d.py::task_d" in result.output
     assert tmp_path.joinpath("in.txt").as_posix() not in result.output
     assert tmp_path.name + "/in.txt" in result.output
-
     # Test whether reports remove inner tracebacks
     assert "/_pytask/dag.py" not in result.output
 
 
 @pytest.mark.end_to_end()
-def test_check_if_root_nodes_are_available_w_name(tmp_path, runner):
+def test_check_if_root_nodes_are_available_w_name(tmp_path, runner, snapshot_cli):
     source = """
     from pathlib import Path
     from typing_extensions import Annotated, Any
@@ -89,11 +89,12 @@ def test_check_if_root_nodes_are_available_w_name(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.DAG_FAILED
-    assert "Failures during resolving dependencies" in result.output
+    assert result.output == snapshot_cli()
 
-    # Ensure that node names are reduced.
+    # Specific checks.
     assert "Failures during resolving dependencies" in result.output
     assert "Some dependencies do not exist or are" in result.output
+    # Ensure that node names are reduced.
     assert tmp_path.joinpath("task_e.py").as_posix() + "::task_e" not in result.output
     assert "task_e.py::task_e" in result.output
     assert tmp_path.joinpath("in.txt").as_posix() not in result.output
@@ -101,7 +102,9 @@ def test_check_if_root_nodes_are_available_w_name(tmp_path, runner):
 
 
 @pytest.mark.end_to_end()
-def test_check_if_root_nodes_are_available_with_separate_build_folder(tmp_path, runner):
+def test_check_if_root_nodes_are_available_with_separate_build_folder(
+    tmp_path, runner, snapshot_cli
+):
     tmp_path.joinpath("src").mkdir()
     tmp_path.joinpath("bld").mkdir()
     source = """
@@ -117,6 +120,7 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder(tmp_path, 
     result = runner.invoke(cli, [tmp_path.joinpath("src").as_posix()])
 
     assert result.exit_code == ExitCode.DAG_FAILED
+    assert result.output == snapshot_cli()
 
     # Ensure that node names are reduced.
     assert "Failures during resolving dependencies" in result.output
@@ -128,7 +132,7 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder(tmp_path, 
 
 
 @pytest.mark.end_to_end()
-def test_cycle_in_dag(tmp_path, runner):
+def test_cycle_in_dag(tmp_path, runner, snapshot_cli):
     source = """
     import pytask
 
@@ -147,12 +151,14 @@ def test_cycle_in_dag(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.DAG_FAILED
+    assert result.output == snapshot_cli()
+
     assert "Failures during resolving dependencies" in result.output
     assert "The DAG contains cycles which means a dependency" in result.output
 
 
 @pytest.mark.end_to_end()
-def test_two_tasks_have_the_same_product(tmp_path, runner):
+def test_two_tasks_have_the_same_product(tmp_path, runner, snapshot_cli):
     source = """
     import pytask
 
@@ -169,6 +175,8 @@ def test_two_tasks_have_the_same_product(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.DAG_FAILED
+    assert result.output == snapshot_cli()
+
     assert "Failures during resolving dependencies" in result.output
     assert "There are some tasks which produce the same output." in result.output
 
@@ -203,7 +211,7 @@ def test_has_node_changed_catches_notnotfounderror(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
 
 
-def test_error_when_node_state_throws_error(runner, tmp_path):
+def test_error_when_node_state_throws_error(runner, tmp_path, snapshot_cli):
     source = """
     from pytask import PythonNode
 
@@ -214,6 +222,8 @@ def test_error_when_node_state_throws_error(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.DAG_FAILED
+    assert result.output == snapshot_cli()
+
     assert "task_example" in result.output
 
     # Assert that the traceback is hidden.
