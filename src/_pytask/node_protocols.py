@@ -19,14 +19,7 @@ __all__ = ["MetaNode", "PNode", "PPathNode", "PTask", "PTaskWithPath"]
 
 @runtime_checkable
 class MetaNode(Protocol):
-    """Protocol for an intersection between nodes and tasks.
-
-    Attributes
-    ----------
-    name
-        Name of the node that must be unique.
-
-    """
+    """Protocol for an intersection between nodes and tasks."""
 
     name: str
 
