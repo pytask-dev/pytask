@@ -1,7 +1,6 @@
 """Contains implementations of tasks and nodes following the node protocols."""
 from __future__ import annotations
 
-import functools
 import hashlib
 import inspect
 import pickle
@@ -65,6 +64,11 @@ class TaskWithoutPath(PTask):
     report_sections: list[tuple[str, str, str]] = field(factory=list)
     attributes: dict[Any, Any] = field(factory=dict)
 
+    @property
+    def signature(self) -> str:
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.name,))
+        return hashlib.sha256(raw_key.encode()).hexdigest()
+
     def state(self) -> str | None:
         """Return the state of the node."""
         try:
@@ -127,6 +131,11 @@ class Task(PTaskWithPath):
         if not self.display_name:
             self.display_name = self.name
 
+    @property
+    def signature(self) -> str:
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.base_name, self.path))
+        return hashlib.sha256(raw_key.encode()).hexdigest()
+
     def state(self) -> str | None:
         """Return the state of the node."""
         if self.path.exists():
@@ -149,23 +158,22 @@ class PathNode(PPathNode):
         Name of the node which makes it identifiable in the DAG.
     path
         The path to the file.
+    signature
+        The signature of the node.
 
     """
 
     name: str
     path: Path
 
+    @property
+    def signature(self) -> str:
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.path,))
+        return hashlib.sha256(raw_key.encode()).hexdigest()
+
     @classmethod
-    @functools.lru_cache
     def from_path(cls, path: Path) -> PathNode:
-        """Instantiate class from path to file.
-
-        The `lru_cache` decorator ensures that the same object is not collected twice.
-
-        """
-        if not path.is_absolute():
-            msg = "Node must be instantiated from absolute path."
-            raise ValueError(msg)
+        """Instantiate class from path to file."""
         return cls(name=path.as_posix(), path=path)
 
     def state(self) -> str | None:
@@ -209,6 +217,8 @@ class PythonNode(PNode):
         objects that are hashable like strings and tuples. For dictionaries and other
         non-hashable objects, you need to provide a function that can hash these
         objects.
+    signature
+        The signature of the node.
 
     Examples
     --------
@@ -225,6 +235,11 @@ class PythonNode(PNode):
     name: str = ""
     value: Any | NoDefault = no_default
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
+
+    @property
+    def signature(self) -> str:
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.name,))
+        return hashlib.sha256(raw_key.encode()).hexdigest()
 
     def load(self, is_product: bool = False) -> Any:
         """Load the value."""
@@ -279,6 +294,11 @@ class PickleNode:
 
     name: str
     path: Path
+
+    @property
+    def signature(self) -> str:
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.path,))
+        return hashlib.sha256(raw_key.encode()).hexdigest()
 
     @classmethod
     def from_path(cls, path: Path) -> PickleNode:

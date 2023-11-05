@@ -126,7 +126,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     2. Create the directory where the product will be placed.
 
     """
-    for dependency in session.dag.predecessors(task.name):
+    for dependency in session.dag.predecessors(task.signature):
         node = session.dag.nodes[dependency]["node"]
         if not node.state():
             msg = f"{node.name} is missing and required for {task.name}."
@@ -134,7 +134,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
 
     # Create directory for product if it does not exist. Maybe this should be a `setup`
     # method for the node classes.
-    for product in session.dag.successors(task.name):
+    for product in session.dag.successors(task.signature):
         node = session.dag.nodes[product]["node"]
         if isinstance(node, PPathNode):
             node.path.parent.mkdir(parents=True, exist_ok=True)
@@ -195,7 +195,7 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
 def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
     """Check if :class:`_pytask.nodes.PathNode` are produced by a task."""
     missing_nodes = []
-    for product in session.dag.successors(task.name):
+    for product in session.dag.successors(task.signature):
         node = session.dag.nodes[product]["node"]
         if not node.state():
             missing_nodes.append(node)
@@ -223,11 +223,11 @@ def pytask_execute_task_process_report(
     """
     task = report.task
     if report.outcome == TaskOutcome.SUCCESS:
-        update_states_in_database(session, task.name)
+        update_states_in_database(session, task.signature)
     elif report.exc_info and isinstance(report.exc_info[1], WouldBeExecuted):
         report.outcome = TaskOutcome.WOULD_BE_EXECUTED
 
-        for descending_task_name in descending_tasks(task.name, session.dag):
+        for descending_task_name in descending_tasks(task.signature, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]
             descending_task.markers.append(
                 Mark(
@@ -237,7 +237,7 @@ def pytask_execute_task_process_report(
                 )
             )
     else:
-        for descending_task_name in descending_tasks(task.name, session.dag):
+        for descending_task_name in descending_tasks(task.signature, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]
             descending_task.markers.append(
                 Mark(

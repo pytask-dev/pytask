@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 import textwrap
 from pathlib import Path
 
@@ -24,8 +25,9 @@ class Node(PathNode):
 
 
 @pytest.mark.unit()
+@pytest.mark.skipif(sys.platform == "win32", reason="Hashes match only on unix.")
 def test_pytask_dag_create_dag():
-    root = Path.cwd() / "src"
+    root = Path("src")
     task = Task(
         base_name="task_dummy",
         path=root,
@@ -38,9 +40,12 @@ def test_pytask_dag_create_dag():
 
     dag = pytask_dag_create_dag([task])
 
-    assert all(
-        any(i in node for i in ("node_1", "node_2", "task")) for node in dag.nodes
-    )
+    for signature in (
+        "90bb899a1b60da28ff70352cfb9f34a8bed485597c7f40eed9bd4c6449147525",
+        "59e9f20637ce34e9bcecc7bafffb5c593bac9388ac3a60d7ed0210444146c705",
+        "638a01e495bb8e263036ef2b3009795bb118926cc7f20f005a64c351d820a669",
+    ):
+        assert signature in dag.nodes
 
 
 @pytest.mark.end_to_end()
@@ -155,6 +160,8 @@ def test_cycle_in_dag(tmp_path, runner, snapshot_cli):
 
     assert "Failures during resolving dependencies" in result.output
     assert "The DAG contains cycles which means a dependency" in result.output
+    assert "task_1" in result.output
+    assert "task_2" in result.output
 
 
 @pytest.mark.end_to_end()

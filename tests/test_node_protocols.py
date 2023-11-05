@@ -20,6 +20,7 @@ def test_node_protocol_for_custom_nodes(runner, tmp_path):
     class CustomNode:
         name: str
         value: str
+        signature: str = "id"
 
         def state(self):
             return self.value
@@ -57,6 +58,7 @@ def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
         name: str
         path: Path
         value: Path
+        signature: str = "id"
 
         def state(self):
             return str(self.path.stat().st_mtime)
