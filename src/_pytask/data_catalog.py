@@ -69,7 +69,7 @@ class DataCatalog:
 
     """
 
-    default_node: type[PNode] = PickleNode
+    default_node: type[PNode] = PickleNode  # type: ignore[assignment]
     entries: dict[str, PNode] = field(factory=dict)
     name: str = "default"
     path: Path | None = None

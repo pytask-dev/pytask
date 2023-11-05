@@ -40,8 +40,8 @@ def test_pytask_dag_create_dag():
 
     for signature in (
         "a5a678cddeaeb64e11a107b5d6edbd2b823f2b2d449f47e61987be48bdf05420",
-        "6499ba9b5a681119a62b779b602b76b9b4bfad71a838d913555c23cf67ab36be",
-        "57774b3aab544ebaee5ce95818a93096bf412c327ef290efccca771110b1f035",
+        "1d3ed61ac75f6e642c8dbb500dcab35dd496657e9168d707756e5523c4698e17",
+        "92a70cfbaa40b14746a305bdd172abc57b6f8811178df0f993b781d1c42b4fb6",
     ):
         assert signature in dag.nodes
 
@@ -152,6 +152,8 @@ def test_cycle_in_dag(tmp_path, runner):
     assert result.exit_code == ExitCode.DAG_FAILED
     assert "Failures during resolving dependencies" in result.output
     assert "The DAG contains cycles which means a dependency" in result.output
+    assert "task_1" in result.output
+    assert "task_2" in result.output
 
 
 @pytest.mark.end_to_end()

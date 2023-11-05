@@ -35,7 +35,7 @@ def test_hash_of_python_node(value, hash_, expected):
     [
         (
             PathNode(name="pathnode", path=Path("file.txt")),
-            "7bc22c56319caa1f5abac40cd732395ef572d2376c84b443cbfada7ae164205e",
+            "66e5d35cb2f9f892935ed00fb2a639172c9078ce81e0e9e3bdab19d2f212ef50",
         ),
         (
             PythonNode(name="name", value=None),

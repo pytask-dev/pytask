@@ -942,7 +942,7 @@ def test_pickle_node_as_product_with_product_annotation(runner, tmp_path):
     from pytask import Product, PickleNode
     from pathlib import Path
 
-    node = PickleNode(name="node", path=Path(__file__).parent / "file.txt")
+    node = PickleNode(name="node", path=Path(__file__).parent / "file.pkl")
 
     def task_create_string(node: Annotated[PickleNode, node, Product]) -> None:
         node.save("Hello, World!")

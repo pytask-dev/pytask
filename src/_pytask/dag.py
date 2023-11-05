@@ -13,6 +13,7 @@ from _pytask.console import ARROW_DOWN_ICON
 from _pytask.console import console
 from _pytask.console import FILE_ICON
 from _pytask.console import format_node_name
+from _pytask.console import format_task_name
 from _pytask.console import render_to_string
 from _pytask.console import TASK_ICON
 from _pytask.dag_utils import node_and_neighbors
@@ -24,6 +25,8 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
+from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PTask
 from _pytask.nodes import PythonNode
 from _pytask.report import DagReport
 from _pytask.shared import reduce_names_of_multiple_nodes
@@ -34,8 +37,6 @@ from rich.tree import Tree
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import MetaNode
-    from _pytask.node_protocols import PTask
-    from _pytask.node_protocols import PNode
     from pathlib import Path
     from _pytask.session import Session
 
@@ -180,22 +181,29 @@ def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:
         msg = (
             f"The DAG contains cycles which means a dependency is directly or "
             "indirectly a product of the same task. See the following the path of "
-            f"nodes in the graph which forms the cycle.\n\n{_format_cycles(cycles)}"
+            "nodes in the graph which forms the cycle.\n\n"
+            f"{_format_cycles(dag, cycles)}"
         )
         raise ResolvingDependenciesError(msg)
 
 
-def _format_cycles(cycles: list[tuple[str, ...]]) -> str:
+def _format_cycles(dag: nx.DiGraph, cycles: list[tuple[str, ...]]) -> str:
     """Format cycles as a paths connected by arrows."""
     chain = [
         x for i, x in enumerate(itertools.chain.from_iterable(cycles)) if i % 2 == 0
     ]
     chain += [cycles[-1][1]]
 
-    lines = chain[:1]
-    for x in chain[1:]:
-        lines.extend(("     " + ARROW_DOWN_ICON, x))
-    return "\n".join(lines)
+    lines: list[str] = []
+    for x in chain:
+        node = dag.nodes[x].get("task") or dag.nodes[x].get("node")
+        if isinstance(node, PTask):
+            short_name = format_task_name(node, editor_url_scheme="no_link").plain
+        elif isinstance(node, PNode):
+            short_name = node.name
+        lines.extend((short_name, "     " + ARROW_DOWN_ICON))
+    # Join while removing last arrow.
+    return "\n".join(lines[:-1])
 
 
 _TEMPLATE_ERROR: str = (

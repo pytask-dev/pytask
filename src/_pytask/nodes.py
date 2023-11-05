@@ -168,7 +168,7 @@ class PathNode(PPathNode):
 
     @property
     def signature(self) -> str:  # type: ignore[override]
-        raw_key = "".join(str(hash_value(arg)) for arg in (self.name, self.path))
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.path,))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
     @classmethod
@@ -297,7 +297,7 @@ class PickleNode:
 
     @property
     def signature(self) -> str:
-        raw_key = "".join(str(hash_value(arg)) for arg in (self.name, self.path))
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.path,))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
     @classmethod
