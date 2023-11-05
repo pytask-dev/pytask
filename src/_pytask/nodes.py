@@ -65,7 +65,7 @@ class TaskWithoutPath(PTask):
     attributes: dict[Any, Any] = field(factory=dict)
 
     @property
-    def signature(self) -> str:  # type: ignore[override]
+    def signature(self) -> str:
         raw_key = "".join(str(hash_value(arg)) for arg in (self.name,))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
@@ -132,7 +132,7 @@ class Task(PTaskWithPath):
             self.display_name = self.name
 
     @property
-    def signature(self) -> str:  # type: ignore[override]
+    def signature(self) -> str:
         raw_key = "".join(str(hash_value(arg)) for arg in (self.base_name, self.path))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
@@ -167,7 +167,7 @@ class PathNode(PPathNode):
     path: Path
 
     @property
-    def signature(self) -> str:  # type: ignore[override]
+    def signature(self) -> str:
         raw_key = "".join(str(hash_value(arg)) for arg in (self.path,))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
@@ -237,7 +237,7 @@ class PythonNode(PNode):
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
 
     @property
-    def signature(self) -> str:  # type: ignore[override]
+    def signature(self) -> str:
         raw_key = "".join(str(hash_value(arg)) for arg in (self.name,))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 

@@ -25,13 +25,15 @@ class MetaNode(Protocol):
     ----------
     name
         Name of the node that must be unique.
-    signature
-        The signature of the node.
 
     """
 
     name: str
-    signature: str
+
+    @property
+    def signature(self) -> str:
+        """Return the signature of the node."""
+        ...
 
     @abstractmethod
     def state(self) -> str | None:
