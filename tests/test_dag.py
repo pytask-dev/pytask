@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 import textwrap
 from pathlib import Path
 
@@ -24,6 +25,7 @@ class Node(PathNode):
 
 
 @pytest.mark.unit()
+@pytest.mark.skipif(sys.platform == "win32", reason="Hashes match only on unix.")
 def test_pytask_dag_create_dag():
     root = Path("src")
     task = Task(
