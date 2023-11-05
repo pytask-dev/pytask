@@ -10,11 +10,15 @@ from pathlib import Path
 from types import ModuleType
 from typing import Sequence
 
+from _pytask._hashlib import file_digest
+from _pytask.cache import Cache
+
 
 __all__ = [
     "find_case_sensitive_path",
     "find_closest_ancestor",
     "find_common_ancestor",
+    "hash_path",
     "import_path",
     "relative_to",
     "shorten_path",
@@ -112,7 +116,7 @@ def import_path(path: Path, root: Path) -> ModuleType:
 
     The function is taken from pytest when the import mode is set to ``importlib``. It
     pytest's recommended import mode for new projects although the default is set to
-    ``prepend``. More discussion and information can be found in :gh:`373`.
+    ``prepend``. More discussion and information can be found in :issue:`373`.
 
     """
     module_name = _module_name_from_path(path, root)
@@ -206,3 +210,21 @@ def shorten_path(path: Path, paths: Sequence[Path]) -> str:
             ancestor = path.parents[-1]
 
     return relative_to(path, ancestor).as_posix()
+
+
+HashPathCache = Cache()
+
+
+@HashPathCache.memoize
+def hash_path(
+    path: Path, modification_time: float, digest: str = "sha256"  # noqa: ARG001
+) -> str:
+    """Compute the hash of a file.
+
+    The function is connected to a cache that is warmed up with previous hashes during
+    the configuration phase.
+
+    """
+    with path.open("rb") as f:
+        hash_ = file_digest(f, digest)
+    return hash_.hexdigest()

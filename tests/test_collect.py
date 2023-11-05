@@ -38,7 +38,7 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_collect_depends_on_that_is_not_str_or_path(tmp_path):
+def test_collect_depends_on_that_is_not_str_or_path(capsys, tmp_path):
     """If a node cannot be parsed because unknown type, raise an error."""
     source = """
     import pytask
@@ -56,6 +56,10 @@ def test_collect_depends_on_that_is_not_str_or_path(tmp_path):
     exc_info = session.collection_reports[0].exc_info
     assert isinstance(exc_info[1], NodeNotCollectedError)
     assert "'@pytask.mark.depends_on'" in str(exc_info[1])
+
+    # Assert tracebacks are hidden.
+    captured = capsys.readouterr()
+    assert "_pytask/collect.py" not in captured.out
 
 
 @pytest.mark.end_to_end()

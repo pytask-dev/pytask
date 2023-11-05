@@ -8,8 +8,12 @@ import networkx as nx
 from _pytask.outcomes import ExitCode
 from attrs import define
 from attrs import field
-from pluggy import HookRelay
 
+# HookRelay was published in v1.3.
+try:
+    from pluggy import HookRelay
+except ImportError:
+    from pluggy._hooks import _HookRelay as HookRelay
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask

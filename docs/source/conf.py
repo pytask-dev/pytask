@@ -82,6 +82,7 @@ extlinks = {
 
 intersphinx_mapping = {
     "click": ("https://click.palletsprojects.com/en/8.0.x/", None),
+    "deepdiff": ("https://zepworks.com/deepdiff/current/", None),
     "networkx": ("https://networkx.org/documentation/stable", None),
     "pandas": ("https://pandas.pydata.org/docs", None),
     "pluggy": ("https://pluggy.readthedocs.io/en/latest", None),

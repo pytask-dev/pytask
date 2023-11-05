@@ -9,6 +9,89 @@ requires = [
 [tool.setuptools_scm]
 write_to = "src/_pytask/_version.py"
 
+[project]
+name = "pytask"
+description = "In its highest aspirations, pytask tries to be pytest as a build system."
+requires-python = ">=3.8"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Software Development :: Build Tools",
+]
+dynamic = ["version"]
+dependencies = [
+  "attrs>=21.3",
+  "click",
+  "click-default-group",
+  "networkx>=2.4",
+  "optree>=0.9",
+  "packaging",
+  "pluggy>=1",
+  "rich",
+  "sqlalchemy>=1.4.36",
+  'tomli>=1; python_version < "3.11"',
+  'typing-extensions; python_version < "3.9"',
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.license]
+text = "MIT"
+
+[[project.authors]]
+name = "Tobias Raabe"
+email = "raabe@posteo.de"
+
+[project.optional-dependencies]
+docs = [
+  "furo",
+  "ipython",
+  "myst-parser",
+  "nbsphinx",
+  "sphinx",
+  "sphinx-click",
+  "sphinx-copybutton",
+  "sphinx-design>=0.3",
+  "sphinx-toolbox",
+  "sphinxext-opengraph",
+]
+[project.urls]
+Changelog = "https://pytask-dev.readthedocs.io/en/stable/changes.html"
+Documentation = "https://pytask-dev.readthedocs.io/en/stable"
+Github = "https://github.com/pytask-dev/pytask"
+Homepage = "https://pytask-dev.readthedocs.io/en/stable"
+Tracker = "https://github.com/pytask-dev/pytask/issues"
+
+[project.scripts]
+pytask = "_pytask.cli:cli"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+platforms = ["unix", "linux", "osx", "win32"]
+license-files = ["LICENSE"]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
+
 [tool.ruff]
 target-version = "py38"
 select = ["ALL"]
@@ -42,6 +125,7 @@ ignore = [
 
 
 [tool.ruff.per-file-ignores]
+"src/_pytask/_hashlib.py" = ["ALL"]
 "src/_pytask/capture.py" = ["PGH003"]
 "src/_pytask/hookspecs.py" = ["ARG001"]
 "src/_pytask/outcomes.py" = ["N818"]
@@ -51,7 +135,7 @@ ignore = [
 "tests/test_jupyter/*" = ["INP001"]
 "scripts/*" = ["D", "INP001"]
 "docs/source/conf.py" = ["D401", "INP001"]
-"docs_src/*" = ["ARG001", "D", "INP001"]
+"docs_src/*" = ["ARG001", "D", "INP001", "S301"]
 "docs_src/*/*.py" = ["FA100", "FA102", "PLR2004", "TCH"]
 "docs/source/how_to_guides/functional_interface*" = ["B018", "D", "INP", "ARG005"]
 "docs_src/how_to_guides/using_task_returns_*_task.py" = ["ARG005", "E731"]
@@ -103,88 +187,5 @@ ignore-words-list = "falsy, hist, ines, unparseable"
 [tool.refurb]
 python_version = "3.8"
 
-[project]
-name = "pytask"
-description = "In its highest aspirations, pytask tries to be pytest as a build system."
-requires-python = ">=3.8"
-classifiers = [
-  "Development Status :: 4 - Beta",
-  "Environment :: Console",
-  "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: MIT License",
-  "Operating System :: MacOS :: MacOS X",
-  "Operating System :: Microsoft :: Windows",
-  "Operating System :: POSIX",
-  "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Topic :: Scientific/Engineering",
-  "Topic :: Software Development :: Build Tools",
-]
-dynamic = ["version"]
-dependencies = [
-  "attrs>=21.3",
-  "click",
-  "click-default-group",
-  "networkx>=2.4",
-  "optree>=0.9",
-  "packaging",
-  "pluggy>=1",
-  "rich",
-  "sqlalchemy>=1.4.36",
-  "tomli>=1",
-  "typing-extensions",
-]
-
-[project.readme]
-file = "README.md"
-content-type = "text/markdown"
-
-[project.license]
-text = "MIT"
-
-[[project.authors]]
-name = "Tobias Raabe"
-email = "raabe@posteo.de"
-
-[project.optional-dependencies]
-docs = [
-  "furo",
-  "ipython",
-  "myst-parser",
-  "nbsphinx",
-  "sphinx",
-  "sphinx-click",
-  "sphinx-copybutton",
-  "sphinx-design>=0.3",
-  "sphinx-toolbox",
-  "sphinxext-opengraph",
-]
-[project.urls]
-Changelog = "https://pytask-dev.readthedocs.io/en/stable/changes.html"
-Documentation = "https://pytask-dev.readthedocs.io/en/stable"
-Github = "https://github.com/pytask-dev/pytask"
-Homepage = "https://pytask-dev.readthedocs.io/en/stable"
-Tracker = "https://github.com/pytask-dev/pytask/issues"
-
-[project.scripts]
-pytask = "_pytask.cli:cli"
-
-[tool.setuptools]
-include-package-data = true
-zip-safe = false
-platforms = ["unix", "linux", "osx", "win32"]
-license-files = ["LICENSE"]
-
 [tool.check-manifest]
 ignore = ["src/_pytask/_version.py"]
-
-[tool.setuptools.package-dir]
-"" = "src"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-namespaces = false

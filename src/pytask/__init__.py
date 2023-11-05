@@ -15,6 +15,7 @@ from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.dag_command import build_dag
+from _pytask.data_catalog import DataCatalog
 from _pytask.database_utils import BaseTable
 from _pytask.database_utils import create_database
 from _pytask.database_utils import DatabaseSession
@@ -43,6 +44,7 @@ from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import PathNode
+from _pytask.nodes import PickleNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
 from _pytask.nodes import TaskWithoutPath
@@ -86,13 +88,13 @@ __all__ = [
     "ColoredGroup",
     "ConfigurationError",
     "DagReport",
+    "DataCatalog",
     "DatabaseSession",
     "EnumChoice",
     "ExecutionError",
     "ExecutionReport",
     "Exit",
     "ExitCode",
-    "PathNode",
     "Mark",
     "MarkDecorator",
     "MarkGenerator",
@@ -100,13 +102,14 @@ __all__ = [
     "NodeInfo",
     "NodeNotCollectedError",
     "NodeNotFoundError",
-    "PathNode",
-    "Persisted",
     "PNode",
     "PPathNode",
-    "Product",
     "PTask",
     "PTaskWithPath",
+    "PathNode",
+    "Persisted",
+    "PickleNode",
+    "Product",
     "PytaskError",
     "PythonNode",
     "ResolvingDependenciesError",

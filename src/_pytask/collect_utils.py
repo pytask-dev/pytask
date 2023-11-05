@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import itertools
+import sys
 import uuid
 import warnings
 from pathlib import Path
@@ -29,9 +30,12 @@ from _pytask.typing import no_default
 from _pytask.typing import ProductType
 from attrs import define
 from attrs import field
-from typing_extensions import Annotated
 from typing_extensions import get_origin
 
+if sys.version_info >= (3, 9):
+    from typing import Annotated
+else:
+    from typing_extensions import Annotated
 
 if TYPE_CHECKING:
     from _pytask.session import Session
@@ -40,8 +44,8 @@ if TYPE_CHECKING:
 __all__ = [
     "depends_on",
     "parse_dependencies_from_task_function",
-    "parse_products_from_task_function",
     "parse_nodes",
+    "parse_products_from_task_function",
     "produces",
 ]
 

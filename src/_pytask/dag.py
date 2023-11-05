@@ -1,7 +1,6 @@
 """Contains code related to resolving dependencies."""
 from __future__ import annotations
 
-import hashlib
 import itertools
 import sys
 from typing import Sequence
@@ -25,21 +24,18 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
-from _pytask.node_protocols import MetaNode
-from _pytask.node_protocols import PNode
-from _pytask.node_protocols import PPathNode
-from _pytask.node_protocols import PTask
-from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import PythonNode
 from _pytask.report import DagReport
 from _pytask.shared import reduce_names_of_multiple_nodes
-from _pytask.traceback import remove_internal_traceback_frames_from_exception
 from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_map
 from rich.text import Text
 from rich.tree import Tree
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import MetaNode
+    from _pytask.node_protocols import PTask
+    from _pytask.node_protocols import PNode
     from pathlib import Path
     from _pytask.session import Session
 
@@ -171,20 +167,6 @@ def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
     if db_state is None:
         return True
 
-    if isinstance(node, (PPathNode, PTaskWithPath)):
-        # If the modification times match, the node has not been changed.
-        if node_state == db_state.modification_time:
-            return False
-
-        # If the modification time changed, quickly return for non-tasks.
-        if not isinstance(node, PTaskWithPath):
-            return True
-
-        # When modification times changed, we are still comparing the hash of the file
-        # to avoid unnecessary and expensive reexecutions of tasks.
-        hash_ = hashlib.sha256(node.path.read_bytes()).hexdigest()
-        return hash_ != db_state.hash_
-
     return node_state != db_state.hash_
 
 
@@ -205,7 +187,9 @@ def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:
 
 def _format_cycles(cycles: list[tuple[str, ...]]) -> str:
     """Format cycles as a paths connected by arrows."""
-    chain = [x for i, x in enumerate(itertools.chain(*cycles)) if i % 2 == 0]
+    chain = [
+        x for i, x in enumerate(itertools.chain.from_iterable(cycles)) if i % 2 == 0
+    ]
     chain += [cycles[-1][1]]
 
     lines = chain[:1]
@@ -242,7 +226,6 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph, paths: Sequence[Path]) -
                 try:
                     node_exists = dag.nodes[node]["node"].state()
                 except Exception as e:  # noqa: BLE001
-                    e = remove_internal_traceback_frames_from_exception(e)
                     msg = _format_exception_from_failed_node_state(node, dag)
                     raise ResolvingDependenciesError(msg) from e
                 if not node_exists:

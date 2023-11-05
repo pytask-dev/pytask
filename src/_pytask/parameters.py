@@ -91,7 +91,7 @@ _DATABASE_URL_OPTION = click.Option(
     type=str,
     help=("Url to the database."),
     default=None,
-    show_default="sqlite:///.../.pytask.sqlite3",
+    show_default="sqlite:///.../.pytask/pytask.sqlite3",
     callback=_database_url_callback,
 )
 
