@@ -106,12 +106,12 @@ def collect(**raw_config: Any | None) -> NoReturn:
 
 def _select_tasks_by_expressions_and_marker(session: Session) -> list[PTask]:
     """Select tasks by expressions and marker."""
-    all_tasks = {task.name for task in session.tasks}
+    all_tasks = {task.signature for task in session.tasks}
     remaining_by_mark = select_by_mark(session, session.dag) or all_tasks
     remaining_by_keyword = select_by_keyword(session, session.dag) or all_tasks
     remaining = remaining_by_mark & remaining_by_keyword
 
-    return [task for task in session.tasks if task.name in remaining]
+    return [task for task in session.tasks if task.signature in remaining]
 
 
 def _find_common_ancestor_of_all_nodes(

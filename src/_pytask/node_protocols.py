@@ -22,7 +22,11 @@ class MetaNode(Protocol):
     """Protocol for an intersection between nodes and tasks."""
 
     name: str
-    """Name of the node that must be unique."""
+
+    @property
+    def signature(self) -> str:
+        """Return the signature of the node."""
+        ...
 
     @abstractmethod
     def state(self) -> str | None:
@@ -73,7 +77,6 @@ class PPathNode(PNode, Protocol):
 class PTask(MetaNode, Protocol):
     """Protocol for nodes."""
 
-    name: str
     depends_on: dict[str, PyTree[PNode]]
     produces: dict[str, PyTree[PNode]]
     markers: list[Mark]

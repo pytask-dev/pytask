@@ -621,6 +621,7 @@ def test_return_with_custom_node_and_return_annotation(runner, tmp_path):
     class PickleNode:
         name: str
         path: Path
+        signature: str = "id"
 
         def state(self) -> str | None:
             if self.path.exists():
@@ -659,11 +660,18 @@ def test_return_with_custom_node_with_product_annotation(runner, tmp_path):
     from typing_extensions import Annotated
     import attrs
     from pytask import Product
+    from _pytask._hashlib import hash_value
+    import hashlib
 
     @attrs.define
     class PickleNode:
         name: str
         path: Path
+
+        @property
+        def signature(self) -> str:
+            raw_key = "".join(str(hash_value(arg)) for arg in (self.name, self.path))
+            return hashlib.sha256(raw_key.encode()).hexdigest()
 
         def state(self) -> str | None:
             if self.path.exists():
@@ -855,6 +863,7 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
     class PickleNode:
         name: str
         path: Path
+        signature: str = "id"
 
         def state(self) -> str | None:
             if self.path.exists():
@@ -933,7 +942,7 @@ def test_pickle_node_as_product_with_product_annotation(runner, tmp_path):
     from pytask import Product, PickleNode
     from pathlib import Path
 
-    node = PickleNode(name="node", path=Path(__file__).parent / "file.txt")
+    node = PickleNode(name="node", path=Path(__file__).parent / "file.pkl")
 
     def task_create_string(node: Annotated[PickleNode, node, Product]) -> None:
         node.save("Hello, World!")
