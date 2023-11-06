@@ -29,10 +29,10 @@ def _remove_variable_info_from_output(data: str, path: Any) -> str:  # noqa: ARG
     # Remove dynamic versions.
     index_root = next(i for i, line in enumerate(lines) if line.startswith("Root:"))
     new_info_line = "".join(lines[1:index_root])
-    pattern = re.compile(version.VERSION_PATTERN, flags=re.IGNORECASE | re.VERBOSE)
-    new_info_line = re.sub(pattern=pattern, repl="<version>", string=new_info_line)
     for platform in ("linux", "win32", "debian"):
         new_info_line = new_info_line.replace(platform, "<platform>")
+    pattern = re.compile(version.VERSION_PATTERN, flags=re.IGNORECASE | re.VERBOSE)
+    new_info_line = re.sub(pattern=pattern, repl="<version>", string=new_info_line)
 
     # Remove dynamic root path
     index_collected = next(
