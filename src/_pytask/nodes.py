@@ -66,7 +66,7 @@ class TaskWithoutPath(PTask):
 
     @property
     def signature(self) -> str:
-        raw_key = "".join(str(hash_value(arg)) for arg in (self.name,))
+        raw_key = str(hash_value(self.name))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
     def state(self) -> str | None:
@@ -162,7 +162,7 @@ class PathNode(PPathNode):
     @property
     def signature(self) -> str:
         """The unique signature of the node."""
-        raw_key = "".join(str(hash_value(arg)) for arg in (self.path,))
+        raw_key = str(hash_value(self.path))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
     @classmethod
@@ -233,7 +233,7 @@ class PythonNode(PNode):
     @property
     def signature(self) -> str:
         """The unique signature of the node."""
-        raw_key = "".join(str(hash_value(arg)) for arg in (self.name,))
+        raw_key = str(hash_value(self.name))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
     def load(self, is_product: bool = False) -> Any:
@@ -293,7 +293,7 @@ class PickleNode:
     @property
     def signature(self) -> str:
         """The unique signature of the node."""
-        raw_key = "".join(str(hash_value(arg)) for arg in (self.path,))
+        raw_key = str(hash_value(self.path))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
     @classmethod

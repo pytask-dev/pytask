@@ -1,6 +1,9 @@
+import hashlib
 import pickle
 from pathlib import Path
 from typing import Any
+
+from pytask import hash_value
 
 
 class PickleNode:
@@ -18,6 +21,12 @@ class PickleNode:
     def __init__(self, name: str = "", path: Path | None = None) -> None:
         self.name = name
         self.path = path
+
+    @property
+    def signature(self) -> str:
+        """The unique signature of the node."""
+        raw_key = str(hash_value(self.path))
+        return hashlib.sha256(raw_key.encode()).hexdigest()
 
     @classmethod
     def from_path(cls, path: Path) -> "PickleNode":
