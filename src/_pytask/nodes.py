@@ -97,8 +97,6 @@ class Task(PTaskWithPath):
         The task function.
     name
         The name of the task.
-    display_name
-        The shortest uniquely identifiable name for task for display.
     depends_on
         A list of dependencies of task.
     produces
@@ -116,7 +114,6 @@ class Task(PTaskWithPath):
     path: Path
     function: Callable[..., Any]
     name: str = field(default="", init=False)
-    display_name: str = field(default="", init=False)
     depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
     produces: dict[str, PyTree[PNode]] = field(factory=dict)
     markers: list[Mark] = field(factory=list)
@@ -127,9 +124,6 @@ class Task(PTaskWithPath):
         """Change class after initialization."""
         if not self.name:
             self.name = self.path.as_posix() + "::" + self.base_name
-
-        if not self.display_name:
-            self.display_name = self.name
 
     @property
     def signature(self) -> str:

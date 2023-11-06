@@ -85,16 +85,16 @@ def pytask_execute_task_process_report(report: ExecutionReport) -> None:
     task = report.task
     duration = task.attributes.get("duration")
     if report.outcome == TaskOutcome.SUCCESS and duration is not None:
-        _create_or_update_runtime(task.name, *duration)
+        _create_or_update_runtime(task.signature, *duration)
 
 
-def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
+def _create_or_update_runtime(task_signature: str, start: float, end: float) -> None:
     """Create or update a runtime entry."""
     with DatabaseSession() as session:
-        runtime = session.get(Runtime, task_name)
+        runtime = session.get(Runtime, task_signature)
 
         if not runtime:
-            session.add(Runtime(task=task_name, date=start, duration=end - start))
+            session.add(Runtime(task=task_signature, date=start, duration=end - start))
         else:
             for attr, val in (("date", start), ("duration", end - start)):
                 setattr(runtime, attr, val)

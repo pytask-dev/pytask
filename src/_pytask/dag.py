@@ -260,7 +260,7 @@ def _format_exception_from_failed_node_state(
 ) -> str:
     """Format message when ``node.state()`` threw an exception."""
     tasks = [dag.nodes[i]["task"] for i in dag.successors(node_signature)]
-    names = [getattr(x, "display_name", x.name) for x in tasks]
+    names = [task.name for task in tasks]
     successors = ", ".join([f"{name!r}" for name in names])
     node_name = dag.nodes[node_signature]["node"].name
     return (

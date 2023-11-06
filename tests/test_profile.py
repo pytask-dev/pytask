@@ -35,9 +35,7 @@ def test_duration_is_stored_in_task(tmp_path):
     )
 
     with DatabaseSession() as session:
-        task_name = tmp_path.joinpath("task_example.py").as_posix() + "::task_example"
-
-        runtime = session.get(Runtime, task_name)
+        runtime = session.get(Runtime, task.signature)
         assert runtime.duration > 2
 
 

@@ -154,14 +154,13 @@ def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
     else:
         url_style = create_url_style_for_task(task.function, editor_url_scheme)
 
-    if isinstance(task, PTaskWithPath) and hasattr(task, "display_name"):
-        path, task_name = task.display_name.split("::")
+    if isinstance(task, PTaskWithPath):
+        path, task_name = task.name.split("::")
         return Text.assemble(
             Text(path + "::", style="dim"), Text(task_name, style=url_style)
         )
 
-    name = getattr(task, "display_name", task.name)
-    return Text(name, style=url_style)
+    return Text(task.name, style=url_style)
 
 
 def format_node_name(node: PNode, paths: Sequence[Path] = ()) -> Text:

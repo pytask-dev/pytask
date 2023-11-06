@@ -30,7 +30,7 @@ def test_verbose_mode_execution(tmp_path, runner, verbose):
 def test_live_execution_sequentially(capsys, tmp_path):
     path = tmp_path.joinpath("task_module.py")
     task = Task(base_name="task_example", path=path, function=lambda x: x)
-    task.display_name = "task_module.py::task_example"
+    task.name = "task_module.py::task_example"
 
     live_manager = LiveManager()
     live = LiveExecution(
@@ -88,7 +88,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
 def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, outcome):
     path = tmp_path.joinpath("task_module.py")
     task = Task(base_name="task_example", path=path, function=lambda x: x)
-    task.display_name = "task_module.py::task_example"
+    task.name = "task_module.py::task_example"
 
     live_manager = LiveManager()
     live = LiveExecution(
@@ -137,7 +137,7 @@ def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, o
 def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_table):
     path = tmp_path.joinpath("task_module.py")
     running_task = Task(base_name="task_running", path=path, function=lambda x: x)
-    running_task.display_name = "task_module.py::task_running"
+    running_task.name = "task_module.py::task_running"
 
     live_manager = LiveManager()
     live = LiveExecution(
@@ -160,7 +160,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
     assert "Completed: 0/2" in captured.out
 
     completed_task = Task(base_name="task_completed", path=path, function=lambda x: x)
-    completed_task.display_name = "task_module.py::task_completed"
+    completed_task.name = "task_module.py::task_completed"
     live.update_running_tasks(completed_task)
     report = ExecutionReport(
         task=completed_task, outcome=TaskOutcome.SUCCESS, exc_info=None
@@ -191,7 +191,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
 def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path):
     path = tmp_path.joinpath("task_module.py")
     task = Task(base_name="task_example", path=path, function=lambda x: x)
-    task.display_name = "task_module.py::task_example"
+    task.name = "task_module.py::task_example"
 
     live_manager = LiveManager()
     live = LiveExecution(
@@ -215,12 +215,12 @@ def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path)
     # Add one displayed reports and many more not displayed reports to crowd out the
     # valid one.
     successful_task = Task(base_name="task_success", path=path, function=lambda x: x)
-    successful_task.display_name = "task_module.py::task_success"
+    successful_task.name = "task_module.py::task_success"
 
     tasks = []
     for i in range(25):
         skipped_task = Task(base_name=f"task_skip_{i}", path=path, function=lambda x: x)
-        skipped_task.display_name = f"task_module.py::task_skip_{i}"
+        skipped_task.name = f"task_module.py::task_skip_{i}"
         tasks.append(skipped_task)
 
     live_manager.start()
