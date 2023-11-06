@@ -494,7 +494,9 @@ def test_setting_name_for_path_node_via_annotation(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_error_when_dependency_is_defined_in_kwargs_and_annotation(runner, tmp_path):
+def test_error_when_dependency_is_defined_in_kwargs_and_annotation(
+    runner, tmp_path, snapshot_cli
+):
     source = """
     import pytask
     from pathlib import Path
@@ -512,7 +514,7 @@ def test_error_when_dependency_is_defined_in_kwargs_and_annotation(runner, tmp_p
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert "ValueError: The value for the parameter 'in_'" in result.output
+    assert result.output == snapshot_cli()
 
 
 @pytest.mark.end_to_end()
