@@ -20,7 +20,7 @@ def _add_objects_to_doctest_namespace(doctest_namespace):
 
 @pytest.fixture(autouse=True, scope="session")
 def _path_for_snapshots():
-    console.width = 80
+    console.width = 100
 
 
 def _remove_variable_info_from_output(data: str, path: Any) -> str:  # noqa: ARG001

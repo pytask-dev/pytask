@@ -234,7 +234,7 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph, paths: Sequence[Path]) -
                 try:
                     node_exists = dag.nodes[node]["node"].state()
                 except Exception as e:  # noqa: BLE001
-                    msg = _format_exception_from_failed_node_state(node, dag)
+                    msg = _format_exception_from_failed_node_state(node, dag, paths)
                     raise ResolvingDependenciesError(msg) from e
                 if not node_exists:
                     missing_root_nodes.append(node)
@@ -256,13 +256,13 @@ def _check_if_root_nodes_are_available(dag: nx.DiGraph, paths: Sequence[Path]) -
 
 
 def _format_exception_from_failed_node_state(
-    node_signature: str, dag: nx.DiGraph
+    node_signature: str, dag: nx.DiGraph, paths: Sequence[Path]
 ) -> str:
     """Format message when ``node.state()`` threw an exception."""
     tasks = [dag.nodes[i]["task"] for i in dag.successors(node_signature)]
     names = [task.name for task in tasks]
     successors = ", ".join([f"{name!r}" for name in names])
-    node_name = dag.nodes[node_signature]["node"].name
+    node_name = format_node_name(dag.nodes[node_signature]["node"], paths).plain
     return (
         f"While checking whether dependency {node_name!r} from task(s) "
         f"{successors} exists, an error was raised."

@@ -1,0 +1,134 @@
+# serializer version: 1
+# name: test_check_if_root_nodes_are_available
+  '''
+  ─────────────────────────────────────── Start pytask session ───────────────────────────────────────
+  Platform: <platform> -- Python <version>, pytask <version>, pluggy <version>
+  Root: <path>
+  Collected 1 task.
+  
+  ────────────────────────────── Failures during resolving dependencies ──────────────────────────────
+  
+  ResolvingDependenciesError: Some dependencies do not exist or are not produced by any task. See the 
+  following tree which shows which dependencies are missing for which tasks.
+  
+  Missing dependencies:
+  └── 📄 test_check_if_root_nodes_are_a0/in.txt
+      └── 📝 task_d.py::task_d
+  
+  
+  (Hint: Your file-system is case-sensitive. Check the paths' capitalization carefully.)
+  
+  ────────────────────────────────────────────────────────────────────────────────────────────────────
+  '''
+# ---
+# name: test_check_if_root_nodes_are_available_w_name
+  '''
+  ─────────────────────────────────────── Start pytask session ───────────────────────────────────────
+  Platform: <platform> -- Python <version>, pytask <version>, pluggy <version>
+  Root: <path>
+  Collected 1 task.
+  
+  ────────────────────────────── Failures during resolving dependencies ──────────────────────────────
+  
+  ResolvingDependenciesError: Some dependencies do not exist or are not produced by any task. See the 
+  following tree which shows which dependencies are missing for which tasks.
+  
+  Missing dependencies:
+  └── 📄 input1
+      └── 📝 task_e.py::task_e
+  
+  
+  (Hint: Your file-system is case-sensitive. Check the paths' capitalization carefully.)
+  
+  ────────────────────────────────────────────────────────────────────────────────────────────────────
+  '''
+# ---
+# name: test_check_if_root_nodes_are_available_with_separate_build_folder
+  '''
+  ─────────────────────────────────────── Start pytask session ───────────────────────────────────────
+  Platform: <platform> -- Python <version>, pytask <version>, pluggy <version>
+  Root: <path>
+  Collected 1 task.
+  
+  ────────────────────────────── Failures during resolving dependencies ──────────────────────────────
+  
+  ResolvingDependenciesError: Some dependencies do not exist or are not produced by any task. See the 
+  following tree which shows which dependencies are missing for which tasks.
+  
+  Missing dependencies:
+  └── 📄 test_check_if_root_nodes_are_a2/bld/in.txt
+      └── 📝 task_d.py::task_d
+  
+  
+  (Hint: Your file-system is case-sensitive. Check the paths' capitalization carefully.)
+  
+  ────────────────────────────────────────────────────────────────────────────────────────────────────
+  '''
+# ---
+# name: test_cycle_in_dag
+  '''
+  ─────────────────────────────────────── Start pytask session ───────────────────────────────────────
+  Platform: <platform> -- Python <version>, pytask <version>, pluggy <version>
+  Root: <path>
+  Collected 2 tasks.
+  
+  ────────────────────────────── Failures during resolving dependencies ──────────────────────────────
+  
+  ResolvingDependenciesError: The DAG contains cycles which means a dependency is directly or 
+  indirectly a product of the same task. See the following the path of nodes in the graph which forms 
+  the cycle.
+  
+  task_module.py::task_1
+       ⬇
+  test_cycle_in_dag0/out_1.txt
+       ⬇
+  task_module.py::task_2
+       ⬇
+  test_cycle_in_dag0/out_2.txt
+       ⬇
+  task_module.py::task_1
+  
+  ────────────────────────────────────────────────────────────────────────────────────────────────────
+  '''
+# ---
+# name: test_error_when_node_state_throws_error
+  '''
+  ─────────────────────────────────────── Start pytask session ───────────────────────────────────────
+  Platform: <platform> -- Python <version>, pytask <version>, pluggy <version>
+  Root: <path>
+  Collected 1 task.
+  
+  ────────────────────────────── Failures during resolving dependencies ──────────────────────────────
+  
+  TypeError: unhashable type: 'dict'
+  
+  The above exception was the direct cause of the following exception:
+  
+  ResolvingDependenciesError: While checking whether dependency 
+  'test_error_when_node_state_thr0/task_example.py::task_example::a' from task(s) 
+  'task_example.py::task_example' exists, an error was raised.
+  
+  ────────────────────────────────────────────────────────────────────────────────────────────────────
+  '''
+# ---
+# name: test_two_tasks_have_the_same_product
+  '''
+  ─────────────────────────────────────── Start pytask session ───────────────────────────────────────
+  Platform: <platform> -- Python <version>, pytask <version>, pluggy <version>
+  Root: <path>
+  Collected 2 tasks.
+  
+  ────────────────────────────── Failures during resolving dependencies ──────────────────────────────
+  
+  ResolvingDependenciesError: There are some tasks which produce the same output. See the following 
+  tree which shows which products are produced by multiple tasks.
+  
+  Products from multiple tasks:
+  └── 📄 test_two_tasks_have_the_same_p0/out.txt
+      ├── 📝 task_d.py::task_1
+      └── 📝 task_d.py::task_2
+  
+  
+  ────────────────────────────────────────────────────────────────────────────────────────────────────
+  '''
+# ---
