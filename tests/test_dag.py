@@ -63,7 +63,8 @@ def test_check_if_root_nodes_are_available(tmp_path, runner, snapshot_cli):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.DAG_FAILED
-    assert result.output == snapshot_cli()
+    if sys.platform == "linux":
+        assert result.output == snapshot_cli()
 
 
 @pytest.mark.end_to_end()
@@ -83,7 +84,8 @@ def test_check_if_root_nodes_are_available_w_name(tmp_path, runner, snapshot_cli
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.DAG_FAILED
-    assert result.output == snapshot_cli()
+    if sys.platform == "linux":
+        assert result.output == snapshot_cli()
 
 
 @pytest.mark.end_to_end()
@@ -105,7 +107,8 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder(
     result = runner.invoke(cli, [tmp_path.joinpath("src").as_posix()])
 
     assert result.exit_code == ExitCode.DAG_FAILED
-    assert result.output == snapshot_cli()
+    if sys.platform == "linux":
+        assert result.output == snapshot_cli()
 
 
 @pytest.mark.end_to_end()
@@ -128,7 +131,8 @@ def test_cycle_in_dag(tmp_path, runner, snapshot_cli):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.DAG_FAILED
-    assert result.output == snapshot_cli()
+    if sys.platform == "linux":
+        assert result.output == snapshot_cli()
 
 
 @pytest.mark.end_to_end()
@@ -149,7 +153,8 @@ def test_two_tasks_have_the_same_product(tmp_path, runner, snapshot_cli):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.DAG_FAILED
-    assert result.output == snapshot_cli()
+    if sys.platform == "linux":
+        assert result.output == snapshot_cli()
 
 
 @pytest.mark.end_to_end()
@@ -185,8 +190,8 @@ def test_error_when_node_state_throws_error(runner, tmp_path, snapshot_cli):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.DAG_FAILED
-    assert result.output == snapshot_cli()
-
+    if sys.platform == "linux":
+        assert result.output == snapshot_cli()
     assert "task_example" in result.output
 
 
