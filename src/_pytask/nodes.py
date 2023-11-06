@@ -127,6 +127,7 @@ class Task(PTaskWithPath):
 
     @property
     def signature(self) -> str:
+        """The unique signature of the node."""
         raw_key = "".join(str(hash_value(arg)) for arg in (self.base_name, self.path))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
@@ -152,8 +153,6 @@ class PathNode(PPathNode):
         Name of the node which makes it identifiable in the DAG.
     path
         The path to the file.
-    signature
-        The signature of the node.
 
     """
 
@@ -162,6 +161,7 @@ class PathNode(PPathNode):
 
     @property
     def signature(self) -> str:
+        """The unique signature of the node."""
         raw_key = "".join(str(hash_value(arg)) for arg in (self.path,))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
@@ -232,6 +232,7 @@ class PythonNode(PNode):
 
     @property
     def signature(self) -> str:
+        """The unique signature of the node."""
         raw_key = "".join(str(hash_value(arg)) for arg in (self.name,))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
@@ -291,6 +292,7 @@ class PickleNode:
 
     @property
     def signature(self) -> str:
+        """The unique signature of the node."""
         raw_key = "".join(str(hash_value(arg)) for arg in (self.path,))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
