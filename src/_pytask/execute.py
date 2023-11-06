@@ -148,8 +148,7 @@ def _safe_load(node: PNode, task: PTask, is_product: bool) -> Any:
     try:
         return node.load(is_product=is_product)
     except Exception as e:  # noqa: BLE001
-        task_name = getattr(task, "display_name", task.name)
-        msg = f"Exception while loading node {node.name!r} of task {task_name!r}"
+        msg = f"Exception while loading node {node.name!r} of task {task.name!r}"
         raise NodeLoadError(msg) from e
 
 

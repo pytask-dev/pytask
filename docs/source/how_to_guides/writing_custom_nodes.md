@@ -104,6 +104,9 @@ Here are some explanations.
   - `name` identifies the node in the DAG, so the name must be unique.
   - `path` holds the path to the file and identifies the node as a path node that is
     handled slightly differently than normal nodes within pytask.
+- The node has an additional property that computes the signature of the node. The
+  signature is a hash and a unique identifier for the node. For most nodes it will be a
+  hash of the path or the name.
 - The {func}`classmethod` {meth}`PickleNode.from_path` is a convenient method to
   instantiate the class.
 - The method {meth}`PickleNode.state` yields a value that signals the node's state. If

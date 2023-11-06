@@ -264,7 +264,7 @@ class LiveExecution:
         self._running_tasks.pop(new_report.task.name)
         self._reports.append(
             _ReportEntry(
-                name=getattr(new_report.task, "display_name", new_report.task.name),
+                name=new_report.task.name,
                 outcome=new_report.outcome,
                 task=new_report.task,
             )

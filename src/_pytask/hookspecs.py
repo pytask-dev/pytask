@@ -267,7 +267,7 @@ def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
 
 @hookspec(firstresult=True)
 def pytask_dag_has_node_changed(
-    session: Session, dag: nx.DiGraph, node: MetaNode, task_name: str
+    session: Session, dag: nx.DiGraph, task: PTask, node: MetaNode
 ) -> None:
     """Select the subgraph which needs to be executed.
 

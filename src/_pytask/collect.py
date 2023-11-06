@@ -408,7 +408,7 @@ def pytask_collect_modify_tasks(tasks: list[PTask]) -> None:
     id_to_short_id = _find_shortest_uniquely_identifiable_name_for_tasks(tasks)
     for task in tasks:
         if task.name in id_to_short_id and isinstance(task, Task):
-            task.display_name = id_to_short_id[task.name]
+            task.name = id_to_short_id[task.name]
 
 
 def _find_shortest_uniquely_identifiable_name_for_tasks(
