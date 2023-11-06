@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import os
 import textwrap
-from pathlib import Path
 
 import pytest
 from _pytask.cli import cli
@@ -76,7 +74,6 @@ def test_profile_if_there_is_information_on_collected_tasks(tmp_path, runner):
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-
     result = runner.invoke(cli, ["profile", tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
@@ -97,11 +94,7 @@ def test_export_of_profile(tmp_path, runner, export):
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-
-    cwd = Path.cwd()
-    os.chdir(tmp_path)
     result = runner.invoke(cli, ["profile", tmp_path.as_posix(), "--export", export])
-    os.chdir(cwd)
 
     assert result.exit_code == ExitCode.OK
     assert "Collected 1 task." in result.output

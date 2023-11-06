@@ -146,7 +146,7 @@ def _have_task_or_neighbors_changed(
         session.hook.pytask_dag_has_node_changed(
             session=session,
             dag=dag,
-            task_name=task.signature,
+            task=task,
             node=dag.nodes[node_name].get("task") or dag.nodes[node_name].get("node"),
         )
         for node_name in node_and_neighbors(dag, task.signature)
@@ -154,7 +154,7 @@ def _have_task_or_neighbors_changed(
 
 
 @hookimpl(trylast=True)
-def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
+def pytask_dag_has_node_changed(task: PTask, node: MetaNode) -> bool:
     """Indicate whether a single dependency or product has changed."""
     # If node does not exist, we receive None.
     node_state = node.state()
@@ -162,7 +162,7 @@ def pytask_dag_has_node_changed(node: MetaNode, task_name: str) -> bool:
         return True
 
     with DatabaseSession() as session:
-        db_state = session.get(State, (task_name, node.signature))
+        db_state = session.get(State, (task.signature, node.signature))
 
     # If the node is not in the database.
     if db_state is None:
