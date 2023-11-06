@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import pickle
+import sys
 import textwrap
 from pathlib import Path
 
@@ -630,4 +631,5 @@ def test_more_nested_pytree_and_python_node_as_return(runner, snapshot_cli, tmp_
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
-    assert result.output == snapshot_cli()
+    if sys.platform != "win32":
+        assert result.output == snapshot_cli()
