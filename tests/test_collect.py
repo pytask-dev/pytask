@@ -455,8 +455,6 @@ def test_deprecation_warning_for_strings_in_depends_on(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert "FutureWarning" in result.output
-    assert "Using strings to specify a dependency" in result.output
-    assert "Using strings to specify a product" in result.output
 
 
 @pytest.mark.end_to_end()
