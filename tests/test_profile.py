@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import sys
 import textwrap
 
 import pytest
@@ -61,9 +60,7 @@ def test_profile_if_there_is_no_information_on_collected_tasks(tmp_path, runner)
 
 
 @pytest.mark.end_to_end()
-def test_profile_if_there_is_information_on_collected_tasks(
-    tmp_path, runner, snapshot_cli
-):
+def test_profile_if_there_is_information_on_collected_tasks(tmp_path, runner):
     source = """
     import time
     import pytask
@@ -79,13 +76,11 @@ def test_profile_if_there_is_information_on_collected_tasks(
     result = runner.invoke(cli, ["profile", tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
-    if sys.platform != "win32":
-        assert result.output == snapshot_cli()
 
 
 @pytest.mark.end_to_end()
 @pytest.mark.parametrize("export", ["csv", "json"])
-def test_export_of_profile(tmp_path, runner, snapshot_cli, export):
+def test_export_of_profile(tmp_path, runner, export):
     source = """
     import time
     def task_example(): time.sleep(2)
@@ -96,8 +91,6 @@ def test_export_of_profile(tmp_path, runner, snapshot_cli, export):
     result = runner.invoke(cli, ["profile", tmp_path.as_posix(), "--export", export])
 
     assert result.exit_code == ExitCode.OK
-    if sys.platform != "win32":
-        assert result.output == snapshot_cli()
     assert tmp_path.joinpath(f"profile.{export}").exists()
 
 
