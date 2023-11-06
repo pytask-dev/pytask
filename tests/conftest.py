@@ -20,24 +20,27 @@ def _add_objects_to_doctest_namespace(doctest_namespace):
 
 @pytest.fixture(autouse=True, scope="session")
 def _path_for_snapshots():
-    console.width = 100
+    console.width = 80
 
 
 def _remove_variable_info_from_output(data: str, path: Any) -> str:  # noqa: ARG001
-    new_lines = []
-    for line in data.splitlines():
-        if line.startswith("Platform"):
-            for platform in ("linux", "win32", "debian"):
-                line = line.replace(platform, "<platform>")  # noqa: PLW2901
-            pattern = re.compile(
-                version.VERSION_PATTERN, flags=re.IGNORECASE | re.VERBOSE
-            )
-            line = re.sub(  # noqa: PLW2901
-                pattern=pattern, repl="<version>", string=line
-            )
-        elif line.startswith("Root:"):
-            line = "Root: <path>"  # noqa: PLW2901
-        new_lines.append(line)
+    lines = data.splitlines()
+
+    # Remove dynamic versions.
+    index_root = next(i for i, line in enumerate(lines) if line.startswith("Root:"))
+    new_info_line = "".join(lines[1:index_root])
+    pattern = re.compile(version.VERSION_PATTERN, flags=re.IGNORECASE | re.VERBOSE)
+    new_info_line = re.sub(pattern=pattern, repl="<version>", string=new_info_line)
+    for platform in ("linux", "win32", "debian"):
+        new_info_line = new_info_line.replace(platform, "<platform>")
+
+    # Remove dynamic root path
+    index_collected = next(
+        i for i, line in enumerate(lines) if line.startswith("Collected")
+    )
+    new_root_line = "Root: <path>"
+
+    new_lines = [lines[0], new_info_line, new_root_line, *lines[index_collected:]]
     return "\n".join(new_lines)
 
 
