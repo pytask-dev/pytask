@@ -65,7 +65,6 @@ from _pytask.reports import ExecutionReport
 from _pytask.session import Session
 from _pytask.task_utils import task
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
-from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import Traceback
 from _pytask.typing import is_task_function
 from _pytask.typing import Product
@@ -147,7 +146,6 @@ __all__ = [
     "produces",
     "remove_internal_traceback_frames_from_exc_info",
     "remove_marks",
-    "remove_traceback_from_exc_info",
     "set_marks",
     "task",
     "warning_record_to_str",
