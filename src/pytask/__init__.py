@@ -59,15 +59,13 @@ from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
 from _pytask.profile import Runtime
-from _pytask.report import CollectionReport
-from _pytask.report import DagReport
-from _pytask.report import ExecutionReport
+from _pytask.reports import CollectionReport
+from _pytask.reports import DagReport
+from _pytask.reports import ExecutionReport
 from _pytask.session import Session
 from _pytask.task_utils import task
-from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
-from _pytask.traceback import remove_traceback_from_exc_info
-from _pytask.traceback import render_exc_info
+from _pytask.traceback import Traceback
 from _pytask.typing import is_task_function
 from _pytask.typing import Product
 from _pytask.warnings_utils import parse_warning_filter
@@ -123,6 +121,7 @@ __all__ = [
     "Task",
     "TaskOutcome",
     "TaskWithoutPath",
+    "Traceback",
     "WarningReport",
     "__version__",
     "build",
@@ -133,7 +132,6 @@ __all__ = [
     "count_outcomes",
     "create_database",
     "depends_on",
-    "format_exception_without_traceback",
     "get_all_marks",
     "get_marks",
     "has_mark",
@@ -148,8 +146,6 @@ __all__ = [
     "produces",
     "remove_internal_traceback_frames_from_exc_info",
     "remove_marks",
-    "remove_traceback_from_exc_info",
-    "render_exc_info",
     "set_marks",
     "task",
     "warning_record_to_str",

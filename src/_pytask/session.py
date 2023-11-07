@@ -18,9 +18,9 @@ except ImportError:
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
     from _pytask.warnings_utils import WarningReport
-    from _pytask.report import CollectionReport
-    from _pytask.report import ExecutionReport
-    from _pytask.report import DagReport
+    from _pytask.reports import CollectionReport
+    from _pytask.reports import ExecutionReport
+    from _pytask.reports import DagReport
 
 
 @define(kw_only=True)

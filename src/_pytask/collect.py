@@ -19,8 +19,6 @@ from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.console import create_summary_panel
-from _pytask.console import format_node_name
-from _pytask.console import format_task_name
 from _pytask.console import get_file
 from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
@@ -38,10 +36,9 @@ from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
 from _pytask.path import import_path
 from _pytask.path import shorten_path
-from _pytask.report import CollectionReport
+from _pytask.reports import CollectionReport
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import task as task_decorator
-from _pytask.traceback import render_exc_info
 from _pytask.typing import is_task_function
 from rich.text import Text
 
@@ -464,41 +461,7 @@ def pytask_collect_log(
         )
 
         for report in failed_reports:
-            if report.node is None:
-                header = "Error"
-            else:
-                if isinstance(report.node, PTask):
-                    short_name = format_task_name(
-                        report.node, editor_url_scheme="no_link"
-                    ).plain
-                elif isinstance(report.node, PNode):
-                    short_name = format_node_name(
-                        report.node, session.config["paths"]
-                    ).plain
-                else:
-                    msg = (
-                        "Requires a 'PTask' or a 'PNode' and not "
-                        f"{type(report.node)!r}."
-                    )
-                    raise TypeError(msg)
-
-                header = f"Could not collect {short_name}"
-
-            console.rule(
-                Text(header, style=CollectionOutcome.FAIL.style),
-                style=CollectionOutcome.FAIL.style,
-            )
-
-            console.print()
-
-            assert report.exc_info
-            console.print(
-                render_exc_info(
-                    *report.exc_info, show_locals=session.config["show_locals"]
-                )
-            )
-
-            console.print()
+            console.print(report)
 
         panel = create_summary_panel(
             counts, CollectionOutcome, "Collected errors and tasks"

@@ -15,6 +15,8 @@ import pluggy
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import IS_WINDOWS_TERMINAL
+from _pytask.reports import ExecutionReport
+from _pytask.traceback import Traceback
 from rich.text import Text
 
 if TYPE_CHECKING:
@@ -57,6 +59,16 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
             "Resort to `editor_url_scheme='file'`.",
             stacklevel=1,
         )
+
+
+@hookimpl
+def pytask_post_parse(config: dict[str, Any]) -> None:
+    # Set class variables on traceback object.
+    Traceback.show_locals = config["show_locals"]
+    # Set class variables on Executionreport.
+    ExecutionReport.editor_url_scheme = config["editor_url_scheme"]
+    ExecutionReport.show_capture = config["show_capture"]
+    ExecutionReport.show_locals = config["show_locals"]
 
 
 @hookimpl

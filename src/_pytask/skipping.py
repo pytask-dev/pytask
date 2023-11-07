@@ -13,13 +13,12 @@ from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
-from _pytask.traceback import remove_traceback_from_exc_info
 
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
     from _pytask.session import Session
-    from _pytask.report import ExecutionReport
+    from _pytask.reports import ExecutionReport
 
 
 def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
@@ -106,7 +105,6 @@ def pytask_execute_task_process_report(
 
         elif isinstance(report.exc_info[1], SkippedAncestorFailed):
             report.outcome = TaskOutcome.SKIP_PREVIOUS_FAILED
-            report.exc_info = remove_traceback_from_exc_info(report.exc_info)
 
     if report.exc_info and isinstance(
         report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)

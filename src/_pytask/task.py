@@ -12,7 +12,7 @@ from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import parse_collected_tasks_with_task_marker
 
 if TYPE_CHECKING:
-    from _pytask.report import CollectionReport
+    from _pytask.reports import CollectionReport
     from _pytask.session import Session
     from pathlib import Path
 

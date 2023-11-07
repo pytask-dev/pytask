@@ -55,15 +55,14 @@ def test_collect_depends_on_that_is_not_str_or_path(capsys, tmp_path):
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
     exc_info = session.collection_reports[0].exc_info
     assert isinstance(exc_info[1], NodeNotCollectedError)
-    assert "'@pytask.mark.depends_on'" in str(exc_info[1])
-
+    captured = capsys.readouterr().out
+    assert "'@pytask.mark.depends_on'" in captured
     # Assert tracebacks are hidden.
-    captured = capsys.readouterr()
-    assert "_pytask/collect.py" not in captured.out
+    assert "_pytask/collect.py" not in captured
 
 
 @pytest.mark.end_to_end()
-def test_collect_produces_that_is_not_str_or_path(tmp_path):
+def test_collect_produces_that_is_not_str_or_path(tmp_path, capsys):
     """If a node cannot be parsed because unknown type, raise an error."""
     source = """
     import pytask
@@ -80,7 +79,8 @@ def test_collect_produces_that_is_not_str_or_path(tmp_path):
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
     exc_info = session.collection_reports[0].exc_info
     assert isinstance(exc_info[1], NodeNotCollectedError)
-    assert "'@pytask.mark.depends_on'" in str(exc_info[1])
+    captured = capsys.readouterr().out
+    assert "'@pytask.mark.depends_on'" in captured
 
 
 @pytest.mark.end_to_end()
@@ -390,7 +390,7 @@ def test_collect_string_product_raises_error_with_annotation(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_product_cannot_mix_different_product_types(tmp_path):
+def test_product_cannot_mix_different_product_types(tmp_path, capsys):
     source = """
     import pytask
     from typing_extensions import Annotated
@@ -410,11 +410,12 @@ def test_product_cannot_mix_different_product_types(tmp_path):
     assert len(session.tasks) == 0
     report = session.collection_reports[0]
     assert report.outcome == CollectionOutcome.FAIL
-    assert "The task uses multiple ways" in str(report.exc_info[1])
+    captured = capsys.readouterr().out
+    assert "The task uses multiple ways" in captured
 
 
 @pytest.mark.end_to_end()
-def test_depends_on_cannot_mix_different_definitions(tmp_path):
+def test_depends_on_cannot_mix_different_definitions(tmp_path, capsys):
     source = """
     import pytask
     from typing_extensions import Annotated
@@ -437,7 +438,8 @@ def test_depends_on_cannot_mix_different_definitions(tmp_path):
     assert len(session.tasks) == 0
     report = session.collection_reports[0]
     assert report.outcome == CollectionOutcome.FAIL
-    assert "The task uses multiple" in str(report.exc_info[1])
+    captured = capsys.readouterr().out
+    assert "The task uses multiple" in captured
 
 
 @pytest.mark.end_to_end()
