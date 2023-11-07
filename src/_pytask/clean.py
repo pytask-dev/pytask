@@ -106,7 +106,7 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001  # pragma: no cover
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
         console.print(Traceback(sys.exc_info()))
 
@@ -160,7 +160,7 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
             session.exit_code = ExitCode.COLLECTION_FAILED
             console.rule(style="failed")
 
-        except Exception:  # noqa: BLE001
+        except Exception:  # noqa: BLE001  # pragma: no cover
             console.print(Traceback(sys.exc_info()))
             console.rule(style="failed")
             session.exit_code = ExitCode.FAILED

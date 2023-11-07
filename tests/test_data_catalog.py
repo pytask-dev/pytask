@@ -187,3 +187,23 @@ def test_use_data_catalog_with_different_path(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert len(list(tmp_path.joinpath(".data").iterdir())) == 2
+
+
+@pytest.mark.unit()
+def test_error_when_name_of_node_is_not_string():
+    data_catalog = DataCatalog()
+    with pytest.raises(TypeError, match="The name of a catalog entry"):
+        data_catalog.add(True, Path("file.txt"))
+
+
+@pytest.mark.unit()
+def test_requesting_new_node_with_python_node_as_default():
+    data_catalog = DataCatalog(default_node=PythonNode)
+    assert isinstance(data_catalog["node"], PythonNode)
+
+
+@pytest.mark.unit()
+def test_adding_a_python_node():
+    data_catalog = DataCatalog()
+    data_catalog.add("node", PythonNode(name="node", value=1))
+    assert isinstance(data_catalog["node"], PythonNode)

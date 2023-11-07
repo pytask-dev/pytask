@@ -50,7 +50,7 @@ def get_root(cwd: Path) -> Path | None:
     try:
         _, stdout, _ = cmd_output("git", "rev-parse", "--show-cdup", cwd=cwd)
         root = Path(cwd) / stdout.strip()
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError:  # pragma: no cover
         # User is not in git repo.
         root = None
     return root

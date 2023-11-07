@@ -63,7 +63,7 @@ def pytask_collect(session: Session) -> bool:
 
     try:
         session.hook.pytask_collect_modify_tasks(session=session, tasks=session.tasks)
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001  # pragma: no cover
         report = CollectionReport.from_exception(
             outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info()
         )
@@ -370,7 +370,7 @@ def _raise_error_if_casing_of_path_is_wrong(
     path: Path, check_casing_of_paths: bool
 ) -> None:
     """Raise an error if the path does not have the correct casing."""
-    if (
+    if (  # pragma: no cover
         not IS_FILE_SYSTEM_CASE_SENSITIVE
         and sys.platform == "win32"
         and check_casing_of_paths

@@ -10,21 +10,21 @@ def test_cache():
     cache = Cache()
 
     @cache.memoize
-    def func(a):
-        return a
+    def func(a, b):
+        return a + b
 
     assert func.cache.cache_info.hits == 0
     assert func.cache.cache_info.misses == 0
 
-    value = func(1)
-    assert value == 1
+    value = func(1, b=2)
+    assert value == 3
     assert func.cache.cache_info.hits == 0
     assert func.cache.cache_info.misses == 1
 
     assert next(i for i in cache._cache.values()) == 1
 
-    value = func(1)
-    assert value == 1
+    value = func(1, b=2)
+    assert value == 3
     assert func.cache.cache_info.hits == 1
     assert func.cache.cache_info.misses == 1
 

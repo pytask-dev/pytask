@@ -555,3 +555,20 @@ def test_relative_path_of_path_node(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("subfolder", "out.txt").exists()
+
+
+@pytest.mark.end_to_end()
+def test_error_when_using_kwargs_and_node_in_annotation(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from pytask import task, Product
+    from typing_extensions import Annotated
+
+    @task(kwargs={"path": Path("file.txt")})
+    def task_example(path: Annotated[Path, Path("file.txt"), Product]) -> None: ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "is defined twice" in result.output
