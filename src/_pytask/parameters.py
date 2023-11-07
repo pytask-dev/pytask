@@ -65,8 +65,10 @@ _VERBOSE_OPTION = click.Option(
 _EDITOR_URL_SCHEME_OPTION = click.Option(
     ["--editor-url-scheme"],
     default="file",
-    help="Use file, vscode, pycharm or a custom url scheme to add URLs to task "
-    "ids to quickly jump to the task definition. Use no_link to disable URLs.",
+    help=(
+        "Use file, vscode, pycharm or a custom url scheme to add URLs to task "
+        "ids to quickly jump to the task definition. Use no_link to disable URLs."
+    ),
 )
 """click.Option: An option to embed URLs in task ids."""
 
@@ -82,7 +84,10 @@ def _database_url_callback(
     try:
         return make_url(value)
     except ArgumentError:
-        msg = "The 'database_url' must conform to sqlalchemy's url standard: https://docs.sqlalchemy.org/en/latest/core/engines.html#backend-specific-urls."
+        msg = (
+            "The 'database_url' must conform to sqlalchemy's url standard: "
+            "https://docs.sqlalchemy.org/en/latest/core/engines.html#backend-specific-urls."
+        )
         raise click.BadParameter(msg) from None
 
 

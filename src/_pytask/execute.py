@@ -13,12 +13,10 @@ from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_task
 from _pytask.console import format_node_name
 from _pytask.console import format_strings_as_flat_tree
-from _pytask.console import format_task_name
 from _pytask.console import unify_styles
 from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import TopologicalSorter
 from _pytask.database_utils import update_states_in_database
-from _pytask.enums import ShowCapture
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
@@ -32,9 +30,7 @@ from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
 from _pytask.reports import ExecutionReport
-from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_traceback_from_exc_info
-from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_structure
@@ -274,10 +270,10 @@ class ShowErrorsImmediatelyPlugin:
 
     @staticmethod
     @hookimpl(tryfirst=True)
-    def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:
+    def pytask_execute_task_log_end(report: ExecutionReport) -> None:
         """Print the error report of a task."""
         if report.outcome == TaskOutcome.FAIL:
-            _print_errored_task_report(session, report)
+            console.print(report)
 
 
 @hookimpl
@@ -301,7 +297,7 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
                 report.outcome == TaskOutcome.SKIP_PREVIOUS_FAILED
                 and session.config["verbose"] >= 2  # noqa: PLR2004
             ):
-                _print_errored_task_report(session, report)
+                console.print(report)
 
     console.rule(style="dim")
 
@@ -319,32 +315,3 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
         raise ExecutionError
 
     return True
-
-
-def _print_errored_task_report(session: Session, report: ExecutionReport) -> None:
-    """Print the traceback and the exception of an errored report."""
-    task_name = format_task_name(
-        task=report.task, editor_url_scheme=session.config["editor_url_scheme"]
-    )
-    text = Text.assemble("Task ", task_name, " failed", style="failed")
-    console.rule(text, style=report.outcome.style)
-
-    console.print()
-
-    if report.exc_info and isinstance(report.exc_info[1], Exit):
-        console.print(format_exception_without_traceback(report.exc_info))
-    else:
-        assert report.exc_info
-        console.print(
-            render_exc_info(*report.exc_info, show_locals=session.config["show_locals"])
-        )
-
-    console.print()
-    show_capture = session.config["show_capture"]
-    for when, key, content in report.sections:
-        if key in ("stdout", "stderr") and show_capture in (
-            ShowCapture(key),
-            ShowCapture.ALL,
-        ):
-            console.rule(f"Captured {key} during {when}", style="default")
-            console.print(content)

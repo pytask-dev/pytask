@@ -359,7 +359,8 @@ outcome.
 
 ## Reports
 
-There are some classes to handle different kinds of reports.
+Reports are classes that handle successes and errors during the collection, dag
+resolution and execution.
 
 ```{eval-rst}
 .. autoclass:: pytask.CollectionReport
@@ -393,7 +394,6 @@ There are some classes to handle different kinds of reports.
 ## Tracebacks
 
 ```{eval-rst}
-.. autofunction:: pytask.format_exception_without_traceback
 .. autofunction:: pytask.remove_internal_traceback_frames_from_exc_info
 .. autofunction:: pytask.remove_traceback_from_exc_info
 .. autofunction:: pytask.render_exc_info

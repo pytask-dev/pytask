@@ -62,10 +62,8 @@ from _pytask.profile import Runtime
 from _pytask.reports import CollectionReport
 from _pytask.reports import DagReport
 from _pytask.reports import ExecutionReport
-from _pytask.reports import PReport
 from _pytask.session import Session
 from _pytask.task_utils import task
-from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.traceback import render_exc_info
@@ -106,7 +104,6 @@ __all__ = [
     "NodeNotFoundError",
     "PNode",
     "PPathNode",
-    "PReport",
     "PTask",
     "PTaskWithPath",
     "PathNode",
@@ -135,7 +132,6 @@ __all__ = [
     "count_outcomes",
     "create_database",
     "depends_on",
-    "format_exception_without_traceback",
     "get_all_marks",
     "get_marks",
     "has_mark",

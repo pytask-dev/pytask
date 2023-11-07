@@ -1,14 +1,14 @@
 """Contains everything related to reports."""
 from __future__ import annotations
 
-from typing import Protocol
-from typing import runtime_checkable
+from typing import ClassVar
 from typing import TYPE_CHECKING
 
+from _pytask.console import format_task_name
+from _pytask.enums import ShowCapture
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
 from _pytask.traceback import OptionalExceptionInfo
-from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import Traceback
 from attrs import define
 from attrs import field
@@ -22,21 +22,6 @@ if TYPE_CHECKING:
     from rich.console import RenderResult
     from rich.console import ConsoleOptions
     from _pytask.node_protocols import MetaNode
-
-
-@runtime_checkable
-class PReport(Protocol):
-    """The protocol for reports."""
-
-    outcome: CollectionOutcome | TaskOutcome
-    node: MetaNode | None = None
-    exc_info: OptionalExceptionInfo | None = None
-
-    def __rich_console__(
-        self, console: Console, console_options: ConsoleOptions
-    ) -> RenderResult:
-        """Render a report."""
-        ...
 
 
 @define
@@ -96,15 +81,40 @@ class ExecutionReport:
     exc_info: OptionalExceptionInfo | None = None
     sections: list[tuple[str, str, str]] = field(factory=list)
 
+    editor_url_scheme: ClassVar[str] = "file"
+    show_locals: ClassVar[bool] = False
+    show_capture: ClassVar[ShowCapture] = ShowCapture.ALL
+
     @classmethod
     def from_task_and_exception(
         cls, task: PTask, exc_info: OptionalExceptionInfo
     ) -> ExecutionReport:
         """Create a report from a task and an exception."""
-        exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
         return cls(task, TaskOutcome.FAIL, exc_info, task.report_sections)
 
     @classmethod
     def from_task(cls, task: PTask) -> ExecutionReport:
         """Create a report from a task."""
         return cls(task, TaskOutcome.SUCCESS, None, task.report_sections)
+
+    def __rich_console__(
+        self, console: Console, console_options: ConsoleOptions
+    ) -> RenderResult:
+        task_name = format_task_name(
+            task=self.task, editor_url_scheme=self.editor_url_scheme
+        )
+        text = Text.assemble("Task ", task_name, " failed", style="failed")
+        traceback = Traceback(self.exc_info)  # type: ignore[arg-type]
+
+        yield Rule(text, style=self.outcome.style)
+        yield ""
+        yield traceback
+        yield ""
+
+        for when, key, content in self.sections:
+            if key in ("stdout", "stderr") and self.show_capture in (
+                ShowCapture(key),
+                ShowCapture.ALL,
+            ):
+                yield Rule(f"Captured {key} during {when}", style="default")
+                yield content

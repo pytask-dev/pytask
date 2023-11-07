@@ -12,6 +12,7 @@ from typing import Union
 
 import _pytask
 import pluggy
+from _pytask.outcomes import Exit
 from _pytask.tree_util import TREE_UTIL_LIB_DIRECTORY
 from attrs import define
 from rich.traceback import Traceback as RichTraceback
@@ -24,7 +25,6 @@ if TYPE_CHECKING:
 
 
 __all__ = [
-    "format_exception_without_traceback",
     "remove_internal_traceback_frames_from_exc_info",
     "remove_traceback_from_exc_info",
     "render_exc_info",
@@ -55,6 +55,9 @@ class Traceback:
     def __rich_console__(
         self, console: Console, console_options: ConsoleOptions
     ) -> RenderResult:
+        if self.exc_info and isinstance(self.exc_info[1], Exit):
+            self.exc_info = remove_traceback_from_exc_info(self.exc_info)
+
         filtered_exc_info = remove_internal_traceback_frames_from_exc_info(
             self.exc_info, suppress=self.suppress
         )
@@ -77,11 +80,6 @@ def render_exc_info(
     return RichTraceback.from_exception(
         exc_type, exc_value, traceback, show_locals=show_locals
     )
-
-
-def format_exception_without_traceback(exc_info: ExceptionInfo) -> str:
-    """Format an exception without displaying the traceback."""
-    return f"[red bold]{exc_info[0].__name__}:[/] {exc_info[1]}"
 
 
 def remove_traceback_from_exc_info(
