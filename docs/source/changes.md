@@ -26,6 +26,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`477` updates the PyPI action.
 - {pull}`478` replaces black with ruff-format.
 - {pull}`479` gives skips a higher precedence as an outcome than ancestor failed.
+- {pull}`480` removes the check for missing root nodes from the generation of the DAG.
+  Now, everything is delegated to the normal check during the execution.
 
 ## 0.4.1 - 2023-10-11
 

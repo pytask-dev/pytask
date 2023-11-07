@@ -3,12 +3,10 @@ from __future__ import annotations
 
 import itertools
 import sys
-from typing import Sequence
 from typing import TYPE_CHECKING
 
 import networkx as nx
 from _pytask.config import hookimpl
-from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import ARROW_DOWN_ICON
 from _pytask.console import console
 from _pytask.console import FILE_ICON
@@ -23,8 +21,6 @@ from _pytask.database_utils import DatabaseSession
 from _pytask.database_utils import State
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import Mark
-from _pytask.mark_utils import get_marks
-from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PTask
 from _pytask.nodes import PythonNode
@@ -126,7 +122,6 @@ def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
 @hookimpl
 def pytask_dag_validate_dag(session: Session, dag: nx.DiGraph) -> None:
     """Validate the DAG."""
-    _check_if_root_nodes_are_available(dag, session.config["paths"])
     _check_if_tasks_have_the_same_products(dag, session.config["paths"])
 
 
@@ -196,98 +191,6 @@ def _format_cycles(dag: nx.DiGraph, cycles: list[tuple[str, ...]]) -> str:
         lines.extend((short_name, "     " + ARROW_DOWN_ICON))
     # Join while removing last arrow.
     return "\n".join(lines[:-1])
-
-
-_TEMPLATE_ERROR: str = (
-    "Some dependencies do not exist or are not produced by any task. See the following "
-    "tree which shows which dependencies are missing for which tasks.\n\n{}"
-)
-if IS_FILE_SYSTEM_CASE_SENSITIVE:
-    _TEMPLATE_ERROR += (
-        "\n\n(Hint: Your file-system is case-sensitive. Check the paths' "
-        "capitalization carefully.)"
-    )
-
-
-def _check_if_root_nodes_are_available(dag: nx.DiGraph, paths: Sequence[Path]) -> None:
-    __tracebackhide__ = True
-
-    missing_root_nodes = []
-    is_task_skipped: dict[str, bool] = {}
-
-    for node in dag.nodes:
-        is_node = "node" in dag.nodes[node]
-        is_without_parents = len(list(dag.predecessors(node))) == 0
-        if is_node and is_without_parents:
-            are_all_tasks_skipped, is_task_skipped = _check_if_tasks_are_skipped(
-                node, dag, is_task_skipped
-            )
-            if not are_all_tasks_skipped:
-                try:
-                    node_exists = dag.nodes[node]["node"].state()
-                except Exception as e:  # noqa: BLE001
-                    msg = _format_exception_from_failed_node_state(node, dag, paths)
-                    raise ResolvingDependenciesError(msg) from e
-                if not node_exists:
-                    missing_root_nodes.append(node)
-
-    if missing_root_nodes:
-        dictionary = {}
-        for node in missing_root_nodes:
-            short_node_name = format_node_name(dag.nodes[node]["node"], paths).plain
-            not_skipped_successors = [
-                task for task in dag.successors(node) if not is_task_skipped[task]
-            ]
-            short_successors = reduce_names_of_multiple_nodes(
-                not_skipped_successors, dag, paths
-            )
-            dictionary[short_node_name] = short_successors
-
-        text = _format_dictionary_to_tree(dictionary, "Missing dependencies:")
-        raise ResolvingDependenciesError(_TEMPLATE_ERROR.format(text)) from None
-
-
-def _format_exception_from_failed_node_state(
-    node_signature: str, dag: nx.DiGraph, paths: Sequence[Path]
-) -> str:
-    """Format message when ``node.state()`` threw an exception."""
-    tasks = [dag.nodes[i]["task"] for i in dag.successors(node_signature)]
-    names = [task.name for task in tasks]
-    successors = ", ".join([f"{name!r}" for name in names])
-    node_name = format_node_name(dag.nodes[node_signature]["node"], paths).plain
-    return (
-        f"While checking whether dependency {node_name!r} from task(s) "
-        f"{successors} exists, an error was raised."
-    )
-
-
-def _check_if_tasks_are_skipped(
-    node: PNode, dag: nx.DiGraph, is_task_skipped: dict[str, bool]
-) -> tuple[bool, dict[str, bool]]:
-    """Check for a given node whether it is only used by skipped tasks."""
-    are_all_tasks_skipped = []
-    for successor in dag.successors(node):
-        if successor not in is_task_skipped:
-            is_task_skipped[successor] = _check_if_task_is_skipped(successor, dag)
-        are_all_tasks_skipped.append(is_task_skipped[successor])
-
-    return all(are_all_tasks_skipped), is_task_skipped
-
-
-def _check_if_task_is_skipped(task_name: str, dag: nx.DiGraph) -> bool:
-    task = dag.nodes[task_name]["task"]
-    is_skipped = has_mark(task, "skip")
-
-    if is_skipped:
-        return True
-
-    skip_if_markers = get_marks(task, "skipif")
-    return any(_skipif(*marker.args, **marker.kwargs)[0] for marker in skip_if_markers)
-
-
-def _skipif(condition: bool, *, reason: str) -> tuple[bool, str]:
-    """Shameless copy to circumvent circular imports."""
-    return condition, reason
 
 
 def _format_dictionary_to_tree(dict_: dict[str, list[str]], title: str) -> str:
