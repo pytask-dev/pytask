@@ -94,7 +94,7 @@ def pytask_execute_task_process_report(
         elif isinstance(report.exc_info[1], Skipped):
             report.outcome = TaskOutcome.SKIP
 
-            for descending_task_name in descending_tasks(task.name, session.dag):
+            for descending_task_name in descending_tasks(task.signature, session.dag):
                 descending_task = session.dag.nodes[descending_task_name]["task"]
                 descending_task.markers.append(
                     Mark(

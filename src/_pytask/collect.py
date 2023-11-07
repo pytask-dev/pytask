@@ -37,6 +37,7 @@ from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
 from _pytask.path import import_path
+from _pytask.path import shorten_path
 from _pytask.reports import CollectionReport
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import task as task_decorator
@@ -163,7 +164,8 @@ def pytask_collect_file_protocol(
         )
         flat_reports = list(itertools.chain.from_iterable(new_reports))
     except Exception:  # noqa: BLE001
-        node = PathNode.from_path(path)
+        name = shorten_path(path, session.config["paths"])
+        node = PathNode(name=name, path=path)
         flat_reports = [
             CollectionReport.from_exception(
                 outcome=CollectionOutcome.FAIL, node=node, exc_info=sys.exc_info()
@@ -339,6 +341,14 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
             node.path, session.config["check_casing_of_paths"]
         )
 
+    if isinstance(node, PathNode) and (
+        not node.name or node.name == node.path.as_posix()
+    ):
+        # Shorten name of PathNodes.
+        node.name = shorten_path(
+            node.path, session.config["paths"] or (session.config["root"],)
+        )
+
     if isinstance(node, PNode):
         return node
 
@@ -352,7 +362,8 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
         _raise_error_if_casing_of_path_is_wrong(
             node, session.config["check_casing_of_paths"]
         )
-        return PathNode.from_path(node)
+        name = shorten_path(node, session.config["paths"] or (session.config["root"],))
+        return PathNode(name=name, path=node)
 
     node_name = create_name_of_python_node(node_info)
     return PythonNode(value=node, name=node_name)
@@ -397,7 +408,7 @@ def pytask_collect_modify_tasks(tasks: list[PTask]) -> None:
     id_to_short_id = _find_shortest_uniquely_identifiable_name_for_tasks(tasks)
     for task in tasks:
         if task.name in id_to_short_id and isinstance(task, Task):
-            task.display_name = id_to_short_id[task.name]
+            task.name = id_to_short_id[task.name]
 
 
 def _find_shortest_uniquely_identifiable_name_for_tasks(

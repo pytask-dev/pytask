@@ -7,7 +7,6 @@ import json
 import sys
 import time
 from contextlib import suppress
-from pathlib import Path
 from typing import Any
 from typing import Generator
 from typing import TYPE_CHECKING
@@ -37,6 +36,7 @@ from sqlalchemy import String
 
 if TYPE_CHECKING:
     from _pytask.reports import ExecutionReport
+    from pathlib import Path
     from typing import NoReturn
 
 
@@ -85,16 +85,16 @@ def pytask_execute_task_process_report(report: ExecutionReport) -> None:
     task = report.task
     duration = task.attributes.get("duration")
     if report.outcome == TaskOutcome.SUCCESS and duration is not None:
-        _create_or_update_runtime(task.name, *duration)
+        _create_or_update_runtime(task.signature, *duration)
 
 
-def _create_or_update_runtime(task_name: str, start: float, end: float) -> None:
+def _create_or_update_runtime(task_signature: str, start: float, end: float) -> None:
     """Create or update a runtime entry."""
     with DatabaseSession() as session:
-        runtime = session.get(Runtime, task_name)
+        runtime = session.get(Runtime, task_signature)
 
         if not runtime:
-            session.add(Runtime(task=task_name, date=start, duration=end - start))
+            session.add(Runtime(task=task_signature, date=start, duration=end - start))
         else:
             for attr, val in (("date", start), ("duration", end - start)):
                 setattr(runtime, attr, val)
@@ -190,16 +190,16 @@ class DurationNameSpace:
         tasks: list[PTask], profile: dict[str, dict[str, Any]]
     ) -> None:
         """Add the runtime for tasks to the profile."""
-        runtimes = _collect_runtimes([task.name for task in tasks])
+        runtimes = _collect_runtimes(tasks)
         for name, duration in runtimes.items():
             profile[name]["Duration (in s)"] = round(duration, 2)
 
 
-def _collect_runtimes(task_names: list[str]) -> dict[str, float]:
+def _collect_runtimes(tasks: list[PTask]) -> dict[str, float]:
     """Collect runtimes."""
     with DatabaseSession() as session:
-        runtimes = [session.get(Runtime, task_name) for task_name in task_names]
-    return {r.task: r.duration for r in runtimes if r}  # type: ignore[misc]
+        runtimes = [session.get(Runtime, task.signature) for task in tasks]
+    return {task.name: r.duration for task, r in zip(tasks, runtimes) if r}  # type: ignore[misc]
 
 
 class FileSizeNameSpace:
@@ -212,7 +212,7 @@ class FileSizeNameSpace:
     ) -> None:
         """Add the total file size of all products for a task."""
         for task in tasks:
-            successors = list(session.dag.successors(task.name))
+            successors = list(session.dag.successors(task.signature))
             if successors:
                 sum_bytes = 0
                 for successor in successors:
@@ -264,9 +264,9 @@ class ExportNameSpace:
         export = session.config["export"]
 
         if export == _ExportFormats.CSV:
-            _export_to_csv(profile)
+            _export_to_csv(profile, session.config["root"])
         elif export == _ExportFormats.JSON:
-            _export_to_json(profile)
+            _export_to_json(profile, session.config["root"])
         elif export == _ExportFormats.NO:
             pass
         else:  # pragma: no cover
@@ -274,10 +274,10 @@ class ExportNameSpace:
             raise ValueError(msg)
 
 
-def _export_to_csv(profile: dict[str, dict[str, Any]]) -> None:
+def _export_to_csv(profile: dict[str, dict[str, Any]], root: Path) -> None:
     """Export profile to csv."""
     info_names = _get_info_names(profile)
-    path = Path.cwd().joinpath("profile.csv")
+    path = root.joinpath("profile.csv")
 
     with path.open("w", newline="") as file:
         writer = csv.writer(file)
@@ -286,10 +286,10 @@ def _export_to_csv(profile: dict[str, dict[str, Any]]) -> None:
             writer.writerow((task_name, *info.values()))
 
 
-def _export_to_json(profile: dict[str, dict[str, Any]]) -> None:
+def _export_to_json(profile: dict[str, dict[str, Any]], root: Path) -> None:
     """Export profile to json."""
     json_ = json.dumps(profile)
-    path = Path.cwd().joinpath("profile.json")
+    path = root.joinpath("profile.json")
     path.write_text(json_)
 
 

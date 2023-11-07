@@ -156,7 +156,9 @@ def test_collect_files_w_custom_file_name_pattern(
     ("session", "path", "node_info", "expected"),
     [
         pytest.param(
-            Session.from_config({"check_casing_of_paths": False}),
+            Session.from_config(
+                {"check_casing_of_paths": False, "paths": (Path.cwd(),)}
+            ),
             Path(),
             NodeInfo(
                 arg_name="",
@@ -169,7 +171,9 @@ def test_collect_files_w_custom_file_name_pattern(
             id="test with absolute string path",
         ),
         pytest.param(
-            Session.from_config({"check_casing_of_paths": False}),
+            Session.from_config(
+                {"check_casing_of_paths": False, "paths": (Path.cwd(),)}
+            ),
             Path(),
             NodeInfo(
                 arg_name="",
@@ -220,7 +224,7 @@ def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_pat
 def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
     tmp_path, is_absolute
 ):
-    session = Session.from_config({"check_casing_of_paths": True})
+    session = Session.from_config({"check_casing_of_paths": True, "paths": (tmp_path,)})
     real_node = tmp_path / "text.txt"
 
     collected_node = Path("..", tmp_path.name, "text.txt")
@@ -451,8 +455,6 @@ def test_deprecation_warning_for_strings_in_depends_on(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert "FutureWarning" in result.output
-    assert "Using strings to specify a dependency" in result.output
-    assert "Using strings to specify a product" in result.output
 
 
 @pytest.mark.end_to_end()

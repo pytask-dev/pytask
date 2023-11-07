@@ -33,7 +33,9 @@ dependencies:
   - pygraphviz
   - pytest
   - pytest-cov
+  - pytest-env
   - pytest-xdist
+  - syrupy
   - tabulate
   - tox
 

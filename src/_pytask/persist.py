@@ -42,7 +42,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
             (
                 session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
             ).state()
-            for name in node_and_neighbors(session.dag, task.name)
+            for name in node_and_neighbors(session.dag, task.signature)
         )
 
         if all_nodes_exist:
@@ -60,6 +60,6 @@ def pytask_execute_task_process_report(
     """
     if report.exc_info and isinstance(report.exc_info[1], Persisted):
         report.outcome = TaskOutcome.PERSISTENCE
-        update_states_in_database(session, report.task.name)
+        update_states_in_database(session, report.task.signature)
         return True
     return None

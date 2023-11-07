@@ -59,9 +59,9 @@ def _create_or_update_state(first_key: str, second_key: str, hash_: str) -> None
         session.commit()
 
 
-def update_states_in_database(session: Session, task_name: str) -> None:
+def update_states_in_database(session: Session, task_signature: str) -> None:
     """Update the state for each node of a task in the database."""
-    for name in node_and_neighbors(session.dag, task_name):
+    for name in node_and_neighbors(session.dag, task_signature):
         node = session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
         hash_ = node.state()
-        _create_or_update_state(task_name, node.name, hash_)
+        _create_or_update_state(task_signature, node.signature, hash_)

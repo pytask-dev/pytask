@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from _pytask import __version__
+from _pytask._hashlib import hash_value
 from _pytask.build import build
 from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
@@ -138,6 +139,7 @@ __all__ = [
     "get_all_marks",
     "get_marks",
     "has_mark",
+    "hash_value",
     "hookimpl",
     "import_optional_dependency",
     "is_task_function",

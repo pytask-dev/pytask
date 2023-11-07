@@ -22,6 +22,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`466` implements hashing for files instead of modification timestamps.
 - {pull}`470` moves `.pytask.sqlite3` to `.pytask`.
 - {pull}`472` adds `is_product` to {meth}`PNode.load`.
+- {pull}`473` adds signatures to nodes which decouples an identifier from a name.
+- {pull}`477` updates the PyPI action.
 
 ## 0.4.1 - 2023-10-11
 
