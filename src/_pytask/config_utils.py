@@ -20,7 +20,9 @@ __all__ = ["find_project_root_and_config", "read_config", "set_defaults_from_con
 
 
 def set_defaults_from_config(
-    context: click.Context, param: click.Parameter, value: Any  # noqa: ARG001
+    context: click.Context,
+    param: click.Parameter,  # noqa: ARG001
+    value: Any,
 ) -> Path | None:
     """Set the defaults for the command-line interface from the configuration."""
     # pytask will later walk through all configuration hooks, even the ones not related

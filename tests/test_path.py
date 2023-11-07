@@ -170,7 +170,9 @@ def test_no_meta_path_found(
     del sys.modules[module.__name__]
 
     monkeypatch.setattr(
-        importlib.util, "spec_from_file_location", lambda *args: None  # noqa: ARG005
+        importlib.util,
+        "spec_from_file_location",
+        lambda *args: None,  # noqa: ARG005
     )
     with pytest.raises(ImportError):
         import_path(simple_module, root=tmp_path)
