@@ -110,6 +110,7 @@ ignore = [
     "D416",
     "D417",
     # Others.
+    "ISC001",
     "S101",  # raise errors for asserts.
     "ANN101",  # type annotating self
     "ANN102",  # type annotating cls
