@@ -54,14 +54,6 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     if is_unchanged and not session.config["force"]:
         raise SkippedUnchanged
 
-    ancestor_failed_marks = get_marks(task, "skip_ancestor_failed")
-    if ancestor_failed_marks:
-        message = "\n".join(
-            skip_ancestor_failed(*mark.args, **mark.kwargs)
-            for mark in ancestor_failed_marks
-        )
-        raise SkippedAncestorFailed(message)
-
     is_skipped = has_mark(task, "skip")
     if is_skipped:
         raise Skipped
@@ -73,6 +65,14 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
         should_skip = any(arg[0] for arg in marker_args)
         if should_skip:
             raise Skipped(message)
+
+    ancestor_failed_marks = get_marks(task, "skip_ancestor_failed")
+    if ancestor_failed_marks:
+        message = "\n".join(
+            skip_ancestor_failed(*mark.args, **mark.kwargs)
+            for mark in ancestor_failed_marks
+        )
+        raise SkippedAncestorFailed(message)
 
 
 @hookimpl

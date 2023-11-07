@@ -25,6 +25,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`473` adds signatures to nodes which decouples an identifier from a name.
 - {pull}`477` updates the PyPI action.
 - {pull}`478` replaces black with ruff-format.
+- {pull}`479` gives skips a higher precedence as an outcome than ancestor failed.
 
 ## 0.4.1 - 2023-10-11
 
