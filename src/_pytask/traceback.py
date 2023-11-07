@@ -25,9 +25,9 @@ if TYPE_CHECKING:
 
 
 __all__ = [
+    "Traceback",
     "remove_internal_traceback_frames_from_exc_info",
     "remove_traceback_from_exc_info",
-    "render_exc_info",
 ]
 
 
@@ -43,14 +43,14 @@ OptionalExceptionInfo: TypeAlias = Union[ExceptionInfo, Tuple[None, None, None]]
 
 @define
 class Traceback:
+    exc_info: OptionalExceptionInfo
+
     show_locals: ClassVar[bool] = False
     suppress: ClassVar[tuple[Path, ...]] = (
         _PLUGGY_DIRECTORY,
         TREE_UTIL_LIB_DIRECTORY,
         _PYTASK_DIRECTORY,
     )
-
-    exc_info: OptionalExceptionInfo
 
     def __rich_console__(
         self, console: Console, console_options: ConsoleOptions
@@ -64,22 +64,6 @@ class Traceback:
         yield RichTraceback.from_exception(
             *filtered_exc_info, show_locals=self.show_locals
         )
-
-
-def render_exc_info(
-    exc_type: type[BaseException],
-    exc_value: BaseException,
-    traceback: str | TracebackType,
-    *,
-    show_locals: bool = False,
-) -> str | RichTraceback:
-    """Render an exception info."""
-    # Can be string if send from subprocess by pytask-parallel.
-    if isinstance(traceback, str):  # pragma: no cover
-        return traceback
-    return RichTraceback.from_exception(
-        exc_type, exc_value, traceback, show_locals=show_locals
-    )
 
 
 def remove_traceback_from_exc_info(

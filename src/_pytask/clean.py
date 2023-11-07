@@ -29,7 +29,7 @@ from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
 from _pytask.shared import to_list
-from _pytask.traceback import render_exc_info
+from _pytask.traceback import Traceback
 from _pytask.tree_util import tree_leaves
 from attrs import define
 
@@ -108,7 +108,7 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
 
     except Exception:  # noqa: BLE001
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
-        console.print(render_exc_info(*sys.exc_info()))
+        console.print(Traceback(sys.exc_info()))
 
     else:
         try:
@@ -161,8 +161,7 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
             console.rule(style="failed")
 
         except Exception:  # noqa: BLE001
-            exc_info = sys.exc_info()
-            console.print(render_exc_info(*exc_info, show_locals=config["show_locals"]))
+            console.print(Traceback(sys.exc_info()))
             console.rule(style="failed")
             session.exit_code = ExitCode.FAILED
 

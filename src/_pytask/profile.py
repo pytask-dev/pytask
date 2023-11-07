@@ -27,7 +27,7 @@ from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.session import Session
-from _pytask.traceback import render_exc_info
+from _pytask.traceback import Traceback
 from rich.table import Table
 from sqlalchemy import Column
 from sqlalchemy import Float
@@ -120,9 +120,7 @@ def profile(**raw_config: Any) -> NoReturn:
 
     except (ConfigurationError, Exception):  # pragma: no cover
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
-        console.print(
-            render_exc_info(*sys.exc_info(), show_locals=config["show_locals"])
-        )
+        console.print(Traceback(sys.exc_info()))
 
     else:
         try:

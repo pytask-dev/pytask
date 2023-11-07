@@ -14,8 +14,7 @@ from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.node_protocols import PTask
 from _pytask.outcomes import Exit
-from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
-from _pytask.traceback import render_exc_info
+from _pytask.traceback import Traceback
 
 
 if TYPE_CHECKING:
@@ -346,13 +345,11 @@ def wrap_function_for_post_mortem_debugging(session: Session, task: PTask) -> No
                 console.rule("Captured stderr", style="default")
                 console.print(err)
 
-            exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
+            exc_info = sys.exc_info()
 
             console.print()
             console.rule("Traceback", characters=">", style="default")
-            console.print(
-                render_exc_info(*exc_info, show_locals=session.config["show_locals"])
-            )
+            console.print(Traceback(exc_info))
 
             post_mortem(exc_info[2])  # type: ignore[arg-type]
 

@@ -66,7 +66,7 @@ from _pytask.session import Session
 from _pytask.task_utils import task
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.traceback import remove_traceback_from_exc_info
-from _pytask.traceback import render_exc_info
+from _pytask.traceback import Traceback
 from _pytask.typing import is_task_function
 from _pytask.typing import Product
 from _pytask.warnings_utils import parse_warning_filter
@@ -122,6 +122,7 @@ __all__ = [
     "Task",
     "TaskOutcome",
     "TaskWithoutPath",
+    "Traceback",
     "WarningReport",
     "__version__",
     "build",
@@ -147,7 +148,6 @@ __all__ = [
     "remove_internal_traceback_frames_from_exc_info",
     "remove_marks",
     "remove_traceback_from_exc_info",
-    "render_exc_info",
     "set_marks",
     "task",
     "warning_record_to_str",
