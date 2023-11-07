@@ -193,3 +193,11 @@ python_version = "3.8"
 
 [tool.check-manifest]
 ignore = ["src/_pytask/_version.py"]
+
+[tool.coverage.report]
+exclude_also = [
+    "pragma: no cover",
+    "if TYPE_CHECKING.*:",
+    "\\.\\.\\.",
+    "def __repr__",
+]
