@@ -283,7 +283,8 @@ def test_dont_remove_files_tracked_by_git(runner, git_project):
 @pytest.mark.end_to_end()
 def test_clean_git_files_if_git_is_not_installed(monkeypatch, runner, git_project):
     monkeypatch.setattr(
-        "_pytask.clean.is_git_installed", lambda *x: False  # noqa: ARG005
+        "_pytask.clean.is_git_installed",
+        lambda *x: False,  # noqa: ARG005
     )
 
     result = runner.invoke(cli, ["clean", git_project.as_posix()])

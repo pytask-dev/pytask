@@ -217,7 +217,9 @@ HashPathCache = Cache()
 
 @HashPathCache.memoize
 def hash_path(
-    path: Path, modification_time: float, digest: str = "sha256"  # noqa: ARG001
+    path: Path,
+    modification_time: float,  # noqa: ARG001
+    digest: str = "sha256",
 ) -> str:
     """Compute the hash of a file.
 

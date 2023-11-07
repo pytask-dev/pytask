@@ -177,7 +177,8 @@ def test_raise_error_with_graph_via_cli_missing_optional_program(
     monkeypatch, tmp_path, runner
 ):
     monkeypatch.setattr(
-        "_pytask.compat.importlib.import_module", lambda x: None  # noqa: ARG005
+        "_pytask.compat.importlib.import_module",
+        lambda x: None,  # noqa: ARG005
     )
     monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: ARG005
 
@@ -207,7 +208,8 @@ def test_raise_error_with_graph_via_task_missing_optional_program(
     monkeypatch, tmp_path, runner
 ):
     monkeypatch.setattr(
-        "_pytask.compat.importlib.import_module", lambda x: None  # noqa: ARG005
+        "_pytask.compat.importlib.import_module",
+        lambda x: None,  # noqa: ARG005
     )
     monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: ARG005
 
