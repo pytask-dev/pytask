@@ -12,6 +12,7 @@ from pytask import cli
 from pytask import ExitCode
 from pytask import NodeNotFoundError
 from pytask import PathNode
+from pytask import Session
 from pytask import Task
 
 
@@ -37,8 +38,8 @@ def test_pytask_dag_create_dag():
             1: Node.from_path(root / "node_2"),
         },
     )
-
-    dag = pytask_dag_create_dag([task])
+    session = Session.from_config({"paths": (root,)})
+    dag = pytask_dag_create_dag(session=session, tasks=[task])
 
     for signature in (
         "90bb899a1b60da28ff70352cfb9f34a8bed485597c7f40eed9bd4c6449147525",

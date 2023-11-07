@@ -44,13 +44,12 @@ def pytask_dag(session: Session) -> bool | None:
             session=session, tasks=session.tasks
         )
         session.hook.pytask_dag_modify_dag(session=session, dag=session.dag)
-        session.hook.pytask_dag_validate_dag(session=session, dag=session.dag)
         session.hook.pytask_dag_select_execution_dag(session=session, dag=session.dag)
 
     except Exception:  # noqa: BLE001
         report = DagReport.from_exception(sys.exc_info())
         session.hook.pytask_dag_log(session=session, report=report)
-        session.dag_reports = report
+        session.dag_report = report
 
         raise ResolvingDependenciesError from None
 
@@ -59,7 +58,7 @@ def pytask_dag(session: Session) -> bool | None:
 
 
 @hookimpl
-def pytask_dag_create_dag(tasks: list[PTask]) -> nx.DiGraph:
+def pytask_dag_create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
     """Create the DAG from tasks, dependencies and products."""
 
     def _add_dependency(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
@@ -97,6 +96,7 @@ def pytask_dag_create_dag(tasks: list[PTask]) -> nx.DiGraph:
         )
 
     _check_if_dag_has_cycles(dag)
+    _check_if_tasks_have_the_same_products(dag, session.config["paths"])
 
     return dag
 
@@ -117,12 +117,6 @@ def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
                 dag.nodes[task_signature]["task"].markers.append(
                     Mark("skip_unchanged", (), {})
                 )
-
-
-@hookimpl
-def pytask_dag_validate_dag(session: Session, dag: nx.DiGraph) -> None:
-    """Validate the DAG."""
-    _check_if_tasks_have_the_same_products(dag, session.config["paths"])
 
 
 def _have_task_or_neighbors_changed(
