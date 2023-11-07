@@ -21,7 +21,7 @@ def test_cache():
     assert func.cache.cache_info.hits == 0
     assert func.cache.cache_info.misses == 1
 
-    assert next(i for i in cache._cache.values()) == 1
+    assert next(i for i in cache._cache.values()) == 3
 
     value = func(1, b=2)
     assert value == 3
