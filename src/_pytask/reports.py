@@ -45,7 +45,7 @@ class CollectionReport:
 
     outcome: CollectionOutcome
     node: MetaNode | None = None
-    traceback: Traceback | None = None
+    exc_info: OptionalExceptionInfo | None = None
 
     @classmethod
     def from_exception(
@@ -54,19 +54,19 @@ class CollectionReport:
         exc_info: OptionalExceptionInfo,
         node: MetaNode | None = None,
     ) -> CollectionReport:
-        traceback = Traceback(exc_info=exc_info)
-        return cls(outcome=outcome, node=node, traceback=traceback)
+        return cls(outcome=outcome, node=node, exc_info=exc_info)
 
     def __rich_console__(
         self, console: Console, console_options: ConsoleOptions
     ) -> RenderResult:
         header = "Error" if self.node is None else f"Could not collect {self.node.name}"
+        traceback = Traceback(self.exc_info)  # type: ignore[arg-type]
         yield Rule(
             Text(header, style=CollectionOutcome.FAIL.style),
             style=CollectionOutcome.FAIL.style,
         )
         yield ""
-        yield self.traceback  # type: ignore[misc]
+        yield traceback
         yield ""
 
 
@@ -74,17 +74,17 @@ class CollectionReport:
 class DagReport:
     """A report for an error during the creation of the DAG."""
 
-    traceback: Traceback
+    exc_info: OptionalExceptionInfo
 
     @classmethod
     def from_exception(cls, exc_info: OptionalExceptionInfo) -> DagReport:
-        traceback = Traceback(exc_info=exc_info)
-        return cls(traceback)
+        return cls(exc_info)
 
     def __rich_console__(
         self, console: Console, console_options: ConsoleOptions
     ) -> RenderResult:
-        yield self.traceback
+        traceback = Traceback(self.exc_info)
+        yield traceback
 
 
 @define
