@@ -5,7 +5,6 @@ import enum
 import sys
 from pathlib import Path
 from typing import Any
-from typing import TYPE_CHECKING
 
 import click
 import networkx as nx
@@ -29,10 +28,6 @@ from _pytask.shared import to_list
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from rich.text import Text
 from rich.traceback import Traceback
-
-
-if TYPE_CHECKING:
-    from typing import NoReturn
 
 
 class _RankDirection(enum.Enum):
@@ -82,7 +77,7 @@ _HELP_TEXT_RANK_DIRECTION: str = (
     help=_HELP_TEXT_RANK_DIRECTION,
     default=_RankDirection.TB,
 )
-def dag(**raw_config: Any) -> NoReturn:
+def dag(**raw_config: Any) -> int:
     """Create a visualization of the project's directed acyclic graph."""
     try:
         pm = get_plugin_manager()

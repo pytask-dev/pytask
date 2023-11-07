@@ -12,6 +12,7 @@ from pytask import cli
 from pytask import ExitCode
 from pytask import NodeNotFoundError
 from pytask import PathNode
+from pytask import Session
 from pytask import Task
 
 
@@ -37,8 +38,8 @@ def test_pytask_dag_create_dag():
             1: Node.from_path(root / "node_2"),
         },
     )
-
-    dag = pytask_dag_create_dag([task])
+    session = Session.from_config({"paths": (root,)})
+    dag = pytask_dag_create_dag(session=session, tasks=[task])
 
     for signature in (
         "90bb899a1b60da28ff70352cfb9f34a8bed485597c7f40eed9bd4c6449147525",
@@ -46,69 +47,6 @@ def test_pytask_dag_create_dag():
         "638a01e495bb8e263036ef2b3009795bb118926cc7f20f005a64c351d820a669",
     ):
         assert signature in dag.nodes
-
-
-@pytest.mark.end_to_end()
-def test_check_if_root_nodes_are_available(tmp_path, runner, snapshot_cli):
-    source = """
-    import pytask
-
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_d(produces):
-        produces.write_text("1")
-    """
-    tmp_path.joinpath("task_d.py").write_text(textwrap.dedent(source))
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-
-    assert result.exit_code == ExitCode.DAG_FAILED
-    if sys.platform == "linux":
-        assert result.output == snapshot_cli()
-
-
-@pytest.mark.end_to_end()
-def test_check_if_root_nodes_are_available_w_name(tmp_path, runner, snapshot_cli):
-    source = """
-    from pathlib import Path
-    from typing_extensions import Annotated, Any
-    from pytask import PathNode, PythonNode
-
-    node1 = PathNode(name="input1", path=Path(__file__).parent / "in.txt")
-    node2 = PythonNode(name="input2")
-
-    def task_e(in1_: Annotated[Path, node1], in2_: Annotated[Any, node2]): ...
-    """
-    tmp_path.joinpath("task_e.py").write_text(textwrap.dedent(source))
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-
-    assert result.exit_code == ExitCode.DAG_FAILED
-    if sys.platform == "linux":
-        assert result.output == snapshot_cli()
-
-
-@pytest.mark.end_to_end()
-def test_check_if_root_nodes_are_available_with_separate_build_folder(
-    tmp_path, runner, snapshot_cli
-):
-    tmp_path.joinpath("src").mkdir()
-    tmp_path.joinpath("bld").mkdir()
-    source = """
-    import pytask
-
-    @pytask.mark.depends_on("../bld/in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_d(produces):
-        produces.write_text("1")
-    """
-    tmp_path.joinpath("src", "task_d.py").write_text(textwrap.dedent(source))
-
-    result = runner.invoke(cli, [tmp_path.joinpath("src").as_posix()])
-
-    assert result.exit_code == ExitCode.DAG_FAILED
-    if sys.platform == "linux":
-        assert result.output == snapshot_cli()
 
 
 @pytest.mark.end_to_end()
@@ -177,22 +115,6 @@ def test_has_node_changed_catches_notnotfounderror(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
-
-
-def test_error_when_node_state_throws_error(runner, tmp_path, snapshot_cli):
-    source = """
-    from pytask import PythonNode
-
-    def task_example(a = PythonNode(value={"a": 1}, hash=True)):
-        pass
-    """
-    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.DAG_FAILED
-    if sys.platform == "linux":
-        assert result.output == snapshot_cli()
-    assert "task_example" in result.output
 
 
 def test_python_nodes_are_unique(tmp_path):

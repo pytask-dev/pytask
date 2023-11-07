@@ -8,6 +8,7 @@ from typing import Any
 from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
+from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_task
@@ -35,6 +36,7 @@ from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_structure
 from rich.text import Text
+
 
 if TYPE_CHECKING:
     from _pytask.session import Session
@@ -125,7 +127,12 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     for dependency in session.dag.predecessors(task.signature):
         node = session.dag.nodes[dependency]["node"]
         if not node.state():
-            msg = f"{node.name} is missing and required for {task.name}."
+            msg = f"{task.name} requires missing node {node.name}."
+            if IS_FILE_SYSTEM_CASE_SENSITIVE:
+                msg += (
+                    "\n\n(Hint: Your file-system is case-sensitive. Check the paths' "
+                    "capitalization carefully.)"
+                )
             raise NodeNotFoundError(msg)
 
     # Create directory for product if it does not exist. Maybe this should be a `setup`

@@ -245,16 +245,6 @@ def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
     """
 
 
-@hookspec(firstresult=True)
-def pytask_dag_validate_dag(session: Session, dag: nx.DiGraph) -> None:
-    """Validate the DAG.
-
-    This hook validates the DAG. For example, there can be cycles in the DAG if tasks,
-    dependencies and products have been misspecified.
-
-    """
-
-
 @hookspec
 def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
     """Select the subgraph which needs to be executed.

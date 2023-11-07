@@ -39,7 +39,7 @@ class Session:
         Holds all hooks collected by pytask.
     tasks
         List of collected tasks.
-    resolving_dependencies_reports
+    dag_reports
         Reports for resolving dependencies failed.
     execution_reports
         Reports for executed tasks.
@@ -57,7 +57,7 @@ class Session:
     dag: nx.DiGraph = field(factory=nx.DiGraph)
     hook: HookRelay = field(factory=HookRelay)
     tasks: list[PTask] = field(factory=list)
-    dag_reports: DagReport | None = None
+    dag_report: DagReport | None = None
     execution_reports: list[ExecutionReport] = field(factory=list)
     exit_code: ExitCode = ExitCode.OK
 
