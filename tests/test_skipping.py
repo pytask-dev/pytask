@@ -270,3 +270,37 @@ def test_pytask_execute_task_setup(marker_name, force, expectation):
 
     with expectation:
         pytask_execute_task_setup(session=session, task=task)
+
+
+def test_skip_has_precendence_over_ancestor_failed(runner, tmp_path):
+    source = """
+    from pathlib import Path
+
+    def task_example(produces=Path("file.txt")):
+        raise Exception
+
+    def task_example_2(path=Path("file.txt")): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+    assert "1  Failed" in result.output
+    assert "1  Skipped" in result.output
+
+
+def test_skipif_has_precendence_over_ancestor_failed(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    import pytask
+
+    def task_example(produces=Path("file.txt")):
+        raise Exception
+
+    @pytask.mark.skipif(True, reason="God knows.")
+    def task_example_2(path=Path("file.txt")): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+    assert "1  Failed" in result.output
+    assert "1  Skipped" in result.output
