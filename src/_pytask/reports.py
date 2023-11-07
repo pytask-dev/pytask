@@ -9,7 +9,7 @@ from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
 from _pytask.traceback import OptionalExceptionInfo
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
-from _pytask.traceback import render_exc_info
+from _pytask.traceback import Traceback
 from attrs import define
 from attrs import field
 from rich.rule import Rule
@@ -45,7 +45,7 @@ class CollectionReport:
 
     outcome: CollectionOutcome
     node: MetaNode | None = None
-    exc_info: OptionalExceptionInfo | None = None
+    traceback: Traceback | None = None
 
     @classmethod
     def from_exception(
@@ -54,8 +54,8 @@ class CollectionReport:
         exc_info: OptionalExceptionInfo,
         node: MetaNode | None = None,
     ) -> CollectionReport:
-        exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
-        return cls(outcome=outcome, node=node, exc_info=exc_info)
+        traceback = Traceback(exc_info=exc_info)
+        return cls(outcome=outcome, node=node, traceback=traceback)
 
     def __rich_console__(
         self, console: Console, console_options: ConsoleOptions
@@ -66,19 +66,25 @@ class CollectionReport:
             style=CollectionOutcome.FAIL.style,
         )
         yield ""
-        yield render_exc_info(*self.exc_info)  # type: ignore[misc]
+        yield self.traceback  # type: ignore[misc]
+        yield ""
 
 
 @define
 class DagReport:
     """A report for an error during the creation of the DAG."""
 
-    exc_info: OptionalExceptionInfo
+    traceback: Traceback
 
     @classmethod
     def from_exception(cls, exc_info: OptionalExceptionInfo) -> DagReport:
-        exc_info = remove_internal_traceback_frames_from_exc_info(exc_info)
-        return cls(exc_info)
+        traceback = Traceback(exc_info=exc_info)
+        return cls(traceback)
+
+    def __rich_console__(
+        self, console: Console, console_options: ConsoleOptions
+    ) -> RenderResult:
+        yield self.traceback
 
 
 @define

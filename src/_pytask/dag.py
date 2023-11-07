@@ -30,7 +30,6 @@ from _pytask.node_protocols import PTask
 from _pytask.nodes import PythonNode
 from _pytask.reports import DagReport
 from _pytask.shared import reduce_names_of_multiple_nodes
-from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_map
 from rich.text import Text
 from rich.tree import Tree
@@ -43,14 +42,7 @@ if TYPE_CHECKING:
 
 @hookimpl
 def pytask_dag(session: Session) -> bool | None:
-    """Create a directed acyclic graph (DAG) capturing dependencies between functions.
-
-    Parameters
-    ----------
-    session : _pytask.session.Session
-        Dictionary containing tasks.
-
-    """
+    """Create a directed acyclic graph (DAG) for the workflow."""
     try:
         session.dag = session.hook.pytask_dag_create_dag(
             session=session, tasks=session.tasks
@@ -337,18 +329,13 @@ def _check_if_tasks_have_the_same_products(dag: nx.DiGraph, paths: list[Path]) -
 
 
 @hookimpl
-def pytask_dag_log(session: Session, report: DagReport) -> None:
+def pytask_dag_log(report: DagReport) -> None:
     """Log errors which happened while resolving dependencies."""
     console.print()
     console.rule(
-        Text("Failures during resolving dependencies", style="failed"),
-        style="failed",
+        Text("Failures during resolving dependencies", style="failed"), style="failed"
     )
-
     console.print()
-    console.print(
-        render_exc_info(*report.exc_info, show_locals=session.config["show_locals"])
-    )
-
+    console.print(report)
     console.print()
     console.rule(style="failed")
