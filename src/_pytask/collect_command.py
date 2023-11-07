@@ -62,7 +62,7 @@ def collect(**raw_config: Any | None) -> NoReturn:
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
-    except (ConfigurationError, Exception):
+    except (ConfigurationError, Exception):  # pragma: no cover
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
         console.print_exception()
 
@@ -90,13 +90,13 @@ def collect(**raw_config: Any | None) -> NoReturn:
             console.print()
             console.rule(style="neutral")
 
-        except CollectionError:
+        except CollectionError:  # pragma: no cover
             session.exit_code = ExitCode.COLLECTION_FAILED
 
-        except ResolvingDependenciesError:
+        except ResolvingDependenciesError:  # pragma: no cover
             session.exit_code = ExitCode.DAG_FAILED
 
-        except Exception:  # noqa: BLE001
+        except Exception:  # noqa: BLE001  # pragma: no cover
             session.exit_code = ExitCode.FAILED
             console.print_exception()
             console.rule(style="failed")

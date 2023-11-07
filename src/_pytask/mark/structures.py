@@ -140,7 +140,7 @@ def normalize_mark_list(mark_list: Iterable[Mark | MarkDecorator]) -> list[Mark]
     """
     extracted = [getattr(mark, "mark", mark) for mark in mark_list]
     for mark in extracted:
-        if not isinstance(mark, Mark):
+        if not isinstance(mark, Mark):  # pragma: no cover
             msg = f"Got {mark!r} instead of Mark."
             raise TypeError(msg)
     return [x for x in extracted if isinstance(x, Mark)]
@@ -202,10 +202,6 @@ class MarkGenerator:
         # If the name is not in the set of known marks after updating,
         # then it really is time to issue a warning or an error.
         if self.config is not None and name not in self.config["markers"]:
-            if self.config["strict_markers"]:
-                msg = f"Unknown pytask.mark.{name}."
-                raise ValueError(msg)
-
             if name in ("parametrize", "parameterize", "parametrise", "parameterise"):
                 msg = (
                     "@pytask.mark.parametrize has been removed since pytask v0.4. "
@@ -213,6 +209,10 @@ class MarkGenerator:
                     "https://tinyurl.com/pytask-loops or revert to v0.3."
                 )
                 raise NotImplementedError(msg) from None
+
+            if self.config["strict_markers"]:
+                msg = f"Unknown pytask.mark.{name}."
+                raise ValueError(msg)
 
             warnings.warn(
                 f"Unknown pytask.mark.{name} - is this a typo? You can register "

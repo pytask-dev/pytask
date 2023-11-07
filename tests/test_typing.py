@@ -9,7 +9,7 @@ from _pytask.typing import is_task_function
 @pytest.mark.unit()
 def test_is_task_function():
     def func():
-        pass
+        ...
 
     assert is_task_function(func)
 

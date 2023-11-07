@@ -122,7 +122,7 @@ class DataCatalog:
                     arg_name=name, path=(), value=node, task_path=None, task_name=""
                 ),
             )
-            if collected_node is None:
+            if collected_node is None:  # pragma: no cover
                 msg = f"{node!r} cannot be parsed."
                 raise NodeNotCollectedError(msg)
             self.entries[name] = collected_node

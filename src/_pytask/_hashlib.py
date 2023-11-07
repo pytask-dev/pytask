@@ -7,9 +7,9 @@ from pathlib import Path
 from typing import Any
 
 
-if sys.version_info >= (3, 11):
+if sys.version_info >= (3, 11):  # pragma: no cover
     from hashlib import file_digest
-else:
+else:  # pragma: no cover
     # This tuple and __get_builtin_constructor() must be modified if a new
     # always available algorithm is added.
     __always_supported = (

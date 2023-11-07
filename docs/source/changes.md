@@ -28,6 +28,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`479` gives skips a higher precedence as an outcome than ancestor failed.
 - {pull}`480` removes the check for missing root nodes from the generation of the DAG.
   It is delegated to the check during the execution.
+- {pull}`481` improves coverage.
 
 ## 0.4.1 - 2023-10-11
 

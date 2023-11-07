@@ -84,7 +84,7 @@ def dag(**raw_config: Any) -> int:
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
-    except (ConfigurationError, Exception):
+    except (ConfigurationError, Exception):  # pragma: no cover
         console.print_exception()
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 
@@ -102,10 +102,10 @@ def dag(**raw_config: Any) -> int:
             dag = _refine_dag(session)
             _write_graph(dag, session.config["output_path"], session.config["layout"])
 
-        except CollectionError:
+        except CollectionError:  # pragma: no cover
             session.exit_code = ExitCode.COLLECTION_FAILED
 
-        except ResolvingDependenciesError:
+        except ResolvingDependenciesError:  # pragma: no cover
             session.exit_code = ExitCode.DAG_FAILED
 
         except Exception:  # noqa: BLE001
@@ -183,7 +183,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
 
         session = Session.from_config(config)
 
-    except (ConfigurationError, Exception):
+    except (ConfigurationError, Exception):  # pragma: no cover
         console.print_exception()
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 

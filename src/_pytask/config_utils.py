@@ -10,9 +10,9 @@ from typing import Sequence
 import click
 from _pytask.shared import parse_paths
 
-if sys.version_info >= (3, 11):
+if sys.version_info >= (3, 11):  # pragma: no cover
     import tomllib
-else:
+else:  # pragma: no cover
     import tomli as tomllib
 
 
@@ -98,7 +98,7 @@ def find_project_root_and_config(
         if path.exists():
             try:
                 read_config(path)
-            except (tomllib.TOMLDecodeError, OSError) as e:
+            except (tomllib.TOMLDecodeError, OSError) as e:  # pragma: no cover
                 raise click.FileError(
                     filename=str(path), hint=f"Error reading {path}:\n{e}"
                 ) from None

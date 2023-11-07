@@ -102,7 +102,7 @@ def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionRepo
         session.hook.pytask_execute_task_setup(session=session, task=task)
         session.hook.pytask_execute_task(session=session, task=task)
         session.hook.pytask_execute_task_teardown(session=session, task=task)
-    except KeyboardInterrupt:
+    except KeyboardInterrupt:  # pragma: no cover
         short_exc_info = remove_traceback_from_exc_info(sys.exc_info())
         report = ExecutionReport.from_task_and_exception(task, short_exc_info)
         session.should_stop = True
@@ -253,7 +253,7 @@ def pytask_execute_task_process_report(
         if session.n_tasks_failed >= session.config["max_failures"]:
             session.should_stop = True
 
-        if report.exc_info and isinstance(report.exc_info[1], Exit):
+        if report.exc_info and isinstance(report.exc_info[1], Exit):  # pragma: no cover
             session.should_stop = True
 
     return True

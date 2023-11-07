@@ -40,12 +40,9 @@ class State(BaseTable):  # type: ignore[valid-type, misc]
 
 def create_database(url: str) -> None:
     """Create the database."""
-    try:
-        engine = create_engine(url)
-        BaseTable.metadata.create_all(bind=engine)
-        DatabaseSession.configure(bind=engine)
-    except Exception:
-        raise
+    engine = create_engine(url)
+    BaseTable.metadata.create_all(bind=engine)
+    DatabaseSession.configure(bind=engine)
 
 
 def _create_or_update_state(first_key: str, second_key: str, hash_: str) -> None:
