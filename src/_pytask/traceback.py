@@ -61,9 +61,14 @@ class Traceback:
         filtered_exc_info = remove_internal_traceback_frames_from_exc_info(
             self.exc_info, suppress=self.suppress
         )
-        yield RichTraceback.from_exception(
-            *filtered_exc_info, show_locals=self.show_locals
-        )
+
+        # The tracebacks returned by pytask-parallel are strings.
+        if isinstance(filtered_exc_info[2], str):
+            yield filtered_exc_info[2]
+        else:
+            yield RichTraceback.from_exception(
+                *filtered_exc_info, show_locals=self.show_locals
+            )
 
 
 def remove_traceback_from_exc_info(

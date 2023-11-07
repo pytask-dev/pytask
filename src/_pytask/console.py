@@ -14,7 +14,6 @@ from typing import Literal
 from typing import Sequence
 from typing import TYPE_CHECKING
 
-import rich
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTaskWithPath
@@ -109,9 +108,9 @@ console: Console = Console(theme=theme, color_system=_COLOR_SYSTEM)
 
 
 def render_to_string(
-    text: RenderableType,
+    renderable: RenderableType,
+    console: Console,
     *,
-    console: Console | None = None,
     strip_styles: bool = False,
 ) -> str:
     """Render text with rich to string including ANSI codes, etc..
@@ -120,31 +119,10 @@ def render_to_string(
     example, render warnings with colors or text in exceptions.
 
     """
-    if console is None:
-        console = rich.get_console()
-
-    segments = console.render(text)
-
-    output = []
-    if console.no_color and console._color_system:
-        segments = Segment.remove_color(segments)
-
+    buffer = console.render(renderable)
     if strip_styles:
-        segments = Segment.strip_styles(segments)
-
-    for segment in segments:
-        if segment.style:
-            output.append(
-                segment.style.render(
-                    segment.text,
-                    color_system=console._color_system,
-                    legacy_windows=console.legacy_windows,
-                )
-            )
-        else:
-            output.append(segment.text)
-
-    return "".join(output)
+        buffer = Segment.strip_styles(buffer)
+    return console._render_buffer(buffer)
 
 
 def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
