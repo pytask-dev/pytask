@@ -1071,9 +1071,8 @@ def test_task_that_produces_delayed_path_node(tmp_path):
     from pathlib import Path
 
 
-    def task_example(
+    def task_example() -> Annotated[None, DelayedPathNode(pattern="*.txt")]:
         path = Path(__file__).parent
-    ) -> Annotated[None, DelayedPathNode(pattern="*.txt")]:
         path.joinpath("a.txt").touch()
         path.joinpath("b.txt").touch()
     """

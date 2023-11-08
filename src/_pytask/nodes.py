@@ -358,6 +358,12 @@ class DelayedPathNode(PNode):
     pattern: str
     name: str = ""
 
+    @property
+    def signature(self) -> str:
+        """The unique signature of the node."""
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.root_dir, self.pattern))
+        return hashlib.sha256(raw_key.encode()).hexdigest()
+
     def load(self, is_product: bool = False) -> None:
         raise NotImplementedError
 
