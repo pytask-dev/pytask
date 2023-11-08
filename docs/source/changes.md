@@ -30,6 +30,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   It is delegated to the check during the execution.
 - {pull}`481` improves coverage.
 - {pull}`482` correctly handles names and signatures of {class}`~pytask.PythonNode`.
+- {pull}`483` simplifies the teardown of a task.
 
 ## 0.4.1 - 2023-10-11
 
