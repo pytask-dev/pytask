@@ -9,18 +9,10 @@
   Collected tasks:
   └── 🐍 <Module test_more_nested_pytree_and_py0/task_module.py>
       └── 📝 <Function task_module.py::task_example>
-          ├── 📄 <Product 
-          │   test_more_nested_pytree_and_py0/task_module.py::task_example::return
-          │   ::0>
-          ├── 📄 <Product 
-          │   test_more_nested_pytree_and_py0/task_module.py::task_example::return
-          │   ::1-0>
-          ├── 📄 <Product 
-          │   test_more_nested_pytree_and_py0/task_module.py::task_example::return
-          │   ::1-1>
-          └── 📄 <Product 
-              test_more_nested_pytree_and_py0/task_module.py::task_example::return
-              ::2>
+          ├── 📄 <Product task_example::return::0>
+          ├── 📄 <Product task_example::return::1-0>
+          ├── 📄 <Product task_example::return::1-1>
+          └── 📄 <Product task_example::return::2>
   
   ────────────────────────────────────────────────────────────────────────────────
   '''
