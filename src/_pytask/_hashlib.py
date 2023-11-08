@@ -219,7 +219,13 @@ def hash_value(value: Any) -> int | str:
     Compute the hash of paths, strings, and bytes with a hash function or otherwise the
     hashes are salted.
 
+    The hash of None constant https://github.com/python/cpython/pull/99541 starting with
+    Python 3.12.
+
     """
+    #
+    if value is None:
+        return 4238894112
     if isinstance(value, Path):
         value = str(value)
     if isinstance(value, str):
