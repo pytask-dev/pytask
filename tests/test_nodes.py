@@ -54,7 +54,7 @@ def test_hash_of_python_node(value, hash_, expected):
                     task_name="task_example",
                 ),
             ),
-            "17b24b0e3141135172b02c8d898d0337ea79bea0f56b6272d18b6bb8e75f985f",
+            "7284475a87b8f1aa49c40126c5064269f0ba926265b8fe9158a39a882c6a1512",
         ),
         (
             Task(base_name="task", path=Path("task.py"), function=None),

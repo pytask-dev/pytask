@@ -237,12 +237,14 @@ class PythonNode(PNode):
     @property
     def signature(self) -> str:
         """The unique signature of the node."""
-        if self.node_info:
-            dict_ = self.node_info._asdict()
-            dict_.pop("value", None)
-            raw_key = str(hash_value(dict_))
-        else:
-            raw_key = str(hash_value(self.node_info))
+        raw_key = (
+            "".join(
+                str(hash_value(getattr(self.node_info, name)))
+                for name in ("arg_name", "path", "task_name", "task_path")
+            )
+            if self.node_info
+            else str(hash_value(self.node_info))
+        )
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
     def load(self, is_product: bool = False) -> Any:

@@ -225,13 +225,6 @@ def hash_value(value: Any) -> int | str:
     """
     if value is None:
         return 0xFCA86420
-    if hasattr(value, "_asdict"):
-        value = value._asdict()
-    if isinstance(value, dict):
-        value = "".join(
-            "".join((str(hash_value(k)), str(hash_value(value[k]))))
-            for k in sorted(value)
-        )
     if isinstance(value, (tuple, list)):
         value = "".join(str(hash_value(i)) for i in value)
     if isinstance(value, Path):
