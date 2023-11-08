@@ -165,6 +165,7 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
             console.rule(style="failed")
             session.exit_code = ExitCode.FAILED
 
+    session.hook.pytask_unconfigure(session=session)
     sys.exit(session.exit_code)
 
 

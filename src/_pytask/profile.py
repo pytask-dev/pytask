@@ -150,6 +150,7 @@ def profile(**raw_config: Any) -> NoReturn:
             console.print_exception()
             console.rule(style="failed")
 
+    session.hook.pytask_unconfigure(session=session)
     sys.exit(session.exit_code)
 
 
