@@ -9,100 +9,6 @@ requires = [
 [tool.setuptools_scm]
 write_to = "src/_pytask/_version.py"
 
-[tool.ruff]
-target-version = "py38"
-select = ["ALL"]
-fix = true
-ignore = [
-    "I",  # ignore isort
-    "TRY",  # ignore tryceratops.
-    # Numpy docstyle
-    "D107",
-    "D203",
-    "D212",
-    "D213",
-    "D402",
-    "D413",
-    "D415",
-    "D416",
-    "D417",
-    # Others.
-    "S101",  # raise errors for asserts.
-    "ANN101",  # type annotating self
-    "ANN102",  # type annotating cls
-    "FBT",  # flake8-boolean-trap
-    "ANN401",  # flake8-annotate typing.Any
-    "PD",  # pandas-vet
-    "COM812",  # trailing comma missing, but black takes care of that
-    "D401",  # imperative mood for first line. too many false-positives.
-    "SLF001",  # access private members.
-    "S603",
-    "S607",
-]
-
-
-[tool.ruff.per-file-ignores]
-"src/_pytask/capture.py" = ["PGH003"]
-"src/_pytask/hookspecs.py" = ["ARG001"]
-"src/_pytask/outcomes.py" = ["N818"]
-"src/_pytask/dag.py" = ["B023"]
-"tests/test_capture.py" = ["T201", "PT011"]
-"tests/*" = ["D", "ANN", "PLR2004", "S101"]
-"tests/test_jupyter/*" = ["INP001"]
-"scripts/*" = ["D", "INP001"]
-"docs/source/conf.py" = ["D401", "INP001"]
-"docs_src/*" = ["ARG001", "D", "INP001"]
-"docs_src/*/*.py" = ["FA100", "FA102", "PLR2004", "TCH"]
-"docs/source/how_to_guides/functional_interface*" = ["B018", "D", "INP", "ARG005"]
-"docs_src/how_to_guides/using_task_returns_*_task.py" = ["ARG005", "E731"]
-"docs_src/how_to_guides/writing_custom_nodes_*.py" = ["S301"]
-
-
-[tool.ruff.pydocstyle]
-convention = "numpy"
-
-[tool.pytest.ini_options]
-addopts = ["--doctest-modules"]
-testpaths = ["src", "tests"]
-markers = [
-    "wip: Tests that are work-in-progress.",
-    "unit: Flag for unit tests which target mainly a single function.",
-    "integration: Flag for integration tests which may comprise of multiple unit tests.",
-    "end_to_end: Flag for tests that cover the whole program.",
-]
-norecursedirs = [".idea", ".tox"]
-filterwarnings = ["ignore:'@pytask.mark.*. is deprecated:FutureWarning"]
-
-[tool.mypy]
-files = ["src", "tests"]
-check_untyped_defs = true
-disallow_any_generics = true
-disallow_incomplete_defs = true
-disallow_untyped_defs = true
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-
-
-[[tool.mypy.overrides]]
-module = "tests.*"
-disallow_untyped_defs = false
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = ["click_default_group", "networkx"]
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = ["_pytask.hookspecs"]
-disable_error_code = ["empty-body"]
-
-[tool.codespell]
-ignore-words-list = "falsy, hist, ines, unparseable"
-
-[tool.refurb]
-python_version = "3.8"
-
 [project]
 name = "pytask"
 description = "In its highest aspirations, pytask tries to be pytest as a build system."
@@ -135,8 +41,8 @@ dependencies = [
   "pluggy>=1",
   "rich",
   "sqlalchemy>=1.4.36",
-  "tomli>=1",
-  "typing-extensions",
+  'tomli>=1; python_version < "3.11"',
+  'typing-extensions; python_version < "3.9"',
 ]
 
 [project.readme]
@@ -179,12 +85,119 @@ zip-safe = false
 platforms = ["unix", "linux", "osx", "win32"]
 license-files = ["LICENSE"]
 
-[tool.check-manifest]
-ignore = ["src/_pytask/_version.py"]
-
 [tool.setuptools.package-dir]
 "" = "src"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 namespaces = false
+
+[tool.ruff]
+target-version = "py38"
+select = ["ALL"]
+fix = true
+ignore = [
+    "I",  # ignore isort
+    "TRY",  # ignore tryceratops.
+    # Numpy docstyle
+    "D107",
+    "D203",
+    "D212",
+    "D213",
+    "D402",
+    "D413",
+    "D415",
+    "D416",
+    "D417",
+    # Others.
+    "ISC001",
+    "S101",  # raise errors for asserts.
+    "ANN101",  # type annotating self
+    "ANN102",  # type annotating cls
+    "FBT",  # flake8-boolean-trap
+    "ANN401",  # flake8-annotate typing.Any
+    "PD",  # pandas-vet
+    "COM812",  # trailing comma missing, but black takes care of that
+    "D401",  # imperative mood for first line. too many false-positives.
+    "SLF001",  # access private members.
+    "S603",
+    "S607",
+]
+
+
+[tool.ruff.per-file-ignores]
+"src/_pytask/_hashlib.py" = ["ALL"]
+"src/_pytask/capture.py" = ["PGH003"]
+"src/_pytask/hookspecs.py" = ["ARG001"]
+"src/_pytask/outcomes.py" = ["N818"]
+"src/_pytask/dag.py" = ["B023"]
+"tests/test_capture.py" = ["T201", "PT011"]
+"tests/*" = ["D", "ANN", "PLR2004", "S101"]
+"tests/test_jupyter/*" = ["INP001"]
+"scripts/*" = ["D", "INP001"]
+"docs/source/conf.py" = ["D401", "INP001"]
+"docs_src/*" = ["ARG001", "D", "INP001", "S301"]
+"docs_src/*/*.py" = ["FA100", "FA102", "PLR2004", "TCH"]
+"docs/source/how_to_guides/functional_interface*" = ["B018", "D", "INP", "ARG005"]
+"docs_src/how_to_guides/using_task_returns_*_task.py" = ["ARG005", "E731"]
+"docs_src/how_to_guides/writing_custom_nodes_*.py" = ["S301"]
+
+
+[tool.ruff.pydocstyle]
+convention = "numpy"
+
+[tool.pytest.ini_options]
+addopts = ["--doctest-modules"]
+testpaths = ["src", "tests"]
+markers = [
+    "wip: Tests that are work-in-progress.",
+    "unit: Flag for unit tests which target mainly a single function.",
+    "integration: Flag for integration tests which may comprise of multiple unit tests.",
+    "end_to_end: Flag for tests that cover the whole program.",
+]
+norecursedirs = [".idea", ".tox"]
+filterwarnings = [
+    "ignore:'@pytask.mark.*. is deprecated:FutureWarning",
+    "ignore:The --rsyncdir command line argument:DeprecationWarning",
+]
+
+[tool.mypy]
+files = ["src", "tests"]
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["click_default_group", "networkx"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["_pytask.hookspecs"]
+disable_error_code = ["empty-body"]
+
+[tool.codespell]
+ignore-words-list = "falsy, hist, ines, unparseable"
+
+[tool.refurb]
+python_version = "3.8"
+
+[tool.check-manifest]
+ignore = ["src/_pytask/_version.py"]
+
+[tool.coverage.report]
+exclude_also = [
+    "pragma: no cover",
+    "if TYPE_CHECKING.*:",
+    "\\.\\.\\.",
+    "def __repr__",
+]

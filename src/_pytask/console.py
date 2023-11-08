@@ -14,7 +14,6 @@ from typing import Literal
 from typing import Sequence
 from typing import TYPE_CHECKING
 
-import rich
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTaskWithPath
@@ -109,9 +108,9 @@ console: Console = Console(theme=theme, color_system=_COLOR_SYSTEM)
 
 
 def render_to_string(
-    text: RenderableType,
+    renderable: RenderableType,
+    console: Console,
     *,
-    console: Console | None = None,
     strip_styles: bool = False,
 ) -> str:
     """Render text with rich to string including ANSI codes, etc..
@@ -120,31 +119,10 @@ def render_to_string(
     example, render warnings with colors or text in exceptions.
 
     """
-    if console is None:
-        console = rich.get_console()
-
-    segments = console.render(text)
-
-    output = []
-    if console.no_color and console._color_system:
-        segments = Segment.remove_color(segments)
-
+    buffer = console.render(renderable)
     if strip_styles:
-        segments = Segment.strip_styles(segments)
-
-    for segment in segments:
-        if segment.style:
-            output.append(
-                segment.style.render(
-                    segment.text,
-                    color_system=console._color_system,
-                    legacy_windows=console.legacy_windows,
-                )
-            )
-        else:
-            output.append(segment.text)
-
-    return "".join(output)
+        buffer = Segment.strip_styles(buffer)
+    return console._render_buffer(buffer)
 
 
 def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
@@ -154,14 +132,13 @@ def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
     else:
         url_style = create_url_style_for_task(task.function, editor_url_scheme)
 
-    if isinstance(task, PTaskWithPath) and hasattr(task, "display_name"):
-        path, task_name = task.display_name.split("::")
+    if isinstance(task, PTaskWithPath):
+        path, task_name = task.name.split("::")
         return Text.assemble(
             Text(path + "::", style="dim"), Text(task_name, style=url_style)
         )
 
-    name = getattr(task, "display_name", task.name)
-    return Text(name, style=url_style)
+    return Text(task.name, style=url_style)
 
 
 def format_node_name(node: PNode, paths: Sequence[Path] = ()) -> Text:
@@ -181,7 +158,9 @@ def format_node_name(node: PNode, paths: Sequence[Path] = ()) -> Text:
     return Text(node.name)
 
 
-def format_strings_as_flat_tree(strings: Iterable[str], title: str, icon: str) -> str:
+def format_strings_as_flat_tree(
+    strings: Iterable[str], title: str = "", icon: str = ""
+) -> str:
     """Format list of strings as flat tree."""
     tree = Tree(title)
     for name in strings:

@@ -20,9 +20,9 @@ _CONTEXT_SETTINGS: dict[str, Any] = {
 }
 
 
-if parse_version(click.__version__) < parse_version("8"):
+if parse_version(click.__version__) < parse_version("8"):  # pragma: no cover
     _VERSION_OPTION_KWARGS: dict[str, Any] = {}
-else:
+else:  # pragma: no cover
     _VERSION_OPTION_KWARGS = {"package_name": "pytask"}
 
 

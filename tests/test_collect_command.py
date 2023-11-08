@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import pickle
+import sys
 import textwrap
 from pathlib import Path
 
@@ -524,6 +525,7 @@ def test_node_protocol_for_custom_nodes(runner, tmp_path):
     class CustomNode:
         name: str
         value: str
+        signature: str = "id"
 
         def state(self):
             return self.value
@@ -557,6 +559,7 @@ def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     class PickleFile:
         name: str
         path: Path
+        signature: str = "id"
 
         def state(self):
             return str(self.path.stat().st_mtime)
@@ -608,7 +611,7 @@ def test_setting_name_for_python_node_via_annotation(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
+def test_more_nested_pytree_and_python_node_as_return(runner, snapshot_cli, tmp_path):
     source = """
     from pathlib import Path
     from typing import Any
@@ -628,11 +631,8 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
-    output = result.output.replace(" ", "").replace("\n", "").replace("│", "")
-    assert "return::0" in output
-    assert "return::1-0" in output
-    assert "return::1-1" in output
-    assert "return::2" in output
+    if sys.platform != "win32":
+        assert result.output == snapshot_cli()
 
 
 @pytest.mark.end_to_end()

@@ -1,7 +1,10 @@
+import hashlib
 import pickle
 from pathlib import Path
 from typing import Any
 from typing import Optional
+
+from pytask import hash_value
 
 
 class PickleNode:
@@ -20,6 +23,12 @@ class PickleNode:
         self.name = name
         self.path = path
 
+    @property
+    def signature(self) -> str:
+        """The unique signature of the node."""
+        raw_key = str(hash_value(self.path))
+        return hashlib.sha256(raw_key.encode()).hexdigest()
+
     @classmethod
     def from_path(cls, path: Path) -> "PickleNode":
         """Instantiate class from path to file."""
@@ -34,8 +43,10 @@ class PickleNode:
             return str(self.path.stat().st_mtime)
         return None
 
-    def load(self) -> Path:
+    def load(self, is_product: bool) -> Path:
         """Load the value from the path."""
+        if is_product:
+            return self
         return pickle.loads(self.path.read_bytes())
 
     def save(self, value: Any) -> None:

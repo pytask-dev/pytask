@@ -11,9 +11,9 @@ from typing import Mapping
 __all__ = ["get_annotations"]
 
 
-if sys.version_info >= (3, 10):
+if sys.version_info >= (3, 10):  # pragma: no cover
     from inspect import get_annotations
-else:
+else:  # pragma: no cover
 
     def get_annotations(  # noqa: C901, PLR0912, PLR0915
         obj: Callable[..., object] | type[Any] | types.ModuleType,

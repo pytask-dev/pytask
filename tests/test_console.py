@@ -116,14 +116,12 @@ _THIS_FILE = Path(__file__)
 @pytest.mark.parametrize(
     (
         "base_name",
-        "short_name",
         "editor_url_scheme",
         "expected",
     ),
     [
         pytest.param(
             "task_a",
-            None,
             "no_link",
             Text(
                 _THIS_FILE.as_posix() + "::task_a",
@@ -135,16 +133,12 @@ _THIS_FILE = Path(__file__)
 )
 def test_format_task_id(
     base_name,
-    short_name,
     editor_url_scheme,
     expected,
 ):
     path = _THIS_FILE
 
     task = Task(base_name=base_name, path=path, function=task_func)
-    if short_name is not None:
-        task.display_name = short_name
-
     result = format_task_name(task, editor_url_scheme)
     assert result == expected
 

@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from _pytask.report import CollectionReport
-    from _pytask.report import ExecutionReport
+    from _pytask.reports import CollectionReport
+    from _pytask.reports import ExecutionReport
 
 
 __all__ = [

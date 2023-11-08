@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import itertools
+import sys
 import uuid
 import warnings
 from pathlib import Path
@@ -29,9 +30,12 @@ from _pytask.typing import no_default
 from _pytask.typing import ProductType
 from attrs import define
 from attrs import field
-from typing_extensions import Annotated
 from typing_extensions import get_origin
 
+if sys.version_info >= (3, 9):
+    from typing import Annotated
+else:  # pragma: no cover
+    from typing_extensions import Annotated
 
 if TYPE_CHECKING:
     from _pytask.session import Session
@@ -605,7 +609,7 @@ def _collect_decorator_node(
     collected_node = session.hook.pytask_collect_node(
         session=session, path=path, node_info=node_info
     )
-    if collected_node is None:
+    if collected_node is None:  # pragma: no cover
         msg = f"{node!r} cannot be parsed as a {kind} for task {name!r} in {path!r}."
         raise NodeNotCollectedError(msg)
 
@@ -635,7 +639,7 @@ def _collect_dependency(
     collected_node = session.hook.pytask_collect_node(
         session=session, path=path, node_info=node_info
     )
-    if collected_node is None:
+    if collected_node is None:  # pragma: no cover
         msg = (
             f"{node!r} cannot be parsed as a dependency for task {name!r} in {path!r}."
         )
@@ -680,7 +684,7 @@ def _collect_product(
         session=session, path=path, node_info=node_info
     )
 
-    if collected_node is None:
+    if collected_node is None:  # pragma: no cover
         msg = (
             f"{node!r} can't be parsed as a product for task {task_name!r} in {path!r}."
         )

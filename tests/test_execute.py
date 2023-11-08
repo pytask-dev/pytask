@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import pickle
 import re
@@ -606,7 +607,7 @@ def test_return_with_tuple_pathnode_annotation_as_return(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
+def test_return_with_custom_node_and_return_annotation(runner, tmp_path):
     source = """
     from __future__ import annotations
 
@@ -620,13 +621,16 @@ def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
     class PickleNode:
         name: str
         path: Path
+        signature: str = "id"
 
         def state(self) -> str | None:
             if self.path.exists():
                 return str(self.path.stat().st_mtime)
             return None
 
-        def load(self) -> Any:
+        def load(self, is_product) -> Any:
+            if is_product:
+                return self
             return pickle.loads(self.path.read_bytes())
 
         def save(self, value: Any) -> None:
@@ -636,6 +640,56 @@ def test_return_with_custom_type_annotation_as_return(runner, tmp_path):
 
     def task_example() -> Annotated[int, node]:
         return 1
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+
+    data = pickle.loads(tmp_path.joinpath("data.pkl").read_bytes())  # noqa: S301
+    assert data == 1
+
+
+@pytest.mark.end_to_end()
+def test_return_with_custom_node_with_product_annotation(runner, tmp_path):
+    source = """
+    from __future__ import annotations
+
+    from pathlib import Path
+    import pickle
+    from typing import Any
+    from typing_extensions import Annotated
+    import attrs
+    from pytask import Product
+    from _pytask._hashlib import hash_value
+    import hashlib
+
+    @attrs.define
+    class PickleNode:
+        name: str
+        path: Path
+
+        @property
+        def signature(self) -> str:
+            raw_key = "".join(str(hash_value(arg)) for arg in (self.name, self.path))
+            return hashlib.sha256(raw_key.encode()).hexdigest()
+
+        def state(self) -> str | None:
+            if self.path.exists():
+                return str(self.path.stat().st_mtime)
+            return None
+
+        def load(self, is_product) -> Any:
+            if is_product:
+                return self
+            return pickle.loads(self.path.read_bytes())
+
+        def save(self, value: Any) -> None:
+            self.path.write_bytes(pickle.dumps(value))
+
+    node = PickleNode("pickled_data", Path(__file__).parent.joinpath("data.pkl"))
+
+    def task_example(node: Annotated[PickleNode, node, Product]) -> None:
+        node.save(1)
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.as_posix()])
@@ -809,6 +863,7 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
     class PickleNode:
         name: str
         path: Path
+        signature: str = "id"
 
         def state(self) -> str | None:
             if self.path.exists():
@@ -835,6 +890,144 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
 
     # Test that traceback is hidden.
     assert "_pytask/execute.py" not in result.output
+
+
+def test_hashing_works(tmp_path):
+    """Use subprocess or otherwise the cache is filled from other tests."""
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+
+    def task_example() -> Annotated[str, Path("file.txt")]:
+        return "Hello, World!"
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = subprocess.run(("pytask"), cwd=tmp_path)  # noqa: PLW1510
+    assert result.returncode == ExitCode.OK
+
+    hashes = json.loads(tmp_path.joinpath(".pytask", "file_hashes.json").read_text())
+    assert len(hashes) == 2
+
+    result = subprocess.run(("pytask"), cwd=tmp_path)  # noqa: PLW1510
+    assert result.returncode == ExitCode.OK
+
+    hashes_ = json.loads(tmp_path.joinpath(".pytask", "file_hashes.json").read_text())
+    assert hashes == hashes_
+
+
+def test_python_node_as_product_with_product_annotation(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import Product, PythonNode
+    from pathlib import Path
+
+    node = PythonNode()
+
+    def task_create_string(node: Annotated[PythonNode, node, Product]) -> None:
+        node.save("Hello, World!")
+
+    def task_write_file(text: Annotated[str, node]) -> Annotated[str, Path("file.txt")]:
+        return text
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
+
+
+def test_pickle_node_as_product_with_product_annotation(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import Product, PickleNode
+    from pathlib import Path
+
+    node = PickleNode(name="node", path=Path(__file__).parent / "file.pkl")
+
+    def task_create_string(node: Annotated[PickleNode, node, Product]) -> None:
+        node.save("Hello, World!")
+
+    def task_write_file(text: Annotated[str, node]) -> Annotated[str, Path("file.txt")]:
+        return text
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
+
+
+@pytest.mark.end_to_end()
+def test_check_if_root_nodes_are_available(tmp_path, runner):
+    source = """
+    import pytask
+
+    @pytask.mark.depends_on("in.txt")
+    @pytask.mark.produces("out.txt")
+    def task_d(produces):
+        produces.write_text("1")
+    """
+    tmp_path.joinpath("task_d.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.FAILED
+    assert "NodeNotFoundError: task_d.py::task_d requires" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_check_if_root_nodes_are_available_w_name(tmp_path, runner):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated, Any
+    from pytask import PathNode, PythonNode
+
+    node1 = PathNode(name="input1", path=Path(__file__).parent / "in.txt")
+    node2 = PythonNode(name="input2")
+
+    def task_e(in1_: Annotated[Path, node1], in2_: Annotated[Any, node2]): ...
+    """
+    tmp_path.joinpath("task_e.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.FAILED
+    assert "NodeNotFoundError: task_e.py::task_e requires" in result.output
+    assert "input1" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_check_if_root_nodes_are_available_with_separate_build_folder(tmp_path, runner):
+    tmp_path.joinpath("src").mkdir()
+    tmp_path.joinpath("bld").mkdir()
+    source = """
+    import pytask
+
+    @pytask.mark.depends_on("../bld/in.txt")
+    @pytask.mark.produces("out.txt")
+    def task_d(produces):
+        produces.write_text("1")
+    """
+    tmp_path.joinpath("src", "task_d.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.joinpath("src").as_posix()])
+
+    assert result.exit_code == ExitCode.FAILED
+    assert "NodeNotFoundError: task_d.py::task_d requires" in result.output
+    assert "bld/in.txt" in result.output
+
+
+def test_error_when_node_state_throws_error(runner, tmp_path):
+    source = """
+    from pytask import PythonNode
+
+    def task_example(a = PythonNode(value={"a": 1}, hash=True)):
+        pass
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+    assert "TypeError: unhashable type: 'dict'" in result.output
 
 
 @pytest.mark.end_to_end()

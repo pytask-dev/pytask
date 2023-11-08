@@ -6,13 +6,15 @@ import pytest
 from _pytask.database_utils import create_database
 from _pytask.database_utils import DatabaseSession
 from _pytask.database_utils import State
+from pytask import build
 from pytask import cli
 from pytask import ExitCode
+from pytask.path import hash_path
 from sqlalchemy.engine import make_url
 
 
 @pytest.mark.end_to_end()
-def test_existence_of_hashes_in_db(tmp_path, runner):
+def test_existence_of_hashes_in_db(tmp_path):
     """Modification dates of input and output files are stored in database."""
     source = """
     import pytask
@@ -27,25 +29,29 @@ def test_existence_of_hashes_in_db(tmp_path, runner):
     in_path = tmp_path.joinpath("in.txt")
     in_path.touch()
 
-    result = runner.invoke(cli, [tmp_path.as_posix()])
+    session = build(paths=tmp_path)
 
-    assert result.exit_code == ExitCode.OK
+    assert session.exit_code == ExitCode.OK
 
     create_database(
-        make_url("sqlite:///" + tmp_path.joinpath(".pytask.sqlite3").as_posix())
+        make_url(
+            "sqlite:///" + tmp_path.joinpath(".pytask", "pytask.sqlite3").as_posix()
+        )
     )
 
-    with DatabaseSession() as session:
-        task_id = task_path.as_posix() + "::task_write"
+    with DatabaseSession() as db_session:
+        task_id = session.tasks[0].signature
         out_path = tmp_path.joinpath("out.txt")
+        in_id = session.tasks[0].depends_on["depends_on"].signature
+        out_id = session.tasks[0].produces["produces"].signature
 
         for id_, path in (
             (task_id, task_path),
-            (in_path.as_posix(), in_path),
-            (out_path.as_posix(), out_path),
+            (in_id, in_path),
+            (out_id, out_path),
         ):
-            modification_time = session.get(State, (task_id, id_)).modification_time
-            assert float(modification_time) == path.stat().st_mtime
+            hash_ = db_session.get(State, (task_id, id_)).hash_
+            assert hash_ == hash_path(path, path.stat().st_mtime)
 
 
 @pytest.mark.end_to_end()

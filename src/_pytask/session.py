@@ -8,16 +8,20 @@ import networkx as nx
 from _pytask.outcomes import ExitCode
 from attrs import define
 from attrs import field
-from pluggy import HookRelay
 
+# HookRelay was published in v1.3.
+try:
+    from pluggy import HookRelay
+except ImportError:
+    from pluggy._hooks import _HookRelay as HookRelay
 
 if TYPE_CHECKING:
     from _pytask.models import DelayedTask
     from _pytask.node_protocols import PTask
     from _pytask.warnings_utils import WarningReport
-    from _pytask.report import CollectionReport
-    from _pytask.report import ExecutionReport
-    from _pytask.report import DagReport
+    from _pytask.reports import CollectionReport
+    from _pytask.reports import ExecutionReport
+    from _pytask.reports import DagReport
 
 
 @define(kw_only=True)
@@ -38,7 +42,7 @@ class Session:
         Holds all hooks collected by pytask.
     tasks
         List of collected tasks.
-    resolving_dependencies_reports
+    dag_reports
         Reports for resolving dependencies failed.
     execution_reports
         Reports for executed tasks.
@@ -57,7 +61,7 @@ class Session:
     delayed_tasks: list[DelayedTask] = field(factory=list)
     hook: HookRelay = field(factory=HookRelay)
     tasks: list[PTask] = field(factory=list)
-    dag_reports: DagReport | None = None
+    dag_report: DagReport | None = None
     execution_reports: list[ExecutionReport] = field(factory=list)
     exit_code: ExitCode = ExitCode.OK
 

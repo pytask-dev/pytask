@@ -4,6 +4,7 @@ import textwrap
 
 import pytest
 from _pytask.database_utils import State
+from _pytask.path import hash_path
 from _pytask.persist import pytask_execute_task_process_report
 from pytask import build
 from pytask import create_database
@@ -66,14 +67,17 @@ def test_multiple_runs_with_persist(tmp_path):
     assert session.execution_reports[0].outcome == TaskOutcome.PERSISTENCE
     assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
 
-    create_database("sqlite:///" + tmp_path.joinpath(".pytask.sqlite3").as_posix())
+    create_database(
+        "sqlite:///" + tmp_path.joinpath(".pytask", "pytask.sqlite3").as_posix()
+    )
 
-    with DatabaseSession() as session:
-        task_id = tmp_path.joinpath("task_module.py").as_posix() + "::task_dummy"
-        node_id = tmp_path.joinpath("out.txt").as_posix()
+    with DatabaseSession() as db_session:
+        task_id = session.tasks[0].signature
+        node_id = session.tasks[0].produces["produces"].signature
 
-        modification_time = session.get(State, (task_id, node_id)).modification_time
-        assert float(modification_time) == tmp_path.joinpath("out.txt").stat().st_mtime
+        hash_ = db_session.get(State, (task_id, node_id)).hash_
+        path = tmp_path.joinpath("out.txt")
+        assert hash_ == hash_path(path, path.stat().st_mtime)
 
     session = build(paths=tmp_path)
 
@@ -119,11 +123,13 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
 )
 def test_pytask_execute_task_process_report(monkeypatch, exc_info, expected):
     monkeypatch.setattr(
-        "_pytask.persist.update_states_in_database", lambda *x: None  # noqa: ARG005
+        "_pytask.persist.update_states_in_database",
+        lambda *x: None,  # noqa: ARG005
     )
 
     task = DummyClass()
     task.name = None
+    task.signature = "id"
 
     session = DummyClass()
     session.dag = None

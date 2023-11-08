@@ -22,7 +22,11 @@ class MetaNode(Protocol):
     """Protocol for an intersection between nodes and tasks."""
 
     name: str
-    """Name of the node that must be unique."""
+
+    @property
+    def signature(self) -> str:
+        """Return the signature of the node."""
+        ...
 
     @abstractmethod
     def state(self) -> str | None:
@@ -39,8 +43,18 @@ class MetaNode(Protocol):
 class PNode(MetaNode, Protocol):
     """Protocol for nodes."""
 
-    def load(self) -> Any:
-        """Return the value of the node that will be injected into the task."""
+    def load(self, is_product: bool) -> Any:
+        """Return the value of the node that will be injected into the task.
+
+        Parameters
+        ----------
+        is_product
+            Indicates whether the node is loaded as a dependency or as a product. It can
+            be used to return a different value when the node is loaded with a product
+            annotation. Then, we usually want to insert the node itself to allow the
+            user calling :meth:`PNode.load`.
+
+        """
         ...
 
     def save(self, value: Any) -> Any:
@@ -63,7 +77,6 @@ class PPathNode(PNode, Protocol):
 class PTask(MetaNode, Protocol):
     """Protocol for nodes."""
 
-    name: str
     depends_on: dict[str, PyTree[PNode]]
     produces: dict[str, PyTree[PNode]]
     markers: list[Mark]

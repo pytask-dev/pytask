@@ -13,13 +13,12 @@ from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
-from _pytask.traceback import remove_traceback_from_exc_info
 
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
     from _pytask.session import Session
-    from _pytask.report import ExecutionReport
+    from _pytask.reports import ExecutionReport
 
 
 def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
@@ -55,14 +54,6 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     if is_unchanged and not session.config["force"]:
         raise SkippedUnchanged
 
-    ancestor_failed_marks = get_marks(task, "skip_ancestor_failed")
-    if ancestor_failed_marks:
-        message = "\n".join(
-            skip_ancestor_failed(*mark.args, **mark.kwargs)
-            for mark in ancestor_failed_marks
-        )
-        raise SkippedAncestorFailed(message)
-
     is_skipped = has_mark(task, "skip")
     if is_skipped:
         raise Skipped
@@ -74,6 +65,14 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
         should_skip = any(arg[0] for arg in marker_args)
         if should_skip:
             raise Skipped(message)
+
+    ancestor_failed_marks = get_marks(task, "skip_ancestor_failed")
+    if ancestor_failed_marks:
+        message = "\n".join(
+            skip_ancestor_failed(*mark.args, **mark.kwargs)
+            for mark in ancestor_failed_marks
+        )
+        raise SkippedAncestorFailed(message)
 
 
 @hookimpl
@@ -94,7 +93,7 @@ def pytask_execute_task_process_report(
         elif isinstance(report.exc_info[1], Skipped):
             report.outcome = TaskOutcome.SKIP
 
-            for descending_task_name in descending_tasks(task.name, session.dag):
+            for descending_task_name in descending_tasks(task.signature, session.dag):
                 descending_task = session.dag.nodes[descending_task_name]["task"]
                 descending_task.markers.append(
                     Mark(
@@ -106,7 +105,6 @@ def pytask_execute_task_process_report(
 
         elif isinstance(report.exc_info[1], SkippedAncestorFailed):
             report.outcome = TaskOutcome.SKIP_PREVIOUS_FAILED
-            report.exc_info = remove_traceback_from_exc_info(report.exc_info)
 
     if report.exc_info and isinstance(
         report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)

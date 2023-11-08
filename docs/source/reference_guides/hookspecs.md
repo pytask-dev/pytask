@@ -23,14 +23,12 @@ hooks are allowed to raise exceptions which are handled and stored in a report.
 
 ```{eval-rst}
 .. autofunction:: pytask_add_hooks
-
 ```
 
 ## Command Line Interface
 
 ```{eval-rst}
 .. autofunction:: pytask_extend_command_line_interface
-
 ```
 
 ## Configuration
@@ -41,20 +39,9 @@ together.
 
 ```{eval-rst}
 .. autofunction:: pytask_configure
-```
-
-```{eval-rst}
 .. autofunction:: pytask_parse_config
-```
-
-```{eval-rst}
 .. autofunction:: pytask_post_parse
-
-```
-
-```{eval-rst}
 .. autofunction:: pytask_unconfigure
-
 ```
 
 ## Collection
@@ -63,47 +50,16 @@ The following hooks traverse directories and collect tasks from files.
 
 ```{eval-rst}
 .. autofunction:: pytask_collect
-```
-
-```{eval-rst}
 .. autofunction:: pytask_ignore_collect
-```
-
-```{eval-rst}
 .. autofunction:: pytask_collect_modify_tasks
-```
-
-```{eval-rst}
 .. autofunction:: pytask_collect_file_protocol
-```
-
-```{eval-rst}
 .. autofunction:: pytask_collect_file
-```
-
-```{eval-rst}
 .. autofunction:: pytask_collect_task_protocol
-```
-
-```{eval-rst}
 .. autofunction:: pytask_collect_task_setup
-```
-
-```{eval-rst}
 .. autofunction:: pytask_collect_task
-```
-
-```{eval-rst}
 .. autofunction:: pytask_collect_task_teardown
-```
-
-```{eval-rst}
 .. autofunction:: pytask_collect_node
-```
-
-```{eval-rst}
 .. autofunction:: pytask_collect_log
-
 ```
 
 ## Resolving Dependencies
@@ -120,21 +76,8 @@ your plugin.
 
 ```{eval-rst}
 .. autofunction:: pytask_dag
-```
-
-```{eval-rst}
 .. autofunction:: pytask_dag_create_dag
-```
-
-```{eval-rst}
-.. autofunction:: pytask_dag_validate_dag
-```
-
-```{eval-rst}
 .. autofunction:: pytask_dag_select_execution_dag
-```
-
-```{eval-rst}
 .. autofunction:: pytask_dag_log
 
 ```
@@ -145,48 +88,15 @@ The following hooks execute the tasks and log information on the result in the t
 
 ```{eval-rst}
 .. autofunction:: pytask_execute
-```
-
-```{eval-rst}
 .. autofunction:: pytask_execute_log_start
-```
-
-```{eval-rst}
 .. autofunction:: pytask_execute_create_scheduler
-```
-
-```{eval-rst}
 .. autofunction:: pytask_execute_build
-```
-
-```{eval-rst}
 .. autofunction:: pytask_execute_task_protocol
-```
-
-```{eval-rst}
 .. autofunction:: pytask_execute_task_log_start
-```
-
-```{eval-rst}
 .. autofunction:: pytask_execute_task_setup
-```
-
-```{eval-rst}
 .. autofunction:: pytask_execute_task
-```
-
-```{eval-rst}
 .. autofunction:: pytask_execute_task_teardown
-```
-
-```{eval-rst}
 .. autofunction:: pytask_execute_task_process_report
-```
-
-```{eval-rst}
 .. autofunction:: pytask_execute_task_log_end
-```
-
-```{eval-rst}
 .. autofunction:: pytask_execute_log_end
 ```

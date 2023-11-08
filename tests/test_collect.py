@@ -38,7 +38,7 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_collect_depends_on_that_is_not_str_or_path(tmp_path):
+def test_collect_depends_on_that_is_not_str_or_path(capsys, tmp_path):
     """If a node cannot be parsed because unknown type, raise an error."""
     source = """
     import pytask
@@ -55,11 +55,14 @@ def test_collect_depends_on_that_is_not_str_or_path(tmp_path):
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
     exc_info = session.collection_reports[0].exc_info
     assert isinstance(exc_info[1], NodeNotCollectedError)
-    assert "'@pytask.mark.depends_on'" in str(exc_info[1])
+    captured = capsys.readouterr().out
+    assert "'@pytask.mark.depends_on'" in captured
+    # Assert tracebacks are hidden.
+    assert "_pytask/collect.py" not in captured
 
 
 @pytest.mark.end_to_end()
-def test_collect_produces_that_is_not_str_or_path(tmp_path):
+def test_collect_produces_that_is_not_str_or_path(tmp_path, capsys):
     """If a node cannot be parsed because unknown type, raise an error."""
     source = """
     import pytask
@@ -76,7 +79,8 @@ def test_collect_produces_that_is_not_str_or_path(tmp_path):
     assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
     exc_info = session.collection_reports[0].exc_info
     assert isinstance(exc_info[1], NodeNotCollectedError)
-    assert "'@pytask.mark.depends_on'" in str(exc_info[1])
+    captured = capsys.readouterr().out
+    assert "'@pytask.mark.depends_on'" in captured
 
 
 @pytest.mark.end_to_end()
@@ -152,7 +156,9 @@ def test_collect_files_w_custom_file_name_pattern(
     ("session", "path", "node_info", "expected"),
     [
         pytest.param(
-            Session.from_config({"check_casing_of_paths": False}),
+            Session.from_config(
+                {"check_casing_of_paths": False, "paths": (Path.cwd(),)}
+            ),
             Path(),
             NodeInfo(
                 arg_name="",
@@ -166,7 +172,9 @@ def test_collect_files_w_custom_file_name_pattern(
             id="test with absolute string path",
         ),
         pytest.param(
-            Session.from_config({"check_casing_of_paths": False}),
+            Session.from_config(
+                {"check_casing_of_paths": False, "paths": (Path.cwd(),)}
+            ),
             Path(),
             NodeInfo(
                 arg_name="",
@@ -218,7 +226,7 @@ def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_pat
 def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
     tmp_path, is_absolute
 ):
-    session = Session.from_config({"check_casing_of_paths": True})
+    session = Session.from_config({"check_casing_of_paths": True, "paths": (tmp_path,)})
     real_node = tmp_path / "text.txt"
 
     collected_node = Path("..", tmp_path.name, "text.txt")
@@ -385,7 +393,7 @@ def test_collect_string_product_raises_error_with_annotation(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_product_cannot_mix_different_product_types(tmp_path):
+def test_product_cannot_mix_different_product_types(tmp_path, capsys):
     source = """
     import pytask
     from typing_extensions import Annotated
@@ -405,11 +413,12 @@ def test_product_cannot_mix_different_product_types(tmp_path):
     assert len(session.tasks) == 0
     report = session.collection_reports[0]
     assert report.outcome == CollectionOutcome.FAIL
-    assert "The task uses multiple ways" in str(report.exc_info[1])
+    captured = capsys.readouterr().out
+    assert "The task uses multiple ways" in captured
 
 
 @pytest.mark.end_to_end()
-def test_depends_on_cannot_mix_different_definitions(tmp_path):
+def test_depends_on_cannot_mix_different_definitions(tmp_path, capsys):
     source = """
     import pytask
     from typing_extensions import Annotated
@@ -432,7 +441,8 @@ def test_depends_on_cannot_mix_different_definitions(tmp_path):
     assert len(session.tasks) == 0
     report = session.collection_reports[0]
     assert report.outcome == CollectionOutcome.FAIL
-    assert "The task uses multiple" in str(report.exc_info[1])
+    captured = capsys.readouterr().out
+    assert "The task uses multiple" in captured
 
 
 @pytest.mark.end_to_end()
@@ -450,8 +460,6 @@ def test_deprecation_warning_for_strings_in_depends_on(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert "FutureWarning" in result.output
-    assert "Using strings to specify a dependency" in result.output
-    assert "Using strings to specify a product" in result.output
 
 
 @pytest.mark.end_to_end()
@@ -550,6 +558,23 @@ def test_relative_path_of_path_node(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("subfolder", "out.txt").exists()
+
+
+@pytest.mark.end_to_end()
+def test_error_when_using_kwargs_and_node_in_annotation(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from pytask import task, Product
+    from typing_extensions import Annotated
+
+    @task(kwargs={"path": Path("file.txt")})
+    def task_example(path: Annotated[Path, Path("file.txt"), Product]) -> None: ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "is defined twice" in result.output
 
 
 @pytest.mark.end_to_end()

@@ -78,7 +78,7 @@ def task(
 
     .. code-block:: python
 
-        from typing_extensions import Annotated
+        from typing import Annotated
         from pytask import task
 
         @task()

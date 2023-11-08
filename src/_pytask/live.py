@@ -23,9 +23,9 @@ from rich.text import Text
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
-    from _pytask.report import ExecutionReport
+    from _pytask.reports import ExecutionReport
     from _pytask.session import Session
-    from _pytask.report import CollectionReport
+    from _pytask.reports import CollectionReport
 
 
 @hookimpl
@@ -264,7 +264,7 @@ class LiveExecution:
         self._running_tasks.pop(new_report.task.name)
         self._reports.append(
             _ReportEntry(
-                name=getattr(new_report.task, "display_name", new_report.task.name),
+                name=new_report.task.name,
                 outcome=new_report.outcome,
                 task=new_report.task,
             )

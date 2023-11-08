@@ -23,9 +23,9 @@ if TYPE_CHECKING:
     from _pytask.session import Session
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
-    from _pytask.report import CollectionReport
-    from _pytask.report import ExecutionReport
-    from _pytask.report import DagReport
+    from _pytask.reports import CollectionReport
+    from _pytask.reports import ExecutionReport
+    from _pytask.reports import DagReport
 
 
 hookspec = pluggy.HookspecMarker("pytask")
@@ -245,16 +245,6 @@ def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
     """
 
 
-@hookspec(firstresult=True)
-def pytask_dag_validate_dag(session: Session, dag: nx.DiGraph) -> None:
-    """Validate the DAG.
-
-    This hook validates the DAG. For example, there can be cycles in the DAG if tasks,
-    dependencies and products have been misspecified.
-
-    """
-
-
 @hookspec
 def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
     """Select the subgraph which needs to be executed.
@@ -267,7 +257,7 @@ def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
 
 @hookspec(firstresult=True)
 def pytask_dag_has_node_changed(
-    session: Session, dag: nx.DiGraph, node: MetaNode, task_name: str
+    session: Session, dag: nx.DiGraph, task: PTask, node: MetaNode
 ) -> None:
     """Select the subgraph which needs to be executed.
 
