@@ -47,9 +47,9 @@ repos:
 -   repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.4
     hooks:
+      - id: ruff-format
       - id: ruff
         args: [--unsafe-fixes]
-      - id: ruff-format
 -   repo: https://github.com/dosisod/refurb
     rev: v1.22.1
     hooks:

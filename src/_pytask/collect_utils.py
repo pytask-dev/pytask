@@ -684,11 +684,7 @@ def _collect_product(
 
 def create_name_of_python_node(node_info: NodeInfo) -> str:
     """Create name of PythonNode."""
-    prefix = (
-        node_info.task_path.as_posix() + "::" + node_info.task_name
-        if node_info.task_path
-        else node_info.task_name
-    )
+    prefix = node_info.task_name if node_info.task_path else node_info.task_name
     node_name = prefix + "::" + node_info.arg_name
     if node_info.path:
         suffix = "-".join(map(str, node_info.path))

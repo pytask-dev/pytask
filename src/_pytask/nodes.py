@@ -22,6 +22,7 @@ from attrs import field
 
 
 if TYPE_CHECKING:
+    from _pytask.models import NodeInfo
     from _pytask.tree_util import PyTree
     from _pytask.mark import Mark
 
@@ -211,6 +212,8 @@ class PythonNode(PNode):
         objects that are hashable like strings and tuples. For dictionaries and other
         non-hashable objects, you need to provide a function that can hash these
         objects.
+    node_info
+        The infos acquired while collecting the node.
     signature
         The signature of the node.
 
@@ -229,11 +232,19 @@ class PythonNode(PNode):
     name: str = ""
     value: Any | NoDefault = no_default
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
+    node_info: NodeInfo | None = None
 
     @property
     def signature(self) -> str:
         """The unique signature of the node."""
-        raw_key = str(hash_value(self.name))
+        raw_key = (
+            "".join(
+                str(hash_value(getattr(self.node_info, name)))
+                for name in ("arg_name", "path", "task_name", "task_path")
+            )
+            if self.node_info
+            else str(hash_value(self.node_info))
+        )
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
     def load(self, is_product: bool = False) -> Any:
