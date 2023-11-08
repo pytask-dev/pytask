@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pickle
+import sys
 from pathlib import Path
 
 import pytest
@@ -39,7 +40,11 @@ def test_hash_of_python_node(value, hash_, expected):
         ),
         (
             PythonNode(name="name", value=None),
-            "a1f217807169de3253d1176ea5c45be20f3db2e2e81ea26c918f6008d2eb715b",
+            # The hash of None constant https://github.com/python/cpython/pull/99541
+            # starting 3.12.
+            "a1f217807169de3253d1176ea5c45be20f3db2e2e81ea26c918f6008d2eb715b"
+            if sys.version_info >= (3, 12)
+            else "2af47fd015a32bd1b8d7f207930ca0a370f3a866c042d517350b59187a8f4987",
         ),
         (
             Task(base_name="task", path=Path("task.py"), function=None),
