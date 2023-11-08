@@ -39,7 +39,7 @@ def test_hash_of_python_node(value, hash_, expected):
         ),
         (
             PythonNode(name="name", value=None),
-            "c8265d64828f9e007a9108251883a2b63954c326c678fca23c49a0b08ea7c925",
+            "a1f217807169de3253d1176ea5c45be20f3db2e2e81ea26c918f6008d2eb715b",
         ),
         (
             Task(base_name="task", path=Path("task.py"), function=None),

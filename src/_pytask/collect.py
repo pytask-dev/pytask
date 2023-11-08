@@ -325,7 +325,9 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
     node = node_info.value
 
     if isinstance(node, PythonNode):
-        node.name = create_name_of_python_node(node_info)
+        node.node_info = node_info
+        if not node.name:
+            node.name = create_name_of_python_node(node_info)
         return node
 
     if isinstance(node, PPathNode) and not node.path.is_absolute():
@@ -363,7 +365,7 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
         return PathNode(name=name, path=node)
 
     node_name = create_name_of_python_node(node_info)
-    return PythonNode(value=node, name=node_name)
+    return PythonNode(value=node, name=node_name, node_info=node_info)
 
 
 def _raise_error_if_casing_of_path_is_wrong(
