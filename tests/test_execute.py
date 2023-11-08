@@ -1087,8 +1087,9 @@ def test_error_when_path_product_is_directory(runner, tmp_path, node):
     from pathlib import Path
     from pytask import PickleNode, Product
     from typing_extensions import Annotated
+    from typing import Any
 
-    def task_example(path: Annotated[..., Product] = {node}): ...
+    def task_example(path: Annotated[Any, Product] = {node}): ...
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.as_posix()])
