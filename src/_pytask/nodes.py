@@ -177,6 +177,9 @@ class PathNode(PPathNode):
         The state is given by the modification timestamp.
 
         """
+        if self.path.is_dir():
+            msg = f"The path should be a file and not a directory: {self.path}."
+            raise ValueError(msg)
         if self.path.exists():
             modification_time = self.path.stat().st_mtime
             return hash_path(self.path, modification_time)
@@ -316,6 +319,9 @@ class PickleNode:
         return cls(name=path.as_posix(), path=path)
 
     def state(self) -> str | None:
+        if self.path.is_dir():
+            msg = f"The path should be a file and not a directory: {self.path}."
+            raise ValueError(msg)
         if self.path.exists():
             modification_time = self.path.stat().st_mtime
             return hash_path(self.path, modification_time)

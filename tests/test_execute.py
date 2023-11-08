@@ -1061,3 +1061,36 @@ def test_error_when_node_state_throws_error(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.FAILED
     assert "TypeError: unhashable type: 'dict'" in result.output
+
+
+@pytest.mark.parametrize(
+    "node", ["Path(__file__).parent", "PickleNode(name='', path=Path(__file__).parent)"]
+)
+def test_error_when_path_dependency_is_directory(runner, tmp_path, node):
+    source = f"""
+    from pathlib import Path
+    from pytask import PickleNode
+
+    def task_example(path = {node}): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+    assert "The path should be a file and not a directory" in result.output
+
+
+@pytest.mark.parametrize(
+    "node", ["Path(__file__).parent", "PickleNode(name='', path=Path(__file__).parent)"]
+)
+def test_error_when_path_product_is_directory(runner, tmp_path, node):
+    source = f"""
+    from pathlib import Path
+    from pytask import PickleNode, Product
+    from typing_extensions import Annotated
+
+    def task_example(path: Annotated[..., Product] = {node}): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+    assert "The path should be a file and not a directory" in result.output
