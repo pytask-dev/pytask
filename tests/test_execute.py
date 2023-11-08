@@ -1004,7 +1004,7 @@ def test_check_if_root_nodes_are_available(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.FAILED
-    assert "NodeNotFoundError: task_d.py::task_d requires" in result.output
+    assert "NodeNotFoundError: 'task_d.py::task_d' requires" in result.output
 
 
 @pytest.mark.end_to_end()
@@ -1024,7 +1024,7 @@ def test_check_if_root_nodes_are_available_w_name(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.FAILED
-    assert "NodeNotFoundError: task_e.py::task_e requires" in result.output
+    assert "NodeNotFoundError: 'task_e.py::task_e' requires" in result.output
     assert "input1" in result.output
 
 
@@ -1045,7 +1045,7 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder(tmp_path, 
     result = runner.invoke(cli, [tmp_path.joinpath("src").as_posix()])
 
     assert result.exit_code == ExitCode.FAILED
-    assert "NodeNotFoundError: task_d.py::task_d requires" in result.output
+    assert "NodeNotFoundError: 'task_d.py::task_d' requires" in result.output
     assert "bld/in.txt" in result.output
 
 
