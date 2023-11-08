@@ -223,9 +223,16 @@ def hash_value(value: Any) -> int | str:
     Python 3.12.
 
     """
-    #
     if value is None:
-        return 4238894112
+        return 0xFCA86420
+    if hasattr(value, "_asdict"):
+        value = value._asdict()
+    if isinstance(value, dict):
+        value = "".join(
+            "".join((str(hash_value(k)), str(hash_value(v)))) for k, v in value.items()
+        )
+    if isinstance(value, (tuple, list)):
+        value = "".join(str(hash_value(i)) for i in value)
     if isinstance(value, Path):
         value = str(value)
     if isinstance(value, str):
