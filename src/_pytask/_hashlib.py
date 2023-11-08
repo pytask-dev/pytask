@@ -229,7 +229,8 @@ def hash_value(value: Any) -> int | str:
         value = value._asdict()
     if isinstance(value, dict):
         value = "".join(
-            "".join((str(hash_value(k)), str(hash_value(v)))) for k, v in value.items()
+            "".join((str(hash_value(k)), str(hash_value(value[k]))))
+            for k in sorted(value)
         )
     if isinstance(value, (tuple, list)):
         value = "".join(str(hash_value(i)) for i in value)
