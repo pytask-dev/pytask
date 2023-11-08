@@ -29,6 +29,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`480` removes the check for missing root nodes from the generation of the DAG.
   It is delegated to the check during the execution.
 - {pull}`481` improves coverage.
+- {pull}`482` correctly handles names and signatures of {class}`~pytask.PythonNode`.
 
 ## 0.4.1 - 2023-10-11
 

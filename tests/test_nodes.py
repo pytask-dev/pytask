@@ -4,6 +4,7 @@ import pickle
 from pathlib import Path
 
 import pytest
+from pytask import NodeInfo
 from pytask import PathNode
 from pytask import PickleNode
 from pytask import PNode
@@ -39,7 +40,21 @@ def test_hash_of_python_node(value, hash_, expected):
         ),
         (
             PythonNode(name="name", value=None),
-            "c8265d64828f9e007a9108251883a2b63954c326c678fca23c49a0b08ea7c925",
+            "a1f217807169de3253d1176ea5c45be20f3db2e2e81ea26c918f6008d2eb715b",
+        ),
+        (
+            PythonNode(
+                name="name",
+                value=None,
+                node_info=NodeInfo(
+                    arg_name="arg_name",
+                    path=(0, 1, "dict_key"),
+                    value=None,
+                    task_path=Path("task_example.py"),
+                    task_name="task_example",
+                ),
+            ),
+            "7284475a87b8f1aa49c40126c5064269f0ba926265b8fe9158a39a882c6a1512",
         ),
         (
             Task(base_name="task", path=Path("task.py"), function=None),

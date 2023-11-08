@@ -738,7 +738,7 @@ def test_pytree_and_python_node_as_return(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
+def test_more_nested_pytree_and_python_node_as_return_with_names(runner, tmp_path):
     source = """
     from pathlib import Path
     from typing import Any
@@ -758,6 +758,39 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "1  Skipped" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Any
+    from typing_extensions import Annotated
+    from pytask import PythonNode
+    from typing import Dict
+
+    nodes = [
+        PythonNode(),
+        (PythonNode(), PythonNode()),
+        PythonNode()
+    ]
+
+    def task_example() -> Annotated[Dict[str, str], nodes]:
+        return [{"first": "a", "second": "b"}, (1, 2), 1]
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "1  Skipped" in result.output
 
 
 @pytest.mark.end_to_end()

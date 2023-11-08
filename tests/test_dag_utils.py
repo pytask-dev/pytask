@@ -33,9 +33,9 @@ def test_sort_tasks_topologically(dag):
     sorter = TopologicalSorter.from_dag(dag)
     topo_ordering = []
     while sorter.is_active():
-        task_signature = sorter.get_ready()[0]
-        topo_ordering.append(task_signature)
-        sorter.done(task_signature)
+        task_name = sorter.get_ready()[0]
+        topo_ordering.append(task_name)
+        sorter.done(task_name)
     topo_names = [dag.nodes[sig]["task"].name for sig in topo_ordering]
     assert topo_names == [f".::{i}" for i in range(5)]
 
@@ -185,23 +185,20 @@ def test_ask_for_invalid_number_of_ready_tasks(dag):
 
 @pytest.mark.unit()
 def test_instantiate_sorter_from_other_sorter(dag):
-    name_to_signature = {
-        dag.nodes[signature]["task"].name: signature for signature in dag.nodes
-    }
+    name_to_sig = {dag.nodes[sig]["task"].name: sig for sig in dag.nodes}
 
     scheduler = TopologicalSorter.from_dag(dag)
     for _ in range(2):
-        task_signature = scheduler.get_ready()[0]
-        scheduler.done(task_signature)
-    assert scheduler._nodes_done == {
-        name_to_signature[name] for name in (".::0", ".::1")
-    }
+        task_name = scheduler.get_ready()[0]
+        scheduler.done(task_name)
+    assert scheduler._nodes_done == {name_to_sig[name] for name in (".::0", ".::1")}
 
-    dag.add_node(".::5", task=Task(base_name="5", path=Path(), function=None))
-    dag.add_edge(".::4", ".::5")
+    task = Task(base_name="5", path=Path(), function=None)
+    dag.add_node(task.signature, task=Task(base_name="5", path=Path(), function=None))
+    dag.add_edge(name_to_sig[".::4"], task.signature)
 
     new_scheduler = TopologicalSorter.from_dag_and_sorter(dag, scheduler)
     while new_scheduler.is_active():
-        task_signature = new_scheduler.get_ready()[0]
-        new_scheduler.done(task_signature)
-    assert new_scheduler._nodes_done == set(name_to_signature.values())
+        task_name = new_scheduler.get_ready()[0]
+        new_scheduler.done(task_name)
+    assert new_scheduler._nodes_done == set(name_to_sig.values()) | {task.signature}
