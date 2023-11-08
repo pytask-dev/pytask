@@ -66,6 +66,7 @@ def markers(**raw_config: Any) -> NoReturn:
 
         console.print(table)
 
+    session.hook.pytask_unconfigure(session=session)
     sys.exit(session.exit_code)
 
 
