@@ -1,18 +1,20 @@
 """Contains implementations of tasks and nodes following the node protocols."""
 from __future__ import annotations
 
-import functools
 import hashlib
 import inspect
+import pickle
 from pathlib import Path  # noqa: TCH003
 from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
 
+from _pytask._hashlib import hash_value
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
+from _pytask.path import hash_path
 from _pytask.typing import no_default
 from _pytask.typing import NoDefault
 from attrs import define
@@ -20,6 +22,7 @@ from attrs import field
 
 
 if TYPE_CHECKING:
+    from _pytask.models import NodeInfo
     from _pytask.tree_util import PyTree
     from _pytask.mark import Mark
 
@@ -51,6 +54,7 @@ class TaskWithoutPath(PTask):
         Reports with entries for when, what, and content.
     attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
+
     """
 
     name: str
@@ -60,6 +64,11 @@ class TaskWithoutPath(PTask):
     markers: list[Mark] = field(factory=list)
     report_sections: list[tuple[str, str, str]] = field(factory=list)
     attributes: dict[Any, Any] = field(factory=dict)
+
+    @property
+    def signature(self) -> str:
+        raw_key = str(hash_value(self.name))
+        return hashlib.sha256(raw_key.encode()).hexdigest()
 
     def state(self) -> str | None:
         """Return the state of the node."""
@@ -89,8 +98,6 @@ class Task(PTaskWithPath):
         The task function.
     name
         The name of the task.
-    display_name
-        The shortest uniquely identifiable name for task for display.
     depends_on
         A list of dependencies of task.
     produces
@@ -108,7 +115,6 @@ class Task(PTaskWithPath):
     path: Path
     function: Callable[..., Any]
     name: str = field(default="", init=False)
-    display_name: str = field(default="", init=False)
     depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
     produces: dict[str, PyTree[PNode]] = field(factory=dict)
     markers: list[Mark] = field(factory=list)
@@ -120,13 +126,17 @@ class Task(PTaskWithPath):
         if not self.name:
             self.name = self.path.as_posix() + "::" + self.base_name
 
-        if not self.display_name:
-            self.display_name = self.name
+    @property
+    def signature(self) -> str:
+        """The unique signature of the node."""
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.base_name, self.path))
+        return hashlib.sha256(raw_key.encode()).hexdigest()
 
     def state(self) -> str | None:
         """Return the state of the node."""
         if self.path.exists():
-            return str(self.path.stat().st_mtime)
+            modification_time = self.path.stat().st_mtime
+            return hash_path(self.path, modification_time)
         return None
 
     def execute(self, **kwargs: Any) -> None:
@@ -150,17 +160,15 @@ class PathNode(PPathNode):
     name: str
     path: Path
 
+    @property
+    def signature(self) -> str:
+        """The unique signature of the node."""
+        raw_key = str(hash_value(self.path))
+        return hashlib.sha256(raw_key.encode()).hexdigest()
+
     @classmethod
-    @functools.lru_cache
     def from_path(cls, path: Path) -> PathNode:
-        """Instantiate class from path to file.
-
-        The `lru_cache` decorator ensures that the same object is not collected twice.
-
-        """
-        if not path.is_absolute():
-            msg = "Node must be instantiated from absolute path."
-            raise ValueError(msg)
+        """Instantiate class from path to file."""
         return cls(name=path.as_posix(), path=path)
 
     def state(self) -> str | None:
@@ -170,10 +178,11 @@ class PathNode(PPathNode):
 
         """
         if self.path.exists():
-            return str(self.path.stat().st_mtime)
+            modification_time = self.path.stat().st_mtime
+            return hash_path(self.path, modification_time)
         return None
 
-    def load(self) -> Path:
+    def load(self, is_product: bool = False) -> Path:  # noqa: ARG002
         """Load the value."""
         return self.path
 
@@ -195,20 +204,53 @@ class PythonNode(PNode):
     Attributes
     ----------
     name
-        Name of the node that is set internally.
+        The name of the node.
     value
-        Value of the node.
+        The value of the node.
     hash
-        Whether the value should be hashed to determine the state.
+        Whether the value should be hashed to determine the state. Use ``True`` for
+        objects that are hashable like strings and tuples. For dictionaries and other
+        non-hashable objects, you need to provide a function that can hash these
+        objects.
+    node_info
+        The infos acquired while collecting the node.
+    signature
+        The signature of the node.
+
+    Examples
+    --------
+    To allow a :class:`~pytask.PythonNode` to hash a dictionary, you need to pass your
+    own hashing function. For example, from the :mod:`deepdiff` library.
+
+    >>> from deepdiff import DeepHash
+    >>> node = PythonNode(name="node", value={"a": 1}, hash=lambda x: DeepHash(x)[x])
+
+    .. warning:: Hashing big objects can require some time.
 
     """
 
     name: str = ""
     value: Any | NoDefault = no_default
     hash: bool | Callable[[Any], bool] = False  # noqa: A003
+    node_info: NodeInfo | None = None
 
-    def load(self) -> Any:
+    @property
+    def signature(self) -> str:
+        """The unique signature of the node."""
+        raw_key = (
+            "".join(
+                str(hash_value(getattr(self.node_info, name)))
+                for name in ("arg_name", "path", "task_name", "task_path")
+            )
+            if self.node_info
+            else str(hash_value(self.node_info))
+        )
+        return hashlib.sha256(raw_key.encode()).hexdigest()
+
+    def load(self, is_product: bool = False) -> Any:
         """Load the value."""
+        if is_product:
+            return self
         if isinstance(self.value, PythonNode):
             return self.value.load()
         return self.value
@@ -239,9 +281,52 @@ class PythonNode(PNode):
             value = self.load()
             if callable(self.hash):
                 return str(self.hash(value))
-            if isinstance(value, str):
-                return str(hashlib.sha256(value.encode()).hexdigest())
-            if isinstance(value, bytes):
-                return str(hashlib.sha256(value).hexdigest())
-            return str(hash(value))
+            return str(hash_value(value))
         return "0"
+
+
+@define
+class PickleNode:
+    """A node for pickle files.
+
+    Attributes
+    ----------
+    name
+        Name of the node which makes it identifiable in the DAG.
+    path
+        The path to the file.
+
+    """
+
+    name: str
+    path: Path
+
+    @property
+    def signature(self) -> str:
+        """The unique signature of the node."""
+        raw_key = str(hash_value(self.path))
+        return hashlib.sha256(raw_key.encode()).hexdigest()
+
+    @classmethod
+    def from_path(cls, path: Path) -> PickleNode:
+        """Instantiate class from path to file."""
+        if not path.is_absolute():
+            msg = "Node must be instantiated from absolute path."
+            raise ValueError(msg)
+        return cls(name=path.as_posix(), path=path)
+
+    def state(self) -> str | None:
+        if self.path.exists():
+            modification_time = self.path.stat().st_mtime
+            return hash_path(self.path, modification_time)
+        return None
+
+    def load(self, is_product: bool = False) -> Any:
+        if is_product:
+            return self
+        with self.path.open("rb") as f:
+            return pickle.load(f)  # noqa: S301
+
+    def save(self, value: Any) -> None:
+        with self.path.open("wb") as f:
+            pickle.dump(value, f)

@@ -14,8 +14,7 @@ from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.node_protocols import PTask
 from _pytask.outcomes import Exit
-from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
-from _pytask.traceback import render_exc_info
+from _pytask.traceback import Traceback
 
 
 if TYPE_CHECKING:
@@ -59,7 +58,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 def _pdbcls_callback(
-    ctx: click.Context, name: str, value: str | None  # noqa: ARG001
+    ctx: click.Context,  # noqa: ARG001
+    name: str,  # noqa: ARG001
+    value: str | None,
 ) -> tuple[str, str] | None:
     """Validate the debugger class string passed to pdbcls."""
     message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
@@ -259,7 +260,10 @@ class PytaskPDB:
 
     @classmethod
     def _init_pdb(
-        cls, method: str, *args: Any, **kwargs: Any  # noqa: ARG003
+        cls,
+        method: str,
+        *args: Any,  # noqa: ARG003
+        **kwargs: Any,
     ) -> pdb.Pdb:
         """Initialize PDB debugging, dropping any IO capturing."""
         if cls._pluginmanager is None:
@@ -346,13 +350,11 @@ def wrap_function_for_post_mortem_debugging(session: Session, task: PTask) -> No
                 console.rule("Captured stderr", style="default")
                 console.print(err)
 
-            exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
+            exc_info = sys.exc_info()
 
             console.print()
             console.rule("Traceback", characters=">", style="default")
-            console.print(
-                render_exc_info(*exc_info, show_locals=session.config["show_locals"])
-            )
+            console.print(Traceback(exc_info))
 
             post_mortem(exc_info[2])  # type: ignore[arg-type]
 

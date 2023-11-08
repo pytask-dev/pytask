@@ -8,17 +8,16 @@ from typing import Any
 from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
+from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import create_url_style_for_task
 from _pytask.console import format_node_name
 from _pytask.console import format_strings_as_flat_tree
-from _pytask.console import format_task_name
 from _pytask.console import unify_styles
 from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import TopologicalSorter
 from _pytask.database_utils import update_states_in_database
-from _pytask.enums import ShowCapture
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
@@ -31,14 +30,13 @@ from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
-from _pytask.report import ExecutionReport
-from _pytask.traceback import format_exception_without_traceback
+from _pytask.reports import ExecutionReport
 from _pytask.traceback import remove_traceback_from_exc_info
-from _pytask.traceback import render_exc_info
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_structure
 from rich.text import Text
+
 
 if TYPE_CHECKING:
     from _pytask.session import Session
@@ -104,7 +102,7 @@ def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionRepo
         session.hook.pytask_execute_task_setup(session=session, task=task)
         session.hook.pytask_execute_task(session=session, task=task)
         session.hook.pytask_execute_task_teardown(session=session, task=task)
-    except KeyboardInterrupt:
+    except KeyboardInterrupt:  # pragma: no cover
         short_exc_info = remove_traceback_from_exc_info(sys.exc_info())
         report = ExecutionReport.from_task_and_exception(task, short_exc_info)
         session.should_stop = True
@@ -126,15 +124,20 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     2. Create the directory where the product will be placed.
 
     """
-    for dependency in session.dag.predecessors(task.name):
+    for dependency in session.dag.predecessors(task.signature):
         node = session.dag.nodes[dependency]["node"]
         if not node.state():
-            msg = f"{node.name} is missing and required for {task.name}."
+            msg = f"{task.name} requires missing node {node.name}."
+            if IS_FILE_SYSTEM_CASE_SENSITIVE:
+                msg += (
+                    "\n\n(Hint: Your file-system is case-sensitive. Check the paths' "
+                    "capitalization carefully.)"
+                )
             raise NodeNotFoundError(msg)
 
     # Create directory for product if it does not exist. Maybe this should be a `setup`
     # method for the node classes.
-    for product in session.dag.successors(task.name):
+    for product in session.dag.successors(task.signature):
         node = session.dag.nodes[product]["node"]
         if isinstance(node, PPathNode):
             node.path.parent.mkdir(parents=True, exist_ok=True)
@@ -144,12 +147,11 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
         raise WouldBeExecuted
 
 
-def _safe_load(node: PNode, task: PTask) -> Any:
+def _safe_load(node: PNode, task: PTask, is_product: bool) -> Any:
     try:
-        return node.load()
+        return node.load(is_product=is_product)
     except Exception as e:  # noqa: BLE001
-        task_name = getattr(task, "display_name", task.name)
-        msg = f"Exception while loading node {node.name!r} of task {task_name!r}"
+        msg = f"Exception while loading node {node.name!r} of task {task.name!r}"
         raise NodeLoadError(msg) from e
 
 
@@ -163,11 +165,11 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
 
     kwargs = {}
     for name, value in task.depends_on.items():
-        kwargs[name] = tree_map(lambda x: _safe_load(x, task), value)
+        kwargs[name] = tree_map(lambda x: _safe_load(x, task, False), value)
 
     for name, value in task.produces.items():
         if name in parameters:
-            kwargs[name] = tree_map(lambda x: _safe_load(x, task), value)
+            kwargs[name] = tree_map(lambda x: _safe_load(x, task, True), value)
 
     out = task.execute(**kwargs)
 
@@ -195,7 +197,7 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
 def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
     """Check if :class:`_pytask.nodes.PathNode` are produced by a task."""
     missing_nodes = []
-    for product in session.dag.successors(task.name):
+    for product in session.dag.successors(task.signature):
         node = session.dag.nodes[product]["node"]
         if not node.state():
             missing_nodes.append(node)
@@ -205,7 +207,8 @@ def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
             format_node_name(i, session.config["paths"]).plain for i in missing_nodes
         ]
         formatted = format_strings_as_flat_tree(
-            paths, "The task did not produce the following files:\n", ""
+            paths,
+            "The task did not produce the following files:\n",
         )
         raise NodeNotFoundError(formatted)
 
@@ -222,11 +225,11 @@ def pytask_execute_task_process_report(
     """
     task = report.task
     if report.outcome == TaskOutcome.SUCCESS:
-        update_states_in_database(session, task.name)
+        update_states_in_database(session, task.signature)
     elif report.exc_info and isinstance(report.exc_info[1], WouldBeExecuted):
         report.outcome = TaskOutcome.WOULD_BE_EXECUTED
 
-        for descending_task_name in descending_tasks(task.name, session.dag):
+        for descending_task_name in descending_tasks(task.signature, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]
             descending_task.markers.append(
                 Mark(
@@ -236,7 +239,7 @@ def pytask_execute_task_process_report(
                 )
             )
     else:
-        for descending_task_name in descending_tasks(task.name, session.dag):
+        for descending_task_name in descending_tasks(task.signature, session.dag):
             descending_task = session.dag.nodes[descending_task_name]["task"]
             descending_task.markers.append(
                 Mark(
@@ -250,7 +253,7 @@ def pytask_execute_task_process_report(
         if session.n_tasks_failed >= session.config["max_failures"]:
             session.should_stop = True
 
-        if report.exc_info and isinstance(report.exc_info[1], Exit):
+        if report.exc_info and isinstance(report.exc_info[1], Exit):  # pragma: no cover
             session.should_stop = True
 
     return True
@@ -274,10 +277,10 @@ class ShowErrorsImmediatelyPlugin:
 
     @staticmethod
     @hookimpl(tryfirst=True)
-    def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:
+    def pytask_execute_task_log_end(report: ExecutionReport) -> None:
         """Print the error report of a task."""
         if report.outcome == TaskOutcome.FAIL:
-            _print_errored_task_report(session, report)
+            console.print(report)
 
 
 @hookimpl
@@ -301,7 +304,7 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
                 report.outcome == TaskOutcome.SKIP_PREVIOUS_FAILED
                 and session.config["verbose"] >= 2  # noqa: PLR2004
             ):
-                _print_errored_task_report(session, report)
+                console.print(report)
 
     console.rule(style="dim")
 
@@ -319,32 +322,3 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
         raise ExecutionError
 
     return True
-
-
-def _print_errored_task_report(session: Session, report: ExecutionReport) -> None:
-    """Print the traceback and the exception of an errored report."""
-    task_name = format_task_name(
-        task=report.task, editor_url_scheme=session.config["editor_url_scheme"]
-    )
-    text = Text.assemble("Task ", task_name, " failed", style="failed")
-    console.rule(text, style=report.outcome.style)
-
-    console.print()
-
-    if report.exc_info and isinstance(report.exc_info[1], Exit):
-        console.print(format_exception_without_traceback(report.exc_info))
-    else:
-        assert report.exc_info
-        console.print(
-            render_exc_info(*report.exc_info, show_locals=session.config["show_locals"])
-        )
-
-    console.print()
-    show_capture = session.config["show_capture"]
-    for when, key, content in report.sections:
-        if key in ("stdout", "stderr") and show_capture in (
-            ShowCapture(key),
-            ShowCapture.ALL,
-        ):
-            console.rule(f"Captured {key} during {when}", style="default")
-            console.print(content)

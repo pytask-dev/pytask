@@ -5,7 +5,6 @@ import enum
 import sys
 from pathlib import Path
 from typing import Any
-from typing import TYPE_CHECKING
 
 import click
 import networkx as nx
@@ -14,7 +13,7 @@ from _pytask.click import EnumChoice
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
-from _pytask.config_utils import _find_project_root_and_config
+from _pytask.config_utils import find_project_root_and_config
 from _pytask.config_utils import read_config
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
@@ -29,10 +28,6 @@ from _pytask.shared import to_list
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from rich.text import Text
 from rich.traceback import Traceback
-
-
-if TYPE_CHECKING:
-    from typing import NoReturn
 
 
 class _RankDirection(enum.Enum):
@@ -82,14 +77,14 @@ _HELP_TEXT_RANK_DIRECTION: str = (
     help=_HELP_TEXT_RANK_DIRECTION,
     default=_RankDirection.TB,
 )
-def dag(**raw_config: Any) -> NoReturn:
+def dag(**raw_config: Any) -> int:
     """Create a visualization of the project's directed acyclic graph."""
     try:
         pm = get_plugin_manager()
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
-    except (ConfigurationError, Exception):
+    except (ConfigurationError, Exception):  # pragma: no cover
         console.print_exception()
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 
@@ -107,10 +102,10 @@ def dag(**raw_config: Any) -> NoReturn:
             dag = _refine_dag(session)
             _write_graph(dag, session.config["output_path"], session.config["layout"])
 
-        except CollectionError:
+        except CollectionError:  # pragma: no cover
             session.exit_code = ExitCode.COLLECTION_FAILED
 
-        except ResolvingDependenciesError:
+        except ResolvingDependenciesError:  # pragma: no cover
             session.exit_code = ExitCode.DAG_FAILED
 
         except Exception:  # noqa: BLE001
@@ -169,7 +164,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
                 (
                     raw_config["root"],
                     raw_config["config"],
-                ) = _find_project_root_and_config(raw_config["paths"])
+                ) = find_project_root_and_config(raw_config["paths"])
 
             if raw_config["config"] is not None:
                 config_from_file = read_config(raw_config["config"])
@@ -188,7 +183,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
 
         session = Session.from_config(config)
 
-    except (ConfigurationError, Exception):
+    except (ConfigurationError, Exception):  # pragma: no cover
         console.print_exception()
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 

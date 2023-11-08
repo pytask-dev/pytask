@@ -3,22 +3,48 @@
 To ensure pytask executes all tasks in the correct order, you need to define
 dependencies and products for each task.
 
-This tutorial offers you different interfaces. One important difference between them is
-that if you are comfortable with type annotations or not afraid to try them, take a look
-at the tabs named `Python 3.10+` or `Python 3.8+`.
+This tutorial offers you different interfaces. If you are comfortable with type
+annotations or not afraid to try them, take a look at the tabs named `Python 3.10+` or
+`Python 3.8+`.
 
 If you want to avoid type annotations for now, look at the tab named `produces`.
+
+The deprecated approaches can be found in the tabs named `Decorators`.
 
 ```{seealso}
 An overview on the different interfaces and their strength and weaknesses is given in
 {doc}`../explanations/interfaces_for_dependencies_products`.
 ```
 
-Let's first focus on how to define products which should already be familiar to you.
+First, we focus on how to define products which should already be familiar to you. Then,
+we focus on how task dependencies can be declared.
+
+We use the same project layout as before and add a `task_plot_data.py` module.
+
+```text
+my_project
+├───pyproject.toml
+│
+├───src
+│   └───my_project
+│       ├────config.py
+│       ├────task_data_preparation.py
+│       └────task_plot_data.py
+│
+├───setup.py
+│
+├───.pytask
+│   └────...
+│
+└───bld
+    ├────data.pkl
+    └────plot.png
+```
 
 ## Products
 
-Let's revisit the task from the {doc}`previous tutorial <write_a_task>`.
+Let's revisit the task from the {doc}`previous tutorial <write_a_task>` that we defined
+in `task_data_preparation.py`.
 
 ::::{tab-set}
 
@@ -90,7 +116,9 @@ beneficial for handling paths conveniently and across platforms.
 Most tasks have dependencies and it is important to specify. Then, pytask ensures that
 the dependencies are available before executing the task.
 
-In the example you see a task that creates a plot while relying on some data set.
+As an example, we want to extend our project with another task that plots the data that
+we generated with `task_create_random_data`. The task is called `task_plot_data` and we
+will define it in `task_plot_data.py`.
 
 ::::{tab-set}
 
@@ -104,7 +132,7 @@ pytask assumes that all function arguments that do not have the {class}`~pytask.
 annotation are dependencies of the task.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_py310.py
-:emphasize-lines: 9
+:emphasize-lines: 11
 ```
 
 :::
@@ -119,7 +147,7 @@ pytask assumes that all function arguments that do not have the {class}`~pytask.
 annotation are dependencies of the task.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_py38.py
-:emphasize-lines: 9
+:emphasize-lines: 11
 ```
 
 :::
@@ -134,7 +162,7 @@ pytask assumes that all function arguments that are not passed to the argument
 `produces` are dependencies of the task.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_produces.py
-:emphasize-lines: 7
+:emphasize-lines: 9
 ```
 
 :::
@@ -152,11 +180,16 @@ Equivalent to products, you can use the
 access the dependency path inside the function and load the data.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_decorators.py
-:emphasize-lines: 7, 9
+:emphasize-lines: 9, 11
 ```
 
 :::
 ::::
+
+Now, let us execute the two paths.
+
+```{include} ../_static/md/defining-dependencies-products.md
+```
 
 ## Relative paths
 

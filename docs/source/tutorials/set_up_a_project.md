@@ -24,7 +24,8 @@ my_project
 │
 ├───pyproject.toml
 │
-├───.pytask.sqlite3
+├───.pytask
+│   └────...
 │
 └───bld
     └────...
@@ -42,8 +43,8 @@ paths = "src/my_project"
 
 You do not have to add configuration values, but you need the
 `[tool.pytask.ini_options]` header. The header alone will signal pytask that this is the
-project's root. pytask will store the information it needs across executions in a
-`.pytask.sqlite3` database next to the configuration file.
+project's root. pytask will store the information it needs across executions in the
+`.pytask` folder.
 
 `paths` allows you to set the location of tasks when you do not pass them explicitly via
 the CLI.

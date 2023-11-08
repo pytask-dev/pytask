@@ -575,3 +575,47 @@ def test_return_with_tuple_and_task_decorator(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("file1.txt").read_text() == "Hello,"
     assert tmp_path.joinpath("file2.txt").read_text() == "World!"
+
+
+def test_error_when_function_is_defined_outside_loop_body(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import task
+    from pytask import Product
+
+    def func(path: Annotated[Path, Product]):
+        path.touch()
+
+    _PATH = Path.cwd()
+
+    for path in (_PATH.joinpath("a.txt"), _PATH.joinpath("b.txt")):
+        task(kwargs={"path": path})(func)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Duplicated tasks" in result.output
+    assert "id=None" in result.output
+
+
+def test_error_when_function_is_defined_outside_loop_body_with_id(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import task
+    from pytask import Product
+
+    def func(path: Annotated[Path, Product]):
+        path.touch()
+
+    _PATH = Path.cwd()
+
+    for path in (_PATH.joinpath("a.txt"), _PATH.joinpath("b.txt")):
+        task(kwargs={"path": path}, id=path.name)(func)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Duplicated tasks" in result.output
+    assert "id=b.txt" in result.output

@@ -12,16 +12,8 @@ from pytask import cli
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.parametrize(
-    ("decorator_name", "exit_code"),
-    [
-        ("depends_on", ExitCode.DAG_FAILED),
-        ("produces", ExitCode.FAILED),
-    ],
-)
-def test_task_with_complex_product_did_not_produce_node(
-    tmp_path, decorator_name, exit_code
-):
+@pytest.mark.parametrize("decorator_name", ["depends_on", "produces"])
+def test_task_with_complex_product_did_not_produce_node(tmp_path, decorator_name):
     source = f"""
     import pytask
 
@@ -42,7 +34,7 @@ def test_task_with_complex_product_did_not_produce_node(
 
     session = build(paths=tmp_path)
 
-    assert session.exit_code == exit_code
+    assert session.exit_code == ExitCode.FAILED
 
     products = tree_map(lambda x: x.load(), getattr(session.tasks[0], decorator_name))
     expected = {

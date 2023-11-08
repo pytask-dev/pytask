@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from _pytask import __version__
+from _pytask._hashlib import hash_value
 from _pytask.build import build
 from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
@@ -15,6 +16,7 @@ from _pytask.compat import import_optional_dependency
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.dag_command import build_dag
+from _pytask.data_catalog import DataCatalog
 from _pytask.database_utils import BaseTable
 from _pytask.database_utils import create_database
 from _pytask.database_utils import DatabaseSession
@@ -43,6 +45,7 @@ from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import PathNode
+from _pytask.nodes import PickleNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
 from _pytask.nodes import TaskWithoutPath
@@ -56,15 +59,13 @@ from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
 from _pytask.profile import Runtime
-from _pytask.report import CollectionReport
-from _pytask.report import DagReport
-from _pytask.report import ExecutionReport
+from _pytask.reports import CollectionReport
+from _pytask.reports import DagReport
+from _pytask.reports import ExecutionReport
 from _pytask.session import Session
 from _pytask.task_utils import task
-from _pytask.traceback import format_exception_without_traceback
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
-from _pytask.traceback import remove_traceback_from_exc_info
-from _pytask.traceback import render_exc_info
+from _pytask.traceback import Traceback
 from _pytask.typing import is_task_function
 from _pytask.typing import Product
 from _pytask.warnings_utils import parse_warning_filter
@@ -86,6 +87,7 @@ __all__ = [
     "ColoredGroup",
     "ConfigurationError",
     "DagReport",
+    "DataCatalog",
     "DatabaseSession",
     "EnumChoice",
     "ExecutionError",
@@ -104,8 +106,8 @@ __all__ = [
     "PTask",
     "PTaskWithPath",
     "PathNode",
-    "PathNode",
     "Persisted",
+    "PickleNode",
     "Product",
     "PytaskError",
     "PythonNode",
@@ -119,6 +121,7 @@ __all__ = [
     "Task",
     "TaskOutcome",
     "TaskWithoutPath",
+    "Traceback",
     "WarningReport",
     "__version__",
     "build",
@@ -129,10 +132,10 @@ __all__ = [
     "count_outcomes",
     "create_database",
     "depends_on",
-    "format_exception_without_traceback",
     "get_all_marks",
     "get_marks",
     "has_mark",
+    "hash_value",
     "hookimpl",
     "import_optional_dependency",
     "is_task_function",
@@ -143,8 +146,6 @@ __all__ = [
     "produces",
     "remove_internal_traceback_frames_from_exc_info",
     "remove_marks",
-    "remove_traceback_from_exc_info",
-    "render_exc_info",
     "set_marks",
     "task",
     "warning_record_to_str",

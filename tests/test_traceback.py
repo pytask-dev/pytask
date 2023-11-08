@@ -3,8 +3,11 @@ from __future__ import annotations
 import textwrap
 
 import pytest
+from _pytask.console import render_to_string
 from pytask import cli
+from pytask import console
 from pytask import ExitCode
+from pytask import Traceback
 
 
 @pytest.mark.end_to_end()
@@ -40,3 +43,9 @@ def test_hide_traceback_from_error_report(
 
     assert result.exit_code == ExitCode.FAILED
     assert ("This variable should not be shown." in result.output) is not is_hidden
+
+
+def test_render_traceback_with_string_traceback():
+    traceback = Traceback((Exception, Exception("Help"), "String traceback."))
+    rendered = render_to_string(traceback, console)
+    assert "String traceback." in rendered

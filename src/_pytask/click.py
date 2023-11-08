@@ -67,7 +67,9 @@ class ColoredGroup(DefaultGroup):
     """A command group with colored help pages."""
 
     def format_help(
-        self: DefaultGroup, ctx: click.Context, formatter: Any  # noqa: ARG002
+        self: DefaultGroup,
+        ctx: click.Context,
+        formatter: Any,  # noqa: ARG002
     ) -> None:
         """Format the help text."""
         highlighter = _OptionHighlighter()
@@ -116,7 +118,9 @@ class ColoredCommand(click.Command):
     """A command with colored help pages."""
 
     def format_help(
-        self: click.Command, ctx: click.Context, formatter: Any  # noqa: ARG002
+        self: click.Command,
+        ctx: click.Context,
+        formatter: Any,  # noqa: ARG002
     ) -> None:
         """Format the help text."""
         console.print(

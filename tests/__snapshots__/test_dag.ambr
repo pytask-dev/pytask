@@ -1,0 +1,49 @@
+# serializer version: 1
+# name: test_cycle_in_dag
+  '''
+  ───────────────────────────── Start pytask session ─────────────────────────────
+  Platform: <platform> -- Python <version>, pytask <version>, pluggy <version>
+  Root: <path>
+  Collected 2 tasks.
+  
+  ──────────────────── Failures during resolving dependencies ────────────────────
+  
+  ResolvingDependenciesError: The DAG contains cycles which means a dependency is 
+  directly or indirectly a product of the same task. See the following the path of
+  nodes in the graph which forms the cycle.
+  
+  task_module.py::task_1
+       ⬇
+  test_cycle_in_dag0/out_1.txt
+       ⬇
+  task_module.py::task_2
+       ⬇
+  test_cycle_in_dag0/out_2.txt
+       ⬇
+  task_module.py::task_1
+  
+  ────────────────────────────────────────────────────────────────────────────────
+  '''
+# ---
+# name: test_two_tasks_have_the_same_product
+  '''
+  ───────────────────────────── Start pytask session ─────────────────────────────
+  Platform: <platform> -- Python <version>, pytask <version>, pluggy <version>
+  Root: <path>
+  Collected 2 tasks.
+  
+  ──────────────────── Failures during resolving dependencies ────────────────────
+  
+  ResolvingDependenciesError: There are some tasks which produce the same output. 
+  See the following tree which shows which products are produced by multiple 
+  tasks.
+  
+  Products from multiple tasks:
+  └── 📄 test_two_tasks_have_the_same_p0/out.txt
+      ├── 📝 task_d.py::task_1
+      └── 📝 task_d.py::task_2
+  
+  
+  ────────────────────────────────────────────────────────────────────────────────
+  '''
+# ---

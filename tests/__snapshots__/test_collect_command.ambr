@@ -1,0 +1,37 @@
+# serializer version: 1
+# name: test_more_nested_pytree_and_python_node_as_return
+  '''
+  ───────────────────────────── Start pytask session ─────────────────────────────
+  Platform: <platform> -- Python <version>, pytask <version>, pluggy <version>
+  Root: <path>
+  Collected 1 task.
+  
+  Collected tasks:
+  └── 🐍 <Module test_more_nested_pytree_and_py0/task_module.py>
+      └── 📝 <Function task_module.py::task_example>
+          ├── 📄 <Product task_example::return::0>
+          ├── 📄 <Product task_example::return::1-0>
+          ├── 📄 <Product task_example::return::1-1>
+          └── 📄 <Product task_example::return::2>
+  
+  ────────────────────────────────────────────────────────────────────────────────
+  '''
+# ---
+# name: test_more_nested_pytree_and_python_node_as_return_with_names
+  '''
+  ───────────────────────────── Start pytask session ─────────────────────────────
+  Platform: <platform> -- Python <version>, pytask <version>, pluggy <version>
+  Root: <path>
+  Collected 1 task.
+  
+  Collected tasks:
+  └── 🐍 <Module test_more_nested_pytree_and_py1/task_module.py>
+      └── 📝 <Function task_module.py::task_example>
+          ├── 📄 <Product dict>
+          ├── 📄 <Product int>
+          ├── 📄 <Product tuple1>
+          └── 📄 <Product tuple2>
+  
+  ────────────────────────────────────────────────────────────────────────────────
+  '''
+# ---

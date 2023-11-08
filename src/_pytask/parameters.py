@@ -65,14 +65,18 @@ _VERBOSE_OPTION = click.Option(
 _EDITOR_URL_SCHEME_OPTION = click.Option(
     ["--editor-url-scheme"],
     default="file",
-    help="Use file, vscode, pycharm or a custom url scheme to add URLs to task "
-    "ids to quickly jump to the task definition. Use no_link to disable URLs.",
+    help=(
+        "Use file, vscode, pycharm or a custom url scheme to add URLs to task "
+        "ids to quickly jump to the task definition. Use no_link to disable URLs."
+    ),
 )
 """click.Option: An option to embed URLs in task ids."""
 
 
 def _database_url_callback(
-    ctx: Context, name: str, value: str | None  # noqa: ARG001
+    ctx: Context,  # noqa: ARG001
+    name: str,  # noqa: ARG001
+    value: str | None,
 ) -> URL | None:
     """Check the url for the database."""
     # Since sqlalchemy v2.0.19, we need to shortcircuit here.
@@ -82,7 +86,10 @@ def _database_url_callback(
     try:
         return make_url(value)
     except ArgumentError:
-        msg = "The 'database_url' must conform to sqlalchemy's url standard: https://docs.sqlalchemy.org/en/latest/core/engines.html#backend-specific-urls."
+        msg = (
+            "The 'database_url' must conform to sqlalchemy's url standard: "
+            "https://docs.sqlalchemy.org/en/latest/core/engines.html#backend-specific-urls."
+        )
         raise click.BadParameter(msg) from None
 
 
@@ -91,7 +98,7 @@ _DATABASE_URL_OPTION = click.Option(
     type=str,
     help=("Url to the database."),
     default=None,
-    show_default="sqlite:///.../.pytask.sqlite3",
+    show_default="sqlite:///.../.pytask/pytask.sqlite3",
     callback=_database_url_callback,
 )
 

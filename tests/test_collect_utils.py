@@ -72,9 +72,7 @@ def _convert_placeholders_to_tuples(x):
     return {
         (next(counter), k.scalar)
         if isinstance(k, _Placeholder)
-        else k: _convert_placeholders_to_tuples(v)
-        if isinstance(v, dict)
-        else v
+        else k: _convert_placeholders_to_tuples(v) if isinstance(v, dict) else v
         for k, v in x.items()
     }
 

@@ -192,10 +192,10 @@ class MatcherAdapter(Mapping[str, bool]):
     def __getitem__(self, key: str) -> bool:
         return self.matcher(key[len(IDENT_PREFIX) :])
 
-    def __iter__(self) -> Iterator[str]:
+    def __iter__(self) -> Iterator[str]:  # pragma: no cover
         raise NotImplementedError
 
-    def __len__(self) -> int:
+    def __len__(self) -> int:  # pragma: no cover
         raise NotImplementedError
 
 

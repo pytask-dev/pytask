@@ -46,12 +46,12 @@ are welcome to also support macOS.
 
 pytask uses a database to keep track of tasks, products, and dependencies over runs. By
 default, it will create an SQLite database in the project's root directory called
-`.pytask.sqlite3`. If you want to use a different name or a different dialect
+`.pytask/pytask.sqlite3`. If you want to use a different name or a different dialect
 [supported by sqlalchemy](https://docs.sqlalchemy.org/en/latest/core/engines.html#backend-specific-urls),
 use either {option}`pytask build --database-url` or `database_url` in the config.
 
 ```toml
-database_url = "sqlite:///.pytask.sqlite3"
+database_url = "sqlite:///.pytask/pytask.sqlite3"
 ```
 
 Relative paths for SQLite databases are interpreted as either relative to the

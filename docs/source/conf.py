@@ -75,13 +75,14 @@ copybutton_prompt_is_regexp = True
 _repo = "https://github.com/pytask-dev/pytask"
 extlinks = {
     "pypi": ("https://pypi.org/project/%s/", "%s"),
-    "issue": (f"{_repo}/issues/%s", "issue #%s"),
-    "pull": (f"{_repo}/pull/%s", "pull request #%s"),
+    "issue": (f"{_repo}/issues/%s", "#%s"),
+    "pull": (f"{_repo}/pull/%s", "#%s"),
     "user": ("https://github.com/%s", "@%s"),
 }
 
 intersphinx_mapping = {
     "click": ("https://click.palletsprojects.com/en/8.0.x/", None),
+    "deepdiff": ("https://zepworks.com/deepdiff/current/", None),
     "networkx": ("https://networkx.org/documentation/stable", None),
     "pandas": ("https://pandas.pydata.org/docs", None),
     "pluggy": ("https://pluggy.readthedocs.io/en/latest", None),

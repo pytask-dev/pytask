@@ -16,6 +16,7 @@ repos:
     -   id: no-commit-to-branch
         args: [--branch, main]
     -   id: trailing-whitespace
+        exclude: (__snapshots__)
 -   repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
@@ -43,27 +44,25 @@ repos:
     rev: v1.2.0
     hooks:
     -   id: sort-all
--   repo: https://github.com/psf/black
-    rev: 23.9.1
-    hooks:
-    -   id: black
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.292
+    rev: v0.1.4
     hooks:
+      - id: ruff-format
       - id: ruff
+        args: [--unsafe-fixes]
 -   repo: https://github.com/dosisod/refurb
-    rev: v1.21.0
+    rev: v1.22.1
     hooks:
     -   id: refurb
         args: [--ignore, FURB126]
 -   repo: https://github.com/econchick/interrogate
-    rev: 1.5.0
+    rev: 3aa94a6
     hooks:
     -   id: interrogate
         args: [-v, --fail-under=75]
         exclude: ^(tests/|docs/|scripts/|docs_src/)
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.6.0
+    rev: v1.6.1
     hooks:
     -   id: mypy
         additional_dependencies: [
@@ -114,6 +113,7 @@ repos:
                 docs/source/tutorials/repeating_tasks_with_different_inputs.md|
                 docs/source/tutorials/selecting_tasks.md|
                 docs/source/tutorials/set_up_a_project.md|
+                docs/source/tutorials/using_a_data_catalog.md|
                 docs/source/tutorials/write_a_task.md
             )$
 -   repo: https://github.com/nbQA-dev/nbQA
@@ -140,7 +140,7 @@ repos:
     hooks:
     -   id: check-manifest
         args: [--no-build-isolation]
-        additional_dependencies: [setuptools-scm, toml]
+        additional_dependencies: [setuptools-scm, toml, wheel]
 -   repo: meta
     hooks:
     -   id: check-hooks-apply

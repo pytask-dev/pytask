@@ -10,8 +10,9 @@ in `bld/data.pkl`.
 The `task_` prefix for modules and task functions is important so that pytask
 automatically discovers them.
 
-```
+```text
 my_project
+│
 ├───pyproject.toml
 │
 ├───src
@@ -21,7 +22,8 @@ my_project
 │
 ├───setup.py
 │
-├───.pytask.sqlite3
+├───.pytask
+│   └────...
 │
 └───bld
     └────data.pkl
