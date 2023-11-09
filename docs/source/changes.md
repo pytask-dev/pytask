@@ -12,6 +12,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   with path nodes.
 - {pull}`485` adds missing steps to unconfigure pytask after the job is done which
   caused flaky tests.
+- {pull}`486` adds default names to {class}`~pytask.PPathNode`.
 
 ## 0.4.2 - 2023-11-8
 
