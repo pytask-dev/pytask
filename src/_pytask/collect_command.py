@@ -101,6 +101,7 @@ def collect(**raw_config: Any | None) -> NoReturn:
             console.print_exception()
             console.rule(style="failed")
 
+    session.hook.pytask_unconfigure(session=session)
     sys.exit(session.exit_code)
 
 

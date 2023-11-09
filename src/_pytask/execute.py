@@ -127,7 +127,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     for dependency in session.dag.predecessors(task.signature):
         node = session.dag.nodes[dependency]["node"]
         if not node.state():
-            msg = f"{task.name} requires missing node {node.name}."
+            msg = f"{task.name!r} requires missing node {node.name!r}."
             if IS_FILE_SYSTEM_CASE_SENSITIVE:
                 msg += (
                     "\n\n(Hint: Your file-system is case-sensitive. Check the paths' "
@@ -196,19 +196,12 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
 @hookimpl
 def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
     """Check if :class:`_pytask.nodes.PathNode` are produced by a task."""
-    missing_nodes = []
-    for product in session.dag.successors(task.signature):
-        node = session.dag.nodes[product]["node"]
-        if not node.state():
-            missing_nodes.append(node)
-
+    missing_nodes = [node for node in tree_leaves(task.produces) if not node.state()]  # type: ignore[attr-defined]
     if missing_nodes:
-        paths = [
-            format_node_name(i, session.config["paths"]).plain for i in missing_nodes
-        ]
+        paths = session.config["paths"]
+        files = [format_node_name(i, paths).plain for i in missing_nodes]  # type: ignore[arg-type]
         formatted = format_strings_as_flat_tree(
-            paths,
-            "The task did not produce the following files:\n",
+            files, "The task did not produce the following files:\n"
         )
         raise NodeNotFoundError(formatted)
 

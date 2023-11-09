@@ -572,3 +572,72 @@ def test_error_when_using_kwargs_and_node_in_annotation(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.COLLECTION_FAILED
     assert "is defined twice" in result.output
+
+
+@pytest.mark.parametrize(
+    "node",
+    [
+        "Path(__file__).parent",
+        "PathNode(path=Path(__file__).parent)",
+        "PickleNode(path=Path(__file__).parent)",
+    ],
+)
+def test_error_when_path_dependency_is_directory(runner, tmp_path, node):
+    source = f"""
+    from pathlib import Path
+    from pytask import PickleNode, PathNode
+
+    def task_example(path = {node}): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert all(i in result.output for i in ("only", "files", "are", "allowed"))
+
+
+@pytest.mark.parametrize(
+    "node",
+    [
+        "Path(__file__).parent",
+        "PathNode(path=Path(__file__).parent)",
+        "PickleNode(path=Path(__file__).parent)",
+    ],
+)
+def test_error_when_path_product_is_directory(runner, tmp_path, node):
+    source = f"""
+    from pathlib import Path
+    from pytask import PickleNode, Product, PathNode
+    from typing_extensions import Annotated
+    from typing import Any
+
+    def task_example(path: Annotated[Any, Product] = {node}): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert all(i in result.output for i in ("only", "files", "are", "allowed"))
+
+
+@pytest.mark.parametrize(
+    "node",
+    [
+        "Path(__file__).parent / 'file.txt'",
+        "PathNode(path=Path(__file__).parent / 'file.txt')",
+        "PickleNode(path=Path(__file__).parent / 'file.txt')",
+    ],
+)
+def test_default_name_of_path_nodes(tmp_path, node):
+    source = f"""
+    from pathlib import Path
+    from pytask import PickleNode, Product, PathNode
+    from typing_extensions import Annotated
+    from typing import Any
+
+    def task_example() -> Annotated[str, {node}]:
+        return "Hello, World!"
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    session = build(paths=tmp_path)
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("file.txt").exists()
+    assert session.tasks[0].produces["return"].name == tmp_path.name + "/file.txt"

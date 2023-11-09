@@ -303,6 +303,10 @@ created from the `__file__` attribute of a module.
 """
 
 
+_TEMPLATE_ERROR_DIRECTORY: str = """\
+The path '{path}' points to a directory, although only files are allowed."""
+
+
 @hookimpl(trylast=True)
 def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PNode:
     """Collect a node of a task as a :class:`pytask.PNode`.
@@ -340,13 +344,16 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
             node.path, session.config["check_casing_of_paths"]
         )
 
-    if isinstance(node, PathNode) and (
+    if isinstance(node, PPathNode) and (
         not node.name or node.name == node.path.as_posix()
     ):
         # Shorten name of PathNodes.
         node.name = shorten_path(
             node.path, session.config["paths"] or (session.config["root"],)
         )
+
+    if isinstance(node, PPathNode) and node.path.is_dir():
+        raise ValueError(_TEMPLATE_ERROR_DIRECTORY.format(path=node.path))
 
     if isinstance(node, PNode):
         return node
@@ -362,6 +369,10 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
             node, session.config["check_casing_of_paths"]
         )
         name = shorten_path(node, session.config["paths"] or (session.config["root"],))
+
+        if isinstance(node, Path) and node.is_dir():
+            raise ValueError(_TEMPLATE_ERROR_DIRECTORY.format(path=path))
+
         return PathNode(name=name, path=node)
 
     node_name = create_name_of_python_node(node_info)

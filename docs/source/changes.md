@@ -5,7 +5,16 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.4.2 - 2023-xx-xx
+## 0.4.3 - 2023-11-xx
+
+- {pull}`483` simplifies the teardown of a task.
+- {pull}`484` raises more informative error when directories instead of files are used
+  with path nodes.
+- {pull}`485` adds missing steps to unconfigure pytask after the job is done which
+  caused flaky tests.
+- {pull}`486` adds default names to {class}`~pytask.PPathNode`.
+
+## 0.4.2 - 2023-11-8
 
 - {pull}`449` simplifies the code building the plugin manager.
 - {pull}`451` improves `collect_command.py` and renames `graph.py` to `dag_command.py`.
