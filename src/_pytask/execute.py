@@ -72,21 +72,21 @@ def pytask_execute_log_start(session: Session) -> None:
 @hookimpl(trylast=True)
 def pytask_execute_create_scheduler(session: Session) -> TopologicalSorter:
     """Create a scheduler based on topological sorting."""
-    scheduler = TopologicalSorter.from_dag(session.dag)
-    scheduler.prepare()
-    return scheduler
+    return TopologicalSorter.from_dag(session.dag)
 
 
 @hookimpl
 def pytask_execute_build(session: Session) -> bool | None:
     """Execute tasks."""
     if isinstance(session.scheduler, TopologicalSorter):
-        for name in session.scheduler.static_order():
-            task = session.dag.nodes[name]["task"]
+        while session.scheduler.is_active():
+            task_name = session.scheduler.get_ready()[0]
+            task = session.dag.nodes[task_name]["task"]
             report = session.hook.pytask_execute_task_protocol(
                 session=session, task=task
             )
             session.execution_reports.append(report)
+            session.scheduler.done(task_name)
 
             if session.should_stop:
                 return True

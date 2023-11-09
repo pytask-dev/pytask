@@ -16,6 +16,7 @@ from pytask import Task
 
 @pytest.fixture()
 def dag():
+    """Create a dag with five nodes in a line."""
     dag = nx.DiGraph()
     for i in range(4):
         task = Task(base_name=str(i), path=Path(), function=None)
@@ -29,7 +30,12 @@ def dag():
 
 @pytest.mark.unit()
 def test_sort_tasks_topologically(dag):
-    topo_ordering = list(TopologicalSorter.from_dag(dag).static_order())
+    sorter = TopologicalSorter.from_dag(dag)
+    topo_ordering = []
+    while sorter.is_active():
+        task_name = sorter.get_ready()[0]
+        topo_ordering.append(task_name)
+        sorter.done(task_name)
     topo_names = [dag.nodes[sig]["task"].name for sig in topo_ordering]
     assert topo_names == [f".::{i}" for i in range(5)]
 
@@ -166,37 +172,33 @@ def test_raise_error_for_cycle_in_graph(dag):
         "115f685b0af2aef0c7317a0b48562f34cfb7a622549562bd3d34d4d948b4fdab",
         "55c6cef62d3e62d5f8fc65bb846e66d8d0d3ca60608c04f6f7b095ea073a7dcf",
     )
-    scheduler = TopologicalSorter.from_dag(dag)
     with pytest.raises(ValueError, match="The DAG contains cycles."):
-        scheduler.prepare()
-
-
-@pytest.mark.unit()
-def test_raise_if_topological_sorter_is_not_prepared(dag):
-    scheduler = TopologicalSorter.from_dag(dag)
-    with pytest.raises(ValueError, match="The TopologicalSorter needs to be prepared."):
-        scheduler.get_ready(1)
+        TopologicalSorter.from_dag(dag)
 
 
 @pytest.mark.unit()
 def test_ask_for_invalid_number_of_ready_tasks(dag):
     scheduler = TopologicalSorter.from_dag(dag)
-    scheduler.prepare()
     with pytest.raises(ValueError, match="'n' must be"):
         scheduler.get_ready(0)
 
 
 @pytest.mark.unit()
-def test_reset_topological_sorter(dag):
+def test_instantiate_sorter_from_other_sorter(dag):
+    name_to_sig = {dag.nodes[sig]["task"].name: sig for sig in dag.nodes}
+
     scheduler = TopologicalSorter.from_dag(dag)
-    scheduler.prepare()
-    name = scheduler.get_ready()[0]
-    scheduler.done(name)
+    for _ in range(2):
+        task_name = scheduler.get_ready()[0]
+        scheduler.done(task_name)
+    assert scheduler._nodes_done == {name_to_sig[name] for name in (".::0", ".::1")}
 
-    assert scheduler._is_prepared
-    assert name not in scheduler.dag.nodes
+    task = Task(base_name="5", path=Path(), function=None)
+    dag.add_node(task.signature, task=Task(base_name="5", path=Path(), function=None))
+    dag.add_edge(name_to_sig[".::4"], task.signature)
 
-    scheduler.reset()
-
-    assert not scheduler._is_prepared
-    assert name in scheduler.dag.nodes
+    new_scheduler = TopologicalSorter.from_dag_and_sorter(dag, scheduler)
+    while new_scheduler.is_active():
+        task_name = new_scheduler.get_ready()[0]
+        new_scheduler.done(task_name)
+    assert new_scheduler._nodes_done == set(name_to_sig.values()) | {task.signature}

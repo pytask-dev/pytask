@@ -107,7 +107,8 @@ def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
     scheduler = TopologicalSorter.from_dag(dag)
     visited_nodes: set[str] = set()
 
-    for task_signature in scheduler.static_order():
+    while scheduler.is_active():
+        task_signature = scheduler.get_ready()[0]
         if task_signature not in visited_nodes:
             task = dag.nodes[task_signature]["task"]
             have_changed = _have_task_or_neighbors_changed(session, dag, task)
@@ -117,6 +118,7 @@ def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
                 dag.nodes[task_signature]["task"].markers.append(
                     Mark("skip_unchanged", (), {})
                 )
+        scheduler.done(task_signature)
 
 
 def _have_task_or_neighbors_changed(
