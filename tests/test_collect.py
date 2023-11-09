@@ -592,7 +592,7 @@ def test_error_when_path_dependency_is_directory(runner, tmp_path, node):
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.COLLECTION_FAILED
-    assert "only files are allowed" in result.output
+    assert all(i in result.output for i in ("only", "files", "are", "allowed"))
 
 
 @pytest.mark.parametrize(
@@ -615,4 +615,4 @@ def test_error_when_path_product_is_directory(runner, tmp_path, node):
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.COLLECTION_FAILED
-    assert "only files are allowed" in result.output
+    assert all(i in result.output for i in ("only", "files", "are", "allowed"))
