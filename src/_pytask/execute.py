@@ -127,7 +127,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     for dependency in session.dag.predecessors(task.signature):
         node = session.dag.nodes[dependency]["node"]
         if not node.state():
-            msg = f"{task.name} requires missing node {node.name}."
+            msg = f"{task.name!r} requires missing node {node.name!r}."
             if IS_FILE_SYSTEM_CASE_SENSITIVE:
                 msg += (
                     "\n\n(Hint: Your file-system is case-sensitive. Check the paths' "
