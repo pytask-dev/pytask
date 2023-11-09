@@ -126,23 +126,14 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     """
     for dependency in session.dag.predecessors(task.signature):
         node = session.dag.nodes[dependency]["node"]
-        try:
-            state = node.state()
-        except Exception as e:  # noqa: BLE001
-            msg = (
-                f"{task.name!r} requires node {node.name!r}, but it raised an "
-                "exception when requesting its state."
-            )
-            raise NodeNotFoundError(msg) from e
-        else:
-            if not state:
-                msg = f"{task.name!r} requires missing node {node.name!r}."
-                if IS_FILE_SYSTEM_CASE_SENSITIVE:
-                    msg += (
-                        "\n\n(Hint: Your file-system is case-sensitive. Check the "
-                        "paths' capitalization carefully.)"
-                    )
-                raise NodeNotFoundError(msg)
+        if not node.state():
+            msg = f"{task.name} requires missing node {node.name}."
+            if IS_FILE_SYSTEM_CASE_SENSITIVE:
+                msg += (
+                    "\n\n(Hint: Your file-system is case-sensitive. Check the paths' "
+                    "capitalization carefully.)"
+                )
+            raise NodeNotFoundError(msg)
 
     # Create directory for product if it does not exist. Maybe this should be a `setup`
     # method for the node classes.
