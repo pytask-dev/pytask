@@ -278,7 +278,6 @@ def build(  # noqa: C901, PLR0912, PLR0913
             session.exit_code = ExitCode.FAILED
 
         session.hook.pytask_unconfigure(session=session)
-
     return session
 
 

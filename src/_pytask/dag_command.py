@@ -115,6 +115,7 @@ def dag(**raw_config: Any) -> int:
             console.print(Traceback.from_exception(*exc_info))
             console.rule(style="failed")
 
+    session.hook.pytask_unconfigure(session=session)
     sys.exit(session.exit_code)
 
 
@@ -198,6 +199,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
             )
             session.hook.pytask_collect(session=session)
             session.hook.pytask_dag(session=session)
+            session.hook.pytask_unconfigure(session=session)
             dag = _refine_dag(session)
 
         except Exception:
