@@ -1070,7 +1070,6 @@ def test_task_that_produces_delayed_path_node(tmp_path):
     from pytask import DelayedPathNode
     from pathlib import Path
 
-
     def task_example() -> Annotated[None, DelayedPathNode(pattern="*.txt")]:
         path = Path(__file__).parent
         path.joinpath("a.txt").touch()
@@ -1086,12 +1085,64 @@ def test_task_that_produces_delayed_path_node(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_task_that_depends_on_delayed_path_node(tmp_path):
+def test_task_that_depends_on_relative_delayed_path_node(tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode
+    from pytask import DelayedPathNode, task
     from pathlib import Path
-    from pytask import task
+
+    @task(is_ready=lambda *x: True)
+    def task_delayed(
+        paths = DelayedPathNode(pattern="[ab].txt")
+    ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
+        path_dict = {path.stem: path for path in paths}
+        return path_dict["a"].read_text() + path_dict["b"].read_text()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("a.txt").write_text("Hello, ")
+    tmp_path.joinpath("b.txt").write_text("World!")
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 1
+    assert len(session.tasks[0].depends_on["paths"]) == 2
+
+
+@pytest.mark.end_to_end()
+def test_task_that_depends_on_delayed_path_node_with_root_dir(tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DelayedPathNode, task
+    from pathlib import Path
+
+    root_dir = Path(__file__).parent / "subfolder"
+
+    @task(is_ready=lambda *x: True)
+    def task_delayed(
+        paths = DelayedPathNode(root_dir=root_dir, pattern="[ab].txt")
+    ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
+        path_dict = {path.stem: path for path in paths}
+        return path_dict["a"].read_text() + path_dict["b"].read_text()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("subfolder").mkdir()
+    tmp_path.joinpath("subfolder", "a.txt").write_text("Hello, ")
+    tmp_path.joinpath("subfolder", "b.txt").write_text("World!")
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 1
+    assert len(session.tasks[0].depends_on["paths"]) == 2
+
+
+@pytest.mark.end_to_end()
+def test_task_that_depends_on_delayed_task(tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DelayedPathNode, task
+    from pathlib import Path
 
     def task_produces() -> Annotated[None, DelayedPathNode(pattern="*.txt")]:
         path = Path(__file__).parent

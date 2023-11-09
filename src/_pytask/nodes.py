@@ -4,7 +4,6 @@ from __future__ import annotations
 import hashlib
 import inspect
 import pickle
-from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
@@ -22,6 +21,7 @@ from attrs import field
 
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from _pytask.models import NodeInfo
     from _pytask.tree_util import PyTree
     from _pytask.mark import Mark
@@ -373,9 +373,7 @@ class DelayedPathNode(PNode):
     def state(self) -> None:
         return None
 
-    def collect(self) -> list[Path]:
+    def collect(self, node_path: Path) -> list[Path]:
         """Collect paths defined by the pattern."""
-        if not isinstance(self.root_dir, Path):
-            msg = f"'root_dir' should be a 'pathlib.Path', but it is {self.root_dir!r}"
-            raise TypeError(msg)
-        return list(self.root_dir.glob(self.pattern))
+        reference_path = node_path if self.root_dir is None else self.root_dir
+        return list(reference_path.glob(self.pattern))

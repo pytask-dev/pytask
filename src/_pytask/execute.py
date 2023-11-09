@@ -32,6 +32,7 @@ from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import Task
+from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
@@ -216,7 +217,7 @@ def _collect_delayed_nodes(
     task_path = task.path if isinstance(task, PTaskWithPath) else None
     arg_name, *rest_path = path
 
-    delayed_nodes = node.collect()
+    delayed_nodes = node.collect(node_path)
     return tree_map_with_path(  # type: ignore[return-value]
         lambda p, x: collect_dependency(
             session,
@@ -246,6 +247,35 @@ def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
         # Collect delayed nodes
         task.produces = tree_map_with_path(  # type: ignore[assignment]
             lambda p, x: _collect_delayed_nodes(session, task, x, p), task.produces
+        )
+        # Collect delayed tasks.
+        new_collection_reports = []
+        still_delayed_tasks = []
+        for delayed_task in session.delayed_tasks:
+            if delayed_task.obj.pytask_meta.is_ready():
+                report = session.hook.pytask_collect_task_protocol(
+                    session=session,
+                    reports=session.collection_reports,
+                    path=delayed_task.path,
+                    name=delayed_task.name,
+                    obj=delayed_task.obj,
+                )
+                new_collection_reports.append(report)
+            else:
+                still_delayed_tasks.append(delayed_task)
+        session.delayed_tasks = still_delayed_tasks
+        session.collection_reports.extend(new_collection_reports)
+        session.tasks.extend(
+            i.node
+            for i in new_collection_reports
+            if i.outcome == CollectionOutcome.SUCCESS and isinstance(i.node, PTask)
+        )
+
+        # Recreate the DAG.
+        session.hook.pytask_dag(session=session)
+        # Update scheduler.
+        session.scheduler = TopologicalSorter.from_dag_and_sorter(
+            dag=session.dag, sorter=session.scheduler
         )
 
     missing_nodes = [node for node in tree_leaves(task.produces) if not node.state()]  # type: ignore[attr-defined]

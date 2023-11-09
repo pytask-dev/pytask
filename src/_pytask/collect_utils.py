@@ -18,6 +18,7 @@ from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.models import NodeInfo
+from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
@@ -248,7 +249,7 @@ about dependencies in the documentation: https://tinyurl.com/pytask-deps-prods.
 """
 
 
-def parse_dependencies_from_task_function(
+def parse_dependencies_from_task_function(  # noqa: C901
     session: Session, task_path: Path | None, task_name: str, node_path: Path, obj: Any
 ) -> dict[str, Any]:
     """Parse dependencies from task function."""
@@ -316,6 +317,21 @@ def parse_dependencies_from_task_function(
 
         if parameter_name == "depends_on":
             continue
+
+        # Check for delayed nodes.
+        has_delayed_nodes = any(isinstance(i, PDelayedNode) for i in tree_leaves(value))
+        if has_delayed_nodes and not allow_delayed:
+            msg = (
+                f"The task {task_name!r} is not marked as a delayed task, but it "
+                "depends on a delayed node. Use '@task(is_ready=...) to create a "
+                "delayed task."
+            )
+            raise ValueError(msg)
+
+        # Collect delayed nodes.
+        value = tree_map(  # noqa: PLW2901
+            lambda x: x.collect(node_path) if isinstance(x, PDelayedNode) else x, value
+        )
 
         nodes = tree_map_with_path(
             lambda p, x: collect_dependency(
