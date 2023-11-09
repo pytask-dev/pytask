@@ -8,6 +8,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 ## 0.4.3 - 2023-11-xx
 
 - {pull}`483` simplifies the teardown of a task.
+- {pull}`484` raises more informative error when directories instead of files are used
+  with path nodes.
 - {pull}`485` adds missing steps to unconfigure pytask after the job is done which
   caused flaky tests.
 

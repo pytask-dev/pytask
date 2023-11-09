@@ -572,3 +572,47 @@ def test_error_when_using_kwargs_and_node_in_annotation(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.COLLECTION_FAILED
     assert "is defined twice" in result.output
+
+
+@pytest.mark.parametrize(
+    "node",
+    [
+        "Path(__file__).parent",
+        "PathNode(name='path', path=Path(__file__).parent)",
+        "PickleNode(name='', path=Path(__file__).parent)",
+    ],
+)
+def test_error_when_path_dependency_is_directory(runner, tmp_path, node):
+    source = f"""
+    from pathlib import Path
+    from pytask import PickleNode, PathNode
+
+    def task_example(path = {node}): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert all(i in result.output for i in ("only", "files", "are", "allowed"))
+
+
+@pytest.mark.parametrize(
+    "node",
+    [
+        "Path(__file__).parent",
+        "PathNode(name='path', path=Path(__file__).parent)",
+        "PickleNode(name='', path=Path(__file__).parent)",
+    ],
+)
+def test_error_when_path_product_is_directory(runner, tmp_path, node):
+    source = f"""
+    from pathlib import Path
+    from pytask import PickleNode, Product, PathNode
+    from typing_extensions import Annotated
+    from typing import Any
+
+    def task_example(path: Annotated[Any, Product] = {node}): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert all(i in result.output for i in ("only", "files", "are", "allowed"))
