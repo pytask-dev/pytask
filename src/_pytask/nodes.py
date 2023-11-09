@@ -157,8 +157,8 @@ class PathNode(PPathNode):
 
     """
 
-    name: str
     path: Path
+    name: str = ""
 
     @property
     def signature(self) -> str:
@@ -298,8 +298,8 @@ class PickleNode:
 
     """
 
-    name: str
     path: Path
+    name: str = ""
 
     @property
     def signature(self) -> str:

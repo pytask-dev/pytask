@@ -344,7 +344,7 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
             node.path, session.config["check_casing_of_paths"]
         )
 
-    if isinstance(node, PathNode) and (
+    if isinstance(node, PPathNode) and (
         not node.name or node.name == node.path.as_posix()
     ):
         # Shorten name of PathNodes.
