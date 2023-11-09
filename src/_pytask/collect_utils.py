@@ -42,6 +42,7 @@ if TYPE_CHECKING:
 
 
 __all__ = [
+    "collect_dependency",
     "depends_on",
     "parse_dependencies_from_task_function",
     "parse_nodes",
@@ -317,7 +318,7 @@ def parse_dependencies_from_task_function(
             continue
 
         nodes = tree_map_with_path(
-            lambda p, x: _collect_dependency(
+            lambda p, x: collect_dependency(
                 session,
                 node_path,
                 task_name,
@@ -616,7 +617,7 @@ def _collect_decorator_node(
     return collected_node
 
 
-def _collect_dependency(
+def collect_dependency(
     session: Session, path: Path, name: str, node_info: NodeInfo
 ) -> PNode:
     """Collect nodes for a task.

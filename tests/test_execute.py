@@ -1093,9 +1093,8 @@ def test_task_that_depends_on_delayed_path_node(tmp_path):
     from pathlib import Path
     from pytask import task
 
-    def task_produces(
+    def task_produces() -> Annotated[None, DelayedPathNode(pattern="*.txt")]:
         path = Path(__file__).parent
-    ) -> Annotated[None, DelayedPathNode(pattern="*.txt")]:
         path.joinpath("a.txt").write_text("Hello, ")
         path.joinpath("b.txt").write_text("World!")
 

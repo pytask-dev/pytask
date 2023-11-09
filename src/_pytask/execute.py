@@ -4,9 +4,11 @@ from __future__ import annotations
 import inspect
 import sys
 import time
+from pathlib import Path
 from typing import Any
 from typing import TYPE_CHECKING
 
+from _pytask.collect_utils import collect_dependency
 from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
@@ -23,18 +25,23 @@ from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.mark_utils import has_mark
+from _pytask.models import NodeInfo
 from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
+from _pytask.node_protocols import PTaskWithPath
+from _pytask.nodes import Task
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
 from _pytask.reports import ExecutionReport
 from _pytask.traceback import remove_traceback_from_exc_info
+from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
+from _pytask.tree_util import tree_map_with_path
 from _pytask.tree_util import tree_structure
 from rich.text import Text
 
@@ -197,13 +204,49 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
     return True
 
 
+def _collect_delayed_nodes(
+    session: Session, task: PTask, node: Any, path: tuple[Any, ...]
+) -> PyTree[PNode]:
+    """Collect delayed nodes."""
+    if not isinstance(node, PDelayedNode):
+        return node
+
+    node_path = task.path.parent if isinstance(task, PTaskWithPath) else Path.cwd()
+    task_name = task.base_name if isinstance(task, Task) else task.name
+    task_path = task.path if isinstance(task, PTaskWithPath) else None
+    arg_name, *rest_path = path
+
+    delayed_nodes = node.collect()
+    return tree_map_with_path(  # type: ignore[return-value]
+        lambda p, x: collect_dependency(
+            session,
+            node_path,
+            task_name,
+            NodeInfo(
+                arg_name=arg_name,
+                allow_delayed=False,
+                path=(*rest_path, *p),
+                value=x,
+                task_path=task_path,
+                task_name=task_name,
+            ),
+        ),
+        delayed_nodes,
+    )
+
+
 @hookimpl
 def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
     """Check if nodes are produced by a task."""
     # Replace delayed nodes with their actually resolved nodes.
-    task.produces = tree_map(  # type: ignore[assignment]
-        lambda x: x.collect() if isinstance(x, PDelayedNode) else x, task.produces
+    has_delayed_nodes = any(
+        isinstance(node, PDelayedNode) for node in tree_leaves(task.produces)
     )
+    if has_delayed_nodes:
+        # Collect delayed nodes
+        task.produces = tree_map_with_path(  # type: ignore[assignment]
+            lambda p, x: _collect_delayed_nodes(session, task, x, p), task.produces
+        )
 
     missing_nodes = [node for node in tree_leaves(task.produces) if not node.state()]  # type: ignore[attr-defined]
     if missing_nodes:
