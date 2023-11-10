@@ -124,7 +124,6 @@ class DataCatalog:
                     value=node,
                     task_path=None,
                     task_name="",
-                    allow_delayed=False,
                 ),
             )
             if collected_node is None:  # pragma: no cover

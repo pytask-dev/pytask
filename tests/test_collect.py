@@ -162,7 +162,6 @@ def test_collect_files_w_custom_file_name_pattern(
             Path(),
             NodeInfo(
                 arg_name="",
-                allow_delayed=False,
                 path=(),
                 value=Path.cwd() / "text.txt",
                 task_path=Path.cwd() / "task_example.py",
@@ -178,7 +177,6 @@ def test_collect_files_w_custom_file_name_pattern(
             Path(),
             NodeInfo(
                 arg_name="",
-                allow_delayed=False,
                 path=(),
                 value=1,
                 task_path=Path.cwd() / "task_example.py",
@@ -213,7 +211,6 @@ def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_pat
             tmp_path,
             NodeInfo(
                 arg_name="",
-                allow_delayed=False,
                 path=(),
                 value=collected_node,
                 task_path=tmp_path.joinpath("task_example.py"),
@@ -240,7 +237,6 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
             tmp_path,
             NodeInfo(
                 arg_name="",
-                allow_delayed=False,
                 path=(),
                 value=collected_node,
                 task_path=tmp_path / "task_example.py",

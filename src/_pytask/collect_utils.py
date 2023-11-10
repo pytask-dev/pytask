@@ -99,7 +99,6 @@ def parse_nodes(  # noqa: PLR0913
             task_name,
             NodeInfo(
                 arg_name=arg_name,
-                allow_delayed=False,
                 path=(),
                 value=x,
                 task_path=task_path,
@@ -280,7 +279,6 @@ def parse_dependencies_from_task_function(  # noqa: C901
                 task_name,
                 NodeInfo(
                     arg_name="depends_on",
-                    allow_delayed=allow_delayed,
                     path=(),
                     value=x,
                     task_path=task_path,
@@ -340,7 +338,6 @@ def parse_dependencies_from_task_function(  # noqa: C901
                 task_name,
                 NodeInfo(
                     arg_name=parameter_name,  # noqa: B023
-                    allow_delayed=allow_delayed,
                     path=p,
                     value=x,
                     task_path=task_path,
@@ -359,7 +356,6 @@ def parse_dependencies_from_task_function(  # noqa: C901
             node_name = create_name_of_python_node(
                 NodeInfo(
                     arg_name=parameter_name,
-                    allow_delayed=allow_delayed,
                     path=(),
                     value=value,
                     task_path=task_path,
@@ -449,7 +445,6 @@ def parse_products_from_task_function(
                 task_name,
                 NodeInfo(
                     arg_name="produces",
-                    allow_delayed=True,
                     path=p,
                     value=x,
                     task_path=task_path,
@@ -493,7 +488,6 @@ def parse_products_from_task_function(
                     task_name,
                     NodeInfo(
                         arg_name=parameter_name,  # noqa: B023
-                        allow_delayed=False,
                         path=p,
                         value=x,
                         task_path=task_path,
@@ -514,7 +508,6 @@ def parse_products_from_task_function(
                 task_name,
                 NodeInfo(
                     arg_name="return",
-                    allow_delayed=True,
                     path=p,
                     value=x,
                     task_path=task_path,
@@ -536,7 +529,6 @@ def parse_products_from_task_function(
                 task_name,
                 NodeInfo(
                     arg_name="return",
-                    allow_delayed=True,
                     path=p,
                     value=x,
                     task_path=task_path,

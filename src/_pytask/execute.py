@@ -225,7 +225,6 @@ def _collect_delayed_nodes(
             task_name,
             NodeInfo(
                 arg_name=arg_name,
-                allow_delayed=False,
                 path=(*rest_path, *p),
                 value=x,
                 task_path=task_path,

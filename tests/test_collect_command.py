@@ -697,9 +697,7 @@ def test_collect_task_with_delayed_path_node(runner, tmp_path):
 def test_collect_custom_node_receives_default_name(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
-    from attrs import define
 
-    @define
     class CustomNode:
         name: str = ""
 

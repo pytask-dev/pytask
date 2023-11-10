@@ -52,7 +52,6 @@ def test_hash_of_python_node(value, hash_, expected):
                     value=None,
                     task_path=Path("task_example.py"),
                     task_name="task_example",
-                    allow_delayed=False,
                 ),
             ),
             "7284475a87b8f1aa49c40126c5064269f0ba926265b8fe9158a39a882c6a1512",

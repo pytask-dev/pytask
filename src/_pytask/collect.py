@@ -25,7 +25,6 @@ from _pytask.exceptions import CollectionError
 from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import has_mark
 from _pytask.models import DelayedTask
-from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
@@ -323,7 +322,7 @@ The path '{path}' points to a directory, although only files are allowed."""
 
 
 @hookimpl(trylast=True)
-def pytask_collect_node(  # noqa: C901, PLR0912
+def pytask_collect_node(  # noqa: C901
     session: Session, path: Path, node_info: NodeInfo
 ) -> PNode:
     """Collect a node of a task as a :class:`pytask.PNode`.
@@ -345,18 +344,10 @@ def pytask_collect_node(  # noqa: C901, PLR0912
     """
     node = node_info.value
 
-    if isinstance(node, PDelayedNode):
-        if not node_info.allow_delayed:
-            msg = (
-                "Only a delayed task can depend on a delayed node. The delayed "
-                f"dependency is {node!r}."
-            )
-            raise ValueError(msg)
-
-        if isinstance(node, DelayedPathNode):
-            if node.root_dir is None:
-                node.root_dir = path
-            node.name = node.root_dir.joinpath(node.pattern).as_posix()
+    if isinstance(node, DelayedPathNode):
+        if node.root_dir is None:
+            node.root_dir = path
+        node.name = node.root_dir.joinpath(node.pattern).as_posix()
 
     if isinstance(node, PythonNode):
         node.node_info = node_info
