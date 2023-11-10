@@ -701,8 +701,10 @@ def test_collect_custom_node_receives_default_name(runner, tmp_path):
     class CustomNode:
         name: str = ""
 
-        def state(): return None
-
+        def state(self): return None
+        def signature(self): return "signature"
+        def load(self, is_product): ...
+        def save(self, value): ...
 
     def task_example() -> Annotated[None, CustomNode()]: ...
     """
