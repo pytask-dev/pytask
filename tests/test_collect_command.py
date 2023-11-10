@@ -663,17 +663,23 @@ def test_more_nested_pytree_and_python_node_as_return_with_names(
 
 
 @pytest.mark.end_to_end()
-def test_collect_task_with_delayed_path_node(runner, tmp_path):
-    source = """
-    from pytask import DelayedPathNode
+@pytest.mark.parametrize('node_def', [
+    "paths: Annotated[list[Path], DelayedPathNode(pattern='*.txt'), Product])",
+    "produces=DelayedPathNode(pattern='*.txt'))",
+    ") -> Annotated[None, DelayedPathNode(pattern='*.txt')]",
+])
+def test_collect_task_with_delayed_path_node_as_product(runner, tmp_path, node_def):
+    source = f"""
+    from pytask import DelayedPathNode, Product
     from typing_extensions import Annotated
+    from pathlib import Path
 
-    def task_example() -> Annotated[None, DelayedPathNode(pattern="*.txt")]: ...
+    def task_example({node_def}: ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
+    # Without nodes.
     result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
-
     assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
@@ -681,8 +687,8 @@ def test_collect_task_with_delayed_path_node(runner, tmp_path):
     assert "<Function" in captured
     assert "task_example>" in captured
 
+    # With nodes.
     result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
-
     assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
     assert "<Module" in captured
@@ -691,6 +697,19 @@ def test_collect_task_with_delayed_path_node(runner, tmp_path):
     assert "task_example>" in captured
     assert "<Product" in captured
     assert "/*.txt>" in captured
+
+    # With existing nodes.
+    tmp_path.joinpath("a.txt").touch()
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
+    assert result.exit_code == ExitCode.OK
+    captured = result.output.replace("\n", "").replace(" ", "")
+    assert "<Module" in captured
+    assert "task_module.py>" in captured
+    assert "<Function" in captured
+    assert "task_example>" in captured
+    assert "<Product" in captured
+    assert "/*.txt>" not in captured
+    assert "a.txt>" not in captured
 
 
 @pytest.mark.end_to_end()
