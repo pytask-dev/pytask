@@ -534,17 +534,16 @@ def test_task_kwargs_overwrite_default_arguments(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_return_with_task_decorator(runner, tmp_path):
-    source = """
+@pytest.mark.parametrize(
+    "node_def", ["PathNode(path=Path('file.txt'))", "Path('file.txt')"]
+)
+def test_return_with_task_decorator(runner, tmp_path, node_def):
+    source = f"""
     from pathlib import Path
-    from typing import Any
     from typing_extensions import Annotated
-    from pytask import PathNode
-    import pytask
+    from pytask import task, PathNode
 
-    node = PathNode.from_path(Path(__file__).parent.joinpath("file.txt"))
-
-    @pytask.mark.task(produces=node)
+    @task(produces={node_def})
     def task_example():
         return "Hello, World!"
     """
@@ -555,18 +554,20 @@ def test_return_with_task_decorator(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_return_with_tuple_and_task_decorator(runner, tmp_path):
-    source = """
+@pytest.mark.parametrize(
+    "node_def",
+    [
+        "(PathNode(path=Path('file1.txt')), PathNode(path=Path('file2.txt')))",
+        "(Path('file1.txt'), Path('file2.txt'))",
+    ],
+)
+def test_return_with_tuple_and_task_decorator(runner, tmp_path, node_def):
+    source = f"""
     from pathlib import Path
-    from typing import Any
     from typing_extensions import Annotated
-    from pytask import PathNode
-    import pytask
+    from pytask import task, PathNode
 
-    node1 = PathNode.from_path(Path(__file__).parent.joinpath("file1.txt"))
-    node2 = PathNode.from_path(Path(__file__).parent.joinpath("file2.txt"))
-
-    @pytask.mark.task(produces=(node1, node2))
+    @task(produces={node_def})
     def task_example():
         return "Hello,", "World!"
     """
@@ -581,15 +582,12 @@ def test_error_when_function_is_defined_outside_loop_body(runner, tmp_path):
     source = """
     from pathlib import Path
     from typing_extensions import Annotated
-    from pytask import task
-    from pytask import Product
+    from pytask import task, Product
 
     def func(path: Annotated[Path, Product]):
         path.touch()
 
-    _PATH = Path.cwd()
-
-    for path in (_PATH.joinpath("a.txt"), _PATH.joinpath("b.txt")):
+    for path in (Path("a.txt"), Path("b.txt")):
         task(kwargs={"path": path})(func)
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -609,9 +607,7 @@ def test_error_when_function_is_defined_outside_loop_body_with_id(runner, tmp_pa
     def func(path: Annotated[Path, Product]):
         path.touch()
 
-    _PATH = Path.cwd()
-
-    for path in (_PATH.joinpath("a.txt"), _PATH.joinpath("b.txt")):
+    for path in (Path("a.txt"), Path("b.txt")):
         task(kwargs={"path": path}, id=path.name)(func)
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
