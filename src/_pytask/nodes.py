@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import inspect
 import pickle
+from pathlib import Path  # noqa: TCH003
 from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
@@ -21,7 +22,6 @@ from attrs import field
 
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from _pytask.models import NodeInfo
     from _pytask.tree_util import PyTree
     from _pytask.mark import Mark
