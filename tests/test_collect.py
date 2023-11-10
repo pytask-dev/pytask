@@ -641,3 +641,16 @@ def test_default_name_of_path_nodes(tmp_path, node):
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("file.txt").exists()
     assert session.tasks[0].produces["return"].name == tmp_path.name + "/file.txt"
+
+
+def test_error_when_return_annotation_cannot_be_parsed(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+
+    def task_example() -> Annotated[int, 1]: ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "The return annotation of the task" in result.output
