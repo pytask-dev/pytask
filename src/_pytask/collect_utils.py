@@ -264,7 +264,7 @@ def parse_dependencies_from_task_function(
     kwargs = {**signature_defaults, **task_kwargs}
     kwargs.pop("produces", None)
 
-    # Parse products from task decorated with @task and that uses produces.
+    # Parse dependencies from task when @task is used.
     if "depends_on" in kwargs:
         has_depends_on_argument = True
         dependencies["depends_on"] = tree_map(
@@ -375,7 +375,7 @@ def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, PNode
 _ERROR_MULTIPLE_PRODUCT_DEFINITIONS = """The task uses multiple ways to define \
 products. Products should be defined with either
 
-- 'typing.Annotated[Path(...), Product]' (recommended)
+- 'typing.Annotated[Path, Product] = Path(...)' (recommended)
 - '@pytask.mark.task(kwargs={'produces': Path(...)})'
 - as a default argument for 'produces': 'produces = Path(...)'
 - '@pytask.mark.produces(Path(...))' (deprecated)
@@ -384,7 +384,7 @@ Read more about products in the documentation: https://tinyurl.com/pytask-deps-p
 """
 
 
-def parse_products_from_task_function(
+def parse_products_from_task_function(  # noqa: C901
     session: Session, task_path: Path | None, task_name: str, node_path: Path, obj: Any
 ) -> dict[str, Any]:
     """Parse products from task function.
@@ -415,26 +415,14 @@ def parse_products_from_task_function(
     parameters_with_product_annot = _find_args_with_product_annotation(obj)
     parameters_with_node_annot = _find_args_with_node_annotation(obj)
 
-    # Parse products from task decorated with @task and that uses produces.
+    # Allow to collect products from 'produces'.
     if "produces" in kwargs:
-        has_produces_argument = True
-        collected_products = tree_map_with_path(
-            lambda p, x: _collect_product(
-                session,
-                node_path,
-                task_name,
-                NodeInfo(
-                    arg_name="produces",
-                    path=p,
-                    value=x,
-                    task_path=task_path,
-                    task_name=task_name,
-                ),
-                is_string_allowed=True,
-            ),
-            kwargs["produces"],
-        )
-        out = {"produces": collected_products}
+        if "produces" not in parameters_with_product_annot:
+            parameters_with_product_annot.append("produces")
+        # If there are more parameters with a product annotation, we want to raise an
+        # error later to warn about mixing different interfaces.
+        if set(parameters_with_product_annot) - {"produces"}:
+            has_produces_argument = True
 
     if parameters_with_product_annot:
         out = {}
@@ -473,7 +461,7 @@ def parse_products_from_task_function(
                         task_path=task_path,
                         task_name=task_name,
                     ),
-                    is_string_allowed=False,
+                    convert_string_to_path=parameter_name == "produces",  # noqa: B023
                 ),
                 value,
             )
@@ -493,7 +481,7 @@ def parse_products_from_task_function(
                     task_path=task_path,
                     task_name=task_name,
                 ),
-                is_string_allowed=False,
+                convert_string_to_path=False,
             ),
             parameters_with_node_annot["return"],
         )
@@ -514,7 +502,7 @@ def parse_products_from_task_function(
                     task_path=task_path,
                     task_name=task_name,
                 ),
-                is_string_allowed=False,
+                convert_string_to_path=False,
             ),
             task_produces,
         )
@@ -641,7 +629,7 @@ def _collect_product(
     path: Path,
     task_name: str,
     node_info: NodeInfo,
-    is_string_allowed: bool = False,
+    convert_string_to_path: bool = False,
 ) -> PNode:
     """Collect products for a task.
 
@@ -655,17 +643,9 @@ def _collect_product(
 
     """
     node = node_info.value
-    # For historical reasons, task.kwargs is like the deco and supports str and Path.
-    if not isinstance(node, (str, Path)) and is_string_allowed:
-        msg = (
-            f"`@pytask.mark.task(kwargs={{'produces': ...}}` can only accept values of "
-            "type 'str' and 'pathlib.Path' or the same values nested in tuples, lists, "
-            f"and dictionaries. Here, {node} has type {type(node)}."
-        )
-        raise ValueError(msg)
 
     # If we encounter a string and it is allowed, convert it to a path.
-    if isinstance(node, str) and is_string_allowed:
+    if isinstance(node, str) and convert_string_to_path:
         node = Path(node)
         node_info = node_info._replace(value=node)
 
