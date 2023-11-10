@@ -322,7 +322,7 @@ The path '{path}' points to a directory, although only files are allowed."""
 
 
 @hookimpl(trylast=True)
-def pytask_collect_node(  # noqa: C901
+def pytask_collect_node(  # noqa: C901, PLR0912
     session: Session, path: Path, node_info: NodeInfo
 ) -> PNode:
     """Collect a node of a task as a :class:`pytask.PNode`.
@@ -397,6 +397,18 @@ def pytask_collect_node(  # noqa: C901
             raise ValueError(_TEMPLATE_ERROR_DIRECTORY.format(path=path))
 
         return PathNode(name=name, path=node)
+
+    # Allowing a PythonNode as a return is a poor fallback, because it cannot be used.
+    # Probably, the user made a mistake like writing a custom node that does not
+    # strictly follow the protocol or some other misspecification.
+    if node_info.arg_name == "return":
+        msg = (
+            "The return annotation of the task holds an invalid value. Please, use a "
+            "node or a value that can be parsed to a node. Maybe you used a node that "
+            "does not follow the 'pytask.PNode' protocol. This is the value: "
+            f"{node_info.value!r}"
+        )
+        raise ValueError(msg)
 
     node_name = create_name_of_python_node(node_info)
     return PythonNode(value=node, name=node_name, node_info=node_info)

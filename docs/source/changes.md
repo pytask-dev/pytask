@@ -14,6 +14,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   caused flaky tests.
 - {pull}`486` adds default names to {class}`~pytask.PPathNode`.
 - {pull}`487` implements delayed tasks and nodes.
+- {pull}`488` raises an error when an invalid value is used in a return annotation.
 
 ## 0.4.2 - 2023-11-8
 
