@@ -213,6 +213,7 @@ def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_pat
             tmp_path,
             NodeInfo(
                 arg_name="",
+                allow_delayed=False,
                 path=(),
                 value=collected_node,
                 task_path=tmp_path.joinpath("task_example.py"),
