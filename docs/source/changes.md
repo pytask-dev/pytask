@@ -14,9 +14,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   caused flaky tests.
 - {pull}`486` adds default names to {class}`~pytask.PPathNode`.
 - {pull}`488` raises an error when an invalid value is used in a return annotation.
-- {pull}`489` simplifies parsing products and does not raise an error when a product
-  annotation is used with the argument name `produces`. And, allow `produces` to intake
-  any node.
+- {pull}`489` and {pull}`491` simplifies parsing products and does not raise an error
+  when a product annotation is used with the argument name `produces`. And, allow
+  `produces` to intake any node.
 - {pull}`490` refactors and better tests parsing of dependencies.
 
 ## 0.4.2 - 2023-11-8
