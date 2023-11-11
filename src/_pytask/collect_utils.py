@@ -248,7 +248,7 @@ about dependencies in the documentation: https://tinyurl.com/pytask-deps-prods.
 """
 
 
-def parse_dependencies_from_task_function(  # noqa: C901
+def parse_dependencies_from_task_function(
     session: Session, task_path: Path | None, task_name: str, node_path: Path, obj: Any
 ) -> dict[str, Any]:
     """Parse dependencies from task function."""
@@ -272,21 +272,6 @@ def parse_dependencies_from_task_function(  # noqa: C901
     # Parse dependencies from task when @task is used.
     if "depends_on" in kwargs:
         has_depends_on_argument = True
-        dependencies["depends_on"] = tree_map(
-            lambda x: _collect_decorator_node(
-                session,
-                node_path,
-                task_name,
-                NodeInfo(
-                    arg_name="depends_on",
-                    path=(),
-                    value=x,
-                    task_path=task_path,
-                    task_name=task_name,
-                ),
-            ),
-            kwargs["depends_on"],
-        )
 
     if has_depends_on_decorator and has_depends_on_argument:
         raise NodeNotCollectedError(_ERROR_MULTIPLE_DEPENDENCY_DEFINITIONS)
@@ -311,9 +296,6 @@ def parse_dependencies_from_task_function(  # noqa: C901
             parameter_name in parameters_with_product_annot
             or parameter_name == "return"
         ):
-            continue
-
-        if parameter_name == "depends_on":
             continue
 
         # Check for delayed nodes.
@@ -481,7 +463,6 @@ def parse_products_from_task_function(  # noqa: C901
                         task_path=task_path,
                         task_name=task_name,
                     ),
-                    convert_string_to_path=parameter_name == "produces",  # noqa: B023
                 ),
                 value,
             )
@@ -501,7 +482,6 @@ def parse_products_from_task_function(  # noqa: C901
                     task_path=task_path,
                     task_name=task_name,
                 ),
-                convert_string_to_path=False,
             ),
             parameters_with_node_annot["return"],
         )
@@ -522,7 +502,6 @@ def parse_products_from_task_function(  # noqa: C901
                     task_path=task_path,
                     task_name=task_name,
                 ),
-                convert_string_to_path=False,
             ),
             task_produces,
         )
@@ -626,6 +605,16 @@ def collect_dependency(
     """
     node = node_info.value
 
+    # If we encounter a string and the argument name is 'depends_on', we convert it.
+    if isinstance(node, str) and node_info.arg_name == "depends_on":
+        warnings.warn(
+            _WARNING_STRING_DEPRECATED.format(kind="dependency", node=node),
+            category=FutureWarning,
+            stacklevel=1,
+        )
+        node = Path(node)
+        node_info = node_info._replace(value=node)
+
     if isinstance(node, PythonNode) and node.value is no_default:
         # If a node is a dependency and its value is not set, the node is a product in
         # another task and the value will be set there. Thus, we wrap the original node
@@ -649,7 +638,6 @@ def _collect_product(
     path: Path,
     task_name: str,
     node_info: NodeInfo,
-    convert_string_to_path: bool = False,
 ) -> PNode:
     """Collect products for a task.
 
@@ -664,8 +652,13 @@ def _collect_product(
     """
     node = node_info.value
 
-    # If we encounter a string and it is allowed, convert it to a path.
-    if isinstance(node, str) and convert_string_to_path:
+    # If we encounter a string and the argument name is 'produces', we convert it.
+    if isinstance(node, str) and node_info.arg_name == "produces":
+        warnings.warn(
+            _WARNING_STRING_DEPRECATED.format(kind="product", node=node),
+            category=FutureWarning,
+            stacklevel=1,
+        )
         node = Path(node)
         node_info = node_info._replace(value=node)
 

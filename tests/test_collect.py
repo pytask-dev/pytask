@@ -19,12 +19,20 @@ from pytask import Task
 
 
 @pytest.mark.end_to_end()
-def test_collect_filepathnode_with_relative_path(tmp_path):
-    source = """
+@pytest.mark.parametrize(
+    ("depends_on", "produces"),
+    [
+        ("'in.txt'", "'out.txt'"),
+        ("Path('in.txt')", "Path('out.txt')"),
+    ],
+)
+def test_collect_file_with_relative_path(tmp_path, depends_on, produces):
+    source = f"""
     import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
+    @pytask.mark.depends_on({depends_on})
+    @pytask.mark.produces({produces})
     def task_write_text(depends_on, produces):
         produces.write_text(depends_on.read_text())
     """
@@ -35,6 +43,27 @@ def test_collect_filepathnode_with_relative_path(tmp_path):
 
     assert session.collection_reports[0].outcome == CollectionOutcome.SUCCESS
     assert tmp_path.joinpath("out.txt").read_text() == "Relative paths work."
+
+
+@pytest.mark.end_to_end()
+def test_relative_path_of_path_node(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product, PathNode
+
+    def task_example(
+        in_path: Annotated[Path, PathNode(path=Path("in.txt"))],
+        path: Annotated[Path, Product, PathNode(path=Path("out.txt"))],
+    ) -> None:
+        path.write_text("text")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.txt").touch()
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").exists()
 
 
 @pytest.mark.end_to_end()
@@ -348,11 +377,14 @@ def test_collect_module_name(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_collect_string_product_with_task_decorator(runner, tmp_path):
-    source = """
-    import pytask
+@pytest.mark.parametrize("decorator", ["", "@task"])
+def test_collect_string_product_with_or_without_task_decorator(
+    runner, tmp_path, decorator
+):
+    source = f"""
+    from pytask import task
 
-    @pytask.mark.task
+    {decorator}
     def task_write_text(produces="out.txt"):
         produces.touch()
     """
@@ -360,18 +392,7 @@ def test_collect_string_product_with_task_decorator(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").exists()
-
-
-@pytest.mark.end_to_end()
-def test_collect_string_product_as_function_default(runner, tmp_path):
-    source = """
-    def task_write_text(produces="out.txt"):
-        produces.touch()
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert tmp_path.joinpath("out.txt").exists()
+    assert "FutureWarning" in result.output
 
 
 @pytest.mark.end_to_end()
@@ -443,12 +464,19 @@ def test_depends_on_cannot_mix_different_definitions(tmp_path, capsys):
 
 
 @pytest.mark.end_to_end()
-def test_deprecation_warning_for_strings_in_depends_on(runner, tmp_path):
-    source = """
+@pytest.mark.parametrize(
+    ("depends_on", "produces"),
+    [("'in.txt'", "Path('out.txt')"), ("Path('in.txt')", "'out.txt'")],
+)
+def test_deprecation_warning_for_strings_in_former_decorator_args(
+    runner, tmp_path, depends_on, produces
+):
+    source = f"""
     import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
+    @pytask.mark.depends_on({depends_on})
+    @pytask.mark.produces({produces})
     def task_write_text(depends_on, produces):
         produces.touch()
     """
@@ -472,7 +500,6 @@ def test_no_deprecation_warning_for_using_magic_produces(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert "FutureWarning" not in result.output
-    assert "Using 'produces' as an argument name" not in result.output
 
 
 @pytest.mark.end_to_end()
@@ -535,26 +562,6 @@ def test_error_when_product_is_defined_in_kwargs_and_annotation(runner, tmp_path
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert "ValueError: The value for the parameter 'path'" in result.output
-
-
-@pytest.mark.end_to_end()
-def test_relative_path_of_path_node(runner, tmp_path):
-    source = """
-    from pathlib import Path
-    from typing_extensions import Annotated
-    from pytask import Product, PathNode
-
-    def task_example(
-        path: Annotated[Path, Product, PathNode(path=Path("out.txt"), name="product")],
-    ) -> None:
-        path.write_text("text")
-    """
-    tmp_path.joinpath("subfolder").mkdir()
-    tmp_path.joinpath("subfolder", "task_module.py").write_text(textwrap.dedent(source))
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert tmp_path.joinpath("subfolder", "out.txt").exists()
 
 
 @pytest.mark.end_to_end()
