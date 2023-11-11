@@ -261,6 +261,8 @@ def pytask_collect_task(
                 return None
 
         path_nodes = Path.cwd() if path is None else path.parent
+
+        # Collect dependencies and products.
         dependencies = parse_dependencies_from_task_function(
             session, path, name, path_nodes, obj
         )
