@@ -426,10 +426,16 @@ def parse_products_from_task_function(  # noqa: C901
         if set(parameters_with_product_annot) - {"produces"}:
             has_produces_argument = True
 
+    if "return" in parameters_with_node_annot:
+        parameters_with_product_annot.append("return")
+        has_return = True
+
     if parameters_with_product_annot:
         out = {}
         for parameter_name in parameters_with_product_annot:
-            has_annotation = True
+            if parameter_name != "return":
+                has_annotation = True
+
             if (
                 parameter_name not in kwargs
                 and parameter_name not in parameters_with_node_annot
@@ -483,25 +489,6 @@ def parse_products_from_task_function(  # noqa: C901
                 preliminary_collected_products,
             )
             out[parameter_name] = collected_products
-
-    if "return" in parameters_with_node_annot:
-        has_return = True
-        collected_products = tree_map_with_path(
-            lambda p, x: _collect_product(
-                session,
-                node_path,
-                task_name,
-                NodeInfo(
-                    arg_name="return",
-                    path=p,
-                    value=x,
-                    task_path=task_path,
-                    task_name=task_name,
-                ),
-            ),
-            parameters_with_node_annot["return"],
-        )
-        out = {"return": collected_products}
 
     task_produces = obj.pytask_meta.produces if hasattr(obj, "pytask_meta") else None
     if task_produces:
