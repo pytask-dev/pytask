@@ -21,11 +21,11 @@ from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import get_file
 from _pytask.console import is_jupyter
-from _pytask.exceptions import CollectionError
+from _pytask.exceptions import CollectionError, NodeNotCollectedError
 from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import has_mark
 from _pytask.models import DelayedTask
-from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PDelayedNode, PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.nodes import DelayedPathNode
@@ -297,26 +297,15 @@ def pytask_collect_task(
     return None
 
 
-_TEMPLATE_ERROR: str = """\
-The provided path of the dependency/product is
-
-{}
-
-, but the path of the file on disk is
-
-{}
-
-Case-sensitive file systems would raise an error because the upper and lower case \
-format of the paths does not match.
-
-Please, align the names to ensure reproducibility on case-sensitive file systems \
-(often Linux or macOS) or disable this error with 'check_casing_of_paths = false' in \
-your pytask configuration file.
-
-Hint: If parts of the path preceding your project directory are not properly \
-formatted, check whether you need to call `.resolve()` on `SRC`, `BLD` or other paths \
-created from the `__file__` attribute of a module.
-"""
+@hookimpl(trylast=True)
+def pytask_collect_delayed_node(session: Session, path: Path, node_info: NodeInfo) -> PDelayedNode:
+    """Collect a delayed node."""
+    node = node_info.value
+    if isinstance(node, DelayedPathNode):
+        if node.root_dir is None:
+            node.root_dir = path
+        node.name = node.root_dir.joinpath(node.pattern).as_posix()
+    return node
 
 
 _TEMPLATE_ERROR_DIRECTORY: str = """\
@@ -345,11 +334,6 @@ def pytask_collect_node(  # noqa: C901, PLR0912
 
     """
     node = node_info.value
-
-    if isinstance(node, DelayedPathNode):
-        if node.root_dir is None:
-            node.root_dir = path
-        node.name = node.root_dir.joinpath(node.pattern).as_posix()
 
     if isinstance(node, PythonNode):
         node.node_info = node_info
@@ -414,6 +398,28 @@ def pytask_collect_node(  # noqa: C901, PLR0912
 
     node_name = create_name_of_python_node(node_info)
     return PythonNode(value=node, name=node_name, node_info=node_info)
+
+
+_TEMPLATE_ERROR: str = """\
+The provided path of the dependency/product is
+
+{}
+
+, but the path of the file on disk is
+
+{}
+
+Case-sensitive file systems would raise an error because the upper and lower case \
+format of the paths does not match.
+
+Please, align the names to ensure reproducibility on case-sensitive file systems \
+(often Linux or macOS) or disable this error with 'check_casing_of_paths = false' in \
+your pytask configuration file.
+
+Hint: If parts of the path preceding your project directory are not properly \
+formatted, check whether you need to call `.resolve()` on `SRC`, `BLD` or other paths \
+created from the `__file__` attribute of a module.
+"""
 
 
 def _raise_error_if_casing_of_path_is_wrong(

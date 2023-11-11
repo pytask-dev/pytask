@@ -451,6 +451,22 @@ def parse_products_from_task_function(  # noqa: C901
                 parameter_name
             )
 
+            preliminary_collected_products = tree_map_with_path(
+                lambda p, x: session.hook.pytask_collect_delayed_node(
+                    session,
+                    node_path,
+                    task_name,
+                    NodeInfo(
+                        arg_name=parameter_name,  # noqa: B023
+                        path=p,
+                        value=x,
+                        task_path=task_path,
+                        task_name=task_name,
+                    ),
+                ) if isinstance(x, PDelayedNode) else x,
+                value,
+            )
+
             collected_products = tree_map_with_path(
                 lambda p, x: _collect_product(
                     session,
@@ -464,7 +480,7 @@ def parse_products_from_task_function(  # noqa: C901
                         task_name=task_name,
                     ),
                 ),
-                value,
+                preliminary_collected_products,
             )
             out[parameter_name] = collected_products
 

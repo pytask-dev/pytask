@@ -20,7 +20,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   any node.
 - {pull}`490` refactors and better tests parsing of dependencies.
 
-## 0.4.2 - 2023-11-8
+## 0.4.2 - 2023-11-08
 
 - {pull}`449` simplifies the code building the plugin manager.
 - {pull}`451` improves `collect_command.py` and renames `graph.py` to `dag_command.py`.
