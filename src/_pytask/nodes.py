@@ -364,8 +364,11 @@ class DelayedPathNode(PNode):
         raw_key = "".join(str(hash_value(arg)) for arg in (self.root_dir, self.pattern))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
-    def load(self, is_product: bool = False) -> None:
-        raise NotImplementedError
+    def load(self, is_product: bool = False) -> Path | tuple[Path, str]:
+        assert self.root_dir
+        if is_product:
+            return self.root_dir
+        return self.root_dir, self.pattern
 
     def save(self, value: Any) -> None:
         raise NotImplementedError

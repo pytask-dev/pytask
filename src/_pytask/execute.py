@@ -187,6 +187,7 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
     if "return" in task.produces:
         structure_out = tree_structure(out)
         structure_return = tree_structure(task.produces["return"])
+
         # strict must be false when none is leaf.
         if not structure_return.is_prefix(structure_out, strict=False):
             msg = (

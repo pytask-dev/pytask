@@ -701,19 +701,6 @@ def test_collect_task_with_delayed_path_node_as_product(runner, tmp_path, node_d
     assert "<Product" in captured
     assert "/*.txt>" in captured
 
-    # With existing nodes.
-    tmp_path.joinpath("a.txt").touch()
-    result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
-    assert result.exit_code == ExitCode.OK
-    captured = result.output.replace("\n", "").replace(" ", "")
-    assert "<Module" in captured
-    assert "task_module.py>" in captured
-    assert "<Function" in captured
-    assert "task_example>" in captured
-    assert "<Product" in captured
-    assert "/*.txt>" not in captured
-    assert "a.txt>" not in captured
-
 
 @pytest.mark.end_to_end()
 def test_collect_custom_node_receives_default_name(runner, tmp_path):

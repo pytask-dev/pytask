@@ -195,7 +195,7 @@ def pytask_collect_task_teardown(session: Session, task: PTask) -> None:
     """
 
 
-@hookspec
+@hookspec(firstresult=True)
 def pytask_collect_delayed_node(
     session: Session, path: Path, node_info: NodeInfo
 ) -> PDelayedNode | None:

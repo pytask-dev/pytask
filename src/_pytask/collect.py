@@ -21,11 +21,12 @@ from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import get_file
 from _pytask.console import is_jupyter
-from _pytask.exceptions import CollectionError, NodeNotCollectedError
+from _pytask.exceptions import CollectionError
 from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import has_mark
 from _pytask.models import DelayedTask
-from _pytask.node_protocols import PDelayedNode, PNode
+from _pytask.node_protocols import PDelayedNode
+from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.nodes import DelayedPathNode
@@ -298,7 +299,7 @@ def pytask_collect_task(
 
 
 @hookimpl(trylast=True)
-def pytask_collect_delayed_node(session: Session, path: Path, node_info: NodeInfo) -> PDelayedNode:
+def pytask_collect_delayed_node(path: Path, node_info: NodeInfo) -> PDelayedNode:
     """Collect a delayed node."""
     node = node_info.value
     if isinstance(node, DelayedPathNode):
@@ -313,7 +314,7 @@ The path '{path}' points to a directory, although only files are allowed."""
 
 
 @hookimpl(trylast=True)
-def pytask_collect_node(  # noqa: C901, PLR0912
+def pytask_collect_node(  # noqa: C901
     session: Session, path: Path, node_info: NodeInfo
 ) -> PNode:
     """Collect a node of a task as a :class:`pytask.PNode`.

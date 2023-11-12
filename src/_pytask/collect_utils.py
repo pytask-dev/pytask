@@ -277,6 +277,7 @@ def parse_dependencies_from_task_function(
         raise NodeNotCollectedError(_ERROR_MULTIPLE_DEPENDENCY_DEFINITIONS)
 
     parameters_with_product_annot = _find_args_with_product_annotation(obj)
+    parameters_with_product_annot.append("return")
     parameters_with_node_annot = _find_args_with_node_annotation(obj)
 
     # Complete kwargs with node annotations, when no value is given by kwargs.
@@ -292,10 +293,7 @@ def parse_dependencies_from_task_function(
             raise ValueError(msg)
 
     for parameter_name, value in kwargs.items():
-        if (
-            parameter_name in parameters_with_product_annot
-            or parameter_name == "return"
-        ):
+        if parameter_name in parameters_with_product_annot:
             continue
 
         # Check for delayed nodes.
@@ -308,24 +306,13 @@ def parse_dependencies_from_task_function(
             )
             raise ValueError(msg)
 
-        # Collect delayed nodes.
-        value = tree_map(  # noqa: PLW2901
-            lambda x: x.collect(node_path) if isinstance(x, PDelayedNode) else x, value
-        )
-
-        nodes = tree_map_with_path(
-            lambda p, x: collect_dependency(
-                session,
-                node_path,
-                task_name,
-                NodeInfo(
-                    arg_name=parameter_name,  # noqa: B023
-                    path=p,
-                    value=x,
-                    task_path=task_path,
-                    task_name=task_name,
-                ),
-            ),
+        nodes = _collect_delayed_nodes_and_nodes(
+            collect_dependency,
+            session,
+            node_path,
+            task_name,
+            task_path,
+            parameter_name,
             value,
         )
 
@@ -456,56 +443,27 @@ def parse_products_from_task_function(  # noqa: C901
             value = kwargs.get(parameter_name) or parameters_with_node_annot.get(
                 parameter_name
             )
-
-            preliminary_collected_products = tree_map_with_path(
-                lambda p, x: session.hook.pytask_collect_delayed_node(
-                    session,
-                    node_path,
-                    task_name,
-                    NodeInfo(
-                        arg_name=parameter_name,  # noqa: B023
-                        path=p,
-                        value=x,
-                        task_path=task_path,
-                        task_name=task_name,
-                    ),
-                ) if isinstance(x, PDelayedNode) else x,
+            collected_products = _collect_delayed_nodes_and_nodes(
+                _collect_product,
+                session,
+                node_path,
+                task_name,
+                task_path,
+                parameter_name,
                 value,
-            )
-
-            collected_products = tree_map_with_path(
-                lambda p, x: _collect_product(
-                    session,
-                    node_path,
-                    task_name,
-                    NodeInfo(
-                        arg_name=parameter_name,  # noqa: B023
-                        path=p,
-                        value=x,
-                        task_path=task_path,
-                        task_name=task_name,
-                    ),
-                ),
-                preliminary_collected_products,
             )
             out[parameter_name] = collected_products
 
     task_produces = obj.pytask_meta.produces if hasattr(obj, "pytask_meta") else None
     if task_produces:
         has_task_decorator = True
-        collected_products = tree_map_with_path(
-            lambda p, x: _collect_product(
-                session,
-                node_path,
-                task_name,
-                NodeInfo(
-                    arg_name="return",
-                    path=p,
-                    value=x,
-                    task_path=task_path,
-                    task_name=task_name,
-                ),
-            ),
+        collected_products = _collect_delayed_nodes_and_nodes(
+            _collect_product,
+            session,
+            node_path,
+            task_name,
+            task_path,
+            "return",
             task_produces,
         )
         out = {"return": collected_products}
@@ -525,6 +483,48 @@ def parse_products_from_task_function(  # noqa: C901
         raise NodeNotCollectedError(_ERROR_MULTIPLE_PRODUCT_DEFINITIONS)
 
     return out
+
+
+def _collect_delayed_nodes_and_nodes(  # noqa: PLR0913
+    collection_func: Callable[..., Any],
+    session: Session,
+    node_path: Path,
+    task_name: str,
+    task_path: Path | None,
+    parameter_name: str,
+    value: Any,
+) -> PyTree[PDelayedNode | PNode]:
+    nodes = tree_map_with_path(
+        lambda p, x: session.hook.pytask_collect_delayed_node(
+            session=session,
+            path=node_path,
+            node_info=NodeInfo(
+                arg_name=parameter_name,
+                path=p,
+                value=x,
+                task_path=task_path,
+                task_name=task_name,
+            ),
+        )
+        if isinstance(x, PDelayedNode)
+        else x,
+        value,
+    )
+    return tree_map_with_path(  # type: ignore[return-value]
+        lambda p, x: collection_func(
+            session,
+            node_path,
+            task_name,
+            NodeInfo(
+                arg_name=parameter_name,
+                path=p,
+                value=x,
+                task_path=task_path,
+                task_name=task_name,
+            ),
+        ),
+        nodes,
+    )
 
 
 def _find_args_with_product_annotation(func: Callable[..., Any]) -> list[str]:

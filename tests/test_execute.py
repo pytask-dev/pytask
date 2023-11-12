@@ -994,13 +994,14 @@ def test_error_when_node_state_throws_error(runner, tmp_path):
 def test_task_that_produces_delayed_path_node(tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode
+    from pytask import DelayedPathNode, Product
     from pathlib import Path
 
-    def task_example() -> Annotated[None, DelayedPathNode(pattern="*.txt")]:
-        path = Path(__file__).parent
-        path.joinpath("a.txt").touch()
-        path.joinpath("b.txt").touch()
+    def task_example(
+        root_path: Annotated[Path, DelayedPathNode(pattern="*.txt"), Product]
+    ):
+        root_path.joinpath("a.txt").write_text("Hello, ")
+        root_path.joinpath("b.txt").write_text("World!")
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
