@@ -110,5 +110,5 @@ class PDelayedNode(Protocol):
 
     """
 
-    def collect(self, node_path: Path) -> list[Any]:
+    def collect(self) -> list[Any]:
         """Collect the objects that are defined by the fuzzy node."""

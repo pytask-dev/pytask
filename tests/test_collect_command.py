@@ -702,6 +702,34 @@ def test_collect_task_with_delayed_path_node_as_product(runner, tmp_path, node_d
     assert "/*.txt>" in captured
 
 
+def test_collect_task_with_delayed_dependencies(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DelayedPathNode, task
+    from pathlib import Path
+
+    @task(is_ready=lambda *x: True)
+    def task_delayed(
+        paths = DelayedPathNode(pattern="[ab].txt")
+    ) -> Annotated[str, Path("merged.txt")]:
+        path_dict = {path.stem: path for path in paths}
+        return path_dict["a"].read_text() + path_dict["b"].read_text()
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "[ab].txt" in result.output
+
+    tmp_path.joinpath("a.txt").touch()
+    tmp_path.joinpath("b.txt").touch()
+
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "a.txt" in result.output
+    assert "b.txt" in result.output
+
+
 @pytest.mark.end_to_end()
 def test_collect_custom_node_receives_default_name(runner, tmp_path):
     source = """

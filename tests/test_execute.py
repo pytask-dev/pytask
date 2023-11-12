@@ -1009,7 +1009,7 @@ def test_task_that_produces_delayed_path_node(tmp_path):
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
-    assert len(session.tasks[0].produces["return"]) == 2
+    assert len(session.tasks[0].produces["root_path"]) == 2
 
 
 @pytest.mark.end_to_end()
@@ -1022,7 +1022,7 @@ def test_task_that_depends_on_relative_delayed_path_node(tmp_path):
     @task(is_ready=lambda *x: True)
     def task_delayed(
         paths = DelayedPathNode(pattern="[ab].txt")
-    ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
+    ) -> Annotated[str, Path("merged.txt")]:
         path_dict = {path.stem: path for path in paths}
         return path_dict["a"].read_text() + path_dict["b"].read_text()
     """

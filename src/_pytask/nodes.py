@@ -376,7 +376,6 @@ class DelayedPathNode(PNode):
     def state(self) -> None:
         return None
 
-    def collect(self, node_path: Path) -> list[Path]:
+    def collect(self) -> list[Path]:
         """Collect paths defined by the pattern."""
-        reference_path = node_path if self.root_dir is None else self.root_dir
-        return list(reference_path.glob(self.pattern))
+        return list(self.root_dir.glob(self.pattern))  # type: ignore[union-attr]

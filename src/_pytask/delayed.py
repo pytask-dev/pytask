@@ -1,13 +1,28 @@
 from __future__ import annotations
+from pathlib import Path
 
 from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
-from _pytask.node_protocols import PTask
+from _pytask.models import NodeInfo
+from _pytask.node_protocols import PDelayedNode, PTask
+from _pytask.nodes import DelayedPathNode
 from _pytask.outcomes import CollectionOutcome
 
 if TYPE_CHECKING:
     from _pytask.session import Session
+
+
+@hookimpl(trylast=True)
+def pytask_collect_delayed_node(path: Path, node_info: NodeInfo) -> PDelayedNode:
+    """Collect a delayed node."""
+    node = node_info.value
+    if isinstance(node, DelayedPathNode):
+        if node.root_dir is None:
+            node.root_dir = path
+        if not node.name:
+            node.name = node.root_dir.joinpath(node.pattern).as_posix()
+    return node
 
 
 @hookimpl

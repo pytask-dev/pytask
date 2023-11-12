@@ -218,7 +218,7 @@ def _collect_delayed_nodes(
     task_path = task.path if isinstance(task, PTaskWithPath) else None
     arg_name, *rest_path = path
 
-    delayed_nodes = node.collect(node_path)
+    delayed_nodes = node.collect()
     return tree_map_with_path(  # type: ignore[return-value]
         lambda p, x: collect_dependency(
             session,

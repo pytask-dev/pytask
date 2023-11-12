@@ -265,6 +265,7 @@ def parse_dependencies_from_task_function(
     allow_delayed = (
         obj.pytask_meta.is_ready is not None if hasattr(obj, "pytask_meta") else False
     )
+    is_ready = obj.pytask_meta.is_ready() if allow_delayed else False
     signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
     kwargs = {**signature_defaults, **task_kwargs}
     kwargs.pop("produces", None)
@@ -308,6 +309,7 @@ def parse_dependencies_from_task_function(
 
         nodes = _collect_delayed_nodes_and_nodes(
             collect_dependency,
+            is_ready,
             session,
             node_path,
             task_name,
@@ -445,6 +447,7 @@ def parse_products_from_task_function(  # noqa: C901
             )
             collected_products = _collect_delayed_nodes_and_nodes(
                 _collect_product,
+                False,
                 session,
                 node_path,
                 task_name,
@@ -459,6 +462,7 @@ def parse_products_from_task_function(  # noqa: C901
         has_task_decorator = True
         collected_products = _collect_delayed_nodes_and_nodes(
             _collect_product,
+            False,
             session,
             node_path,
             task_name,
@@ -487,6 +491,7 @@ def parse_products_from_task_function(  # noqa: C901
 
 def _collect_delayed_nodes_and_nodes(  # noqa: PLR0913
     collection_func: Callable[..., Any],
+    is_ready: bool,
     session: Session,
     node_path: Path,
     task_name: str,
@@ -510,6 +515,8 @@ def _collect_delayed_nodes_and_nodes(  # noqa: PLR0913
         else x,
         value,
     )
+    if is_ready:
+        nodes = tree_map(lambda x: x.collect() if isinstance(x, PDelayedNode) else x, nodes)
     return tree_map_with_path(  # type: ignore[return-value]
         lambda p, x: collection_func(
             session,
@@ -522,7 +529,7 @@ def _collect_delayed_nodes_and_nodes(  # noqa: PLR0913
                 task_path=task_path,
                 task_name=task_name,
             ),
-        ),
+        ) if not isinstance(x, PDelayedNode) else x,
         nodes,
     )
 

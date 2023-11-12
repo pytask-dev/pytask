@@ -25,11 +25,9 @@ from _pytask.exceptions import CollectionError
 from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import has_mark
 from _pytask.models import DelayedTask
-from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
-from _pytask.nodes import DelayedPathNode
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
@@ -298,17 +296,6 @@ def pytask_collect_task(
     return None
 
 
-@hookimpl(trylast=True)
-def pytask_collect_delayed_node(path: Path, node_info: NodeInfo) -> PDelayedNode:
-    """Collect a delayed node."""
-    node = node_info.value
-    if isinstance(node, DelayedPathNode):
-        if node.root_dir is None:
-            node.root_dir = path
-        node.name = node.root_dir.joinpath(node.pattern).as_posix()
-    return node
-
-
 _TEMPLATE_ERROR_DIRECTORY: str = """\
 The path '{path}' points to a directory, although only files are allowed."""
 
@@ -505,7 +492,11 @@ def pytask_collect_log(
     """Log collection."""
     session.collection_end = time.time()
 
-    console.print(f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}.")
+    msg = f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}."
+    if session.delayed_tasks:
+        n_delayed_tasks = len(session.delayed_tasks)
+        msg = msg[:-1] + f" and {n_delayed_tasks} delayed task{'' if n_delayed_tasks == 1 else 's'}."
+    console.print(msg)
 
     failed_reports = [r for r in reports if r.outcome == CollectionOutcome.FAIL]
     if failed_reports:

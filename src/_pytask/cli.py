@@ -53,6 +53,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     from _pytask import config
     from _pytask import database
     from _pytask import debugging
+    from _pytask import delayed
     from _pytask import execute
     from _pytask import dag_command
     from _pytask import live
@@ -75,6 +76,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     pm.register(config)
     pm.register(database)
     pm.register(debugging)
+    pm.register(delayed)
     pm.register(execute)
     pm.register(dag_command)
     pm.register(live)
