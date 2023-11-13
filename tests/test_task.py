@@ -625,7 +625,7 @@ def test_task_will_be_executed_after_another_one_with_string(runner, tmp_path):
 
     @task(after="task_first")
     def task_second():
-        assert Path("out.txt").exists()
+        assert Path(__file__).parent.joinpath("out.txt").exists()
 
     def task_first() -> Annotated[str, Path("out.txt")]:
         return "Hello, World!"
@@ -648,7 +648,7 @@ def test_task_will_be_executed_after_another_one_with_function(tmp_path):
 
     @task(after=task_first)
     def task_second():
-        assert Path("out.txt").exists()
+        assert Path(__file__).parent.joinpath("out.txt").exists()
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
