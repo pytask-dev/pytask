@@ -615,3 +615,42 @@ def test_error_when_function_is_defined_outside_loop_body_with_id(runner, tmp_pa
     assert result.exit_code == ExitCode.COLLECTION_FAILED
     assert "Duplicated tasks" in result.output
     assert "id=b.txt" in result.output
+
+
+def test_task_will_be_executed_after_another_one_with_string(runner, tmp_path):
+    source = """
+    from pytask import task
+    from pathlib import Path
+    from typing_extensions import Annotated
+
+    @task(after="task_first")
+    def task_second():
+        assert Path("out.txt").exists()
+
+    def task_first() -> Annotated[str, Path("out.txt")]:
+        return "Hello, World!"
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "2  Succeeded" in result.output
+
+
+def test_task_will_be_executed_after_another_one_with_function(tmp_path):
+    source = """
+    from pytask import task
+    from pathlib import Path
+    from typing_extensions import Annotated
+
+    def task_first() -> Annotated[str, Path("out.txt")]:
+        return "Hello, World!"
+
+    @task(after=task_first)
+    def task_second():
+        assert Path("out.txt").exists()
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+    assert session.exit_code == ExitCode.OK

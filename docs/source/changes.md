@@ -18,6 +18,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   when a product annotation is used with the argument name `produces`. And, allow
   `produces` to intake any node.
 - {pull}`490` refactors and better tests parsing of dependencies.
+- {pull}`491` allows tasks to depend on other tasks.
 
 ## 0.4.2 - 2023-11-8
 

@@ -47,9 +47,9 @@ class Traceback:
 
     show_locals: ClassVar[bool] = False
     suppress: ClassVar[tuple[Path, ...]] = (
-        _PLUGGY_DIRECTORY,
-        TREE_UTIL_LIB_DIRECTORY,
-        _PYTASK_DIRECTORY,
+        # _PLUGGY_DIRECTORY,
+        # TREE_UTIL_LIB_DIRECTORY,
+        # _PYTASK_DIRECTORY,
     )
 
     def __rich_console__(
