@@ -46,7 +46,18 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
         )
 
         if all_nodes_exist:
-            raise Persisted
+            any_node_changed = any(
+                session.hook.pytask_dag_has_node_changed(
+                    session=session,
+                    dag=session.dag,
+                    task=task,
+                    node=session.dag.nodes[name].get("task")
+                    or session.dag.nodes[name]["node"],
+                )
+                for name in node_and_neighbors(session.dag, task.signature)
+            )
+            if any_node_changed:
+                raise Persisted
 
 
 @hookimpl

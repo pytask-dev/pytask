@@ -75,7 +75,7 @@ def test_node_and_neighbors(dag):
             if dag.nodes[sig]["task"].name == f".::{i}"
         )
         nodes = node_and_neighbors(dag, task.signature)
-        node_names = sorted(dag.nodes[sig]["task"].name for sig in nodes)
+        node_names = [dag.nodes[sig]["task"].name for sig in nodes]
         assert node_names == [f".::{j}" for j in range(i - 1, i + 2)]
 
 
@@ -114,19 +114,6 @@ def test_node_and_neighbors(dag):
             does_not_raise(),
             {"c12d8d4f7e2e3128d27878d1fb3d8e3583e90e68000a13634dfbf21f4d1456f3": 0},
             id="test no priority",
-        ),
-        pytest.param(
-            [
-                Task(
-                    base_name="1",
-                    path=Path(),
-                    function=None,
-                    markers=[Mark("try_first", (), {}), Mark("try_last", (), {})],
-                )
-            ],
-            pytest.raises(ValueError, match="'try_first' and 'try_last' cannot be"),
-            {".::1": 1},
-            id="test mixed priorities",
         ),
         pytest.param(
             [

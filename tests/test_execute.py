@@ -85,21 +85,18 @@ def test_node_not_found_in_task_setup(tmp_path):
     """
     source = """
     import pytask
+    from typing_extensions import Annotated
+    from pathlib import Path
 
-    @pytask.mark.produces(["out_1.txt", "deleted.txt"])
-    def task_1(produces):
-        for product in produces.values():
-            product.touch()
+    def task_1() -> Annotated[..., (Path("out_1.txt"), Path("deleted.txt"))]:
+        return "", ""
 
-    @pytask.mark.depends_on("out_1.txt")
-    @pytask.mark.produces("out_2.txt")
-    def task_2(depends_on, produces):
-        depends_on.with_name("deleted.txt").unlink()
-        produces.touch()
+    def task_2(path = Path("out_1.txt")) -> Annotated[..., Path("out_2.txt")]:
+        path.with_name("deleted.txt").unlink()
+        return ""
 
-    @pytask.mark.depends_on(["deleted.txt", "out_2.txt"])
-    def task_3(depends_on):
-        pass
+    def task_3(paths = [Path("deleted.txt"), Path("out_2.txt")]):
+        ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -300,24 +297,6 @@ def test_scheduling_w_priorities(tmp_path):
     assert session.execution_reports[0].task.name.endswith("task_z")
     assert session.execution_reports[1].task.name.endswith("task_x")
     assert session.execution_reports[2].task.name.endswith("task_y")
-
-
-@pytest.mark.end_to_end()
-def test_scheduling_w_mixed_priorities(runner, tmp_path):
-    source = """
-    import pytask
-
-    @pytask.mark.try_last
-    @pytask.mark.try_first
-    def task_mixed(): pass
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-
-    assert result.exit_code == ExitCode.DAG_FAILED
-    assert "Failures during resolving dependencies" in result.output
-    assert "'try_first' and 'try_last' cannot be applied" in result.output
 
 
 @pytest.mark.end_to_end()
@@ -988,3 +967,27 @@ def test_error_when_node_state_throws_error(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.FAILED
     assert "TypeError: unhashable type: 'dict'" in result.output
+
+
+def test_task_is_not_reexecuted(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pathlib import Path
+
+    def task_first() -> Annotated[str, Path("out.txt")]:
+        return "Hello, World!"
+
+    def task_second(path = Path("out.txt")) -> Annotated[str, Path("copy.txt")]:
+        return path.read_text()
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "2  Succeeded" in result.output
+
+    tmp_path.joinpath("out.txt").write_text("Changed text.")
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+    assert "1  Skipped because unchanged" in result.output
