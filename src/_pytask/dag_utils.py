@@ -7,9 +7,6 @@ from typing import Iterable
 from typing import TYPE_CHECKING
 
 import networkx as nx
-from _pytask.console import format_strings_as_flat_tree
-from _pytask.console import format_task_name
-from _pytask.console import TASK_ICON
 from _pytask.mark_utils import has_mark
 from attrs import define
 from attrs import field
@@ -54,8 +51,11 @@ def node_and_neighbors(dag: nx.DiGraph, node: str) -> Iterable[str]:
     We cannot use ``dag.neighbors`` as it only considers successors as neighbors in a
     DAG.
 
+    The task node needs to be yield in the middle so that first predecessors are checked
+    and then the rest of the nodes.
+
     """
-    return itertools.chain([node], dag.predecessors(node), dag.successors(node))
+    return itertools.chain(dag.predecessors(node), [node], dag.successors(node))
 
 
 @define
@@ -166,25 +166,6 @@ def _extract_priorities_from_tasks(tasks: list[PTask]) -> dict[str, int]:
         }
         for task in tasks
     }
-    tasks_w_mixed_priorities = [
-        name for name, p in priorities.items() if p["try_first"] and p["try_last"]
-    ]
-
-    if tasks_w_mixed_priorities:
-        name_to_task = {task.signature: task for task in tasks}
-        reduced_names = []
-        for name in tasks_w_mixed_priorities:
-            reduced_name = format_task_name(name_to_task[name], "no_link")
-            reduced_names.append(reduced_name.plain)
-
-        text = format_strings_as_flat_tree(
-            reduced_names, "Tasks with mixed priorities", TASK_ICON
-        )
-        msg = (
-            f"'try_first' and 'try_last' cannot be applied on the same task. See the "
-            f"following tasks for errors:\n\n{text}"
-        )
-        raise ValueError(msg)
 
     # Recode to numeric values for sorting.
     numeric_mapping = {(True, False): 1, (False, False): 0, (False, True): -1}
