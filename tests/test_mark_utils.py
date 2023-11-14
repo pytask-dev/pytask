@@ -219,7 +219,7 @@ def test_remove_marks_from_func(
         func.pytask_meta = CollectionMetadata(markers=markers)
 
     obj, result_markers = remove_marks(func, marker_name)
-    markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
+    markers = get_all_marks(obj)
     assert markers == expected_others
     assert result_markers == expected_markers
 
