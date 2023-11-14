@@ -88,10 +88,10 @@ def test_node_not_found_in_task_setup(tmp_path):
     from typing_extensions import Annotated
     from pathlib import Path
 
-    def task_1() -> Annotated[..., (Path("out_1.txt"), Path("deleted.txt"))]:
+    def task_1() -> Annotated[None, (Path("out_1.txt"), Path("deleted.txt"))]:
         return "", ""
 
-    def task_2(path = Path("out_1.txt")) -> Annotated[..., Path("out_2.txt")]:
+    def task_2(path = Path("out_1.txt")) -> Annotated[str, Path("out_2.txt")]:
         path.with_name("deleted.txt").unlink()
         return ""
 
