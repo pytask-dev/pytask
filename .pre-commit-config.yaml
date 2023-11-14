@@ -45,24 +45,18 @@ repos:
     hooks:
     -   id: sort-all
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.4
+    rev: v0.1.5
     hooks:
       - id: ruff-format
       - id: ruff
         args: [--unsafe-fixes]
 -   repo: https://github.com/dosisod/refurb
-    rev: v1.22.1
+    rev: v1.23.0
     hooks:
     -   id: refurb
         args: [--ignore, FURB126]
--   repo: https://github.com/econchick/interrogate
-    rev: 3aa94a6
-    hooks:
-    -   id: interrogate
-        args: [-v, --fail-under=75]
-        exclude: ^(tests/|docs/|scripts/|docs_src/)
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.6.1
+    rev: v1.7.0
     hooks:
     -   id: mypy
         additional_dependencies: [

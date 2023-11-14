@@ -45,7 +45,7 @@ class CollectionMetadata:
         information.
     """
 
-    after: str | list[Callable[..., Any]] = field(factory=list)  # type: ignore[assignment]
+    after: str | list[Callable[..., Any]] = field(factory=list)
     id_: str | None = None
     kwargs: dict[str, Any] = field(factory=dict)
     markers: list[Mark] = field(factory=list)

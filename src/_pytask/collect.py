@@ -23,6 +23,7 @@ from _pytask.console import get_file
 from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
 from _pytask.mark import MarkGenerator
+from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
@@ -246,6 +247,13 @@ def pytask_collect_task(
 
     """
     if (name.startswith("task_") or has_mark(obj, "task")) and is_task_function(obj):
+        if has_mark(obj, "try_first") and has_mark(obj, "try_last"):
+            msg = (
+                "The task cannot have mixed priorities. Do not apply "
+                "'@pytask.mark.try_first' and '@pytask.mark.try_last' at the same time."
+            )
+            raise ValueError(msg)
+
         path_nodes = Path.cwd() if path is None else path.parent
         dependencies = parse_dependencies_from_task_function(
             session, path, name, path_nodes, obj
@@ -254,7 +262,7 @@ def pytask_collect_task(
             session, path, name, path_nodes, obj
         )
 
-        markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
+        markers = get_all_marks(obj)
         collection_id = obj.pytask_meta._id if hasattr(obj, "pytask_meta") else None
         after = obj.pytask_meta.after if hasattr(obj, "pytask_meta") else []
 

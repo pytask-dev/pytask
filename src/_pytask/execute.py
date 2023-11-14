@@ -16,7 +16,9 @@ from _pytask.console import format_node_name
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import unify_styles
 from _pytask.dag_utils import descending_tasks
+from _pytask.dag_utils import node_and_neighbors
 from _pytask.dag_utils import TopologicalSorter
+from _pytask.database_utils import has_node_changed
 from _pytask.database_utils import update_states_in_database
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeLoadError
@@ -28,6 +30,7 @@ from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
+from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
 from _pytask.reports import ExecutionReport
@@ -124,27 +127,41 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     2. Create the directory where the product will be placed.
 
     """
-    for dependency in session.dag.predecessors(task.signature):
-        node = session.dag.nodes[dependency]["node"]
-        if not node.state():
-            msg = f"{task.name!r} requires missing node {node.name!r}."
-            if IS_FILE_SYSTEM_CASE_SENSITIVE:
-                msg += (
-                    "\n\n(Hint: Your file-system is case-sensitive. Check the paths' "
-                    "capitalization carefully.)"
-                )
-            raise NodeNotFoundError(msg)
+    if has_mark(task, "would_be_executed"):
+        raise WouldBeExecuted
+
+    dag = session.dag
+
+    needs_to_be_executed = session.config["force"]
+    if not needs_to_be_executed:
+        predecessors = set(dag.predecessors(task.signature)) | {task.signature}
+        for node_signature in node_and_neighbors(dag, task.signature):
+            node = dag.nodes[node_signature].get("task") or dag.nodes[
+                node_signature
+            ].get("node")
+            if node_signature in predecessors and not node.state():
+                msg = f"{task.name!r} requires missing node {node.name!r}."
+                if IS_FILE_SYSTEM_CASE_SENSITIVE:
+                    msg += (
+                        "\n\n(Hint: Your file-system is case-sensitive. Check the "
+                        "paths' capitalization carefully.)"
+                    )
+                raise NodeNotFoundError(msg)
+
+            has_changed = has_node_changed(task=task, node=node)
+            if has_changed:
+                needs_to_be_executed = True
+                break
+
+    if not needs_to_be_executed:
+        raise SkippedUnchanged
 
     # Create directory for product if it does not exist. Maybe this should be a `setup`
     # method for the node classes.
-    for product in session.dag.successors(task.signature):
-        node = session.dag.nodes[product]["node"]
+    for product in dag.successors(task.signature):
+        node = dag.nodes[product]["node"]
         if isinstance(node, PPathNode):
             node.path.parent.mkdir(parents=True, exist_ok=True)
-
-    would_be_executed = has_mark(task, "would_be_executed")
-    if would_be_executed:
-        raise WouldBeExecuted
 
 
 def _safe_load(node: PNode, task: PTask, is_product: bool) -> Any:
@@ -188,7 +205,7 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
         nodes = tree_leaves(task.produces["return"])
         values = structure_return.flatten_up_to(out)
         for node, value in zip(nodes, values):
-            node.save(value)  # type: ignore[attr-defined]
+            node.save(value)
 
     return True
 
@@ -196,10 +213,10 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
 @hookimpl
 def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
     """Check if :class:`_pytask.nodes.PathNode` are produced by a task."""
-    missing_nodes = [node for node in tree_leaves(task.produces) if not node.state()]  # type: ignore[attr-defined]
+    missing_nodes = [node for node in tree_leaves(task.produces) if not node.state()]
     if missing_nodes:
         paths = session.config["paths"]
-        files = [format_node_name(i, paths).plain for i in missing_nodes]  # type: ignore[arg-type]
+        files = [format_node_name(i, paths).plain for i in missing_nodes]
         formatted = format_strings_as_flat_tree(
             files, "The task did not produce the following files:\n"
         )
