@@ -125,8 +125,8 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
 
     """
     for dependency in session.dag.predecessors(task.signature):
-        node = session.dag.nodes[dependency].get("node")
-        if isinstance(node, PNode) and not node.state():
+        node = session.dag.nodes[dependency]["node"]
+        if not node.state():
             msg = f"{task.name!r} requires missing node {node.name!r}."
             if IS_FILE_SYSTEM_CASE_SENSITIVE:
                 msg += (
@@ -138,7 +138,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     # Create directory for product if it does not exist. Maybe this should be a `setup`
     # method for the node classes.
     for product in session.dag.successors(task.signature):
-        node = session.dag.nodes[product].get("node")
+        node = session.dag.nodes[product]["node"]
         if isinstance(node, PPathNode):
             node.path.parent.mkdir(parents=True, exist_ok=True)
 

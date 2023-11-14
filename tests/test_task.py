@@ -636,6 +636,14 @@ def test_task_will_be_executed_after_another_one_with_string(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
     assert "2  Succeeded" in result.output
 
+    # Make sure that the dependence does not only apply to the task (and task module),
+    # but also it products.
+    tmp_path.joinpath("out.txt").write_text("Hello, Moon!")
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+    assert "1  Skipped because unchanged" in result.output
+
 
 def test_task_will_be_executed_after_another_one_with_function(tmp_path):
     source = """

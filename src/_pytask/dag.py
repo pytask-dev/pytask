@@ -115,13 +115,15 @@ def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
         if isinstance(after, list):
             for temporary_id in after:
                 other_task = temporary_id_to_task[temporary_id]
-                dag.add_edge(other_task.signature, task.signature)
+                for successor in dag.successors(other_task):
+                    dag.add_edge(successor, task.signature)
         elif isinstance(after, str):
             task_signature = task.signature
             signatures = select_by_after_keyword(session, after)
             signatures.discard(task_signature)
             for signature in signatures:
-                dag.add_edge(signature, task_signature)
+                for successor in dag.successors(signature):
+                    dag.add_edge(successor, task.signature)
 
 
 @hookimpl
