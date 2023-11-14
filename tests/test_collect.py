@@ -661,3 +661,21 @@ def test_error_when_return_annotation_cannot_be_parsed(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.COLLECTION_FAILED
     assert "The return annotation of the task" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_scheduling_w_mixed_priorities(runner, tmp_path):
+    source = """
+    import pytask
+
+    @pytask.mark.try_last
+    @pytask.mark.try_first
+    def task_mixed(): pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Could not collect" in result.output
+    assert "The task cannot have" in result.output
