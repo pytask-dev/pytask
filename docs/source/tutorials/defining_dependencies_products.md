@@ -410,6 +410,38 @@ def task_fit_model(depends_on, produces):
 :::
 ::::
 
+## Depending on a task
+
+In some situations you want to define a task depending on another task without
+specifying the relationship explicitly.
+
+pytask allows you to do that, but you loose features like access to paths which is why
+defining dependencies explicitly is always preferred.
+
+There are two modes for it and both use {func}`@task(after=...) <pytask.task>`.
+
+First, you can pass the task function or multiple task functions to the decorator.
+Applied to the tasks from before, we could have written `task_plot_data` as
+
+```python
+@task(after=task_create_random_data)
+def task_plot_data(...):
+    ...
+```
+
+You can also pass a list of task functions.
+
+The second mode is to pass an expression, a substring of the name of the dependent
+tasks. Here, we can pass the function name or a significant part of the function
+name.
+
+```python
+@task(after="random_data")
+def task_plot_data(...):
+    ...
+```
+
+You will learn more about expressions in {doc}`selecting_tasks`.
 
 ## References
 

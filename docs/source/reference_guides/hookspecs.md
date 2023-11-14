@@ -77,7 +77,6 @@ your plugin.
 ```{eval-rst}
 .. autofunction:: pytask_dag
 .. autofunction:: pytask_dag_create_dag
-.. autofunction:: pytask_dag_select_execution_dag
 .. autofunction:: pytask_dag_log
 
 ```

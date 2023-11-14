@@ -19,6 +19,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   when a product annotation is used with the argument name `produces`. And, allow
   `produces` to intake any node.
 - {pull}`490` refactors and better tests parsing of dependencies.
+- {pull}`493` allows tasks to depend on other tasks.
+- {pull}`496` makes pytask even lazier. Now, when a task produces a node whose hash
+  remains the same, the consecutive tasks are not executed. It remained from when pytask
+  relied on timestamps.
 
 ## 0.4.2 - 2023-11-08
 

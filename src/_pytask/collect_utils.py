@@ -516,8 +516,10 @@ def _collect_delayed_nodes_and_nodes(  # noqa: PLR0913
         value,
     )
     if is_ready:
-        nodes = tree_map(lambda x: x.collect() if isinstance(x, PDelayedNode) else x, nodes)
-    return tree_map_with_path(  # type: ignore[return-value]
+        nodes = tree_map(
+            lambda x: x.collect() if isinstance(x, PDelayedNode) else x, nodes
+        )
+    return tree_map_with_path(
         lambda p, x: collection_func(
             session,
             node_path,
@@ -529,7 +531,9 @@ def _collect_delayed_nodes_and_nodes(  # noqa: PLR0913
                 task_path=task_path,
                 task_name=task_name,
             ),
-        ) if not isinstance(x, PDelayedNode) else x,
+        )
+        if not isinstance(x, PDelayedNode)
+        else x,
         nodes,
     )
 

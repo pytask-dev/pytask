@@ -21,7 +21,6 @@ from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import select_by_keyword
 from _pytask.mark import select_by_mark
-from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
@@ -195,7 +194,7 @@ def _print_collected_tasks(
             )
 
             if show_nodes:
-                deps: list[PNode] = list(tree_leaves(task.depends_on))  # type: ignore[arg-type]
+                deps = list(tree_leaves(task.depends_on))
                 for node in sorted(
                     deps,
                     key=(
@@ -207,7 +206,7 @@ def _print_collected_tasks(
                     text = format_node_name(node, (common_ancestor,))
                     task_branch.add(Text.assemble(FILE_ICON, "<Dependency ", text, ">"))
 
-                products: list[PNode] = list(tree_leaves(task.produces))  # type: ignore[arg-type]
+                products = list(tree_leaves(task.produces))
                 for node in sorted(
                     products,
                     key=lambda x: x.path.as_posix()

@@ -10,6 +10,7 @@ from _pytask.tree_util import PyTree
 from _pytask.session import Session
 import networkx as nx
 
+def select_by_after_keyword(session: Session, after: str) -> set[str]: ...
 def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str]: ...
 def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str]: ...
 
@@ -54,4 +55,5 @@ __all__ = [
     "ParseError",
     "select_by_keyword",
     "select_by_mark",
+    "select_by_after_keyword",
 ]

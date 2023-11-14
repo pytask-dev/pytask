@@ -23,6 +23,7 @@ from _pytask.console import get_file
 from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
 from _pytask.mark import MarkGenerator
+from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
 from _pytask.models import DelayedTask
 from _pytask.node_protocols import PNode
@@ -247,6 +248,13 @@ def pytask_collect_task(
 
     """
     if (name.startswith("task_") or has_mark(obj, "task")) and is_task_function(obj):
+        if has_mark(obj, "try_first") and has_mark(obj, "try_last"):
+            msg = (
+                "The task cannot have mixed priorities. Do not apply "
+                "'@pytask.mark.try_first' and '@pytask.mark.try_last' at the same time."
+            )
+            raise ValueError(msg)
+
         # Collect delayed tasks separately and exit.
         if hasattr(obj, "pytask_meta") and obj.pytask_meta.is_ready is not None:
             try:
@@ -269,7 +277,9 @@ def pytask_collect_task(
             session, path, name, path_nodes, obj
         )
 
-        markers = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
+        markers = get_all_marks(obj)
+        collection_id = obj.pytask_meta._id if hasattr(obj, "pytask_meta") else None
+        after = obj.pytask_meta.after if hasattr(obj, "pytask_meta") else []
 
         # Get the underlying function to avoid having different states of the function,
         # e.g. due to pytask_meta, in different layers of the wrapping.
@@ -282,6 +292,7 @@ def pytask_collect_task(
                 depends_on=dependencies,
                 produces=products,
                 markers=markers,
+                attributes={"collection_id": collection_id, "after": after},
             )
         return Task(
             base_name=name,
@@ -290,6 +301,7 @@ def pytask_collect_task(
             depends_on=dependencies,
             produces=products,
             markers=markers,
+            attributes={"collection_id": collection_id, "after": after},
         )
     if isinstance(obj, PTask):
         return obj
@@ -495,7 +507,10 @@ def pytask_collect_log(
     msg = f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}."
     if session.delayed_tasks:
         n_delayed_tasks = len(session.delayed_tasks)
-        msg = msg[:-1] + f" and {n_delayed_tasks} delayed task{'' if n_delayed_tasks == 1 else 's'}."
+        msg = (
+            msg[:-1] + f" and {n_delayed_tasks} delayed "
+            f"task{'' if n_delayed_tasks == 1 else 's'}."
+        )
     console.print(msg)
 
     failed_reports = [r for r in reports if r.outcome == CollectionOutcome.FAIL]

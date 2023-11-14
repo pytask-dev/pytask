@@ -14,13 +14,8 @@ from _pytask.console import format_node_name
 from _pytask.console import format_task_name
 from _pytask.console import render_to_string
 from _pytask.console import TASK_ICON
-from _pytask.dag_utils import node_and_neighbors
-from _pytask.dag_utils import task_and_descending_tasks
-from _pytask.dag_utils import TopologicalSorter
-from _pytask.database_utils import DatabaseSession
-from _pytask.database_utils import State
 from _pytask.exceptions import ResolvingDependenciesError
-from _pytask.mark import Mark
+from _pytask.mark import select_by_after_keyword
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PTask
 from _pytask.nodes import PythonNode
@@ -31,7 +26,6 @@ from rich.text import Text
 from rich.tree import Tree
 
 if TYPE_CHECKING:
-    from _pytask.node_protocols import MetaNode
     from pathlib import Path
     from _pytask.session import Session
 
@@ -44,7 +38,6 @@ def pytask_dag(session: Session) -> bool | None:
             session=session, tasks=session.tasks
         )
         session.hook.pytask_dag_modify_dag(session=session, dag=session.dag)
-        session.hook.pytask_dag_select_execution_dag(session=session, dag=session.dag)
 
     except Exception:  # noqa: BLE001
         report = DagReport.from_exception(sys.exc_info())
@@ -102,56 +95,27 @@ def pytask_dag_create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
 
 
 @hookimpl
-def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
-    """Select the tasks which need to be executed."""
-    scheduler = TopologicalSorter.from_dag(dag)
-    visited_nodes: set[str] = set()
-
-    while scheduler.is_active():
-        task_signature = scheduler.get_ready()[0]
-        if task_signature not in visited_nodes:
-            task = dag.nodes[task_signature]["task"]
-            have_changed = _have_task_or_neighbors_changed(session, dag, task)
-            if have_changed:
-                visited_nodes.update(task_and_descending_tasks(task_signature, dag))
-            else:
-                dag.nodes[task_signature]["task"].markers.append(
-                    Mark("skip_unchanged", (), {})
-                )
-        scheduler.done(task_signature)
-
-
-def _have_task_or_neighbors_changed(
-    session: Session, dag: nx.DiGraph, task: PTask
-) -> bool:
-    """Indicate whether dependencies or products of a task have changed."""
-    return any(
-        session.hook.pytask_dag_has_node_changed(
-            session=session,
-            dag=dag,
-            task=task,
-            node=dag.nodes[node_name].get("task") or dag.nodes[node_name].get("node"),
-        )
-        for node_name in node_and_neighbors(dag, task.signature)
-    )
-
-
-@hookimpl(trylast=True)
-def pytask_dag_has_node_changed(task: PTask, node: MetaNode) -> bool:
-    """Indicate whether a single dependency or product has changed."""
-    # If node does not exist, we receive None.
-    node_state = node.state()
-    if node_state is None:
-        return True
-
-    with DatabaseSession() as session:
-        db_state = session.get(State, (task.signature, node.signature))
-
-    # If the node is not in the database.
-    if db_state is None:
-        return True
-
-    return node_state != db_state.hash_
+def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
+    """Create dependencies between tasks when using ``@task(after=...)``."""
+    temporary_id_to_task = {
+        task.attributes["collection_id"]: task
+        for task in session.tasks
+        if "collection_id" in task.attributes
+    }
+    for task in session.tasks:
+        after = task.attributes.get("after")
+        if isinstance(after, list):
+            for temporary_id in after:
+                other_task = temporary_id_to_task[temporary_id]
+                for successor in dag.successors(other_task.signature):
+                    dag.add_edge(successor, task.signature)
+        elif isinstance(after, str):
+            task_signature = task.signature
+            signatures = select_by_after_keyword(session, after)
+            signatures.discard(task_signature)
+            for signature in signatures:
+                for successor in dag.successors(signature):
+                    dag.add_edge(successor, task.signature)
 
 
 def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:

@@ -14,7 +14,6 @@ import pluggy
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PDelayedNode
-    from _pytask.node_protocols import MetaNode
     from _pytask.models import NodeInfo
     from _pytask.node_protocols import PNode
     import click
@@ -249,28 +248,6 @@ def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
 
     This hook allows to make some changes to the DAG before it is validated and tasks
     are selected.
-
-    """
-
-
-@hookspec
-def pytask_dag_select_execution_dag(session: Session, dag: nx.DiGraph) -> None:
-    """Select the subgraph which needs to be executed.
-
-    This hook determines which of the tasks have to be re-run because something has
-    changed.
-
-    """
-
-
-@hookspec(firstresult=True)
-def pytask_dag_has_node_changed(
-    session: Session, dag: nx.DiGraph, task: PTask, node: MetaNode
-) -> None:
-    """Select the subgraph which needs to be executed.
-
-    This hook determines which of the tasks have to be re-run because something has
-    changed.
 
     """
 
