@@ -18,6 +18,7 @@ from _pytask.console import unify_styles
 from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.dag_utils import TopologicalSorter
+from _pytask.database_utils import has_node_changed
 from _pytask.database_utils import update_states_in_database
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeLoadError
@@ -147,9 +148,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
                     )
                 raise NodeNotFoundError(msg)
 
-            has_changed = session.hook.pytask_dag_has_node_changed(
-                session=session, dag=dag, task=task, node=node
-            )
+            has_changed = has_node_changed(task=task, node=node)
             if has_changed:
                 needs_to_be_executed = True
                 break

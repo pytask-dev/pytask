@@ -14,8 +14,6 @@ from _pytask.console import format_node_name
 from _pytask.console import format_task_name
 from _pytask.console import render_to_string
 from _pytask.console import TASK_ICON
-from _pytask.database_utils import DatabaseSession
-from _pytask.database_utils import State
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PTask
@@ -27,7 +25,6 @@ from rich.text import Text
 from rich.tree import Tree
 
 if TYPE_CHECKING:
-    from _pytask.node_protocols import MetaNode
     from pathlib import Path
     from _pytask.session import Session
 
@@ -94,24 +91,6 @@ def pytask_dag_create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
     _check_if_tasks_have_the_same_products(dag, session.config["paths"])
 
     return dag
-
-
-@hookimpl(trylast=True)
-def pytask_dag_has_node_changed(task: PTask, node: MetaNode) -> bool:
-    """Indicate whether a single dependency or product has changed."""
-    # If node does not exist, we receive None.
-    node_state = node.state()
-    if node_state is None:
-        return True
-
-    with DatabaseSession() as session:
-        db_state = session.get(State, (task.signature, node.signature))
-
-    # If the node is not in the database.
-    if db_state is None:
-        return True
-
-    return node_state != db_state.hash_
 
 
 def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:

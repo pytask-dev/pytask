@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
 from _pytask.dag_utils import node_and_neighbors
+from _pytask.database_utils import has_node_changed
 from _pytask.database_utils import update_states_in_database
 from _pytask.mark_utils import has_mark
 from _pytask.outcomes import Persisted
@@ -47,9 +48,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
 
         if all_nodes_exist:
             any_node_changed = any(
-                session.hook.pytask_dag_has_node_changed(
-                    session=session,
-                    dag=session.dag,
+                has_node_changed(
                     task=task,
                     node=session.dag.nodes[name].get("task")
                     or session.dag.nodes[name]["node"],
