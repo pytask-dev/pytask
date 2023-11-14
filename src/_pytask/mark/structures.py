@@ -6,6 +6,7 @@ from typing import Callable
 from typing import Iterable
 from typing import Mapping
 
+from _pytask.mark_utils import get_all_marks
 from _pytask.models import CollectionMetadata
 from _pytask.typing import is_task_function
 from attrs import define
@@ -122,7 +123,7 @@ class MarkDecorator:
 
 def get_unpacked_marks(obj: Callable[..., Any]) -> list[Mark]:
     """Obtain the unpacked marks that are stored on an object."""
-    mark_list = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
+    mark_list = get_all_marks(obj)
     return normalize_mark_list(mark_list)
 
 
