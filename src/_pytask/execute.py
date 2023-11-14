@@ -205,7 +205,7 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
         nodes = tree_leaves(task.produces["return"])
         values = structure_return.flatten_up_to(out)
         for node, value in zip(nodes, values):
-            node.save(value)  # type: ignore[attr-defined]
+            node.save(value)
 
     return True
 
@@ -213,10 +213,10 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
 @hookimpl
 def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
     """Check if :class:`_pytask.nodes.PathNode` are produced by a task."""
-    missing_nodes = [node for node in tree_leaves(task.produces) if not node.state()]  # type: ignore[attr-defined]
+    missing_nodes = [node for node in tree_leaves(task.produces) if not node.state()]
     if missing_nodes:
         paths = session.config["paths"]
-        files = [format_node_name(i, paths).plain for i in missing_nodes]  # type: ignore[arg-type]
+        files = [format_node_name(i, paths).plain for i in missing_nodes]
         formatted = format_strings_as_flat_tree(
             files, "The task did not produce the following files:\n"
         )
