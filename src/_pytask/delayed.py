@@ -1,15 +1,16 @@
 from __future__ import annotations
-from pathlib import Path
 
 from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
-from _pytask.models import NodeInfo
-from _pytask.node_protocols import PDelayedNode, PTask
+from _pytask.node_protocols import PDelayedNode
+from _pytask.node_protocols import PTask
 from _pytask.nodes import DelayedPathNode
 from _pytask.outcomes import CollectionOutcome
 
 if TYPE_CHECKING:
+    from _pytask.models import NodeInfo
+    from pathlib import Path
     from _pytask.session import Session
 
 
