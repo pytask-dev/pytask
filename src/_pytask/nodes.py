@@ -361,20 +361,21 @@ class DelayedPathNode(PNode):
     @property
     def signature(self) -> str:
         """The unique signature of the node."""
+        raise NotImplementedError
         raw_key = "".join(str(hash_value(arg)) for arg in (self.root_dir, self.pattern))
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
-    def load(self, is_product: bool = False) -> Path | tuple[Path, str]:
-        assert self.root_dir
+    def load(self, is_product: bool = False) -> Path:
         if is_product:
-            return self.root_dir
-        return self.root_dir, self.pattern
+            return self.root_dir  # type: ignore[return-value]
+        raise NotImplementedError
 
     def save(self, value: Any) -> None:
         raise NotImplementedError
 
     def state(self) -> None:
-        return None
+        raise NotImplementedError
+        return "0"
 
     def collect(self) -> list[Path]:
         """Collect paths defined by the pattern."""

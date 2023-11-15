@@ -1014,6 +1014,10 @@ def test_task_that_produces_delayed_path_node(tmp_path):
     assert len(session.tasks) == 1
     assert len(session.tasks[0].produces["root_path"]) == 2
 
+    # Rexecution does skip the task.
+    session = build(paths=tmp_path)
+    assert session.execution_reports[0].outcome == TaskOutcome.SKIP_UNCHANGED
+
 
 @pytest.mark.end_to_end()
 def test_task_that_depends_on_relative_delayed_path_node(tmp_path):
@@ -1073,6 +1077,35 @@ def test_task_that_depends_on_delayed_task(tmp_path):
     from pytask import DelayedPathNode, task
     from pathlib import Path
 
+    def task_produces() -> Annotated[None, DelayedPathNode(pattern="[ab].txt")]:
+        path = Path(__file__).parent
+        path.joinpath("a.txt").write_text("Hello, ")
+        path.joinpath("b.txt").write_text("World!")
+
+    @task(after=task_produces)
+    def task_depends(
+        paths = DelayedPathNode(pattern="[ab].txt")
+    ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
+        path_dict = {path.stem: path for path in paths}
+        return path_dict["a"].read_text() + path_dict["b"].read_text()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 2
+    assert len(session.tasks[0].produces["return"]) == 2
+    assert len(session.tasks[1].depends_on["paths"]) == 2
+
+
+@pytest.mark.end_to_end()
+def test_gracefully_fail_when_dag_raises_error(tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DelayedPathNode, task
+    from pathlib import Path
+
     def task_produces() -> Annotated[None, DelayedPathNode(pattern="*.txt")]:
         path = Path(__file__).parent
         path.joinpath("a.txt").write_text("Hello, ")
@@ -1084,7 +1117,42 @@ def test_task_that_depends_on_delayed_task(tmp_path):
     ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
         path_dict = {path.stem: path for path in paths}
         return path_dict["a"].read_text() + path_dict["b"].read_text()
-        """
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+    assert session.exit_code == ExitCode.OK
+
+    session = build(paths=tmp_path)
+    assert session.exit_code == ExitCode.FAILED
+    assert session.execution_reports[1].outcome == TaskOutcome.FAIL
+
+
+@pytest.mark.end_to_end()
+def test_delayed_task_generation(tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DelayedPathNode, task
+    from pathlib import Path
+
+    def task_produces() -> Annotated[None, DelayedPathNode(pattern="[ab].txt")]:
+        path = Path(__file__).parent
+        path.joinpath("a.txt").write_text("Hello, ")
+        path.joinpath("b.txt").write_text("World!")
+
+    @task(after=task_produces)
+    def task_depends(
+        paths = DelayedPathNode(pattern="[ab].txt")
+    ) -> ...:
+        for path in paths:
+
+            def task_copy(
+                path: Path = path
+            ) -> Annotated[str, path.with_name(path.stem + "-copy.txt")]:
+                return path.read_text()
+
+            yield task_copy
+    """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = build(paths=tmp_path)

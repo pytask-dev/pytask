@@ -1,18 +1,19 @@
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Any
 from typing import TYPE_CHECKING
 
 from _pytask.collect_utils import collect_dependency
 from _pytask.config import hookimpl
-from _pytask.dag_utils import TopologicalSorter
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import Task
+from _pytask.reports import ExecutionReport
 from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_map_with_path
 
@@ -30,12 +31,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
         lambda p, x: _collect_delayed_nodes(session, task, x, p), task.depends_on
     )
     if task.signature in _TASKS_WITH_DELAYED_NODES:
-        # Recreate the DAG.
-        session.hook.pytask_dag(session=session)
-        # Update scheduler.
-        session.scheduler = TopologicalSorter.from_dag_and_sorter(
-            dag=session.dag, sorter=session.scheduler
-        )
+        _recreate_dag(session, task)
 
 
 @hookimpl
@@ -47,12 +43,7 @@ def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
     )
 
     if task.signature in _TASKS_WITH_DELAYED_NODES:
-        # Recreate the DAG.
-        session.hook.pytask_dag(session=session)
-        # Update scheduler.
-        session.scheduler = TopologicalSorter.from_dag_and_sorter(
-            dag=session.dag, sorter=session.scheduler
-        )
+        _recreate_dag(session, task)
 
 
 def _collect_delayed_nodes(
@@ -94,3 +85,17 @@ def _collect_delayed_nodes(
         ),
         delayed_nodes,
     )
+
+
+def _recreate_dag(session: Session, task: PTask) -> None:
+    """Recreate the DAG."""
+    try:
+        session.dag = session.hook.pytask_dag_create_dag(
+            session=session, tasks=session.tasks
+        )
+        session.hook.pytask_dag_modify_dag(session=session, dag=session.dag)
+
+    except Exception:  # noqa: BLE001
+        report = ExecutionReport.from_task_and_exception(task, sys.exc_info())
+        session.execution_reports.append(report)
+        session.should_stop = True
