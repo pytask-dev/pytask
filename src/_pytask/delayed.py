@@ -7,14 +7,17 @@ from typing import TYPE_CHECKING
 
 from _pytask.collect_utils import collect_dependency
 from _pytask.config import hookimpl
+from _pytask.exceptions import NodeLoadError
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import Task
+from _pytask.outcomes import CollectionOutcome
 from _pytask.reports import ExecutionReport
 from _pytask.tree_util import PyTree
+from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
 
 if TYPE_CHECKING:
@@ -32,6 +35,43 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     )
     if task.signature in _TASKS_WITH_DELAYED_NODES:
         _recreate_dag(session, task)
+
+
+def _safe_load(node: PNode, task: PTask, is_product: bool) -> Any:
+    try:
+        return node.load(is_product=is_product)
+    except Exception as e:  # noqa: BLE001
+        msg = f"Exception while loading node {node.name!r} of task {task.name!r}"
+        raise NodeLoadError(msg) from e
+
+
+@hookimpl
+def pytask_execute_task(session: Session, task: PTask) -> None:
+    """Execute task generators and collect the tasks."""
+    is_generator = task.attributes.get("is_generator", False)
+    if is_generator:
+        kwargs = {}
+        for name, value in task.depends_on.items():
+            kwargs[name] = tree_map(lambda x: _safe_load(x, task, False), value)
+
+        new_tasks = list(task.execute(**kwargs))
+
+        new_reports = []
+        for raw_task in new_tasks:
+            report = session.hook.pytask_collect_task_protocol(
+                session=session,
+                reports=session.collection_reports,
+                path=task.path if isinstance(task, PTaskWithPath) else None,
+                name=name,
+                obj=raw_task,
+            )
+            new_reports.append(report)
+
+        session.tasks.extend(
+            i.node
+            for i in new_reports
+            if i.outcome == CollectionOutcome.SUCCESS and isinstance(i.node, PTask)
+        )
 
 
 @hookimpl

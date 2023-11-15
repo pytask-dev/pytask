@@ -36,10 +36,11 @@ mapping from paths of modules to a list of tasks per module.
 """
 
 
-def task(
+def task(  # noqa: PLR0913
     name: str | None = None,
     *,
     after: str | Callable[..., Any] | list[Callable[..., Any]] | None = None,
+    generator: bool = False,
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
     produces: PyTree[Any] | None = None,
@@ -59,6 +60,8 @@ def task(
     after
         An expression or a task function or a list of task functions that need to be
         executed before this task can.
+    generator
+        An indicator whether this task is a task generator.
     id
         An id for the task if it is part of a parametrization. Otherwise, an automatic
         id will be generated. See
@@ -109,20 +112,22 @@ def task(
         parsed_after = _parse_after(after)
 
         if hasattr(unwrapped, "pytask_meta"):
+            unwrapped.pytask_meta.after = parsed_after
+            unwrapped.pytask_meta.generator = generator
             unwrapped.pytask_meta.id_ = id
             unwrapped.pytask_meta.kwargs = parsed_kwargs
             unwrapped.pytask_meta.markers.append(Mark("task", (), {}))
             unwrapped.pytask_meta.name = parsed_name
             unwrapped.pytask_meta.produces = produces
-            unwrapped.pytask_meta.after = parsed_after
         else:
             unwrapped.pytask_meta = CollectionMetadata(
+                after=parsed_after,
+                generator=generator,
                 id_=id,
                 kwargs=parsed_kwargs,
                 markers=[Mark("task", (), {})],
                 name=parsed_name,
                 produces=produces,
-                after=parsed_after,
             )
 
         # Store it in the global variable ``COLLECTED_TASKS`` to avoid garbage

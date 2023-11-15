@@ -269,6 +269,7 @@ def pytask_collect_task(
         markers = get_all_marks(obj)
         collection_id = obj.pytask_meta._id if hasattr(obj, "pytask_meta") else None
         after = obj.pytask_meta.after if hasattr(obj, "pytask_meta") else []
+        is_generator = obj.pytask_meta.generator if hasattr(obj, "pytask_meta") else []
 
         # Get the underlying function to avoid having different states of the function,
         # e.g. due to pytask_meta, in different layers of the wrapping.
@@ -281,7 +282,11 @@ def pytask_collect_task(
                 depends_on=dependencies,
                 produces=products,
                 markers=markers,
-                attributes={"collection_id": collection_id, "after": after},
+                attributes={
+                    "collection_id": collection_id,
+                    "after": after,
+                    "is_generator": is_generator,
+                },
             )
         return Task(
             base_name=name,
@@ -290,7 +295,11 @@ def pytask_collect_task(
             depends_on=dependencies,
             produces=products,
             markers=markers,
-            attributes={"collection_id": collection_id, "after": after},
+            attributes={
+                "collection_id": collection_id,
+                "after": after,
+                "is_generator": is_generator,
+            },
         )
     if isinstance(obj, PTask):
         return obj
