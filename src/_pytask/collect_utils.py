@@ -262,10 +262,6 @@ def parse_dependencies_from_task_function(
         dependencies["depends_on"] = nodes
 
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
-    allow_delayed = (
-        obj.pytask_meta.is_ready is not None if hasattr(obj, "pytask_meta") else False
-    )
-    is_ready = obj.pytask_meta.is_ready() if allow_delayed else False
     signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
     kwargs = {**signature_defaults, **task_kwargs}
     kwargs.pop("produces", None)
@@ -297,19 +293,8 @@ def parse_dependencies_from_task_function(
         if parameter_name in parameters_with_product_annot:
             continue
 
-        # Check for delayed nodes.
-        has_delayed_nodes = any(isinstance(i, PDelayedNode) for i in tree_leaves(value))
-        if has_delayed_nodes and not allow_delayed:
-            msg = (
-                f"The task {task_name!r} is not marked as a delayed task, but it "
-                "depends on a delayed node. Use '@task(is_ready=...) to create a "
-                "delayed task."
-            )
-            raise ValueError(msg)
-
         nodes = _collect_delayed_nodes_and_nodes(
             collect_dependency,
-            is_ready,
             session,
             node_path,
             task_name,
@@ -447,7 +432,6 @@ def parse_products_from_task_function(  # noqa: C901
             )
             collected_products = _collect_delayed_nodes_and_nodes(
                 _collect_product,
-                False,
                 session,
                 node_path,
                 task_name,
@@ -462,7 +446,6 @@ def parse_products_from_task_function(  # noqa: C901
         has_task_decorator = True
         collected_products = _collect_delayed_nodes_and_nodes(
             _collect_product,
-            False,
             session,
             node_path,
             task_name,
@@ -491,7 +474,6 @@ def parse_products_from_task_function(  # noqa: C901
 
 def _collect_delayed_nodes_and_nodes(  # noqa: PLR0913
     collection_func: Callable[..., Any],
-    is_ready: bool,
     session: Session,
     node_path: Path,
     task_name: str,
@@ -499,26 +481,6 @@ def _collect_delayed_nodes_and_nodes(  # noqa: PLR0913
     parameter_name: str,
     value: Any,
 ) -> PyTree[PDelayedNode | PNode]:
-    nodes = tree_map_with_path(
-        lambda p, x: session.hook.pytask_collect_delayed_node(
-            session=session,
-            path=node_path,
-            node_info=NodeInfo(
-                arg_name=parameter_name,
-                path=p,
-                value=x,
-                task_path=task_path,
-                task_name=task_name,
-            ),
-        )
-        if isinstance(x, PDelayedNode)
-        else x,
-        value,
-    )
-    if is_ready:
-        nodes = tree_map(
-            lambda x: x.collect() if isinstance(x, PDelayedNode) else x, nodes
-        )
     return tree_map_with_path(
         lambda p, x: collection_func(
             session,
@@ -531,10 +493,8 @@ def _collect_delayed_nodes_and_nodes(  # noqa: PLR0913
                 task_path=task_path,
                 task_name=task_name,
             ),
-        )
-        if not isinstance(x, PDelayedNode)
-        else x,
-        nodes,
+        ),
+        value,
     )
 
 

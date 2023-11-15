@@ -705,11 +705,10 @@ def test_collect_task_with_delayed_path_node_as_product(runner, tmp_path, node_d
 def test_collect_task_with_delayed_dependencies(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode, task
+    from pytask import DelayedPathNode
     from pathlib import Path
 
-    @task(is_ready=lambda *x: True)
-    def task_delayed(
+    def task_example(
         paths = DelayedPathNode(pattern="[ab].txt")
     ) -> Annotated[str, Path("merged.txt")]:
         path_dict = {path.stem: path for path in paths}

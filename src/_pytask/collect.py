@@ -25,10 +25,11 @@ from _pytask.exceptions import CollectionError
 from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
-from _pytask.models import DelayedTask
+from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
+from _pytask.nodes import DelayedPathNode
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
@@ -255,18 +256,6 @@ def pytask_collect_task(
             )
             raise ValueError(msg)
 
-        # Collect delayed tasks separately and exit.
-        if hasattr(obj, "pytask_meta") and obj.pytask_meta.is_ready is not None:
-            try:
-                is_ready = obj.pytask_meta.is_ready()
-            except Exception as e:  # noqa: BLE001
-                msg = "The function for the 'is_ready' condition failed."
-                raise ValueError(msg) from e
-
-            if not is_ready:
-                session.delayed_tasks.append(DelayedTask(path=path, name=name, obj=obj))
-                return None
-
         path_nodes = Path.cwd() if path is None else path.parent
 
         # Collect dependencies and products.
@@ -313,9 +302,9 @@ The path '{path}' points to a directory, although only files are allowed."""
 
 
 @hookimpl(trylast=True)
-def pytask_collect_node(  # noqa: C901
+def pytask_collect_node(  # noqa: C901, PLR0912
     session: Session, path: Path, node_info: NodeInfo
-) -> PNode:
+) -> PNode | PDelayedNode:
     """Collect a node of a task as a :class:`pytask.PNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
@@ -334,6 +323,15 @@ def pytask_collect_node(  # noqa: C901
 
     """
     node = node_info.value
+
+    if isinstance(node, DelayedPathNode):
+        if node.root_dir is None:
+            node.root_dir = path
+        if not node.name:
+            node.name = node.root_dir.joinpath(node.pattern).as_posix()
+
+    if isinstance(node, PDelayedNode):
+        return node
 
     if isinstance(node, PythonNode):
         node.node_info = node_info

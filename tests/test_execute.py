@@ -969,6 +969,30 @@ def test_error_when_node_state_throws_error(runner, tmp_path):
     assert "TypeError: unhashable type: 'dict'" in result.output
 
 
+def test_task_is_not_reexecuted(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pathlib import Path
+
+    def task_first() -> Annotated[str, Path("out.txt")]:
+        return "Hello, World!"
+
+    def task_second(path = Path("out.txt")) -> Annotated[str, Path("copy.txt")]:
+        return path.read_text()
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "2  Succeeded" in result.output
+
+    tmp_path.joinpath("out.txt").write_text("Changed text.")
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+    assert "1  Skipped because unchanged" in result.output
+
+
 @pytest.mark.end_to_end()
 def test_task_that_produces_delayed_path_node(tmp_path):
     source = """
@@ -995,11 +1019,10 @@ def test_task_that_produces_delayed_path_node(tmp_path):
 def test_task_that_depends_on_relative_delayed_path_node(tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode, task
+    from pytask import DelayedPathNode
     from pathlib import Path
 
-    @task(is_ready=lambda *x: True)
-    def task_delayed(
+    def task_example(
         paths = DelayedPathNode(pattern="[ab].txt")
     ) -> Annotated[str, Path("merged.txt")]:
         path_dict = {path.stem: path for path in paths}
@@ -1020,13 +1043,12 @@ def test_task_that_depends_on_relative_delayed_path_node(tmp_path):
 def test_task_that_depends_on_delayed_path_node_with_root_dir(tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode, task
+    from pytask import DelayedPathNode
     from pathlib import Path
 
     root_dir = Path(__file__).parent / "subfolder"
 
-    @task(is_ready=lambda *x: True)
-    def task_delayed(
+    def task_example(
         paths = DelayedPathNode(root_dir=root_dir, pattern="[ab].txt")
     ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
         path_dict = {path.stem: path for path in paths}
@@ -1056,7 +1078,7 @@ def test_task_that_depends_on_delayed_task(tmp_path):
         path.joinpath("a.txt").write_text("Hello, ")
         path.joinpath("b.txt").write_text("World!")
 
-    @task(is_ready=lambda *x: Path(__file__).parent.joinpath("a.txt").exists())
+    @task(after=task_produces)
     def task_depends(
         paths = DelayedPathNode(pattern="[ab].txt")
     ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
@@ -1071,27 +1093,3 @@ def test_task_that_depends_on_delayed_task(tmp_path):
     assert len(session.tasks) == 2
     assert len(session.tasks[0].produces["return"]) == 2
     assert len(session.tasks[1].depends_on["paths"]) == 2
-
-
-def test_task_is_not_reexecuted(runner, tmp_path):
-    source = """
-    from typing_extensions import Annotated
-    from pathlib import Path
-
-    def task_first() -> Annotated[str, Path("out.txt")]:
-        return "Hello, World!"
-
-    def task_second(path = Path("out.txt")) -> Annotated[str, Path("copy.txt")]:
-        return path.read_text()
-    """
-    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert "2  Succeeded" in result.output
-
-    tmp_path.joinpath("out.txt").write_text("Changed text.")
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert "1  Succeeded" in result.output
-    assert "1  Skipped because unchanged" in result.output

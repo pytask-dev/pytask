@@ -36,12 +36,11 @@ mapping from paths of modules to a list of tasks per module.
 """
 
 
-def task(  # noqa: PLR0913
+def task(
     name: str | None = None,
     *,
     after: str | Callable[..., Any] | list[Callable[..., Any]] | None = None,
     id: str | None = None,  # noqa: A002
-    is_ready: Callable[..., bool] | None = None,
     kwargs: dict[Any, Any] | None = None,
     produces: PyTree[Any] | None = None,
 ) -> Callable[..., Callable[..., Any]]:
@@ -65,9 +64,6 @@ def task(  # noqa: PLR0913
         id will be generated. See
         :doc:`this tutorial <../tutorials/repeating_tasks_with_different_inputs>` for
         more information.
-    is_ready
-        A callable that indicates when a delayed task is ready. The value is ``None``
-        for a normal task.
     kwargs
         A dictionary containing keyword arguments which are passed to the task when it
         is executed.
@@ -114,7 +110,6 @@ def task(  # noqa: PLR0913
 
         if hasattr(unwrapped, "pytask_meta"):
             unwrapped.pytask_meta.id_ = id
-            unwrapped.pytask_meta.is_ready = is_ready
             unwrapped.pytask_meta.kwargs = parsed_kwargs
             unwrapped.pytask_meta.markers.append(Mark("task", (), {}))
             unwrapped.pytask_meta.name = parsed_name
@@ -123,7 +118,6 @@ def task(  # noqa: PLR0913
         else:
             unwrapped.pytask_meta = CollectionMetadata(
                 id_=id,
-                is_ready=is_ready,
                 kwargs=parsed_kwargs,
                 markers=[Mark("task", (), {})],
                 name=parsed_name,

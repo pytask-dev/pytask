@@ -581,37 +581,6 @@ def test_error_when_using_kwargs_and_node_in_annotation(runner, tmp_path):
     assert "is defined twice" in result.output
 
 
-@pytest.mark.end_to_end()
-def test_task_missing_is_ready_cannot_depend_on_delayed_node(runner, tmp_path):
-    source = """
-    from pytask import DelayedPathNode
-
-    def task_example(a = DelayedPathNode(pattern="*.txt")): ...
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.COLLECTION_FAILED
-    assert "The task 'task_example' is not marked" in result.output
-
-
-@pytest.mark.end_to_end()
-def test_gracefully_fail_with_failing_is_ready_condition(runner, tmp_path):
-    source = """
-    from pytask import task
-
-    def raise_(): raise Exception("ERROR")
-
-    @task(is_ready=raise_)
-    def task_example(): ...
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.COLLECTION_FAILED
-    assert "The function for the 'is_ready' condition failed." in result.output
-
-
 @pytest.mark.parametrize(
     "node",
     [

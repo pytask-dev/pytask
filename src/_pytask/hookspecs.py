@@ -13,7 +13,6 @@ import pluggy
 
 
 if TYPE_CHECKING:
-    from _pytask.node_protocols import PDelayedNode
     from _pytask.models import NodeInfo
     from _pytask.node_protocols import PNode
     import click
@@ -192,13 +191,6 @@ def pytask_collect_task_teardown(session: Session, task: PTask) -> None:
     Use this hook specification to, for example, perform checks on the collected task.
 
     """
-
-
-@hookspec(firstresult=True)
-def pytask_collect_delayed_node(
-    session: Session, path: Path, node_info: NodeInfo
-) -> PDelayedNode | None:
-    """Collect a delayed node."""
 
 
 @hookspec(firstresult=True)

@@ -31,8 +31,6 @@ class CollectionMetadata:
         id will be generated. See
         :doc:`this tutorial <../tutorials/repeating_tasks_with_different_inputs>` for
         more information.
-    is_ready
-        A callable that indicates whether a delayed task is ready.
     kwargs
         A dictionary containing keyword arguments which are passed to the task when it
         is executed.
@@ -49,7 +47,6 @@ class CollectionMetadata:
 
     after: str | list[Callable[..., Any]] = field(factory=list)
     id_: str | None = None
-    is_ready: Callable[..., bool] | None = None
     kwargs: dict[str, Any] = field(factory=dict)
     markers: list[Mark] = field(factory=list)
     name: str | None = None

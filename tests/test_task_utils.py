@@ -67,7 +67,6 @@ def test_default_values_of_pytask_meta():
         ...
 
     assert task_example.pytask_meta.id_ is None
-    assert task_example.pytask_meta.is_ready is None
     assert task_example.pytask_meta.kwargs == {}
     assert task_example.pytask_meta.markers == [Mark("task", (), {})]
     assert task_example.pytask_meta.name == "task_example"
