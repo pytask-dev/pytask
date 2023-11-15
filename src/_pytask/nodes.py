@@ -375,7 +375,6 @@ class DelayedPathNode(PNode):
 
     def state(self) -> None:
         raise NotImplementedError
-        return "0"
 
     def collect(self) -> list[Path]:
         """Collect paths defined by the pattern."""
