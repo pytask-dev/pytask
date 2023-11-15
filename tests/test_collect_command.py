@@ -666,7 +666,7 @@ def test_more_nested_pytree_and_python_node_as_return_with_names(
 @pytest.mark.parametrize(
     "node_def",
     [
-        "paths: Annotated[list[Path], DelayedPathNode(pattern='*.txt'), Product])",
+        "paths: Annotated[List[Path], DelayedPathNode(pattern='*.txt'), Product])",
         "produces=DelayedPathNode(pattern='*.txt'))",
         ") -> Annotated[None, DelayedPathNode(pattern='*.txt')]",
     ],
@@ -674,7 +674,7 @@ def test_more_nested_pytree_and_python_node_as_return_with_names(
 def test_collect_task_with_delayed_path_node_as_product(runner, tmp_path, node_def):
     source = f"""
     from pytask import DelayedPathNode, Product
-    from typing_extensions import Annotated
+    from typing_extensions import Annotated, List
     from pathlib import Path
 
     def task_example({node_def}: ...
