@@ -327,8 +327,14 @@ def pytask_collect_node(  # noqa: C901, PLR0912
     if isinstance(node, DelayedPathNode):
         if node.root_dir is None:
             node.root_dir = path
-        if not node.name:
-            node.name = node.root_dir.joinpath(node.pattern).as_posix()
+        if (
+            not node.name
+            or node.name == node.root_dir.joinpath(node.pattern).as_posix()
+        ):
+            short_root_dir = shorten_path(
+                node.root_dir, session.config["paths"] or (session.config["root"],)
+            )
+            node.name = Path(short_root_dir, node.pattern).as_posix()
 
     if isinstance(node, PDelayedNode):
         return node
