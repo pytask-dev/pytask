@@ -21,6 +21,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`496` makes pytask even lazier. Now, when a task produces a node whose hash
   remains the same, the consecutive tasks are not executed. It remained from when pytask
   relied on timestamps.
+- {pull}`497` removes unnecessary code in the collection of tasks.
 
 ## 0.4.2 - 2023-11-08
 
