@@ -16,7 +16,9 @@ from _pytask.exceptions import NodeNotFoundError
 from pytask import build
 from pytask import cli
 from pytask import ExitCode
+from pytask import PathNode
 from pytask import TaskOutcome
+from pytask import TaskWithoutPath
 
 
 @pytest.mark.xfail(sys.platform == "win32", reason="See #293.")
@@ -991,6 +993,21 @@ def test_task_is_not_reexecuted(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
     assert "1  Skipped because unchanged" in result.output
+
+
+def test_use_functional_interface_with_task(tmp_path):
+    def func(path):
+        path.touch()
+
+    task = TaskWithoutPath(
+        name="task",
+        function=func,
+        produces={"path": PathNode(path=tmp_path / "out.txt")},
+    )
+
+    session = build(tasks=[task])
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").exists()
 
 
 @pytest.mark.end_to_end()

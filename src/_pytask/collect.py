@@ -97,15 +97,6 @@ def _collect_from_paths(session: Session) -> None:
 def _collect_from_tasks(session: Session) -> None:
     """Collect tasks from user provided tasks via the functional interface."""
     for raw_task in session.config.get("tasks", ()):
-        if isinstance(raw_task, PTask):
-            report = session.hook.pytask_collect_task_protocol(
-                session=session,
-                reports=session.collection_reports,
-                path=None,
-                name=None,
-                obj=raw_task,
-            )
-
         if is_task_function(raw_task):
             if not hasattr(raw_task, "pytask_meta"):
                 raw_task = task_decorator()(raw_task)  # noqa: PLW2901
@@ -129,8 +120,8 @@ def _collect_from_tasks(session: Session) -> None:
 
             name = raw_task.pytask_meta.name
 
-        # When a task is not a PTask and a callable, set arbitrary values and it will
-        # pass without errors and not collected.
+        # When a task is not a callable, it can be anything or a PTask. Set arbitrary
+        # values and it will pass without errors and not collected.
         else:
             name = ""
             path = None
