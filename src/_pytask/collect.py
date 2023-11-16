@@ -279,7 +279,7 @@ def pytask_collect_task(
             markers=markers,
             attributes={"collection_id": collection_id, "after": after},
         )
-    if isinstance(obj, PTask):
+    if isinstance(obj, PTask) and not inspect.isclass(obj):
         return obj
     return None
 

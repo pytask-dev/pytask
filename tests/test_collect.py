@@ -679,3 +679,14 @@ def test_scheduling_w_mixed_priorities(runner, tmp_path):
     assert result.exit_code == ExitCode.COLLECTION_FAILED
     assert "Could not collect" in result.output
     assert "The task cannot have" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_module_can_be_collected(runner, tmp_path):
+    source = """
+    from pytask import Task, TaskWithoutPath
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
