@@ -39,6 +39,7 @@ __all__ = [
     "MarkDecorator",
     "MarkGenerator",
     "ParseError",
+    "select_by_after_keyword",
     "select_by_keyword",
     "select_by_mark",
 ]
@@ -166,6 +167,22 @@ def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str]:
             remaining.update(task_and_preceding_tasks(task.signature, dag))
 
     return remaining
+
+
+def select_by_after_keyword(session: Session, after: str) -> set[str]:
+    """Select tasks defined by the after keyword."""
+    try:
+        expression = Expression.compile_(after)
+    except ParseError as e:
+        msg = f"Wrong expression passed to 'after': {after}: {e}"
+        raise ValueError(msg) from None
+
+    ancestors: set[str] = set()
+    for task in session.tasks:
+        if after and expression.evaluate(KeywordMatcher.from_task(task)):
+            ancestors.add(task.signature)
+
+    return ancestors
 
 
 @define(slots=True)

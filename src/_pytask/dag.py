@@ -15,6 +15,7 @@ from _pytask.console import format_task_name
 from _pytask.console import render_to_string
 from _pytask.console import TASK_ICON
 from _pytask.exceptions import ResolvingDependenciesError
+from _pytask.mark import select_by_after_keyword
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PTask
 from _pytask.nodes import PythonNode
@@ -91,6 +92,30 @@ def pytask_dag_create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
     _check_if_tasks_have_the_same_products(dag, session.config["paths"])
 
     return dag
+
+
+@hookimpl
+def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
+    """Create dependencies between tasks when using ``@task(after=...)``."""
+    temporary_id_to_task = {
+        task.attributes["collection_id"]: task
+        for task in session.tasks
+        if "collection_id" in task.attributes
+    }
+    for task in session.tasks:
+        after = task.attributes.get("after")
+        if isinstance(after, list):
+            for temporary_id in after:
+                other_task = temporary_id_to_task[temporary_id]
+                for successor in dag.successors(other_task.signature):
+                    dag.add_edge(successor, task.signature)
+        elif isinstance(after, str):
+            task_signature = task.signature
+            signatures = select_by_after_keyword(session, after)
+            signatures.discard(task_signature)
+            for signature in signatures:
+                for successor in dag.successors(signature):
+                    dag.add_edge(successor, task.signature)
 
 
 def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:

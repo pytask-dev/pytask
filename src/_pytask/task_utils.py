@@ -39,6 +39,7 @@ mapping from paths of modules to a list of tasks per module.
 def task(
     name: str | None = None,
     *,
+    after: str | Callable[..., Any] | list[Callable[..., Any]] | None = None,
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
     produces: PyTree[Any] | None = None,
@@ -55,6 +56,9 @@ def task(
     name
         Use it to override the name of the task that is, by default, the name of the
         callable.
+    after
+        An expression or a task function or a list of task functions that need to be
+        executed before this task can.
     id
         An id for the task if it is part of a parametrization. Otherwise, an automatic
         id will be generated. See
@@ -102,6 +106,7 @@ def task(
 
         parsed_kwargs = {} if kwargs is None else kwargs
         parsed_name = name if isinstance(name, str) else func.__name__
+        parsed_after = _parse_after(after)
 
         if hasattr(unwrapped, "pytask_meta"):
             unwrapped.pytask_meta.name = parsed_name
@@ -109,6 +114,7 @@ def task(
             unwrapped.pytask_meta.markers.append(Mark("task", (), {}))
             unwrapped.pytask_meta.id_ = id
             unwrapped.pytask_meta.produces = produces
+            unwrapped.pytask_meta.after = parsed_after
         else:
             unwrapped.pytask_meta = CollectionMetadata(
                 name=parsed_name,
@@ -116,6 +122,7 @@ def task(
                 markers=[Mark("task", (), {})],
                 id_=id,
                 produces=produces,
+                after=parsed_after,
             )
 
         # Store it in the global variable ``COLLECTED_TASKS`` to avoid garbage
@@ -129,6 +136,30 @@ def task(
     if is_task_function(name) and kwargs is None:
         return task()(name)
     return wrapper
+
+
+def _parse_after(
+    after: str | Callable[..., Any] | list[Callable[..., Any]] | None
+) -> str | list[Callable[..., Any]]:
+    if not after:
+        return []
+    if isinstance(after, str):
+        return after
+    if callable(after):
+        if not hasattr(after, "pytask_meta"):
+            after.pytask_meta = CollectionMetadata()  # type: ignore[attr-defined]
+        return [after.pytask_meta._id]  # type: ignore[attr-defined]
+    if isinstance(after, list):
+        new_after = []
+        for func in after:
+            if not hasattr(func, "pytask_meta"):
+                func.pytask_meta = CollectionMetadata()  # type: ignore[attr-defined]
+            new_after.append(func.pytask_meta._id)  # type: ignore[attr-defined]
+    msg = (
+        "'after' should be an expression string, a task, or a list of class. Got "
+        f"{after}, instead."
+    )
+    raise TypeError(msg)
 
 
 def parse_collected_tasks_with_task_marker(

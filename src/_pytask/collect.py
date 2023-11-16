@@ -254,6 +254,8 @@ def pytask_collect_task(
         )
 
         markers = get_all_marks(obj)
+        collection_id = obj.pytask_meta._id if hasattr(obj, "pytask_meta") else None
+        after = obj.pytask_meta.after if hasattr(obj, "pytask_meta") else []
 
         # Get the underlying function to avoid having different states of the function,
         # e.g. due to pytask_meta, in different layers of the wrapping.
@@ -266,6 +268,7 @@ def pytask_collect_task(
                 depends_on=dependencies,
                 produces=products,
                 markers=markers,
+                attributes={"collection_id": collection_id, "after": after},
             )
         return Task(
             base_name=name,
@@ -274,6 +277,7 @@ def pytask_collect_task(
             depends_on=dependencies,
             produces=products,
             markers=markers,
+            attributes={"collection_id": collection_id, "after": after},
         )
     if isinstance(obj, PTask) and not inspect.isclass(obj):
         return obj
@@ -294,7 +298,7 @@ format of the paths does not match.
 
 Please, align the names to ensure reproducibility on case-sensitive file systems \
 (often Linux or macOS) or disable this error with 'check_casing_of_paths = false' in \
-your pytask configuration file.
+the pyproject.toml file.
 
 Hint: If parts of the path preceding your project directory are not properly \
 formatted, check whether you need to call `.resolve()` on `SRC`, `BLD` or other paths \
