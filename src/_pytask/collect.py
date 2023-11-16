@@ -275,7 +275,7 @@ def pytask_collect_task(
             produces=products,
             markers=markers,
         )
-    if isinstance(obj, PTask):
+    if isinstance(obj, PTask) and not inspect.isclass(obj):
         return obj
     return None
 
