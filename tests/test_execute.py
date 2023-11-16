@@ -1010,6 +1010,46 @@ def test_use_functional_interface_with_task(tmp_path):
     assert tmp_path.joinpath("out.txt").exists()
 
 
+def test_collect_task(runner, tmp_path):
+    source = """
+    from pytask import Task, PathNode
+    from pathlib import Path
+
+    def func(path): path.touch()
+
+    task_create_file = Task(
+        base_name="task",
+        function=func,
+        path=Path(__file__),
+        produces={"path": PathNode(path=Path(__file__).parent / "out.txt")},
+    )
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").exists()
+
+
+def test_collect_task_without_path(runner, tmp_path):
+    source = """
+    from pytask import TaskWithoutPath, PathNode
+    from pathlib import Path
+
+    def func(path): path.touch()
+
+    task_create_file = TaskWithoutPath(
+        name="task",
+        function=func,
+        produces={"path": PathNode(path=Path(__file__).parent / "out.txt")},
+    )
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").exists()
+
+
 @pytest.mark.end_to_end()
 def test_task_that_produces_delayed_path_node(tmp_path):
     source = """

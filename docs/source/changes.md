@@ -24,6 +24,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   remains the same, the consecutive tasks are not executed. It remained from when pytask
   relied on timestamps.
 - {pull}`497` removes unnecessary code in the collection of tasks.
+- {pull}`498` fixes an error when using {class}`~pytask.Task` and
+  {class}`~pytask.TaskWithoutPath` in task modules.
 
 ## 0.4.2 - 2023-11-08
 

@@ -294,7 +294,7 @@ def pytask_collect_task(
                 "is_generator": is_generator,
             },
         )
-    if isinstance(obj, PTask):
+    if isinstance(obj, PTask) and not inspect.isclass(obj):
         return obj
     return None
 
