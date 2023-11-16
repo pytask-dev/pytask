@@ -119,6 +119,7 @@ def task(  # noqa: PLR0913
             unwrapped.pytask_meta.markers.append(Mark("task", (), {}))
             unwrapped.pytask_meta.name = parsed_name
             unwrapped.pytask_meta.produces = produces
+            unwrapped.pytask_meta.after = parsed_after
         else:
             unwrapped.pytask_meta = CollectionMetadata(
                 after=parsed_after,
