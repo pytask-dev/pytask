@@ -1313,6 +1313,7 @@ def test_delayed_task_generation_with_task_node(tmp_path):
         task_copy = TaskWithoutPath(
             name="task_copy",
             function=lambda path: path.read_text(),
+            depends_on={"path": PathNode(path=path)},
             produces={"return": PathNode(path=path.with_name(path.stem + "-copy.txt"))},
         )
         return task_copy
