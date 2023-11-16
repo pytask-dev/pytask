@@ -79,3 +79,8 @@ def _raise_error_when_task_functions_are_duplicated(
         f"the '@task(...)' decorator.\n\n{flat_tree}"
     )
     raise ValueError(msg)
+
+
+@hookimpl
+def pytask_unconfigure() -> None:
+    COLLECTED_TASKS.clear()

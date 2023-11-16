@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import inspect
 import sys
 from typing import Any
+from typing import Callable
+from typing import Mapping
 from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
@@ -14,9 +17,11 @@ from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.outcomes import CollectionOutcome
 from _pytask.reports import ExecutionReport
+from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import parse_collected_tasks_with_task_marker
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
+from _pytask.typing import is_task_function
 
 if TYPE_CHECKING:
     from _pytask.session import Session
@@ -40,8 +45,13 @@ def _safe_load(node: PNode, task: PTask, is_product: bool) -> Any:
         raise NodeLoadError(msg) from e
 
 
+_ERROR_TASK_GENERATOR_RETURN = """\
+Could not collect return of task generator. The return should be a task function or a \
+task class but received {obj} instead."""
+
+
 @hookimpl
-def pytask_execute_task(session: Session, task: PTask) -> None:
+def pytask_execute_task(session: Session, task: PTask) -> None:  # noqa: C901, PLR0912
     """Execute task generators and collect the tasks."""
     is_generator = task.attributes.get("is_generator", False)
     if is_generator:
@@ -49,9 +59,33 @@ def pytask_execute_task(session: Session, task: PTask) -> None:
         for name, value in task.depends_on.items():
             kwargs[name] = tree_map(lambda x: _safe_load(x, task, False), value)
 
-        new_tasks = list(task.execute(**kwargs))
+        out = task.execute(**kwargs)
+        if inspect.isgenerator(out):
+            out = list(out)
 
-        name_to_function = parse_collected_tasks_with_task_marker(new_tasks)
+        # Parse tasks created with @task.
+        name_to_function: Mapping[str, Callable[..., Any] | PTask]
+        if isinstance(task, PTaskWithPath) and task.path in COLLECTED_TASKS:
+            tasks = COLLECTED_TASKS.pop(task.path)
+            name_to_function = parse_collected_tasks_with_task_marker(tasks)
+        else:
+            # Parse individual tasks.
+            if is_task_function(out) or isinstance(out, PTask):
+                out = [out]
+            # Parse tasks from iterable.
+            if hasattr(out, "__iter__"):
+                name_to_function = {}
+                for obj in out:
+                    if is_task_function(obj):
+                        name_to_function[obj.__name__] = obj
+                    elif isinstance(obj, PTask):
+                        name_to_function[obj.name] = obj
+                    else:
+                        msg = _ERROR_TASK_GENERATOR_RETURN.format(obj)
+                        raise ValueError(msg)
+            else:
+                msg = _ERROR_TASK_GENERATOR_RETURN.format(out)
+                raise ValueError(msg)
 
         new_reports = []
         for name, function in name_to_function.items():

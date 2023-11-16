@@ -1168,6 +1168,42 @@ def test_delayed_task_generation(tmp_path):
                 path: Path = path
             ) -> Annotated[str, path.with_name(path.stem + "-copy.txt")]:
                 return path.read_text()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 4
+    assert len(session.tasks[0].produces["return"]) == 2
+    assert len(session.tasks[1].depends_on["paths"]) == 2
+    assert tmp_path.joinpath("a-copy.txt").exists()
+    assert tmp_path.joinpath("b-copy.txt").exists()
+
+
+@pytest.mark.end_to_end()
+def test_delayed_task_generation_with_generator(tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DelayedPathNode, task
+    from pathlib import Path
+
+    def task_produces() -> Annotated[None, DelayedPathNode(pattern="[ab].txt")]:
+        path = Path(__file__).parent
+        path.joinpath("a.txt").write_text("Hello, ")
+        path.joinpath("b.txt").write_text("World!")
+
+    @task(after=task_produces, generator=True)
+    def task_depends(
+        paths = DelayedPathNode(pattern="[ab].txt")
+    ) -> ...:
+        for path in paths:
+
+            @task
+            def task_copy(
+                path: Path = path
+            ) -> Annotated[str, path.with_name(path.stem + "-copy.txt")]:
+                return path.read_text()
 
             yield task_copy
     """
@@ -1181,3 +1217,72 @@ def test_delayed_task_generation(tmp_path):
     assert len(session.tasks[1].depends_on["paths"]) == 2
     assert tmp_path.joinpath("a-copy.txt").exists()
     assert tmp_path.joinpath("b-copy.txt").exists()
+
+
+@pytest.mark.end_to_end()
+def test_delayed_task_generation_with_single_function(tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DelayedPathNode, task
+    from pathlib import Path
+
+    def task_produces() -> Annotated[None, DelayedPathNode(pattern="[a].txt")]:
+        path = Path(__file__).parent
+        path.joinpath("a.txt").write_text("Hello, ")
+
+    @task(after=task_produces, generator=True)
+    def task_depends(
+        paths = DelayedPathNode(pattern="[a].txt")
+    ) -> ...:
+        path = paths[0]
+
+        def task_copy(
+            path: Path = path
+        ) -> Annotated[str, path.with_name(path.stem + "-copy.txt")]:
+            return path.read_text()
+        return task_copy
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 3
+    assert len(session.tasks[0].produces["return"]) == 1
+    assert len(session.tasks[1].depends_on["paths"]) == 1
+    assert tmp_path.joinpath("a-copy.txt").exists()
+
+
+@pytest.mark.end_to_end()
+def test_delayed_task_generation_with_task_node(tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DelayedPathNode, TaskWithoutPath, task, PathNode
+    from pathlib import Path
+
+    def task_produces() -> Annotated[None, DelayedPathNode(pattern="[a].txt")]:
+        path = Path(__file__).parent
+        path.joinpath("a.txt").write_text("Hello, ")
+
+    @task(after=task_produces, generator=True)
+    def task_depends(
+        paths = DelayedPathNode(pattern="[a].txt")
+    ) -> ...:
+        path = paths[0]
+
+        task_copy = TaskWithoutPath(
+            name="task_copy",
+            function=lambda path: path.read_text(),
+            produces={"return": PathNode(path=path.with_name(path.stem + "-copy.txt"))},
+        )
+        return task_copy
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 3
+    assert len(session.tasks[0].produces["return"]) == 1
+    assert len(session.tasks[1].depends_on["paths"]) == 1
+    assert tmp_path.joinpath("a-copy.txt").exists()
