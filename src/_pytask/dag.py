@@ -16,7 +16,6 @@ from _pytask.console import render_to_string
 from _pytask.console import TASK_ICON
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import select_by_after_keyword
-from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PTask
 from _pytask.nodes import PythonNode
@@ -57,9 +56,6 @@ def pytask_dag_create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
 
     def _add_dependency(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
         """Add a dependency to the DAG."""
-        if isinstance(node, PDelayedNode):
-            return
-
         dag.add_node(node.signature, node=node)
         dag.add_edge(node.signature, task.signature)
 
@@ -71,9 +67,6 @@ def pytask_dag_create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
 
     def _add_product(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
         """Add a product to the DAG."""
-        if isinstance(node, PDelayedNode):
-            return
-
         dag.add_node(node.signature, node=node)
         dag.add_edge(task.signature, node.signature)
 

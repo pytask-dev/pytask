@@ -1142,7 +1142,7 @@ def test_gracefully_fail_when_dag_raises_error(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.FAILED
-    assert "cycle" in result.output
+    assert "There are some tasks which produce" in result.output
 
 
 @pytest.mark.end_to_end()
@@ -1157,12 +1157,13 @@ def test_delayed_task_generation(tmp_path):
         path.joinpath("a.txt").write_text("Hello, ")
         path.joinpath("b.txt").write_text("World!")
 
-    @task(after=task_produces)
+    @task(after=task_produces, generator=True)
     def task_depends(
         paths = DelayedPathNode(pattern="[ab].txt")
     ) -> ...:
         for path in paths:
 
+            @task
             def task_copy(
                 path: Path = path
             ) -> Annotated[str, path.with_name(path.stem + "-copy.txt")]:
@@ -1175,6 +1176,8 @@ def test_delayed_task_generation(tmp_path):
     session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
-    assert len(session.tasks) == 2
+    assert len(session.tasks) == 4
     assert len(session.tasks[0].produces["return"]) == 2
     assert len(session.tasks[1].depends_on["paths"]) == 2
+    assert tmp_path.joinpath("a-copy.txt").exists()
+    assert tmp_path.joinpath("b-copy.txt").exists()

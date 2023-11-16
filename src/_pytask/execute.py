@@ -20,6 +20,7 @@ from _pytask.dag_utils import node_and_neighbors
 from _pytask.dag_utils import TopologicalSorter
 from _pytask.database_utils import has_node_changed
 from _pytask.database_utils import update_states_in_database
+from _pytask.delayed_utils import collect_delayed_products
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
@@ -92,8 +93,6 @@ def pytask_execute_build(session: Session) -> bool | None:
             session.execution_reports.append(report)
             session.scheduler.done(task_name)
 
-            session.hook.pytask_execute_collect_delayed_tasks(session=session)
-
             if session.should_stop:
                 return True
         return True
@@ -123,7 +122,7 @@ def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionRepo
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task_setup(session: Session, task: PTask) -> None:
+def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C901
     """Set up the execution of a task.
 
     1. Check whether all dependencies of a task are available.
@@ -151,12 +150,17 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
                     )
                 raise NodeNotFoundError(msg)
 
+            # Skip delayed nodes that are products since they do not have a state.
+            if node_signature not in predecessors and isinstance(node, PDelayedNode):
+                continue
+
             has_changed = has_node_changed(task=task, node=node)
             if has_changed:
                 needs_to_be_executed = True
                 break
 
     if not needs_to_be_executed:
+        collect_delayed_products(session, task)
         raise SkippedUnchanged
 
     # Create directory for product if it does not exist. Maybe this should be a `setup`
@@ -218,6 +222,7 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
 @hookimpl(trylast=True)
 def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
     """Check if nodes are produced by a task."""
+    collect_delayed_products(session, task)
     missing_nodes = [node for node in tree_leaves(task.produces) if not node.state()]
     if missing_nodes:
         paths = session.config["paths"]
@@ -228,7 +233,7 @@ def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
         raise NodeNotFoundError(formatted)
 
 
-@hookimpl(trylast=True)
+@hookimpl
 def pytask_execute_task_process_report(
     session: Session, report: ExecutionReport
 ) -> bool:
