@@ -1117,7 +1117,7 @@ def test_task_that_depends_on_delayed_task(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_gracefully_fail_when_dag_raises_error(tmp_path):
+def test_gracefully_fail_when_dag_raises_error(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DelayedPathNode, task
@@ -1137,12 +1137,12 @@ def test_gracefully_fail_when_dag_raises_error(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = build(paths=tmp_path)
-    assert session.exit_code == ExitCode.OK
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
 
-    session = build(paths=tmp_path)
-    assert session.exit_code == ExitCode.FAILED
-    assert session.execution_reports[1].outcome == TaskOutcome.FAIL
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+    assert "cycle" in result.output
 
 
 @pytest.mark.end_to_end()
