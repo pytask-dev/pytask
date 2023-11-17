@@ -16,6 +16,7 @@ from _pytask.nodes import Task
 from _pytask.reports import ExecutionReport
 from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_map_with_path
+from _pytask.typing import is_task_generator
 
 if TYPE_CHECKING:
     from _pytask.session import Session
@@ -89,6 +90,9 @@ def collect_delayed_products(session: Session, task: PTask) -> None:
     (skipped unchanged, persisted, etc..).
 
     """
+    if is_task_generator(task):
+        return
+
     # Replace delayed nodes with their actually resolved nodes.
     task.produces = tree_map_with_path(  # type: ignore[assignment]
         lambda p, x: collect_delayed_nodes(session, task, x, p), task.produces

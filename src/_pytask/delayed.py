@@ -22,6 +22,8 @@ from _pytask.task_utils import parse_collected_tasks_with_task_marker
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
 from _pytask.typing import is_task_function
+from _pytask.typing import is_task_generator
+from pytask import TaskOutcome
 
 if TYPE_CHECKING:
     from _pytask.session import Session
@@ -53,11 +55,15 @@ task class but received {obj} instead."""
 @hookimpl
 def pytask_execute_task(session: Session, task: PTask) -> None:  # noqa: C901, PLR0912
     """Execute task generators and collect the tasks."""
-    is_generator = task.attributes.get("is_generator", False)
-    if is_generator:
+    if is_task_generator(task):
         kwargs = {}
         for name, value in task.depends_on.items():
             kwargs[name] = tree_map(lambda x: _safe_load(x, task, False), value)
+
+        parameters = inspect.signature(task.function).parameters
+        for name, value in task.produces.items():
+            if name in parameters:
+                kwargs[name] = tree_map(lambda x: _safe_load(x, task, True), value)
 
         out = task.execute(**kwargs)
         if inspect.isgenerator(out):
@@ -118,5 +124,20 @@ def pytask_execute_task(session: Session, task: PTask) -> None:  # noqa: C901, P
 
 
 @hookimpl
+def pytask_execute_task_process_report(report: ExecutionReport) -> bool | None:
+    """Prevent update of states for successful task generators.
+
+    It also leads to task generators always being executed, but we have an additional
+    switch implemented in ``pytask_execute_task_setup``.
+
+    """
+    task = report.task
+    if report.outcome == TaskOutcome.SUCCESS and is_task_generator(task):
+        return True
+    return None
+
+
+@hookimpl
 def pytask_unconfigure() -> None:
+    """Clear the global variable after execution."""
     TASKS_WITH_DELAYED_NODES.clear()

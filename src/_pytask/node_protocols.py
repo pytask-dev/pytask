@@ -101,14 +101,41 @@ class PTaskWithPath(PTask, Protocol):
 
 
 @runtime_checkable
-class PDelayedNode(Protocol):
+class PDelayedNode(PNode, Protocol):
     """A protocol for delayed nodes.
 
-    Delayed nodes are nodes that define how nodes look like instead of the actual nodes.
-    Situations like this can happen if tasks produce an unknown amount of nodes, but the
-    style is known.
+    Delayed nodes are called delayed because they are resolved to actual nodes,
+    :class:`PNode`, right before a task is executed as a dependency and after the task
+    is executed as a product.
+
+    Delayed nodes are nodes that define how the actual nodes look like. They can be
+    useful when, for example, a task produces an unknown amount of nodes because it
+    downloads some files.
 
     """
 
+    def load(self, is_product: bool = False) -> Any:
+        """The load method of a delayed node.
+
+        A delayed node will never be loaded as a dependency since it would be collected
+        before.
+
+        It is possible to load a delayed node as a dependency so that it can inject
+        basic information about it in the task. For example,
+        :meth:`pytask.DelayedPathNode` injects the root directory.
+
+        """
+        if is_product:
+            ...
+        raise NotImplementedError
+
+    def save(self, value: Any) -> None:
+        """A delayed node can never save a value."""
+        raise NotImplementedError
+
+    def state(self) -> None:
+        """A delayed node has not state."""
+        raise NotImplementedError
+
     def collect(self) -> list[Any]:
-        """Collect the objects that are defined by the fuzzy node."""
+        """Collect the objects that are defined by the delayed nodes."""

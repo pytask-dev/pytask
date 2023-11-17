@@ -1327,3 +1327,56 @@ def test_delayed_task_generation_with_task_node(tmp_path):
     assert len(session.tasks[0].produces["return"]) == 1
     assert len(session.tasks[1].depends_on["paths"]) == 1
     assert tmp_path.joinpath("a-copy.txt").exists()
+
+
+@pytest.mark.end_to_end()
+def test_gracefully_fail_when_task_generator_raises_error(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DelayedPathNode, task, Product
+    from pathlib import Path
+
+    @task(generator=True)
+    def task_example(
+        root_dir: Annotated[Path, DelayedPathNode(pattern="[a].txt"), Product]
+    ) -> ...:
+        raise Exception
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+    assert "1  Collected task" in result.output
+    assert "1  Failed" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_use_delayed_node_as_product_in_generator_without_rerun(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DelayedPathNode, task, Product
+    from pathlib import Path
+
+    @task(generator=True)
+    def task_example(
+        root_dir: Annotated[Path, DelayedPathNode(pattern="[ab].txt"), Product]
+    ) -> ...:
+        for path in (root_dir / "a.txt", root_dir / "b.txt"):
+
+            @task
+            def create_file() -> Annotated[Path, path]:
+                return "content"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "3  Collected task" in result.output
+    assert "3  Succeeded" in result.output
+
+    # No rerun.
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "3  Collected task" in result.output
+    assert "1  Succeeded" in result.output
+    assert "2  Skipped because unchanged" in result.output

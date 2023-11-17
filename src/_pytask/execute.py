@@ -40,6 +40,7 @@ from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_structure
+from _pytask.typing import is_task_generator
 from rich.text import Text
 
 
@@ -134,7 +135,10 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
 
     dag = session.dag
 
-    needs_to_be_executed = session.config["force"]
+    # Task generators are always executed since their states are not updated, but we
+    # skip the checks as well.
+    needs_to_be_executed = session.config["force"] or is_task_generator(task)
+
     if not needs_to_be_executed:
         predecessors = set(dag.predecessors(task.signature)) | {task.signature}
         for node_signature in node_and_neighbors(dag, task.signature):
@@ -222,6 +226,9 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
 @hookimpl(trylast=True)
 def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
     """Check if nodes are produced by a task."""
+    if is_task_generator(task):
+        return
+
     collect_delayed_products(session, task)
     missing_nodes = [node for node in tree_leaves(task.produces) if not node.state()]
     if missing_nodes:
