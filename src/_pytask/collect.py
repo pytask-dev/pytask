@@ -510,14 +510,7 @@ def pytask_collect_log(
     """Log collection."""
     session.collection_end = time.time()
 
-    msg = f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}."
-    if session.delayed_tasks:
-        n_delayed_tasks = len(session.delayed_tasks)
-        msg = (
-            msg[:-1] + f" and {n_delayed_tasks} delayed "
-            f"task{'' if n_delayed_tasks == 1 else 's'}."
-        )
-    console.print(msg)
+    console.print(f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}.")
 
     failed_reports = [r for r in reports if r.outcome == CollectionOutcome.FAIL]
     if failed_reports:

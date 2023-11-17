@@ -66,6 +66,8 @@ def test_default_values_of_pytask_meta():
     def task_example():
         ...
 
+    assert task_example.pytask_meta.after == []
+    assert not task_example.pytask_meta.generator
     assert task_example.pytask_meta.id_ is None
     assert task_example.pytask_meta.kwargs == {}
     assert task_example.pytask_meta.markers == [Mark("task", (), {})]

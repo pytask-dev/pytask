@@ -115,3 +115,8 @@ def pytask_execute_task(session: Session, task: PTask) -> None:  # noqa: C901, P
         session.collection_reports.append(report)
 
         recreate_dag(session, task)
+
+
+@hookimpl
+def pytask_unconfigure() -> None:
+    TASKS_WITH_DELAYED_NODES.clear()

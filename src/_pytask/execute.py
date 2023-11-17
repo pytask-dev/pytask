@@ -233,7 +233,7 @@ def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
         raise NodeNotFoundError(formatted)
 
 
-@hookimpl
+@hookimpl(trylast=True)
 def pytask_execute_task_process_report(
     session: Session, report: ExecutionReport
 ) -> bool:

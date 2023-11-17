@@ -119,11 +119,7 @@ class DataCatalog:
                 session=self._session,
                 path=self._instance_path,
                 node_info=NodeInfo(
-                    arg_name=name,
-                    path=(),
-                    value=node,
-                    task_path=None,
-                    task_name="",
+                    arg_name=name, path=(), value=node, task_path=None, task_name=""
                 ),
             )
             if collected_node is None:  # pragma: no cover
