@@ -16,7 +16,6 @@ except ImportError:
     from pluggy._hooks import _HookRelay as HookRelay
 
 if TYPE_CHECKING:
-    from _pytask.models import DelayedTask
     from _pytask.node_protocols import PTask
     from _pytask.warnings_utils import WarningReport
     from _pytask.reports import CollectionReport
@@ -36,8 +35,6 @@ class Session:
         Reports for collected items.
     dag
         The DAG of the project.
-    delayed_tasks
-        List of all delayed tasks that are collected once they are ready.
     hook
         Holds all hooks collected by pytask.
     tasks
@@ -58,7 +55,6 @@ class Session:
     config: dict[str, Any] = field(factory=dict)
     collection_reports: list[CollectionReport] = field(factory=list)
     dag: nx.DiGraph = field(factory=nx.DiGraph)
-    delayed_tasks: list[DelayedTask] = field(factory=list)
     hook: HookRelay = field(factory=HookRelay)
     tasks: list[PTask] = field(factory=list)
     dag_report: DagReport | None = None

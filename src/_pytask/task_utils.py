@@ -123,7 +123,7 @@ def task(  # noqa: PLR0913
         else:
             unwrapped.pytask_meta = CollectionMetadata(
                 after=parsed_after,
-                generator=generator,
+                is_generator=generator,
                 id_=id,
                 kwargs=parsed_kwargs,
                 markers=[Mark("task", (), {})],

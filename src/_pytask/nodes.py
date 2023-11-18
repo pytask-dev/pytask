@@ -10,6 +10,7 @@ from typing import Callable
 from typing import TYPE_CHECKING
 
 from _pytask._hashlib import hash_value
+from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
@@ -333,8 +334,8 @@ class PickleNode:
 
 
 @define(kw_only=True)
-class DelayedPathNode(PNode):
-    """A class for delayed :class:`PathNode`s.
+class DelayedPathNode(PDelayedNode):
+    """A class for delayed :class:`PathNode`.
 
     Attributes
     ----------
@@ -346,11 +347,6 @@ class DelayedPathNode(PNode):
         means "this directory and all subdirectories, recursively".
     name
         The name of the node.
-
-    .. warning::
-
-        The node inherits from PNode although it does not provide a state, load, and
-        save method.
 
     """
 

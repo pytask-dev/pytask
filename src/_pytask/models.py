@@ -46,7 +46,7 @@ class CollectionMetadata:
     """
 
     after: str | list[Callable[..., Any]] = field(factory=list)
-    generator: bool = False
+    is_generator: bool = False
     id_: str | None = None
     kwargs: dict[str, Any] = field(factory=dict)
     markers: list[Mark] = field(factory=list)
@@ -61,9 +61,3 @@ class NodeInfo(NamedTuple):
     task_path: Path | None
     task_name: str
     value: Any
-
-
-class DelayedTask(NamedTuple):
-    path: Path | None
-    name: str
-    obj: Any
