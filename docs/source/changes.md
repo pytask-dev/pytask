@@ -25,6 +25,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`497` removes unnecessary code in the collection of tasks.
 - {pull}`498` fixes an error when using {class}`~pytask.Task` and
   {class}`~pytask.TaskWithoutPath` in task modules.
+- {pull}`500` refactors the dependencies for tests.
 
 ## 0.4.2 - 2023-11-08
 
