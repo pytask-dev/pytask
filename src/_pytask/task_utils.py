@@ -113,7 +113,7 @@ def task(  # noqa: PLR0913
 
         if hasattr(unwrapped, "pytask_meta"):
             unwrapped.pytask_meta.after = parsed_after
-            unwrapped.pytask_meta.generator = generator
+            unwrapped.pytask_meta.is_generator = generator
             unwrapped.pytask_meta.id_ = id
             unwrapped.pytask_meta.kwargs = parsed_kwargs
             unwrapped.pytask_meta.markers.append(Mark("task", (), {}))

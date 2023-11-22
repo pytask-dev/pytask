@@ -17,6 +17,7 @@ capture_warnings
 how_to_influence_build_order
 hashing_inputs_of_tasks
 using_task_returns
+delayed_tasks
 writing_custom_nodes
 how_to_write_a_plugin
 the_data_catalog

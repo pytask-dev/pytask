@@ -410,6 +410,8 @@ def task_fit_model(depends_on, produces):
 :::
 ::::
 
+(after)=
+
 ## Depending on a task
 
 In some situations you want to define a task depending on another task without

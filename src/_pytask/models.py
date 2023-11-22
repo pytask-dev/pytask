@@ -31,6 +31,8 @@ class CollectionMetadata:
         id will be generated. See
         :doc:`this tutorial <../tutorials/repeating_tasks_with_different_inputs>` for
         more information.
+    is_generator
+        An indicator for whether a task generates other tasks or not.
     kwargs
         A dictionary containing keyword arguments which are passed to the task when it
         is executed.
