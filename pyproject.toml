@@ -69,6 +69,8 @@ docs = [
   "sphinx-toolbox",
   "sphinxext-opengraph",
 ]
+test = ["pytest", "pytest-cov", "pytest-xdist", "syrupy", "deepdiff", "pexpect"]
+
 [project.urls]
 Changelog = "https://pytask-dev.readthedocs.io/en/stable/changes.html"
 Documentation = "https://pytask-dev.readthedocs.io/en/stable"
