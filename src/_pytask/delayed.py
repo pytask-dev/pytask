@@ -1,3 +1,4 @@
+"""Contains hook implementations for provisional nodes and task generators."""
 from __future__ import annotations
 
 import inspect

@@ -99,7 +99,7 @@ repos:
                 docs/source/how_to_guides/using_task_returns.md|
                 docs/source/how_to_guides/writing_custom_nodes.md|
                 docs/source/how_to_guides/hashing_inputs_of_tasks.md|
-                docs/source/how_to_guides/delayed_tasks.md|
+                docs/source/how_to_guides/provisional_nodes_and_task_generators.md|
                 docs/source/reference_guides/hookspecs.md|
                 docs/source/tutorials/configuration.md|
                 docs/source/tutorials/debugging.md|

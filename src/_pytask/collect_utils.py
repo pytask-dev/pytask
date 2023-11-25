@@ -293,7 +293,7 @@ def parse_dependencies_from_task_function(
         if parameter_name in parameters_with_product_annot:
             continue
 
-        nodes = _collect_delayed_nodes_and_nodes(
+        nodes = _collect_nodes_and_provisional_nodes(
             collect_dependency,
             session,
             node_path,
@@ -435,7 +435,7 @@ def parse_products_from_task_function(  # noqa: C901
             value = kwargs.get(parameter_name) or parameters_with_node_annot.get(
                 parameter_name
             )
-            collected_products = _collect_delayed_nodes_and_nodes(
+            collected_products = _collect_nodes_and_provisional_nodes(
                 _collect_product,
                 session,
                 node_path,
@@ -449,7 +449,7 @@ def parse_products_from_task_function(  # noqa: C901
     task_produces = obj.pytask_meta.produces if hasattr(obj, "pytask_meta") else None
     if task_produces:
         has_task_decorator = True
-        collected_products = _collect_delayed_nodes_and_nodes(
+        collected_products = _collect_nodes_and_provisional_nodes(
             _collect_product,
             session,
             node_path,
@@ -477,7 +477,7 @@ def parse_products_from_task_function(  # noqa: C901
     return out
 
 
-def _collect_delayed_nodes_and_nodes(  # noqa: PLR0913
+def _collect_nodes_and_provisional_nodes(  # noqa: PLR0913
     collection_func: Callable[..., Any],
     session: Session,
     node_path: Path,

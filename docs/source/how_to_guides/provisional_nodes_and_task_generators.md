@@ -1,4 +1,4 @@
-# Delayed tasks
+# Provisional nodes and task generators
 
 pytask's execution model can usually be separated into three phases.
 

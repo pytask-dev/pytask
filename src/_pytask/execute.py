@@ -154,7 +154,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
                     )
                 raise NodeNotFoundError(msg)
 
-            # Skip delayed nodes that are products since they do not have a state.
+            # Skip provisional nodes that are products since they do not have a state.
             if node_signature not in predecessors and isinstance(
                 node, PProvisionalNode
             ):
