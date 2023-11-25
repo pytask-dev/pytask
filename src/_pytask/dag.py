@@ -151,7 +151,7 @@ def _format_cycles(dag: nx.DiGraph, cycles: list[tuple[str, ...]]) -> str:
         node = dag.nodes[x].get("task") or dag.nodes[x].get("node")
         if isinstance(node, PTask):
             short_name = format_task_name(node, editor_url_scheme="no_link").plain
-        elif isinstance(node, PNode):
+        elif isinstance(node, (PNode, PProvisionalNode)):
             short_name = node.name
         lines.extend((short_name, "     " + ARROW_DOWN_ICON))
     # Join while removing last arrow.

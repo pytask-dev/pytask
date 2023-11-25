@@ -308,7 +308,10 @@ def parse_dependencies_from_task_function(
         are_all_nodes_python_nodes_without_hash = all(
             isinstance(x, PythonNode) and not x.hash for x in tree_leaves(nodes)
         )
-        if not isinstance(nodes, PNode) and are_all_nodes_python_nodes_without_hash:
+        if (
+            not isinstance(nodes, (PNode, PProvisionalNode))
+            and are_all_nodes_python_nodes_without_hash
+        ):
             node_name = create_name_of_python_node(
                 NodeInfo(
                     arg_name=parameter_name,
@@ -324,7 +327,9 @@ def parse_dependencies_from_task_function(
     return dependencies
 
 
-def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, PNode]:
+def _find_args_with_node_annotation(
+    func: Callable[..., Any]
+) -> dict[str, PNode | PProvisionalNode]:
     """Find args with node annotations."""
     annotations = get_annotations(func, eval_str=True)
     metas = {
@@ -568,7 +573,7 @@ def _collect_decorator_node(
 
 def collect_dependency(
     session: Session, path: Path, name: str, node_info: NodeInfo
-) -> PNode:
+) -> PNode | PProvisionalNode:
     """Collect nodes for a task.
 
     Raises
@@ -612,7 +617,7 @@ def _collect_product(
     path: Path,
     task_name: str,
     node_info: NodeInfo,
-) -> PNode:
+) -> PNode | PProvisionalNode:
     """Collect products for a task.
 
     Defining products with strings is only allowed when using the decorator. Parameter

@@ -17,6 +17,7 @@ from rich.text import Text
 
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import PProvisionalNode
     from _pytask.node_protocols import PNode
     from _pytask.node_protocols import PTask
     from rich.console import Console
@@ -29,7 +30,7 @@ class CollectionReport:
     """A collection report for a task."""
 
     outcome: CollectionOutcome
-    node: PTask | PNode | None = None
+    node: PTask | PNode | PProvisionalNode | None = None
     exc_info: OptionalExceptionInfo | None = None
 
     @classmethod
@@ -37,7 +38,7 @@ class CollectionReport:
         cls: type[CollectionReport],
         outcome: CollectionOutcome,
         exc_info: OptionalExceptionInfo,
-        node: PTask | PNode | None = None,
+        node: PTask | PNode | PProvisionalNode | None = None,
     ) -> CollectionReport:
         return cls(outcome=outcome, node=node, exc_info=exc_info)
 
