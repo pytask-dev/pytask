@@ -10,9 +10,9 @@ from typing import Callable
 from typing import TYPE_CHECKING
 
 from _pytask._hashlib import hash_value
-from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import hash_path
@@ -334,7 +334,7 @@ class PickleNode:
 
 
 @define(kw_only=True)
-class DelayedPathNode(PDelayedNode):
+class DelayedPathNode(PProvisionalNode):
     """A class for delayed :class:`PathNode`.
 
     Attributes

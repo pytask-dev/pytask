@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING
 from _pytask.collect_utils import collect_dependency
 from _pytask.dag_utils import TopologicalSorter
 from _pytask.models import NodeInfo
-from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import Task
@@ -22,26 +22,26 @@ if TYPE_CHECKING:
     from _pytask.session import Session
 
 
-TASKS_WITH_DELAYED_NODES = set()
+TASKS_WITH_PROVISIONAL_NODES = set()
 
 
-def collect_delayed_nodes(
+def collect_provisional_nodes(
     session: Session, task: PTask, node: Any, path: tuple[Any, ...]
 ) -> PyTree[PNode]:
-    """Collect delayed nodes.
+    """Collect provisional nodes.
 
     1. Call the :meth:`pytask.PDelayedNode.collect` to receive the raw nodes.
     2. Collect the raw nodes as usual.
 
     """
-    if not isinstance(node, PDelayedNode):
+    if not isinstance(node, PProvisionalNode):
         return node
 
     # Add task to register to update the DAG after the task is executed.
-    TASKS_WITH_DELAYED_NODES.add(task.signature)
+    TASKS_WITH_PROVISIONAL_NODES.add(task.signature)
 
-    # Collect delayed nodes and receive raw nodes.
-    delayed_nodes = node.collect()
+    # Collect provisional nodes and receive raw nodes.
+    provisional_nodes = node.collect()
 
     # Collect raw nodes.
     node_path = task.path.parent if isinstance(task, PTaskWithPath) else Path.cwd()
@@ -62,7 +62,7 @@ def collect_delayed_nodes(
                 task_name=task_name,
             ),
         ),
-        delayed_nodes,
+        provisional_nodes,
     )
 
 
@@ -83,8 +83,8 @@ def recreate_dag(session: Session, task: PTask) -> None:
         session.should_stop = True
 
 
-def collect_delayed_products(session: Session, task: PTask) -> None:
-    """Collect delayed products.
+def collect_provisional_products(session: Session, task: PTask) -> None:
+    """Collect provisional products.
 
     Unfortunately, this function needs to be called when a task finishes successfully
     (skipped unchanged, persisted, etc..).
@@ -93,10 +93,10 @@ def collect_delayed_products(session: Session, task: PTask) -> None:
     if is_task_generator(task):
         return
 
-    # Replace delayed nodes with their actually resolved nodes.
+    # Replace provisional nodes with their actually resolved nodes.
     task.produces = tree_map_with_path(  # type: ignore[assignment]
-        lambda p, x: collect_delayed_nodes(session, task, x, p), task.produces
+        lambda p, x: collect_provisional_nodes(session, task, x, p), task.produces
     )
 
-    if task.signature in TASKS_WITH_DELAYED_NODES:
+    if task.signature in TASKS_WITH_PROVISIONAL_NODES:
         recreate_dag(session, task)

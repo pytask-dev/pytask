@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
 from _pytask.dag_utils import descending_tasks
-from _pytask.delayed_utils import collect_delayed_products
+from _pytask.delayed_utils import collect_provisional_products
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
@@ -53,7 +53,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
         task, "would_be_executed"
     )
     if is_unchanged and not session.config["force"]:
-        collect_delayed_products(session, task)
+        collect_provisional_products(session, task)
         raise SkippedUnchanged
 
     is_skipped = has_mark(task, "skip")

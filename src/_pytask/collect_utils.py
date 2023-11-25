@@ -18,8 +18,8 @@ from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import has_mark
 from _pytask.mark_utils import remove_marks
 from _pytask.models import NodeInfo
-from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.nodes import PythonNode
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
@@ -480,7 +480,7 @@ def _collect_delayed_nodes_and_nodes(  # noqa: PLR0913
     task_path: Path | None,
     parameter_name: str,
     value: Any,
-) -> PyTree[PDelayedNode | PNode]:
+) -> PyTree[PProvisionalNode | PNode]:
     return tree_map_with_path(
         lambda p, x: collection_func(
             session,

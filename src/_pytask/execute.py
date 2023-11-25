@@ -20,15 +20,15 @@ from _pytask.dag_utils import node_and_neighbors
 from _pytask.dag_utils import TopologicalSorter
 from _pytask.database_utils import has_node_changed
 from _pytask.database_utils import update_states_in_database
-from _pytask.delayed_utils import collect_delayed_products
+from _pytask.delayed_utils import collect_provisional_products
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.mark import Mark
 from _pytask.mark_utils import has_mark
-from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
@@ -155,7 +155,9 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
                 raise NodeNotFoundError(msg)
 
             # Skip delayed nodes that are products since they do not have a state.
-            if node_signature not in predecessors and isinstance(node, PDelayedNode):
+            if node_signature not in predecessors and isinstance(
+                node, PProvisionalNode
+            ):
                 continue
 
             has_changed = has_node_changed(task=task, node=node)
@@ -164,7 +166,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
                 break
 
     if not needs_to_be_executed:
-        collect_delayed_products(session, task)
+        collect_provisional_products(session, task)
         raise SkippedUnchanged
 
     # Create directory for product if it does not exist. Maybe this should be a `setup`
@@ -217,7 +219,7 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
         nodes = tree_leaves(task.produces["return"])
         values = structure_return.flatten_up_to(out)
         for node, value in zip(nodes, values):
-            if not isinstance(node, PDelayedNode):
+            if not isinstance(node, PProvisionalNode):
                 node.save(value)
 
     return True
@@ -229,7 +231,7 @@ def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
     if is_task_generator(task):
         return
 
-    collect_delayed_products(session, task)
+    collect_provisional_products(session, task)
     missing_nodes = [node for node in tree_leaves(task.produces) if not node.state()]
     if missing_nodes:
         paths = session.config["paths"]

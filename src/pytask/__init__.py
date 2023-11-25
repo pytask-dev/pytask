@@ -39,9 +39,9 @@ from _pytask.mark_utils import remove_marks
 from _pytask.mark_utils import set_marks
 from _pytask.models import CollectionMetadata
 from _pytask.models import NodeInfo
-from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import DelayedPathNode
@@ -102,9 +102,9 @@ __all__ = [
     "NodeInfo",
     "NodeNotCollectedError",
     "NodeNotFoundError",
-    "PDelayedNode",
     "PNode",
     "PPathNode",
+    "PProvisionalNode",
     "PTask",
     "PTaskWithPath",
     "PathNode",

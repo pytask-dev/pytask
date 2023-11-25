@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-__all__ = ["PDelayedNode", "PNode", "PPathNode", "PTask", "PTaskWithPath"]
+__all__ = ["PNode", "PPathNode", "PProvisionalNode", "PTask", "PTaskWithPath"]
 
 
 @runtime_checkable
@@ -105,24 +105,24 @@ class PTaskWithPath(PTask, Protocol):
 
 
 @runtime_checkable
-class PDelayedNode(PNode, Protocol):
-    """A protocol for delayed nodes.
+class PProvisionalNode(PNode, Protocol):
+    """A protocol for provisional nodes.
 
-    Delayed nodes are called delayed because they are resolved to actual nodes,
-    :class:`PNode`, right before a task is executed as a dependency and after the task
-    is executed as a product.
+    This type of nodes is provisional since it resolves to actual nodes, :class:`PNode`,
+    right before a task is executed as a dependency and after the task is executed as a
+    product.
 
-    Delayed nodes are nodes that define how the actual nodes look like. They can be
+    Provisional nodes are nodes that define how the actual nodes look like. They can be
     useful when, for example, a task produces an unknown amount of nodes because it
     downloads some files.
 
     """
 
     def load(self, is_product: bool = False) -> Any:
-        """The load method of a delayed node.
+        """The load method of a probisional node.
 
-        A delayed node will never be loaded as a dependency since it would be collected
-        before.
+        A provisional node will never be loaded as a dependency since it would be
+        collected before.
 
         It is possible to load a delayed node as a dependency so that it can inject
         basic information about it in the task. For example,
@@ -133,13 +133,5 @@ class PDelayedNode(PNode, Protocol):
             ...
         raise NotImplementedError
 
-    def save(self, value: Any) -> None:
-        """A delayed node can never save a value."""
-        raise NotImplementedError
-
-    def state(self) -> None:
-        """A delayed node has not state."""
-        raise NotImplementedError
-
     def collect(self) -> list[Any]:
-        """Collect the objects that are defined by the delayed nodes."""
+        """Collect the objects that are defined by the provisional nodes."""

@@ -25,9 +25,9 @@ from _pytask.exceptions import CollectionError
 from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
-from _pytask.node_protocols import PDelayedNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.nodes import DelayedPathNode
 from _pytask.nodes import PathNode
@@ -306,7 +306,7 @@ The path '{path}' points to a directory, although only files are allowed."""
 @hookimpl(trylast=True)
 def pytask_collect_node(  # noqa: C901, PLR0912
     session: Session, path: Path, node_info: NodeInfo
-) -> PNode | PDelayedNode:
+) -> PNode | PProvisionalNode:
     """Collect a node of a task as a :class:`pytask.PNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
@@ -338,7 +338,7 @@ def pytask_collect_node(  # noqa: C901, PLR0912
             )
             node.name = Path(short_root_dir, node.pattern).as_posix()
 
-    if isinstance(node, PDelayedNode):
+    if isinstance(node, PProvisionalNode):
         return node
 
     if isinstance(node, PythonNode):

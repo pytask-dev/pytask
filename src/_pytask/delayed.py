@@ -8,9 +8,9 @@ from typing import Mapping
 from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
-from _pytask.delayed_utils import collect_delayed_nodes
+from _pytask.delayed_utils import collect_provisional_nodes
 from _pytask.delayed_utils import recreate_dag
-from _pytask.delayed_utils import TASKS_WITH_DELAYED_NODES
+from _pytask.delayed_utils import TASKS_WITH_PROVISIONAL_NODES
 from _pytask.exceptions import NodeLoadError
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PTask
@@ -31,11 +31,11 @@ if TYPE_CHECKING:
 
 @hookimpl
 def pytask_execute_task_setup(session: Session, task: PTask) -> None:
-    """Collect delayed nodes and parse them."""
+    """Collect provisional nodes and parse them."""
     task.depends_on = tree_map_with_path(  # type: ignore[assignment]
-        lambda p, x: collect_delayed_nodes(session, task, x, p), task.depends_on
+        lambda p, x: collect_provisional_nodes(session, task, x, p), task.depends_on
     )
-    if task.signature in TASKS_WITH_DELAYED_NODES:
+    if task.signature in TASKS_WITH_PROVISIONAL_NODES:
         recreate_dag(session, task)
 
 
@@ -140,4 +140,4 @@ def pytask_execute_task_process_report(report: ExecutionReport) -> bool | None:
 @hookimpl
 def pytask_unconfigure() -> None:
     """Clear the global variable after execution."""
-    TASKS_WITH_DELAYED_NODES.clear()
+    TASKS_WITH_PROVISIONAL_NODES.clear()
