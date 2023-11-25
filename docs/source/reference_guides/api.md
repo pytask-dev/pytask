@@ -245,8 +245,6 @@ The remaining exceptions convey specific errors.
 Protocols define how tasks and nodes for dependencies and products have to be set up.
 
 ```{eval-rst}
-.. autoprotocol:: pytask.MetaNode
-   :show-inheritance:
 .. autoprotocol:: pytask.PNode
    :show-inheritance:
 .. autoprotocol:: pytask.PPathNode

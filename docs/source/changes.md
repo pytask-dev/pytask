@@ -138,6 +138,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`376` enhances the documentation for `pytask dag`.
 - {pull}`378` conditionally skips test on MacOS.
 - {pull}`381` deprecates `@pytask.mark.parametrize`. (Closes {issue}`233`.)
+- {pull}`501` removes {class}`pytask.MetaNode`.
 
 ## 0.3.1 - 2023-12-25
 
