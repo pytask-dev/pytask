@@ -11,7 +11,7 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 if TYPE_CHECKING:
-    from _pytask.node_protocols import MetaNode
+    from _pytask.node_protocols import PNode
     from _pytask.node_protocols import PTask
     from _pytask.session import Session
 
@@ -66,7 +66,7 @@ def update_states_in_database(session: Session, task_signature: str) -> None:
         _create_or_update_state(task_signature, node.signature, hash_)
 
 
-def has_node_changed(task: PTask, node: MetaNode) -> bool:
+def has_node_changed(task: PTask, node: PTask | PNode) -> bool:
     """Indicate whether a single dependency or product has changed."""
     # If node does not exist, we receive None.
     node_state = node.state()

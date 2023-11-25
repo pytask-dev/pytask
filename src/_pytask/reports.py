@@ -17,11 +17,11 @@ from rich.text import Text
 
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import PNode
     from _pytask.node_protocols import PTask
     from rich.console import Console
     from rich.console import RenderResult
     from rich.console import ConsoleOptions
-    from _pytask.node_protocols import MetaNode
 
 
 @define
@@ -29,7 +29,7 @@ class CollectionReport:
     """A collection report for a task."""
 
     outcome: CollectionOutcome
-    node: MetaNode | None = None
+    node: PTask | PNode | None = None
     exc_info: OptionalExceptionInfo | None = None
 
     @classmethod
@@ -37,7 +37,7 @@ class CollectionReport:
         cls: type[CollectionReport],
         outcome: CollectionOutcome,
         exc_info: OptionalExceptionInfo,
-        node: MetaNode | None = None,
+        node: PTask | PNode | None = None,
     ) -> CollectionReport:
         return cls(outcome=outcome, node=node, exc_info=exc_info)
 

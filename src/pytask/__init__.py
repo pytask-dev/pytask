@@ -39,7 +39,6 @@ from _pytask.mark_utils import remove_marks
 from _pytask.mark_utils import set_marks
 from _pytask.models import CollectionMetadata
 from _pytask.models import NodeInfo
-from _pytask.node_protocols import MetaNode
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
@@ -97,7 +96,6 @@ __all__ = [
     "Mark",
     "MarkDecorator",
     "MarkGenerator",
-    "MetaNode",
     "NodeInfo",
     "NodeNotCollectedError",
     "NodeNotFoundError",
