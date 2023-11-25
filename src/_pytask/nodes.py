@@ -60,8 +60,8 @@ class TaskWithoutPath(PTask):
 
     name: str
     function: Callable[..., Any]
-    depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
-    produces: dict[str, PyTree[PNode]] = field(factory=dict)
+    depends_on: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
+    produces: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
     markers: list[Mark] = field(factory=list)
     report_sections: list[tuple[str, str, str]] = field(factory=list)
     attributes: dict[Any, Any] = field(factory=dict)
@@ -116,8 +116,8 @@ class Task(PTaskWithPath):
     path: Path
     function: Callable[..., Any]
     name: str = field(default="", init=False)
-    depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
-    produces: dict[str, PyTree[PNode]] = field(factory=dict)
+    depends_on: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
+    produces: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
     markers: list[Mark] = field(factory=list)
     report_sections: list[tuple[str, str, str]] = field(factory=list)
     attributes: dict[Any, Any] = field(factory=dict)
@@ -363,12 +363,6 @@ class DelayedPathNode(PProvisionalNode):
     def load(self, is_product: bool = False) -> Path:
         if is_product:
             return self.root_dir  # type: ignore[return-value]
-        raise NotImplementedError
-
-    def save(self, value: Any) -> None:
-        raise NotImplementedError
-
-    def state(self) -> None:
         raise NotImplementedError
 
     def collect(self) -> list[Path]:

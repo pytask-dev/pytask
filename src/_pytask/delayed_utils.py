@@ -27,7 +27,7 @@ TASKS_WITH_PROVISIONAL_NODES = set()
 
 def collect_provisional_nodes(
     session: Session, task: PTask, node: Any, path: tuple[Any, ...]
-) -> PyTree[PNode]:
+) -> PyTree[PNode | PProvisionalNode]:
     """Collect provisional nodes.
 
     1. Call the :meth:`pytask.PDelayedNode.collect` to receive the raw nodes.

@@ -69,8 +69,8 @@ class PTask(Protocol):
     """Protocol for nodes."""
 
     name: str
-    depends_on: dict[str, PyTree[PNode]]
-    produces: dict[str, PyTree[PNode]]
+    depends_on: dict[str, PyTree[PNode | PProvisionalNode]]
+    produces: dict[str, PyTree[PNode | PProvisionalNode]]
     function: Callable[..., Any]
     markers: list[Mark]
     report_sections: list[tuple[str, str, str]]
@@ -105,7 +105,7 @@ class PTaskWithPath(PTask, Protocol):
 
 
 @runtime_checkable
-class PProvisionalNode(PNode, Protocol):
+class PProvisionalNode(Protocol):
     """A protocol for provisional nodes.
 
     This type of nodes is provisional since it resolves to actual nodes, :class:`PNode`,
@@ -118,13 +118,19 @@ class PProvisionalNode(PNode, Protocol):
 
     """
 
+    name: str
+
+    @property
+    def signature(self) -> str:
+        """Return the signature of the node."""
+
     def load(self, is_product: bool = False) -> Any:
         """The load method of a probisional node.
 
         A provisional node will never be loaded as a dependency since it would be
         collected before.
 
-        It is possible to load a delayed node as a dependency so that it can inject
+        It is possible to load a provisional node as a dependency so that it can inject
         basic information about it in the task. For example,
         :meth:`pytask.DelayedPathNode` injects the root directory.
 
