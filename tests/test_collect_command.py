@@ -666,14 +666,14 @@ def test_more_nested_pytree_and_python_node_as_return_with_names(
 @pytest.mark.parametrize(
     "node_def",
     [
-        "paths: Annotated[List[Path], DelayedPathNode(pattern='*.txt'), Product])",
-        "produces=DelayedPathNode(pattern='*.txt'))",
-        ") -> Annotated[None, DelayedPathNode(pattern='*.txt')]",
+        "paths: Annotated[List[Path], DirectoryNode(pattern='*.txt'), Product])",
+        "produces=DirectoryNode(pattern='*.txt'))",
+        ") -> Annotated[None, DirectoryNode(pattern='*.txt')]",
     ],
 )
 def test_collect_task_with_delayed_path_node_as_product(runner, tmp_path, node_def):
     source = f"""
-    from pytask import DelayedPathNode, Product
+    from pytask import DirectoryNode, Product
     from typing_extensions import Annotated, List
     from pathlib import Path
 
@@ -705,11 +705,11 @@ def test_collect_task_with_delayed_path_node_as_product(runner, tmp_path, node_d
 def test_collect_task_with_delayed_dependencies(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode
+    from pytask import DirectoryNode
     from pathlib import Path
 
     def task_example(
-        paths = DelayedPathNode(pattern="[ab].txt")
+        paths = DirectoryNode(pattern="[ab].txt")
     ) -> Annotated[str, Path("merged.txt")]:
         path_dict = {path.stem: path for path in paths}
         return path_dict["a"].read_text() + path_dict["b"].read_text()

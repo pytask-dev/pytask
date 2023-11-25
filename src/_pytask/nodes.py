@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-__all__ = ["DelayedPathNode", "PathNode", "PythonNode", "Task", "TaskWithoutPath"]
+__all__ = ["DirectoryNode", "PathNode", "PythonNode", "Task", "TaskWithoutPath"]
 
 
 @define(kw_only=True)
@@ -287,7 +287,7 @@ class PythonNode(PNode):
 
 
 @define
-class PickleNode:
+class PickleNode(PNode):
     """A node for pickle files.
 
     Attributes
@@ -334,25 +334,25 @@ class PickleNode:
 
 
 @define(kw_only=True)
-class DelayedPathNode(PProvisionalNode):
-    """A class for delayed :class:`PathNode`.
+class DirectoryNode(PProvisionalNode):
+    """The class for a provisional node that works with directories.
 
     Attributes
     ----------
-    root_dir
-        The pattern is interpreted relative to the path given by ``root_dir``. If
-        ``root_dir = None``, it is the directory where the path is defined.
+    name
+        The name of the node.
     pattern
         Patterns are the same as for :mod:`fnmatch`, with the addition of ``**`` which
         means "this directory and all subdirectories, recursively".
-    name
-        The name of the node.
+    root_dir
+        The pattern is interpreted relative to the path given by ``root_dir``. If
+        ``root_dir = None``, it is the directory where the path is defined.
 
     """
 
-    root_dir: Path | None = None
-    pattern: str
     name: str = ""
+    pattern: str = "*"
+    root_dir: Path | None = None
 
     @property
     def signature(self) -> str:

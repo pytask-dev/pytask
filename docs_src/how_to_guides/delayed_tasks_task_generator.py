@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pytask import DelayedPathNode
+from pytask import DirectoryNode
 from pytask import task
 from typing_extensions import Annotated
 
@@ -8,7 +8,7 @@ from typing_extensions import Annotated
 @task(generator=True)
 def task_copy_files(
     paths: Annotated[
-        list[Path], DelayedPathNode(root_dir=Path("downloads"), pattern="*")
+        list[Path], DirectoryNode(root_dir=Path("downloads"), pattern="*")
     ],
 ) -> None:
     """Create tasks to copy each file to a ``.txt`` file."""

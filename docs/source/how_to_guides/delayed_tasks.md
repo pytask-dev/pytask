@@ -30,13 +30,13 @@ emphasize-lines: 4, 11
 ```
 
 Since the names of the filesare not known when pytask is started, we need to use a
-{class}`~pytask.DelayedPathNode`. With a {class}`~pytask.DelayedPathNode` we can specify
+{class}`~pytask.DirectoryNode`. With a {class}`~pytask.DirectoryNode` we can specify
 where pytask can find the files and how they look like with an optional path and a glob
 pattern.
 
-When we use the {class}`~pytask.DelayedPathNode` as a product annotation, we get access
-to the `root_dir` as a {class}`~pathlib.Path` object inside the function which allows us
-to store the files.
+When we use the {class}`~pytask.DirectoryNode` as a product annotation, we get access to
+the `root_dir` as a {class}`~pathlib.Path` object inside the function which allows us to
+store the files.
 
 ## Delayed task
 
@@ -49,11 +49,11 @@ emphasize-lines: 8-10
 ---
 ```
 
-When {class}`~pytask.DelayedPathNode` is used as a dependency a list of all the files in
+When {class}`~pytask.DirectoryNode` is used as a dependency a list of all the files in
 the folder defined by the root path and the pattern are automatically collected and
 passed to the task.
 
-As long as we use a {class}`DelayedPathNode` with the same `root_dir` and `pattern` in
+As long as we use a {class}`DirectoryNode` with the same `root_dir` and `pattern` in
 both tasks, pytask will automatically recognize that the second task depends on the
 first. If that is not true, you might need to make this dependency more explicit by
 using {func}`@task(after=...) <pytask.task>` which is explained {ref}`here <after>`.

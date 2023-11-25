@@ -29,7 +29,7 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
-from _pytask.nodes import DelayedPathNode
+from _pytask.nodes import DirectoryNode
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
@@ -326,7 +326,7 @@ def pytask_collect_node(  # noqa: C901, PLR0912
     """
     node = node_info.value
 
-    if isinstance(node, DelayedPathNode):
+    if isinstance(node, DirectoryNode):
         if node.root_dir is None:
             node.root_dir = path
         if (

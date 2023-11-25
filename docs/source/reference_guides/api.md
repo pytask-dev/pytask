@@ -253,7 +253,7 @@ Protocols define how tasks and nodes for dependencies and products have to be se
    :show-inheritance:
 .. autoprotocol:: pytask.PTaskWithPath
    :show-inheritance:
-.. autoprotocol:: pytask.PDelayedNode
+.. autoprotocol:: pytask.PProvisionalNode
    :show-inheritance:
 ```
 
@@ -268,7 +268,7 @@ Nodes are the interface for different kinds of dependencies or products.
    :members: load, save
 .. autoclass:: pytask.PythonNode
    :members: load, save
-.. autoclass:: pytask.DelayedPathNode
+.. autoclass:: pytask.DirectoryNode
    :members: load, collect
 ```
 

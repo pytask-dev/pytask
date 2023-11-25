@@ -1054,11 +1054,11 @@ def test_collect_task_without_path(runner, tmp_path):
 def test_task_that_produces_delayed_path_node(tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode, Product
+    from pytask import DirectoryNode, Product
     from pathlib import Path
 
     def task_example(
-        root_path: Annotated[Path, DelayedPathNode(pattern="*.txt"), Product]
+        root_path: Annotated[Path, DirectoryNode(pattern="*.txt"), Product]
     ):
         root_path.joinpath("a.txt").write_text("Hello, ")
         root_path.joinpath("b.txt").write_text("World!")
@@ -1080,11 +1080,11 @@ def test_task_that_produces_delayed_path_node(tmp_path):
 def test_task_that_depends_on_relative_delayed_path_node(tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode
+    from pytask import DirectoryNode
     from pathlib import Path
 
     def task_example(
-        paths = DelayedPathNode(pattern="[ab].txt")
+        paths = DirectoryNode(pattern="[ab].txt")
     ) -> Annotated[str, Path("merged.txt")]:
         path_dict = {path.stem: path for path in paths}
         return path_dict["a"].read_text() + path_dict["b"].read_text()
@@ -1104,13 +1104,13 @@ def test_task_that_depends_on_relative_delayed_path_node(tmp_path):
 def test_task_that_depends_on_delayed_path_node_with_root_dir(tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode
+    from pytask import DirectoryNode
     from pathlib import Path
 
     root_dir = Path(__file__).parent / "subfolder"
 
     def task_example(
-        paths = DelayedPathNode(root_dir=root_dir, pattern="[ab].txt")
+        paths = DirectoryNode(root_dir=root_dir, pattern="[ab].txt")
     ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
         path_dict = {path.stem: path for path in paths}
         return path_dict["a"].read_text() + path_dict["b"].read_text()
@@ -1131,17 +1131,17 @@ def test_task_that_depends_on_delayed_path_node_with_root_dir(tmp_path):
 def test_task_that_depends_on_delayed_task(tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode, task
+    from pytask import DirectoryNode, task
     from pathlib import Path
 
-    def task_produces() -> Annotated[None, DelayedPathNode(pattern="[ab].txt")]:
+    def task_produces() -> Annotated[None, DirectoryNode(pattern="[ab].txt")]:
         path = Path(__file__).parent
         path.joinpath("a.txt").write_text("Hello, ")
         path.joinpath("b.txt").write_text("World!")
 
     @task(after=task_produces)
     def task_depends(
-        paths = DelayedPathNode(pattern="[ab].txt")
+        paths = DirectoryNode(pattern="[ab].txt")
     ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
         path_dict = {path.stem: path for path in paths}
         return path_dict["a"].read_text() + path_dict["b"].read_text()
@@ -1160,17 +1160,17 @@ def test_task_that_depends_on_delayed_task(tmp_path):
 def test_gracefully_fail_when_dag_raises_error(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode, task
+    from pytask import DirectoryNode, task
     from pathlib import Path
 
-    def task_produces() -> Annotated[None, DelayedPathNode(pattern="*.txt")]:
+    def task_produces() -> Annotated[None, DirectoryNode(pattern="*.txt")]:
         path = Path(__file__).parent
         path.joinpath("a.txt").write_text("Hello, ")
         path.joinpath("b.txt").write_text("World!")
 
     @task(after=task_produces)
     def task_depends(
-        paths = DelayedPathNode(pattern="[ab].txt")
+        paths = DirectoryNode(pattern="[ab].txt")
     ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
         path_dict = {path.stem: path for path in paths}
         return path_dict["a"].read_text() + path_dict["b"].read_text()
@@ -1189,17 +1189,17 @@ def test_gracefully_fail_when_dag_raises_error(runner, tmp_path):
 def test_delayed_task_generation(tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode, task
+    from pytask import DirectoryNode, task
     from pathlib import Path
 
-    def task_produces() -> Annotated[None, DelayedPathNode(pattern="[ab].txt")]:
+    def task_produces() -> Annotated[None, DirectoryNode(pattern="[ab].txt")]:
         path = Path(__file__).parent
         path.joinpath("a.txt").write_text("Hello, ")
         path.joinpath("b.txt").write_text("World!")
 
     @task(after=task_produces, generator=True)
     def task_depends(
-        paths = DelayedPathNode(pattern="[ab].txt")
+        paths = DirectoryNode(pattern="[ab].txt")
     ) -> ...:
         for path in paths:
 
@@ -1225,17 +1225,17 @@ def test_delayed_task_generation(tmp_path):
 def test_delayed_task_generation_with_generator(tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode, task
+    from pytask import DirectoryNode, task
     from pathlib import Path
 
-    def task_produces() -> Annotated[None, DelayedPathNode(pattern="[ab].txt")]:
+    def task_produces() -> Annotated[None, DirectoryNode(pattern="[ab].txt")]:
         path = Path(__file__).parent
         path.joinpath("a.txt").write_text("Hello, ")
         path.joinpath("b.txt").write_text("World!")
 
     @task(after=task_produces, generator=True)
     def task_depends(
-        paths = DelayedPathNode(pattern="[ab].txt")
+        paths = DirectoryNode(pattern="[ab].txt")
     ) -> ...:
         for path in paths:
 
@@ -1263,16 +1263,16 @@ def test_delayed_task_generation_with_generator(tmp_path):
 def test_delayed_task_generation_with_single_function(tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode, task
+    from pytask import DirectoryNode, task
     from pathlib import Path
 
-    def task_produces() -> Annotated[None, DelayedPathNode(pattern="[a].txt")]:
+    def task_produces() -> Annotated[None, DirectoryNode(pattern="[a].txt")]:
         path = Path(__file__).parent
         path.joinpath("a.txt").write_text("Hello, ")
 
     @task(after=task_produces, generator=True)
     def task_depends(
-        paths = DelayedPathNode(pattern="[a].txt")
+        paths = DirectoryNode(pattern="[a].txt")
     ) -> ...:
         path = paths[0]
 
@@ -1297,16 +1297,16 @@ def test_delayed_task_generation_with_single_function(tmp_path):
 def test_delayed_task_generation_with_task_node(tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode, TaskWithoutPath, task, PathNode
+    from pytask import DirectoryNode, TaskWithoutPath, task, PathNode
     from pathlib import Path
 
-    def task_produces() -> Annotated[None, DelayedPathNode(pattern="[a].txt")]:
+    def task_produces() -> Annotated[None, DirectoryNode(pattern="[a].txt")]:
         path = Path(__file__).parent
         path.joinpath("a.txt").write_text("Hello, ")
 
     @task(after=task_produces, generator=True)
     def task_depends(
-        paths = DelayedPathNode(pattern="[a].txt")
+        paths = DirectoryNode(pattern="[a].txt")
     ) -> ...:
         path = paths[0]
 
@@ -1333,12 +1333,12 @@ def test_delayed_task_generation_with_task_node(tmp_path):
 def test_gracefully_fail_when_task_generator_raises_error(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode, task, Product
+    from pytask import DirectoryNode, task, Product
     from pathlib import Path
 
     @task(generator=True)
     def task_example(
-        root_dir: Annotated[Path, DelayedPathNode(pattern="[a].txt"), Product]
+        root_dir: Annotated[Path, DirectoryNode(pattern="[a].txt"), Product]
     ) -> ...:
         raise Exception
     """
@@ -1354,12 +1354,12 @@ def test_gracefully_fail_when_task_generator_raises_error(runner, tmp_path):
 def test_use_delayed_node_as_product_in_generator_without_rerun(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
-    from pytask import DelayedPathNode, task, Product
+    from pytask import DirectoryNode, task, Product
     from pathlib import Path
 
     @task(generator=True)
     def task_example(
-        root_dir: Annotated[Path, DelayedPathNode(pattern="[ab].txt"), Product]
+        root_dir: Annotated[Path, DirectoryNode(pattern="[ab].txt"), Product]
     ) -> ...:
         for path in (root_dir / "a.txt", root_dir / "b.txt"):
 

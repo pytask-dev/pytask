@@ -1,14 +1,14 @@
 from pathlib import Path
 
 import requests
-from pytask import DelayedPathNode
+from pytask import DirectoryNode
 from pytask import Product
 from typing_extensions import Annotated
 
 
 def task_download_files(
     download_folder: Annotated[
-        Path, DelayedPathNode(root_dir=Path("downloads"), pattern="*"), Product
+        Path, DirectoryNode(root_dir=Path("downloads"), pattern="*"), Product
     ],
 ) -> None:
     """Download files."""
