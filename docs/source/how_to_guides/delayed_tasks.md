@@ -1,6 +1,6 @@
 # Delayed tasks
 
-pytask's execution model is can usually be viewed as three phases.
+pytask's execution model can usually be separated into three phases.
 
 1. Collection of tasks, dependencies, and products.
 1. Building the DAG.
@@ -8,9 +8,9 @@ pytask's execution model is can usually be viewed as three phases.
 
 But, in some situations pytask needs to be more flexible.
 
-Imagine you want to download files from some online storage, but the total number of
-files and their filenames is unknown before the task has started. How can you describe
-the files still as products of the task?
+Imagine you want to download files from an online storage, but the total number of files
+and their filenames is unknown before the task has started. How can you describe the
+files still as products of the task?
 
 And how would you define a task that depends on these files. Or, how would define a
 single task to process each file.
