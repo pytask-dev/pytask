@@ -15,9 +15,9 @@ files still as products of the task?
 And how would you define a task that depends on these files. Or, how would define a
 single task to process each file.
 
-The following sections will explain how delayed tasks work with pytask.
+The following sections will explain how you use pytask in these situations.
 
-## Delayed Products
+## Producing provisional nodes
 
 Let us start with a task that downloads an unknown amount of files and stores them on
 disk in a folder called `downloads`. As an example, we will download all files without a
@@ -29,16 +29,23 @@ emphasize-lines: 4, 11
 ---
 ```
 
-Since the names of the filesare not known when pytask is started, we need to use a
+Since the names of the files are not known when pytask is started, we need to use a
 {class}`~pytask.DirectoryNode`. With a {class}`~pytask.DirectoryNode` we can specify
-where pytask can find the files and how they look like with an optional path and a glob
-pattern.
+where pytask can find the files. The files are described with a path (default is the
+directory of the task module) and a glob pattern (default is `*`).
 
 When we use the {class}`~pytask.DirectoryNode` as a product annotation, we get access to
 the `root_dir` as a {class}`~pathlib.Path` object inside the function which allows us to
 store the files.
 
-## Delayed task
+:::{note}
+The {class}`~pytask.DirectoryNode` is a provisional node that implements
+{class}`~pytask.PProvisionalNode`. A provisional node is not a {class}`PNode`, but when
+its {meth}`~pytask.PProvisionalNode.collect` method is called, it returns actual nodes.
+A {class}`pytask.DirectoryNode`, for example, returns {class}`~pytask.PathNode`s.
+:::
+
+## Depending on provisional nodes
 
 In the next step, we want to define a task that consumes all previously downloaded files
 and merges them into one file.
@@ -49,16 +56,17 @@ emphasize-lines: 8-10
 ---
 ```
 
-When {class}`~pytask.DirectoryNode` is used as a dependency a list of all the files in
-the folder defined by the root path and the pattern are automatically collected and
-passed to the task.
+Here, we use a {class}`~pytask.DirectoryNode` as a dependency since we do not know the
+names of the downloaded files. Before the task is executed, the list of files in the
+folder defined by the root path and the pattern are automatically collected and passed
+to the task.
 
 As long as we use a {class}`DirectoryNode` with the same `root_dir` and `pattern` in
 both tasks, pytask will automatically recognize that the second task depends on the
 first. If that is not true, you might need to make this dependency more explicit by
 using {func}`@task(after=...) <pytask.task>` which is explained {ref}`here <after>`.
 
-## Delayed and repeated tasks
+## Task generators
 
 Coming to the last use-case, what if we wanted to process each of the downloaded files
 separately instead of dealing with them in one task?
