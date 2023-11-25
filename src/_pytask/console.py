@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING
 
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import shorten_path
 from rich.console import Console
@@ -141,7 +142,9 @@ def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
     return Text(task.name, style=url_style)
 
 
-def format_node_name(node: PNode, paths: Sequence[Path] = ()) -> Text:
+def format_node_name(
+    node: PNode | PProvisionalNode, paths: Sequence[Path] = ()
+) -> Text:
     """Format the name of a node."""
     if isinstance(node, PPathNode):
         if node.name != node.path.as_posix():

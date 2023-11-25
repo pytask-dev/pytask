@@ -13,6 +13,7 @@ from _pytask.delayed_utils import recreate_dag
 from _pytask.delayed_utils import TASKS_WITH_PROVISIONAL_NODES
 from _pytask.exceptions import NodeLoadError
 from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.outcomes import CollectionOutcome
@@ -39,7 +40,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
         recreate_dag(session, task)
 
 
-def _safe_load(node: PNode, task: PTask, is_product: bool) -> Any:
+def _safe_load(node: PNode | PProvisionalNode, task: PTask, is_product: bool) -> Any:
     try:
         return node.load(is_product=is_product)
     except Exception as e:  # noqa: BLE001
