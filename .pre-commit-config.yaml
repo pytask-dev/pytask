@@ -56,7 +56,7 @@ repos:
     -   id: refurb
         args: [--ignore, FURB126]
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.0
+    rev: v1.7.1
     hooks:
     -   id: mypy
         additional_dependencies: [
@@ -111,7 +111,7 @@ repos:
                 docs/source/tutorials/write_a_task.md
             )$
 -   repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.0
+    rev: 1.7.1
     hooks:
     -   id: nbqa-black
     -   id: nbqa-isort
