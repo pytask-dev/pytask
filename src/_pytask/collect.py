@@ -471,9 +471,9 @@ def _find_shortest_uniquely_identifiable_name_for_tasks(
 
     return id_to_short_id
 
-def send_logging_vscode(url,json,timeout):
+def send_logging_vscode(url: str,json: dict[str,Any],timeout: float) -> None:
     try:
-        requests.post(url,json,timeout)
+        requests.post(url=url,json=json,timeout=timeout)
     except requests.Timeout:
         pass
 
@@ -490,7 +490,7 @@ def pytask_collect_log(
             if report.outcome == CollectionOutcome.FAIL:
                 exitcode = 3
         result = [{'name' : task.name.split('/')[-1], 'path' : str(task.path)} if isinstance(task,PTaskWithPath) else {'name' : task.name, 'path' : ''} for task in tasks]
-        thread = Thread(target= send_logging_vscode, args= ('http://localhost:6000/pytask', result, 0.00001))
+        thread = Thread(target= send_logging_vscode, args= ('http://localhost:6000/pytask', {"exitcode" : exitcode, "tasks": result}, 0.00001))
         thread.start()
 
     console.print(f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}.")

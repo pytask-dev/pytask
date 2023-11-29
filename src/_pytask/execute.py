@@ -272,7 +272,7 @@ def pytask_execute_task_process_report(
     return True
 
 
-@hookimpl(trylast=False)
+@hookimpl(tryfirst=True)
 def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:
     """Log task outcome."""
 
