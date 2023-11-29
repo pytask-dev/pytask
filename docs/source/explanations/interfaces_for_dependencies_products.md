@@ -12,13 +12,13 @@ suitable for you.
 
 ## Products
 
-|                                                           | `Annotated[..., PNode, Product]` | `@task(produces=...)` | `produces` | `defd task() -> Annotated[..., PNode]` | `@pytask.mark.produces(...)` |
-| --------------------------------------------------------- | :------------------------------: | :-------------------: | :--------: | :------------------------------------: | :--------------------------: |
-| Not deprecated                                            |                ✅                 |           ✅           |     ✅      |                   ✅                    |              ❌               |
-| No type annotations required                              |                ❌                 |           ✅           |     ✅      |                   ❌                    |              ✅               |
-| Flexible choice of argument name                          |                ✅                 |           ✅           |     ❌      |                   ➖                    |              ❌               |
-| Supports third-party functions as tasks                   |                ❌                 |           ✅           |     ❌      |                   ❌                    |              ❌               |
-| Allows to pass custom node while preserving type of value |                ✅                 |           ✅           |     ✅      |                   ✅                    |              ✅               |
+|                                                           | `Annotated[..., PNode, Product]` | `produces` | `@task(produces=...)` | `def task() -> Annotated[..., PNode]` | `@pytask.mark.produces(...)` |
+| --------------------------------------------------------- | :------------------------------: | :--------: | :-------------------: | :-----------------------------------: | :--------------------------: |
+| Not deprecated                                            |                ✅                 |     ✅      |           ✅           |                   ✅                   |              ❌               |
+| No type annotations required                              |                ❌                 |     ✅      |           ✅           |                   ❌                   |              ✅               |
+| Flexible choice of argument name                          |                ✅                 |     ❌      |           ✅           |                   ➖                   |              ❌               |
+| Supports third-party functions as tasks                   |                ❌                 |     ❌      |           ✅           |                   ❌                   |              ❌               |
+| Allows to pass custom node while preserving type of value |                ✅                 |     ✅      |           ✅           |                   ✅                   |              ✅               |
 
 ## Dependencies
 

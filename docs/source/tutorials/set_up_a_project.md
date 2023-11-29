@@ -1,67 +1,48 @@
 # Set up a project
 
-This tutorial shows you how to structure your first project.
+Assuming you want to use pytask with a research project or something similar, you want
+to organize the project as a Python package. This tutorial explains the minimal setup.
 
-Use the
-[cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project)
-template to set up the structure or create the necessary folders and files manually.
+If you want to use pytask with a collection of scripts you can skip this lesson
+and move to the next section of the tutorials.
 
-The remaining tutorial will explain the setup.
+The following directory tree gives an overview of the different parts in the project and
+this section will explain the purpose of each of the parts.
 
-## The directory structure
-
-The following directory tree is an example of setting up a project.
-
-```
+```text
 my_project
+│
+├───.pytask
+│
+├───bld
+│   └────...
 │
 ├───src
 │   └───my_project
+│       ├────__init__.py
 │       ├────config.py
 │       └────...
 │
-├───setup.cfg
-│
-├───pyproject.toml
-│
-├───.pytask
-│   └────...
-│
-└───bld
-    └────...
+└───pyproject.toml
 ```
 
-### The configuration
+You can replicate the directory structure for your project or you start from pytask's
+[cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project)
+template or any other
+{doc}`linked template or example project <../how_to_guides/bp_templates_and_projects>`.
 
-The configuration is defined in `pyproject.toml` in the project's root folder and
-contains a `[tool.pytask.ini_options]` section.
-
-```toml
-[tool.pytask.ini_options]
-paths = "src/my_project"
-```
-
-You do not have to add configuration values, but you need the
-`[tool.pytask.ini_options]` header. The header alone will signal pytask that this is the
-project's root. pytask will store the information it needs across executions in the
-`.pytask` folder.
-
-`paths` allows you to set the location of tasks when you do not pass them explicitly via
-the CLI.
-
-### The source directory
+## The `src` directory
 
 The `src` directory only contains a folder for the project in which the tasks and source
-files reside. The nested structure is called the src layout and is the preferred way to
-structure Python packages.
+files reside. The nested structure is called the "`src` layout" and is the preferred way
+to structure Python packages.
 
-It also contains a `config.py` or a similar module to store the project's configuration.
-For example, you should define paths pointing to the source and build directory of the
-project.
+It contains a `config.py` or a similar module to store the project's configuration. You
+should define paths pointing to the source and build directory of the project. They
+later help to define other paths.
 
 ```python
 # Content of config.py.
-
 from pathlib import Path
 
 
@@ -69,73 +50,117 @@ SRC = Path(__file__).parent.resolve()
 BLD = SRC.joinpath("..", "..", "bld").resolve()
 ```
 
-### The build directory
-
-pytask creates the build directory `bld` during the execution for storing the products
-of tasks. Delete it to rebuild the entire project.
-
-### Install the project
-
-Two files are necessary to turn the source directory into a Python package. It allows
-performing imports from `my_project`. E.g., `from my_project.config import SRC`. We also
-need `pip >= 21.1`.
-
-First, we need a `setup.cfg` containing the name, the package version, and the source
-code's location.
-
-```ini
-# Content of setup.cfg
-
-[metadata]
-name = my_project
-version = 0.0.1
-
-[options]
-packages = find:
-package_dir =
-    =src
-
-[options.packages.find]
-where = src
-```
-
-Secondly, extend the `pyproject.toml` with this content:
-
-```toml
-# Content of pyproject.toml
-
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-```
-
-:::{note}
-If you used the
-[cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project)
-template, the two files would look slightly different since
-[setuptools_scm](https://github.com/pypa/setuptools_scm) handles your versioning. Do not
-change anything and proceed.
+:::{seealso}
+If you want to know more about the "`src` layout" and why it is NASA approved, read
+[this article by Hynek Schlawack](https://hynek.me/articles/testing-packaging/). Also,
+more information can be found in this
+[setuptools article](https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#src-layout).
 :::
 
-Now, you can install the package into your environment with
+## The `bld` directory
+
+The variable `BLD` defines the path to a build directory called `bld`. It is best
+practice to store any outputs of the tasks in your project in a different folder than
+`src`.
+
+Whenever you want to fully regenerate your project, simply delete the build directory
+and run pytask again.
+
+## `pyproject.toml`
+
+The `pyproject.toml` file is the modern configuration file for most Python packages and
+apps. It contains
+
+1. ... the configuration for our Python package.
+2. ... pytask's configuration.
+
+Let us start with the configuration of the Python package which contains general
+information about the package like its name and version, or that the code can be found
+inside the `src` folder.
+
+```toml
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "my_project"
+version = "0.1.0"
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
+```
+
+:::{seealso}
+You can find more extensive information about this metadata in the documentation of
+[setuptools](https://setuptools.pypa.io/en/latest/userguide/quickstart.html).
+:::
+
+Alongside the package information, we include pytask's configuration under the
+`[tool.pytask.ini_options]` section. We only tell pytask to look for tasks in
+`src/my_project`.
+
+```toml
+[tool.pytask.ini_options]
+paths = ["src/my_project"]
+```
+
+You will learn more about the configuration in a later {doc}`tutorial <configuration>`.
+
+You can copy the whole content of the `pyproject.toml` here.
+
+<details>
+
+```toml
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "my_project"
+version = "0.1.0"
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
+
+[tool.pytask.ini_options]
+paths = ["src/my_project"]
+```
+
+</details>
+
+## The `.pytask` directory
+
+The `.pytask` directory is where pytask stores its information. You do not need to
+interact with it.
+
+## Installation
+
+At last, you can install the package into your environment with
 
 ```console
 $ pip install -e .
 ```
 
-This command will trigger an editable install of the project, which means any changes in
-the package's source files are immediately available in the installed version.
+This command will trigger an editable install of the project, which is a development
+mode and it means any changes in the package's source files are immediately available in
+the installed version. Again, setuptools makes
+[a good job explaining it](https://setuptools.pypa.io/en/latest/userguide/development_mode.html).
 
 :::{important}
 Do not forget to rerun the editable install every time after you recreate your Python
 environment.
+
+Also, do not mix it up with the regular installation command `pip install .` because it
+will likely not work. Then, paths defined with the variables `SRC` and `BLD` in
+`config.py` will look for files relative to the location where your package is installed
+like `/home/user/miniconda3/envs/...` and not in the folder you are working in.
 :::
-
-## Further Reading
-
-- You can find more examples for structuring a research project in
-  {doc}`../how_to_guides/bp_templates_and_projects`.
-- [This article by Hynek Schlawack](https://hynek.me/articles/testing-packaging/)
-  explains the `src` layout.
-- You find this and more information in the documentation for
-  [setuptools](https://setuptools.pypa.io/en/latest/userguide/quickstart.html).

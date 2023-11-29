@@ -101,16 +101,6 @@ fix = true
 ignore = [
     "I",  # ignore isort
     "TRY",  # ignore tryceratops.
-    # Numpy docstyle
-    "D107",
-    "D203",
-    "D212",
-    "D213",
-    "D402",
-    "D413",
-    "D415",
-    "D416",
-    "D417",
     # Others.
     "ISC001",
     "S101",  # raise errors for asserts.

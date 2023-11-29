@@ -23,22 +23,21 @@ We use the same project layout as before and add a `task_plot_data.py` module.
 
 ```text
 my_project
-├───pyproject.toml
+│
+├───.pytask
+│
+├───bld
+│   ├────data.pkl
+│   └────plot.png
 │
 ├───src
 │   └───my_project
+│       ├────__init__.py
 │       ├────config.py
 │       ├────task_data_preparation.py
 │       └────task_plot_data.py
 │
-├───setup.py
-│
-├───.pytask
-│   └────...
-│
-└───bld
-    ├────data.pkl
-    └────plot.png
+└───pyproject.toml
 ```
 
 ## Products
@@ -409,6 +408,8 @@ def task_fit_model(depends_on, produces):
 
 :::
 ::::
+
+(after)=
 
 ## Depending on a task
 
