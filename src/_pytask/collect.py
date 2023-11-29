@@ -4,9 +4,11 @@ from __future__ import annotations
 import inspect
 import itertools
 import os
+import requests
 import sys
 import time
 from pathlib import Path
+from threading import Thread
 from typing import Any
 from typing import Generator
 from typing import Iterable
@@ -31,6 +33,7 @@ from _pytask.node_protocols import PTask
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
+from _pytask.nodes import PTaskWithPath
 from _pytask.nodes import TaskWithoutPath
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
@@ -468,6 +471,11 @@ def _find_shortest_uniquely_identifiable_name_for_tasks(
 
     return id_to_short_id
 
+def send_logging_vscode(url,json,timeout):
+    try:
+        requests.post(url,json,timeout)
+    except requests.Timeout:
+        pass
 
 @hookimpl
 def pytask_collect_log(
@@ -475,6 +483,15 @@ def pytask_collect_log(
 ) -> None:
     """Log collection."""
     session.collection_end = time.time()
+      
+    if session.config['command'] == 'collect':
+        exitcode = 0
+        for report in reports:
+            if report.outcome == CollectionOutcome.FAIL:
+                exitcode = 3
+        result = [{'name' : task.name.split('/')[-1], 'path' : str(task.path)} if isinstance(task,PTaskWithPath) else {'name' : task.name, 'path' : ''} for task in tasks]
+        thread = Thread(target= send_logging_vscode, args= ('http://localhost:6000/pytask', result, 0.00001))
+        thread.start()
 
     console.print(f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}.")
 
