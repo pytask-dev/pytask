@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-__all__ = ["PathNode", "PythonNode", "Task", "TaskWithoutPath"]
+__all__ = ["PathNode", "PickleNode", "PythonNode", "Task", "TaskWithoutPath"]
 
 
 @define(kw_only=True)

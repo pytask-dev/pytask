@@ -26,6 +26,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`498` fixes an error when using {class}`~pytask.Task` and
   {class}`~pytask.TaskWithoutPath` in task modules.
 - {pull}`500` refactors the dependencies for tests.
+- {pull}`501` removes `MetaNode`.
 - {pull}`508` catches objects that pretend to be a {class}`~pytask.PTask`. Fixes
   {issue}`507`.
 
