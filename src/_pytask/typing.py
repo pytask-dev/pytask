@@ -42,7 +42,7 @@ def is_task_function(obj: Any) -> bool:
 
 
 def pretends_to_be_a_task(obj: Any) -> bool:
-    """Check if an object is really a :class:`~pytask.PTask`.
+    """Check if an object pretends to be a :class:`~pytask.PTask`.
 
     Some object are overwriting ``__getattr__`` and therefore any ``isinstance`` check
     with our protocols will invetibly return ``True``.
@@ -57,7 +57,7 @@ def pretends_to_be_a_task(obj: Any) -> bool:
         return False
 
     # Catches Task or TaskWithoutPath imported in a module.
-    if not inspect.isclass(obj):
+    if inspect.isclass(obj):
         return True
 
     # Catches, for example, ``from ibis import _``, objects that overwrote
