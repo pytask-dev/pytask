@@ -684,7 +684,12 @@ def test_scheduling_w_mixed_priorities(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_module_can_be_collected(runner, tmp_path):
     source = """
-    from pytask import Task, TaskWithoutPath
+    from pytask import Task, TaskWithoutPath, mark
+
+    class C:
+        def __getattr__(self, name):
+            return C()
+    c = C()
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 

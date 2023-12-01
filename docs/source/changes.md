@@ -5,7 +5,7 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.4.3 - 2023-11-xx
+## 0.4.3 - 2023-12-01
 
 - {pull}`483` simplifies the teardown of a task.
 - {pull}`484` raises more informative error when directories instead of files are used
@@ -26,6 +26,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`498` fixes an error when using {class}`~pytask.Task` and
   {class}`~pytask.TaskWithoutPath` in task modules.
 - {pull}`500` refactors the dependencies for tests.
+- {pull}`501` removes `MetaNode`.
+- {pull}`508` catches objects that pretend to be a {class}`~pytask.PTask`. Fixes
+  {issue}`507`.
 
 ## 0.4.2 - 2023-11-08
 

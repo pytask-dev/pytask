@@ -5,7 +5,6 @@ The utility functions are stored here to be separate from the plugin.
 """
 from __future__ import annotations
 
-import inspect
 from typing import Any
 from typing import TYPE_CHECKING
 
@@ -19,12 +18,10 @@ if TYPE_CHECKING:
 
 def get_all_marks(obj_or_task: Any | PTask) -> list[Mark]:
     """Get all marks from a callable or task."""
-    if isinstance(obj_or_task, PTask) and not inspect.isclass(obj_or_task):
-        marks = obj_or_task.markers
-    else:
-        obj = obj_or_task
-        marks = obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
-    return marks
+    if isinstance(obj_or_task, PTask):
+        return obj_or_task.markers
+    obj = obj_or_task
+    return obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
 
 
 def set_marks(obj_or_task: Any | PTask, marks: list[Mark]) -> Any | PTask:
