@@ -204,7 +204,7 @@ def _is_filtered_object(obj: Any) -> bool:
 
     # Filter objects overwriting the ``__getattr__`` method like :class:`pytask.mark` or
     # ``from ibis import _``.
-    attr_name = "_unknown_attr_name_for_sure"
+    attr_name = "attr_that_definitely_does_not_exist"
     if hasattr(obj, attr_name) and not bool(
         inspect.getattr_static(obj, attr_name, False)
     ):
