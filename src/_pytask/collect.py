@@ -41,6 +41,7 @@ from _pytask.reports import CollectionReport
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
+from _pytask.typing import pretends_to_be_a_task
 from rich.text import Text
 
 if TYPE_CHECKING:
@@ -279,7 +280,9 @@ def pytask_collect_task(
             markers=markers,
             attributes={"collection_id": collection_id, "after": after},
         )
-    if isinstance(obj, PTask) and not inspect.isclass(obj):
+    if pretends_to_be_a_task(obj):
+        return None
+    if isinstance(obj, PTask):
         return obj
     return None
 
