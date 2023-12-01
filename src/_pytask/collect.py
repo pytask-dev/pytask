@@ -193,12 +193,17 @@ def pytask_collect_file(
 
 
 def _is_filtered_object(obj: Any) -> bool:
-    """Filter some objects that are only causing harm later on."""
+    """Filter some objects that are only causing harm later on.
+
+    See :issue:`507`.
+
+    """
     # Filter :class:`pytask.Task` and :class:`pytask.TaskWithoutPath` objects.
     if isinstance(obj, PTask) and inspect.isclass(obj):
         return True
 
-    # Filter objects overwriting the ``__getattr__`` method.
+    # Filter objects overwriting the ``__getattr__`` method like :class:`pytask.mark` or
+    # ``from ibis import _``.
     attr_name = "_unknown_attr_name_for_sure"
     if hasattr(obj, attr_name) and not bool(
         inspect.getattr_static(obj, attr_name, False)
