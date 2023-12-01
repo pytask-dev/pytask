@@ -682,19 +682,10 @@ def test_scheduling_w_mixed_priorities(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_module_with_task_classes_can_be_collected(runner, tmp_path):
+def test_module_can_be_collected(runner, tmp_path):
     source = """
-    from pytask import Task, TaskWithoutPath
-    """
-    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    from pytask import Task, TaskWithoutPath, mark
 
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-
-
-@pytest.mark.end_to_end()
-def test_module_with_getattr_overwrite_can_be_collected(runner, tmp_path):
-    source = """
     class C:
         def __getattr__(self, name):
             return C()

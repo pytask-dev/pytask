@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING
 
 from _pytask.models import CollectionMetadata
 from _pytask.node_protocols import PTask
-from _pytask.typing import pretends_to_be_a_task
 
 
 if TYPE_CHECKING:
@@ -19,8 +18,6 @@ if TYPE_CHECKING:
 
 def get_all_marks(obj_or_task: Any | PTask) -> list[Mark]:
     """Get all marks from a callable or task."""
-    if pretends_to_be_a_task(obj_or_task):
-        return []
     if isinstance(obj_or_task, PTask):
         return obj_or_task.markers
     obj = obj_or_task

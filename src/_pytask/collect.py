@@ -22,7 +22,6 @@ from _pytask.console import create_summary_panel
 from _pytask.console import get_file
 from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
-from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
@@ -41,7 +40,6 @@ from _pytask.reports import CollectionReport
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
-from _pytask.typing import pretends_to_be_a_task
 from rich.text import Text
 
 if TYPE_CHECKING:
@@ -177,10 +175,7 @@ def pytask_collect_file(
 
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
-            # Skip mark generator since it overrides __getattr__ and seems like any
-            # object. Happens when people do ``from pytask import mark`` and
-            # ``@mark.x``.
-            if isinstance(obj, MarkGenerator):
+            if _is_filtered_object(obj):
                 continue
 
             # Ensures that tasks with this decorator are only collected once.
@@ -195,6 +190,21 @@ def pytask_collect_file(
 
         return collected_reports
     return None
+
+
+def _is_filtered_object(obj: Any) -> bool:
+    """Filter some objects that are only causing harm later on."""
+    # Filter :class:`pytask.Task` and :class:`pytask.TaskWithoutPath` objects.
+    if isinstance(obj, PTask) and inspect.isclass(obj):
+        return True
+
+    # Filter objects overwriting the ``__getattr__`` method.
+    attr_name = "_unknown_attr_name_for_sure"
+    if hasattr(obj, attr_name) and not bool(
+        inspect.getattr_static(obj, attr_name, False)
+    ):
+        return True
+    return False
 
 
 @hookimpl
@@ -280,8 +290,6 @@ def pytask_collect_task(
             markers=markers,
             attributes={"collection_id": collection_id, "after": after},
         )
-    if pretends_to_be_a_task(obj):
-        return None
     if isinstance(obj, PTask):
         return obj
     return None
