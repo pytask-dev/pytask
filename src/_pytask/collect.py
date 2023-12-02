@@ -22,7 +22,6 @@ from _pytask.console import create_summary_panel
 from _pytask.console import get_file
 from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
-from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
@@ -176,10 +175,7 @@ def pytask_collect_file(
 
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
-            # Skip mark generator since it overrides __getattr__ and seems like any
-            # object. Happens when people do ``from pytask import mark`` and
-            # ``@mark.x``.
-            if isinstance(obj, MarkGenerator):
+            if _is_filtered_object(obj):
                 continue
 
             # Ensures that tasks with this decorator are only collected once.
@@ -194,6 +190,26 @@ def pytask_collect_file(
 
         return collected_reports
     return None
+
+
+def _is_filtered_object(obj: Any) -> bool:
+    """Filter some objects that are only causing harm later on.
+
+    See :issue:`507`.
+
+    """
+    # Filter :class:`pytask.Task` and :class:`pytask.TaskWithoutPath` objects.
+    if isinstance(obj, PTask) and inspect.isclass(obj):
+        return True
+
+    # Filter objects overwriting the ``__getattr__`` method like :class:`pytask.mark` or
+    # ``from ibis import _``.
+    attr_name = "attr_that_definitely_does_not_exist"
+    if hasattr(obj, attr_name) and not bool(
+        inspect.getattr_static(obj, attr_name, False)
+    ):
+        return True
+    return False
 
 
 @hookimpl
@@ -279,7 +295,7 @@ def pytask_collect_task(
             markers=markers,
             attributes={"collection_id": collection_id, "after": after},
         )
-    if isinstance(obj, PTask) and not inspect.isclass(obj):
+    if isinstance(obj, PTask):
         return obj
     return None
 
