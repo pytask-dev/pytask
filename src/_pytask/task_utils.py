@@ -78,9 +78,11 @@ def task(
 
     .. code-block:: python
 
-        from typing import Annotated from pytask import task
+        from typing import Annotated
+        from pytask import task
 
-        @task def create_text_file() -> Annotated[str, Path("file.txt")]:
+        @task
+        def create_text_file() -> Annotated[str, Path("file.txt")]:
             return "Hello, World!"
 
     """
