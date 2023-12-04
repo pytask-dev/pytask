@@ -32,23 +32,26 @@ This section explains some steps which are required for all plugins.
 
 pytask discovers plugins via `setuptools` entry-points. Following the approach advocated
 for by [setuptools_scm](https://github.com/pypa/setuptools_scm), the entry-point is
-specified in `setup.cfg`.
+specified in `pyproject.toml`.
 
-```cfg
-# Content of setup.cfg
+```toml
+# Content of pyproject.toml
 
-[metadata]
+[project]
 name = pytask-plugin
 
-[options.packages.find]
-where = src
+[tool.setuptools.package-dir]
+"" = "src"
 
-[options.entry_points]
-pytask =
-    pytask_plugin = pytask_plugin.plugin
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
+
+[project.entry_points.pytask]
+pytask_plugin = "pytask_plugin.plugin"
 ```
 
-For `setuptools_scm` you also need a `pyproject.toml` with the following content.
+For `setuptools_scm` you also need the following additions in `pyproject.toml`.
 
 ```toml
 # Content of pyproject.toml
@@ -60,13 +63,13 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.0"]
 write_to = "src/pytask_plugin/_version.py"
 ```
 
-For a complete example with `setuptools_scm` and `setup.cfg` see the
-[pytask-parallel repo](https://github.com/pytask-dev/pytask-parallel/blob/main/setup.cfg).
+For a complete example with `setuptools_scm` and `pyproject.toml` see the
+[pytask-parallel repo](https://github.com/pytask-dev/pytask-parallel/blob/main/pyproject.toml).
 
 The entry-point for pytask is called `"pytask"` and points to a module called
 `pytask_plugin.plugin`.
 
-### plugin.py
+### `plugin.py`
 
 `plugin.py` is the entrypoint for pytask to your package. You can put all of your hook
 implementations in this module, but it is recommended to imitate the structure of pytask
