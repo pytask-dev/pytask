@@ -5,8 +5,9 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.4.4 - 2023-12-xx
+## 0.4.4 - 2023-12-04
 
+- {pull}`509` improves the documentation.
 - {pull}`510` fixes typing issues with the {class}`~pytask.DataCatalog`.
 
 ## 0.4.3 - 2023-12-01
