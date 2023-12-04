@@ -36,7 +36,7 @@ class PNode(Protocol):
 
         """
 
-    def load(self, is_product: bool) -> Any:
+    def load(self, is_product: bool = False) -> Any:
         """Return the value of the node that will be injected into the task.
 
         Parameters

@@ -6,16 +6,12 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 from typing import Callable
-from typing import TYPE_CHECKING
 
 import attrs
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
 from _pytask.typing import is_task_function
-
-if TYPE_CHECKING:
-    from _pytask.tree_util import PyTree
 
 
 __all__ = [
@@ -42,7 +38,7 @@ def task(
     after: str | Callable[..., Any] | list[Callable[..., Any]] | None = None,
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
-    produces: PyTree[Any] | None = None,
+    produces: Any | None = None,
 ) -> Callable[..., Callable[..., Any]]:
     """Decorate a task function.
 
