@@ -46,7 +46,7 @@ def task_that_takes_really_long_to_run(path: Path = Path("time_intensive_product
     ...
 ```
 
-## Further Reading
+## Further reading
 
 - {doc}`selecting_tasks`.
 - {confval}`ignore` on how to ignore task files.

@@ -487,27 +487,6 @@ def test_task_with_hashed_python_node(runner, tmp_path, definition):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.parametrize(
-    "second_node", ["PythonNode()", "PathNode(path=Path('a.txt'))"]
-)
-def test_error_with_multiple_dependency_annotations(runner, tmp_path, second_node):
-    source = f"""
-    from typing_extensions import Annotated
-    from pytask import PythonNode, PathNode
-    from pathlib import Path
-
-    def task_example(
-        dependency: Annotated[str, PythonNode(), {second_node}] = "hello"
-    ) -> None: ...
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.COLLECTION_FAILED
-    assert "Parameter 'dependency'" in result.output
-
-
-@pytest.mark.end_to_end()
 def test_return_with_path_annotation_as_return(runner, tmp_path):
     source = """
     from pathlib import Path

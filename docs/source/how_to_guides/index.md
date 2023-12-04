@@ -12,6 +12,7 @@ specific tasks with pytask.
 maxdepth: 1
 ---
 migrating_from_scripts_to_pytask
+interfaces_for_dependencies_products
 functional_interface
 capture_warnings
 how_to_influence_build_order

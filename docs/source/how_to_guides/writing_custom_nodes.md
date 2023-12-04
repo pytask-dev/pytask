@@ -9,10 +9,10 @@ your own to improve your workflows.
 
 ## Use-case
 
-A typical task operation is to load data like a {class}`pandas.DataFrame` from a pickle
+A typical task operation is to load data like a {class}`~pandas.DataFrame` from a pickle
 file, transform it, and store it on disk. The usual way would be to use paths to point
-to inputs and outputs and call {func}`pandas.read_pickle` and
-{meth}`pandas.DataFrame.to_pickle`.
+to inputs and outputs and call {func}`~pandas.read_pickle` and
+{meth}`~pandas.DataFrame.to_pickle`.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_1.py
 ```
@@ -20,7 +20,7 @@ to inputs and outputs and call {func}`pandas.read_pickle` and
 To remove IO operations from the task and delegate them to pytask, we will write a
 `PickleNode` that automatically loads and stores Python objects.
 
-And we pass the value to `df` via {obj}`Annotated` to preserve the type hint.
+And we pass the value to `df` via {obj}`~typing.Annotated` to preserve the type hint.
 
 The result will be the following task.
 

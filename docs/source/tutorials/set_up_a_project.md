@@ -1,13 +1,12 @@
 # Set up a project
 
-Assuming you want to use pytask with a research project or something similar, you want
+Assuming you want to use pytask for a more extensive project, you want
 to organize the project as a Python package. This tutorial explains the minimal setup.
 
-If you want to use pytask with a collection of scripts you can skip this lesson
+If you want to use pytask with a collection of scripts, you can skip this lesson
 and move to the next section of the tutorials.
 
-The following directory tree gives an overview of the different parts in the project and
-this section will explain the purpose of each of the parts.
+The following directory tree gives an overview of the project's different parts.
 
 ```text
 my_project
@@ -51,9 +50,8 @@ BLD = SRC.joinpath("..", "..", "bld").resolve()
 ```
 
 :::{seealso}
-If you want to know more about the "`src` layout" and why it is NASA approved, read
-[this article by Hynek Schlawack](https://hynek.me/articles/testing-packaging/). Also,
-more information can be found in this
+If you want to know more about the "`src` layout" and why it is NASA-approved, read
+[this article by Hynek Schlawack](https://hynek.me/articles/testing-packaging/) or this
 [setuptools article](https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#src-layout).
 :::
 
@@ -63,20 +61,20 @@ The variable `BLD` defines the path to a build directory called `bld`. It is bes
 practice to store any outputs of the tasks in your project in a different folder than
 `src`.
 
-Whenever you want to fully regenerate your project, simply delete the build directory
-and run pytask again.
+Whenever you want to regenerate your project, delete the build directory and rerun
+pytask.
 
 ## `pyproject.toml`
 
 The `pyproject.toml` file is the modern configuration file for most Python packages and
 apps. It contains
 
-1. ... the configuration for our Python package.
-2. ... pytask's configuration.
+1. the configuration for our Python package.
+2. pytask's configuration.
 
-Let us start with the configuration of the Python package which contains general
-information about the package like its name and version, or that the code can be found
-inside the `src` folder.
+Let us start with the configuration of the Python package, which contains general
+information about the package, like its name and version, the definition of the package
+folder, `src`.
 
 ```toml
 [build-system]
@@ -109,7 +107,7 @@ Alongside the package information, we include pytask's configuration under the
 paths = ["src/my_project"]
 ```
 
-You will learn more about the configuration in a later {doc}`tutorial <configuration>`.
+You will learn more about the configuration later in {doc}`tutorial <configuration>`.
 
 You can copy the whole content of the `pyproject.toml` here.
 
