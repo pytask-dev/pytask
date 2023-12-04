@@ -47,7 +47,7 @@ name = pytask-plugin
 where = ["src"]
 namespaces = false
 
-[project.entry_points.pytask]
+[project.entry-points.pytask]
 pytask_plugin = "pytask_plugin.plugin"
 ```
 
