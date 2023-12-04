@@ -13,20 +13,18 @@ automatically discovers them.
 ```text
 my_project
 │
-├───pyproject.toml
+├───.pytask
+│
+├───bld
+│   └────data.pkl
 │
 ├───src
 │   └───my_project
+│       ├────__init__.py
 │       ├────config.py
 │       └────task_data_preparation.py
 │
-├───setup.py
-│
-├───.pytask
-│   └────...
-│
-└───bld
-    └────data.pkl
+└───pyproject.toml
 ```
 
 Generally, a task is a function whose name starts with `task_`. Tasks produce outputs
@@ -122,6 +120,8 @@ Now, execute pytask to collect tasks in the current and subsequent directories.
 
 ```{include} ../_static/md/write-a-task.md
 ```
+
+(customize-task-names)=
 
 ## Customize task names
 

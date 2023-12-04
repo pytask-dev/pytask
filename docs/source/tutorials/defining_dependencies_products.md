@@ -1,44 +1,41 @@
 # Defining dependencies and products
 
-To ensure pytask executes all tasks in the correct order, you need to define
-dependencies and products for each task.
+Tasks have dependencies and products that you must define to run your tasks.
+
+Defining dependencies and products also serves another purpose. By analyzing them,
+pytask determines the order in which to run the tasks.
 
 This tutorial offers you different interfaces. If you are comfortable with type
-annotations or not afraid to try them, take a look at the tabs named `Python 3.10+` or
-`Python 3.8+`.
+annotations or not afraid to try them, look at the `Python 3.10+` or `Python 3.8+` tabs.
+You find a tutorial on type hints {doc}`here <../type_hints>`.
 
 If you want to avoid type annotations for now, look at the tab named `produces`.
 
-The deprecated approaches can be found in the tabs named `Decorators`.
+The `Decorators` tab documents the deprecated approach that should not be used
+anymore and will be removed in version v0.5.
 
-```{seealso}
-An overview on the different interfaces and their strength and weaknesses is given in
-{doc}`../explanations/interfaces_for_dependencies_products`.
-```
+First, we focus on defining products that should already be familiar to you. Then,
+we focus on how you can declare task dependencies.
 
-First, we focus on how to define products which should already be familiar to you. Then,
-we focus on how task dependencies can be declared.
-
-We use the same project layout as before and add a `task_plot_data.py` module.
+We use the same project as before and add a `task_plot_data.py` module.
 
 ```text
 my_project
-├───pyproject.toml
+│
+├───.pytask
+│
+├───bld
+│   ├────data.pkl
+│   └────plot.png
 │
 ├───src
 │   └───my_project
+│       ├────__init__.py
 │       ├────config.py
 │       ├────task_data_preparation.py
 │       └────task_plot_data.py
 │
-├───setup.py
-│
-├───.pytask
-│   └────...
-│
-└───bld
-    ├────data.pkl
-    └────plot.png
+└───pyproject.toml
 ```
 
 ## Products
@@ -55,7 +52,7 @@ in `task_data_preparation.py`.
 :emphasize-lines: 11
 ```
 
-{class}`~pytask.Product` allows to declare an argument as a product. After the
+{class}`~pytask.Product` allows marking an argument as a product. After the
 task has finished, pytask will check whether the file exists.
 
 :::
@@ -67,7 +64,7 @@ task has finished, pytask will check whether the file exists.
 :emphasize-lines: 11
 ```
 
-Using {class}`~pytask.Product` allows to declare an argument as a product. After the
+{class}`~pytask.Product` allows marking an argument as a product. After the
 task has finished, pytask will check whether the file exists.
 
 :::
@@ -79,9 +76,9 @@ task has finished, pytask will check whether the file exists.
 :emphasize-lines: 8
 ```
 
-Tasks can use `produces` as an "magic" argument name. Every value, or in this case path,
-passed to this argument is automatically treated as a task product. Here, the path is
-given by the default value of the argument.
+Tasks can use `produces` as a "magic" argument name. Every value, or in this case path,
+passed to this argument is automatically treated as a task product. Here, we pass the
+path as the default argument.
 
 :::
 
@@ -97,8 +94,7 @@ This approach is deprecated and will be removed in v0.5
 ```
 
 The {func}`@pytask.mark.produces <pytask.mark.produces>` marker attaches a product to a
-task which is a {class}`pathlib.Path` to file. After the task has finished, pytask will
-check whether the file exists.
+task. After the task has finished, pytask will check whether the file exists.
 
 Add `produces` as an argument of the task function to get access to the same path inside
 the task function.
@@ -113,22 +109,21 @@ beneficial for handling paths conveniently and across platforms.
 
 ## Dependencies
 
-Most tasks have dependencies and it is important to specify. Then, pytask ensures that
-the dependencies are available before executing the task.
+Adding a dependency to a task ensures that the dependency is available before execution.
 
-As an example, we want to extend our project with another task that plots the data that
-we generated with `task_create_random_data`. The task is called `task_plot_data` and we
-will define it in `task_plot_data.py`.
+To show how dependencies work, we extend our project with another task that plots the
+data generated with `task_create_random_data`. The task is called `task_plot_data`, and
+we will define it in `task_plot_data.py`.
 
 ::::{tab-set}
 
 :::{tab-item} Python 3.10+
 :sync: python310plus
 
-To specify that the task relies on the data set `data.pkl`, you can simply add the path
+To specify that the task relies on the data set `data.pkl`, you can add the path
 to the function signature while choosing any argument name, here `path_to_data`.
 
-pytask assumes that all function arguments that do not have the {class}`~pytask.Product`
+pytask assumes that all function arguments that do not have a {class}`~pytask.`Product`
 annotation are dependencies of the task.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_py310.py
@@ -140,7 +135,7 @@ annotation are dependencies of the task.
 :::{tab-item} Python 3.8+
 :sync: python38plus
 
-To specify that the task relies on the data set `data.pkl`, you can simply add the path
+To specify that the task relies on the data set `data.pkl`, you can add the path
 to the function signature while choosing any argument name, here `path_to_data`.
 
 pytask assumes that all function arguments that do not have the {class}`~pytask.Product`
@@ -155,8 +150,8 @@ annotation are dependencies of the task.
 :::{tab-item} &#8203;`produces`
 :sync: produces
 
-To specify that the task relies on the data set `data.pkl`, you can simply add the path
-to the function signature while choosing any argument name, here `path_to_data`.
+To specify that the task relies on the data set `data.pkl`, you can add the path to the
+function signature while choosing any argument name, here `path_to_data`.
 
 pytask assumes that all function arguments that are not passed to the argument
 `produces` are dependencies of the task.
@@ -257,9 +252,9 @@ Of course, tasks can have multiple dependencies and products.
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple1_py310.py
 ```
 
-You can group your dependencies and product if you prefer not having a function argument
-per input. Use dictionaries (recommended), tuples, lists, or more nested structures if
-you need.
+You can group your dependencies and product if you prefer not to have a function
+argument per input. Use dictionaries (recommended), tuples, lists, or more nested
+structures if needed.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple2_py310.py
 ```
@@ -272,9 +267,9 @@ you need.
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple1_py38.py
 ```
 
-You can group your dependencies and product if you prefer not having a function argument
-per input. Use dictionaries (recommended), tuples, lists, or more nested structures if
-you need.
+You can group your dependencies and product if you prefer not to have a function
+argument per input. Use dictionaries (recommended), tuples, lists, or more nested
+structures if needed.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple2_py38.py
 ```
@@ -285,7 +280,7 @@ you need.
 :sync: produces
 
 If your task has multiple products, group them in one container like a dictionary
-(recommended), tuples, lists or a more nested structures.
+(recommended), tuples, lists, or more nested structures.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple1_produces.py
 ```
@@ -349,9 +344,8 @@ Why does pytask recommend dictionaries and convert lists, tuples, or other
 iterators to dictionaries? First, dictionaries with positions as keys behave very
 similarly to lists.
 
-Secondly, dictionaries use keys instead of positions that are more verbose and
-descriptive and do not assume a fixed ordering. Both attributes are especially desirable
-in complex projects.
+Secondly, dictionary keys are more descriptive and do not assume a fixed
+ordering. Both attributes are especially desirable in complex projects.
 
 **Multiple decorators**
 
@@ -410,15 +404,16 @@ def task_fit_model(depends_on, produces):
 :::
 ::::
 
+(after)=
+
 ## Depending on a task
 
-In some situations you want to define a task depending on another task without
-specifying the relationship explicitly.
+In some situations, you want to define a task depending on another task.
 
-pytask allows you to do that, but you loose features like access to paths which is why
+pytask allows you to do that, but you lose features like access to paths, which is why
 defining dependencies explicitly is always preferred.
 
-There are two modes for it and both use {func}`@task(after=...) <pytask.task>`.
+There are two modes for it, and both use {func}`@task(after=...) <pytask.task>`.
 
 First, you can pass the task function or multiple task functions to the decorator.
 Applied to the tasks from before, we could have written `task_plot_data` as
@@ -442,6 +437,15 @@ def task_plot_data(...):
 ```
 
 You will learn more about expressions in {doc}`selecting_tasks`.
+
+## Further reading
+
+- There is an additional way to specify products by treating the returns of a task
+  function as a product. Read {doc}`../how_to_guides/using_task_returns` to learn more
+  about it.
+- An overview of all ways to specify dependencies and products and their strengths and
+  weaknesses can be found in
+  {doc}`../how_to_guides/interfaces_for_dependencies_products`.
 
 ## References
 

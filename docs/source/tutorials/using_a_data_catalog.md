@@ -22,21 +22,19 @@ The project structure is the same as in the previous example with the exception 
 ```text
 my_project
 │
-├───pyproject.toml
+├───.pytask
+│
+├───bld
+│   └────plot.png
 │
 ├───src
 │   └───my_project
+│       ├────__init__.py
 │       ├────config.py
 │       ├────task_data_preparation.py
 │       └────task_plot_data.py
 │
-├───setup.py
-│
-├───.pytask
-│   └────...
-│
-└───bld
-    └────plot.png
+└───pyproject.toml
 ```
 
 ## The `DataCatalog`

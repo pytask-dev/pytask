@@ -106,7 +106,7 @@ Every task has a unique id that can be used to {doc}`select it <selecting_tasks>
 standard id combines the path to the module where the task is defined, a double colon,
 and the name of the task function. Here is an example.
 
-```
+```text
 ../task_data_preparation.py::task_create_random_data
 ```
 
@@ -365,7 +365,7 @@ definition.
 
 You won't encounter these problems if you strictly use the below-mentioned interfaces.
 
-Look at this repeated task which runs three times and tries to produce a text file with
+Look at this repeated task, which runs three times and tries to produce a text file with
 some content.
 
 ```python
