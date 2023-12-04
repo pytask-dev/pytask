@@ -55,22 +55,24 @@ def task(
     ----------
     name
         Use it to override the name of the task that is, by default, the name of the
-        task function.
+        task function. Read :ref:`customize-task-names` for more information.
     after
         An expression or a task function or a list of task functions that need to be
         executed before this task can be executed. See :ref:`after` for more
         information.
     id
-        An id for the task if it is part of a parametrization. Otherwise, an automatic
-        id will be generated. See :doc:`this tutorial
-        <../tutorials/repeating_tasks_with_different_inputs>` for more information.
+        An id for the task if it is part of a repetition. Otherwise, an automatic id
+        will be generated. See :ref:`how-to-repeat-a-task-with-different-inputs-the-id`
+        for more information.
     kwargs
         Use a dictionary to pass any keyword arguments to the task function which can be
-        dependencies or products of the task.
+        dependencies or products of the task. Read :ref:`task-kwargs` for more
+        information.
     produces
         Use this argument if you want to parse the return of the task function as a
         product, but you cannot annotate the return of the function. See :doc:`this
-        how-to guide <../how_to_guides/using_task_returns>` for more information.
+        how-to guide <../how_to_guides/using_task_returns>` or :ref:`task-produces` for
+        more information.
 
     Examples
     --------
@@ -78,11 +80,9 @@ def task(
 
     .. code-block:: python
 
-        from typing import Annotated
-        from pytask import task
+        from typing import Annotated from pytask import task
 
-        @task
-        def create_text_file() -> Annotated[str, Path("file.txt")]:
+        @task def create_text_file() -> Annotated[str, Path("file.txt")]:
             return "Hello, World!"
 
     """

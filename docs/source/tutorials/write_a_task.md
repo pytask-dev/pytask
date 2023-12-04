@@ -121,6 +121,8 @@ Now, execute pytask to collect tasks in the current and subsequent directories.
 ```{include} ../_static/md/write-a-task.md
 ```
 
+(customize-task-names)=
+
 ## Customize task names
 
 Use the {func}`@task <pytask.task>` decorator to mark a function as a

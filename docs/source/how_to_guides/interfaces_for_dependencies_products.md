@@ -46,9 +46,11 @@ the task, but the value injected into the task depends on the nodes
 ```{literalinclude} ../../../docs_src/how_to_guides/interfaces/dependencies_annotation.py
 ```
 
+(task-kwargs)=
+
 ### `@task(kwargs=...)`
 
-You can use the `kwargs` argument of the `@task <pytask.task>` decorator to pass a
+You can use the `kwargs` argument of the {func}`@task <pytask.task>` decorator to pass a
 dictionary. It applies to dependencies and products alike.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/interfaces/dependencies_task_kwargs.py
@@ -97,6 +99,8 @@ the return type. It allows us to treat the returns of the task function as produ
 
 ```{literalinclude} ../../../docs_src/how_to_guides/interfaces/products_return_annotation.py
 ```
+
+(task-produces)=
 
 ### `@task(produces=...)`
 
