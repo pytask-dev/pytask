@@ -87,13 +87,13 @@ class DataCatalog:
             node = pickle.loads(path.read_bytes())  # noqa: S301
             self.entries[node.name] = node
 
-    def __getitem__(self, name: str) -> DataCatalog | PNode:
+    def __getitem__(self, name: str) -> PNode:
         """Allow to access entries with the squared brackets syntax."""
         if name not in self.entries:
             self.add(name)
         return self.entries[name]
 
-    def add(self, name: str, node: DataCatalog | PNode | None = None) -> None:
+    def add(self, name: str, node: PNode | None = None) -> None:
         """Add an entry to the data catalog."""
         assert isinstance(self.path, Path)
 
