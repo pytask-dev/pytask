@@ -35,10 +35,8 @@ for by [setuptools_scm](https://github.com/pypa/setuptools_scm), the entry-point
 specified in `pyproject.toml`.
 
 ```toml
-# Content of pyproject.toml
-
 [project]
-name = pytask-plugin
+name = "pytask-plugin"
 
 [tool.setuptools.package-dir]
 "" = "src"
@@ -54,8 +52,6 @@ pytask_plugin = "pytask_plugin.plugin"
 For `setuptools_scm` you also need the following additions in `pyproject.toml`.
 
 ```toml
-# Content of pyproject.toml
-
 [build-system]
 requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.0"]
 
