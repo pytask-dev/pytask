@@ -50,7 +50,9 @@ def relative_to(path: Path, source: Path, include_source: bool = True) -> Path:
     return Path(source_name, path.relative_to(source))
 
 
-def find_closest_ancestor(path: Path, potential_ancestors: Sequence[Path]) -> Path:
+def find_closest_ancestor(
+    path: Path, potential_ancestors: Sequence[Path]
+) -> Path | None:
     """Find the closest ancestor of a path.
 
     In case a path is the path to the task file itself, we return the path.
@@ -76,10 +78,19 @@ def find_closest_ancestor(path: Path, potential_ancestors: Sequence[Path]) -> Pa
         if ancestor == path:
             return path
 
-        candidate = find_common_ancestor(path, ancestor)
-        potential_closest_ancestors.append(candidate)
+        with contextlib.suppress(ValueError):
+            candidate = find_common_ancestor(path, ancestor)
+            potential_closest_ancestors.append(candidate)
 
-    return sorted(potential_closest_ancestors, key=lambda x: len(x.parts))[-1]
+    return next(
+        (
+            i
+            for i in sorted(
+                potential_closest_ancestors, key=lambda x: len(x.parts), reverse=True
+            )
+        ),
+        None,
+    )
 
 
 def find_common_ancestor(*paths: Path) -> Path:
