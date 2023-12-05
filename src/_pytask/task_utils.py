@@ -121,7 +121,8 @@ def task(
         # Based on https://stackoverflow.com/questions/1095543/get-name-of-calling-functions-module-in-python  # noqa: E501
         frm = inspect.stack()[1]
         task_module = inspect.getmodule(frm.frame)
-        COLLECTED_TASKS[task_module.__file__].append(unwrapped)
+        task_path = Path(task_module.__file__)
+        COLLECTED_TASKS[task_path].append(unwrapped)
 
         return unwrapped
 
