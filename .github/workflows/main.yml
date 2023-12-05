@@ -38,11 +38,6 @@ jobs:
           allow-prereleases: true
       - run: pip install tox
 
-      - if: matrix.os == 'ubunut-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install graphviz graphviz-dev
-
       - if: matrix.os == 'macos-latest'
         run: brew install graphviz
 
