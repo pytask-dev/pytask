@@ -92,18 +92,11 @@ def task(
                 )
                 raise ValueError(msg)
 
-        unwrapped = inspect.unwrap(func)
-
-        raw_path = inspect.getfile(unwrapped)
-        if "<string>" in raw_path:
-            path = Path(unwrapped.__globals__["__file__"]).absolute().resolve()
-        else:
-            path = Path(raw_path).absolute().resolve()
-
         parsed_kwargs = {} if kwargs is None else kwargs
         parsed_name = name if isinstance(name, str) else func.__name__
         parsed_after = _parse_after(after)
 
+        unwrapped = inspect.unwrap(func)
         if hasattr(unwrapped, "pytask_meta"):
             unwrapped.pytask_meta.name = parsed_name
             unwrapped.pytask_meta.kwargs = parsed_kwargs
@@ -123,7 +116,10 @@ def task(
 
         # Store it in the global variable ``COLLECTED_TASKS`` to avoid garbage
         # collection when the function definition is overwritten in a loop.
-        COLLECTED_TASKS[path].append(unwrapped)
+        # Based on https://stackoverflow.com/questions/1095543/get-name-of-calling-functions-module-in-python  # noqa: E501
+        frm = inspect.stack()[1]
+        task_module = inspect.getmodule(frm.frame)
+        COLLECTED_TASKS[task_module.__file__].append(unwrapped)
 
         return unwrapped
 
