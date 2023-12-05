@@ -4,16 +4,15 @@ from __future__ import annotations
 import inspect
 from collections import defaultdict
 from typing import Any
-from typing import Callable, TYPE_CHECKING
+from typing import Callable
 
 import attrs
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
 from _pytask.typing import is_task_function
+from pathlib import Path
 
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 __all__ = [
