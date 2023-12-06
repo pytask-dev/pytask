@@ -5,6 +5,10 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.4.5 - 2023-12-xx
+
+- {pull}`515` enables tests with graphviz in CI. Thanks to {user}`NickCrews`.
+
 ## 0.4.4 - 2023-12-04
 
 - {pull}`509` improves the documentation.
