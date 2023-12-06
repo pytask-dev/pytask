@@ -4,7 +4,6 @@ from __future__ import annotations
 import inspect
 import itertools
 import os
-import requests
 import sys
 import time
 from pathlib import Path
@@ -14,6 +13,7 @@ from typing import Generator
 from typing import Iterable
 from typing import TYPE_CHECKING
 
+import requests
 from _pytask.collect_utils import create_name_of_python_node
 from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_products_from_task_function
@@ -31,9 +31,9 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.nodes import PathNode
+from _pytask.nodes import PTaskWithPath
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
-from _pytask.nodes import PTaskWithPath
 from _pytask.nodes import TaskWithoutPath
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
@@ -45,6 +45,7 @@ from _pytask.shared import find_duplicates
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
 from rich.text import Text
+import contextlib
 
 if TYPE_CHECKING:
     from _pytask.session import Session
@@ -471,11 +472,11 @@ def _find_shortest_uniquely_identifiable_name_for_tasks(
 
     return id_to_short_id
 
-def send_logging_vscode(url: str,json: dict[str,Any],timeout: float) -> None:
-    try:
-        requests.post(url=url,json=json,timeout=timeout)
-    except requests.Timeout:
-        pass
+
+def send_logging_vscode(url: str, json: dict[str, Any], timeout: float) -> None:
+    with contextlib.suppress(requests.Timeout):
+        requests.post(url=url, json=json, timeout=timeout)
+
 
 @hookimpl
 def pytask_collect_log(
@@ -483,14 +484,26 @@ def pytask_collect_log(
 ) -> None:
     """Log collection."""
     session.collection_end = time.time()
-      
-    if session.config['command'] == 'collect':
+
+    if session.config["command"] == "collect":
         exitcode = 0
         for report in reports:
             if report.outcome == CollectionOutcome.FAIL:
                 exitcode = 3
-        result = [{'name' : task.name.split('/')[-1], 'path' : str(task.path)} if isinstance(task,PTaskWithPath) else {'name' : task.name, 'path' : ''} for task in tasks]
-        thread = Thread(target= send_logging_vscode, args= ('http://localhost:6000/pytask', {"exitcode" : exitcode, "tasks": result}, 0.00001))
+        result = [
+            {"name": task.name.split("/")[-1], "path": str(task.path)}
+            if isinstance(task, PTaskWithPath)
+            else {"name": task.name, "path": ""}
+            for task in tasks
+        ]
+        thread = Thread(
+            target=send_logging_vscode,
+            args=(
+                "http://localhost:6000/pytask",
+                {"exitcode": exitcode, "tasks": result},
+                0.00001,
+            ),
+        )
         thread.start()
 
     console.print(f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}.")
