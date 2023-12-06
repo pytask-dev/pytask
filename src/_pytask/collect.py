@@ -474,6 +474,7 @@ def _find_shortest_uniquely_identifiable_name_for_tasks(
 
 
 def send_logging_vscode(url: str, json: dict[str, Any], timeout: float) -> None:
+    """Send logging information to VSCode."""
     with contextlib.suppress(requests.Timeout):
         requests.post(url=url, json=json, timeout=timeout)
 
