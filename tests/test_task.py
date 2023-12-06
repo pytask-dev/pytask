@@ -3,9 +3,7 @@ from __future__ import annotations
 import textwrap
 
 import pytest
-from pytask import build
-from pytask import cli
-from pytask import ExitCode
+from pytask import ExitCode, build, cli
 
 
 @pytest.mark.end_to_end()
@@ -31,6 +29,21 @@ def test_task_with_task_decorator(tmp_path, func_name, task_name):
         assert session.tasks[0].name.endswith(f"task_module.py::{task_name}")
     else:
         assert session.tasks[0].name.endswith(f"task_module.py::{func_name}")
+
+
+@pytest.mark.end_to_end()
+def test_task_using_lambda(tmp_path):
+    source = """
+    import pytask
+    from pathlib import Path
+
+    task_lambda = pytask.task(produces=Path("out.txt"))(lambda *args: "Hello")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    session = build(paths=tmp_path)
+    assert session.exit_code == ExitCode.OK
+    assert session.tasks[0].name.endswith("task_module.py::<lambda>")
+    assert tmp_path.joinpath("out.txt").read_text() == "Hello"
 
 
 @pytest.mark.end_to_end()
