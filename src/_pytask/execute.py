@@ -4,11 +4,9 @@ from __future__ import annotations
 import inspect
 import sys
 import time
-from threading import Thread
 from typing import Any
 from typing import TYPE_CHECKING
 
-from _pytask.collect import send_logging_vscode
 from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
@@ -37,7 +35,6 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
 from _pytask.reports import ExecutionReport
 from _pytask.traceback import remove_traceback_from_exc_info
-from _pytask.traceback import Traceback
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_structure
@@ -271,10 +268,10 @@ def pytask_execute_task_process_report(
 
     return True
 
+
 @hookimpl(trylast=True)
 def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:
     """Log task outcome."""
-
     url_style = create_url_style_for_task(
         report.task.function, session.config["editor_url_scheme"]
     )
