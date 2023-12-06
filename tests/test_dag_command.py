@@ -23,6 +23,7 @@ _TEST_SHOULD_RUN = _IS_PYGRAPHVIZ_INSTALLED or (
     os.environ.get("CI") and sys.platform != "win32"
 )
 
+
 _GRAPH_LAYOUTS = ["neato", "dot", "fdp", "sfdp", "twopi", "circo"]
 
 
@@ -42,7 +43,7 @@ _TEST_FORMATS = ["dot", "pdf", "png", "jpeg", "svg"]
 
 @pytest.mark.end_to_end()
 @pytest.mark.skipif(not _TEST_SHOULD_RUN, reason="pygraphviz is required")
-@pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
+@pytest.mark.parametrize("layout", _GRAPH_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
 @pytest.mark.parametrize("rankdir", ["LR"])
 def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
@@ -78,7 +79,7 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
 
 @pytest.mark.end_to_end()
 @pytest.mark.skipif(not _TEST_SHOULD_RUN, reason="pygraphviz is required")
-@pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
+@pytest.mark.parametrize("layout", _GRAPH_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
 @pytest.mark.parametrize("rankdir", [_RankDirection.LR.value, _RankDirection.TB])
 def test_create_graph_via_task(tmp_path, runner, format_, layout, rankdir):
