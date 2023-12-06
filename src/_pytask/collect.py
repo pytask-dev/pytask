@@ -1,6 +1,7 @@
 """Implement functionality to collect tasks."""
 from __future__ import annotations
 
+import contextlib
 import inspect
 import itertools
 import os
@@ -45,7 +46,6 @@ from _pytask.shared import find_duplicates
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
 from rich.text import Text
-import contextlib
 
 if TYPE_CHECKING:
     from _pytask.session import Session

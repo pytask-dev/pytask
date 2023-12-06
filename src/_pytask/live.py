@@ -171,15 +171,27 @@ class LiveExecution:
     @hookimpl
     def pytask_execute_task_log_end(self, report: ExecutionReport) -> bool:
         """Mark a task as being finished and update outcome."""
-        console.print('hier')
+        console.print("hier")
         if report.outcome == TaskOutcome.FAIL:
             with console.capture() as capture:
                 console.print(Traceback(report.exc_info))
             s = capture.get()
-            result = {'type': 'task', 'name' : report.task.name.split('/')[-1], 'outcome' : str(report.outcome), 'exc_info' : s}
+            result = {
+                "type": "task",
+                "name": report.task.name.split("/")[-1],
+                "outcome": str(report.outcome),
+                "exc_info": s,
+            }
         else:
-            result = {'type': 'task', 'name' : report.task.name.split('/')[-1], 'outcome' : str(report.outcome)}
-        thread = Thread(target= send_logging_vscode, args= ('http://localhost:6000/pytask', result, 0.00001))
+            result = {
+                "type": "task",
+                "name": report.task.name.split("/")[-1],
+                "outcome": str(report.outcome),
+            }
+        thread = Thread(
+            target=send_logging_vscode,
+            args=("http://localhost:6000/pytask", result, 0.00001),
+        )
         thread.start()
         self.update_reports(report)
         return True
