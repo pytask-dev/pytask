@@ -193,3 +193,6 @@ exclude_also = [
     "\\.\\.\\.",
     "def __repr__",
 ]
+
+[tool.pytask.ini_options]
+paths = "does_not_exist"

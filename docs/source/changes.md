@@ -5,6 +5,12 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.4.5 - 2023-12-xx
+
+- {pull}`xxx` raises an error when the configuration file contains a non-existing path
+  (fixes #514). Also adds a warning if the path is configured as a string and not a list
+  of strings.
+
 ## 0.4.4 - 2023-12-04
 
 - {pull}`509` improves the documentation.
