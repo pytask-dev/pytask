@@ -19,9 +19,7 @@ else:
 
 # Test should run always on remote except on Windows and locally only with the package
 # installed.
-_TEST_SHOULD_RUN = _IS_PYGRAPHVIZ_INSTALLED or (
-    os.environ.get("CI") and sys.platform != "win32"
-)
+_TEST_SHOULD_RUN = _IS_PYGRAPHVIZ_INSTALLED or (os.environ.get("CI"))
 
 
 _GRAPH_LAYOUTS = ["neato", "dot", "fdp", "sfdp", "twopi", "circo"]
