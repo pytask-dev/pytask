@@ -662,3 +662,20 @@ def test_task_will_be_executed_after_another_one_with_function(tmp_path):
 
     session = build(paths=tmp_path)
     assert session.exit_code == ExitCode.OK
+
+
+def test_task_with_builtin_function(runner, tmp_path):
+    source = """
+    from pytask import task
+    from pathlib import Path
+    from datetime import datetime
+
+    task(
+        kwargs={"format": "%y/%m/%d"}, produces=Path("time.txt")
+    )(datetime.utcnow().strftime)
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert len(tmp_path.joinpath("time.txt").read_text()) == 8
