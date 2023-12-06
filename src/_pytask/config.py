@@ -77,6 +77,7 @@ def pytask_configure(
 def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse the configuration."""
     config["root"].joinpath(".pytask").mkdir(exist_ok=True, parents=True)
+
     config["paths"] = parse_paths(config["paths"])
 
     config["markers"] = {
