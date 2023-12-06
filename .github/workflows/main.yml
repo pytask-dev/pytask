@@ -38,7 +38,7 @@ jobs:
           allow-prereleases: true
       - run: pip install tox
 
-      - if: matrix.os == 'ubunut-latest'
+      - if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install graphviz graphviz-dev
