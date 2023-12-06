@@ -677,5 +677,5 @@ def test_task_with_builtin_function(runner, tmp_path):
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert len(tmp_path.joinpath("time.txt").read_text()) == 8
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Builtin functions cannot be wrapped" in result.output
