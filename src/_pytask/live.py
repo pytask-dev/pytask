@@ -171,7 +171,7 @@ class LiveExecution:
     @hookimpl
     def pytask_execute_task_log_end(self, report: ExecutionReport) -> bool:
         """Mark a task as being finished and update outcome."""
-        if report.outcome == TaskOutcome.FAIL:
+        if report.outcome == TaskOutcome.FAIL and report.exc_info is not None:
             with console.capture() as capture:
                 console.print(Traceback(report.exc_info))
             s = capture.get()
