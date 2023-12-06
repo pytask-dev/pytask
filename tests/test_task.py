@@ -664,7 +664,7 @@ def test_task_will_be_executed_after_another_one_with_function(tmp_path):
     assert session.exit_code == ExitCode.OK
 
 
-def test_task_with_builtin_function(runner, tmp_path):
+def test_raise_error_with_builtin_function_as_task(runner, tmp_path):
     source = """
     from pytask import task
     from pathlib import Path
