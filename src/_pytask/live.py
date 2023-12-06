@@ -1,17 +1,20 @@
 """Contains code related to live objects."""
 from __future__ import annotations
 
+from threading import Thread
 from typing import Any
 from typing import Generator
 from typing import NamedTuple
 from typing import TYPE_CHECKING
 
 import click
+from _pytask.collect import send_logging_vscode
 from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_name
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
+from _pytask.traceback import Traceback
 from attrs import define
 from attrs import field
 from rich.box import ROUNDED
@@ -168,6 +171,16 @@ class LiveExecution:
     @hookimpl
     def pytask_execute_task_log_end(self, report: ExecutionReport) -> bool:
         """Mark a task as being finished and update outcome."""
+        console.print('hier')
+        if report.outcome == TaskOutcome.FAIL:
+            with console.capture() as capture:
+                console.print(Traceback(report.exc_info))
+            s = capture.get()
+            result = {'type': 'task', 'name' : report.task.name.split('/')[-1], 'outcome' : str(report.outcome), 'exc_info' : s}
+        else:
+            result = {'type': 'task', 'name' : report.task.name.split('/')[-1], 'outcome' : str(report.outcome)}
+        thread = Thread(target= send_logging_vscode, args= ('http://localhost:6000/pytask', result, 0.00001))
+        thread.start()
         self.update_reports(report)
         return True
 

@@ -271,20 +271,9 @@ def pytask_execute_task_process_report(
 
     return True
 
-
-@hookimpl(tryfirst=True)
+@hookimpl(trylast=True)
 def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:
     """Log task outcome."""
-
-    if report.outcome == TaskOutcome.FAIL:
-            with console.capture() as capture:
-                console.print(Traceback(report.exc_info))
-            s = capture.get()
-            result = {'type': 'task', 'name' : report.task.name.split('/')[-1], 'outcome' : str(report.outcome), 'exc_info' : s}
-    else:
-        result = {'type': 'task', 'name' : report.task.name.split('/')[-1], 'outcome' : str(report.outcome)}
-    thread = Thread(target= send_logging_vscode, args= ('http://localhost:6000/pytask', result, 0.00001))
-    thread.start()
 
     url_style = create_url_style_for_task(
         report.task.function, session.config["editor_url_scheme"]
