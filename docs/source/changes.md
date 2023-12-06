@@ -7,7 +7,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.4.5 - 2023-12-xx
 
-- {pull}`xxx` raises an error when the configuration file contains a non-existing path
+- {pull}`515` enables tests with graphviz in CI. Thanks to {user}`NickCrews`.
+- {pull}`517` raises an error when the configuration file contains a non-existing path
   (fixes #514). Also adds a warning if the path is configured as a string and not a list
   of strings.
 
