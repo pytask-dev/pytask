@@ -4,6 +4,7 @@ from __future__ import annotations
 import inspect
 from collections import defaultdict
 from pathlib import Path
+from types import BuiltinFunctionType
 from typing import Any
 from typing import Callable
 
@@ -84,6 +85,9 @@ def task(
     """
 
     def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
+        # Omits frame when a builtin function is wrapped.
+        _rich_traceback_omit = True
+
         for arg, arg_name in ((name, "name"), (id, "id")):
             if not (isinstance(arg, str) or arg is None):
                 msg = (
@@ -93,6 +97,16 @@ def task(
                 raise ValueError(msg)
 
         unwrapped = inspect.unwrap(func)
+
+        # We do not allow builtins as functions because we would need to use
+        # ``inspect.stack`` to infer their caller location and they are unable to carry
+        # the pytask metadata.
+        if isinstance(unwrapped, BuiltinFunctionType):
+            msg = (
+                "Builtin functions cannot be wrapped with '@task'. If necessary, wrap "
+                "the builtin function in a function or lambda expression."
+            )
+            raise NotImplementedError(msg)
 
         raw_path = inspect.getfile(unwrapped)
         if "<string>" in raw_path:

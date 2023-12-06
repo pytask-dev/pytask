@@ -9,8 +9,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`515` enables tests with graphviz in CI. Thanks to {user}`NickCrews`.
 - {pull}`517` raises an error when the configuration file contains a non-existing path
-  (fixes #514). Also adds a warning if the path is configured as a string and not a list
-  of strings.
+  (fixes #514). It also warns if the path is configured as a string and not a list of
+  strings.
+- {pull}`519` raises an error when builtin functions are wrapped with
+  {func}`~pytask.task`. Closes {issue}`512`.
 
 ## 0.4.4 - 2023-12-04
 
