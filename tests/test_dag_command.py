@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import shutil
 import sys
 import textwrap
 
@@ -19,23 +18,10 @@ else:
 
 # Test should run always on remote except on Windows and locally only with the package
 # installed.
-_TEST_SHOULD_RUN = _IS_PYGRAPHVIZ_INSTALLED or (os.environ.get("CI"))
-
-
+_TEST_SHOULD_RUN = _IS_PYGRAPHVIZ_INSTALLED or (
+    os.environ.get("CI") and sys.platform != "win32"
+)
 _GRAPH_LAYOUTS = ["neato", "dot", "fdp", "sfdp", "twopi", "circo"]
-
-
-_PARAMETRIZED_LAYOUTS = [
-    pytest.param(
-        layout,
-        marks=pytest.mark.skip(reason=f"{layout} not available")
-        if shutil.which(layout) is None
-        else [],
-    )
-    for layout in _GRAPH_LAYOUTS
-]
-
-
 _TEST_FORMATS = ["dot", "pdf", "png", "jpeg", "svg"]
 
 

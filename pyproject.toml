@@ -72,7 +72,6 @@ docs = [
 test = [
   "deepdiff",
   "pexpect",
-  "pygraphviz",
   "pytest",
   "pytest-cov",
   "pytest-xdist",
