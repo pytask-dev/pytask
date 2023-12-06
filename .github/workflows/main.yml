@@ -38,8 +38,8 @@ jobs:
           allow-prereleases: true
       - run: pip install tox
 
-      - if: matrix.os == 'macos-latest'
-        run: brew install graphviz
+      # - if: matrix.os == 'macos-latest'
+      #   run: brew install graphviz
 
       # Unit, integration, and end-to-end tests.
 
