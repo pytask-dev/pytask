@@ -46,6 +46,27 @@ def test_task_using_lambda(tmp_path):
     assert tmp_path.joinpath("out.txt").read_text() == "Hello"
 
 
+@pytest.mark.xfail()
+@pytest.mark.end_to_end()
+def test_task_using_builtin(tmp_path):
+    # https://github.com/pytask-dev/pytask/issues/512
+    source = """
+    from pathlib import Path
+    import time
+
+    import pytask
+
+    # Wrapping in a lambda makes it work eg lambda *x: time.asctime()
+    task_build_time = pytask.task(produces=Path("build_time.txt"))(time.asctime)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    session = build(paths=tmp_path)
+    assert session.exit_code == ExitCode.OK
+    assert session.tasks[0].name.endswith("task_module.py::<lambda>")
+    # Something like "Wed Dec  6 09:42:51 2023"
+    assert ":" in tmp_path.joinpath("build_time.txt").read_text()
+
+
 @pytest.mark.end_to_end()
 def test_parametrization_in_for_loop(tmp_path, runner):
     source = """
