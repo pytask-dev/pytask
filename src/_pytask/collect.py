@@ -152,7 +152,8 @@ task(...)(lambda **x: imported_function(**x)).
 
 def _collect_not_collected_tasks(session: Session) -> None:
     """Collect tasks that are not collected yet and create failed reports."""
-    for path, tasks in COLLECTED_TASKS.items():
+    for path in list(COLLECTED_TASKS):
+        tasks = COLLECTED_TASKS.pop(path)
         for task in tasks:
             name = task.pytask_meta.name  # type: ignore[attr-defined]
             node = Task(base_name=name, path=path, function=task)

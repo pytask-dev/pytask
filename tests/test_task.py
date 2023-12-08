@@ -704,6 +704,5 @@ def test_task_function_in_another_module(runner, tmp_path):
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert "1  Succeeded" in result.output
-    assert tmp_path.joinpath("out.txt").read_text() == "Hello, World!"
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "1  Failed" in result.output
