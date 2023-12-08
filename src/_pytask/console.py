@@ -225,18 +225,13 @@ def get_file(  # noqa: PLR0911
             return get_file(function.__wrapped__)
     source_file = inspect.getsourcefile(function)
     if source_file:
-        # Handle functions defined in the REPL.
         if "<stdin>" in source_file:
             return None
-        # Handle lambda functions.
         if "<string>" in source_file:
             try:
                 return Path(function.__globals__["__file__"]).absolute().resolve()
             except KeyError:
                 return None
-        # Handle functions defined in Jupyter notebooks.
-        if "ipykernel" in source_file or "ipython-input" in source_file:
-            return None
         return Path(source_file).absolute().resolve()
     return None
 
