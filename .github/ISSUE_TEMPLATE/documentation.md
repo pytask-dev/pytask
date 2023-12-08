@@ -16,7 +16,7 @@ Provide the location of the documentation, e.g. an URL of the documentation.
 
 #### Documentation problem
 
-Provide a description of what documentation you believe needs to be fixed/improved.
+Describe what documentation you believe needs to be fixed/improved.
 
 #### Suggested fix for documentation
 
