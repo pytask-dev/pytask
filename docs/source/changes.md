@@ -13,6 +13,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   strings.
 - {pull}`519` raises an error when builtin functions are wrapped with
   {func}`~pytask.task`. Closes {issue}`512`.
+- {pull}`522` improves the issue templates.
 
 ## 0.4.4 - 2023-12-04
 
