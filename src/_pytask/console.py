@@ -45,7 +45,6 @@ __all__ = [
     "format_strings_as_flat_tree",
     "format_task_name",
     "get_file",
-    "is_jupyter",
     "render_to_string",
     "unify_styles",
 ]
@@ -304,26 +303,3 @@ def create_summary_panel(
         if counts[outcome_enum.FAIL]
         else outcome_enum.SUCCESS.style,
     )
-
-
-def is_jupyter() -> bool:  # pragma: no cover
-    """Check if we're running in a Jupyter notebook.
-
-    Copied from rich.
-
-    """
-    try:
-        get_ipython  # type: ignore[name-defined]  # noqa: B018
-    except NameError:
-        return False
-    ipython = get_ipython()  # type: ignore[name-defined]  # noqa: F821
-    shell = ipython.__class__.__name__
-    if (
-        "google.colab" in str(ipython.__class__)
-        or os.getenv("DATABRICKS_RUNTIME_VERSION")
-        or shell == "ZMQInteractiveShell"
-    ):
-        return True  # Jupyter notebook or qtconsole
-    if shell == "TerminalInteractiveShell":
-        return False  # Terminal running IPython
-    return False  # Other type (?)
