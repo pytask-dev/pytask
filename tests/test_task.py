@@ -679,3 +679,31 @@ def test_raise_error_with_builtin_function_as_task(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.COLLECTION_FAILED
     assert "Builtin functions cannot be wrapped" in result.output
+
+
+def test_task_function_in_another_module(runner, tmp_path):
+    source = """
+    def func():
+        return "Hello, World!"
+    """
+    tmp_path.joinpath("module.py").write_text(textwrap.dedent(source))
+
+    source = """
+    from pytask import task
+    from pathlib import Path
+    from _pytask.path import import_path
+    import inspect
+
+    _ROOT_PATH = Path(__file__).parent
+
+    module = import_path(_ROOT_PATH / "module.py", _ROOT_PATH)
+    name_to_obj = dict(inspect.getmembers(module))
+
+    task_example = task(produces=Path("out.txt"))(name_to_obj["func"])
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+    assert tmp_path.joinpath("out.txt").read_text() == "Hello, World!"

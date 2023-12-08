@@ -12,7 +12,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   (fixes #514). It also warns if the path is configured as a string and not a list of
   strings.
 - {pull}`519` raises an error when builtin functions are wrapped with
-  {func}`~pytask.task`. Closes {issue}`512`.
+  {func}`~pytask.task`. Closes {issue}`512`.pull
+- {pull}`520` raises an error message when imported functions are wrapped with
+  {func}`@task <pytask.task>` in a task module. Fixes {issue}`513`.
 
 ## 0.4.4 - 2023-12-04
 

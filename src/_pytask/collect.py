@@ -22,6 +22,7 @@ from _pytask.console import create_summary_panel
 from _pytask.console import get_file
 from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
+from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
@@ -38,6 +39,7 @@ from _pytask.path import import_path
 from _pytask.path import shorten_path
 from _pytask.reports import CollectionReport
 from _pytask.shared import find_duplicates
+from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
 from rich.text import Text
@@ -54,6 +56,7 @@ def pytask_collect(session: Session) -> bool:
 
     _collect_from_paths(session)
     _collect_from_tasks(session)
+    _collect_not_collected_tasks(session)
 
     session.tasks.extend(
         i.node
@@ -132,6 +135,38 @@ def _collect_from_tasks(session: Session) -> None:
         )
 
         if report is not None:
+            session.collection_reports.append(report)
+
+
+_FAILED_COLLECTING_TASK = """\
+Failed to collect task '{name}' from file '{path}'.
+
+This can happen when the task function is defined in another module, imported to a \
+task module and wrapped with the '@task' decorator.
+
+To collect this task correctly, wrap the imported function in a lambda expression like
+
+task(...)(lambda **x: imported_function(**x)).
+"""
+
+
+def _collect_not_collected_tasks(session: Session) -> None:
+    """Collect tasks that are not collected yet and create failed reports."""
+    for path, tasks in COLLECTED_TASKS.items():
+        for task in tasks:
+            name = task.pytask_meta.name  # type: ignore[attr-defined]
+            node = Task(base_name=name, path=path, function=task)
+            report = CollectionReport(
+                outcome=CollectionOutcome.FAIL,
+                node=node,
+                exc_info=(
+                    NodeNotCollectedError,
+                    NodeNotCollectedError(
+                        _FAILED_COLLECTING_TASK.format(name=name, path=node.path)
+                    ),
+                    None,
+                ),
+            )
             session.collection_reports.append(report)
 
 
