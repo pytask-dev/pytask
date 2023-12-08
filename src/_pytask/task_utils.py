@@ -3,16 +3,20 @@ from __future__ import annotations
 
 import inspect
 from collections import defaultdict
-from pathlib import Path
 from types import BuiltinFunctionType
 from typing import Any
 from typing import Callable
+from typing import TYPE_CHECKING
 
 import attrs
+from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
 from _pytask.typing import is_task_function
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 __all__ = [
@@ -23,7 +27,7 @@ __all__ = [
 ]
 
 
-COLLECTED_TASKS: dict[Path, list[Callable[..., Any]]] = defaultdict(list)
+COLLECTED_TASKS: dict[Path | None, list[Callable[..., Any]]] = defaultdict(list)
 """A container for collecting tasks.
 
 Tasks marked by the ``@pytask.mark.task`` decorator can be generated in a loop where one
@@ -108,11 +112,7 @@ def task(
             )
             raise NotImplementedError(msg)
 
-        raw_path = inspect.getfile(unwrapped)
-        if "<string>" in raw_path:
-            path = Path(unwrapped.__globals__["__file__"]).absolute().resolve()
-        else:
-            path = Path(raw_path).absolute().resolve()
+        path = get_file(unwrapped)
 
         parsed_kwargs = {} if kwargs is None else kwargs
         parsed_name = name if isinstance(name, str) else func.__name__

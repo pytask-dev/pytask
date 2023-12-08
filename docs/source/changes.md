@@ -15,6 +15,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   {func}`~pytask.task`. Closes {issue}`512`.pull
 - {pull}`521` raises an error message when imported functions are wrapped with
   {func}`@task <pytask.task>` in a task module. Fixes {issue}`513`.
+  {func}`~pytask.task`. Closes {issue}`512`.
+- {pull}`522` improves the issue templates.
+- {pull}`523` refactors `_pytask.console._get_file`.
 
 ## 0.4.4 - 2023-12-04
 

@@ -20,7 +20,6 @@ from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import get_file
-from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import get_all_marks
@@ -101,23 +100,7 @@ def _collect_from_tasks(session: Session) -> None:
             if not hasattr(raw_task, "pytask_meta"):
                 raw_task = task_decorator()(raw_task)  # noqa: PLW2901
 
-            try:
-                path = get_file(raw_task)
-            except (TypeError, OSError):
-                path = None
-            else:
-                if path and path.name == "<stdin>":
-                    path = None  # pragma: no cover
-
-            # Detect whether a path is defined in a Jupyter notebook.
-            if (
-                is_jupyter()
-                and path
-                and "ipykernel" in path.as_posix()
-                and path.suffix == ".py"
-            ):
-                path = None  # pragma: no cover
-
+            path = get_file(raw_task)
             name = raw_task.pytask_meta.name
 
         # When a task is not a callable, it can be anything or a PTask. Set arbitrary
@@ -139,7 +122,7 @@ def _collect_from_tasks(session: Session) -> None:
 
 
 _FAILED_COLLECTING_TASK = """\
-Failed to collect task '{name}' from file '{path}'.
+Failed to collect task '{name}'{path_desc}.
 
 This can happen when the task function is defined in another module, imported to a \
 task module and wrapped with the '@task' decorator.
@@ -156,14 +139,20 @@ def _collect_not_collected_tasks(session: Session) -> None:
         tasks = COLLECTED_TASKS.pop(path)
         for task in tasks:
             name = task.pytask_meta.name  # type: ignore[attr-defined]
-            node = Task(base_name=name, path=path, function=task)
+            node: PTask
+            if path:
+                node = Task(base_name=name, path=path, function=task)
+                path_desc = f" in '{path}'"
+            else:
+                node = TaskWithoutPath(name=name, function=task)
+                path_desc = ""
             report = CollectionReport(
                 outcome=CollectionOutcome.FAIL,
                 node=node,
                 exc_info=(
                     NodeNotCollectedError,
                     NodeNotCollectedError(
-                        _FAILED_COLLECTING_TASK.format(name=name, path=node.path)
+                        _FAILED_COLLECTING_TASK.format(name=name, path_desc=path_desc)
                     ),
                     None,
                 ),

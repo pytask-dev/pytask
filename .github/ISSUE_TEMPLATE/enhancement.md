@@ -14,15 +14,15 @@ Provide a description of what the problem is, e.g. "I wish I could use pytask to
 
 #### Describe the solution you'd like
 
-Provide a description of the feature request and how it might be implemented.
+Describe the feature request and how it might be implemented.
 
 #### API breaking implications
 
-Provide a description of how this feature will affect the API.
+Describe how this feature will affect the API.
 
 #### Describe alternatives you've considered
 
-Provide a description of any alternative solutions or features you've considered.
+Describe any alternative solutions or features you've considered.
 
 #### Additional context
 
