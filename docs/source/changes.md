@@ -15,6 +15,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   {func}`~pytask.task`. Closes {issue}`512`.
 - {pull}`522` improves the issue templates.
 - {pull}`523` refactors `_pytask.console._get_file`.
+- {pull}`524` improves some linting and formatter rules.
 
 ## 0.4.4 - 2023-12-04
 
