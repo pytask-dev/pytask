@@ -699,7 +699,7 @@ def test_task_function_in_another_module(runner, tmp_path):
     module = import_path(_ROOT_PATH / "module.py", _ROOT_PATH)
     name_to_obj = dict(inspect.getmembers(module))
 
-    task_example = task(produces=Path("out.txt"))(name_to_obj["func"])
+    task(produces=Path("out.txt"))(name_to_obj["func"])
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
