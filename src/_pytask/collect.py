@@ -40,6 +40,7 @@ from _pytask.shared import find_duplicates
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
 from rich.text import Text
+from upath import UPath
 
 if TYPE_CHECKING:
     from _pytask.session import Session
@@ -310,7 +311,7 @@ The path '{path}' points to a directory, although only files are allowed."""
 
 
 @hookimpl(trylast=True)
-def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PNode:  # noqa: C901
+def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PNode:  # noqa: C901, PLR0912
     """Collect a node of a task as a :class:`pytask.PNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
@@ -359,6 +360,12 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
 
     if isinstance(node, PNode):
         return node
+
+    if isinstance(node, UPath):
+        if not node.protocol:
+            node = Path(node)
+        else:
+            return PathNode(name=node.name, path=node)
 
     if isinstance(node, Path):
         if not node.is_absolute():

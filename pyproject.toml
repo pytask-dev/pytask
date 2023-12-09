@@ -43,6 +43,7 @@ dependencies = [
   "sqlalchemy>=1.4.36",
   'tomli>=1; python_version < "3.11"',
   'typing-extensions; python_version < "3.9"',
+  "universal_pathlib",
 ]
 
 [project.readme]

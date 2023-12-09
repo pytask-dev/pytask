@@ -1027,3 +1027,20 @@ def test_collect_task_without_path(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").exists()
+
+
+def test_with_http_path(runner, tmp_path):
+    source = """
+    from upath import UPath
+    from typing_extensions import Annotated
+
+    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
+
+    def task_example(path = UPath(url)) -> Annotated[str, UPath("data.txt")]:
+        return path.read_text()
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("data.txt").exists()

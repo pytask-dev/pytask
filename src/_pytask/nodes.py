@@ -178,6 +178,9 @@ class PathNode(PPathNode):
 
         """
         if self.path.exists():
+            stat = self.path.stat()
+            if isinstance(stat, dict):
+                return stat.get("ETag", "0")
             modification_time = self.path.stat().st_mtime
             return hash_path(self.path, modification_time)
         return None
@@ -317,6 +320,9 @@ class PickleNode:
 
     def state(self) -> str | None:
         if self.path.exists():
+            stat = self.path.stat()
+            if isinstance(stat, dict):
+                return stat.get("ETag", "0")
             modification_time = self.path.stat().st_mtime
             return hash_path(self.path, modification_time)
         return None
