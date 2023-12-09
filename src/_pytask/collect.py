@@ -20,7 +20,6 @@ from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import get_file
-from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
 from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
@@ -98,23 +97,7 @@ def _collect_from_tasks(session: Session) -> None:
             if not hasattr(raw_task, "pytask_meta"):
                 raw_task = task_decorator()(raw_task)  # noqa: PLW2901
 
-            try:
-                path = get_file(raw_task)
-            except (TypeError, OSError):
-                path = None
-            else:
-                if path and path.name == "<stdin>":
-                    path = None  # pragma: no cover
-
-            # Detect whether a path is defined in a Jupyter notebook.
-            if (
-                is_jupyter()
-                and path
-                and "ipykernel" in path.as_posix()
-                and path.suffix == ".py"
-            ):
-                path = None  # pragma: no cover
-
+            path = get_file(raw_task)
             name = raw_task.pytask_meta.name
 
         # When a task is not a callable, it can be anything or a PTask. Set arbitrary

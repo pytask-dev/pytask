@@ -186,14 +186,17 @@ def test_reduce_node_name(node, paths, expectation, expected):
         assert result == expected
 
 
+exec("__unknown_lambda = lambda x: x")  # noqa: S102
+
+
 @pytest.mark.unit()
 @pytest.mark.parametrize(
     ("task_func", "skipped_paths", "expected"),
     [
-        (task_func, [], _THIS_FILE),
+        (task_func, None, _THIS_FILE),
         (
             empty_decorator(task_func),
-            [],
+            None,
             _THIS_FILE.parent.joinpath("_test_console_helpers.py"),
         ),
         (
@@ -201,6 +204,8 @@ def test_reduce_node_name(node, paths, expectation, expected):
             [_THIS_FILE.parent.joinpath("_test_console_helpers.py")],
             _THIS_FILE,
         ),
+        (lambda x: x, None, Path(__file__)),
+        (__unknown_lambda, None, Path(__file__)),  # noqa: F821
     ],
 )
 def test_get_file(task_func, skipped_paths, expected):

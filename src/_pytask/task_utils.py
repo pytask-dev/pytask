@@ -3,15 +3,20 @@ from __future__ import annotations
 
 import inspect
 from collections import defaultdict
-from pathlib import Path
+from types import BuiltinFunctionType
 from typing import Any
 from typing import Callable
+from typing import TYPE_CHECKING
 
 import attrs
+from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
 from _pytask.typing import is_task_function
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 __all__ = [
@@ -22,7 +27,7 @@ __all__ = [
 ]
 
 
-COLLECTED_TASKS: dict[Path, list[Callable[..., Any]]] = defaultdict(list)
+COLLECTED_TASKS: dict[Path | None, list[Callable[..., Any]]] = defaultdict(list)
 """A container for collecting tasks.
 
 Tasks marked by the ``@pytask.mark.task`` decorator can be generated in a loop where one
@@ -84,6 +89,9 @@ def task(
     """
 
     def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
+        # Omits frame when a builtin function is wrapped.
+        _rich_traceback_omit = True
+
         for arg, arg_name in ((name, "name"), (id, "id")):
             if not (isinstance(arg, str) or arg is None):
                 msg = (
@@ -94,11 +102,17 @@ def task(
 
         unwrapped = inspect.unwrap(func)
 
-        raw_path = inspect.getfile(unwrapped)
-        if "<string>" in raw_path:
-            path = Path(unwrapped.__globals__["__file__"]).absolute().resolve()
-        else:
-            path = Path(raw_path).absolute().resolve()
+        # We do not allow builtins as functions because we would need to use
+        # ``inspect.stack`` to infer their caller location and they are unable to carry
+        # the pytask metadata.
+        if isinstance(unwrapped, BuiltinFunctionType):
+            msg = (
+                "Builtin functions cannot be wrapped with '@task'. If necessary, wrap "
+                "the builtin function in a function or lambda expression."
+            )
+            raise NotImplementedError(msg)
+
+        path = get_file(unwrapped)
 
         parsed_kwargs = {} if kwargs is None else kwargs
         parsed_name = name if isinstance(name, str) else func.__name__

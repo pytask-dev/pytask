@@ -5,6 +5,17 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.4.5 - 2023-12-xx
+
+- {pull}`515` enables tests with graphviz in CI. Thanks to {user}`NickCrews`.
+- {pull}`517` raises an error when the configuration file contains a non-existing path
+  (fixes #514). It also warns if the path is configured as a string and not a list of
+  strings.
+- {pull}`519` raises an error when builtin functions are wrapped with
+  {func}`~pytask.task`. Closes {issue}`512`.
+- {pull}`522` improves the issue templates.
+- {pull}`523` refactors `_pytask.console._get_file`.
+
 ## 0.4.4 - 2023-12-04
 
 - {pull}`509` improves the documentation.

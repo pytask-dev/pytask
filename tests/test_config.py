@@ -4,6 +4,7 @@ import textwrap
 
 import pytest
 from pytask import build
+from pytask import cli
 from pytask import ExitCode
 
 
@@ -59,3 +60,15 @@ def test_passing_paths_via_configuration_file(tmp_path, file_or_folder):
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
+
+
+def test_not_existing_path_in_config(runner, tmp_path):
+    config = """
+    [tool.pytask.ini_options]
+    paths = "not_existing_path"
+    """
+    tmp_path.joinpath("pyproject.toml").write_text(textwrap.dedent(config))
+
+    with pytest.warns(FutureWarning, match="Specifying paths as a string"):
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.CONFIGURATION_FAILED
