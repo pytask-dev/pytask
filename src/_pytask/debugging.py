@@ -374,7 +374,7 @@ class PdbTrace:
     def pytask_execute_task(
         session: Session, task: PTask
     ) -> Generator[None, None, None]:
-        """Wrapping the task function with a tracer."""
+        """Wrap the task function with a tracer."""
         if isinstance(task, PTask):
             wrap_function_for_tracing(session, task)
         yield

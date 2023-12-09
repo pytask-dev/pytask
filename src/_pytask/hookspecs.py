@@ -174,7 +174,7 @@ def pytask_collect_task_protocol(
 def pytask_collect_task_setup(
     session: Session, path: Path | None, name: str, obj: Any
 ) -> None:
-    """Steps before collecting a task."""
+    """Set up collecting a task."""
 
 
 @hookspec(firstresult=True)

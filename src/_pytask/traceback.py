@@ -131,7 +131,7 @@ def _is_internal_or_hidden_traceback_frame(
         _PYTASK_DIRECTORY,
     ),
 ) -> bool:
-    """Returns ``True`` if traceback frame belongs to internal packages or is hidden.
+    """Return ``True`` if traceback frame belongs to internal packages or is hidden.
 
     Internal packages are ``_pytask`` and ``pluggy``. A hidden frame is indicated by a
     local variable called ``__tracebackhide__ = True``.

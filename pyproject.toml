@@ -106,21 +106,20 @@ target-version = "py38"
 select = ["ALL"]
 fix = true
 ignore = [
+    "FBT",  # flake8-boolean-trap
     "I",  # ignore isort
     "TRY",  # ignore tryceratops.
     # Others.
-    "ISC001",
-    "S101",  # raise errors for asserts.
     "ANN101",  # type annotating self
     "ANN102",  # type annotating cls
-    "FBT",  # flake8-boolean-trap
     "ANN401",  # flake8-annotate typing.Any
-    "PD",  # pandas-vet
-    "COM812",  # trailing comma missing, but black takes care of that
-    "D401",  # imperative mood for first line. too many false-positives.
+    "COM812",  # Comply with ruff-format.
+    "ISC001",  # Comply with ruff-format.
+    "PD901",  # Avoid generic df for dataframes.
+    "S101",  # raise errors for asserts.
+    "S603",  # Call check with subprocess.run.
+    "S607",  # Call subprocess.run with partial executable path.
     "SLF001",  # access private members.
-    "S603",
-    "S607",
 ]
 
 
@@ -131,7 +130,7 @@ ignore = [
 "src/_pytask/outcomes.py" = ["N818"]
 "src/_pytask/dag.py" = ["B023"]
 "tests/test_capture.py" = ["T201", "PT011"]
-"tests/*" = ["D", "ANN", "PLR2004", "S101"]
+"tests/*" = ["ANN", "D", "FBT", "PLR2004", "S101"]
 "tests/test_jupyter/*" = ["INP001"]
 "scripts/*" = ["D", "INP001"]
 "docs/source/conf.py" = ["D401", "INP001"]
@@ -185,7 +184,7 @@ module = ["_pytask.hookspecs"]
 disable_error_code = ["empty-body"]
 
 [tool.codespell]
-ignore-words-list = "falsy, hist, ines, unparseable"
+skip = "*.js,*/termynal.css"
 
 [tool.refurb]
 python_version = "3.8"
