@@ -355,7 +355,13 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
             node.path, session.config["paths"] or (session.config["root"],)
         )
 
-    if isinstance(node, PPathNode) and node.path.is_dir():
+    # Skip ``is_dir`` for remote UPaths because it downloads the file and blocks the
+    # collection.
+    if (
+        isinstance(node, PPathNode)
+        and not isinstance(node.path, UPath)
+        and node.path.is_dir()
+    ):
         raise ValueError(_TEMPLATE_ERROR_DIRECTORY.format(path=node.path))
 
     if isinstance(node, PNode):
