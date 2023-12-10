@@ -49,12 +49,6 @@ dependencies:
   - sphinx-design >=0.3.0
   - sphinxext-opengraph
 
-  # Temporary
-  - fsspec
-  - universal_pathlib
-  - dropboxdrivefs
-  - s3fs
-
   - pip:
     - sphinx-toolbox
     - -e .

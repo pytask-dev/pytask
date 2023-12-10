@@ -1042,5 +1042,6 @@ def test_with_http_path(runner, tmp_path):
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
+    print(result.output)  # noqa: T201
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("data.txt").exists()
