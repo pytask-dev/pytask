@@ -149,7 +149,7 @@ def task(
 
 
 def _parse_after(
-    after: str | Callable[..., Any] | list[Callable[..., Any]] | None
+    after: str | Callable[..., Any] | list[Callable[..., Any]] | None,
 ) -> str | list[Callable[..., Any]]:
     if not after:
         return []
@@ -246,7 +246,7 @@ def _parse_task_kwargs(kwargs: Any) -> dict[str, Any]:
 
 
 def parse_keyword_arguments_from_signature_defaults(
-    task: Callable[..., Any]
+    task: Callable[..., Any],
 ) -> dict[str, Any]:
     """Parse keyword arguments from signature defaults."""
     parameters = inspect.signature(task).parameters
@@ -258,7 +258,7 @@ def parse_keyword_arguments_from_signature_defaults(
 
 
 def _generate_ids_for_tasks(
-    tasks: list[tuple[str, Callable[..., Any]]]
+    tasks: list[tuple[str, Callable[..., Any]]],
 ) -> dict[str, Callable[..., Any]]:
     """Generate unique ids for parametrized tasks."""
     parameters = inspect.signature(tasks[0][1]).parameters
