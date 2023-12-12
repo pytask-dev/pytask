@@ -13,6 +13,7 @@ maxdepth: 1
 ---
 migrating_from_scripts_to_pytask
 interfaces_for_dependencies_products
+remote_files
 functional_interface
 capture_warnings
 how_to_influence_build_order
