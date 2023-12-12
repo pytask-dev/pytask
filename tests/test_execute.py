@@ -426,8 +426,7 @@ def test_task_with_product_annotation(tmp_path, arg_name):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.xfail(reason="Nested annotations are not parsed.", raises=AssertionError)
-def test_task_with_nested_product_annotation(tmp_path):
+def test_task_errors_with_nested_product_annotation(tmp_path):
     source = """
     from pathlib import Path
     from typing_extensions import Annotated
@@ -442,10 +441,10 @@ def test_task_with_nested_product_annotation(tmp_path):
 
     session = build(paths=tmp_path, capture=CaptureMethod.NO)
 
-    assert session.exit_code == ExitCode.OK
+    assert session.exit_code == ExitCode.FAILED
     assert len(session.tasks) == 1
     task = session.tasks[0]
-    assert "paths_to_file" in task.produces
+    assert "paths_to_file" not in task.produces
 
 
 @pytest.mark.end_to_end()

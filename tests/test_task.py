@@ -445,13 +445,12 @@ def test_raise_errors_for_irregular_ids(runner, tmp_path, irregular_id):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.xfail(reason="Should fail. Mandatory products will fix the issue.")
 def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
     source = """
-    import pytask
+    from pytask import task
 
     for i in [0, 0]:
-        @pytask.mark.task(id=str(i))
+        @task(id=str(i))
         def task_func(i=i):
             pass
     """

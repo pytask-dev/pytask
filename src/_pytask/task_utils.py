@@ -283,6 +283,14 @@ def _generate_ids_for_tasks(
             ]
             id_ = "-".join(stringified_args)
             id_ = f"{name}[{id_}]"
+
+        if id_ in out:
+            msg = (
+                f"The task {name!r} with the id {id_!r} is duplicated. This can happen "
+                "if you create the exact same tasks multiple times or passed the same "
+                "the same id to multiple tasks via '@task(id=...)'."
+            )
+            raise ValueError(msg)
         out[id_] = task
     return out
 
