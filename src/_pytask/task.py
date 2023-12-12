@@ -76,6 +76,7 @@ def _raise_error_when_task_functions_are_duplicated(
     msg = (
         "There are some duplicates among the repeated tasks. It happens when you define"
         "the task function outside the loop body and merely wrap in the loop body with "
-        f"the '@task(...)' decorator.\n\n{flat_tree}"
+        "the 'task(...)(func)' decorator. As a workaround, wrap the task function in "
+        f"a lambda expression like 'task(...)(lambda **x: func(**x))'.\n\n{flat_tree}"
     )
     raise ValueError(msg)
