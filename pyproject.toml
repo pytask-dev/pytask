@@ -58,6 +58,7 @@ name = "Tobias Raabe"
 email = "raabe@posteo.de"
 
 [project.optional-dependencies]
+all = ['universal_pathlib; python_version<"3.12"']
 docs = [
   "furo",
   "ipython",

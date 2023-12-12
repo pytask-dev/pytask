@@ -9,8 +9,8 @@ lots of use cases to deal with remote files.
 
 pytask uses [universal_pathlib](https://github.com/fsspec/universal_pathlib) to work
 with remote files. The package provides a {mod}`pathlib`-like interface, making it very
-easy to interact with files from an HTTP(S)-, S3-, GCP-, Azure-based filesystem, and
-many more.
+easy to interact with files from an HTTP(S)-, Dropbox-, S3-, GCP-, Azure-based
+filesystem, and many more.
 
 ## HTTP(S)-based filesystem
 
@@ -22,8 +22,8 @@ data set and save it as a CSV file.
 
 ## Other filesystems
 
-universal_pathlib supports Azure Storage, Google Cloud Storage, AWS S3, and [many more
-filesystems](https://github.com/fsspec/universal_pathlib#currently-supported-filesystems-and-schemes).
+universal_pathlib supports Azure Storage, Dropbox, Google Cloud Storage, AWS S3, and
+[many more filesystems](https://github.com/fsspec/universal_pathlib#currently-supported-filesystems-and-schemes).
 
 For example, let us try accessing a file in an S3 bucket. We pass `anon=True` to
 {class}`~upath.UPath` since no credentials are required.
