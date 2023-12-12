@@ -1029,6 +1029,7 @@ def test_collect_task_without_path(runner, tmp_path):
     assert tmp_path.joinpath("out.txt").exists()
 
 
+@pytest.mark.skipif(sys.version_info >= (3, 12), reason="Not supported in Python 3.12.")
 def test_with_http_path(runner, tmp_path):
     source = """
     from upath import UPath

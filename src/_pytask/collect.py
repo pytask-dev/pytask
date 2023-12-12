@@ -40,7 +40,14 @@ from _pytask.shared import find_duplicates
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
 from rich.text import Text
-from upath import UPath
+
+try:
+    from upath import UPath
+except ImportError:  # pragma: no cover
+
+    class UPath:  # type: ignore[no-redef]
+        ...
+
 
 if TYPE_CHECKING:
     from _pytask.session import Session
