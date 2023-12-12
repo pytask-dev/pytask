@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import inspect
 import pickle
+from os import stat_result
 from pathlib import Path  # noqa: TCH003
 from typing import Any
 from typing import Callable
@@ -178,8 +179,14 @@ class PathNode(PPathNode):
 
         """
         if self.path.exists():
-            modification_time = self.path.stat().st_mtime
-            return hash_path(self.path, modification_time)
+            stat = self.path.stat()
+            if isinstance(stat, stat_result):
+                modification_time = self.path.stat().st_mtime
+                return hash_path(self.path, modification_time)
+            if isinstance(stat, dict):
+                return stat.get("ETag", "0")
+            msg = "Unknown stat object."
+            raise NotImplementedError(msg)
         return None
 
     def load(self, is_product: bool = False) -> Path:  # noqa: ARG002
@@ -317,8 +324,14 @@ class PickleNode:
 
     def state(self) -> str | None:
         if self.path.exists():
-            modification_time = self.path.stat().st_mtime
-            return hash_path(self.path, modification_time)
+            stat = self.path.stat()
+            if isinstance(stat, stat_result):
+                modification_time = self.path.stat().st_mtime
+                return hash_path(self.path, modification_time)
+            if isinstance(stat, dict):
+                return stat.get("ETag", "0")
+            msg = "Unknown stat object."
+            raise NotImplementedError(msg)
         return None
 
     def load(self, is_product: bool = False) -> Any:

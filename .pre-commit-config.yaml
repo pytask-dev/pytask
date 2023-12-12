@@ -45,13 +45,13 @@ repos:
     hooks:
     -   id: sort-all
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.6
+    rev: v0.1.7
     hooks:
       - id: ruff-format
       - id: ruff
         args: [--unsafe-fixes]
 -   repo: https://github.com/dosisod/refurb
-    rev: v1.24.0
+    rev: v1.25.0
     hooks:
     -   id: refurb
         args: [--ignore, FURB126]
@@ -99,6 +99,7 @@ repos:
                 docs/source/how_to_guides/using_task_returns.md|
                 docs/source/how_to_guides/writing_custom_nodes.md|
                 docs/source/how_to_guides/hashing_inputs_of_tasks.md|
+                docs/source/how_to_guides/remote_files.md|
                 docs/source/reference_guides/hookspecs.md|
                 docs/source/tutorials/configuration.md|
                 docs/source/tutorials/debugging.md|

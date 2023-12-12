@@ -22,12 +22,12 @@ if TYPE_CHECKING:
 
 
 def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
-    """Function to parse information in ``@pytask.mark.skip_ancestor_failed``."""
+    """Parse information in ``@pytask.mark.skip_ancestor_failed``."""
     return reason
 
 
 def skipif(condition: bool, *, reason: str) -> tuple[bool, str]:
-    """Function to parse information in ``@pytask.mark.skipif``."""
+    """Parse information in ``@pytask.mark.skipif``."""
     return condition, reason
 
 
