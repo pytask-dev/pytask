@@ -12,6 +12,12 @@ with remote files. The package provides a {mod}`pathlib`-like interface, making 
 easy to interact with files from an HTTP(S)-, Dropbox-, S3-, GCP-, Azure-based
 filesystem, and many more.
 
+:::{warning}
+universal_pathlib does currently not support Python 3.12. To track progress, see [this
+PR](https://github.com/fsspec/universal_pathlib/pull/152) and check the [releases
+`>0.1.4`](https://github.com/fsspec/universal_pathlib/releases)
+:::
+
 ## HTTP(S)-based filesystem
 
 As an example for dealing with an HTTP(S)-based filesystem, we will download the iris
