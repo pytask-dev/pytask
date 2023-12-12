@@ -17,6 +17,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`523` refactors `_pytask.console._get_file`.
 - {pull}`524` improves some linting and formatting rules.
 - {pull}`525` enables pytask to work with remote files using universal_pathlib.
+- {pull}`527` improves the codecov setup and coverage.
 
 ## 0.4.4 - 2023-12-04
 

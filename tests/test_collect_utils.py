@@ -164,7 +164,9 @@ def test_raise_error_for_invalid_args_to_depends_on_and_produces(
 
 @pytest.mark.unit()
 def test_find_args_with_product_annotation():
-    def func(a: Annotated[int, Product], b: float, c, d: Annotated[int, float]):
+    def func(
+        a: Annotated[int, Product], b: float, c, d: Annotated[int, float]
+    ):  # pragma: no cover
         return a, b, c, d
 
     result = _find_args_with_product_annotation(func)
