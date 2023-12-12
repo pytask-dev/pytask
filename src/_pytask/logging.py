@@ -92,7 +92,7 @@ def pytask_log_session_header(session: Session) -> None:
 
 
 def _format_plugin_names_and_versions(
-    plugininfo: list[tuple[str, DistFacade]]
+    plugininfo: list[tuple[str, DistFacade]],
 ) -> list[str]:
     """Format name and version of loaded plugins."""
     values: list[str] = []
