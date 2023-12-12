@@ -43,7 +43,6 @@ dependencies = [
   "sqlalchemy>=1.4.36",
   'tomli>=1; python_version < "3.11"',
   'typing-extensions; python_version < "3.9"',
-  "universal_pathlib",
 ]
 
 [project.readme]
@@ -58,7 +57,7 @@ name = "Tobias Raabe"
 email = "raabe@posteo.de"
 
 [project.optional-dependencies]
-all = ['universal_pathlib; python_version<"3.12"']
+all = ['universal-pathlib; python_version<"3.12"']
 docs = [
   "furo",
   "ipython",
