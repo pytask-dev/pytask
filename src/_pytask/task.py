@@ -57,7 +57,7 @@ def pytask_collect_file(
 
 
 def _raise_error_when_task_functions_are_duplicated(
-    tasks: list[Callable[..., Any]]
+    tasks: list[Callable[..., Any]],
 ) -> None:
     """Raise error when task functions are duplicated.
 

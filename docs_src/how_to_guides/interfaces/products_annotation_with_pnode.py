@@ -6,6 +6,6 @@ from pytask import Product
 
 
 def task_write_file(
-    path: Annotated[Path, PathNode(path=Path("file.txt")), Product]
+    path: Annotated[Path, PathNode(path=Path("file.txt")), Product],
 ) -> None:
     path.touch()
