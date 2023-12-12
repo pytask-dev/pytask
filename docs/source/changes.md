@@ -15,7 +15,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   {func}`~pytask.task`. Closes {issue}`512`.
 - {pull}`522` improves the issue templates.
 - {pull}`523` refactors `_pytask.console._get_file`.
-- {pull}`524` improves some linting and formatter rules.
+- {pull}`524` improves some linting and formatting rules.
+- {pull}`525` enables pytask to work with remote files using universal_pathlib.
 
 ## 0.4.4 - 2023-12-04
 
@@ -25,14 +26,14 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 ## 0.4.3 - 2023-12-01
 
 - {pull}`483` simplifies the teardown of a task.
-- {pull}`484` raises more informative error when directories instead of files are used
-  with path nodes.
-- {pull}`485` adds missing steps to unconfigure pytask after the job is done which
+- {pull}`484` raises an informative error message when directories instead of files are
+  used with path nodes.
+- {pull}`485` adds missing steps to unconfigure pytask after the job is done, which
   caused flaky tests.
 - {pull}`486` adds default names to {class}`~pytask.PPathNode`.
 - {pull}`488` raises an error when an invalid value is used in a return annotation.
 - {pull}`489` and {pull}`491` simplifies parsing products and does not raise an error
-  when a product annotation is used with the argument name `produces`. And, allow
+  when a product annotation is used with the argument name `produces`. And allow
   `produces` to intake any node.
 - {pull}`490` refactors and better tests parsing of dependencies.
 - {pull}`493` allows tasks to depend on other tasks.
@@ -49,7 +50,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.4.2 - 2023-11-08
 
-- {pull}`449` simplifies the code building the plugin manager.
+- {pull}`449` simplifies the code building of the plugin manager.
 - {pull}`451` improves `collect_command.py` and renames `graph.py` to `dag_command.py`.
 - {pull}`454` removes more `.svg`s and replaces them with animations.
 - {pull}`455` adds more explanation when {meth}`~pytask.PNode.load` fails during the
@@ -58,7 +59,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`457` refactors everything around formatting node names.
 - {pull}`459` adds a pre-commit hook to sort `__all__`.
 - {pull}`460` simplifies removing internal tracebacks from exceptions with a cause.
-- {pull}`463` raise error when a task function is not defined inside the loop body.
+- {pull}`463` raises an error when a task function is not defined inside the loop body.
 - {pull}`464` improves pinned dependencies.
 - {pull}`465` adds test to ensure internal tracebacks are removed by reports.
 - {pull}`466` implements hashing for files instead of modification timestamps.

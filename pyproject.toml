@@ -57,6 +57,7 @@ name = "Tobias Raabe"
 email = "raabe@posteo.de"
 
 [project.optional-dependencies]
+all = ['universal-pathlib; python_version<"3.12"']
 docs = [
   "furo",
   "ipython",
@@ -76,6 +77,9 @@ test = [
   "pytest-cov",
   "pytest-xdist",
   "syrupy",
+  # For HTTPPath tests.
+  "aiohttp",
+  "requests",
 ]
 
 [project.urls]
