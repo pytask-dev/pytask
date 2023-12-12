@@ -21,6 +21,7 @@ from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import get_file
 from _pytask.exceptions import CollectionError
+from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
@@ -37,6 +38,7 @@ from _pytask.path import import_path
 from _pytask.path import shorten_path
 from _pytask.reports import CollectionReport
 from _pytask.shared import find_duplicates
+from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
 from rich.text import Text
@@ -61,6 +63,7 @@ def pytask_collect(session: Session) -> bool:
 
     _collect_from_paths(session)
     _collect_from_tasks(session)
+    _collect_not_collected_tasks(session)
 
     session.tasks.extend(
         i.node
@@ -108,6 +111,9 @@ def _collect_from_tasks(session: Session) -> None:
             path = get_file(raw_task)
             name = raw_task.pytask_meta.name
 
+        if has_mark(raw_task, "task"):
+            COLLECTED_TASKS[path].remove(raw_task)
+
         # When a task is not a callable, it can be anything or a PTask. Set arbitrary
         # values and it will pass without errors and not collected.
         else:
@@ -123,6 +129,45 @@ def _collect_from_tasks(session: Session) -> None:
         )
 
         if report is not None:
+            session.collection_reports.append(report)
+
+
+_FAILED_COLLECTING_TASK = """\
+Failed to collect task '{name}'{path_desc}.
+
+This can happen when the task function is defined in another module, imported to a \
+task module and wrapped with the '@task' decorator.
+
+To collect this task correctly, wrap the imported function in a lambda expression like
+
+task(...)(lambda **x: imported_function(**x)).
+"""
+
+
+def _collect_not_collected_tasks(session: Session) -> None:
+    """Collect tasks that are not collected yet and create failed reports."""
+    for path in list(COLLECTED_TASKS):
+        tasks = COLLECTED_TASKS.pop(path)
+        for task in tasks:
+            name = task.pytask_meta.name  # type: ignore[attr-defined]
+            node: PTask
+            if path:
+                node = Task(base_name=name, path=path, function=task)
+                path_desc = f" in '{path}'"
+            else:
+                node = TaskWithoutPath(name=name, function=task)
+                path_desc = ""
+            report = CollectionReport(
+                outcome=CollectionOutcome.FAIL,
+                node=node,
+                exc_info=(
+                    NodeNotCollectedError,
+                    NodeNotCollectedError(
+                        _FAILED_COLLECTING_TASK.format(name=name, path_desc=path_desc)
+                    ),
+                    None,
+                ),
+            )
             session.collection_reports.append(report)
 
 
