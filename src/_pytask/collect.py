@@ -8,7 +8,6 @@ import os
 import sys
 import time
 from pathlib import Path
-from threading import Thread
 from typing import Any
 from typing import Generator
 from typing import Iterable
@@ -32,7 +31,6 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.nodes import PathNode
-from _pytask.nodes import PTaskWithPath
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
 from _pytask.nodes import TaskWithoutPath
@@ -485,27 +483,6 @@ def pytask_collect_log(
 ) -> None:
     """Log collection."""
     session.collection_end = time.time()
-
-    if session.config["command"] == "collect":
-        exitcode = 0
-        for report in reports:
-            if report.outcome == CollectionOutcome.FAIL:
-                exitcode = 3
-        result = [
-            {"name": task.name.split("/")[-1], "path": str(task.path)}
-            if isinstance(task, PTaskWithPath)
-            else {"name": task.name, "path": ""}
-            for task in tasks
-        ]
-        thread = Thread(
-            target=send_logging_vscode,
-            args=(
-                "http://localhost:6000/pytask",
-                {"exitcode": exitcode, "tasks": result},
-                0.00001,
-            ),
-        )
-        thread.start()
 
     console.print(f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}.")
 

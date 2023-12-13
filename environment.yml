@@ -17,7 +17,6 @@ dependencies:
   - networkx >=2.4
   - pluggy >=1.0.0
   - optree >=0.9
-  - requests
   - rich
   - sqlalchemy >=1.4.36
   - tomli >=1.0.0

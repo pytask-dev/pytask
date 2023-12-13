@@ -66,6 +66,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     from _pytask import skipping
     from _pytask import task
     from _pytask import warnings
+    from _pytask import vscode
 
     pm.register(build)
     pm.register(capture)
@@ -88,6 +89,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     pm.register(skipping)
     pm.register(task)
     pm.register(warnings)
+    pm.register(vscode)
 
 
 @click.group(
