@@ -431,9 +431,10 @@ def test_task_errors_with_nested_product_annotation(tmp_path):
     from pathlib import Path
     from typing_extensions import Annotated
     from pytask import Product
+    from typing import Dict
 
     def task_example(
-        paths_to_file: dict[str, Annotated[Path, Product]] = {"a": Path("out.txt")}
+        paths_to_file: Dict[str, Annotated[Path, Product]] = {"a": Path("out.txt")}
     ) -> None:
         pass
     """
