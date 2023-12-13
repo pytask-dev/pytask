@@ -207,7 +207,7 @@ def _format_help_text(  # noqa: C901, PLR0912, PLR0915
     help_text = Text.from_markup(getattr(param, "help", None) or "")
     extra = []
 
-    if getattr(param, "show_envvar", None):
+    if getattr(param, "show_envvar", None):  # pragma: no cover
         envvar = getattr(param, "envvar", None)
 
         if envvar is None and (
