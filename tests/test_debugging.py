@@ -174,7 +174,7 @@ def test_pdb_set_trace(tmp_path):
 @pytest.mark.xfail(reason="#312")
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
-def test_pdb_interaction_capturing_simple(tmp_path):
+def test_pdb_interaction_capturing_simple(tmp_path):  # pragma: no cover
     source = """
     import pdb
     def task_1():

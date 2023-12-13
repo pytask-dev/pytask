@@ -663,6 +663,23 @@ def test_task_will_be_executed_after_another_one_with_function(tmp_path):
     assert session.exit_code == ExitCode.OK
 
 
+def test_raise_error_for_wrong_after_expression(runner, tmp_path):
+    source = """
+    from pytask import task
+    from pathlib import Path
+    from typing_extensions import Annotated
+
+    @task(after="(")
+    def task_example() -> Annotated[str, Path("out.txt")]:
+        return "Hello, World!"
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.DAG_FAILED
+    assert "Wrong expression passed to 'after'" in result.output
+
+
 def test_raise_error_with_builtin_function_as_task(runner, tmp_path):
     source = """
     from pytask import task
