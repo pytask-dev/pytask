@@ -53,7 +53,7 @@ def test_cache_add():
 
 
 def test_make_memoize_key():
-    def func(a, b):
+    def func(a, b):  # pragma: no cover
         return a + b
 
     argspec = inspect.getfullargspec(func)
