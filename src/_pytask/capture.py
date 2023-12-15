@@ -96,6 +96,9 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
     if config["s"]:
         config["capture"] = CaptureMethod.NO
 
+    if isinstance(config["show_capture"], str):
+        config["show_capture"] = ShowCapture(config["show_capture"])
+
 
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:

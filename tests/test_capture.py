@@ -61,6 +61,51 @@ def test_show_capture(tmp_path, runner, show_capture):
         raise NotImplementedError
 
 
+@pytest.mark.end_to_end()
+@pytest.mark.parametrize("show_capture", ["s", "no", "stdout", "stderr", "all"])
+def test_show_capture_with_build(tmp_path, show_capture):
+    source = f"""
+    import sys
+    from pytask import build
+
+    def task_show_capture():
+        sys.stdout.write("xxxx")
+        sys.stderr.write("zzzz")
+        raise Exception
+
+    if __name__ == "__main__":
+        session = build(tasks=[task_show_capture], show_capture="{show_capture}")
+    """
+    tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
+
+    result = subprocess.run(  # noqa: PLW1510
+        ("python", "workflow.py"), cwd=tmp_path, capture_output=True
+    )
+
+    assert result.returncode == ExitCode.OK
+
+    output = result.stdout.decode()
+    if show_capture in ("no", "s"):
+        assert "Captured" not in output
+    elif show_capture == "stdout":
+        assert "Captured stdout" in output
+        assert "xxxx" in output
+        assert "Captured stderr" not in output
+        # assert "zzzz" not in output
+    elif show_capture == "stderr":
+        assert "Captured stdout" not in output
+        # assert "xxxx" not in output
+        assert "Captured stderr" in output
+        assert "zzzz" in output
+    elif show_capture == "all":
+        assert "Captured stdout" in output
+        assert "xxxx" in output
+        assert "Captured stderr" in output
+        assert "zzzz" in output
+    else:  # pragma: no cover
+        raise NotImplementedError
+
+
 # Following tests are copied from pytest.
 
 # note: py.io capture tests where copied from pylib 1.4.20.dev2 (rev 13d9af95547e)
@@ -160,6 +205,34 @@ def test_capturing_unicode(tmp_path, runner, method):
 
     assert "1  Succeeded" in result.output
     assert result.exit_code == ExitCode.OK
+
+
+@pytest.mark.end_to_end()
+@pytest.mark.parametrize("method", ["fd", "sys"])
+def test_capturing_unicode_with_build(tmp_path, method):
+    obj = "'b\u00f6y'"
+    source = f"""
+    from pytask import build
+
+    # taken from issue 227 from nosetests
+    def task_unicode():
+        import sys
+        print(sys.stdout)
+        print({obj})
+
+    if __name__ == "__main__":
+        session = build(tasks=[task_unicode], capture="{method}")
+    """
+    tmp_path.joinpath("workflow.py").write_text(
+        textwrap.dedent(source), encoding="utf-8"
+    )
+
+    result = subprocess.run(  # noqa: PLW1510
+        ("python", "workflow.py"), cwd=tmp_path, capture_output=True
+    )
+
+    assert "1  Succeeded" in result.stdout.decode()
+    assert result.returncode == ExitCode.OK
 
 
 @pytest.mark.end_to_end()

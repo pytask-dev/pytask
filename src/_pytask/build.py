@@ -63,7 +63,7 @@ def pytask_unconfigure(session: Session) -> None:
 
 def build(  # noqa: C901, PLR0912, PLR0913
     *,
-    capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.NO,
+    capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.FD,
     check_casing_of_paths: bool = True,
     config: Path | None = None,
     database_url: str = "",
