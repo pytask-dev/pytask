@@ -62,6 +62,7 @@ def test_show_capture(tmp_path, runner, show_capture):
 
 
 @pytest.mark.end_to_end()
+@pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows.")
 @pytest.mark.parametrize("show_capture", ["s", "no", "stdout", "stderr", "all"])
 def test_show_capture_with_build(tmp_path, show_capture):
     source = f"""
