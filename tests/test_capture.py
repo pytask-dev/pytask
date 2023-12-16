@@ -82,7 +82,7 @@ def test_show_capture_with_build(tmp_path, show_capture):
         ("python", "workflow.py"), cwd=tmp_path, capture_output=True
     )
 
-    # assert result.returncode == ExitCode.OK
+    assert result.returncode == ExitCode.OK
 
     output = result.stdout.decode()
     if show_capture in ("no", "s"):
@@ -209,7 +209,7 @@ def test_capturing_unicode(tmp_path, runner, method):
 
 @pytest.mark.end_to_end()
 @pytest.mark.parametrize("method", ["fd", "sys"])
-@pytest.mark.skkipif(sys.platform == "win32", reason="Fails on Windows.")
+@pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows.")
 def test_capturing_unicode_with_build(tmp_path, method):
     obj = "'b\u00f6y'"
     source = f"""
