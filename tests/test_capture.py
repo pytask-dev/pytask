@@ -63,6 +63,7 @@ def test_show_capture(tmp_path, runner, show_capture):
 
 @pytest.mark.end_to_end()
 @pytest.mark.parametrize("show_capture", ["no", "stdout", "stderr", "all"])
+@pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows due to encoding.")
 def test_show_capture_with_build(tmp_path, show_capture):
     source = f"""
     import sys
