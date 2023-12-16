@@ -11,11 +11,11 @@ from pathlib import Path
 
 import pytask
 import pytest
-from _pytask.capture import CaptureMethod
-from _pytask.exceptions import NodeNotFoundError
 from pytask import build
+from pytask import CaptureMethod
 from pytask import cli
 from pytask import ExitCode
+from pytask import NodeNotFoundError
 from pytask import PathNode
 from pytask import TaskOutcome
 from pytask import TaskWithoutPath
@@ -708,12 +708,12 @@ def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
 @pytest.mark.xfail(sys.platform == "win32", reason="Decoding issues in Gitlab Actions.")
 def test_execute_tasks_via_functional_api(tmp_path):
     source = """
+    import sys
+    from pathlib import Path
+    from typing_extensions import Annotated
     from pytask import PathNode
     import pytask
     from pytask import PythonNode
-    from typing_extensions import Annotated
-    from pathlib import Path
-
 
     node_text = PythonNode()
 
@@ -727,9 +727,9 @@ def test_execute_tasks_via_functional_api(tmp_path):
 
     if __name__ == "__main__":
         session = pytask.build(tasks=[create_file, create_text])
-
         assert len(session.tasks) == 2
         assert len(session.dag.nodes) == 5
+        sys.exit(session.exit_code)
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = subprocess.run(

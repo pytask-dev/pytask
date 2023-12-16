@@ -12,7 +12,8 @@ from typing import Literal
 from typing import TYPE_CHECKING
 
 import click
-from _pytask.capture import CaptureMethod
+from _pytask.capture_utils import CaptureMethod
+from _pytask.capture_utils import ShowCapture
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.config_utils import find_project_root_and_config
@@ -82,7 +83,8 @@ def build(  # noqa: C901, PLR0912, PLR0913
     pdb: bool = False,
     pdb_cls: str = "",
     s: bool = False,
-    show_capture: bool = True,
+    show_capture: Literal["no", "stdout", "stderr", "all"]
+    | ShowCapture = ShowCapture.ALL,
     show_errors_immediately: bool = False,
     show_locals: bool = False,
     show_traceback: bool = True,

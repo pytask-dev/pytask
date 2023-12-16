@@ -15,9 +15,9 @@ import pytest
 from _pytask import capture
 from _pytask.capture import _get_multicapture
 from _pytask.capture import CaptureManager
-from _pytask.capture import CaptureMethod
 from _pytask.capture import CaptureResult
 from _pytask.capture import MultiCapture
+from pytask import CaptureMethod
 from pytask import cli
 from pytask import ExitCode
 
@@ -62,7 +62,7 @@ def test_show_capture(tmp_path, runner, show_capture):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.parametrize("show_capture", ["s", "no", "stdout", "stderr", "all"])
+@pytest.mark.parametrize("show_capture", ["no", "stdout", "stderr", "all"])
 def test_show_capture_with_build(tmp_path, show_capture):
     source = f"""
     import sys
@@ -75,6 +75,7 @@ def test_show_capture_with_build(tmp_path, show_capture):
 
     if __name__ == "__main__":
         session = build(tasks=[task_show_capture], show_capture="{show_capture}")
+        sys.exit(session.exit_code)
     """
     tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
 
@@ -82,10 +83,10 @@ def test_show_capture_with_build(tmp_path, show_capture):
         ("python", "workflow.py"), cwd=tmp_path, capture_output=True
     )
 
-    assert result.returncode == ExitCode.OK
+    assert result.returncode == ExitCode.FAILED
 
     output = result.stdout.decode()
-    if show_capture in ("no", "s"):
+    if show_capture == "no":
         assert "Captured" not in output
     elif show_capture == "stdout":
         assert "Captured stdout" in output
@@ -213,6 +214,7 @@ def test_capturing_unicode(tmp_path, runner, method):
 def test_capturing_unicode_with_build(tmp_path, method):
     obj = "'b\u00f6y'"
     source = f"""
+    import sys
     from pytask import build
 
     # taken from issue 227 from nosetests
@@ -223,6 +225,7 @@ def test_capturing_unicode_with_build(tmp_path, method):
 
     if __name__ == "__main__":
         session = build(tasks=[task_unicode], capture="{method}")
+        sys.exit(session.exit_code)
     """
     tmp_path.joinpath("workflow.py").write_text(
         textwrap.dedent(source), encoding="utf-8"
