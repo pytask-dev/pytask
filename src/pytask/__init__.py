@@ -4,6 +4,8 @@ from __future__ import annotations
 from _pytask import __version__
 from _pytask._hashlib import hash_value
 from _pytask.build import build
+from _pytask.capture_utils import CaptureMethod
+from _pytask.capture_utils import ShowCapture
 from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
 from _pytask.click import EnumChoice
@@ -78,6 +80,7 @@ from _pytask.cli import cli  # noreorder
 
 __all__ = [
     "BaseTable",
+    "CaptureMethod",
     "CollectionError",
     "CollectionMetadata",
     "CollectionOutcome",
@@ -112,6 +115,7 @@ __all__ = [
     "ResolvingDependenciesError",
     "Runtime",
     "Session",
+    "ShowCapture",
     "Skipped",
     "SkippedAncestorFailed",
     "SkippedUnchanged",

@@ -218,10 +218,7 @@ def test_collect_files_w_custom_file_name_pattern(
 )
 def test_pytask_collect_node(session, path, node_info, expected):
     result = pytask_collect_node(session, path, node_info)
-    if result is None:
-        assert result is expected
-    else:
-        assert str(result.load()) == str(expected)
+    assert str(result.load()) == str(expected)
 
 
 @pytest.mark.unit()

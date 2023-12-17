@@ -12,7 +12,8 @@ from typing import Literal
 from typing import TYPE_CHECKING
 
 import click
-from _pytask.capture import CaptureMethod
+from _pytask.capture_utils import CaptureMethod
+from _pytask.capture_utils import ShowCapture
 from _pytask.click import ColoredCommand
 from _pytask.config import hookimpl
 from _pytask.config_utils import find_project_root_and_config
@@ -63,7 +64,7 @@ def pytask_unconfigure(session: Session) -> None:
 
 def build(  # noqa: C901, PLR0912, PLR0913
     *,
-    capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.NO,
+    capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.FD,
     check_casing_of_paths: bool = True,
     config: Path | None = None,
     database_url: str = "",
@@ -82,7 +83,8 @@ def build(  # noqa: C901, PLR0912, PLR0913
     pdb: bool = False,
     pdb_cls: str = "",
     s: bool = False,
-    show_capture: bool = True,
+    show_capture: Literal["no", "stdout", "stderr", "all"]
+    | ShowCapture = ShowCapture.ALL,
     show_errors_immediately: bool = False,
     show_locals: bool = False,
     show_traceback: bool = True,
@@ -223,9 +225,6 @@ def build(  # noqa: C901, PLR0912, PLR0913
                 raw_config["config"] = Path(raw_config["config"]).resolve()
                 raw_config["root"] = raw_config["config"].parent
             else:
-                if raw_config["paths"] is None:
-                    raw_config["paths"] = (Path.cwd(),)
-
                 raw_config["paths"] = parse_paths(raw_config["paths"])
                 (
                     raw_config["root"],

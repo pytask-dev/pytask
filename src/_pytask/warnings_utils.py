@@ -35,7 +35,7 @@ class WarningReport(NamedTuple):
 
 
 @functools.lru_cache(maxsize=50)
-def parse_warning_filter(  # noqa: PLR0912
+def parse_warning_filter(  # noqa: PLR0912, C901
     arg: str, *, escape: bool
 ) -> tuple[warnings._ActionKind, str, type[Warning], str, int]:
     """Parse a warnings filter string.
@@ -56,6 +56,9 @@ def parse_warning_filter(  # noqa: PLR0912
         {{error}}
         """
     )
+
+    if not isinstance(arg, str):
+        raise Exit(error_template.format(error="arg is not a string."))
 
     parts = arg.split(":")
     if len(parts) > 5:  # noqa: PLR2004

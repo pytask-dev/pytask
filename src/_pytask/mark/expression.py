@@ -179,8 +179,7 @@ def not_expr(s: Scanner) -> ast.expr:
     ident = s.accept(TokenType.IDENT)
     if ident:
         return ast.Name(IDENT_PREFIX + ident.value, ast.Load())
-    s.reject((TokenType.NOT, TokenType.LPAREN, TokenType.IDENT))
-    return None
+    s.reject((TokenType.NOT, TokenType.LPAREN, TokenType.IDENT))  # noqa: RET503
 
 
 class MatcherAdapter(Mapping[str, bool]):

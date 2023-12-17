@@ -5,7 +5,6 @@ import sys
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
-from typing import Callable
 
 import pytest
 from click.testing import CliRunner
@@ -62,15 +61,10 @@ class SysPathsSnapshot:
 class SysModulesSnapshot:
     """A snapshot for sys.modules."""
 
-    def __init__(self, preserve: Callable[[str], bool] | None = None) -> None:
-        self.__preserve = preserve
+    def __init__(self) -> None:
         self.__saved = dict(sys.modules)
 
     def restore(self) -> None:
-        if self.__preserve:
-            self.__saved.update(
-                (k, m) for k, m in sys.modules.items() if self.__preserve(k)
-            )
         sys.modules.clear()
         sys.modules.update(self.__saved)
 

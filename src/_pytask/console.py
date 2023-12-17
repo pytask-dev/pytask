@@ -126,10 +126,7 @@ def render_to_string(
 
 def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
     """Format a task id."""
-    if task.function is None:
-        url_style = Style()
-    else:
-        url_style = create_url_style_for_task(task.function, editor_url_scheme)
+    url_style = create_url_style_for_task(task.function, editor_url_scheme)
 
     if isinstance(task, PTaskWithPath):
         path, task_name = task.name.split("::")
@@ -224,7 +221,7 @@ def get_file(  # noqa: PLR0911
         if source_file and Path(source_file) in skipped_paths:
             return get_file(function.__wrapped__)
     source_file = inspect.getsourcefile(function)
-    if source_file:
+    if source_file:  # pragma: no cover
         if "<stdin>" in source_file:
             return None
         if "<string>" in source_file:

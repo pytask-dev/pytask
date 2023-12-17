@@ -25,7 +25,6 @@ References
 from __future__ import annotations
 
 import contextlib
-import enum
 import functools
 import io
 import os
@@ -42,19 +41,14 @@ from typing import TextIO
 from typing import TYPE_CHECKING
 
 import click
+from _pytask.capture_utils import CaptureMethod
+from _pytask.capture_utils import ShowCapture
 from _pytask.click import EnumChoice
 from _pytask.config import hookimpl
-from _pytask.enums import ShowCapture
+from _pytask.shared import convert_to_enum
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
-
-
-class CaptureMethod(enum.Enum):
-    FD = "fd"
-    NO = "no"
-    SYS = "sys"
-    TEE_SYS = "tee-sys"
 
 
 @hookimpl
@@ -90,11 +84,10 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
     Note that, ``-s`` is a shortcut for ``--capture=no``.
 
     """
-    if isinstance(config["capture"], str):
-        config["capture"] = CaptureMethod(config["capture"])
-
+    config["capture"] = convert_to_enum(config["capture"], CaptureMethod)
     if config["s"]:
         config["capture"] = CaptureMethod.NO
+    config["show_capture"] = convert_to_enum(config["show_capture"], ShowCapture)
 
 
 @hookimpl
