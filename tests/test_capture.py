@@ -112,7 +112,11 @@ def test_show_capture_with_build(tmp_path, show_capture):
         raise NotImplementedError
 
 
-@pytest.mark.xfail(sys.platform == "win32", reason="dunno", raises=ModuleNotFoundError)
+@pytest.mark.xfail(
+    sys.platform == "win32",
+    reason="from pytask ... cannot be found",
+    raises=AssertionError,
+)
 def test_wrong_capture_method(tmp_path):
     source = """
     from pytask import build
