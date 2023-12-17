@@ -129,6 +129,7 @@ def test_wrong_capture_method(tmp_path):
     assert "Value 'a' is not a valid" in result.stdout.decode()
     assert "Traceback" not in result.stdout.decode()
     assert not result.stderr.decode()
+    assert 0  # noqa: PT015
 
 
 # Following tests are copied from pytest.
