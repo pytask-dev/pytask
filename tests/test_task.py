@@ -697,14 +697,15 @@ def test_raise_error_with_builtin_function_as_task(runner, tmp_path):
     assert "Builtin functions cannot be wrapped" in result.output
 
 
-def test_task_function_in_another_module(runner, tmp_path):
+@pytest.mark.parametrize("module", [None, "__file__", "'a'"])
+def test_task_function_in_another_module(runner, tmp_path, module):
     source = """
     def func():
         return "Hello, World!"
     """
     tmp_path.joinpath("module.py").write_text(textwrap.dedent(source))
 
-    source = """
+    source = f"""
     from pytask import task
     from pathlib import Path
     from _pytask.path import import_path
@@ -715,11 +716,23 @@ def test_task_function_in_another_module(runner, tmp_path):
     module = import_path(_ROOT_PATH / "module.py", _ROOT_PATH)
     name_to_obj = dict(inspect.getmembers(module))
 
-    task(produces=Path("out.txt"))(name_to_obj["func"])
+    task(produces=Path("out.txt"), module={module})(name_to_obj["func"])
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert "1  Succeeded" in result.output
-    assert tmp_path.joinpath("out.txt").read_text() == "Hello, World!"
+
+    if module == "'a'":
+        assert result.exit_code == ExitCode.COLLECTION_FAILED
+        assert "ValueError: Module" in result.output
+
+    else:
+        assert result.exit_code == ExitCode.OK
+        assert "1  Succeeded" in result.output
+        assert tmp_path.joinpath("out.txt").read_text() == "Hello, World!"
+
+        # Check whether the module is overwritten or not.
+        if module:
+            assert "task_example.py" in result.output
+        else:
+            assert "module.py" in result.output

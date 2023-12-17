@@ -77,6 +77,8 @@ def task(  # noqa: PLR0913
         :func:`@task <pytask.task>`, this argument allows to set the path to the task
         module instead of the imported module.
 
+        Relative paths are resolved relative to the current working directory.
+
         .. code-block:: python
 
             from pytask import task
@@ -133,7 +135,16 @@ def task(  # noqa: PLR0913
             )
             raise NotImplementedError(msg)
 
-        path = Path(module).resolve() if module else get_file(unwrapped)
+        if not module:
+            path = get_file(unwrapped)
+        else:
+            path = Path(module).resolve()
+            if not path.exists():
+                msg = (
+                    f"Module '{path}' does not exist, but is set as "
+                    "'@task(module=...)'."
+                )
+                raise ValueError(msg)
 
         parsed_kwargs = {} if kwargs is None else kwargs
         parsed_name = name if isinstance(name, str) else func.__name__
