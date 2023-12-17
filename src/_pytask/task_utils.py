@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import inspect
 from collections import defaultdict
+from pathlib import Path
 from types import BuiltinFunctionType
 from typing import Any
 from typing import Callable
-from typing import TYPE_CHECKING
 
 import attrs
 from _pytask.console import format_strings_as_flat_tree
@@ -15,9 +15,6 @@ from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
 from _pytask.typing import is_task_function
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 __all__ = [
@@ -32,19 +29,20 @@ __all__ = [
 COLLECTED_TASKS: dict[Path | None, list[Callable[..., Any]]] = defaultdict(list)
 """A container for collecting tasks.
 
-Tasks marked by the ``@pytask.mark.task`` decorator can be generated in a loop where one
-iteration overwrites the previous task. To retrieve the tasks later, use this dictionary
-mapping from paths of modules to a list of tasks per module.
+Tasks marked by the ``@task`` decorator can be generated in a loop where one iteration
+overwrites the previous task. To retrieve the tasks later, use this dictionary mapping
+from paths of modules to a list of tasks per module.
 
 """
 
 
-def task(
+def task(  # noqa: PLR0913
     name: str | None = None,
     *,
     after: str | Callable[..., Any] | list[Callable[..., Any]] | None = None,
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
+    module: Path | str | None = None,
     produces: Any | None = None,
 ) -> Callable[..., Callable[..., Any]]:
     """Decorate a task function.
@@ -71,6 +69,25 @@ def task(
         Use a dictionary to pass any keyword arguments to the task function which can be
         dependencies or products of the task. Read :ref:`task-kwargs` for more
         information.
+    module
+        An experimental and cosmetic feature.
+
+        By default, the module is the location where the task function is defined. When
+        a task function is imported in a task module and wrapped with
+        :func:`@task <pytask.task>`, this argument allows to set the path to the task
+        module instead of the imported module.
+
+        .. code-block:: python
+
+            from pytask import task
+            from module import function
+
+            # Location will be 'module.py'.
+            @task()(function)
+
+            # Location will be this module, e.g., 'task_module.py'.
+            @task(module=__file__)(function)
+
     produces
         Use this argument if you want to parse the return of the task function as a
         product, but you cannot annotate the return of the function. See :doc:`this
@@ -83,9 +100,11 @@ def task(
 
     .. code-block:: python
 
-        from typing import Annotated from pytask import task
+        from typing import Annotated
+        from pytask import task
 
-        @task def create_text_file() -> Annotated[str, Path("file.txt")]:
+        @task
+        def create_text_file() -> Annotated[str, Path("file.txt")]:
             return "Hello, World!"
 
     """
@@ -114,7 +133,7 @@ def task(
             )
             raise NotImplementedError(msg)
 
-        path = get_file(unwrapped)
+        path = Path(module).resolve() if module else get_file(unwrapped)
 
         parsed_kwargs = {} if kwargs is None else kwargs
         parsed_name = name if isinstance(name, str) else func.__name__
