@@ -9,6 +9,7 @@ from typing import Callable
 from typing import TYPE_CHECKING
 
 import attrs
+from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
@@ -23,6 +24,7 @@ __all__ = [
     "COLLECTED_TASKS",
     "parse_collected_tasks_with_task_marker",
     "parse_keyword_arguments_from_signature_defaults",
+    "raise_error_when_task_functions_are_duplicated",
     "task",
 ]
 
@@ -332,3 +334,29 @@ def _arg_value_to_id_component(
     else:
         id_component = arg_name + str(i)
     return id_component
+
+
+def raise_error_when_task_functions_are_duplicated(
+    tasks: list[Callable[..., Any]],
+) -> None:
+    """Raise error when task functions are duplicated.
+
+    When task functions are created outside the loop body, every wrapped version of the
+
+    """
+    duplicates = find_duplicates(tasks)
+    if not duplicates:
+        return
+
+    strings = [
+        f"function_name={func.pytask_meta.name}, id={func.pytask_meta.id_}"
+        for func in duplicates
+    ]
+    flat_tree = format_strings_as_flat_tree(strings, "Duplicated tasks")
+    msg = (
+        "There are some duplicates among the repeated tasks. It happens when you define"
+        "the task function outside the loop body and merely wrap in the loop body with "
+        "the 'task(...)(func)' decorator. As a workaround, wrap the task function in "
+        f"a lambda expression like 'task(...)(lambda **x: func(**x))'.\n\n{flat_tree}"
+    )
+    raise ValueError(msg)

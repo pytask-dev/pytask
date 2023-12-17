@@ -2,14 +2,12 @@
 from __future__ import annotations
 
 from typing import Any
-from typing import Callable
 from typing import TYPE_CHECKING
 
 from _pytask.config import hookimpl
-from _pytask.console import format_strings_as_flat_tree
-from _pytask.shared import find_duplicates
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import parse_collected_tasks_with_task_marker
+from _pytask.task_utils import raise_error_when_task_functions_are_duplicated
 
 if TYPE_CHECKING:
     from _pytask.reports import CollectionReport
@@ -40,7 +38,7 @@ def pytask_collect_file(
         # is used.
         tasks = COLLECTED_TASKS.pop(path)
 
-        _raise_error_when_task_functions_are_duplicated(tasks)
+        raise_error_when_task_functions_are_duplicated(tasks)
 
         name_to_function = parse_collected_tasks_with_task_marker(tasks)
 
@@ -54,29 +52,3 @@ def pytask_collect_file(
 
         return collected_reports
     return None
-
-
-def _raise_error_when_task_functions_are_duplicated(
-    tasks: list[Callable[..., Any]],
-) -> None:
-    """Raise error when task functions are duplicated.
-
-    When task functions are created outside the loop body, every wrapped version of the
-
-    """
-    duplicates = find_duplicates(tasks)
-    if not duplicates:
-        return
-
-    strings = [
-        f"function_name={func.pytask_meta.name}, id={func.pytask_meta.id_}"
-        for func in duplicates
-    ]
-    flat_tree = format_strings_as_flat_tree(strings, "Duplicated tasks")
-    msg = (
-        "There are some duplicates among the repeated tasks. It happens when you define"
-        "the task function outside the loop body and merely wrap in the loop body with "
-        "the 'task(...)(func)' decorator. As a workaround, wrap the task function in "
-        f"a lambda expression like 'task(...)(lambda **x: func(**x))'.\n\n{flat_tree}"
-    )
-    raise ValueError(msg)

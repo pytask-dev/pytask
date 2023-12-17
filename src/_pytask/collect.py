@@ -21,7 +21,6 @@ from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import get_file
 from _pytask.exceptions import CollectionError
-from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
@@ -39,6 +38,8 @@ from _pytask.path import shorten_path
 from _pytask.reports import CollectionReport
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import COLLECTED_TASKS
+from _pytask.task_utils import parse_collected_tasks_with_task_marker
+from _pytask.task_utils import raise_error_when_task_functions_are_duplicated
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
 from rich.text import Text
@@ -132,43 +133,37 @@ def _collect_from_tasks(session: Session) -> None:
             session.collection_reports.append(report)
 
 
-_FAILED_COLLECTING_TASK = """\
-Failed to collect task '{name}'{path_desc}.
-
-This can happen when the task function is defined in another module, imported to a \
-task module and wrapped with the '@task' decorator.
-
-To collect this task correctly, wrap the imported function in a lambda expression like
-
-task(...)(lambda **x: imported_function(**x)).
-"""
-
-
 def _collect_not_collected_tasks(session: Session) -> None:
-    """Collect tasks that are not collected yet and create failed reports."""
+    """Collect tasks that are not collected yet.
+
+    If task functions are imported from another module and then wrapped with ``@task``,
+    they would usually not be collected since their module is the imported module and
+    not the task module. This function collects these tasks and all other cached in
+    ``COLLECTED_TASKS``.
+
+    """
     for path in list(COLLECTED_TASKS):
         tasks = COLLECTED_TASKS.pop(path)
-        for task in tasks:
-            name = task.pytask_meta.name  # type: ignore[attr-defined]
-            node: PTask
-            if path:
-                node = Task(base_name=name, path=path, function=task)
-                path_desc = f" in '{path}'"
-            else:
-                node = TaskWithoutPath(name=name, function=task)
-                path_desc = ""
-            report = CollectionReport(
-                outcome=CollectionOutcome.FAIL,
-                node=node,
-                exc_info=(
-                    NodeNotCollectedError,
-                    NodeNotCollectedError(
-                        _FAILED_COLLECTING_TASK.format(name=name, path_desc=path_desc)
-                    ),
-                    None,
-                ),
+
+        # Remove tasks from the global to avoid re-collection if programmatic interface
+        # is used.
+        raise_error_when_task_functions_are_duplicated(tasks)
+
+        name_to_function = parse_collected_tasks_with_task_marker(tasks)
+
+        collected_reports = []
+        for name, function in name_to_function.items():
+            report = session.hook.pytask_collect_task_protocol(
+                session=session,
+                reports=session.collection_reports,
+                path=path,
+                name=name,
+                obj=function,
             )
-            session.collection_reports.append(report)
+            if report is not None:
+                collected_reports.append(report)
+
+        session.collection_reports.extend(collected_reports)
 
 
 @hookimpl
