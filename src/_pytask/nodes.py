@@ -94,7 +94,8 @@ class Task(PTaskWithPath):
     base_name
         The base name of the task.
     path
-        Path to the file where the task was defined.
+        Path to the file where the task was defined. It is used to collect the path and
+        for displaying information.
     function
         The task function.
     name
