@@ -17,6 +17,7 @@ def test__eq__(lhs, rhs, expected) -> None:
     assert (lhs == rhs) == expected
 
 
+@pytest.mark.filterwarnings("ignore:Unknown pytask\\.mark\\.foo")
 def test_aliases() -> None:
     md = pytask.mark.foo(1, "2", three=3)
     assert md.name == "foo"

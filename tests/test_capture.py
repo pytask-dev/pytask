@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import io
 import os
+import shutil
 import subprocess
 import sys
 import textwrap
@@ -119,6 +120,7 @@ def test_wrong_capture_method(tmp_path):
     """
     tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
 
+    print(shutil.which("python"))
     result = subprocess.run(  # noqa: PLW1510
         ("python", "workflow.py"), cwd=tmp_path, capture_output=True
     )
