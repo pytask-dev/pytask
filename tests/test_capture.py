@@ -108,6 +108,27 @@ def test_show_capture_with_build(tmp_path, show_capture):
         raise NotImplementedError
 
 
+def test_wrong_capture_method(tmp_path):
+    source = """
+    from pytask import build
+    import sys
+
+    if __name__ == "__main__":
+        session = build(tasks=[], show_capture="a")
+        sys.exit(session.exit_code)
+    """
+    tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
+
+    result = subprocess.run(  # noqa: PLW1510
+        ("python", "workflow.py"), cwd=tmp_path, capture_output=True
+    )
+
+    assert result.returncode == ExitCode.CONFIGURATION_FAILED
+    assert "Value 'a' is not a valid" in result.stdout.decode()
+    assert "Traceback" not in result.stdout.decode()
+    assert not result.stderr.decode()
+
+
 # Following tests are copied from pytest.
 
 # note: py.io capture tests where copied from pylib 1.4.20.dev2 (rev 13d9af95547e)
