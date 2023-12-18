@@ -15,7 +15,7 @@ from _pytask.collect_utils import _Placeholder
 from _pytask.typing import Product  # noqa: TCH002
 from pytask import depends_on
 from pytask import produces
-from typing_extensions import Annotated  # noqa: TCH002
+from typing_extensions import Annotated
 
 
 ERROR = "'@pytask.mark.depends_on' has nodes with the same name:"
