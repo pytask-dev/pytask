@@ -68,7 +68,7 @@ docs = [
 ]
 test = [
   "deepdiff",
-  "nbval",
+  "nbmake",
   "pexpect",
   "pytest",
   "pytest-cov",

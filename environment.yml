@@ -28,7 +28,7 @@ dependencies:
   - ipywidgets
   - jupyterlab
   - matplotlib
-  - nbval
+  - nbmake
   - pre-commit
   - pygraphviz
   - pytest
