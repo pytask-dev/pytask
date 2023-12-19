@@ -146,7 +146,6 @@ ignore = [
 convention = "numpy"
 
 [tool.pytest.ini_options]
-addopts = ["--doctest-modules"]
 testpaths = ["tests"]
 markers = [
     "wip: Tests that are work-in-progress.",
@@ -154,7 +153,6 @@ markers = [
     "integration: Flag for integration tests which may comprise of multiple unit tests.",
     "end_to_end: Flag for tests that cover the whole program.",
 ]
-norecursedirs = [".idea", ".tox"]
 filterwarnings = [
     "ignore:'@pytask.mark.*. is deprecated:FutureWarning",
     "ignore:The --rsyncdir command line argument:DeprecationWarning",
