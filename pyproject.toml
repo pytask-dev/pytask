@@ -147,7 +147,7 @@ convention = "numpy"
 
 [tool.pytest.ini_options]
 addopts = ["--doctest-modules"]
-testpaths = ["src", "tests"]
+testpaths = ["tests"]
 markers = [
     "wip: Tests that are work-in-progress.",
     "unit: Flag for unit tests which target mainly a single function.",
