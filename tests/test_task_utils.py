@@ -74,6 +74,7 @@ def task_func(x):  # noqa: ARG001  # pragma: no cover
         (partial(task_func, x=1), "name", does_not_raise(), "name"),
         (lambda x: None, None, does_not_raise(), "<lambda>"),  # noqa: ARG005
         (partial(lambda x: None, x=1), None, does_not_raise(), "<lambda>"),  # noqa: ARG005
+        (1, None, pytest.raises(NotImplementedError, match="Cannot"), None),
     ],
 )
 def test_parse_name(func, name, expectation, expected):
