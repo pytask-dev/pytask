@@ -1,6 +1,7 @@
 """Contains utilities related to the ``@pytask.mark.task`` decorator."""
 from __future__ import annotations
 
+import functools
 import inspect
 from collections import defaultdict
 from types import BuiltinFunctionType
@@ -115,7 +116,7 @@ def task(
         path = get_file(unwrapped)
 
         parsed_kwargs = {} if kwargs is None else kwargs
-        parsed_name = name if isinstance(name, str) else func.__name__
+        parsed_name = _parse_name(unwrapped, name)
         parsed_after = _parse_after(after)
 
         if hasattr(unwrapped, "pytask_meta"):
@@ -146,6 +147,21 @@ def task(
     if is_task_function(name) and kwargs is None:
         return task()(name)
     return wrapper
+
+
+def _parse_name(func: Callable[..., Any], name: str | None) -> str:
+    """Parse name from task function."""
+    if name:
+        return name
+
+    if isinstance(func, functools.partial):
+        func = func.func
+
+    if hasattr(func, "__name__"):
+        return func.__name__
+
+    msg = "Cannot infer name for task function."
+    raise NotImplementedError(msg)
 
 
 def _parse_after(
