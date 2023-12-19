@@ -349,8 +349,9 @@ def test_task_function_with_partialed_args_and_task_decorator(tmp_path, runner):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == ExitCode.COLLECTION_FAILED
-    assert "1  Collected errors and tasks" in result.output
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+    assert tmp_path.joinpath("out.txt").read_text() == "hello"
 
 
 @pytest.mark.end_to_end()
