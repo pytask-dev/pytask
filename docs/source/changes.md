@@ -21,6 +21,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`524` improves some linting and formatting rules.
 - {pull}`525` enables pytask to work with remote files using universal_pathlib.
 - {pull}`528` improves the codecov setup and coverage.
+- {pull}`535` reenables and fixes tests with Jupyter.
 
 ## 0.4.4 - 2023-12-04
 
@@ -68,7 +69,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`465` adds test to ensure internal tracebacks are removed by reports.
 - {pull}`466` implements hashing for files instead of modification timestamps.
 - {pull}`470` moves `.pytask.sqlite3` to `.pytask`.
-- {pull}`472` adds `is_product` to {meth}`PNode.load`.
+- {pull}`472` adds `is_product` to {meth}`~pytask.PNode.load`.
 - {pull}`473` adds signatures to nodes which decouples an identifier from a name.
 - {pull}`477` updates the PyPI action.
 - {pull}`478` replaces black with ruff-format.
@@ -94,9 +95,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   is not present.
 - {pull}`387` replaces pony with sqlalchemy.
 - {pull}`391` removes `@pytask.mark.parametrize`.
-- {pull}`394` allows to add products with {obj}`typing.Annotation` and
+- {pull}`394` allows to add products with {obj}`typing.Annotated` and
   {obj}`~pytask.Product`.
-- {pull}`395` refactors all occurrences of pybaum to {mod}`_pytask.tree_util`.
+- {pull}`395` refactors all occurrences of pybaum to `_pytask.tree_util`.
 - {pull}`396` replaces pybaum with optree and adds paths to the name of
   {class}`pytask.PythonNode`'s allowing for better hashing.
 - {pull}`397` adds support for {class}`typing.NamedTuple` and attrs classes in
@@ -123,7 +124,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`421` removes the deprecation warning when `produces` is used as an magic
   function keyword to define products.
 - {pull}`423` adds a notebook to explain the functional interface.
-- {pull}`424` fixes problems with {func}`~_pytask.path.import_path`.
+- {pull}`424` fixes problems with `~_pytask.path.import_path`.
 - {pull}`426` publishes the {mod}`pytask.tree_util` module.
 - {pull}`427` fixes type annotations for {attr}`pytask.PTask.depends_on` and
   {attr}`pytask.PTask.produces`.

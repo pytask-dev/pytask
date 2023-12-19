@@ -222,7 +222,7 @@ def get_file(  # noqa: PLR0911
             return get_file(function.__wrapped__)
     source_file = inspect.getsourcefile(function)
     if source_file:  # pragma: no cover
-        if "<stdin>" in source_file:
+        if "<stdin>" in source_file or "ipykernel" in source_file:
             return None
         if "<string>" in source_file:
             try:

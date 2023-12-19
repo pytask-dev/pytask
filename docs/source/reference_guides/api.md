@@ -285,10 +285,11 @@ To mark any callable as a task use
 .. autofunction:: pytask.task
 ```
 
-Task are currently represented by the following class:
+Task are currently represented by the following classes:
 
 ```{eval-rst}
 .. autoclass:: pytask.Task
+.. autoclass:: pytask.TaskWithoutPath
 ```
 
 Currently, there are no different types of tasks since changing the `.function`
@@ -369,12 +370,8 @@ resolution and execution.
 ## Tree utilities
 
 ```{eval-rst}
-.. autofunction:: pytask.tree_util.PyTree
-.. autofunction:: pytask.tree_util.tree_flatten_with_path
-.. autofunction:: pytask.tree_util.tree_leaves
-.. autofunction:: pytask.tree_util.tree_map
-.. autofunction:: pytask.tree_util.tree_map_with_path
-.. autofunction:: pytask.tree_util.tree_structure
+.. automodule:: pytask.tree_util
+    :members:
 ```
 
 ## Typing

@@ -1,13 +1,9 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = [
-  "setuptools>=45",
-  "setuptools_scm[toml]>=6",
-  "wheel",
-]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
 
 [tool.setuptools_scm]
-write_to = "src/_pytask/_version.py"
+version_file = "src/_pytask/_version.py"
 
 [project]
 name = "pytask"
@@ -72,6 +68,7 @@ docs = [
 ]
 test = [
   "deepdiff",
+  "nbmake",
   "pexpect",
   "pytest",
   "pytest-cov",
@@ -149,15 +146,13 @@ ignore = [
 convention = "numpy"
 
 [tool.pytest.ini_options]
-addopts = ["--doctest-modules"]
-testpaths = ["src", "tests"]
+testpaths = ["tests"]
 markers = [
     "wip: Tests that are work-in-progress.",
     "unit: Flag for unit tests which target mainly a single function.",
     "integration: Flag for integration tests which may comprise of multiple unit tests.",
     "end_to_end: Flag for tests that cover the whole program.",
 ]
-norecursedirs = [".idea", ".tox"]
 filterwarnings = [
     "ignore:'@pytask.mark.*. is deprecated:FutureWarning",
     "ignore:The --rsyncdir command line argument:DeprecationWarning",
