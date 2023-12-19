@@ -21,6 +21,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`524` improves some linting and formatting rules.
 - {pull}`525` enables pytask to work with remote files using universal_pathlib.
 - {pull}`528` improves the codecov setup and coverage.
+- {pull}`535` reenables and fixes tests with Jupyter.
 
 ## 0.4.4 - 2023-12-04
 
