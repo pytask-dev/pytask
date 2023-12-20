@@ -17,8 +17,8 @@ to inputs and outputs and call {func}`~pandas.read_pickle` and
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_1.py
 ```
 
-To remove IO operations from the task and delegate them to pytask, we will write a
-`PickleNode` that automatically loads and stores Python objects.
+To remove IO operations from the task and delegate them to pytask, we will replicate the
+{class}`~pytask.PickleNode` that automatically loads and stores Python objects.
 
 And we pass the value to `df` via {obj}`~typing.Annotated` to preserve the type hint.
 
@@ -73,9 +73,9 @@ follow at least the protocol {class}`~pytask.PNode` or, even better,
 
 ## `PickleNode`
 
-Since our {class}`PickleNode` will only vary slightly from {class}`~pytask.PathNode`, we
-use it as a template, and with some minor modifications, we arrive at the following
-class.
+Since our {class}`~pytask.PickleNode` will only vary slightly from
+{class}`~pytask.PathNode`, we use it as a template, and with some minor modifications,
+we arrive at the following class.
 
 ::::{tab-set}
 
@@ -107,20 +107,20 @@ Here are some explanations.
 - The node has an additional property that computes the signature of the node. The
   signature is a hash and a unique identifier for the node. For most nodes it will be a
   hash of the path or the name.
-- The {func}`classmethod` {meth}`PickleNode.from_path` is a convenient method to
+- The {func}`classmethod` {meth}`~pytask.PickleNode.from_path` is a convenient method to
   instantiate the class.
-- The method {meth}`PickleNode.state` yields a value that signals the node's state. If
-  the value changes, pytask knows it needs to regenerate the workflow. We can use
-  the timestamp of when the node was last modified.
-- pytask calls {meth}`PickleNode.load` when it collects the values of function arguments
-  to run the function. The argument `is_product` signals that the node is loaded as a
-  product with a {class}`~pytask.Product` annotation or via `produces`.
+- The method {meth}`~pytask.PickleNode.state` yields a value that signals the node's
+  state. If the value changes, pytask knows it needs to regenerate the workflow. We can
+  use the timestamp of when the node was last modified.
+- pytask calls {meth}`~pytask.PickleNode.load` when it collects the values of function
+  arguments to run the function. The argument `is_product` signals that the node is
+  loaded as a product with a {class}`~pytask.Product` annotation or via `produces`.
 
   When the node is loaded as a dependency, we want to inject the value of the pickle
   file. In the other case, the node returns itself so users can call
-  {meth}`PickleNode.save` themselves.
-- {meth}`PickleNode.save` is called when a task function returns and allows to save the
-  return values.
+  {meth}`~pytask.PickleNode.save` themselves.
+- {meth}`~pytask.PickleNode.save` is called when a task function returns and allows to
+  save the return values.
 
 ## Conclusion
 

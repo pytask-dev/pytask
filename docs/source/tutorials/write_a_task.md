@@ -48,7 +48,7 @@ indicate that this file is a product we add some metadata to the argument.
 
 Look at the type hint `Annotated[Path, Product]`. It uses the
 {obj}`~typing.Annotated` syntax. The first entry is the type of the argument,
-{class}`~pathlib.Path`. The second entry is {class}`pytask.Product` that marks this
+{class}`~pathlib.Path`. The second entry is {class}`~pytask.Product` that marks this
 argument as a product.
 
 ```{literalinclude} ../../../docs_src/tutorials/write_a_task_py310.py
@@ -70,7 +70,7 @@ indicate that this file is a product we add some metadata to the argument.
 
 Look at the type hint `Annotated[Path, Product]`. It uses the
 {obj}`~typing.Annotated` syntax. The first entry is the type of the argument,
-{class}`~pathlib.Path`. The second entry is {class}`pytask.Product` that marks this
+{class}`~pathlib.Path`. The second entry is {class}`~pytask.Product` that marks this
 argument as a product.
 
 ```{literalinclude} ../../../docs_src/tutorials/write_a_task_py38.py

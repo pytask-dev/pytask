@@ -28,6 +28,39 @@ To write to the terminal, use pytask's console.
 .. class:: pytask.console
 ```
 
+## Exceptions
+
+Exceptions all inherit from
+
+```{eval-rst}
+.. autoclass:: pytask.PytaskError
+```
+
+The following exceptions can be used to interrupt pytask's flow, emit reduced tracebacks
+and return the correct exit codes.
+
+```{eval-rst}
+.. autoclass:: pytask.CollectionError
+.. autoclass:: pytask.ConfigurationError
+.. autoclass:: pytask.ExecutionError
+.. autoclass:: pytask.ResolvingDependenciesError
+```
+
+The remaining exceptions convey specific errors.
+
+```{eval-rst}
+.. autoclass:: pytask.NodeNotCollectedError
+.. autoclass:: pytask.NodeNotFoundError
+```
+
+## General classes
+
+```{eval-rst}
+.. autoclass:: pytask.Session
+.. autoclass:: pytask.DataCatalog
+   :members:
+```
+
 ## Marks
 
 pytask uses marks to attach additional information to task functions which is processed
@@ -207,39 +240,6 @@ These functions help you to handle marks.
 .. autofunction:: pytask.set_marks
 ```
 
-## Exceptions
-
-Exceptions all inherit from
-
-```{eval-rst}
-.. autoclass:: pytask.PytaskError
-```
-
-The following exceptions can be used to interrupt pytask's flow, emit reduced tracebacks
-and return the correct exit codes.
-
-```{eval-rst}
-.. autoclass:: pytask.CollectionError
-.. autoclass:: pytask.ConfigurationError
-.. autoclass:: pytask.ExecutionError
-.. autoclass:: pytask.ResolvingDependenciesError
-```
-
-The remaining exceptions convey specific errors.
-
-```{eval-rst}
-.. autoclass:: pytask.NodeNotCollectedError
-.. autoclass:: pytask.NodeNotFoundError
-```
-
-## General classes
-
-```{eval-rst}
-.. autoclass:: pytask.Session
-.. autoclass:: pytask.DataCatalog
-   :members:
-```
-
 ## Protocols
 
 Protocols define how tasks and nodes for dependencies and products have to be set up.
@@ -261,11 +261,11 @@ Nodes are the interface for different kinds of dependencies or products.
 
 ```{eval-rst}
 .. autoclass:: pytask.PathNode
-   :members: load, save
+   :members:
 .. autoclass:: pytask.PickleNode
-   :members: load, save
+   :members:
 .. autoclass:: pytask.PythonNode
-   :members: load, save
+   :members:
 ```
 
 To parse dependencies and products from nodes, use the following functions.
@@ -301,6 +301,7 @@ attribute of the task function.
 
 ```{eval-rst}
 .. autoclass:: pytask.CollectionMetadata
+    :members:
 ```
 
 ## Outcomes
@@ -377,13 +378,17 @@ resolution and execution.
 ## Typing
 
 ```{eval-rst}
-..  class:: pytask.Product
+.. currentmodule:: pytask
+..  class:: Product
 
     An indicator to mark arguments of tasks as products.
 
     >>> def task_example(path: Annotated[Path, Product]) -> None:
     ...     path.write_text("Hello, World!")
+```
 
+```{eval-rst}
+.. autofunction:: pytask.is_task_function
 ```
 
 ## Tracebacks

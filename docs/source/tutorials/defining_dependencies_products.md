@@ -127,7 +127,7 @@ we will define it in `task_plot_data.py`.
 To specify that the task relies on the data set `data.pkl`, you can add the path
 to the function signature while choosing any argument name, here `path_to_data`.
 
-pytask assumes that all function arguments that do not have a {class}`~pytask.`Product`
+pytask assumes that all function arguments that do not have a {class}`~pytask.Product`
 annotation are dependencies of the task.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_py310.py

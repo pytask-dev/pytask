@@ -118,7 +118,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`413` removes scripts to generate `.svg`s.
 - {pull}`414` allow more ruff rules.
 - {pull}`416` removes `.from_annot` again.
-- {pull}`417` deprecates {func}`pytask.mark.task` in favor of {func}`pytask.task`.
+- {pull}`417` deprecates `pytask.mark.task` in favor of {func}`pytask.task`.
 - {pull}`418` fixes and error and simplifies code in `dag.py`.
 - {pull}`420` converts `DeprecationWarning`s to `FutureWarning`s for the deprecated
   decorators.
@@ -164,7 +164,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`376` enhances the documentation for `pytask dag`.
 - {pull}`378` conditionally skips test on MacOS.
 - {pull}`381` deprecates `@pytask.mark.parametrize`. (Closes {issue}`233`.)
-- {pull}`501` removes {class}`pytask.MetaNode`.
+- {pull}`501` removes `pytask.MetaNode`.
 
 ## 0.3.1 - 2023-12-25
 

@@ -226,7 +226,7 @@ class PythonNode(PNode):
 
     Examples
     --------
-    To allow a :class:`~pytask.PythonNode` to hash a dictionary, you need to pass your
+    To allow a :class:`PythonNode` to hash a dictionary, you need to pass your
     own hashing function. For example, from the :mod:`deepdiff` library.
 
     >>> from deepdiff import DeepHash
@@ -293,7 +293,7 @@ class PythonNode(PNode):
 
 
 @define
-class PickleNode:
+class PickleNode(PPathNode):
     """A node for pickle files.
 
     Attributes

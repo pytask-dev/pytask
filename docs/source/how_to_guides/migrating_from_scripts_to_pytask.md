@@ -55,7 +55,7 @@ An `if __name__ == "__main__"` block must be deleted.
 To let pytask know the order in which to execute tasks and when to re-run them, you'll
 need to specify task dependencies and products. Add dependencies as arguments to the
 function with default values. Do the same for products, but also add the special
-{obj}`~pytask.Product` annotation with {obj}`Annotated[Path, Product]`. For example:
+{obj}`~pytask.Product` annotation with `Annotated[Path, Product]`. For example:
 
 ```{literalinclude} ../../../docs_src/how_to_guides/migrating_from_scripts_to_pytask_4.py
 ```
