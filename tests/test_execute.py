@@ -988,6 +988,9 @@ def test_use_functional_interface_with_task(tmp_path):
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").exists()
 
+    session = build(tasks=task)
+    assert session.exit_code == ExitCode.OK
+
 
 def test_collect_task(runner, tmp_path):
     source = """

@@ -38,6 +38,7 @@ from _pytask.path import import_path
 from _pytask.path import shorten_path
 from _pytask.reports import CollectionReport
 from _pytask.shared import find_duplicates
+from _pytask.shared import to_list
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
@@ -103,7 +104,7 @@ def _collect_from_paths(session: Session) -> None:
 
 def _collect_from_tasks(session: Session) -> None:
     """Collect tasks from user provided tasks via the functional interface."""
-    for raw_task in session.config.get("tasks", ()):
+    for raw_task in to_list(session.config.get("tasks", ())):
         if is_task_function(raw_task):
             if not hasattr(raw_task, "pytask_meta"):
                 raw_task = task_decorator()(raw_task)  # noqa: PLW2901

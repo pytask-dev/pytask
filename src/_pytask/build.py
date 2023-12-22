@@ -127,8 +127,8 @@ def build(  # noqa: C901, PLR0912, PLR0913
     force
         Run tasks even though they would be skipped since nothing has changed.
     ignore
-        A pattern to ignore files or directories. Refer to ``pathlib.Path.match``
-        for more info.
+        A pattern to ignore files or directories. Refer to ``pathlib.Path.match`` for
+        more info.
     marker_expression
         Same as ``-m`` on the command line. Select tasks via marker expressions.
     max_failures
@@ -145,7 +145,7 @@ def build(  # noqa: C901, PLR0912, PLR0913
         Start a custom debugger on errors. For example:
         ``--pdbcls=IPython.terminal.debugger:TerminalPdb``
     s
-        Shortcut for ``pytask.build(capture"no")``.
+        Shortcut for ``capture="no"``.
     show_capture
         Choose which captured output should be shown for failed tasks.
     show_errors_immediately
@@ -161,7 +161,8 @@ def build(  # noqa: C901, PLR0912, PLR0913
     strict_markers
         Raise errors for unknown markers.
     tasks
-        A task or a collection of tasks that is passed to ``pytask.build(tasks=...)``.
+        A task or a collection of tasks which can be callables or instances following
+        {class}`~pytask.PTask`.
     task_files
         A pattern to describe modules that contain tasks.
     trace
