@@ -87,7 +87,7 @@ Homepage = "https://pytask-dev.readthedocs.io/en/stable"
 Tracker = "https://github.com/pytask-dev/pytask/issues"
 
 [project.scripts]
-pytask = "_pytask.cli:cli"
+pytask = "pytask:cli"
 
 [tool.setuptools]
 include-package-data = true

@@ -23,6 +23,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`528` improves the codecov setup and coverage.
 - {pull}`535` reenables and fixes tests with Jupyter.
 - {pull}`536` allows partialed functions to be task functions.
+- {pull}`540` changes the CLI entry-point and allow `pytask.build(tasks=task_func)` as
+  the signatures suggested.
 
 ## 0.4.4 - 2023-12-04
 
