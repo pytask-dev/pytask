@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib
+import sys
 from typing import Iterable
 
 import pluggy
@@ -22,35 +23,33 @@ def register_hook_impls_from_modules(
         plugin_manager.register(module)
 
 
-class BuiltinPlugins:
-    @staticmethod
-    @hookimpl
-    def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
-        """Add hooks."""
-        builtin_hook_impl_modules = (
-            "_pytask.build",
-            "_pytask.capture",
-            "_pytask.clean",
-            "_pytask.collect",
-            "_pytask.collect_command",
-            "_pytask.config",
-            "_pytask.dag",
-            "_pytask.dag_command",
-            "_pytask.database",
-            "_pytask.debugging",
-            "_pytask.execute",
-            "_pytask.live",
-            "_pytask.logging",
-            "_pytask.mark",
-            "_pytask.nodes",
-            "_pytask.parameters",
-            "_pytask.persist",
-            "_pytask.profile",
-            "_pytask.skipping",
-            "_pytask.task",
-            "_pytask.warnings",
-        )
-        register_hook_impls_from_modules(pm, builtin_hook_impl_modules)
+@hookimpl
+def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
+    """Add hooks."""
+    builtin_hook_impl_modules = (
+        "_pytask.build",
+        "_pytask.capture",
+        "_pytask.clean",
+        "_pytask.collect",
+        "_pytask.collect_command",
+        "_pytask.config",
+        "_pytask.dag",
+        "_pytask.dag_command",
+        "_pytask.database",
+        "_pytask.debugging",
+        "_pytask.execute",
+        "_pytask.live",
+        "_pytask.logging",
+        "_pytask.mark",
+        "_pytask.nodes",
+        "_pytask.parameters",
+        "_pytask.persist",
+        "_pytask.profile",
+        "_pytask.skipping",
+        "_pytask.task",
+        "_pytask.warnings",
+    )
+    register_hook_impls_from_modules(pm, builtin_hook_impl_modules)
 
 
 def get_plugin_manager() -> pluggy.PluginManager:
@@ -59,7 +58,7 @@ def get_plugin_manager() -> pluggy.PluginManager:
     pm.add_hookspecs(hookspecs)
     pm.load_setuptools_entrypoints("pytask")
 
-    pm.register(BuiltinPlugins)
+    pm.register(sys.modules[__name__])
     pm.hook.pytask_add_hooks(pm=pm)
 
     return pm
