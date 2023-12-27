@@ -6,6 +6,7 @@ from _pytask._hashlib import hash_value
 from _pytask.build import build
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
+from _pytask.cli import cli
 from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
 from _pytask.click import EnumChoice
@@ -72,10 +73,6 @@ from _pytask.typing import Product
 from _pytask.warnings_utils import parse_warning_filter
 from _pytask.warnings_utils import warning_record_to_str
 from _pytask.warnings_utils import WarningReport
-
-
-# This import must come last, otherwise a circular import occurs.
-from _pytask.cli import cli  # noreorder
 
 
 __all__ = [
