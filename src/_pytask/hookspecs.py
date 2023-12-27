@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 hookspec = pluggy.HookspecMarker("pytask")
 
 
-@hookspec
+@hookspec(historic=True)
 def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     """Add hook specifications and implementations to the plugin manager.
 
@@ -46,7 +46,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
 # Hooks for the command-line interface.
 
 
-@hookspec
+@hookspec(historic=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface.
 

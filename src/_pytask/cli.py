@@ -24,7 +24,7 @@ else:  # pragma: no cover
 def _extend_command_line_interface(cli: click.Group) -> click.Group:
     """Add parameters from plugins to the commandline interface."""
     pm = get_plugin_manager()
-    pm.hook.pytask_extend_command_line_interface(cli=cli)
+    pm.hook.pytask_extend_command_line_interface.call_historic(kwargs={"cli": cli})
     _sort_options_for_each_command_alphabetically(cli)
     return cli
 

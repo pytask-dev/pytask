@@ -59,6 +59,6 @@ def get_plugin_manager() -> pluggy.PluginManager:
     pm.load_setuptools_entrypoints("pytask")
 
     pm.register(sys.modules[__name__])
-    pm.hook.pytask_add_hooks(pm=pm)
+    pm.hook.pytask_add_hooks.call_historic(kwargs={"pm": pm})
 
     return pm
