@@ -1,10 +1,10 @@
 """Contains functions to assess compatibility and optional dependencies."""
 from __future__ import annotations
 
-import importlib
 import shutil
 import sys
 import warnings
+from importlib import import_module
 from typing import TYPE_CHECKING
 
 from packaging.version import parse as parse_version
@@ -89,7 +89,7 @@ def import_optional_dependency(
         f"Use pip or conda to install {install_name!r}."
     )
     try:
-        module = importlib.import_module(name)
+        module = import_module(name)
     except ImportError:
         if errors == "raise":
             raise ImportError(msg) from None

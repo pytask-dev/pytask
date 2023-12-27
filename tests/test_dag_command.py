@@ -115,7 +115,7 @@ def test_raise_error_with_graph_via_cli_missing_optional_dependency(
     tmp_path.joinpath("input.txt").touch()
 
     monkeypatch.setattr(
-        "_pytask.compat.importlib.import_module",
+        "_pytask.compat.import_module",
         lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: ARG005
     )
 
@@ -150,7 +150,7 @@ def test_raise_error_with_graph_via_task_missing_optional_dependency(
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     monkeypatch.setattr(
-        "_pytask.compat.importlib.import_module",
+        "_pytask.compat.import_module",
         lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: ARG005
     )
 
@@ -169,7 +169,7 @@ def test_raise_error_with_graph_via_cli_missing_optional_program(
     monkeypatch, tmp_path, runner
 ):
     monkeypatch.setattr(
-        "_pytask.compat.importlib.import_module",
+        "_pytask.compat.import_module",
         lambda x: None,  # noqa: ARG005
     )
     monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: ARG005
@@ -200,7 +200,7 @@ def test_raise_error_with_graph_via_task_missing_optional_program(
     monkeypatch, tmp_path, runner
 ):
     monkeypatch.setattr(
-        "_pytask.compat.importlib.import_module",
+        "_pytask.compat.import_module",
         lambda x: None,  # noqa: ARG005
     )
     monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: ARG005

@@ -2,16 +2,11 @@
 from __future__ import annotations
 
 from typing import Any
-from typing import TYPE_CHECKING
 
 import click
 from _pytask.click import ColoredGroup
-from _pytask.config import hookimpl
 from _pytask.pluginmanager import get_plugin_manager
 from packaging.version import parse as parse_version
-
-if TYPE_CHECKING:
-    import pluggy
 
 
 _CONTEXT_SETTINGS: dict[str, Any] = {
@@ -40,54 +35,6 @@ def _sort_options_for_each_command_alphabetically(cli: click.Group) -> None:
         cli.commands[command].params = sorted(
             cli.commands[command].params, key=lambda x: x.opts[0].replace("-", "")
         )
-
-
-@hookimpl
-def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
-    """Add hooks."""
-    from _pytask import build
-    from _pytask import capture
-    from _pytask import clean
-    from _pytask import collect
-    from _pytask import collect_command
-    from _pytask import config
-    from _pytask import database
-    from _pytask import debugging
-    from _pytask import execute
-    from _pytask import dag_command
-    from _pytask import live
-    from _pytask import logging
-    from _pytask import mark
-    from _pytask import nodes
-    from _pytask import parameters
-    from _pytask import persist
-    from _pytask import profile
-    from _pytask import dag
-    from _pytask import skipping
-    from _pytask import task
-    from _pytask import warnings
-
-    pm.register(build)
-    pm.register(capture)
-    pm.register(clean)
-    pm.register(collect)
-    pm.register(collect_command)
-    pm.register(config)
-    pm.register(database)
-    pm.register(debugging)
-    pm.register(execute)
-    pm.register(dag_command)
-    pm.register(live)
-    pm.register(logging)
-    pm.register(mark)
-    pm.register(nodes)
-    pm.register(parameters)
-    pm.register(persist)
-    pm.register(profile)
-    pm.register(dag)
-    pm.register(skipping)
-    pm.register(task)
-    pm.register(warnings)
 
 
 @click.group(

@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 import click
 from _pytask.click import ColoredCommand
-from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_url_style_for_path
 from _pytask.console import FILE_ICON
@@ -28,6 +27,7 @@ from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
+from _pytask.pluginmanager import hookimpl
 from _pytask.session import Session
 from _pytask.tree_util import tree_leaves
 from rich.text import Text

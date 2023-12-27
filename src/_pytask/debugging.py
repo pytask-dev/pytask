@@ -10,10 +10,10 @@ from typing import Generator
 from typing import TYPE_CHECKING
 
 import click
-from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.node_protocols import PTask
 from _pytask.outcomes import Exit
+from _pytask.pluginmanager import hookimpl
 from _pytask.traceback import Traceback
 
 

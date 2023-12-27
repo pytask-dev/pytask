@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING
 import click
 from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
-from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_name
 from _pytask.database_utils import BaseTable
@@ -26,6 +25,7 @@ from _pytask.node_protocols import PTask
 from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import get_plugin_manager
+from _pytask.pluginmanager import hookimpl
 from _pytask.session import Session
 from _pytask.traceback import Traceback
 from rich.table import Table

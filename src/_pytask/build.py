@@ -15,7 +15,6 @@ import click
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
 from _pytask.click import ColoredCommand
-from _pytask.config import hookimpl
 from _pytask.config_utils import find_project_root_and_config
 from _pytask.config_utils import read_config
 from _pytask.console import console
@@ -26,6 +25,7 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
 from _pytask.path import HashPathCache
 from _pytask.pluginmanager import get_plugin_manager
+from _pytask.pluginmanager import hookimpl
 from _pytask.session import Session
 from _pytask.shared import parse_paths
 from _pytask.shared import to_list

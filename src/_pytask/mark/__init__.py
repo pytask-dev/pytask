@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 import click
 from _pytask.click import ColoredCommand
-from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.dag_utils import task_and_preceding_tasks
 from _pytask.exceptions import ConfigurationError
@@ -20,6 +19,7 @@ from _pytask.mark.structures import MarkDecorator
 from _pytask.mark.structures import MarkGenerator
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
+from _pytask.pluginmanager import hookimpl
 from _pytask.session import Session
 from _pytask.shared import parse_markers
 from attrs import define

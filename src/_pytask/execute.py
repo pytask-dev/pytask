@@ -7,7 +7,6 @@ import time
 from typing import Any
 from typing import TYPE_CHECKING
 
-from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.console import create_summary_panel
@@ -33,6 +32,7 @@ from _pytask.outcomes import Exit
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
+from _pytask.pluginmanager import hookimpl
 from _pytask.reports import ExecutionReport
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.tree_util import tree_leaves

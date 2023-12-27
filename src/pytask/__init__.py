@@ -15,7 +15,6 @@ from _pytask.collect_utils import parse_products_from_task_function
 from _pytask.collect_utils import produces
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
-from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.dag_command import build_dag
 from _pytask.data_catalog import DataCatalog
@@ -59,6 +58,7 @@ from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
+from _pytask.pluginmanager import hookimpl
 from _pytask.profile import Runtime
 from _pytask.reports import CollectionReport
 from _pytask.reports import DagReport

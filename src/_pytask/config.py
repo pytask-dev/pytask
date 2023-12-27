@@ -4,14 +4,15 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 from typing import Any
+from typing import TYPE_CHECKING
 
-import pluggy
+from _pytask.pluginmanager import hookimpl
 from _pytask.shared import parse_markers
 from _pytask.shared import parse_paths
 from _pytask.shared import to_list
 
-
-hookimpl = pluggy.HookimplMarker("pytask")
+if TYPE_CHECKING:
+    import pluggy
 
 
 _IGNORED_FOLDERS: list[str] = [".git/*", ".venv/*"]

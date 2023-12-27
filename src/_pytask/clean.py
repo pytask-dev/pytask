@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING
 import click
 from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
-from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
 from _pytask.git import get_all_files
@@ -27,6 +26,7 @@ from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import get_plugin_manager
+from _pytask.pluginmanager import hookimpl
 from _pytask.session import Session
 from _pytask.shared import to_list
 from _pytask.traceback import Traceback

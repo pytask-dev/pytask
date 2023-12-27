@@ -12,7 +12,6 @@ from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
-from _pytask.config import hookimpl
 from _pytask.config_utils import find_project_root_and_config
 from _pytask.config_utils import read_config
 from _pytask.console import console
@@ -21,6 +20,7 @@ from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
+from _pytask.pluginmanager import hookimpl
 from _pytask.session import Session
 from _pytask.shared import parse_paths
 from _pytask.shared import reduce_names_of_multiple_nodes
