@@ -9,6 +9,7 @@ import pytest
 from _pytask.git import init_repo
 from pytask import cli
 from pytask import ExitCode
+from pytask import storage
 
 
 _PROJECT_TASK = """
@@ -86,6 +87,7 @@ def test_clean_database_ignored(project, runner):
     os.chdir(project)
     result = runner.invoke(cli, ["build"])
     assert result.exit_code == ExitCode.OK
+    storage.create()
     result = runner.invoke(cli, ["clean"])
     assert result.exit_code == ExitCode.OK
     os.chdir(cwd)

@@ -5,8 +5,8 @@ from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
 
-from _pytask.config import hookimpl
 from _pytask.console import format_strings_as_flat_tree
+from _pytask.pluginmanager import hookimpl
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import parse_collected_tasks_with_task_marker

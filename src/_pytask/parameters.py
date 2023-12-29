@@ -4,8 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import click
-from _pytask.config import hookimpl
 from _pytask.config_utils import set_defaults_from_config
+from _pytask.pluginmanager import hookimpl
 from click import Context
 from sqlalchemy.engine import make_url
 from sqlalchemy.engine import URL

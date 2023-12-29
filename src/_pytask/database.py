@@ -4,8 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from _pytask.config import hookimpl
 from _pytask.database_utils import create_database
+from _pytask.pluginmanager import hookimpl
 from sqlalchemy.engine import make_url
 
 
