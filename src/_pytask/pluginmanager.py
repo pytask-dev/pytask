@@ -12,6 +12,14 @@ from pluggy import HookimplMarker
 from pluggy import PluginManager
 
 
+__all__ = [
+    "get_plugin_manager",
+    "hookimpl",
+    "register_hook_impls_from_modules",
+    "storage",
+]
+
+
 hookimpl = HookimplMarker("pytask")
 
 
@@ -66,7 +74,7 @@ def get_plugin_manager() -> pluggy.PluginManager:
 
 
 @define
-class PluginManagerStorage:
+class _PluginManagerStorage:
     """A class to store the plugin manager.
 
     This storage is needed to harmonize the two different ways to call pytask, via the
@@ -95,4 +103,4 @@ class PluginManagerStorage:
         return self._plugin_manager
 
 
-storage = PluginManagerStorage()
+storage = _PluginManagerStorage()

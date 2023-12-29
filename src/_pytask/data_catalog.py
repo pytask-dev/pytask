@@ -16,7 +16,7 @@ from _pytask.models import NodeInfo
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.nodes import PickleNode
-from _pytask.pluginmanager import get_plugin_manager
+from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from attrs import define
 from attrs import field
@@ -36,9 +36,7 @@ def _get_parent_path_of_data_catalog_module(stacklevel: int = 2) -> Path:
 
 def _create_default_session() -> Session:
     """Create a default session to use the hooks and collect nodes."""
-    return Session(
-        config={"check_casing_of_paths": True}, hook=get_plugin_manager().hook
-    )
+    return Session(config={"check_casing_of_paths": True}, hook=storage.get().hook)
 
 
 @define(kw_only=True)

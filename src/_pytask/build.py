@@ -334,7 +334,7 @@ def build_command(**raw_config: Any) -> NoReturn:
     current working directory, executes them and reports the results.
 
     """
-    raw_config["pm"] = storage._plugin_manager
+    raw_config["pm"] = storage.get()
     raw_config["command"] = "build"
     session = build(**raw_config)
     sys.exit(session.exit_code)
