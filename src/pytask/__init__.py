@@ -59,7 +59,9 @@ from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
+from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
+from _pytask.pluginmanager import storage
 from _pytask.profile import Runtime
 from _pytask.reports import CollectionReport
 from _pytask.reports import DagReport
@@ -133,6 +135,7 @@ __all__ = [
     "depends_on",
     "get_all_marks",
     "get_marks",
+    "get_plugin_manager",
     "has_mark",
     "hash_value",
     "hookimpl",
@@ -146,6 +149,7 @@ __all__ = [
     "remove_internal_traceback_frames_from_exc_info",
     "remove_marks",
     "set_marks",
+    "storage",
     "task",
     "warning_record_to_str",
 ]

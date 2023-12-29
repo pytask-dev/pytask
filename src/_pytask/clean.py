@@ -25,8 +25,8 @@ from _pytask.node_protocols import PTaskWithPath
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
-from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
+from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.shared import to_list
 from _pytask.traceback import Traceback
@@ -97,12 +97,11 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 )
 def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
     """Clean the provided paths by removing files unknown to pytask."""
+    pm = storage.get()
     raw_config["command"] = "clean"
 
     try:
         # Duplication of the same mechanism in :func:`pytask.build`.
-        pm = get_plugin_manager()
-
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 

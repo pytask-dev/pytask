@@ -5,7 +5,7 @@ from typing import Any
 
 import click
 from _pytask.click import ColoredGroup
-from _pytask.pluginmanager import get_plugin_manager
+from _pytask.pluginmanager import storage
 from packaging.version import parse as parse_version
 
 
@@ -23,7 +23,7 @@ else:  # pragma: no cover
 
 def _extend_command_line_interface(cli: click.Group) -> click.Group:
     """Add parameters from plugins to the commandline interface."""
-    pm = get_plugin_manager()
+    pm = storage.create()
     pm.hook.pytask_extend_command_line_interface.call_historic(kwargs={"cli": cli})
     _sort_options_for_each_command_alphabetically(cli)
     return cli

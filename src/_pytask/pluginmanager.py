@@ -7,6 +7,7 @@ from typing import Iterable
 
 import pluggy
 from _pytask import hookspecs
+from attrs import define
 from pluggy import HookimplMarker
 from pluggy import PluginManager
 
@@ -62,3 +63,36 @@ def get_plugin_manager() -> pluggy.PluginManager:
     pm.hook.pytask_add_hooks.call_historic(kwargs={"pm": pm})
 
     return pm
+
+
+@define
+class PluginManagerStorage:
+    """A class to store the plugin manager.
+
+    This storage is needed to harmonize the two different ways to call pytask, via the
+    CLI or the API.
+
+    When pytask is called from the CLI, the plugin manager is created in
+    :mod:`_pytask.cli` outside the click command to extend the command line interface.
+    Afterwards, it needs to be accessed in the different commands.
+
+    When pytask is called from the API, the plugin manager needs to be created inside
+    the function, for example, :func:`~pytask.build` to ensure each call can start from
+    a blank slate and is able to register any plugins.
+
+    """
+
+    _plugin_manager: PluginManager | None = None
+
+    def get(self) -> PluginManager:
+        """Get the plugin manager."""
+        assert self._plugin_manager
+        return self._plugin_manager
+
+    def create(self) -> PluginManager:
+        """Create the plugin manager."""
+        self._plugin_manager = get_plugin_manager()
+        return self._plugin_manager
+
+
+storage = PluginManagerStorage()

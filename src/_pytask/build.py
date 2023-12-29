@@ -26,6 +26,7 @@ from _pytask.outcomes import ExitCode
 from _pytask.path import HashPathCache
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
+from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.shared import parse_paths
 from _pytask.shared import to_list
@@ -34,6 +35,7 @@ from rich.traceback import Traceback
 
 
 if TYPE_CHECKING:
+    from pluggy import PluginManager
     from _pytask.node_protocols import PTask
     from typing import NoReturn
 
@@ -82,6 +84,7 @@ def build(  # noqa: C901, PLR0912, PLR0913
     paths: str | Path | Iterable[str | Path] = (),
     pdb: bool = False,
     pdb_cls: str = "",
+    pm: PluginManager | None = None,
     s: bool = False,
     show_capture: Literal["no", "stdout", "stderr", "all"]
     | ShowCapture = ShowCapture.ALL,
@@ -177,7 +180,8 @@ def build(  # noqa: C901, PLR0912, PLR0913
 
     """
     try:
-        pm = get_plugin_manager()
+        if not pm:
+            pm = get_plugin_manager()
 
         raw_config = {
             "capture": capture,
@@ -330,6 +334,7 @@ def build_command(**raw_config: Any) -> NoReturn:
     current working directory, executes them and reports the results.
 
     """
+    raw_config["pm"] = storage._plugin_manager
     raw_config["command"] = "build"
     session = build(**raw_config)
     sys.exit(session.exit_code)

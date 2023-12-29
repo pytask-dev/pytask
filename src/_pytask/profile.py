@@ -24,8 +24,8 @@ from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
-from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
+from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.traceback import Traceback
 from rich.table import Table
@@ -111,10 +111,10 @@ def _create_or_update_runtime(task_signature: str, start: float, end: float) -> 
 )
 def profile(**raw_config: Any) -> NoReturn:
     """Show information about tasks like runtime and memory consumption of products."""
+    pm = storage.get()
     raw_config["command"] = "profile"
 
     try:
-        pm = get_plugin_manager()
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 

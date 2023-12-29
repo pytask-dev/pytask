@@ -21,6 +21,7 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
+from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.shared import parse_paths
 from _pytask.shared import reduce_names_of_multiple_nodes
@@ -80,7 +81,7 @@ _HELP_TEXT_RANK_DIRECTION: str = (
 def dag(**raw_config: Any) -> int:
     """Create a visualization of the project's directed acyclic graph."""
     try:
-        pm = get_plugin_manager()
+        pm = storage.get()
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
