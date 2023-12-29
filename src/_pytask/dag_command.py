@@ -144,6 +144,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
     """
     try:
         pm = get_plugin_manager()
+        storage.store(pm)
 
         # If someone called the programmatic interface, we need to do some parsing.
         if "command" not in raw_config:

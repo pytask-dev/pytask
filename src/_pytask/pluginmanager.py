@@ -91,15 +91,19 @@ class _PluginManagerStorage:
 
     _plugin_manager: PluginManager | None = None
 
+    def create(self) -> PluginManager:
+        """Create the plugin manager."""
+        self._plugin_manager = get_plugin_manager()
+        return self._plugin_manager
+
     def get(self) -> PluginManager:
         """Get the plugin manager."""
         assert self._plugin_manager
         return self._plugin_manager
 
-    def create(self) -> PluginManager:
-        """Create the plugin manager."""
-        self._plugin_manager = get_plugin_manager()
-        return self._plugin_manager
+    def store(self, pm: PluginManager) -> None:
+        """Store the plugin manager."""
+        self._plugin_manager = pm
 
 
 storage = _PluginManagerStorage()

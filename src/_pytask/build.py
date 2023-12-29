@@ -63,7 +63,7 @@ def pytask_unconfigure(session: Session) -> None:
     path.write_text(json.dumps(HashPathCache._cache))
 
 
-def build(  # noqa: C901, PLR0912, PLR0913
+def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
     *,
     capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.FD,
     check_casing_of_paths: bool = True,
@@ -211,7 +211,11 @@ def build(  # noqa: C901, PLR0912, PLR0913
             **kwargs,
         }
 
-        pm = get_plugin_manager() if "command" not in raw_config else storage.get()
+        if "command" not in raw_config:
+            pm = get_plugin_manager()
+            storage.store(pm)
+        else:
+            pm = storage.get()
 
         # If someone called the programmatic interface, we need to do some parsing.
         if "command" not in raw_config:

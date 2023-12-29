@@ -9,6 +9,7 @@ import hashlib
 import inspect
 import pickle
 from pathlib import Path
+from typing import Any
 
 from _pytask.config_utils import find_project_root_and_config
 from _pytask.exceptions import NodeNotCollectedError
@@ -32,11 +33,6 @@ def _get_parent_path_of_data_catalog_module(stacklevel: int = 2) -> Path:
     if potential_path:
         return Path(potential_path).parent
     return Path.cwd()
-
-
-def _create_default_session() -> Session:
-    """Create a default session to use the hooks and collect nodes."""
-    return Session(config={"check_casing_of_paths": True}, hook=storage.get().hook)
 
 
 @define(kw_only=True)
@@ -65,12 +61,14 @@ class DataCatalog:
     entries: dict[str, PNode] = field(factory=dict)
     name: str = "default"
     path: Path | None = None
-    _session: Session = field(factory=_create_default_session)
+    _session_config: dict[str, Any] = field(
+        factory=lambda *x: {"check_casing_of_paths": True}  # noqa: ARG005
+    )
     _instance_path: Path = field(factory=_get_parent_path_of_data_catalog_module)
 
     def __attrs_post_init__(self) -> None:
         root_path, _ = find_project_root_and_config((self._instance_path,))
-        self._session.config["paths"] = (root_path,)
+        self._session_config["paths"] = (root_path,)
 
         if not self.path:
             self.path = root_path / ".pytask" / "data_catalogs" / self.name
@@ -113,8 +111,10 @@ class DataCatalog:
         elif isinstance(node, PNode):
             self.entries[name] = node
         else:
-            collected_node = self._session.hook.pytask_collect_node(
-                session=self._session,
+            # Acquire the latest pluginmanager.
+            session = Session(config=self._session_config, hook=storage.get().hook)
+            collected_node = session.hook.pytask_collect_node(
+                session=session,
                 path=self._instance_path,
                 node_info=NodeInfo(
                     arg_name=name, path=(), value=node, task_path=None, task_name=""
