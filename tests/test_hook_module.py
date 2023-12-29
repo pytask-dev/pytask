@@ -49,3 +49,23 @@ def test_add_new_hook_via_config(tmp_path):
     )
     assert result.returncode == ExitCode.OK
     assert "--new-option" in result.stdout.decode()
+
+
+def test_error_when_hook_module_path_does_not_exist(tmp_path):
+    result = subprocess.run(  # noqa: PLW1510
+        ("pytask", "build", "--hook-module", "hooks.py", "--help"),
+        cwd=tmp_path,
+        capture_output=True,
+    )
+    assert result.returncode == ExitCode.CONFIGURATION_FAILED
+    assert b"Error: Invalid value for '--hook-module'" in result.stderr
+
+
+def test_error_when_hook_module_module_does_not_exist(tmp_path):
+    result = subprocess.run(  # noqa: PLW1510
+        ("pytask", "build", "--hook-module", "hooks", "--help"),
+        cwd=tmp_path,
+        capture_output=True,
+    )
+    assert result.returncode == ExitCode.FAILED
+    assert b"ModuleNotFoundError: No module named 'hooks'" in result.stderr

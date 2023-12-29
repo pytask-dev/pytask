@@ -128,6 +128,13 @@ def _hook_module_callback(
                 path = ctx.params["config"].parent.joinpath(path).resolve()
             else:
                 path = Path.cwd().joinpath(path).resolve()
+
+            if not path.exists():
+                msg = (
+                    f"The hook module {path} does not exist. "
+                    "Please provide a valid path."
+                )
+                raise click.BadParameter(msg)
             module = import_path(path, ctx.params["root"])
             parsed_modules.append(module.__name__)
         else:
