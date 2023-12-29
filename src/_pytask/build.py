@@ -35,7 +35,6 @@ from rich.traceback import Traceback
 
 
 if TYPE_CHECKING:
-    from pluggy import PluginManager
     from _pytask.node_protocols import PTask
     from typing import NoReturn
 
@@ -84,7 +83,6 @@ def build(  # noqa: C901, PLR0912, PLR0913
     paths: str | Path | Iterable[str | Path] = (),
     pdb: bool = False,
     pdb_cls: str = "",
-    pm: PluginManager | None = None,
     s: bool = False,
     show_capture: Literal["no", "stdout", "stderr", "all"]
     | ShowCapture = ShowCapture.ALL,
@@ -180,9 +178,6 @@ def build(  # noqa: C901, PLR0912, PLR0913
 
     """
     try:
-        if not pm:
-            pm = get_plugin_manager()
-
         raw_config = {
             "capture": capture,
             "check_casing_of_paths": check_casing_of_paths,
@@ -215,6 +210,8 @@ def build(  # noqa: C901, PLR0912, PLR0913
             "verbose": verbose,
             **kwargs,
         }
+
+        pm = get_plugin_manager() if "command" not in raw_config else storage.get()
 
         # If someone called the programmatic interface, we need to do some parsing.
         if "command" not in raw_config:
@@ -334,7 +331,6 @@ def build_command(**raw_config: Any) -> NoReturn:
     current working directory, executes them and reports the results.
 
     """
-    raw_config["pm"] = storage.get()
     raw_config["command"] = "build"
     session = build(**raw_config)
     sys.exit(session.exit_code)
