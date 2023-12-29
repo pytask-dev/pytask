@@ -13,6 +13,7 @@ import click
 from _pytask import __version__ as version
 from _pytask.console import console
 from click import Choice
+from click import Command
 from click import Context
 from click import Parameter
 from click.parser import split_opt
@@ -23,7 +24,7 @@ from rich.table import Table
 from rich.text import Text
 
 if TYPE_CHECKING:
-    import collections.abc as cabc
+    from collections.abc import Sequence
 
 
 __all__ = ["ColoredCommand", "ColoredGroup", "EnumChoice"]
@@ -121,8 +122,7 @@ class ColoredGroup(DefaultGroup):
 
 
 def _iter_params_for_processing(
-    invocation_order: cabc.Sequence[Parameter],
-    declaration_order: cabc.Sequence[Parameter],
+    invocation_order: Sequence[Parameter], declaration_order: Sequence[Parameter]
 ) -> list[Parameter]:
     def sort_key(item: Parameter) -> tuple[bool, float]:
         # Hardcode the order of the config and paths parameters so that they are always
@@ -144,7 +144,7 @@ def _iter_params_for_processing(
     return sorted(declaration_order, key=sort_key)
 
 
-class ColoredCommand(click.Command):
+class ColoredCommand(Command):
     """A command with colored help pages."""
 
     def parse_args(self, ctx: Context, args: list[str]) -> list[str]:
@@ -172,7 +172,7 @@ class ColoredCommand(click.Command):
         return args
 
     def format_help(
-        self: click.Command,
+        self: Command,
         ctx: Context,
         formatter: Any,  # noqa: ARG002
     ) -> None:
@@ -196,9 +196,7 @@ class ColoredCommand(click.Command):
         )
 
 
-def _print_options(
-    group_or_command: click.Command | DefaultGroup, ctx: Context
-) -> None:
+def _print_options(group_or_command: Command | DefaultGroup, ctx: Context) -> None:
     """Print options formatted with a table in a panel."""
     highlighter = _OptionHighlighter()
 

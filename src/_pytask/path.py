@@ -131,7 +131,6 @@ def import_path(path: Path, root: Path) -> ModuleType:
 
     """
     module_name = _module_name_from_path(path, root)
-
     with contextlib.suppress(KeyError):
         return sys.modules[module_name]
 
