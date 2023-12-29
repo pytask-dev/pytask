@@ -16,9 +16,8 @@ from _pytask.outcomes import Exit
 from _pytask.pluginmanager import hookimpl
 from _pytask.traceback import Traceback
 
-
 if TYPE_CHECKING:
-    import pluggy
+    from pluggy import PluginManager
     from _pytask.session import Session
     from types import TracebackType
     from types import FrameType
@@ -111,7 +110,7 @@ def pytask_unconfigure() -> None:
 class PytaskPDB:
     """Pseudo PDB that defers to the real pdb."""
 
-    _pluginmanager: pluggy.PluginManager | None = None
+    _pluginmanager: PluginManager | None = None
     _config: dict[str, Any] | None = None
     _saved: ClassVar[list[tuple[Any, ...]]] = []
     _recursive_debug: int = 0

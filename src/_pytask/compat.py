@@ -89,6 +89,8 @@ def import_optional_dependency(
         f"Use pip or conda to install {install_name!r}."
     )
     try:
+        # The from import is used to avoid monkeypatching errors in some tests. See
+        # https://stackoverflow.com/a/31746577 for more information.
         module = import_module(name)
     except ImportError:
         if errors == "raise":

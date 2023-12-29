@@ -5,7 +5,6 @@ import importlib
 import sys
 from typing import Iterable
 
-import pluggy
 from _pytask import hookspecs
 from attrs import define
 from pluggy import HookimplMarker
@@ -33,7 +32,7 @@ def register_hook_impls_from_modules(
 
 
 @hookimpl
-def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
+def pytask_add_hooks(pm: PluginManager) -> None:
     """Add hooks."""
     builtin_hook_impl_modules = (
         "_pytask.build",
@@ -61,9 +60,9 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
     register_hook_impls_from_modules(pm, builtin_hook_impl_modules)
 
 
-def get_plugin_manager() -> pluggy.PluginManager:
+def get_plugin_manager() -> PluginManager:
     """Get the plugin manager."""
-    pm = pluggy.PluginManager("pytask")
+    pm = PluginManager("pytask")
     pm.add_hookspecs(hookspecs)
     pm.load_setuptools_entrypoints("pytask")
 
