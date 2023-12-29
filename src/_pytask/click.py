@@ -1,15 +1,20 @@
 """Contains code related to click."""
 from __future__ import annotations
 
-import enum
 import inspect
+from enum import Enum
 from gettext import gettext as _
+from gettext import ngettext
 from typing import Any
 from typing import ClassVar
+from typing import TYPE_CHECKING
 
 import click
 from _pytask import __version__ as version
 from _pytask.console import console
+from click import Choice
+from click import Context
+from click import Parameter
 from click.parser import split_opt
 from click_default_group import DefaultGroup
 from rich.highlighter import RegexHighlighter
@@ -17,11 +22,14 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+if TYPE_CHECKING:
+    import collections.abc as cabc
+
 
 __all__ = ["ColoredCommand", "ColoredGroup", "EnumChoice"]
 
 
-class EnumChoice(click.Choice):
+class EnumChoice(Choice):
     """An enum-based choice type.
 
     The implementation is copied from https://github.com/pallets/click/pull/2210 and
@@ -35,17 +43,15 @@ class EnumChoice(click.Choice):
 
     """
 
-    def __init__(self, enum_type: type[enum.Enum], case_sensitive: bool = True) -> None:
+    def __init__(self, enum_type: type[Enum], case_sensitive: bool = True) -> None:
         super().__init__(
             choices=[element.value for element in enum_type],
             case_sensitive=case_sensitive,
         )
         self.enum_type = enum_type
 
-    def convert(
-        self, value: Any, param: click.Parameter | None, ctx: click.Context | None
-    ) -> Any:
-        if isinstance(value, enum.Enum):
+    def convert(self, value: Any, param: Parameter | None, ctx: Context | None) -> Any:
+        if isinstance(value, Enum):
             value = value.value
         value = super().convert(value=value, param=param, ctx=ctx)
         if value is None:
@@ -68,7 +74,7 @@ class ColoredGroup(DefaultGroup):
 
     def format_help(
         self: DefaultGroup,
-        ctx: click.Context,
+        ctx: Context,
         formatter: Any,  # noqa: ARG002
     ) -> None:
         """Format the help text."""
@@ -114,12 +120,60 @@ class ColoredGroup(DefaultGroup):
         )
 
 
+def _iter_params_for_processing(
+    invocation_order: cabc.Sequence[Parameter],
+    declaration_order: cabc.Sequence[Parameter],
+) -> list[Parameter]:
+    def sort_key(item: Parameter) -> tuple[bool, float]:
+        # Hardcode the order of the config and paths parameters so that they are always
+        # processed first even if other eager parameters are chosen. The rest follows
+        # https://click.palletsprojects.com/en/8.1.x/advanced/#callback-evaluation-order.
+        if item.name == "paths":
+            return False, -2
+
+        if item.name == "config":
+            return False, -1
+
+        try:
+            idx: float = invocation_order.index(item)
+        except ValueError:
+            idx = float("inf")
+
+        return not item.is_eager, idx
+
+    return sorted(declaration_order, key=sort_key)
+
+
 class ColoredCommand(click.Command):
     """A command with colored help pages."""
 
+    def parse_args(self, ctx: Context, args: list[str]) -> list[str]:
+        if not args and self.no_args_is_help and not ctx.resilient_parsing:
+            click.echo(ctx.get_help(), color=ctx.color)
+            ctx.exit()
+
+        parser = self.make_parser(ctx)
+        opts, args, param_order = parser.parse_args(args=args)
+
+        for param in _iter_params_for_processing(param_order, self.get_params(ctx)):
+            value, args = param.handle_parse_result(ctx, opts, args)
+
+        if args and not ctx.allow_extra_args and not ctx.resilient_parsing:
+            ctx.fail(
+                ngettext(
+                    "Got unexpected extra argument ({args})",
+                    "Got unexpected extra arguments ({args})",
+                    len(args),
+                ).format(args=" ".join(map(str, args)))
+            )
+
+        ctx.args = args
+        ctx._opt_prefixes.update(parser._opt_prefixes)
+        return args
+
     def format_help(
         self: click.Command,
-        ctx: click.Context,
+        ctx: Context,
         formatter: Any,  # noqa: ARG002
     ) -> None:
         """Format the help text."""
@@ -143,7 +197,7 @@ class ColoredCommand(click.Command):
 
 
 def _print_options(
-    group_or_command: click.Command | DefaultGroup, ctx: click.Context
+    group_or_command: click.Command | DefaultGroup, ctx: Context
 ) -> None:
     """Print options formatted with a table in a panel."""
     highlighter = _OptionHighlighter()
@@ -195,7 +249,7 @@ def _print_options(
 
 
 def _format_help_text(  # noqa: C901, PLR0912, PLR0915
-    param: click.Parameter, ctx: click.Context
+    param: Parameter, ctx: Context
 ) -> Text:
     """Format the help of a click parameter.
 
@@ -264,7 +318,7 @@ def _format_help_text(  # noqa: C901, PLR0912, PLR0915
             and not default_value
         ):
             default_string = ""
-        elif isinstance(default_value, enum.Enum):
+        elif isinstance(default_value, Enum):
             default_string = str(default_value.value)
         else:
             default_string = str(default_value)

@@ -2,14 +2,22 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Iterable
+from typing import TYPE_CHECKING
 
 import click
 from _pytask.config_utils import set_defaults_from_config
+from _pytask.path import import_path
 from _pytask.pluginmanager import hookimpl
+from _pytask.pluginmanager import register_hook_impls_from_modules
+from _pytask.pluginmanager import storage
 from click import Context
 from sqlalchemy.engine import make_url
 from sqlalchemy.engine import URL
 from sqlalchemy.exc import ArgumentError
+
+if TYPE_CHECKING:
+    from pluggy import PluginManager
 
 
 _CONFIG_OPTION = click.Option(
@@ -96,10 +104,60 @@ def _database_url_callback(
 _DATABASE_URL_OPTION = click.Option(
     ["--database-url"],
     type=str,
-    help=("Url to the database."),
+    help="Url to the database.",
     default=None,
     show_default="sqlite:///.../.pytask/pytask.sqlite3",
     callback=_database_url_callback,
+)
+
+
+def _hook_module_callback(
+    ctx: Context,
+    name: str,  # noqa: ARG001
+    value: tuple[str, ...],
+) -> Iterable[str | Path]:
+    """Register the user's hook modules from the configuration file."""
+    if not value:
+        return value
+
+    parsed_modules = []
+    for module_name in value:
+        if module_name.endswith(".py"):
+            path = Path(module_name)
+            if ctx.params["config"]:
+                path = ctx.params["config"].parent.joinpath(path).resolve()
+            else:
+                path = Path.cwd().joinpath(path).resolve()
+            module = import_path(path, ctx.params["root"])
+            parsed_modules.append(module.__name__)
+        else:
+            parsed_modules.append(module_name)
+
+    # If there are hook modules, we register a hook implementation to add them.
+    # ``pytask_add_hooks`` is a historic hook specification, so even command line
+    # options can be added.
+    if parsed_modules:
+
+        class HookModule:
+            @staticmethod
+            @hookimpl
+            def pytask_add_hooks(pm: PluginManager) -> None:
+                """Add hooks."""
+                register_hook_impls_from_modules(pm, parsed_modules)
+
+        pm = storage.get()
+        pm.register(HookModule)
+
+    return parsed_modules
+
+
+_HOOK_MODULE_OPTION = click.Option(
+    ["--hook-module"],
+    type=str,
+    help="Path to a Python module that contains hook implementations.",
+    multiple=True,
+    is_eager=True,
+    callback=_hook_module_callback,
 )
 
 
@@ -107,9 +165,9 @@ _DATABASE_URL_OPTION = click.Option(
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Register general markers."""
     for command in ("build", "clean", "collect", "dag", "profile"):
-        cli.commands[command].params.extend([_PATH_ARGUMENT, _DATABASE_URL_OPTION])
+        cli.commands[command].params.extend((_PATH_ARGUMENT, _DATABASE_URL_OPTION))
     for command in ("build", "clean", "collect", "dag", "markers", "profile"):
-        cli.commands[command].params.append(_CONFIG_OPTION)
+        cli.commands[command].params.extend((_CONFIG_OPTION, _HOOK_MODULE_OPTION))
     for command in ("build", "clean", "collect", "profile"):
         cli.commands[command].params.extend([_IGNORE_OPTION, _EDITOR_URL_SCHEME_OPTION])
     for command in ("build",):
