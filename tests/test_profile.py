@@ -3,13 +3,13 @@ from __future__ import annotations
 import textwrap
 
 import pytest
-from _pytask.cli import cli
 from _pytask.profile import _to_human_readable_size
-from _pytask.profile import Runtime
 from pytask import build
+from pytask import cli
 from pytask import create_database
 from pytask import DatabaseSession
 from pytask import ExitCode
+from pytask import Runtime
 
 
 @pytest.mark.end_to_end()

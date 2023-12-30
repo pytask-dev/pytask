@@ -7,10 +7,10 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from _pytask.pluginmanager import storage
 from click.testing import CliRunner
 from packaging import version
 from pytask import console
+from pytask import storage
 
 
 @pytest.fixture(autouse=True)

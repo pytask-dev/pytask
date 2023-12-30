@@ -708,7 +708,7 @@ def test_task_function_in_another_module(runner, tmp_path):
     source = """
     from pytask import task
     from pathlib import Path
-    from _pytask.path import import_path
+    from pytask.path import import_path
     import inspect
 
     _ROOT_PATH = Path(__file__).parent
