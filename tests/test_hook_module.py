@@ -17,8 +17,8 @@ from pytask import ExitCode
             marks=pytest.mark.xfail(
                 sys.platform == "win32" and "CI" in os.environ,
                 reason="pytask is not found in subprocess",
+                strict=True,
             ),
-            strict=True,
         ),
         False,
     ],
@@ -63,8 +63,8 @@ def test_add_new_hook_via_cli(tmp_path, module_name):
             marks=pytest.mark.xfail(
                 sys.platform == "win32" and "CI" in os.environ,
                 reason="pytask is not found in subprocess",
+                strict=True,
             ),
-            strict=True,
         ),
         False,
     ],
