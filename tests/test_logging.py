@@ -8,9 +8,9 @@ import pytest
 from _pytask.logging import _format_plugin_names_and_versions
 from _pytask.logging import _humanize_time
 from _pytask.logging import pytask_log_session_footer
-from _pytask.outcomes import ExitCode
-from _pytask.outcomes import TaskOutcome
 from pytask import cli
+from pytask import ExitCode
+from pytask import TaskOutcome
 
 
 class DummyDist(NamedTuple):

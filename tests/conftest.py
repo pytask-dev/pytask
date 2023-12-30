@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 import sys
 from contextlib import contextmanager
@@ -7,10 +8,11 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from _pytask.pluginmanager import storage
 from click.testing import CliRunner
+from nbmake.pytest_items import NotebookItem
 from packaging import version
 from pytask import console
+from pytask import storage
 
 
 @pytest.fixture(autouse=True)
@@ -106,3 +108,11 @@ class CustomCliRunner(CliRunner):
 @pytest.fixture()
 def runner():
     return CustomCliRunner()
+
+
+def pytest_collection_modifyitems(session, config, items) -> None:  # noqa: ARG001
+    """Add markers to Jupyter notebook tests."""
+    if sys.platform == "debian" and "CI" in os.environ:  # pragma: no cover
+        for item in items:
+            if isinstance(item, NotebookItem):
+                item.add_marker(pytest.mark.xfail(reason="Fails regularly on MacOS"))

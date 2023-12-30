@@ -28,6 +28,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`540` changes the CLI entry-point and allow `pytask.build(tasks=task_func)` as
   the signatures suggested.
 - {pull}`542` refactors the plugin manager.
+- {pull}`543` fixes imports in tests and related issues.
 
 ## 0.4.4 - 2023-12-04
 

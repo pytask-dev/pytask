@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import pytest
-from _pytask.reports import CollectionReport
-from _pytask.reports import ExecutionReport
 from pytask import CollectionOutcome
+from pytask import CollectionReport
 from pytask import count_outcomes
+from pytask import ExecutionReport
 from pytask import TaskOutcome
 
 

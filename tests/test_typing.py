@@ -3,7 +3,7 @@ from __future__ import annotations
 import functools
 
 import pytest
-from _pytask.typing import is_task_function
+from pytask import is_task_function
 
 
 @pytest.mark.unit()

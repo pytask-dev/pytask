@@ -3,8 +3,6 @@ from __future__ import annotations
 import textwrap
 
 import pytest
-from _pytask.database_utils import State
-from _pytask.path import hash_path
 from _pytask.persist import pytask_execute_task_process_report
 from pytask import build
 from pytask import create_database
@@ -12,7 +10,9 @@ from pytask import DatabaseSession
 from pytask import ExitCode
 from pytask import Persisted
 from pytask import SkippedUnchanged
+from pytask import State
 from pytask import TaskOutcome
+from pytask.path import hash_path
 
 from tests.conftest import restore_sys_path_and_module_after_test_execution
 
