@@ -3,10 +3,12 @@ from __future__ import annotations
 import subprocess
 import textwrap
 
+import pytest
 from pytask import ExitCode
 
 
-def test_add_new_hook_via_cli(tmp_path):
+@pytest.mark.parametrize("module_name", [True, False])
+def test_add_new_hook_via_cli(tmp_path, module_name):
     hooks = """
     import click
     from pytask import hookimpl
@@ -16,20 +18,32 @@ def test_add_new_hook_via_cli(tmp_path):
         print("Hello World!")
         cli.commands["build"].params.append(click.Option(["--new-option"]))
     """
-    tmp_path.joinpath("hooks.py").write_text(textwrap.dedent(hooks))
-    result = subprocess.run(
-        ("pytask", "build", "--hook-module", "hooks.py", "--help"),
-        cwd=tmp_path,
-        capture_output=True,
-        check=True,
-    )
+    tmp_path.joinpath("hooks").mkdir()
+    tmp_path.joinpath("hooks", "hooks.py").write_text(textwrap.dedent(hooks))
+
+    if module_name:
+        args = (
+            "python",
+            "-m",
+            "pytask",
+            "build",
+            "--hook-module",
+            "hooks.hooks",
+            "--help",
+        )
+    else:
+        args = ("pytask", "build", "--hook-module", "hooks/hooks.py", "--help")
+
+    result = subprocess.run(args, cwd=tmp_path, capture_output=True, check=True)
+
     assert result.returncode == ExitCode.OK
     assert "--new-option" in result.stdout.decode()
 
 
-def test_add_new_hook_via_config(tmp_path):
+@pytest.mark.parametrize("module_name", [True, False])
+def test_add_new_hook_via_config(tmp_path, module_name):
     tmp_path.joinpath("pyproject.toml").write_text(
-        "[tool.pytask.ini_options]\nhook_module = ['hooks.py']"
+        "[tool.pytask.ini_options]\nhook_module = ['hooks/hooks.py']"
     )
 
     hooks = """
@@ -40,9 +54,16 @@ def test_add_new_hook_via_config(tmp_path):
     def pytask_extend_command_line_interface(cli):
         cli.commands["build"].params.append(click.Option(["--new-option"]))
     """
-    tmp_path.joinpath("hooks.py").write_text(textwrap.dedent(hooks))
+    tmp_path.joinpath("hooks").mkdir()
+    tmp_path.joinpath("hooks", "hooks.py").write_text(textwrap.dedent(hooks))
+
+    if module_name:
+        args = ("python", "-m", "pytask", "build", "--help")
+    else:
+        args = ("pytask", "build", "--help")
+
     result = subprocess.run(
-        ("pytask", "build", tmp_path.as_posix(), "--help"),
+        args,
         cwd=tmp_path,
         capture_output=True,
         check=True,
