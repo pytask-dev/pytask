@@ -15,7 +15,6 @@ import click
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
 from _pytask.click import ColoredCommand
-from _pytask.config import hookimpl
 from _pytask.config_utils import find_project_root_and_config
 from _pytask.config_utils import read_config
 from _pytask.console import console
@@ -26,6 +25,8 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
 from _pytask.path import HashPathCache
 from _pytask.pluginmanager import get_plugin_manager
+from _pytask.pluginmanager import hookimpl
+from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.shared import parse_paths
 from _pytask.shared import to_list
@@ -62,7 +63,7 @@ def pytask_unconfigure(session: Session) -> None:
     path.write_text(json.dumps(HashPathCache._cache))
 
 
-def build(  # noqa: C901, PLR0912, PLR0913
+def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
     *,
     capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.FD,
     check_casing_of_paths: bool = True,
@@ -127,8 +128,8 @@ def build(  # noqa: C901, PLR0912, PLR0913
     force
         Run tasks even though they would be skipped since nothing has changed.
     ignore
-        A pattern to ignore files or directories. Refer to ``pathlib.Path.match``
-        for more info.
+        A pattern to ignore files or directories. Refer to ``pathlib.Path.match`` for
+        more info.
     marker_expression
         Same as ``-m`` on the command line. Select tasks via marker expressions.
     max_failures
@@ -145,7 +146,7 @@ def build(  # noqa: C901, PLR0912, PLR0913
         Start a custom debugger on errors. For example:
         ``--pdbcls=IPython.terminal.debugger:TerminalPdb``
     s
-        Shortcut for ``pytask.build(capture"no")``.
+        Shortcut for ``capture="no"``.
     show_capture
         Choose which captured output should be shown for failed tasks.
     show_errors_immediately
@@ -161,7 +162,8 @@ def build(  # noqa: C901, PLR0912, PLR0913
     strict_markers
         Raise errors for unknown markers.
     tasks
-        A task or a collection of tasks that is passed to ``pytask.build(tasks=...)``.
+        A task or a collection of tasks which can be callables or instances following
+        {class}`~pytask.PTask`.
     task_files
         A pattern to describe modules that contain tasks.
     trace
@@ -176,8 +178,6 @@ def build(  # noqa: C901, PLR0912, PLR0913
 
     """
     try:
-        pm = get_plugin_manager()
-
         raw_config = {
             "capture": capture,
             "check_casing_of_paths": check_casing_of_paths,
@@ -210,6 +210,12 @@ def build(  # noqa: C901, PLR0912, PLR0913
             "verbose": verbose,
             **kwargs,
         }
+
+        if "command" not in raw_config:
+            pm = get_plugin_manager()
+            storage.store(pm)
+        else:
+            pm = storage.get()
 
         # If someone called the programmatic interface, we need to do some parsing.
         if "command" not in raw_config:

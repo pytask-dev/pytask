@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 import click
 from _pytask.click import ColoredCommand
-from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import create_url_style_for_path
 from _pytask.console import FILE_ICON
@@ -27,7 +26,8 @@ from _pytask.node_protocols import PTaskWithPath
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
-from _pytask.pluginmanager import get_plugin_manager
+from _pytask.pluginmanager import hookimpl
+from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.tree_util import tree_leaves
 from rich.text import Text
@@ -54,10 +54,10 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 )
 def collect(**raw_config: Any | None) -> NoReturn:
     """Collect tasks and report information about them."""
+    pm = storage.get()
     raw_config["command"] = "collect"
 
     try:
-        pm = get_plugin_manager()
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 

@@ -9,10 +9,10 @@ from pathlib import Path
 import pytest
 from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
-from _pytask.nodes import PathNode
 from attrs import define
 from pytask import cli
 from pytask import ExitCode
+from pytask import PathNode
 from pytask import Task
 
 

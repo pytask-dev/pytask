@@ -19,7 +19,7 @@ You can find plugins in many places.
 - Search on [anaconda.org](https://anaconda.org/search?q=pytask) or
   [prefix.dev](https://prefix.dev) for related packages.
 
-## How to implement your plugin
+## How to extend pytask
 
-Follow the {doc}`guide on writing a plugin <../how_to_guides/how_to_write_a_plugin>` to
-write your plugin.
+Follow the {doc}`guide on extending pytask <../how_to_guides/extending_pytask>` to add
+your own hook implementations or write your plugin.

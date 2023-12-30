@@ -44,7 +44,7 @@ import click
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
 from _pytask.click import EnumChoice
-from _pytask.config import hookimpl
+from _pytask.pluginmanager import hookimpl
 from _pytask.shared import convert_to_enum
 
 if TYPE_CHECKING:

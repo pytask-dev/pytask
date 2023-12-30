@@ -4,7 +4,6 @@ from __future__ import annotations
 from typing import Any
 from typing import TYPE_CHECKING
 
-from _pytask.config import hookimpl
 from _pytask.dag_utils import descending_tasks
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
@@ -13,6 +12,7 @@ from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
+from _pytask.pluginmanager import hookimpl
 
 
 if TYPE_CHECKING:

@@ -683,7 +683,7 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     source = """
-    from _pytask.nodes import PathNode
+    from pytask import PathNode
     from pytask import PythonNode
     from typing_extensions import Annotated
     from pathlib import Path
@@ -987,6 +987,9 @@ def test_use_functional_interface_with_task(tmp_path):
     session = build(tasks=[task])
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").exists()
+
+    session = build(tasks=task)
+    assert session.exit_code == ExitCode.OK
 
 
 def test_collect_task(runner, tmp_path):

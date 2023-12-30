@@ -4,14 +4,15 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 from typing import Any
+from typing import TYPE_CHECKING
 
-import pluggy
+from _pytask.pluginmanager import hookimpl
 from _pytask.shared import parse_markers
 from _pytask.shared import parse_paths
 from _pytask.shared import to_list
 
-
-hookimpl = pluggy.HookimplMarker("pytask")
+if TYPE_CHECKING:
+    from pluggy import PluginManager
 
 
 _IGNORED_FOLDERS: list[str] = [".git/*", ".venv/*"]
@@ -59,9 +60,7 @@ IS_FILE_SYSTEM_CASE_SENSITIVE = is_file_system_case_sensitive()
 
 
 @hookimpl
-def pytask_configure(
-    pm: pluggy.PluginManager, raw_config: dict[str, Any]
-) -> dict[str, Any]:
+def pytask_configure(pm: PluginManager, raw_config: dict[str, Any]) -> dict[str, Any]:
     """Configure pytask."""
     # Add all values by default so that many plugins do not need to copy over values.
     config = {"pm": pm, "markers": {}, **raw_config}

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytask
 import pytest
-from _pytask.models import CollectionMetadata
+from pytask import CollectionMetadata
 from pytask import get_all_marks
 from pytask import get_marks
 from pytask import has_mark

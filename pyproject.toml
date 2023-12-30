@@ -87,7 +87,7 @@ Homepage = "https://pytask-dev.readthedocs.io/en/stable"
 Tracker = "https://github.com/pytask-dev/pytask/issues"
 
 [project.scripts]
-pytask = "_pytask.cli:cli"
+pytask = "pytask:cli"
 
 [tool.setuptools]
 include-package-data = true
@@ -146,7 +146,7 @@ ignore = [
 convention = "numpy"
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["src", "tests"]
 markers = [
     "wip: Tests that are work-in-progress.",
     "unit: Flag for unit tests which target mainly a single function.",
