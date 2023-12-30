@@ -221,8 +221,6 @@ class PythonNode(PNode):
         objects.
     node_info
         The infos acquired while collecting the node.
-    signature
-        The signature of the node.
 
     Examples
     --------

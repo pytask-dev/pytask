@@ -371,8 +371,12 @@ resolution and execution.
 ## Tree utilities
 
 ```{eval-rst}
-.. automodule:: pytask.tree_util
-    :members:
+.. autoclass:: pytask.tree_util.PyTree
+.. autofunction:: pytask.tree_util.tree_flatten_with_path
+.. autofunction:: pytask.tree_util.tree_leaves
+.. autofunction:: pytask.tree_util.tree_map
+.. autofunction:: pytask.tree_util.tree_map_with_path
+.. autofunction:: pytask.tree_util.tree_structure
 ```
 
 ## Typing

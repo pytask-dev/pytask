@@ -254,7 +254,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   arguments. It also implements {class}`_pytask.models.CollectionMetadata` to carry
   parametrized arguments to the task class.
 - {pull}`228` removes `task.pytaskmark` and moves the information to
-  {attr}`_pytask.models.CollectionMetadata.markers`.
+  {attr}`pytask.CollectionMetadata.markers`.
 - {pull}`229` implements a new loop-based approach to parametrizations using the
   {func}`@pytask.mark.task <pytask.mark.task>` decorator.
 - {pull}`230` implements {class}`_pytask.logging._TimeUnit` as a
@@ -338,7 +338,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`186` enhance live displays by deactivating auto-refresh, among other things.
 - {pull}`187` allows to enable and disable showing tracebacks and potentially different
   styles in the future with {confval}`show_traceback=True|False`.
-- {pull}`188` refactors some code related to {class}`_pytask.enums.ExitCode`.
+- {pull}`188` refactors some code related to {class}`pytask.ExitCode`.
 - {pull}`189` do not display a table in the execution if no task was run.
 - {pull}`190` updates the release notes.
 
