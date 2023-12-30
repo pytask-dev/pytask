@@ -97,6 +97,21 @@ editor_url_scheme = "no_link"
 
 ````
 
+````{confval} hook_module
+
+Register additional modules containing hook implementations.
+
+```toml
+hook_modules = ["myproject.hooks", "hooks.py"]
+```
+
+You can use module names and paths as values. Relative paths are assumed to be relative
+to the configuration file or the current working directory.
+
+{ref}`This how-to guide <hook-module>` has more information.
+
+````
+
 ````{confval} ignore
 
 pytask can ignore files and directories and exclude some tasks or reduce the duration of
