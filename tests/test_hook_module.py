@@ -1,13 +1,28 @@
 from __future__ import annotations
 
+import os
 import subprocess
+import sys
 import textwrap
 
 import pytest
 from pytask import ExitCode
 
 
-@pytest.mark.parametrize("module_name", [True, False])
+@pytest.mark.parametrize(
+    "module_name",
+    [
+        pytest.param(
+            True,
+            marks=pytest.mark.xfail(
+                sys.platform == "win32" and "CI" in os.environ,
+                reason="pytask is not found in subprocess",
+            ),
+            strict=True,
+        ),
+        False,
+    ],
+)
 def test_add_new_hook_via_cli(tmp_path, module_name):
     hooks = """
     import click
@@ -40,7 +55,20 @@ def test_add_new_hook_via_cli(tmp_path, module_name):
     assert "--new-option" in result.stdout.decode()
 
 
-@pytest.mark.parametrize("module_name", [True, False])
+@pytest.mark.parametrize(
+    "module_name",
+    [
+        pytest.param(
+            True,
+            marks=pytest.mark.xfail(
+                sys.platform == "win32" and "CI" in os.environ,
+                reason="pytask is not found in subprocess",
+            ),
+            strict=True,
+        ),
+        False,
+    ],
+)
 def test_add_new_hook_via_config(tmp_path, module_name):
     tmp_path.joinpath("pyproject.toml").write_text(
         "[tool.pytask.ini_options]\nhook_module = ['hooks/hooks.py']"
