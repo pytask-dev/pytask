@@ -78,15 +78,11 @@ by the host or by plugins. The following marks are available by default.
         Can be any valid Python object or an iterable of any Python objects. To be
         valid, it must be parsed by some hook implementation for the
         :func:`_pytask.hookspecs.pytask_collect_node` entry-point.
-```
 
-```{eval-rst}
 .. function:: pytask.mark.persist()
 
     A marker for a task which should be persisted.
-```
 
-```{eval-rst}
 .. function:: pytask.mark.produces(objects: Any | Iterable[Any] | dict[Any, Any])
 
     Specify products of a task.
@@ -96,40 +92,30 @@ by the host or by plugins. The following marks are available by default.
         Can be any valid Python object or an iterable of any Python objects. To be
         valid, it must be parsed by some hook implementation for the
         :func:`_pytask.hookspecs.pytask_collect_node` entry-point.
-```
 
-```{eval-rst}
 .. function:: pytask.mark.skipif(condition: bool, *, reason: str)
 
     Skip a task based on a condition and provide a necessary reason.
 
     :param bool condition: A condition for when the task is skipped.
     :param str reason: A reason why the task is skipped.
-```
 
-```{eval-rst}
 .. function:: pytask.mark.skip_ancestor_failed(reason: str = "No reason provided")
 
     An internal marker for a task which is skipped because an ancestor failed.
 
     :param str reason: A reason why the task is skipped.
-```
 
-```{eval-rst}
 .. function:: pytask.mark.skip_unchanged()
 
     An internal marker for a task which is skipped because nothing has changed.
 
     :param str reason: A reason why the task is skipped.
-```
 
-```{eval-rst}
 .. function:: pytask.mark.skip()
 
     Skip a task.
-```
 
-```{eval-rst}
 .. function:: pytask.mark.task(name, *, id, kwargs)
 
     The task decorator allows to mark any task function regardless of its name as a task
@@ -151,9 +137,6 @@ by the host or by plugins. The following marks are available by default.
         A dictionary containing keyword arguments which are passed to the task when it
         is executed.
 
-```
-
-```{eval-rst}
 .. function:: pytask.mark.try_first
 
     Indicate that the task should be executed as soon as possible.
@@ -169,9 +152,6 @@ by the host or by plugins. The following marks are available by default.
         dependencies and products and automatic inference may be incomplete like with
         pytask-latex and latex-dependency-scanner.
 
-```
-
-```{eval-rst}
 .. function:: pytask.mark.try_last
 
     Indicate that the task should be executed as late as possible.
@@ -382,16 +362,13 @@ resolution and execution.
 ## Typing
 
 ```{eval-rst}
-.. currentmodule:: pytask
-..  class:: Product
+..  class:: pytask.Product
 
     An indicator to mark arguments of tasks as products.
 
     >>> def task_example(path: Annotated[Path, Product]) -> None:
     ...     path.write_text("Hello, World!")
-```
 
-```{eval-rst}
 .. autofunction:: pytask.is_task_function
 ```
 
