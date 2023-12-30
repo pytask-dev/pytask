@@ -1,6 +1,7 @@
 """Contains common parameters for the commands of the command line interface."""
 from __future__ import annotations
 
+import importlib.util
 from pathlib import Path
 from typing import Iterable
 from typing import TYPE_CHECKING
@@ -138,6 +139,13 @@ def _hook_module_callback(
             module = import_path(path, ctx.params["root"])
             parsed_modules.append(module.__name__)
         else:
+            spec = importlib.util.find_spec(module_name)
+            if spec is None:
+                msg = (
+                    f"The hook module {module_name!r} is not importable. "
+                    "Please provide a valid module name."
+                )
+                raise click.BadParameter(msg)
             parsed_modules.append(module_name)
 
     # If there are hook modules, we register a hook implementation to add them.

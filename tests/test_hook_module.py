@@ -88,5 +88,16 @@ def test_error_when_hook_module_module_does_not_exist(tmp_path):
         cwd=tmp_path,
         capture_output=True,
     )
-    assert result.returncode == ExitCode.FAILED
-    assert b"ModuleNotFoundError: No module named 'hooks'" in result.stderr
+    assert result.returncode == ExitCode.CONFIGURATION_FAILED
+    assert b"Error: Invalid value for '--hook-module':" in result.stderr
+
+
+def test_error_when_hook_module_is_no_iterable(tmp_path):
+    tmp_path.joinpath("pyproject.toml").write_text(
+        "[tool.pytask.ini_options]\nhook_module = 'hooks'"
+    )
+    result = subprocess.run(  # noqa: PLW1510
+        ("pytask", "build", "--help"), cwd=tmp_path, capture_output=True
+    )
+    assert result.returncode == ExitCode.CONFIGURATION_FAILED
+    assert b"Error: Invalid value for '--hook-module':" in result.stderr

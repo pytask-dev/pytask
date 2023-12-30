@@ -129,9 +129,12 @@ def _iter_params_for_processing(
         # processed first even if other eager parameters are chosen. The rest follows
         # https://click.palletsprojects.com/en/8.1.x/advanced/#callback-evaluation-order.
         if item.name == "paths":
-            return False, -2
+            return False, -3
 
         if item.name == "config":
+            return False, -2
+
+        if item.name == "hook_module":
             return False, -1
 
         try:
