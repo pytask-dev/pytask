@@ -337,7 +337,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   the direction of the DAG.
 - {pull}`186` enhance live displays by deactivating auto-refresh, among other things.
 - {pull}`187` allows to enable and disable showing tracebacks and potentially different
-  styles in the future with {confval}`show_traceback=True|False`.
+  styles in the future with `show_traceback=True|False`.
 - {pull}`188` refactors some code related to {class}`pytask.ExitCode`.
 - {pull}`189` do not display a table in the execution if no task was run.
 - {pull}`190` updates the release notes.
