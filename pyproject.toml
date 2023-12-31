@@ -198,3 +198,7 @@ exclude_also = [
     "\\.\\.\\.",
     "def __repr__",
 ]
+
+[tool.mdformat]
+wrap = 88
+end_of_line = "keep"

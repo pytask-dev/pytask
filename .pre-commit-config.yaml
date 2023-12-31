@@ -76,8 +76,8 @@ repos:
         additional_dependencies: [
             mdformat-gfm,
             mdformat-black,
+            mdformat-pyproject,
         ]
-        args: [--wrap, "88"]
         files: (README\.md)
 -   repo: https://github.com/executablebooks/mdformat
     rev: 0.7.17
@@ -85,9 +85,9 @@ repos:
     -   id: mdformat
         additional_dependencies: [
             mdformat-myst,
-            mdformat-black
+            mdformat-black,
+            mdformat-pyproject,
         ]
-        args: [--wrap, "88"]
         files: (docs/.)
 -   repo: https://github.com/nbQA-dev/nbQA
     rev: 1.7.1
