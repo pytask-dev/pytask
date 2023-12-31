@@ -23,6 +23,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`528` improves the codecov setup and coverage.
 - {pull}`535` reenables and fixes tests with Jupyter.
 - {pull}`536` allows partialed functions to be task functions.
+- {pull}`538` updates the documentation. For example, colon fences are replaced by
+  backticks to allow formatting all pages by mdformat.
 - {pull}`539` implements the {confval}`hook_module` configuration value and
   `--hook-module` commandline option to register hooks.
 - {pull}`540` changes the CLI entry-point and allow `pytask.build(tasks=task_func)` as
@@ -389,8 +391,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.1.1 - 2021-08-25
 
-- {pull}`138` changes the default {confval}`verbosity` to `1` which displays the live
-  table during execution and `0` display the symbols for outcomes (e.g. `.`, `F`, `s`).
+- {pull}`138` changes the default `verbosity` to `1` which displays the live table
+  during execution and `0` display the symbols for outcomes (e.g. `.`, `F`, `s`).
 - {pull}`139` enables rich's auto-refresh mechanism for live objects which causes almost
   no performance penalty for the live table compared to the symbolic output.
 
