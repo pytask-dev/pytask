@@ -94,7 +94,7 @@ intersphinx_mapping = {
 }
 
 # MyST
-myst_enable_extensions = ["colon_fence", "deflist", "dollarmath"]
+myst_enable_extensions = ["deflist", "dollarmath"]
 myst_footnote_transition = False
 
 # Open Graph

@@ -65,10 +65,10 @@ You can also use a dictionary to group multiple dependencies or products.
 ```{literalinclude} ../../../docs_src/how_to_guides/migrating_from_scripts_to_pytask_5.py
 ```
 
-:::{seealso}
+```{seealso}
 If you want to learn more about dependencies and products, read the
 [tutorial](../tutorials/defining_dependencies_products.md).
-:::
+```
 
 ## Execution
 
@@ -88,10 +88,10 @@ then automatically spawn multiple processes to run the workflow in parallel.
 $ pytask -n 4
 ```
 
-:::{seealso}
+```{seealso}
 You can find more information on pytask-parallel in the
 [readme](https://github.com/pytask-dev/pytask-parallel) on Github.
-:::
+```
 
 ## Bonus: From R script to task
 
@@ -109,10 +109,10 @@ $ pip install pytask-r
 $ conda install -c conda-forge pytask-r
 ```
 
-:::{seealso}
+```{seealso}
 Checkout [pytask-julia](https://github.com/pytask-dev/pytask-julia) and
 [pytask-stata](https://github.com/pytask-dev/pytask-stata), too!
-:::
+```
 
 And here is the R script `prepare_data.r` that we want to integrate.
 
@@ -131,8 +131,8 @@ products.
 ```{literalinclude} ../../../docs_src/how_to_guides/migrating_from_scripts_to_pytask_6.py
 ```
 
-pytask automatically makes the paths to the dependencies and products available to the
-R file via a JSON file. Let us amend the R script to load the information from the JSON
+pytask automatically makes the paths to the dependencies and products available to the R
+file via a JSON file. Let us amend the R script to load the information from the JSON
 file.
 
 ```r

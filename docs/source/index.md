@@ -49,10 +49,11 @@ there.
 
 If you want to know more about pytask, dive into one of the following topics
 
-::::{grid} 1 2 2 2
-:gutter: 3
-
-:::{grid-item-card}
+`````{grid} 1 2 2 2
+---
+gutter: 3
+---
+````{grid-item-card}
 :text-align: center
 :img-top: _static/images/light-bulb.svg
 :class-img-top: index-card-image
@@ -69,9 +70,9 @@ Tutorials
 
 Tutorials help you to get started with pytask and how you manage your first project.
 
-:::
+````
 
-:::{grid-item-card}
+````{grid-item-card}
 :text-align: center
 :img-top: _static/images/book.svg
 :class-img-top: index-card-image
@@ -89,9 +90,9 @@ How-to Guides
 How-to guides provide instructions for very specific and advanced tasks and document
 best-practices.
 
-:::
+````
 
-:::{grid-item-card}
+````{grid-item-card}
 :text-align: center
 :img-top: _static/images/books.svg
 :class-img-top: index-card-image
@@ -108,9 +109,9 @@ Explanations
 
 Explanations deal with key topics and concepts which underlie the package.
 
-:::
+````
 
-:::{grid-item-card}
+````{grid-item-card}
 :text-align: center
 :img-top: _static/images/coding.svg
 :class-img-top: index-card-image
@@ -127,9 +128,9 @@ Reference Guides
 
 Reference guides explain the implementation and provide an entry-point for developers.
 
-:::
+````
 
-::::
+`````
 
 ```{toctree}
 ---

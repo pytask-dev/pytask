@@ -11,15 +11,15 @@ You find a tutorial on type hints {doc}`here <../type_hints>`.
 
 If you want to avoid type annotations for now, look at the tab named `produces`.
 
-The `Decorators` tab documents the deprecated approach that should not be used
-anymore and will be removed in version v0.5.
+The `Decorators` tab documents the deprecated approach that should not be used anymore
+and will be removed in version v0.5.
 
 In this tutorial, we only deal with local files. If you want to use pytask with files
 online, S3, GCP, Azure, etc., read the
 {doc}`guide on remote files <../how_to_guides/remote_files>`.
 
-First, we focus on defining products that should already be familiar to you. Then,
-we focus on how you can declare task dependencies.
+First, we focus on defining products that should already be familiar to you. Then, we
+focus on how you can declare task dependencies.
 
 We use the same project as before and add a `task_plot_data.py` module.
 
@@ -47,9 +47,9 @@ my_project
 Let's revisit the task from the {doc}`previous tutorial <write_a_task>` that we defined
 in `task_data_preparation.py`.
 
-::::{tab-set}
+`````{tab-set}
 
-:::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 :sync: python310plus
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py310.py
@@ -59,9 +59,9 @@ in `task_data_preparation.py`.
 {class}`~pytask.Product` allows marking an argument as a product. After the
 task has finished, pytask will check whether the file exists.
 
-:::
+````
 
-:::{tab-item} Python 3.8+
+````{tab-item} Python 3.8+
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py38.py
@@ -71,9 +71,9 @@ task has finished, pytask will check whether the file exists.
 {class}`~pytask.Product` allows marking an argument as a product. After the
 task has finished, pytask will check whether the file exists.
 
-:::
+````
 
-:::{tab-item} &#8203;`produces`
+````{tab-item} prodouces
 :sync: produces
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_produces.py
@@ -84,9 +84,9 @@ Tasks can use `produces` as a "magic" argument name. Every value, or in this cas
 passed to this argument is automatically treated as a task product. Here, we pass the
 path as the default argument.
 
-:::
+````
 
-:::{tab-item} Decorators
+````{tab-item} Decorators
 :sync: decorators
 
 ```{warning}
@@ -103,13 +103,15 @@ task. After the task has finished, pytask will check whether the file exists.
 Add `produces` as an argument of the task function to get access to the same path inside
 the task function.
 
-:::
-::::
+````
 
-:::{tip}
-If you do not know about {mod}`pathlib` check out [^id3] and [^id4]. The module is
-beneficial for handling paths conveniently and across platforms.
-:::
+`````
+
+```{tip}
+If you do not know about {mod}`pathlib` check out this guide by
+[RealPython](https://realpython.com/python-pathlib/). The module is beneficial for
+handling paths conveniently and across platforms.
+```
 
 ## Dependencies
 
@@ -119,9 +121,9 @@ To show how dependencies work, we extend our project with another task that plot
 data generated with `task_create_random_data`. The task is called `task_plot_data`, and
 we will define it in `task_plot_data.py`.
 
-::::{tab-set}
+`````{tab-set}
 
-:::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 :sync: python310plus
 
 To specify that the task relies on the data set `data.pkl`, you can add the path
@@ -134,9 +136,9 @@ annotation are dependencies of the task.
 :emphasize-lines: 11
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.8+
+````{tab-item} Python 3.8+
 :sync: python38plus
 
 To specify that the task relies on the data set `data.pkl`, you can add the path
@@ -149,9 +151,9 @@ annotation are dependencies of the task.
 :emphasize-lines: 11
 ```
 
-:::
+````
 
-:::{tab-item} &#8203;`produces`
+````{tab-item} prodouces
 :sync: produces
 
 To specify that the task relies on the data set `data.pkl`, you can add the path to the
@@ -164,9 +166,9 @@ pytask assumes that all function arguments that are not passed to the argument
 :emphasize-lines: 9
 ```
 
-:::
+````
 
-:::{tab-item} Decorators
+````{tab-item} Decorators
 :sync: decorators
 
 ```{warning}
@@ -182,8 +184,8 @@ access the dependency path inside the function and load the data.
 :emphasize-lines: 9, 11
 ```
 
-:::
-::::
+````
+`````
 
 Now, let us execute the two paths.
 
@@ -195,36 +197,36 @@ Now, let us execute the two paths.
 Dependencies and products do not have to be absolute paths. If paths are relative, they
 are assumed to point to a location relative to the task module.
 
-::::{tab-set}
+`````{tab-set}
 
-:::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 :sync: python310plus
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_py310.py
 :emphasize-lines: 8
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.8+
+````{tab-item} Python 3.8+
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_py38.py
 :emphasize-lines: 8
 ```
 
-:::
+````
 
-:::{tab-item} &#8203;`produces`
+````{tab-item} prodouces
 :sync: produces
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_produces.py
 :emphasize-lines: 4
 ```
 
-:::
+````
 
-:::{tab-item} Decorators
+````{tab-item} Decorators
 :sync: decorators
 
 ```{warning}
@@ -241,16 +243,16 @@ You can also use absolute and relative paths as strings that obey the same rules
 If you use `depends_on` or `produces` as arguments for the task function, you will have
 access to the paths of the targets as {class}`pathlib.Path`.
 
-:::
-::::
+````
+`````
 
 ## Multiple dependencies and products
 
 Of course, tasks can have multiple dependencies and products.
 
-::::{tab-set}
+`````{tab-set}
 
-:::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 :sync: python310plus
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple1_py310.py
@@ -263,9 +265,9 @@ structures if needed.
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple2_py310.py
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.8+
+````{tab-item} Python 3.8+
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple1_py38.py
@@ -278,9 +280,9 @@ structures if needed.
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple2_py38.py
 ```
 
-:::
+````
 
-:::{tab-item} &#8203;`produces`
+````{tab-item} prodouces
 :sync: produces
 
 If your task has multiple products, group them in one container like a dictionary
@@ -294,9 +296,9 @@ You can do the same with dependencies.
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple2_produces.py
 ```
 
-:::
+````
 
-:::{tab-item} Decorators
+````{tab-item} Decorators
 :sync: decorators
 
 ```{warning}
@@ -405,8 +407,8 @@ def task_fit_model(depends_on, produces):
 }
 ```
 
-:::
-::::
+````
+`````
 
 (after)=
 
@@ -431,8 +433,7 @@ def task_plot_data(...):
 You can also pass a list of task functions.
 
 The second mode is to pass an expression, a substring of the name of the dependent
-tasks. Here, we can pass the function name or a significant part of the function
-name.
+tasks. Here, we can pass the function name or a significant part of the function name.
 
 ```python
 @task(after="random_data")
@@ -450,9 +451,3 @@ You will learn more about expressions in {doc}`selecting_tasks`.
 - An overview of all ways to specify dependencies and products and their strengths and
   weaknesses can be found in
   {doc}`../how_to_guides/interfaces_for_dependencies_products`.
-
-## References
-
-[^id3]: The official documentation for {mod}`pathlib`.
-
-[^id4]: A guide for pathlib by [RealPython](https://realpython.com/python-pathlib/).

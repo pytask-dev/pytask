@@ -39,10 +39,10 @@ The second option is to let pytask try to find the configuration itself.
 
 1. Find the common base directory of all paths passed to pytask (default to the current
    working directory).
-2. Starting from this directory, look at all parent directories, and return the file if
+1. Starting from this directory, look at all parent directories, and return the file if
    it exists.
-3. Stop searching if a directory contains a `.git` directory/file or a valid configuration file with
-   the right section.
+1. Stop searching if a directory contains a `.git` directory/file or a valid
+   configuration file with the right section.
 
 ## The options
 

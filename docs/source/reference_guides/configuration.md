@@ -35,10 +35,10 @@ strongly discouraged, you can deactivate the warning in the configuration file w
 check_casing_of_paths = false
 ```
 
-:::{note}
+```{note}
 An error is only raised on Windows when a case-insensitive path is used. Contributions
 are welcome to also support macOS.
-:::
+```
 
 ````
 

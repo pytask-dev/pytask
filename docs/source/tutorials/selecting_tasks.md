@@ -105,7 +105,7 @@ pytask uses booleans, floats, integers, and strings in the task id. It replaces 
 Python objects like tuples with a combination of the argument name and an iteration
 counter and separates multiple arguments via dashes.
 
-:::{seealso}
+```{seealso}
 Read this {ref}`section <how-to-repeat-a-task-with-different-inputs-the-id>` for more
 information on how ids for repeated tasks are created and can be customized.
-:::
+```

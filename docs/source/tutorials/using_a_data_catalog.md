@@ -56,9 +56,9 @@ create a {class}`~pytask.PickleNode` that allows you to save any Python object t
 
 The following tabs show you how to use the data catalog given the interface you prefer.
 
-::::{tab-set}
+`````{tab-set}
 
-:::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 :sync: python310plus
 
 Use `data_catalog["key"]` as an default argument to access the
@@ -69,9 +69,9 @@ Use `data_catalog["key"]` as an default argument to access the
 :emphasize-lines: 11, 22
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.8+
+````{tab-item} Python 3.8+
 :sync: python38plus
 
 Use `data_catalog["key"]` as an default argument to access the
@@ -82,9 +82,9 @@ Use `data_catalog["key"]` as an default argument to access the
 :emphasize-lines: 10, 21
 ```
 
-:::
+````
 
-:::{tab-item} ​`produces`
+````{tab-item} ​produces
 :sync: produces
 
 Use `data_catalog["key"]` as an default argument to access the
@@ -95,9 +95,9 @@ Use `data_catalog["key"]` as an default argument to access the
 :emphasize-lines: 7, 17
 ```
 
-:::
+````
 
-:::{tab-item} ​Python 3.10+ & Return
+````{tab-item} ​Python 3.10+ & Return
 :sync: return
 
 An elegant way to use the data catalog is via return type annotations. Add
@@ -111,8 +111,8 @@ You can read more about return type annotations in
 :emphasize-lines: 8, 17
 ```
 
-:::
-::::
+````
+`````
 
 ## `task_plot_data`
 
@@ -120,9 +120,9 @@ Next, we will define the second task that consumes the data set from the previou
 Following one of the interfaces gives you immediate access to the
 {class}`~pandas.DataFrame` in the task without any additional line to load it.
 
-::::{tab-set}
+`````{tab-set}
 
-:::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 :sync: python310plus
 
 Use `data_catalog["key"]` as an default argument to access the
@@ -133,9 +133,9 @@ Use `data_catalog["key"]` as an default argument to access the
 :emphasize-lines: 12
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.8+
+````{tab-item} Python 3.8+
 :sync: python38plus
 
 Use `data_catalog["key"]` as an default argument to access the
@@ -146,8 +146,8 @@ Use `data_catalog["key"]` as an default argument to access the
 :emphasize-lines: 12
 ```
 
-:::
-::::
+````
+`````
 
 Finally, let's execute the two tasks.
 
@@ -192,35 +192,35 @@ The path can be absolute or relative to the module of the data catalog.
 You can now use the data catalog as in previous example and use the
 {class}`~~pathlib.Path` in the task.
 
-::::{tab-set}
+`````{tab-set}
 
-:::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 :sync: python310plus
 
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_5_py310.py
 :emphasize-lines: 11, 12
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.8+
+````{tab-item} Python 3.8+
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_5_py38.py
 :emphasize-lines: 11, 12
 ```
 
-:::
+````
 
-:::{tab-item} ​Python 3.10+ & Return
+````{tab-item} ​Python 3.10+ & Return
 :sync: return
 
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_5_py310_return.py
 :emphasize-lines: 9, 10
 ```
 
-:::
-::::
+````
+`````
 
 ## Developing with the `DataCatalog`
 
