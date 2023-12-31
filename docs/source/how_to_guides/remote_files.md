@@ -12,11 +12,11 @@ with remote files. The package provides a {mod}`pathlib`-like interface, making 
 easy to interact with files from an HTTP(S)-, Dropbox-, S3-, GCP-, Azure-based
 filesystem, and many more.
 
-:::{warning}
+```{warning}
 universal_pathlib does currently not support Python 3.12. To track progress, see [this
 PR](https://github.com/fsspec/universal_pathlib/pull/152) and check the [releases
 `>0.1.4`](https://github.com/fsspec/universal_pathlib/releases)
-:::
+```
 
 ## HTTP(S)-based filesystem
 
@@ -63,11 +63,10 @@ After installing s3fs, rerun the command.
 ```
 
 Usually, you will need credentials to access files. Search in
-[fsspec's documentation](https://filesystem-spec.readthedocs.io/en/latest)
-or the plugin's documentation, here
-[s3fs](https://s3fs.readthedocs.io/en/latest/#credentials), for information on
-authentication. One way would be to set the environment variables `AWS_ACCESS_KEY_ID`
-and `AWS_SECRET_ACCESS_KEY`.
+[fsspec's documentation](https://filesystem-spec.readthedocs.io/en/latest) or the
+plugin's documentation, here [s3fs](https://s3fs.readthedocs.io/en/latest/#credentials),
+for information on authentication. One way would be to set the environment variables
+`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
 
 ## Detecting changes in remote files
 

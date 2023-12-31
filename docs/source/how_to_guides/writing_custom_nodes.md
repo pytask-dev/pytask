@@ -17,47 +17,47 @@ to inputs and outputs and call {func}`~pandas.read_pickle` and
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_1.py
 ```
 
-To remove IO operations from the task and delegate them to pytask, we will write a
-`PickleNode` that automatically loads and stores Python objects.
+To remove IO operations from the task and delegate them to pytask, we will replicate the
+{class}`~pytask.PickleNode` that automatically loads and stores Python objects.
 
 And we pass the value to `df` via {obj}`~typing.Annotated` to preserve the type hint.
 
 The result will be the following task.
 
-::::{tab-set}
+`````{tab-set}
 
-:::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 :sync: python310plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py310.py
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.10+ & Return
+````{tab-item} Python 3.10+ & Return
 :sync: python310plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py310_return.py
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.8+
+````{tab-item} Python 3.8+
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py38.py
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.8+ & Return
+````{tab-item} Python 3.8+ & Return
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py38_return.py
 ```
 
-:::
-::::
+````
+`````
 
 ## Nodes
 
@@ -73,54 +73,61 @@ follow at least the protocol {class}`~pytask.PNode` or, even better,
 
 ## `PickleNode`
 
-Since our {class}`PickleNode` will only vary slightly from {class}`~pytask.PathNode`, we
-use it as a template, and with some minor modifications, we arrive at the following
-class.
+Since our {class}`~pytask.PickleNode` will only vary slightly from
+{class}`~pytask.PathNode`, we use it as a template, and with some minor modifications,
+we arrive at the following class.
 
-::::{tab-set}
+`````{tab-set}
 
-:::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 :sync: python310plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_3_py310.py
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.8+
+````{tab-item} Python 3.8+
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_3_py38.py
 ```
 
-:::
-::::
+````
+`````
 
 Here are some explanations.
 
 - The node does not need to inherit from the protocol {class}`~pytask.PPathNode`, but
   you can do it to be more explicit.
+
 - The node has two attributes
+
   - `name` identifies the node in the DAG, so the name must be unique.
   - `path` holds the path to the file and identifies the node as a path node that is
     handled slightly differently than normal nodes within pytask.
+
 - The node has an additional property that computes the signature of the node. The
   signature is a hash and a unique identifier for the node. For most nodes it will be a
   hash of the path or the name.
-- The {func}`classmethod` {meth}`PickleNode.from_path` is a convenient method to
+
+- The {func}`classmethod` {meth}`~pytask.PickleNode.from_path` is a convenient method to
   instantiate the class.
-- The method {meth}`PickleNode.state` yields a value that signals the node's state. If
-  the value changes, pytask knows it needs to regenerate the workflow. We can use
-  the timestamp of when the node was last modified.
-- pytask calls {meth}`PickleNode.load` when it collects the values of function arguments
-  to run the function. The argument `is_product` signals that the node is loaded as a
-  product with a {class}`~pytask.Product` annotation or via `produces`.
+
+- The method {meth}`~pytask.PickleNode.state` yields a value that signals the node's
+  state. If the value changes, pytask knows it needs to regenerate the workflow. We can
+  use the timestamp of when the node was last modified.
+
+- pytask calls {meth}`~pytask.PickleNode.load` when it collects the values of function
+  arguments to run the function. The argument `is_product` signals that the node is
+  loaded as a product with a {class}`~pytask.Product` annotation or via `produces`.
 
   When the node is loaded as a dependency, we want to inject the value of the pickle
   file. In the other case, the node returns itself so users can call
-  {meth}`PickleNode.save` themselves.
-- {meth}`PickleNode.save` is called when a task function returns and allows to save the
-  return values.
+  {meth}`~pytask.PickleNode.save` themselves.
+
+- {meth}`~pytask.PickleNode.save` is called when a task function returns and allows to
+  save the return values.
 
 ## Conclusion
 
@@ -135,14 +142,12 @@ databases. [^kedro]
 
 ## References
 
-[^structural-subtyping]:
-    Structural subtyping is similar to ABCs an approach in Python to
-    enforce interfaces, but it can be considered more pythonic since it is closer to
-    duck typing. Hynek Schlawack wrote a comprehensive
+[^structural-subtyping]: Structural subtyping is similar to ABCs an approach in Python to enforce interfaces, but
+    it can be considered more pythonic since it is closer to duck typing. Hynek Schlawack
+    wrote a comprehensive
     [guide on subclassing](https://hynek.me/articles/python-subclassing-redux/) that
     features protocols under "Type 2". Glyph wrote an introduction to protocols called
     [I want a new duck](https://glyph.twistedmatrix.com/2020/07/new-duck.html).
 
-[^kedro]:
-    Kedro, another workflow system, provides many adapters to data sources:
+[^kedro]: Kedro, another workflow system, provides many adapters to data sources:
     https://docs.kedro.org/en/stable/kedro_datasets.html.

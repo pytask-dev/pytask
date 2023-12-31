@@ -1,10 +1,10 @@
 # Set up a project
 
-Assuming you want to use pytask for a more extensive project, you want
-to organize the project as a Python package. This tutorial explains the minimal setup.
+Assuming you want to use pytask for a more extensive project, you want to organize the
+project as a Python package. This tutorial explains the minimal setup.
 
-If you want to use pytask with a collection of scripts, you can skip this lesson
-and move to the next section of the tutorials.
+If you want to use pytask with a collection of scripts, you can skip this lesson and
+move to the next section of the tutorials.
 
 The following directory tree gives an overview of the project's different parts.
 
@@ -49,11 +49,11 @@ SRC = Path(__file__).parent.resolve()
 BLD = SRC.joinpath("..", "..", "bld").resolve()
 ```
 
-:::{seealso}
+```{seealso}
 If you want to know more about the "`src` layout" and why it is NASA-approved, read
 [this article by Hynek Schlawack](https://hynek.me/articles/testing-packaging/) or this
 [setuptools article](https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#src-layout).
-:::
+```
 
 ## The `bld` directory
 
@@ -70,7 +70,7 @@ The `pyproject.toml` file is the modern configuration file for most Python packa
 apps. It contains
 
 1. the configuration for our Python package.
-2. pytask's configuration.
+1. pytask's configuration.
 
 Let us start with the configuration of the Python package, which contains general
 information about the package, like its name and version, the definition of the package
@@ -93,10 +93,10 @@ where = ["src"]
 namespaces = false
 ```
 
-:::{seealso}
+```{seealso}
 You can find more extensive information about this metadata in the documentation of
 [setuptools](https://setuptools.pypa.io/en/latest/userguide/quickstart.html).
-:::
+```
 
 Alongside the package information, we include pytask's configuration under the
 `[tool.pytask.ini_options]` section. We only tell pytask to look for tasks in
@@ -153,7 +153,7 @@ mode and it means any changes in the package's source files are immediately avai
 the installed version. Again, setuptools makes
 [a good job explaining it](https://setuptools.pypa.io/en/latest/userguide/development_mode.html).
 
-:::{important}
+```{important}
 Do not forget to rerun the editable install every time after you recreate your Python
 environment.
 
@@ -161,4 +161,4 @@ Also, do not mix it up with the regular installation command `pip install .` bec
 will likely not work. Then, paths defined with the variables `SRC` and `BLD` in
 `config.py` will look for files relative to the location where your package is installed
 like `/home/user/miniconda3/envs/...` and not in the folder you are working in.
-:::
+```

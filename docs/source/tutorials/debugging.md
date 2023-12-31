@@ -12,15 +12,15 @@ find out the cause of the exception.
 ```{include} ../_static/md/pdb.md
 ```
 
-:::{tip}
+```{tip}
 If you do not know about the Python debugger or pdb yet, check out this [explanation
 from RealPython](https://realpython.com/python-debugging-pdb/).
-:::
+```
 
-:::{note}
+```{note}
 A following tutorial explains {doc}`how to select a subset of tasks <selecting_tasks>`.
 Combine it with the {option}`pytask build --pdb` flag to debug specific tasks.
-:::
+```
 
 ## Tracing
 

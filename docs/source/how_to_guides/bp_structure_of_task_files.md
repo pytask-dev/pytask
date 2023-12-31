@@ -13,9 +13,9 @@ are looking for orientation or inspiration, here are some tips.
 - Task functions should be at the top of a task module to easily identify what the
   module is for.
 
-  :::{seealso}
+  ```{seealso}
   The only exception might be for {doc}`repetitions <bp_scaling_tasks>`.
-  :::
+  ```
 
 - The purpose of the task function is to handle IO operations like loading and saving
   files and calling Python functions on the task's inputs. IO should not be handled in
@@ -44,11 +44,11 @@ module are re-run. If the runtime of all tasks in the module is high, you wait l
 for your tasks to finish or until an error occurs which prolongs your feedback loops and
 hurts your productivity.
 
-:::{seealso}
+```{seealso}
 Use {func}`@pytask.mark.persist <pytask.mark.persist>` if you want to avoid accidentally
 triggering an expensive task. It is also explained in [this
 tutorial](../tutorials/making_tasks_persist).
-:::
+```
 
 ### Structure of the module
 
@@ -86,11 +86,11 @@ Here is an example of a task module which conforms to all advices.
 ```{literalinclude} ../../../docs_src/how_to_guides/bp_structure_of_task_files.py
 ```
 
-:::{seealso}
+```{seealso}
 The structure of the task module is greatly inspired by John Ousterhout's "A Philosopy
 of Software Design" in which he coins the name "deep modules". In short, deep modules
 have simple interfaces which are defined by one or a few {term}`public functions <public
 function>` (or classes) which provide the functionality. The complexity is hidden inside
 the module in {term}`private functions <private function>` which are called by the
 {term}`public functions <public function>`.
-:::
+```

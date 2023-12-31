@@ -23,6 +23,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`528` improves the codecov setup and coverage.
 - {pull}`535` reenables and fixes tests with Jupyter.
 - {pull}`536` allows partialed functions to be task functions.
+- {pull}`538` updates the documentation. For example, colon fences are replaced by
+  backticks to allow formatting all pages by mdformat.
 - {pull}`539` implements the {confval}`hook_module` configuration value and
   `--hook-module` commandline option to register hooks.
 - {pull}`540` changes the CLI entry-point and allow `pytask.build(tasks=task_func)` as
@@ -124,7 +126,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`413` removes scripts to generate `.svg`s.
 - {pull}`414` allow more ruff rules.
 - {pull}`416` removes `.from_annot` again.
-- {pull}`417` deprecates {func}`pytask.mark.task` in favor of {func}`pytask.task`.
+- {pull}`417` deprecates `pytask.mark.task` in favor of {func}`pytask.task`.
 - {pull}`418` fixes and error and simplifies code in `dag.py`.
 - {pull}`420` converts `DeprecationWarning`s to `FutureWarning`s for the deprecated
   decorators.
@@ -170,7 +172,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`376` enhances the documentation for `pytask dag`.
 - {pull}`378` conditionally skips test on MacOS.
 - {pull}`381` deprecates `@pytask.mark.parametrize`. (Closes {issue}`233`.)
-- {pull}`501` removes {class}`pytask.MetaNode`.
+- {pull}`501` removes `pytask.MetaNode`.
 
 ## 0.3.1 - 2023-12-25
 
@@ -254,7 +256,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   arguments. It also implements {class}`_pytask.models.CollectionMetadata` to carry
   parametrized arguments to the task class.
 - {pull}`228` removes `task.pytaskmark` and moves the information to
-  {attr}`_pytask.models.CollectionMetadata.markers`.
+  {attr}`pytask.CollectionMetadata.markers`.
 - {pull}`229` implements a new loop-based approach to parametrizations using the
   {func}`@pytask.mark.task <pytask.mark.task>` decorator.
 - {pull}`230` implements {class}`_pytask.logging._TimeUnit` as a
@@ -337,8 +339,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   the direction of the DAG.
 - {pull}`186` enhance live displays by deactivating auto-refresh, among other things.
 - {pull}`187` allows to enable and disable showing tracebacks and potentially different
-  styles in the future with {confval}`show_traceback=True|False`.
-- {pull}`188` refactors some code related to {class}`_pytask.enums.ExitCode`.
+  styles in the future with `show_traceback=True|False`.
+- {pull}`188` refactors some code related to {class}`pytask.ExitCode`.
 - {pull}`189` do not display a table in the execution if no task was run.
 - {pull}`190` updates the release notes.
 
@@ -389,8 +391,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.1.1 - 2021-08-25
 
-- {pull}`138` changes the default {confval}`verbosity` to `1` which displays the live
-  table during execution and `0` display the symbols for outcomes (e.g. `.`, `F`, `s`).
+- {pull}`138` changes the default `verbosity` to `1` which displays the live table
+  during execution and `0` display the symbols for outcomes (e.g. `.`, `F`, `s`).
 - {pull}`139` enables rich's auto-refresh mechanism for live objects which causes almost
   no performance penalty for the live table compared to the symbolic output.
 
