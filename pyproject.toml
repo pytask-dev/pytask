@@ -36,7 +36,7 @@ dependencies = [
   "packaging",
   "pluggy>=1",
   "rich",
-  "sqlalchemy>=1.4.36",
+  "sqlalchemy>=2",
   'tomli>=1; python_version < "3.11"',
   'typing-extensions; python_version < "3.9"',
 ]

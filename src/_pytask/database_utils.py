@@ -4,11 +4,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from _pytask.dag_utils import node_and_neighbors
-from sqlalchemy import Column
 from sqlalchemy import create_engine
-from sqlalchemy import String
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import sessionmaker
+from typing_extensions import Annotated
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PNode
@@ -27,17 +28,18 @@ __all__ = [
 DatabaseSession = sessionmaker()
 
 
-BaseTable = declarative_base()
+class BaseTable(DeclarativeBase):
+    pass
 
 
-class State(BaseTable):  # type: ignore[valid-type, misc]
+class State(BaseTable):
     """Represent the state of a node in relation to a task."""
 
     __tablename__ = "state"
 
-    task = Column(String, primary_key=True)
-    node = Column(String, primary_key=True)
-    hash_ = Column(String)
+    task: Mapped[Annotated[str, mapped_column(primary_key=True)]]
+    node: Mapped[Annotated[str, mapped_column(primary_key=True)]]
+    hash_: Mapped[str]
 
 
 def create_database(url: str) -> None:
@@ -54,7 +56,7 @@ def _create_or_update_state(first_key: str, second_key: str, hash_: str) -> None
         if not state_in_db:
             session.add(State(task=first_key, node=second_key, hash_=hash_))
         else:
-            state_in_db.hash_ = hash_  # type: ignore[assignment]
+            state_in_db.hash_ = hash_
         session.commit()
 
 

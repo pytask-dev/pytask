@@ -31,6 +31,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   the signatures suggested.
 - {pull}`542` refactors the plugin manager.
 - {pull}`543` fixes imports in tests and related issues.
+- {pull}`544` requires sqlalchemy `>=2` and upgrade syntax.
 
 ## 0.4.4 - 2023-12-04
 
