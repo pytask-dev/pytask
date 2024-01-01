@@ -65,7 +65,7 @@ repos:
             optree,
             pluggy,
             rich,
-            sqlalchemy,
+            sqlalchemy>2,
             types-setuptools,
         ]
         pass_filenames: false
