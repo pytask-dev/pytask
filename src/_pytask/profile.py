@@ -29,12 +29,10 @@ from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.traceback import Traceback
 from rich.table import Table
-from typing_extensions import Annotated
-
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 
 if TYPE_CHECKING:
-    from sqlalchemy.orm import mapped_column
-    from sqlalchemy.orm import Mapped
     from _pytask.reports import ExecutionReport
     from pathlib import Path
     from typing import NoReturn
@@ -51,7 +49,7 @@ class Runtime(BaseTable):
 
     __tablename__ = "runtime"
 
-    task: Mapped[Annotated[str, mapped_column(primary_key=True)]]
+    task: Mapped[str] = mapped_column(primary_key=True)
     date: Mapped[float]
     duration: Mapped[float]
 

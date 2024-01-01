@@ -9,7 +9,6 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import sessionmaker
-from typing_extensions import Annotated
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PNode
@@ -37,8 +36,8 @@ class State(BaseTable):
 
     __tablename__ = "state"
 
-    task: Mapped[Annotated[str, mapped_column(primary_key=True)]]
-    node: Mapped[Annotated[str, mapped_column(primary_key=True)]]
+    task: Mapped[str] = mapped_column(primary_key=True)
+    node: Mapped[str] = mapped_column(primary_key=True)
     hash_: Mapped[str]
 
 
