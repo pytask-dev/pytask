@@ -5,7 +5,11 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.4.5 - 2023-12-xx
+## 0.5.0 - 2024-xx-xx
+
+- {pull}`544` requires sqlalchemy `>=2` and upgrades the syntax.
+
+## 0.4.5 - 2024-01-xx
 
 - {pull}`515` enables tests with graphviz in CI. Thanks to {user}`NickCrews`.
 - {pull}`517` raises an error when the configuration file contains a non-existing path

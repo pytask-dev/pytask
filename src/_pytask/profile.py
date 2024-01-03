@@ -29,10 +29,8 @@ from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.traceback import Traceback
 from rich.table import Table
-from sqlalchemy import Column
-from sqlalchemy import Float
-from sqlalchemy import String
-
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 
 if TYPE_CHECKING:
     from _pytask.reports import ExecutionReport
@@ -51,9 +49,9 @@ class Runtime(BaseTable):
 
     __tablename__ = "runtime"
 
-    task = Column(String, primary_key=True)
-    date = Column(Float)
-    duration = Column(Float)
+    task: Mapped[str] = mapped_column(primary_key=True)
+    date: Mapped[float]
+    duration: Mapped[float]
 
 
 @hookimpl(tryfirst=True)
@@ -198,7 +196,7 @@ def _collect_runtimes(tasks: list[PTask]) -> dict[str, float]:
     """Collect runtimes."""
     with DatabaseSession() as session:
         runtimes = [session.get(Runtime, task.signature) for task in tasks]
-    return {task.name: r.duration for task, r in zip(tasks, runtimes) if r}  # type: ignore[misc]
+    return {task.name: r.duration for task, r in zip(tasks, runtimes) if r}
 
 
 class FileSizeNameSpace:
