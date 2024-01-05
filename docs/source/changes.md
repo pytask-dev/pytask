@@ -5,21 +5,16 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.5.0 - 2024-xx-xx
-
-- {pull}`544` requires sqlalchemy `>=2` and upgrades the syntax.
-
-## 0.4.5 - 2024-01-xx
+## 0.4.5 - 2024-01-05
 
 - {pull}`515` enables tests with graphviz in CI. Thanks to {user}`NickCrews`.
 - {pull}`517` raises an error when the configuration file contains a non-existing path
   (fixes #514). It also warns if the path is configured as a string and not a list of
   strings.
 - {pull}`519` raises an error when builtin functions are wrapped with
-  {func}`~pytask.task`. Closes {issue}`512`.pull
+  {func}`~pytask.task`. Closes {issue}`512`.
 - {pull}`521` raises an error message when imported functions are wrapped with
   {func}`@task <pytask.task>` in a task module. Fixes {issue}`513`.
-  {func}`~pytask.task`. Closes {issue}`512`.
 - {pull}`522` improves the issue templates.
 - {pull}`523` refactors `_pytask.console._get_file`.
 - {pull}`524` improves some linting and formatting rules.
@@ -35,6 +30,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   the signatures suggested.
 - {pull}`542` refactors the plugin manager.
 - {pull}`543` fixes imports in tests and related issues.
+- {pull}`544` requires sqlalchemy `>=2` and upgrades the syntax.
 
 ## 0.4.4 - 2023-12-04
 

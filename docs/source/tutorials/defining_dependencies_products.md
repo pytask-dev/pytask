@@ -3,20 +3,24 @@
 Tasks have dependencies and products that you must define to run your tasks.
 
 Defining dependencies and products also serves another purpose. By analyzing them,
-pytask determines the order in which to run the tasks.
+pytask determines the order to run the tasks.
 
 This tutorial offers you different interfaces. If you are comfortable with type
-annotations or not afraid to try them, look at the `Python 3.10+` or `Python 3.8+` tabs.
+annotations or are not afraid to try them, look at the `Python 3.10+` or `3.8+` tabs.
 You find a tutorial on type hints {doc}`here <../type_hints>`.
 
 If you want to avoid type annotations for now, look at the tab named `produces`.
 
+```{warning}
 The `Decorators` tab documents the deprecated approach that should not be used anymore
 and will be removed in version v0.5.
+```
 
+```{seealso}
 In this tutorial, we only deal with local files. If you want to use pytask with files
 online, S3, GCP, Azure, etc., read the
 {doc}`guide on remote files <../how_to_guides/remote_files>`.
+```
 
 First, we focus on defining products that should already be familiar to you. Then, we
 focus on how you can declare task dependencies.

@@ -13,9 +13,8 @@ easy to interact with files from an HTTP(S)-, Dropbox-, S3-, GCP-, Azure-based
 filesystem, and many more.
 
 ```{warning}
-universal_pathlib does currently not support Python 3.12. To track progress, see [this
-PR](https://github.com/fsspec/universal_pathlib/pull/152) and check the [releases
-`>0.1.4`](https://github.com/fsspec/universal_pathlib/releases)
+universal_pathlib does currently not support Python 3.12. To track progress, check the
+[releases `>0.1.4`](https://github.com/fsspec/universal_pathlib/releases).
 ```
 
 ## HTTP(S)-based filesystem
@@ -86,6 +85,5 @@ Many files on the web do not provide an ETag like this version of the iris datas
 {'Server': 'nginx/1.25.3', 'Date': 'Sun, 10 Dec 2023 23:59:21 GMT', 'Connection': 'keep-alive'}
 ```
 
-In these instances, pytask does not recognize if the file has changed and only reruns
-the task if other conditions are not met, like the product is missing, the task module
-has changed, etc..
+In these instances, pytask does not recognize if the file has changed. If you want to
+force rerunning the task, delete a product of the task.
