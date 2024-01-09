@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 import sys
-from collections import defaultdict
+from pathlib import Path
 from typing import Any
+from typing import NamedTuple
 from typing import TYPE_CHECKING
 
 import click
@@ -24,19 +25,96 @@ from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.outcomes import ExitCode
-from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.tree_util import tree_leaves
+from rich._inspect import Inspect
 from rich.text import Text
-from rich.tree import Tree
-
+from textual import on
+from textual.app import App
+from textual.app import ComposeResult
+from textual.containers import Horizontal
+from textual.containers import VerticalScroll
+from textual.widgets import Header
+from textual.widgets import Static
+from textual.widgets import Tree
 
 if TYPE_CHECKING:
-    from pathlib import Path
+    from textual.widgets.tree import TreeNode
     from typing import NoReturn
+
+
+class Module(NamedTuple):
+    """A module with tasks."""
+
+    name: str
+    tasks: list[PTask]
+
+
+class Preview(Static):
+    def show_node(self, node: TreeNode) -> None:
+        pytask_node = node.data
+        if pytask_node is None:
+            return
+        if hasattr(pytask_node, "__rich_console__"):
+            self.update(pytask_node)
+        self.update(Inspect(pytask_node, all=False))
+
+
+class CollectionApp(App):
+    """The application for the collect command."""
+
+    CSS = """
+    #module-tree {
+        content-align: center middle;
+        width: 50%;
+    }
+
+    Preview {
+        content-align: center middle;
+    }
+
+    #preview-scroll {
+        width: 50%;
+    }
+
+    """
+
+    def __init__(self, modules: list[Module]) -> None:
+        super().__init__()
+        self.modules = modules
+
+    def on_mount(self) -> None:
+        from _pytask._version import __version__
+
+        self.title = f"pytask {__version__}"
+
+    def compose(self) -> ComposeResult:
+        tree: Tree[dict] = Tree("Modules", id="module-tree")
+        tree.root.expand()
+        for module in self.modules:
+            module_tree = tree.root.add(module.name, expand=False)
+            for task in module.tasks:
+                task_tree = module_tree.add(task.name, data=task)
+                if task.depends_on:
+                    dependencies_tree = task_tree.add("Dependencies")
+                    for dep in tree_leaves(task.depends_on):
+                        dependencies_tree.add_leaf(dep.name, data=dep)
+                if task.produces:
+                    products_tree = task_tree.add("Products")
+                    for prod in tree_leaves(task.produces):
+                        products_tree.add_leaf(prod.name, data=prod)
+
+        yield Header()
+        with Horizontal():
+            yield tree
+            yield VerticalScroll(Preview(id="preview"), id="preview-scroll")
+
+    @on(Tree.NodeSelected)
+    def update_node(self, event: Tree.NodeSelected) -> None:
+        self.query_one("#preview", Preview).show_node(event.node)
 
 
 @hookimpl(tryfirst=True)
@@ -72,19 +150,12 @@ def collect(**raw_config: Any | None) -> NoReturn:
             session.hook.pytask_dag(session=session)
 
             tasks = _select_tasks_by_expressions_and_marker(session)
-            task_with_path = [t for t in tasks if isinstance(t, PTaskWithPath)]
+            modules = _organize_tasks(tasks)
 
-            common_ancestor = _find_common_ancestor_of_all_nodes(
-                task_with_path, session.config["paths"], session.config["nodes"]
-            )
-            dictionary = _organize_tasks(task_with_path)
-            if dictionary:
-                _print_collected_tasks(
-                    dictionary,
-                    session.config["nodes"],
-                    session.config["editor_url_scheme"],
-                    common_ancestor,
-                )
+            import cloudpickle
+
+            with Path("modules.pkl").open("wb") as f:
+                cloudpickle.dump(modules, f)
 
             console.print()
             console.rule(style="neutral")
@@ -114,40 +185,21 @@ def _select_tasks_by_expressions_and_marker(session: Session) -> list[PTask]:
     return [task for task in session.tasks if task.signature in remaining]
 
 
-def _find_common_ancestor_of_all_nodes(
-    tasks: list[PTaskWithPath], paths: list[Path], show_nodes: bool
-) -> Path:
-    """Find common ancestor from all nodes and passed paths."""
-    all_paths = []
-    for task in tasks:
-        all_paths.append(task.path)
-        if show_nodes:
-            all_paths.extend(
-                x.path for x in tree_leaves(task.depends_on) if isinstance(x, PPathNode)
-            )
-            all_paths.extend(
-                x.path for x in tree_leaves(task.produces) if isinstance(x, PPathNode)
-            )
-
-    return find_common_ancestor(*all_paths, *paths)
-
-
-def _organize_tasks(tasks: list[PTaskWithPath]) -> dict[Path, list[PTaskWithPath]]:
+def _organize_tasks(tasks: list[PTaskWithPath]) -> list[Module]:
     """Organize tasks in a dictionary.
 
     The dictionary has file names as keys and then a dictionary with task names and
     below a dictionary with dependencies and targets.
 
     """
-    dictionary: dict[Path, list[PTaskWithPath]] = defaultdict(list)
+    name_to_module = {}
     for task in tasks:
-        dictionary[task.path].append(task)
-
-    sorted_dict = {}
-    for k in sorted(dictionary):
-        sorted_dict[k] = sorted(dictionary[k], key=lambda x: x.name)
-
-    return sorted_dict
+        module = name_to_module.get(
+            task.path.as_posix(), Module(task.path.as_posix(), [])
+        )
+        module.tasks.append(task)
+        name_to_module[module.name] = module
+    return [name_to_module[name] for name in sorted(name_to_module)]
 
 
 def _print_collected_tasks(

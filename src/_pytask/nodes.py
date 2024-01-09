@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import inspect
 import pickle
+from contextlib import suppress
 from os import stat_result
 from pathlib import Path  # noqa: TCH003
 from typing import Any
@@ -202,6 +203,11 @@ class PathNode(PPathNode):
         else:
             msg = f"'PathNode' can only save 'str' and 'bytes', not {type(value)}"
             raise TypeError(msg)
+
+    def __rich_console__(self, console, options):
+        yield self.path.as_posix()
+        with suppress(FileNotFoundError):
+            yield self.path.stat()
 
 
 @define(kw_only=True)
