@@ -207,7 +207,7 @@ class LiveExecution:
             relevant_reports = []
 
         if sort_table:
-            relevant_reports = sorted(relevant_reports, key=lambda report: report.name)
+            relevant_reports.sort(key=lambda report: report.name)
 
         table: Table | None
         if add_caption:
