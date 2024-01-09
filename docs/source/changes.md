@@ -5,7 +5,7 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.4.5 - 2024-01-08
+## 0.4.5 - 2024-01-09
 
 - {pull}`515` enables tests with graphviz in CI. Thanks to {user}`NickCrews`.
 - {pull}`517` raises an error when the configuration file contains a non-existing path
