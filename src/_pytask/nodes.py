@@ -84,7 +84,7 @@ class TaskWithoutPath(PTask):
         else:
             return hashlib.sha256(source.encode()).hexdigest()
 
-    def execute(self, **kwargs: Any) -> None:
+    def execute(self, **kwargs: Any) -> Any:
         """Execute the task."""
         return self.function(**kwargs)
 
@@ -144,7 +144,7 @@ class Task(PTaskWithPath):
             return hash_path(self.path, modification_time)
         return None
 
-    def execute(self, **kwargs: Any) -> None:
+    def execute(self, **kwargs: Any) -> Any:
         """Execute the task."""
         return self.function(**kwargs)
 
