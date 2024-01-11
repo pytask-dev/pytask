@@ -21,6 +21,9 @@ from _pytask.typing import no_default
 from _pytask.typing import NoDefault
 from attrs import define
 from attrs import field
+from rich._inspect import Inspect
+from rich.console import Console, ConsoleOptions, RenderResult, group
+from rich.panel import Panel
 
 
 if TYPE_CHECKING:
@@ -145,6 +148,14 @@ class Task(PTaskWithPath):
         """Execute the task."""
         return self.function(**kwargs)
 
+    def __rich_console__(self, console: Console, options: ConsoleOptions) -> RenderResult:
+        @group()
+        def _():
+            yield self.name
+            yield self.function.__doc__ or ""
+
+        yield Panel(_())
+
 
 @define(kw_only=True)
 class PathNode(PPathNode):
@@ -207,7 +218,7 @@ class PathNode(PPathNode):
     def __rich_console__(self, console, options):
         yield self.path.as_posix()
         with suppress(FileNotFoundError):
-            yield self.path.stat()
+            yield Inspect(self.path.stat())
 
 
 @define(kw_only=True)
