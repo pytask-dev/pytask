@@ -5,6 +5,11 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.4.6
+
+- {pull}`548` fixes the type hints for {meth}`~pytask.Task.execute` and
+  {meth}`~pytask.TaskWithoutPath.execute`. Thanks to {user}`Ostheer`.
+
 ## 0.4.5 - 2024-01-09
 
 - {pull}`515` enables tests with graphviz in CI. Thanks to {user}`NickCrews`.
