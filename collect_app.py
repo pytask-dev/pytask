@@ -18,10 +18,18 @@ from textual.widgets import Footer
 from textual.widgets import Header
 from textual.widgets import Static
 from textual.widgets import Tree
+from rich._inspect import Inspect
 
 if TYPE_CHECKING:
     from textual.widgets.tree import TreeNode
     from _pytask.node_protocols import PTask
+
+
+class Task(NamedTuple):
+    """A task."""
+
+    task: PTask
+    reasons_rerun: list[str]
 
 
 class Module(NamedTuple):
@@ -39,7 +47,8 @@ class Preview(Static):
             return
         if isinstance(pytask_node, RenderableType):
             self.update(pytask_node)
-        # self.update(Inspect(pytask_node, all=False))
+            return
+        self.update(Inspect(pytask_node, all=False))
 
 
 class CollectionApp(App):

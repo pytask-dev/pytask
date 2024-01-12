@@ -24,6 +24,10 @@ from attrs import field
 from rich._inspect import Inspect
 from rich.console import Console, ConsoleOptions, RenderResult, group
 from rich.panel import Panel
+from rich.syntax import Syntax
+from rich.table import Table
+from _pytask.tree_util import tree_leaves
+from rich import box
 
 
 if TYPE_CHECKING:
@@ -149,12 +153,15 @@ class Task(PTaskWithPath):
         return self.function(**kwargs)
 
     def __rich_console__(self, console: Console, options: ConsoleOptions) -> RenderResult:
-        @group()
-        def _():
-            yield self.name
-            yield self.function.__doc__ or ""
+        table = Table("", "", title="Information", show_header=False, expand=True, box=box.ROUNDED)
+        table.add_row("Name", self.name)
+        table.add_row("Path", self.path.as_posix())
+        table.add_row("# Dependecies", str(len(tree_leaves(self.depends_on))))
+        table.add_row("# Products", str(len(tree_leaves(self.produces))))
 
-        yield Panel(_())
+        yield table
+        yield Panel(inspect.getdoc(self.function), title="Docstring")
+        yield Panel(Syntax(inspect.getsource(self.function), lexer="python"), title="Source Code")
 
 
 @define(kw_only=True)

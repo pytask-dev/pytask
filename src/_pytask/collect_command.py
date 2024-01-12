@@ -44,6 +44,14 @@ from textual.widgets import Tree
 if TYPE_CHECKING:
     from textual.widgets.tree import TreeNode
     from typing import NoReturn
+    import networkx as nx
+
+
+class Task(NamedTuple):
+    """A task."""
+
+    task: PTask
+    reasons_rerun: list[str]
 
 
 class Module(NamedTuple):
@@ -185,7 +193,7 @@ def _select_tasks_by_expressions_and_marker(session: Session) -> list[PTask]:
     return [task for task in session.tasks if task.signature in remaining]
 
 
-def _organize_tasks(tasks: list[PTaskWithPath]) -> list[Module]:
+def _organize_tasks(tasks: list[PTaskWithPath], dag: nx.DiGraph) -> list[Module]:
     """Organize tasks in a dictionary.
 
     The dictionary has file names as keys and then a dictionary with task names and
@@ -197,9 +205,20 @@ def _organize_tasks(tasks: list[PTaskWithPath]) -> list[Module]:
         module = name_to_module.get(
             task.path.as_posix(), Module(task.path.as_posix(), [])
         )
+        reasons = _find_reasons_to_rerun(task, dag)
+        task_wrap = Task(task=task, reasons_rerun=[])
         module.tasks.append(task)
         name_to_module[module.name] = module
     return [name_to_module[name] for name in sorted(name_to_module)]
+
+
+def _find_reasons_to_rerun(task: PTask, dag: nx.DiGraph) -> list[str]:
+    """Find the reasons to rerun a task."""
+    reasons = []
+    for task in dag.nodes:
+        if node.task == task:
+            reasons.append(node.name)
+    return reasons
 
 
 def _print_collected_tasks(
