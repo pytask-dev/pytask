@@ -248,7 +248,7 @@ class SysCaptureBinary:
         self.tmpfile = tmpfile
         self._state = "initialized"
 
-    def repr(self, class_name: str) -> str:  # noqa: A003
+    def repr(self, class_name: str) -> str:
         return "<{} {} _old={} _state={!r} tmpfile={!r}>".format(
             class_name,
             self.name,
