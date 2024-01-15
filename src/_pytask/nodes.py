@@ -236,7 +236,7 @@ class PythonNode(PNode):
 
     name: str = ""
     value: Any | NoDefault = no_default
-    hash: bool | Callable[[Any], bool] = False  # noqa: A003
+    hash: bool | Callable[[Any], bool] = False
     node_info: NodeInfo | None = None
 
     @property
