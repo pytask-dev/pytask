@@ -5,7 +5,8 @@ import contextlib
 import json
 import os
 from threading import Thread
-from typing import Any, TYPE_CHECKING
+from typing import Any
+from typing import TYPE_CHECKING
 from urllib import request
 
 from _pytask.config import hookimpl

@@ -468,6 +468,7 @@ def _find_shortest_uniquely_identifiable_name_for_tasks(
 
     return id_to_short_id
 
+
 @hookimpl
 def pytask_collect_log(
     session: Session, reports: list[CollectionReport], tasks: list[PTask]
