@@ -24,11 +24,12 @@ if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
 
 
-def send_logging_vscode(url: str, data: dict[str, Any], timeout: float) -> None:
+def send_logging_vscode(data: dict[str, Any], timeout: float) -> None:
     """Send logging information to VSCode."""
+    url = "http://localhost:6000/pytask"
     with contextlib.suppress(Exception):
         json = json.dumps(data).encode("utf-8")
-        req = request.Request(url, data=data)
+        req = request.Request(url, data=json)
         req.add_header("Content-Type", "application/json; charset=utf-8")
         request.urlopen(req, timeout=timeout)
 
@@ -51,7 +52,6 @@ def pytask_collect_log(
         thread = Thread(
             target=send_logging_vscode,
             args=(
-                "http://localhost:6000/pytask",
                 {"exitcode": exitcode, "tasks": result},
                 0.00001,
             ),
@@ -77,6 +77,6 @@ def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> No
             }
         thread = Thread(
             target=send_logging_vscode,
-            args=("http://localhost:6000/pytask", result, 0.00001),
+            args=( result, 0.00001),
         )
         thread.start()
