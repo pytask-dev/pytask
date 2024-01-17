@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 def send_logging_vscode(url: str, data: dict[str, Any], timeout: float) -> None:
     """Send logging information to VSCode."""
     with contextlib.suppress(Exception):
-        data = json.dumps(data).encode("utf-8")
+        json = json.dumps(data).encode("utf-8")
         req = request.Request(url, data=data)
         req.add_header("Content-Type", "application/json; charset=utf-8")
         request.urlopen(req, timeout=timeout)
@@ -37,27 +37,26 @@ def send_logging_vscode(url: str, data: dict[str, Any], timeout: float) -> None:
 def pytask_collect_log(
     session: Session, reports: list[CollectionReport], tasks: list[PTask]
 ) -> None:
-    if os.environ.get("PYTASK_VSCODE") == "True":
-        if session.config["command"] == "collect":
-            exitcode = 0
-            for report in reports:
-                if report.outcome == CollectionOutcome.FAIL:
-                    exitcode = 3
-            result = [
-                {"name": task.name.split("/")[-1], "path": str(task.path)}
-                if isinstance(task, PTaskWithPath)
-                else {"name": task.name, "path": ""}
-                for task in tasks
-            ]
-            thread = Thread(
-                target=send_logging_vscode,
-                args=(
-                    "http://localhost:6000/pytask",
-                    {"exitcode": exitcode, "tasks": result},
-                    0.00001,
-                ),
-            )
-            thread.start()
+    if os.environ.get("PYTASK_VSCODE") == "True" and session.config["command"] == "collect":
+        exitcode = 0
+        for report in reports:
+            if report.outcome == CollectionOutcome.FAIL:
+                exitcode = 3
+        result = [
+            {"name": task.name.split("/")[-1], "path": str(task.path)}
+            if isinstance(task, PTaskWithPath)
+            else {"name": task.name, "path": ""}
+            for task in tasks
+        ]
+        thread = Thread(
+            target=send_logging_vscode,
+            args=(
+                "http://localhost:6000/pytask",
+                {"exitcode": exitcode, "tasks": result},
+                0.00001,
+            ),
+        )
+        thread.start()
 
 
 @hookimpl(tryfirst=True)
