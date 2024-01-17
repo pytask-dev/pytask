@@ -28,7 +28,8 @@ def send_logging_vscode(data: dict[str, Any], timeout: float) -> None:
     """Send logging information to VSCode."""
     url = "http://localhost:6000/pytask"
     if not url.startswith(("http:", "https:")):
-        raise ValueError("URL must start with 'http:' or 'https:'")
+        msg = "URL must start with 'http:' or 'https:'"
+        raise ValueError(msg)
     with contextlib.suppress(Exception):
         response = json.dumps(data).encode("utf-8")
         req = request.Request(url, data=response)
