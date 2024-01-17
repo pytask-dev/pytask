@@ -38,7 +38,10 @@ def send_logging_vscode(data: dict[str, Any], timeout: float) -> None:
 def pytask_collect_log(
     session: Session, reports: list[CollectionReport], tasks: list[PTask]
 ) -> None:
-    if os.environ.get("PYTASK_VSCODE") == "True" and session.config["command"] == "collect":
+    if (
+        os.environ.get("PYTASK_VSCODE") == "True"
+        and session.config["command"] == "collect"
+    ):
         exitcode = 0
         for report in reports:
             if report.outcome == CollectionOutcome.FAIL:
