@@ -64,7 +64,6 @@ repos:
             click,
             optree,
             pluggy,
-            types-requests,
             rich,
             sqlalchemy,
             types-setuptools,

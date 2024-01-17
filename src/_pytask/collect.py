@@ -1,7 +1,6 @@
 """Implement functionality to collect tasks."""
 from __future__ import annotations
 
-import contextlib
 import inspect
 import itertools
 import os
@@ -13,7 +12,6 @@ from typing import Generator
 from typing import Iterable
 from typing import TYPE_CHECKING
 
-import requests
 from _pytask.collect_utils import create_name_of_python_node
 from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_products_from_task_function
@@ -469,13 +467,6 @@ def _find_shortest_uniquely_identifiable_name_for_tasks(
         id_to_short_id[id_] = task.name
 
     return id_to_short_id
-
-
-def send_logging_vscode(url: str, json: dict[str, Any], timeout: float) -> None:
-    """Send logging information to VSCode."""
-    with contextlib.suppress(requests.exceptions.RequestException):
-        requests.post(url=url, json=json, timeout=timeout)
-
 
 @hookimpl
 def pytask_collect_log(
