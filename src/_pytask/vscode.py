@@ -1,6 +1,7 @@
 """Contains Code for VSCode Logging."""
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 from threading import Thread
@@ -24,13 +25,11 @@ if TYPE_CHECKING:
 
 def send_logging_vscode(url: str, data: dict[str, Any], timeout: float) -> None:
     """Send logging information to VSCode."""
-    try:
+    with contextlib.suppress(Exception):
         data = json.dumps(data).encode("utf-8")
         req = request.Request(url, data=data)
         req.add_header("Content-Type", "application/json; charset=utf-8")
         request.urlopen(req, timeout=timeout)
-    except Exception:
-        pass
 
 
 @hookimpl(tryfirst=True)
