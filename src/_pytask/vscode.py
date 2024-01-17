@@ -82,6 +82,6 @@ def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> No
             }
         thread = Thread(
             target=send_logging_vscode,
-            args=( result, 0.00001),
+            args=(result, 0.00001),
         )
         thread.start()
