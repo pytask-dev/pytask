@@ -12,9 +12,9 @@ from typing import TYPE_CHECKING
 import _pytask
 import click
 import pluggy
-from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import IS_WINDOWS_TERMINAL
+from _pytask.pluginmanager import hookimpl
 from _pytask.reports import ExecutionReport
 from _pytask.traceback import Traceback
 from rich.text import Text
@@ -92,7 +92,7 @@ def pytask_log_session_header(session: Session) -> None:
 
 
 def _format_plugin_names_and_versions(
-    plugininfo: list[tuple[str, DistFacade]]
+    plugininfo: list[tuple[str, DistFacade]],
 ) -> list[str]:
     """Format name and version of loaded plugins."""
     values: list[str] = []

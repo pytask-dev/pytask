@@ -7,11 +7,11 @@ from typing import NamedTuple
 from typing import TYPE_CHECKING
 
 import click
-from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.console import format_task_name
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
+from _pytask.pluginmanager import hookimpl
 from attrs import define
 from attrs import field
 from rich.box import ROUNDED
@@ -207,7 +207,7 @@ class LiveExecution:
             relevant_reports = []
 
         if sort_table:
-            relevant_reports = sorted(relevant_reports, key=lambda report: report.name)
+            relevant_reports.sort(key=lambda report: report.name)
 
         table: Table | None
         if add_caption:

@@ -4,6 +4,8 @@ from __future__ import annotations
 from _pytask import __version__
 from _pytask._hashlib import hash_value
 from _pytask.build import build
+from _pytask.capture_utils import CaptureMethod
+from _pytask.capture_utils import ShowCapture
 from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
 from _pytask.click import EnumChoice
@@ -13,7 +15,6 @@ from _pytask.collect_utils import parse_products_from_task_function
 from _pytask.collect_utils import produces
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
-from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.dag_command import build_dag
 from _pytask.data_catalog import DataCatalog
@@ -57,6 +58,9 @@ from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
+from _pytask.pluginmanager import get_plugin_manager
+from _pytask.pluginmanager import hookimpl
+from _pytask.pluginmanager import storage
 from _pytask.profile import Runtime
 from _pytask.reports import CollectionReport
 from _pytask.reports import DagReport
@@ -71,13 +75,14 @@ from _pytask.warnings_utils import parse_warning_filter
 from _pytask.warnings_utils import warning_record_to_str
 from _pytask.warnings_utils import WarningReport
 
-
-# This import must come last, otherwise a circular import occurs.
+# _pytask.cli needs to be imported last because it triggers extending the cli and
+# therefore loading plugins which will attempt to import modules that might only be
+# partially initialized. Maybe not here, but definitely for plugins.
 from _pytask.cli import cli  # noreorder
-
 
 __all__ = [
     "BaseTable",
+    "CaptureMethod",
     "CollectionError",
     "CollectionMetadata",
     "CollectionOutcome",
@@ -112,6 +117,7 @@ __all__ = [
     "ResolvingDependenciesError",
     "Runtime",
     "Session",
+    "ShowCapture",
     "Skipped",
     "SkippedAncestorFailed",
     "SkippedUnchanged",
@@ -132,6 +138,7 @@ __all__ = [
     "depends_on",
     "get_all_marks",
     "get_marks",
+    "get_plugin_manager",
     "has_mark",
     "hash_value",
     "hookimpl",
@@ -145,6 +152,7 @@ __all__ = [
     "remove_internal_traceback_frames_from_exc_info",
     "remove_marks",
     "set_marks",
+    "storage",
     "task",
     "warning_record_to_str",
 ]

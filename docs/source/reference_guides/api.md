@@ -28,6 +28,39 @@ To write to the terminal, use pytask's console.
 .. class:: pytask.console
 ```
 
+## Exceptions
+
+Exceptions all inherit from
+
+```{eval-rst}
+.. autoclass:: pytask.PytaskError
+```
+
+The following exceptions can be used to interrupt pytask's flow, emit reduced tracebacks
+and return the correct exit codes.
+
+```{eval-rst}
+.. autoclass:: pytask.CollectionError
+.. autoclass:: pytask.ConfigurationError
+.. autoclass:: pytask.ExecutionError
+.. autoclass:: pytask.ResolvingDependenciesError
+```
+
+The remaining exceptions convey specific errors.
+
+```{eval-rst}
+.. autoclass:: pytask.NodeNotCollectedError
+.. autoclass:: pytask.NodeNotFoundError
+```
+
+## General classes
+
+```{eval-rst}
+.. autoclass:: pytask.Session
+.. autoclass:: pytask.DataCatalog
+   :members:
+```
+
 ## Marks
 
 pytask uses marks to attach additional information to task functions which is processed
@@ -45,15 +78,11 @@ by the host or by plugins. The following marks are available by default.
         Can be any valid Python object or an iterable of any Python objects. To be
         valid, it must be parsed by some hook implementation for the
         :func:`_pytask.hookspecs.pytask_collect_node` entry-point.
-```
 
-```{eval-rst}
 .. function:: pytask.mark.persist()
 
     A marker for a task which should be persisted.
-```
 
-```{eval-rst}
 .. function:: pytask.mark.produces(objects: Any | Iterable[Any] | dict[Any, Any])
 
     Specify products of a task.
@@ -63,40 +92,30 @@ by the host or by plugins. The following marks are available by default.
         Can be any valid Python object or an iterable of any Python objects. To be
         valid, it must be parsed by some hook implementation for the
         :func:`_pytask.hookspecs.pytask_collect_node` entry-point.
-```
 
-```{eval-rst}
 .. function:: pytask.mark.skipif(condition: bool, *, reason: str)
 
     Skip a task based on a condition and provide a necessary reason.
 
     :param bool condition: A condition for when the task is skipped.
     :param str reason: A reason why the task is skipped.
-```
 
-```{eval-rst}
 .. function:: pytask.mark.skip_ancestor_failed(reason: str = "No reason provided")
 
     An internal marker for a task which is skipped because an ancestor failed.
 
     :param str reason: A reason why the task is skipped.
-```
 
-```{eval-rst}
 .. function:: pytask.mark.skip_unchanged()
 
     An internal marker for a task which is skipped because nothing has changed.
 
     :param str reason: A reason why the task is skipped.
-```
 
-```{eval-rst}
 .. function:: pytask.mark.skip()
 
     Skip a task.
-```
 
-```{eval-rst}
 .. function:: pytask.mark.task(name, *, id, kwargs)
 
     The task decorator allows to mark any task function regardless of its name as a task
@@ -118,9 +137,6 @@ by the host or by plugins. The following marks are available by default.
         A dictionary containing keyword arguments which are passed to the task when it
         is executed.
 
-```
-
-```{eval-rst}
 .. function:: pytask.mark.try_first
 
     Indicate that the task should be executed as soon as possible.
@@ -136,9 +152,6 @@ by the host or by plugins. The following marks are available by default.
         dependencies and products and automatic inference may be incomplete like with
         pytask-latex and latex-dependency-scanner.
 
-```
-
-```{eval-rst}
 .. function:: pytask.mark.try_last
 
     Indicate that the task should be executed as late as possible.
@@ -207,39 +220,6 @@ These functions help you to handle marks.
 .. autofunction:: pytask.set_marks
 ```
 
-## Exceptions
-
-Exceptions all inherit from
-
-```{eval-rst}
-.. autoclass:: pytask.PytaskError
-```
-
-The following exceptions can be used to interrupt pytask's flow, emit reduced tracebacks
-and return the correct exit codes.
-
-```{eval-rst}
-.. autoclass:: pytask.CollectionError
-.. autoclass:: pytask.ConfigurationError
-.. autoclass:: pytask.ExecutionError
-.. autoclass:: pytask.ResolvingDependenciesError
-```
-
-The remaining exceptions convey specific errors.
-
-```{eval-rst}
-.. autoclass:: pytask.NodeNotCollectedError
-.. autoclass:: pytask.NodeNotFoundError
-```
-
-## General classes
-
-```{eval-rst}
-.. autoclass:: pytask.Session
-.. autoclass:: pytask.DataCatalog
-   :members:
-```
-
 ## Protocols
 
 Protocols define how tasks and nodes for dependencies and products have to be set up.
@@ -261,11 +241,11 @@ Nodes are the interface for different kinds of dependencies or products.
 
 ```{eval-rst}
 .. autoclass:: pytask.PathNode
-   :members: load, save
+   :members:
 .. autoclass:: pytask.PickleNode
-   :members: load, save
+   :members:
 .. autoclass:: pytask.PythonNode
-   :members: load, save
+   :members:
 ```
 
 To parse dependencies and products from nodes, use the following functions.
@@ -285,10 +265,11 @@ To mark any callable as a task use
 .. autofunction:: pytask.task
 ```
 
-Task are currently represented by the following class:
+Task are currently represented by the following classes:
 
 ```{eval-rst}
 .. autoclass:: pytask.Task
+.. autoclass:: pytask.TaskWithoutPath
 ```
 
 Currently, there are no different types of tasks since changing the `.function`
@@ -300,6 +281,7 @@ attribute of the task function.
 
 ```{eval-rst}
 .. autoclass:: pytask.CollectionMetadata
+    :members:
 ```
 
 ## Outcomes
@@ -369,7 +351,7 @@ resolution and execution.
 ## Tree utilities
 
 ```{eval-rst}
-.. autofunction:: pytask.tree_util.PyTree
+.. autoclass:: pytask.tree_util.PyTree
 .. autofunction:: pytask.tree_util.tree_flatten_with_path
 .. autofunction:: pytask.tree_util.tree_leaves
 .. autofunction:: pytask.tree_util.tree_map
@@ -387,6 +369,7 @@ resolution and execution.
     >>> def task_example(path: Annotated[Path, Product]) -> None:
     ...     path.write_text("Hello, World!")
 
+.. autofunction:: pytask.is_task_function
 ```
 
 ## Tracebacks

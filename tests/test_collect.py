@@ -8,12 +8,12 @@ from pathlib import Path
 import pytest
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
-from _pytask.exceptions import NodeNotCollectedError
-from _pytask.models import NodeInfo
 from pytask import build
 from pytask import cli
 from pytask import CollectionOutcome
 from pytask import ExitCode
+from pytask import NodeInfo
+from pytask import NodeNotCollectedError
 from pytask import Session
 from pytask import Task
 
@@ -218,10 +218,7 @@ def test_collect_files_w_custom_file_name_pattern(
 )
 def test_pytask_collect_node(session, path, node_info, expected):
     result = pytask_collect_node(session, path, node_info)
-    if result is None:
-        assert result is expected
-    else:
-        assert str(result.load()) == str(expected)
+    assert str(result.load()) == str(expected)
 
 
 @pytest.mark.unit()
@@ -684,9 +681,35 @@ def test_scheduling_w_mixed_priorities(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_module_can_be_collected(runner, tmp_path):
     source = """
-    from pytask import Task, TaskWithoutPath
+    from pytask import Task, TaskWithoutPath, mark
+
+    class C:
+        def __getattr__(self, name):
+            return C()
+    c = C()
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
+
+
+@pytest.mark.end_to_end()
+@pytest.mark.parametrize(
+    "second_node", ["PythonNode()", "PathNode(path=Path('a.txt'))"]
+)
+def test_error_with_multiple_dependency_annotations(runner, tmp_path, second_node):
+    source = f"""
+    from typing_extensions import Annotated
+    from pytask import PythonNode, PathNode
+    from pathlib import Path
+
+    def task_example(
+        dependency: Annotated[str, PythonNode(), {second_node}] = "hello"
+    ) -> None: ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Parameter 'dependency' has multiple node annot" in result.output

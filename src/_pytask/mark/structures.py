@@ -226,7 +226,8 @@ class MarkGenerator:
 
             warnings.warn(
                 "'@pytask.mark.task' is deprecated starting pytask v0.4.0 and will be "
-                "removed in v0.5.0. Use '@pytask.task' instead.",
+                "removed in v0.5.0. Use '@task' with 'from pytask import task' "
+                "instead.",
                 category=FutureWarning,
                 stacklevel=1,
             )

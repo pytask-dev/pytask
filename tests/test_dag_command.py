@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import shutil
+import os
 import sys
 import textwrap
 
@@ -16,26 +16,18 @@ except ImportError:  # pragma: no cover
 else:
     _IS_PYGRAPHVIZ_INSTALLED = True
 
+# Test should run always on remote except on Windows and locally only with the package
+# installed.
+_TEST_SHOULD_RUN = _IS_PYGRAPHVIZ_INSTALLED or (
+    os.environ.get("CI") and sys.platform != "win32"
+)
 _GRAPH_LAYOUTS = ["neato", "dot", "fdp", "sfdp", "twopi", "circo"]
-
-
-_PARAMETRIZED_LAYOUTS = [
-    pytest.param(
-        layout,
-        marks=pytest.mark.skip(reason=f"{layout} not available")
-        if shutil.which(layout) is None
-        else [],
-    )
-    for layout in _GRAPH_LAYOUTS
-]
-
-
 _TEST_FORMATS = ["dot", "pdf", "png", "jpeg", "svg"]
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.skipif(not _IS_PYGRAPHVIZ_INSTALLED, reason="pygraphviz is required")
-@pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
+@pytest.mark.skipif(not _TEST_SHOULD_RUN, reason="pygraphviz is required")
+@pytest.mark.parametrize("layout", _GRAPH_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
 @pytest.mark.parametrize("rankdir", ["LR"])
 def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
@@ -70,8 +62,8 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.skipif(not _IS_PYGRAPHVIZ_INSTALLED, reason="pygraphviz is required")
-@pytest.mark.parametrize("layout", _PARAMETRIZED_LAYOUTS)
+@pytest.mark.skipif(not _TEST_SHOULD_RUN, reason="pygraphviz is required")
+@pytest.mark.parametrize("layout", _GRAPH_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
 @pytest.mark.parametrize("rankdir", [_RankDirection.LR.value, _RankDirection.TB])
 def test_create_graph_via_task(tmp_path, runner, format_, layout, rankdir):
@@ -123,7 +115,7 @@ def test_raise_error_with_graph_via_cli_missing_optional_dependency(
     tmp_path.joinpath("input.txt").touch()
 
     monkeypatch.setattr(
-        "_pytask.compat.importlib.import_module",
+        "_pytask.compat.import_module",
         lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: ARG005
     )
 
@@ -158,7 +150,7 @@ def test_raise_error_with_graph_via_task_missing_optional_dependency(
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     monkeypatch.setattr(
-        "_pytask.compat.importlib.import_module",
+        "_pytask.compat.import_module",
         lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: ARG005
     )
 
@@ -177,7 +169,7 @@ def test_raise_error_with_graph_via_cli_missing_optional_program(
     monkeypatch, tmp_path, runner
 ):
     monkeypatch.setattr(
-        "_pytask.compat.importlib.import_module",
+        "_pytask.compat.import_module",
         lambda x: None,  # noqa: ARG005
     )
     monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: ARG005
@@ -208,7 +200,7 @@ def test_raise_error_with_graph_via_task_missing_optional_program(
     monkeypatch, tmp_path, runner
 ):
     monkeypatch.setattr(
-        "_pytask.compat.importlib.import_module",
+        "_pytask.compat.import_module",
         lambda x: None,  # noqa: ARG005
     )
     monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: ARG005

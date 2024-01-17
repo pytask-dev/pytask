@@ -6,23 +6,12 @@ from pathlib import Path
 
 import pytest
 from _pytask.dag import pytask_dag_create_dag
-from attrs import define
 from pytask import build
 from pytask import cli
 from pytask import ExitCode
-from pytask import NodeNotFoundError
 from pytask import PathNode
 from pytask import Session
 from pytask import Task
-
-
-@define
-class Node(PathNode):
-    """See https://github.com/python-attrs/attrs/issues/293 for property hack."""
-
-    def state(self):
-        if "missing" in self.name:
-            raise NodeNotFoundError
 
 
 @pytest.mark.unit()
@@ -34,8 +23,8 @@ def test_pytask_dag_create_dag():
         path=root,
         function=None,
         depends_on={
-            0: Node.from_path(root / "node_1"),
-            1: Node.from_path(root / "node_2"),
+            0: PathNode.from_path(root / "node_1"),
+            1: PathNode.from_path(root / "node_2"),
         },
     )
     session = Session.from_config({"paths": (root,)})

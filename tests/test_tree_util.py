@@ -4,11 +4,11 @@ from __future__ import annotations
 import textwrap
 
 import pytest
-from _pytask.outcomes import ExitCode
-from _pytask.tree_util import tree_map
-from _pytask.tree_util import tree_structure
 from pytask import build
 from pytask import cli
+from pytask import ExitCode
+from pytask.tree_util import tree_map
+from pytask.tree_util import tree_structure
 
 
 @pytest.mark.end_to_end()
@@ -52,7 +52,7 @@ def test_profile_with_pytree(tmp_path, runner):
     source = """
     import time
     import pytask
-    from _pytask.tree_util import tree_leaves
+    from pytask.tree_util import tree_leaves
 
     @pytask.mark.produces([{"out_1": "out_1.txt"}, {"out_2": "out_2.txt"}])
     def task_example(produces):

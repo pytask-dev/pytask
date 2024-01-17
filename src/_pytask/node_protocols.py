@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import abstractmethod
 from typing import Any
 from typing import Callable
 from typing import Protocol
@@ -27,7 +26,6 @@ class PNode(Protocol):
     def signature(self) -> str:
         """Return the signature of the node."""
 
-    @abstractmethod
     def state(self) -> str | None:
         """Return the state of the node.
 
@@ -36,7 +34,7 @@ class PNode(Protocol):
 
         """
 
-    def load(self, is_product: bool) -> Any:
+    def load(self, is_product: bool = False) -> Any:
         """Return the value of the node that will be injected into the task.
 
         Parameters
@@ -80,7 +78,6 @@ class PTask(Protocol):
     def signature(self) -> str:
         """Return the signature of the node."""
 
-    @abstractmethod
     def state(self) -> str | None:
         """Return the state of the node.
 

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import glob
+import warnings
 from pathlib import Path
 from typing import Any
 from typing import Iterable
@@ -15,7 +16,18 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PTask
 
 if TYPE_CHECKING:
+    from enum import Enum
     import networkx as nx
+
+
+__all__ = [
+    "convert_to_enum",
+    "find_duplicates",
+    "parse_markers",
+    "parse_paths",
+    "reduce_names_of_multiple_nodes",
+    "to_list",
+]
 
 
 def to_list(scalar_or_iter: Any) -> list[Any]:
@@ -46,17 +58,29 @@ def to_list(scalar_or_iter: Any) -> list[Any]:
 
 def parse_paths(x: Any | None) -> list[Path] | None:
     """Parse paths."""
-    if x is not None:
-        paths = [Path(p) for p in to_list(x)]
-        paths = [
-            Path(p).resolve()
-            for path in paths
-            for p in glob.glob(path.as_posix())  # noqa: PTH207
-        ]
-        out = paths
-    else:
-        out = None
-    return out
+    if x is None:
+        return None
+
+    if isinstance(x, str):
+        msg = (
+            "Specifying paths as a string in 'pyproject.toml' is deprecated and will "
+            "result in an error in v0.5. Please use a list of strings instead: "
+            f'["{x}"].'
+        )
+        warnings.warn(msg, category=FutureWarning, stacklevel=1)
+        x = [x]
+
+    paths = [Path(p) for p in to_list(x)]
+    for p in paths:
+        if not p.exists():
+            msg = f"The path '{p}' does not exist."
+            raise FileNotFoundError(msg)
+
+    return [
+        Path(p).resolve()
+        for path in paths
+        for p in glob.glob(path.as_posix())  # noqa: PTH207
+    ]
 
 
 def reduce_names_of_multiple_nodes(
@@ -118,3 +142,13 @@ def parse_markers(x: dict[str, str] | list[str] | tuple[str, ...]) -> dict[str, 
             raise click.BadParameter(msg)
 
     return mapping
+
+
+def convert_to_enum(value: Any, enum: type[Enum]) -> Enum:
+    """Convert value to enum."""
+    try:
+        return enum(value)
+    except ValueError:
+        values = [e.value for e in enum]
+        msg = f"Value {value!r} is not a valid {enum!r}. Valid values are {values}."
+        raise ValueError(msg) from None

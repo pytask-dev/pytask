@@ -1,21 +1,23 @@
 """Contains utilities related to the ``@pytask.mark.task`` decorator."""
 from __future__ import annotations
 
+import functools
 import inspect
 from collections import defaultdict
-from pathlib import Path
+from types import BuiltinFunctionType
 from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
 
 import attrs
+from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
 from _pytask.typing import is_task_function
 
 if TYPE_CHECKING:
-    from _pytask.tree_util import PyTree
+    from pathlib import Path
 
 
 __all__ = [
@@ -26,7 +28,7 @@ __all__ = [
 ]
 
 
-COLLECTED_TASKS: dict[Path, list[Callable[..., Any]]] = defaultdict(list)
+COLLECTED_TASKS: dict[Path | None, list[Callable[..., Any]]] = defaultdict(list)
 """A container for collecting tasks.
 
 Tasks marked by the ``@pytask.mark.task`` decorator can be generated in a loop where one
@@ -42,7 +44,7 @@ def task(
     after: str | Callable[..., Any] | list[Callable[..., Any]] | None = None,
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
-    produces: PyTree[Any] | None = None,
+    produces: Any | None = None,
 ) -> Callable[..., Callable[..., Any]]:
     """Decorate a task function.
 
@@ -55,22 +57,24 @@ def task(
     ----------
     name
         Use it to override the name of the task that is, by default, the name of the
-        callable.
+        task function. Read :ref:`customize-task-names` for more information.
     after
         An expression or a task function or a list of task functions that need to be
-        executed before this task can.
-    id
-        An id for the task if it is part of a parametrization. Otherwise, an automatic
-        id will be generated. See
-        :doc:`this tutorial <../tutorials/repeating_tasks_with_different_inputs>` for
-        more information.
-    kwargs
-        A dictionary containing keyword arguments which are passed to the task when it
-        is executed.
-    produces
-        Definition of products to parse the function returns and store them. See
-        :doc:`this how-to guide <../how_to_guides/using_task_returns>` for more
+        executed before this task can be executed. See :ref:`after` for more
         information.
+    id
+        An id for the task if it is part of a repetition. Otherwise, an automatic id
+        will be generated. See :ref:`how-to-repeat-a-task-with-different-inputs-the-id`
+        for more information.
+    kwargs
+        Use a dictionary to pass any keyword arguments to the task function which can be
+        dependencies or products of the task. Read :ref:`task-kwargs` for more
+        information.
+    produces
+        Use this argument if you want to parse the return of the task function as a
+        product, but you cannot annotate the return of the function. See :doc:`this
+        how-to guide <../how_to_guides/using_task_returns>` or :ref:`task-produces` for
+        more information.
 
     Examples
     --------
@@ -78,16 +82,17 @@ def task(
 
     .. code-block:: python
 
-        from typing import Annotated
-        from pytask import task
+        from typing import Annotated from pytask import task
 
-        @task
-        def create_text_file() -> Annotated[str, Path("file.txt")]:
+        @task def create_text_file() -> Annotated[str, Path("file.txt")]:
             return "Hello, World!"
 
     """
 
     def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
+        # Omits frame when a builtin function is wrapped.
+        _rich_traceback_omit = True
+
         for arg, arg_name in ((name, "name"), (id, "id")):
             if not (isinstance(arg, str) or arg is None):
                 msg = (
@@ -98,14 +103,20 @@ def task(
 
         unwrapped = inspect.unwrap(func)
 
-        raw_path = inspect.getfile(unwrapped)
-        if "<string>" in raw_path:
-            path = Path(unwrapped.__globals__["__file__"]).absolute().resolve()
-        else:
-            path = Path(raw_path).absolute().resolve()
+        # We do not allow builtins as functions because we would need to use
+        # ``inspect.stack`` to infer their caller location and they are unable to carry
+        # the pytask metadata.
+        if isinstance(unwrapped, BuiltinFunctionType):
+            msg = (
+                "Builtin functions cannot be wrapped with '@task'. If necessary, wrap "
+                "the builtin function in a function or lambda expression."
+            )
+            raise NotImplementedError(msg)
+
+        path = get_file(unwrapped)
 
         parsed_kwargs = {} if kwargs is None else kwargs
-        parsed_name = name if isinstance(name, str) else func.__name__
+        parsed_name = _parse_name(unwrapped, name)
         parsed_after = _parse_after(after)
 
         if hasattr(unwrapped, "pytask_meta"):
@@ -138,8 +149,23 @@ def task(
     return wrapper
 
 
+def _parse_name(func: Callable[..., Any], name: str | None) -> str:
+    """Parse name from task function."""
+    if name:
+        return name
+
+    if isinstance(func, functools.partial):
+        func = func.func
+
+    if hasattr(func, "__name__"):
+        return func.__name__
+
+    msg = "Cannot infer name for task function."
+    raise NotImplementedError(msg)
+
+
 def _parse_after(
-    after: str | Callable[..., Any] | list[Callable[..., Any]] | None
+    after: str | Callable[..., Any] | list[Callable[..., Any]] | None,
 ) -> str | list[Callable[..., Any]]:
     if not after:
         return []
@@ -236,7 +262,7 @@ def _parse_task_kwargs(kwargs: Any) -> dict[str, Any]:
 
 
 def parse_keyword_arguments_from_signature_defaults(
-    task: Callable[..., Any]
+    task: Callable[..., Any],
 ) -> dict[str, Any]:
     """Parse keyword arguments from signature defaults."""
     parameters = inspect.signature(task).parameters
@@ -248,7 +274,7 @@ def parse_keyword_arguments_from_signature_defaults(
 
 
 def _generate_ids_for_tasks(
-    tasks: list[tuple[str, Callable[..., Any]]]
+    tasks: list[tuple[str, Callable[..., Any]]],
 ) -> dict[str, Callable[..., Any]]:
     """Generate unique ids for parametrized tasks."""
     parameters = inspect.signature(tasks[0][1]).parameters
@@ -273,6 +299,14 @@ def _generate_ids_for_tasks(
             ]
             id_ = "-".join(stringified_args)
             id_ = f"{name}[{id_}]"
+
+        if id_ in out:
+            msg = (
+                f"The task {name!r} with the id {id_!r} is duplicated. This can happen "
+                "if you create the exact same tasks multiple times or passed the same "
+                "the same id to multiple tasks via '@task(id=...)'."
+            )
+            raise ValueError(msg)
         out[id_] = task
     return out
 

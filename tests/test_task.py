@@ -349,8 +349,9 @@ def test_task_function_with_partialed_args_and_task_decorator(tmp_path, runner):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert result.exit_code == ExitCode.COLLECTION_FAILED
-    assert "1  Collected errors and tasks" in result.output
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+    assert tmp_path.joinpath("out.txt").read_text() == "hello"
 
 
 @pytest.mark.end_to_end()
@@ -445,13 +446,12 @@ def test_raise_errors_for_irregular_ids(runner, tmp_path, irregular_id):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.xfail(reason="Should fail. Mandatory products will fix the issue.")
 def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
     source = """
-    import pytask
+    from pytask import task
 
     for i in [0, 0]:
-        @pytask.mark.task(id=str(i))
+        @task(id=str(i))
         def task_func(i=i):
             pass
     """
@@ -662,3 +662,64 @@ def test_task_will_be_executed_after_another_one_with_function(tmp_path):
 
     session = build(paths=tmp_path)
     assert session.exit_code == ExitCode.OK
+
+
+def test_raise_error_for_wrong_after_expression(runner, tmp_path):
+    source = """
+    from pytask import task
+    from pathlib import Path
+    from typing_extensions import Annotated
+
+    @task(after="(")
+    def task_example() -> Annotated[str, Path("out.txt")]:
+        return "Hello, World!"
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.DAG_FAILED
+    assert "Wrong expression passed to 'after'" in result.output
+
+
+def test_raise_error_with_builtin_function_as_task(runner, tmp_path):
+    source = """
+    from pytask import task
+    from pathlib import Path
+    from datetime import datetime
+
+    task(
+        kwargs={"format": "%y/%m/%d"}, produces=Path("time.txt")
+    )(datetime.utcnow().strftime)
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Builtin functions cannot be wrapped" in result.output
+
+
+def test_task_function_in_another_module(runner, tmp_path):
+    source = """
+    def func():
+        return "Hello, World!"
+    """
+    tmp_path.joinpath("module.py").write_text(textwrap.dedent(source))
+
+    source = """
+    from pytask import task
+    from pathlib import Path
+    from pytask.path import import_path
+    import inspect
+
+    _ROOT_PATH = Path(__file__).parent
+
+    module = import_path(_ROOT_PATH / "module.py", _ROOT_PATH)
+    name_to_obj = dict(inspect.getmembers(module))
+
+    task(produces=Path("out.txt"))(name_to_obj["func"])
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "1  Failed" in result.output

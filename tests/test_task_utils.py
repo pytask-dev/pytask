@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from contextlib import ExitStack as does_not_raise  # noqa: N813
+from functools import partial
 from typing import NamedTuple
 
 import pytest
 from _pytask.task_utils import _arg_value_to_id_component
+from _pytask.task_utils import _parse_name
 from _pytask.task_utils import _parse_task_kwargs
 from attrs import define
 
@@ -55,4 +57,27 @@ class ExampleAttrs:
 def test_parse_task_kwargs(kwargs, expectation, expected):
     with expectation:
         result = _parse_task_kwargs(kwargs)
+        assert result == expected
+
+
+def task_func(x):  # noqa: ARG001  # pragma: no cover
+    pass
+
+
+@pytest.mark.unit()
+@pytest.mark.parametrize(
+    ("func", "name", "expectation", "expected"),
+    [
+        (task_func, None, does_not_raise(), "task_func"),
+        (task_func, "name", does_not_raise(), "name"),
+        (partial(task_func, x=1), None, does_not_raise(), "task_func"),
+        (partial(task_func, x=1), "name", does_not_raise(), "name"),
+        (lambda x: None, None, does_not_raise(), "<lambda>"),  # noqa: ARG005
+        (partial(lambda x: None, x=1), None, does_not_raise(), "<lambda>"),  # noqa: ARG005
+        (1, None, pytest.raises(NotImplementedError, match="Cannot"), None),
+    ],
+)
+def test_parse_name(func, name, expectation, expected):
+    with expectation:
+        result = _parse_name(func, name)
         assert result == expected

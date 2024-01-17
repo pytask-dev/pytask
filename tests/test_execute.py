@@ -11,11 +11,11 @@ from pathlib import Path
 
 import pytask
 import pytest
-from _pytask.capture import CaptureMethod
-from _pytask.exceptions import NodeNotFoundError
 from pytask import build
+from pytask import CaptureMethod
 from pytask import cli
 from pytask import ExitCode
+from pytask import NodeNotFoundError
 from pytask import PathNode
 from pytask import TaskOutcome
 from pytask import TaskWithoutPath
@@ -426,15 +426,15 @@ def test_task_with_product_annotation(tmp_path, arg_name):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.xfail(reason="Nested annotations are not parsed.", raises=AssertionError)
-def test_task_with_nested_product_annotation(tmp_path):
+def test_task_errors_with_nested_product_annotation(tmp_path):
     source = """
     from pathlib import Path
     from typing_extensions import Annotated
     from pytask import Product
+    from typing import Dict
 
     def task_example(
-        paths_to_file: dict[str, Annotated[Path, Product]] = {"a": Path("out.txt")}
+        paths_to_file: Dict[str, Annotated[Path, Product]] = {"a": Path("out.txt")}
     ) -> None:
         pass
     """
@@ -442,10 +442,10 @@ def test_task_with_nested_product_annotation(tmp_path):
 
     session = build(paths=tmp_path, capture=CaptureMethod.NO)
 
-    assert session.exit_code == ExitCode.OK
+    assert session.exit_code == ExitCode.FAILED
     assert len(session.tasks) == 1
     task = session.tasks[0]
-    assert "paths_to_file" in task.produces
+    assert "paths_to_file" not in task.produces
 
 
 @pytest.mark.end_to_end()
@@ -484,27 +484,6 @@ def test_task_with_hashed_python_node(runner, tmp_path, definition):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").read_text() == "world"
-
-
-@pytest.mark.end_to_end()
-@pytest.mark.parametrize(
-    "second_node", ["PythonNode()", "PathNode(path=Path('a.txt'))"]
-)
-def test_error_with_multiple_dependency_annotations(runner, tmp_path, second_node):
-    source = f"""
-    from typing_extensions import Annotated
-    from pytask import PythonNode, PathNode
-    from pathlib import Path
-
-    def task_example(
-        dependency: Annotated[str, PythonNode(), {second_node}] = "hello"
-    ) -> None: ...
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.COLLECTION_FAILED
-    assert "Parameter 'dependency'" in result.output
 
 
 @pytest.mark.end_to_end()
@@ -704,7 +683,7 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     source = """
-    from _pytask.nodes import PathNode
+    from pytask import PathNode
     from pytask import PythonNode
     from typing_extensions import Annotated
     from pathlib import Path
@@ -729,12 +708,12 @@ def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
 @pytest.mark.xfail(sys.platform == "win32", reason="Decoding issues in Gitlab Actions.")
 def test_execute_tasks_via_functional_api(tmp_path):
     source = """
+    import sys
+    from pathlib import Path
+    from typing_extensions import Annotated
     from pytask import PathNode
     import pytask
     from pytask import PythonNode
-    from typing_extensions import Annotated
-    from pathlib import Path
-
 
     node_text = PythonNode()
 
@@ -748,9 +727,9 @@ def test_execute_tasks_via_functional_api(tmp_path):
 
     if __name__ == "__main__":
         session = pytask.build(tasks=[create_file, create_text])
-
         assert len(session.tasks) == 2
         assert len(session.dag.nodes) == 5
+        sys.exit(session.exit_code)
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = subprocess.run(
@@ -1009,6 +988,9 @@ def test_use_functional_interface_with_task(tmp_path):
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").exists()
 
+    session = build(tasks=task)
+    assert session.exit_code == ExitCode.OK
+
 
 def test_collect_task(runner, tmp_path):
     source = """
@@ -1048,3 +1030,22 @@ def test_collect_task_without_path(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").exists()
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 12), reason="Not supported in Python 3.12.")
+def test_with_http_path(runner, tmp_path):
+    source = """
+    from upath import UPath
+    from typing_extensions import Annotated
+
+    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
+
+    def task_example(path = UPath(url)) -> Annotated[str, UPath("data.txt")]:
+        return path.read_text()
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    print(result.output)  # noqa: T201
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("data.txt").exists()

@@ -11,15 +11,15 @@ If an input is not parsed by any more specific node type, the general
 In the following example, the argument `text` will be parsed as a
 {class}`~pytask.PythonNode`.
 
-:::::{tab-set}
+`````{tab-set}
 
-::::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 
 ```{literalinclude} ../../../docs_src/how_to_guides/hashing_inputs_of_tasks_example_1_py310.py
 ```
 
-::::
-:::::
+````
+`````
 
 By default, pytask does not detect changes in {class}`~pytask.PythonNode` and if the
 value would change (without changing the task module), pytask would not rerun the task.
@@ -28,15 +28,15 @@ We can also hash the value of {class}`~pytask.PythonNode` s so that pytask knows
 the input changed. For that, we need to use the {class}`~pytask.PythonNode` explicitly
 and set `hash = True`.
 
-:::::{tab-set}
+`````{tab-set}
 
-::::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 
 ```{literalinclude} ../../../docs_src/how_to_guides/hashing_inputs_of_tasks_example_2_py310.py
 ```
 
-::::
-:::::
+````
+`````
 
 When `hash=True`, pytask will call the builtin {func}`hash` on the input that will call
 the `__hash__()` method of the object.
@@ -62,10 +62,10 @@ from interpreter session to interpreter session for security reasons (see
 ```
 
 {class}`list` and {class}`dict` are not hashable by default. Luckily, there are
-libraries who provide this functionality like {mod}`deepdiff`. We can use them to pass a
+libraries who provide this functionality like `deepdiff`. We can use them to pass a
 function to the {class}`~pytask.PythonNode` that generates a stable hash.
 
-First, install {mod}`deepdiff`.
+First, install `deepdiff`.
 
 ```console
 $ pip install deepdiff
@@ -74,12 +74,12 @@ $ conda install deepdiff
 
 Then, create the hash function and pass it to the node.
 
-:::::{tab-set}
+`````{tab-set}
 
-::::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 
 ```{literalinclude} ../../../docs_src/how_to_guides/hashing_inputs_of_tasks_example_3_py310.py
 ```
 
-::::
-:::::
+````
+`````

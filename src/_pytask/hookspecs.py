@@ -25,13 +25,14 @@ if TYPE_CHECKING:
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
     from _pytask.reports import DagReport
+    from pluggy import PluginManager
 
 
 hookspec = pluggy.HookspecMarker("pytask")
 
 
-@hookspec
-def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
+@hookspec(historic=True)
+def pytask_add_hooks(pm: PluginManager) -> None:
     """Add hook specifications and implementations to the plugin manager.
 
     This hook is the first to be called to let plugins register their hook
@@ -46,7 +47,7 @@ def pytask_add_hooks(pm: pluggy.PluginManager) -> None:
 # Hooks for the command-line interface.
 
 
-@hookspec
+@hookspec(historic=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface.
 
@@ -65,9 +66,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookspec(firstresult=True)
-def pytask_configure(
-    pm: pluggy.PluginManager, raw_config: dict[str, Any]
-) -> dict[str, Any]:
+def pytask_configure(pm: PluginManager, raw_config: dict[str, Any]) -> dict[str, Any]:
     """Configure pytask.
 
     The main hook implementation which controls the configuration and calls subordinated
@@ -174,7 +173,7 @@ def pytask_collect_task_protocol(
 def pytask_collect_task_setup(
     session: Session, path: Path | None, name: str, obj: Any
 ) -> None:
-    """Steps before collecting a task."""
+    """Set up collecting a task."""
 
 
 @hookspec(firstresult=True)

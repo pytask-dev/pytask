@@ -8,7 +8,7 @@ from pytask import Product
 
 
 def task_create_random_data(
-    node: Annotated[PickleNode, Product] = data_catalog["data"]
+    node: Annotated[PickleNode, Product] = data_catalog["data"],
 ) -> None:
     rng = np.random.default_rng(0)
     beta = 2

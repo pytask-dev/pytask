@@ -15,14 +15,12 @@ from typing import TYPE_CHECKING
 from _pytask.collect_utils import create_name_of_python_node
 from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_products_from_task_function
-from _pytask.config import hookimpl
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.console import create_summary_panel
 from _pytask.console import get_file
-from _pytask.console import is_jupyter
 from _pytask.exceptions import CollectionError
-from _pytask.mark import MarkGenerator
+from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
@@ -37,11 +35,22 @@ from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
 from _pytask.path import import_path
 from _pytask.path import shorten_path
+from _pytask.pluginmanager import hookimpl
 from _pytask.reports import CollectionReport
 from _pytask.shared import find_duplicates
+from _pytask.shared import to_list
+from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
 from rich.text import Text
+
+try:
+    from upath import UPath
+except ImportError:  # pragma: no cover
+
+    class UPath:  # type: ignore[no-redef]
+        ...
+
 
 if TYPE_CHECKING:
     from _pytask.session import Session
@@ -55,6 +64,7 @@ def pytask_collect(session: Session) -> bool:
 
     _collect_from_paths(session)
     _collect_from_tasks(session)
+    _collect_not_collected_tasks(session)
 
     session.tasks.extend(
         i.node
@@ -94,29 +104,16 @@ def _collect_from_paths(session: Session) -> None:
 
 def _collect_from_tasks(session: Session) -> None:
     """Collect tasks from user provided tasks via the functional interface."""
-    for raw_task in session.config.get("tasks", ()):
+    for raw_task in to_list(session.config.get("tasks", ())):
         if is_task_function(raw_task):
             if not hasattr(raw_task, "pytask_meta"):
                 raw_task = task_decorator()(raw_task)  # noqa: PLW2901
 
-            try:
-                path = get_file(raw_task)
-            except (TypeError, OSError):
-                path = None
-            else:
-                if path and path.name == "<stdin>":
-                    path = None  # pragma: no cover
-
-            # Detect whether a path is defined in a Jupyter notebook.
-            if (
-                is_jupyter()
-                and path
-                and "ipykernel" in path.as_posix()
-                and path.suffix == ".py"
-            ):
-                path = None  # pragma: no cover
-
+            path = get_file(raw_task)
             name = raw_task.pytask_meta.name
+
+        if has_mark(raw_task, "task"):
+            COLLECTED_TASKS[path].remove(raw_task)
 
         # When a task is not a callable, it can be anything or a PTask. Set arbitrary
         # values and it will pass without errors and not collected.
@@ -133,6 +130,45 @@ def _collect_from_tasks(session: Session) -> None:
         )
 
         if report is not None:
+            session.collection_reports.append(report)
+
+
+_FAILED_COLLECTING_TASK = """\
+Failed to collect task '{name}'{path_desc}.
+
+This can happen when the task function is defined in another module, imported to a \
+task module and wrapped with the '@task' decorator.
+
+To collect this task correctly, wrap the imported function in a lambda expression like
+
+task(...)(lambda **x: imported_function(**x)).
+"""
+
+
+def _collect_not_collected_tasks(session: Session) -> None:
+    """Collect tasks that are not collected yet and create failed reports."""
+    for path in list(COLLECTED_TASKS):
+        tasks = COLLECTED_TASKS.pop(path)
+        for task in tasks:
+            name = task.pytask_meta.name  # type: ignore[attr-defined]
+            node: PTask
+            if path:
+                node = Task(base_name=name, path=path, function=task)
+                path_desc = f" in '{path}'"
+            else:
+                node = TaskWithoutPath(name=name, function=task)
+                path_desc = ""
+            report = CollectionReport(
+                outcome=CollectionOutcome.FAIL,
+                node=node,
+                exc_info=(
+                    NodeNotCollectedError,
+                    NodeNotCollectedError(
+                        _FAILED_COLLECTING_TASK.format(name=name, path_desc=path_desc)
+                    ),
+                    None,
+                ),
+            )
             session.collection_reports.append(report)
 
 
@@ -176,10 +212,7 @@ def pytask_collect_file(
 
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
-            # Skip mark generator since it overrides __getattr__ and seems like any
-            # object. Happens when people do ``from pytask import mark`` and
-            # ``@mark.x``.
-            if isinstance(obj, MarkGenerator):
+            if _is_filtered_object(obj):
                 continue
 
             # Ensures that tasks with this decorator are only collected once.
@@ -194,6 +227,26 @@ def pytask_collect_file(
 
         return collected_reports
     return None
+
+
+def _is_filtered_object(obj: Any) -> bool:
+    """Filter some objects that are only causing harm later on.
+
+    See :issue:`507`.
+
+    """
+    # Filter :class:`pytask.Task` and :class:`pytask.TaskWithoutPath` objects.
+    if isinstance(obj, PTask) and inspect.isclass(obj):
+        return True
+
+    # Filter objects overwriting the ``__getattr__`` method like :class:`pytask.mark` or
+    # ``from ibis import _``.
+    attr_name = "attr_that_definitely_does_not_exist"
+    if hasattr(obj, attr_name) and not bool(
+        inspect.getattr_static(obj, attr_name, False)
+    ):
+        return True
+    return False
 
 
 @hookimpl
@@ -279,7 +332,7 @@ def pytask_collect_task(
             markers=markers,
             attributes={"collection_id": collection_id, "after": after},
         )
-    if isinstance(obj, PTask) and not inspect.isclass(obj):
+    if isinstance(obj, PTask):
         return obj
     return None
 
@@ -311,7 +364,7 @@ The path '{path}' points to a directory, although only files are allowed."""
 
 
 @hookimpl(trylast=True)
-def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PNode:  # noqa: C901
+def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PNode:  # noqa: C901, PLR0912
     """Collect a node of a task as a :class:`pytask.PNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
@@ -355,11 +408,23 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
             node.path, session.config["paths"] or (session.config["root"],)
         )
 
-    if isinstance(node, PPathNode) and node.path.is_dir():
+    # Skip ``is_dir`` for remote UPaths because it downloads the file and blocks the
+    # collection.
+    if (
+        isinstance(node, PPathNode)
+        and not isinstance(node.path, UPath)
+        and node.path.is_dir()
+    ):
         raise ValueError(_TEMPLATE_ERROR_DIRECTORY.format(path=node.path))
 
     if isinstance(node, PNode):
         return node
+
+    if isinstance(node, UPath):
+        if not node.protocol:
+            node = Path(node)
+        else:
+            return PathNode(name=node.name, path=node)
 
     if isinstance(node, Path):
         if not node.is_absolute():

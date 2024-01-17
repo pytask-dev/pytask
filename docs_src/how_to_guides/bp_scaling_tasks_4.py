@@ -10,7 +10,7 @@ from typing_extensions import Annotated
 
 
 def _create_parametrization(
-    estimations: dict[str, dict[str, str]]
+    estimations: dict[str, dict[str, str]],
 ) -> dict[str, str | Path]:
     id_to_kwargs = {}
     for name, config in estimations.items():

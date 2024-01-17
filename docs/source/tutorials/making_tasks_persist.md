@@ -19,10 +19,10 @@ in the database such that the subsequent execution will skip the task successful
 - You want to integrate a task that you have already run elsewhere. Copy over the
   dependencies and products and the task definition and make the task persist.
 
-:::{caution}
+```{caution}
 This feature can corrupt the integrity of your project. Document why you have applied
 the decorator out of consideration for yourself and other contributors.
-:::
+```
 
 ## How to do it?
 
@@ -45,15 +45,15 @@ Running pytask will execute the task since the product is missing.
 ```
 
 After that, we accidentally changed the task's source file by formatting the file with
-Black. Without the {func}`@pytask.mark.persist <pytask.mark.persist>` decorator, the task
-would run again since the source has changed. With the decorator, a green p signals that
-the execution is skipped.
+Black. Without the {func}`@pytask.mark.persist <pytask.mark.persist>` decorator, the
+task would run again since the source has changed. With the decorator, a green p signals
+that the execution is skipped.
 
 ```{include} ../_static/md/persist-persisted.md
 ```
 
-If we rerun the task, it is skipped because nothing has changed and not because
-it is marked with {func}`@pytask.mark.persist <pytask.mark.persist>`.
+If we rerun the task, it is skipped because nothing has changed and not because it is
+marked with {func}`@pytask.mark.persist <pytask.mark.persist>`.
 
 ```{include} ../_static/md/persist-skipped.md
 ```

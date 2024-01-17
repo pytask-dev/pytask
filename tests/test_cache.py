@@ -50,3 +50,15 @@ def test_cache_add():
     assert value == 2
     assert cache.cache_info.hits == 1
     assert cache.cache_info.misses == 1
+
+
+def test_make_memoize_key():
+    def func(a, b):  # pragma: no cover
+        return a + b
+
+    argspec = inspect.getfullargspec(func)
+    # typed makes the key different each run.
+    key = _make_memoize_key(
+        (1,), {"b": 2}, typed=True, argspec=argspec, prefix="prefix"
+    )
+    assert key.startswith("prefix")

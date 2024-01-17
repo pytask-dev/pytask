@@ -31,14 +31,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
           allow-prereleases: true
       - run: pip install tox
 
-      - if: matrix.os == 'ubunut-latest'
+      - if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install graphviz graphviz-dev
@@ -50,27 +50,27 @@ jobs:
 
       - name: Run unit tests and doctests.
         shell: bash -l {0}
-        run: tox -e pytest -- -m "unit or (not integration and not end_to_end)" --cov=src --cov=tests --cov-report=xml -n auto
+        run: tox -e test -- -m "unit or (not integration and not end_to_end)" --cov=src --cov=tests --cov-report=xml -n auto
 
-      - name: Upload coverage report for unit tests and doctests.
-        if: runner.os == 'Linux' && matrix.python-version == '3.10'
-        shell: bash -l {0}
-        run: bash <(curl -s https://codecov.io/bash) -F unit -c
+      - name: Upload unit test coverage reports to Codecov with GitHub Action
+        uses: codecov/codecov-action@v3
+        with:
+          flags: unit
 
       - name: Run integration tests.
         shell: bash -l {0}
-        run: tox -e pytest -- -m integration --cov=src --cov=tests --cov-report=xml -n auto
+        run: tox -e test -- -m integration --cov=src --cov=tests --cov-report=xml -n auto
 
-      - name: Upload coverage reports of integration tests.
-        if: runner.os == 'Linux' && matrix.python-version == '3.10'
-        shell: bash -l {0}
-        run: bash <(curl -s https://codecov.io/bash) -F integration -c
+      - name: Upload integration test coverage reports to Codecov with GitHub Action
+        uses: codecov/codecov-action@v3
+        with:
+          flags: integration
 
       - name: Run end-to-end tests.
         shell: bash -l {0}
-        run: tox -e pytest -- -m end_to_end --cov=src --cov=tests --cov-report=xml -n auto
+        run: tox -e test -- -m end_to_end --cov=src --cov=tests --cov-report=xml -n auto
 
-      - name: Upload coverage reports of end-to-end tests.
-        if: runner.os == 'Linux' && matrix.python-version == '3.10'
-        shell: bash -l {0}
-        run: bash <(curl -s https://codecov.io/bash) -F end_to_end -c
+      - name: Upload end_to_end test coverage reports to Codecov with GitHub Action
+        uses: codecov/codecov-action@v3
+        with:
+          flags: end_to_end

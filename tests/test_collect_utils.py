@@ -12,10 +12,10 @@ from _pytask.collect_utils import _extract_nodes_from_function_markers
 from _pytask.collect_utils import _find_args_with_product_annotation
 from _pytask.collect_utils import _merge_dictionaries
 from _pytask.collect_utils import _Placeholder
-from _pytask.typing import Product  # noqa: TCH002
 from pytask import depends_on
 from pytask import produces
-from typing_extensions import Annotated  # noqa: TCH002
+from pytask import Product
+from typing_extensions import Annotated
 
 
 ERROR = "'@pytask.mark.depends_on' has nodes with the same name:"
@@ -164,7 +164,9 @@ def test_raise_error_for_invalid_args_to_depends_on_and_produces(
 
 @pytest.mark.unit()
 def test_find_args_with_product_annotation():
-    def func(a: Annotated[int, Product], b: float, c, d: Annotated[int, float]):
+    def func(
+        a: Annotated[int, Product], b: float, c, d: Annotated[int, float]
+    ):  # pragma: no cover
         return a, b, c, d
 
     result = _find_args_with_product_annotation(func)

@@ -15,8 +15,8 @@ from _pytask.path import _module_name_from_path
 from _pytask.path import find_case_sensitive_path
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
-from _pytask.path import import_path
 from _pytask.path import relative_to
+from pytask.path import import_path
 
 
 @pytest.mark.unit()

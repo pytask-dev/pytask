@@ -7,8 +7,8 @@ from typing import Generator
 from typing import TYPE_CHECKING
 
 import click
-from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.pluginmanager import hookimpl
 from _pytask.warnings_utils import catch_warnings_for_item
 from _pytask.warnings_utils import parse_filterwarnings
 from _pytask.warnings_utils import WarningReport

@@ -1,13 +1,9 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = [
-  "setuptools>=45",
-  "setuptools_scm[toml]>=6",
-  "wheel",
-]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
 
 [tool.setuptools_scm]
-write_to = "src/_pytask/_version.py"
+version_file = "src/_pytask/_version.py"
 
 [project]
 name = "pytask"
@@ -40,7 +36,7 @@ dependencies = [
   "packaging",
   "pluggy>=1",
   "rich",
-  "sqlalchemy>=1.4.36",
+  "sqlalchemy>=2",
   'tomli>=1; python_version < "3.11"',
   'typing-extensions; python_version < "3.9"',
 ]
@@ -57,6 +53,7 @@ name = "Tobias Raabe"
 email = "raabe@posteo.de"
 
 [project.optional-dependencies]
+all = ['universal-pathlib; python_version<"3.12"']
 docs = [
   "furo",
   "ipython",
@@ -69,7 +66,18 @@ docs = [
   "sphinx-toolbox",
   "sphinxext-opengraph",
 ]
-test = ["pytest", "pytest-cov", "pytest-xdist", "syrupy", "deepdiff", "pexpect"]
+test = [
+  "deepdiff",
+  "nbmake",
+  "pexpect",
+  "pytest",
+  "pytest-cov",
+  "pytest-xdist",
+  "syrupy",
+  # For HTTPPath tests.
+  "aiohttp",
+  "requests",
+]
 
 [project.urls]
 Changelog = "https://pytask-dev.readthedocs.io/en/stable/changes.html"
@@ -79,7 +87,7 @@ Homepage = "https://pytask-dev.readthedocs.io/en/stable"
 Tracker = "https://github.com/pytask-dev/pytask/issues"
 
 [project.scripts]
-pytask = "_pytask.cli:cli"
+pytask = "pytask:cli"
 
 [tool.setuptools]
 include-package-data = true
@@ -99,31 +107,20 @@ target-version = "py38"
 select = ["ALL"]
 fix = true
 ignore = [
+    "FBT",  # flake8-boolean-trap
     "I",  # ignore isort
     "TRY",  # ignore tryceratops.
-    # Numpy docstyle
-    "D107",
-    "D203",
-    "D212",
-    "D213",
-    "D402",
-    "D413",
-    "D415",
-    "D416",
-    "D417",
     # Others.
-    "ISC001",
-    "S101",  # raise errors for asserts.
     "ANN101",  # type annotating self
     "ANN102",  # type annotating cls
-    "FBT",  # flake8-boolean-trap
     "ANN401",  # flake8-annotate typing.Any
-    "PD",  # pandas-vet
-    "COM812",  # trailing comma missing, but black takes care of that
-    "D401",  # imperative mood for first line. too many false-positives.
+    "COM812",  # Comply with ruff-format.
+    "ISC001",  # Comply with ruff-format.
+    "PD901",  # Avoid generic df for dataframes.
+    "S101",  # raise errors for asserts.
+    "S603",  # Call check with subprocess.run.
+    "S607",  # Call subprocess.run with partial executable path.
     "SLF001",  # access private members.
-    "S603",
-    "S607",
 ]
 
 
@@ -134,7 +131,7 @@ ignore = [
 "src/_pytask/outcomes.py" = ["N818"]
 "src/_pytask/dag.py" = ["B023"]
 "tests/test_capture.py" = ["T201", "PT011"]
-"tests/*" = ["D", "ANN", "PLR2004", "S101"]
+"tests/*" = ["ANN", "D", "FBT", "PLR2004", "S101"]
 "tests/test_jupyter/*" = ["INP001"]
 "scripts/*" = ["D", "INP001"]
 "docs/source/conf.py" = ["D401", "INP001"]
@@ -149,7 +146,6 @@ ignore = [
 convention = "numpy"
 
 [tool.pytest.ini_options]
-addopts = ["--doctest-modules"]
 testpaths = ["src", "tests"]
 markers = [
     "wip: Tests that are work-in-progress.",
@@ -157,7 +153,6 @@ markers = [
     "integration: Flag for integration tests which may comprise of multiple unit tests.",
     "end_to_end: Flag for tests that cover the whole program.",
 ]
-norecursedirs = [".idea", ".tox"]
 filterwarnings = [
     "ignore:'@pytask.mark.*. is deprecated:FutureWarning",
     "ignore:The --rsyncdir command line argument:DeprecationWarning",
@@ -188,7 +183,7 @@ module = ["_pytask.hookspecs"]
 disable_error_code = ["empty-body"]
 
 [tool.codespell]
-ignore-words-list = "falsy, hist, ines, unparseable"
+skip = "*.js,*/termynal.css"
 
 [tool.refurb]
 python_version = "3.8"
@@ -203,3 +198,7 @@ exclude_also = [
     "\\.\\.\\.",
     "def __repr__",
 ]
+
+[tool.mdformat]
+wrap = 88
+end_of_line = "keep"
