@@ -170,6 +170,8 @@ def parse_products_from_task_function(  # noqa: C901
     has_return = False
     has_task_decorator = False
 
+    out: dict[str, Any] = {}
+
     task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
     signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
     kwargs = {**signature_defaults, **task_kwargs}
