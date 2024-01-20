@@ -11,11 +11,6 @@ You find a tutorial on type hints {doc}`here <../type_hints>`.
 
 If you want to avoid type annotations for now, look at the tab named `produces`.
 
-```{warning}
-The `Decorators` tab documents the deprecated approach that should not be used anymore
-and will be removed in version v0.5.
-```
-
 ```{seealso}
 In this tutorial, we only deal with local files. If you want to use pytask with files
 online, S3, GCP, Azure, etc., read the
@@ -89,26 +84,6 @@ passed to this argument is automatically treated as a task product. Here, we pas
 path as the default argument.
 
 ````
-
-````{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_decorators.py
-:emphasize-lines: 9, 10
-```
-
-The {func}`@pytask.mark.produces <pytask.mark.produces>` marker attaches a product to a
-task. After the task has finished, pytask will check whether the file exists.
-
-Add `produces` as an argument of the task function to get access to the same path inside
-the task function.
-
-````
-
 `````
 
 ```{tip}
@@ -171,24 +146,6 @@ pytask assumes that all function arguments that are not passed to the argument
 ```
 
 ````
-
-````{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-Equivalent to products, you can use the
-{func}`@pytask.mark.depends_on <pytask.mark.depends_on>` decorator to specify that
-`data.pkl` is a dependency of the task. Use `depends_on` as a function argument to
-access the dependency path inside the function and load the data.
-
-```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_decorators.py
-:emphasize-lines: 9, 11
-```
-
-````
 `````
 
 Now, let us execute the two paths.
@@ -229,25 +186,6 @@ are assumed to point to a location relative to the task module.
 ```
 
 ````
-
-````{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-You can also use absolute and relative paths as strings that obey the same rules as the
-{class}`pathlib.Path`.
-
-```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_decorators.py
-:emphasize-lines: 6
-```
-
-If you use `depends_on` or `produces` as arguments for the task function, you will have
-access to the paths of the targets as {class}`pathlib.Path`.
-
-````
 `````
 
 ## Multiple dependencies and products
@@ -286,7 +224,7 @@ structures if needed.
 
 ````
 
-````{tab-item} prodouces
+````{tab-item} produces
 :sync: produces
 
 If your task has multiple products, group them in one container like a dictionary
@@ -298,117 +236,6 @@ If your task has multiple products, group them in one container like a dictionar
 You can do the same with dependencies.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple2_produces.py
-```
-
-````
-
-````{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-The easiest way to attach multiple dependencies or products to a task is to pass a
-{class}`dict` (highly recommended), {class}`list`, or another iterator to the marker
-containing the paths.
-
-To assign labels to dependencies or products, pass a dictionary. For example,
-
-```python
-from typing import Dict
-
-
-@pytask.mark.produces({"first": BLD / "data_0.pkl", "second": BLD / "data_1.pkl"})
-def task_create_random_data(produces: Dict[str, Path]) -> None:
-    ...
-```
-
-Then, use `produces` inside the task function.
-
-```pycon
->>> produces["first"]
-BLD / "data_0.pkl"
-
->>> produces["second"]
-BLD / "data_1.pkl"
-```
-
-You can also use lists and other iterables.
-
-```python
-@pytask.mark.produces([BLD / "data_0.pkl", BLD / "data_1.pkl"])
-def task_create_random_data(produces):
-    ...
-```
-
-Inside the function, the arguments `depends_on` or `produces` become a dictionary where
-keys are the positions in the list.
-
-```pycon
->>> produces
-{0: BLD / "data_0.pkl", 1: BLD / "data_1.pkl"}
-```
-
-Why does pytask recommend dictionaries and convert lists, tuples, or other
-iterators to dictionaries? First, dictionaries with positions as keys behave very
-similarly to lists.
-
-Secondly, dictionary keys are more descriptive and do not assume a fixed
-ordering. Both attributes are especially desirable in complex projects.
-
-**Multiple decorators**
-
-pytask merges multiple decorators of one kind into a single dictionary. This might help
-you to group dependencies and apply them to multiple tasks.
-
-```python
-common_dependencies = pytask.mark.depends_on(
-    {"first_text": "text_1.txt", "second_text": "text_2.txt"}
-)
-
-
-@common_dependencies
-@pytask.mark.depends_on("text_3.txt")
-def task_example(depends_on):
-    ...
-```
-
-Inside the task, `depends_on` will be
-
-```pycon
->>> depends_on
-{"first_text": ... / "text_1.txt", "second_text": "text_2.txt", 0: "text_3.txt"}
-```
-
-**Nested dependencies and products**
-
-Dependencies and products can be nested containers consisting of tuples, lists, and
-dictionaries. It is beneficial if you want more structure and nesting.
-
-Here is an example of a task that fits some model on data. It depends on a module
-containing the code for the model, which is not actively used but ensures that the task
-is rerun when the model is changed. And it depends on the data.
-
-```python
-@pytask.mark.depends_on(
-    {
-        "model": [SRC / "models" / "model.py"],
-        "data": {"a": SRC / "data" / "a.pkl", "b": SRC / "data" / "b.pkl"},
-    }
-)
-@pytask.mark.produces(BLD / "models" / "fitted_model.pkl")
-def task_fit_model(depends_on, produces):
-    ...
-```
-
-`depends_on` within the function will be
-
-```python
-{
-    "model": [SRC / "models" / "model.py"],
-    "data": {"a": SRC / "data" / "a.pkl", "b": SRC / "data" / "b.pkl"},
-}
 ```
 
 ````

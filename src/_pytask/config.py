@@ -80,14 +80,6 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
     config["paths"] = parse_paths(config["paths"])
 
     config["markers"] = {
-        "depends_on": (
-            "Add dependencies to a task. See this tutorial for more information: "
-            "[link https://bit.ly/3JlxylS]https://bit.ly/3JlxylS[/]."
-        ),
-        "produces": (
-            "Add products to a task. See this tutorial for more information: "
-            "[link https://bit.ly/3JlxylS]https://bit.ly/3JlxylS[/]."
-        ),
         "try_first": "Try to execute a task a early as possible.",
         "try_last": "Try to execute a task a late as possible.",
         **config["markers"],

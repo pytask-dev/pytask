@@ -40,12 +40,10 @@ def test_skip_unchanged(tmp_path):
 @pytest.mark.end_to_end()
 def test_skip_unchanged_w_dependencies_and_products(tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_dummy(depends_on, produces):
-        produces.write_text(depends_on.read_text())
+    def task_dummy(path=Path("in.txt"), produces=Path("out.txt")):
+        produces.write_text(path.read_text())
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Original content of in.txt.")
@@ -65,15 +63,12 @@ def test_skip_unchanged_w_dependencies_and_products(tmp_path):
 @pytest.mark.end_to_end()
 def test_skipif_ancestor_failed(tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces("out.txt")
-    def task_first():
+    def task_first(produces=Path("out.txt")):
         assert 0
 
-    @pytask.mark.depends_on("out.txt")
-    def task_second():
-        pass
+    def task_second(path=Path("out.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -89,15 +84,13 @@ def test_skipif_ancestor_failed(tmp_path):
 def test_if_skip_decorator_is_applied_to_following_tasks(tmp_path):
     source = """
     import pytask
+    from pathlib import Path
 
     @pytask.mark.skip
-    @pytask.mark.produces("out.txt")
-    def task_first():
+    def task_first(produces=Path("out.txt")):
         assert 0
 
-    @pytask.mark.depends_on("out.txt")
-    def task_second():
-        pass
+    def task_second(path=Path("out.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -116,10 +109,10 @@ def test_if_skip_decorator_is_applied_to_following_tasks(tmp_path):
 def test_skip_if_dependency_is_missing(tmp_path, mark_string):
     source = f"""
     import pytask
+    from pathlib import Path
 
     {mark_string}
-    @pytask.mark.depends_on("in.txt")
-    def task_first():
+    def task_first(path=Path("in.txt")):
         assert 0
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -137,14 +130,13 @@ def test_skip_if_dependency_is_missing(tmp_path, mark_string):
 def test_skip_if_dependency_is_missing_only_for_one_task(runner, tmp_path, mark_string):
     source = f"""
     import pytask
+    from pathlib import Path
 
     {mark_string}
-    @pytask.mark.depends_on("in.txt")
-    def task_first():
+    def task_first(path=Path("in.txt")):
         assert 0
 
-    @pytask.mark.depends_on("in.txt")
-    def task_second():
+    def task_second(path=Path("in.txt")):
         assert 0
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -161,14 +153,13 @@ def test_skip_if_dependency_is_missing_only_for_one_task(runner, tmp_path, mark_
 def test_if_skipif_decorator_is_applied_skipping(tmp_path):
     source = """
     import pytask
+    from pathlib import Path
 
     @pytask.mark.skipif(condition=True, reason="bla")
-    @pytask.mark.produces("out.txt")
-    def task_first():
+    def task_first(produces=Path("out.txt")):
         assert False
 
-    @pytask.mark.depends_on("out.txt")
-    def task_second():
+    def task_second(path=Path("out.txt")):
         assert False
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -191,15 +182,13 @@ def test_if_skipif_decorator_is_applied_skipping(tmp_path):
 def test_if_skipif_decorator_is_applied_execute(tmp_path):
     source = """
     import pytask
+    from pathlib import Path
 
     @pytask.mark.skipif(False, reason="bla")
-    @pytask.mark.produces("out.txt")
-    def task_first(produces):
+    def task_first(produces=Path("out.txt")):
         produces.touch()
 
-    @pytask.mark.depends_on("out.txt")
-    def task_second(depends_on):
-        pass
+    def task_second(path=Path("out.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -221,15 +210,14 @@ def test_if_skipif_decorator_is_applied_any_condition_matches(tmp_path):
     """Any condition of skipif has to be True and only their message is shown."""
     source = """
     import pytask
+    from pathlib import Path
 
     @pytask.mark.skipif(condition=False, reason="I am fine")
     @pytask.mark.skipif(condition=True, reason="No, I am not.")
-    @pytask.mark.produces("out.txt")
-    def task_first():
+    def task_first(produces=Path("out.txt")):
         assert False
 
-    @pytask.mark.depends_on("out.txt")
-    def task_second():
+    def task_second(path=Path("out.txt")):
         assert False
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))

@@ -5,6 +5,11 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.5.0 - 2024-xx-xx
+
+- \{pull}\`\` removes the deprecated `@pytask.mark.depends_on` and
+  `@pytask.mark.produces`.
+
 ## 0.4.6
 
 - {pull}`548` fixes the type hints for {meth}`~pytask.Task.execute` and

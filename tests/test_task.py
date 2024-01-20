@@ -14,11 +14,11 @@ from pytask import ExitCode
 def test_task_with_task_decorator(tmp_path, func_name, task_name):
     task_decorator_input = f"{task_name!r}" if task_name else task_name
     source = f"""
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
-    @pytask.mark.task({task_decorator_input})
-    @pytask.mark.produces("out.txt")
-    def {func_name}(produces):
+    @task({task_decorator_input})
+    def {func_name}(produces=Path("out.txt")):
         produces.write_text("Hello. It's me.")
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -36,13 +36,13 @@ def test_task_with_task_decorator(tmp_path, func_name, task_name):
 @pytest.mark.end_to_end()
 def test_parametrization_in_for_loop(tmp_path, runner):
     source = """
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
     for i in range(2):
 
-        @pytask.mark.task
-        @pytask.mark.produces(f"out_{i}.txt")
-        def task_example(produces):
+        @task
+        def task_example(produces=Path(f"out_{i}.txt")):
             produces.write_text("Your advertisement could be here.")
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -57,15 +57,14 @@ def test_parametrization_in_for_loop(tmp_path, runner):
 @pytest.mark.end_to_end()
 def test_parametrization_in_for_loop_from_markers(tmp_path, runner):
     source = """
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
     for i in range(2):
 
-        @pytask.mark.task
-        @pytask.mark.depends_on(f"in_{i}.txt")
-        @pytask.mark.produces(f"out_{i}.txt")
-        def example(depends_on, produces):
-            produces.write_text(depends_on.read_text())
+        @task
+        def example(path=Path(f"in_{i}.txt"), produces=Path(f"out_{i}.txt")):
+            produces.write_text(path.read_text())
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in_0.txt").write_text("Your advertisement could be here.")
@@ -74,20 +73,21 @@ def test_parametrization_in_for_loop_from_markers(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
-    assert "example[depends_on0-produces0]" in result.output
-    assert "example[depends_on1-produces1]" in result.output
+    assert "example[path0-produces0]" in result.output
+    assert "example[path1-produces1]" in result.output
 
 
 @pytest.mark.end_to_end()
 def test_parametrization_in_for_loop_from_signature(tmp_path, runner):
     source = """
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
     for i in range(2):
 
-        @pytask.mark.task
-        def example(depends_on=f"in_{i}.txt", produces=f"out_{i}.txt"):
-            produces.write_text(depends_on.read_text())
+        @task
+        def example(path=Path(f"in_{i}.txt"), produces=Path(f"out_{i}.txt")):
+            produces.write_text(path.read_text())
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in_0.txt").write_text("Your advertisement could be here.")
@@ -96,20 +96,20 @@ def test_parametrization_in_for_loop_from_signature(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
-    assert "example[in_0.txt-out_0.txt]" in result.output
-    assert "example[in_1.txt-out_1.txt]" in result.output
+    assert "example[path0-produces0]" in result.output
+    assert "example[path1-produces1]" in result.output
 
 
 @pytest.mark.end_to_end()
 def test_parametrization_in_for_loop_from_markers_and_args(tmp_path, runner):
     source = """
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
     for i in range(2):
 
-        @pytask.mark.task
-        @pytask.mark.produces(f"out_{i}.txt")
-        def example(produces, i=i):
+        @task
+        def example(produces=Path(f"out_{i}.txt"), i=i):
             produces.write_text(str(i))
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -124,11 +124,12 @@ def test_parametrization_in_for_loop_from_markers_and_args(tmp_path, runner):
 @pytest.mark.end_to_end()
 def test_parametrization_in_for_loop_from_decorator(tmp_path, runner):
     source = """
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
     for i in range(2):
 
-        @pytask.mark.task(name="deco_task", kwargs={"i": i, "produces": f"out_{i}.txt"})
+        @task(name="deco_task", kwargs={"i": i, "produces": Path(f"out_{i}.txt")})
         def example(produces, i):
             produces.write_text(str(i))
     """
@@ -137,20 +138,19 @@ def test_parametrization_in_for_loop_from_decorator(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
-    assert "deco_task[out_0.txt-0]" in result.output
-    assert "deco_task[out_1.txt-1]" in result.output
+    assert "deco_task[produces0-0]" in result.output
+    assert "deco_task[produces1-1]" in result.output
 
 
 @pytest.mark.end_to_end()
 def test_parametrization_in_for_loop_with_ids(tmp_path, runner):
     source = """
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
     for i in range(2):
 
-        @pytask.mark.task(
-            "deco_task", id=str(i), kwargs={"i": i, "produces": f"out_{i}.txt"}
-        )
+        @task("deco_task", id=str(i), kwargs={"i": i, "produces": Path(f"out_{i}.txt")})
         def example(produces, i):
             produces.write_text(str(i))
     """
@@ -166,12 +166,13 @@ def test_parametrization_in_for_loop_with_ids(tmp_path, runner):
 @pytest.mark.end_to_end()
 def test_parametrization_in_for_loop_with_error(tmp_path, runner):
     source = """
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
     for i in range(2):
 
-        @pytask.mark.task
-        def task_example(produces=f"out_{i}.txt"):
+        @task
+        def task_example(produces=Path(f"out_{i}.txt")):
             raise ValueError
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -181,23 +182,24 @@ def test_parametrization_in_for_loop_with_error(tmp_path, runner):
     assert result.exit_code == ExitCode.FAILED
     assert "2  Failed" in result.output
     assert "Traceback" in result.output
-    assert "task_example[out_0.txt]" in result.output
-    assert "task_example[out_1.txt]" in result.output
+    assert "task_example[produces0]" in result.output
+    assert "task_example[produces1]" in result.output
 
 
 @pytest.mark.end_to_end()
 def test_parametrization_in_for_loop_from_decorator_w_irregular_dicts(tmp_path, runner):
     source = """
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
     ID_TO_KWARGS = {
-        "first": {"i": 0, "produces": "out_0.txt"},
-        "second": {"produces": "out_1.txt"},
+        "first": {"i": 0, "produces": Path("out_0.txt")},
+        "second": {"produces": Path("out_1.txt")},
     }
 
     for id_, kwargs in ID_TO_KWARGS.items():
 
-        @pytask.mark.task(name="deco_task", id=id_, kwargs=kwargs)
+        @task(name="deco_task", id=id_, kwargs=kwargs)
         def example(produces, i):
             produces.write_text(str(i))
     """
@@ -216,13 +218,13 @@ def test_parametrization_in_for_loop_from_decorator_w_irregular_dicts(tmp_path, 
 @pytest.mark.end_to_end()
 def test_parametrization_in_for_loop_with_one_iteration(tmp_path, runner):
     source = """
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
     for i in range(1):
 
-        @pytask.mark.task
-        @pytask.mark.produces(f"out_{i}.txt")
-        def task_example(produces):
+        @task
+        def task_example(produces=Path(f"out_{i}.txt")):
             produces.write_text("Your advertisement could be here.")
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -237,18 +239,17 @@ def test_parametrization_in_for_loop_with_one_iteration(tmp_path, runner):
 @pytest.mark.end_to_end()
 def test_parametrization_in_for_loop_and_normal(tmp_path, runner):
     source = """
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
     for i in range(1):
 
-        @pytask.mark.task
-        @pytask.mark.produces(f"out_{i}.txt")
-        def task_example(produces):
+        @task
+        def task_example(produces=Path(f"out_{i}.txt")):
             produces.write_text("Your advertisement could be here.")
 
-    @pytask.mark.task
-    @pytask.mark.produces(f"out_1.txt")
-    def task_example(produces):
+    @task
+    def task_example(produces=Path(f"out_1.txt")):
         produces.write_text("Your advertisement could be here.")
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -264,18 +265,17 @@ def test_parametrization_in_for_loop_and_normal(tmp_path, runner):
 @pytest.mark.end_to_end()
 def test_parametrized_names_without_parametrization(tmp_path, runner):
     source = """
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
     for i in range(2):
 
-        @pytask.mark.task
-        @pytask.mark.produces(f"out_{i}.txt")
-        def task_example(produces):
+        @task
+        def task_example(produces=Path(f"out_{i}.txt")):
             produces.write_text("Your advertisement could be here.")
 
-    @pytask.mark.task
-    @pytask.mark.produces("out_2.txt")
-    def task_example(produces):
+    @task
+    def task_example(produces=Path("out_2.txt")):
         produces.write_text("Your advertisement could be here.")
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -292,12 +292,12 @@ def test_parametrized_names_without_parametrization(tmp_path, runner):
 @pytest.mark.end_to_end()
 def test_order_of_decorator_does_not_matter(tmp_path, runner):
     source = """
-    import pytask
+    from pytask import task, mark
+    from pathlib import Path
 
-    @pytask.mark.skip
-    @pytask.mark.task
-    @pytask.mark.produces(f"out.txt")
-    def task_example(produces):
+    @task
+    @mark.skip
+    def task_example(produces=Path(f"out.txt")):
         produces.write_text("Your advertisement could be here.")
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -311,15 +311,13 @@ def test_order_of_decorator_does_not_matter(tmp_path, runner):
 @pytest.mark.end_to_end()
 def test_task_function_with_partialed_args(tmp_path, runner):
     source = """
-    import pytask
     import functools
+    from pathlib import Path
 
     def func(produces, content):
         produces.write_text(content)
 
-    task_func = pytask.mark.produces("out.txt")(
-        functools.partial(func, content="hello")
-    )
+    task_func = functools.partial(func, content="hello", produces=Path("out.txt"))
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -363,29 +361,26 @@ def test_parametrized_tasks_without_arguments_in_signature(tmp_path, runner):
 
     """
     source = f"""
-    import pytask
+    from pytask import task
     from pathlib import Path
 
     for i in range(1):
 
-        @pytask.mark.task
-        @pytask.mark.produces(f"out_{{i}}.txt")
-        def task_example():
+        @task
+        def task_example(produces=Path(f"out_{{i}}.txt")):
             Path("{tmp_path.as_posix()}").joinpath(f"out_{{i}}.txt").write_text(
                 "I use globals. How funny."
             )
 
 
-    @pytask.mark.task
-    @pytask.mark.produces("out_1.txt")
-    def task_example():
+    @task
+    def task_example(produces=Path("out_1.txt")):
         Path("{tmp_path.as_posix()}").joinpath("out_1.txt").write_text(
             "I use globals. How funny."
         )
 
-    @pytask.mark.task(id="hello")
-    @pytask.mark.produces("out_2.txt")
-    def task_example():
+    @task(id="hello")
+    def task_example(produces=Path("out_2.txt")):
         Path("{tmp_path.as_posix()}").joinpath("out_2.txt").write_text(
             "I use globals. How funny."
         )
@@ -395,8 +390,8 @@ def test_parametrized_tasks_without_arguments_in_signature(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.OK
-    assert "task_example[0]" in result.output
-    assert "task_example[1]" in result.output
+    assert "task_example[produces0]" in result.output
+    assert "task_example[produces1]" in result.output
     assert "task_example[hello]" in result.output
     assert "Collected 3 tasks" in result.output
 
@@ -404,10 +399,10 @@ def test_parametrized_tasks_without_arguments_in_signature(tmp_path, runner):
 @pytest.mark.end_to_end()
 def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
     source = """
-    import pytask
+    from pytask import task
 
     _DEFINITION = '''
-    @pytask.mark.task
+    @task
     def task_example():
         pass
     '''
@@ -431,9 +426,9 @@ def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
 )
 def test_raise_errors_for_irregular_ids(runner, tmp_path, irregular_id):
     source = f"""
-    import pytask
+    from pytask import task
 
-    @pytask.mark.task(id={irregular_id})
+    @task(id={irregular_id})
     def task_example():
         pass
     """
@@ -465,9 +460,9 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
 @pytest.mark.end_to_end()
 def test_task_receives_unknown_kwarg(runner, tmp_path):
     source = """
-    import pytask
+    from pytask import task
 
-    @pytask.mark.task(kwargs={"i": 1})
+    @task(kwargs={"i": 1})
     def task_example(): pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -478,20 +473,18 @@ def test_task_receives_unknown_kwarg(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_task_receives_namedtuple(runner, tmp_path):
     source = """
-    import pytask
     from typing_extensions import NamedTuple, Annotated
     from pathlib import Path
-    from pytask import Product, PythonNode
+    from pytask import Product, PythonNode, task
 
     class Args(NamedTuple):
         path_in: Path
         arg: str
         path_out: Path
 
-
     args = Args(Path("input.txt"), "world!", Path("output.txt"))
 
-    @pytask.mark.task(kwargs=args)
+    @task(kwargs=args)
     def task_example(
         path_in: Path, arg: str, path_out: Annotated[Path, Product]
     ) -> None:
@@ -508,12 +501,11 @@ def test_task_receives_namedtuple(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_task_kwargs_overwrite_default_arguments(runner, tmp_path):
     source = """
-    import pytask
-    from pytask import Product
+    from pytask import Product, task
     from pathlib import Path
     from typing_extensions import Annotated
 
-    @pytask.mark.task(kwargs={
+    @task(kwargs={
         "in_path": Path("in.txt"), "addition": "world!", "out_path": Path("out.txt")
     })
     def task_example(

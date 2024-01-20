@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import subprocess
 import sys
 import textwrap
 
@@ -253,16 +252,12 @@ def test_configuration_failed(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_selecting_task_with_keyword_should_run_predecessor(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces("first.txt")
-    def task_first(produces):
+    def task_first(produces=Path("first.txt")):
         produces.touch()
 
-
-    @pytask.mark.depends_on("first.txt")
-    def task_second(depends_on):
-        pass
+    def task_second(path=Path("first.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -276,15 +271,13 @@ def test_selecting_task_with_keyword_should_run_predecessor(runner, tmp_path):
 def test_selecting_task_with_marker_should_run_predecessor(runner, tmp_path):
     source = """
     import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces("first.txt")
-    def task_first(produces):
+    def task_first(produces=Path("first.txt")):
         produces.touch()
 
     @pytask.mark.wip
-    @pytask.mark.depends_on("first.txt")
-    def task_second(depends_on):
-        pass
+    def task_second(path=Path("first.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -298,14 +291,11 @@ def test_selecting_task_with_marker_should_run_predecessor(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_selecting_task_with_keyword_ignores_other_task(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("first.txt")
-    def task_first():
-        pass
+    def task_first(path=Path("first.txt")): ...
 
-    def task_second():
-        pass
+    def task_second(): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -320,14 +310,12 @@ def test_selecting_task_with_keyword_ignores_other_task(runner, tmp_path):
 def test_selecting_task_with_marker_ignores_other_task(runner, tmp_path):
     source = """
     import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("first.txt")
-    def task_first():
-        pass
+    def task_first(path=Path("first.txt")): ...
 
     @pytask.mark.wip
-    def task_second():
-        pass
+    def task_second(): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -345,8 +333,7 @@ def test_selecting_task_with_unknown_marker_raises_warning(runner, tmp_path):
     import pytask
 
     @pytask.mark.wip
-    def task_example():
-        pass
+    def task_example(): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -355,46 +342,6 @@ def test_selecting_task_with_unknown_marker_raises_warning(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
     assert "Warnings" in result.output
-
-
-@pytest.mark.end_to_end()
-def test_deprecation_warnings_for_decorators(tmp_path):
-    source = """
-    import pytask
-
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_write_text(depends_on, produces):
-        ...
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    tmp_path.joinpath("in.txt").touch()
-
-    result = subprocess.run(
-        ("pytest", tmp_path.joinpath("task_module.py").as_posix()),
-        capture_output=True,
-        check=False,
-    )
-    assert b"FutureWarning: '@pytask.mark.depends_on'" in result.stdout
-    assert b"FutureWarning: '@pytask.mark.produces'" in result.stdout
-
-
-@pytest.mark.end_to_end()
-def test_deprecation_warnings_for_task_decorator(tmp_path):
-    source = """
-    import pytask
-
-    @pytask.mark.task
-    def task_write_text(): ...
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    result = subprocess.run(
-        ("pytest", tmp_path.joinpath("task_module.py").as_posix()),
-        capture_output=True,
-        check=False,
-    )
-    assert b"FutureWarning: '@pytask.mark.task'" in result.stdout
 
 
 @pytest.mark.end_to_end()
