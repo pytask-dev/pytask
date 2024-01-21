@@ -373,7 +373,7 @@ def test_error_with_unknown_marker_and_strict(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.parametrize("name", ["parametrize", "depends_on", "produces"])
+@pytest.mark.parametrize("name", ["parametrize", "depends_on", "produces", "task"])
 def test_error_with_depreacated_markers(runner, tmp_path, name):
     source = f"""
     from pytask import mark
