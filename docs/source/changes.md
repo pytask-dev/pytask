@@ -7,13 +7,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.5.0 - 2024-xx-xx
 
-- {pull}`551` removes the deprecated `@pytask.mark.depends_on` and
-  `@pytask.mark.produces`.
-
-## 0.4.6
-
 - {pull}`548` fixes the type hints for {meth}`~pytask.Task.execute` and
   {meth}`~pytask.TaskWithoutPath.execute`. Thanks to {user}`Ostheer`.
+- {pull}`551` removes the deprecated `@pytask.mark.depends_on` and
+  `@pytask.mark.produces`.
 
 ## 0.4.5 - 2024-01-09
 
