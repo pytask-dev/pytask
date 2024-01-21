@@ -63,35 +63,15 @@ The remaining exceptions convey specific errors.
 
 ## Marks
 
-pytask uses marks to attach additional information to task functions which is processed
-by the host or by plugins. The following marks are available by default.
+pytask uses marks to attach additional information to task functions that the host or
+plugins process. The following marks are available by default.
 
 ### Built-in marks
 
 ```{eval-rst}
-.. function:: pytask.mark.depends_on(objects: Any | Iterable[Any] | dict[Any, Any])
-
-    Specify dependencies for a task.
-
-    :type objects: Any | Iterable[Any] | dict[Any, Any]
-    :param objects:
-        Can be any valid Python object or an iterable of any Python objects. To be
-        valid, it must be parsed by some hook implementation for the
-        :func:`_pytask.hookspecs.pytask_collect_node` entry-point.
-
 .. function:: pytask.mark.persist()
 
     A marker for a task which should be persisted.
-
-.. function:: pytask.mark.produces(objects: Any | Iterable[Any] | dict[Any, Any])
-
-    Specify products of a task.
-
-    :type objects: Any | Iterable[Any] | dict[Any, Any]
-    :param objects:
-        Can be any valid Python object or an iterable of any Python objects. To be
-        valid, it must be parsed by some hook implementation for the
-        :func:`_pytask.hookspecs.pytask_collect_node` entry-point.
 
 .. function:: pytask.mark.skipif(condition: bool, *, reason: str)
 

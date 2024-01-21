@@ -7,7 +7,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.5.0 - 2024-xx-xx
 
-- \{pull}\`\` removes the deprecated `@pytask.mark.depends_on` and
+- {pull}`551` removes the deprecated `@pytask.mark.depends_on` and
   `@pytask.mark.produces`.
 
 ## 0.4.6

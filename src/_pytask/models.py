@@ -1,8 +1,6 @@
 """Contains code on models, containers and there like."""
 from __future__ import annotations
 
-from enum import auto
-from enum import Enum
 from typing import Any
 from typing import Callable
 from typing import NamedTuple
@@ -14,8 +12,6 @@ from attrs import define
 from attrs import field
 
 if TYPE_CHECKING:
-    from _pytask.node_protocols import PTask
-    from _pytask.node_protocols import PNode
     from pathlib import Path
     from _pytask.tree_util import PyTree
     from _pytask.mark import Mark
@@ -64,15 +60,3 @@ class NodeInfo(NamedTuple):
     value: Any
     task_path: Path | None
     task_name: str
-
-
-class NodeStatus(Enum):
-    """The status of a node."""
-
-    CHANGED = auto()
-    DOES_NOT_EXIST = auto()
-
-
-class NodeStatusEntry(NamedTuple):
-    node: PNode | PTask
-    reason: NodeStatus
