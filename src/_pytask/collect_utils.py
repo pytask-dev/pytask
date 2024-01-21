@@ -70,9 +70,8 @@ def parse_dependencies_from_task_function(
             kwargs[name] = parameters_with_node_annot.pop(name)
         else:
             msg = (
-                f"The value for the parameter {name!r} is defined twice in "
-                "'@pytask.mark.task(kwargs=...)' and in the type annotation. Choose "
-                "only one option."
+                f"The value for the parameter {name!r} is defined twice, in "
+                "'@task(kwargs=...)' and in the type annotation. Choose only one way."
             )
             raise ValueError(msg)
 
@@ -209,9 +208,9 @@ def parse_products_from_task_function(
                 and parameter_name in parameters_with_node_annot
             ):
                 msg = (
-                    f"The value for the parameter {parameter_name!r} is defined twice "
-                    "in '@pytask.mark.task(kwargs=...)' and in the type annotation. "
-                    "Choose only one option."
+                    f"The value for the parameter {parameter_name!r} is defined twice, "
+                    "in '@task(kwargs=...)' and in the type annotation. Choose only "
+                    "one way."
                 )
                 raise ValueError(msg)
 

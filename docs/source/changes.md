@@ -11,6 +11,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   {meth}`~pytask.TaskWithoutPath.execute`. Thanks to {user}`Ostheer`.
 - {pull}`551` removes the deprecated `@pytask.mark.depends_on` and
   `@pytask.mark.produces`.
+- {pull}`552` removes the deprecated `@pytask.mark.task`.
 
 ## 0.4.5 - 2024-01-09
 

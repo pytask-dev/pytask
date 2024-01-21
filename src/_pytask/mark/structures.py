@@ -196,6 +196,13 @@ class MarkGenerator:
         if name in ("depends_on", "produces"):
             raise RuntimeError(_DEPRECATION_DECORATOR.format(name))
 
+        if name == "task":
+            msg = (
+                "'@pytask.mark.task' is removed. Use '@task' with 'from pytask import "
+                "task' instead."
+            )
+            raise RuntimeError(msg)
+
         # If the name is not in the set of known marks after updating,
         # then it really is time to issue a warning or an error.
         if self.config is not None and name not in self.config["markers"]:
@@ -216,19 +223,6 @@ class MarkGenerator:
                 "custom marks to avoid this warning.",
                 stacklevel=2,
             )
-
-        if name == "task":
-            from _pytask.task_utils import task
-
-            warnings.warn(
-                "'@pytask.mark.task' is deprecated starting pytask v0.4.0 and will be "
-                "removed in v0.5.0. Use '@task' with 'from pytask import task' "
-                "instead.",
-                category=FutureWarning,
-                stacklevel=1,
-            )
-
-            return task
 
         return MarkDecorator(Mark(name, (), {}))
 

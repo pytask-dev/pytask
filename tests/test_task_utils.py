@@ -50,8 +50,8 @@ class ExampleAttrs:
         (ExampleNT(), does_not_raise(), {"a": 1}),
         (ExampleNT, pytest.raises(TypeError, match=r"(_asdict\(\) missing 1)"), None),
         (ExampleAttrs(), does_not_raise(), {"b": "wonderful"}),
-        (ExampleAttrs, pytest.raises(ValueError, match="@pytask.mark.task"), None),
-        (1, pytest.raises(ValueError, match="@pytask.mark.task"), None),
+        (ExampleAttrs, pytest.raises(ValueError, match="@task"), None),
+        (1, pytest.raises(ValueError, match="@task"), None),
     ],
 )
 def test_parse_task_kwargs(kwargs, expectation, expected):

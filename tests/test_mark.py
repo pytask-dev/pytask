@@ -173,11 +173,11 @@ def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> Non
 )
 def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -> None:
     source = """
-    import pytask
+    from pytask import task
 
     for arg in [None, 1.3, "2-3"]:
 
-        @pytask.mark.task
+        @task
         def task_func(arg=arg):
             pass
     """
@@ -373,7 +373,7 @@ def test_error_with_unknown_marker_and_strict(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.parametrize("name", ["parametrize", "depends_on", "produces"])
+@pytest.mark.parametrize("name", ["parametrize", "depends_on", "produces", "task"])
 def test_error_with_depreacated_markers(runner, tmp_path, name):
     source = f"""
     from pytask import mark
