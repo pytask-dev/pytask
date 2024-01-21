@@ -1,6 +1,7 @@
 """Contains utility functions for :mod:`_pytask.collect`."""
 from __future__ import annotations
 
+import inspect
 import sys
 from typing import Any
 from typing import Callable
@@ -143,18 +144,23 @@ def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, PNode
     return args_with_node_annotation
 
 
-_ERROR_MULTIPLE_PRODUCT_DEFINITIONS = """The task uses multiple ways to define \
-products. Products should be defined with either
+_ERROR_MULTIPLE_TASK_RETURN_DEFINITIONS = """The task uses multiple ways to parse \
+products from the return of the task function. Use either
 
-- 'typing.Annotated[Path, Product] = Path(...)' (recommended)
-- '@pytask.mark.task(kwargs={'produces': Path(...)})'
-- as a default argument for 'produces': 'produces = Path(...)'
+def task_example() -> Annotated[str, Path("file.txt")]:
+    ...
 
-Read more about products in the documentation: https://tinyurl.com/pytask-deps-prods.
+or
+
+@task(produces=Path("file.txt"))
+def task_example() -> str:
+    ...
+
+Read more about products in the documentation: http://tinyurl.com/pytask-return.
 """
 
 
-def parse_products_from_task_function(  # noqa: C901
+def parse_products_from_task_function(
     session: Session, task_path: Path | None, task_name: str, node_path: Path, obj: Any
 ) -> dict[str, Any]:
     """Parse products from task function.
@@ -162,11 +168,10 @@ def parse_products_from_task_function(  # noqa: C901
     Raises
     ------
     NodeNotCollectedError
-        If multiple ways were used to specify products.
+        If multiple ways to parse products from the return of the task function are
+        used.
 
     """
-    has_produces_argument = False
-    has_annotation = False
     has_return = False
     has_task_decorator = False
 
@@ -176,17 +181,13 @@ def parse_products_from_task_function(  # noqa: C901
     signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
     kwargs = {**signature_defaults, **task_kwargs}
 
+    parameters = list(inspect.signature(obj).parameters)
     parameters_with_product_annot = _find_args_with_product_annotation(obj)
     parameters_with_node_annot = _find_args_with_node_annotation(obj)
 
     # Allow to collect products from 'produces'.
-    if "produces" in kwargs:
-        if "produces" not in parameters_with_product_annot:
-            parameters_with_product_annot.append("produces")
-        # If there are more parameters with a product annotation, we want to raise an
-        # error later to warn about mixing different interfaces.
-        if set(parameters_with_product_annot) - {"produces"}:
-            has_produces_argument = True
+    if "produces" in parameters and "produces" not in parameters_with_product_annot:
+        parameters_with_product_annot.append("produces")
 
     if "return" in parameters_with_node_annot:
         parameters_with_product_annot.append("return")
@@ -195,9 +196,6 @@ def parse_products_from_task_function(  # noqa: C901
     if parameters_with_product_annot:
         out = {}
         for parameter_name in parameters_with_product_annot:
-            if parameter_name != "return":
-                has_annotation = True
-
             if (
                 parameter_name not in kwargs
                 and parameter_name not in parameters_with_node_annot
@@ -256,18 +254,8 @@ def parse_products_from_task_function(  # noqa: C901
         )
         out = {"return": collected_products}
 
-    if (
-        sum(
-            (
-                has_produces_argument,
-                has_annotation,
-                has_return,
-                has_task_decorator,
-            )
-        )
-        >= 2  # noqa: PLR2004
-    ):
-        raise NodeNotCollectedError(_ERROR_MULTIPLE_PRODUCT_DEFINITIONS)
+    if sum((has_return, has_task_decorator)) == 2:  # noqa: PLR2004
+        raise NodeNotCollectedError(_ERROR_MULTIPLE_TASK_RETURN_DEFINITIONS)
 
     return out
 
