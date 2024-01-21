@@ -76,7 +76,7 @@ def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path)
 def test_missing_product(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing import Annotated
+    from typing_extensions import Annotated
     from pytask import Product
 
     def task_with_non_path_dependency(path: Annotated[Path, Product]): ...
