@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 import textwrap
 
 import pytest
@@ -71,3 +72,23 @@ def test_not_existing_path_in_config(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.CONFIGURATION_FAILED
+
+
+def test_paths_are_relative_to_configuration_file(tmp_path):
+    tmp_path.joinpath("src").mkdir()
+    tmp_path.joinpath("tasks").mkdir()
+    config = """
+    [tool.pytask.ini_options]
+    paths = ["tasks"]
+    """
+    tmp_path.joinpath("src", "pyproject.toml").write_text(textwrap.dedent(config))
+
+    source = "def task_example(): ..."
+    tmp_path.joinpath("tasks", "task_example.py").write_text(source)
+
+    result = subprocess.run(
+        ("pytask", "src"), cwd=tmp_path, check=False, capture_output=True
+    )
+
+    assert result.returncode == ExitCode.OK
+    assert "1  Succeeded" in result.stdout.decode()
