@@ -73,7 +73,7 @@ def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path)
 
 
 @pytest.mark.end_to_end()
-def task_missing_product(runner, tmp_path):
+def test_missing_product(runner, tmp_path):
     source = """
     from pathlib import Path
     from typing import Annotated
