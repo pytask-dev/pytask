@@ -13,7 +13,6 @@ from pytask import cli
 from pytask import CollectionOutcome
 from pytask import ExitCode
 from pytask import NodeInfo
-from pytask import NodeNotCollectedError
 from pytask import Session
 from pytask import Task
 
@@ -61,25 +60,6 @@ def test_relative_path_of_path_node(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").exists()
-
-
-@pytest.mark.end_to_end()
-@pytest.mark.xfail(reason="!!!")
-def test_collect_produces_that_is_not_str_or_path(tmp_path):
-    """If a node cannot be parsed because unknown type, raise an error."""
-    source = """
-    import pytask
-
-    def task_with_non_path_dependency(produces=True): ...
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    session = build(paths=tmp_path)
-
-    assert session.exit_code == ExitCode.COLLECTION_FAILED
-    assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
-    exc_info = session.collection_reports[0].exc_info
-    assert isinstance(exc_info[1], NodeNotCollectedError)
 
 
 @pytest.mark.end_to_end()
@@ -337,26 +317,6 @@ def test_collect_module_name(tmp_path):
     session = build(paths=tmp_path)
     outcome = session.collection_reports[0].outcome
     assert outcome == CollectionOutcome.SUCCESS
-
-
-@pytest.mark.end_to_end()
-@pytest.mark.xfail(reason="!!!")
-@pytest.mark.parametrize("decorator", ["", "@task"])
-def test_collect_string_product_with_or_without_task_decorator(
-    runner, tmp_path, decorator
-):
-    source = f"""
-    from pytask import task
-
-    {decorator}
-    def task_write_text(produces="out.txt"):
-        produces.touch()
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert tmp_path.joinpath("out.txt").exists()
-    assert "FutureWarning" in result.output
 
 
 @pytest.mark.end_to_end()
