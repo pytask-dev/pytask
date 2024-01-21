@@ -80,7 +80,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
     marker_expression: str = "",
     max_failures: float = float("inf"),
     n_entries_in_table: int = 15,
-    paths: str | Path | Iterable[str | Path] = (),
+    paths: Path | Iterable[Path] = (),
     pdb: bool = False,
     pdb_cls: str = "",
     s: bool = False,
@@ -225,13 +225,12 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
 
             raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
 
-            raw_config["paths"] = parse_paths(raw_config.get("paths"))
+            raw_config["paths"] = parse_paths(raw_config["paths"])
 
             if raw_config["config"] is not None:
                 raw_config["config"] = Path(raw_config["config"]).resolve()
                 raw_config["root"] = raw_config["config"].parent
             else:
-                raw_config["paths"] = parse_paths(raw_config["paths"])
                 (
                     raw_config["root"],
                     raw_config["config"],

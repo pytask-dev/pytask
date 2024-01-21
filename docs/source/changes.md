@@ -12,6 +12,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`551` removes the deprecated `@pytask.mark.depends_on` and
   `@pytask.mark.produces`.
 - {pull}`552` removes the deprecated `@pytask.mark.task`.
+- {pull}`553` deprecates `paths` as a string in configuration.
 
 ## 0.4.5 - 2024-01-09
 
