@@ -15,11 +15,14 @@ def test_show_markers(runner):
     assert all(
         marker in result.output
         for marker in (
-            "depends_on",
-            "produces",
+            "filterwarnings",
+            "persist",
             "skip",
             "skip_ancestor_failed",
             "skip_unchanged",
+            "skipif",
+            "try_first",
+            "try_last",
         )
     )
 

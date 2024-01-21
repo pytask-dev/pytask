@@ -41,16 +41,12 @@ def test_pytask_dag_create_dag():
 @pytest.mark.end_to_end()
 def test_cycle_in_dag(tmp_path, runner, snapshot_cli):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("out_2.txt")
-    @pytask.mark.produces("out_1.txt")
-    def task_1(produces):
+    def task_1(path = Path("out_2.txt"), produces = Path("out_1.txt")):
         produces.write_text("1")
 
-    @pytask.mark.depends_on("out_1.txt")
-    @pytask.mark.produces("out_2.txt")
-    def task_2(produces):
+    def task_2(path = Path("out_1.txt"), produces = Path("out_2.txt")):
         produces.write_text("2")
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -65,14 +61,12 @@ def test_cycle_in_dag(tmp_path, runner, snapshot_cli):
 @pytest.mark.end_to_end()
 def test_two_tasks_have_the_same_product(tmp_path, runner, snapshot_cli):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces("out.txt")
-    def task_1(produces):
+    def task_1(produces = Path("out.txt")):
         produces.write_text("1")
 
-    @pytask.mark.produces("out.txt")
-    def task_2(produces):
+    def task_2(produces = Path("out.txt")):
         produces.write_text("2")
     """
     tmp_path.joinpath("task_d.py").write_text(textwrap.dedent(source))
@@ -89,10 +83,9 @@ def test_has_node_changed_catches_notnotfounderror(runner, tmp_path):
     """Missing nodes raise NodeNotFoundError when they do not exist and their state is
     requested."""
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces("file.txt")
-    def task_example(produces):
+    def task_example(produces = Path("file.txt")):
         produces.write_text("test")
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))

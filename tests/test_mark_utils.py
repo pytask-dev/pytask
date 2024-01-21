@@ -19,12 +19,12 @@ from pytask import Task
     [
         ([], []),
         (
-            [pytask.mark.produces(), pytask.mark.depends_on()],
-            [pytask.mark.produces(), pytask.mark.depends_on()],
+            [pytask.mark.mark1(), pytask.mark.mark2()],
+            [pytask.mark.mark1(), pytask.mark.mark2()],
         ),
         (
-            [pytask.mark.produces(), pytask.mark.produces(), pytask.mark.depends_on()],
-            [pytask.mark.produces(), pytask.mark.produces(), pytask.mark.depends_on()],
+            [pytask.mark.mark1(), pytask.mark.mark1(), pytask.mark.mark2()],
+            [pytask.mark.mark1(), pytask.mark.mark1(), pytask.mark.mark2()],
         ),
     ],
 )
@@ -41,12 +41,12 @@ def test_get_all_marks_from_task(markers, expected):
         (None, []),
         ([], []),
         (
-            [pytask.mark.produces(), pytask.mark.depends_on()],
-            [pytask.mark.produces(), pytask.mark.depends_on()],
+            [pytask.mark.mark1(), pytask.mark.mark2()],
+            [pytask.mark.mark1(), pytask.mark.mark2()],
         ),
         (
-            [pytask.mark.produces(), pytask.mark.produces(), pytask.mark.depends_on()],
-            [pytask.mark.produces(), pytask.mark.produces(), pytask.mark.depends_on()],
+            [pytask.mark.mark1(), pytask.mark.mark1(), pytask.mark.mark2()],
+            [pytask.mark.mark1(), pytask.mark.mark1(), pytask.mark.mark2()],
         ),
     ],
 )
@@ -67,14 +67,14 @@ def test_get_all_marks_from_obj(markers, expected):
     [
         ([], "not_found", []),
         (
-            [pytask.mark.produces(), pytask.mark.depends_on()],
-            "produces",
-            [pytask.mark.produces()],
+            [pytask.mark.mark1(), pytask.mark.mark2()],
+            "mark1",
+            [pytask.mark.mark1()],
         ),
         (
-            [pytask.mark.produces(), pytask.mark.produces(), pytask.mark.depends_on()],
-            "produces",
-            [pytask.mark.produces(), pytask.mark.produces()],
+            [pytask.mark.mark1(), pytask.mark.mark1(), pytask.mark.mark2()],
+            "mark1",
+            [pytask.mark.mark1(), pytask.mark.mark1()],
         ),
     ],
 )
@@ -91,14 +91,14 @@ def test_get_marks_from_task(markers, marker_name, expected):
         (None, "not_found", []),
         ([], "not_found", []),
         (
-            [pytask.mark.produces(), pytask.mark.depends_on()],
-            "produces",
-            [pytask.mark.produces()],
+            [pytask.mark.mark1(), pytask.mark.mark2()],
+            "mark1",
+            [pytask.mark.mark1()],
         ),
         (
-            [pytask.mark.produces(), pytask.mark.produces(), pytask.mark.depends_on()],
-            "produces",
-            [pytask.mark.produces(), pytask.mark.produces()],
+            [pytask.mark.mark1(), pytask.mark.mark1(), pytask.mark.mark2()],
+            "mark1",
+            [pytask.mark.mark1(), pytask.mark.mark1()],
         ),
     ],
 )
@@ -117,14 +117,14 @@ def test_get_marks_from_obj(markers, marker_name, expected):
 @pytest.mark.parametrize(
     ("markers", "marker_name", "expected"),
     [
-        ([pytask.mark.produces()], "not_found", False),
+        ([pytask.mark.mark1()], "not_found", False),
         (
-            [pytask.mark.produces(), pytask.mark.depends_on()],
-            "produces",
+            [pytask.mark.mark1(), pytask.mark.mark2()],
+            "mark1",
             True,
         ),
         (
-            [pytask.mark.produces(), pytask.mark.produces(), pytask.mark.depends_on()],
+            [pytask.mark.mark1(), pytask.mark.mark1(), pytask.mark.mark2()],
             "other",
             False,
         ),
@@ -142,10 +142,10 @@ def test_has_mark_for_task(markers, marker_name, expected):
     [
         (None, "not_found", False),
         ([], "not_found", False),
-        ([pytask.mark.produces(), pytask.mark.depends_on()], "produces", True),
+        ([pytask.mark.mark1(), pytask.mark.mark2()], "mark1", True),
         (
-            [pytask.mark.produces(), pytask.mark.produces(), pytask.mark.depends_on()],
-            "produces",
+            [pytask.mark.mark1(), pytask.mark.mark1(), pytask.mark.mark2()],
+            "mark1",
             True,
         ),
     ],
@@ -167,16 +167,16 @@ def test_has_mark(markers, marker_name, expected):
     [
         ([], "not_found", [], []),
         (
-            [pytask.mark.produces(), pytask.mark.depends_on()],
-            "produces",
-            [pytask.mark.produces()],
-            [pytask.mark.depends_on()],
+            [pytask.mark.mark1(), pytask.mark.mark2()],
+            "mark1",
+            [pytask.mark.mark1()],
+            [pytask.mark.mark2()],
         ),
         (
-            [pytask.mark.produces(), pytask.mark.produces(), pytask.mark.depends_on()],
-            "produces",
-            [pytask.mark.produces(), pytask.mark.produces()],
-            [pytask.mark.depends_on()],
+            [pytask.mark.mark1(), pytask.mark.mark1(), pytask.mark.mark2()],
+            "mark1",
+            [pytask.mark.mark1(), pytask.mark.mark1()],
+            [pytask.mark.mark2()],
         ),
     ],
 )
@@ -196,16 +196,16 @@ def test_remove_marks_from_task(
         (None, "not_found", [], []),
         ([], "not_found", [], []),
         (
-            [pytask.mark.produces(), pytask.mark.depends_on()],
-            "produces",
-            [pytask.mark.produces()],
-            [pytask.mark.depends_on()],
+            [pytask.mark.mark1(), pytask.mark.mark2()],
+            "mark1",
+            [pytask.mark.mark1()],
+            [pytask.mark.mark2()],
         ),
         (
-            [pytask.mark.produces(), pytask.mark.produces(), pytask.mark.depends_on()],
-            "produces",
-            [pytask.mark.produces(), pytask.mark.produces()],
-            [pytask.mark.depends_on()],
+            [pytask.mark.mark1(), pytask.mark.mark1(), pytask.mark.mark2()],
+            "mark1",
+            [pytask.mark.mark1(), pytask.mark.mark1()],
+            [pytask.mark.mark2()],
         ),
     ],
 )
@@ -229,8 +229,8 @@ def test_remove_marks_from_func(
     "markers",
     [
         [],
-        [pytask.mark.produces(), pytask.mark.depends_on()],
-        [pytask.mark.produces(), pytask.mark.produces(), pytask.mark.depends_on()],
+        [pytask.mark.mark1(), pytask.mark.mark2()],
+        [pytask.mark.mark1(), pytask.mark.mark1(), pytask.mark.mark2()],
     ],
 )
 def test_set_marks_to_task(markers):
@@ -244,8 +244,8 @@ def test_set_marks_to_task(markers):
     "markers",
     [
         [],
-        [pytask.mark.produces(), pytask.mark.depends_on()],
-        [pytask.mark.produces(), pytask.mark.produces(), pytask.mark.depends_on()],
+        [pytask.mark.mark1(), pytask.mark.mark2()],
+        [pytask.mark.mark1(), pytask.mark.mark1(), pytask.mark.mark2()],
     ],
 )
 def test_set_marks_to_obj(markers):

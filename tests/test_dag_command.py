@@ -35,10 +35,9 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
         pytest.xfail("gvplugin_pango.dll might be missing on Github Actions.")
 
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("input.txt")
-    def task_example(): pass
+    def task_example(path=Path("input.txt")): ...
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("input.txt").touch()
@@ -77,8 +76,7 @@ def test_create_graph_via_task(tmp_path, runner, format_, layout, rankdir):
     from pathlib import Path
     import networkx as nx
 
-    @pytask.mark.depends_on("input.txt")
-    def task_example(depends_on): pass
+    def task_example(path=Path("input.txt")): ...
 
     def task_create_graph():
         dag = pytask.build_dag({{"paths": Path(__file__).parent}})
@@ -106,10 +104,9 @@ def test_raise_error_with_graph_via_cli_missing_optional_dependency(
     monkeypatch, tmp_path, runner
 ):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("input.txt")
-    def task_example(): pass
+    def task_example(path=Path("input.txt")): ...
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("input.txt").touch()
@@ -175,10 +172,9 @@ def test_raise_error_with_graph_via_cli_missing_optional_program(
     monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: ARG005
 
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("input.txt")
-    def task_example(): pass
+    def task_example(path=Path("input.txt")): ...
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("input.txt").touch()

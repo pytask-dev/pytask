@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Any
 from typing_extensions import deprecated
 from _pytask.mark.expression import Expression
@@ -15,20 +14,6 @@ def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str]: ...
 def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str]: ...
 
 class MarkGenerator:
-    @deprecated(
-        "'@pytask.mark.produces' is deprecated starting pytask v0.4.0 and will be removed in v0.5.0. To upgrade your project to the new syntax, read the tutorial on product and dependencies: https://tinyurl.com/pytask-deps-prods.",  # noqa: E501
-        category=FutureWarning,
-        stacklevel=1,
-    )
-    @staticmethod
-    def produces(objects: PyTree[str | Path]) -> None: ...
-    @deprecated(
-        "'@pytask.mark.depends_on' is deprecated starting pytask v0.4.0 and will be removed in v0.5.0. To upgrade your project to the new syntax, read the tutorial on product and dependencies: https://tinyurl.com/pytask-deps-prods.",  # noqa: E501
-        category=FutureWarning,
-        stacklevel=1,
-    )
-    @staticmethod
-    def depends_on(objects: PyTree[str | Path]) -> None: ...
     @deprecated(
         "'@pytask.mark.task' is deprecated starting pytask v0.4.0 and will be removed in v0.5.0. Use '@task' from 'from pytask import task' instead.",  # noqa: E501
         category=FutureWarning,
