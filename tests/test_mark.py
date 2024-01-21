@@ -173,11 +173,11 @@ def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> Non
 )
 def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -> None:
     source = """
-    import pytask
+    from pytask import task
 
     for arg in [None, 1.3, "2-3"]:
 
-        @pytask.mark.task
+        @task
         def task_func(arg=arg):
             pass
     """

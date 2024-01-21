@@ -437,7 +437,7 @@ def test_raise_errors_for_irregular_ids(runner, tmp_path, irregular_id):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.COLLECTION_FAILED
-    assert "Argument 'id' of @pytask.mark.task" in result.output
+    assert "Argument 'id' of @task" in result.output
 
 
 @pytest.mark.end_to_end()

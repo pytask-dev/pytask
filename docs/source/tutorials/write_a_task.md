@@ -129,11 +129,6 @@ def create_random_data():
     ...
 ```
 
-```{warning}
-Since v0.4 users should use {func}`@task <pytask.task>` over
-{func}`@pytask.mark.task <pytask.mark.task>` which will be removed in v0.5.
-```
-
 ## Customize task module names
 
 Use the configuration value {confval}`task_files` if you prefer a different naming

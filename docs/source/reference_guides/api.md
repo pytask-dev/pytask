@@ -96,27 +96,6 @@ plugins process. The following marks are available by default.
 
     Skip a task.
 
-.. function:: pytask.mark.task(name, *, id, kwargs)
-
-    The task decorator allows to mark any task function regardless of its name as a task
-    or assigns a new task name.
-
-    It also allows to repeat tasks in for-loops by adding a specific ``id`` or keyword
-    arguments via ``kwargs``.
-
-    .. deprecated:: 0.4.0
-
-       Will be removed in v0.5.0. Use :func:`~pytask.task` instead.
-
-    :type name: str | None
-    :param name: The name of the task.
-    :type id: str | None
-    :param id:  An id for the task if it is part of a parametrization.
-    :type kwargs: dict[Any, Any] | None
-    :param kwargs:
-        A dictionary containing keyword arguments which are passed to the task when it
-        is executed.
-
 .. function:: pytask.mark.try_first
 
     Indicate that the task should be executed as soon as possible.

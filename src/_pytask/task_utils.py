@@ -1,4 +1,4 @@
-"""Contains utilities related to the ``@pytask.mark.task`` decorator."""
+"""Contains utilities related to the :func:`@task <pytask.task>`."""
 from __future__ import annotations
 
 import functools
@@ -31,9 +31,9 @@ __all__ = [
 COLLECTED_TASKS: dict[Path | None, list[Callable[..., Any]]] = defaultdict(list)
 """A container for collecting tasks.
 
-Tasks marked by the ``@pytask.mark.task`` decorator can be generated in a loop where one
-iteration overwrites the previous task. To retrieve the tasks later, use this dictionary
-mapping from paths of modules to a list of tasks per module.
+Tasks marked by the :func:`@task <pytask.task>` decorator can be generated in a loop
+where one iteration overwrites the previous task. To retrieve the tasks later, use this
+dictionary mapping from paths of modules to a list of tasks per module.
 
 """
 
@@ -96,8 +96,7 @@ def task(
         for arg, arg_name in ((name, "name"), (id, "id")):
             if not (isinstance(arg, str) or arg is None):
                 msg = (
-                    f"Argument {arg_name!r} of @pytask.mark.task must be a str, but it "
-                    f"is {arg!r}."
+                    f"Argument {arg_name!r} of @task must be a str, but it is {arg!r}."
                 )
                 raise ValueError(msg)
 
@@ -231,7 +230,7 @@ def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
 
     if meta.name is None and task.__name__ == "_":
         msg = (
-            "A task function either needs 'name' passed by the ``@pytask.mark.task`` "
+            "A task function either needs 'name' passed by the ``@task`` "
             "decorator or the function name of the task function must not be '_'."
         )
         raise ValueError(msg)
@@ -255,7 +254,7 @@ def _parse_task_kwargs(kwargs: Any) -> dict[str, Any]:
     if attrs.has(type(kwargs)):
         return attrs.asdict(kwargs)
     msg = (
-        "'@pytask.mark.task(kwargs=...) needs to be a dictionary, namedtuple or an "
+        "'@task(kwargs=...) needs to be a dictionary, namedtuple or an "
         "instance of an attrs class."
     )
     raise ValueError(msg)

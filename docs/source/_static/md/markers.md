@@ -29,12 +29,6 @@ $ pytask markers
 │ pytask.mark.skipif               │ Skip a task and all its dependent tasks │
 │                                  │ if a condition is met.                  │
 │                                  │                                         │
-│ pytask.mark.task                 │ Mark a function as a task regardless of │
-│                                  │ its name. Or mark tasks which are       │
-│                                  │ repeated in a loop. See this tutorial   │
-│                                  │ for more information:                   │
-│                                  │ <a href="https://bit.ly/3DWrXS3">https://bit.ly/3DWrXS3</a>.                 │
-│                                  │                                         │
 │ pytask.mark.try_first            │ Try to execute a task a early as        │
 │                                  │ possible.                               │
 │                                  │                                         │
