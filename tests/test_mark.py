@@ -373,7 +373,22 @@ def test_error_with_unknown_marker_and_strict(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_error_with_parametrize(runner, tmp_path):
+@pytest.mark.parametrize("name", ["parametrize", "depends_on", "produces"])
+def test_error_with_depreacated_markers(runner, tmp_path, name):
+    source = f"""
+    from pytask import mark
+
+    @mark.{name}
+    def task_write_text(): ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert f"@pytask.mark.{name}" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_error_with_d(runner, tmp_path):
     source = """
     from pytask import mark
 

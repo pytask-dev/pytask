@@ -72,6 +72,20 @@ def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path)
     assert "2.txt" in result.output
 
 
+def task_missing_product(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import Product
+
+    def task_with_non_path_dependency(path: Annotated[Path, Product]): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+
+
 @pytest.mark.end_to_end()
 def test_node_not_found_in_task_setup(tmp_path):
     """Test for :class:`_pytask.exceptions.NodeNotFoundError` in task setup.

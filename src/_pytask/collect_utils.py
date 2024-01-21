@@ -196,6 +196,8 @@ def parse_products_from_task_function(
     if parameters_with_product_annot:
         out = {}
         for parameter_name in parameters_with_product_annot:
+            # Makes sure that missing products will show up as missing inputs during the
+            # execution.
             if (
                 parameter_name not in kwargs
                 and parameter_name not in parameters_with_node_annot
