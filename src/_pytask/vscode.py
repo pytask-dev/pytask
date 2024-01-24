@@ -24,14 +24,14 @@ if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
 
 
-def send_logging_vscode(data: dict[str, Any], timeout: float) -> None: #noqa:S310
+def send_logging_vscode(data: dict[str, Any], timeout: float) -> None: 
     """Send logging information to VSCode."""
     url = "http://localhost:6000/pytask"
     with contextlib.suppress(Exception):
         response = json.dumps(data).encode("utf-8")
-        req = request.Request(url, data=response) 
+        req = request.Request(url, data=response) #noqa:S310
         req.add_header("Content-Type", "application/json; charset=utf-8")
-        request.urlopen(req, timeout=timeout) 
+        request.urlopen(req, timeout=timeout) #noqa:S310
 
 
 @hookimpl(tryfirst=True)
