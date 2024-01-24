@@ -39,12 +39,11 @@ def test_multiple_runs_with_persist(tmp_path):
     """
     source = """
     import pytask
+    from pathlib import Path
 
     @pytask.mark.persist
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_dummy(depends_on, produces):
-        produces.write_text(depends_on.read_text())
+    def task_dummy(path=Path("in.txt"), produces=Path("out.txt")):
+        produces.write_text(path.read_text())
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("I'm not the reason you care.")
@@ -91,11 +90,10 @@ def test_multiple_runs_with_persist(tmp_path):
 def test_migrating_a_whole_task_with_persist(tmp_path):
     source = """
     import pytask
+    from pathlib import Path
 
     @pytask.mark.persist
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_dummy(depends_on, produces):
+    def task_dummy(depends_on=Path("in.txt"), produces=Path("out.txt")):
         produces.write_text(depends_on.read_text())
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))

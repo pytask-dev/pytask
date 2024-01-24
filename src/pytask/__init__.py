@@ -9,10 +9,8 @@ from _pytask.capture_utils import ShowCapture
 from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
 from _pytask.click import EnumChoice
-from _pytask.collect_utils import depends_on
 from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_products_from_task_function
-from _pytask.collect_utils import produces
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.console import console
@@ -135,7 +133,6 @@ __all__ = [
     "console",
     "count_outcomes",
     "create_database",
-    "depends_on",
     "get_all_marks",
     "get_marks",
     "get_plugin_manager",
@@ -148,7 +145,6 @@ __all__ = [
     "parse_dependencies_from_task_function",
     "parse_products_from_task_function",
     "parse_warning_filter",
-    "produces",
     "remove_internal_traceback_frames_from_exc_info",
     "remove_marks",
     "set_marks",

@@ -10,11 +10,9 @@ from pytask import ExitCode
 @pytest.mark.end_to_end()
 def test_dry_run(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces("out.txt")
-    def task_example(produces):
-        produces.touch()
+    def task_example(produces=Path("out.txt")): produces.touch()
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
@@ -29,20 +27,17 @@ def test_dry_run(runner, tmp_path):
 def test_dry_run_w_subsequent_task(runner, tmp_path):
     """Subsequent tasks would be executed if their previous task changed."""
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("out.txt")
-    @pytask.mark.produces("out_2.txt")
-    def task_example(depends_on, produces):
+    def task_example(path=Path("out.txt"), produces=Path("out_2.txt")):
         produces.touch()
     """
     tmp_path.joinpath("task_example_second.py").write_text(textwrap.dedent(source))
 
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces("out.txt")
-    def task_example(produces):
+    def task_example(produces=Path("out.txt")):
         produces.touch()
     """
     tmp_path.joinpath("task_example_first.py").write_text(textwrap.dedent(source))
@@ -67,20 +62,17 @@ def test_dry_run_w_subsequent_task(runner, tmp_path):
 def test_dry_run_w_subsequent_skipped_task(runner, tmp_path):
     """A skip is more important than a would be run."""
     source_1 = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces("out.txt")
-    def task_example(produces):
+    def task_example(produces=Path("out.txt")):
         produces.touch()
     """
     tmp_path.joinpath("task_example_first.py").write_text(textwrap.dedent(source_1))
 
     source_2 = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("out.txt")
-    @pytask.mark.produces("out_2.txt")
-    def task_example(depends_on, produces):
+    def task_example(path=Path("out.txt"), produces=Path("out_2.txt")):
         produces.touch()
     """
     tmp_path.joinpath("task_example_second.py").write_text(textwrap.dedent(source_2))
@@ -106,12 +98,12 @@ def test_dry_run_w_subsequent_skipped_task(runner, tmp_path):
 def test_dry_run_skip(runner, tmp_path):
     source = """
     import pytask
+    from pathlib import Path
 
     @pytask.mark.skip
     def task_example_skip(): ...
 
-    @pytask.mark.produces("out.txt")
-    def task_example(produces):
+    def task_example(produces=Path("out.txt")):
         produces.touch()
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
@@ -128,14 +120,13 @@ def test_dry_run_skip(runner, tmp_path):
 def test_dry_run_skip_all(runner, tmp_path):
     source = """
     import pytask
+    from pathlib import Path
 
     @pytask.mark.skip
-    @pytask.mark.produces("out.txt")
-    def task_example_skip(): ...
+    def task_example_skip(produces=Path("out.txt")): ...
 
     @pytask.mark.skip
-    @pytask.mark.depends_on("out.txt")
-    def task_example_skip_subsequent(): ...
+    def task_example_skip_subsequent(path=Path("out.txt")): ...
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
@@ -148,10 +139,9 @@ def test_dry_run_skip_all(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_dry_run_skipped_successful(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces("out.txt")
-    def task_example(produces):
+    def task_example(produces=Path("out.txt")):
         produces.touch()
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
@@ -171,10 +161,10 @@ def test_dry_run_skipped_successful(runner, tmp_path):
 def test_dry_run_persisted(runner, tmp_path):
     source = """
     import pytask
+    from pathlib import Path
 
     @pytask.mark.persist
-    @pytask.mark.produces("out.txt")
-    def task_example(produces):
+    def task_example(produces=Path("out.txt")):
         produces.touch()
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))

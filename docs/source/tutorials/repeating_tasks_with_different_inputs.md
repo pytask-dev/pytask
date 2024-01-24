@@ -36,18 +36,6 @@ different seeds and output paths as default arguments of the function.
 ```
 
 ````
-
-````{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs1_decorators.py
-```
-
-````
 `````
 
 Executing pytask gives you this:
@@ -81,18 +69,6 @@ You can also add dependencies to repeated tasks just like with any other task.
 :sync: produces
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs2_produces.py
-```
-
-````
-
-````{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs2_decorators.py
 ```
 
 ````
@@ -156,18 +132,6 @@ For example, the following function is parametrized with tuples.
 ```
 
 ````
-
-````{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs3_decorators.py
-```
-
-````
 `````
 
 Since the tuples are not converted to strings, the ids of the two tasks are
@@ -206,18 +170,6 @@ a unique name for the iteration.
 :sync: produces
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs4_produces.py
-```
-
-````
-
-````{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs4_decorators.py
 ```
 
 ````
@@ -304,18 +256,6 @@ Following these three tips, the parametrization becomes
 :sync: produces
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs5_produces.py
-```
-
-````
-
-````{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs5_decorators.py
 ```
 
 ````

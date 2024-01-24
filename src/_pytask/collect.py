@@ -21,6 +21,7 @@ from _pytask.console import create_summary_panel
 from _pytask.console import get_file
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import NodeNotCollectedError
+from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
@@ -235,6 +236,10 @@ def _is_filtered_object(obj: Any) -> bool:
     See :issue:`507`.
 
     """
+    # Filter :class:`pytask.mark.MarkGenerator` which can raise errors on some marks.
+    if isinstance(obj, MarkGenerator):
+        return True
+
     # Filter :class:`pytask.Task` and :class:`pytask.TaskWithoutPath` objects.
     if isinstance(obj, PTask) and inspect.isclass(obj):
         return True

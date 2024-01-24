@@ -39,17 +39,10 @@ def test_collection_failed(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_building_dag_failed(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_passes_1():
-        pass
-
-    @pytask.mark.depends_on("out.txt")
-    @pytask.mark.produces("in.txt")
-    def task_passes_2():
-        pass
+    def task_passes_1(in_path = Path("in.txt"), produces = Path("out.txt")): ...
+    def task_passes_2(in_path = Path("out.txt"), produces = Path("in.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 

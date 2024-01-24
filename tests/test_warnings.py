@@ -166,11 +166,11 @@ def test_deprecation_warnings_are_not_captured(tmp_path, warning):
 def test_multiple_occurrences_of_warning_are_reduced(tmp_path, runner):
     source = """
     import warnings
-    import pytask
+    from pytask import task
 
     for i in range(10):
 
-        @pytask.mark.task
+        @task
         def task_example():
             warnings.warn("warning!!!")
     """
