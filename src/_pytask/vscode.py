@@ -29,9 +29,9 @@ def send_logging_vscode(data: dict[str, Any], timeout: float) -> None:
     url = "http://localhost:6000/pytask"
     with contextlib.suppress(Exception):
         response = json.dumps(data).encode("utf-8")
-        req = request.Request(url, data=response) # noqa: S310
+        req = request.Request(url, data=response)  # noqa: S310
         req.add_header("Content-Type", "application/json; charset=utf-8")
-        request.urlopen(req, timeout=timeout) # noqa: S310
+        request.urlopen(req, timeout=timeout)  # noqa: S310
 
 
 @hookimpl(tryfirst=True)
