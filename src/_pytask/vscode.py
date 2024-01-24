@@ -29,9 +29,9 @@ def send_logging_vscode(data: dict[str, Any], timeout: float) -> None:
     url = "http://localhost:6000/pytask"
     with contextlib.suppress(Exception):
         response = json.dumps(data).encode("utf-8")
-        req = request.Request(url, data=response)#noqa:S310
+        req = request.Request(url, data=response) # noqa: S310
         req.add_header("Content-Type", "application/json; charset=utf-8")
-        request.urlopen(req, timeout=timeout)#noqa:S310
+        request.urlopen(req, timeout=timeout) # noqa: S310
 
 
 @hookimpl(tryfirst=True)
@@ -63,7 +63,7 @@ def pytask_collect_log(
 
 
 @hookimpl(tryfirst=True)
-def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:  # noqa:ARG001
+def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:  # noqa: ARG001
     if os.environ.get("PYTASK_VSCODE") == "True":
         if report.outcome == TaskOutcome.FAIL and report.exc_info is not None:
             result = {
