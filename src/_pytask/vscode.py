@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
 
 
-def send_logging_vscode(data: dict[str, Any], timeout: float) -> None: 
+def send_logging_vscode(data: dict[str, Any], timeout: float) -> None:
     """Send logging information to VSCode."""
     url = "http://localhost:6000/pytask"
     with contextlib.suppress(Exception):
