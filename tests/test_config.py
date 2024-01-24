@@ -79,7 +79,7 @@ def test_paths_are_relative_to_configuration_file(tmp_path):
     tmp_path.joinpath("tasks").mkdir()
     config = """
     [tool.pytask.ini_options]
-    paths = ["tasks"]
+    paths = ["../tasks"]
     """
     tmp_path.joinpath("src", "pyproject.toml").write_text(textwrap.dedent(config))
 

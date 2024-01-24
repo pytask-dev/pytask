@@ -56,6 +56,11 @@ def set_defaults_from_config(
         return None
 
     config_from_file = read_config(context.params["config"])
+    if "paths" in config_from_file:
+        config_from_file["paths"] = [
+            context.params["config"].parent.joinpath(p).resolve()
+            for p in config_from_file.get("paths", [])
+        ]
 
     if context.default_map is None:
         context.default_map = {}
