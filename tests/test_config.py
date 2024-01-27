@@ -47,7 +47,7 @@ def test_pass_config_to_cli(tmp_path):
 def test_passing_paths_via_configuration_file(tmp_path, file_or_folder):
     config = f"""
     [tool.pytask.ini_options]
-    paths = "{file_or_folder}"
+    paths = ["{file_or_folder}"]
     """
     tmp_path.joinpath("pyproject.toml").write_text(textwrap.dedent(config))
 
@@ -74,7 +74,7 @@ def test_not_existing_path_in_config(runner, tmp_path):
     assert result.exit_code == ExitCode.CONFIGURATION_FAILED
 
 
-def test_paths_are_relative_to_configuration_file(tmp_path):
+def test_paths_are_relative_to_configuration_file_cli(tmp_path):
     tmp_path.joinpath("src").mkdir()
     tmp_path.joinpath("tasks").mkdir()
     config = """
@@ -88,6 +88,33 @@ def test_paths_are_relative_to_configuration_file(tmp_path):
 
     result = subprocess.run(
         ("pytask", "src"), cwd=tmp_path, check=False, capture_output=True
+    )
+
+    assert result.returncode == ExitCode.OK
+    assert "1  Succeeded" in result.stdout.decode()
+
+
+def test_paths_are_relative_to_configuration_file(tmp_path):
+    tmp_path.joinpath("src").mkdir()
+    tmp_path.joinpath("tasks").mkdir()
+    config = """
+    [tool.pytask.ini_options]
+    paths = ["../tasks"]
+    """
+    tmp_path.joinpath("src", "pyproject.toml").write_text(textwrap.dedent(config))
+
+    source = "def task_example(): ..."
+    tmp_path.joinpath("tasks", "task_example.py").write_text(source)
+
+    source = """
+    from pytask import build
+    from pathlib import Path
+
+    session = build(paths=[Path("src")])
+    """
+    tmp_path.joinpath("script.py").write_text(source)
+    result = subprocess.run(
+        ("python", "script.py"), cwd=tmp_path, check=False, capture_output=True
     )
 
     assert result.returncode == ExitCode.OK

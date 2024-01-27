@@ -56,15 +56,6 @@ def set_defaults_from_config(
         return None
 
     config_from_file = read_config(context.params["config"])
-    if "paths" in config_from_file:
-        try:
-            config_from_file["paths"] = [
-                context.params["config"].parent.joinpath(p).resolve()
-                for p in config_from_file["paths"]
-            ]
-        except Exception:  # noqa: BLE001
-            msg = "'paths' in config must be a list of strings"
-            raise click.BadParameter(msg) from None
 
     if context.default_map is None:
         context.default_map = {}
@@ -148,5 +139,14 @@ def read_config(
 
     for section in sections_:
         config = config[section]
+
+    if "paths" in config:
+        try:
+            config["paths"] = [
+                path.parent.joinpath(p).resolve() for p in config["paths"]
+            ]
+        except Exception:  # noqa: BLE001
+            msg = "'paths' in config must be a list of strings"
+            raise click.BadParameter(msg) from None
 
     return config
