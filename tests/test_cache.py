@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import inspect
 
+import pytest
 from _pytask.cache import _make_memoize_key
 from _pytask.cache import Cache
 
 
+@pytest.mark.unit()
 def test_cache():
     cache = Cache()
 
@@ -29,6 +31,7 @@ def test_cache():
     assert func.cache.cache_info.misses == 1
 
 
+@pytest.mark.unit()
 def test_cache_add():
     cache = Cache()
 
@@ -52,6 +55,7 @@ def test_cache_add():
     assert cache.cache_info.misses == 1
 
 
+@pytest.mark.unit()
 def test_make_memoize_key():
     def func(a, b):  # pragma: no cover
         return a + b

@@ -702,6 +702,7 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
     assert "_pytask/execute.py" not in result.output
 
 
+@pytest.mark.end_to_end()
 def test_hashing_works(tmp_path):
     """Use subprocess or otherwise the cache is filled from other tests."""
     source = """
@@ -726,6 +727,7 @@ def test_hashing_works(tmp_path):
     assert hashes == hashes_
 
 
+@pytest.mark.end_to_end()
 def test_python_node_as_product_with_product_annotation(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -746,6 +748,7 @@ def test_python_node_as_product_with_product_annotation(runner, tmp_path):
     assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
 
 
+@pytest.mark.end_to_end()
 def test_pickle_node_as_product_with_product_annotation(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -822,6 +825,7 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder(tmp_path, 
     assert "bld/in.txt" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_error_when_node_state_throws_error(runner, tmp_path):
     source = """
     from pytask import PythonNode
@@ -836,6 +840,7 @@ def test_error_when_node_state_throws_error(runner, tmp_path):
     assert "TypeError: unhashable type: 'dict'" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_task_is_not_reexecuted(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -860,6 +865,7 @@ def test_task_is_not_reexecuted(runner, tmp_path):
     assert "1  Skipped because unchanged" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_use_functional_interface_with_task(tmp_path):
     def func(path):
         path.touch()
@@ -878,6 +884,7 @@ def test_use_functional_interface_with_task(tmp_path):
     assert session.exit_code == ExitCode.OK
 
 
+@pytest.mark.end_to_end()
 def test_collect_task(runner, tmp_path):
     source = """
     from pytask import Task, PathNode
@@ -898,6 +905,7 @@ def test_collect_task(runner, tmp_path):
     assert tmp_path.joinpath("out.txt").exists()
 
 
+@pytest.mark.end_to_end()
 def test_collect_task_without_path(runner, tmp_path):
     source = """
     from pytask import TaskWithoutPath, PathNode

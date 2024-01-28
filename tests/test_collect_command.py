@@ -672,6 +672,7 @@ def test_collect_task_with_delayed_path_node_as_product(runner, tmp_path, node_d
     assert "/*.txt>" in captured
 
 
+@pytest.mark.end_to_end()
 def test_collect_task_with_delayed_dependencies(runner, tmp_path):
     source = """
     from typing_extensions import Annotated

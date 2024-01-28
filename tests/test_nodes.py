@@ -31,6 +31,7 @@ def test_hash_of_python_node(value, hash_, expected):
     assert state == expected
 
 
+@pytest.mark.unit()
 @pytest.mark.parametrize(
     ("node", "expected"),
     [
@@ -110,6 +111,7 @@ def test_hash_of_pickle_node(tmp_path, value, exists, expected):
         assert state is expected
 
 
+@pytest.mark.unit()
 @pytest.mark.parametrize(
     ("node", "protocol", "expected"),
     [

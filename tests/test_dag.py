@@ -99,6 +99,7 @@ def test_has_node_changed_catches_notnotfounderror(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
 
 
+@pytest.mark.end_to_end()
 def test_python_nodes_are_unique(tmp_path):
     tmp_path.joinpath("a").mkdir()
     tmp_path.joinpath("a", "task_example.py").write_text("def task_example(a=1): pass")

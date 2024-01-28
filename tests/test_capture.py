@@ -112,6 +112,7 @@ def test_show_capture_with_build(tmp_path, show_capture):
         raise NotImplementedError
 
 
+@pytest.mark.end_to_end()
 @pytest.mark.xfail(
     sys.platform == "win32",
     reason="from pytask ... cannot be found",

@@ -145,6 +145,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
             node = dag.nodes[node_signature].get("task") or dag.nodes[
                 node_signature
             ].get("node")
+
             if node_signature in predecessors and not node.state():
                 msg = f"{task.name!r} requires missing node {node.name!r}."
                 if IS_FILE_SYSTEM_CASE_SENSITIVE:
