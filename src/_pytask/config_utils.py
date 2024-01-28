@@ -140,13 +140,13 @@ def read_config(
     for section in sections_:
         config = config[section]
 
-    if "paths" in config:
-        try:
-            config["paths"] = [
-                path.parent.joinpath(p).resolve() for p in config["paths"]
-            ]
-        except Exception:  # noqa: BLE001
-            msg = "'paths' in config must be a list of strings"
-            raise click.BadParameter(msg) from None
+    # Only convert paths when possible. Otherwise, we defer the error until the click
+    # takes over.
+    if (
+        "paths" in config
+        and isinstance(config["paths"], list)
+        and all(isinstance(p, str) for p in config["paths"])
+    ):
+        config["paths"] = [path.parent.joinpath(p).resolve() for p in config["paths"]]
 
     return config

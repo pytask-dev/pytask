@@ -112,7 +112,7 @@ def test_paths_are_relative_to_configuration_file(tmp_path):
 
     session = build(paths=[Path("src")])
     """
-    tmp_path.joinpath("script.py").write_text(source)
+    tmp_path.joinpath("script.py").write_text(textwrap.dedent(source))
     result = subprocess.run(
         ("python", "script.py"), cwd=tmp_path, check=False, capture_output=True
     )
