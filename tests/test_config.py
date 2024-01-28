@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import os
 import subprocess
+import sys
 import textwrap
 
 import pytest
@@ -94,6 +96,10 @@ def test_paths_are_relative_to_configuration_file_cli(tmp_path):
     assert "1  Succeeded" in result.stdout.decode()
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32" and os.environ.get("CI"),
+    reason="Windows does not pick up the right Python interpreter.",
+)
 def test_paths_are_relative_to_configuration_file(tmp_path):
     tmp_path.joinpath("src").mkdir()
     tmp_path.joinpath("tasks").mkdir()
