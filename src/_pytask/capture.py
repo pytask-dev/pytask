@@ -724,33 +724,33 @@ class CaptureManager:
         finally:
             self.suspend(in_=False)
 
-        out, err = self.read()
-        if out:
-            task.report_sections.append((when, "stdout", out))
-        if err:
-            task.report_sections.append((when, "stderr", err))
+            out, err = self.read()
+            if out:
+                task.report_sections.append((when, "stdout", out))
+            if err:
+                task.report_sections.append((when, "stderr", err))
 
     # Hooks
 
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_execute_task_setup(self, task: PTask) -> Generator[None, None, None]:
         """Capture output during setup."""
         with self.task_capture("setup", task):
-            yield
+            return (yield)
 
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_execute_task(self, task: PTask) -> Generator[None, None, None]:
         """Capture output during execution."""
         with self.task_capture("call", task):
-            yield
+            return (yield)
 
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_execute_task_teardown(self, task: PTask) -> Generator[None, None, None]:
         """Capture output during teardown."""
         with self.task_capture("teardown", task):
-            yield
+            return (yield)
 
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_collect_log(self) -> Generator[None, None, None]:
         """Suspend capturing at the end of the collection.
 
@@ -763,4 +763,4 @@ class CaptureManager:
 
         """
         self.suspend(in_=True)
-        yield
+        return (yield)

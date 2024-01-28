@@ -57,20 +57,20 @@ class WarningsNameSpace:
     """A namespace for the warnings plugin."""
 
     @staticmethod
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_collect(session: Session) -> Generator[None, None, None]:
         """Catch warnings while executing a task."""
         with catch_warnings_for_item(session=session):
-            yield
+            return (yield)
 
     @staticmethod
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_execute_task(
         session: Session, task: PTask
     ) -> Generator[None, None, None]:
         """Catch warnings while executing a task."""
         with catch_warnings_for_item(session=session, task=task):
-            yield
+            return (yield)
 
     @staticmethod
     @hookimpl(trylast=True)

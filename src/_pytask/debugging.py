@@ -309,14 +309,14 @@ class PdbDebugger:
     """Namespace for debugging."""
 
     @staticmethod
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_execute_task(
         session: Session, task: PTask
     ) -> Generator[None, None, None]:
         """Execute a task by wrapping the function with post-mortem debugger."""
         if isinstance(task, PTask):
             wrap_function_for_post_mortem_debugging(session, task)
-        yield
+        return (yield)
 
 
 def wrap_function_for_post_mortem_debugging(session: Session, task: PTask) -> None:
@@ -369,14 +369,14 @@ class PdbTrace:
     """Namespace for tracing."""
 
     @staticmethod
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_execute_task(
         session: Session, task: PTask
     ) -> Generator[None, None, None]:
         """Wrap the task function with a tracer."""
         if isinstance(task, PTask):
             wrap_function_for_tracing(session, task)
-        yield
+        return (yield)
 
 
 def wrap_function_for_tracing(session: Session, task: PTask) -> None:

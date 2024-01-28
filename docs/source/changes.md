@@ -15,6 +15,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`553` deprecates `paths` as a string in configuration and ensures that paths
   passed via the command line are relative to CWD and paths in the configuration
   relative to the config file.
+- {pull}`555` uses new-style hook wrappers and requires pluggy 1.3 for typing.
 
 ## 0.4.5 - 2024-01-09
 

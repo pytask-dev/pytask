@@ -69,14 +69,13 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     config["pm"].register(live_collection, "live_collection")
 
 
-@hookimpl(hookwrapper=True)
+@hookimpl(wrapper=True)
 def pytask_execute(session: Session) -> Generator[None, None, None]:
     if session.config["verbose"] >= 1:
         live_execution = session.config["pm"].get_plugin("live_execution")
         if live_execution:
             live_execution.n_tasks = len(session.tasks)
-
-    yield
+    return (yield)
 
 
 @define(eq=False)
@@ -147,17 +146,18 @@ class LiveExecution:
     _reports: list[_ReportEntry] = field(factory=list)
     _running_tasks: dict[str, PTask] = field(factory=dict)
 
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_execute_build(self) -> Generator[None, None, None]:
         """Wrap the execution with the live manager and yield a table at the end."""
         self.live_manager.start()
-        yield
+        result = yield
         self.live_manager.stop(transient=True)
         table = self._generate_table(
             reduce_table=False, sort_table=self.sort_final_table, add_caption=False
         )
         if table is not None:
             console.print(table)
+        return result
 
     @hookimpl(tryfirst=True)
     def pytask_execute_task_log_start(self, task: PTask) -> bool:
@@ -280,11 +280,11 @@ class LiveCollection:
     _n_collected_tasks: int = 0
     _n_errors: int = 0
 
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_collect(self) -> Generator[None, None, None]:
         """Start the status of the collection."""
         self.live_manager.start()
-        yield
+        return (yield)
 
     @hookimpl
     def pytask_collect_file_log(self, reports: list[CollectionReport]) -> None:
@@ -292,11 +292,11 @@ class LiveCollection:
         self._update_statistics(reports)
         self._update_status()
 
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_collect_log(self) -> Generator[None, None, None]:
         """Stop the live display when all tasks have been collected."""
         self.live_manager.stop(transient=True)
-        yield
+        return (yield)
 
     def _update_statistics(self, reports: list[CollectionReport]) -> None:
         """Update the statistics on collected tasks and errors."""
