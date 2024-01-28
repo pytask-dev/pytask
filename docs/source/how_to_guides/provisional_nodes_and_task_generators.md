@@ -52,7 +52,7 @@ downloaded files into one file.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/delayed_tasks_delayed_task.py
 ---
-emphasize-lines: 8-10
+emphasize-lines: 9
 ---
 ```
 
