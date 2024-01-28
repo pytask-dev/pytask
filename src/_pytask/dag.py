@@ -6,7 +6,6 @@ import sys
 from typing import TYPE_CHECKING
 
 import networkx as nx
-from _pytask.config import hookimpl
 from _pytask.console import ARROW_DOWN_ICON
 from _pytask.console import console
 from _pytask.console import FILE_ICON
@@ -20,6 +19,7 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.nodes import PythonNode
+from _pytask.pluginmanager import hookimpl
 from _pytask.reports import DagReport
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.tree_util import tree_map

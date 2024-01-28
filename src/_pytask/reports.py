@@ -4,8 +4,8 @@ from __future__ import annotations
 from typing import ClassVar
 from typing import TYPE_CHECKING
 
+from _pytask.capture_utils import ShowCapture
 from _pytask.console import format_task_name
-from _pytask.enums import ShowCapture
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
 from _pytask.traceback import OptionalExceptionInfo

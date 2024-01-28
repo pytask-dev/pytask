@@ -4,14 +4,15 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 from typing import Any
+from typing import TYPE_CHECKING
 
-import pluggy
+from _pytask.pluginmanager import hookimpl
 from _pytask.shared import parse_markers
 from _pytask.shared import parse_paths
 from _pytask.shared import to_list
 
-
-hookimpl = pluggy.HookimplMarker("pytask")
+if TYPE_CHECKING:
+    from pluggy import PluginManager
 
 
 _IGNORED_FOLDERS: list[str] = [".git/*", ".venv/*"]
@@ -59,9 +60,7 @@ IS_FILE_SYSTEM_CASE_SENSITIVE = is_file_system_case_sensitive()
 
 
 @hookimpl
-def pytask_configure(
-    pm: pluggy.PluginManager, raw_config: dict[str, Any]
-) -> dict[str, Any]:
+def pytask_configure(pm: PluginManager, raw_config: dict[str, Any]) -> dict[str, Any]:
     """Configure pytask."""
     # Add all values by default so that many plugins do not need to copy over values.
     config = {"pm": pm, "markers": {}, **raw_config}
@@ -81,14 +80,6 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
     config["paths"] = parse_paths(config["paths"])
 
     config["markers"] = {
-        "depends_on": (
-            "Add dependencies to a task. See this tutorial for more information: "
-            "[link https://bit.ly/3JlxylS]https://bit.ly/3JlxylS[/]."
-        ),
-        "produces": (
-            "Add products to a task. See this tutorial for more information: "
-            "[link https://bit.ly/3JlxylS]https://bit.ly/3JlxylS[/]."
-        ),
         "try_first": "Try to execute a task a early as possible.",
         "try_last": "Try to execute a task a late as possible.",
         **config["markers"],

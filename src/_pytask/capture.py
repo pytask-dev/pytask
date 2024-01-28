@@ -25,7 +25,6 @@ References
 from __future__ import annotations
 
 import contextlib
-import enum
 import functools
 import io
 import os
@@ -42,19 +41,14 @@ from typing import TextIO
 from typing import TYPE_CHECKING
 
 import click
+from _pytask.capture_utils import CaptureMethod
+from _pytask.capture_utils import ShowCapture
 from _pytask.click import EnumChoice
-from _pytask.config import hookimpl
-from _pytask.enums import ShowCapture
+from _pytask.pluginmanager import hookimpl
+from _pytask.shared import convert_to_enum
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
-
-
-class CaptureMethod(enum.Enum):
-    FD = "fd"
-    NO = "no"
-    SYS = "sys"
-    TEE_SYS = "tee-sys"
 
 
 @hookimpl
@@ -90,11 +84,10 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
     Note that, ``-s`` is a shortcut for ``--capture=no``.
 
     """
-    if isinstance(config["capture"], str):
-        config["capture"] = CaptureMethod(config["capture"])
-
+    config["capture"] = convert_to_enum(config["capture"], CaptureMethod)
     if config["s"]:
         config["capture"] = CaptureMethod.NO
+    config["show_capture"] = convert_to_enum(config["show_capture"], ShowCapture)
 
 
 @hookimpl
@@ -255,7 +248,7 @@ class SysCaptureBinary:
         self.tmpfile = tmpfile
         self._state = "initialized"
 
-    def repr(self, class_name: str) -> str:  # noqa: A003
+    def repr(self, class_name: str) -> str:
         return "<{} {} _old={} _state={!r} tmpfile={!r}>".format(
             class_name,
             self.name,
@@ -731,33 +724,33 @@ class CaptureManager:
         finally:
             self.suspend(in_=False)
 
-        out, err = self.read()
-        if out:
-            task.report_sections.append((when, "stdout", out))
-        if err:
-            task.report_sections.append((when, "stderr", err))
+            out, err = self.read()
+            if out:
+                task.report_sections.append((when, "stdout", out))
+            if err:
+                task.report_sections.append((when, "stderr", err))
 
     # Hooks
 
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_execute_task_setup(self, task: PTask) -> Generator[None, None, None]:
         """Capture output during setup."""
         with self.task_capture("setup", task):
-            yield
+            return (yield)
 
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_execute_task(self, task: PTask) -> Generator[None, None, None]:
         """Capture output during execution."""
         with self.task_capture("call", task):
-            yield
+            return (yield)
 
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_execute_task_teardown(self, task: PTask) -> Generator[None, None, None]:
         """Capture output during teardown."""
         with self.task_capture("teardown", task):
-            yield
+            return (yield)
 
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_collect_log(self) -> Generator[None, None, None]:
         """Suspend capturing at the end of the collection.
 
@@ -770,4 +763,4 @@ class CaptureManager:
 
         """
         self.suspend(in_=True)
-        yield
+        return (yield)

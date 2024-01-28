@@ -11,44 +11,32 @@ reproducible samples.
 Apply the {func}`@task <pytask.task>` decorator, loop over the function and supply
 different seeds and output paths as default arguments of the function.
 
-::::{tab-set}
+`````{tab-set}
 
-:::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 :sync: python310plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs1_py310.py
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.8+
+````{tab-item} Python 3.8+
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs1_py38.py
 ```
 
-:::
+````
 
-:::{tab-item} &#8203;`produces`
+````{tab-item} produces
 :sync: produces
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs1_produces.py
 ```
 
-:::
-
-:::{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs1_decorators.py
-```
-
-:::
-::::
+````
+`````
 
 Executing pytask gives you this:
 
@@ -59,44 +47,32 @@ Executing pytask gives you this:
 
 You can also add dependencies to repeated tasks just like with any other task.
 
-::::{tab-set}
+`````{tab-set}
 
-:::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 :sync: python310plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs2_py310.py
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.8+
+````{tab-item} Python 3.8+
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs2_py38.py
 ```
 
-:::
+````
 
-:::{tab-item} &#8203;`produces`
+````{tab-item} produces
 :sync: produces
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs2_produces.py
 ```
 
-:::
-
-:::{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs2_decorators.py
-```
-
-:::
-::::
+````
+`````
 
 (how-to-repeat-a-task-with-different-inputs-the-id)=
 
@@ -106,7 +82,7 @@ Every task has a unique id that can be used to {doc}`select it <selecting_tasks>
 standard id combines the path to the module where the task is defined, a double colon,
 and the name of the task function. Here is an example.
 
-```
+```text
 ../task_data_preparation.py::task_create_random_data
 ```
 
@@ -131,44 +107,32 @@ a combination of the argument name and the iteration counter.
 
 For example, the following function is parametrized with tuples.
 
-::::{tab-set}
+`````{tab-set}
 
-:::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 :sync: python310plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs3_py310.py
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.8+
+````{tab-item} Python 3.8+
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs3_py38.py
 ```
 
-:::
+````
 
-:::{tab-item} &#8203;`produces`
+````{tab-item} produces
 :sync: produces
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs3_produces.py
 ```
 
-:::
-
-:::{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs3_decorators.py
-```
-
-:::
-::::
+````
+`````
 
 Since the tuples are not converted to strings, the ids of the two tasks are
 
@@ -181,47 +145,35 @@ task_data_preparation.py::task_create_random_data[seed1]
 
 ### User-defined ids
 
-The {func}`@task <pytask.task>` decorator has an `id` keyword, allowing
-the user to set a unique name for the iteration.
+The {func}`@task <pytask.task>` decorator has an `id` keyword, allowing the user to set
+a unique name for the iteration.
 
-::::{tab-set}
+`````{tab-set}
 
-:::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 :sync: python310plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs4_py310.py
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.8+
+````{tab-item} Python 3.8+
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs4_py38.py
 ```
 
-:::
+````
 
-:::{tab-item} &#8203;`produces`
+````{tab-item} produces
 :sync: produces
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs4_produces.py
 ```
 
-:::
-
-:::{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs4_decorators.py
-```
-
-:::
-::::
+````
+`````
 
 produces these ids
 
@@ -237,8 +189,8 @@ and arguments. Here are three tips to organize the repetitions.
 
 1. Use suitable containers to organize your ids and the function arguments.
 
-   ::::{tab-set}
-   :::{tab-item} NamedTuple
+   `````{tab-set}
+   ````{tab-item} NamedTuple
 
    {obj}`typing.NamedTuple` or {obj}`collections.namedtuple` are useful containers to
    organize the arguments of the parametrizations. They also provide better support for
@@ -260,9 +212,9 @@ and arguments. Here are three tips to organize the repetitions.
    }
    ```
 
-   :::
+   ````
 
-   :::{tab-item} Dictionary
+   ````{tab-item} Dictionary
 
    ```python
    ID_TO_KWARGS = {
@@ -271,59 +223,46 @@ and arguments. Here are three tips to organize the repetitions.
    }
    ```
 
-   :::
-   ::::
+   ````
+   `````
 
-2. {func}`@task <pytask.task>` has a `kwargs` argument that allows you
-   inject arguments to the function instead of adding them as default arguments.
+1. {func}`@task <pytask.task>` has a `kwargs` argument that allows you inject arguments
+   to the function instead of adding them as default arguments.
 
-3. If the generation of arguments for the task function is complex, we should use a
+1. If the generation of arguments for the task function is complex, we should use a
    function.
 
 Following these three tips, the parametrization becomes
 
-::::{tab-set}
+`````{tab-set}
 
-:::{tab-item} Python 3.10+
+````{tab-item} Python 3.10+
 :sync: python310plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs5_py310.py
 ```
 
-:::
+````
 
-:::{tab-item} Python 3.8+
+````{tab-item} Python 3.8+
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs5_py38.py
 ```
 
-:::
+````
 
-:::{tab-item} &#8203;`produces`
+````{tab-item} produces
 :sync: produces
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs5_produces.py
 ```
 
-:::
-
-:::{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs5_decorators.py
-```
-
-:::
-::::
+````
+`````
 
 Unpacking all the arguments can become tedious. Instead, use the `kwargs` argument of
-the {func}`@task <pytask.task>` decorator to pass keyword arguments to
-the task.
+the {func}`@task <pytask.task>` decorator to pass keyword arguments to the task.
 
 ```python
 for id_, kwargs in ID_TO_KWARGS.items():
@@ -354,8 +293,7 @@ for id_, kwargs in ID_TO_KWARGS.items():
         ...
 ```
 
-The
-{doc}`best-practices guide on parametrizations <../how_to_guides/bp_scaling_tasks>`
+The {doc}`best-practices guide on parametrizations <../how_to_guides/bp_scaling_tasks>`
 goes into even more detail on how to scale parametrizations.
 
 ## A warning on globals
@@ -365,7 +303,7 @@ definition.
 
 You won't encounter these problems if you strictly use the below-mentioned interfaces.
 
-Look at this repeated task which runs three times and tries to produce a text file with
+Look at this repeated task, which runs three times and tries to produce a text file with
 some content.
 
 ```python

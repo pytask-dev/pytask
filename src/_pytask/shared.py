@@ -16,7 +16,18 @@ from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 
 if TYPE_CHECKING:
+    from enum import Enum
     import networkx as nx
+
+
+__all__ = [
+    "convert_to_enum",
+    "find_duplicates",
+    "parse_markers",
+    "parse_paths",
+    "reduce_names_of_multiple_nodes",
+    "to_list",
+]
 
 
 def to_list(scalar_or_iter: Any) -> list[Any]:
@@ -45,19 +56,19 @@ def to_list(scalar_or_iter: Any) -> list[Any]:
     )
 
 
-def parse_paths(x: Any | None) -> list[Path] | None:
+def parse_paths(x: Path | list[Path]) -> list[Path]:
     """Parse paths."""
-    if x is not None:
-        paths = [Path(p) for p in to_list(x)]
-        paths = [
-            Path(p).resolve()
-            for path in paths
-            for p in glob.glob(path.as_posix())  # noqa: PTH207
-        ]
-        out = paths
-    else:
-        out = None
-    return out
+    paths = [Path(p) for p in to_list(x)]
+    for p in paths:
+        if not p.exists():
+            msg = f"The path '{p}' does not exist."
+            raise FileNotFoundError(msg)
+
+    return [
+        Path(p).resolve()
+        for path in paths
+        for p in glob.glob(path.as_posix())  # noqa: PTH207
+    ]
 
 
 def reduce_names_of_multiple_nodes(
@@ -122,3 +133,13 @@ def parse_markers(x: dict[str, str] | list[str] | tuple[str, ...]) -> dict[str, 
             raise click.BadParameter(msg)
 
     return mapping
+
+
+def convert_to_enum(value: Any, enum: type[Enum]) -> Enum:
+    """Convert value to enum."""
+    try:
+        return enum(value)
+    except ValueError:
+        values = [e.value for e in enum]
+        msg = f"Value {value!r} is not a valid {enum!r}. Valid values are {values}."
+        raise ValueError(msg) from None

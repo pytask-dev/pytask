@@ -1,23 +1,23 @@
 # How to influence the build order
 
-:::{important}
+```{important}
 This guide shows how to influence the order in which tasks are executed. The feature
 should be treated with caution since it might make projects work whose dependencies and
 products are not fully specified.
-:::
+```
 
 You can influence the order in which tasks are executed by assigning preferences to
 tasks. Use {func}`@pytask.mark.try_first <pytask.mark.try_first>` to execute a task as
 early as possible and {func}`@pytask.mark.try_last <pytask.mark.try_last>` to defer
 execution.
 
-:::{note}
+```{note}
 A little bit more background: Tasks, dependencies and products form a directed acyclic
 graph (DAG). A [topological ordering](https://en.wikipedia.org/wiki/Topological_sorting)
 determines the order in which tasks are executed such that tasks are not run until their
 predecessors have been executed. You should not assume a fixed ordering in which tasks
 are executed.
-:::
+```
 
 As an example, here are two tasks where the decorator ensures that the output of the
 second task is always shown before the output of the first task.

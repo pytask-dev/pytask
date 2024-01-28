@@ -35,9 +35,9 @@ features include:
   to run the same task with different inputs.
 - **Select tasks via expressions.** Run only a subset of tasks with
   [expressions and marker expressions](https://pytask-dev.readthedocs.io/en/stable/tutorials/selecting_tasks.html).
-- **Easily extensible with plugins**. pytask is built on top of
-  [pluggy](https://pluggy.readthedocs.io/en/latest/), a plugin management framework,
-  which allows you to adjust pytask to your needs. Plugins are available for
+- **Easily extensible with plugins**. pytask is built on
+  [pluggy](https://pluggy.readthedocs.io/en/latest/), a plugin management framework that
+  allows you to adjust pytask to your needs. Plugins are available for
   [parallelization](https://github.com/pytask-dev/pytask-parallel),
   [LaTeX](https://github.com/pytask-dev/pytask-latex),
   [R](https://github.com/pytask-dev/pytask-r), and

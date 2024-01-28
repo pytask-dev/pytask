@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import inspect
 import pickle
+from os import stat_result
 from pathlib import Path  # noqa: TCH003
 from typing import Any
 from typing import Callable
@@ -28,7 +29,14 @@ if TYPE_CHECKING:
     from _pytask.mark import Mark
 
 
-__all__ = ["DirectoryNode", "PathNode", "PythonNode", "Task", "TaskWithoutPath"]
+__all__ = [
+    "DirectoryNode",
+    "PathNode",
+    "PickleNode",
+    "PythonNode",
+    "Task",
+    "TaskWithoutPath",
+]
 
 
 @define(kw_only=True)
@@ -80,7 +88,7 @@ class TaskWithoutPath(PTask):
         else:
             return hashlib.sha256(source.encode()).hexdigest()
 
-    def execute(self, **kwargs: Any) -> None:
+    def execute(self, **kwargs: Any) -> Any:
         """Execute the task."""
         return self.function(**kwargs)
 
@@ -140,7 +148,7 @@ class Task(PTaskWithPath):
             return hash_path(self.path, modification_time)
         return None
 
-    def execute(self, **kwargs: Any) -> None:
+    def execute(self, **kwargs: Any) -> Any:
         """Execute the task."""
         return self.function(**kwargs)
 
@@ -179,8 +187,14 @@ class PathNode(PPathNode):
 
         """
         if self.path.exists():
-            modification_time = self.path.stat().st_mtime
-            return hash_path(self.path, modification_time)
+            stat = self.path.stat()
+            if isinstance(stat, stat_result):
+                modification_time = self.path.stat().st_mtime
+                return hash_path(self.path, modification_time)
+            if isinstance(stat, dict):
+                return stat.get("ETag", "0")
+            msg = "Unknown stat object."
+            raise NotImplementedError(msg)
         return None
 
     def load(self, is_product: bool = False) -> Path:  # noqa: ARG002
@@ -215,12 +229,10 @@ class PythonNode(PNode):
         objects.
     node_info
         The infos acquired while collecting the node.
-    signature
-        The signature of the node.
 
     Examples
     --------
-    To allow a :class:`~pytask.PythonNode` to hash a dictionary, you need to pass your
+    To allow a :class:`PythonNode` to hash a dictionary, you need to pass your
     own hashing function. For example, from the :mod:`deepdiff` library.
 
     >>> from deepdiff import DeepHash
@@ -232,7 +244,7 @@ class PythonNode(PNode):
 
     name: str = ""
     value: Any | NoDefault = no_default
-    hash: bool | Callable[[Any], bool] = False  # noqa: A003
+    hash: bool | Callable[[Any], bool] = False
     node_info: NodeInfo | None = None
 
     @property
@@ -287,7 +299,7 @@ class PythonNode(PNode):
 
 
 @define
-class PickleNode(PNode):
+class PickleNode(PPathNode):
     """A node for pickle files.
 
     Attributes
@@ -318,8 +330,14 @@ class PickleNode(PNode):
 
     def state(self) -> str | None:
         if self.path.exists():
-            modification_time = self.path.stat().st_mtime
-            return hash_path(self.path, modification_time)
+            stat = self.path.stat()
+            if isinstance(stat, stat_result):
+                modification_time = self.path.stat().st_mtime
+                return hash_path(self.path, modification_time)
+            if isinstance(stat, dict):
+                return stat.get("ETag", "0")
+            msg = "Unknown stat object."
+            raise NotImplementedError(msg)
         return None
 
     def load(self, is_product: bool = False) -> Any:

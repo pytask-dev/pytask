@@ -11,20 +11,21 @@ automatically. Packages classified as inactive are excluded.
    creating a PDF, because otherwise the table gets far too wide for the
    page.
 
-This list contains 6 plugins.
+This list contains 7 plugins.
 
 .. only:: not latex
 
-   ==========================  ====================================================================  ==============  ========  ==============
-   name                        summary                                                               last release    status    requires
-   ==========================  ====================================================================  ==============  ========  ==============
-   :pypi:`pytask-environment`  Detect changes in your pytask environment and abort a project build.  Feb 10, 2023    4 - Beta  pytask (>=0.2)
-   :pypi:`pytask-julia`        A Pytask plugin for Julia                                             Oct 07, 2023    4 - Beta  pytask >=0.4.0
-   :pypi:`pytask-latex`        Compile LaTeX documents with pytask.                                  Oct 12, 2023    4 - Beta  pytask >=0.4.0
-   :pypi:`pytask-parallel`     Parallelize the execution of tasks with pytask.                       Oct 07, 2023    4 - Beta  pytask >=0.4.0
-   :pypi:`pytask-r`            Run R scripts with pytask.                                            Oct 07, 2023    4 - Beta  pytask >=0.4.0
-   :pypi:`pytask-stata`        Execute do-files with Stata and pytask.                               Jan 23, 2023    4 - Beta  pytask (>=0.3)
-   ==========================  ====================================================================  ==============  ========  ==============
+   ==========================  ====================================================================  ==============  =========  ==============
+   name                        summary                                                               last release    status     requires
+   ==========================  ====================================================================  ==============  =========  ==============
+   :pypi:`pytask-environment`  Detect changes in your pytask environment and abort a project build.  Feb 10, 2023    4 - Beta   pytask (>=0.2)
+   :pypi:`pytask-julia`        A Pytask plugin for Julia                                             Oct 07, 2023    4 - Beta   pytask >=0.4.0
+   :pypi:`pytask-latex`        Compile LaTeX documents with pytask.                                  Nov 30, 2023    4 - Beta   pytask >=0.4.0
+   :pypi:`pytask-parallel`     Parallelize the execution of tasks with pytask.                       Jan 12, 2024    4 - Beta   pytask >=0.4.5
+   :pypi:`pytask-r`            Run R scripts with pytask.                                            Oct 07, 2023    4 - Beta   pytask >=0.4.0
+   :pypi:`pytask-stata`        Execute do-files with Stata and pytask.                               Jan 23, 2023    4 - Beta   pytask (>=0.3)
+   :pypi:`pytask-vscode`       Additional Logging for VS Code integration                            Nov 21, 2023    3 - Alpha  pytask >=0.4.2
+   ==========================  ====================================================================  ==============  =========  ==============
 
 .. only:: latex
 
@@ -44,16 +45,16 @@ This list contains 6 plugins.
      A Pytask plugin for Julia
 
   :pypi:`pytask-latex`
-     *last release*: Oct 12, 2023,
+     *last release*: Nov 30, 2023,
      *status*: 4 - Beta,
      *requires*: pytask >=0.4.0
 
      Compile LaTeX documents with pytask.
 
   :pypi:`pytask-parallel`
-     *last release*: Oct 07, 2023,
+     *last release*: Jan 12, 2024,
      *status*: 4 - Beta,
-     *requires*: pytask >=0.4.0
+     *requires*: pytask >=0.4.5
 
      Parallelize the execution of tasks with pytask.
 
@@ -70,3 +71,10 @@ This list contains 6 plugins.
      *requires*: pytask (>=0.3)
 
      Execute do-files with Stata and pytask.
+
+  :pypi:`pytask-vscode`
+     *last release*: Nov 21, 2023,
+     *status*: 3 - Alpha,
+     *requires*: pytask >=0.4.2
+
+     Additional Logging for VS Code integration

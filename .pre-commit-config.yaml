@@ -45,27 +45,27 @@ repos:
     hooks:
     -   id: sort-all
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.6
+    rev: v0.1.14
     hooks:
       - id: ruff-format
       - id: ruff
         args: [--unsafe-fixes]
 -   repo: https://github.com/dosisod/refurb
-    rev: v1.24.0
+    rev: v1.27.0
     hooks:
     -   id: refurb
         args: [--ignore, FURB126]
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.0
+    rev: v1.8.0
     hooks:
     -   id: mypy
         additional_dependencies: [
             attrs>=21.3.0,
             click,
             optree,
-            pluggy,
+            pluggy>=1.3.0,
             rich,
-            sqlalchemy,
+            sqlalchemy>2,
             types-setuptools,
         ]
         pass_filenames: false
@@ -76,8 +76,8 @@ repos:
         additional_dependencies: [
             mdformat-gfm,
             mdformat-black,
+            mdformat-pyproject,
         ]
-        args: [--wrap, "88"]
         files: (README\.md)
 -   repo: https://github.com/executablebooks/mdformat
     rev: 0.7.17
@@ -86,33 +86,11 @@ repos:
         additional_dependencies: [
             mdformat-myst,
             mdformat-black,
+            mdformat-pyproject,
         ]
-        args: [--wrap, "88"]
         files: (docs/.)
-        exclude: |
-            (?x)^(
-                docs/source/index.md|
-                docs/source/how_to_guides/bp_structure_of_task_files.md|
-                docs/source/how_to_guides/how_to_influence_build_order.md|
-                docs/source/how_to_guides/migrating_from_scripts_to_pytask.md|
-                docs/source/how_to_guides/repeating_tasks_with_different_inputs_the_pytest_way.md|
-                docs/source/how_to_guides/using_task_returns.md|
-                docs/source/how_to_guides/writing_custom_nodes.md|
-                docs/source/how_to_guides/hashing_inputs_of_tasks.md|
-                docs/source/how_to_guides/provisional_nodes_and_task_generators.md|
-                docs/source/reference_guides/hookspecs.md|
-                docs/source/tutorials/configuration.md|
-                docs/source/tutorials/debugging.md|
-                docs/source/tutorials/defining_dependencies_products.md|
-                docs/source/tutorials/making_tasks_persist.md|
-                docs/source/tutorials/repeating_tasks_with_different_inputs.md|
-                docs/source/tutorials/selecting_tasks.md|
-                docs/source/tutorials/set_up_a_project.md|
-                docs/source/tutorials/using_a_data_catalog.md|
-                docs/source/tutorials/write_a_task.md
-            )$
 -   repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.0
+    rev: 1.7.1
     hooks:
     -   id: nbqa-black
     -   id: nbqa-isort

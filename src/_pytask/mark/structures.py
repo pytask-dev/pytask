@@ -162,9 +162,9 @@ def store_mark(obj: Callable[..., Any], mark: Mark) -> None:
         )
 
 
-_DEPRECATION_DECORATOR = """'@pytask.mark.{}' is deprecated starting pytask \
-v0.4.0 and will be removed in v0.5.0. To upgrade your project to the new syntax, read \
-the tutorial on product and dependencies: https://tinyurl.com/pytask-deps-prods.
+_DEPRECATION_DECORATOR = """'@pytask.mark.{}' was removed in pytask v0.5.0. To upgrade \
+your project to the new syntax, read the tutorial on product and dependencies: \
+https://tinyurl.com/pytask-deps-prods.
 """
 
 
@@ -194,11 +194,14 @@ class MarkGenerator:
             raise AttributeError(msg)
 
         if name in ("depends_on", "produces"):
-            warnings.warn(
-                _DEPRECATION_DECORATOR.format(name),
-                category=FutureWarning,
-                stacklevel=1,
+            raise RuntimeError(_DEPRECATION_DECORATOR.format(name))
+
+        if name == "task":
+            msg = (
+                "'@pytask.mark.task' is removed. Use '@task' with 'from pytask import "
+                "task' instead."
             )
+            raise RuntimeError(msg)
 
         # If the name is not in the set of known marks after updating,
         # then it really is time to issue a warning or an error.
@@ -220,18 +223,6 @@ class MarkGenerator:
                 "custom marks to avoid this warning.",
                 stacklevel=2,
             )
-
-        if name == "task":
-            from _pytask.task_utils import task
-
-            warnings.warn(
-                "'@pytask.mark.task' is deprecated starting pytask v0.4.0 and will be "
-                "removed in v0.5.0. Use '@pytask.task' instead.",
-                category=FutureWarning,
-                stacklevel=1,
-            )
-
-            return task
 
         return MarkDecorator(Mark(name, (), {}))
 

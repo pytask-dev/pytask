@@ -9,14 +9,14 @@ import pytest
 from _pytask.git import init_repo
 from pytask import cli
 from pytask import ExitCode
+from pytask import storage
 
 
 _PROJECT_TASK = """
 import pytask
+from pathlib import Path
 
-@pytask.mark.depends_on("in.txt")
-@pytask.mark.produces("out.txt")
-def task_write_text(depends_on, produces):
+def task_write_text(path = Path("in.txt"), produces = Path("out.txt")):
     produces.write_text("a")
 """
 
@@ -25,7 +25,7 @@ _PROJECT_TASK_NEW_INTERFACE = """
 import pytask
 from pathlib import Path
 
-def task_write_text(in_path=Path("in.txt"), produces=Path("out.txt")):
+def task_write_text(path=Path("in.txt"), produces=Path("out.txt")):
     produces.write_text("a")
 """
 
@@ -45,10 +45,9 @@ def project(request, tmp_path):
 
 _GIT_PROJECT_TASK = """
 import pytask
+from pathlib import Path
 
-@pytask.mark.depends_on("in_tracked.txt")
-@pytask.mark.produces("out.txt")
-def task_write_text(depends_on, produces):
+def task_write_text(path = Path("in_tracked.txt"), produces = Path("out.txt")):
     produces.write_text("a")
 """
 
@@ -57,7 +56,7 @@ _GIT_PROJECT_TASK_NEW_INTERFACE = """
 import pytask
 from pathlib import Path
 
-def task_write_text(in_path=Path("in_tracked.txt"), produces=Path("out.txt")):
+def task_write_text(path=Path("in_tracked.txt"), produces=Path("out.txt")):
     produces.write_text("a")
 """
 
@@ -86,6 +85,7 @@ def test_clean_database_ignored(project, runner):
     os.chdir(project)
     result = runner.invoke(cli, ["build"])
     assert result.exit_code == ExitCode.OK
+    storage.create()
     result = runner.invoke(cli, ["clean"])
     assert result.exit_code == ExitCode.OK
     os.chdir(cwd)

@@ -35,10 +35,10 @@ strongly discouraged, you can deactivate the warning in the configuration file w
 check_casing_of_paths = false
 ```
 
-:::{note}
+```{note}
 An error is only raised on Windows when a case-insensitive path is used. Contributions
 are welcome to also support macOS.
-:::
+```
 
 ````
 
@@ -94,6 +94,21 @@ To disable links, use
 ```toml
 editor_url_scheme = "no_link"
 ```
+
+````
+
+````{confval} hook_module
+
+Register additional modules containing hook implementations.
+
+```toml
+hook_modules = ["myproject.hooks", "hooks.py"]
+```
+
+You can use module names and paths as values. Relative paths are assumed to be relative
+to the configuration file or the current working directory.
+
+{ref}`This how-to guide <hook-module>` has more information.
 
 ````
 
@@ -172,13 +187,7 @@ command line, you can add the paths to the configuration file. Paths passed via 
 command line will overwrite the configuration value.
 
 ```toml
-
-# For single entries only.
-paths = "src"
-
-# Or single and multiple entries.
 paths = ["folder_1", "folder_2/task_2.py"]
-
 ```
 ````
 

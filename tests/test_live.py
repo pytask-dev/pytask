@@ -6,8 +6,8 @@ import textwrap
 import pytest
 from _pytask.live import LiveExecution
 from _pytask.live import LiveManager
-from _pytask.reports import ExecutionReport
 from pytask import cli
+from pytask import ExecutionReport
 from pytask import ExitCode
 from pytask import Task
 from pytask import TaskOutcome
@@ -259,12 +259,13 @@ def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path)
 @pytest.mark.end_to_end()
 def test_full_execution_table_is_displayed_at_the_end_of_execution(tmp_path, runner):
     source = """
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
-    for produces in [f"{i}.txt" for i in range(4)]:
+    for i in range(4):
 
-        @pytask.mark.task
-        def task_create_file(produces=produces):
+        @task
+        def task_create_file(produces=Path(f"{i}.txt")):
             produces.touch()
     """
     # Subfolder to reduce task id and be able to check the output later.
@@ -277,7 +278,7 @@ def test_full_execution_table_is_displayed_at_the_end_of_execution(tmp_path, run
 
     assert result.exit_code == ExitCode.OK
     for i in range(4):
-        assert f"{i}.txt" in result.output
+        assert f"[produces{i}]" in result.output
 
 
 @pytest.mark.end_to_end()

@@ -140,4 +140,13 @@ def read_config(
     for section in sections_:
         config = config[section]
 
+    # Only convert paths when possible. Otherwise, we defer the error until the click
+    # takes over.
+    if (
+        "paths" in config
+        and isinstance(config["paths"], list)
+        and all(isinstance(p, str) for p in config["paths"])
+    ):
+        config["paths"] = [path.parent.joinpath(p).resolve() for p in config["paths"]]
+
     return config

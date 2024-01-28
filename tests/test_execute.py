@@ -11,11 +11,11 @@ from pathlib import Path
 
 import pytask
 import pytest
-from _pytask.capture import CaptureMethod
-from _pytask.exceptions import NodeNotFoundError
 from pytask import build
+from pytask import CaptureMethod
 from pytask import cli
 from pytask import ExitCode
+from pytask import NodeNotFoundError
 from pytask import PathNode
 from pytask import TaskOutcome
 from pytask import TaskWithoutPath
@@ -42,10 +42,9 @@ def test_execute_w_autocollect(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_task_did_not_produce_node(tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces("out.txt")
-    def task_example(): ...
+    def task_example(produces=Path("out.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -59,10 +58,9 @@ def test_task_did_not_produce_node(tmp_path):
 @pytest.mark.end_to_end()
 def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces(["1.txt", "2.txt"])
-    def task_example(): ...
+    def task_example(produces=[Path("1.txt"), Path("2.txt")]): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -72,6 +70,21 @@ def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path)
     assert "NodeNotFoundError" in result.output
     assert "1.txt" in result.output
     assert "2.txt" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_missing_product(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product
+
+    def task_with_non_path_dependency(path: Annotated[Path, Product]): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
 
 
 @pytest.mark.end_to_end()
@@ -113,45 +126,13 @@ def test_node_not_found_in_task_setup(tmp_path):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.parametrize(
-    "dependencies",
-    [[], ["in.txt"], ["in_1.txt", "in_2.txt"]],
-)
-@pytest.mark.parametrize("products", [["out.txt"], ["out_1.txt", "out_2.txt"]])
-def test_execution_w_varying_dependencies_products(tmp_path, dependencies, products):
-    source = f"""
-    import pytask
-    from pathlib import Path
-
-    @pytask.mark.depends_on({dependencies})
-    @pytask.mark.produces({products})
-    def task_example(depends_on, produces):
-        if isinstance(produces, dict):
-            produces = produces.values()
-        elif isinstance(produces, Path):
-            produces = [produces]
-        for product in produces:
-            product.touch()
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    for dependency in dependencies:
-        tmp_path.joinpath(dependency).touch()
-
-    session = build(paths=tmp_path)
-    assert session.exit_code == ExitCode.OK
-
-
-@pytest.mark.end_to_end()
 def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
     source = """
-    import pytask
     from pathlib import Path
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_example(depends_on, produces):
-        assert isinstance(depends_on, Path) and isinstance(produces, Path)
-        produces.write_text(depends_on.read_text())
+    def task_example(path=Path("in.txt"), produces=Path("out.txt")):
+        assert isinstance(path, Path) and isinstance(produces, Path)
+        produces.write_text(path.read_text())
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Here I am. Once again.")
@@ -160,90 +141,6 @@ def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
 
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").read_text() == "Here I am. Once again."
-
-
-@pytest.mark.end_to_end()
-def test_assert_multiple_dependencies_are_merged_to_dict(tmp_path, runner):
-    source = """
-    import pytask
-    from pathlib import Path
-
-    @pytask.mark.depends_on({3: "in_3.txt", 4: "in_4.txt"})
-    @pytask.mark.depends_on(["in_1.txt", "in_2.txt"])
-    @pytask.mark.depends_on("in_0.txt")
-    @pytask.mark.produces("out.txt")
-    def task_example(depends_on, produces):
-        expected = {
-            i: Path(__file__).parent.joinpath(f"in_{i}.txt").resolve()
-            for i in range(5)
-        }
-        assert depends_on == expected
-        produces.touch()
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    for name in [f"in_{i}.txt" for i in range(5)]:
-        tmp_path.joinpath(name).touch()
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-
-    assert result.exit_code == ExitCode.OK
-
-
-@pytest.mark.end_to_end()
-def test_assert_multiple_products_are_merged_to_dict(tmp_path, runner):
-    source = """
-    import pytask
-    from pathlib import Path
-
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces({3: "out_3.txt", 4: "out_4.txt"})
-    @pytask.mark.produces(["out_1.txt", "out_2.txt"])
-    @pytask.mark.produces("out_0.txt")
-    def task_example(depends_on, produces):
-        expected = {
-            i: Path(__file__).parent.joinpath(f"out_{i}.txt").resolve()
-            for i in range(5)
-        }
-        assert produces == expected
-        for product in produces.values():
-            product.touch()
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    tmp_path.joinpath("in.txt").touch()
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-
-    assert result.exit_code == ExitCode.OK
-
-
-@pytest.mark.end_to_end()
-@pytest.mark.parametrize("input_type", ["list", "dict"])
-def test_preserve_input_for_dependencies_and_products(tmp_path, input_type):
-    """Input type for dependencies and products is preserved."""
-    path = tmp_path.joinpath("in.txt")
-    input_ = {0: path.as_posix()} if input_type == "dict" else [path.as_posix()]
-    path.touch()
-
-    path = tmp_path.joinpath("out.txt")
-    output = {0: path.as_posix()} if input_type == "dict" else [path.as_posix()]
-
-    source = f"""
-    import pytask
-    from pathlib import Path
-
-    @pytask.mark.depends_on({input_})
-    @pytask.mark.produces({output})
-    def task_example(depends_on, produces):
-        for nodes in [depends_on, produces]:
-            assert isinstance(nodes, dict)
-            assert len(nodes) == 1
-            assert 0 in nodes
-        produces[0].touch()
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    session = build(paths=tmp_path)
-    assert session.exit_code == ExitCode.OK
 
 
 @pytest.mark.end_to_end()
@@ -329,13 +226,11 @@ def test_show_errors_immediately(runner, tmp_path, show_errors_immediately):
 @pytest.mark.parametrize("verbose", [1, 2])
 def test_traceback_of_previous_task_failed_is_not_shown(runner, tmp_path, verbose):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces("in.txt")
-    def task_first(): raise ValueError
+    def task_first(produces=Path("in.txt")): raise ValueError
 
-    @pytask.mark.depends_on("in.txt")
-    def task_second(): pass
+    def task_second(path=Path("in.txt")): ...
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
@@ -426,15 +321,14 @@ def test_task_with_product_annotation(tmp_path, arg_name):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.xfail(reason="Nested annotations are not parsed.", raises=AssertionError)
-def test_task_with_nested_product_annotation(tmp_path):
+def test_task_errors_with_nested_product_annotation(tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing_extensions import Annotated, Dict
     from pytask import Product
 
     def task_example(
-        paths_to_file: dict[str, Annotated[Path, Product]] = {"a": Path("out.txt")}
+        paths_to_file: Dict[str, Annotated[Path, Product]] = {"a": Path("out.txt")}
     ) -> None:
         pass
     """
@@ -442,10 +336,10 @@ def test_task_with_nested_product_annotation(tmp_path):
 
     session = build(paths=tmp_path, capture=CaptureMethod.NO)
 
-    assert session.exit_code == ExitCode.OK
+    assert session.exit_code == ExitCode.FAILED
     assert len(session.tasks) == 1
     task = session.tasks[0]
-    assert "paths_to_file" in task.produces
+    assert "paths_to_file" not in task.produces
 
 
 @pytest.mark.end_to_end()
@@ -461,8 +355,7 @@ def test_task_with_hashed_python_node(runner, tmp_path, definition):
     import json
     from pathlib import Path
     from pytask import Product, PythonNode
-    from typing import Any
-    from typing_extensions import Annotated
+    from typing_extensions import Annotated, Any
 
     data = json.loads(Path(__file__).parent.joinpath("data.json").read_text())
 
@@ -484,27 +377,6 @@ def test_task_with_hashed_python_node(runner, tmp_path, definition):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").read_text() == "world"
-
-
-@pytest.mark.end_to_end()
-@pytest.mark.parametrize(
-    "second_node", ["PythonNode()", "PathNode(path=Path('a.txt'))"]
-)
-def test_error_with_multiple_dependency_annotations(runner, tmp_path, second_node):
-    source = f"""
-    from typing_extensions import Annotated
-    from pytask import PythonNode, PathNode
-    from pathlib import Path
-
-    def task_example(
-        dependency: Annotated[str, PythonNode(), {second_node}] = "hello"
-    ) -> None: ...
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.COLLECTION_FAILED
-    assert "Parameter 'dependency'" in result.output
 
 
 @pytest.mark.end_to_end()
@@ -704,7 +576,7 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     source = """
-    from _pytask.nodes import PathNode
+    from pytask import PathNode
     from pytask import PythonNode
     from typing_extensions import Annotated
     from pathlib import Path
@@ -729,12 +601,10 @@ def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
 @pytest.mark.xfail(sys.platform == "win32", reason="Decoding issues in Gitlab Actions.")
 def test_execute_tasks_via_functional_api(tmp_path):
     source = """
-    from pytask import PathNode
-    import pytask
-    from pytask import PythonNode
-    from typing_extensions import Annotated
+    import sys
     from pathlib import Path
-
+    from typing_extensions import Annotated
+    from pytask import PathNode, PythonNode, build
 
     node_text = PythonNode()
 
@@ -747,10 +617,10 @@ def test_execute_tasks_via_functional_api(tmp_path):
         return content
 
     if __name__ == "__main__":
-        session = pytask.build(tasks=[create_file, create_text])
-
+        session = build(tasks=[create_file, create_text])
         assert len(session.tasks) == 2
         assert len(session.dag.nodes) == 5
+        sys.exit(session.exit_code)
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = subprocess.run(
@@ -769,7 +639,6 @@ def test_pass_non_task_to_functional_api_that_are_ignored():
 @pytest.mark.end_to_end()
 def test_multiple_product_annotations(runner, tmp_path):
     source = """
-    from __future__ import annotations
     from pytask import Product
     from typing_extensions import Annotated
     from pathlib import Path
@@ -900,11 +769,9 @@ def test_pickle_node_as_product_with_product_annotation(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_check_if_root_nodes_are_available(tmp_path, runner):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_d(produces):
+    def task_d(path=Path("in.txt"), produces=Path("out.txt")):
         produces.write_text("1")
     """
     tmp_path.joinpath("task_d.py").write_text(textwrap.dedent(source))
@@ -941,11 +808,9 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder(tmp_path, 
     tmp_path.joinpath("src").mkdir()
     tmp_path.joinpath("bld").mkdir()
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("../bld/in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_d(produces):
+    def task_d(path=Path("../bld/in.txt"), produces=Path("out.txt")):
         produces.write_text("1")
     """
     tmp_path.joinpath("src", "task_d.py").write_text(textwrap.dedent(source))
@@ -1008,6 +873,9 @@ def test_use_functional_interface_with_task(tmp_path):
     session = build(tasks=[task])
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").exists()
+
+    session = build(tasks=task)
+    assert session.exit_code == ExitCode.OK
 
 
 def test_collect_task(runner, tmp_path):

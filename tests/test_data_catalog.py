@@ -112,7 +112,7 @@ def test_use_data_catalog_w_config(runner, tmp_path):
 
 
 def _flush(child):
-    if child.isalive():
+    if child.isalive():  # pragma: no cover
         child.read()
         child.wait()
     assert not child.isalive()

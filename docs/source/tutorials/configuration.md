@@ -3,7 +3,7 @@
 pytask can be configured via the command-line interface or permanently with a
 `pyproject.toml` file.
 
-The file also indicates the root of your project where pytask stores information in a
+The file also indicates the root of your project, where pytask stores information in a
 `.pytask` folder.
 
 ## The configuration file
@@ -21,30 +21,29 @@ configuration file.
 
 ```toml
 [tool.pytask.ini_options]
-paths = "src"
+paths = ["src"]
 ```
 
 ## The location
 
 There are two ways to point pytask to the configuration file.
 
-First, it is possible to pass the location of the configuration file via
+The first option is to let pytask try to find the configuration itself.
+
+1. Find the common directory of all paths passed to pytask (default to the current
+   working directory).
+1. Look at all parent directories from this directory and return the file if it exists.
+1. Stop searching if a directory contains a `.git` directory/file or a valid
+   configuration file with the correct section.
+
+Secondly, it is possible to pass the location of the configuration file via
 {option}`pytask build -c` like
 
 ```console
 $ pytask -c config/pyproject.toml
 ```
 
-The second option is to let pytask try to find the configuration itself.
-
-1. Find the common base directory of all paths passed to pytask (default to the current
-   working directory).
-2. Starting from this directory, look at all parent directories, and return the file if
-   it exists.
-3. Stop searching if a directory contains a `.git` directory/file or a valid configuration file with
-   the right section.
-
 ## The options
 
-You can find all possible configuration values in the
+All possible configuration values are found in the
 {doc}`reference guide on the configuration <../reference_guides/configuration>`.

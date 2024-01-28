@@ -12,6 +12,8 @@ specific tasks with pytask.
 maxdepth: 1
 ---
 migrating_from_scripts_to_pytask
+interfaces_for_dependencies_products
+remote_files
 functional_interface
 capture_warnings
 how_to_influence_build_order
@@ -19,7 +21,7 @@ hashing_inputs_of_tasks
 using_task_returns
 provisional_nodes_and_task_generators
 writing_custom_nodes
-how_to_write_a_plugin
+extending_pytask
 the_data_catalog
 ```
 

@@ -166,11 +166,11 @@ def test_deprecation_warnings_are_not_captured(tmp_path, warning):
 def test_multiple_occurrences_of_warning_are_reduced(tmp_path, runner):
     source = """
     import warnings
-    import pytask
+    from pytask import task
 
     for i in range(10):
 
-        @pytask.mark.task
+        @task
         def task_example():
             warnings.warn("warning!!!")
     """
@@ -183,3 +183,46 @@ def test_multiple_occurrences_of_warning_are_reduced(tmp_path, runner):
     assert "warning!!!" in result.output
     # One occurrence is sometimes clipped.
     assert result.output.count("task_example") in (30, 31)
+
+
+@pytest.mark.end_to_end()
+def test_collapsing_of_warnings(tmp_path, runner):
+    source = """
+    import warnings
+    from pytask import task
+
+    for i in range(6):
+
+        @task
+        def task_example():
+            warnings.warn("Warning", category=UserWarning)
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "... in 1 more locations" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_raise_error_when_filterwarnings_is_misspecified(tmp_path, runner):
+    source = """
+    import warnings
+    import pytask
+
+    @pytask.mark.filterwarnings(True)
+    def task_example(): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+    assert "arg is not a string" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_wrong_value_in_config_in_filterwarnings(tmp_path, runner):
+    tmp_path.joinpath("pyproject.toml").write_text(
+        "[tool.pytask.ini_options]\nfilterwarnings = true"
+    )
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.CONFIGURATION_FAILED
+    assert "'filterwarnings' must be a str, list[str] or None." in result.output

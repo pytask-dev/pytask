@@ -7,8 +7,8 @@ from typing import Generator
 from typing import TYPE_CHECKING
 
 import click
-from _pytask.config import hookimpl
 from _pytask.console import console
+from _pytask.pluginmanager import hookimpl
 from _pytask.warnings_utils import catch_warnings_for_item
 from _pytask.warnings_utils import parse_filterwarnings
 from _pytask.warnings_utils import WarningReport
@@ -57,20 +57,20 @@ class WarningsNameSpace:
     """A namespace for the warnings plugin."""
 
     @staticmethod
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_collect(session: Session) -> Generator[None, None, None]:
         """Catch warnings while executing a task."""
         with catch_warnings_for_item(session=session):
-            yield
+            return (yield)
 
     @staticmethod
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_execute_task(
         session: Session, task: PTask
     ) -> Generator[None, None, None]:
         """Catch warnings while executing a task."""
         with catch_warnings_for_item(session=session, task=task):
-            yield
+            return (yield)
 
     @staticmethod
     @hookimpl(trylast=True)

@@ -3,8 +3,6 @@ from __future__ import annotations
 import textwrap
 
 import pytest
-from _pytask.database_utils import State
-from _pytask.path import hash_path
 from _pytask.persist import pytask_execute_task_process_report
 from pytask import build
 from pytask import create_database
@@ -12,7 +10,9 @@ from pytask import DatabaseSession
 from pytask import ExitCode
 from pytask import Persisted
 from pytask import SkippedUnchanged
+from pytask import State
 from pytask import TaskOutcome
+from pytask.path import hash_path
 
 from tests.conftest import restore_sys_path_and_module_after_test_execution
 
@@ -39,12 +39,11 @@ def test_multiple_runs_with_persist(tmp_path):
     """
     source = """
     import pytask
+    from pathlib import Path
 
     @pytask.mark.persist
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_dummy(depends_on, produces):
-        produces.write_text(depends_on.read_text())
+    def task_dummy(path=Path("in.txt"), produces=Path("out.txt")):
+        produces.write_text(path.read_text())
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("I'm not the reason you care.")
@@ -91,11 +90,10 @@ def test_multiple_runs_with_persist(tmp_path):
 def test_migrating_a_whole_task_with_persist(tmp_path):
     source = """
     import pytask
+    from pathlib import Path
 
     @pytask.mark.persist
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_dummy(depends_on, produces):
+    def task_dummy(depends_on=Path("in.txt"), produces=Path("out.txt")):
         produces.write_text(depends_on.read_text())
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))

@@ -46,7 +46,6 @@ __all__ = [
     "format_strings_as_flat_tree",
     "format_task_name",
     "get_file",
-    "is_jupyter",
     "render_to_string",
     "unify_styles",
 ]
@@ -128,10 +127,7 @@ def render_to_string(
 
 def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
     """Format a task id."""
-    if task.function is None:
-        url_style = Style()
-    else:
-        url_style = create_url_style_for_task(task.function, editor_url_scheme)
+    url_style = create_url_style_for_task(task.function, editor_url_scheme)
 
     if isinstance(task, PTaskWithPath):
         path, task_name = task.name.split("::")
@@ -203,7 +199,7 @@ def create_url_style_for_path(path: Path, edtior_url_scheme: str) -> Style:
     )
 
 
-def get_file(
+def get_file(  # noqa: PLR0911
     function: Callable[..., Any], skipped_paths: list[Path] | None = None
 ) -> Path | None:
     """Get path to module where the function is defined.
@@ -211,6 +207,11 @@ def get_file(
     When the ``pdb`` or ``trace`` mode is activated, every task function is wrapped with
     a decorator which we need to skip to get to the underlying task function. Thus, the
     special case.
+
+    Raises
+    ------
+    TypeError
+        If the object is a builtin module, class, or function.
 
     """
     if skipped_paths is None:
@@ -223,8 +224,15 @@ def get_file(
         if source_file and Path(source_file) in skipped_paths:
             return get_file(function.__wrapped__)
     source_file = inspect.getsourcefile(function)
-    if source_file:
-        return Path(source_file)
+    if source_file:  # pragma: no cover
+        if "<stdin>" in source_file or "ipykernel" in source_file:
+            return None
+        if "<string>" in source_file:
+            try:
+                return Path(function.__globals__["__file__"]).absolute().resolve()
+            except KeyError:
+                return None
+        return Path(source_file).absolute().resolve()
     return None
 
 
@@ -290,26 +298,3 @@ def create_summary_panel(
         if counts[outcome_enum.FAIL]
         else outcome_enum.SUCCESS.style,
     )
-
-
-def is_jupyter() -> bool:  # pragma: no cover
-    """Check if we're running in a Jupyter notebook.
-
-    Copied from rich.
-
-    """
-    try:
-        get_ipython  # type: ignore[name-defined]  # noqa: B018
-    except NameError:
-        return False
-    ipython = get_ipython()  # type: ignore[name-defined]  # noqa: F821
-    shell = ipython.__class__.__name__
-    if (
-        "google.colab" in str(ipython.__class__)
-        or os.getenv("DATABRICKS_RUNTIME_VERSION")
-        or shell == "ZMQInteractiveShell"
-    ):
-        return True  # Jupyter notebook or qtconsole
-    if shell == "TerminalInteractiveShell":
-        return False  # Terminal running IPython
-    return False  # Other type (?)

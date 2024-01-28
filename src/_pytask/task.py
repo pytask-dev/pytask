@@ -1,12 +1,12 @@
-"""Contain hooks related to the ``@pytask.mark.task`` decorator."""
+"""Contain hooks related to the :func:`@task <pytask.task>`."""
 from __future__ import annotations
 
 from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
 
-from _pytask.config import hookimpl
 from _pytask.console import format_strings_as_flat_tree
+from _pytask.pluginmanager import hookimpl
 from _pytask.shared import find_duplicates
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import parse_collected_tasks_with_task_marker
@@ -57,7 +57,7 @@ def pytask_collect_file(
 
 
 def _raise_error_when_task_functions_are_duplicated(
-    tasks: list[Callable[..., Any]]
+    tasks: list[Callable[..., Any]],
 ) -> None:
     """Raise error when task functions are duplicated.
 
@@ -76,7 +76,8 @@ def _raise_error_when_task_functions_are_duplicated(
     msg = (
         "There are some duplicates among the repeated tasks. It happens when you define"
         "the task function outside the loop body and merely wrap in the loop body with "
-        f"the '@task(...)' decorator.\n\n{flat_tree}"
+        "the 'task(...)(func)' decorator. As a workaround, wrap the task function in "
+        f"a lambda expression like 'task(...)(lambda **x: func(**x))'.\n\n{flat_tree}"
     )
     raise ValueError(msg)
 

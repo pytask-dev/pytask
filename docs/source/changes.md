@@ -5,18 +5,63 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.4.3 - 2023-11-xx
+## 0.5.0 - 2024-xx-xx
+
+- {pull}`548` fixes the type hints for {meth}`~pytask.Task.execute` and
+  {meth}`~pytask.TaskWithoutPath.execute`. Thanks to {user}`Ostheer`.
+- {pull}`551` removes the deprecated `@pytask.mark.depends_on` and
+  `@pytask.mark.produces`.
+- {pull}`552` removes the deprecated `@pytask.mark.task`.
+- {pull}`553` deprecates `paths` as a string in configuration and ensures that paths
+  passed via the command line are relative to CWD and paths in the configuration
+  relative to the config file.
+- {pull}`555` uses new-style hook wrappers and requires pluggy 1.3 for typing.
+
+## 0.4.5 - 2024-01-09
+
+- {pull}`515` enables tests with graphviz in CI. Thanks to {user}`NickCrews`.
+- {pull}`517` raises an error when the configuration file contains a non-existing path
+  (fixes #514). It also warns if the path is configured as a string, not a list of
+  strings.
+- {pull}`519` raises an error when builtin functions are wrapped with
+  {func}`~pytask.task`. Closes {issue}`512`.
+- {pull}`521` raises an error message when imported functions are wrapped with
+  {func}`@task <pytask.task>` in a task module. Fixes {issue}`513`.
+- {pull}`522` improves the issue templates.
+- {pull}`523` refactors `_pytask.console._get_file`.
+- {pull}`524` improves some linting and formatting rules.
+- {pull}`525` enables pytask to work with remote files using universal_pathlib.
+- {pull}`528` improves the codecov setup and coverage.
+- {pull}`535` reenables and fixes tests with Jupyter.
+- {pull}`536` allows partialed functions to be task functions.
+- {pull}`538` updates the documentation. For example, colon fences are replaced by
+  backticks to allow formatting all pages by mdformat.
+- {pull}`539` implements the {confval}`hook_module` configuration value and
+  `--hook-module` commandline option to register hooks.
+- {pull}`540` changes the CLI entry-point and allow `pytask.build(tasks=task_func)` as
+  the signatures suggested.
+- {pull}`542` refactors the plugin manager.
+- {pull}`543` fixes imports in tests and related issues.
+- {pull}`544` requires sqlalchemy `>=2` and upgrades the syntax.
+- {pull}`545` finalizes the release.
+
+## 0.4.4 - 2023-12-04
+
+- {pull}`509` improves the documentation.
+- {pull}`510` fixes typing issues with the {class}`~pytask.DataCatalog`.
+
+## 0.4.3 - 2023-12-01
 
 - {pull}`483` simplifies the teardown of a task.
-- {pull}`484` raises more informative error when directories instead of files are used
-  with path nodes.
-- {pull}`485` adds missing steps to unconfigure pytask after the job is done which
+- {pull}`484` raises an informative error message when directories instead of files are
+  used with path nodes.
+- {pull}`485` adds missing steps to unconfigure pytask after the job is done, which
   caused flaky tests.
 - {pull}`486` adds default names to {class}`~pytask.PPathNode`.
 - {pull}`487` implements delayed tasks and nodes.
 - {pull}`488` raises an error when an invalid value is used in a return annotation.
 - {pull}`489` and {pull}`491` simplifies parsing products and does not raise an error
-  when a product annotation is used with the argument name `produces`. And, allow
+  when a product annotation is used with the argument name `produces`. And allow
   `produces` to intake any node.
 - {pull}`490` refactors and better tests parsing of dependencies.
 - {pull}`493` allows tasks to depend on other tasks.
@@ -27,10 +72,13 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`498` fixes an error when using {class}`~pytask.Task` and
   {class}`~pytask.TaskWithoutPath` in task modules.
 - {pull}`500` refactors the dependencies for tests.
+- {pull}`501` removes `MetaNode`.
+- {pull}`508` catches objects that pretend to be a {class}`~pytask.PTask`. Fixes
+  {issue}`507`.
 
 ## 0.4.2 - 2023-11-08
 
-- {pull}`449` simplifies the code building the plugin manager.
+- {pull}`449` simplifies the code building of the plugin manager.
 - {pull}`451` improves `collect_command.py` and renames `graph.py` to `dag_command.py`.
 - {pull}`454` removes more `.svg`s and replaces them with animations.
 - {pull}`455` adds more explanation when {meth}`~pytask.PNode.load` fails during the
@@ -39,12 +87,12 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`457` refactors everything around formatting node names.
 - {pull}`459` adds a pre-commit hook to sort `__all__`.
 - {pull}`460` simplifies removing internal tracebacks from exceptions with a cause.
-- {pull}`463` raise error when a task function is not defined inside the loop body.
+- {pull}`463` raises an error when a task function is not defined inside the loop body.
 - {pull}`464` improves pinned dependencies.
 - {pull}`465` adds test to ensure internal tracebacks are removed by reports.
 - {pull}`466` implements hashing for files instead of modification timestamps.
 - {pull}`470` moves `.pytask.sqlite3` to `.pytask`.
-- {pull}`472` adds `is_product` to {meth}`PNode.load`.
+- {pull}`472` adds `is_product` to {meth}`~pytask.PNode.load`.
 - {pull}`473` adds signatures to nodes which decouples an identifier from a name.
 - {pull}`477` updates the PyPI action.
 - {pull}`478` replaces black with ruff-format.
@@ -70,9 +118,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   is not present.
 - {pull}`387` replaces pony with sqlalchemy.
 - {pull}`391` removes `@pytask.mark.parametrize`.
-- {pull}`394` allows to add products with {obj}`typing.Annotation` and
+- {pull}`394` allows to add products with {obj}`typing.Annotated` and
   {obj}`~pytask.Product`.
-- {pull}`395` refactors all occurrences of pybaum to {mod}`_pytask.tree_util`.
+- {pull}`395` refactors all occurrences of pybaum to `_pytask.tree_util`.
 - {pull}`396` replaces pybaum with optree and adds paths to the name of
   {class}`pytask.PythonNode`'s allowing for better hashing.
 - {pull}`397` adds support for {class}`typing.NamedTuple` and attrs classes in
@@ -92,14 +140,14 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`413` removes scripts to generate `.svg`s.
 - {pull}`414` allow more ruff rules.
 - {pull}`416` removes `.from_annot` again.
-- {pull}`417` deprecates {func}`pytask.mark.task` in favor of {func}`pytask.task`.
+- {pull}`417` deprecates `pytask.mark.task` in favor of {func}`pytask.task`.
 - {pull}`418` fixes and error and simplifies code in `dag.py`.
 - {pull}`420` converts `DeprecationWarning`s to `FutureWarning`s for the deprecated
   decorators.
 - {pull}`421` removes the deprecation warning when `produces` is used as an magic
   function keyword to define products.
 - {pull}`423` adds a notebook to explain the functional interface.
-- {pull}`424` fixes problems with {func}`~_pytask.path.import_path`.
+- {pull}`424` fixes problems with `~_pytask.path.import_path`.
 - {pull}`426` publishes the {mod}`pytask.tree_util` module.
 - {pull}`427` fixes type annotations for {attr}`pytask.PTask.depends_on` and
   {attr}`pytask.PTask.produces`.
@@ -138,7 +186,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`376` enhances the documentation for `pytask dag`.
 - {pull}`378` conditionally skips test on MacOS.
 - {pull}`381` deprecates `@pytask.mark.parametrize`. (Closes {issue}`233`.)
-- {pull}`501` removes {class}`pytask.MetaNode`.
+- {pull}`501` removes `pytask.MetaNode`.
 
 ## 0.3.1 - 2023-12-25
 
@@ -222,7 +270,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   arguments. It also implements {class}`_pytask.models.CollectionMetadata` to carry
   parametrized arguments to the task class.
 - {pull}`228` removes `task.pytaskmark` and moves the information to
-  {attr}`_pytask.models.CollectionMetadata.markers`.
+  {attr}`pytask.CollectionMetadata.markers`.
 - {pull}`229` implements a new loop-based approach to parametrizations using the
   {func}`@pytask.mark.task <pytask.mark.task>` decorator.
 - {pull}`230` implements {class}`_pytask.logging._TimeUnit` as a
@@ -305,8 +353,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   the direction of the DAG.
 - {pull}`186` enhance live displays by deactivating auto-refresh, among other things.
 - {pull}`187` allows to enable and disable showing tracebacks and potentially different
-  styles in the future with {confval}`show_traceback=True|False`.
-- {pull}`188` refactors some code related to {class}`_pytask.enums.ExitCode`.
+  styles in the future with `show_traceback=True|False`.
+- {pull}`188` refactors some code related to {class}`pytask.ExitCode`.
 - {pull}`189` do not display a table in the execution if no task was run.
 - {pull}`190` updates the release notes.
 
@@ -357,8 +405,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.1.1 - 2021-08-25
 
-- {pull}`138` changes the default {confval}`verbosity` to `1` which displays the live
-  table during execution and `0` display the symbols for outcomes (e.g. `.`, `F`, `s`).
+- {pull}`138` changes the default `verbosity` to `1` which displays the live table
+  during execution and `0` display the symbols for outcomes (e.g. `.`, `F`, `s`).
 - {pull}`139` enables rich's auto-refresh mechanism for live objects which causes almost
   no performance penalty for the live table compared to the symbolic output.
 

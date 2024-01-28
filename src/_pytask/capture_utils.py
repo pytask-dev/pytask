@@ -9,3 +9,10 @@ class ShowCapture(enum.Enum):
     STDOUT = "stdout"
     STDERR = "stderr"
     ALL = "all"
+
+
+class CaptureMethod(enum.Enum):
+    FD = "fd"
+    NO = "no"
+    SYS = "sys"
+    TEE_SYS = "tee-sys"

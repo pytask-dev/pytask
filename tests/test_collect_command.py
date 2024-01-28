@@ -9,22 +9,19 @@ from pathlib import Path
 import pytest
 from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
-from _pytask.nodes import PathNode
 from attrs import define
 from pytask import cli
 from pytask import ExitCode
+from pytask import PathNode
 from pytask import Task
 
 
 @pytest.mark.end_to_end()
 def test_collect_task(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_example():
-        pass
+    def task_example(path=Path("in.txt"), produces=Path("out.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").touch()
@@ -55,11 +52,9 @@ def test_collect_task(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_collect_task_new_interface(runner, tmp_path):
     source = """
-    import pytask
     from pathlib import Path
 
-    def task_example(depends_on=Path("in.txt"), arg=1, produces=Path("out.txt")):
-        pass
+    def task_example(depends_on=Path("in.txt"), arg=1, produces=Path("out.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").touch()
@@ -91,12 +86,9 @@ def test_collect_task_new_interface(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_collect_task_in_root_dir(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_example():
-        pass
+    def task_example(path=Path("in.txt"), produces=Path("out.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").touch()
@@ -117,13 +109,13 @@ def test_collect_task_in_root_dir(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_collect_parametrized_tasks(runner, tmp_path):
     source = """
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
     for arg, produces in [(0, "out_0.txt"), (1, "out_1.txt")]:
 
-        @pytask.mark.task
-        @pytask.mark.depends_on("in.txt")
-        def task_example(arg=arg, produces=produces):
+        @task
+        def task_example(depends_on=Path("in.txt"), arg=arg, produces=produces):
             pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -136,24 +128,17 @@ def test_collect_parametrized_tasks(runner, tmp_path):
     assert "<Module" in captured
     assert "task_module.py>" in captured
     assert "<Function" in captured
-    assert "[0-out_0.txt]>" in captured
-    assert "[1-out_1.txt]>" in captured
+    assert "[depends_on0-0-out_0.txt]>" in captured
+    assert "[depends_on1-1-out_1.txt]>" in captured
 
 
 @pytest.mark.end_to_end()
 def test_collect_task_with_expressions(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in_1.txt")
-    @pytask.mark.produces("out_1.txt")
-    def task_example_1():
-        pass
-
-    @pytask.mark.depends_on("in_2.txt")
-    @pytask.mark.produces("out_2.txt")
-    def task_example_2():
-        pass
+    def task_example_1(path=Path("in_1.txt"), produces=Path("out_1.txt")): ...
+    def task_example_2(path=Path("in_2.txt"), produces=Path("out_2.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in_1.txt").touch()
@@ -188,17 +173,12 @@ def test_collect_task_with_expressions(runner, tmp_path):
 def test_collect_task_with_marker(runner, tmp_path):
     source = """
     import pytask
+    from pathlib import Path
 
     @pytask.mark.wip
-    @pytask.mark.depends_on("in_1.txt")
-    @pytask.mark.produces("out_1.txt")
-    def task_example_1():
-        pass
+    def task_example_1(path=Path("in_1.txt"), produces=Path("out_1.txt")): ...
 
-    @pytask.mark.depends_on("in_2.txt")
-    @pytask.mark.produces("out_2.txt")
-    def task_example_2():
-        pass
+    def task_example_2(path=Path("in_2.txt"), produces=Path("out_2.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in_1.txt").touch()
@@ -239,20 +219,14 @@ def test_collect_task_with_marker(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_collect_task_with_ignore_from_config(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in_1.txt")
-    @pytask.mark.produces("out_1.txt")
-    def task_example_1():
-        pass
+    def task_example_1(path=Path("in_1.txt"), produces=Path("out_1.txt")): ...
     """
     tmp_path.joinpath("task_example_1.py").write_text(textwrap.dedent(source))
 
     source = """
-    @pytask.mark.depends_on("in_2.txt")
-    @pytask.mark.produces("out_2.txt")
-    def task_example_2():
-        pass
+    def task_example_2(path=Path("in_2.txt"), produces=Path("out_2.txt")): ...
     """
     tmp_path.joinpath("task_example_2.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in_1.txt").touch()
@@ -293,21 +267,17 @@ def test_collect_task_with_ignore_from_config(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_collect_task_with_ignore_from_cli(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in_1.txt")
-    @pytask.mark.produces("out_1.txt")
-    def task_example_1():
-        pass
+    def task_example_1(path=Path("in_1.txt"), produces=Path("out_1.txt")): ...
     """
     tmp_path.joinpath("task_example_1.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in_1.txt").touch()
 
     source = """
-    @pytask.mark.depends_on("in_2.txt")
-    @pytask.mark.produces("out_2.txt")
-    def task_example_2():
-        pass
+    from pathlib import Path
+
+    def task_example_2(path=Path("in_2.txt"), produces=Path("out_2.txt")): ...
     """
     tmp_path.joinpath("task_example_2.py").write_text(textwrap.dedent(source))
 

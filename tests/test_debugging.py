@@ -71,12 +71,10 @@ def test_post_mortem_on_error(tmp_path):
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_post_mortem_on_error_w_kwargs(tmp_path):
     source = """
-    import pytask
     from pathlib import Path
 
-    @pytask.mark.depends_on(Path(__file__).parent / "in.txt")
-    def task_example(depends_on):
-        a = depends_on.read_text()
+    def task_example(path=Path("in.txt")):
+        a = path.read_text()
         assert 0
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -113,12 +111,10 @@ def test_trace(tmp_path):
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_trace_w_kwargs(tmp_path):
     source = """
-    import pytask
     from pathlib import Path
 
-    @pytask.mark.depends_on(Path(__file__).parent / "in.txt")
-    def task_example(depends_on):
-        print(depends_on.read_text())
+    def task_example(path=Path("in.txt")):
+        print(path.read_text())
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("I want you back.")
@@ -174,7 +170,7 @@ def test_pdb_set_trace(tmp_path):
 @pytest.mark.xfail(reason="#312")
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
-def test_pdb_interaction_capturing_simple(tmp_path):
+def test_pdb_interaction_capturing_simple(tmp_path):  # pragma: no cover
     source = """
     import pdb
     def task_1():
@@ -286,7 +282,7 @@ def test_set_trace_capturing_afterwards(tmp_path):
 @pytest.mark.xfail(reason="#312")
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
-def test_pdb_interaction_capturing_twice(tmp_path):
+def test_pdb_interaction_capturing_twice(tmp_path):  # pragma: no cover
     source = """
     import pdb
     def task_1():

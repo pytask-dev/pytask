@@ -6,6 +6,12 @@ maintainers to cater to all possible use cases.
 Therefore, pytask uses [pluggy](https://github.com/pytest-dev/pluggy), a plugin
 framework, to allow users to extend pytask.
 
+## How to extend pytask
+
+A quick method to extend pytask is explained in the
+{doc}`guide on extending pytask <../how_to_guides/extending_pytask>`. You will learn how
+to add your own hook implementations or write your plugin.
+
 ## Where can I find plugins?
 
 You can find plugins in many places.
@@ -18,8 +24,3 @@ You can find plugins in many places.
   overview of repositories linked to pytask.
 - Search on [anaconda.org](https://anaconda.org/search?q=pytask) or
   [prefix.dev](https://prefix.dev) for related packages.
-
-## How to implement your plugin
-
-Follow the {doc}`guide on writing a plugin <../how_to_guides/how_to_write_a_plugin>` to
-write your plugin.

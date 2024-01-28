@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 import click
 from _pytask.click import ColoredCommand
-from _pytask.config import hookimpl
 from _pytask.console import console
 from _pytask.dag_utils import task_and_preceding_tasks
 from _pytask.exceptions import ConfigurationError
@@ -19,7 +18,8 @@ from _pytask.mark.structures import MARK_GEN
 from _pytask.mark.structures import MarkDecorator
 from _pytask.mark.structures import MarkGenerator
 from _pytask.outcomes import ExitCode
-from _pytask.pluginmanager import get_plugin_manager
+from _pytask.pluginmanager import hookimpl
+from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.shared import parse_markers
 from attrs import define
@@ -49,9 +49,9 @@ __all__ = [
 def markers(**raw_config: Any) -> NoReturn:
     """Show all registered markers."""
     raw_config["command"] = "markers"
+    pm = storage.get()
 
     try:
-        pm = get_plugin_manager()
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
@@ -133,9 +133,7 @@ class KeywordMatcher:
         mapped_names = {task.name}
 
         # Add the names attached to the current function through direct assignment.
-        function_obj = task.function
-        if function_obj:
-            mapped_names.update(function_obj.__dict__)
+        mapped_names.update(task.function.__dict__)
 
         # Add the markers to the keywords as we no longer handle them correctly.
         mapped_names.update(mark.name for mark in task.markers)
@@ -149,7 +147,7 @@ class KeywordMatcher:
         return any(subname in name for name in names)
 
 
-def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str]:
+def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str] | None:
     """Deselect tests by keywords."""
     keywordexpr = session.config["expression"]
     if not keywordexpr:
@@ -204,7 +202,7 @@ class MarkMatcher:
         return name in self.own_mark_names
 
 
-def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str]:
+def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str] | None:
     """Deselect tests by marks."""
     matchexpr = session.config["marker_expression"]
     if not matchexpr:

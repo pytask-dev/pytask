@@ -4,7 +4,6 @@ from __future__ import annotations
 from typing import Any
 from typing import TYPE_CHECKING
 
-from _pytask.config import hookimpl
 from _pytask.dag_utils import descending_tasks
 from _pytask.delayed_utils import collect_provisional_products
 from _pytask.mark import Mark
@@ -14,6 +13,7 @@ from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
+from _pytask.pluginmanager import hookimpl
 
 
 if TYPE_CHECKING:
@@ -23,12 +23,12 @@ if TYPE_CHECKING:
 
 
 def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
-    """Function to parse information in ``@pytask.mark.skip_ancestor_failed``."""
+    """Parse information in ``@pytask.mark.skip_ancestor_failed``."""
     return reason
 
 
 def skipif(condition: bool, *, reason: str) -> tuple[bool, str]:
-    """Function to parse information in ``@pytask.mark.skipif``."""
+    """Parse information in ``@pytask.mark.skipif``."""
     return condition, reason
 
 
