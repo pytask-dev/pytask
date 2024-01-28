@@ -154,16 +154,12 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
 
             raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
 
-            raw_config["paths"] = parse_paths(raw_config.get("paths"))
+            raw_config["paths"] = parse_paths(raw_config["paths"])
 
             if raw_config["config"] is not None:
                 raw_config["config"] = Path(raw_config["config"]).resolve()
                 raw_config["root"] = raw_config["config"].parent
             else:
-                if raw_config["paths"] is None:
-                    raw_config["paths"] = (Path.cwd(),)
-
-                raw_config["paths"] = parse_paths(raw_config["paths"])
                 (
                     raw_config["root"],
                     raw_config["config"],
