@@ -63,7 +63,7 @@ repos:
             attrs>=21.3.0,
             click,
             optree,
-            pluggy,
+            pluggy>=1.3.0,
             rich,
             sqlalchemy>2,
             types-setuptools,

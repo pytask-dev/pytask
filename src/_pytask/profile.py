@@ -68,13 +68,14 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     config["pm"].register(FileSizeNameSpace)
 
 
-@hookimpl(hookwrapper=True)
+@hookimpl(wrapper=True)
 def pytask_execute_task(task: PTask) -> Generator[None, None, None]:
     """Attach the duration of the execution to the task."""
     start = time.time()
-    yield
+    result = yield
     end = time.time()
     task.attributes["duration"] = (start, end)
+    return result
 
 
 @hookimpl
