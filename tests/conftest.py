@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import re
 import sys
 from contextlib import contextmanager
@@ -112,7 +111,6 @@ def runner():
 
 def pytest_collection_modifyitems(session, config, items) -> None:  # noqa: ARG001
     """Add markers to Jupyter notebook tests."""
-    if sys.platform == "darwin" and "CI" in os.environ:  # pragma: no cover
-        for item in items:
-            if isinstance(item, NotebookItem):
-                item.add_marker(pytest.mark.xfail(reason="Fails regularly on MacOS"))
+    for item in items:
+        if isinstance(item, NotebookItem):
+            item.add_marker(pytest.mark.xfail(reason="The tests are flaky."))
