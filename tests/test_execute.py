@@ -1073,7 +1073,7 @@ def test_delayed_task_generation(tmp_path):
         path.joinpath("a.txt").write_text("Hello, ")
         path.joinpath("b.txt").write_text("World!")
 
-    @task(after=task_produces, generator=True)
+    @task(after=task_produces, is_generator=True)
     def task_depends(
         paths = DirectoryNode(pattern="[ab].txt")
     ) -> ...:
@@ -1109,7 +1109,7 @@ def test_delayed_task_generation_with_generator(tmp_path):
         path.joinpath("a.txt").write_text("Hello, ")
         path.joinpath("b.txt").write_text("World!")
 
-    @task(after=task_produces, generator=True)
+    @task(after=task_produces, is_generator=True)
     def task_depends(
         paths = DirectoryNode(pattern="[ab].txt")
     ) -> ...:
@@ -1146,7 +1146,7 @@ def test_delayed_task_generation_with_single_function(tmp_path):
         path = Path(__file__).parent
         path.joinpath("a.txt").write_text("Hello, ")
 
-    @task(after=task_produces, generator=True)
+    @task(after=task_produces, is_generator=True)
     def task_depends(
         paths = DirectoryNode(pattern="[a].txt")
     ) -> ...:
@@ -1180,7 +1180,7 @@ def test_delayed_task_generation_with_task_node(tmp_path):
         path = Path(__file__).parent
         path.joinpath("a.txt").write_text("Hello, ")
 
-    @task(after=task_produces, generator=True)
+    @task(after=task_produces, is_generator=True)
     def task_depends(
         paths = DirectoryNode(pattern="[a].txt")
     ) -> ...:
@@ -1212,7 +1212,7 @@ def test_gracefully_fail_when_task_generator_raises_error(runner, tmp_path):
     from pytask import DirectoryNode, task, Product
     from pathlib import Path
 
-    @task(generator=True)
+    @task(is_generator=True)
     def task_example(
         root_dir: Annotated[Path, DirectoryNode(pattern="[a].txt"), Product]
     ) -> ...:
@@ -1233,7 +1233,7 @@ def test_use_delayed_node_as_product_in_generator_without_rerun(runner, tmp_path
     from pytask import DirectoryNode, task, Product
     from pathlib import Path
 
-    @task(generator=True)
+    @task(is_generator=True)
     def task_example(
         root_dir: Annotated[Path, DirectoryNode(pattern="[ab].txt"), Product]
     ) -> ...:

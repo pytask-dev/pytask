@@ -5,7 +5,7 @@ from pytask import task
 from typing_extensions import Annotated
 
 
-@task(generator=True)
+@task(is_generator=True)
 def task_copy_files(
     paths: Annotated[
         list[Path], DirectoryNode(root_dir=Path("downloads"), pattern="*")

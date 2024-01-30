@@ -42,7 +42,7 @@ def task(  # noqa: PLR0913
     name: str | None = None,
     *,
     after: str | Callable[..., Any] | list[Callable[..., Any]] | None = None,
-    generator: bool = False,
+    is_generator: bool = False,
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
     produces: Any | None = None,
@@ -63,7 +63,7 @@ def task(  # noqa: PLR0913
         An expression or a task function or a list of task functions that need to be
         executed before this task can be executed. See :ref:`after` for more
         information.
-    generator
+    is_generator
         An indicator whether this task is a task generator.
     id
         An id for the task if it is part of a parametrization. Otherwise, an automatic
@@ -135,7 +135,7 @@ def task(  # noqa: PLR0913
 
         if hasattr(unwrapped, "pytask_meta"):
             unwrapped.pytask_meta.after = parsed_after
-            unwrapped.pytask_meta.is_generator = generator
+            unwrapped.pytask_meta.is_generator = is_generator
             unwrapped.pytask_meta.id_ = id
             unwrapped.pytask_meta.kwargs = parsed_kwargs
             unwrapped.pytask_meta.markers.append(Mark("task", (), {}))
@@ -145,7 +145,7 @@ def task(  # noqa: PLR0913
         else:
             unwrapped.pytask_meta = CollectionMetadata(
                 after=parsed_after,
-                is_generator=generator,
+                is_generator=is_generator,
                 id_=id,
                 kwargs=parsed_kwargs,
                 markers=[Mark("task", (), {})],
