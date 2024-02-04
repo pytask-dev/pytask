@@ -76,7 +76,7 @@ def pytask_execute_task(session: Session, task: PTask) -> None:  # noqa: C901, P
         if isinstance(task, PTaskWithPath) and task.path in COLLECTED_TASKS:
             tasks = COLLECTED_TASKS.pop(task.path)
             name_to_function = parse_collected_tasks_with_task_marker(tasks)
-        elif isinstance(task, PTask) and None in COLLECTED_TASKS:
+        elif None in COLLECTED_TASKS:
             tasks = COLLECTED_TASKS.pop(None)
             name_to_function = parse_collected_tasks_with_task_marker(tasks)
         else:

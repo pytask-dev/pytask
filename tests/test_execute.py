@@ -1004,7 +1004,7 @@ def test_task_that_depends_on_delayed_path_node_with_root_dir(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_task_that_depends_on_delayed_task(tmp_path):
+def test_task_that_depends_on_delayed_task(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DirectoryNode, task
@@ -1024,12 +1024,10 @@ def test_task_that_depends_on_delayed_task(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = build(paths=tmp_path)
-
-    assert session.exit_code == ExitCode.OK
-    assert len(session.tasks) == 2
-    assert len(session.tasks[0].produces["return"]) == 2
-    assert len(session.tasks[1].depends_on["paths"]) == 2
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "2  Collected tasks" in result.output
+    assert "2  Succeeded" in result.output
 
 
 @pytest.mark.end_to_end()
@@ -1062,7 +1060,7 @@ def test_gracefully_fail_when_dag_raises_error(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_delayed_task_generation(tmp_path):
+def test_delayed_task_generation(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DirectoryNode, task
@@ -1087,18 +1085,16 @@ def test_delayed_task_generation(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = build(paths=tmp_path)
-
-    assert session.exit_code == ExitCode.OK
-    assert len(session.tasks) == 4
-    assert len(session.tasks[0].produces["return"]) == 2
-    assert len(session.tasks[1].depends_on["paths"]) == 2
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "4  Collected tasks" in result.output
+    assert "4  Succeeded" in result.output
     assert tmp_path.joinpath("a-copy.txt").exists()
     assert tmp_path.joinpath("b-copy.txt").exists()
 
 
 @pytest.mark.end_to_end()
-def test_delayed_task_generation_with_generator(tmp_path):
+def test_delayed_task_generation_with_generator(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DirectoryNode, task
@@ -1125,18 +1121,16 @@ def test_delayed_task_generation_with_generator(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = build(paths=tmp_path)
-
-    assert session.exit_code == ExitCode.OK
-    assert len(session.tasks) == 4
-    assert len(session.tasks[0].produces["return"]) == 2
-    assert len(session.tasks[1].depends_on["paths"]) == 2
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "4  Collected tasks" in result.output
+    assert "4  Succeeded" in result.output
     assert tmp_path.joinpath("a-copy.txt").exists()
     assert tmp_path.joinpath("b-copy.txt").exists()
 
 
 @pytest.mark.end_to_end()
-def test_delayed_task_generation_with_single_function(tmp_path):
+def test_delayed_task_generation_with_single_function(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DirectoryNode, task
@@ -1160,17 +1154,15 @@ def test_delayed_task_generation_with_single_function(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = build(paths=tmp_path)
-
-    assert session.exit_code == ExitCode.OK
-    assert len(session.tasks) == 3
-    assert len(session.tasks[0].produces["return"]) == 1
-    assert len(session.tasks[1].depends_on["paths"]) == 1
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "3  Collected tasks" in result.output
+    assert "3  Succeeded" in result.output
     assert tmp_path.joinpath("a-copy.txt").exists()
 
 
 @pytest.mark.end_to_end()
-def test_delayed_task_generation_with_task_node(tmp_path):
+def test_delayed_task_generation_with_task_node(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DirectoryNode, TaskWithoutPath, task, PathNode
@@ -1196,12 +1188,10 @@ def test_delayed_task_generation_with_task_node(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = build(paths=tmp_path)
-
-    assert session.exit_code == ExitCode.OK
-    assert len(session.tasks) == 3
-    assert len(session.tasks[0].produces["return"]) == 1
-    assert len(session.tasks[1].depends_on["paths"]) == 1
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "3  Collected tasks" in result.output
+    assert "3  Succeeded" in result.output
     assert tmp_path.joinpath("a-copy.txt").exists()
 
 
