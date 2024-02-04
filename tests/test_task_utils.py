@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from functools import partial
+from pathlib import Path
 from typing import NamedTuple
 
 import pytest
 from _pytask.task_utils import _arg_value_to_id_component
 from _pytask.task_utils import _parse_name
 from _pytask.task_utils import _parse_task_kwargs
+from _pytask.task_utils import COLLECTED_TASKS
 from attrs import define
 from pytask import Mark
 from pytask import task
@@ -75,6 +77,9 @@ def test_default_values_of_pytask_meta():
     assert task_example.pytask_meta.markers == [Mark("task", (), {})]
     assert task_example.pytask_meta.name == "task_example"
     assert task_example.pytask_meta.produces is None
+
+    # Remove collected task.
+    COLLECTED_TASKS.pop(Path(__file__))
 
 
 def task_func(x):  # noqa: ARG001  # pragma: no cover
