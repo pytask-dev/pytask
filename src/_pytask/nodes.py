@@ -381,7 +381,8 @@ class DirectoryNode(PProvisionalNode):
     def load(self, is_product: bool = False) -> Path:
         if is_product:
             return self.root_dir  # type: ignore[return-value]
-        raise NotImplementedError
+        msg = "'DirectoryNode' cannot be loaded as a dependency"
+        raise NotImplementedError(msg)  # pragma: no cover
 
     def collect(self) -> list[Path]:
         """Collect paths defined by the pattern."""

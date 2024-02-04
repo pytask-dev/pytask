@@ -121,7 +121,7 @@ class PProvisionalNode(Protocol):
     def signature(self) -> str:
         """Return the signature of the node."""
 
-    def load(self, is_product: bool = False) -> Any:
+    def load(self, is_product: bool = False) -> Any:  # pragma: no cover
         """Load a probisional node.
 
         A provisional node will never be loaded as a dependency since it would be
