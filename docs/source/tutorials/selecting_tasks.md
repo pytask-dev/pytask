@@ -91,7 +91,8 @@ from pytask import task
 for i in range(2):
 
     @task
-    def task_parametrized(i=i): ...
+    def task_parametrized(i=i):
+        ...
 ```
 
 To run the task where `i = 1`, run this command.
