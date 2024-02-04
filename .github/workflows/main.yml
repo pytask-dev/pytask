@@ -43,9 +43,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install graphviz graphviz-dev
 
-      - if: matrix.os == 'macos-14'
-        run: brew install graphviz
-
       # Unit, integration, and end-to-end tests.
 
       - name: Run unit tests and doctests.
