@@ -81,3 +81,7 @@ content to a `.txt` file.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/delayed_tasks_task_generator.py
 ```
+
+```{important}
+The generated tasks need to be decoratored with {func}`@task <pytask.task>` to be collected.
+```

@@ -23,7 +23,6 @@ from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import parse_collected_tasks_with_task_marker
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
-from _pytask.typing import is_task_function
 from _pytask.typing import is_task_generator
 from pytask import TaskOutcome
 
@@ -49,13 +48,8 @@ def _safe_load(node: PNode | PProvisionalNode, task: PTask, is_product: bool) ->
         raise NodeLoadError(msg) from e
 
 
-_ERROR_TASK_GENERATOR_RETURN = """\
-Could not collect return of task generator. The return should be a task function or a \
-task class but received {} instead."""
-
-
 @hookimpl
-def pytask_execute_task(session: Session, task: PTask) -> None:  # noqa: C901, PLR0912
+def pytask_execute_task(session: Session, task: PTask) -> None:
     """Execute task generators and collect the tasks."""
     if is_task_generator(task):
         kwargs = {}
@@ -67,9 +61,7 @@ def pytask_execute_task(session: Session, task: PTask) -> None:  # noqa: C901, P
             if name in parameters:
                 kwargs[name] = tree_map(lambda x: _safe_load(x, task, True), value)
 
-        out = task.execute(**kwargs)
-        if inspect.isgenerator(out):
-            out = list(out)
+        task.execute(**kwargs)
 
         # Parse tasks created with @task.
         name_to_function: Mapping[str, Callable[..., Any] | PTask]
@@ -80,23 +72,8 @@ def pytask_execute_task(session: Session, task: PTask) -> None:  # noqa: C901, P
             tasks = COLLECTED_TASKS.pop(None)
             name_to_function = parse_collected_tasks_with_task_marker(tasks)
         else:
-            # Parse individual tasks.
-            if is_task_function(out) or isinstance(out, PTask):
-                out = [out]
-            # Parse tasks from iterable.
-            if hasattr(out, "__iter__"):
-                name_to_function = {}
-                for obj in out:
-                    if is_task_function(obj):
-                        name_to_function[obj.__name__] = obj
-                    elif isinstance(obj, PTask):
-                        name_to_function[obj.name] = obj
-                    else:
-                        msg = _ERROR_TASK_GENERATOR_RETURN.format(obj)
-                        raise ValueError(msg)
-            else:
-                msg = _ERROR_TASK_GENERATOR_RETURN.format(out)
-                raise ValueError(msg)
+            msg = "The task generator {task.name!r} did not create any tasks."
+            raise RuntimeError(msg)
 
         new_reports = []
         for name, function in name_to_function.items():
