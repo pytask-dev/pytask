@@ -136,8 +136,7 @@ For example:
 
 ```python
 @pytask.mark.timeout(10, "slow", method="thread")
-def task_function():
-    ...
+def task_function(): ...
 ```
 
 Will create and attach a {class}`Mark <pytask.Mark>` object to the collected
@@ -154,8 +153,7 @@ Example for using multiple custom markers:
 ```python
 @pytask.mark.timeout(10, "slow", method="thread")
 @pytask.mark.slow
-def task_function():
-    ...
+def task_function(): ...
 ```
 
 ### Classes
