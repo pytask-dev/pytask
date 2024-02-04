@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 import textwrap
 
 import pytest
@@ -641,12 +642,16 @@ def test_task_will_be_executed_after_another_one_with_string(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_task_will_be_executed_after_another_one_with_function(tmp_path):
-    source = """
+@pytest.mark.parametrize("decorator", ["", "@task"])
+def test_task_will_be_executed_after_another_one_with_function(
+    runner, tmp_path, decorator
+):
+    source = f"""
     from pytask import task
     from pathlib import Path
     from typing_extensions import Annotated
 
+    {decorator}
     def task_first() -> Annotated[str, Path("out.txt")]:
         return "Hello, World!"
 
@@ -656,8 +661,35 @@ def test_task_will_be_executed_after_another_one_with_function(tmp_path):
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
-    session = build(paths=tmp_path)
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+
+
+@pytest.mark.end_to_end()
+@pytest.mark.parametrize("decorator", ["", "@task"])
+def test_task_will_be_executed_after_another_one_with_function_session(
+    tmp_path, decorator
+):
+    source = f"""
+    from pytask import task, ExitCode, build
+    from pathlib import Path
+    from typing_extensions import Annotated
+
+    {decorator}
+    def task_first() -> Annotated[str, Path("out.txt")]:
+        return "Hello, World!"
+
+    @task(after=task_first)
+    def task_second():
+        assert Path(__file__).parent.joinpath("out.txt").exists()
+
+    session = build(tasks=[task_first, task_second])
     assert session.exit_code == ExitCode.OK
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = subprocess.run(("pytask",), cwd=tmp_path, capture_output=True, check=False)
+    assert result.returncode == ExitCode.OK
 
 
 @pytest.mark.end_to_end()

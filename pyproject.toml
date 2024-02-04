@@ -105,8 +105,11 @@ namespaces = false
 
 [tool.ruff]
 target-version = "py38"
-select = ["ALL"]
 fix = true
+extend-include = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = ["ALL"]
 ignore = [
     "FBT",  # flake8-boolean-trap
     "I",  # ignore isort
@@ -125,7 +128,7 @@ ignore = [
 ]
 
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "src/_pytask/_hashlib.py" = ["ALL"]
 "src/_pytask/capture.py" = ["PGH003"]
 "src/_pytask/hookspecs.py" = ["ARG001"]
@@ -141,9 +144,10 @@ ignore = [
 "docs/source/how_to_guides/functional_interface*" = ["B018", "D", "INP", "ARG005"]
 "docs_src/how_to_guides/using_task_returns_*_task.py" = ["ARG005", "E731"]
 "docs_src/how_to_guides/writing_custom_nodes_*.py" = ["S301"]
+"docs_src/tutorials/using_a_data_catalog_*.py" = ["RET504"]
 
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
 [tool.pytest.ini_options]
