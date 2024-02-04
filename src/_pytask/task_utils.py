@@ -171,17 +171,16 @@ def _parse_after(
     if isinstance(after, str):
         return after
     if callable(after):
-        if not hasattr(after, "pytask_meta"):
-            after = task()(after)
-        return [after.pytask_meta._id]  # type: ignore[attr-defined]
+        after = [after]
     if isinstance(after, list):
         new_after = []
         for func in after:
             if not hasattr(func, "pytask_meta"):
-                func.pytask_meta = CollectionMetadata()  # type: ignore[attr-defined]
-            new_after.append(func.pytask_meta._id)  # type: ignore[attr-defined]
+                func = task()(func)  # noqa: PLW2901
+            new_after.append(func.pytask_meta._id)
+        return new_after
     msg = (
-        "'after' should be an expression string, a task, or a list of class. Got "
+        "'after' should be an expression string, a task, or a list of tasks. Got "
         f"{after}, instead."
     )
     raise TypeError(msg)
