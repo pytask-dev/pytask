@@ -12,5 +12,5 @@ def task_transform_csv(
     node: Annotated[PickleNode, Product] = data_catalog["transformed_csv"],
 ) -> None:
     df = pd.read_csv(path)
-    ...
+    # ... transform the data.
     node.save(df)

@@ -45,13 +45,13 @@ repos:
     hooks:
     -   id: sort-all
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.14
+    rev: v0.2.0
     hooks:
       - id: ruff-format
       - id: ruff
         args: [--unsafe-fixes]
 -   repo: https://github.com/dosisod/refurb
-    rev: v1.27.0
+    rev: v1.28.0
     hooks:
     -   id: refurb
         args: [--ignore, FURB126]
@@ -96,9 +96,8 @@ repos:
     -   id: nbqa-isort
     -   id: nbqa-mypy
         args: [--ignore-missing-imports]
-    -   id: nbqa-ruff
 -   repo: https://github.com/kynan/nbstripout
-    rev: 0.6.1
+    rev: 0.6.2
     hooks:
     -   id: nbstripout
         exclude: (docs)
