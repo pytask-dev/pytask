@@ -1076,7 +1076,7 @@ def test_delayed_task_generation(tmp_path):
     @task(after=task_produces, is_generator=True)
     def task_depends(
         paths = DirectoryNode(pattern="[ab].txt")
-    ) -> ...:
+    ):
         for path in paths:
 
             @task

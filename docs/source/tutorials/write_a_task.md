@@ -117,14 +117,16 @@ from pytask import task
 
 
 @task
-def create_random_data(): ...
+def create_random_data():
+    ...
 
 
 # The id will be ".../task_data_preparation.py::create_data".
 
 
 @task(name="create_data")
-def create_random_data(): ...
+def create_random_data():
+    ...
 ```
 
 ## Customize task module names

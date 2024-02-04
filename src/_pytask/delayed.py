@@ -51,7 +51,7 @@ def _safe_load(node: PNode | PProvisionalNode, task: PTask, is_product: bool) ->
 
 _ERROR_TASK_GENERATOR_RETURN = """\
 Could not collect return of task generator. The return should be a task function or a \
-task class but received {obj} instead."""
+task class but received {} instead."""
 
 
 @hookimpl
@@ -75,6 +75,9 @@ def pytask_execute_task(session: Session, task: PTask) -> None:  # noqa: C901, P
         name_to_function: Mapping[str, Callable[..., Any] | PTask]
         if isinstance(task, PTaskWithPath) and task.path in COLLECTED_TASKS:
             tasks = COLLECTED_TASKS.pop(task.path)
+            name_to_function = parse_collected_tasks_with_task_marker(tasks)
+        elif isinstance(task, PTask) and None in COLLECTED_TASKS:
+            tasks = COLLECTED_TASKS.pop(None)
             name_to_function = parse_collected_tasks_with_task_marker(tasks)
         else:
             # Parse individual tasks.
