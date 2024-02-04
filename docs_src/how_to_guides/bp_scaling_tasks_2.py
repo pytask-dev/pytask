@@ -34,6 +34,6 @@ for id_, kwargs in _ID_TO_KWARGS.items():
         path_to_processed_data: Annotated[Path, Product],
     ) -> None:
         df = pd.read_csv(path_to_input_data)
-        ...
+        # ... transform the data.
         subset = df.loc[df["subset"].eq(subset)]
         subset.to_pickle(path_to_processed_data)
