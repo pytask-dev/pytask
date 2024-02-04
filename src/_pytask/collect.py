@@ -437,7 +437,7 @@ def pytask_collect_node(  # noqa: C901, PLR0912
             node.name = create_name_of_python_node(node_info)
         return node
 
-    if isinstance(node, UPath):
+    if isinstance(node, UPath):  # pragma: no cover
         if not node.protocol:
             node = Path(node)
         else:
