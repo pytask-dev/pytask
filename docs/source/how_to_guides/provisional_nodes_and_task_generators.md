@@ -40,9 +40,10 @@ to store the files.
 
 ```{note}
 The {class}`~pytask.DirectoryNode` is a provisional node that implements
-{class}`~pytask.PProvisionalNode`. A provisional node is not a {class}`~pytask.PNode`, but when
-its {meth}`~pytask.PProvisionalNode.collect` method is called, it returns actual nodes.
-A {class}`~pytask.DirectoryNode`, for example, returns {class}`~pytask.PathNode`.
+{class}`~pytask.PProvisionalNode`. A provisional node is not a {class}`~pytask.PNode`,
+but when its {meth}`~pytask.PProvisionalNode.collect` method is called, it returns
+actual nodes. A {class}`~pytask.DirectoryNode`, for example, returns
+{class}`~pytask.PathNode`.
 ```
 
 ## Depending on provisional nodes
