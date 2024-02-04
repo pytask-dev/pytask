@@ -172,7 +172,7 @@ def _parse_after(
         return after
     if callable(after):
         if not hasattr(after, "pytask_meta"):
-            after.pytask_meta = CollectionMetadata()  # type: ignore[attr-defined]
+            after = task()(after)
         return [after.pytask_meta._id]  # type: ignore[attr-defined]
     if isinstance(after, list):
         new_after = []
