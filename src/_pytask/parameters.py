@@ -56,7 +56,7 @@ _IGNORE_OPTION = click.Option(
 _PATH_ARGUMENT = click.Argument(
     ["paths"],
     nargs=-1,
-    type=click.Path(exists=True, resolve_path=True),
+    type=click.Path(exists=True, resolve_path=True, path_type=Path),
     is_eager=True,
 )
 """click.Argument: An argument for paths."""
@@ -180,9 +180,11 @@ _HOOK_MODULE_OPTION = click.Option(
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Register general markers."""
     for command in ("build", "clean", "collect", "dag", "profile"):
-        cli.commands[command].params.extend((_PATH_ARGUMENT, _DATABASE_URL_OPTION))
+        cli.commands[command].params.extend((_DATABASE_URL_OPTION,))
     for command in ("build", "clean", "collect", "dag", "markers", "profile"):
-        cli.commands[command].params.extend((_CONFIG_OPTION, _HOOK_MODULE_OPTION))
+        cli.commands[command].params.extend(
+            (_CONFIG_OPTION, _HOOK_MODULE_OPTION, _PATH_ARGUMENT)
+        )
     for command in ("build", "clean", "collect", "profile"):
         cli.commands[command].params.extend([_IGNORE_OPTION, _EDITOR_URL_SCHEME_OPTION])
     for command in ("build",):
