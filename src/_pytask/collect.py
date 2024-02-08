@@ -444,7 +444,7 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
         name = shorten_path(node, session.config["paths"] or (session.config["root"],))
 
         if isinstance(node, Path) and node.is_dir():
-            raise ValueError(_TEMPLATE_ERROR_DIRECTORY.format(path=path))
+            raise ValueError(_TEMPLATE_ERROR_DIRECTORY.format(path=node))
 
         return PathNode(name=name, path=node)
 
