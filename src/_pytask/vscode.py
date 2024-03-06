@@ -54,7 +54,8 @@ def pytask_collect_log(
         url = "http://localhost:6000/pytask/collect"
         thread = Thread(
             target=send_logging_vscode,
-            args=(url,
+            args=(
+                url,
                 {"exitcode": exitcode, "tasks": result},
                 0.00001,
             ),
