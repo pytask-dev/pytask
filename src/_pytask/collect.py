@@ -44,13 +44,7 @@ from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
 from rich.text import Text
-
-try:
-    from upath import UPath
-except ImportError:  # pragma: no cover
-
-    class UPath:  # type: ignore[no-redef]
-        ...
+from upath import UPath
 
 
 if TYPE_CHECKING:
