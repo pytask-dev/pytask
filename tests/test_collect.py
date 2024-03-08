@@ -136,6 +136,11 @@ def test_error_with_invalid_file_name_pattern(runner, tmp_path):
     assert "'task_files' must be a list of patterns." in result.output
 
 
+def test_error_with_invalid_file_name_pattern_(tmp_path):
+    session = build(paths=tmp_path, task_files=[1])
+    assert session.exit_code == ExitCode.CONFIGURATION_FAILED
+
+
 @pytest.mark.unit()
 @pytest.mark.parametrize(
     ("session", "path", "node_info", "expected"),
