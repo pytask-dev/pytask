@@ -23,7 +23,6 @@ from _pytask.mark import select_tasks_by_marks_and_expressions
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PTask
 from _pytask.nodes import PythonNode
-from _pytask.pluginmanager import hookimpl
 from _pytask.reports import DagReport
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.tree_util import tree_map
@@ -34,26 +33,25 @@ if TYPE_CHECKING:
     from _pytask.session import Session
 
 
-@hookimpl
-def pytask_dag(session: Session) -> bool | None:
+__all__ = ["create_dag"]
+
+
+def create_dag(session: Session) -> None:
     """Create a directed acyclic graph (DAG) for the workflow."""
     try:
-        session.dag = create_dag(session=session, tasks=session.tasks)
-        modify_dag(session=session, dag=session.dag)
+        session.dag = _create_dag(session=session, tasks=session.tasks)
+        _modify_dag(session=session, dag=session.dag)
         select_tasks_by_marks_and_expressions(session=session, dag=session.dag)
 
     except Exception:  # noqa: BLE001
         report = DagReport.from_exception(sys.exc_info())
-        log_dag(report=report)
+        _log_dag(report=report)
         session.dag_report = report
 
         raise ResolvingDependenciesError from None
 
-    else:
-        return True
 
-
-def create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
+def _create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
     """Create the DAG from tasks, dependencies and products."""
 
     def _add_dependency(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
@@ -96,7 +94,7 @@ def create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
     return dag
 
 
-def modify_dag(session: Session, dag: nx.DiGraph) -> None:
+def _modify_dag(session: Session, dag: nx.DiGraph) -> None:
     """Create dependencies between tasks when using ``@task(after=...)``."""
     temporary_id_to_task = {
         task.attributes["collection_id"]: task
@@ -192,7 +190,7 @@ def _check_if_tasks_have_the_same_products(dag: nx.DiGraph, paths: list[Path]) -
         raise ResolvingDependenciesError(msg)
 
 
-def log_dag(report: DagReport) -> None:
+def _log_dag(report: DagReport) -> None:
     """Log errors which happened while resolving dependencies."""
     console.print()
     console.rule(

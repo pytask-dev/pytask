@@ -21,6 +21,7 @@ from _pytask.click import ColoredCommand
 from _pytask.config_utils import find_project_root_and_config
 from _pytask.config_utils import read_config
 from _pytask.console import console
+from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
@@ -265,7 +266,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_dag(session=session)
+            create_dag(session=session)
             session.hook.pytask_execute(session=session)
 
         except CollectionError:
