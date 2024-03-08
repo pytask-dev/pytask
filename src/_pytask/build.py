@@ -1,17 +1,20 @@
 """Implement the build command."""
+
 from __future__ import annotations
 
 import json
 import sys
 from contextlib import suppress
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
 from typing import Iterable
 from typing import Literal
-from typing import TYPE_CHECKING
 
 import click
+from rich.traceback import Traceback
+
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
 from _pytask.click import ColoredCommand
@@ -31,12 +34,11 @@ from _pytask.session import Session
 from _pytask.shared import parse_paths
 from _pytask.shared import to_list
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
-from rich.traceback import Traceback
-
 
 if TYPE_CHECKING:
-    from _pytask.node_protocols import PTask
     from typing import NoReturn
+
+    from _pytask.node_protocols import PTask
 
 
 @hookimpl(tryfirst=True)

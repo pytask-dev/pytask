@@ -5,7 +5,6 @@ from pytask import Product
 from pytask import task
 from typing_extensions import Annotated
 
-
 for seed in range(10):
 
     @task
@@ -13,5 +12,4 @@ for seed in range(10):
         path_to_parameters: Path = SRC / "parameters.yml",
         path_to_data: Annotated[Path, Product] = Path(f"data_{seed}.pkl"),
         seed: int = seed,
-    ) -> None:
-        ...
+    ) -> None: ...

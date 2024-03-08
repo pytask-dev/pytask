@@ -8,13 +8,13 @@ from pathlib import Path
 import pytest
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
-from pytask import build
-from pytask import cli
 from pytask import CollectionOutcome
 from pytask import ExitCode
 from pytask import NodeInfo
 from pytask import Session
 from pytask import Task
+from pytask import build
+from pytask import cli
 
 
 @pytest.mark.end_to_end()

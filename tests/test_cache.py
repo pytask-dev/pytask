@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import inspect
 
-from _pytask.cache import _make_memoize_key
 from _pytask.cache import Cache
+from _pytask.cache import _make_memoize_key
 
 
 def test_cache():

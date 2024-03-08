@@ -1,6 +1,6 @@
 """Should not contain any imports except for the version."""
-from __future__ import annotations
 
+from __future__ import annotations
 
 try:
     from ._version import version as __version__

@@ -4,8 +4,8 @@ import enum
 
 import click
 import pytest
-from pytask import cli
 from pytask import EnumChoice
+from pytask import cli
 
 
 @pytest.mark.end_to_end()
@@ -47,8 +47,7 @@ def test_enum_choice_error(runner):
 
     @click.command()
     @click.option("--method", type=EnumChoice(Method))
-    def test():
-        ...
+    def test(): ...
 
     result = runner.invoke(test, ["--method", "third"])
 

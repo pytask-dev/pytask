@@ -1,4 +1,5 @@
 """Contains the command and code for drawing the DAG."""
+
 from __future__ import annotations
 
 import enum
@@ -8,6 +9,9 @@ from typing import Any
 
 import click
 import networkx as nx
+from rich.text import Text
+from rich.traceback import Traceback
+
 from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
 from _pytask.compat import check_for_optional_program
@@ -27,8 +31,6 @@ from _pytask.shared import parse_paths
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import to_list
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
-from rich.text import Text
-from rich.traceback import Traceback
 
 
 class _RankDirection(enum.Enum):

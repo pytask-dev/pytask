@@ -18,5 +18,4 @@ ID_TO_KWARGS = {
 for id_, kwargs in ID_TO_KWARGS.items():
 
     @task(id=id_, kwargs=kwargs)
-    def task_create_random_data(seed: int, produces: Path) -> None:
-        ...
+    def task_create_random_data(seed: int, produces: Path) -> None: ...

@@ -1,4 +1,5 @@
 """Contains utility functions for warnings."""
+
 from __future__ import annotations
 
 import functools
@@ -6,14 +7,13 @@ import re
 import textwrap
 import warnings
 from contextlib import contextmanager
-from typing import cast
+from typing import TYPE_CHECKING
 from typing import Generator
 from typing import NamedTuple
-from typing import TYPE_CHECKING
+from typing import cast
 
 from _pytask.mark_utils import get_marks
 from _pytask.outcomes import Exit
-
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
