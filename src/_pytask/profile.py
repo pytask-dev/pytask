@@ -21,6 +21,7 @@ from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
 from _pytask.console import console
 from _pytask.console import format_task_name
+from _pytask.dag import create_dag
 from _pytask.database_utils import BaseTable
 from _pytask.database_utils import DatabaseSession
 from _pytask.exceptions import CollectionError
@@ -128,7 +129,7 @@ def profile(**raw_config: Any) -> NoReturn:
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_dag(session=session)
+            session.dag = create_dag(session=session)
 
             profile: dict[str, dict[str, Any]] = {
                 task.name: {} for task in session.tasks

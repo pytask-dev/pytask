@@ -45,6 +45,7 @@ __all__ = [
     "select_by_after_keyword",
     "select_by_keyword",
     "select_by_mark",
+    "select_tasks_by_marks_and_expressions",
 ]
 
 
@@ -234,8 +235,7 @@ def _deselect_others_with_mark(
             task.markers.append(mark)
 
 
-@hookimpl
-def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
+def select_tasks_by_marks_and_expressions(session: Session, dag: nx.DiGraph) -> None:
     """Modify the tasks which are executed with expressions and markers."""
     remaining = select_by_keyword(session, dag)
     if remaining is not None:
