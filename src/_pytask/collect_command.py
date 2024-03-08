@@ -71,7 +71,7 @@ def collect(**raw_config: Any | None) -> NoReturn:
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
-            create_dag(session=session)
+            session.dag = create_dag(session=session)
 
             tasks = _select_tasks_by_expressions_and_marker(session)
             task_with_path = [t for t in tasks if isinstance(t, PTaskWithPath)]

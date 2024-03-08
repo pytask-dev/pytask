@@ -36,12 +36,14 @@ if TYPE_CHECKING:
 __all__ = ["create_dag"]
 
 
-def create_dag(session: Session) -> None:
+def create_dag(session: Session) -> nx.DiGraph:
     """Create a directed acyclic graph (DAG) for the workflow."""
     try:
-        session.dag = _create_dag(session=session, tasks=session.tasks)
-        _modify_dag(session=session, dag=session.dag)
-        select_tasks_by_marks_and_expressions(session=session, dag=session.dag)
+        dag = _create_dag(tasks=session.tasks)
+        _check_if_dag_has_cycles(dag)
+        _check_if_tasks_have_the_same_products(dag, session.config["paths"])
+        _modify_dag(session=session, dag=dag)
+        select_tasks_by_marks_and_expressions(session=session, dag=dag)
 
     except Exception:  # noqa: BLE001
         report = DagReport.from_exception(sys.exc_info())
@@ -49,9 +51,10 @@ def create_dag(session: Session) -> None:
         session.dag_report = report
 
         raise ResolvingDependenciesError from None
+    return dag
 
 
-def _create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
+def _create_dag(tasks: list[PTask]) -> nx.DiGraph:
     """Create the DAG from tasks, dependencies and products."""
 
     def _add_dependency(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
@@ -87,10 +90,6 @@ def _create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
             else None,
             task.depends_on,
         )
-
-    _check_if_dag_has_cycles(dag)
-    _check_if_tasks_have_the_same_products(dag, session.config["paths"])
-
     return dag
 
 

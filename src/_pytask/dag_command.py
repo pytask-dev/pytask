@@ -102,7 +102,7 @@ def dag(**raw_config: Any) -> int:
                 "can install with conda.",
             )
             session.hook.pytask_collect(session=session)
-            create_dag(session=session)
+            session.dag = create_dag(session=session)
             dag = _refine_dag(session)
             _write_graph(dag, session.config["output_path"], session.config["layout"])
 
@@ -199,7 +199,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
                 "can install with conda.",
             )
             session.hook.pytask_collect(session=session)
-            create_dag(session=session)
+            session.dag = create_dag(session=session)
             session.hook.pytask_unconfigure(session=session)
             dag = _refine_dag(session)
 

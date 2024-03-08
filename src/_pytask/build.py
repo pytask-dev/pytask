@@ -266,7 +266,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
-            create_dag(session=session)
+            session.dag = create_dag(session=session)
             session.hook.pytask_execute(session=session)
 
         except CollectionError:
