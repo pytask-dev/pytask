@@ -17,6 +17,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   relative to the config file.
 - {pull}`555` uses new-style hook wrappers and requires pluggy 1.3 for typing.
 - {pull}`557` fixes an issue with `@task(after=...)` in notebooks and terminals.
+- {pull}`566` makes universal-pathlib an official dependency.
 
 ## 0.4.5 - 2024-01-09
 

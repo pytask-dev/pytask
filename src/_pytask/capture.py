@@ -22,6 +22,7 @@ References
   <https://github.com/pytest-dev/pytest/blob/main/src/_pytest/debugging.py>`_.
 
 """
+
 from __future__ import annotations
 
 import contextlib
@@ -31,16 +32,17 @@ import os
 import sys
 from io import UnsupportedOperation
 from tempfile import TemporaryFile
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import AnyStr
-from typing import final
 from typing import Generator
 from typing import Generic
 from typing import Iterator
 from typing import TextIO
-from typing import TYPE_CHECKING
+from typing import final
 
 import click
+
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
 from _pytask.click import EnumChoice
@@ -386,7 +388,7 @@ class FDCaptureBinary:
         self._state = "initialized"
 
     def __repr__(self) -> str:
-        return "<{} {} oldfd={} _state={!r} tmpfile={!r}>".format(
+        return "<{} {} oldfd={} _state={!r} tmpfile={!r}>".format(  # noqa: UP032
             self.__class__.__name__,
             self.targetfd,
             self.targetfd_save,
@@ -566,7 +568,7 @@ class MultiCapture(Generic[AnyStr]):
         self.err = err
 
     def __repr__(self) -> str:
-        return (
+        return (  # noqa: UP032
             "<MultiCapture out={!r} err={!r} in_={!r} _state={!r} "
             "_in_suspended={!r}>"
         ).format(
@@ -680,7 +682,7 @@ class CaptureManager:
         self._capturing: MultiCapture[str] | None = None
 
     def __repr__(self) -> str:
-        return ("<CaptureManager _method={!r} _capturing={!r}>").format(
+        return ("<CaptureManager _method={!r} _capturing={!r}>").format(  # noqa: UP032
             self._method, self._capturing
         )
 

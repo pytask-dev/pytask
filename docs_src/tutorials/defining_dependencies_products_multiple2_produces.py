@@ -15,5 +15,4 @@ _PRODUCTS = {"plot_0": BLD / "plot_0.png", "plot_1": BLD / "plot_1.png"}
 def task_plot_data(
     path_to_data: dict[str, Path] = _DEPENDENCIES,
     produces: dict[str, Path] = _PRODUCTS,
-) -> None:
-    ...
+) -> None: ...

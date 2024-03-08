@@ -6,9 +6,9 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 import pytest
 from _pytask.shared import convert_to_enum
 from _pytask.shared import find_duplicates
-from pytask import build
 from pytask import ExitCode
 from pytask import ShowCapture
+from pytask import build
 
 
 @pytest.mark.unit()

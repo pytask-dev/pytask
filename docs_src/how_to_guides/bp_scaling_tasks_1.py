@@ -4,7 +4,6 @@ from pathlib import Path
 from my_project.config import BLD
 from my_project.config import SRC
 
-
 DATA = {
     "data_0": {"subset": "subset_1"},
     "data_1": {"subset": "subset_2"},

@@ -1,4 +1,5 @@
 """Contains the code to profile the execution."""
+
 from __future__ import annotations
 
 import csv
@@ -7,11 +8,15 @@ import json
 import sys
 import time
 from contextlib import suppress
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
-from typing import TYPE_CHECKING
 
 import click
+from rich.table import Table
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+
 from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
 from _pytask.console import console
@@ -28,14 +33,12 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.traceback import Traceback
-from rich.table import Table
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
 
 if TYPE_CHECKING:
-    from _pytask.reports import ExecutionReport
     from pathlib import Path
     from typing import NoReturn
+
+    from _pytask.reports import ExecutionReport
 
 
 class _ExportFormats(enum.Enum):

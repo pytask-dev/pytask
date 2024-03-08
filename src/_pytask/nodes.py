@@ -1,4 +1,5 @@
 """Contains implementations of tasks and nodes following the node protocols."""
+
 from __future__ import annotations
 
 import hashlib
@@ -6,9 +7,13 @@ import inspect
 import pickle
 from os import stat_result
 from pathlib import Path  # noqa: TCH003
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import TYPE_CHECKING
+
+from attrs import define
+from attrs import field
+from upath._stat import UPathStatResult
 
 from _pytask._hashlib import hash_value
 from _pytask.node_protocols import PNode
@@ -16,16 +21,13 @@ from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import hash_path
-from _pytask.typing import no_default
 from _pytask.typing import NoDefault
-from attrs import define
-from attrs import field
-
+from _pytask.typing import no_default
 
 if TYPE_CHECKING:
+    from _pytask.mark import Mark
     from _pytask.models import NodeInfo
     from _pytask.tree_util import PyTree
-    from _pytask.mark import Mark
 
 
 __all__ = ["PathNode", "PickleNode", "PythonNode", "Task", "TaskWithoutPath"]
@@ -179,14 +181,7 @@ class PathNode(PPathNode):
 
         """
         if self.path.exists():
-            stat = self.path.stat()
-            if isinstance(stat, stat_result):
-                modification_time = self.path.stat().st_mtime
-                return hash_path(self.path, modification_time)
-            if isinstance(stat, dict):
-                return stat.get("ETag", "0")
-            msg = "Unknown stat object."
-            raise NotImplementedError(msg)
+            return _get_state(self.path)
         return None
 
     def load(self, is_product: bool = False) -> Path:  # noqa: ARG002
@@ -322,14 +317,7 @@ class PickleNode(PPathNode):
 
     def state(self) -> str | None:
         if self.path.exists():
-            stat = self.path.stat()
-            if isinstance(stat, stat_result):
-                modification_time = self.path.stat().st_mtime
-                return hash_path(self.path, modification_time)
-            if isinstance(stat, dict):
-                return stat.get("ETag", "0")
-            msg = "Unknown stat object."
-            raise NotImplementedError(msg)
+            return _get_state(self.path)
         return None
 
     def load(self, is_product: bool = False) -> Any:
@@ -341,3 +329,19 @@ class PickleNode(PPathNode):
     def save(self, value: Any) -> None:
         with self.path.open("wb") as f:
             pickle.dump(value, f)
+
+
+def _get_state(path: Path) -> str:
+    """Get state of a path.
+
+    A simple function to handle local and remote files.
+
+    """
+    stat = path.stat()
+    if isinstance(stat, stat_result):
+        modification_time = path.stat().st_mtime
+        return hash_path(path, modification_time)
+    if isinstance(stat, UPathStatResult):
+        return stat.as_info().get("ETag", "0")
+    msg = "Unknown stat object."
+    raise NotImplementedError(msg)

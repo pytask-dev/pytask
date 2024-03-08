@@ -1,15 +1,17 @@
 """Contains everything related to debugging."""
+
 from __future__ import annotations
 
 import functools
 import pdb  # noqa: T100
 import sys
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import ClassVar
 from typing import Generator
-from typing import TYPE_CHECKING
 
 import click
+
 from _pytask.console import console
 from _pytask.node_protocols import PTask
 from _pytask.outcomes import Exit
@@ -17,12 +19,14 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.traceback import Traceback
 
 if TYPE_CHECKING:
-    from pluggy import PluginManager
-    from _pytask.session import Session
-    from types import TracebackType
     from types import FrameType
+    from types import TracebackType
+
+    from pluggy import PluginManager
+
     from _pytask.capture import CaptureManager
     from _pytask.live import LiveManager
+    from _pytask.session import Session
 
 
 @hookimpl

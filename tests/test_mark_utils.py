@@ -5,12 +5,12 @@ from pathlib import Path
 import pytask
 import pytest
 from pytask import CollectionMetadata
+from pytask import Task
 from pytask import get_all_marks
 from pytask import get_marks
 from pytask import has_mark
 from pytask import remove_marks
 from pytask import set_marks
-from pytask import Task
 
 
 @pytest.mark.unit()
@@ -51,8 +51,7 @@ def test_get_all_marks_from_task(markers, expected):
     ],
 )
 def test_get_all_marks_from_obj(markers, expected):
-    def func():
-        ...
+    def func(): ...
 
     if markers is not None:
         func.pytask_meta = CollectionMetadata(markers=markers)
@@ -103,8 +102,7 @@ def test_get_marks_from_task(markers, marker_name, expected):
     ],
 )
 def test_get_marks_from_obj(markers, marker_name, expected):
-    def func():
-        ...
+    def func(): ...
 
     if markers is not None:
         func.pytask_meta = CollectionMetadata(markers=markers)
@@ -151,8 +149,7 @@ def test_has_mark_for_task(markers, marker_name, expected):
     ],
 )
 def test_has_mark(markers, marker_name, expected):
-    def func():
-        ...
+    def func(): ...
 
     if markers is not None:
         func.pytask_meta = CollectionMetadata(markers=markers)
@@ -212,8 +209,7 @@ def test_remove_marks_from_task(
 def test_remove_marks_from_func(
     markers, marker_name, expected_markers, expected_others
 ):
-    def func():
-        ...
+    def func(): ...
 
     if markers is not None:
         func.pytask_meta = CollectionMetadata(markers=markers)
@@ -249,8 +245,7 @@ def test_set_marks_to_task(markers):
     ],
 )
 def test_set_marks_to_obj(markers):
-    def func():
-        ...
+    def func(): ...
 
     result = set_marks(func, markers)
     assert result.pytask_meta.markers == markers
