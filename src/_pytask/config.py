@@ -92,7 +92,12 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
         + IGNORED_TEMPORARY_FILES_AND_FOLDERS
     )
 
-    config["task_files"] = to_list(config.get("task_files", "task_*.py"))
+    config["task_files"] = config.get("task_files", ["task_*.py"])
+    if not isinstance(config["task_files"], list) or not all(
+        isinstance(p, str) for p in config["task_files"]
+    ):
+        msg = "'task_files' must be a list of patterns."
+        raise ValueError(msg)
 
     if config["stop_after_first_failure"]:
         config["max_failures"] = 1

@@ -209,3 +209,6 @@ exclude_also = [
 [tool.mdformat]
 wrap = 88
 end_of_line = "keep"
+
+[tool.pytask.ini_options]
+task_files = "askds.py"
