@@ -20,7 +20,7 @@ from _pytask.typing import no_default
 from _pytask.typing import NoDefault
 from attrs import define
 from attrs import field
-from upath import UPathStatResult
+from upath._stat import UPathStatResult
 
 
 if TYPE_CHECKING:
