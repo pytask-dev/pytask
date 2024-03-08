@@ -19,6 +19,7 @@ from _pytask.console import format_task_name
 from _pytask.console import render_to_string
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import select_by_after_keyword
+from _pytask.mark import select_tasks_by_marks_and_expressions
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PTask
 from _pytask.nodes import PythonNode
@@ -37,14 +38,13 @@ if TYPE_CHECKING:
 def pytask_dag(session: Session) -> bool | None:
     """Create a directed acyclic graph (DAG) for the workflow."""
     try:
-        session.dag = session.hook.pytask_dag_create_dag(
-            session=session, tasks=session.tasks
-        )
-        session.hook.pytask_dag_modify_dag(session=session, dag=session.dag)
+        session.dag = create_dag(session=session, tasks=session.tasks)
+        modify_dag(session=session, dag=session.dag)
+        select_tasks_by_marks_and_expressions(session=session, dag=session.dag)
 
     except Exception:  # noqa: BLE001
         report = DagReport.from_exception(sys.exc_info())
-        session.hook.pytask_dag_log(session=session, report=report)
+        log_dag(report=report)
         session.dag_report = report
 
         raise ResolvingDependenciesError from None
@@ -53,8 +53,7 @@ def pytask_dag(session: Session) -> bool | None:
         return True
 
 
-@hookimpl
-def pytask_dag_create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
+def create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
     """Create the DAG from tasks, dependencies and products."""
 
     def _add_dependency(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
@@ -97,8 +96,7 @@ def pytask_dag_create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
     return dag
 
 
-@hookimpl
-def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
+def modify_dag(session: Session, dag: nx.DiGraph) -> None:
     """Create dependencies between tasks when using ``@task(after=...)``."""
     temporary_id_to_task = {
         task.attributes["collection_id"]: task
@@ -194,8 +192,7 @@ def _check_if_tasks_have_the_same_products(dag: nx.DiGraph, paths: list[Path]) -
         raise ResolvingDependenciesError(msg)
 
 
-@hookimpl
-def pytask_dag_log(report: DagReport) -> None:
+def log_dag(report: DagReport) -> None:
     """Log errors which happened while resolving dependencies."""
     console.print()
     console.rule(

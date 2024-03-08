@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     import click
-    import networkx as nx
     from pluggy import PluginManager
 
     from _pytask.models import NodeInfo
@@ -25,7 +24,6 @@ if TYPE_CHECKING:
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
     from _pytask.reports import CollectionReport
-    from _pytask.reports import DagReport
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
 
@@ -223,31 +221,6 @@ def pytask_dag(session: Session) -> None:
     subordinated hooks.
 
     """
-
-
-@hookspec(firstresult=True)
-def pytask_dag_create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
-    """Create the DAG.
-
-    This hook creates the DAG from tasks, dependencies and products. The DAG can be used
-    by a scheduler to find an execution order.
-
-    """
-
-
-@hookspec
-def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
-    """Modify the DAG.
-
-    This hook allows to make some changes to the DAG before it is validated and tasks
-    are selected.
-
-    """
-
-
-@hookspec
-def pytask_dag_log(session: Session, report: DagReport) -> None:
-    """Log errors during resolving dependencies."""
 
 
 # Hooks for running tasks.
