@@ -210,19 +210,6 @@ def pytask_collect_log(
     """
 
 
-# Hooks for resolving dependencies.
-
-
-@hookspec(firstresult=True)
-def pytask_dag(session: Session) -> None:
-    """Create a DAG.
-
-    The main hook implementation which controls the resolution of dependencies and calls
-    subordinated hooks.
-
-    """
-
-
 # Hooks for running tasks.
 
 
