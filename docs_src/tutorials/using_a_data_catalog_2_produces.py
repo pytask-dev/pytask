@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-from my_project.config import data_catalog
 from my_project.config import PickleNode
+from my_project.config import data_catalog
 
 
 def task_create_random_data(produces: PickleNode = data_catalog["data"]) -> None:

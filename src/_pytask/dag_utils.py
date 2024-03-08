@@ -1,15 +1,17 @@
 """Implement some capabilities to deal with the DAG."""
+
 from __future__ import annotations
 
 import itertools
+from typing import TYPE_CHECKING
 from typing import Generator
 from typing import Iterable
-from typing import TYPE_CHECKING
 
 import networkx as nx
-from _pytask.mark_utils import has_mark
 from attrs import define
 from attrs import field
+
+from _pytask.mark_utils import has_mark
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask

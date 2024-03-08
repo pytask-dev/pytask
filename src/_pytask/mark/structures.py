@@ -6,12 +6,13 @@ from typing import Callable
 from typing import Iterable
 from typing import Mapping
 
-from _pytask.mark_utils import get_all_marks
-from _pytask.models import CollectionMetadata
-from _pytask.typing import is_task_function
 from attrs import define
 from attrs import field
 from attrs import validators
+
+from _pytask.mark_utils import get_all_marks
+from _pytask.models import CollectionMetadata
+from _pytask.typing import is_task_function
 
 
 @define(frozen=True)

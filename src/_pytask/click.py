@@ -1,17 +1,16 @@
 """Contains code related to click."""
+
 from __future__ import annotations
 
 import inspect
 from enum import Enum
 from gettext import gettext as _
 from gettext import ngettext
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import ClassVar
-from typing import TYPE_CHECKING
 
 import click
-from _pytask import __version__ as version
-from _pytask.console import console
 from click import Choice
 from click import Command
 from click import Context
@@ -22,6 +21,9 @@ from rich.highlighter import RegexHighlighter
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
+
+from _pytask import __version__ as version
+from _pytask.console import console
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

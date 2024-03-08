@@ -3,6 +3,7 @@
 The data catalog is an abstraction layer between users and nodes.
 
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -10,6 +11,9 @@ import inspect
 import pickle
 from pathlib import Path
 from typing import Any
+
+from attrs import define
+from attrs import field
 
 from _pytask.config_utils import find_project_root_and_config
 from _pytask.exceptions import NodeNotCollectedError
@@ -19,9 +23,6 @@ from _pytask.node_protocols import PPathNode
 from _pytask.nodes import PickleNode
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from attrs import define
-from attrs import field
-
 
 __all__ = ["DataCatalog"]
 

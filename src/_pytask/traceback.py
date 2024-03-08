@@ -1,25 +1,27 @@
 """Process tracebacks."""
+
 from __future__ import annotations
 
 from pathlib import Path
 from types import TracebackType
+from typing import TYPE_CHECKING
 from typing import ClassVar
 from typing import Generator
 from typing import Tuple
 from typing import Type
-from typing import TYPE_CHECKING
 from typing import Union
 
-import _pytask
 import pluggy
-from _pytask.outcomes import Exit
-from _pytask.tree_util import TREE_UTIL_LIB_DIRECTORY
 from attrs import define
 from rich.traceback import Traceback as RichTraceback
 
+import _pytask
+from _pytask.outcomes import Exit
+from _pytask.tree_util import TREE_UTIL_LIB_DIRECTORY
+
 if TYPE_CHECKING:
-    from rich.console import ConsoleOptions
     from rich.console import Console
+    from rich.console import ConsoleOptions
     from rich.console import RenderResult
     from typing_extensions import TypeAlias
 

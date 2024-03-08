@@ -4,8 +4,7 @@ import pandas as pd
 from typing_extensions import Annotated
 
 
-class PickleNode:
-    ...
+class PickleNode: ...
 
 
 in_node = PickleNode.from_path(Path(__file__).parent / "in.pkl")

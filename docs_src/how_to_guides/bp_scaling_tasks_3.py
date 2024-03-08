@@ -4,7 +4,6 @@ from pathlib import Path
 from my_project.config import BLD
 from my_project.data_preparation.config import DATA
 
-
 _MODELS = ["linear_probability", "logistic_model", "decision_tree"]
 
 

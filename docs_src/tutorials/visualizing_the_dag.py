@@ -3,8 +3,8 @@ from pathlib import Path
 import networkx as nx
 from my_project.config import BLD
 from my_project.config import SRC
-from pytask import build_dag
 from pytask import Product
+from pytask import build_dag
 from typing_extensions import Annotated
 
 

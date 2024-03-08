@@ -1,10 +1,11 @@
 """Configure pytask."""
+
 from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 
 from _pytask.pluginmanager import hookimpl
 from _pytask.shared import parse_markers
