@@ -1,29 +1,32 @@
 """Add general logging capabilities."""
+
 from __future__ import annotations
 
 import contextlib
 import platform
 import sys
 import warnings
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import NamedTuple
-from typing import TYPE_CHECKING
 
-import _pytask
 import click
 import pluggy
-from _pytask.console import console
+from rich.text import Text
+
+import _pytask
 from _pytask.console import IS_WINDOWS_TERMINAL
+from _pytask.console import console
 from _pytask.pluginmanager import hookimpl
 from _pytask.reports import ExecutionReport
 from _pytask.traceback import Traceback
-from rich.text import Text
 
 if TYPE_CHECKING:
     from pluggy._manager import DistFacade
+
+    from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
     from _pytask.session import Session
-    from _pytask.outcomes import CollectionOutcome
 
 
 with contextlib.suppress(ImportError):

@@ -1,20 +1,24 @@
 """Contains the implementation of ``pytask collect``."""
+
 from __future__ import annotations
 
 import sys
 from collections import defaultdict
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 
 import click
+from rich.text import Text
+from rich.tree import Tree
+
 from _pytask.click import ColoredCommand
-from _pytask.console import console
-from _pytask.console import create_url_style_for_path
 from _pytask.console import FILE_ICON
-from _pytask.console import format_node_name
-from _pytask.console import format_task_name
 from _pytask.console import PYTHON_ICON
 from _pytask.console import TASK_ICON
+from _pytask.console import console
+from _pytask.console import create_url_style_for_path
+from _pytask.console import format_node_name
+from _pytask.console import format_task_name
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
@@ -30,9 +34,6 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.tree_util import tree_leaves
-from rich.text import Text
-from rich.tree import Tree
-
 
 if TYPE_CHECKING:
     from pathlib import Path

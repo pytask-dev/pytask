@@ -3,9 +3,9 @@ from __future__ import annotations
 import textwrap
 
 import pytest
+from pytask import ExitCode
 from pytask import build
 from pytask import cli
-from pytask import ExitCode
 
 
 @pytest.mark.end_to_end()

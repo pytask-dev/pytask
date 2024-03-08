@@ -14,11 +14,11 @@ from _pytask.console import format_task_name
 from _pytask.console import get_file
 from _pytask.console import render_to_string
 from pytask import CollectionOutcome
-from pytask import console
 from pytask import PathNode
 from pytask import PythonNode
 from pytask import Task
 from pytask import TaskOutcome
+from pytask import console
 from rich.console import Console
 from rich.style import Style
 from rich.text import Span
@@ -27,8 +27,7 @@ from rich.text import Text
 from tests._test_console_helpers import empty_decorator
 
 
-def task_func():
-    ...
+def task_func(): ...
 
 
 _SOURCE_LINE_TASK_FUNC = inspect.getsourcelines(task_func)[1]

@@ -1,4 +1,5 @@
 """Add a command to clean the project from files unknown to pytask."""
+
 from __future__ import annotations
 
 import enum
@@ -6,12 +7,14 @@ import itertools
 import shutil
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
 from typing import Iterable
-from typing import TYPE_CHECKING
 
 import click
+from attrs import define
+
 from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
 from _pytask.console import console
@@ -31,8 +34,6 @@ from _pytask.session import Session
 from _pytask.shared import to_list
 from _pytask.traceback import Traceback
 from _pytask.tree_util import tree_leaves
-from attrs import define
-
 
 if TYPE_CHECKING:
     from typing import NoReturn

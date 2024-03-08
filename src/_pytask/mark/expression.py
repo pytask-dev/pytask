@@ -21,19 +21,19 @@ The semantics are:
 - or/and/not evaluate according to the usual boolean semantics.
 
 """
+
 from __future__ import annotations
 
 import ast
 import enum
 import re
+from typing import TYPE_CHECKING
 from typing import Callable
 from typing import Iterator
 from typing import Mapping
 from typing import Sequence
-from typing import TYPE_CHECKING
 
 from attrs import define
-
 
 if TYPE_CHECKING:
     import types

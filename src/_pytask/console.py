@@ -1,4 +1,5 @@
 """Contains the code to format output on the command line."""
+
 from __future__ import annotations
 
 import functools
@@ -7,17 +8,13 @@ import os
 import sys
 from contextlib import suppress
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
 from typing import Iterable
 from typing import Literal
 from typing import Sequence
-from typing import TYPE_CHECKING
 
-from _pytask.node_protocols import PNode
-from _pytask.node_protocols import PPathNode
-from _pytask.node_protocols import PTaskWithPath
-from _pytask.path import shorten_path
 from rich.console import Console
 from rich.console import RenderableType
 from rich.padding import Padding
@@ -29,10 +26,15 @@ from rich.text import Text
 from rich.theme import Theme
 from rich.tree import Tree
 
+from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PTaskWithPath
+from _pytask.path import shorten_path
 
 if TYPE_CHECKING:
-    from _pytask.node_protocols import PTask
     from enum import Enum
+
+    from _pytask.node_protocols import PTask
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
 

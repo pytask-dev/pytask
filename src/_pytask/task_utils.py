@@ -1,15 +1,17 @@
 """Contains utilities related to the :func:`@task <pytask.task>`."""
+
 from __future__ import annotations
 
 import functools
 import inspect
 from collections import defaultdict
 from types import BuiltinFunctionType
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import TYPE_CHECKING
 
 import attrs
+
 from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata

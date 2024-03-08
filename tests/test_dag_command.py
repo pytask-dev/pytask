@@ -6,8 +6,8 @@ import textwrap
 
 import pytest
 from _pytask.dag_command import _RankDirection
-from pytask import cli
 from pytask import ExitCode
+from pytask import cli
 
 try:
     import pygraphviz  # noqa: F401

@@ -6,12 +6,12 @@ from pathlib import Path
 
 import pytest
 from _pytask.dag import pytask_dag_create_dag
-from pytask import build
-from pytask import cli
 from pytask import ExitCode
 from pytask import PathNode
 from pytask import Session
 from pytask import Task
+from pytask import build
+from pytask import cli
 
 
 @pytest.mark.unit()

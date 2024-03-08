@@ -1,4 +1,5 @@
 """Contains code related to resolving dependencies."""
+
 from __future__ import annotations
 
 import itertools
@@ -6,13 +7,16 @@ import sys
 from typing import TYPE_CHECKING
 
 import networkx as nx
+from rich.text import Text
+from rich.tree import Tree
+
 from _pytask.console import ARROW_DOWN_ICON
-from _pytask.console import console
 from _pytask.console import FILE_ICON
+from _pytask.console import TASK_ICON
+from _pytask.console import console
 from _pytask.console import format_node_name
 from _pytask.console import format_task_name
 from _pytask.console import render_to_string
-from _pytask.console import TASK_ICON
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import select_by_after_keyword
 from _pytask.node_protocols import PNode
@@ -22,11 +26,10 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.reports import DagReport
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.tree_util import tree_map
-from rich.text import Text
-from rich.tree import Tree
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from _pytask.session import Session
 
 

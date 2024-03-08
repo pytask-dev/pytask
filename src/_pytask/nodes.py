@@ -1,4 +1,5 @@
 """Contains implementations of tasks and nodes following the node protocols."""
+
 from __future__ import annotations
 
 import hashlib
@@ -6,9 +7,13 @@ import inspect
 import pickle
 from os import stat_result
 from pathlib import Path  # noqa: TCH003
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import TYPE_CHECKING
+
+from attrs import define
+from attrs import field
+from upath._stat import UPathStatResult
 
 from _pytask._hashlib import hash_value
 from _pytask.node_protocols import PNode
@@ -16,17 +21,13 @@ from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import hash_path
-from _pytask.typing import no_default
 from _pytask.typing import NoDefault
-from attrs import define
-from attrs import field
-from upath._stat import UPathStatResult
-
+from _pytask.typing import no_default
 
 if TYPE_CHECKING:
+    from _pytask.mark import Mark
     from _pytask.models import NodeInfo
     from _pytask.tree_util import PyTree
-    from _pytask.mark import Mark
 
 
 __all__ = ["PathNode", "PickleNode", "PythonNode", "Task", "TaskWithoutPath"]

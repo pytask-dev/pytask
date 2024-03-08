@@ -4,28 +4,30 @@ At each of the entry-points, a plugin can register a hook implementation which r
 the message send by the host and may send a response.
 
 """
+
 from __future__ import annotations
 
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 
 import pluggy
 
-
 if TYPE_CHECKING:
+    from pathlib import Path
+
+    import click
+    import networkx as nx
+    from pluggy import PluginManager
+
     from _pytask.models import NodeInfo
     from _pytask.node_protocols import PNode
-    import click
     from _pytask.node_protocols import PTask
-    import networkx as nx
-    from pathlib import Path
-    from _pytask.session import Session
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
     from _pytask.reports import CollectionReport
-    from _pytask.reports import ExecutionReport
     from _pytask.reports import DagReport
-    from pluggy import PluginManager
+    from _pytask.reports import ExecutionReport
+    from _pytask.session import Session
 
 
 hookspec = pluggy.HookspecMarker("pytask")

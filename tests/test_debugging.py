@@ -9,9 +9,8 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 import click
 import pytest
 from _pytask.debugging import _pdbcls_callback
-from pytask import cli
 from pytask import ExitCode
-
+from pytask import cli
 
 try:
     import pexpect

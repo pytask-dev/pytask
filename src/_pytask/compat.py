@@ -1,4 +1,5 @@
 """Contains functions to assess compatibility and optional dependencies."""
+
 from __future__ import annotations
 
 import shutil

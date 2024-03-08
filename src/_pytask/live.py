@@ -1,17 +1,13 @@
 """Contains code related to live objects."""
+
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
 from typing import NamedTuple
-from typing import TYPE_CHECKING
 
 import click
-from _pytask.console import console
-from _pytask.console import format_task_name
-from _pytask.outcomes import CollectionOutcome
-from _pytask.outcomes import TaskOutcome
-from _pytask.pluginmanager import hookimpl
 from attrs import define
 from attrs import field
 from rich.box import ROUNDED
@@ -21,11 +17,17 @@ from rich.style import Style
 from rich.table import Table
 from rich.text import Text
 
+from _pytask.console import console
+from _pytask.console import format_task_name
+from _pytask.outcomes import CollectionOutcome
+from _pytask.outcomes import TaskOutcome
+from _pytask.pluginmanager import hookimpl
+
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
+    from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
-    from _pytask.reports import CollectionReport
 
 
 @hookimpl
