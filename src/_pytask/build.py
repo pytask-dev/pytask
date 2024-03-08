@@ -95,7 +95,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
     stop_after_first_failure: bool = False,
     strict_markers: bool = False,
     tasks: Callable[..., Any] | PTask | Iterable[Callable[..., Any] | PTask] = (),
-    task_files: str | Iterable[str] = "task_*.py",
+    task_files: Iterable[str] = ("task_*.py",),
     trace: bool = False,
     verbose: int = 1,
     **kwargs: Any,
