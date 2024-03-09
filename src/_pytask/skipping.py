@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 from typing import Any
 
 from _pytask.dag_utils import descending_tasks
-from _pytask.delayed_utils import collect_provisional_products
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
@@ -15,6 +14,7 @@ from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
+from _pytask.provisional_utils import collect_provisional_products
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask

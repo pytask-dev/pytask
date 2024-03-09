@@ -927,7 +927,7 @@ def test_collect_task_without_path(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_task_that_produces_delayed_path_node(tmp_path):
+def test_task_that_produces_provisional_path_node(tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DirectoryNode, Product
@@ -953,7 +953,7 @@ def test_task_that_produces_delayed_path_node(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_task_that_depends_on_relative_delayed_path_node(tmp_path):
+def test_task_that_depends_on_relative_provisional_path_node(tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DirectoryNode
@@ -977,7 +977,7 @@ def test_task_that_depends_on_relative_delayed_path_node(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_task_that_depends_on_delayed_path_node_with_root_dir(tmp_path):
+def test_task_that_depends_on_provisional_path_node_with_root_dir(tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DirectoryNode
@@ -1004,7 +1004,7 @@ def test_task_that_depends_on_delayed_path_node_with_root_dir(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_task_that_depends_on_delayed_task(runner, tmp_path):
+def test_task_that_depends_on_provisional_task(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DirectoryNode, task
@@ -1060,7 +1060,7 @@ def test_gracefully_fail_when_dag_raises_error(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_delayed_task_generation(runner, tmp_path):
+def test_provisional_task_generation(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DirectoryNode, task
@@ -1115,7 +1115,7 @@ def test_gracefully_fail_when_task_generator_raises_error(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_use_delayed_node_as_product_in_generator_without_rerun(runner, tmp_path):
+def test_use_provisional_node_as_product_in_generator_without_rerun(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DirectoryNode, task, Product

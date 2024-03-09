@@ -21,7 +21,7 @@ The following sections will explain how you use pytask in these situations.
 Let us start with a task that downloads all files without an extension from the root
 folder of the pytask repository and stores them on disk in a folder called `downloads`.
 
-```{literalinclude} ../../../docs_src/how_to_guides/delayed_tasks_delayed_products.py
+```{literalinclude} ../../../docs_src/how_to_guides/provisional_products.py
 ---
 emphasize-lines: 4, 11
 ---
@@ -49,21 +49,21 @@ actual nodes. A {class}`~pytask.DirectoryNode`, for example, returns
 In the next step, we want to define a task that consumes and merges all previously
 downloaded files into one file.
 
-```{literalinclude} ../../../docs_src/how_to_guides/delayed_tasks_delayed_task.py
+```{literalinclude} ../../../docs_src/how_to_guides/provisional_task.py
 ---
 emphasize-lines: 9
 ---
 ```
 
-Here, we use the {class}`~pytask.DirectoryNode` as a dependency since we do not know the
+Here, the {class}`~pytask.DirectoryNode` is a dependency because we do not know the
 names of the downloaded files. Before the task is executed, the list of files in the
 folder defined by the root path and the pattern are automatically collected and passed
 to the task.
 
-If we use a {class}`DirectoryNode` with the same `root_dir` and `pattern` in both tasks,
-pytask will automatically recognize that the second task depends on the first. If that
-is not true, you might need to make this dependency more explicit by using
-{func}`@task(after=...) <pytask.task>`, which is explained {ref}`here <after>`.
+If we use a {class}`~pytask.DirectoryNode` with the same `root_dir` and `pattern` in
+both tasks, pytask will automatically recognize that the second task depends on the
+first. If that is not true, you might need to make this dependency more explicit by
+using {func}`@task(after=...) <pytask.task>`, which is explained {ref}`here <after>`.
 
 ## Task generators
 
@@ -79,9 +79,10 @@ writing functions in a task module.
 The code snippet shows each task takes one of the downloaded files and copies its
 content to a `.txt` file.
 
-```{literalinclude} ../../../docs_src/how_to_guides/delayed_tasks_task_generator.py
+```{literalinclude} ../../../docs_src/how_to_guides/provisional_task_generator.py
 ```
 
 ```{important}
-The generated tasks need to be decoratored with {func}`@task <pytask.task>` to be collected.
+The generated tasks need to be decoratored with {func}`@task <pytask.task>` to be
+collected.
 ```

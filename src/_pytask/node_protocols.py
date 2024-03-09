@@ -129,7 +129,7 @@ class PProvisionalNode(Protocol):
 
         It is possible to load a provisional node as a dependency so that it can inject
         basic information about it in the task. For example,
-        :meth:`pytask.DirectoryNode` injects the root directory.
+        :meth:`pytask.DirectoryNode.load` injects the root directory.
 
         """
         if is_product:

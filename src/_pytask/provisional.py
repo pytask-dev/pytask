@@ -12,15 +12,15 @@ from typing import Mapping
 from pytask import TaskOutcome
 
 from _pytask.config import hookimpl
-from _pytask.delayed_utils import TASKS_WITH_PROVISIONAL_NODES
-from _pytask.delayed_utils import collect_provisional_nodes
-from _pytask.delayed_utils import recreate_dag
 from _pytask.exceptions import NodeLoadError
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.outcomes import CollectionOutcome
+from _pytask.provisional_utils import TASKS_WITH_PROVISIONAL_NODES
+from _pytask.provisional_utils import collect_provisional_nodes
+from _pytask.provisional_utils import recreate_dag
 from _pytask.reports import ExecutionReport
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import parse_collected_tasks_with_task_marker

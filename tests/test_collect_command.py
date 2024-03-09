@@ -640,7 +640,7 @@ def test_more_nested_pytree_and_python_node_as_return_with_names(
         ") -> Annotated[None, DirectoryNode(pattern='*.txt')]",
     ],
 )
-def test_collect_task_with_delayed_path_node_as_product(runner, tmp_path, node_def):
+def test_collect_task_with_provisional_path_node_as_product(runner, tmp_path, node_def):
     source = f"""
     from pytask import DirectoryNode, Product
     from typing_extensions import Annotated, List
@@ -672,7 +672,7 @@ def test_collect_task_with_delayed_path_node_as_product(runner, tmp_path, node_d
 
 
 @pytest.mark.end_to_end()
-def test_collect_task_with_delayed_dependencies(runner, tmp_path):
+def test_collect_task_with_provisional_dependencies(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DirectoryNode

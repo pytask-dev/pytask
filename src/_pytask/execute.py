@@ -22,7 +22,6 @@ from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.database_utils import has_node_changed
 from _pytask.database_utils import update_states_in_database
-from _pytask.delayed_utils import collect_provisional_products
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
@@ -38,6 +37,7 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
 from _pytask.outcomes import count_outcomes
 from _pytask.pluginmanager import hookimpl
+from _pytask.provisional_utils import collect_provisional_products
 from _pytask.reports import ExecutionReport
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.tree_util import tree_leaves
