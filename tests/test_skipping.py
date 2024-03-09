@@ -6,8 +6,6 @@ from pathlib import Path
 
 import pytest
 from _pytask.skipping import pytask_execute_task_setup
-from pytask import build
-from pytask import cli
 from pytask import ExitCode
 from pytask import Mark
 from pytask import Session
@@ -16,6 +14,8 @@ from pytask import SkippedAncestorFailed
 from pytask import SkippedUnchanged
 from pytask import Task
 from pytask import TaskOutcome
+from pytask import build
+from pytask import cli
 
 
 class DummyClass:

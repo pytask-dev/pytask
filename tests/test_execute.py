@@ -11,14 +11,14 @@ from pathlib import Path
 
 import pytask
 import pytest
-from pytask import build
 from pytask import CaptureMethod
-from pytask import cli
 from pytask import ExitCode
 from pytask import NodeNotFoundError
 from pytask import PathNode
 from pytask import TaskOutcome
 from pytask import TaskWithoutPath
+from pytask import build
+from pytask import cli
 
 
 @pytest.mark.xfail(sys.platform == "win32", reason="See #293.")

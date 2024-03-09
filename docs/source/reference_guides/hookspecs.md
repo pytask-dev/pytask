@@ -62,25 +62,6 @@ The following hooks traverse directories and collect tasks from files.
 .. autofunction:: pytask_collect_log
 ```
 
-## Resolving Dependencies
-
-The following hooks are designed to build a DAG from tasks and dependencies and check
-which files have changed and need to be re-run.
-
-```{warning}
-This step is still experimental and likely to change in the future. If you are planning
-to write a plugin which extends pytask in this dimension, please, start a discussion
-before writing a plugin. It may make your life easier if changes in pytask anticipate
-your plugin.
-```
-
-```{eval-rst}
-.. autofunction:: pytask_dag
-.. autofunction:: pytask_dag_create_dag
-.. autofunction:: pytask_dag_log
-
-```
-
 ## Execution
 
 The following hooks execute the tasks and log information on the result in the terminal.

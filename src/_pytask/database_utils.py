@@ -1,14 +1,16 @@
 """Contains utilities for the database."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from _pytask.dag_utils import node_and_neighbors
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import sessionmaker
+
+from _pytask.dag_utils import node_and_neighbors
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PNode

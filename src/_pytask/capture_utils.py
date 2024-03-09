@@ -1,4 +1,5 @@
 """A module for enums shared across the codebase."""
+
 from __future__ import annotations
 
 import enum

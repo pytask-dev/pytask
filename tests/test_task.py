@@ -4,9 +4,9 @@ import subprocess
 import textwrap
 
 import pytest
+from pytask import ExitCode
 from pytask import build
 from pytask import cli
-from pytask import ExitCode
 
 
 @pytest.mark.end_to_end()

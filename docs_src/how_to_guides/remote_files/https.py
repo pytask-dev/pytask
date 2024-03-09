@@ -3,7 +3,6 @@ from typing import Annotated
 
 from upath import UPath
 
-
 url = UPath("https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data")
 
 

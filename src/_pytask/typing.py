@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import functools
 from enum import Enum
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Final
 from typing import Literal
-from typing import TYPE_CHECKING
 
 from attrs import define
 

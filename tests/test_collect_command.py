@@ -10,10 +10,10 @@ import pytest
 from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
 from attrs import define
-from pytask import cli
 from pytask import ExitCode
 from pytask import PathNode
 from pytask import Task
+from pytask import cli
 
 
 @pytest.mark.end_to_end()
@@ -317,8 +317,7 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
 class Node:
     path: Path
 
-    def state(self):
-        ...
+    def state(self): ...
 
 
 def function(depends_on, produces):  # noqa: ARG001

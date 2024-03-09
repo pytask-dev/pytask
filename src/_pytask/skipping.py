@@ -1,8 +1,9 @@
 """Contains everything related to skipping tasks."""
+
 from __future__ import annotations
 
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 
 from _pytask.dag_utils import descending_tasks
 from _pytask.delayed_utils import collect_provisional_products
@@ -15,11 +16,10 @@ from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
 
-
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
-    from _pytask.session import Session
     from _pytask.reports import ExecutionReport
+    from _pytask.session import Session
 
 
 def skip_ancestor_failed(reason: str = "No reason provided.") -> str:

@@ -1,23 +1,27 @@
 """Implement the build command."""
+
 from __future__ import annotations
 
 import json
 import sys
 from contextlib import suppress
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
 from typing import Iterable
 from typing import Literal
-from typing import TYPE_CHECKING
 
 import click
+from rich.traceback import Traceback
+
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
 from _pytask.click import ColoredCommand
 from _pytask.config_utils import find_project_root_and_config
 from _pytask.config_utils import read_config
 from _pytask.console import console
+from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
@@ -31,12 +35,11 @@ from _pytask.session import Session
 from _pytask.shared import parse_paths
 from _pytask.shared import to_list
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
-from rich.traceback import Traceback
-
 
 if TYPE_CHECKING:
-    from _pytask.node_protocols import PTask
     from typing import NoReturn
+
+    from _pytask.node_protocols import PTask
 
 
 @hookimpl(tryfirst=True)
@@ -93,7 +96,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
     stop_after_first_failure: bool = False,
     strict_markers: bool = False,
     tasks: Callable[..., Any] | PTask | Iterable[Callable[..., Any] | PTask] = (),
-    task_files: str | Iterable[str] = "task_*.py",
+    task_files: Iterable[str] = ("task_*.py",),
     trace: bool = False,
     verbose: int = 1,
     **kwargs: Any,
@@ -263,7 +266,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_dag(session=session)
+            session.dag = create_dag(session=session)
             session.hook.pytask_execute(session=session)
 
         except CollectionError:

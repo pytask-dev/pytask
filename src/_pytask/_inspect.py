@@ -7,7 +7,6 @@ from typing import Any
 from typing import Callable
 from typing import Mapping
 
-
 __all__ = ["get_annotations"]
 
 

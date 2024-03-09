@@ -3,12 +3,12 @@ from __future__ import annotations
 import textwrap
 
 import pytest
-from pytask import build
-from pytask import cli
-from pytask import create_database
 from pytask import DatabaseSession
 from pytask import ExitCode
 from pytask import State
+from pytask import build
+from pytask import cli
+from pytask import create_database
 from pytask.path import hash_path
 from sqlalchemy.engine import make_url
 

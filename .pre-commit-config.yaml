@@ -24,18 +24,6 @@ repos:
     -   id: python-check-mock-methods
     -   id: python-no-log-warn
     -   id: text-unicode-replacement-char
--   repo: https://github.com/asottile/reorder-python-imports
-    rev: v3.12.0
-    hooks:
-    -   id: reorder-python-imports
-        args: [--py38-plus, --add-import, 'from __future__ import annotations']
-        exclude: ^(docs_src/)
--   repo: https://github.com/asottile/reorder-python-imports
-    rev: v3.12.0
-    hooks:
-    -   id: reorder-python-imports
-        args: [--py38-plus]
-        files: ^(docs_src/)
 # -   repo: https://github.com/tox-dev/pyproject-fmt
 #     rev: 1.2.0
 #     hooks:
@@ -45,7 +33,7 @@ repos:
     hooks:
     -   id: sort-all
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.2.0
+    rev: v0.3.1
     hooks:
       - id: ruff-format
       - id: ruff
@@ -90,14 +78,14 @@ repos:
         ]
         files: (docs/.)
 -   repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.1
+    rev: 1.8.4
     hooks:
     -   id: nbqa-black
     -   id: nbqa-isort
     -   id: nbqa-mypy
         args: [--ignore-missing-imports]
 -   repo: https://github.com/kynan/nbstripout
-    rev: 0.6.2
+    rev: 0.7.1
     hooks:
     -   id: nbstripout
         exclude: (docs)

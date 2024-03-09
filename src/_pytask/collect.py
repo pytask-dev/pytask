@@ -1,4 +1,5 @@
 """Implement functionality to collect tasks."""
+
 from __future__ import annotations
 
 import inspect
@@ -7,10 +8,13 @@ import os
 import sys
 import time
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
 from typing import Iterable
-from typing import TYPE_CHECKING
+
+from rich.text import Text
+from upath import UPath
 
 from _pytask.collect_utils import create_name_of_python_node
 from _pytask.collect_utils import parse_dependencies_from_task_function
@@ -45,19 +49,10 @@ from _pytask.shared import to_list
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
-from rich.text import Text
-
-try:
-    from upath import UPath
-except ImportError:  # pragma: no cover
-
-    class UPath:  # type: ignore[no-redef]
-        ...
-
 
 if TYPE_CHECKING:
-    from _pytask.session import Session
     from _pytask.models import NodeInfo
+    from _pytask.session import Session
 
 
 @hookimpl
@@ -456,7 +451,7 @@ def pytask_collect_node(  # noqa: C901, PLR0912
         name = shorten_path(node, session.config["paths"] or (session.config["root"],))
 
         if isinstance(node, Path) and node.is_dir():
-            raise ValueError(_TEMPLATE_ERROR_DIRECTORY.format(path=path))
+            raise ValueError(_TEMPLATE_ERROR_DIRECTORY.format(path=node))
 
         return PathNode(name=name, path=node)
 

@@ -13,13 +13,13 @@ from typing import Generator
 
 import pytest
 from _pytask import capture
-from _pytask.capture import _get_multicapture
 from _pytask.capture import CaptureManager
 from _pytask.capture import CaptureResult
 from _pytask.capture import MultiCapture
+from _pytask.capture import _get_multicapture
 from pytask import CaptureMethod
-from pytask import cli
 from pytask import ExitCode
+from pytask import cli
 
 
 @pytest.mark.end_to_end()
@@ -569,13 +569,13 @@ class TestFDCapture:
             pytest.raises(AssertionError, cap.suspend)
 
             assert repr(cap) == (
-                "<FDCapture 1 oldfd={} _state='done' tmpfile={!r}>".format(
+                "<FDCapture 1 oldfd={} _state='done' tmpfile={!r}>".format(  # noqa: UP032
                     cap.targetfd_save, cap.tmpfile
                 )
             )
             # Should not crash with missing "_old".
             assert repr(cap.syscapture) == (
-                "<SysCapture stdout _old=<UNSET> _state='done' tmpfile={!r}>".format(
+                "<SysCapture stdout _old=<UNSET> _state='done' tmpfile={!r}>".format(  # noqa: UP032
                     cap.syscapture.tmpfile
                 )
             )

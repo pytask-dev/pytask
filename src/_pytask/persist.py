@@ -1,8 +1,9 @@
 """Implement the ability for tasks to persist."""
+
 from __future__ import annotations
 
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.database_utils import has_node_changed
@@ -13,11 +14,10 @@ from _pytask.outcomes import Persisted
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
 
-
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
-    from _pytask.session import Session
     from _pytask.reports import ExecutionReport
+    from _pytask.session import Session
 
 
 @hookimpl

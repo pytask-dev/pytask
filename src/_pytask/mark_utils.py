@@ -3,14 +3,14 @@
 The utility functions are stored here to be separate from the plugin.
 
 """
+
 from __future__ import annotations
 
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 
 from _pytask.models import CollectionMetadata
 from _pytask.node_protocols import PTask
-
 
 if TYPE_CHECKING:
     from _pytask.mark import Mark

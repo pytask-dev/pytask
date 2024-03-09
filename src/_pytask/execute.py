@@ -1,11 +1,14 @@
 """Contains hook implementations concerning the execution."""
+
 from __future__ import annotations
 
 import inspect
 import sys
 import time
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
+
+from rich.text import Text
 
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
@@ -14,9 +17,9 @@ from _pytask.console import create_url_style_for_task
 from _pytask.console import format_node_name
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import unify_styles
+from _pytask.dag_utils import TopologicalSorter
 from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import node_and_neighbors
-from _pytask.dag_utils import TopologicalSorter
 from _pytask.database_utils import has_node_changed
 from _pytask.database_utils import update_states_in_database
 from _pytask.delayed_utils import collect_provisional_products
@@ -29,11 +32,11 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
-from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
+from _pytask.outcomes import count_outcomes
 from _pytask.pluginmanager import hookimpl
 from _pytask.reports import ExecutionReport
 from _pytask.traceback import remove_traceback_from_exc_info
@@ -41,8 +44,6 @@ from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_structure
 from _pytask.typing import is_task_generator
-from rich.text import Text
-
 
 if TYPE_CHECKING:
     from _pytask.session import Session

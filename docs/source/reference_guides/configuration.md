@@ -242,7 +242,7 @@ strict_markers = true
 Change the pattern which identify task files.
 
 ```toml
-task_files = "task_*.py"  # default
+task_files = ["task_*.py"]  # default
 
 task_files = ["task_*.py", "tasks_*.py"]
 ```

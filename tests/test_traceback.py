@@ -4,10 +4,10 @@ import textwrap
 
 import pytest
 from _pytask.console import render_to_string
-from pytask import cli
-from pytask import console
 from pytask import ExitCode
 from pytask import Traceback
+from pytask import cli
+from pytask import console
 
 
 @pytest.mark.end_to_end()

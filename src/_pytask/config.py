@@ -1,10 +1,11 @@
 """Configure pytask."""
+
 from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 
 from _pytask.pluginmanager import hookimpl
 from _pytask.shared import parse_markers
@@ -91,7 +92,13 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
         + IGNORED_TEMPORARY_FILES_AND_FOLDERS
     )
 
-    config["task_files"] = to_list(config.get("task_files", "task_*.py"))
+    value = config.get("task_files", ["task_*.py"])
+    if not isinstance(value, (list, tuple)) or not all(
+        isinstance(p, str) for p in value
+    ):
+        msg = "'task_files' must be a list of patterns."
+        raise ValueError(msg)
+    config["task_files"] = value
 
     if config["stop_after_first_failure"]:
         config["max_failures"] = 1

@@ -1,13 +1,16 @@
 """Contains utility functions for :mod:`_pytask.collect`."""
+
 from __future__ import annotations
 
 import inspect
 import sys
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import TYPE_CHECKING
 
 import attrs
+from typing_extensions import get_origin
+
 from _pytask._inspect import get_annotations
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.models import NodeInfo
@@ -18,9 +21,8 @@ from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
 from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map_with_path
-from _pytask.typing import no_default
 from _pytask.typing import ProductType
-from typing_extensions import get_origin
+from _pytask.typing import no_default
 
 if sys.version_info >= (3, 9):
     from typing import Annotated
@@ -29,6 +31,7 @@ else:  # pragma: no cover
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from _pytask.session import Session
 
 

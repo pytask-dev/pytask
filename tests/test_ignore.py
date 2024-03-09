@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 from _pytask.collect import pytask_ignore_collect
 from _pytask.config import _IGNORED_FOLDERS
-from pytask import build
 from pytask import ExitCode
+from pytask import build
 
 
 @pytest.mark.end_to_end()

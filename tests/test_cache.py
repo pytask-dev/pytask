@@ -3,8 +3,8 @@ from __future__ import annotations
 import inspect
 
 import pytest
-from _pytask.cache import _make_memoize_key
 from _pytask.cache import Cache
+from _pytask.cache import _make_memoize_key
 
 
 @pytest.mark.unit()
