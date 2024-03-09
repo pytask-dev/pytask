@@ -6,10 +6,10 @@ from pathlib import Path
 from typing import NamedTuple
 
 import pytest
+from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import _arg_value_to_id_component
 from _pytask.task_utils import _parse_name
 from _pytask.task_utils import _parse_task_kwargs
-from _pytask.task_utils import COLLECTED_TASKS
 from attrs import define
 from pytask import Mark
 from pytask import task
@@ -67,8 +67,7 @@ def test_parse_task_kwargs(kwargs, expectation, expected):
 @pytest.mark.integration()
 def test_default_values_of_pytask_meta():
     @task()
-    def task_example():
-        ...
+    def task_example(): ...
 
     assert task_example.pytask_meta.after == []
     assert not task_example.pytask_meta.is_generator

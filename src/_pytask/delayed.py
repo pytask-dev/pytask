@@ -1,17 +1,20 @@
 """Contains hook implementations for provisional nodes and task generators."""
+
 from __future__ import annotations
 
 import inspect
 import sys
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
 from typing import Mapping
-from typing import TYPE_CHECKING
+
+from pytask import TaskOutcome
 
 from _pytask.config import hookimpl
+from _pytask.delayed_utils import TASKS_WITH_PROVISIONAL_NODES
 from _pytask.delayed_utils import collect_provisional_nodes
 from _pytask.delayed_utils import recreate_dag
-from _pytask.delayed_utils import TASKS_WITH_PROVISIONAL_NODES
 from _pytask.exceptions import NodeLoadError
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PProvisionalNode
@@ -24,7 +27,6 @@ from _pytask.task_utils import parse_collected_tasks_with_task_marker
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
 from _pytask.typing import is_task_generator
-from pytask import TaskOutcome
 
 if TYPE_CHECKING:
     from _pytask.session import Session

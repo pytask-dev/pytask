@@ -2,11 +2,16 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 
 from _pytask.collect_utils import collect_dependency
+from _pytask.dag import _check_if_dag_has_cycles
+from _pytask.dag import _check_if_tasks_have_the_same_products
+from _pytask.dag import _create_dag
+from _pytask.dag import _modify_dag
 from _pytask.dag_utils import TopologicalSorter
+from _pytask.mark import select_tasks_by_marks_and_expressions
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PProvisionalNode
@@ -69,10 +74,12 @@ def collect_provisional_nodes(
 def recreate_dag(session: Session, task: PTask) -> None:
     """Recreate the DAG."""
     try:
-        session.dag = session.hook.pytask_dag_create_dag(
-            session=session, tasks=session.tasks
-        )
-        session.hook.pytask_dag_modify_dag(session=session, dag=session.dag)
+        dag = _create_dag(tasks=session.tasks)
+        _check_if_dag_has_cycles(dag)
+        _check_if_tasks_have_the_same_products(dag, session.config["paths"])
+        _modify_dag(session=session, dag=dag)
+        select_tasks_by_marks_and_expressions(session=session, dag=dag)
+        session.dag = dag
         session.scheduler = TopologicalSorter.from_dag_and_sorter(
             session.dag, session.scheduler
         )
