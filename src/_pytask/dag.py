@@ -1,4 +1,4 @@
-"""Contains code related to resolving dependencies."""
+"""Contains code related to the DAG."""
 
 from __future__ import annotations
 
@@ -34,18 +34,13 @@ if TYPE_CHECKING:
     from _pytask.session import Session
 
 
-__all__ = ["create_dag"]
+__all__ = ["create_dag", "create_dag_from_session"]
 
 
 def create_dag(session: Session) -> nx.DiGraph:
     """Create a directed acyclic graph (DAG) for the workflow."""
     try:
-        dag = _create_dag(tasks=session.tasks)
-        _check_if_dag_has_cycles(dag)
-        _check_if_tasks_have_the_same_products(dag, session.config["paths"])
-        _modify_dag(session=session, dag=dag)
-        select_tasks_by_marks_and_expressions(session=session, dag=dag)
-
+        dag = create_dag_from_session(session)
     except Exception:  # noqa: BLE001
         report = DagReport.from_exception(sys.exc_info())
         _log_dag(report=report)
@@ -55,7 +50,17 @@ def create_dag(session: Session) -> nx.DiGraph:
     return dag
 
 
-def _create_dag(tasks: list[PTask]) -> nx.DiGraph:
+def create_dag_from_session(session: Session) -> nx.DiGraph:
+    """Create a DAG from a session."""
+    dag = _create_dag_from_tasks(tasks=session.tasks)
+    _check_if_dag_has_cycles(dag)
+    _check_if_tasks_have_the_same_products(dag, session.config["paths"])
+    dag = _modify_dag(session=session, dag=dag)
+    select_tasks_by_marks_and_expressions(session=session, dag=dag)
+    return dag
+
+
+def _create_dag_from_tasks(tasks: list[PTask]) -> nx.DiGraph:
     """Create the DAG from tasks, dependencies and products."""
 
     def _add_dependency(
@@ -98,7 +103,7 @@ def _create_dag(tasks: list[PTask]) -> nx.DiGraph:
     return dag
 
 
-def _modify_dag(session: Session, dag: nx.DiGraph) -> None:
+def _modify_dag(session: Session, dag: nx.DiGraph) -> nx.DiGraph:
     """Create dependencies between tasks when using ``@task(after=...)``."""
     temporary_id_to_task = {
         task.attributes["collection_id"]: task
@@ -119,6 +124,7 @@ def _modify_dag(session: Session, dag: nx.DiGraph) -> None:
             for signature in signatures:
                 for successor in dag.successors(signature):
                     dag.add_edge(successor, task.signature)
+    return dag
 
 
 def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:
