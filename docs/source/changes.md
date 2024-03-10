@@ -20,7 +20,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`566` makes universal-pathlib an official dependency.
 - {pull}`568` restricts `task_files` to a list of patterns and raises a better error.
 - {pull}`569` removes the hooks related to the creation of the DAG.
-- {pull}`570` removes redundant calls to `PNode.state()` which causes a high penalty for
+- {pull}`571` removes redundant calls to `PNode.state()` which causes a high penalty for
   remote files.
 
 ## 0.4.5 - 2024-01-09
