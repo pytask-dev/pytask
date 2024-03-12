@@ -232,5 +232,5 @@ def hash_value(value: Any) -> int | str:
     if isinstance(value, str):
         value = value.encode()
     if isinstance(value, bytes):
-        return str(hashlib.sha256(value).hexdigest())
+        return hashlib.sha256(value).hexdigest()
     return hash(value)
