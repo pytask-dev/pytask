@@ -5,7 +5,9 @@ from __future__ import annotations
 from typing import Any
 
 import click
+import typed_settings as ts
 from packaging.version import parse as parse_version
+from typed_settings.cli_click import OptionGroupFactory
 
 from _pytask.click import ColoredGroup
 from _pytask.pluginmanager import storage
@@ -25,9 +27,10 @@ else:  # pragma: no cover
 def _extend_command_line_interface(cli: click.Group) -> click.Group:
     """Add parameters from plugins to the commandline interface."""
     pm = storage.create()
-    pm.hook.pytask_extend_command_line_interface.call_historic(kwargs={"cli": cli})
-    _sort_options_for_each_command_alphabetically(cli)
-    return cli
+    commands = {}
+    pm.hook.pytask_extend_command_line_interface.call_historic(kwargs={"cli": commands})
+    # _sort_options_for_each_command_alphabetically(cli)
+    return commands
 
 
 def _sort_options_for_each_command_alphabetically(cli: click.Group) -> None:
@@ -49,7 +52,14 @@ def cli() -> None:
     """Manage your tasks with pytask."""
 
 
-_extend_command_line_interface(cli)
+commands = _extend_command_line_interface(cli)
+
+
+for name, data in commands.items():
+    settings = ts.combine("settings", data["base"], data["options"])
+    command = data["command"]
+    command = ts.click_options(settings, "build", decorator_factory=OptionGroupFactory())(command)
+    cli.add_command(click.command(name=name)(command))
 
 
 DEFAULTS_FROM_CLI = {

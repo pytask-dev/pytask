@@ -11,6 +11,7 @@ from typing import ClassVar
 from typing import Generator
 
 import click
+import typed_settings as ts
 
 from _pytask.console import console
 from _pytask.node_protocols import PTask
@@ -29,37 +30,6 @@ if TYPE_CHECKING:
     from _pytask.session import Session
 
 
-@hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
-    """Extend command line interface."""
-    additional_parameters = [
-        click.Option(
-            ["--pdb"],
-            help="Start the interactive debugger on errors.",
-            is_flag=True,
-            default=False,
-        ),
-        click.Option(
-            ["--trace"],
-            help="Enter debugger in the beginning of each task.",
-            is_flag=True,
-            default=False,
-        ),
-        click.Option(
-            ["--pdbcls"],
-            help=(
-                "Start a custom debugger on errors. For example: "
-                "--pdbcls=IPython.terminal.debugger:TerminalPdb"
-            ),
-            type=str,
-            default=None,
-            metavar="module_name:class_name",
-            callback=_pdbcls_callback,
-        ),
-    ]
-    cli.commands["build"].params.extend(additional_parameters)
-
-
 def _pdbcls_callback(
     ctx: click.Context,  # noqa: ARG001
     name: str,  # noqa: ARG001
@@ -76,6 +46,35 @@ def _pdbcls_callback(
             raise click.BadParameter(message)
         return tuple(split)  # type: ignore[return-value]
     raise click.BadParameter(message)
+
+
+@ts.settings
+class Debugging:
+    pdb: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--pdb",)},
+        help="Start the interactive debugger on errors.",
+    )
+    pdbcls: str = ts.option(
+        default="",
+        click={
+            "param_decls": ("--pdb-cls",),
+            "metavar": "module_name:class_name",
+            "callback": _pdbcls_callback,
+        },
+        help="Start a custom debugger on errors. For example: --pdbcls=IPython.terminal.debugger:TerminalPdb",
+    )
+    trace: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--trace",)},
+        help="Enter debugger in the beginning of each task.",
+    )
+
+
+@hookimpl
+def pytask_extend_command_line_interface(cli: click.Group) -> None:
+    """Extend command line interface."""
+    cli["build"]["options"]["debugging"] = Debugging()
 
 
 @hookimpl(trylast=True)

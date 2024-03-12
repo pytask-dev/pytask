@@ -174,6 +174,7 @@ disallow_untyped_defs = true
 no_implicit_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
+plugins = ["typed_settings.mypy"]
 
 
 [[tool.mypy.overrides]]
