@@ -5,9 +5,6 @@ concurrency:
   group: ${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
-env:
-  CONDA_EXE: mamba
-
 on:
   push:
     branches:
