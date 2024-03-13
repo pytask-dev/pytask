@@ -5,6 +5,11 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.4.6 - 2024-03-13
+
+- {pull}`576` fixes accidentally collecting `pytask.MarkGenerator` when using
+  `from pytask import mark`.
+
 ## 0.4.5 - 2024-01-09
 
 - {pull}`515` enables tests with graphviz in CI. Thanks to {user}`NickCrews`.

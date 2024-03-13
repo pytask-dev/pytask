@@ -692,6 +692,7 @@ def test_module_can_be_collected(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
+    assert "attr_that_definitely_does_not_exist" not in result.output
 
 
 @pytest.mark.end_to_end()

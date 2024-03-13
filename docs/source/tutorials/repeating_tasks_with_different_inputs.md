@@ -328,8 +328,7 @@ the {func}`@task <pytask.task>` decorator to pass keyword arguments to the task.
 for id_, kwargs in ID_TO_KWARGS.items():
 
     @task(id=id_, kwargs=kwargs)
-    def task_create_random_data(seed, produces):
-        ...
+    def task_create_random_data(seed, produces): ...
 ```
 
 Writing a function that creates `ID_TO_KWARGS` would be even more pythonic.
@@ -349,8 +348,7 @@ ID_TO_KWARGS = create_parametrization()
 for id_, kwargs in ID_TO_KWARGS.items():
 
     @task(id=id_, kwargs=kwargs)
-    def task_create_random_data(i, produces):
-        ...
+    def task_create_random_data(i, produces): ...
 ```
 
 The {doc}`best-practices guide on parametrizations <../how_to_guides/bp_scaling_tasks>`
