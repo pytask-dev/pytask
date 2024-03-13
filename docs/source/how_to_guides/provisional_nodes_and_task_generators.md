@@ -8,9 +8,9 @@ pytask's execution model can usually be separated into three phases.
 
 But, in some situations, pytask needs to be more flexible.
 
-Imagine you want to download files from an online storage, but the total number of files
-and their filenames is unknown before the task has started. How can you still describe
-the files as products of the task?
+Imagine you want to download a folder with files from an online storage. Before the task
+is completed you do not know the total number of files or their filenames. How can you
+still describe the files as products of the task?
 
 And how would you define another task that depends on these files?
 
@@ -18,19 +18,22 @@ The following sections will explain how you use pytask in these situations.
 
 ## Producing provisional nodes
 
-Let us start with a task that downloads all files without an extension from the root
-folder of the pytask repository and stores them on disk in a folder called `downloads`.
+As an example for the aforementioned scenario, let us write a task that downloads all
+files without a file extension from the root folder of the pytask GitHub repository. The
+files are downloaded to a folder called `downloads`. `downloads` is in the same folder
+as the task module because it is a relative path.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/provisional_products.py
 ---
-emphasize-lines: 4, 11
+emphasize-lines: 4, 22
 ---
 ```
 
 Since the names of the files are not known when pytask is started, we need to use a
-{class}`~pytask.DirectoryNode`. With a {class}`~pytask.DirectoryNode` we can specify
-where pytask can find the files. The files are described with a path (default is the
-directory of the task module) and a glob pattern (default is `*`).
+{class}`~pytask.DirectoryNode` to define the task's product. With a
+{class}`~pytask.DirectoryNode` we can specify where pytask can find the files. The files
+are described with a root path (default is the directory of the task module) and a glob
+pattern (default is `*`).
 
 When we use the {class}`~pytask.DirectoryNode` as a product annotation, we get access to
 the `root_dir` as a {class}`~pathlib.Path` object inside the function, which allows us
@@ -49,16 +52,19 @@ actual nodes. A {class}`~pytask.DirectoryNode`, for example, returns
 In the next step, we want to define a task that consumes and merges all previously
 downloaded files into one file.
 
+The difficulty here is how can we reference the downloaded files before they have been
+downloaded.
+
 ```{literalinclude} ../../../docs_src/how_to_guides/provisional_task.py
 ---
 emphasize-lines: 9
 ---
 ```
 
-Here, the {class}`~pytask.DirectoryNode` is a dependency because we do not know the
-names of the downloaded files. Before the task is executed, the list of files in the
-folder defined by the root path and the pattern are automatically collected and passed
-to the task.
+To reference the files that will be downloaded, we use the
+{class}`~pytask.DirectoryNode` is a dependency. Before the task is executed, the list of
+files in the folder defined by the root path and the pattern are automatically collected
+and passed to the task.
 
 If we use a {class}`~pytask.DirectoryNode` with the same `root_dir` and `pattern` in
 both tasks, pytask will automatically recognize that the second task depends on the
