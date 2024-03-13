@@ -7,7 +7,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.4.6 - 2024-03-13
 
-- {pull}`575` fixes accidentally collecting `pytask.MarkGenerator` when using
+- {pull}`576` fixes accidentally collecting `pytask.MarkGenerator` when using
   `from pytask import mark`.
 
 ## 0.4.5 - 2024-01-09
