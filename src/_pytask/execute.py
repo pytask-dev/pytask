@@ -146,8 +146,8 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
             node = dag.nodes[node_signature].get("task") or dag.nodes[
                 node_signature
             ].get("node")
-
-            if node_signature in predecessors and not node.state():
+            node_state = node.state()
+            if node_signature in predecessors and not node_state:
                 msg = f"{task.name!r} requires missing node {node.name!r}."
                 if IS_FILE_SYSTEM_CASE_SENSITIVE:
                     msg += (
@@ -162,7 +162,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
             ):
                 continue
 
-            has_changed = has_node_changed(task=task, node=node)
+            has_changed = has_node_changed(task=task, node=node, state=node_state)
             if has_changed:
                 needs_to_be_executed = True
                 break
