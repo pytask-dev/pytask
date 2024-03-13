@@ -22,6 +22,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`569` removes the hooks related to the creation of the DAG.
 - {pull}`571` removes redundant calls to `PNode.state()` which causes a high penalty for
   remote files.
+- {pull}`573` removes the `pytask_execute_create_scheduler` hook.
 
 ## 0.4.5 - 2024-01-09
 

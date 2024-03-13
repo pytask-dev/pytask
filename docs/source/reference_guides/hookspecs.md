@@ -69,7 +69,6 @@ The following hooks execute the tasks and log information on the result in the t
 ```{eval-rst}
 .. autofunction:: pytask_execute
 .. autofunction:: pytask_execute_log_start
-.. autofunction:: pytask_execute_create_scheduler
 .. autofunction:: pytask_execute_build
 .. autofunction:: pytask_execute_task_protocol
 .. autofunction:: pytask_execute_task_log_start
