@@ -140,6 +140,13 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
             node = dag.nodes[node_signature].get("task") or dag.nodes[
                 node_signature
             ].get("node")
+
+            # Skip provisional nodes that are products since they do not have a state.
+            if node_signature not in predecessors and isinstance(
+                node, PProvisionalNode
+            ):
+                continue
+
             node_state = node.state()
             if node_signature in predecessors and not node_state:
                 msg = f"{task.name!r} requires missing node {node.name!r}."
@@ -149,12 +156,6 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
                         "paths' capitalization carefully.)"
                     )
                 raise NodeNotFoundError(msg)
-
-            # Skip provisional nodes that are products since they do not have a state.
-            if node_signature not in predecessors and isinstance(
-                node, PProvisionalNode
-            ):
-                continue
 
             has_changed = has_node_changed(task=task, node=node, state=node_state)
             if has_changed:
