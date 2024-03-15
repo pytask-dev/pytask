@@ -3,9 +3,9 @@ from __future__ import annotations
 import pytest
 from pytask import CollectionOutcome
 from pytask import CollectionReport
-from pytask import count_outcomes
 from pytask import ExecutionReport
 from pytask import TaskOutcome
+from pytask import count_outcomes
 
 
 @pytest.mark.unit()

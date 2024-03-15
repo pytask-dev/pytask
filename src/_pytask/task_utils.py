@@ -1,15 +1,17 @@
 """Contains utilities related to the :func:`@task <pytask.task>`."""
+
 from __future__ import annotations
 
 import functools
 import inspect
 from collections import defaultdict
 from types import BuiltinFunctionType
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import TYPE_CHECKING
 
 import attrs
+
 from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
@@ -171,17 +173,16 @@ def _parse_after(
     if isinstance(after, str):
         return after
     if callable(after):
-        if not hasattr(after, "pytask_meta"):
-            after.pytask_meta = CollectionMetadata()  # type: ignore[attr-defined]
-        return [after.pytask_meta._id]  # type: ignore[attr-defined]
+        after = [after]
     if isinstance(after, list):
         new_after = []
         for func in after:
             if not hasattr(func, "pytask_meta"):
-                func.pytask_meta = CollectionMetadata()  # type: ignore[attr-defined]
-            new_after.append(func.pytask_meta._id)  # type: ignore[attr-defined]
+                func = task()(func)  # noqa: PLW2901
+            new_after.append(func.pytask_meta._id)
+        return new_after
     msg = (
-        "'after' should be an expression string, a task, or a list of class. Got "
+        "'after' should be an expression string, a task, or a list of tasks. Got "
         f"{after}, instead."
     )
     raise TypeError(msg)

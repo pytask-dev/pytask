@@ -1,10 +1,11 @@
 """Contains code on models, containers and there like."""
+
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
 from typing import NamedTuple
-from typing import TYPE_CHECKING
 from uuid import UUID
 from uuid import uuid4
 
@@ -13,8 +14,9 @@ from attrs import field
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from _pytask.tree_util import PyTree
+
     from _pytask.mark import Mark
+    from _pytask.tree_util import PyTree
 
 
 @define

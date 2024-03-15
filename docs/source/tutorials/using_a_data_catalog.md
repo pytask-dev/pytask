@@ -61,7 +61,7 @@ The following tabs show you how to use the data catalog given the interface you 
 ````{tab-item} Python 3.10+
 :sync: python310plus
 
-Use `data_catalog["key"]` as an default argument to access the
+Use `data_catalog["data"]` as an default argument to access the
 {class}`~pytask.PickleNode` within the task. When you are done transforming your
 {class}`~pandas.DataFrame`, save it with {meth}`~pytask.PickleNode.save`.
 
@@ -74,7 +74,7 @@ Use `data_catalog["key"]` as an default argument to access the
 ````{tab-item} Python 3.8+
 :sync: python38plus
 
-Use `data_catalog["key"]` as an default argument to access the
+Use `data_catalog["data"]` as an default argument to access the
 {class}`~pytask.PickleNode` within the task. When you are done transforming your
 {class}`~pandas.DataFrame`, save it with {meth}`~pytask.PickleNode.save`.
 
@@ -87,7 +87,7 @@ Use `data_catalog["key"]` as an default argument to access the
 ````{tab-item} ​produces
 :sync: produces
 
-Use `data_catalog["key"]` as an default argument to access the
+Use `data_catalog["data"]` as an default argument to access the
 {class}`~pytask.PickleNode` within the task. When you are done transforming your
 {class}`~pandas.DataFrame`, save it with {meth}`~pytask.PickleNode.save`.
 
@@ -125,7 +125,7 @@ Following one of the interfaces gives you immediate access to the
 ````{tab-item} Python 3.10+
 :sync: python310plus
 
-Use `data_catalog["key"]` as an default argument to access the
+Use `data_catalog["data"]` as an default argument to access the
 {class}`~pytask.PickleNode` within the task. When you are done transforming your
 {class}`~pandas.DataFrame`, save it with {meth}`~pytask.PickleNode.save`.
 
@@ -138,7 +138,7 @@ Use `data_catalog["key"]` as an default argument to access the
 ````{tab-item} Python 3.8+
 :sync: python38plus
 
-Use `data_catalog["key"]` as an default argument to access the
+Use `data_catalog["data"]` as an default argument to access the
 {class}`~pytask.PickleNode` within the task. When you are done transforming your
 {class}`~pandas.DataFrame`, save it with {meth}`~pytask.PickleNode.save`.
 

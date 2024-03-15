@@ -3,7 +3,6 @@ from typing import Any
 from pytask import PythonNode
 from typing_extensions import Annotated
 
-
 nodes = [
     {"first": PythonNode(name="dict1"), "second": PythonNode(name="dict2")},
     (PythonNode(name="tuple1"), PythonNode(name="tuple2")),

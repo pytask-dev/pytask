@@ -1,8 +1,9 @@
 """Implement the ability for tasks to persist."""
+
 from __future__ import annotations
 
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.database_utils import has_node_changed
@@ -12,11 +13,10 @@ from _pytask.outcomes import Persisted
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
 
-
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
-    from _pytask.session import Session
     from _pytask.reports import ExecutionReport
+    from _pytask.session import Session
 
 
 @hookimpl
@@ -39,12 +39,13 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
 
     """
     if has_mark(task, "persist"):
-        all_nodes_exist = all(
+        all_states = [
             (
                 session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
             ).state()
             for name in node_and_neighbors(session.dag, task.signature)
-        )
+        ]
+        all_nodes_exist = all(all_states)
 
         if all_nodes_exist:
             any_node_changed = any(
@@ -52,8 +53,11 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
                     task=task,
                     node=session.dag.nodes[name].get("task")
                     or session.dag.nodes[name]["node"],
+                    state=state,
                 )
-                for name in node_and_neighbors(session.dag, task.signature)
+                for name, state in zip(
+                    node_and_neighbors(session.dag, task.signature), all_states
+                )
             )
             if any_node_changed:
                 raise Persisted

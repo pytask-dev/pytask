@@ -11,14 +11,14 @@ from pathlib import Path
 
 import pytask
 import pytest
-from pytask import build
 from pytask import CaptureMethod
-from pytask import cli
 from pytask import ExitCode
 from pytask import NodeNotFoundError
 from pytask import PathNode
 from pytask import TaskOutcome
 from pytask import TaskWithoutPath
+from pytask import build
+from pytask import cli
 
 
 @pytest.mark.xfail(sys.platform == "win32", reason="See #293.")
@@ -918,7 +918,6 @@ def test_collect_task_without_path(runner, tmp_path):
     assert tmp_path.joinpath("out.txt").exists()
 
 
-@pytest.mark.skipif(sys.version_info >= (3, 12), reason="Not supported in Python 3.12.")
 def test_with_http_path(runner, tmp_path):
     source = """
     from upath import UPath

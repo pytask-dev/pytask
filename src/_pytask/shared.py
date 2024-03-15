@@ -1,14 +1,16 @@
 """Functions which are used across various modules."""
+
 from __future__ import annotations
 
 import glob
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Iterable
 from typing import Sequence
-from typing import TYPE_CHECKING
 
 import click
+
 from _pytask.console import format_node_name
 from _pytask.console import format_task_name
 from _pytask.node_protocols import PNode
@@ -16,6 +18,7 @@ from _pytask.node_protocols import PTask
 
 if TYPE_CHECKING:
     from enum import Enum
+
     import networkx as nx
 
 

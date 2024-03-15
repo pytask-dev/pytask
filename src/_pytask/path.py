@@ -1,4 +1,5 @@
 """Contains code to handle paths."""
+
 from __future__ import annotations
 
 import contextlib
@@ -12,7 +13,6 @@ from typing import Sequence
 
 from _pytask._hashlib import file_digest
 from _pytask.cache import Cache
-
 
 __all__ = [
     "find_case_sensitive_path",

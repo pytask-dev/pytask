@@ -93,17 +93,17 @@ auto-generated ids are used.
 
 ### Auto-generated ids
 
-pytask construct ids by extending the task name with representations of the values used
+pytask constructs ids by extending the task name with representations of the values used
 for each iteration. Booleans, floats, integers, and strings enter the task id directly.
 For example, a task function that receives four arguments, `True`, `1.0`, `2`, and
-`"hello"`, one of each dtype, has the following id.
+`"hello"`, one of each data type, has the following id.
 
 ```
 task_data_preparation.py::task_create_random_data[True-1.0-2-hello]
 ```
 
-Arguments with other dtypes cannot be converted to strings and, thus, are replaced with
-a combination of the argument name and the iteration counter.
+Arguments with other data types cannot be converted to strings and, thus, are replaced
+with a combination of the argument name and the iteration counter.
 
 For example, the following function is parametrized with tuples.
 
@@ -136,7 +136,7 @@ For example, the following function is parametrized with tuples.
 
 Since the tuples are not converted to strings, the ids of the two tasks are
 
-```
+```text
 task_data_preparation.py::task_create_random_data[seed0]
 task_data_preparation.py::task_create_random_data[seed1]
 ```
@@ -177,7 +177,7 @@ a unique name for the iteration.
 
 produces these ids
 
-```
+```text
 task_data_preparation.py::task_create_random_data[first]
 task_data_preparation.py::task_create_random_data[second]
 ```

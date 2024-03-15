@@ -1,4 +1,5 @@
 """Contains the command and code for drawing the DAG."""
+
 from __future__ import annotations
 
 import enum
@@ -8,6 +9,9 @@ from typing import Any
 
 import click
 import networkx as nx
+from rich.text import Text
+from rich.traceback import Traceback
+
 from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
 from _pytask.compat import check_for_optional_program
@@ -15,6 +19,7 @@ from _pytask.compat import import_optional_dependency
 from _pytask.config_utils import find_project_root_and_config
 from _pytask.config_utils import read_config
 from _pytask.console import console
+from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
@@ -27,8 +32,6 @@ from _pytask.shared import parse_paths
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import to_list
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
-from rich.text import Text
-from rich.traceback import Traceback
 
 
 class _RankDirection(enum.Enum):
@@ -99,7 +102,7 @@ def dag(**raw_config: Any) -> int:
                 "can install with conda.",
             )
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_dag(session=session)
+            session.dag = create_dag(session=session)
             dag = _refine_dag(session)
             _write_graph(dag, session.config["output_path"], session.config["layout"])
 
@@ -196,7 +199,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
                 "can install with conda.",
             )
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_dag(session=session)
+            session.dag = create_dag(session=session)
             session.hook.pytask_unconfigure(session=session)
             dag = _refine_dag(session)
 

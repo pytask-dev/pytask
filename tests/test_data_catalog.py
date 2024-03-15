@@ -5,13 +5,12 @@ import textwrap
 from pathlib import Path
 
 import pytest
-from pytask import cli
 from pytask import DataCatalog
 from pytask import ExitCode
 from pytask import PathNode
 from pytask import PickleNode
 from pytask import PythonNode
-
+from pytask import cli
 
 try:
     import pexpect

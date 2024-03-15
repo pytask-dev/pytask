@@ -8,13 +8,13 @@ from pathlib import Path
 import pytest
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
-from pytask import build
-from pytask import cli
 from pytask import CollectionOutcome
 from pytask import ExitCode
 from pytask import NodeInfo
 from pytask import Session
 from pytask import Task
+from pytask import build
+from pytask import cli
 
 
 @pytest.mark.end_to_end()
@@ -103,10 +103,10 @@ def test_collect_same_task_different_ways(tmp_path, path_extension):
 @pytest.mark.parametrize(
     ("task_files", "pattern", "expected_collected_tasks"),
     [
-        (["example_task.py"], "'*_task.py'", 1),
-        (["tasks_example.py"], "'tasks_*'", 1),
-        (["example_tasks.py"], "'*_tasks.py'", 1),
-        (["task_module.py", "tasks_example.py"], "'tasks_*.py'", 1),
+        (["example_task.py"], "['*_task.py']", 1),
+        (["tasks_example.py"], "['tasks_*']", 1),
+        (["example_tasks.py"], "['*_tasks.py']", 1),
+        (["task_module.py", "tasks_example.py"], "['tasks_*.py']", 1),
         (["task_module.py", "tasks_example.py"], "['task_*.py', 'tasks_*.py']", 2),
     ],
 )
@@ -117,13 +117,28 @@ def test_collect_files_w_custom_file_name_pattern(
         f"[tool.pytask.ini_options]\ntask_files = {pattern}"
     )
 
-    for file in task_files:
-        tmp_path.joinpath(file).write_text("def task_example(): pass")
+    for file_ in task_files:
+        tmp_path.joinpath(file_).write_text("def task_example(): pass")
 
     session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == expected_collected_tasks
+
+
+def test_error_with_invalid_file_name_pattern(runner, tmp_path):
+    tmp_path.joinpath("pyproject.toml").write_text(
+        "[tool.pytask.ini_options]\ntask_files = 'asds'"
+    )
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.CONFIGURATION_FAILED
+    assert "'task_files' must be a list of patterns." in result.output
+
+
+def test_error_with_invalid_file_name_pattern_(tmp_path):
+    session = build(paths=tmp_path, task_files=[1])
+    assert session.exit_code == ExitCode.CONFIGURATION_FAILED
 
 
 @pytest.mark.unit()
@@ -524,6 +539,7 @@ def test_module_can_be_collected(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
+    assert "attr_that_definitely_does_not_exist" not in result.output
 
 
 @pytest.mark.end_to_end()

@@ -1,14 +1,20 @@
 """Contains implementations of tasks and nodes following the node protocols."""
+
 from __future__ import annotations
 
 import hashlib
 import inspect
 import pickle
+from contextlib import suppress
 from os import stat_result
 from pathlib import Path  # noqa: TCH003
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import TYPE_CHECKING
+
+from attrs import define
+from attrs import field
+from upath._stat import UPathStatResult
 
 from _pytask._hashlib import hash_value
 from _pytask.node_protocols import PNode
@@ -16,16 +22,13 @@ from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import hash_path
-from _pytask.typing import no_default
 from _pytask.typing import NoDefault
-from attrs import define
-from attrs import field
-
+from _pytask.typing import no_default
 
 if TYPE_CHECKING:
+    from _pytask.mark import Mark
     from _pytask.models import NodeInfo
     from _pytask.tree_util import PyTree
-    from _pytask.mark import Mark
 
 
 __all__ = ["PathNode", "PickleNode", "PythonNode", "Task", "TaskWithoutPath"]
@@ -73,12 +76,10 @@ class TaskWithoutPath(PTask):
 
     def state(self) -> str | None:
         """Return the state of the node."""
-        try:
+        with suppress(OSError):
             source = inspect.getsource(self.function)
-        except OSError:
-            return None
-        else:
             return hashlib.sha256(source.encode()).hexdigest()
+        return None
 
     def execute(self, **kwargs: Any) -> Any:
         """Execute the task."""
@@ -135,10 +136,7 @@ class Task(PTaskWithPath):
 
     def state(self) -> str | None:
         """Return the state of the node."""
-        if self.path.exists():
-            modification_time = self.path.stat().st_mtime
-            return hash_path(self.path, modification_time)
-        return None
+        return _get_state(self.path)
 
     def execute(self, **kwargs: Any) -> Any:
         """Execute the task."""
@@ -178,16 +176,7 @@ class PathNode(PPathNode):
         The state is given by the modification timestamp.
 
         """
-        if self.path.exists():
-            stat = self.path.stat()
-            if isinstance(stat, stat_result):
-                modification_time = self.path.stat().st_mtime
-                return hash_path(self.path, modification_time)
-            if isinstance(stat, dict):
-                return stat.get("ETag", "0")
-            msg = "Unknown stat object."
-            raise NotImplementedError(msg)
-        return None
+        return _get_state(self.path)
 
     def load(self, is_product: bool = False) -> Path:  # noqa: ARG002
         """Load the value."""
@@ -321,16 +310,7 @@ class PickleNode(PPathNode):
         return cls(name=path.as_posix(), path=path)
 
     def state(self) -> str | None:
-        if self.path.exists():
-            stat = self.path.stat()
-            if isinstance(stat, stat_result):
-                modification_time = self.path.stat().st_mtime
-                return hash_path(self.path, modification_time)
-            if isinstance(stat, dict):
-                return stat.get("ETag", "0")
-            msg = "Unknown stat object."
-            raise NotImplementedError(msg)
-        return None
+        return _get_state(self.path)
 
     def load(self, is_product: bool = False) -> Any:
         if is_product:
@@ -341,3 +321,23 @@ class PickleNode(PPathNode):
     def save(self, value: Any) -> None:
         with self.path.open("wb") as f:
             pickle.dump(value, f)
+
+
+def _get_state(path: Path) -> str | None:
+    """Get state of a path.
+
+    A simple function to handle local and remote files.
+
+    """
+    try:
+        stat = path.stat()
+    except FileNotFoundError:
+        return None
+
+    if isinstance(stat, stat_result):
+        modification_time = stat.st_mtime
+        return hash_path(path, modification_time)
+    if isinstance(stat, UPathStatResult):
+        return stat.as_info().get("ETag", "0")
+    msg = "Unknown stat object."
+    raise NotImplementedError(msg)

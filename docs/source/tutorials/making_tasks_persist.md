@@ -13,7 +13,7 @@ in the database such that the subsequent execution will skip the task successful
 
 ## When is this useful?
 
-- You ran a formatter like Black on the files in your project and want to prevent the
+- You ran a formatter like ruff on the files in your project and want to prevent the
   longest-running tasks from being rerun.
 - You extend a repetition of a task function but do not want to rerun all tasks.
 - You want to integrate a task that you have already run elsewhere. Copy over the

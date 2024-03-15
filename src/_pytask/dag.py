@@ -1,4 +1,5 @@
 """Contains code related to resolving dependencies."""
+
 from __future__ import annotations
 
 import itertools
@@ -6,52 +7,54 @@ import sys
 from typing import TYPE_CHECKING
 
 import networkx as nx
-from _pytask.console import ARROW_DOWN_ICON
-from _pytask.console import console
-from _pytask.console import FILE_ICON
-from _pytask.console import format_node_name
-from _pytask.console import format_task_name
-from _pytask.console import render_to_string
-from _pytask.console import TASK_ICON
-from _pytask.exceptions import ResolvingDependenciesError
-from _pytask.mark import select_by_after_keyword
-from _pytask.node_protocols import PNode
-from _pytask.node_protocols import PTask
-from _pytask.nodes import PythonNode
-from _pytask.pluginmanager import hookimpl
-from _pytask.reports import DagReport
-from _pytask.shared import reduce_names_of_multiple_nodes
-from _pytask.tree_util import tree_map
 from rich.text import Text
 from rich.tree import Tree
 
+from _pytask.console import ARROW_DOWN_ICON
+from _pytask.console import FILE_ICON
+from _pytask.console import TASK_ICON
+from _pytask.console import console
+from _pytask.console import format_node_name
+from _pytask.console import format_task_name
+from _pytask.console import render_to_string
+from _pytask.exceptions import ResolvingDependenciesError
+from _pytask.mark import select_by_after_keyword
+from _pytask.mark import select_tasks_by_marks_and_expressions
+from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PTask
+from _pytask.nodes import PythonNode
+from _pytask.reports import DagReport
+from _pytask.shared import reduce_names_of_multiple_nodes
+from _pytask.tree_util import tree_map
+
 if TYPE_CHECKING:
     from pathlib import Path
+
     from _pytask.session import Session
 
 
-@hookimpl
-def pytask_dag(session: Session) -> bool | None:
+__all__ = ["create_dag"]
+
+
+def create_dag(session: Session) -> nx.DiGraph:
     """Create a directed acyclic graph (DAG) for the workflow."""
     try:
-        session.dag = session.hook.pytask_dag_create_dag(
-            session=session, tasks=session.tasks
-        )
-        session.hook.pytask_dag_modify_dag(session=session, dag=session.dag)
+        dag = _create_dag(tasks=session.tasks)
+        _check_if_dag_has_cycles(dag)
+        _check_if_tasks_have_the_same_products(dag, session.config["paths"])
+        _modify_dag(session=session, dag=dag)
+        select_tasks_by_marks_and_expressions(session=session, dag=dag)
 
     except Exception:  # noqa: BLE001
         report = DagReport.from_exception(sys.exc_info())
-        session.hook.pytask_dag_log(session=session, report=report)
+        _log_dag(report=report)
         session.dag_report = report
 
         raise ResolvingDependenciesError from None
-
-    else:
-        return True
+    return dag
 
 
-@hookimpl
-def pytask_dag_create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
+def _create_dag(tasks: list[PTask]) -> nx.DiGraph:
     """Create the DAG from tasks, dependencies and products."""
 
     def _add_dependency(dag: nx.DiGraph, task: PTask, node: PNode) -> None:
@@ -87,15 +90,10 @@ def pytask_dag_create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
             else None,
             task.depends_on,
         )
-
-    _check_if_dag_has_cycles(dag)
-    _check_if_tasks_have_the_same_products(dag, session.config["paths"])
-
     return dag
 
 
-@hookimpl
-def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
+def _modify_dag(session: Session, dag: nx.DiGraph) -> None:
     """Create dependencies between tasks when using ``@task(after=...)``."""
     temporary_id_to_task = {
         task.attributes["collection_id"]: task
@@ -191,8 +189,7 @@ def _check_if_tasks_have_the_same_products(dag: nx.DiGraph, paths: list[Path]) -
         raise ResolvingDependenciesError(msg)
 
 
-@hookimpl
-def pytask_dag_log(report: DagReport) -> None:
+def _log_dag(report: DagReport) -> None:
     """Log errors which happened while resolving dependencies."""
     console.print()
     console.rule(
