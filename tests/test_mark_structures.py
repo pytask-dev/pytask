@@ -4,6 +4,7 @@ import pytask
 import pytest
 
 
+@pytest.mark.unit()
 @pytest.mark.parametrize(
     ("lhs", "rhs", "expected"),
     [
@@ -17,6 +18,7 @@ def test__eq__(lhs, rhs, expected) -> None:
     assert (lhs == rhs) == expected
 
 
+@pytest.mark.unit()
 @pytest.mark.filterwarnings("ignore:Unknown pytask\\.mark\\.foo")
 def test_aliases() -> None:
     md = pytask.mark.foo(1, "2", three=3)

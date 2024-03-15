@@ -425,6 +425,7 @@ def test_error_when_using_kwargs_and_node_in_annotation(runner, tmp_path):
     assert "is defined twice" in result.output
 
 
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize(
     "node",
     [
@@ -446,6 +447,7 @@ def test_error_when_path_dependency_is_directory(runner, tmp_path, node):
     assert all(i in result.output for i in ("only", "files", "are", "allowed"))
 
 
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize(
     "node",
     [
@@ -469,6 +471,7 @@ def test_error_when_path_product_is_directory(runner, tmp_path, node):
     assert all(i in result.output for i in ("only", "files", "are", "allowed"))
 
 
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize(
     "node",
     [
@@ -494,6 +497,7 @@ def test_default_name_of_path_nodes(tmp_path, node):
     assert session.tasks[0].produces["return"].name == tmp_path.name + "/file.txt"
 
 
+@pytest.mark.end_to_end()
 def test_error_when_return_annotation_cannot_be_parsed(runner, tmp_path):
     source = """
     from typing_extensions import Annotated

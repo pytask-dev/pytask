@@ -70,6 +70,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`485` adds missing steps to unconfigure pytask after the job is done, which
   caused flaky tests.
 - {pull}`486` adds default names to {class}`~pytask.PPathNode`.
+- {pull}`487` implements task generators and provisional nodes.
 - {pull}`488` raises an error when an invalid value is used in a return annotation.
 - {pull}`489` and {pull}`491` simplifies parsing products and does not raise an error
   when a product annotation is used with the argument name `produces`. And allow

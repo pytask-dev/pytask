@@ -20,6 +20,7 @@ from _pytask.exceptions import NodeNotCollectedError
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.nodes import PickleNode
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
@@ -59,7 +60,7 @@ class DataCatalog:
     """
 
     default_node: type[PNode] = PickleNode
-    entries: dict[str, PNode] = field(factory=dict)
+    entries: dict[str, PNode | PProvisionalNode] = field(factory=dict)
     name: str = "default"
     path: Path | None = None
     _session_config: dict[str, Any] = field(
@@ -84,13 +85,13 @@ class DataCatalog:
             node = pickle.loads(path.read_bytes())  # noqa: S301
             self.entries[node.name] = node
 
-    def __getitem__(self, name: str) -> PNode:
+    def __getitem__(self, name: str) -> PNode | PProvisionalNode:
         """Allow to access entries with the squared brackets syntax."""
         if name not in self.entries:
             self.add(name)
         return self.entries[name]
 
-    def add(self, name: str, node: PNode | None = None) -> None:
+    def add(self, name: str, node: PNode | PProvisionalNode | None = None) -> None:
         """Add an entry to the data catalog."""
         assert isinstance(self.path, Path)
 
@@ -109,7 +110,7 @@ class DataCatalog:
             self.path.joinpath(f"{filename}-node.pkl").write_bytes(
                 pickle.dumps(self.entries[name])
             )
-        elif isinstance(node, PNode):
+        elif isinstance(node, (PNode, PProvisionalNode)):
             self.entries[name] = node
         else:
             # Acquire the latest pluginmanager.

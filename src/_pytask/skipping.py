@@ -14,6 +14,7 @@ from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
+from _pytask.provisional_utils import collect_provisional_products
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
@@ -52,6 +53,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
         task, "would_be_executed"
     )
     if is_unchanged and not session.config["force"]:
+        collect_provisional_products(session, task)
         raise SkippedUnchanged
 
     is_skipped = has_mark(task, "skip")
@@ -89,8 +91,9 @@ def pytask_execute_task_process_report(
     if report.exc_info:
         if isinstance(report.exc_info[1], SkippedUnchanged):
             report.outcome = TaskOutcome.SKIP_UNCHANGED
+            return True
 
-        elif isinstance(report.exc_info[1], Skipped):
+        if isinstance(report.exc_info[1], Skipped):
             report.outcome = TaskOutcome.SKIP
 
             for descending_task_name in descending_tasks(task.signature, session.dag):
@@ -102,12 +105,10 @@ def pytask_execute_task_process_report(
                         {"reason": f"Previous task {task.name!r} was skipped."},
                     )
                 )
+            return True
 
-        elif isinstance(report.exc_info[1], SkippedAncestorFailed):
+        if isinstance(report.exc_info[1], SkippedAncestorFailed):
             report.outcome = TaskOutcome.SKIP_PREVIOUS_FAILED
+            return True
 
-    if report.exc_info and isinstance(
-        report.exc_info[1], (Skipped, SkippedUnchanged, SkippedAncestorFailed)
-    ):
-        return True
     return None
