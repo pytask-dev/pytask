@@ -39,12 +39,13 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
 
     """
     if has_mark(task, "persist"):
-        all_nodes_exist = all(
+        all_states = [
             (
                 session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
             ).state()
             for name in node_and_neighbors(session.dag, task.signature)
-        )
+        ]
+        all_nodes_exist = all(all_states)
 
         if all_nodes_exist:
             any_node_changed = any(
@@ -52,8 +53,11 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
                     task=task,
                     node=session.dag.nodes[name].get("task")
                     or session.dag.nodes[name]["node"],
+                    state=state,
                 )
-                for name in node_and_neighbors(session.dag, task.signature)
+                for name, state in zip(
+                    node_and_neighbors(session.dag, task.signature), all_states
+                )
             )
             if any_node_changed:
                 raise Persisted

@@ -5,10 +5,9 @@ import textwrap
 from pathlib import Path
 
 import pytest
-from _pytask.dag import pytask_dag_create_dag
+from _pytask.dag import _create_dag
 from pytask import ExitCode
 from pytask import PathNode
-from pytask import Session
 from pytask import Task
 from pytask import build
 from pytask import cli
@@ -16,7 +15,7 @@ from pytask import cli
 
 @pytest.mark.unit()
 @pytest.mark.skipif(sys.platform == "win32", reason="Hashes match only on unix.")
-def test_pytask_dag_create_dag():
+def test_create_dag():
     root = Path("src")
     task = Task(
         base_name="task_dummy",
@@ -27,8 +26,7 @@ def test_pytask_dag_create_dag():
             1: PathNode.from_path(root / "node_2"),
         },
     )
-    session = Session.from_config({"paths": (root,)})
-    dag = pytask_dag_create_dag(session=session, tasks=[task])
+    dag = _create_dag(tasks=[task])
 
     for signature in (
         "90bb899a1b60da28ff70352cfb9f34a8bed485597c7f40eed9bd4c6449147525",

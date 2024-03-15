@@ -99,7 +99,7 @@ class DataCatalog:
             raise TypeError(msg)
 
         if node is None:
-            filename = str(hashlib.sha256(name.encode()).hexdigest())
+            filename = hashlib.sha256(name.encode()).hexdigest()
             if isinstance(self.default_node, PPathNode):
                 self.entries[name] = self.default_node(
                     name=name, path=self.path / f"{filename}.pkl"

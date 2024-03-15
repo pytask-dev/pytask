@@ -19,6 +19,7 @@ from _pytask.console import console
 from _pytask.console import create_url_style_for_path
 from _pytask.console import format_node_name
 from _pytask.console import format_task_name
+from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
@@ -70,7 +71,7 @@ def collect(**raw_config: Any | None) -> NoReturn:
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_dag(session=session)
+            session.dag = create_dag(session=session)
 
             tasks = _select_tasks_by_expressions_and_marker(session)
             task_with_path = [t for t in tasks if isinstance(t, PTaskWithPath)]

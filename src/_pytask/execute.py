@@ -57,7 +57,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 def pytask_execute(session: Session) -> None:
     """Execute tasks."""
     session.hook.pytask_execute_log_start(session=session)
-    session.scheduler = session.hook.pytask_execute_create_scheduler(session=session)
+    session.scheduler = TopologicalSorter.from_dag(session.dag)
     session.hook.pytask_execute_build(session=session)
     session.hook.pytask_execute_log_end(
         session=session, reports=session.execution_reports
@@ -71,12 +71,6 @@ def pytask_execute_log_start(session: Session) -> None:
 
     # New line to separate note on collected items from task statuses.
     console.print()
-
-
-@hookimpl(trylast=True)
-def pytask_execute_create_scheduler(session: Session) -> TopologicalSorter:
-    """Create a scheduler based on topological sorting."""
-    return TopologicalSorter.from_dag(session.dag)
 
 
 @hookimpl
@@ -140,7 +134,8 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
             node = dag.nodes[node_signature].get("task") or dag.nodes[
                 node_signature
             ].get("node")
-            if node_signature in predecessors and not node.state():
+            node_state = node.state()
+            if node_signature in predecessors and not node_state:
                 msg = f"{task.name!r} requires missing node {node.name!r}."
                 if IS_FILE_SYSTEM_CASE_SENSITIVE:
                     msg += (
@@ -149,7 +144,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
                     )
                 raise NodeNotFoundError(msg)
 
-            has_changed = has_node_changed(task=task, node=node)
+            has_changed = has_node_changed(task=task, node=node, state=node_state)
             if has_changed:
                 needs_to_be_executed = True
                 break
