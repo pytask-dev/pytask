@@ -359,6 +359,7 @@ class DirectoryNode(PProvisionalNode):
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
     def load(self, is_product: bool = False) -> Path:
+        """Inject a path into the task when loaded as a product."""
         if is_product:
             return self.root_dir  # type: ignore[return-value]
         msg = "'DirectoryNode' cannot be loaded as a dependency"  # pragma: no cover

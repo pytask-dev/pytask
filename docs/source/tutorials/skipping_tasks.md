@@ -14,7 +14,7 @@ skip tasks during development that take too much time to compute right now.
 ```
 
 Not only will this task be skipped, but all tasks depending on
-`time_intensive_product`.pkl\`.
+`time_intensive_product.pkl`.
 
 ## Conditional skipping
 
