@@ -148,6 +148,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
                 continue
 
             node_state = node.state()
+
             if node_signature in predecessors and not node_state:
                 msg = f"{task.name!r} requires missing node {node.name!r}."
                 if IS_FILE_SYSTEM_CASE_SENSITIVE:
