@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import inspect
 import pickle
+from contextlib import suppress
 from os import stat_result
 from pathlib import Path  # noqa: TCH003
 from typing import TYPE_CHECKING
@@ -83,12 +84,10 @@ class TaskWithoutPath(PTask):
 
     def state(self) -> str | None:
         """Return the state of the node."""
-        try:
+        with suppress(OSError):
             source = inspect.getsource(self.function)
-        except OSError:
-            return None
-        else:
             return hashlib.sha256(source.encode()).hexdigest()
+        return None
 
     def execute(self, **kwargs: Any) -> Any:
         """Execute the task."""
@@ -145,10 +144,7 @@ class Task(PTaskWithPath):
 
     def state(self) -> str | None:
         """Return the state of the node."""
-        if self.path.exists():
-            modification_time = self.path.stat().st_mtime
-            return hash_path(self.path, modification_time)
-        return None
+        return _get_state(self.path)
 
     def execute(self, **kwargs: Any) -> Any:
         """Execute the task."""
@@ -188,9 +184,7 @@ class PathNode(PPathNode):
         The state is given by the modification timestamp.
 
         """
-        if self.path.exists():
-            return _get_state(self.path)
-        return None
+        return _get_state(self.path)
 
     def load(self, is_product: bool = False) -> Path:  # noqa: ARG002
         """Load the value."""
@@ -324,9 +318,7 @@ class PickleNode(PPathNode):
         return cls(name=path.as_posix(), path=path)
 
     def state(self) -> str | None:
-        if self.path.exists():
-            return _get_state(self.path)
-        return None
+        return _get_state(self.path)
 
     def load(self, is_product: bool = False) -> Any:
         if is_product:
@@ -377,15 +369,19 @@ class DirectoryNode(PProvisionalNode):
         return list(self.root_dir.glob(self.pattern))  # type: ignore[union-attr]
 
 
-def _get_state(path: Path) -> str:
+def _get_state(path: Path) -> str | None:
     """Get state of a path.
 
     A simple function to handle local and remote files.
 
     """
-    stat = path.stat()
+    try:
+        stat = path.stat()
+    except FileNotFoundError:
+        return None
+
     if isinstance(stat, stat_result):
-        modification_time = path.stat().st_mtime
+        modification_time = stat.st_mtime
         return hash_path(path, modification_time)
     if isinstance(stat, UPathStatResult):
         return stat.as_info().get("ETag", "0")

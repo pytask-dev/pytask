@@ -234,16 +234,6 @@ def pytask_execute_log_start(session: Session) -> None:
 
 
 @hookspec(firstresult=True)
-def pytask_execute_create_scheduler(session: Session) -> Any:
-    """Create a scheduler for the execution.
-
-    The scheduler provides information on which tasks are able to be executed. Its
-    foundation is likely a topological ordering of the tasks based on the DAG.
-
-    """
-
-
-@hookspec(firstresult=True)
 def pytask_execute_build(session: Session) -> Any:
     """Execute the build.
 

@@ -20,6 +20,14 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`566` makes universal-pathlib an official dependency.
 - {pull}`568` restricts `task_files` to a list of patterns and raises a better error.
 - {pull}`569` removes the hooks related to the creation of the DAG.
+- {pull}`571` removes redundant calls to `PNode.state()` which causes a high penalty for
+  remote files.
+- {pull}`573` removes the `pytask_execute_create_scheduler` hook.
+
+## 0.4.6 - 2024-03-13
+
+- {pull}`576` fixes accidentally collecting `pytask.MarkGenerator` when using
+  `from pytask import mark`.
 
 ## 0.4.5 - 2024-01-09
 
