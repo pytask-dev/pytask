@@ -5,6 +5,10 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.4.7 - 2024-03-19
+
+- {pull}`580` is a backport of {pull}`579`.
+
 ## 0.4.6 - 2024-03-13
 
 - {pull}`576` fixes accidentally collecting `pytask.MarkGenerator` when using
