@@ -489,6 +489,8 @@ def test_set_trace_is_returned_after_pytask_finishes(tmp_path):
 
 
 @pytest.mark.end_to_end()
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_with_task_that_returns(tmp_path, runner):
     source = """
     from typing_extensions import Annotated
@@ -505,6 +507,8 @@ def test_pdb_with_task_that_returns(tmp_path, runner):
 
 
 @pytest.mark.end_to_end()
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_trace_with_task_that_returns(tmp_path):
     source = """
     from typing_extensions import Annotated
