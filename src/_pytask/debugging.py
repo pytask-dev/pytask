@@ -332,7 +332,7 @@ def wrap_function_for_post_mortem_debugging(session: Session, task: PTask) -> No
         capman = session.config["pm"].get_plugin("capturemanager")
         live_manager = session.config["pm"].get_plugin("live_manager")
         try:
-            task_function(*args, **kwargs)
+            return task_function(*args, **kwargs)
 
         except Exception:
             # Order is important! Pausing the live object before the capturemanager
@@ -413,10 +413,12 @@ def wrap_function_for_tracing(session: Session, task: PTask) -> None:
             console.rule("Captured stderr", style="default")
             console.print(err)
 
-        _pdb.runcall(task_function, *args, **kwargs)
+        out = _pdb.runcall(task_function, *args, **kwargs)
 
         live_manager.resume()
         capman.resume()
+
+        return out
 
     task.function = wrapper
 
