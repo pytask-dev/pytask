@@ -43,8 +43,10 @@ from _pytask.models import CollectionMetadata
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
+from _pytask.nodes import DirectoryNode
 from _pytask.nodes import PathNode
 from _pytask.nodes import PickleNode
 from _pytask.nodes import PythonNode
@@ -94,6 +96,7 @@ __all__ = [
     "DagReport",
     "DataCatalog",
     "DatabaseSession",
+    "DirectoryNode",
     "EnumChoice",
     "ExecutionError",
     "ExecutionReport",
@@ -107,6 +110,7 @@ __all__ = [
     "NodeNotFoundError",
     "PNode",
     "PPathNode",
+    "PProvisionalNode",
     "PTask",
     "PTaskWithPath",
     "PathNode",

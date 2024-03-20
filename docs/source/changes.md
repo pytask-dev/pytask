@@ -22,6 +22,14 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`569` removes the hooks related to the creation of the DAG.
 - {pull}`571` removes redundant calls to `PNode.state()` which causes a high penalty for
   remote files.
+- {pull}`573` removes the `pytask_execute_create_scheduler` hook.
+- {pull}`579` fixes an interaction with `--pdb` and `--trace` and task that return. The
+  debugging modes swallowed the return and `None` was returned. Closes {issue}`574`.
+
+## 0.4.6 - 2024-03-13
+
+- {pull}`576` fixes accidentally collecting `pytask.MarkGenerator` when using
+  `from pytask import mark`.
 
 ## 0.4.5 - 2024-01-09
 
@@ -64,6 +72,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`485` adds missing steps to unconfigure pytask after the job is done, which
   caused flaky tests.
 - {pull}`486` adds default names to {class}`~pytask.PPathNode`.
+- {pull}`487` implements task generators and provisional nodes.
 - {pull}`488` raises an error when an invalid value is used in a return annotation.
 - {pull}`489` and {pull}`491` simplifies parsing products and does not raise an error
   when a product annotation is used with the argument name `produces`. And allow

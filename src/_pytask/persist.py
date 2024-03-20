@@ -12,6 +12,7 @@ from _pytask.mark_utils import has_mark
 from _pytask.outcomes import Persisted
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
+from _pytask.provisional_utils import collect_provisional_products
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
@@ -60,6 +61,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
                 )
             )
             if any_node_changed:
+                collect_provisional_products(session, task)
                 raise Persisted
 
 

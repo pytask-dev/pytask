@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
     from _pytask.models import NodeInfo
     from _pytask.node_protocols import PNode
+    from _pytask.node_protocols import PProvisionalNode
     from _pytask.node_protocols import PTask
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
@@ -195,7 +196,7 @@ def pytask_collect_task_teardown(session: Session, task: PTask) -> None:
 @hookspec(firstresult=True)
 def pytask_collect_node(
     session: Session, path: Path, node_info: NodeInfo
-) -> PNode | None:
+) -> PNode | PProvisionalNode | None:
     """Collect a node which is a dependency or a product of a task."""
 
 
@@ -228,16 +229,6 @@ def pytask_execute_log_start(session: Session) -> None:
     """Start logging of execution.
 
     This hook allows to provide a header with information before the execution starts.
-
-    """
-
-
-@hookspec(firstresult=True)
-def pytask_execute_create_scheduler(session: Session) -> Any:
-    """Create a scheduler for the execution.
-
-    The scheduler provides information on which tasks are able to be executed. Its
-    foundation is likely a topological ordering of the tasks based on the DAG.
 
     """
 

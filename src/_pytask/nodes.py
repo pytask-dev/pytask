@@ -19,6 +19,7 @@ from upath._stat import UPathStatResult
 from _pytask._hashlib import hash_value
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import hash_path
@@ -31,7 +32,14 @@ if TYPE_CHECKING:
     from _pytask.tree_util import PyTree
 
 
-__all__ = ["PathNode", "PickleNode", "PythonNode", "Task", "TaskWithoutPath"]
+__all__ = [
+    "DirectoryNode",
+    "PathNode",
+    "PickleNode",
+    "PythonNode",
+    "Task",
+    "TaskWithoutPath",
+]
 
 
 @define(kw_only=True)
@@ -63,8 +71,8 @@ class TaskWithoutPath(PTask):
 
     name: str
     function: Callable[..., Any]
-    depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
-    produces: dict[str, PyTree[PNode]] = field(factory=dict)
+    depends_on: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
+    produces: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
     markers: list[Mark] = field(factory=list)
     report_sections: list[tuple[str, str, str]] = field(factory=list)
     attributes: dict[Any, Any] = field(factory=dict)
@@ -117,8 +125,8 @@ class Task(PTaskWithPath):
     path: Path
     function: Callable[..., Any]
     name: str = field(default="", init=False)
-    depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
-    produces: dict[str, PyTree[PNode]] = field(factory=dict)
+    depends_on: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
+    produces: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
     markers: list[Mark] = field(factory=list)
     report_sections: list[tuple[str, str, str]] = field(factory=list)
     attributes: dict[Any, Any] = field(factory=dict)
@@ -321,6 +329,45 @@ class PickleNode(PPathNode):
     def save(self, value: Any) -> None:
         with self.path.open("wb") as f:
             pickle.dump(value, f)
+
+
+@define(kw_only=True)
+class DirectoryNode(PProvisionalNode):
+    """The class for a provisional node that works with directories.
+
+    Attributes
+    ----------
+    name
+        The name of the node.
+    pattern
+        Patterns are the same as for :mod:`fnmatch`, with the addition of ``**`` which
+        means "this directory and all subdirectories, recursively".
+    root_dir
+        The pattern is interpreted relative to the path given by ``root_dir``. If
+        ``root_dir = None``, it is the directory where the path is defined.
+
+    """
+
+    name: str = ""
+    pattern: str = "*"
+    root_dir: Path | None = None
+
+    @property
+    def signature(self) -> str:
+        """The unique signature of the node."""
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.root_dir, self.pattern))
+        return hashlib.sha256(raw_key.encode()).hexdigest()
+
+    def load(self, is_product: bool = False) -> Path:
+        """Inject a path into the task when loaded as a product."""
+        if is_product:
+            return self.root_dir  # type: ignore[return-value]
+        msg = "'DirectoryNode' cannot be loaded as a dependency"  # pragma: no cover
+        raise NotImplementedError(msg)  # pragma: no cover
+
+    def collect(self) -> list[Path]:
+        """Collect paths defined by the pattern."""
+        return list(self.root_dir.glob(self.pattern))  # type: ignore[union-attr]
 
 
 def _get_state(path: Path) -> str | None:

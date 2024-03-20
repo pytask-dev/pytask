@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from _pytask.tree_util import PyTree
 
 
-__all__ = ["PNode", "PPathNode", "PTask", "PTaskWithPath"]
+__all__ = ["PNode", "PPathNode", "PProvisionalNode", "PTask", "PTaskWithPath"]
 
 
 @runtime_checkable
@@ -67,8 +67,8 @@ class PTask(Protocol):
     """Protocol for nodes."""
 
     name: str
-    depends_on: dict[str, PyTree[PNode]]
-    produces: dict[str, PyTree[PNode]]
+    depends_on: dict[str, PyTree[PNode | PProvisionalNode]]
+    produces: dict[str, PyTree[PNode | PProvisionalNode]]
     function: Callable[..., Any]
     markers: list[Mark]
     report_sections: list[tuple[str, str, str]]
@@ -99,3 +99,42 @@ class PTaskWithPath(PTask, Protocol):
     """
 
     path: Path
+
+
+@runtime_checkable
+class PProvisionalNode(Protocol):
+    """A protocol for provisional nodes.
+
+    This type of nodes is provisional since it resolves to actual nodes, :class:`PNode`,
+    right before a task is executed as a dependency and after the task is executed as a
+    product.
+
+    Provisional nodes are nodes that define how the actual nodes look like. They can be
+    useful when, for example, a task produces an unknown amount of nodes because it
+    downloads some files.
+
+    """
+
+    name: str
+
+    @property
+    def signature(self) -> str:
+        """Return the signature of the node."""
+
+    def load(self, is_product: bool = False) -> Any:  # pragma: no cover
+        """Load a probisional node.
+
+        A provisional node will never be loaded as a dependency since it would be
+        collected before.
+
+        It is possible to load a provisional node as a dependency so that it can inject
+        basic information about it in the task. For example,
+        :meth:`pytask.DirectoryNode.load` injects the root directory.
+
+        """
+        if is_product:
+            ...
+        raise NotImplementedError
+
+    def collect(self) -> list[Any]:
+        """Collect the objects that are defined by the provisional nodes."""

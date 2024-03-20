@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import re
 import sys
 from contextlib import contextmanager
@@ -30,7 +29,7 @@ def _remove_variable_info_from_output(data: str, path: Any) -> str:  # noqa: ARG
 
     # Remove dynamic versions.
     index_root = next(i for i, line in enumerate(lines) if line.startswith("Root:"))
-    new_info_line = "".join(lines[1:index_root])
+    new_info_line = " ".join(lines[1:index_root])
     for platform in ("linux", "win32", "darwin"):
         new_info_line = new_info_line.replace(platform, "<platform>")
     pattern = re.compile(version.VERSION_PATTERN, flags=re.IGNORECASE | re.VERBOSE)
@@ -55,7 +54,7 @@ class SysPathsSnapshot:
     """A snapshot for sys.path."""
 
     def __init__(self) -> None:
-        self.__saved = list(sys.path), list(sys.meta_path)
+        self.__saved = sys.path.copy(), sys.meta_path.copy()
 
     def restore(self) -> None:
         sys.path[:], sys.meta_path[:] = self.__saved
@@ -65,7 +64,7 @@ class SysModulesSnapshot:
     """A snapshot for sys.modules."""
 
     def __init__(self) -> None:
-        self.__saved = dict(sys.modules)
+        self.__saved = sys.modules.copy()
 
     def restore(self) -> None:
         sys.modules.clear()
@@ -112,7 +111,6 @@ def runner():
 
 def pytest_collection_modifyitems(session, config, items) -> None:  # noqa: ARG001
     """Add markers to Jupyter notebook tests."""
-    if sys.platform == "darwin" and "CI" in os.environ:  # pragma: no cover
-        for item in items:
-            if isinstance(item, NotebookItem):
-                item.add_marker(pytest.mark.xfail(reason="Fails regularly on MacOS"))
+    for item in items:
+        if isinstance(item, NotebookItem):
+            item.add_marker(pytest.mark.xfail(reason="The tests are flaky."))

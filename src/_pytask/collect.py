@@ -30,7 +30,9 @@ from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
+from _pytask.nodes import DirectoryNode
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
@@ -299,6 +301,8 @@ def pytask_collect_task(
             raise ValueError(msg)
 
         path_nodes = Path.cwd() if path is None else path.parent
+
+        # Collect dependencies and products.
         dependencies = parse_dependencies_from_task_function(
             session, path, name, path_nodes, obj
         )
@@ -309,6 +313,9 @@ def pytask_collect_task(
         markers = get_all_marks(obj)
         collection_id = obj.pytask_meta._id if hasattr(obj, "pytask_meta") else None
         after = obj.pytask_meta.after if hasattr(obj, "pytask_meta") else []
+        is_generator = (
+            obj.pytask_meta.is_generator if hasattr(obj, "pytask_meta") else False
+        )
 
         # Get the underlying function to avoid having different states of the function,
         # e.g. due to pytask_meta, in different layers of the wrapping.
@@ -321,7 +328,11 @@ def pytask_collect_task(
                 depends_on=dependencies,
                 produces=products,
                 markers=markers,
-                attributes={"collection_id": collection_id, "after": after},
+                attributes={
+                    "collection_id": collection_id,
+                    "after": after,
+                    "is_generator": is_generator,
+                },
             )
         return Task(
             base_name=name,
@@ -330,33 +341,15 @@ def pytask_collect_task(
             depends_on=dependencies,
             produces=products,
             markers=markers,
-            attributes={"collection_id": collection_id, "after": after},
+            attributes={
+                "collection_id": collection_id,
+                "after": after,
+                "is_generator": is_generator,
+            },
         )
     if isinstance(obj, PTask):
         return obj
     return None
-
-
-_TEMPLATE_ERROR: str = """\
-The provided path of the dependency/product is
-
-{}
-
-, but the path of the file on disk is
-
-{}
-
-Case-sensitive file systems would raise an error because the upper and lower case \
-format of the paths does not match.
-
-Please, align the names to ensure reproducibility on case-sensitive file systems \
-(often Linux or macOS) or disable this error with 'check_casing_of_paths = false' in \
-the pyproject.toml file.
-
-Hint: If parts of the path preceding your project directory are not properly \
-formatted, check whether you need to call `.resolve()` on `SRC`, `BLD` or other paths \
-created from the `__file__` attribute of a module.
-"""
 
 
 _TEMPLATE_ERROR_DIRECTORY: str = """\
@@ -364,7 +357,9 @@ The path '{path}' points to a directory, although only files are allowed."""
 
 
 @hookimpl(trylast=True)
-def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PNode:  # noqa: C901, PLR0912
+def pytask_collect_node(  # noqa: C901, PLR0912
+    session: Session, path: Path, node_info: NodeInfo
+) -> PNode | PProvisionalNode:
     """Collect a node of a task as a :class:`pytask.PNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
@@ -383,6 +378,21 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
 
     """
     node = node_info.value
+
+    if isinstance(node, DirectoryNode):
+        if node.root_dir is None:
+            node.root_dir = path
+        if (
+            not node.name
+            or node.name == node.root_dir.joinpath(node.pattern).as_posix()
+        ):
+            short_root_dir = shorten_path(
+                node.root_dir, session.config["paths"] or (session.config["root"],)
+            )
+            node.name = Path(short_root_dir, node.pattern).as_posix()
+
+    if isinstance(node, PProvisionalNode):
+        return node
 
     if isinstance(node, PythonNode):
         node.node_info = node_info
@@ -418,9 +428,11 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
         raise ValueError(_TEMPLATE_ERROR_DIRECTORY.format(path=node.path))
 
     if isinstance(node, PNode):
+        if not node.name:
+            node.name = create_name_of_python_node(node_info)
         return node
 
-    if isinstance(node, UPath):
+    if isinstance(node, UPath):  # pragma: no cover
         if not node.protocol:
             node = Path(node)
         else:
@@ -457,6 +469,28 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
 
     node_name = create_name_of_python_node(node_info)
     return PythonNode(value=node, name=node_name, node_info=node_info)
+
+
+_TEMPLATE_ERROR: str = """\
+The provided path of the dependency/product is
+
+{}
+
+, but the path of the file on disk is
+
+{}
+
+Case-sensitive file systems would raise an error because the upper and lower case \
+format of the paths does not match.
+
+Please, align the names to ensure reproducibility on case-sensitive file systems \
+(often Linux or macOS) or disable this error with 'check_casing_of_paths = false' in \
+your pytask configuration file.
+
+Hint: If parts of the path preceding your project directory are not properly \
+formatted, check whether you need to call `.resolve()` on `SRC`, `BLD` or other paths \
+created from the `__file__` attribute of a module.
+"""
 
 
 def _raise_error_if_casing_of_path_is_wrong(

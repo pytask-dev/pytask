@@ -5,7 +5,7 @@ import textwrap
 from pathlib import Path
 
 import pytest
-from _pytask.dag import _create_dag
+from _pytask.dag import _create_dag_from_tasks
 from pytask import ExitCode
 from pytask import PathNode
 from pytask import Task
@@ -26,7 +26,7 @@ def test_create_dag():
             1: PathNode.from_path(root / "node_2"),
         },
     )
-    dag = _create_dag(tasks=[task])
+    dag = _create_dag_from_tasks(tasks=[task])
 
     for signature in (
         "90bb899a1b60da28ff70352cfb9f34a8bed485597c7f40eed9bd4c6449147525",
@@ -97,6 +97,7 @@ def test_has_node_changed_catches_notnotfounderror(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
 
 
+@pytest.mark.end_to_end()
 def test_python_nodes_are_unique(tmp_path):
     tmp_path.joinpath("a").mkdir()
     tmp_path.joinpath("a", "task_example.py").write_text("def task_example(a=1): pass")

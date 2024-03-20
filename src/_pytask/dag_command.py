@@ -248,3 +248,5 @@ def _write_graph(dag: nx.DiGraph, path: Path, layout: str) -> None:
     path.parent.mkdir(exist_ok=True, parents=True)
     graph = nx.nx_agraph.to_agraph(dag)
     graph.draw(path, prog=layout)
+    console.print()
+    console.print(f"Written to {path}.")
