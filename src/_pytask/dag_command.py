@@ -9,10 +9,10 @@ from typing import Any
 
 import click
 import networkx as nx
+import typed_settings as ts
 from rich.text import Text
 from rich.traceback import Traceback
 
-from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
@@ -28,6 +28,7 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
+from _pytask.settings import SettingsBuilder
 from _pytask.shared import parse_paths
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import to_list
@@ -41,46 +42,43 @@ class _RankDirection(enum.Enum):
     RL = "RL"
 
 
+@ts.settings
+class Base:
+    layout: str = ts.option(
+        default="dot",
+        help="The layout determines the structure of the graph. Here you find an "
+        "overview of all available layouts: https://graphviz.org/docs/layouts.",
+    )
+    output_path: Path = ts.option(
+        click={
+            "type": click.Path(file_okay=True, dir_okay=False, path_type=Path),
+            "param_decls": ["-o", "--output-path"],
+        },
+        default=Path("dag.pdf"),
+        help="The output path of the visualization. The format is inferred from the "
+        "file extension.",
+    )
+    rank_direction: _RankDirection = ts.option(
+        default=_RankDirection.TB,
+        help="The direction of the directed graph. It can be ordered from top to "
+        "bottom, TB, left to right, LR, bottom to top, BT, or right to left, RL.",
+        click={
+            "type": EnumChoice(_RankDirection),
+            "param_decls": ["-r", "--rank-direction"],
+        },
+    )
+
+
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
     """Extend the command line interface."""
-    cli.add_command(dag)
+    settings_builders["dag"] = SettingsBuilder(
+        name="dag", function=dag, base_settings=Base
+    )
 
 
-_HELP_TEXT_LAYOUT: str = (
-    "The layout determines the structure of the graph. Here you find an overview of "
-    "all available layouts: https://graphviz.org/docs/layouts."
-)
-
-
-_HELP_TEXT_OUTPUT: str = (
-    "The output path of the visualization. The format is inferred from the file "
-    "extension."
-)
-
-
-_HELP_TEXT_RANK_DIRECTION: str = (
-    "The direction of the directed graph. It can be ordered from top to bottom, TB, "
-    "left to right, LR, bottom to top, BT, or right to left, RL."
-)
-
-
-@click.command(cls=ColoredCommand)
-@click.option("-l", "--layout", type=str, default="dot", help=_HELP_TEXT_LAYOUT)
-@click.option(
-    "-o",
-    "--output-path",
-    type=click.Path(file_okay=True, dir_okay=False, path_type=Path, resolve_path=True),
-    default="dag.pdf",
-    help=_HELP_TEXT_OUTPUT,
-)
-@click.option(
-    "-r",
-    "--rank-direction",
-    type=EnumChoice(_RankDirection),
-    help=_HELP_TEXT_RANK_DIRECTION,
-    default=_RankDirection.TB,
-)
 def dag(**raw_config: Any) -> int:
     """Create a visualization of the project's directed acyclic graph."""
     try:
@@ -152,10 +150,6 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
         # If someone called the programmatic interface, we need to do some parsing.
         if "command" not in raw_config:
             raw_config["command"] = "dag"
-            # Add defaults from cli.
-            from _pytask.cli import DEFAULTS_FROM_CLI
-
-            raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
 
             raw_config["paths"] = parse_paths(raw_config["paths"])
 

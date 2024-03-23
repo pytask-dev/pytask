@@ -5,12 +5,12 @@ from __future__ import annotations
 from typing import Any
 
 import click
-import typed_settings as ts
 from packaging.version import parse as parse_version
-from typed_settings.cli_click import OptionGroupFactory
 
 from _pytask.click import ColoredGroup
 from _pytask.pluginmanager import storage
+from _pytask.settings import SettingsBuilder
+from _pytask.settings import create_settings_loaders
 
 _CONTEXT_SETTINGS: dict[str, Any] = {
     "help_option_names": ("-h", "--help"),
@@ -24,21 +24,14 @@ else:  # pragma: no cover
     _VERSION_OPTION_KWARGS = {}
 
 
-def _extend_command_line_interface(cli: click.Group) -> click.Group:
+def _extend_command_line_interface() -> dict[str, SettingsBuilder]:
     """Add parameters from plugins to the commandline interface."""
     pm = storage.create()
-    commands = {}
-    pm.hook.pytask_extend_command_line_interface.call_historic(kwargs={"cli": commands})
-    # _sort_options_for_each_command_alphabetically(cli)
-    return commands
-
-
-def _sort_options_for_each_command_alphabetically(cli: click.Group) -> None:
-    """Sort command line options and arguments for each command alphabetically."""
-    for command in cli.commands:
-        cli.commands[command].params = sorted(
-            cli.commands[command].params, key=lambda x: x.opts[0].replace("-", "")
-        )
+    settings_builders: dict[str, SettingsBuilder] = {}
+    pm.hook.pytask_extend_command_line_interface.call_historic(
+        kwargs={"settings_builders": settings_builders}
+    )
+    return settings_builders
 
 
 @click.group(
@@ -52,18 +45,9 @@ def cli() -> None:
     """Manage your tasks with pytask."""
 
 
-commands = _extend_command_line_interface(cli)
+settings_builders = _extend_command_line_interface()
+settings_loaders = create_settings_loaders()
 
-
-for name, data in commands.items():
-    settings = ts.combine("settings", data["base"], data["options"])
-    command = data["command"]
-    command = ts.click_options(settings, "build", decorator_factory=OptionGroupFactory())(command)
-    cli.add_command(click.command(name=name)(command))
-
-
-DEFAULTS_FROM_CLI = {
-    option.name: option.default
-    for command in cli.commands.values()
-    for option in command.params
-}
+for settings_builder in settings_builders.values():
+    command = settings_builder.build_command(settings_loaders)
+    cli.add_command(command)

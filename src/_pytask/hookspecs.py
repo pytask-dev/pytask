@@ -15,7 +15,6 @@ import pluggy
 if TYPE_CHECKING:
     from pathlib import Path
 
-    import click
     from pluggy import PluginManager
 
     from _pytask.models import NodeInfo
@@ -27,6 +26,7 @@ if TYPE_CHECKING:
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
+    from _pytask.settings import SettingsBuilder
 
 
 hookspec = pluggy.HookspecMarker("pytask")
@@ -49,7 +49,9 @@ def pytask_add_hooks(pm: PluginManager) -> None:
 
 
 @hookspec(historic=True)
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
     """Extend the command line interface.
 
     The hook can be used to extend the command line interface either by providing new

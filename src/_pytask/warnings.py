@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
 
-import click
+import typed_settings as ts
 from attrs import define
 from rich.padding import Padding
 from rich.panel import Panel
@@ -25,21 +25,31 @@ if TYPE_CHECKING:
 
     from _pytask.node_protocols import PTask
     from _pytask.session import Session
+    from _pytask.settings import SettingsBuilder
+
+
+@ts.settings
+class Warnings:
+    """Settings for warnings."""
+
+    filterwarnings: list[str] = ts.option(
+        factory=list,
+        click={"param_decls": ["--filterwarnings"]},
+        help="Add a filter for a warning to a task.",
+    )
+    disable_warnings: bool = ts.option(
+        default=False,
+        click={"param_decls": ["--disable-warnings"], "is_flag": True},
+        help="Disables the summary for warnings.",
+    )
 
 
 @hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
     """Extend the cli."""
-    cli.commands["build"].params.extend(
-        [
-            click.Option(
-                ["--disable-warnings"],
-                is_flag=True,
-                default=False,
-                help="Disables the summary for warnings.",
-            )
-        ]
-    )
+    settings_builders["build"].option_groups["warnings"] = Warnings()
 
 
 @hookimpl

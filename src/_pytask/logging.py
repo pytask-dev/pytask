@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import NamedTuple
 
-import click
 import pluggy
+import typed_settings as ts
 from rich.text import Text
 
 import _pytask
@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
     from _pytask.session import Session
+    from _pytask.settings import SettingsBuilder
 
 
 with contextlib.suppress(ImportError):
@@ -40,15 +41,27 @@ class _TimeUnit(NamedTuple):
     in_seconds: int
 
 
-@hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
-    show_locals_option = click.Option(
-        ["--show-locals"],
-        is_flag=True,
+@ts.settings
+class Logging:
+    """Settings for logging."""
+
+    show_capture: bool = ts.option(
         default=False,
+        click={"param_decls": ["--show-capture"], "is_flag": True},
+        help="Show the captured output of tasks.",
+    )
+    show_locals: bool = ts.option(
+        default=False,
+        click={"param_decls": ["--show-locals"], "is_flag": True},
         help="Show local variables in tracebacks.",
     )
-    cli.commands["build"].params.append(show_locals_option)
+
+
+@hookimpl
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
+    settings_builders["build"].option_groups["logging"] = Logging()
 
 
 @hookimpl

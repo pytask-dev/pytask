@@ -13,6 +13,7 @@ from typing import Any
 from typing import Generator
 
 import click
+import typed_settings as ts
 from rich.table import Table
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -33,6 +34,7 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
+from _pytask.settings import SettingsBuilder
 from _pytask.traceback import Traceback
 
 if TYPE_CHECKING:
@@ -58,10 +60,22 @@ class Runtime(BaseTable):
     duration: Mapped[float]
 
 
+@ts.settings
+class Base:
+    export: _ExportFormats = ts.option(
+        default=_ExportFormats.NO,
+        help="Export the profile in the specified format.",
+    )
+
+
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
     """Extend the command line interface."""
-    cli.add_command(profile)
+    settings_builders["profile"] = SettingsBuilder(
+        name="profile", function=profile, base_settings=Base
+    )
 
 
 @hookimpl

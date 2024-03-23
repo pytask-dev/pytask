@@ -88,11 +88,6 @@ repos:
             mdformat-pyproject,
         ]
         files: (docs/.)
--   repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.8.4
-    hooks:
-    -   id: nbqa-mypy
-        args: [--ignore-missing-imports]
 -   repo: https://github.com/kynan/nbstripout
     rev: 0.7.1
     hooks:

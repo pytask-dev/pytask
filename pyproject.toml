@@ -210,3 +210,10 @@ exclude_also = [
 [tool.mdformat]
 wrap = 88
 end_of_line = "keep"
+
+
+# [tool.pytask]
+# debug_pytask = false
+
+[tool.pytask.ini_options]
+debug_pytask = true

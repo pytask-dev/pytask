@@ -13,9 +13,9 @@ from typing import Generator
 from typing import Iterable
 
 import click
+import typed_settings as ts
 from attrs import define
 
-from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
@@ -31,6 +31,7 @@ from _pytask.path import relative_to
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
+from _pytask.settings import SettingsBuilder
 from _pytask.shared import to_list
 from _pytask.traceback import Traceback
 from _pytask.tree_util import tree_leaves
@@ -55,10 +56,42 @@ _HELP_TEXT_MODE = (
 )
 
 
+@ts.settings
+class Base:
+    directories: bool = ts.option(
+        default=False,
+        help="Remove whole directories.",
+        click={"is_flag": True, "param_decls": ["-d", "--directories"]},
+    )
+    exclude: tuple[str, ...] = ts.option(
+        factory=tuple,
+        help="A filename pattern to exclude files from the cleaning process.",
+        click={
+            "multiple": True,
+            "metavar": "PATTERN",
+            "param_decls": ["-e", "--exclude"],
+        },
+    )
+    mode: _CleanMode = ts.option(
+        default=_CleanMode.DRY_RUN,
+        help=_HELP_TEXT_MODE,
+        click={"type": EnumChoice(_CleanMode), "param_decls": ["-m", "--mode"]},
+    )
+    quiet: bool = ts.option(
+        default=False,
+        help="Do not print the names of the removed paths.",
+        click={"is_flag": True, "param_decls": ["-q", "--quiet"]},
+    )
+
+
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
     """Extend the command line interface."""
-    cli.add_command(clean)
+    settings_builders["clean"] = SettingsBuilder(
+        name="clean", function=clean, base_settings=Base
+    )
 
 
 @hookimpl
@@ -67,35 +100,6 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
     config["exclude"] = to_list(config["exclude"]) + _DEFAULT_EXCLUDE
 
 
-@click.command(cls=ColoredCommand)
-@click.option(
-    "-d",
-    "--directories",
-    is_flag=True,
-    default=False,
-    help="Remove whole directories.",
-)
-@click.option(
-    "-e",
-    "--exclude",
-    metavar="PATTERN",
-    multiple=True,
-    type=str,
-    help="A filename pattern to exclude files from the cleaning process.",
-)
-@click.option(
-    "--mode",
-    default=_CleanMode.DRY_RUN,
-    type=EnumChoice(_CleanMode),
-    help=_HELP_TEXT_MODE,
-)
-@click.option(
-    "-q",
-    "--quiet",
-    is_flag=True,
-    help="Do not print the names of the removed paths.",
-    default=False,
-)
 def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
     """Clean the provided paths by removing files unknown to pytask."""
     pm = storage.get()

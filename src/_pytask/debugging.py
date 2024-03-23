@@ -28,6 +28,7 @@ if TYPE_CHECKING:
     from _pytask.capture import CaptureManager
     from _pytask.live import LiveManager
     from _pytask.session import Session
+    from _pytask.settings import SettingsBuilder
 
 
 def _pdbcls_callback(
@@ -75,9 +76,11 @@ class Debugging:
 
 
 @hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
     """Extend command line interface."""
-    cli["build"]["options"]["debugging"] = Debugging()
+    settings_builders["build"].option_groups["debugging"] = Debugging()
 
 
 @hookimpl(trylast=True)

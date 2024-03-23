@@ -7,7 +7,7 @@ from typing import Any
 from typing import Generator
 from typing import NamedTuple
 
-import click
+import typed_settings as ts
 from attrs import define
 from attrs import field
 from rich.box import ROUNDED
@@ -28,27 +28,32 @@ if TYPE_CHECKING:
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
+    from _pytask.settings import SettingsBuilder
+
+
+@ts.settings
+class LiveSettings:
+    """Settings for live display during the execution."""
+
+    n_entries_in_table: int = ts.option(
+        default=15,
+        click={"param_decls": ["--n-entries-in-table"]},
+        help="How many entries to display in the table during the execution. "
+        "Tasks which are running are always displayed.",
+    )
+    sort_table: bool = ts.option(
+        default=True,
+        click={"param_decls": ["--sort-table", "--do-not-sort-table"]},
+        help="Sort the table of tasks at the end of the execution.",
+    )
 
 
 @hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
     """Extend command line interface."""
-    additional_parameters = [
-        click.Option(
-            ["--n-entries-in-table"],
-            default=15,
-            type=click.IntRange(min=0),
-            help="How many entries to display in the table during the execution. "
-            "Tasks which are running are always displayed.",
-        ),
-        click.Option(
-            ["--sort-table/--do-not-sort-table"],
-            default=True,
-            type=bool,
-            help="Sort the table of tasks at the end of the execution.",
-        ),
-    ]
-    cli.commands["build"].params.extend(additional_parameters)
+    settings_builders["build"].option_groups["live"] = LiveSettings()
 
 
 @hookimpl

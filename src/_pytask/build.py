@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import sys
 from contextlib import suppress
-from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
@@ -17,8 +16,7 @@ from rich.traceback import Traceback
 
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
-from _pytask.config_utils import find_project_root_and_config
-from _pytask.config_utils import read_config
+from _pytask.config_utils import consolidate_settings_and_arguments
 from _pytask.console import console
 from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
@@ -31,61 +29,71 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from _pytask.shared import parse_paths
-from _pytask.shared import to_list
+from _pytask.settings import SettingsBuilder
+from _pytask.settings import create_settings_loaders
+from _pytask.settings import update_settings
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import NoReturn
-
-    import click
 
     from _pytask.node_protocols import PTask
 
 
 @ts.settings
 class Base:
-    ...
-    # debug_pytask: bool = ts.option(
-    #     default=False,
-    #     help="Trace all function calls in the plugin framework.",
-    # )
-    # stop_after_first_failure: bool = ts.option(
-    #     default=False,
-    #     click={"param_decls": ("-x", "--stop-after-first-failure"), "is_flag": True},
-    #     help="Stop after the first failure.",
-    # )
-    # max_failures: float = ts.option(
-    #     default=float("inf"),
-    #     click={"param_decls": ("--max-failures",)},
-    #     help="Stop after some failures.",
-    # )
-    # show_errors_immediately: bool = ts.option(
-    #     default=False,
-    #     click={"param_decls": ("--show-errors-immediately",), "is_flag": True},
-    #     help="Show errors with tracebacks as soon as the task fails.",
-    # )
-    # show_traceback: bool = ts.option(
-    #     default=True,
-    #     click={"param_decls": ("--show-traceback", "--show-no-traceback")},
-    #     help="Choose whether tracebacks should be displayed or not.",
-    # )
-    # dry_run: bool = ts.option(
-    #     default=False,
-    #     click={"param_decls": ("--dry-run",), "is_flag": True},
-    #     help="Perform a dry-run.",
-    # )
-    # force: bool = ts.option(
-    #     default=False,
-    #     click={"param_decls": ("-f", "--force"), "is_flag": True},
-    #     help="Execute a task even if it succeeded successfully before.",
-    # )
+    debug_pytask: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--debug-pytask",), "is_flag": True},
+        help="Trace all function calls in the plugin framework.",
+    )
+    stop_after_first_failure: bool = ts.option(
+        default=False,
+        click={"param_decls": ("-x", "--stop-after-first-failure"), "is_flag": True},
+        help="Stop after the first failure.",
+    )
+    max_failures: float = ts.option(
+        default=float("inf"),
+        click={"param_decls": ("--max-failures",)},
+        help="Stop after some failures.",
+    )
+    show_errors_immediately: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--show-errors-immediately",), "is_flag": True},
+        help="Show errors with tracebacks as soon as the task fails.",
+    )
+    show_traceback: bool = ts.option(
+        default=True,
+        click={"param_decls": ("--show-traceback", "--show-no-traceback")},
+        help="Choose whether tracebacks should be displayed or not.",
+    )
+    dry_run: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--dry-run",), "is_flag": True},
+        help="Perform a dry-run.",
+    )
+    force: bool = ts.option(
+        default=False,
+        click={"param_decls": ("-f", "--force"), "is_flag": True},
+        help="Execute a task even if it succeeded successfully before.",
+    )
+    check_casing_of_paths: bool = ts.option(
+        default=True,
+        click={"param_decls": ("--check-casing-of-paths",), "hidden": True},
+    )
 
 
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
     """Extend the command line interface."""
-    cli["build"] = {"command": build_command, "base": Base, "options": {}}
+    settings_builders["build"] = SettingsBuilder(
+        name="build",
+        function=build_command,
+        base_settings=Base,
+    )
 
 
 @hookimpl
@@ -106,11 +114,10 @@ def pytask_unconfigure(session: Session) -> None:
     path.write_text(json.dumps(HashPathCache._cache))
 
 
-def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
+def build(  # noqa: PLR0913
     *,
     capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.FD,
     check_casing_of_paths: bool = True,
-    config: Path | None = None,
     database_url: str = "",
     debug_pytask: bool = False,
     disable_warnings: bool = False,
@@ -127,6 +134,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
     pdb: bool = False,
     pdb_cls: str = "",
     s: bool = False,
+    settings: Any = None,
     show_capture: Literal["no", "stdout", "stderr", "all"]
     | ShowCapture = ShowCapture.ALL,
     show_errors_immediately: bool = False,
@@ -153,8 +161,6 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
         The capture method for stdout and stderr.
     check_casing_of_paths
         Whether errors should be raised when file names have different casings.
-    config
-        A path to the configuration file.
     database_url
         An URL to the database that tracks the status of tasks.
     debug_pytask
@@ -190,6 +196,8 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
         ``--pdbcls=IPython.terminal.debugger:TerminalPdb``
     s
         Shortcut for ``capture="no"``.
+    settings
+        The settings object that contains the configuration.
     show_capture
         Choose which captured output should be shown for failed tasks.
     show_errors_immediately
@@ -221,10 +229,9 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
 
     """
     try:
-        raw_config = {
+        updates = {
             "capture": capture,
             "check_casing_of_paths": check_casing_of_paths,
-            "config": config,
             "database_url": database_url,
             "debug_pytask": debug_pytask,
             "disable_warnings": disable_warnings,
@@ -254,46 +261,21 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
             **kwargs,
         }
 
-        if "command" not in raw_config:
+        if settings is None:
+            from _pytask.cli import settings_builders
+
+            # Create plugin manager.
             pm = get_plugin_manager()
             storage.store(pm)
+
+            settings = ts.load_settings(
+                settings_builders["build"].build_settings(), create_settings_loaders()
+            )
         else:
             pm = storage.get()
 
-        # If someone called the programmatic interface, we need to do some parsing.
-        if "command" not in raw_config:
-            raw_config["command"] = "build"
-            # Add defaults from cli.
-            from _pytask.cli import DEFAULTS_FROM_CLI
-
-            raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
-
-            raw_config["paths"] = parse_paths(raw_config["paths"])
-
-            if raw_config["config"] is not None:
-                raw_config["config"] = Path(raw_config["config"]).resolve()
-                raw_config["root"] = raw_config["config"].parent
-            else:
-                (
-                    raw_config["root"],
-                    raw_config["config"],
-                ) = find_project_root_and_config(raw_config["paths"])
-
-            if raw_config["config"] is not None:
-                config_from_file = read_config(raw_config["config"])
-
-                if "paths" in config_from_file:
-                    paths = config_from_file["paths"]
-                    paths = [
-                        raw_config["config"].parent.joinpath(path).resolve()
-                        for path in to_list(paths)
-                    ]
-                    config_from_file["paths"] = paths
-
-                raw_config = {**raw_config, **config_from_file}
-
-        config_ = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
-
+        settings = update_settings(settings, updates)
+        config_ = pm.hook.pytask_configure(pm=pm, raw_config=settings)
         session = Session.from_config(config_)
 
     except (ConfigurationError, Exception):
@@ -328,13 +310,13 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
     return session
 
 
-def build_command(**raw_config: Any) -> NoReturn:
+def build_command(settings: Any, **arguments: Any) -> NoReturn:
     """Collect tasks, execute them and report the results.
 
     The default command. pytask collects tasks from the given paths or the
     current working directory, executes them and reports the results.
 
     """
-    raw_config["command"] = "build"
-    session = build(**raw_config)
+    settings = consolidate_settings_and_arguments(settings, arguments)
+    session = build(settings=settings)
     sys.exit(session.exit_code)

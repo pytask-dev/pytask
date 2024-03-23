@@ -7,11 +7,10 @@ from collections import defaultdict
 from typing import TYPE_CHECKING
 from typing import Any
 
-import click
+import typed_settings as ts
 from rich.text import Text
 from rich.tree import Tree
 
-from _pytask.click import ColoredCommand
 from _pytask.console import FILE_ICON
 from _pytask.console import PYTHON_ICON
 from _pytask.console import TASK_ICON
@@ -34,6 +33,7 @@ from _pytask.path import relative_to
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
+from _pytask.settings import SettingsBuilder
 from _pytask.tree_util import tree_leaves
 
 if TYPE_CHECKING:
@@ -41,19 +41,25 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
+@ts.settings
+class Base:
+    nodes: bool = ts.option(
+        default=False,
+        help="Show a task's dependencies and products.",
+        click={"is_flag": True},
+    )
+
+
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
     """Extend the command line interface."""
-    cli.add_command(collect)
+    settings_builders["collect"] = SettingsBuilder(
+        name="collect", function=collect, base_settings=Base
+    )
 
 
-@click.command(cls=ColoredCommand)
-@click.option(
-    "--nodes",
-    is_flag=True,
-    default=False,
-    help="Show a task's dependencies and products.",
-)
 def collect(**raw_config: Any | None) -> NoReturn:
     """Collect tasks and report information about them."""
     pm = storage.get()

@@ -8,6 +8,7 @@ from typing import AbstractSet
 from typing import Any
 
 import click
+import typed_settings as ts
 from attrs import define
 from rich.table import Table
 
@@ -33,6 +34,7 @@ if TYPE_CHECKING:
     import networkx as nx
 
     from _pytask.node_protocols import PTask
+    from _pytask.settings import SettingsBuilder
 
 
 __all__ = [
@@ -75,33 +77,36 @@ def markers(**raw_config: Any) -> NoReturn:
     sys.exit(session.exit_code)
 
 
-@hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
-    """Add marker related options."""
-    cli.add_command(markers)
+@ts.settings
+class Markers:
+    """Settings for markers."""
 
-    additional_build_parameters = [
-        click.Option(
-            ["--strict-markers"],
-            is_flag=True,
-            help="Raise errors for unknown markers.",
-            default=False,
-        ),
-        click.Option(
-            ["-m", "marker_expression"],
-            metavar="MARKER_EXPRESSION",
-            type=str,
-            help="Select tasks via marker expressions.",
-        ),
-        click.Option(
-            ["-k", "expression"],
-            metavar="EXPRESSION",
-            type=str,
-            help="Select tasks via expressions on task ids.",
-        ),
-    ]
-    for command in ("build", "clean", "collect"):
-        cli.commands[command].params.extend(additional_build_parameters)
+    strict_markers: bool = ts.option(
+        default=False,
+        click={"param_decls": ["--strict-markers"], "is_flag": True},
+        help="Raise errors for unknown markers.",
+    )
+    marker_expression: str = ts.option(
+        default="",
+        click={
+            "param_decls": ["-m", "marker_expression"],
+            "metavar": "MARKER_EXPRESSION",
+        },
+        help="Select tasks via marker expressions.",
+    )
+    expression: str = ts.option(
+        default="",
+        click={"param_decls": ["-k", "expression"], "metavar": "EXPRESSION"},
+        help="Select tasks via expressions on task ids.",
+    )
+
+
+@hookimpl
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
+    """Add marker related options."""
+    settings_builders["build"].option_groups["markers"] = Markers()
 
 
 @hookimpl
