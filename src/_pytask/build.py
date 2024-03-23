@@ -12,7 +12,6 @@ from typing import Iterable
 from typing import Literal
 
 import typed_settings as ts
-from rich.traceback import Traceback
 
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
@@ -32,7 +31,7 @@ from _pytask.session import Session
 from _pytask.settings_utils import SettingsBuilder
 from _pytask.settings_utils import create_settings_loaders
 from _pytask.settings_utils import update_settings
-from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
+from _pytask.traceback import Traceback
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -229,13 +228,11 @@ def build(  # noqa: PLR0913
             pm = storage.get()
 
         settings = update_settings(settings, updates)
-        config_ = pm.hook.pytask_configure(pm=pm, raw_config=settings)
+        config_ = pm.hook.pytask_configure(pm=pm, config=settings)
         session = Session.from_config(config_)
 
     except (ConfigurationError, Exception):
-        exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
-        traceback = Traceback.from_exception(*exc_info)
-        console.print(traceback)
+        console.print(Traceback(sys.exc_info()))
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 
     else:
@@ -255,9 +252,7 @@ def build(  # noqa: PLR0913
             session.exit_code = ExitCode.FAILED
 
         except Exception:  # noqa: BLE001
-            exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
-            traceback = Traceback.from_exception(*exc_info)
-            console.print(traceback)
+            console.print(Traceback(sys.exc_info()))
             session.exit_code = ExitCode.FAILED
 
         session.hook.pytask_unconfigure(session=session)

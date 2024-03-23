@@ -167,9 +167,3 @@ class Settings:
         click={"param_decls": ("--debug-pytask",), "is_flag": True},
         help="Trace all function calls in the plugin framework.",
     )
-
-    # markers: Markers
-    # profile: Profile
-    # build: Build
-    # clean: Clean
-    # database: Database

@@ -11,7 +11,6 @@ import click
 import networkx as nx
 import typed_settings as ts
 from rich.text import Text
-from rich.traceback import Traceback
 
 from _pytask.click import EnumChoice
 from _pytask.compat import check_for_optional_program
@@ -32,7 +31,7 @@ from _pytask.settings_utils import SettingsBuilder
 from _pytask.shared import parse_paths
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import to_list
-from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
+from _pytask.traceback import Traceback
 
 
 class _RankDirection(enum.Enum):
@@ -112,9 +111,8 @@ def dag(**raw_config: Any) -> int:
 
         except Exception:  # noqa: BLE001
             session.exit_code = ExitCode.FAILED
-            exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
             console.print()
-            console.print(Traceback.from_exception(*exc_info))
+            console.print(Traceback(sys.exc_info()))
             console.rule(style="failed")
 
     session.hook.pytask_unconfigure(session=session)

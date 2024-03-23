@@ -334,7 +334,6 @@ resolution and execution.
 ## Tracebacks
 
 ```{eval-rst}
-.. autofunction:: pytask.remove_internal_traceback_frames_from_exc_info
 .. autoclass:: pytask.Traceback
 ```
 

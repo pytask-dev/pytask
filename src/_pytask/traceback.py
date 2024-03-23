@@ -28,7 +28,6 @@ if TYPE_CHECKING:
 
 __all__ = [
     "Traceback",
-    "remove_internal_traceback_frames_from_exc_info",
     "remove_traceback_from_exc_info",
 ]
 
@@ -49,9 +48,9 @@ class Traceback:
 
     show_locals: ClassVar[bool] = False
     suppress: ClassVar[tuple[Path, ...]] = (
-        _PLUGGY_DIRECTORY,
-        TREE_UTIL_LIB_DIRECTORY,
-        _PYTASK_DIRECTORY,
+        # _PLUGGY_DIRECTORY,
+        # TREE_UTIL_LIB_DIRECTORY,
+        # _PYTASK_DIRECTORY,
     )
 
     def __rich_console__(
@@ -60,7 +59,7 @@ class Traceback:
         if self.exc_info and isinstance(self.exc_info[1], Exit):
             self.exc_info = remove_traceback_from_exc_info(self.exc_info)
 
-        filtered_exc_info = remove_internal_traceback_frames_from_exc_info(
+        filtered_exc_info = _remove_internal_traceback_frames_from_exc_info(
             self.exc_info, suppress=self.suppress
         )
 
@@ -80,7 +79,7 @@ def remove_traceback_from_exc_info(
     return (exc_info[0], exc_info[1], None)  # type: ignore[return-value]
 
 
-def remove_internal_traceback_frames_from_exc_info(
+def _remove_internal_traceback_frames_from_exc_info(
     exc_info: OptionalExceptionInfo,
     suppress: tuple[Path, ...] = (
         _PLUGGY_DIRECTORY,
@@ -117,7 +116,7 @@ def _remove_internal_traceback_frames_from_exception(
     if exc is None:
         return exc
 
-    _, _, tb = remove_internal_traceback_frames_from_exc_info(
+    _, _, tb = _remove_internal_traceback_frames_from_exc_info(
         (type(exc), exc, exc.__traceback__)
     )
     exc.__traceback__ = tb

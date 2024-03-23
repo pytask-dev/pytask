@@ -56,6 +56,9 @@ class SettingsBuilder:
         return command
 
 
+_ALREADY_PRINTED_DEPRECATION_MSG: bool = False
+
+
 class TomlFormat:
     """
     Support for TOML files.  Read settings from the given *section*.
@@ -113,7 +116,9 @@ class TomlFormat:
         for key in self.exclude:
             settings.pop(key, None)
 
-        if self.deprecated:
+        global _ALREADY_PRINTED_DEPRECATION_MSG  # noqa: PLW0603
+        if self.deprecated and not _ALREADY_PRINTED_DEPRECATION_MSG:
+            _ALREADY_PRINTED_DEPRECATION_MSG = True
             console.print(self.deprecated)
         return cast(SettingsDict, settings)
 
@@ -135,9 +140,8 @@ def create_settings_loaders() -> list[Loader]:
                     section="tool.pytask.ini_options",
                     deprecated=(
                         "[skipped]Deprecation Warning! Configuring pytask in the "
-                        r"section \[tool.pytask.ini_options] is deprecated. "
-                        r"Please, use \[tool.pytask] instead."
-                        "[/]\n\n"
+                        r"section \[tool.pytask.ini_options] is deprecated and will be "
+                        r"removed in v0.6. Please, use \[tool.pytask] instead.[/]\n\n"
                     ),
                 )
             },
