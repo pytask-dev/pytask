@@ -1,173 +1,175 @@
 from __future__ import annotations
 
-import sys
-from typing import TYPE_CHECKING
-from typing import Any
-from typing import Callable
-from typing import cast
+from enum import Enum
 
-import attrs
-import click
 import typed_settings as ts
-from attrs import define
-from attrs import field
-from typed_settings.cli_click import OptionGroupFactory
-from typed_settings.exceptions import ConfigFileLoadError
-from typed_settings.exceptions import ConfigFileNotFoundError
-from typed_settings.types import OptionList
-from typed_settings.types import SettingsClass
-from typed_settings.types import SettingsDict
+from click import BadParameter
+from click import Context
+from sqlalchemy.engine import URL
+from sqlalchemy.engine import make_url
+from sqlalchemy.exc import ArgumentError
 
-from _pytask.click import ColoredCommand
-from _pytask.console import console
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from typed_settings.loaders import Loader
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib  # type: ignore[no-redef]
+from _pytask.click import EnumChoice
 
 
-__all__ = ["Settings", "SettingsBuilder", "TomlFormat"]
+@ts.settings
+class Build:
+    stop_after_first_failure: bool = ts.option(
+        default=False,
+        click={"param_decls": ("-x", "--stop-after-first-failure"), "is_flag": True},
+        help="Stop after the first failure.",
+    )
+    max_failures: float = ts.option(
+        default=float("inf"),
+        click={"param_decls": ("--max-failures",)},
+        help="Stop after some failures.",
+    )
+    show_errors_immediately: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--show-errors-immediately",), "is_flag": True},
+        help="Show errors with tracebacks as soon as the task fails.",
+    )
+    show_traceback: bool = ts.option(
+        default=True,
+        click={"param_decls": ("--show-traceback", "--show-no-traceback")},
+        help="Choose whether tracebacks should be displayed or not.",
+    )
+    dry_run: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--dry-run",), "is_flag": True},
+        help="Perform a dry-run.",
+    )
+    force: bool = ts.option(
+        default=False,
+        click={"param_decls": ("-f", "--force"), "is_flag": True},
+        help="Execute a task even if it succeeded successfully before.",
+    )
+    check_casing_of_paths: bool = ts.option(
+        default=True,
+        click={"param_decls": ("--check-casing-of-paths",), "hidden": True},
+    )
 
 
-Settings = Any
+class _ExportFormats(Enum):
+    NO = "no"
+    JSON = "json"
+    CSV = "csv"
 
 
-@define
-class SettingsBuilder:
-    name: str
-    function: Callable[..., Any]
-    base_settings: Any
-    option_groups: dict[str, Any] = field(factory=dict)
-    arguments: list[Any] = field(factory=list)
-
-    def build_settings(self) -> Any:
-        return ts.combine("Settings", self.base_settings, self.option_groups)
-
-    def build_command(self, loaders: list[Loader]) -> Any:
-        settings = self.build_settings()
-        command = ts.click_options(
-            settings, loaders, decorator_factory=OptionGroupFactory()
-        )(self.function)
-        command = click.command(name=self.name, cls=ColoredCommand)(command)
-        command.params.extend(self.arguments)
-        return command
+@ts.settings
+class Profile:
+    export: _ExportFormats = ts.option(
+        default=_ExportFormats.NO,
+        help="Export the profile in the specified format.",
+    )
 
 
-class TomlFormat:
-    """
-    Support for TOML files.  Read settings from the given *section*.
-
-    Args:
-        section: The config file section to load settings from.
-    """
-
-    def __init__(
-        self,
-        section: str | None,
-        exclude: list[str] | None = None,
-        deprecated: str = "",
-    ) -> None:
-        self.section = section
-        self.exclude = exclude or []
-        self.deprecated = deprecated
-
-    def __call__(
-        self,
-        path: Path,
-        settings_cls: SettingsClass,  # noqa: ARG002
-        options: OptionList,  # noqa: ARG002
-    ) -> SettingsDict:
-        """
-        Load settings from a TOML file and return them as a dict.
-
-        Args:
-            path: The path to the config file.
-            options: The list of available settings.
-            settings_cls: The base settings class for all options.  If ``None``, load
-                top level settings.
-
-        Return:
-            A dict with the loaded settings.
-
-        Raise:
-            ConfigFileNotFoundError: If *path* does not exist.
-            ConfigFileLoadError: If *path* cannot be read/loaded/decoded.
-        """
-        try:
-            with path.open("rb") as f:
-                settings = tomllib.load(f)
-        except FileNotFoundError as e:
-            raise ConfigFileNotFoundError(str(e)) from e
-        except (PermissionError, tomllib.TOMLDecodeError) as e:
-            raise ConfigFileLoadError(str(e)) from e
-        if self.section is not None:
-            sections = self.section.split(".")
-            for s in sections:
-                try:
-                    settings = settings[s]
-                except KeyError:  # noqa: PERF203
-                    return {}
-        for key in self.exclude:
-            settings.pop(key, None)
-
-        if self.deprecated:
-            console.print(self.deprecated)
-        return cast(SettingsDict, settings)
+class _CleanMode(Enum):
+    DRY_RUN = "dry-run"
+    FORCE = "force"
+    INTERACTIVE = "interactive"
 
 
-def load_settings(settings_cls: Any) -> Any:
-    """Load the settings."""
-    loaders = create_settings_loaders()
-    return ts.load_settings(settings_cls, loaders)
-
-
-def create_settings_loaders() -> list[Loader]:
-    """Create the loaders for the settings."""
-    return [
-        ts.FileLoader(
-            files=[ts.find("pyproject.toml")],
-            env_var=None,
-            formats={
-                "*.toml": TomlFormat(
-                    section="tool.pytask.ini_options",
-                    deprecated=(
-                        "[skipped]Deprecation Warning! Configuring pytask in the "
-                        r"section \[tool.pytask.ini_options] is deprecated. "
-                        r"Please, use \[tool.pytask] instead."
-                        "[/]\n\n"
-                    ),
-                )
-            },
+@ts.settings
+class Clean:
+    directories: bool = ts.option(
+        default=False,
+        help="Remove whole directories.",
+        click={"is_flag": True, "param_decls": ["-d", "--directories"]},
+    )
+    exclude: tuple[str, ...] = ts.option(
+        factory=tuple,
+        help="A filename pattern to exclude files from the cleaning process.",
+        click={
+            "multiple": True,
+            "metavar": "PATTERN",
+            "param_decls": ["-e", "--exclude"],
+        },
+    )
+    mode: _CleanMode = ts.option(
+        default=_CleanMode.DRY_RUN,
+        help=(
+            "Choose 'dry-run' to print the paths of files/directories which would be "
+            "removed, 'interactive' for a confirmation prompt for every path, and "
+            "'force' to remove all unknown paths at once."
         ),
-        ts.FileLoader(
-            files=[ts.find("pyproject.toml")],
-            env_var=None,
-            formats={
-                "*.toml": TomlFormat(section="tool.pytask", exclude=["ini_options"])
-            },
-        ),
-        ts.EnvLoader(prefix="PYTASK_", nested_delimiter="_"),
-    ]
+        click={"type": EnumChoice(_CleanMode), "param_decls": ["-m", "--mode"]},
+    )
+    quiet: bool = ts.option(
+        default=False,
+        help="Do not print the names of the removed paths.",
+        click={"is_flag": True, "param_decls": ["-q", "--quiet"]},
+    )
 
 
-def update_settings(settings: Any, updates: dict[str, Any]) -> Any:
-    """Update the settings recursively with some updates."""
-    names = [i for i in dir(settings) if not i.startswith("_")]
-    for name in names:
-        if name in updates:
-            value = updates[name]
-            if value in ((), []):
-                continue
+def _database_url_callback(
+    ctx: Context,  # noqa: ARG001
+    name: str,  # noqa: ARG001
+    value: str | None,
+) -> URL | None:
+    """Check the url for the database."""
+    # Since sqlalchemy v2.0.19, we need to shortcircuit here.
+    if value is None:
+        return None
 
-            setattr(settings, name, updates[name])
+    try:
+        return make_url(value)
+    except ArgumentError:
+        msg = (
+            "The 'database_url' must conform to sqlalchemy's url standard: "
+            "https://docs.sqlalchemy.org/en/latest/core/engines.html#backend-specific-urls."
+        )
+        raise BadParameter(msg) from None
 
-        if attrs.has(getattr(settings, name)):
-            update_settings(getattr(settings, name), updates)
 
-    return settings
+@ts.settings
+class Database:
+    """Settings for the database."""
+
+    database_url: str = ts.option(
+        default=None,
+        help="Url to the database.",
+        click={
+            "show_default": "sqlite:///.../.pytask/pytask.sqlite3",
+            "callback": _database_url_callback,
+        },
+    )
+
+
+@ts.settings
+class Markers:
+    """Settings for markers."""
+
+    strict_markers: bool = ts.option(
+        default=False,
+        click={"param_decls": ["--strict-markers"], "is_flag": True},
+        help="Raise errors for unknown markers.",
+    )
+    marker_expression: str = ts.option(
+        default="",
+        click={
+            "param_decls": ["-m", "marker_expression"],
+            "metavar": "MARKER_EXPRESSION",
+        },
+        help="Select tasks via marker expressions.",
+    )
+    expression: str = ts.option(
+        default="",
+        click={"param_decls": ["-k", "expression"], "metavar": "EXPRESSION"},
+        help="Select tasks via expressions on task ids.",
+    )
+
+
+@ts.settings
+class Settings:
+    debug_pytask: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--debug-pytask",), "is_flag": True},
+        help="Trace all function calls in the plugin framework.",
+    )
+
+    # markers: Markers
+    # profile: Profile
+    # build: Build
+    # clean: Clean
+    # database: Database

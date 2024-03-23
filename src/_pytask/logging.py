@@ -7,7 +7,6 @@ import platform
 import sys
 import warnings
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import NamedTuple
 
 import pluggy
@@ -27,7 +26,8 @@ if TYPE_CHECKING:
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
     from _pytask.session import Session
-    from _pytask.settings import SettingsBuilder
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
 
 
 with contextlib.suppress(ImportError):
@@ -65,7 +65,7 @@ def pytask_extend_command_line_interface(
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_parse_config(config: Settings) -> None:
     """Parse configuration."""
     if config["editor_url_scheme"] not in ("no_link", "file") and IS_WINDOWS_TERMINAL:
         config["editor_url_scheme"] = "file"
@@ -78,7 +78,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     # Set class variables on traceback object.
     Traceback.show_locals = config["show_locals"]
     # Set class variables on Executionreport.

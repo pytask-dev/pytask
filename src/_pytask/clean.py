@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import enum
 import itertools
 import shutil
 import sys
@@ -13,10 +12,8 @@ from typing import Generator
 from typing import Iterable
 
 import click
-import typed_settings as ts
 from attrs import define
 
-from _pytask.click import EnumChoice
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
 from _pytask.git import get_all_files
@@ -31,7 +28,10 @@ from _pytask.path import relative_to
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from _pytask.settings import SettingsBuilder
+from _pytask.settings import Clean
+from _pytask.settings import Settings
+from _pytask.settings import _CleanMode
+from _pytask.settings_utils import SettingsBuilder
 from _pytask.shared import to_list
 from _pytask.traceback import Traceback
 from _pytask.tree_util import tree_leaves
@@ -40,48 +40,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
-class _CleanMode(enum.Enum):
-    DRY_RUN = "dry-run"
-    FORCE = "force"
-    INTERACTIVE = "interactive"
-
-
 _DEFAULT_EXCLUDE: list[str] = [".git/*"]
-
-
-_HELP_TEXT_MODE = (
-    "Choose 'dry-run' to print the paths of files/directories which would be removed, "
-    "'interactive' for a confirmation prompt for every path, and 'force' to remove all "
-    "unknown paths at once."
-)
-
-
-@ts.settings
-class Base:
-    directories: bool = ts.option(
-        default=False,
-        help="Remove whole directories.",
-        click={"is_flag": True, "param_decls": ["-d", "--directories"]},
-    )
-    exclude: tuple[str, ...] = ts.option(
-        factory=tuple,
-        help="A filename pattern to exclude files from the cleaning process.",
-        click={
-            "multiple": True,
-            "metavar": "PATTERN",
-            "param_decls": ["-e", "--exclude"],
-        },
-    )
-    mode: _CleanMode = ts.option(
-        default=_CleanMode.DRY_RUN,
-        help=_HELP_TEXT_MODE,
-        click={"type": EnumChoice(_CleanMode), "param_decls": ["-m", "--mode"]},
-    )
-    quiet: bool = ts.option(
-        default=False,
-        help="Do not print the names of the removed paths.",
-        click={"is_flag": True, "param_decls": ["-q", "--quiet"]},
-    )
 
 
 @hookimpl(tryfirst=True)
@@ -90,12 +49,12 @@ def pytask_extend_command_line_interface(
 ) -> None:
     """Extend the command line interface."""
     settings_builders["clean"] = SettingsBuilder(
-        name="clean", function=clean, base_settings=Base
+        name="clean", function=clean, base_settings=Clean
     )
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_parse_config(config: Settings) -> None:
     """Parse the configuration."""
     config["exclude"] = to_list(config["exclude"]) + _DEFAULT_EXCLUDE
 

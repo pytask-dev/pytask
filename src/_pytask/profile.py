@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import csv
-import enum
 import json
 import sys
 import time
@@ -13,7 +12,6 @@ from typing import Any
 from typing import Generator
 
 import click
-import typed_settings as ts
 from rich.table import Table
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -34,7 +32,8 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from _pytask.settings import SettingsBuilder
+from _pytask.settings import _ExportFormats
+from _pytask.settings_utils import SettingsBuilder
 from _pytask.traceback import Traceback
 
 if TYPE_CHECKING:
@@ -42,12 +41,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
     from _pytask.reports import ExecutionReport
-
-
-class _ExportFormats(enum.Enum):
-    NO = "no"
-    JSON = "json"
-    CSV = "csv"
+    from _pytask.settings import Settings
 
 
 class Runtime(BaseTable):
@@ -60,26 +54,16 @@ class Runtime(BaseTable):
     duration: Mapped[float]
 
 
-@ts.settings
-class Base:
-    export: _ExportFormats = ts.option(
-        default=_ExportFormats.NO,
-        help="Export the profile in the specified format.",
-    )
-
-
 @hookimpl(tryfirst=True)
 def pytask_extend_command_line_interface(
     settings_builders: dict[str, SettingsBuilder],
 ) -> None:
     """Extend the command line interface."""
-    settings_builders["profile"] = SettingsBuilder(
-        name="profile", function=profile, base_settings=Base
-    )
+    settings_builders["profile"] = SettingsBuilder(name="profile", function=profile)
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Register the export option."""
     config["pm"].register(ExportNameSpace)
     config["pm"].register(DurationNameSpace)

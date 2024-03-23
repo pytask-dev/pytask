@@ -28,7 +28,8 @@ if TYPE_CHECKING:
     from _pytask.capture import CaptureManager
     from _pytask.live import LiveManager
     from _pytask.session import Session
-    from _pytask.settings import SettingsBuilder
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
 
 
 def _pdbcls_callback(
@@ -84,7 +85,7 @@ def pytask_extend_command_line_interface(
 
 
 @hookimpl(trylast=True)
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Post parse the configuration.
 
     Register the plugins in this step to let other plugins influence the pdb or trace

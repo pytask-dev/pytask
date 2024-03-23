@@ -28,7 +28,8 @@ if TYPE_CHECKING:
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
-    from _pytask.settings import SettingsBuilder
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
 
 
 @ts.settings
@@ -57,7 +58,7 @@ def pytask_extend_command_line_interface(
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Post-parse the configuration."""
     live_manager = LiveManager()
     config["pm"].register(live_manager, "live_manager")

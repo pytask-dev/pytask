@@ -28,7 +28,7 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from _pytask.settings import SettingsBuilder
+from _pytask.settings_utils import SettingsBuilder
 from _pytask.shared import parse_paths
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import to_list

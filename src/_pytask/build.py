@@ -29,9 +29,9 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from _pytask.settings import SettingsBuilder
-from _pytask.settings import create_settings_loaders
-from _pytask.settings import update_settings
+from _pytask.settings_utils import SettingsBuilder
+from _pytask.settings_utils import create_settings_loaders
+from _pytask.settings_utils import update_settings
 from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 
 if TYPE_CHECKING:
@@ -39,49 +39,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
     from _pytask.node_protocols import PTask
-
-
-@ts.settings
-class Base:
-    debug_pytask: bool = ts.option(
-        default=False,
-        click={"param_decls": ("--debug-pytask",), "is_flag": True},
-        help="Trace all function calls in the plugin framework.",
-    )
-    stop_after_first_failure: bool = ts.option(
-        default=False,
-        click={"param_decls": ("-x", "--stop-after-first-failure"), "is_flag": True},
-        help="Stop after the first failure.",
-    )
-    max_failures: float = ts.option(
-        default=float("inf"),
-        click={"param_decls": ("--max-failures",)},
-        help="Stop after some failures.",
-    )
-    show_errors_immediately: bool = ts.option(
-        default=False,
-        click={"param_decls": ("--show-errors-immediately",), "is_flag": True},
-        help="Show errors with tracebacks as soon as the task fails.",
-    )
-    show_traceback: bool = ts.option(
-        default=True,
-        click={"param_decls": ("--show-traceback", "--show-no-traceback")},
-        help="Choose whether tracebacks should be displayed or not.",
-    )
-    dry_run: bool = ts.option(
-        default=False,
-        click={"param_decls": ("--dry-run",), "is_flag": True},
-        help="Perform a dry-run.",
-    )
-    force: bool = ts.option(
-        default=False,
-        click={"param_decls": ("-f", "--force"), "is_flag": True},
-        help="Execute a task even if it succeeded successfully before.",
-    )
-    check_casing_of_paths: bool = ts.option(
-        default=True,
-        click={"param_decls": ("--check-casing-of-paths",), "hidden": True},
-    )
+    from _pytask.settings import Settings
 
 
 @hookimpl(tryfirst=True)
@@ -89,15 +47,11 @@ def pytask_extend_command_line_interface(
     settings_builders: dict[str, SettingsBuilder],
 ) -> None:
     """Extend the command line interface."""
-    settings_builders["build"] = SettingsBuilder(
-        name="build",
-        function=build_command,
-        base_settings=Base,
-    )
+    settings_builders["build"] = SettingsBuilder(name="build", function=build_command)
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Fill cache of file hashes with stored hashes."""
     with suppress(Exception):
         path = config["root"] / ".pytask" / "file_hashes.json"

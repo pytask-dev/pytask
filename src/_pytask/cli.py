@@ -9,8 +9,8 @@ from packaging.version import parse as parse_version
 
 from _pytask.click import ColoredGroup
 from _pytask.pluginmanager import storage
-from _pytask.settings import SettingsBuilder
-from _pytask.settings import create_settings_loaders
+from _pytask.settings_utils import SettingsBuilder
+from _pytask.settings_utils import create_settings_loaders
 
 _CONTEXT_SETTINGS: dict[str, Any] = {
     "help_option_names": ("-h", "--help"),

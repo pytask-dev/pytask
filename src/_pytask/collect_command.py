@@ -33,7 +33,7 @@ from _pytask.path import relative_to
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from _pytask.settings import SettingsBuilder
+from _pytask.settings_utils import SettingsBuilder
 from _pytask.tree_util import tree_leaves
 
 if TYPE_CHECKING:

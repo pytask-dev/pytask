@@ -10,6 +10,7 @@ from typing import Iterable
 import click
 import typed_settings as ts
 from click import Context
+from pluggy import PluginManager  # noqa: TCH002
 
 from _pytask.path import import_path
 from _pytask.pluginmanager import hookimpl
@@ -17,9 +18,7 @@ from _pytask.pluginmanager import register_hook_impls_from_modules
 from _pytask.pluginmanager import storage
 
 if TYPE_CHECKING:
-    from pluggy import PluginManager
-
-    from _pytask.settings import SettingsBuilder
+    from _pytask.settings_utils import SettingsBuilder
 
 
 def _hook_module_callback(

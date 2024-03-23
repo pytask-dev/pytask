@@ -26,7 +26,8 @@ if TYPE_CHECKING:
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
-    from _pytask.settings import SettingsBuilder
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
 
 
 hookspec = pluggy.HookspecMarker("pytask")
@@ -69,7 +70,7 @@ def pytask_extend_command_line_interface(
 
 
 @hookspec(firstresult=True)
-def pytask_configure(pm: PluginManager, raw_config: dict[str, Any]) -> dict[str, Any]:
+def pytask_configure(pm: PluginManager, config: Settings) -> Settings:
     """Configure pytask.
 
     The main hook implementation which controls the configuration and calls subordinated
@@ -79,12 +80,12 @@ def pytask_configure(pm: PluginManager, raw_config: dict[str, Any]) -> dict[str,
 
 
 @hookspec
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_parse_config(config: Settings) -> None:
     """Parse configuration that is from CLI or file."""
 
 
 @hookspec
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Post parsing.
 
     This hook allows to consolidate the configuration in case some plugins might be

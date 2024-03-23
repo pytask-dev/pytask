@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from collections import defaultdict
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import Generator
 
 import typed_settings as ts
@@ -25,7 +24,8 @@ if TYPE_CHECKING:
 
     from _pytask.node_protocols import PTask
     from _pytask.session import Session
-    from _pytask.settings import SettingsBuilder
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
 
 
 @ts.settings
@@ -53,14 +53,14 @@ def pytask_extend_command_line_interface(
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_parse_config(config: Settings) -> None:
     """Parse the configuration."""
     config["filterwarnings"] = parse_filterwarnings(config.get("filterwarnings"))
     config["markers"]["filterwarnings"] = "Add a filter for a warning to a task."
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Activate the warnings plugin if not disabled."""
     if not config["disable_warnings"]:
         config["pm"].register(WarningsNameSpace)
