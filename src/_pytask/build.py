@@ -13,7 +13,6 @@ from typing import Iterable
 from typing import Literal
 
 import click
-from rich.traceback import Traceback
 
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
@@ -34,7 +33,7 @@ from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.shared import parse_paths
 from _pytask.shared import to_list
-from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
+from _pytask.traceback import Traceback
 
 if TYPE_CHECKING:
     from typing import NoReturn
@@ -66,7 +65,7 @@ def pytask_unconfigure(session: Session) -> None:
     path.write_text(json.dumps(HashPathCache._cache))
 
 
-def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
+def build(  # noqa: C901, PLR0912, PLR0913
     *,
     capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.FD,
     check_casing_of_paths: bool = True,
@@ -257,9 +256,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
         session = Session.from_config(config_)
 
     except (ConfigurationError, Exception):
-        exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
-        traceback = Traceback.from_exception(*exc_info)
-        console.print(traceback)
+        console.print(Traceback(sys.exc_info()))
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 
     else:
@@ -279,9 +276,7 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
             session.exit_code = ExitCode.FAILED
 
         except Exception:  # noqa: BLE001
-            exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
-            traceback = Traceback.from_exception(*exc_info)
-            console.print(traceback)
+            console.print(Traceback(sys.exc_info()))
             session.exit_code = ExitCode.FAILED
 
         session.hook.pytask_unconfigure(session=session)

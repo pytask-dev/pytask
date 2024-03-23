@@ -25,6 +25,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`573` removes the `pytask_execute_create_scheduler` hook.
 - {pull}`579` fixes an interaction with `--pdb` and `--trace` and task that return. The
   debugging modes swallowed the return and `None` was returned. Closes {issue}`574`.
+- {pull}`581` simplifies the code for tracebacks and unpublishes some utility functions.
 
 ## 0.4.6 - 2024-03-13
 
