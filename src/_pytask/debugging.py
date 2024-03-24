@@ -11,6 +11,7 @@ from typing import ClassVar
 from typing import Generator
 
 import click
+import typed_settings as ts
 
 from _pytask.console import console
 from _pytask.node_protocols import PTask
@@ -27,37 +28,8 @@ if TYPE_CHECKING:
     from _pytask.capture import CaptureManager
     from _pytask.live import LiveManager
     from _pytask.session import Session
-
-
-@hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
-    """Extend command line interface."""
-    additional_parameters = [
-        click.Option(
-            ["--pdb"],
-            help="Start the interactive debugger on errors.",
-            is_flag=True,
-            default=False,
-        ),
-        click.Option(
-            ["--trace"],
-            help="Enter debugger in the beginning of each task.",
-            is_flag=True,
-            default=False,
-        ),
-        click.Option(
-            ["--pdbcls"],
-            help=(
-                "Start a custom debugger on errors. For example: "
-                "--pdbcls=IPython.terminal.debugger:TerminalPdb"
-            ),
-            type=str,
-            default=None,
-            metavar="module_name:class_name",
-            callback=_pdbcls_callback,
-        ),
-    ]
-    cli.commands["build"].params.extend(additional_parameters)
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
 
 
 def _pdbcls_callback(
@@ -78,8 +50,42 @@ def _pdbcls_callback(
     raise click.BadParameter(message)
 
 
+@ts.settings
+class Debugging:
+    pdb: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--pdb",)},
+        help="Start the interactive debugger on errors.",
+    )
+    pdbcls: str = ts.option(
+        default="",
+        click={
+            "param_decls": ("--pdb-cls",),
+            "metavar": "module_name:class_name",
+            "callback": _pdbcls_callback,
+        },
+        help=(
+            "Start a custom debugger on errors. For example: "
+            "--pdbcls=IPython.terminal.debugger:TerminalPdb"
+        ),
+    )
+    trace: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--trace",)},
+        help="Enter debugger in the beginning of each task.",
+    )
+
+
+@hookimpl
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
+    """Extend command line interface."""
+    settings_builders["build"].option_groups["debugging"] = Debugging()
+
+
 @hookimpl(trylast=True)
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Post parse the configuration.
 
     Register the plugins in this step to let other plugins influence the pdb or trace
@@ -115,7 +121,7 @@ class PytaskPDB:
     """Pseudo PDB that defers to the real pdb."""
 
     _pluginmanager: PluginManager | None = None
-    _config: dict[str, Any] | None = None
+    _config: Settings | None = None
     _saved: ClassVar[list[tuple[Any, ...]]] = []
     _recursive_debug: int = 0
     _wrapped_pdb_cls: tuple[type[pdb.Pdb], type[pdb.Pdb]] | None = None

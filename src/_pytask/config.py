@@ -5,15 +5,15 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING
-from typing import Any
 
 from _pytask.pluginmanager import hookimpl
-from _pytask.shared import parse_markers
 from _pytask.shared import parse_paths
 from _pytask.shared import to_list
 
 if TYPE_CHECKING:
     from pluggy import PluginManager
+
+    from _pytask.settings import Settings
 
 
 _IGNORED_FOLDERS: list[str] = [".git/*", ".venv/*"]
@@ -61,20 +61,15 @@ IS_FILE_SYSTEM_CASE_SENSITIVE = is_file_system_case_sensitive()
 
 
 @hookimpl
-def pytask_configure(pm: PluginManager, raw_config: dict[str, Any]) -> dict[str, Any]:
+def pytask_configure(pm: PluginManager, config: Settings) -> Settings:
     """Configure pytask."""
-    # Add all values by default so that many plugins do not need to copy over values.
-    config = {"pm": pm, "markers": {}, **raw_config}
-    config["markers"] = parse_markers(config["markers"])
-
     pm.hook.pytask_parse_config(config=config)
     pm.hook.pytask_post_parse(config=config)
-
     return config
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_parse_config(config: Settings) -> None:
     """Parse the configuration."""
     config["root"].joinpath(".pytask").mkdir(exist_ok=True, parents=True)
 
@@ -112,6 +107,6 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Sort markers alphabetically."""
     config["markers"] = {k: config["markers"][k] for k in sorted(config["markers"])}

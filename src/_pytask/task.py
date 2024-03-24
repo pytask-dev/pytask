@@ -17,12 +17,13 @@ if TYPE_CHECKING:
 
     from _pytask.reports import CollectionReport
     from _pytask.session import Session
+    from _pytask.settings import Settings
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_parse_config(config: Settings) -> None:
     """Parse the configuration."""
-    config["markers"]["task"] = (
+    config.markers.markers["task"] = (
         "Mark a function as a task regardless of its name. Or mark tasks which are "
         "repeated in a loop. See this tutorial for more information: "
         "[link https://bit.ly/3DWrXS3]https://bit.ly/3DWrXS3[/]."

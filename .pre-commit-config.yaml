@@ -43,6 +43,16 @@ repos:
     hooks:
     -   id: refurb
         args: [--ignore, FURB126]
+        additional_dependencies: [
+            attrs>=21.3.0,
+            click,
+            optree,
+            pluggy>=1.3.0,
+            rich,
+            sqlalchemy>2,
+            typed-settings,
+            types-setuptools,
+        ]
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.9.0
     hooks:
@@ -54,6 +64,7 @@ repos:
             pluggy>=1.3.0,
             rich,
             sqlalchemy>2,
+            typed-settings,
             types-setuptools,
         ]
         pass_filenames: false
@@ -77,11 +88,6 @@ repos:
             mdformat-pyproject,
         ]
         files: (docs/.)
--   repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.8.4
-    hooks:
-    -   id: nbqa-mypy
-        args: [--ignore-missing-imports]
 -   repo: https://github.com/kynan/nbstripout
     rev: 0.7.1
     hooks:

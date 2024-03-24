@@ -7,11 +7,10 @@ import platform
 import sys
 import warnings
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import NamedTuple
 
-import click
 import pluggy
+import typed_settings as ts
 from rich.text import Text
 
 import _pytask
@@ -27,6 +26,8 @@ if TYPE_CHECKING:
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
     from _pytask.session import Session
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
 
 
 with contextlib.suppress(ImportError):
@@ -40,22 +41,34 @@ class _TimeUnit(NamedTuple):
     in_seconds: int
 
 
-@hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
-    show_locals_option = click.Option(
-        ["--show-locals"],
-        is_flag=True,
+@ts.settings
+class Logging:
+    """Settings for logging."""
+
+    show_capture: bool = ts.option(
         default=False,
+        click={"param_decls": ["--show-capture"], "is_flag": True},
+        help="Show the captured output of tasks.",
+    )
+    show_locals: bool = ts.option(
+        default=False,
+        click={"param_decls": ["--show-locals"], "is_flag": True},
         help="Show local variables in tracebacks.",
     )
-    cli.commands["build"].params.append(show_locals_option)
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
+    settings_builders["build"].option_groups["logging"] = Logging()
+
+
+@hookimpl
+def pytask_parse_config(config: Settings) -> None:
     """Parse configuration."""
-    if config["editor_url_scheme"] not in ("no_link", "file") and IS_WINDOWS_TERMINAL:
-        config["editor_url_scheme"] = "file"
+    if config.editor_url_scheme not in ("no_link", "file") and IS_WINDOWS_TERMINAL:
+        config.editor_url_scheme = "file"
         warnings.warn(
             "Windows Terminal does not support url schemes to applications, yet."
             "See https://github.com/pytask-dev/pytask/issues/171 for more information. "
@@ -65,7 +78,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     # Set class variables on traceback object.
     Traceback.show_locals = config["show_locals"]
     # Set class variables on Executionreport.

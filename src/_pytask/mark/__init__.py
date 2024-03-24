@@ -7,11 +7,9 @@ from typing import TYPE_CHECKING
 from typing import AbstractSet
 from typing import Any
 
-import click
 from attrs import define
 from rich.table import Table
 
-from _pytask.click import ColoredCommand
 from _pytask.console import console
 from _pytask.dag_utils import task_and_preceding_tasks
 from _pytask.exceptions import ConfigurationError
@@ -25,6 +23,9 @@ from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
+from _pytask.settings import Markers
+from _pytask.settings import Settings
+from _pytask.settings_utils import SettingsBuilder
 from _pytask.shared import parse_markers
 
 if TYPE_CHECKING:
@@ -49,7 +50,6 @@ __all__ = [
 ]
 
 
-@click.command(cls=ColoredCommand)
 def markers(**raw_config: Any) -> NoReturn:
     """Show all registered markers."""
     raw_config["command"] = "markers"
@@ -76,43 +76,24 @@ def markers(**raw_config: Any) -> NoReturn:
 
 
 @hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
     """Add marker related options."""
-    cli.add_command(markers)
-
-    additional_build_parameters = [
-        click.Option(
-            ["--strict-markers"],
-            is_flag=True,
-            help="Raise errors for unknown markers.",
-            default=False,
-        ),
-        click.Option(
-            ["-m", "marker_expression"],
-            metavar="MARKER_EXPRESSION",
-            type=str,
-            help="Select tasks via marker expressions.",
-        ),
-        click.Option(
-            ["-k", "expression"],
-            metavar="EXPRESSION",
-            type=str,
-            help="Select tasks via expressions on task ids.",
-        ),
-    ]
-    for command in ("build", "clean", "collect"):
-        cli.commands[command].params.extend(additional_build_parameters)
+    settings_builders["markers"] = SettingsBuilder(name="markers", function=markers)
+    for settings_builder in settings_builders.values():
+        settings_builder.option_groups["markers"] = Markers()
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_parse_config(config: Settings) -> None:
     """Parse marker related options."""
     MARK_GEN.config = config
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
-    config["markers"] = parse_markers(config["markers"])
+def pytask_post_parse(config: Settings) -> None:
+    config.markers.markers = parse_markers(config["markers"])
 
 
 @define(slots=True)

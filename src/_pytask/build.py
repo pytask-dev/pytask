@@ -5,20 +5,17 @@ from __future__ import annotations
 import json
 import sys
 from contextlib import suppress
-from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
 from typing import Iterable
 from typing import Literal
 
-import click
+import typed_settings as ts
 
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
-from _pytask.click import ColoredCommand
-from _pytask.config_utils import find_project_root_and_config
-from _pytask.config_utils import read_config
+from _pytask.config_utils import consolidate_settings_and_arguments
 from _pytask.console import console
 from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
@@ -31,24 +28,29 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from _pytask.shared import parse_paths
-from _pytask.shared import to_list
+from _pytask.settings_utils import SettingsBuilder
+from _pytask.settings_utils import create_settings_loaders
+from _pytask.settings_utils import update_settings
 from _pytask.traceback import Traceback
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import NoReturn
 
     from _pytask.node_protocols import PTask
+    from _pytask.settings import Settings
 
 
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
     """Extend the command line interface."""
-    cli.add_command(build_command)
+    settings_builders["build"] = SettingsBuilder(name="build", function=build_command)
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Fill cache of file hashes with stored hashes."""
     with suppress(Exception):
         path = config["root"] / ".pytask" / "file_hashes.json"
@@ -65,11 +67,10 @@ def pytask_unconfigure(session: Session) -> None:
     path.write_text(json.dumps(HashPathCache._cache))
 
 
-def build(  # noqa: C901, PLR0912, PLR0913
+def build(  # noqa: PLR0913
     *,
     capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.FD,
     check_casing_of_paths: bool = True,
-    config: Path | None = None,
     database_url: str = "",
     debug_pytask: bool = False,
     disable_warnings: bool = False,
@@ -86,6 +87,7 @@ def build(  # noqa: C901, PLR0912, PLR0913
     pdb: bool = False,
     pdb_cls: str = "",
     s: bool = False,
+    settings: Any = None,
     show_capture: Literal["no", "stdout", "stderr", "all"]
     | ShowCapture = ShowCapture.ALL,
     show_errors_immediately: bool = False,
@@ -112,8 +114,6 @@ def build(  # noqa: C901, PLR0912, PLR0913
         The capture method for stdout and stderr.
     check_casing_of_paths
         Whether errors should be raised when file names have different casings.
-    config
-        A path to the configuration file.
     database_url
         An URL to the database that tracks the status of tasks.
     debug_pytask
@@ -149,6 +149,8 @@ def build(  # noqa: C901, PLR0912, PLR0913
         ``--pdbcls=IPython.terminal.debugger:TerminalPdb``
     s
         Shortcut for ``capture="no"``.
+    settings
+        The settings object that contains the configuration.
     show_capture
         Choose which captured output should be shown for failed tasks.
     show_errors_immediately
@@ -180,10 +182,9 @@ def build(  # noqa: C901, PLR0912, PLR0913
 
     """
     try:
-        raw_config = {
+        updates = {
             "capture": capture,
             "check_casing_of_paths": check_casing_of_paths,
-            "config": config,
             "database_url": database_url,
             "debug_pytask": debug_pytask,
             "disable_warnings": disable_warnings,
@@ -213,46 +214,21 @@ def build(  # noqa: C901, PLR0912, PLR0913
             **kwargs,
         }
 
-        if "command" not in raw_config:
+        if settings is None:
+            from _pytask.cli import settings_builders
+
+            # Create plugin manager.
             pm = get_plugin_manager()
             storage.store(pm)
+
+            settings = ts.load_settings(
+                settings_builders["build"].build_settings(), create_settings_loaders()
+            )
         else:
             pm = storage.get()
 
-        # If someone called the programmatic interface, we need to do some parsing.
-        if "command" not in raw_config:
-            raw_config["command"] = "build"
-            # Add defaults from cli.
-            from _pytask.cli import DEFAULTS_FROM_CLI
-
-            raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
-
-            raw_config["paths"] = parse_paths(raw_config["paths"])
-
-            if raw_config["config"] is not None:
-                raw_config["config"] = Path(raw_config["config"]).resolve()
-                raw_config["root"] = raw_config["config"].parent
-            else:
-                (
-                    raw_config["root"],
-                    raw_config["config"],
-                ) = find_project_root_and_config(raw_config["paths"])
-
-            if raw_config["config"] is not None:
-                config_from_file = read_config(raw_config["config"])
-
-                if "paths" in config_from_file:
-                    paths = config_from_file["paths"]
-                    paths = [
-                        raw_config["config"].parent.joinpath(path).resolve()
-                        for path in to_list(paths)
-                    ]
-                    config_from_file["paths"] = paths
-
-                raw_config = {**raw_config, **config_from_file}
-
-        config_ = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
-
+        settings = update_settings(settings, updates)
+        config_ = pm.hook.pytask_configure(pm=pm, config=settings)
         session = Session.from_config(config_)
 
     except (ConfigurationError, Exception):
@@ -283,55 +259,13 @@ def build(  # noqa: C901, PLR0912, PLR0913
     return session
 
 
-@click.command(cls=ColoredCommand, name="build")
-@click.option(
-    "--debug-pytask",
-    is_flag=True,
-    default=False,
-    help="Trace all function calls in the plugin framework.",
-)
-@click.option(
-    "-x",
-    "--stop-after-first-failure",
-    is_flag=True,
-    default=False,
-    help="Stop after the first failure.",
-)
-@click.option(
-    "--max-failures",
-    type=click.FloatRange(min=1),
-    default=float("inf"),
-    help="Stop after some failures.",
-)
-@click.option(
-    "--show-errors-immediately",
-    is_flag=True,
-    default=False,
-    help="Show errors with tracebacks as soon as the task fails.",
-)
-@click.option(
-    "--show-traceback/--show-no-traceback",
-    type=bool,
-    default=True,
-    help="Choose whether tracebacks should be displayed or not.",
-)
-@click.option(
-    "--dry-run", type=bool, is_flag=True, default=False, help="Perform a dry-run."
-)
-@click.option(
-    "-f",
-    "--force",
-    is_flag=True,
-    default=False,
-    help="Execute a task even if it succeeded successfully before.",
-)
-def build_command(**raw_config: Any) -> NoReturn:
+def build_command(settings: Any, **arguments: Any) -> NoReturn:
     """Collect tasks, execute them and report the results.
 
     The default command. pytask collects tasks from the given paths or the
     current working directory, executes them and reports the results.
 
     """
-    raw_config["command"] = "build"
-    session = build(**raw_config)
+    settings = consolidate_settings_and_arguments(settings, arguments)
+    session = build(settings=settings)
     sys.exit(session.exit_code)

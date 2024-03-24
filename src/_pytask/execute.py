@@ -47,10 +47,11 @@ from _pytask.typing import is_task_generator
 
 if TYPE_CHECKING:
     from _pytask.session import Session
+    from _pytask.settings import Settings
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Adjust the configuration after intermediate values have been parsed."""
     if config["show_errors_immediately"]:
         config["pm"].register(ShowErrorsImmediatelyPlugin)

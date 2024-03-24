@@ -3,20 +3,34 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 from sqlalchemy.engine import make_url
 
 from _pytask.database_utils import create_database
 from _pytask.pluginmanager import hookimpl
+from _pytask.settings import Database
+
+if TYPE_CHECKING:
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_extend_command_line_interface(
+    settings_builders: dict[str, SettingsBuilder],
+) -> None:
+    """Extend the command line interface."""
+    for settings_builder in settings_builders.values():
+        settings_builder.option_groups["database"] = Database()
+
+
+@hookimpl
+def pytask_parse_config(config: Settings) -> None:
     """Parse the configuration."""
     # Set default.
-    if not config["database_url"]:
-        config["database_url"] = make_url(
+    if not config.database.database_url:
+        config.database.database_url = make_url(
             f"sqlite:///{config['root'].joinpath('.pytask').as_posix()}/pytask.sqlite3"
         )
 
@@ -40,6 +54,6 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Post-parse the configuration."""
     create_database(config["database_url"])

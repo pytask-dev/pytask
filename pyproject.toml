@@ -125,6 +125,7 @@ ignore = [
     "S603",  # Call check with subprocess.run.
     "S607",  # Call subprocess.run with partial executable path.
     "SLF001",  # access private members.
+    "TCH002",
 ]
 
 
@@ -174,6 +175,7 @@ disallow_untyped_defs = true
 no_implicit_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
+plugins = ["typed_settings.mypy"]
 
 
 [[tool.mypy.overrides]]
@@ -209,3 +211,10 @@ exclude_also = [
 [tool.mdformat]
 wrap = 88
 end_of_line = "keep"
+
+
+# [tool.pytask]
+# debug_pytask = false
+
+[tool.pytask.ini_options]
+debug_pytask = true
