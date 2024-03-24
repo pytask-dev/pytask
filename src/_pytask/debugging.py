@@ -121,7 +121,7 @@ class PytaskPDB:
     """Pseudo PDB that defers to the real pdb."""
 
     _pluginmanager: PluginManager | None = None
-    _config: dict[str, Any] | None = None
+    _config: Settings | None = None
     _saved: ClassVar[list[tuple[Any, ...]]] = []
     _recursive_debug: int = 0
     _wrapped_pdb_cls: tuple[type[pdb.Pdb], type[pdb.Pdb]] | None = None

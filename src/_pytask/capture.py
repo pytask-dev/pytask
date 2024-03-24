@@ -41,38 +41,16 @@ from typing import Iterator
 from typing import TextIO
 from typing import final
 
-import typed_settings as ts
-
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
 from _pytask.pluginmanager import hookimpl
+from _pytask.settings import Capture
 from _pytask.shared import convert_to_enum
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
     from _pytask.settings import Settings
     from _pytask.settings_utils import SettingsBuilder
-
-
-@ts.settings
-class Capture:
-    """Settings for capturing."""
-
-    capture: CaptureMethod = ts.option(
-        default=CaptureMethod.FD,
-        click={"param_decls": ["--capture"]},
-        help="Per task capturing method.",
-    )
-    s: bool = ts.option(
-        default=False,
-        click={"param_decls": ["-s"], "is_flag": True},
-        help="Shortcut for --capture=no.",
-    )
-    show_capture: ShowCapture = ts.option(
-        default=ShowCapture.ALL,
-        click={"param_decls": ["--show-capture"]},
-        help="Choose which captured output should be shown for failed tasks.",
-    )
 
 
 @hookimpl

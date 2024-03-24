@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 @hookimpl
 def pytask_parse_config(config: Settings) -> None:
     """Add the marker to the configuration."""
-    config["markers"]["persist"] = (
+    config.markers.markers["persist"] = (
         "Prevent execution of a task if all products exist and even if something has "
         "changed (dependencies, source file, products). This decorator might be useful "
         "for expensive tasks where only the formatting of the file has changed. The "

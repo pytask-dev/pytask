@@ -55,9 +55,7 @@ def pytask_extend_command_line_interface(
     settings_builders: dict[str, SettingsBuilder],
 ) -> None:
     """Extend the command line interface."""
-    settings_builders["collect"] = SettingsBuilder(
-        name="collect", function=collect, base_settings=Base
-    )
+    settings_builders["collect"] = SettingsBuilder(name="collect", function=collect)
 
 
 def collect(**raw_config: Any | None) -> NoReturn:

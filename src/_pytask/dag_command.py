@@ -73,9 +73,7 @@ def pytask_extend_command_line_interface(
     settings_builders: dict[str, SettingsBuilder],
 ) -> None:
     """Extend the command line interface."""
-    settings_builders["dag"] = SettingsBuilder(
-        name="dag", function=dag, base_settings=Base
-    )
+    settings_builders["dag"] = SettingsBuilder(name="dag", function=dag)
 
 
 def dag(**raw_config: Any) -> int:

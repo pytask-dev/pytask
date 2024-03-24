@@ -125,6 +125,7 @@ ignore = [
     "S603",  # Call check with subprocess.run.
     "S607",  # Call subprocess.run with partial executable path.
     "SLF001",  # access private members.
+    "TCH002",
 ]
 
 

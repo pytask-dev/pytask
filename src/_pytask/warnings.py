@@ -15,7 +15,6 @@ from _pytask.console import console
 from _pytask.pluginmanager import hookimpl
 from _pytask.warnings_utils import WarningReport
 from _pytask.warnings_utils import catch_warnings_for_item
-from _pytask.warnings_utils import parse_filterwarnings
 
 if TYPE_CHECKING:
     from rich.console import Console
@@ -34,7 +33,7 @@ class Warnings:
 
     filterwarnings: list[str] = ts.option(
         factory=list,
-        click={"param_decls": ["--filterwarnings"]},
+        click={"hidden": True},
         help="Add a filter for a warning to a task.",
     )
     disable_warnings: bool = ts.option(
@@ -55,8 +54,7 @@ def pytask_extend_command_line_interface(
 @hookimpl
 def pytask_parse_config(config: Settings) -> None:
     """Parse the configuration."""
-    config["filterwarnings"] = parse_filterwarnings(config.get("filterwarnings"))
-    config["markers"]["filterwarnings"] = "Add a filter for a warning to a task."
+    config.markers.markers["filterwarnings"] = "Add a filter for a warning to a task."
 
 
 @hookimpl

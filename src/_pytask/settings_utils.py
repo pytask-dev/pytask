@@ -120,6 +120,7 @@ class TomlFormat:
         if self.deprecated and not _ALREADY_PRINTED_DEPRECATION_MSG:
             _ALREADY_PRINTED_DEPRECATION_MSG = True
             console.print(self.deprecated)
+        settings["config_file"] = path
         return cast(SettingsDict, settings)
 
 

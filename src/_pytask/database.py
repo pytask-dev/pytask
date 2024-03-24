@@ -29,8 +29,8 @@ def pytask_extend_command_line_interface(
 def pytask_parse_config(config: Settings) -> None:
     """Parse the configuration."""
     # Set default.
-    if not config["database_url"]:
-        config["database_url"] = make_url(
+    if not config.database.database_url:
+        config.database.database_url = make_url(
             f"sqlite:///{config['root'].joinpath('.pytask').as_posix()}/pytask.sqlite3"
         )
 

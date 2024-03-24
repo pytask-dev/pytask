@@ -43,7 +43,7 @@ def pytask_parse_config(config: Settings) -> None:
         "executed and have not been changed.",
         "skipif": "Skip a task and all its dependent tasks if a condition is met.",
     }
-    config["markers"] = {**config["markers"], **markers}
+    config.markers.markers = {**config.markers.markers, **markers}
 
 
 @hookimpl
