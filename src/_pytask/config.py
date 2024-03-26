@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 
+from _pytask.path import ImportMode
 from _pytask.pluginmanager import hookimpl
 from _pytask.shared import parse_markers
 from _pytask.shared import parse_paths
@@ -109,6 +110,8 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
     if config["debug_pytask"]:
         config["pm"].trace.root.setwriter(print)
         config["pm"].enable_tracing()
+
+    config["import_mode"] = ImportMode(config["import_mode"])
 
 
 @hookimpl

@@ -13,7 +13,9 @@ from sqlalchemy.engine import URL
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import ArgumentError
 
+from _pytask.click import EnumChoice
 from _pytask.config_utils import set_defaults_from_config
+from _pytask.path import ImportMode
 from _pytask.path import import_path
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import register_hook_impls_from_modules
@@ -138,7 +140,7 @@ def _hook_module_callback(
                     "Please provide a valid path."
                 )
                 raise click.BadParameter(msg)
-            module = import_path(path, ctx.params["root"])
+            module = import_path(path, root=ctx.params["root"])
             parsed_modules.append(module.__name__)
         else:
             spec = importlib.util.find_spec(module_name)
@@ -177,12 +179,19 @@ _HOOK_MODULE_OPTION = click.Option(
     callback=_hook_module_callback,
 )
 
+_IMPORT_MODE_OPTION = click.Option(
+    ["--import-mode"],
+    type=EnumChoice(ImportMode),
+    default="importlib",
+    help="Choose the import mode.",
+)
+
 
 @hookimpl(trylast=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Register general markers."""
     for command in ("build", "clean", "collect", "dag", "profile"):
-        cli.commands[command].params.extend((_DATABASE_URL_OPTION,))
+        cli.commands[command].params.extend((_DATABASE_URL_OPTION, _IMPORT_MODE_OPTION))
     for command in ("build", "clean", "collect", "dag", "markers", "profile"):
         cli.commands[command].params.extend(
             (_CONFIG_OPTION, _HOOK_MODULE_OPTION, _PATH_ARGUMENT)
