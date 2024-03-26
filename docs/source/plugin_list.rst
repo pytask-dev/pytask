@@ -11,7 +11,7 @@ automatically. Packages classified as inactive are excluded.
    creating a PDF, because otherwise the table gets far too wide for the
    page.
 
-This list contains 8 plugins.
+This list contains 7 plugins.
 
 .. only:: not latex
 
@@ -21,7 +21,6 @@ This list contains 8 plugins.
    :pypi:`pytask-environment`  Detect changes in your pytask environment and abort a project build.  Feb 10, 2023    4 - Beta   pytask (>=0.2)
    :pypi:`pytask-julia`        A Pytask plugin for Julia                                             Oct 07, 2023    4 - Beta   pytask >=0.4.0
    :pypi:`pytask-latex`        Compile LaTeX documents with pytask.                                  Nov 30, 2023    4 - Beta   pytask >=0.4.0
-   :pypi:`pytask-list`         A awesome To-do List made with python in your terminal                Mar 24, 2024    N/A        N/A
    :pypi:`pytask-parallel`     Parallelize the execution of tasks with pytask.                       Jan 12, 2024    4 - Beta   pytask >=0.4.5
    :pypi:`pytask-r`            Run R scripts with pytask.                                            Oct 07, 2023    4 - Beta   pytask >=0.4.0
    :pypi:`pytask-stata`        Execute do-files with Stata and pytask.                               Jan 23, 2023    4 - Beta   pytask (>=0.3)
@@ -51,13 +50,6 @@ This list contains 8 plugins.
      *requires*: pytask >=0.4.0
 
      Compile LaTeX documents with pytask.
-
-  :pypi:`pytask-list`
-     *last release*: Mar 24, 2024,
-     *status*: N/A,
-     *requires*: N/A
-
-     A awesome To-do List made with python in your terminal
 
   :pypi:`pytask-parallel`
      *last release*: Jan 12, 2024,
