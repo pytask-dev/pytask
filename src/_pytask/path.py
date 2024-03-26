@@ -17,6 +17,7 @@ from _pytask._hashlib import file_digest
 from _pytask.cache import Cache
 
 __all__ = [
+    "ImportMode",
     "find_case_sensitive_path",
     "find_closest_ancestor",
     "find_common_ancestor",
