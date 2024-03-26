@@ -27,6 +27,7 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
 from _pytask.path import HashPathCache
+from _pytask.path import ImportMode
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
@@ -79,6 +80,8 @@ def build(  # noqa: C901, PLR0912, PLR0913
     expression: str = "",
     force: bool = False,
     ignore: Iterable[str] = (),
+    import_mode: Literal["prepend", "append", "importlib"]
+    | ImportMode = ImportMode.importlib,
     marker_expression: str = "",
     max_failures: float = float("inf"),
     n_entries_in_table: int = 15,
@@ -132,6 +135,8 @@ def build(  # noqa: C901, PLR0912, PLR0913
     ignore
         A pattern to ignore files or directories. Refer to ``pathlib.Path.match`` for
         more info.
+    import_mode
+        The import mode used to import task modules.
     marker_expression
         Same as ``-m`` on the command line. Select tasks via marker expressions.
     max_failures
@@ -192,6 +197,7 @@ def build(  # noqa: C901, PLR0912, PLR0913
             "expression": expression,
             "force": force,
             "ignore": ignore,
+            "import_mode": import_mode,
             "marker_expression": marker_expression,
             "max_failures": max_failures,
             "n_entries_in_table": n_entries_in_table,

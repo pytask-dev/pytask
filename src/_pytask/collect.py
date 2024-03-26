@@ -206,7 +206,9 @@ def pytask_collect_file(
 ) -> list[CollectionReport] | None:
     """Collect a file."""
     if any(path.match(pattern) for pattern in session.config["task_files"]):
-        mod = import_path(path, session.config["root"])
+        mod = import_path(
+            path, root=session.config["root"], mode=session.config["import_mode"]
+        )
 
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
