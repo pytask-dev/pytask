@@ -182,7 +182,7 @@ _HOOK_MODULE_OPTION = click.Option(
 _IMPORT_MODE_OPTION = click.Option(
     ["--import-mode"],
     type=EnumChoice(ImportMode),
-    default="importlib",
+    default=ImportMode.importlib,
     help="Choose the import mode.",
 )
 
