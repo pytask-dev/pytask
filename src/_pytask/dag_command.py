@@ -188,24 +188,17 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 
     else:
-        try:
-            session.hook.pytask_log_session_header(session=session)
-            import_optional_dependency("pygraphviz")
-            check_for_optional_program(
-                session.config["layout"],
-                extra="The layout program is part of the graphviz package that you "
-                "can install with conda.",
-            )
-            session.hook.pytask_collect(session=session)
-            session.dag = create_dag(session=session)
-            session.hook.pytask_unconfigure(session=session)
-            dag = _refine_dag(session)
-
-        except Exception:
-            raise
-
-        else:
-            return dag
+        session.hook.pytask_log_session_header(session=session)
+        import_optional_dependency("pygraphviz")
+        check_for_optional_program(
+            session.config["layout"],
+            extra="The layout program is part of the graphviz package that you "
+            "can install with conda.",
+        )
+        session.hook.pytask_collect(session=session)
+        session.dag = create_dag(session=session)
+        session.hook.pytask_unconfigure(session=session)
+        return _refine_dag(session)
 
 
 def _refine_dag(session: Session) -> nx.DiGraph:
