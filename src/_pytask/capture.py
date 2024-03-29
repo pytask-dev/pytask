@@ -40,11 +40,11 @@ from typing import Generator
 from typing import Generic
 from typing import Iterator
 from typing import NamedTuple
-from typing import Self
 from typing import TextIO
 from typing import final
 
 import click
+from typing_extensions import Self
 
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
