@@ -25,7 +25,7 @@ __all__ = [
 ]
 
 
-def relative_to(path: Path, source: Path, include_source: bool = True) -> Path:
+def relative_to(path: Path, source: Path, *, include_source: bool = True) -> Path:
     """Make a path relative to another path.
 
     In contrast to :meth:`pathlib.Path.relative_to`, this function allows to keep the
@@ -191,7 +191,7 @@ def _insert_missing_modules(modules: dict[str, ModuleType], module_name: str) ->
                 # sys.meta_path explicitly and raise the error ourselves to fall back to
                 # creating a dummy module.
                 if not sys.meta_path:
-                    raise ModuleNotFoundError
+                    raise ModuleNotFoundError  # noqa: TRY301
                 importlib.import_module(module_name)
             except ModuleNotFoundError:
                 module = ModuleType(
