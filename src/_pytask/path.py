@@ -4,6 +4,7 @@ from __future__ import annotations
 import contextlib
 import functools
 import importlib.util
+import itertools
 import os
 import sys
 from pathlib import Path
@@ -122,7 +123,9 @@ def find_case_sensitive_path(path: Path, platform: str) -> Path:
     return path.resolve() if platform == "win32" else path
 
 
-def import_path(path: Path, root: Path) -> ModuleType:
+def import_path(
+    path: Path, root: Path, consider_namespace_packages: bool = False
+) -> ModuleType:
     """Import and return a module from the given path.
 
     The function is taken from pytest when the import mode is set to ``importlib``. It
@@ -130,6 +133,23 @@ def import_path(path: Path, root: Path) -> ModuleType:
     ``prepend``. More discussion and information can be found in :issue:`373`.
 
     """
+    try:
+        pkg_root, module_name = resolve_pkg_root_and_module_name(
+            path, consider_namespace_packages=consider_namespace_packages
+        )
+    except CouldNotResolvePathError:
+        pass
+    else:
+        # If the given module name is already in sys.modules, do not import it again.
+        with contextlib.suppress(KeyError):
+            return sys.modules[module_name]
+
+        mod = _import_module_using_spec(
+            module_name, path, pkg_root, insert_modules=False
+        )
+        if mod is not None:
+            return mod
+
     module_name = _module_name_from_path(path, root)
     with contextlib.suppress(KeyError):
         return sys.modules[module_name]
@@ -145,6 +165,112 @@ def import_path(path: Path, root: Path) -> ModuleType:
     spec.loader.exec_module(mod)  # type: ignore[union-attr]
     _insert_missing_modules(sys.modules, module_name)
     return mod
+
+
+def resolve_package_path(path: Path) -> Path | None:
+    """Return the Python package path by looking for the last
+    directory upwards which still contains an __init__.py.
+
+    Returns None if it can not be determined.
+    """
+    result = None
+    for parent in itertools.chain((path,), path.parents):
+        if parent.is_dir():
+            if not (parent / "__init__.py").is_file():
+                break
+            if not parent.name.isidentifier():
+                break
+            result = parent
+    return result
+
+
+def resolve_pkg_root_and_module_name(
+    path: Path, *, consider_namespace_packages: bool = False
+) -> tuple[Path, str]:
+    """
+    Return the path to the directory of the root package that contains the
+    given Python file, and its module name:
+
+        src/
+            app/
+                __init__.py
+                core/
+                    __init__.py
+                    models.py
+
+    Passing the full path to `models.py` will yield Path("src") and "app.core.models".
+
+    If consider_namespace_packages is True, then we additionally check upwards in the hierarchy
+    until we find a directory that is reachable from sys.path, which marks it as a namespace package:
+
+    https://packaging.python.org/en/latest/guides/packaging-namespace-packages
+
+    Raises CouldNotResolvePathError if the given path does not belong to a package (missing any __init__.py files).
+    """
+    pkg_path = resolve_package_path(path)
+    if pkg_path is not None:
+        pkg_root = pkg_path.parent
+        # https://packaging.python.org/en/latest/guides/packaging-namespace-packages/
+        if consider_namespace_packages:
+            # Go upwards in the hierarchy, if we find a parent path included
+            # in sys.path, it means the package found by resolve_package_path()
+            # actually belongs to a namespace package.
+            for parent in pkg_root.parents:
+                # If any of the parent paths has a __init__.py, it means it is not
+                # a namespace package (see the docs linked above).
+                if (parent / "__init__.py").is_file():
+                    break
+                if str(parent) in sys.path:
+                    # Point the pkg_root to the root of the namespace package.
+                    pkg_root = parent
+                    break
+
+        names = list(path.with_suffix("").relative_to(pkg_root).parts)
+        if names[-1] == "__init__":
+            names.pop()
+        module_name = ".".join(names)
+        return pkg_root, module_name
+
+    msg = f"Could not resolve for {path}"
+    raise CouldNotResolvePathError(msg)
+
+
+class CouldNotResolvePathError(Exception):
+    """Custom exception raised by resolve_pkg_root_and_module_name."""
+
+
+def _import_module_using_spec(
+    module_name: str, module_path: Path, module_location: Path, *, insert_modules: bool
+) -> ModuleType | None:
+    """
+    Tries to import a module by its canonical name, path to the .py file, and its
+    parent location.
+
+    :param insert_modules:
+        If True, will call insert_missing_modules to create empty intermediate modules
+        for made-up module names (when importing test files not reachable from sys.path).
+        Note: we can probably drop insert_missing_modules altogether: instead of
+        generating module names such as "src.tests.test_foo", which require intermediate
+        empty modules, we might just as well generate unique module names like
+        "src_tests_test_foo".
+    """
+    # Checking with sys.meta_path first in case one of its hooks can import this module,
+    # such as our own assertion-rewrite hook.
+    for meta_importer in sys.meta_path:
+        spec = meta_importer.find_spec(module_name, [str(module_location)])
+        if spec is not None:
+            break
+    else:
+        spec = importlib.util.spec_from_file_location(module_name, str(module_path))
+    if spec is not None:
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = mod
+        spec.loader.exec_module(mod)  # type: ignore[union-attr]
+        if insert_modules:
+            _insert_missing_modules(sys.modules, module_name)
+        return mod
+
+    return None
 
 
 def _module_name_from_path(path: Path, root: Path) -> str:
