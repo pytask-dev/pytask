@@ -266,7 +266,9 @@ def _import_module_using_spec(
     Tries to import a module by its canonical name, path to the .py file, and its parent
     location.
 
-    :param insert_modules:
+    Parameters
+    ----------
+    insert_modules
         If True, will call insert_missing_modules to create empty intermediate modules
         for made-up module names (when importing test files not reachable from
         sys.path). Note: we can probably drop insert_missing_modules altogether: instead
