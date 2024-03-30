@@ -134,7 +134,7 @@ def import_path(
 
     """
     try:
-        pkg_root, module_name = resolve_pkg_root_and_module_name(
+        pkg_root, module_name = _resolve_pkg_root_and_module_name(
             path, consider_namespace_packages=consider_namespace_packages
         )
     except CouldNotResolvePathError:
@@ -167,7 +167,7 @@ def import_path(
     return mod
 
 
-def resolve_package_path(path: Path) -> Path | None:
+def _resolve_package_path(path: Path) -> Path | None:
     """Resolve package path.
 
     Return the Python package path by looking for the last directory upwards which still
@@ -187,7 +187,7 @@ def resolve_package_path(path: Path) -> Path | None:
     return result
 
 
-def resolve_pkg_root_and_module_name(
+def _resolve_pkg_root_and_module_name(
     path: Path, *, consider_namespace_packages: bool = False
 ) -> tuple[Path, str]:
     """Resolve the root package directory and module name for the given Python file.
@@ -213,13 +213,13 @@ def resolve_pkg_root_and_module_name(
     Raises CouldNotResolvePathError if the given path does not belong to a package
     (missing any __init__.py files).
     """
-    pkg_path = resolve_package_path(path)
+    pkg_path = _resolve_package_path(path)
     if pkg_path is not None:
         pkg_root = pkg_path.parent
         # https://packaging.python.org/en/latest/guides/packaging-namespace-packages/
         if consider_namespace_packages:
             # Go upwards in the hierarchy, if we find a parent path included in
-            # sys.path, it means the package found by resolve_package_path() actually
+            # sys.path, it means the package found by _resolve_package_path() actually
             # belongs to a namespace package.
             for parent in pkg_root.parents:
                 # If any of the parent paths has a __init__.py, it means it is not a
@@ -242,7 +242,7 @@ def resolve_pkg_root_and_module_name(
 
 
 class CouldNotResolvePathError(Exception):
-    """Custom exception raised by resolve_pkg_root_and_module_name."""
+    """Custom exception raised by _resolve_pkg_root_and_module_name."""
 
 
 def _import_module_using_spec(

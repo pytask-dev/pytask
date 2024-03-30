@@ -50,5 +50,4 @@ dependencies:
   - sphinxext-opengraph
 
   - pip:
-    - sphinx-toolbox
     - -e .
