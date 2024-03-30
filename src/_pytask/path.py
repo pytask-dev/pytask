@@ -297,39 +297,48 @@ def _import_module_using_spec(
 def _module_name_from_path(path: Path, root: Path) -> str:
     """Return a dotted module name based on the given path, anchored on root.
 
-    For example: path="projects/src/project/task_foo.py" and root="/projects", the
-    resulting module name will be "src.project.task_foo".
+    For example: path="projects/src/tests/test_foo.py" and root="/projects", the
+    resulting module name will be "src.tests.test_foo".
 
     """
     path = path.with_suffix("")
     try:
         relative_path = path.relative_to(root)
     except ValueError:
-        # If we can't get a relative path to root, use the full path, except for the
-        # first part ("d:\\" or "/" depending on the platform, for example).
+        # If we can't get a relative path to root, use the full path, except
+        # for the first part ("d:\\" or "/" depending on the platform, for example).
         path_parts = path.parts[1:]
     else:
         # Use the parts for the relative path to the root path.
         path_parts = relative_path.parts
 
-    # Module name for packages do not contain the __init__ file, unless the
-    # `__init__.py` file is at the root.
+    # Module name for packages do not contain the __init__ file, unless
+    # the `__init__.py` file is at the root.
     if len(path_parts) >= 2 and path_parts[-1] == "__init__":  # noqa: PLR2004
         path_parts = path_parts[:-1]
+
+    # Module names cannot contain ".", normalize them to "_". This prevents a directory
+    # having a "." in the name (".env.310" for example) causing extra intermediate
+    # modules. Also, important to replace "." at the start of paths, as those are
+    # considered relative imports.
+    path_parts = tuple(x.replace(".", "_") for x in path_parts)
 
     return ".".join(path_parts)
 
 
 def _insert_missing_modules(modules: dict[str, ModuleType], module_name: str) -> None:
-    """Insert missing modules when importing modules with :func:`import_path`.
+    """Insert missing modules in sys.modules.
 
-    When we want to import a module as ``src.project.task_foo`` for example, we need to
-    create empty modules ``src`` and ``src.project`` after inserting
-    ``src.project.task_foo``, otherwise ``src.project.task_foo`` is not importable by
-    ``__import__``.
+    Used by ``import_path`` to create intermediate modules when using mode=importlib.
+    When we want to import a module as "src.tests.test_foo" for example, we need to
+    create empty modules "src" and "src.tests" after inserting "src.tests.test_foo",
+    otherwise "src.tests.test_foo" is not importable by ``__import__``.
 
     """
     module_parts = module_name.split(".")
+    child_module: ModuleType | None = None
+    module: ModuleType | None = None
+    child_name: str = ""
     while module_name:
         if module_name not in modules:
             try:
@@ -339,13 +348,20 @@ def _insert_missing_modules(modules: dict[str, ModuleType], module_name: str) ->
                 # creating a dummy module.
                 if not sys.meta_path:
                     raise ModuleNotFoundError  # noqa: TRY301
-                importlib.import_module(module_name)
+                module = importlib.import_module(module_name)
             except ModuleNotFoundError:
                 module = ModuleType(
                     module_name,
-                    doc="Empty module created by pytask.",
+                    doc="Empty module created by pytest's importmode=importlib.",
                 )
-                modules[module_name] = module
+        else:
+            module = modules[module_name]
+        # Add child attribute to the parent that can reference the child modules.
+        if child_module and not hasattr(module, child_name):
+            setattr(module, child_name, child_module)
+            modules[module_name] = module
+        # Keep track of the child module while moving up the tree.
+        child_module, child_name = module, module_name.rpartition(".")[-1]
         module_parts.pop(-1)
         module_name = ".".join(module_parts)
 

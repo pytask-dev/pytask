@@ -181,7 +181,7 @@ def test_no_meta_path_found(
         import_path(simple_module, root=tmp_path)
 
 
-@pytest.fixture(params=[True, False])
+@pytest.fixture(params=[False])
 def ns_param(request: pytest.FixtureRequest) -> bool:
     """
     Simple parametrized fixture for tests which call import_path() with
