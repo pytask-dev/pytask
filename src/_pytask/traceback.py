@@ -13,6 +13,7 @@ from typing import Union
 
 import pluggy
 from attrs import define
+from attrs import field
 from rich.traceback import Traceback as RichTraceback
 
 import _pytask
@@ -45,13 +46,18 @@ OptionalExceptionInfo: TypeAlias = Union[ExceptionInfo, Tuple[None, None, None]]
 @define
 class Traceback:
     exc_info: OptionalExceptionInfo
+    show_locals: bool = field()
 
-    show_locals: ClassVar[bool] = False
+    _show_locals: ClassVar[bool] = False
     suppress: ClassVar[tuple[Path, ...]] = (
         _PLUGGY_DIRECTORY,
-        TREE_UTIL_LIB_DIRECTORY,
         _PYTASK_DIRECTORY,
+        TREE_UTIL_LIB_DIRECTORY,
     )
+
+    @show_locals.default
+    def _show_locals_default(self) -> bool:
+        return self._show_locals
 
     def __rich_console__(
         self, console: Console, console_options: ConsoleOptions
@@ -68,7 +74,7 @@ class Traceback:
             yield filtered_exc_info[2]
         else:
             yield RichTraceback.from_exception(
-                *filtered_exc_info, show_locals=self.show_locals
+                *filtered_exc_info, show_locals=self._show_locals
             )
 
 
