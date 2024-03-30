@@ -8,6 +8,7 @@ import importlib.util
 import itertools
 import os
 import sys
+from enum import Enum
 from pathlib import Path
 from types import ModuleType
 from typing import Sequence
@@ -123,8 +124,18 @@ def find_case_sensitive_path(path: Path, platform: str) -> Path:
     return path.resolve() if platform == "win32" else path
 
 
+class ImportMode(Enum):
+    """Enum to specify the import mode."""
+
+    importlib = "importlib"
+
+
 def import_path(
-    path: Path, root: Path, consider_namespace_packages: bool = False
+    path: Path,
+    root: Path,
+    *,
+    consider_namespace_packages: bool = False,
+    mode: ImportMode = ImportMode.importlib,
 ) -> ModuleType:
     """Import and return a module from the given path.
 
@@ -133,6 +144,8 @@ def import_path(
     ``prepend``. More discussion and information can be found in :issue:`373`.
 
     """
+    mode = ImportMode(mode)
+
     try:
         pkg_root, module_name = _resolve_pkg_root_and_module_name(
             path, consider_namespace_packages=consider_namespace_packages

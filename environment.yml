@@ -29,7 +29,6 @@ dependencies:
   - jupyterlab
   - matplotlib
   - nbmake
-  - pre-commit
   - pygraphviz
   - pytest
   - pytest-cov
