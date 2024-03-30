@@ -95,7 +95,7 @@ def parse_warning_filter(  # noqa: PLR0912, C901
             lineno = int(lineno_)
             if lineno < 0:
                 msg = "number is negative"
-                raise ValueError(msg)
+                raise ValueError(msg)  # noqa: TRY301
         except ValueError as e:
             raise Exit(  # noqa: B904
                 error_template.format(error=f"invalid lineno {lineno_!r}: {e}")
