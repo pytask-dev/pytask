@@ -27,6 +27,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   debugging modes swallowed the return and `None` was returned. Closes {issue}`574`.
 - {pull}`581` simplifies the code for tracebacks and unpublishes some utility functions.
 
+## 0.4.7 - 2024-03-19
+
+- {pull}`580` is a backport of {pull}`579`.
+
 ## 0.4.6 - 2024-03-13
 
 - {pull}`576` fixes accidentally collecting `pytask.MarkGenerator` when using
