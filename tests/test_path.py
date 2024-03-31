@@ -10,10 +10,8 @@ from types import ModuleType
 from typing import Any
 
 import pytest
-from _pytask.path import CouldNotResolvePathError
 from _pytask.path import _insert_missing_modules
 from _pytask.path import _module_name_from_path
-from _pytask.path import _resolve_pkg_root_and_module_name
 from _pytask.path import find_case_sensitive_path
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
@@ -180,20 +178,9 @@ def test_no_meta_path_found(
         import_path(simple_module, root=tmp_path)
 
 
-@pytest.fixture(params=[False])
-def ns_param(request: pytest.FixtureRequest) -> bool:
-    """
-    Simple parametrized fixture for tests which call import_path() with
-    consider_namespace_packages using True and False.
-    """
-    return bool(request.param)
-
-
 @pytest.mark.unit()
 class TestImportLibMode:
-    def test_importmode_importlib_with_dataclass(
-        self, tmp_path: Path, ns_param: bool
-    ) -> None:
+    def test_importmode_importlib_with_dataclass(self, tmp_path: Path) -> None:
         """
         Ensure that importlib mode works with a module containing dataclasses (#373,
         pytest#7856).
@@ -219,12 +206,10 @@ class TestImportLibMode:
         assert data.__module__ == "_src.project.task_dataclass"
 
         # Ensure we do not import the same module again (pytest#11475).
-        module2 = import_path(fn, root=tmp_path, consider_namespace_packages=ns_param)
+        module2 = import_path(fn, root=tmp_path)
         assert module is module2
 
-    def test_importmode_importlib_with_pickle(
-        self, tmp_path: Path, ns_param: bool
-    ) -> None:
+    def test_importmode_importlib_with_pickle(self, tmp_path: Path) -> None:
         """Ensure that importlib mode works with pickle (#373, pytest#7859)."""
         fn = tmp_path.joinpath("_src/project/task_pickle.py")
         fn.parent.mkdir(parents=True)
@@ -243,13 +228,13 @@ class TestImportLibMode:
             )
         )
 
-        module = import_path(fn, root=tmp_path, consider_namespace_packages=ns_param)
+        module = import_path(fn, root=tmp_path)
         round_trip = module.round_trip
         action = round_trip()
         assert action() == 42
 
     def test_importmode_importlib_with_pickle_separate_modules(
-        self, tmp_path: Path, ns_param: bool
+        self, tmp_path: Path
     ) -> None:
         """
         Ensure that importlib mode works can load pickles that look similar but are
@@ -291,10 +276,10 @@ class TestImportLibMode:
             s = pickle.dumps(obj)
             return pickle.loads(s)  # noqa: S301
 
-        module = import_path(fn1, root=tmp_path, consider_namespace_packages=ns_param)
+        module = import_path(fn1, root=tmp_path)
         Data1 = module.Data  # noqa: N806
 
-        module = import_path(fn2, root=tmp_path, consider_namespace_packages=ns_param)
+        module = import_path(fn2, root=tmp_path)
         Data2 = module.Data  # noqa: N806
 
         assert round_trip(Data1(20)) == Data1(20)
@@ -332,32 +317,6 @@ class TestImportLibMode:
         )
         assert result == "_env_310.tasks.task_foo"
 
-    def test_resolve_pkg_root_and_module_name(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        # Create a directory structure first without __init__.py files.
-        (tmp_path / "src/app/core").mkdir(parents=True)
-        models_py = tmp_path / "src/app/core/models.py"
-        models_py.touch()
-        with pytest.raises(CouldNotResolvePathError):
-            _ = _resolve_pkg_root_and_module_name(models_py)
-
-        # Create the __init__.py files, it should now resolve to a proper module name.
-        (tmp_path / "src/app/__init__.py").touch()
-        (tmp_path / "src/app/core/__init__.py").touch()
-        assert _resolve_pkg_root_and_module_name(
-            models_py, consider_namespace_packages=True
-        ) == (tmp_path / "src", "app.core.models")
-
-        # If we add tmp_path to sys.path, src becomes a namespace package.
-        monkeypatch.syspath_prepend(tmp_path)
-        assert _resolve_pkg_root_and_module_name(
-            models_py, consider_namespace_packages=True
-        ) == (tmp_path, "src.app.core.models")
-        assert _resolve_pkg_root_and_module_name(
-            models_py, consider_namespace_packages=False
-        ) == (tmp_path / "src", "app.core.models")
-
     def test_insert_missing_modules(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
@@ -390,7 +349,7 @@ class TestImportLibMode:
         assert modules["xxx.tasks"].foo is modules["xxx.tasks.foo"]
 
     def test_importlib_package(
-        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, ns_param: bool
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
         """
         Importing a package using --importmode=importlib should not import the
@@ -426,103 +385,8 @@ class TestImportLibMode:
             encoding="ascii",
         )
 
-        mod = import_path(
-            init,
-            root=tmp_path,
-            consider_namespace_packages=ns_param,
-        )
+        mod = import_path(init, root=tmp_path)
         assert len(mod.instance.INSTANCES) == 1
         # Ensure we do not import the same module again (#11475).
-        mod2 = import_path(
-            init,
-            root=tmp_path,
-            consider_namespace_packages=ns_param,
-        )
+        mod2 = import_path(init, root=tmp_path)
         assert mod is mod2
-
-
-class TestNamespacePackages:
-    """Test import_path support when importing from properly namespace packages."""
-
-    def setup_directories(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> tuple[Path, Path]:
-        # Set up a namespace package "com.company", containing
-        # two subpackages, "app" and "calc".
-        (tmp_path / "src/dist1/com/company/app/core").mkdir(parents=True)
-        (tmp_path / "src/dist1/com/company/app/__init__.py").touch()
-        (tmp_path / "src/dist1/com/company/app/core/__init__.py").touch()
-        models_py = tmp_path / "src/dist1/com/company/app/core/models.py"
-        models_py.touch()
-
-        (tmp_path / "src/dist2/com/company/calc/algo").mkdir(parents=True)
-        (tmp_path / "src/dist2/com/company/calc/__init__.py").touch()
-        (tmp_path / "src/dist2/com/company/calc/algo/__init__.py").touch()
-        algorithms_py = tmp_path / "src/dist2/com/company/calc/algo/algorithms.py"
-        algorithms_py.touch()
-
-        monkeypatch.syspath_prepend(tmp_path / "src/dist1")
-        monkeypatch.syspath_prepend(tmp_path / "src/dist2")
-        return models_py, algorithms_py
-
-    def test_resolve_pkg_root_and_module_name_ns_multiple_levels(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        models_py, algorithms_py = self.setup_directories(tmp_path, monkeypatch)
-
-        pkg_root, module_name = _resolve_pkg_root_and_module_name(
-            models_py, consider_namespace_packages=True
-        )
-        assert (pkg_root, module_name) == (
-            tmp_path / "src/dist1",
-            "com.company.app.core.models",
-        )
-
-        mod = import_path(models_py, root=tmp_path, consider_namespace_packages=True)
-        assert mod.__name__ == "com.company.app.core.models"
-        assert mod.__file__ == str(models_py)
-
-        # Ensure we do not import the same module again (#11475).
-        mod2 = import_path(models_py, root=tmp_path, consider_namespace_packages=True)
-        assert mod is mod2
-
-        pkg_root, module_name = _resolve_pkg_root_and_module_name(
-            algorithms_py, consider_namespace_packages=True
-        )
-        assert (pkg_root, module_name) == (
-            tmp_path / "src/dist2",
-            "com.company.calc.algo.algorithms",
-        )
-
-        mod = import_path(
-            algorithms_py,
-            root=tmp_path,
-            consider_namespace_packages=True,
-        )
-        assert mod.__name__ == "com.company.calc.algo.algorithms"
-        assert mod.__file__ == str(algorithms_py)
-
-        # Ensure we do not import the same module again (#11475).
-        mod2 = import_path(
-            algorithms_py,
-            root=tmp_path,
-            consider_namespace_packages=True,
-        )
-        assert mod is mod2
-
-    def test_incorrect_namespace_package(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        models_py, algorithms_py = self.setup_directories(tmp_path, monkeypatch)
-        # Namespace packages must not have an __init__.py at any of its
-        # directories; if it does, we then fall back to importing just the
-        # part of the package containing the __init__.py files.
-        (tmp_path / "src/dist1/com/__init__.py").touch()
-
-        pkg_root, module_name = _resolve_pkg_root_and_module_name(
-            models_py, consider_namespace_packages=True
-        )
-        assert (pkg_root, module_name) == (
-            tmp_path / "src/dist1/com/company",
-            "app.core.models",
-        )
