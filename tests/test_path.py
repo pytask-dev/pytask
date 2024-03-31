@@ -11,7 +11,6 @@ from typing import Any
 
 import pytest
 from _pytask.path import CouldNotResolvePathError
-from _pytask.path import ImportMode
 from _pytask.path import _insert_missing_modules
 from _pytask.path import _module_name_from_path
 from _pytask.path import _resolve_pkg_root_and_module_name
@@ -213,16 +212,14 @@ class TestImportLibMode:
             )
         )
 
-        module = import_path(fn, mode="importlib", root=tmp_path)
+        module = import_path(fn, root=tmp_path)
         Data: Any = module.Data  # noqa: N806
         data = Data(value="foo")
         assert data.value == "foo"
         assert data.__module__ == "_src.project.task_dataclass"
 
         # Ensure we do not import the same module again (pytest#11475).
-        module2 = import_path(
-            fn, mode="importlib", root=tmp_path, consider_namespace_packages=ns_param
-        )
+        module2 = import_path(fn, root=tmp_path, consider_namespace_packages=ns_param)
         assert module is module2
 
     def test_importmode_importlib_with_pickle(
@@ -246,9 +243,7 @@ class TestImportLibMode:
             )
         )
 
-        module = import_path(
-            fn, mode="importlib", root=tmp_path, consider_namespace_packages=ns_param
-        )
+        module = import_path(fn, root=tmp_path, consider_namespace_packages=ns_param)
         round_trip = module.round_trip
         action = round_trip()
         assert action() == 42
@@ -296,14 +291,10 @@ class TestImportLibMode:
             s = pickle.dumps(obj)
             return pickle.loads(s)  # noqa: S301
 
-        module = import_path(
-            fn1, mode="importlib", root=tmp_path, consider_namespace_packages=ns_param
-        )
+        module = import_path(fn1, root=tmp_path, consider_namespace_packages=ns_param)
         Data1 = module.Data  # noqa: N806
 
-        module = import_path(
-            fn2, mode="importlib", root=tmp_path, consider_namespace_packages=ns_param
-        )
+        module = import_path(fn2, root=tmp_path, consider_namespace_packages=ns_param)
         Data2 = module.Data  # noqa: N806
 
         assert round_trip(Data1(20)) == Data1(20)
@@ -438,7 +429,6 @@ class TestImportLibMode:
         mod = import_path(
             init,
             root=tmp_path,
-            mode=ImportMode.importlib,
             consider_namespace_packages=ns_param,
         )
         assert len(mod.instance.INSTANCES) == 1
@@ -446,7 +436,6 @@ class TestImportLibMode:
         mod2 = import_path(
             init,
             root=tmp_path,
-            mode=ImportMode.importlib,
             consider_namespace_packages=ns_param,
         )
         assert mod is mod2
@@ -476,9 +465,8 @@ class TestNamespacePackages:
         monkeypatch.syspath_prepend(tmp_path / "src/dist2")
         return models_py, algorithms_py
 
-    @pytest.mark.parametrize("import_mode", ImportMode)
     def test_resolve_pkg_root_and_module_name_ns_multiple_levels(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, import_mode: ImportMode
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         models_py, algorithms_py = self.setup_directories(tmp_path, monkeypatch)
 
@@ -490,16 +478,12 @@ class TestNamespacePackages:
             "com.company.app.core.models",
         )
 
-        mod = import_path(
-            models_py, mode=import_mode, root=tmp_path, consider_namespace_packages=True
-        )
+        mod = import_path(models_py, root=tmp_path, consider_namespace_packages=True)
         assert mod.__name__ == "com.company.app.core.models"
         assert mod.__file__ == str(models_py)
 
         # Ensure we do not import the same module again (#11475).
-        mod2 = import_path(
-            models_py, mode=import_mode, root=tmp_path, consider_namespace_packages=True
-        )
+        mod2 = import_path(models_py, root=tmp_path, consider_namespace_packages=True)
         assert mod is mod2
 
         pkg_root, module_name = _resolve_pkg_root_and_module_name(
@@ -512,7 +496,6 @@ class TestNamespacePackages:
 
         mod = import_path(
             algorithms_py,
-            mode=import_mode,
             root=tmp_path,
             consider_namespace_packages=True,
         )
@@ -522,7 +505,6 @@ class TestNamespacePackages:
         # Ensure we do not import the same module again (#11475).
         mod2 = import_path(
             algorithms_py,
-            mode=import_mode,
             root=tmp_path,
             consider_namespace_packages=True,
         )

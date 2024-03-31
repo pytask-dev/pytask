@@ -8,7 +8,6 @@ import importlib.util
 import itertools
 import os
 import sys
-from enum import Enum
 from pathlib import Path
 from types import ModuleType
 from typing import Sequence
@@ -124,28 +123,17 @@ def find_case_sensitive_path(path: Path, platform: str) -> Path:
     return path.resolve() if platform == "win32" else path
 
 
-class ImportMode(Enum):
-    """Enum to specify the import mode."""
-
-    importlib = "importlib"
-
-
 def import_path(
-    path: Path,
-    root: Path,
-    *,
-    consider_namespace_packages: bool = False,
-    mode: ImportMode = ImportMode.importlib,
+    path: Path, root: Path, *, consider_namespace_packages: bool = False
 ) -> ModuleType:
     """Import and return a module from the given path.
 
-    The function is taken from pytest when the import mode is set to ``importlib``. It
-    pytest's recommended import mode for new projects although the default is set to
-    ``prepend``. More discussion and information can be found in :issue:`373`.
+    The functions are taken from pytest when the import mode is set to ``importlib``. It
+    was assumed to be the new default import mode but insurmountable tradeoffs caused
+    the default to be set to ``prepend``. More discussion and information can be found
+    in :issue:`373`.
 
     """
-    mode = ImportMode(mode)
-
     try:
         pkg_root, module_name = _resolve_pkg_root_and_module_name(
             path, consider_namespace_packages=consider_namespace_packages
@@ -270,11 +258,11 @@ def _import_module_using_spec(
     ----------
     insert_modules
         If True, will call insert_missing_modules to create empty intermediate modules
-        for made-up module names (when importing test files not reachable from
+        for made-up module names (when importing task files not reachable from
         sys.path). Note: we can probably drop insert_missing_modules altogether: instead
-        of generating module names such as "src.tests.test_foo", which require
+        of generating module names such as "src.tasks.task_foo", which require
         intermediate empty modules, we might just as well generate unique module names
-        like "src_tests_test_foo".
+        like "src_tasks_task_foo".
 
     """
     # Checking with sys.meta_path first in case one of its hooks can import this module,
@@ -299,8 +287,8 @@ def _import_module_using_spec(
 def _module_name_from_path(path: Path, root: Path) -> str:
     """Return a dotted module name based on the given path, anchored on root.
 
-    For example: path="projects/src/tests/test_foo.py" and root="/projects", the
-    resulting module name will be "src.tests.test_foo".
+    For example: path="projects/src/tasks/task_foo.py" and root="/projects", the
+    resulting module name will be "src.tasks.task_foo".
 
     """
     path = path.with_suffix("")
@@ -332,9 +320,9 @@ def _insert_missing_modules(modules: dict[str, ModuleType], module_name: str) ->
     """Insert missing modules in sys.modules.
 
     Used by ``import_path`` to create intermediate modules when using mode=importlib.
-    When we want to import a module as "src.tests.test_foo" for example, we need to
-    create empty modules "src" and "src.tests" after inserting "src.tests.test_foo",
-    otherwise "src.tests.test_foo" is not importable by ``__import__``.
+    When we want to import a module as "src.tasks.task_foo" for example, we need to
+    create empty modules "src" and "src.tasks" after inserting "src.tasks.task_foo",
+    otherwise "src.tasks.task_foo" is not importable by ``__import__``.
 
     """
     module_parts = module_name.split(".")
