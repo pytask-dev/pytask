@@ -145,9 +145,7 @@ def import_path(
         with contextlib.suppress(KeyError):
             return sys.modules[module_name]
 
-        mod = _import_module_using_spec(
-            module_name, path, pkg_root, insert_modules=False
-        )
+        mod = _import_module_using_spec(module_name, path, pkg_root)
         if mod is not None:
             return mod
 
@@ -247,22 +245,12 @@ class CouldNotResolvePathError(Exception):
 
 
 def _import_module_using_spec(
-    module_name: str, module_path: Path, module_location: Path, *, insert_modules: bool
+    module_name: str, module_path: Path, module_location: Path
 ) -> ModuleType | None:
     """Import a module using its specification.
 
     Tries to import a module by its canonical name, path to the .py file, and its parent
     location.
-
-    Parameters
-    ----------
-    insert_modules
-        If True, will call insert_missing_modules to create empty intermediate modules
-        for made-up module names (when importing task files not reachable from
-        sys.path). Note: we can probably drop insert_missing_modules altogether: instead
-        of generating module names such as "src.tasks.task_foo", which require
-        intermediate empty modules, we might just as well generate unique module names
-        like "src_tasks_task_foo".
 
     """
     # Checking with sys.meta_path first in case one of its hooks can import this module,
@@ -277,8 +265,6 @@ def _import_module_using_spec(
         mod = importlib.util.module_from_spec(spec)
         sys.modules[module_name] = mod
         spec.loader.exec_module(mod)  # type: ignore[union-attr]
-        if insert_modules:
-            _insert_missing_modules(sys.modules, module_name)
         return mod
 
     return None
