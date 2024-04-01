@@ -29,6 +29,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`586` improves linting.
 - {pull}`587` improves typing of `capture.py`.
 - {pull}`588` resets class variables of `ExecutionReport` and `Traceback`.
+- {pull}`590` fixes an error introduced in {pull}`588`.
 
 ## 0.4.6 - 2024-03-13
 
