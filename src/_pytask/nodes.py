@@ -14,6 +14,7 @@ from typing import Callable
 
 from attrs import define
 from attrs import field
+from upath import UPath
 from upath._stat import UPathStatResult
 
 from _pytask._hashlib import hash_value
@@ -376,6 +377,12 @@ def _get_state(path: Path) -> str | None:
     A simple function to handle local and remote files.
 
     """
+    # Invalidate the cache of the path if it is a UPath because it might have changed in
+    # a different process with pytask-parallel and the main process does not know about
+    # it and relies on the cache.
+    if isinstance(path, UPath):
+        path.fs.invalidate_cache()
+
     try:
         stat = path.stat()
     except FileNotFoundError:
