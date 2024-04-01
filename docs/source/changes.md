@@ -31,6 +31,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`588` resets class variables of `ExecutionReport` and `Traceback`.
 - {pull}`589` enables `import_path` to resolve the root path and module name of an
   imported file.
+- {pull}`590` fixes an error introduced in {pull}`588`.
 
 ## 0.4.7 - 2024-03-19
 

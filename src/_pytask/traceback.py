@@ -74,7 +74,7 @@ class Traceback:
             yield filtered_exc_info[2]
         else:
             yield RichTraceback.from_exception(
-                *filtered_exc_info, show_locals=self._show_locals
+                *filtered_exc_info, show_locals=self.show_locals
             )
 
 
