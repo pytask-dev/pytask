@@ -30,6 +30,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`587` improves typing of `capture.py`.
 - {pull}`588` resets class variables of `ExecutionReport` and `Traceback`.
 - {pull}`590` fixes an error introduced in {pull}`588`.
+- {pull}`591` invalidates the cache of fsspec when checking whether a remote file
+  exists. Otherwise, a remote file might be reported as missing although it was just
+  created. See https://github.com/fsspec/s3fs/issues/851 for more info.
 
 ## 0.4.6 - 2024-03-13
 
