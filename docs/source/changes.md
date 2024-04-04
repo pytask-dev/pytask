@@ -32,6 +32,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`589` enables `import_path` to resolve the root path and module name of an
   imported file.
 - {pull}`590` fixes an error introduced in {pull}`588`.
+- {pull}`591` invalidates the cache of fsspec when checking whether a remote file
+  exists. Otherwise, a remote file might be reported as missing although it was just
+  created. See https://github.com/fsspec/s3fs/issues/851 for more info.
 
 ## 0.4.7 - 2024-03-19
 
