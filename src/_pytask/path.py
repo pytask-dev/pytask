@@ -5,6 +5,7 @@ from __future__ import annotations
 import contextlib
 import functools
 import importlib.util
+import itertools
 import os
 import sys
 from pathlib import Path
@@ -125,11 +126,25 @@ def find_case_sensitive_path(path: Path, platform: str) -> Path:
 def import_path(path: Path, root: Path) -> ModuleType:
     """Import and return a module from the given path.
 
-    The function is taken from pytest when the import mode is set to ``importlib``. It
-    pytest's recommended import mode for new projects although the default is set to
-    ``prepend``. More discussion and information can be found in :issue:`373`.
+    The functions are taken from pytest when the import mode is set to ``importlib``. It
+    was assumed to be the new default import mode but insurmountable tradeoffs caused
+    the default to be set to ``prepend``. More discussion and information can be found
+    in :issue:`373`.
 
     """
+    try:
+        pkg_root, module_name = _resolve_pkg_root_and_module_name(path)
+    except CouldNotResolvePathError:
+        pass
+    else:
+        # If the given module name is already in sys.modules, do not import it again.
+        with contextlib.suppress(KeyError):
+            return sys.modules[module_name]
+
+        mod = _import_module_using_spec(module_name, path, pkg_root)
+        if mod is not None:
+            return mod
+
     module_name = _module_name_from_path(path, root)
     with contextlib.suppress(KeyError):
         return sys.modules[module_name]
@@ -147,42 +162,134 @@ def import_path(path: Path, root: Path) -> ModuleType:
     return mod
 
 
+def _resolve_package_path(path: Path) -> Path | None:
+    """Resolve package path.
+
+    Return the Python package path by looking for the last directory upwards which still
+    contains an ``__init__.py``.
+
+    Returns None if it can not be determined.
+
+    """
+    result = None
+    for parent in itertools.chain((path,), path.parents):
+        if parent.is_dir():
+            if not (parent / "__init__.py").is_file():
+                break
+            if not parent.name.isidentifier():
+                break
+            result = parent
+    return result
+
+
+def _resolve_pkg_root_and_module_name(path: Path) -> tuple[Path, str]:
+    """Resolve the root package directory and module name for the given Python file.
+
+    Return the path to the directory of the root package that contains the given Python
+    file, and its module name:
+
+    .. code-block:: text
+
+        src/
+            app/
+                __init__.py core/
+                    __init__.py models.py
+
+    Passing the full path to `models.py` will yield Path("src") and "app.core.models".
+
+    Raises CouldNotResolvePathError if the given path does not belong to a package
+    (missing any __init__.py files).
+
+    """
+    pkg_path = _resolve_package_path(path)
+    if pkg_path is not None:
+        pkg_root = pkg_path.parent
+
+        names = list(path.with_suffix("").relative_to(pkg_root).parts)
+        if names[-1] == "__init__":
+            names.pop()
+        module_name = ".".join(names)
+        return pkg_root, module_name
+
+    msg = f"Could not resolve for {path}"
+    raise CouldNotResolvePathError(msg)
+
+
+class CouldNotResolvePathError(Exception):
+    """Custom exception raised by _resolve_pkg_root_and_module_name."""
+
+
+def _import_module_using_spec(
+    module_name: str, module_path: Path, module_location: Path
+) -> ModuleType | None:
+    """Import a module using its specification.
+
+    Tries to import a module by its canonical name, path to the .py file, and its parent
+    location.
+
+    """
+    # Checking with sys.meta_path first in case one of its hooks can import this module,
+    # such as our own assertion-rewrite hook.
+    for meta_importer in sys.meta_path:
+        spec = meta_importer.find_spec(module_name, [str(module_location)])
+        if spec is not None:
+            break
+    else:
+        spec = importlib.util.spec_from_file_location(module_name, str(module_path))
+    if spec is not None:
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = mod
+        spec.loader.exec_module(mod)  # type: ignore[union-attr]
+        return mod
+
+    return None
+
+
 def _module_name_from_path(path: Path, root: Path) -> str:
     """Return a dotted module name based on the given path, anchored on root.
 
-    For example: path="projects/src/project/task_foo.py" and root="/projects", the
-    resulting module name will be "src.project.task_foo".
+    For example: path="projects/src/tasks/task_foo.py" and root="/projects", the
+    resulting module name will be "src.tasks.task_foo".
 
     """
     path = path.with_suffix("")
     try:
         relative_path = path.relative_to(root)
     except ValueError:
-        # If we can't get a relative path to root, use the full path, except for the
-        # first part ("d:\\" or "/" depending on the platform, for example).
+        # If we can't get a relative path to root, use the full path, except
+        # for the first part ("d:\\" or "/" depending on the platform, for example).
         path_parts = path.parts[1:]
     else:
         # Use the parts for the relative path to the root path.
         path_parts = relative_path.parts
 
-    # Module name for packages do not contain the __init__ file, unless the
-    # `__init__.py` file is at the root.
+    # Module name for packages do not contain the __init__ file, unless
+    # the `__init__.py` file is at the root.
     if len(path_parts) >= 2 and path_parts[-1] == "__init__":  # noqa: PLR2004
         path_parts = path_parts[:-1]
+
+    # Module names cannot contain ".", normalize them to "_". This prevents a directory
+    # having a "." in the name (".env.310" for example) causing extra intermediate
+    # modules. Also, important to replace "." at the start of paths, as those are
+    # considered relative imports.
+    path_parts = tuple(x.replace(".", "_") for x in path_parts)
 
     return ".".join(path_parts)
 
 
 def _insert_missing_modules(modules: dict[str, ModuleType], module_name: str) -> None:
-    """Insert missing modules when importing modules with :func:`import_path`.
+    """Insert missing modules in sys.modules.
 
-    When we want to import a module as ``src.project.task_foo`` for example, we need to
-    create empty modules ``src`` and ``src.project`` after inserting
-    ``src.project.task_foo``, otherwise ``src.project.task_foo`` is not importable by
-    ``__import__``.
+    Used by ``import_path`` to create intermediate modules when using mode=importlib.
+    When we want to import a module as "src.tasks.task_foo" for example, we need to
+    create empty modules "src" and "src.tasks" after inserting "src.tasks.task_foo",
+    otherwise "src.tasks.task_foo" is not importable by ``__import__``.
 
     """
     module_parts = module_name.split(".")
+    child_module: ModuleType | None = None
+    module: ModuleType | None = None
+    child_name: str = ""
     while module_name:
         if module_name not in modules:
             try:
@@ -192,13 +299,20 @@ def _insert_missing_modules(modules: dict[str, ModuleType], module_name: str) ->
                 # creating a dummy module.
                 if not sys.meta_path:
                     raise ModuleNotFoundError  # noqa: TRY301
-                importlib.import_module(module_name)
+                module = importlib.import_module(module_name)
             except ModuleNotFoundError:
                 module = ModuleType(
                     module_name,
-                    doc="Empty module created by pytask.",
+                    doc="Empty module created by pytest's importmode=importlib.",
                 )
-                modules[module_name] = module
+        else:
+            module = modules[module_name]
+        # Add child attribute to the parent that can reference the child modules.
+        if child_module and not hasattr(module, child_name):
+            setattr(module, child_name, child_module)
+            modules[module_name] = module
+        # Keep track of the child module while moving up the tree.
+        child_module, child_name = module, module_name.rpartition(".")[-1]
         module_parts.pop(-1)
         module_name = ".".join(module_parts)
 
