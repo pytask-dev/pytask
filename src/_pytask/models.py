@@ -33,6 +33,8 @@ class CollectionMetadata:
         id will be generated. See
         :doc:`this tutorial <../tutorials/repeating_tasks_with_different_inputs>` for
         more information.
+    is_generator
+        An indicator for whether a task generates other tasks or not.
     kwargs
         A dictionary containing keyword arguments which are passed to the task when it
         is executed.
@@ -48,6 +50,7 @@ class CollectionMetadata:
     """
 
     after: str | list[Callable[..., Any]] = field(factory=list)
+    is_generator: bool = False
     id_: str | None = None
     kwargs: dict[str, Any] = field(factory=dict)
     markers: list[Mark] = field(factory=list)
@@ -59,6 +62,6 @@ class CollectionMetadata:
 class NodeInfo(NamedTuple):
     arg_name: str
     path: tuple[str | int, ...]
-    value: Any
     task_path: Path | None
     task_name: str
+    value: Any

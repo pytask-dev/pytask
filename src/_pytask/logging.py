@@ -15,6 +15,7 @@ import pluggy
 from rich.text import Text
 
 import _pytask
+from _pytask.capture_utils import ShowCapture
 from _pytask.console import IS_WINDOWS_TERMINAL
 from _pytask.console import console
 from _pytask.pluginmanager import hookimpl
@@ -67,7 +68,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     # Set class variables on traceback object.
-    Traceback.show_locals = config["show_locals"]
+    Traceback._show_locals = config["show_locals"]
     # Set class variables on Executionreport.
     ExecutionReport.editor_url_scheme = config["editor_url_scheme"]
     ExecutionReport.show_capture = config["show_capture"]
@@ -122,6 +123,15 @@ def pytask_log_session_footer(
         f"{outcome.description} in {formatted_duration}", style=outcome.style
     )
     console.rule(message, style=outcome.style)
+
+
+@hookimpl
+def pytask_unconfigure() -> None:
+    """Reset class variables."""
+    Traceback._show_locals = False
+    ExecutionReport.editor_url_scheme = "file"
+    ExecutionReport.show_capture = ShowCapture.ALL
+    ExecutionReport.show_locals = False
 
 
 _TIME_UNITS: list[_TimeUnit] = [

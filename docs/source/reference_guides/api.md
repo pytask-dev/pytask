@@ -190,6 +190,8 @@ Protocols define how tasks and nodes for dependencies and products have to be se
    :show-inheritance:
 .. autoprotocol:: pytask.PTaskWithPath
    :show-inheritance:
+.. autoprotocol:: pytask.PProvisionalNode
+   :show-inheritance:
 ```
 
 ## Nodes
@@ -202,6 +204,8 @@ Nodes are the interface for different kinds of dependencies or products.
 .. autoclass:: pytask.PickleNode
    :members:
 .. autoclass:: pytask.PythonNode
+   :members:
+.. autoclass:: pytask.DirectoryNode
    :members:
 ```
 
@@ -330,7 +334,6 @@ resolution and execution.
 ## Tracebacks
 
 ```{eval-rst}
-.. autofunction:: pytask.remove_internal_traceback_frames_from_exc_info
 .. autoclass:: pytask.Traceback
 ```
 

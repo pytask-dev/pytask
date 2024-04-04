@@ -45,7 +45,18 @@ def test_hide_traceback_from_error_report(
     assert ("This variable should not be shown." in result.output) is not is_hidden
 
 
+@pytest.mark.unit()
 def test_render_traceback_with_string_traceback():
     traceback = Traceback((Exception, Exception("Help"), "String traceback."))
     rendered = render_to_string(traceback, console)
     assert "String traceback." in rendered
+
+
+@pytest.mark.unit()
+def test_passing_show_locals():
+    traceback = Traceback(
+        (Exception, Exception("Help"), "String traceback."), show_locals=True
+    )
+    assert traceback.show_locals is True
+    # Also tests that the class variable has been reset.
+    assert traceback._show_locals is False

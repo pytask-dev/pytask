@@ -28,7 +28,7 @@ from pytask.path import import_path
     ],
 )
 def test_relative_to(path, source, include_source, expected):
-    result = relative_to(path, source, include_source)
+    result = relative_to(path, source, include_source=include_source)
     assert result == expected
 
 

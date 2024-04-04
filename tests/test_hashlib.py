@@ -6,6 +6,7 @@ import pytest
 from _pytask._hashlib import hash_value
 
 
+@pytest.mark.unit()
 @pytest.mark.parametrize(
     ("value", "expected"),
     [

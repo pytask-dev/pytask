@@ -24,6 +24,21 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`571` removes redundant calls to `PNode.state()` which causes a high penalty for
   remote files.
 - {pull}`573` removes the `pytask_execute_create_scheduler` hook.
+- {pull}`579` fixes an interaction with `--pdb` and `--trace` and task that return. The
+  debugging modes swallowed the return and `None` was returned. Closes {issue}`574`.
+- {pull}`581` simplifies the code for tracebacks and unpublishes some utility functions.
+- {pull}`586` improves linting.
+- {pull}`587` improves typing of `capture.py`.
+- {pull}`588` resets class variables of `ExecutionReport` and `Traceback`.
+- {pull}`590` fixes an error introduced in {pull}`588`.
+- {pull}`591` invalidates the cache of fsspec when checking whether a remote file
+  exists. Otherwise, a remote file might be reported as missing although it was just
+  created. See https://github.com/fsspec/s3fs/issues/851 for more info.
+
+## 0.4.6 - 2024-03-13
+
+- {pull}`576` fixes accidentally collecting `pytask.MarkGenerator` when using
+  `from pytask import mark`.
 
 ## 0.4.5 - 2024-01-09
 
@@ -66,6 +81,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`485` adds missing steps to unconfigure pytask after the job is done, which
   caused flaky tests.
 - {pull}`486` adds default names to {class}`~pytask.PPathNode`.
+- {pull}`487` implements task generators and provisional nodes.
 - {pull}`488` raises an error when an invalid value is used in a return annotation.
 - {pull}`489` and {pull}`491` simplifies parsing products and does not raise an error
   when a product annotation is used with the argument name `produces`. And allow

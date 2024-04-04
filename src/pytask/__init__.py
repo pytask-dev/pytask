@@ -43,8 +43,10 @@ from _pytask.models import CollectionMetadata
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
+from _pytask.nodes import DirectoryNode
 from _pytask.nodes import PathNode
 from _pytask.nodes import PickleNode
 from _pytask.nodes import PythonNode
@@ -69,7 +71,6 @@ from _pytask.reports import ExecutionReport
 from _pytask.session import Session
 from _pytask.task_utils import task
 from _pytask.traceback import Traceback
-from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
 from _pytask.typing import Product
 from _pytask.typing import is_task_function
 from _pytask.warnings_utils import WarningReport
@@ -94,6 +95,7 @@ __all__ = [
     "DagReport",
     "DataCatalog",
     "DatabaseSession",
+    "DirectoryNode",
     "EnumChoice",
     "ExecutionError",
     "ExecutionReport",
@@ -107,6 +109,7 @@ __all__ = [
     "NodeNotFoundError",
     "PNode",
     "PPathNode",
+    "PProvisionalNode",
     "PTask",
     "PTaskWithPath",
     "PathNode",
@@ -148,7 +151,6 @@ __all__ = [
     "parse_dependencies_from_task_function",
     "parse_products_from_task_function",
     "parse_warning_filter",
-    "remove_internal_traceback_frames_from_exc_info",
     "remove_marks",
     "set_marks",
     "storage",
