@@ -18,6 +18,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`555` uses new-style hook wrappers and requires pluggy 1.3 for typing.
 - {pull}`557` fixes an issue with `@task(after=...)` in notebooks and terminals.
 - {pull}`566` makes universal-pathlib an official dependency.
+- {pull}`567` adds uv to the CI workflow for faster installation.
 - {pull}`568` restricts `task_files` to a list of patterns and raises a better error.
 - {pull}`569` removes the hooks related to the creation of the DAG.
 - {pull}`571` removes redundant calls to `PNode.state()` which causes a high penalty for

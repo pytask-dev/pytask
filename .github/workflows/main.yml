@@ -33,7 +33,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           allow-prereleases: true
-      - run: pip install tox
+      - run: pip install tox-uv
 
       - if: matrix.os == 'ubuntu-latest'
         run: |
