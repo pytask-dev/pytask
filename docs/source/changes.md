@@ -18,6 +18,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`555` uses new-style hook wrappers and requires pluggy 1.3 for typing.
 - {pull}`557` fixes an issue with `@task(after=...)` in notebooks and terminals.
 - {pull}`566` makes universal-pathlib an official dependency.
+- {pull}`567` adds uv to the CI workflow for faster installation.
 - {pull}`568` restricts `task_files` to a list of patterns and raises a better error.
 - {pull}`569` removes the hooks related to the creation of the DAG.
 - {pull}`571` removes redundant calls to `PNode.state()` which causes a high penalty for
@@ -29,6 +30,16 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`586` improves linting.
 - {pull}`587` improves typing of `capture.py`.
 - {pull}`588` resets class variables of `ExecutionReport` and `Traceback`.
+- {pull}`589` enables `import_path` to resolve the root path and module name of an
+  imported file.
+- {pull}`590` fixes an error introduced in {pull}`588`.
+- {pull}`591` invalidates the cache of fsspec when checking whether a remote file
+  exists. Otherwise, a remote file might be reported as missing although it was just
+  created. See https://github.com/fsspec/s3fs/issues/851 for more info.
+
+## 0.4.7 - 2024-03-19
+
+- {pull}`580` is a backport of {pull}`579`.
 
 ## 0.4.6 - 2024-03-13
 
