@@ -36,6 +36,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`591` invalidates the cache of fsspec when checking whether a remote file
   exists. Otherwise, a remote file might be reported as missing although it was just
   created. See https://github.com/fsspec/s3fs/issues/851 for more info.
+- {pull}`593` recreate `PythonNode`s every run since they carry the `_NoDefault` enum as
+  the value whose state is `None`.
 - {pull}`594` publishes `NodeLoadError`.
 
 ## 0.4.7 - 2024-03-19

@@ -280,6 +280,8 @@ class PythonNode(PNode):
         {meth}`object.__hash__` for more information.
 
         """
+        if self.value is no_default:
+            return None
         if self.hash:
             value = self.load()
             if callable(self.hash):
