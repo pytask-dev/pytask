@@ -175,7 +175,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
             node.path.parent.mkdir(parents=True, exist_ok=True)
 
 
-def _safe_load(node: PNode | PProvisionalNode, task: PTask, is_product: bool) -> Any:
+def _safe_load(node: PNode | PProvisionalNode, task: PTask, *, is_product: bool) -> Any:
     try:
         return node.load(is_product=is_product)
     except Exception as e:  # noqa: BLE001
@@ -193,11 +193,13 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
 
     kwargs = {}
     for name, value in task.depends_on.items():
-        kwargs[name] = tree_map(lambda x: _safe_load(x, task, False), value)
+        kwargs[name] = tree_map(lambda x: _safe_load(x, task, is_product=False), value)
 
     for name, value in task.produces.items():
         if name in parameters:
-            kwargs[name] = tree_map(lambda x: _safe_load(x, task, True), value)
+            kwargs[name] = tree_map(
+                lambda x: _safe_load(x, task, is_product=True), value
+            )
 
     out = task.execute(**kwargs)
 
