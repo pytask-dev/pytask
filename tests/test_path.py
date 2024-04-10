@@ -28,7 +28,7 @@ from pytask.path import import_path
     ],
 )
 def test_relative_to(path, source, include_source, expected):
-    result = relative_to(path, source, include_source)
+    result = relative_to(path, source, include_source=include_source)
     assert result == expected
 
 
@@ -179,182 +179,214 @@ def test_no_meta_path_found(
 
 
 @pytest.mark.unit()
-def test_importmode_importlib_with_dataclass(tmp_path: Path) -> None:
-    """
-    Ensure that importlib mode works with a module containing dataclasses (#373,
-    pytest#7856).
-    """
-    fn = tmp_path.joinpath("_src/project/task_dataclass.py")
-    fn.parent.mkdir(parents=True)
-    fn.write_text(
-        textwrap.dedent(
-            """
-            from dataclasses import dataclass
+class TestImportLibMode:
+    def test_importmode_importlib_with_dataclass(self, tmp_path: Path) -> None:
+        """
+        Ensure that importlib mode works with a module containing dataclasses (#373,
+        pytest#7856).
+        """
+        fn = tmp_path.joinpath("_src/project/task_dataclass.py")
+        fn.parent.mkdir(parents=True)
+        fn.write_text(
+            textwrap.dedent(
+                """
+                from dataclasses import dataclass
 
-            @dataclass
-            class Data:
-                value: str
-            """
+                @dataclass
+                class Data:
+                    value: str
+                """
+            )
         )
-    )
 
-    module = import_path(fn, root=tmp_path)
-    Data: Any = module.Data  # noqa: N806
-    data = Data(value="foo")
-    assert data.value == "foo"
-    assert data.__module__ == "_src.project.task_dataclass"
+        module = import_path(fn, root=tmp_path)
+        Data: Any = module.Data  # noqa: N806
+        data = Data(value="foo")
+        assert data.value == "foo"
+        assert data.__module__ == "_src.project.task_dataclass"
 
+        # Ensure we do not import the same module again (pytest#11475).
+        module2 = import_path(fn, root=tmp_path)
+        assert module is module2
 
-@pytest.mark.unit()
-def test_importmode_importlib_with_pickle(tmp_path: Path) -> None:
-    """Ensure that importlib mode works with pickle (#373, pytest#7859)."""
-    fn = tmp_path.joinpath("_src/project/task_pickle.py")
-    fn.parent.mkdir(parents=True)
-    fn.write_text(
-        textwrap.dedent(
-            """
-            import pickle
+    def test_importmode_importlib_with_pickle(self, tmp_path: Path) -> None:
+        """Ensure that importlib mode works with pickle (#373, pytest#7859)."""
+        fn = tmp_path.joinpath("_src/project/task_pickle.py")
+        fn.parent.mkdir(parents=True)
+        fn.write_text(
+            textwrap.dedent(
+                """
+                import pickle
 
-            def _action():
-                return 42
+                def _action():
+                    return 42
 
-            def round_trip():
-                s = pickle.dumps(_action)
-                return pickle.loads(s)
-            """
+                def round_trip():
+                    s = pickle.dumps(_action)
+                    return pickle.loads(s)
+                """
+            )
         )
-    )
 
-    module = import_path(fn, root=tmp_path)
-    round_trip = module.round_trip
-    action = round_trip()
-    assert action() == 42
+        module = import_path(fn, root=tmp_path)
+        round_trip = module.round_trip
+        action = round_trip()
+        assert action() == 42
 
+    def test_importmode_importlib_with_pickle_separate_modules(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Ensure that importlib mode works can load pickles that look similar but are
+        defined in separate modules.
+        """
+        fn1 = tmp_path.joinpath("_src/m1/project/task.py")
+        fn1.parent.mkdir(parents=True)
+        fn1.write_text(
+            textwrap.dedent(
+                """
+                import dataclasses
+                import pickle
 
-@pytest.mark.unit()
-def test_importmode_importlib_with_pickle_separate_modules(tmp_path: Path) -> None:
-    """
-    Ensure that importlib mode works can load pickles that look similar but are
-    defined in separate modules.
-    """
-    fn1 = tmp_path.joinpath("_src/m1/project/task.py")
-    fn1.parent.mkdir(parents=True)
-    fn1.write_text(
-        textwrap.dedent(
-            """
-            import dataclasses
-            import pickle
-
-            @dataclasses.dataclass
-            class Data:
-                x: int = 42
-            """
+                @dataclasses.dataclass
+                class Data:
+                    x: int = 42
+                """
+            )
         )
-    )
 
-    fn2 = tmp_path.joinpath("_src/m2/project/task.py")
-    fn2.parent.mkdir(parents=True)
-    fn2.write_text(
-        textwrap.dedent(
-            """
-            import dataclasses
-            import pickle
+        fn2 = tmp_path.joinpath("_src/m2/project/task.py")
+        fn2.parent.mkdir(parents=True)
+        fn2.write_text(
+            textwrap.dedent(
+                """
+                import dataclasses
+                import pickle
 
-            @dataclasses.dataclass
-            class Data:
-                x: str = ""
-            """
+                @dataclasses.dataclass
+                class Data:
+                    x: str = ""
+                """
+            )
         )
-    )
 
-    import pickle
+        import pickle
 
-    def round_trip(obj):
-        s = pickle.dumps(obj)
-        return pickle.loads(s)  # noqa: S301
+        def round_trip(obj):
+            s = pickle.dumps(obj)
+            return pickle.loads(s)  # noqa: S301
 
-    module = import_path(fn1, root=tmp_path)
-    Data1 = module.Data  # noqa: N806
+        module = import_path(fn1, root=tmp_path)
+        Data1 = module.Data  # noqa: N806
 
-    module = import_path(fn2, root=tmp_path)
-    Data2 = module.Data  # noqa: N806
+        module = import_path(fn2, root=tmp_path)
+        Data2 = module.Data  # noqa: N806
 
-    assert round_trip(Data1(20)) == Data1(20)
-    assert round_trip(Data2("hello")) == Data2("hello")
-    assert Data1.__module__ == "_src.m1.project.task"
-    assert Data2.__module__ == "_src.m2.project.task"
+        assert round_trip(Data1(20)) == Data1(20)
+        assert round_trip(Data2("hello")) == Data2("hello")
+        assert Data1.__module__ == "_src.m1.project.task"
+        assert Data2.__module__ == "_src.m2.project.task"
 
+    def test_module_name_from_path(self, tmp_path: Path) -> None:
+        result = _module_name_from_path(tmp_path / "src/project/task_foo.py", tmp_path)
+        assert result == "src.project.task_foo"
 
-@pytest.mark.unit()
-def test_module_name_from_path(tmp_path: Path) -> None:
-    result = _module_name_from_path(tmp_path / "src/project/task_foo.py", tmp_path)
-    assert result == "src.project.task_foo"
+        # Path is not relative to root dir: use the full path to obtain the module name.
+        result = _module_name_from_path(Path("/home/foo/task_foo.py"), Path("/bar"))
+        assert result == "home.foo.task_foo"
 
-    # Path is not relative to root dir: use the full path to obtain the module name.
-    result = _module_name_from_path(Path("/home/foo/task_foo.py"), Path("/bar"))
-    assert result == "home.foo.task_foo"
+        # Importing __init__.py files should return the package as module name.
+        result = _module_name_from_path(tmp_path / "src/app/__init__.py", tmp_path)
+        assert result == "src.app"
 
-    # Importing __init__.py files should return the package as module name.
-    result = _module_name_from_path(tmp_path / "src/app/__init__.py", tmp_path)
-    assert result == "src.app"
+        # Unless __init__.py file is at the root, in which case we cannot have an empty
+        # module name.
+        result = _module_name_from_path(tmp_path / "__init__.py", tmp_path)
+        assert result == "__init__"
 
+        # Modules which start with "." are considered relative and will not be imported
+        # unless part of a package, so we replace it with a "_" when generating the fake
+        # module name.
+        result = _module_name_from_path(tmp_path / ".env/tasks/task_foo.py", tmp_path)
+        assert result == "_env.tasks.task_foo"
 
-@pytest.mark.unit()
-def test_insert_missing_modules(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
-    monkeypatch.chdir(tmp_path)
-    # Use 'xxx' and 'xxy' as parent names as they are unlikely to exist and
-    # don't end up being imported.
-    modules = {"xxx.project.foo": ModuleType("xxx.project.foo")}
-    _insert_missing_modules(modules, "xxx.project.foo")
-    assert sorted(modules) == ["xxx", "xxx.project", "xxx.project.foo"]
+        # We want to avoid generating extra intermediate modules if some directory just
+        # happens to contain a "." in the name.
+        result = _module_name_from_path(
+            tmp_path / ".env.310/tasks/task_foo.py", tmp_path
+        )
+        assert result == "_env_310.tasks.task_foo"
 
-    mod = ModuleType("mod", doc="My Module")
-    modules = {"xxy": mod}
-    _insert_missing_modules(modules, "xxy")
-    assert modules == {"xxy": mod}
+    def test_insert_missing_modules(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        monkeypatch.chdir(tmp_path)
+        # Use 'xxx' and 'xxy' as parent names as they are unlikely to exist and
+        # don't end up being imported.
+        modules = {"xxx.project.foo": ModuleType("xxx.project.foo")}
+        _insert_missing_modules(modules, "xxx.project.foo")
+        assert sorted(modules) == ["xxx", "xxx.project", "xxx.project.foo"]
 
-    modules = {}
-    _insert_missing_modules(modules, "")
-    assert not modules
+        mod = ModuleType("mod", doc="My Module")
+        modules = {"xxy": mod}
+        _insert_missing_modules(modules, "xxy")
+        assert modules == {"xxy": mod}
 
+        modules = {}
+        _insert_missing_modules(modules, "")
+        assert not modules
 
-@pytest.mark.unit()
-def test_importlib_package(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
-    """
-    Importing a package using --importmode=importlib should not import the
-    package's __init__.py file more than once (#11306).
-    """
-    monkeypatch.chdir(tmp_path)
-    monkeypatch.syspath_prepend(tmp_path)
+    def test_parent_contains_child_module_attribute(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ):
+        monkeypatch.chdir(tmp_path)
+        # Use 'xxx' and 'xxy' as parent names as they are unlikely to exist and
+        # don't end up being imported.
+        modules = {"xxx.tasks.foo": ModuleType("xxx.tasks.foo")}
+        _insert_missing_modules(modules, "xxx.tasks.foo")
+        assert sorted(modules) == ["xxx", "xxx.tasks", "xxx.tasks.foo"]
+        assert modules["xxx"].tasks is modules["xxx.tasks"]
+        assert modules["xxx.tasks"].foo is modules["xxx.tasks.foo"]
 
-    package_name = "importlib_import_package"
-    tmp_path.joinpath(package_name).mkdir()
-    init = tmp_path.joinpath(f"{package_name}/__init__.py")
-    init.write_text(
-        textwrap.dedent(
-            """
-            from .singleton import Singleton
-            instance = Singleton()
-            """
-        ),
-        encoding="ascii",
-    )
-    singleton = tmp_path.joinpath(f"{package_name}/singleton.py")
-    singleton.write_text(
-        textwrap.dedent(
-            """
-            class Singleton:
-                INSTANCES = []
-                def __init__(self) -> None:
-                    self.INSTANCES.append(self)
-                    if len(self.INSTANCES) > 1:
-                        raise RuntimeError("Already initialized")
-            """
-        ),
-        encoding="ascii",
-    )
+    def test_importlib_package(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """
+        Importing a package using --importmode=importlib should not import the
+        package's __init__.py file more than once (#11306).
+        """
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.syspath_prepend(tmp_path)
 
-    mod = import_path(init, root=tmp_path)
-    assert len(mod.instance.INSTANCES) == 1
+        package_name = "importlib_import_package"
+        tmp_path.joinpath(package_name).mkdir()
+        init = tmp_path.joinpath(f"{package_name}/__init__.py")
+        init.write_text(
+            textwrap.dedent(
+                """
+                from .singleton import Singleton
+                instance = Singleton()
+                """
+            ),
+            encoding="ascii",
+        )
+        singleton = tmp_path.joinpath(f"{package_name}/singleton.py")
+        singleton.write_text(
+            textwrap.dedent(
+                """
+                class Singleton:
+                    INSTANCES = []
+                    def __init__(self) -> None:
+                        self.INSTANCES.append(self)
+                        if len(self.INSTANCES) > 1:
+                            raise RuntimeError("Already initialized")
+                """
+            ),
+            encoding="ascii",
+        )
+
+        mod = import_path(init, root=tmp_path)
+        assert len(mod.instance.INSTANCES) == 1
+        # Ensure we do not import the same module again (#11475).
+        mod2 = import_path(init, root=tmp_path)
+        assert mod is mod2

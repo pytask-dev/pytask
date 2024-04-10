@@ -519,6 +519,12 @@ def test_pytree_and_python_node_as_return(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+
+    # Test that python nodes are recreated every run.
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
 
 
 @pytest.mark.end_to_end()
@@ -544,10 +550,6 @@ def test_more_nested_pytree_and_python_node_as_return_with_names(runner, tmp_pat
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
 
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert "1  Skipped" in result.output
-
 
 @pytest.mark.end_to_end()
 def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
@@ -568,15 +570,10 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
 
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert "1  Skipped" in result.output
-
 
 @pytest.mark.end_to_end()
 def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     source = """
-    from pytask import PathNode
     from pytask import PythonNode
     from typing_extensions import Annotated
     from pathlib import Path
@@ -586,9 +583,9 @@ def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     def task_create_text() -> Annotated[int, node_text]:
         return "This is the text."
 
-    node_file = PathNode(path=Path("file.txt"))
-
-    def task_create_file(text: Annotated[int, node_text]) -> Annotated[str, node_file]:
+    def task_create_file(
+        text: Annotated[int, node_text]
+    ) -> Annotated[str, Path("file.txt")]:
         return text
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -611,9 +608,9 @@ def test_execute_tasks_via_functional_api(tmp_path):
     def create_text() -> Annotated[int, node_text]:
         return "This is the text."
 
-    node_file = PathNode(path=Path("file.txt"))
-
-    def create_file(content: Annotated[str, node_text]) -> Annotated[str, node_file]:
+    def create_file(
+        content: Annotated[str, node_text]
+    ) -> Annotated[str, Path("file.txt")]:
         return content
 
     if __name__ == "__main__":

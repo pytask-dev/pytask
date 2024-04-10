@@ -21,7 +21,7 @@ dependencies:
   - sqlalchemy >=2
   - tomli >=1.0.0
   - typing_extensions
-  - universal_pathlib
+  - universal_pathlib >=0.2.2
 
   # Misc
   - deepdiff
@@ -29,7 +29,6 @@ dependencies:
   - jupyterlab
   - matplotlib
   - nbmake
-  - pre-commit
   - pygraphviz
   - pytest
   - pytest-cov
@@ -37,7 +36,7 @@ dependencies:
   - ruff
   - syrupy
   - tabulate
-  - tox
+  - tox-uv
 
   # Documentation
   - furo
@@ -47,8 +46,8 @@ dependencies:
   - sphinx-click
   - sphinx-copybutton
   - sphinx-design >=0.3.0
+  - sphinx-toolbox
   - sphinxext-opengraph
 
   - pip:
-    - sphinx-toolbox
     - -e .
