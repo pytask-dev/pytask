@@ -43,7 +43,6 @@ from typing import NamedTuple
 from typing import TextIO
 from typing import final
 
-import click
 from typing_extensions import Self
 
 from _pytask.capture_utils import CaptureMethod
