@@ -81,7 +81,7 @@ class TomlFormat:
         self,
         path: Path,
         settings_cls: SettingsClass,  # noqa: ARG002
-        options: OptionList,  # noqa: ARG002
+        options: OptionList,
     ) -> SettingsDict:
         """
         Load settings from a TOML file and return them as a dict.
@@ -120,8 +120,25 @@ class TomlFormat:
         if self.deprecated and not _ALREADY_PRINTED_DEPRECATION_MSG:
             _ALREADY_PRINTED_DEPRECATION_MSG = True
             console.print(self.deprecated)
-        settings["config_file"] = path
+        settings["common.config_file"] = path
+        settings = self._rewrite_paths_of_options(settings, options)
         return cast(SettingsDict, settings)
+
+    def _rewrite_paths_of_options(
+        self, settings: SettingsDict, options: OptionList
+    ) -> SettingsDict:
+        """Rewrite paths of options in the settings."""
+        option_paths = {option.path for option in options}
+        for name in list(settings):
+            if name in option_paths:
+                continue
+
+            for option_path in option_paths:
+                if name in option_path:
+                    settings[option_path] = settings.pop(name)
+                    break
+
+        return settings
 
 
 def load_settings(settings_cls: Any) -> Any:

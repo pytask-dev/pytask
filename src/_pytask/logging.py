@@ -68,8 +68,11 @@ def pytask_extend_command_line_interface(
 @hookimpl
 def pytask_parse_config(config: Settings) -> None:
     """Parse configuration."""
-    if config.editor_url_scheme not in ("no_link", "file") and IS_WINDOWS_TERMINAL:
-        config.editor_url_scheme = "file"
+    if (
+        config.common.editor_url_scheme not in ("no_link", "file")
+        and IS_WINDOWS_TERMINAL
+    ):
+        config.common.editor_url_scheme = "file"
         warnings.warn(
             "Windows Terminal does not support url schemes to applications, yet."
             "See https://github.com/pytask-dev/pytask/issues/171 for more information. "
