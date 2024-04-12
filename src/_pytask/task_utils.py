@@ -16,6 +16,7 @@ from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
+from _pytask.shared import unwrap_task_function
 from _pytask.typing import is_task_function
 
 if TYPE_CHECKING:
@@ -117,7 +118,7 @@ def task(  # noqa: PLR0913
                 )
                 raise ValueError(msg)
 
-        unwrapped = inspect.unwrap(func)
+        unwrapped = unwrap_task_function(func)
 
         # We do not allow builtins as functions because we would need to use
         # ``inspect.stack`` to infer their caller location and they are unable to carry
@@ -145,7 +146,7 @@ def task(  # noqa: PLR0913
             unwrapped.pytask_meta.produces = produces
             unwrapped.pytask_meta.after = parsed_after
         else:
-            unwrapped.pytask_meta = CollectionMetadata(
+            unwrapped.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]
                 after=parsed_after,
                 is_generator=is_generator,
                 id_=id,

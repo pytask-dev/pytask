@@ -46,6 +46,7 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.reports import CollectionReport
 from _pytask.shared import find_duplicates
 from _pytask.shared import to_list
+from _pytask.shared import unwrap_task_function
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
@@ -317,9 +318,7 @@ def pytask_collect_task(
             obj.pytask_meta.is_generator if hasattr(obj, "pytask_meta") else False
         )
 
-        # Get the underlying function to avoid having different states of the function,
-        # e.g. due to pytask_meta, in different layers of the wrapping.
-        unwrapped = inspect.unwrap(obj)
+        unwrapped = unwrap_task_function(obj)
 
         if path is None:
             return TaskWithoutPath(

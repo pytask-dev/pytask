@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import glob
+import inspect
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import Callable
 from typing import Iterable
 from typing import Sequence
 
 import click
+from attrs import define
 
 from _pytask.console import format_node_name
 from _pytask.console import format_task_name
@@ -23,6 +26,18 @@ if TYPE_CHECKING:
     import networkx as nx
 
 
+try:
+    from coiled.function import Function as CoiledFunction
+except ImportError:
+
+    @define
+    class CoiledFunction:  # type: ignore[no-redef]
+        cluster_kwargs: dict[str, Any]
+        environ: dict[str, Any]
+        function: Callable[..., Any] | None
+        keepalive: str | None
+
+
 __all__ = [
     "convert_to_enum",
     "find_duplicates",
@@ -30,6 +45,7 @@ __all__ = [
     "parse_paths",
     "reduce_names_of_multiple_nodes",
     "to_list",
+    "unwrap_task_function",
 ]
 
 
@@ -146,3 +162,13 @@ def convert_to_enum(value: Any, enum: type[Enum]) -> Enum:
         values = [e.value for e in enum]
         msg = f"Value {value!r} is not a valid {enum!r}. Valid values are {values}."
         raise ValueError(msg) from None
+
+
+def unwrap_task_function(obj: Any) -> Callable[..., Any]:
+    """Unwrap a task function.
+
+    Get the underlying function to avoid having different states of the function, e.g.
+    due to pytask_meta, in different layers of the wrapping.
+
+    """
+    return inspect.unwrap(obj, stop=lambda x: isinstance(x, CoiledFunction))
