@@ -38,6 +38,7 @@ except ImportError:
         keepalive: str | None
 
 
+
 __all__ = [
     "convert_to_enum",
     "find_duplicates",

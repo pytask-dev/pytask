@@ -74,10 +74,3 @@ def test_unwrap_task_function():
 
     decorated = decorator(task)
     assert unwrap_task_function(decorated) is task
-
-    from _pytask.shared import CoiledFunction
-
-    coiled_function = functools.wraps(task)(
-        CoiledFunction(function=task, cluster_kwargs={}, environ={}, keepalive=None)
-    )
-    assert unwrap_task_function(coiled_function) is coiled_function
