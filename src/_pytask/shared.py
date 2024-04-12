@@ -12,8 +12,8 @@ from typing import Iterable
 from typing import Sequence
 
 import click
-from attrs import define
 
+from _pytask.coiled_utils import Function
 from _pytask.console import format_node_name
 from _pytask.console import format_task_name
 from _pytask.node_protocols import PNode
@@ -24,18 +24,6 @@ if TYPE_CHECKING:
     from enum import Enum
 
     import networkx as nx
-
-
-try:
-    from coiled.function import Function as CoiledFunction
-except ImportError:
-
-    @define
-    class CoiledFunction:  # type: ignore[no-redef]
-        cluster_kwargs: dict[str, Any]
-        environ: dict[str, Any]
-        function: Callable[..., Any] | None
-        keepalive: str | None
 
 
 __all__ = [
@@ -171,4 +159,4 @@ def unwrap_task_function(obj: Any) -> Callable[..., Any]:
     due to pytask_meta, in different layers of the wrapping.
 
     """
-    return inspect.unwrap(obj, stop=lambda x: isinstance(x, CoiledFunction))
+    return inspect.unwrap(obj, stop=lambda x: isinstance(x, Function))
