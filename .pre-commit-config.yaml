@@ -93,12 +93,6 @@ repos:
     -   id: codespell
         additional_dependencies: [tomli]
         exclude: (\.ipynb)
--   repo: https://github.com/mgedmin/check-manifest
-    rev: "0.49"
-    hooks:
-    -   id: check-manifest
-        args: [--no-build-isolation]
-        additional_dependencies: [setuptools-scm, toml, wheel]
 -   repo: meta
     hooks:
     -   id: check-hooks-apply
