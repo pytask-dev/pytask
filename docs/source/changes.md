@@ -39,6 +39,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`593` recreate `PythonNode`s every run since they carry the `_NoDefault` enum as
   the value whose state is `None`.
 - {pull}`594` publishes `NodeLoadError`.
+- {pull}`596` add project management with rye.
 
 ## 0.4.7 - 2024-03-19
 
