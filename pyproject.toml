@@ -98,26 +98,10 @@ allow-direct-references = true
 version-file = "src/_pytask/_version.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/pytask"]
+packages = ["src/pytask", "src/_pytask"]
 
 [tool.hatch.version]
 source = "vcs"
-
-[tool.setuptools]
-include-package-data = true
-zip-safe = false
-platforms = ["unix", "linux", "osx", "win32"]
-license-files = ["LICENSE"]
-
-[tool.setuptools.package-dir]
-"" = "src"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-namespaces = false
-
-[tool.setuptools_scm]
-version_file = "src/_pytask/_version.py"
 
 [tool.ruff]
 target-version = "py38"
