@@ -105,6 +105,9 @@ only-packages = true
 [tool.hatch.version]
 source = "vcs"
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.ruff]
 target-version = "py38"
 fix = true
