@@ -99,8 +99,8 @@ exclude = ["tests"]
 only-packages = true
 
 [tool.hatch.build.targets.wheel]
-exclude = ["tests"]
-only-packages = true
+only-include = ["src"]
+sources = ["src"]
 
 [tool.hatch.version]
 source = "vcs"
