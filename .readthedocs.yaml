@@ -11,8 +11,7 @@ sphinx:
 
 python:
   install:
-  - method: pip
-    path: hatchling hatch-vcs
+  - requirements: docs/requirements.txt
   - method: pip
     path: .
     extra_requirements:
