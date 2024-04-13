@@ -97,6 +97,10 @@ version-file = "src/_pytask/_version.py"
 [tool.hatch.version]
 source = "vcs"
 
+[tool.hatch.build.targets.sdist]
+exclude = ["tests"]
+only-packages = true
+
 [tool.ruff]
 target-version = "py38"
 fix = true
