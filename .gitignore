@@ -22,3 +22,4 @@ src/_pytask/_version.py
 *.pkl
 
 tests/test_jupyter/*.txt
+.venv

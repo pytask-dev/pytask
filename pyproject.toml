@@ -91,14 +91,8 @@ build-backend = "hatchling.build"
 managed = true
 dev-dependencies = []
 
-[tool.hatch.metadata]
-allow-direct-references = true
-
 [tool.hatch.build.hooks.vcs]
 version-file = "src/_pytask/_version.py"
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/pytask", "src/_pytask"]
 
 [tool.hatch.version]
 source = "vcs"
@@ -192,9 +186,6 @@ skip = "*.js,*/termynal.css"
 
 [tool.refurb]
 python_version = "3.8"
-
-[tool.check-manifest]
-ignore = ["src/_pytask/_version.py"]
 
 [tool.coverage.report]
 exclude_also = [
