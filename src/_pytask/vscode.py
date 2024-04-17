@@ -1,12 +1,13 @@
 """Contains Code for VSCode Logging."""
+
 from __future__ import annotations
 
 import contextlib
 import json
 import os
 from threading import Thread
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 from urllib import request
 
 from _pytask.config import hookimpl
@@ -18,10 +19,10 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.traceback import Traceback
 
 if TYPE_CHECKING:
-    from _pytask.reports import ExecutionReport
-    from _pytask.reports import CollectionReport
-    from _pytask.session import Session
     from _pytask.node_protocols import PTask
+    from _pytask.reports import CollectionReport
+    from _pytask.reports import ExecutionReport
+    from _pytask.session import Session
 
 
 def send_logging_vscode(url: str, data: dict[str, Any], timeout: float) -> None:
