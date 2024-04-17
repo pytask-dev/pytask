@@ -4,9 +4,9 @@ import subprocess
 import textwrap
 
 import pytest
+from pytask import ExitCode
 from pytask import build
 from pytask import cli
-from pytask import ExitCode
 
 
 @pytest.mark.end_to_end()
@@ -571,6 +571,7 @@ def test_return_with_tuple_and_task_decorator(runner, tmp_path, node_def):
     assert tmp_path.joinpath("file2.txt").read_text() == "World!"
 
 
+@pytest.mark.end_to_end()
 def test_error_when_function_is_defined_outside_loop_body(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -590,6 +591,7 @@ def test_error_when_function_is_defined_outside_loop_body(runner, tmp_path):
     assert "id=None" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_error_when_function_is_defined_outside_loop_body_with_id(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -610,6 +612,7 @@ def test_error_when_function_is_defined_outside_loop_body_with_id(runner, tmp_pa
     assert "id=b.txt" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_task_will_be_executed_after_another_one_with_string(runner, tmp_path):
     source = """
     from pytask import task
@@ -689,6 +692,7 @@ def test_task_will_be_executed_after_another_one_with_function_session(
     assert result.returncode == ExitCode.OK
 
 
+@pytest.mark.end_to_end()
 def test_raise_error_for_wrong_after_expression(runner, tmp_path):
     source = """
     from pytask import task
@@ -706,6 +710,7 @@ def test_raise_error_for_wrong_after_expression(runner, tmp_path):
     assert "Wrong expression passed to 'after'" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_raise_error_with_builtin_function_as_task(runner, tmp_path):
     source = """
     from pytask import task
@@ -723,6 +728,7 @@ def test_raise_error_with_builtin_function_as_task(runner, tmp_path):
     assert "Builtin functions cannot be wrapped" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_task_function_in_another_module(runner, tmp_path):
     source = """
     def func():

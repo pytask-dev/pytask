@@ -5,18 +5,17 @@ import textwrap
 from pathlib import Path
 
 import pytest
-from _pytask.dag import pytask_dag_create_dag
-from pytask import build
-from pytask import cli
+from _pytask.dag import _create_dag_from_tasks
 from pytask import ExitCode
 from pytask import PathNode
-from pytask import Session
 from pytask import Task
+from pytask import build
+from pytask import cli
 
 
 @pytest.mark.unit()
 @pytest.mark.skipif(sys.platform == "win32", reason="Hashes match only on unix.")
-def test_pytask_dag_create_dag():
+def test_create_dag():
     root = Path("src")
     task = Task(
         base_name="task_dummy",
@@ -27,8 +26,7 @@ def test_pytask_dag_create_dag():
             1: PathNode.from_path(root / "node_2"),
         },
     )
-    session = Session.from_config({"paths": (root,)})
-    dag = pytask_dag_create_dag(session=session, tasks=[task])
+    dag = _create_dag_from_tasks(tasks=[task])
 
     for signature in (
         "90bb899a1b60da28ff70352cfb9f34a8bed485597c7f40eed9bd4c6449147525",
@@ -99,6 +97,7 @@ def test_has_node_changed_catches_notnotfounderror(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
 
 
+@pytest.mark.end_to_end()
 def test_python_nodes_are_unique(tmp_path):
     tmp_path.joinpath("a").mkdir()
     tmp_path.joinpath("a", "task_example.py").write_text("def task_example(a=1): pass")

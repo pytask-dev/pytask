@@ -1,21 +1,25 @@
 """Functions which are used across various modules."""
+
 from __future__ import annotations
 
 import glob
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Iterable
 from typing import Sequence
-from typing import TYPE_CHECKING
 
 import click
+
 from _pytask.console import format_node_name
 from _pytask.console import format_task_name
 from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 
 if TYPE_CHECKING:
     from enum import Enum
+
     import networkx as nx
 
 
@@ -80,10 +84,13 @@ def reduce_names_of_multiple_nodes(
 
         if isinstance(node, PTask):
             short_name = format_task_name(node, editor_url_scheme="no_link").plain
-        elif isinstance(node, PNode):
+        elif isinstance(node, (PNode, PProvisionalNode)):
             short_name = format_node_name(node, paths).plain
         else:
-            msg = f"Requires a 'PTask' or a 'PNode' and not {type(node)!r}."
+            msg = (
+                "Requires a 'PTask', 'PNode', or 'PProvisionalNode' and not "
+                f"{type(node)!r}."
+            )
             raise TypeError(msg)
 
         short_names.append(short_name)

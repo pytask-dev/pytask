@@ -9,9 +9,8 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 import click
 import pytest
 from _pytask.debugging import _pdbcls_callback
-from pytask import cli
 from pytask import ExitCode
-
+from pytask import cli
 
 try:
     import pexpect
@@ -19,6 +18,12 @@ except ModuleNotFoundError:  # pragma: no cover
     IS_PEXPECT_INSTALLED = False
 else:
     IS_PEXPECT_INSTALLED = True
+
+
+def _escape_ansi(line):
+    """Escape ANSI sequences produced by rich."""
+    ansi_escape = re.compile(r"(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]")
+    return ansi_escape.sub("", line)
 
 
 @pytest.mark.unit()
@@ -483,7 +488,40 @@ def test_set_trace_is_returned_after_pytask_finishes(tmp_path):
     _flush(child)
 
 
-def _escape_ansi(line):
-    """Escape ANSI sequences produced by rich."""
-    ansi_escape = re.compile(r"(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]")
-    return ansi_escape.sub("", line)
+@pytest.mark.end_to_end()
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
+def test_pdb_with_task_that_returns(tmp_path, runner):
+    source = """
+    from typing_extensions import Annotated
+    from pathlib import Path
+
+    def task_example() -> Annotated[str, Path("data.txt")]:
+        return "1"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix(), "--pdb"])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("data.txt").read_text() == "1"
+
+
+@pytest.mark.end_to_end()
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
+def test_trace_with_task_that_returns(tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pathlib import Path
+
+    def task_example() -> Annotated[str, Path("data.txt")]:
+        return "1"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
+    child.sendline("c")
+    rest = child.read().decode("utf8")
+    assert "1  Succeeded" in _escape_ansi(rest)
+    assert tmp_path.joinpath("data.txt").read_text() == "1"
+    _flush(child)

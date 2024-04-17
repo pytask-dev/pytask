@@ -1,24 +1,28 @@
 """Contains utility functions for :mod:`_pytask.collect`."""
+
 from __future__ import annotations
 
 import inspect
 import sys
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import TYPE_CHECKING
 
 import attrs
+from typing_extensions import get_origin
+
 from _pytask._inspect import get_annotations
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.nodes import PythonNode
 from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
+from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map_with_path
-from _pytask.typing import no_default
 from _pytask.typing import ProductType
-from typing_extensions import get_origin
+from _pytask.typing import no_default
 
 if sys.version_info >= (3, 9):
     from typing import Annotated
@@ -27,10 +31,12 @@ else:  # pragma: no cover
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from _pytask.session import Session
 
 
 __all__ = [
+    "collect_dependency",
     "parse_dependencies_from_task_function",
     "parse_products_from_task_function",
 ]
@@ -62,6 +68,7 @@ def parse_dependencies_from_task_function(
     kwargs.pop("produces", None)
 
     parameters_with_product_annot = _find_args_with_product_annotation(obj)
+    parameters_with_product_annot.append("return")
     parameters_with_node_annot = _find_args_with_node_annotation(obj)
 
     # Complete kwargs with node annotations, when no value is given by kwargs.
@@ -76,25 +83,16 @@ def parse_dependencies_from_task_function(
             raise ValueError(msg)
 
     for parameter_name, value in kwargs.items():
-        if (
-            parameter_name in parameters_with_product_annot
-            or parameter_name == "return"
-        ):
+        if parameter_name in parameters_with_product_annot:
             continue
 
-        nodes = tree_map_with_path(
-            lambda p, x: _collect_dependency(
-                session,
-                node_path,
-                task_name,
-                NodeInfo(
-                    arg_name=parameter_name,  # noqa: B023
-                    path=p,
-                    value=x,
-                    task_path=task_path,
-                    task_name=task_name,
-                ),
-            ),
+        nodes = _collect_nodes_and_provisional_nodes(
+            collect_dependency,
+            session,
+            node_path,
+            task_name,
+            task_path,
+            parameter_name,
             value,
         )
 
@@ -103,7 +101,10 @@ def parse_dependencies_from_task_function(
         are_all_nodes_python_nodes_without_hash = all(
             isinstance(x, PythonNode) and not x.hash for x in tree_leaves(nodes)
         )
-        if not isinstance(nodes, PNode) and are_all_nodes_python_nodes_without_hash:
+        if (
+            not isinstance(nodes, (PNode, PProvisionalNode))
+            and are_all_nodes_python_nodes_without_hash
+        ):
             node_name = create_name_of_python_node(
                 NodeInfo(
                     arg_name=parameter_name,
@@ -119,7 +120,9 @@ def parse_dependencies_from_task_function(
     return dependencies
 
 
-def _find_args_with_node_annotation(func: Callable[..., Any]) -> dict[str, PNode]:
+def _find_args_with_node_annotation(
+    func: Callable[..., Any],
+) -> dict[str, PNode | PProvisionalNode]:
     """Find args with node annotations."""
     annotations = get_annotations(func, eval_str=True)
     metas = {
@@ -217,20 +220,13 @@ def parse_products_from_task_function(
             value = kwargs.get(parameter_name) or parameters_with_node_annot.get(
                 parameter_name
             )
-
-            collected_products = tree_map_with_path(
-                lambda p, x: _collect_product(
-                    session,
-                    node_path,
-                    task_name,
-                    NodeInfo(
-                        arg_name=parameter_name,  # noqa: B023
-                        path=p,
-                        value=x,
-                        task_path=task_path,
-                        task_name=task_name,
-                    ),
-                ),
+            collected_products = _collect_nodes_and_provisional_nodes(
+                _collect_product,
+                session,
+                node_path,
+                task_name,
+                task_path,
+                parameter_name,
                 value,
             )
             out[parameter_name] = collected_products
@@ -238,19 +234,13 @@ def parse_products_from_task_function(
     task_produces = obj.pytask_meta.produces if hasattr(obj, "pytask_meta") else None
     if task_produces:
         has_task_decorator = True
-        collected_products = tree_map_with_path(
-            lambda p, x: _collect_product(
-                session,
-                node_path,
-                task_name,
-                NodeInfo(
-                    arg_name="return",
-                    path=p,
-                    value=x,
-                    task_path=task_path,
-                    task_name=task_name,
-                ),
-            ),
+        collected_products = _collect_nodes_and_provisional_nodes(
+            _collect_product,
+            session,
+            node_path,
+            task_name,
+            task_path,
+            "return",
             task_produces,
         )
         out = {"return": collected_products}
@@ -259,6 +249,32 @@ def parse_products_from_task_function(
         raise NodeNotCollectedError(_ERROR_MULTIPLE_TASK_RETURN_DEFINITIONS)
 
     return out
+
+
+def _collect_nodes_and_provisional_nodes(  # noqa: PLR0913
+    collection_func: Callable[..., Any],
+    session: Session,
+    node_path: Path,
+    task_name: str,
+    task_path: Path | None,
+    parameter_name: str,
+    value: Any,
+) -> PyTree[PProvisionalNode | PNode]:
+    return tree_map_with_path(
+        lambda p, x: collection_func(
+            session,
+            node_path,
+            task_name,
+            NodeInfo(
+                arg_name=parameter_name,
+                path=p,
+                value=x,
+                task_path=task_path,
+                task_name=task_name,
+            ),
+        ),
+        value,
+    )
 
 
 def _find_args_with_product_annotation(func: Callable[..., Any]) -> list[str]:
@@ -279,9 +295,9 @@ def _find_args_with_product_annotation(func: Callable[..., Any]) -> list[str]:
     return args_with_product_annot
 
 
-def _collect_dependency(
+def collect_dependency(
     session: Session, path: Path, name: str, node_info: NodeInfo
-) -> PNode:
+) -> PNode | PProvisionalNode:
     """Collect nodes for a task.
 
     Raises
@@ -315,7 +331,7 @@ def _collect_product(
     path: Path,
     task_name: str,
     node_info: NodeInfo,
-) -> PNode:
+) -> PNode | PProvisionalNode:
     """Collect products for a task.
 
     Defining products with strings is only allowed when using the decorator. Parameter

@@ -1,15 +1,16 @@
 """Contains the plugin manager."""
+
 from __future__ import annotations
 
 import importlib
 import sys
 from typing import Iterable
 
-from _pytask import hookspecs
 from attrs import define
 from pluggy import HookimplMarker
 from pluggy import PluginManager
 
+from _pytask import hookspecs
 
 __all__ = [
     "get_plugin_manager",
@@ -45,6 +46,7 @@ def pytask_add_hooks(pm: PluginManager) -> None:
         "_pytask.dag_command",
         "_pytask.database",
         "_pytask.debugging",
+        "_pytask.provisional",
         "_pytask.execute",
         "_pytask.live",
         "_pytask.logging",

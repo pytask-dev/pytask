@@ -1,8 +1,14 @@
 """Contains everything related to reports."""
+
 from __future__ import annotations
 
-from typing import ClassVar
 from typing import TYPE_CHECKING
+from typing import ClassVar
+
+from attrs import define
+from attrs import field
+from rich.rule import Rule
+from rich.text import Text
 
 from _pytask.capture_utils import ShowCapture
 from _pytask.console import format_task_name
@@ -10,18 +16,15 @@ from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import TaskOutcome
 from _pytask.traceback import OptionalExceptionInfo
 from _pytask.traceback import Traceback
-from attrs import define
-from attrs import field
-from rich.rule import Rule
-from rich.text import Text
-
 
 if TYPE_CHECKING:
-    from _pytask.node_protocols import PNode
-    from _pytask.node_protocols import PTask
     from rich.console import Console
-    from rich.console import RenderResult
     from rich.console import ConsoleOptions
+    from rich.console import RenderResult
+
+    from _pytask.node_protocols import PNode
+    from _pytask.node_protocols import PProvisionalNode
+    from _pytask.node_protocols import PTask
 
 
 @define
@@ -29,7 +32,7 @@ class CollectionReport:
     """A collection report for a task."""
 
     outcome: CollectionOutcome
-    node: PTask | PNode | None = None
+    node: PTask | PNode | PProvisionalNode | None = None
     exc_info: OptionalExceptionInfo | None = None
 
     @classmethod
@@ -37,7 +40,7 @@ class CollectionReport:
         cls: type[CollectionReport],
         outcome: CollectionOutcome,
         exc_info: OptionalExceptionInfo,
-        node: PTask | PNode | None = None,
+        node: PTask | PNode | PProvisionalNode | None = None,
     ) -> CollectionReport:
         return cls(outcome=outcome, node=node, exc_info=exc_info)
 

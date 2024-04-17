@@ -1,4 +1,5 @@
 """Contains helper functions for the configuration."""
+
 from __future__ import annotations
 
 import os
@@ -8,6 +9,7 @@ from typing import Any
 from typing import Sequence
 
 import click
+
 from _pytask.shared import parse_paths
 
 if sys.version_info >= (3, 11):  # pragma: no cover

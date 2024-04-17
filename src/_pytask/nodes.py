@@ -1,34 +1,46 @@
 """Contains implementations of tasks and nodes following the node protocols."""
+
 from __future__ import annotations
 
 import hashlib
 import inspect
 import pickle
+from contextlib import suppress
 from os import stat_result
 from pathlib import Path  # noqa: TCH003
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import TYPE_CHECKING
+
+from attrs import define
+from attrs import field
+from upath import UPath
+from upath._stat import UPathStatResult
 
 from _pytask._hashlib import hash_value
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import hash_path
-from _pytask.typing import no_default
 from _pytask.typing import NoDefault
-from attrs import define
-from attrs import field
-
+from _pytask.typing import no_default
 
 if TYPE_CHECKING:
+    from _pytask.mark import Mark
     from _pytask.models import NodeInfo
     from _pytask.tree_util import PyTree
-    from _pytask.mark import Mark
 
 
-__all__ = ["PathNode", "PickleNode", "PythonNode", "Task", "TaskWithoutPath"]
+__all__ = [
+    "DirectoryNode",
+    "PathNode",
+    "PickleNode",
+    "PythonNode",
+    "Task",
+    "TaskWithoutPath",
+]
 
 
 @define(kw_only=True)
@@ -60,8 +72,8 @@ class TaskWithoutPath(PTask):
 
     name: str
     function: Callable[..., Any]
-    depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
-    produces: dict[str, PyTree[PNode]] = field(factory=dict)
+    depends_on: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
+    produces: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
     markers: list[Mark] = field(factory=list)
     report_sections: list[tuple[str, str, str]] = field(factory=list)
     attributes: dict[Any, Any] = field(factory=dict)
@@ -73,12 +85,10 @@ class TaskWithoutPath(PTask):
 
     def state(self) -> str | None:
         """Return the state of the node."""
-        try:
+        with suppress(OSError):
             source = inspect.getsource(self.function)
-        except OSError:
-            return None
-        else:
             return hashlib.sha256(source.encode()).hexdigest()
+        return None
 
     def execute(self, **kwargs: Any) -> Any:
         """Execute the task."""
@@ -116,8 +126,8 @@ class Task(PTaskWithPath):
     path: Path
     function: Callable[..., Any]
     name: str = field(default="", init=False)
-    depends_on: dict[str, PyTree[PNode]] = field(factory=dict)
-    produces: dict[str, PyTree[PNode]] = field(factory=dict)
+    depends_on: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
+    produces: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
     markers: list[Mark] = field(factory=list)
     report_sections: list[tuple[str, str, str]] = field(factory=list)
     attributes: dict[Any, Any] = field(factory=dict)
@@ -135,10 +145,7 @@ class Task(PTaskWithPath):
 
     def state(self) -> str | None:
         """Return the state of the node."""
-        if self.path.exists():
-            modification_time = self.path.stat().st_mtime
-            return hash_path(self.path, modification_time)
-        return None
+        return _get_state(self.path)
 
     def execute(self, **kwargs: Any) -> Any:
         """Execute the task."""
@@ -178,16 +185,7 @@ class PathNode(PPathNode):
         The state is given by the modification timestamp.
 
         """
-        if self.path.exists():
-            stat = self.path.stat()
-            if isinstance(stat, stat_result):
-                modification_time = self.path.stat().st_mtime
-                return hash_path(self.path, modification_time)
-            if isinstance(stat, dict):
-                return stat.get("ETag", "0")
-            msg = "Unknown stat object."
-            raise NotImplementedError(msg)
-        return None
+        return _get_state(self.path)
 
     def load(self, is_product: bool = False) -> Path:  # noqa: ARG002
         """Load the value."""
@@ -282,6 +280,8 @@ class PythonNode(PNode):
         {meth}`object.__hash__` for more information.
 
         """
+        if self.value is no_default:
+            return None
         if self.hash:
             value = self.load()
             if callable(self.hash):
@@ -321,16 +321,7 @@ class PickleNode(PPathNode):
         return cls(name=path.as_posix(), path=path)
 
     def state(self) -> str | None:
-        if self.path.exists():
-            stat = self.path.stat()
-            if isinstance(stat, stat_result):
-                modification_time = self.path.stat().st_mtime
-                return hash_path(self.path, modification_time)
-            if isinstance(stat, dict):
-                return stat.get("ETag", "0")
-            msg = "Unknown stat object."
-            raise NotImplementedError(msg)
-        return None
+        return _get_state(self.path)
 
     def load(self, is_product: bool = False) -> Any:
         if is_product:
@@ -341,3 +332,68 @@ class PickleNode(PPathNode):
     def save(self, value: Any) -> None:
         with self.path.open("wb") as f:
             pickle.dump(value, f)
+
+
+@define(kw_only=True)
+class DirectoryNode(PProvisionalNode):
+    """The class for a provisional node that works with directories.
+
+    Attributes
+    ----------
+    name
+        The name of the node.
+    pattern
+        Patterns are the same as for :mod:`fnmatch`, with the addition of ``**`` which
+        means "this directory and all subdirectories, recursively".
+    root_dir
+        The pattern is interpreted relative to the path given by ``root_dir``. If
+        ``root_dir = None``, it is the directory where the path is defined.
+
+    """
+
+    name: str = ""
+    pattern: str = "*"
+    root_dir: Path | None = None
+
+    @property
+    def signature(self) -> str:
+        """The unique signature of the node."""
+        raw_key = "".join(str(hash_value(arg)) for arg in (self.root_dir, self.pattern))
+        return hashlib.sha256(raw_key.encode()).hexdigest()
+
+    def load(self, is_product: bool = False) -> Path:
+        """Inject a path into the task when loaded as a product."""
+        if is_product:
+            return self.root_dir  # type: ignore[return-value]
+        msg = "'DirectoryNode' cannot be loaded as a dependency"  # pragma: no cover
+        raise NotImplementedError(msg)  # pragma: no cover
+
+    def collect(self) -> list[Path]:
+        """Collect paths defined by the pattern."""
+        return list(self.root_dir.glob(self.pattern))  # type: ignore[union-attr]
+
+
+def _get_state(path: Path) -> str | None:
+    """Get state of a path.
+
+    A simple function to handle local and remote files.
+
+    """
+    # Invalidate the cache of the path if it is a UPath because it might have changed in
+    # a different process with pytask-parallel and the main process does not know about
+    # it and relies on the cache.
+    if isinstance(path, UPath):
+        path.fs.invalidate_cache()
+
+    try:
+        stat = path.stat()
+    except FileNotFoundError:
+        return None
+
+    if isinstance(stat, stat_result):
+        modification_time = stat.st_mtime
+        return hash_path(path, modification_time)
+    if isinstance(stat, UPathStatResult):
+        return stat.as_info().get("ETag", "0")
+    msg = "Unknown stat object."
+    raise NotImplementedError(msg)

@@ -10,10 +10,10 @@ import pytest
 from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
 from attrs import define
-from pytask import cli
 from pytask import ExitCode
 from pytask import PathNode
 from pytask import Task
+from pytask import cli
 
 
 @pytest.mark.end_to_end()
@@ -317,8 +317,7 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
 class Node:
     path: Path
 
-    def state(self):
-        ...
+    def state(self): ...
 
 
 def function(depends_on, produces):  # noqa: ARG001
@@ -630,3 +629,85 @@ def test_more_nested_pytree_and_python_node_as_return_with_names(
     assert result.exit_code == ExitCode.OK
     if sys.platform != "win32":
         assert result.output == snapshot_cli()
+
+
+@pytest.mark.end_to_end()
+@pytest.mark.parametrize(
+    "node_def",
+    [
+        "paths: Annotated[List[Path], DirectoryNode(pattern='*.txt'), Product])",
+        "produces=DirectoryNode(pattern='*.txt'))",
+        ") -> Annotated[None, DirectoryNode(pattern='*.txt')]",
+    ],
+)
+def test_collect_task_with_provisional_path_node_as_product(runner, tmp_path, node_def):
+    source = f"""
+    from pytask import DirectoryNode, Product
+    from typing_extensions import Annotated, List
+    from pathlib import Path
+
+    def task_example({node_def}: ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    # Without nodes.
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    captured = result.output.replace("\n", "").replace(" ", "")
+    assert "<Module" in captured
+    assert "task_module.py>" in captured
+    assert "<Function" in captured
+    assert "task_example>" in captured
+
+    # With nodes.
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
+    assert result.exit_code == ExitCode.OK
+    captured = result.output.replace("\n", "").replace(" ", "")
+    assert "<Module" in captured
+    assert "task_module.py>" in captured
+    assert "<Function" in captured
+    assert "task_example>" in captured
+    assert "<Product" in captured
+    assert "/*.txt>" in captured
+
+
+@pytest.mark.end_to_end()
+def test_collect_task_with_provisional_dependencies(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DirectoryNode
+    from pathlib import Path
+
+    def task_example(
+        paths = DirectoryNode(pattern="[ab].txt")
+    ) -> Annotated[str, Path("merged.txt")]:
+        path_dict = {path.stem: path for path in paths}
+        return path_dict["a"].read_text() + path_dict["b"].read_text()
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "[ab].txt" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_collect_custom_node_receives_default_name(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+
+    class CustomNode:
+        name: str = ""
+
+        def state(self): return None
+        def signature(self): return "signature"
+        def load(self, is_product): ...
+        def save(self, value): ...
+
+    def task_example() -> Annotated[None, CustomNode()]: ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    output = result.output.replace(" ", "").replace("\n", "")
+    assert "task_example::return" in output

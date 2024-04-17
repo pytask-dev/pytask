@@ -6,8 +6,6 @@ from pathlib import Path
 
 import pytest
 from _pytask.skipping import pytask_execute_task_setup
-from pytask import build
-from pytask import cli
 from pytask import ExitCode
 from pytask import Mark
 from pytask import Session
@@ -16,6 +14,8 @@ from pytask import SkippedAncestorFailed
 from pytask import SkippedUnchanged
 from pytask import Task
 from pytask import TaskOutcome
+from pytask import build
+from pytask import cli
 
 
 class DummyClass:
@@ -260,6 +260,7 @@ def test_pytask_execute_task_setup(marker_name, force, expectation):
         pytask_execute_task_setup(session=session, task=task)
 
 
+@pytest.mark.end_to_end()
 def test_skip_has_precendence_over_ancestor_failed(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -276,6 +277,7 @@ def test_skip_has_precendence_over_ancestor_failed(runner, tmp_path):
     assert "1  Skipped" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_skipif_has_precendence_over_ancestor_failed(runner, tmp_path):
     source = """
     from pathlib import Path

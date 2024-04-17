@@ -1,14 +1,16 @@
 """Contains utilities for the database."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from _pytask.dag_utils import node_and_neighbors
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import sessionmaker
+
+from _pytask.dag_utils import node_and_neighbors
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PNode
@@ -67,11 +69,10 @@ def update_states_in_database(session: Session, task_signature: str) -> None:
         _create_or_update_state(task_signature, node.signature, hash_)
 
 
-def has_node_changed(task: PTask, node: PTask | PNode) -> bool:
+def has_node_changed(task: PTask, node: PTask | PNode, state: str | None) -> bool:
     """Indicate whether a single dependency or product has changed."""
     # If node does not exist, we receive None.
-    node_state = node.state()
-    if node_state is None:
+    if state is None:
         return True
 
     with DatabaseSession() as session:
@@ -81,4 +82,4 @@ def has_node_changed(task: PTask, node: PTask | PNode) -> bool:
     if db_state is None:
         return True
 
-    return node_state != db_state.hash_
+    return state != db_state.hash_

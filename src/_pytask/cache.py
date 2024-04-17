@@ -1,4 +1,5 @@
 """Contains a cache."""
+
 from __future__ import annotations
 
 import functools
@@ -8,9 +9,10 @@ from inspect import FullArgSpec
 from typing import Any
 from typing import Callable
 
-from _pytask._hashlib import hash_value
 from attrs import define
 from attrs import field
+
+from _pytask._hashlib import hash_value
 
 
 @define

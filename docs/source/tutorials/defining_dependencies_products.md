@@ -72,7 +72,7 @@ task has finished, pytask will check whether the file exists.
 
 ````
 
-````{tab-item} prodouces
+````{tab-item} produces
 :sync: produces
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_produces.py
@@ -132,7 +132,7 @@ annotation are dependencies of the task.
 
 ````
 
-````{tab-item} prodouces
+````{tab-item} produces
 :sync: produces
 
 To specify that the task relies on the data set `data.pkl`, you can add the path to the
@@ -178,7 +178,7 @@ are assumed to point to a location relative to the task module.
 
 ````
 
-````{tab-item} prodouces
+````{tab-item} produces
 :sync: produces
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_produces.py

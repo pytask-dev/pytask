@@ -1,4 +1,5 @@
 """Contains the command and code for drawing the DAG."""
+
 from __future__ import annotations
 
 import enum
@@ -8,6 +9,8 @@ from typing import Any
 
 import click
 import networkx as nx
+from rich.text import Text
+
 from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
 from _pytask.compat import check_for_optional_program
@@ -15,6 +18,7 @@ from _pytask.compat import import_optional_dependency
 from _pytask.config_utils import find_project_root_and_config
 from _pytask.config_utils import read_config
 from _pytask.console import console
+from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
@@ -26,9 +30,7 @@ from _pytask.session import Session
 from _pytask.shared import parse_paths
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.shared import to_list
-from _pytask.traceback import remove_internal_traceback_frames_from_exc_info
-from rich.text import Text
-from rich.traceback import Traceback
+from _pytask.traceback import Traceback
 
 
 class _RankDirection(enum.Enum):
@@ -99,7 +101,7 @@ def dag(**raw_config: Any) -> int:
                 "can install with conda.",
             )
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_dag(session=session)
+            session.dag = create_dag(session=session)
             dag = _refine_dag(session)
             _write_graph(dag, session.config["output_path"], session.config["layout"])
 
@@ -111,9 +113,8 @@ def dag(**raw_config: Any) -> int:
 
         except Exception:  # noqa: BLE001
             session.exit_code = ExitCode.FAILED
-            exc_info = remove_internal_traceback_frames_from_exc_info(sys.exc_info())
             console.print()
-            console.print(Traceback.from_exception(*exc_info))
+            console.print(Traceback(sys.exc_info()))
             console.rule(style="failed")
 
     session.hook.pytask_unconfigure(session=session)
@@ -187,24 +188,17 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 
     else:
-        try:
-            session.hook.pytask_log_session_header(session=session)
-            import_optional_dependency("pygraphviz")
-            check_for_optional_program(
-                session.config["layout"],
-                extra="The layout program is part of the graphviz package that you "
-                "can install with conda.",
-            )
-            session.hook.pytask_collect(session=session)
-            session.hook.pytask_dag(session=session)
-            session.hook.pytask_unconfigure(session=session)
-            dag = _refine_dag(session)
-
-        except Exception:
-            raise
-
-        else:
-            return dag
+        session.hook.pytask_log_session_header(session=session)
+        import_optional_dependency("pygraphviz")
+        check_for_optional_program(
+            session.config["layout"],
+            extra="The layout program is part of the graphviz package that you "
+            "can install with conda.",
+        )
+        session.hook.pytask_collect(session=session)
+        session.dag = create_dag(session=session)
+        session.hook.pytask_unconfigure(session=session)
+        return _refine_dag(session)
 
 
 def _refine_dag(session: Session) -> nx.DiGraph:
@@ -245,3 +239,5 @@ def _write_graph(dag: nx.DiGraph, path: Path, layout: str) -> None:
     path.parent.mkdir(exist_ok=True, parents=True)
     graph = nx.nx_agraph.to_agraph(dag)
     graph.draw(path, prog=layout)
+    console.print()
+    console.print(f"Written to {path}.")

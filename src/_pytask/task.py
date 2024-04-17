@@ -1,9 +1,10 @@
 """Contain hooks related to the :func:`@task <pytask.task>`."""
+
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import TYPE_CHECKING
 
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.pluginmanager import hookimpl
@@ -12,9 +13,10 @@ from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import parse_collected_tasks_with_task_marker
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from _pytask.reports import CollectionReport
     from _pytask.session import Session
-    from pathlib import Path
 
 
 @hookimpl
@@ -80,3 +82,8 @@ def _raise_error_when_task_functions_are_duplicated(
         f"a lambda expression like 'task(...)(lambda **x: func(**x))'.\n\n{flat_tree}"
     )
     raise ValueError(msg)
+
+
+@hookimpl
+def pytask_unconfigure() -> None:
+    COLLECTED_TASKS.clear()

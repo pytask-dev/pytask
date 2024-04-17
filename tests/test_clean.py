@@ -7,10 +7,9 @@ from pathlib import Path
 
 import pytest
 from _pytask.git import init_repo
-from pytask import cli
 from pytask import ExitCode
+from pytask import cli
 from pytask import storage
-
 
 _PROJECT_TASK = """
 import pytask

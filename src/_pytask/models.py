@@ -1,10 +1,11 @@
 """Contains code on models, containers and there like."""
+
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
 from typing import NamedTuple
-from typing import TYPE_CHECKING
 from uuid import UUID
 from uuid import uuid4
 
@@ -13,8 +14,9 @@ from attrs import field
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from _pytask.tree_util import PyTree
+
     from _pytask.mark import Mark
+    from _pytask.tree_util import PyTree
 
 
 @define
@@ -31,6 +33,8 @@ class CollectionMetadata:
         id will be generated. See
         :doc:`this tutorial <../tutorials/repeating_tasks_with_different_inputs>` for
         more information.
+    is_generator
+        An indicator for whether a task generates other tasks or not.
     kwargs
         A dictionary containing keyword arguments which are passed to the task when it
         is executed.
@@ -46,6 +50,7 @@ class CollectionMetadata:
     """
 
     after: str | list[Callable[..., Any]] = field(factory=list)
+    is_generator: bool = False
     id_: str | None = None
     kwargs: dict[str, Any] = field(factory=dict)
     markers: list[Mark] = field(factory=list)
@@ -57,6 +62,6 @@ class CollectionMetadata:
 class NodeInfo(NamedTuple):
     arg_name: str
     path: tuple[str | int, ...]
-    value: Any
     task_path: Path | None
     task_name: str
+    value: Any

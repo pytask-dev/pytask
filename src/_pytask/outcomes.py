@@ -1,12 +1,12 @@
 """Contains code related to outcomes."""
+
 from __future__ import annotations
 
-from enum import auto
 from enum import Enum
 from enum import IntEnum
-from typing import Sequence
+from enum import auto
 from typing import TYPE_CHECKING
-
+from typing import Sequence
 
 if TYPE_CHECKING:
     from _pytask.reports import CollectionReport

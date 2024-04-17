@@ -1,10 +1,3 @@
-[build-system]
-build-backend = "setuptools.build_meta"
-requires = ["setuptools>=64", "setuptools_scm>=8"]
-
-[tool.setuptools_scm]
-version_file = "src/_pytask/_version.py"
-
 [project]
 name = "pytask"
 description = "In its highest aspirations, pytask tries to be pytest as a build system."
@@ -39,6 +32,7 @@ dependencies = [
   "sqlalchemy>=2",
   'tomli>=1; python_version < "3.11"',
   'typing-extensions; python_version < "3.9"',
+  "universal-pathlib>=0.2.2",
 ]
 
 [project.readme]
@@ -53,7 +47,6 @@ name = "Tobias Raabe"
 email = "raabe@posteo.de"
 
 [project.optional-dependencies]
-all = ['universal-pathlib; python_version<"3.12"']
 docs = [
   "furo",
   "ipython",
@@ -90,43 +83,52 @@ Tracker = "https://github.com/pytask-dev/pytask/issues"
 [project.scripts]
 pytask = "pytask:cli"
 
-[tool.setuptools]
-include-package-data = true
-zip-safe = false
-platforms = ["unix", "linux", "osx", "win32"]
-license-files = ["LICENSE"]
+[build-system]
+requires = ["hatchling", "hatch_vcs"]
+build-backend = "hatchling.build"
 
-[tool.setuptools.package-dir]
-"" = "src"
+[tool.rye]
+managed = true
+dev-dependencies = []
 
-[tool.setuptools.packages.find]
-where = ["src"]
-namespaces = false
+[tool.hatch.build.hooks.vcs]
+version-file = "src/_pytask/_version.py"
+
+[tool.hatch.build.targets.sdist]
+exclude = ["tests"]
+only-packages = true
+
+[tool.hatch.build.targets.wheel]
+only-include = ["src"]
+sources = ["src"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.ruff]
 target-version = "py38"
 fix = true
+unsafe-fixes = true
 extend-include = ["*.ipynb"]
 
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "FBT",  # flake8-boolean-trap
-    "I",  # ignore isort
-    "TRY",  # ignore tryceratops.
-    # Others.
-    "ANN101",  # type annotating self
-    "ANN102",  # type annotating cls
+    "ANN101",
+    "ANN102",
     "ANN401",  # flake8-annotate typing.Any
     "COM812",  # Comply with ruff-format.
     "ISC001",  # Comply with ruff-format.
+    "FBT",
     "PD901",  # Avoid generic df for dataframes.
     "S101",  # raise errors for asserts.
     "S603",  # Call check with subprocess.run.
     "S607",  # Call subprocess.run with partial executable path.
     "SLF001",  # access private members.
 ]
-
 
 [tool.ruff.lint.per-file-ignores]
 "src/_pytask/_hashlib.py" = ["ALL"]
@@ -146,6 +148,8 @@ ignore = [
 "docs_src/how_to_guides/writing_custom_nodes_*.py" = ["S301"]
 "docs_src/tutorials/using_a_data_catalog_*.py" = ["RET504"]
 
+[tool.ruff.lint.isort]
+force-single-line = true
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
@@ -173,7 +177,6 @@ no_implicit_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 
-
 [[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_defs = false
@@ -192,9 +195,6 @@ skip = "*.js,*/termynal.css"
 
 [tool.refurb]
 python_version = "3.8"
-
-[tool.check-manifest]
-ignore = ["src/_pytask/_version.py"]
 
 [tool.coverage.report]
 exclude_also = [

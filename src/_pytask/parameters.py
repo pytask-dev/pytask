@@ -1,21 +1,23 @@
 """Contains common parameters for the commands of the command line interface."""
+
 from __future__ import annotations
 
 import importlib.util
 from pathlib import Path
-from typing import Iterable
 from typing import TYPE_CHECKING
+from typing import Iterable
 
 import click
+from click import Context
+from sqlalchemy.engine import URL
+from sqlalchemy.engine import make_url
+from sqlalchemy.exc import ArgumentError
+
 from _pytask.config_utils import set_defaults_from_config
 from _pytask.path import import_path
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import register_hook_impls_from_modules
 from _pytask.pluginmanager import storage
-from click import Context
-from sqlalchemy.engine import make_url
-from sqlalchemy.engine import URL
-from sqlalchemy.exc import ArgumentError
 
 if TYPE_CHECKING:
     from pluggy import PluginManager

@@ -27,6 +27,7 @@ OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+
 from __future__ import annotations
 
 import datetime
@@ -41,7 +42,6 @@ import requests
 import tabulate
 import wcwidth
 from tqdm import tqdm
-
 
 _FILE_HEAD = r"""
 .. _plugin-list:
@@ -70,7 +70,7 @@ _DEVELOPMENT_STATUS_CLASSIFIERS = (
 )
 
 
-_EXCLUDED_PACKAGES = ["pytask-io"]
+_EXCLUDED_PACKAGES = ["pytask-io", "pytask-list"]
 
 
 def _escape_rst(text: str) -> str:
