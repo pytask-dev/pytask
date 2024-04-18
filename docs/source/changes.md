@@ -41,6 +41,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`594` publishes `NodeLoadError`.
 - {pull}`595` stops unwrapping task functions until a `coiled.function.Function`.
 - {pull}`596` add project management with rye.
+- {pull}`598` replaces requests with httpx.
 
 ## 0.4.7 - 2024-03-19
 

@@ -70,7 +70,6 @@ test = [
     "syrupy",
     # For HTTPPath tests.
     "aiohttp",
-    "requests",
     "coiled",
 ]
 
