@@ -1141,3 +1141,23 @@ def test_use_provisional_node_as_product_in_generator_without_rerun(runner, tmp_
     assert "3  Collected task" in result.output
     assert "1  Succeeded" in result.output
     assert "2  Skipped because unchanged" in result.output
+
+
+def test_download_file(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from upath import UPath
+
+    url = UPath(
+        "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
+    )
+
+    def task_download_file(path: UPath = url) -> Annotated[str, Path("data.csv")]:
+        return path.read_text()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output

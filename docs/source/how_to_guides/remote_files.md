@@ -73,9 +73,9 @@ file as the ETag. If the file changes, so does the ETag, and pytask will detect 
 Many files on the web do not provide an ETag like this version of the iris dataset.
 
 ```pycon
->>> import requests
+>>> import httpx
 >>> url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
->>> r = requests.head(url)
+>>> r = httpx.head(url)
 >>> r.headers
 {'Server': 'nginx/1.25.3', 'Date': 'Sun, 10 Dec 2023 23:59:21 GMT', 'Connection': 'keep-alive'}
 ```
