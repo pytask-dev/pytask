@@ -1143,6 +1143,7 @@ def test_use_provisional_node_as_product_in_generator_without_rerun(runner, tmp_
     assert "2  Skipped because unchanged" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_download_file(runner, tmp_path):
     source = """
     from pathlib import Path

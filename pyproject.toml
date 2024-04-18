@@ -68,6 +68,7 @@ test = [
   "pytest-cov",
   "pytest-xdist",
   "syrupy",
+  "aiohttp",
 ]
 
 [project.urls]
