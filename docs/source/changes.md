@@ -39,6 +39,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`593` recreate `PythonNode`s every run since they carry the `_NoDefault` enum as
   the value whose state is `None`.
 - {pull}`594` publishes `NodeLoadError`.
+- {pull}`595` stops unwrapping task functions until a `coiled.function.Function`.
 - {pull}`596` add project management with rye.
 - {pull}`598` replaces requests with httpx.
 

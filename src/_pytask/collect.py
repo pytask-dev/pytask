@@ -16,6 +16,8 @@ from typing import Iterable
 from rich.text import Text
 from upath import UPath
 
+from _pytask.coiled_utils import Function
+from _pytask.coiled_utils import extract_coiled_function_kwargs
 from _pytask.collect_utils import create_name_of_python_node
 from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_products_from_task_function
@@ -46,6 +48,7 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.reports import CollectionReport
 from _pytask.shared import find_duplicates
 from _pytask.shared import to_list
+from _pytask.shared import unwrap_task_function
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
@@ -311,15 +314,21 @@ def pytask_collect_task(
         )
 
         markers = get_all_marks(obj)
-        collection_id = obj.pytask_meta._id if hasattr(obj, "pytask_meta") else None
-        after = obj.pytask_meta.after if hasattr(obj, "pytask_meta") else []
-        is_generator = (
-            obj.pytask_meta.is_generator if hasattr(obj, "pytask_meta") else False
-        )
 
-        # Get the underlying function to avoid having different states of the function,
-        # e.g. due to pytask_meta, in different layers of the wrapping.
-        unwrapped = inspect.unwrap(obj)
+        if hasattr(obj, "pytask_meta"):
+            attributes = {
+                **obj.pytask_meta.attributes,
+                "collection_id": obj.pytask_meta._id,
+                "after": obj.pytask_meta.after,
+                "is_generator": obj.pytask_meta.is_generator,
+            }
+        else:
+            attributes = {"collection_id": None, "after": [], "is_generator": False}
+
+        unwrapped = unwrap_task_function(obj)
+        if isinstance(unwrapped, Function):
+            attributes["coiled_kwargs"] = extract_coiled_function_kwargs(unwrapped)
+            unwrapped = unwrap_task_function(unwrapped.function)
 
         if path is None:
             return TaskWithoutPath(
@@ -328,11 +337,7 @@ def pytask_collect_task(
                 depends_on=dependencies,
                 produces=products,
                 markers=markers,
-                attributes={
-                    "collection_id": collection_id,
-                    "after": after,
-                    "is_generator": is_generator,
-                },
+                attributes=attributes,
             )
         return Task(
             base_name=name,
@@ -341,11 +346,7 @@ def pytask_collect_task(
             depends_on=dependencies,
             produces=products,
             markers=markers,
-            attributes={
-                "collection_id": collection_id,
-                "after": after,
-                "is_generator": is_generator,
-            },
+            attributes=attributes,
         )
     if isinstance(obj, PTask):
         return obj
