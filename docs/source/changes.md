@@ -40,6 +40,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   the value whose state is `None`.
 - {pull}`594` publishes `NodeLoadError`.
 - {pull}`596` add project management with rye.
+- {pull}`598` replaces requests with httpx.
 
 ## 0.4.7 - 2024-03-19
 
