@@ -50,6 +50,7 @@ class CollectionMetadata:
     """
 
     after: str | list[Callable[..., Any]] = field(factory=list)
+    attributes: dict[str, Any] = field(factory=dict)
     is_generator: bool = False
     id_: str | None = None
     kwargs: dict[str, Any] = field(factory=dict)
