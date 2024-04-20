@@ -167,7 +167,7 @@ def catch_warnings_for_item(
         # mypy can't infer that record=True means log is not None; help it.
         assert log is not None
 
-        for arg in session.config["filterwarnings"]:
+        for arg in session.config.warnings.filterwarnings:
             warnings.filterwarnings(*parse_warning_filter(arg, escape=False))
 
         # apply filters from "filterwarnings" marks

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Iterable
@@ -13,12 +14,13 @@ from click import Context
 from pluggy import PluginManager
 
 from _pytask.path import import_path
+from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import register_hook_impls_from_modules
 from _pytask.pluginmanager import storage
 
 if TYPE_CHECKING:
-    from _pytask.settings import SettingsBuilder
+    from _pytask.settings_utils import SettingsBuilder
 
 
 def _hook_module_callback(
@@ -88,6 +90,10 @@ def _path_callback(
 class Common:
     """Common settings for the command line interface."""
 
+    cache: Path = ts.option(init=False, click={"hidden": True})
+    config_file: Path | None = ts.option(
+        default=None, click={"param_decls": ["--config-file"], "hidden": True}
+    )
     debug_pytask: bool = ts.option(
         default=False,
         click={"param_decls": ("--debug-pytask",), "is_flag": True},
@@ -101,23 +107,6 @@ class Common:
             "ids to quickly jump to the task definition. Use no_link to disable URLs."
         ),
     )
-    ignore: tuple[str, ...] = ts.option(
-        factory=tuple,
-        help=(
-            "A pattern to ignore files or directories. Refer to 'pathlib.Path.match' "
-            "for more info."
-        ),
-        click={"param_decls": ["--ignore"], "multiple": True},
-    )
-    verbose: int = ts.option(
-        default=1,
-        help="Make pytask verbose (>= 0) or quiet (= 0).",
-        click={
-            "param_decls": ["-v", "--verbose"],
-            "type": click.IntRange(0, 2),
-            "count": True,
-        },
-    )
     hook_module: tuple[str, ...] = ts.option(
         factory=list,
         help="Path to a Python module that contains hook implementations.",
@@ -128,8 +117,13 @@ class Common:
             "callback": _hook_module_callback,
         },
     )
-    config_file: Path | None = ts.option(
-        default=None, click={"param_decls": ["--config-file"], "hidden": True}
+    ignore: tuple[str, ...] = ts.option(
+        factory=tuple,
+        help=(
+            "A pattern to ignore files or directories. Refer to 'pathlib.Path.match' "
+            "for more info."
+        ),
+        click={"param_decls": ["--ignore"], "multiple": True},
     )
     paths: tuple[Path, ...] = ts.option(
         factory=tuple,
@@ -141,7 +135,30 @@ class Common:
             "hidden": True,
         },
     )
-    pm: PluginManager | None = ts.option(default=None, click={"hidden": True})
+    pm: PluginManager = ts.option(factory=get_plugin_manager, click={"hidden": True})
+    root: Path = ts.option(init=False, click={"hidden": True})
+    task_files: tuple[str, ...] = ts.option(
+        default=("task_*.py",),
+        help="A list of file patterns for task files.",
+        click={"param_decls": ["--task-files"], "multiple": True, "hidden": True},
+    )
+    verbose: int = ts.option(
+        default=1,
+        help="Make pytask verbose (>= 0) or quiet (= 0).",
+        click={
+            "param_decls": ["-v", "--verbose"],
+            "type": click.IntRange(0, 2),
+            "count": True,
+        },
+    )
+
+    def __attrs_post_init__(self) -> None:
+        self.root = (
+            self.config_file.parent
+            if self.config_file
+            else Path(os.path.commonpath(self.paths))
+        )
+        self.cache = self.root / ".pytask"
 
 
 _PATH_ARGUMENT = click.Argument(

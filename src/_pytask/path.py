@@ -324,7 +324,7 @@ def shorten_path(path: Path, paths: Sequence[Path]) -> str:
     when using nested folder structures in bigger projects.
 
     Thus, the part of the name which contains the path is replaced by the relative
-    path from one path in ``session.config["paths"]`` to the node.
+    path from one path in ``session.config.common.paths`` to the node.
 
     """
     ancestor = find_closest_ancestor(path, paths)

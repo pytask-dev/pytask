@@ -60,8 +60,8 @@ def pytask_parse_config(config: Settings) -> None:
 @hookimpl
 def pytask_post_parse(config: Settings) -> None:
     """Activate the warnings plugin if not disabled."""
-    if not config["disable_warnings"]:
-        config["pm"].register(WarningsNameSpace)
+    if not config.warnings.disable_warnings:
+        config.common.pm.register(WarningsNameSpace)
 
 
 class WarningsNameSpace:

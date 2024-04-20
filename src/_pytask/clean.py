@@ -5,7 +5,6 @@ from __future__ import annotations
 import itertools
 import shutil
 import sys
-from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
@@ -28,19 +27,18 @@ from _pytask.path import relative_to
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from _pytask.settings import Clean
 from _pytask.settings import Settings
 from _pytask.settings import _CleanMode
 from _pytask.settings_utils import SettingsBuilder
-from _pytask.shared import to_list
 from _pytask.traceback import Traceback
 from _pytask.tree_util import tree_leaves
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import NoReturn
 
 
-_DEFAULT_EXCLUDE: list[str] = [".git/*"]
+_DEFAULT_EXCLUDE: tuple[str, ...] = (".git/*",)
 
 
 @hookimpl(tryfirst=True)
@@ -48,18 +46,16 @@ def pytask_extend_command_line_interface(
     settings_builders: dict[str, SettingsBuilder],
 ) -> None:
     """Extend the command line interface."""
-    settings_builders["clean"] = SettingsBuilder(
-        name="clean", function=clean, base_settings=Clean
-    )
+    settings_builders["clean"] = SettingsBuilder(name="clean", function=clean_command)
 
 
 @hookimpl
 def pytask_parse_config(config: Settings) -> None:
     """Parse the configuration."""
-    config["exclude"] = to_list(config["exclude"]) + _DEFAULT_EXCLUDE
+    config.clean.exclude = config.clean.exclude + _DEFAULT_EXCLUDE
 
 
-def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
+def clean_command(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
     """Clean the provided paths by removing files unknown to pytask."""
     pm = storage.get()
     raw_config["command"] = "clean"
@@ -79,32 +75,31 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
             session.hook.pytask_collect(session=session)
 
             known_paths = _collect_all_paths_known_to_pytask(session)
-            exclude = session.config["exclude"]
-            include_directories = session.config["directories"]
+            exclude = session.config.clean.exclude
+            include_directories = session.config.clean.directories
             unknown_paths = _find_all_unknown_paths(
                 session, known_paths, exclude, include_directories
             )
             common_ancestor = find_common_ancestor(
-                *unknown_paths, *session.config["paths"]
+                *unknown_paths, *session.config.common.paths
             )
 
             if unknown_paths:
                 targets = "Files"
-                if session.config["directories"]:
+                if session.config.clean.directories:
                     targets += " and directories"
                 console.print(f"\n{targets} which can be removed:\n")
                 for path in unknown_paths:
                     short_path = relative_to(path, common_ancestor)
-                    if session.config["mode"] == _CleanMode.DRY_RUN:
+                    if session.config.clean.mode == _CleanMode.DRY_RUN:
                         console.print(f"Would remove {short_path}")
                     else:
-                        should_be_deleted = session.config[
-                            "mode"
-                        ] == _CleanMode.FORCE or click.confirm(
-                            f"Would you like to remove {short_path}?"
+                        should_be_deleted = (
+                            session.config.clean.mode == _CleanMode.FORCE
+                            or click.confirm(f"Would you like to remove {short_path}?")
                         )
                         if should_be_deleted:
-                            if not session.config["quiet"]:
+                            if not session.config.clean.quiet:
                                 console.print(f"Remove {short_path}")
                             if path.is_dir():
                                 shutil.rmtree(path)
@@ -148,19 +143,17 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
 
     known_paths = known_files | known_directories
 
-    if session.config["config"]:
-        known_paths.add(session.config["config"])
-    known_paths.add(session.config["root"])
+    if session.config.common.config_file:
+        known_paths.add(session.config.common.config_file)
+    known_paths.add(session.config.common.root)
 
-    database_url = session.config["database_url"]
-    if database_url.drivername == "sqlite" and database_url.database:
-        known_paths.add(Path(database_url.database))
+    known_paths.add(session.config.common.cache / "pytask.sqlite3")
 
     # Add files tracked by git.
     if is_git_installed():
-        git_root = get_root(session.config["root"])
+        git_root = get_root(session.config.common.root)
         if git_root is not None:
-            paths_known_by_git = get_all_files(session.config["root"])
+            paths_known_by_git = get_all_files(session.config.common.root)
             absolute_paths_known_by_git = [
                 git_root.joinpath(p) for p in paths_known_by_git
             ]
@@ -194,7 +187,7 @@ def _find_all_unknown_paths(
     """
     recursive_nodes = [
         _RecursivePathNode.from_path(path, known_paths, exclude)
-        for path in session.config["paths"]
+        for path in session.config.common.paths
     ]
     return list(
         itertools.chain.from_iterable(

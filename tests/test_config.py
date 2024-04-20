@@ -38,7 +38,7 @@ def test_pass_config_to_cli(tmp_path):
     session = build(config=tmp_path.joinpath("pyproject.toml"), paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
-    assert "elton" in session.config["markers"]
+    assert "elton" in session.config.markers.markers
 
 
 @pytest.mark.end_to_end()

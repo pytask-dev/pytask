@@ -5,7 +5,7 @@ To visualize the {term}`DAG` of the project, first, install
 [graphviz](https://graphviz.org/). For example, you can both install with conda
 
 ```console
-$ conda install -c conda-forge pygraphviz
+conda install -c conda-forge pygraphviz
 ```
 
 After that, pytask offers two interfaces to visualize your project's {term}`DAG`.
@@ -15,7 +15,7 @@ After that, pytask offers two interfaces to visualize your project's {term}`DAG`
 You can quickly create a visualization with this command.
 
 ```console
-$ pytask dag
+pytask dag
 ```
 
 It generates a `dag.pdf` in the current working directory.
@@ -26,7 +26,7 @@ file-ending. Select any format supported by
 [graphviz](https://graphviz.org/docs/outputs/).
 
 ```console
-$ pytask dag -o dag.png
+pytask dag -o dag.png
 ```
 
 You can change the graph's layout by using the {option}`pytask dag --layout` option. Its

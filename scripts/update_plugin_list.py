@@ -37,8 +37,8 @@ from textwrap import dedent
 from textwrap import indent
 from typing import Generator
 
+import httpx
 import packaging.version
-import requests
 import tabulate
 import wcwidth
 from tqdm import tqdm
@@ -87,7 +87,7 @@ def _escape_rst(text: str) -> str:
 def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
     """Iterate over all plugins and format entries."""
     regex = r">([\d\w-]*)</a>"
-    response = requests.get("https://pypi.org/simple", timeout=20)
+    response = httpx.get("https://pypi.org/simple", timeout=20)
 
     matches = [
         match
@@ -98,7 +98,7 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
 
     for match in tqdm(matches, smoothing=0):
         name = match.groups()[0]
-        response = requests.get(f"https://pypi.org/pypi/{name}/json", timeout=20)
+        response = httpx.get(f"https://pypi.org/pypi/{name}/json", timeout=20)
         if response.status_code == 404:  # noqa: PLR2004
             # Some packages might return a 404.
             continue

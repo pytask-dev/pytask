@@ -36,7 +36,7 @@ def pytask_collect_file(
 ) -> list[CollectionReport] | None:
     """Collect a file."""
     if (
-        any(path.match(pattern) for pattern in session.config["task_files"])
+        any(path.match(pattern) for pattern in session.config.common.task_files)
         and COLLECTED_TASKS[path]
     ):
         # Remove tasks from the global to avoid re-collection if programmatic interface

@@ -21,19 +21,19 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-  "attrs>=21.3",
-  "click",
-  "click-default-group",
-  "networkx>=2.4",
-  "optree>=0.9",
-  "packaging",
-  "pluggy>=1.3.0",
-  "rich",
-  "sqlalchemy>=2",
-  'tomli>=1; python_version < "3.11"',
-  "typed-settings[option-groups]",
-  'typing-extensions; python_version < "3.9"',
-  "universal-pathlib>=0.2.2",
+    "attrs>=21.3",
+    "click",
+    "click-default-group",
+    "networkx>=2.4",
+    "optree>=0.9",
+    "packaging",
+    "pluggy>=1.3.0",
+    "rich",
+    "sqlalchemy>=2",
+    'tomli>=1; python_version < "3.11"',
+    'typing-extensions; python_version < "3.9"',
+    "typed-settings[option-groups]",
+    "universal-pathlib>=0.2.2",
 ]
 
 [project.readme]
@@ -62,16 +62,16 @@ docs = [
   "sphinxext-opengraph",
 ]
 test = [
-  "deepdiff",
-  "nbmake",
-  "pexpect",
-  "pytest",
-  "pytest-cov",
-  "pytest-xdist",
-  "syrupy",
-  # For HTTPPath tests.
-  "aiohttp",
-  "requests",
+    "deepdiff",
+    "nbmake",
+    "pexpect",
+    "pytest",
+    "pytest-cov",
+    "pytest-xdist",
+    "syrupy",
+    # For HTTPPath tests.
+    "aiohttp",
+    "coiled",
 ]
 
 [project.urls]
@@ -90,32 +90,27 @@ build-backend = "hatchling.build"
 
 [tool.rye]
 managed = true
-dev-dependencies = []
-
-[tool.hatch.metadata]
-allow-direct-references = true
+dev-dependencies = [
+    "tox-uv>=1.7.0",
+    "mypy>=1.9.0",
+]
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/_pytask/_version.py"
 
+[tool.hatch.build.targets.sdist]
+exclude = ["tests"]
+only-packages = true
+
 [tool.hatch.build.targets.wheel]
-packages = ["src/pytask"]
+only-include = ["src"]
+sources = ["src"]
 
 [tool.hatch.version]
 source = "vcs"
 
-[tool.setuptools]
-include-package-data = true
-zip-safe = false
-platforms = ["unix", "linux", "osx", "win32"]
-license-files = ["LICENSE"]
-
-[tool.setuptools.package-dir]
-"" = "src"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-namespaces = false
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.setuptools_scm]
 version_file = "src/_pytask/_version.py"
@@ -142,7 +137,6 @@ ignore = [
     "SLF001",  # access private members.
     "TCH002",
 ]
-
 
 [tool.ruff.lint.per-file-ignores]
 "src/_pytask/_hashlib.py" = ["ALL"]
@@ -192,7 +186,6 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 plugins = ["typed_settings.mypy"]
 
-
 [[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_defs = false
@@ -206,14 +199,15 @@ ignore_missing_imports = true
 module = ["_pytask.hookspecs"]
 disable_error_code = ["empty-body"]
 
+[[tool.mypy.overrides]]
+module = ["_pytask.coiled_utils"]
+disable_error_code = ["import-untyped", "import-not-found"]
+
 [tool.codespell]
 skip = "*.js,*/termynal.css"
 
 [tool.refurb]
 python_version = "3.8"
-
-[tool.check-manifest]
-ignore = ["src/_pytask/_version.py"]
 
 [tool.coverage.report]
 exclude_also = [

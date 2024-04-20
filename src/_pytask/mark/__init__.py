@@ -66,7 +66,7 @@ def markers(**raw_config: Any) -> NoReturn:
     else:
         table = Table("Marker", "Description", leading=1)
 
-        for name, description in config["markers"].items():
+        for name, description in config.markers.markers.items():
             table.add_row(f"pytask.mark.{name}", description)
 
         console.print(table)
@@ -93,7 +93,7 @@ def pytask_parse_config(config: Settings) -> None:
 
 @hookimpl
 def pytask_post_parse(config: Settings) -> None:
-    config.markers.markers = parse_markers(config["markers"])
+    config.markers.markers = parse_markers(config.markers.markers)
 
 
 @define(slots=True)
@@ -134,7 +134,7 @@ class KeywordMatcher:
 
 def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str] | None:
     """Deselect tests by keywords."""
-    keywordexpr = session.config["expression"]
+    keywordexpr = session.config.markers.expression
     if not keywordexpr:
         return None
 
@@ -189,7 +189,7 @@ class MarkMatcher:
 
 def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str] | None:
     """Deselect tests by marks."""
-    matchexpr = session.config["marker_expression"]
+    matchexpr = session.config.markers.marker_expression
     if not matchexpr:
         return None
 

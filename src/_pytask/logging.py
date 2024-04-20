@@ -7,6 +7,7 @@ import platform
 import sys
 import warnings
 from typing import TYPE_CHECKING
+from typing import Any
 from typing import NamedTuple
 
 import pluggy
@@ -46,11 +47,6 @@ class _TimeUnit(NamedTuple):
 class Logging:
     """Settings for logging."""
 
-    show_capture: bool = ts.option(
-        default=False,
-        click={"param_decls": ["--show-capture"], "is_flag": True},
-        help="Show the captured output of tasks.",
-    )
     show_locals: bool = ts.option(
         default=False,
         click={"param_decls": ["--show-locals"], "is_flag": True},
@@ -84,11 +80,11 @@ def pytask_parse_config(config: Settings) -> None:
 @hookimpl
 def pytask_post_parse(config: Settings) -> None:
     # Set class variables on traceback object.
-    Traceback._show_locals = config["show_locals"]
+    Traceback._show_locals = config.logging.show_locals
     # Set class variables on Executionreport.
-    ExecutionReport.editor_url_scheme = config["editor_url_scheme"]
-    ExecutionReport.show_capture = config["show_capture"]
-    ExecutionReport.show_locals = config["show_locals"]
+    ExecutionReport.editor_url_scheme = config.common.editor_url_scheme
+    ExecutionReport.show_capture = config.capture.show_capture
+    ExecutionReport.show_locals = config.logging.show_locals
 
 
 @hookimpl
@@ -99,11 +95,11 @@ def pytask_log_session_header(session: Session) -> None:
         f"Platform: {sys.platform} -- Python {platform.python_version()}, "
         f"pytask {_pytask.__version__}, pluggy {pluggy.__version__}"
     )
-    console.print(f"Root: {session.config['root']}")
-    if session.config["config"] is not None:
-        console.print(f"Configuration: {session.config['config']}")
+    console.print(f"Root: {session.config.common.root}")
+    if session.config.common.config_file is not None:
+        console.print(f"Configuration: {session.config.common.config_file}")
 
-    plugin_info = session.config["pm"].list_plugin_distinfo()
+    plugin_info = session.config.common.pm.list_plugin_distinfo()
     if plugin_info:
         formatted_plugins_w_versions = ", ".join(
             _format_plugin_names_and_versions(plugin_info)
@@ -112,7 +108,7 @@ def pytask_log_session_header(session: Session) -> None:
 
 
 def _format_plugin_names_and_versions(
-    plugininfo: list[tuple[str, DistFacade]],
+    plugininfo: list[tuple[Any, DistFacade]],
 ) -> list[str]:
     """Format name and version of loaded plugins."""
     values: list[str] = []

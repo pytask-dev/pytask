@@ -42,7 +42,7 @@ if TYPE_CHECKING:
 
 
 @ts.settings
-class Base:
+class Collect:
     nodes: bool = ts.option(
         default=False,
         help="Show a task's dependencies and products.",
@@ -68,7 +68,7 @@ def collect(**raw_config: Any | None) -> NoReturn:
         session = Session.from_config(config)
 
     except (ConfigurationError, Exception):  # pragma: no cover
-        session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
+        session = Session(config=config, exit_code=ExitCode.CONFIGURATION_FAILED)
         console.print_exception()
 
     else:
@@ -81,14 +81,16 @@ def collect(**raw_config: Any | None) -> NoReturn:
             task_with_path = [t for t in tasks if isinstance(t, PTaskWithPath)]
 
             common_ancestor = _find_common_ancestor_of_all_nodes(
-                task_with_path, session.config["paths"], session.config["nodes"]
+                task_with_path,
+                session.config.common.paths,
+                session.config.collect.nodes,
             )
             dictionary = _organize_tasks(task_with_path)
             if dictionary:
                 _print_collected_tasks(
                     dictionary,
-                    session.config["nodes"],
-                    session.config["editor_url_scheme"],
+                    session.config.collect.nodes,
+                    session.config.common.editor_url_scheme,
                     common_ancestor,
                 )
 
@@ -121,7 +123,7 @@ def _select_tasks_by_expressions_and_marker(session: Session) -> list[PTask]:
 
 
 def _find_common_ancestor_of_all_nodes(
-    tasks: list[PTaskWithPath], paths: list[Path], show_nodes: bool
+    tasks: list[PTaskWithPath], paths: tuple[Path, ...], show_nodes: bool
 ) -> Path:
     """Find common ancestor from all nodes and passed paths."""
     all_paths = []

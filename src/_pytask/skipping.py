@@ -52,7 +52,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     is_unchanged = has_mark(task, "skip_unchanged") and not has_mark(
         task, "would_be_executed"
     )
-    if is_unchanged and not session.config["force"]:
+    if is_unchanged and not session.config.build.force:
         collect_provisional_products(session, task)
         raise SkippedUnchanged
 

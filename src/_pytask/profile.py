@@ -65,9 +65,9 @@ def pytask_extend_command_line_interface(
 @hookimpl
 def pytask_post_parse(config: Settings) -> None:
     """Register the export option."""
-    config["pm"].register(ExportNameSpace)
-    config["pm"].register(DurationNameSpace)
-    config["pm"].register(FileSizeNameSpace)
+    config.common.pm.register(ExportNameSpace)
+    config.common.pm.register(DurationNameSpace)
+    config.common.pm.register(FileSizeNameSpace)
 
 
 @hookimpl(wrapper=True)
@@ -156,7 +156,7 @@ def profile(**raw_config: Any) -> NoReturn:
 
 
 def _print_profile_table(
-    profile: dict[str, dict[str, Any]], tasks: list[PTask], config: dict[str, Any]
+    profile: dict[str, dict[str, Any]], tasks: list[PTask], config: Settings
 ) -> None:
     """Print the profile table."""
     name_to_task = {task.name: task for task in tasks}
@@ -171,7 +171,7 @@ def _print_profile_table(
         for task_name, info in profile.items():
             task_id = format_task_name(
                 task=name_to_task[task_name],
-                editor_url_scheme=config["editor_url_scheme"],
+                editor_url_scheme=config.common.editor_url_scheme,
             )
             infos = [str(i) for i in info.values()]
             table.add_row(task_id, *infos)
@@ -261,12 +261,12 @@ class ExportNameSpace:
         session: Session, profile: dict[str, dict[str, Any]]
     ) -> None:
         """Export profiles."""
-        export = session.config["export"]
+        export = session.config.profile.export
 
         if export == _ExportFormats.CSV:
-            _export_to_csv(profile, session.config["root"])
+            _export_to_csv(profile, session.config.common.root)
         elif export == _ExportFormats.JSON:
-            _export_to_json(profile, session.config["root"])
+            _export_to_json(profile, session.config.common.root)
         elif export == _ExportFormats.NO:
             pass
         else:  # pragma: no cover

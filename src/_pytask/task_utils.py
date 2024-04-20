@@ -12,10 +12,13 @@ from typing import Callable
 
 import attrs
 
+from _pytask.coiled_utils import Function
+from _pytask.coiled_utils import extract_coiled_function_kwargs
 from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
+from _pytask.shared import unwrap_task_function
 from _pytask.typing import is_task_function
 
 if TYPE_CHECKING:
@@ -116,7 +119,12 @@ def task(  # noqa: PLR0913
                 )
                 raise ValueError(msg)
 
-        unwrapped = inspect.unwrap(func)
+        unwrapped = unwrap_task_function(func)
+        if isinstance(unwrapped, Function):
+            coiled_kwargs = extract_coiled_function_kwargs(unwrapped)
+            unwrapped = unwrap_task_function(unwrapped.function)
+        else:
+            coiled_kwargs = None
 
         # We do not allow builtins as functions because we would need to use
         # ``inspect.stack`` to infer their caller location and they are unable to carry
@@ -144,7 +152,7 @@ def task(  # noqa: PLR0913
             unwrapped.pytask_meta.produces = produces
             unwrapped.pytask_meta.after = parsed_after
         else:
-            unwrapped.pytask_meta = CollectionMetadata(
+            unwrapped.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]
                 after=parsed_after,
                 is_generator=is_generator,
                 id_=id,
@@ -153,6 +161,9 @@ def task(  # noqa: PLR0913
                 name=parsed_name,
                 produces=produces,
             )
+
+        if coiled_kwargs and hasattr(unwrapped, "pytask_meta"):
+            unwrapped.pytask_meta.attributes["coiled_kwargs"] = coiled_kwargs
 
         # Store it in the global variable ``COLLECTED_TASKS`` to avoid garbage
         # collection when the function definition is overwritten in a loop.

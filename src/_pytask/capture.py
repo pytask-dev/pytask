@@ -46,10 +46,8 @@ from typing import final
 from typing_extensions import Self
 
 from _pytask.capture_utils import CaptureMethod
-from _pytask.capture_utils import ShowCapture
 from _pytask.pluginmanager import hookimpl
 from _pytask.settings import Capture
-from _pytask.shared import convert_to_enum
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -74,17 +72,15 @@ def pytask_parse_config(config: Settings) -> None:
     Note that, ``-s`` is a shortcut for ``--capture=no``.
 
     """
-    config["capture"] = convert_to_enum(config["capture"], CaptureMethod)
-    if config["s"]:
-        config["capture"] = CaptureMethod.NO
-    config["show_capture"] = convert_to_enum(config["show_capture"], ShowCapture)
+    if config.capture.s:
+        config.capture.capture = CaptureMethod.NO
 
 
 @hookimpl
 def pytask_post_parse(config: Settings) -> None:
     """Initialize the CaptureManager."""
-    pluginmanager = config["pm"]
-    capman = CaptureManager(config["capture"])
+    pluginmanager = config.common.pm
+    capman = CaptureManager(config.capture.capture)
     pluginmanager.register(capman, "capturemanager")
     capman.stop_capturing()
     capman.start_capturing()

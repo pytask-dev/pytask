@@ -1,4 +1,4 @@
-"""This module contains tests for tree_util and flexible dependencies and products."""
+"""Contains tests for tree_util and flexible dependencies and products."""
 
 from __future__ import annotations
 

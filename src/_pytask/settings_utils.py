@@ -44,7 +44,7 @@ class SettingsBuilder:
     arguments: list[Any] = field(factory=list)
 
     def build_settings(self) -> Any:
-        return ts.combine("Settings", Settings, self.option_groups)
+        return ts.combine("Settings", Settings, self.option_groups)  # type: ignore[arg-type]
 
     def build_command(self, loaders: list[Loader]) -> Any:
         settings = self.build_settings()
@@ -121,6 +121,7 @@ class TomlFormat:
             _ALREADY_PRINTED_DEPRECATION_MSG = True
             console.print(self.deprecated)
         settings["common.config_file"] = path
+        settings["common.root"] = path.parent
         settings = self._rewrite_paths_of_options(settings, options)
         return cast(SettingsDict, settings)
 

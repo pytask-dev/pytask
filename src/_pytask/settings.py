@@ -3,15 +3,12 @@ from __future__ import annotations
 from enum import Enum
 
 import typed_settings as ts
-from click import BadParameter
-from click import Context
-from sqlalchemy.engine import URL
-from sqlalchemy.engine import make_url
-from sqlalchemy.exc import ArgumentError
 
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
 from _pytask.click import EnumChoice
+
+__all__ = ["Build", "Capture", "Clean", "Markers", "Profile", "Settings"]
 
 
 @ts.settings
@@ -52,17 +49,24 @@ class Build:
     )
 
 
-class _ExportFormats(Enum):
-    NO = "no"
-    JSON = "json"
-    CSV = "csv"
-
-
 @ts.settings
-class Profile:
-    export: _ExportFormats = ts.option(
-        default=_ExportFormats.NO,
-        help="Export the profile in the specified format.",
+class Capture:
+    """Settings for capturing."""
+
+    capture: CaptureMethod = ts.option(
+        default=CaptureMethod.FD,
+        click={"param_decls": ["--capture"]},
+        help="Per task capturing method.",
+    )
+    s: bool = ts.option(
+        default=False,
+        click={"param_decls": ["-s"], "is_flag": True},
+        help="Shortcut for --capture=no.",
+    )
+    show_capture: ShowCapture = ts.option(
+        default=ShowCapture.ALL,
+        click={"param_decls": ["--show-capture"]},
+        help="Choose which captured output should be shown for failed tasks.",
     )
 
 
@@ -104,40 +108,6 @@ class Clean:
     )
 
 
-def _database_url_callback(
-    ctx: Context,  # noqa: ARG001
-    name: str,  # noqa: ARG001
-    value: str | None,
-) -> URL | None:
-    """Check the url for the database."""
-    # Since sqlalchemy v2.0.19, we need to shortcircuit here.
-    if value is None:
-        return None
-
-    try:
-        return make_url(value)
-    except ArgumentError:
-        msg = (
-            "The 'database_url' must conform to sqlalchemy's url standard: "
-            "https://docs.sqlalchemy.org/en/latest/core/engines.html#backend-specific-urls."
-        )
-        raise BadParameter(msg) from None
-
-
-@ts.settings
-class Database:
-    """Settings for the database."""
-
-    database_url: str = ts.option(
-        default=None,
-        help="Url to the database.",
-        click={
-            "show_default": "sqlite:///.../.pytask/pytask.sqlite3",
-            "callback": _database_url_callback,
-        },
-    )
-
-
 @ts.settings
 class Markers:
     """Settings for markers."""
@@ -163,26 +133,19 @@ class Markers:
     )
 
 
+class _ExportFormats(Enum):
+    NO = "no"
+    JSON = "json"
+    CSV = "csv"
+
+
+@ts.settings
+class Profile:
+    export: _ExportFormats = ts.option(
+        default=_ExportFormats.NO,
+        help="Export the profile in the specified format.",
+    )
+
+
 @ts.settings
 class Settings: ...
-
-
-@ts.settings
-class Capture:
-    """Settings for capturing."""
-
-    capture: CaptureMethod = ts.option(
-        default=CaptureMethod.FD,
-        click={"param_decls": ["--capture"]},
-        help="Per task capturing method.",
-    )
-    s: bool = ts.option(
-        default=False,
-        click={"param_decls": ["-s"], "is_flag": True},
-        help="Shortcut for --capture=no.",
-    )
-    show_capture: ShowCapture = ts.option(
-        default=ShowCapture.ALL,
-        click={"param_decls": ["--show-capture"]},
-        help="Choose which captured output should be shown for failed tasks.",
-    )

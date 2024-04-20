@@ -53,8 +53,8 @@ if TYPE_CHECKING:
 @hookimpl
 def pytask_post_parse(config: Settings) -> None:
     """Adjust the configuration after intermediate values have been parsed."""
-    if config["show_errors_immediately"]:
-        config["pm"].register(ShowErrorsImmediatelyPlugin)
+    if config.build.show_errors_immediately:
+        config.common.pm.register(ShowErrorsImmediatelyPlugin)
 
 
 @hookimpl
@@ -133,7 +133,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
 
     # Task generators are always executed since their states are not updated, but we
     # skip the checks as well.
-    needs_to_be_executed = session.config["force"] or is_task_generator(task)
+    needs_to_be_executed = session.config.build.force or is_task_generator(task)
 
     if not needs_to_be_executed:
         predecessors = set(dag.predecessors(task.signature)) | {task.signature}
@@ -187,7 +187,7 @@ def _safe_load(node: PNode | PProvisionalNode, task: PTask, *, is_product: bool)
 @hookimpl(trylast=True)
 def pytask_execute_task(session: Session, task: PTask) -> bool:
     """Execute task."""
-    if session.config["dry_run"]:
+    if session.config.build.dry_run:
         raise WouldBeExecuted
 
     parameters = inspect.signature(task.function).parameters
@@ -235,7 +235,7 @@ def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
     collect_provisional_products(session, task)
     missing_nodes = [node for node in tree_leaves(task.produces) if not node.state()]
     if missing_nodes:
-        paths = session.config["paths"]
+        paths = session.config.common.paths
         files = [format_node_name(i, paths).plain for i in missing_nodes]
         formatted = format_strings_as_flat_tree(
             files, "The task did not produce the following files:\n"
@@ -280,7 +280,7 @@ def pytask_execute_task_process_report(
             )
 
         session.n_tasks_failed += 1
-        if session.n_tasks_failed >= session.config["max_failures"]:
+        if session.n_tasks_failed >= session.config.build.max_failures:
             session.should_stop = True
 
         if report.exc_info and isinstance(report.exc_info[1], Exit):  # pragma: no cover
@@ -293,7 +293,7 @@ def pytask_execute_task_process_report(
 def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:
     """Log task outcome."""
     url_style = create_url_style_for_task(
-        report.task.function, session.config["editor_url_scheme"]
+        report.task.function, session.config.common.editor_url_scheme
     )
     console.print(
         report.outcome.symbol,
@@ -320,7 +320,7 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
 
     counts = count_outcomes(reports, TaskOutcome)
 
-    if session.config["show_traceback"]:
+    if session.config.build.show_traceback:
         console.print()
         if counts[TaskOutcome.FAIL]:
             console.rule(
@@ -332,7 +332,7 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
         for report in reports:
             if report.outcome == TaskOutcome.FAIL or (
                 report.outcome == TaskOutcome.SKIP_PREVIOUS_FAILED
-                and session.config["verbose"] >= 2  # noqa: PLR2004
+                and session.config.common.verbose >= 2  # noqa: PLR2004
             ):
                 console.print(report)
 

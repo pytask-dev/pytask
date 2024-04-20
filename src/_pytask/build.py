@@ -53,7 +53,7 @@ def pytask_extend_command_line_interface(
 def pytask_post_parse(config: Settings) -> None:
     """Fill cache of file hashes with stored hashes."""
     with suppress(Exception):
-        path = config["root"] / ".pytask" / "file_hashes.json"
+        path = config.common.cache / "file_hashes.json"
         cache = json.loads(path.read_text())
 
         for key, value in cache.items():
@@ -63,7 +63,7 @@ def pytask_post_parse(config: Settings) -> None:
 @hookimpl
 def pytask_unconfigure(session: Session) -> None:
     """Save calculated file hashes to file."""
-    path = session.config["root"] / ".pytask" / "file_hashes.json"
+    path = session.config.common.cache / "file_hashes.json"
     path.write_text(json.dumps(HashPathCache._cache))
 
 
@@ -71,7 +71,6 @@ def build(  # noqa: PLR0913
     *,
     capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.FD,
     check_casing_of_paths: bool = True,
-    database_url: str = "",
     debug_pytask: bool = False,
     disable_warnings: bool = False,
     dry_run: bool = False,
@@ -87,7 +86,7 @@ def build(  # noqa: PLR0913
     pdb: bool = False,
     pdb_cls: str = "",
     s: bool = False,
-    settings: Any = None,
+    settings: Settings | None = None,
     show_capture: Literal["no", "stdout", "stderr", "all"]
     | ShowCapture = ShowCapture.ALL,
     show_errors_immediately: bool = False,
@@ -114,8 +113,6 @@ def build(  # noqa: PLR0913
         The capture method for stdout and stderr.
     check_casing_of_paths
         Whether errors should be raised when file names have different casings.
-    database_url
-        An URL to the database that tracks the status of tasks.
     debug_pytask
         Whether debug information should be shown.
     disable_warnings
@@ -185,7 +182,6 @@ def build(  # noqa: PLR0913
         updates = {
             "capture": capture,
             "check_casing_of_paths": check_casing_of_paths,
-            "database_url": database_url,
             "debug_pytask": debug_pytask,
             "disable_warnings": disable_warnings,
             "dry_run": dry_run,
@@ -207,7 +203,6 @@ def build(  # noqa: PLR0913
             "sort_table": sort_table,
             "stop_after_first_failure": stop_after_first_failure,
             "strict_markers": strict_markers,
-            "tasks": tasks,
             "task_files": task_files,
             "trace": trace,
             "verbose": verbose,
@@ -217,7 +212,6 @@ def build(  # noqa: PLR0913
         if settings is None:
             from _pytask.cli import settings_builders
 
-            # Create plugin manager.
             pm = get_plugin_manager()
             storage.store(pm)
 
@@ -230,6 +224,7 @@ def build(  # noqa: PLR0913
         settings = update_settings(settings, updates)
         config_ = pm.hook.pytask_configure(pm=pm, config=settings)
         session = Session.from_config(config_)
+        session.attrs["tasks"] = tasks
 
     except (ConfigurationError, Exception):
         console.print(Traceback(sys.exc_info()))

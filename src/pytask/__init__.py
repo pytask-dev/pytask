@@ -26,7 +26,8 @@ from _pytask.database_utils import create_database
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
-from _pytask.exceptions import NodeNotCollectedError, NodeLoadError
+from _pytask.exceptions import NodeNotCollectedError
+from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import PytaskError
 from _pytask.exceptions import ResolvingDependenciesError

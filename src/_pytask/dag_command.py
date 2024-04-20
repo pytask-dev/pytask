@@ -5,7 +5,10 @@ from __future__ import annotations
 import enum
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
+from typing import Callable
+from typing import Iterable
 
 import click
 import networkx as nx
@@ -15,8 +18,6 @@ from rich.text import Text
 from _pytask.click import EnumChoice
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
-from _pytask.config_utils import find_project_root_and_config
-from _pytask.config_utils import read_config
 from _pytask.console import console
 from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
@@ -28,10 +29,14 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.settings_utils import SettingsBuilder
-from _pytask.shared import parse_paths
+from _pytask.settings_utils import create_settings_loaders
+from _pytask.settings_utils import update_settings
 from _pytask.shared import reduce_names_of_multiple_nodes
-from _pytask.shared import to_list
 from _pytask.traceback import Traceback
+
+if TYPE_CHECKING:
+    from _pytask.node_protocols import PTask
+    from _pytask.settings import Settings
 
 
 class _RankDirection(enum.Enum):
@@ -42,7 +47,7 @@ class _RankDirection(enum.Enum):
 
 
 @ts.settings
-class Base:
+class Dag:
     layout: str = ts.option(
         default="dot",
         help="The layout determines the structure of the graph. Here you find an "
@@ -92,14 +97,14 @@ def dag(**raw_config: Any) -> int:
             session.hook.pytask_log_session_header(session=session)
             import_optional_dependency("pygraphviz")
             check_for_optional_program(
-                session.config["layout"],
+                session.config.dag.layout,
                 extra="The layout program is part of the graphviz package which you "
                 "can install with conda.",
             )
             session.hook.pytask_collect(session=session)
             session.dag = create_dag(session=session)
             dag = _refine_dag(session)
-            _write_graph(dag, session.config["output_path"], session.config["layout"])
+            _write_graph(dag, session.config.dag.output_path, session.config.dag.layout)
 
         except CollectionError:  # pragma: no cover
             session.exit_code = ExitCode.COLLECTION_FAILED
@@ -117,7 +122,13 @@ def dag(**raw_config: Any) -> int:
     sys.exit(session.exit_code)
 
 
-def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
+def build_dag(
+    paths: Path | tuple[Path, ...] = (),
+    tasks: Callable[..., Any] | PTask | Iterable[Callable[..., Any] | PTask] = (),
+    task_files: Iterable[str] = ("task_*.py",),
+    settings: Settings | None = None,
+    **kwargs: Any,
+) -> nx.DiGraph:
     """Build the DAG.
 
     This function is the programmatic interface to ``pytask dag`` and returns a
@@ -127,12 +138,6 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
     To change the style of the graph, it might be easier to convert the graph back to
     networkx, set attributes, and convert back to pygraphviz.
 
-    Parameters
-    ----------
-    raw_config : Dict[str, Any]
-        The configuration usually received from the CLI. For example, use ``{"paths":
-        "example-directory/"}`` to collect tasks from a directory.
-
     Returns
     -------
     pygraphviz.AGraph
@@ -140,40 +145,28 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
 
     """
     try:
-        pm = get_plugin_manager()
-        storage.store(pm)
+        updates = {
+            "paths": paths,
+            "tasks": tasks,
+            "task_files": task_files,
+            **kwargs,
+        }
 
-        # If someone called the programmatic interface, we need to do some parsing.
-        if "command" not in raw_config:
-            raw_config["command"] = "dag"
+        if settings is None:
+            from _pytask.cli import settings_builders
 
-            raw_config["paths"] = parse_paths(raw_config["paths"])
+            pm = get_plugin_manager()
+            storage.store(pm)
 
-            if raw_config["config"] is not None:
-                raw_config["config"] = Path(raw_config["config"]).resolve()
-                raw_config["root"] = raw_config["config"].parent
-            else:
-                (
-                    raw_config["root"],
-                    raw_config["config"],
-                ) = find_project_root_and_config(raw_config["paths"])
+            settings = ts.load_settings(
+                settings_builders["dag"].build_settings(), create_settings_loaders()
+            )
+        else:
+            pm = storage.get()
 
-            if raw_config["config"] is not None:
-                config_from_file = read_config(raw_config["config"])
-
-                if "paths" in config_from_file:
-                    paths = config_from_file["paths"]
-                    paths = [
-                        raw_config["config"].parent.joinpath(path).resolve()
-                        for path in to_list(paths)
-                    ]
-                    config_from_file["paths"] = paths
-
-                raw_config = {**raw_config, **config_from_file}
-
-        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
-
-        session = Session.from_config(config)
+        settings = update_settings(settings, updates)
+        config_ = pm.hook.pytask_configure(pm=pm, config=settings)
+        session = Session.from_config(config_)
 
     except (ConfigurationError, Exception):  # pragma: no cover
         console.print_exception()
@@ -183,7 +176,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
         session.hook.pytask_log_session_header(session=session)
         import_optional_dependency("pygraphviz")
         check_for_optional_program(
-            session.config["layout"],
+            session.config.dag.layout,
             extra="The layout program is part of the graphviz package that you "
             "can install with conda.",
         )
@@ -195,15 +188,15 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
 
 def _refine_dag(session: Session) -> nx.DiGraph:
     """Refine the dag for plotting."""
-    dag = _shorten_node_labels(session.dag, session.config["paths"])
+    dag = _shorten_node_labels(session.dag, session.config.common.paths)
     dag = _clean_dag(dag)
     dag = _style_dag(dag)
-    dag.graph["graph"] = {"rankdir": session.config["rank_direction"].name}
+    dag.graph["graph"] = {"rankdir": session.config.dag.rank_direction.name}
 
     return dag
 
 
-def _shorten_node_labels(dag: nx.DiGraph, paths: list[Path]) -> nx.DiGraph:
+def _shorten_node_labels(dag: nx.DiGraph, paths: tuple[Path, ...]) -> nx.DiGraph:
     """Shorten the node labels in the graph for a better experience."""
     node_names = dag.nodes
     short_names = reduce_names_of_multiple_nodes(node_names, dag, paths)
