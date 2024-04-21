@@ -15,7 +15,6 @@ import typed_settings as ts
 
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
-from _pytask.config_utils import consolidate_settings_and_arguments
 from _pytask.console import console
 from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
@@ -24,12 +23,9 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
 from _pytask.path import HashPathCache
-from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
-from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.settings_utils import SettingsBuilder
-from _pytask.settings_utils import create_settings_loaders
 from _pytask.settings_utils import update_settings
 from _pytask.traceback import Traceback
 
@@ -41,12 +37,49 @@ if TYPE_CHECKING:
     from _pytask.settings import Settings
 
 
+@ts.settings
+class Build:
+    stop_after_first_failure: bool = ts.option(
+        default=False,
+        click={"param_decls": ("-x", "--stop-after-first-failure"), "is_flag": True},
+        help="Stop after the first failure.",
+    )
+    max_failures: float = ts.option(
+        default=float("inf"),
+        click={"param_decls": ("--max-failures",)},
+        help="Stop after some failures.",
+    )
+    show_errors_immediately: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--show-errors-immediately",), "is_flag": True},
+        help="Show errors with tracebacks as soon as the task fails.",
+    )
+    show_traceback: bool = ts.option(
+        default=True,
+        click={"param_decls": ("--show-traceback", "--show-no-traceback")},
+        help="Choose whether tracebacks should be displayed or not.",
+    )
+    dry_run: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--dry-run",), "is_flag": True},
+        help="Perform a dry-run.",
+    )
+    force: bool = ts.option(
+        default=False,
+        click={"param_decls": ("-f", "--force"), "is_flag": True},
+        help="Execute a task even if it succeeded successfully before.",
+    )
+    check_casing_of_paths: bool = ts.option(
+        default=True,
+        click={"param_decls": ("--check-casing-of-paths",), "hidden": True},
+    )
+
+
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(
-    settings_builders: dict[str, SettingsBuilder],
-) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Extend the command line interface."""
-    settings_builders["build"] = SettingsBuilder(name="build", function=build_command)
+    settings_builder.commands["build"] = build_command
+    settings_builder.option_groups["build"] = Build()
 
 
 @hookimpl
@@ -86,7 +119,6 @@ def build(  # noqa: PLR0913
     pdb: bool = False,
     pdb_cls: str = "",
     s: bool = False,
-    settings: Settings | None = None,
     show_capture: Literal["no", "stdout", "stderr", "all"]
     | ShowCapture = ShowCapture.ALL,
     show_errors_immediately: bool = False,
@@ -146,8 +178,6 @@ def build(  # noqa: PLR0913
         ``--pdbcls=IPython.terminal.debugger:TerminalPdb``
     s
         Shortcut for ``capture="no"``.
-    settings
-        The settings object that contains the configuration.
     show_capture
         Choose which captured output should be shown for failed tasks.
     show_errors_immediately
@@ -203,27 +233,46 @@ def build(  # noqa: PLR0913
             "sort_table": sort_table,
             "stop_after_first_failure": stop_after_first_failure,
             "strict_markers": strict_markers,
+            "tasks": tasks,
             "task_files": task_files,
             "trace": trace,
             "verbose": verbose,
             **kwargs,
         }
 
-        if settings is None:
-            from _pytask.cli import settings_builders
+        from _pytask.cli import settings_builder
 
-            pm = get_plugin_manager()
-            storage.store(pm)
+        settings = settings_builder.load_settings(kwargs=updates)
+    except (ConfigurationError, Exception):
+        console.print(Traceback(sys.exc_info()))
+        session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
+    else:
+        session = _internal_build(settings=settings, tasks=tasks)
+    return session
 
-            settings = ts.load_settings(
-                settings_builders["build"].build_settings(), create_settings_loaders()
-            )
-        else:
-            pm = storage.get()
 
-        settings = update_settings(settings, updates)
-        config_ = pm.hook.pytask_configure(pm=pm, config=settings)
-        session = Session.from_config(config_)
+def build_command(settings: Any, **arguments: Any) -> NoReturn:
+    """Collect tasks, execute them and report the results.
+
+    The default command. pytask collects tasks from the given paths or the
+    current working directory, executes them and reports the results.
+
+    """
+    settings = update_settings(settings, arguments)
+    session = _internal_build(settings=settings)
+    sys.exit(session.exit_code)
+
+
+def _internal_build(
+    settings: Settings,
+    tasks: Callable[..., Any] | PTask | Iterable[Callable[..., Any] | PTask] = (),
+) -> Session:
+    """Run pytask internally."""
+    try:
+        config = settings.common.pm.hook.pytask_configure(
+            pm=settings.common.pm, config=settings
+        )
+        session = Session(config=config, hook=config.common.pm.hook)
         session.attrs["tasks"] = tasks
 
     except (ConfigurationError, Exception):
@@ -252,15 +301,3 @@ def build(  # noqa: PLR0913
 
         session.hook.pytask_unconfigure(session=session)
     return session
-
-
-def build_command(settings: Any, **arguments: Any) -> NoReturn:
-    """Collect tasks, execute them and report the results.
-
-    The default command. pytask collects tasks from the given paths or the
-    current working directory, executes them and reports the results.
-
-    """
-    settings = consolidate_settings_and_arguments(settings, arguments)
-    session = build(settings=settings)
-    sys.exit(session.exit_code)

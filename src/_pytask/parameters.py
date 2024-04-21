@@ -153,11 +153,18 @@ class Common:
     )
 
     def __attrs_post_init__(self) -> None:
-        self.root = (
-            self.config_file.parent
-            if self.config_file
-            else Path(os.path.commonpath(self.paths))
-        )
+        # Set self.root.
+        if self.config_file:
+            self.root = self.config_file.parent
+        elif self.paths:
+            candidate = Path(os.path.commonpath(self.paths))
+            if candidate.is_dir():
+                self.root = candidate
+            else:
+                self.root = candidate.parent
+        else:
+            self.root = Path.cwd()
+
         self.cache = self.root / ".pytask"
 
 
@@ -170,10 +177,7 @@ _PATH_ARGUMENT = click.Argument(
 
 
 @hookimpl(trylast=True)
-def pytask_extend_command_line_interface(
-    settings_builders: dict[str, SettingsBuilder],
-) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Register general markers."""
-    for settings_builder in settings_builders.values():
-        settings_builder.arguments.append(_PATH_ARGUMENT)
-        settings_builder.option_groups["common"] = Common()
+    settings_builder.option_groups["common"] = Common()
+    settings_builder.arguments.append(_PATH_ARGUMENT)

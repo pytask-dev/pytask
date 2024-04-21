@@ -55,6 +55,7 @@ from _pytask.typing import is_task_function
 if TYPE_CHECKING:
     from _pytask.models import NodeInfo
     from _pytask.session import Session
+    from _pytask.settings import Settings
 
 
 @hookimpl
@@ -104,7 +105,7 @@ def _collect_from_paths(session: Session) -> None:
 
 def _collect_from_tasks(session: Session) -> None:
     """Collect tasks from user provided tasks via the functional interface."""
-    for raw_task in session.attrs["tasks"]:
+    for raw_task in session.attrs.get("tasks", []):
         if is_task_function(raw_task):
             if not hasattr(raw_task, "pytask_meta"):
                 raw_task = task_decorator()(raw_task)  # noqa: PLW2901
@@ -173,9 +174,9 @@ def _collect_not_collected_tasks(session: Session) -> None:
 
 
 @hookimpl
-def pytask_ignore_collect(path: Path, config: dict[str, Any]) -> bool:
+def pytask_ignore_collect(path: Path, config: Settings) -> bool:
     """Ignore a path during the collection."""
-    return any(path.match(pattern) for pattern in config["ignore"])
+    return any(path.match(pattern) for pattern in config.common.ignore)
 
 
 @hookimpl

@@ -7,10 +7,10 @@ from typing import Any
 import click
 from packaging.version import parse as parse_version
 
+from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
 from _pytask.pluginmanager import storage
 from _pytask.settings_utils import SettingsBuilder
-from _pytask.settings_utils import create_settings_loaders
 
 _CONTEXT_SETTINGS: dict[str, Any] = {
     "help_option_names": ("-h", "--help"),
@@ -24,14 +24,18 @@ else:  # pragma: no cover
     _VERSION_OPTION_KWARGS = {}
 
 
-def _extend_command_line_interface() -> dict[str, SettingsBuilder]:
+def _extend_command_line_interface() -> SettingsBuilder:
     """Add parameters from plugins to the commandline interface."""
     pm = storage.create()
-    settings_builders: dict[str, SettingsBuilder] = {}
+    settings_builder = SettingsBuilder()
     pm.hook.pytask_extend_command_line_interface.call_historic(
-        kwargs={"settings_builders": settings_builders}
+        kwargs={"settings_builder": settings_builder}
     )
-    return settings_builders
+    return settings_builder
+
+
+settings_builder = _extend_command_line_interface()
+decorator = settings_builder.build_decorator()
 
 
 @click.group(
@@ -45,9 +49,7 @@ def cli() -> None:
     """Manage your tasks with pytask."""
 
 
-settings_builders = _extend_command_line_interface()
-settings_loaders = create_settings_loaders()
-
-for settings_builder in settings_builders.values():
-    command = settings_builder.build_command(settings_loaders)
+for name, func in settings_builder.commands.items():
+    command = click.command(name=name, cls=ColoredCommand)(decorator(func))
+    command.params.extend(settings_builder.arguments)
     cli.add_command(command)

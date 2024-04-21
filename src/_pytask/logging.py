@@ -55,10 +55,8 @@ class Logging:
 
 
 @hookimpl
-def pytask_extend_command_line_interface(
-    settings_builders: dict[str, SettingsBuilder],
-) -> None:
-    settings_builders["build"].option_groups["logging"] = Logging()
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
+    settings_builder.option_groups["logging"] = Logging()
 
 
 @hookimpl

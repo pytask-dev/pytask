@@ -31,14 +31,16 @@ from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import hookimpl
-from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from _pytask.settings_utils import SettingsBuilder
+from _pytask.settings_utils import update_settings
 from _pytask.tree_util import tree_leaves
 
 if TYPE_CHECKING:
     from pathlib import Path
     from typing import NoReturn
+
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
 
 
 @ts.settings
@@ -46,26 +48,25 @@ class Collect:
     nodes: bool = ts.option(
         default=False,
         help="Show a task's dependencies and products.",
-        click={"is_flag": True},
+        click={"is_flag": True, "param_decls": ["--nodes"]},
     )
 
 
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(
-    settings_builders: dict[str, SettingsBuilder],
-) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Extend the command line interface."""
-    settings_builders["collect"] = SettingsBuilder(name="collect", function=collect)
+    settings_builder.commands["collect"] = collect
+    settings_builder.option_groups["collect"] = Collect()
 
 
-def collect(**raw_config: Any | None) -> NoReturn:
+def collect(settings: Settings, **arguments: Any) -> NoReturn:
     """Collect tasks and report information about them."""
-    pm = storage.get()
-    raw_config["command"] = "collect"
+    settings = update_settings(settings, arguments)
+    pm = settings.common.pm
 
     try:
-        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
-        session = Session.from_config(config)
+        config = pm.hook.pytask_configure(pm=pm, config=settings)
+        session = Session(config=config, hook=config.common.pm.hook)
 
     except (ConfigurationError, Exception):  # pragma: no cover
         session = Session(config=config, exit_code=ExitCode.CONFIGURATION_FAILED)

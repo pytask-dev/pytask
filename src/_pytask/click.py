@@ -11,7 +11,6 @@ from typing import Any
 from typing import ClassVar
 
 import click
-from click import Choice
 from click import Command
 from click import Context
 from click import Parameter
@@ -29,37 +28,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
-__all__ = ["ColoredCommand", "ColoredGroup", "EnumChoice"]
-
-
-class EnumChoice(Choice):
-    """An enum-based choice type.
-
-    The implementation is copied from https://github.com/pallets/click/pull/2210 and
-    related discussion can be found in https://github.com/pallets/click/issues/605.
-
-    In contrast to using :class:`click.Choice`, using this type ensures that the error
-    message does not show the enum members.
-
-    In contrast to the proposed implementation in the PR, this implementation does not
-    use the members than rather the values of the enum.
-
-    """
-
-    def __init__(self, enum_type: type[Enum], case_sensitive: bool = True) -> None:
-        super().__init__(
-            choices=[element.value for element in enum_type],
-            case_sensitive=case_sensitive,
-        )
-        self.enum_type = enum_type
-
-    def convert(self, value: Any, param: Parameter | None, ctx: Context | None) -> Any:
-        if isinstance(value, Enum):
-            value = value.value
-        value = super().convert(value=value, param=param, ctx=ctx)
-        if value is None:
-            return None
-        return self.enum_type(value)
+__all__ = ["ColoredCommand", "ColoredGroup"]
 
 
 class _OptionHighlighter(RegexHighlighter):

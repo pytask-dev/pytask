@@ -10,7 +10,6 @@ pytask offers the following functionalities.
 ```{eval-rst}
 .. autoclass:: pytask.ColoredCommand
 .. autoclass:: pytask.ColoredGroup
-.. autoclass:: pytask.EnumChoice
 ```
 
 ## Compatibility

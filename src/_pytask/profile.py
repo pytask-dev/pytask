@@ -7,17 +7,16 @@ import json
 import sys
 import time
 from contextlib import suppress
+from enum import Enum
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
 
-import click
+import typed_settings as ts
 from rich.table import Table
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
-from _pytask.click import ColoredCommand
-from _pytask.click import EnumChoice
 from _pytask.console import console
 from _pytask.console import format_task_name
 from _pytask.dag import create_dag
@@ -30,10 +29,8 @@ from _pytask.node_protocols import PTask
 from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
-from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from _pytask.settings import _ExportFormats
-from _pytask.settings_utils import SettingsBuilder
+from _pytask.settings_utils import update_settings
 from _pytask.traceback import Traceback
 
 if TYPE_CHECKING:
@@ -42,6 +39,21 @@ if TYPE_CHECKING:
 
     from _pytask.reports import ExecutionReport
     from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
+
+
+class _ExportFormats(Enum):
+    NO = "no"
+    JSON = "json"
+    CSV = "csv"
+
+
+@ts.settings
+class Profile:
+    export: _ExportFormats = ts.option(
+        default=_ExportFormats.NO,
+        help="Export the profile in the specified format.",
+    )
 
 
 class Runtime(BaseTable):
@@ -55,11 +67,10 @@ class Runtime(BaseTable):
 
 
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(
-    settings_builders: dict[str, SettingsBuilder],
-) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Extend the command line interface."""
-    settings_builders["profile"] = SettingsBuilder(name="profile", function=profile)
+    settings_builder.commands["profile"] = profile_command
+    settings_builder.option_groups["profile"] = Profile()
 
 
 @hookimpl
@@ -103,21 +114,14 @@ def _create_or_update_runtime(task_signature: str, start: float, end: float) -> 
         session.commit()
 
 
-@click.command(cls=ColoredCommand)
-@click.option(
-    "--export",
-    type=EnumChoice(_ExportFormats),
-    default=_ExportFormats.NO,
-    help="Export the profile in the specified format.",
-)
-def profile(**raw_config: Any) -> NoReturn:
+def profile_command(settings: Settings, **arguments: Any) -> NoReturn:
     """Show information about tasks like runtime and memory consumption of products."""
-    pm = storage.get()
-    raw_config["command"] = "profile"
+    settings = update_settings(settings, arguments)
+    pm = settings.common.pm
 
     try:
-        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
-        session = Session.from_config(config)
+        config = pm.hook.pytask_configure(pm=pm, config=settings)
+        session = Session(config=config, hook=config.common.pm.hook)
 
     except (ConfigurationError, Exception):  # pragma: no cover
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)

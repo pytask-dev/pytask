@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from enum import Enum
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
@@ -11,14 +12,16 @@ import click
 import typed_settings as ts
 from attrs import define
 from attrs import field
+from pluggy import PluginManager
 from typed_settings.cli_click import OptionGroupFactory
 from typed_settings.exceptions import ConfigFileLoadError
 from typed_settings.exceptions import ConfigFileNotFoundError
+from typed_settings.types import LoadedSettings
+from typed_settings.types import LoaderMeta
 from typed_settings.types import OptionList
 from typed_settings.types import SettingsClass
 from typed_settings.types import SettingsDict
 
-from _pytask.click import ColoredCommand
 from _pytask.console import console
 from _pytask.settings import Settings
 
@@ -36,24 +39,46 @@ else:
 __all__ = ["SettingsBuilder", "TomlFormat"]
 
 
+def _handle_enum(type: type[Enum], default: Any, is_optional: bool) -> dict[str, Any]:  # noqa: A002
+    """Use enum values as choices for click options."""
+    kwargs = {"type": click.Choice([i.value for i in type])}
+    if isinstance(default, type):
+        kwargs["default"] = default.value
+    elif is_optional:
+        kwargs["default"] = None
+    return kwargs
+
+
 @define
 class SettingsBuilder:
-    name: str
-    function: Callable[..., Any]
+    commands: dict[str, Callable[..., Any]] = field(factory=dict)
     option_groups: dict[str, Any] = field(factory=dict)
     arguments: list[Any] = field(factory=list)
 
     def build_settings(self) -> Any:
         return ts.combine("Settings", Settings, self.option_groups)  # type: ignore[arg-type]
 
-    def build_command(self, loaders: list[Loader]) -> Any:
+    def load_settings(self, kwargs: dict[str, Any]) -> Any:
         settings = self.build_settings()
-        command = ts.click_options(
-            settings, loaders, decorator_factory=OptionGroupFactory()
-        )(self.function)
-        command = click.command(name=self.name, cls=ColoredCommand)(command)
-        command.params.extend(self.arguments)
-        return command
+        return ts.load_settings(
+            settings,
+            create_settings_loaders(kwargs=kwargs),
+            converter=create_converter(),
+        )
+
+    def build_decorator(self) -> Any:
+        settings = self.build_settings()
+
+        type_dict = {**ts.cli_click.DEFAULT_TYPES, Enum: _handle_enum}
+        type_handler = ts.cli_click.ClickHandler(type_dict)
+
+        return ts.click_options(
+            settings,
+            create_settings_loaders(),
+            converter=create_converter(),
+            decorator_factory=OptionGroupFactory(),
+            type_args_maker=ts.cli_utils.TypeArgsMaker(type_handler),
+        )
 
 
 _ALREADY_PRINTED_DEPRECATION_MSG: bool = False
@@ -122,34 +147,51 @@ class TomlFormat:
             console.print(self.deprecated)
         settings["common.config_file"] = path
         settings["common.root"] = path.parent
-        settings = self._rewrite_paths_of_options(settings, options)
+        settings = _rewrite_paths_of_options(settings, options)
         return cast(SettingsDict, settings)
 
-    def _rewrite_paths_of_options(
-        self, settings: SettingsDict, options: OptionList
-    ) -> SettingsDict:
-        """Rewrite paths of options in the settings."""
-        option_paths = {option.path for option in options}
-        for name in list(settings):
-            if name in option_paths:
-                continue
 
-            for option_path in option_paths:
-                if name in option_path:
-                    settings[option_path] = settings.pop(name)
-                    break
+class DictLoader:
+    """Load settings from a dict of values."""
 
-        return settings
+    def __init__(self, settings: dict) -> None:
+        self.settings = settings
+
+    def __call__(
+        self,
+        settings_cls: SettingsClass,  # noqa: ARG002
+        options: OptionList,
+    ) -> LoadedSettings:
+        settings = _rewrite_paths_of_options(self.settings, options)
+        nested_settings = {name.split(".")[0]: {} for name in settings}
+        for long_name, value in settings.items():
+            group, name = long_name.split(".")
+            nested_settings[group][name] = value
+        return LoadedSettings(nested_settings, LoaderMeta(self))
 
 
-def load_settings(settings_cls: Any) -> Any:
+def load_settings(settings_cls: Any, kwargs: dict[str, Any] | None = None) -> Any:
     """Load the settings."""
-    loaders = create_settings_loaders()
-    return ts.load_settings(settings_cls, loaders)
+    loaders = create_settings_loaders(kwargs=kwargs)
+    converter = create_converter()
+    return ts.load_settings(settings_cls, loaders, converter=converter)
 
 
-def create_settings_loaders() -> list[Loader]:
+def create_converter() -> ts.Converter:
+    """Create the converter."""
+    converter = ts.converters.get_default_ts_converter()
+    converter.scalar_converters[Enum] = (
+        lambda val, cls: val if isinstance(val, cls) else cls(val)
+    )
+    converter.scalar_converters[PluginManager] = (
+        lambda val, cls: val if isinstance(val, cls) else cls(**val)
+    )
+    return converter
+
+
+def create_settings_loaders(kwargs: dict[str, Any] | None = None) -> list[Loader]:
     """Create the loaders for the settings."""
+    kwargs_ = kwargs or {}
     return [
         ts.FileLoader(
             files=[ts.find("pyproject.toml")],
@@ -173,6 +215,7 @@ def create_settings_loaders() -> list[Loader]:
             },
         ),
         ts.EnvLoader(prefix="PYTASK_", nested_delimiter="_"),
+        DictLoader(kwargs_),
     ]
 
 
@@ -180,14 +223,34 @@ def update_settings(settings: Any, updates: dict[str, Any]) -> Any:
     """Update the settings recursively with some updates."""
     names = [i for i in dir(settings) if not i.startswith("_")]
     for name in names:
+        if attrs.has(getattr(settings, name)):
+            update_settings(getattr(settings, name), updates)
+            continue
+
         if name in updates:
             value = updates[name]
             if value in ((), []):
                 continue
-
             setattr(settings, name, updates[name])
-
-        if attrs.has(getattr(settings, name)):
-            update_settings(getattr(settings, name), updates)
-
     return settings
+
+
+def convert_settings_to_kwargs(settings: Settings) -> dict[str, Any]:
+    """Convert the settings to kwargs."""
+    kwargs = {}
+    names = [i for i in dir(settings) if not i.startswith("_")]
+    for name in names:
+        kwargs = kwargs | attrs.asdict(getattr(settings, name))
+    return kwargs
+
+
+def _rewrite_paths_of_options(
+    settings: SettingsDict, options: OptionList
+) -> SettingsDict:
+    """Rewrite paths of options in the settings."""
+    option_name_to_path = {option.path.split(".")[1]: option.path for option in options}
+    return {
+        option_name_to_path[name]: value
+        for name, value in settings.items()
+        if name in option_name_to_path
+    }

@@ -44,11 +44,9 @@ class Warnings:
 
 
 @hookimpl
-def pytask_extend_command_line_interface(
-    settings_builders: dict[str, SettingsBuilder],
-) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Extend the cli."""
-    settings_builders["build"].option_groups["warnings"] = Warnings()
+    settings_builder.option_groups["warnings"] = Warnings()
 
 
 @hookimpl

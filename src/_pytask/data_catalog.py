@@ -10,7 +10,7 @@ import hashlib
 import inspect
 import pickle
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 from attrs import define
 from attrs import field
@@ -24,6 +24,9 @@ from _pytask.node_protocols import PProvisionalNode
 from _pytask.nodes import PickleNode
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
+
+if TYPE_CHECKING:
+    from _pytask.settings import Settings
 
 __all__ = ["DataCatalog"]
 
@@ -63,7 +66,7 @@ class DataCatalog:
     entries: dict[str, PNode | PProvisionalNode] = field(factory=dict)
     name: str = "default"
     path: Path | None = None
-    _session_config: dict[str, Any] = field(
+    _session_config: Settings = field(
         factory=lambda *x: {"check_casing_of_paths": True}  # noqa: ARG005
     )
     _instance_path: Path = field(factory=_get_parent_path_of_data_catalog_module)

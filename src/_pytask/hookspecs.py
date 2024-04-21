@@ -50,9 +50,7 @@ def pytask_add_hooks(pm: PluginManager) -> None:
 
 
 @hookspec(historic=True)
-def pytask_extend_command_line_interface(
-    settings_builders: dict[str, SettingsBuilder],
-) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Extend the command line interface.
 
     The hook can be used to extend the command line interface either by providing new
@@ -120,7 +118,7 @@ def pytask_collect(session: Session) -> Any:
 
 
 @hookspec(firstresult=True)
-def pytask_ignore_collect(path: Path, config: dict[str, Any]) -> bool:
+def pytask_ignore_collect(path: Path, config: Settings) -> bool:
     """Ignore collected path.
 
     This hook is indicates for each directory and file whether it should be ignored.

@@ -36,17 +36,16 @@ def _pdbcls_callback(
     ctx: click.Context,  # noqa: ARG001
     name: str,  # noqa: ARG001
     value: str | None,
-) -> tuple[str, ...]:
+) -> tuple[str, str] | None:
     """Validate the debugger class string passed to pdbcls."""
     message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
-
     if value is None:
-        return ()
+        return None
     if isinstance(value, str):
         split = value.split(":")
         if len(split) != 2:  # noqa: PLR2004
             raise click.BadParameter(message)
-        return tuple(split)
+        return (split[0], split[1])
     raise click.BadParameter(message)
 
 
@@ -57,8 +56,8 @@ class Debugging:
         click={"param_decls": ("--pdb",)},
         help="Start the interactive debugger on errors.",
     )
-    pdbcls: tuple[str, ...] = ts.option(
-        default=(),
+    pdbcls: tuple[str, str] | None = ts.option(
+        default=None,
         click={
             "param_decls": ("--pdb-cls",),
             "metavar": "module_name:class_name",
@@ -77,11 +76,9 @@ class Debugging:
 
 
 @hookimpl
-def pytask_extend_command_line_interface(
-    settings_builders: dict[str, SettingsBuilder],
-) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Extend command line interface."""
-    settings_builders["build"].option_groups["debugging"] = Debugging()
+    settings_builder.option_groups["debugging"] = Debugging()
 
 
 @hookimpl(trylast=True)
@@ -124,7 +121,7 @@ class PytaskPDB:
     _config: Settings | None = None
     _saved: ClassVar[list[tuple[Any, ...]]] = []
     _recursive_debug: int = 0
-    _wrapped_pdb_cls: tuple[tuple[str, ...], type[pdb.Pdb]] | None = None
+    _wrapped_pdb_cls: tuple[tuple[str, str] | None, type[pdb.Pdb]] | None = None
 
     @classmethod
     def _is_capturing(cls, capman: CaptureManager) -> bool:

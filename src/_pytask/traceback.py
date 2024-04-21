@@ -51,7 +51,7 @@ class Traceback:
     _show_locals: ClassVar[bool] = False
     suppress: ClassVar[tuple[Path, ...]] = (
         _PLUGGY_DIRECTORY,
-        # _PYTASK_DIRECTORY,
+        _PYTASK_DIRECTORY,
         TREE_UTIL_LIB_DIRECTORY,
     )
 
@@ -134,8 +134,8 @@ def _is_internal_or_hidden_traceback_frame(
     exc_info: ExceptionInfo,
     suppress: tuple[Path, ...] = (
         _PLUGGY_DIRECTORY,
+        # _PYTASK_DIRECTORY,
         TREE_UTIL_LIB_DIRECTORY,
-        _PYTASK_DIRECTORY,
     ),
 ) -> bool:
     """Return ``True`` if traceback frame belongs to internal packages or is hidden.

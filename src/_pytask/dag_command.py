@@ -15,7 +15,6 @@ import networkx as nx
 import typed_settings as ts
 from rich.text import Text
 
-from _pytask.click import EnumChoice
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
 from _pytask.console import console
@@ -66,19 +65,14 @@ class Dag:
         default=_RankDirection.TB,
         help="The direction of the directed graph. It can be ordered from top to "
         "bottom, TB, left to right, LR, bottom to top, BT, or right to left, RL.",
-        click={
-            "type": EnumChoice(_RankDirection),
-            "param_decls": ["-r", "--rank-direction"],
-        },
+        click={"param_decls": ["-r", "--rank-direction"]},
     )
 
 
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(
-    settings_builders: dict[str, SettingsBuilder],
-) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Extend the command line interface."""
-    settings_builders["dag"] = SettingsBuilder(name="dag", function=dag)
+    settings_builder.commands["dag"] = dag
 
 
 def dag(**raw_config: Any) -> int:
@@ -86,7 +80,7 @@ def dag(**raw_config: Any) -> int:
     try:
         pm = storage.get()
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
-        session = Session.from_config(config)
+        session = Session(config=config, hook=config.common.pm.hook)
 
     except (ConfigurationError, Exception):  # pragma: no cover
         console.print_exception()

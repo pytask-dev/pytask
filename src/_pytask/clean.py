@@ -5,12 +5,14 @@ from __future__ import annotations
 import itertools
 import shutil
 import sys
+from enum import Enum
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
 from typing import Iterable
 
 import click
+import typed_settings as ts
 from attrs import define
 
 from _pytask.console import console
@@ -25,11 +27,8 @@ from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import hookimpl
-from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from _pytask.settings import Settings
-from _pytask.settings import _CleanMode
-from _pytask.settings_utils import SettingsBuilder
+from _pytask.settings_utils import update_settings
 from _pytask.traceback import Traceback
 from _pytask.tree_util import tree_leaves
 
@@ -37,16 +36,56 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import NoReturn
 
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
+
 
 _DEFAULT_EXCLUDE: tuple[str, ...] = (".git/*",)
 
 
+class _CleanMode(Enum):
+    DRY_RUN = "dry-run"
+    FORCE = "force"
+    INTERACTIVE = "interactive"
+
+
+@ts.settings
+class Clean:
+    directories: bool = ts.option(
+        default=False,
+        help="Remove whole directories.",
+        click={"is_flag": True, "param_decls": ["-d", "--directories"]},
+    )
+    exclude: tuple[str, ...] = ts.option(
+        factory=tuple,
+        help="A filename pattern to exclude files from the cleaning process.",
+        click={
+            "multiple": True,
+            "metavar": "PATTERN",
+            "param_decls": ["-e", "--exclude"],
+        },
+    )
+    mode: _CleanMode = ts.option(
+        default=_CleanMode.DRY_RUN,
+        help=(
+            "Choose 'dry-run' to print the paths of files/directories which would be "
+            "removed, 'interactive' for a confirmation prompt for every path, and "
+            "'force' to remove all unknown paths at once."
+        ),
+        click={"param_decls": ["-m", "--mode"]},
+    )
+    quiet: bool = ts.option(
+        default=False,
+        help="Do not print the names of the removed paths.",
+        click={"is_flag": True, "param_decls": ["-q", "--quiet"]},
+    )
+
+
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(
-    settings_builders: dict[str, SettingsBuilder],
-) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Extend the command line interface."""
-    settings_builders["clean"] = SettingsBuilder(name="clean", function=clean_command)
+    settings_builder.commands["clean"] = clean_command
+    settings_builder.option_groups["clean"] = Clean()
 
 
 @hookimpl
@@ -55,15 +94,15 @@ def pytask_parse_config(config: Settings) -> None:
     config.clean.exclude = config.clean.exclude + _DEFAULT_EXCLUDE
 
 
-def clean_command(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
+def clean_command(settings: Settings, **arguments: Any) -> NoReturn:  # noqa: C901, PLR0912
     """Clean the provided paths by removing files unknown to pytask."""
-    pm = storage.get()
-    raw_config["command"] = "clean"
+    settings = update_settings(settings, arguments)
+    pm = settings.common.pm
 
     try:
         # Duplication of the same mechanism in :func:`pytask.build`.
-        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
-        session = Session.from_config(config)
+        config = pm.hook.pytask_configure(pm=pm, config=settings)
+        session = Session(config=config, hook=config.common.pm.hook)
 
     except Exception:  # noqa: BLE001  # pragma: no cover
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)

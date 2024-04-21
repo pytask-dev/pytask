@@ -43,11 +43,12 @@ from typing import NamedTuple
 from typing import TextIO
 from typing import final
 
+import typed_settings as ts
 from typing_extensions import Self
 
 from _pytask.capture_utils import CaptureMethod
+from _pytask.capture_utils import ShowCapture
 from _pytask.pluginmanager import hookimpl
-from _pytask.settings import Capture
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -57,12 +58,31 @@ if TYPE_CHECKING:
     from _pytask.settings_utils import SettingsBuilder
 
 
+@ts.settings
+class Capture:
+    """Settings for capturing."""
+
+    capture: CaptureMethod = ts.option(
+        default=CaptureMethod.FD,
+        click={"param_decls": ["--capture"]},
+        help="Per task capturing method.",
+    )
+    s: bool = ts.option(
+        default=False,
+        click={"param_decls": ["-s"], "is_flag": True},
+        help="Shortcut for --capture=no.",
+    )
+    show_capture: ShowCapture = ts.option(
+        default=ShowCapture.ALL,
+        click={"param_decls": ["--show-capture"]},
+        help="Choose which captured output should be shown for failed tasks.",
+    )
+
+
 @hookimpl
-def pytask_extend_command_line_interface(
-    settings_builders: dict[str, SettingsBuilder],
-) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Add CLI options for capturing output."""
-    settings_builders["build"].option_groups["capture"] = Capture()
+    settings_builder.option_groups["capture"] = Capture()
 
 
 @hookimpl

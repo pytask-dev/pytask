@@ -19,22 +19,6 @@ else:  # pragma: no cover
 __all__ = ["find_project_root_and_config", "read_config"]
 
 
-def consolidate_settings_and_arguments(settings: Any, arguments: dict[str, Any]) -> Any:
-    """Consolidate the settings and the values from click arguments.
-
-    Values from the command line have precedence over the settings from the
-    configuration file or from environment variables. Thus, we just plug in the values
-    from the command line into the settings.
-
-    """
-    for key, value in arguments.items():
-        # We do not want to overwrite the settings with None or empty tuples that come
-        # from ``multiple=True`` The default is handled by the settings class.
-        if value is not None and value != ():
-            setattr(settings, key, value)
-    return settings
-
-
 def find_project_root_and_config(
     paths: Sequence[Path] | None,
 ) -> tuple[Path, Path | None]:

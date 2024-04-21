@@ -73,6 +73,9 @@ class Session:
     warnings: list[WarningReport] = field(factory=list)
 
     @classmethod
-    def from_config(cls, config: Settings) -> Session:
+    def from_config(cls, config: dict[str, Any]) -> Session:
         """Construct the class from a config."""
-        return cls(config=config, hook=config.common.pm.hook)
+        from _pytask.cli import settings_builder
+
+        settings = settings_builder.load_settings(kwargs=config)
+        return cls(config=settings, hook=settings.common.pm.hook)

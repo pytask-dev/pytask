@@ -50,11 +50,9 @@ class Live:
 
 
 @hookimpl
-def pytask_extend_command_line_interface(
-    settings_builders: dict[str, SettingsBuilder],
-) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Extend command line interface."""
-    settings_builders["build"].option_groups["live"] = Live()
+    settings_builder.option_groups["live"] = Live()
 
 
 @hookimpl
