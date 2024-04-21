@@ -43,6 +43,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`596` add project management with rye.
 - {pull}`598` replaces requests with httpx.
 - {pull}`599` adds a test fixture for switching the cwd.
+- {pull}`600` refactors test using subprocesses.
 
 ## 0.4.7 - 2024-03-19
 
