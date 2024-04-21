@@ -94,8 +94,8 @@ def pytask_log_session_header(session: Session) -> None:
         f"pytask {_pytask.__version__}, pluggy {pluggy.__version__}"
     )
     console.print(f"Root: {session.config.common.root}")
-    if session.config.common.config_file is not None:
-        console.print(f"Configuration: {session.config.common.config_file}")
+    if session.config.common.config is not None:
+        console.print(f"Configuration: {session.config.common.config}")
 
     plugin_info = session.config.common.pm.list_plugin_distinfo()
     if plugin_info:
