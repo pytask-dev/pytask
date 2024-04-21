@@ -21,6 +21,7 @@ from pytask import ExitCode
 from pytask import cli
 
 from tests.conftest import enter_directory
+from tests.conftest import run_in_subprocess
 
 
 @pytest.mark.end_to_end()
@@ -85,30 +86,27 @@ def test_show_capture_with_build(tmp_path, show_capture):
     """
     tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
 
-    result = subprocess.run(  # noqa: PLW1510
-        ("python", "workflow.py"), cwd=tmp_path, capture_output=True
-    )
+    result = run_in_subprocess(("python", "workflow.py"), cwd=tmp_path)
 
-    assert result.returncode == ExitCode.FAILED
+    assert result.exit_code == ExitCode.FAILED
 
-    output = result.stdout.decode()
     if show_capture == "no":
-        assert "Captured" not in output
+        assert "Captured" not in result.stdout
     elif show_capture == "stdout":
-        assert "Captured stdout" in output
-        assert "xxxx" in output
-        assert "Captured stderr" not in output
-        # assert "zzzz" not in output
+        assert "Captured stdout" in result.stdout
+        assert "xxxx" in result.stdout
+        assert "Captured stderr" not in result.stdout
+        # assert "zzzz" not in result.stdout
     elif show_capture == "stderr":
-        assert "Captured stdout" not in output
-        # assert "xxxx" not in output
-        assert "Captured stderr" in output
-        assert "zzzz" in output
+        assert "Captured stdout" not in result.stdout
+        # assert "xxxx" not in result.stdout
+        assert "Captured stderr" in result.stdout
+        assert "zzzz" in result.stdout
     elif show_capture == "all":
-        assert "Captured stdout" in output
-        assert "xxxx" in output
-        assert "Captured stderr" in output
-        assert "zzzz" in output
+        assert "Captured stdout" in result.stdout
+        assert "xxxx" in result.stdout
+        assert "Captured stderr" in result.stdout
+        assert "zzzz" in result.stdout
     else:  # pragma: no cover
         raise NotImplementedError
 
@@ -130,14 +128,11 @@ def test_wrong_capture_method(tmp_path):
     """
     tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
 
-    result = subprocess.run(  # noqa: PLW1510
-        ("python", "workflow.py"), cwd=tmp_path, capture_output=True
-    )
-
-    assert result.returncode == ExitCode.CONFIGURATION_FAILED
-    assert "Value 'a' is not a valid" in result.stdout.decode()
-    assert "Traceback" not in result.stdout.decode()
-    assert not result.stderr.decode()
+    result = run_in_subprocess(("python", "workflow.py"), cwd=tmp_path)
+    assert result.exit_code == ExitCode.CONFIGURATION_FAILED
+    assert "Value 'a' is not a valid" in result.stdout
+    assert "Traceback" not in result.stdout
+    assert not result.stderr
 
 
 # Following tests are copied from pytest.
@@ -263,13 +258,9 @@ def test_capturing_unicode_with_build(tmp_path, method):
     tmp_path.joinpath("workflow.py").write_text(
         textwrap.dedent(source), encoding="utf-8"
     )
-
-    result = subprocess.run(  # noqa: PLW1510
-        ("python", "workflow.py"), cwd=tmp_path, capture_output=True
-    )
-
-    assert "1  Succeeded" in result.stdout.decode()
-    assert result.returncode == ExitCode.OK
+    result = run_in_subprocess(("python", "workflow.py"), cwd=tmp_path)
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.stdout
 
 
 @pytest.mark.end_to_end()

@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import os
 import re
+import subprocess
 import sys
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
+from typing import NamedTuple
 
 import pytest
 from click.testing import CliRunner
@@ -108,6 +110,24 @@ class CustomCliRunner(CliRunner):
 @pytest.fixture()
 def runner():
     return CustomCliRunner()
+
+
+class Result(NamedTuple):
+    """A named tuple to store the result of a command."""
+
+    exit_code: int
+    stdout: str
+    stderr: str
+
+
+def run_in_subprocess(cmd: tuple[str, ...], cwd: Path | None = None) -> Result:
+    """Run a command in a subprocess and return the output."""
+    result = subprocess.run(cmd, cwd=cwd, check=False, capture_output=True)
+    return Result(
+        exit_code=result.returncode,
+        stdout=result.stdout.decode("utf-8", "replace").replace("\r\n", "\n"),
+        stderr=result.stderr.decode("utf-8", "replace").replace("\r\n", "\n"),
+    )
 
 
 def pytest_collection_modifyitems(session, config, items) -> None:  # noqa: ARG001
