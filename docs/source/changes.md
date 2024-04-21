@@ -42,6 +42,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`595` stops unwrapping task functions until a `coiled.function.Function`.
 - {pull}`596` add project management with rye.
 - {pull}`598` replaces requests with httpx.
+- {pull}`599` adds a test fixture for switching the cwd.
 
 ## 0.4.7 - 2024-03-19
 

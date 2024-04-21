@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import json
-import os
 import pickle
 import re
 import subprocess
 import sys
 import textwrap
-from pathlib import Path
 
 import pytask
 import pytest
@@ -20,6 +18,8 @@ from pytask import TaskWithoutPath
 from pytask import build
 from pytask import cli
 
+from tests.conftest import enter_directory
+
 
 @pytest.mark.xfail(sys.platform == "win32", reason="See #293.")
 @pytest.mark.end_to_end()
@@ -31,10 +31,8 @@ def test_python_m_pytask(tmp_path):
 @pytest.mark.end_to_end()
 def test_execute_w_autocollect(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
-    cwd = Path.cwd()
-    os.chdir(tmp_path)
-    result = runner.invoke(cli)
-    os.chdir(cwd)
+    with enter_directory(tmp_path):
+        result = runner.invoke(cli)
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
 

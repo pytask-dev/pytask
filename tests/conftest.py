@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 import sys
 from contextlib import contextmanager
@@ -114,3 +115,14 @@ def pytest_collection_modifyitems(session, config, items) -> None:  # noqa: ARG0
     for item in items:
         if isinstance(item, NotebookItem):
             item.add_marker(pytest.mark.xfail(reason="The tests are flaky."))
+
+
+@contextmanager
+def enter_directory(path: Path):
+    """Enter a directory and return to the old one after the context is left."""
+    old_cwd = Path.cwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(old_cwd)
