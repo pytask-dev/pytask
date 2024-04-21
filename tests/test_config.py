@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import subprocess
 import sys
 import textwrap
 
@@ -9,6 +8,8 @@ import pytest
 from pytask import ExitCode
 from pytask import build
 from pytask import cli
+
+from tests.conftest import run_in_subprocess
 
 
 @pytest.mark.end_to_end()
@@ -90,12 +91,9 @@ def test_paths_are_relative_to_configuration_file_cli(tmp_path):
     source = "def task_example(): ..."
     tmp_path.joinpath("tasks", "task_example.py").write_text(source)
 
-    result = subprocess.run(
-        ("pytask", "src"), cwd=tmp_path, check=False, capture_output=True
-    )
-
-    assert result.returncode == ExitCode.OK
-    assert "1  Succeeded" in result.stdout.decode()
+    result = run_in_subprocess(("pytask", "src"), cwd=tmp_path)
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.stdout
 
 
 @pytest.mark.end_to_end()
@@ -122,9 +120,6 @@ def test_paths_are_relative_to_configuration_file(tmp_path):
     session = build(paths=[Path("src")])
     """
     tmp_path.joinpath("script.py").write_text(textwrap.dedent(source))
-    result = subprocess.run(
-        ("python", "script.py"), cwd=tmp_path, check=False, capture_output=True
-    )
-
-    assert result.returncode == ExitCode.OK
-    assert "1  Succeeded" in result.stdout.decode()
+    result = run_in_subprocess(("python", "script.py"), cwd=tmp_path)
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.stdout

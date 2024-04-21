@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import pickle
 import sys
 import textwrap
@@ -14,6 +13,8 @@ from pytask import ExitCode
 from pytask import PathNode
 from pytask import Task
 from pytask import cli
+
+from tests.conftest import enter_directory
 
 
 @pytest.mark.end_to_end()
@@ -93,10 +94,8 @@ def test_collect_task_in_root_dir(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").touch()
 
-    cwd = Path.cwd()
-    os.chdir(tmp_path)
-    result = runner.invoke(cli, ["collect"])
-    os.chdir(cwd)
+    with enter_directory(tmp_path):
+        result = runner.invoke(cli, ["collect"])
 
     assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
