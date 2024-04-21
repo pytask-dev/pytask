@@ -91,8 +91,8 @@ class Common:
     """Common settings for the command line interface."""
 
     cache: Path = ts.option(init=False, click={"hidden": True})
-    config: Path | None = ts.option(
-        default=None, click={"param_decls": ["--config-file"], "hidden": True}
+    config_file: Path | None = ts.option(
+        default=None, click={"param_decls": ["--config"], "hidden": True}
     )
     debug_pytask: bool = ts.option(
         default=False,
@@ -154,8 +154,8 @@ class Common:
 
     def __attrs_post_init__(self) -> None:
         # Set self.root.
-        if self.config:
-            self.root = self.config.parent
+        if self.config_file:
+            self.root = self.config_file.parent
         elif self.paths:
             candidate = Path(os.path.commonpath(self.paths))
             if candidate.is_dir():

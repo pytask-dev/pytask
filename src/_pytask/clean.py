@@ -182,8 +182,8 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
 
     known_paths = known_files | known_directories
 
-    if session.config.common.config:
-        known_paths.add(session.config.common.config)
+    if session.config.common.config_file:
+        known_paths.add(session.config.common.config_file)
     known_paths.add(session.config.common.root)
 
     known_paths.add(session.config.common.cache / "pytask.sqlite3")

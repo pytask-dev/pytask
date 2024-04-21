@@ -16,6 +16,8 @@ from pytask import Task
 from pytask import build
 from pytask import cli
 
+from tests.conftest import enter_directory
+
 
 @pytest.mark.end_to_end()
 @pytest.mark.parametrize(
@@ -111,7 +113,7 @@ def test_collect_same_task_different_ways(tmp_path, path_extension):
     ],
 )
 def test_collect_files_w_custom_file_name_pattern(
-    tmp_path, task_files, pattern, expected_collected_tasks
+    runner, tmp_path, task_files, pattern, expected_collected_tasks
 ):
     tmp_path.joinpath("pyproject.toml").write_text(
         f"[tool.pytask.ini_options]\ntask_files = {pattern}"
@@ -120,10 +122,10 @@ def test_collect_files_w_custom_file_name_pattern(
     for file_ in task_files:
         tmp_path.joinpath(file_).write_text("def task_example(): pass")
 
-    session = build(paths=tmp_path)
-
-    assert session.exit_code == ExitCode.OK
-    assert len(session.tasks) == expected_collected_tasks
+    with enter_directory(tmp_path):
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert f"Collected {expected_collected_tasks} task" in result.output
 
 
 def test_error_with_invalid_file_name_pattern(runner, tmp_path):

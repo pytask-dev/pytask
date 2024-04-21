@@ -25,6 +25,7 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.session import Session
 from _pytask.settings_utils import SettingsBuilder
 from _pytask.settings_utils import update_settings
+from _pytask.shared import to_list
 from _pytask.traceback import Traceback
 from _pytask.typing import NoDefault
 from _pytask.typing import no_default
@@ -133,10 +134,7 @@ def build(  # noqa: PLR0913
     sort_table: bool | NoDefault = no_default,
     stop_after_first_failure: bool | NoDefault = no_default,
     strict_markers: bool | NoDefault = no_default,
-    tasks: Callable[..., Any]
-    | PTask
-    | Iterable[Callable[..., Any] | PTask]
-    | NoDefault = no_default,
+    tasks: Callable[..., Any] | PTask | Iterable[Callable[..., Any] | PTask] = (),
     task_files: Iterable[str] | NoDefault = no_default,
     trace: bool | NoDefault = no_default,
     verbose: int | NoDefault = no_default,
@@ -231,7 +229,7 @@ def build(  # noqa: PLR0913
             "marker_expression": marker_expression,
             "max_failures": max_failures,
             "n_entries_in_table": n_entries_in_table,
-            "paths": paths,
+            "paths": to_list(paths) if paths is not no_default else no_default,
             "pdb": pdb,
             "pdb_cls": pdb_cls,
             "s": s,
