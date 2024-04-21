@@ -13,8 +13,6 @@ from typing import Literal
 
 import typed_settings as ts
 
-from _pytask.capture_utils import CaptureMethod
-from _pytask.capture_utils import ShowCapture
 from _pytask.console import console
 from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
@@ -28,11 +26,15 @@ from _pytask.session import Session
 from _pytask.settings_utils import SettingsBuilder
 from _pytask.settings_utils import update_settings
 from _pytask.traceback import Traceback
+from _pytask.typing import NoDefault
+from _pytask.typing import no_default
 
 if TYPE_CHECKING:
     from pathlib import Path
     from typing import NoReturn
 
+    from _pytask.capture_utils import CaptureMethod
+    from _pytask.capture_utils import ShowCapture
     from _pytask.node_protocols import PTask
     from _pytask.settings import Settings
 
@@ -102,35 +104,42 @@ def pytask_unconfigure(session: Session) -> None:
 
 def build(  # noqa: PLR0913
     *,
-    capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.FD,
-    check_casing_of_paths: bool = True,
-    debug_pytask: bool = False,
-    disable_warnings: bool = False,
-    dry_run: bool = False,
+    capture: Literal["fd", "no", "sys", "tee-sys"]
+    | CaptureMethod
+    | NoDefault = no_default,
+    check_casing_of_paths: bool | NoDefault = no_default,
+    debug_pytask: bool | NoDefault = no_default,
+    disable_warnings: bool | NoDefault = no_default,
+    dry_run: bool | NoDefault = no_default,
     editor_url_scheme: Literal["no_link", "file", "vscode", "pycharm"]  # noqa: PYI051
-    | str = "file",
-    expression: str = "",
-    force: bool = False,
-    ignore: Iterable[str] = (),
-    marker_expression: str = "",
-    max_failures: float = float("inf"),
-    n_entries_in_table: int = 15,
-    paths: Path | Iterable[Path] = (),
-    pdb: bool = False,
-    pdb_cls: str = "",
-    s: bool = False,
+    | str
+    | NoDefault = no_default,
+    expression: str | NoDefault = no_default,
+    force: bool | NoDefault = no_default,
+    ignore: Iterable[str] | NoDefault = no_default,
+    marker_expression: str | NoDefault = no_default,
+    max_failures: float | NoDefault = no_default,
+    n_entries_in_table: int | NoDefault = no_default,
+    paths: Path | Iterable[Path] | NoDefault = no_default,
+    pdb: bool | NoDefault = no_default,
+    pdb_cls: str | NoDefault = no_default,
+    s: bool | NoDefault = no_default,
     show_capture: Literal["no", "stdout", "stderr", "all"]
-    | ShowCapture = ShowCapture.ALL,
-    show_errors_immediately: bool = False,
-    show_locals: bool = False,
-    show_traceback: bool = True,
-    sort_table: bool = True,
-    stop_after_first_failure: bool = False,
-    strict_markers: bool = False,
-    tasks: Callable[..., Any] | PTask | Iterable[Callable[..., Any] | PTask] = (),
-    task_files: Iterable[str] = ("task_*.py",),
-    trace: bool = False,
-    verbose: int = 1,
+    | ShowCapture
+    | NoDefault = no_default,
+    show_errors_immediately: bool | NoDefault = no_default,
+    show_locals: bool | NoDefault = no_default,
+    show_traceback: bool | NoDefault = no_default,
+    sort_table: bool | NoDefault = no_default,
+    stop_after_first_failure: bool | NoDefault = no_default,
+    strict_markers: bool | NoDefault = no_default,
+    tasks: Callable[..., Any]
+    | PTask
+    | Iterable[Callable[..., Any] | PTask]
+    | NoDefault = no_default,
+    task_files: Iterable[str] | NoDefault = no_default,
+    trace: bool | NoDefault = no_default,
+    verbose: int | NoDefault = no_default,
     **kwargs: Any,
 ) -> Session:
     """Run pytask.
@@ -239,10 +248,11 @@ def build(  # noqa: PLR0913
             "verbose": verbose,
             **kwargs,
         }
+        filtered_updates = {k: v for k, v in updates.items() if v is not no_default}
 
         from _pytask.cli import settings_builder
 
-        settings = settings_builder.load_settings(kwargs=updates)
+        settings = settings_builder.load_settings(kwargs=filtered_updates)
     except (ConfigurationError, Exception):
         console.print(Traceback(sys.exc_info()))
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
