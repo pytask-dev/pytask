@@ -33,7 +33,6 @@ from __future__ import annotations
 import datetime
 import pathlib
 import re
-from textwrap import dedent
 from textwrap import indent
 from typing import Generator
 
@@ -163,21 +162,6 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
         }
 
 
-def _plugin_definitions(plugins: list[dict[str, str]]) -> Generator[str, None, None]:
-    """Return RST for the plugin list that fits better on a vertical page."""
-    for plugin in plugins:
-        yield dedent(
-            f"""
-            {plugin['name']}
-               *last release*: {plugin["last release"]},
-               *status*: {plugin["status"]},
-               *requires*: {plugin["requires"]}
-
-               {plugin["summary"]}
-            """
-        )
-
-
 def main() -> None:
     plugins = list(_iter_plugins())
 
@@ -187,15 +171,11 @@ def main() -> None:
     with plugin_list.open("w") as f:
         f.write(_FILE_HEAD)
         f.write(f"This list contains {len(plugins)} plugins.\n\n")
-        f.write(".. only:: not latex\n\n")
 
         assert wcwidth  # reference library that must exist for tabulate to work
         plugin_table = tabulate.tabulate(plugins, headers="keys", tablefmt="rst")
         f.write(indent(plugin_table, "   "))
-        f.write("\n\n")
-
-        f.write(".. only:: latex\n\n")
-        f.write(indent("".join(_plugin_definitions(plugins)), "  "))
+        f.write("\n")
 
 
 if __name__ == "__main__":
