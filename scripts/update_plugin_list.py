@@ -52,9 +52,15 @@ Plugin List
 PyPI projects that match "pytask-\*" are considered plugins and are listed
 automatically. Packages classified as inactive are excluded.
 
-.. The following conditional uses a different format for this list when
-   creating a PDF, because otherwise the table gets far too wide for the
-   page.
+.. warning::
+
+   Please be aware that this list is not a curated collection of projects and does not
+   undergo a systematic review process. It serves purely as an informational resource to
+   aid in the discovery of ``pytask`` plugins.
+
+   Do not presume any endorsement from the ``pytask`` project or its developers, and
+   always conduct your own quality assessment before incorporating any of these plugins
+   into your own projects.
 
 """
 
@@ -87,7 +93,7 @@ def _escape_rst(text: str) -> str:
 def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
     """Iterate over all plugins and format entries."""
     regex = r">([\d\w-]*)</a>"
-    response = httpx.get("https://pypi.org/simple", timeout=20)
+    response = httpx.get("https://pypi.org/simple/", timeout=20)
 
     matches = [
         match
