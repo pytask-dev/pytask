@@ -45,6 +45,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`599` adds a test fixture for switching the cwd.
 - {pull}`600` refactors test using subprocesses.
 - {pull}`603` fixes an example in the documentation about capturing warnings.
+- {pull}`604` fixes some examples with `PythonNode`s in the documentation.
 
 ## 0.4.7 - 2024-03-19
 
