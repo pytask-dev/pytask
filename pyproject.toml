@@ -72,6 +72,11 @@ test = [
     "aiohttp",
     "coiled",
 ]
+plugin-list = [
+    "httpx>=0.27.0",
+    "tabulate[widechars]>=0.9.0",
+    "tqdm>=4.66.2",
+]
 
 [project.urls]
 Changelog = "https://pytask-dev.readthedocs.io/en/stable/changes.html"
