@@ -1,23 +1,23 @@
 [project]
 name = "pytask"
-description = "In its highest aspirations, pytask tries to be pytest as a build system."
+description = "pytask is a workflow management system that facilitates reproducible data analyses."
 requires-python = ">=3.8"
 classifiers = [
-  "Development Status :: 4 - Beta",
-  "Environment :: Console",
-  "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: MIT License",
-  "Operating System :: MacOS :: MacOS X",
-  "Operating System :: Microsoft :: Windows",
-  "Operating System :: POSIX",
-  "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Topic :: Scientific/Engineering",
-  "Topic :: Software Development :: Build Tools",
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Build Tools",
 ]
 dynamic = ["version"]
 dependencies = [
@@ -60,11 +60,7 @@ docs = [
     "sphinx-toolbox",
     "sphinxext-opengraph",
 ]
-plugin-list = [
-    "httpx>=0.27.0",
-    "tabulate[widechars]>=0.9.0",
-    "tqdm>=4.66.2",
-]
+plugin-list = ["httpx", "tabulate[widechars]", "tqdm"]
 test = [
     "deepdiff",
     "nbmake",
@@ -73,13 +69,10 @@ test = [
     "pytest-cov",
     "pytest-xdist",
     "syrupy",
-    "aiohttp",  # For HTTPPath tests.
+    "aiohttp",      # For HTTPPath tests.
     "coiled",
 ]
-typing = [
-    "mypy>=1.9.0",
-    "nbqa[mypy]>=1.8.5",
-]
+typing = ["mypy>=1.9.0", "nbqa[mypy]>=1.8.5"]
 
 [project.urls]
 Changelog = "https://pytask-dev.readthedocs.io/en/stable/changes.html"
@@ -97,9 +90,7 @@ build-backend = "hatchling.build"
 
 [tool.rye]
 managed = true
-dev-dependencies = [
-    "tox-uv>=1.7.0",
-]
+dev-dependencies = ["tox-uv>=1.7.0"]
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/_pytask/_version.py"
@@ -129,15 +120,15 @@ select = ["ALL"]
 ignore = [
     "ANN101",
     "ANN102",
-    "ANN401",  # flake8-annotate typing.Any
-    "COM812",  # Comply with ruff-format.
-    "ISC001",  # Comply with ruff-format.
+    "ANN401", # flake8-annotate typing.Any
+    "COM812", # Comply with ruff-format.
+    "ISC001", # Comply with ruff-format.
     "FBT",
     "PD901",  # Avoid generic df for dataframes.
-    "S101",  # raise errors for asserts.
-    "S603",  # Call check with subprocess.run.
-    "S607",  # Call subprocess.run with partial executable path.
-    "SLF001",  # access private members.
+    "S101",   # raise errors for asserts.
+    "S603",   # Call check with subprocess.run.
+    "S607",   # Call subprocess.run with partial executable path.
+    "SLF001", # access private members.
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -153,7 +144,12 @@ ignore = [
 "docs/source/conf.py" = ["D401", "INP001"]
 "docs_src/*" = ["ARG001", "D", "INP001", "S301"]
 "docs_src/*/*.py" = ["FA100", "FA102", "PLR2004", "TCH"]
-"docs/source/how_to_guides/functional_interface*" = ["B018", "D", "INP", "ARG005"]
+"docs/source/how_to_guides/functional_interface*" = [
+    "B018",
+    "D",
+    "INP",
+    "ARG005",
+]
 "docs_src/how_to_guides/using_task_returns_*_task.py" = ["ARG005", "E731"]
 
 [tool.ruff.lint.isort]
