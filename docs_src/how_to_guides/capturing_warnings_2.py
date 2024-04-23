@@ -12,7 +12,7 @@ def _create_df() -> pd.DataFrame:
     return df
 
 
-@pytask.mark.filterwarnings("ignore:.*:SettingWithCopyWarning")
+@pytask.mark.filterwarnings("ignore:.*:pandas.errors.SettingWithCopyWarning")
 def task_warning(path: Annotated[Path, Product] = Path("df.pkl")) -> None:
     df = _create_df()
     df.to_pickle(path)
