@@ -123,3 +123,15 @@ def test_paths_are_relative_to_configuration_file(tmp_path):
     result = run_in_subprocess(("python", "script.py"), cwd=tmp_path)
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.stdout
+
+
+def test_old_config_section_is_deprecated(): ...
+
+
+def test_new_config_section_is_not_deprecated(): ...
+
+
+def test_old_config_path_is_deprecated(): ...
+
+
+def test_new_config_path_is_not_deprecated(): ...

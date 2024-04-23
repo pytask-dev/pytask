@@ -85,12 +85,7 @@ _ALREADY_PRINTED_DEPRECATION_MSG: bool = False
 
 
 class TomlFormat:
-    """
-    Support for TOML files.  Read settings from the given *section*.
-
-    Args:
-        section: The config file section to load settings from.
-    """
+    """Support for TOML files."""
 
     def __init__(
         self,
@@ -108,22 +103,7 @@ class TomlFormat:
         settings_cls: SettingsClass,  # noqa: ARG002
         options: OptionList,
     ) -> SettingsDict:
-        """
-        Load settings from a TOML file and return them as a dict.
-
-        Args:
-            path: The path to the config file.
-            options: The list of available settings.
-            settings_cls: The base settings class for all options.  If ``None``, load
-                top level settings.
-
-        Return:
-            A dict with the loaded settings.
-
-        Raise:
-            ConfigFileNotFoundError: If *path* does not exist.
-            ConfigFileLoadError: If *path* cannot be read/loaded/decoded.
-        """
+        """Load settings from a TOML file and return them as a dict."""
         try:
             with path.open("rb") as f:
                 settings = tomllib.load(f)
@@ -144,10 +124,10 @@ class TomlFormat:
         global _ALREADY_PRINTED_DEPRECATION_MSG  # noqa: PLW0603
         if self.deprecated and not _ALREADY_PRINTED_DEPRECATION_MSG:
             _ALREADY_PRINTED_DEPRECATION_MSG = True
-            console.print(self.deprecated)
+            console.print(self.deprecated, style="skipped")
         settings["common.config_file"] = path
         settings["common.root"] = path.parent
-        settings = _rewrite_paths_of_options(settings, options)
+        settings = _rewrite_paths_of_options(settings, options, section=self.section)
         return cast(SettingsDict, settings)
 
 
@@ -162,7 +142,7 @@ class DictLoader:
         settings_cls: SettingsClass,  # noqa: ARG002
         options: OptionList,
     ) -> LoadedSettings:
-        settings = _rewrite_paths_of_options(self.settings, options)
+        settings = _rewrite_paths_of_options(self.settings, options, section=None)
         nested_settings = {name.split(".")[0]: {} for name in settings}
         for long_name, value in settings.items():
             group, name = long_name.split(".")
@@ -177,12 +157,24 @@ def load_settings(settings_cls: Any, kwargs: dict[str, Any] | None = None) -> An
     return ts.load_settings(settings_cls, loaders, converter=converter)
 
 
+def _convert_to_enum(val: Any, cls: type[Enum]) -> Enum:
+    if isinstance(val, Enum):
+        return val
+    try:
+        return cls(val)
+    except ValueError:
+        values = ", ".join([i.value for i in cls])
+        msg = (
+            f"{val!r} is not a valid value for {cls.__name__}. Use one of {values} "
+            "instead."
+        )
+        raise ValueError(msg) from None
+
+
 def create_converter() -> ts.Converter:
     """Create the converter."""
     converter = ts.converters.get_default_ts_converter()
-    converter.scalar_converters[Enum] = (
-        lambda val, cls: val if isinstance(val, cls) else cls(val)
-    )
+    converter.scalar_converters[Enum] = _convert_to_enum
     converter.scalar_converters[PluginManager] = (
         lambda val, cls: val if isinstance(val, cls) else cls(**val)
     )
@@ -200,9 +192,9 @@ def create_settings_loaders(kwargs: dict[str, Any] | None = None) -> list[Loader
                 "*.toml": TomlFormat(
                     section="tool.pytask.ini_options",
                     deprecated=(
-                        "[skipped]Deprecation Warning! Configuring pytask in the "
-                        r"section \[tool.pytask.ini_options] is deprecated and will be "
-                        r"removed in v0.6. Please, use \[tool.pytask] instead.[/]\n\n"
+                        "DeprecationWarning: Configuring pytask in the "
+                        "section \\[tool.pytask.ini_options] is deprecated and will be "
+                        "removed in v0.6. Please, use \\[tool.pytask] instead."
                     ),
                 )
             },
@@ -245,12 +237,29 @@ def convert_settings_to_kwargs(settings: Settings) -> dict[str, Any]:
 
 
 def _rewrite_paths_of_options(
-    settings: SettingsDict, options: OptionList
+    settings: SettingsDict, options: OptionList, section: str | None
 ) -> SettingsDict:
     """Rewrite paths of options in the settings."""
-    option_name_to_path = {option.path.split(".")[1]: option.path for option in options}
-    return {
-        option_name_to_path[name]: value
-        for name, value in settings.items()
-        if name in option_name_to_path
+    option_paths = {option.path for option in options}
+    option_name_to_path = {
+        option.path.rsplit(".", maxsplit=1)[1]: option.path for option in options
     }
+
+    new_settings = {}
+    for name, value in settings.items():
+        if name in option_paths:
+            new_settings[name] = value
+            continue
+
+        if name in option_name_to_path:
+            new_path = option_name_to_path[name]
+            if section:
+                subsection, _ = new_path.rsplit(".", maxsplit=1)
+                msg = (
+                    f"DeprecationWarning: The path of the option {name!r} changed from "
+                    f"\\[{section}] to the new path \\[tool.pytask.{subsection}]."
+                )
+                console.print(msg, style="skipped")
+            new_settings[new_path] = value
+
+    return new_settings

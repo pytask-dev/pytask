@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import sys
 from typing import Any
 
+from _pytask.traceback import Traceback
 import click
 from packaging.version import parse as parse_version
 
@@ -11,6 +13,7 @@ from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
 from _pytask.pluginmanager import storage
 from _pytask.settings_utils import SettingsBuilder
+from _pytask.console import console
 
 _CONTEXT_SETTINGS: dict[str, Any] = {
     "help_option_names": ("-h", "--help"),
@@ -49,7 +52,11 @@ def cli() -> None:
     """Manage your tasks with pytask."""
 
 
-for name, func in settings_builder.commands.items():
-    command = click.command(name=name, cls=ColoredCommand)(decorator(func))
-    command.params.extend(settings_builder.arguments)
-    cli.add_command(command)
+try:
+    for name, func in settings_builder.commands.items():
+        command = click.command(name=name, cls=ColoredCommand)(decorator(func))
+        command.params.extend(settings_builder.arguments)
+        cli.add_command(command)
+except Exception:  # noqa: BLE001
+    traceback = Traceback(sys.exc_info(), show_locals=False)
+    console.print(traceback)

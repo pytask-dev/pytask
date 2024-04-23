@@ -34,14 +34,21 @@ def test_help_pages(runner, commands, help_option):
 
 
 @pytest.mark.end_to_end()
-def test_help_texts_are_modified_by_config(runner, tmp_path):
+@pytest.mark.parametrize("config_section", ["pytask.ini_options", "pytask"])
+def test_help_texts_are_modified_by_config(tmp_path, config_section):
     tmp_path.joinpath("pyproject.toml").write_text(
-        '[tool.pytask.ini_options]\nshow_capture = "stdout"'
+        f'[tool.{config_section}]\nshow_capture = "stdout"'
     )
+    result = run_in_subprocess(("pytask", "build", "--help"), cwd=tmp_path)
+    assert "[default:" in result.stdout
+    assert " stdout]" in result.stdout
 
-    result = runner.invoke(
-        cli,
-        ["build", "--help", "--config", tmp_path.joinpath("pyproject.toml").as_posix()],
+
+def test_precendence_of_new_to_old_section(tmp_path):
+    tmp_path.joinpath("pyproject.toml").write_text(
+        '[tool.pytask.ini_options]\nshow_capture = "stdout"\n\n'
+        '[tool.pytask]\nshow_capture = "stderr"'
     )
-
-    assert "[default: stdout]" in result.output
+    result = run_in_subprocess(("pytask", "build", "--help"), cwd=tmp_path)
+    assert "[default:" in result.stdout
+    assert " stderr]" in result.stdout

@@ -19,6 +19,7 @@ from rich.traceback import Traceback as RichTraceback
 import _pytask
 from _pytask.outcomes import Exit
 from _pytask.tree_util import TREE_UTIL_LIB_DIRECTORY
+import typed_settings as ts
 
 if TYPE_CHECKING:
     from rich.console import Console
@@ -35,6 +36,7 @@ __all__ = [
 
 _PLUGGY_DIRECTORY = Path(pluggy.__file__).parent
 _PYTASK_DIRECTORY = Path(_pytask.__file__).parent
+_TYPED_SETTINGS_DIRECTORY = Path(ts.__file__).parent
 
 
 ExceptionInfo: TypeAlias = Tuple[
@@ -51,7 +53,8 @@ class Traceback:
     _show_locals: ClassVar[bool] = False
     suppress: ClassVar[tuple[Path, ...]] = (
         _PLUGGY_DIRECTORY,
-        # _PYTASK_DIRECTORY,
+        _PYTASK_DIRECTORY,
+        _TYPED_SETTINGS_DIRECTORY,
         TREE_UTIL_LIB_DIRECTORY,
     )
 
