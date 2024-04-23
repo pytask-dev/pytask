@@ -48,17 +48,22 @@ email = "raabe@posteo.de"
 
 [project.optional-dependencies]
 docs = [
-  "furo",
-  "ipython",
-  "matplotlib",
-  "myst-parser",
-  "nbsphinx",
-  "sphinx",
-  "sphinx-click",
-  "sphinx-copybutton",
-  "sphinx-design>=0.3",
-  "sphinx-toolbox",
-  "sphinxext-opengraph",
+    "furo",
+    "ipython",
+    "matplotlib",
+    "myst-parser",
+    "nbsphinx",
+    "sphinx",
+    "sphinx-click",
+    "sphinx-copybutton",
+    "sphinx-design>=0.3",
+    "sphinx-toolbox",
+    "sphinxext-opengraph",
+]
+plugin-list = [
+    "httpx>=0.27.0",
+    "tabulate[widechars]>=0.9.0",
+    "tqdm>=4.66.2",
 ]
 test = [
     "deepdiff",
@@ -68,14 +73,12 @@ test = [
     "pytest-cov",
     "pytest-xdist",
     "syrupy",
-    # For HTTPPath tests.
-    "aiohttp",
+    "aiohttp",  # For HTTPPath tests.
     "coiled",
 ]
-plugin-list = [
-    "httpx>=0.27.0",
-    "tabulate[widechars]>=0.9.0",
-    "tqdm>=4.66.2",
+typing = [
+    "mypy>=1.9.0",
+    "nbqa[mypy]>=1.8.5",
 ]
 
 [project.urls]
@@ -94,7 +97,9 @@ build-backend = "hatchling.build"
 
 [tool.rye]
 managed = true
-dev-dependencies = []
+dev-dependencies = [
+    "tox-uv>=1.7.0",
+]
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/_pytask/_version.py"
@@ -190,6 +195,10 @@ ignore_errors = true
 [[tool.mypy.overrides]]
 module = ["click_default_group", "networkx"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["_pytask.coiled_utils"]
+disable_error_code = ["import-not-found"]
 
 [[tool.mypy.overrides]]
 module = ["_pytask.hookspecs"]
