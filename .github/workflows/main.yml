@@ -30,6 +30,21 @@ jobs:
     outputs:
       python-versions: ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
 
+  run-type-checking:
+
+    name: Run tests for type-checking
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          allow-prereleases: true
+          cache: pip
+      - run: pip install tox-uv
+      - run: tox -e typing
+
   run-tests:
 
     name: Run tests for ${{ matrix.os }} on ${{ matrix.python-version }}
