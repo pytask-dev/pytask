@@ -12,7 +12,7 @@ def calculate_hash(x: Any) -> str:
     return DeepHash(x)[x]
 
 
-node = PythonNode({"a": 1, "b": 2}, hash=calculate_hash)
+node = PythonNode(value={"a": 1, "b": 2}, hash=calculate_hash)
 
 
 def task_example(
