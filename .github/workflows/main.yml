@@ -15,20 +15,20 @@ on:
 
 jobs:
 
-  build-package:
-    name: Build & verify package
+  run-type-checking:
+
+    name: Run tests for type-checking
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          fetch-depth: 0
-
-      - uses: hynek/build-and-inspect-python-package@v2
-        id: baipp
-
-    outputs:
-      python-versions: ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+          python-version-file: .python-version
+          allow-prereleases: true
+          cache: pip
+      - run: pip install tox-uv
+      - run: tox -e typing
 
   run-tests:
 

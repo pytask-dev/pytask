@@ -46,6 +46,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`600` refactors test using subprocesses.
 - {pull}`603` fixes an example in the documentation about capturing warnings.
 - {pull}`604` fixes some examples with `PythonNode`s in the documentation.
+- {pull}`605` improves checks and CI.
 
 ## 0.4.7 - 2024-03-19
 
