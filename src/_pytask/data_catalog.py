@@ -91,10 +91,8 @@ class DataCatalog:
             self.add(name)
         return self.entries[name]
 
-    def add(self, name: str, node: PNode | PProvisionalNode | None = None) -> None:
+    def add(self, name: str, node: PNode | PProvisionalNode | Any = None) -> None:
         """Add an entry to the data catalog."""
-        assert isinstance(self.path, Path)
-
         if not isinstance(name, str):
             msg = "The name of a catalog entry must be a string."
             raise TypeError(msg)
@@ -107,7 +105,7 @@ class DataCatalog:
                 )
             else:
                 self.entries[name] = self.default_node(name=name)  # type: ignore[call-arg]
-            self.path.joinpath(f"{filename}-node.pkl").write_bytes(
+            self.path.joinpath(f"{filename}-node.pkl").write_bytes(  # type: ignore[union-attr]
                 pickle.dumps(self.entries[name])
             )
         elif isinstance(node, (PNode, PProvisionalNode)):

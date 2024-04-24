@@ -10,4 +10,3 @@ data_catalog = DataCatalog()
 
 # Use either a relative or a absolute path.
 data_catalog.add("csv", Path("file.csv"))
-data_catalog.add("transformed_csv", BLD / "file.pkl")

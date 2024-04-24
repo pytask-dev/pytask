@@ -1,9 +1,8 @@
 # The `DataCatalog` - Revisited
 
-An introduction to the data catalog can be found in the
-[tutorial](../tutorials/using_a_data_catalog.md).
-
-This guide explains some details that were left out of the tutorial.
+This guide explains more details about the {class}`~pytask.DataCatalog` that were left
+out of the [tutorial](../tutorials/using_a_data_catalog.md). Please, read the tutorial
+for a basic understanding.
 
 ## Changing the default node
 
@@ -20,18 +19,18 @@ from pytask import PythonNode
 data_catalog = DataCatalog(default_node=PythonNode)
 ```
 
-Or, learn to write your own node by reading {doc}`writing_custom_nodes`.
+Or, learn to write your node by reading {doc}`writing_custom_nodes`.
 
-Here, is an example for a `PickleNode` that uses cloudpickle instead of the normal
-`pickle` module.
+Here, is an example for a {class}`~pytask.PickleNode` that uses cloudpickle instead of
+the normal {mod}`pickle` module.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/the_data_catalog.py
 ```
 
 ## Changing the name and the default path
 
-By default, the data catalogs store their data in a directory `.pytask/data_catalogs`.
-If you use a `pyproject.toml` with a `[tool.pytask.ini_options]` section, then the
+By default, data catalogs store their data in a directory `.pytask/data_catalogs`. If
+you use a `pyproject.toml` with a `[tool.pytask.ini_options]` section, then the
 `.pytask` folder is in the same folder as the configuration file.
 
 The default name for a catalog is `"default"` and so you will find its data in
