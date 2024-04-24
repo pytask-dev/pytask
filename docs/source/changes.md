@@ -47,6 +47,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`603` fixes an example in the documentation about capturing warnings.
 - {pull}`604` fixes some examples with `PythonNode`s in the documentation.
 - {pull}`605` improves checks and CI.
+- {pull}`606` improves the documentation for data catalogs.
 
 ## 0.4.7 - 2024-03-19
 
