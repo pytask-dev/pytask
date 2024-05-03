@@ -228,7 +228,9 @@ Task are currently represented by the following classes:
 
 ```{eval-rst}
 .. autoclass:: pytask.Task
+   :members:
 .. autoclass:: pytask.TaskWithoutPath
+   :members:
 ```
 
 Currently, there are no different types of tasks since changing the `.function`
