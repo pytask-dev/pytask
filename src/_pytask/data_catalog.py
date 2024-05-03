@@ -75,7 +75,7 @@ class DataCatalog:
         self.path.mkdir(parents=True, exist_ok=True)
 
         # Initialize the data catalog with persisted nodes from previous runs.
-        for path in self.path.glob("*-node.pkl"):  # type: ignore[union-attr]
+        for path in self.path.glob("*-node.pkl"):
             node = pickle.loads(path.read_bytes())  # noqa: S301
             self._entries[node.name] = node
 
