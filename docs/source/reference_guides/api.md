@@ -327,6 +327,9 @@ resolution and execution.
 
     An indicator to mark arguments of tasks as products.
 
+    >>> from pathlib import Path
+    >>> from pytask import Product
+    >>> from typing_extensions import Annotated
     >>> def task_example(path: Annotated[Path, Product]) -> None:
     ...     path.write_text("Hello, World!")
 
