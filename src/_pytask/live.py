@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
@@ -130,7 +131,8 @@ class LiveManager:
         return self._live.is_started
 
 
-class _TaskEntry(NamedTuple):
+@dataclass
+class _TaskEntry:
     task: PTask
     status: TaskExecutionStatus
 
@@ -172,13 +174,13 @@ class LiveExecution:
         self, task: PTask, status: TaskExecutionStatus
     ) -> bool:
         """Mark a new task as running."""
-        self.update_running_tasks(new_running_task=task, status=status)
+        self.add_task(new_running_task=task, status=status)
         return True
 
     @hookimpl
     def pytask_execute_task_log_end(self, report: ExecutionReport) -> bool:
         """Mark a task as being finished and update outcome."""
-        self.update_reports(report)
+        self.update_report(report)
         return True
 
     def _generate_table(
@@ -265,16 +267,19 @@ class LiveExecution:
         )
         self.live_manager.update(table)
 
-    def update_running_tasks(
-        self, new_running_task: PTask, status: TaskExecutionStatus
-    ) -> None:
+    def add_task(self, new_running_task: PTask, status: TaskExecutionStatus) -> None:
         """Add a new running task."""
         self._running_tasks[new_running_task.signature] = _TaskEntry(
             task=new_running_task, status=status
         )
         self._update_table()
 
-    def update_reports(self, new_report: ExecutionReport) -> None:
+    def update_task(self, signature: str, status: TaskExecutionStatus) -> None:
+        """Update the status of a running task."""
+        self._running_tasks[signature].status = status
+        self._update_table()
+
+    def update_report(self, new_report: ExecutionReport) -> None:
         """Update the status of a running task by adding its report."""
         self._running_tasks.pop(new_report.task.signature)
         self._reports.append(
