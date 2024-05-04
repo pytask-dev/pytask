@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from enum import Enum
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
@@ -129,6 +130,16 @@ class LiveManager:
         return self._live.is_started
 
 
+class _TaskStatus(Enum):
+    PENDING = "pending"
+    RUNNING = "running"
+
+
+class _TaskEntry(NamedTuple):
+    task: PTask
+    status: _TaskStatus
+
+
 class _ReportEntry(NamedTuple):
     name: str
     outcome: TaskOutcome
@@ -146,7 +157,7 @@ class LiveExecution:
     sort_final_table: bool = False
     n_tasks: int | str = "x"
     _reports: list[_ReportEntry] = field(factory=list)
-    _running_tasks: dict[str, PTask] = field(factory=dict)
+    _running_tasks: dict[str, _TaskEntry] = field(factory=dict)
 
     @hookimpl(wrapper=True)
     def pytask_execute_build(self) -> Generator[None, None, None]:
@@ -232,16 +243,17 @@ class LiveExecution:
                 format_task_name(report.task, editor_url_scheme=self.editor_url_scheme),
                 Text(report.outcome.symbol, style=report.outcome.style),
             )
-        for task in self._running_tasks.values():
+        for task_entry in self._running_tasks.values():
             table.add_row(
-                format_task_name(task, editor_url_scheme=self.editor_url_scheme),
-                "running",
+                format_task_name(
+                    task_entry.task, editor_url_scheme=self.editor_url_scheme
+                ),
+                task_entry.status.value,
             )
 
         # If the table is empty, do not display anything.
         if table.rows == []:
-            table = None
-
+            return None
         return table
 
     def _update_table(
@@ -258,12 +270,14 @@ class LiveExecution:
 
     def update_running_tasks(self, new_running_task: PTask) -> None:
         """Add a new running task."""
-        self._running_tasks[new_running_task.name] = new_running_task
+        self._running_tasks[new_running_task.signature] = _TaskEntry(
+            task=new_running_task, status=_TaskStatus.RUNNING
+        )
         self._update_table()
 
     def update_reports(self, new_report: ExecutionReport) -> None:
         """Update the status of a running task by adding its report."""
-        self._running_tasks.pop(new_report.task.name)
+        self._running_tasks.pop(new_report.task.signature)
         self._reports.append(
             _ReportEntry(
                 name=new_report.task.name,
