@@ -7,6 +7,7 @@ from _pytask._hashlib import hash_value
 from _pytask.build import build
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
+from _pytask.logging_utils import TaskExecutionStatus
 
 
 from _pytask.click import ColoredCommand
@@ -129,6 +130,7 @@ __all__ = [
     "SkippedUnchanged",
     "State",
     "Task",
+    "TaskExecutionStatus",
     "TaskOutcome",
     "TaskWithoutPath",
     "Traceback",

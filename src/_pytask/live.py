@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from enum import Enum
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
@@ -25,6 +24,7 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
 
 if TYPE_CHECKING:
+    from _pytask.logging_utils import TaskExecutionStatus
     from _pytask.node_protocols import PTask
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
@@ -130,14 +130,9 @@ class LiveManager:
         return self._live.is_started
 
 
-class _TaskStatus(Enum):
-    PENDING = "pending"
-    RUNNING = "running"
-
-
 class _TaskEntry(NamedTuple):
     task: PTask
-    status: _TaskStatus
+    status: TaskExecutionStatus
 
 
 class _ReportEntry(NamedTuple):
@@ -173,9 +168,11 @@ class LiveExecution:
         return result
 
     @hookimpl(tryfirst=True)
-    def pytask_execute_task_log_start(self, task: PTask) -> bool:
+    def pytask_execute_task_log_start(
+        self, task: PTask, status: TaskExecutionStatus
+    ) -> bool:
         """Mark a new task as running."""
-        self.update_running_tasks(task)
+        self.update_running_tasks(new_running_task=task, status=status)
         return True
 
     @hookimpl
@@ -268,10 +265,12 @@ class LiveExecution:
         )
         self.live_manager.update(table)
 
-    def update_running_tasks(self, new_running_task: PTask) -> None:
+    def update_running_tasks(
+        self, new_running_task: PTask, status: TaskExecutionStatus
+    ) -> None:
         """Add a new running task."""
         self._running_tasks[new_running_task.signature] = _TaskEntry(
-            task=new_running_task, status=_TaskStatus.RUNNING
+            task=new_running_task, status=status
         )
         self._update_table()
 
