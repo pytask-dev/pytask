@@ -6,6 +6,7 @@ import textwrap
 import pytest
 from _pytask.live import LiveExecution
 from _pytask.live import LiveManager
+from _pytask.logging_utils import TaskExecutionStatus
 from pytask import ExecutionReport
 from pytask import ExitCode
 from pytask import Task
@@ -41,7 +42,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
     )
 
     live_manager.start()
-    live.update_running_tasks(task)
+    live.add_task(task, status=TaskExecutionStatus.RUNNING)
     live_manager.pause()
 
     # Test pause removes the table.
@@ -69,7 +70,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
     report = ExecutionReport(task=task, outcome=TaskOutcome.SUCCESS, exc_info=None)
 
     live_manager.resume()
-    live.update_reports(report)
+    live.update_report(report)
     live_manager.stop()
 
     # Test final table with reported outcome.
@@ -99,13 +100,13 @@ def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, o
     )
 
     live_manager.start()
-    live.update_running_tasks(task)
+    live.add_task(task, status=TaskExecutionStatus.RUNNING)
     live_manager.pause()
 
     report = ExecutionReport(task=task, outcome=outcome, exc_info=None)
 
     live_manager.resume()
-    live.update_reports(report)
+    live.update_report(report)
     live_manager.stop()
 
     # Test final table with reported outcome.
@@ -149,7 +150,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
     )
 
     live_manager.start()
-    live.update_running_tasks(running_task)
+    live.add_task(running_task, status=TaskExecutionStatus.RUNNING)
     live_manager.stop(transient=False)
 
     captured = capsys.readouterr()
@@ -161,13 +162,13 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
 
     completed_task = Task(base_name="task_completed", path=path, function=lambda x: x)
     completed_task.name = "task_module.py::task_completed"
-    live.update_running_tasks(completed_task)
+    live.add_task(completed_task, status=TaskExecutionStatus.RUNNING)
     report = ExecutionReport(
         task=completed_task, outcome=TaskOutcome.SUCCESS, exc_info=None
     )
 
     live_manager.resume()
-    live.update_reports(report)
+    live.update_report(report)
     live_manager.stop()
 
     # Test that report is or is not included.
@@ -202,7 +203,7 @@ def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path)
     )
 
     live_manager.start()
-    live.update_running_tasks(task)
+    live.add_task(task, status=TaskExecutionStatus.RUNNING)
     live_manager.stop()
 
     # Test table with running task.
@@ -224,9 +225,9 @@ def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path)
         tasks.append(skipped_task)
 
     live_manager.start()
-    live.update_running_tasks(successful_task)
+    live.add_task(successful_task, status=TaskExecutionStatus.RUNNING)
     for task in tasks:
-        live.update_running_tasks(task)
+        live.add_task(task, status=TaskExecutionStatus.RUNNING)
     live_manager.stop()
 
     captured = capsys.readouterr()
@@ -239,10 +240,10 @@ def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path)
     report = ExecutionReport(
         task=successful_task, outcome=TaskOutcome.SUCCESS, exc_info=None
     )
-    live.update_reports(report)
+    live.update_report(report)
     for task in tasks:
         report = ExecutionReport(task=task, outcome=TaskOutcome.SKIP, exc_info=None)
-        live.update_reports(report)
+        live.update_report(report)
     live_manager.stop()
 
     # Test final table with reported outcome.
