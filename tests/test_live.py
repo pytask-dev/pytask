@@ -70,7 +70,7 @@ def test_live_execution_sequentially(capsys, tmp_path):
     report = ExecutionReport(task=task, outcome=TaskOutcome.SUCCESS, exc_info=None)
 
     live_manager.resume()
-    live.update_reports(report)
+    live.update_report(report)
     live_manager.stop()
 
     # Test final table with reported outcome.
@@ -106,7 +106,7 @@ def test_live_execution_displays_skips_and_persists(capsys, tmp_path, verbose, o
     report = ExecutionReport(task=task, outcome=outcome, exc_info=None)
 
     live_manager.resume()
-    live.update_reports(report)
+    live.update_report(report)
     live_manager.stop()
 
     # Test final table with reported outcome.
@@ -168,7 +168,7 @@ def test_live_execution_displays_subset_of_table(capsys, tmp_path, n_entries_in_
     )
 
     live_manager.resume()
-    live.update_reports(report)
+    live.update_report(report)
     live_manager.stop()
 
     # Test that report is or is not included.
@@ -240,10 +240,10 @@ def test_live_execution_skips_do_not_crowd_out_displayed_tasks(capsys, tmp_path)
     report = ExecutionReport(
         task=successful_task, outcome=TaskOutcome.SUCCESS, exc_info=None
     )
-    live.update_reports(report)
+    live.update_report(report)
     for task in tasks:
         report = ExecutionReport(task=task, outcome=TaskOutcome.SKIP, exc_info=None)
-        live.update_reports(report)
+        live.update_report(report)
     live_manager.stop()
 
     # Test final table with reported outcome.
