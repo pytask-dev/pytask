@@ -37,6 +37,7 @@ repos:
     rev: v2.0.0
     hooks:
     -   id: refurb
+        additional_dependencies: [typed-settings]
 -   repo: https://github.com/executablebooks/mdformat
     rev: 0.7.17
     hooks:

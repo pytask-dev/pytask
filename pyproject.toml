@@ -196,10 +196,6 @@ module = ["click_default_group", "networkx"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = ["_pytask.coiled_utils"]
-disable_error_code = ["import-not-found"]
-
-[[tool.mypy.overrides]]
 module = ["_pytask.hookspecs"]
 disable_error_code = ["empty-body"]
 

@@ -147,13 +147,13 @@ def build_dag(
         }
 
         if settings is None:
-            from _pytask.cli import settings_builders
+            from _pytask.cli import settings_builder
 
             pm = get_plugin_manager()
             storage.store(pm)
 
             settings = ts.load_settings(
-                settings_builders["dag"].build_settings(), create_settings_loaders()
+                settings_builder["dag"].build_settings(), create_settings_loaders()
             )
         else:
             pm = storage.get()

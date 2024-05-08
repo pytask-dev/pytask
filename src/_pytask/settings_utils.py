@@ -41,7 +41,7 @@ __all__ = ["SettingsBuilder", "TomlFormat"]
 
 def _handle_enum(type: type[Enum], default: Any, is_optional: bool) -> dict[str, Any]:  # noqa: A002
     """Use enum values as choices for click options."""
-    kwargs = {"type": click.Choice([i.value for i in type])}
+    kwargs: dict[str, Any] = {"type": click.Choice([i.value for i in type])}
     if isinstance(default, type):
         kwargs["default"] = default.value
     elif is_optional:
@@ -134,7 +134,7 @@ class TomlFormat:
 class DictLoader:
     """Load settings from a dict of values."""
 
-    def __init__(self, settings: dict) -> None:
+    def __init__(self, settings: dict[str, Any]) -> None:
         self.settings = settings
 
     def __call__(
@@ -143,7 +143,9 @@ class DictLoader:
         options: OptionList,
     ) -> LoadedSettings:
         settings = _rewrite_paths_of_options(self.settings, options, section=None)
-        nested_settings = {name.split(".")[0]: {} for name in settings}
+        nested_settings: dict[str, dict[str, Any]] = {
+            name.split(".")[0]: {} for name in settings
+        }
         for long_name, value in settings.items():
             group, name = long_name.split(".")
             nested_settings[group][name] = value
@@ -229,7 +231,7 @@ def update_settings(settings: Any, updates: dict[str, Any]) -> Any:
 
 def convert_settings_to_kwargs(settings: Settings) -> dict[str, Any]:
     """Convert the settings to kwargs."""
-    kwargs = {}
+    kwargs: dict[str, Any] = {}
     names = [i for i in dir(settings) if not i.startswith("_")]
     for name in names:
         kwargs = kwargs | attrs.asdict(getattr(settings, name))
