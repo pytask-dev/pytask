@@ -12,6 +12,7 @@ from typing import Type
 from typing import Union
 
 import pluggy
+import typed_settings as ts
 from attrs import define
 from attrs import field
 from rich.traceback import Traceback as RichTraceback
@@ -19,7 +20,6 @@ from rich.traceback import Traceback as RichTraceback
 import _pytask
 from _pytask.outcomes import Exit
 from _pytask.tree_util import TREE_UTIL_LIB_DIRECTORY
-import typed_settings as ts
 
 if TYPE_CHECKING:
     from rich.console import Console
