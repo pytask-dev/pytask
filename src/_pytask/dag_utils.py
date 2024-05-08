@@ -92,9 +92,7 @@ class TopologicalSorter:
         priorities = _extract_priorities_from_tasks(tasks)
 
         task_signatures = {task.signature for task in tasks}
-        task_dict = {
-            name: nx.ancestors(dag, name) & task_signatures for name in task_signatures
-        }
+        task_dict = {s: nx.ancestors(dag, s) & task_signatures for s in task_signatures}
         task_dag = nx.DiGraph(task_dict).reverse()
 
         return cls(dag=task_dag, priorities=priorities)

@@ -25,6 +25,7 @@ from _pytask.database_utils import update_states_in_database
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
+from _pytask.logging_utils import TaskExecutionStatus
 from _pytask.mark import Mark
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
@@ -99,7 +100,9 @@ def pytask_execute_build(session: Session) -> bool | None:
 @hookimpl
 def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionReport:
     """Follow the protocol to execute each task."""
-    session.hook.pytask_execute_task_log_start(session=session, task=task)
+    session.hook.pytask_execute_task_log_start(
+        session=session, task=task, status=TaskExecutionStatus.RUNNING
+    )
     try:
         session.hook.pytask_execute_task_setup(session=session, task=task)
         session.hook.pytask_execute_task(session=session, task=task)
@@ -179,7 +182,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
 def _safe_load(node: PNode | PProvisionalNode, task: PTask, *, is_product: bool) -> Any:
     try:
         return node.load(is_product=is_product)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         msg = f"Exception while loading node {node.name!r} of task {task.name!r}"
         raise NodeLoadError(msg) from e
 

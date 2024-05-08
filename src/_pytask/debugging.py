@@ -158,7 +158,7 @@ class PytaskPDB:
                 pdb_cls = getattr(mod, parts[0])
                 for part in parts[1:]:
                     pdb_cls = getattr(pdb_cls, part)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 value = f"{modname}:{classname}"
                 msg = f"--pdbcls: could not import {value!r}: {exc}."
                 raise ValueError(msg) from exc
