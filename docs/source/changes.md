@@ -49,6 +49,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`605` improves checks and CI.
 - {pull}`609` allows a pending status for tasks. Useful for async backends implemented
   in pytask-parallel.
+- {pull}`611` removes the initial task execution status from
+  `pytask_execute_task_log_start`.
 
 ## 0.4.7 - 2024-03-19
 
