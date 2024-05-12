@@ -59,7 +59,6 @@ class DataCatalog:
     """
 
     default_node: type[PNode] = PickleNode
-    entries: dict[str, PNode | PProvisionalNode] = field(factory=dict)
     name: str = field(default="default")
     path: Path | None = None
     _entries: dict[str, PNode | PProvisionalNode] = field(factory=dict)
