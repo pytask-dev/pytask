@@ -48,8 +48,9 @@ class DataCatalog:
         :class:`~pytask.PickleNode` is used to serialize any Python object with the
         :mod:`pickle` module.
     name
-        The name of the data catalog. Use it when you are working with multiple data
-        catalogs that store data under the same keys.
+        The name of the data catalog which can only contain letters, numbers, hyphens
+        and underscores. Use it when you are working with multiple data catalogs to
+        store data in different locations.
     path
         A path where automatically created files are stored. By default, it will be
         ``.pytask/data_catalogs/default``.

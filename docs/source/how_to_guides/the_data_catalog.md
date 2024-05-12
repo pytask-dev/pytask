@@ -41,6 +41,10 @@ The default name for a catalog is `"default"` and so you will find its data in
 data_catalog = DataCatalog(name="data_management")
 ```
 
+```{note}
+The name of a data catalog is restricted to letters, numbers, hyphens and underscores.
+```
+
 You can also change the path where the data catalogs will be stored by changing the
 `path` attribute. Here, we store the data catalog's data next to the module where the
 data catalog is defined in `.data`.
