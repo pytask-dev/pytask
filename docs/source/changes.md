@@ -48,6 +48,11 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`604` fixes some examples with `PythonNode`s in the documentation.
 - {pull}`605` improves checks and CI.
 - {pull}`606` improves the documentation for data catalogs.
+- {pull}`609` allows a pending status for tasks. Useful for async backends implemented
+  in pytask-parallel.
+- {pull}`611` removes the initial task execution status from
+  `pytask_execute_task_log_start`.
+- {pull}`612` adds validation for data catalog names.
 
 ## 0.4.7 - 2024-03-19
 

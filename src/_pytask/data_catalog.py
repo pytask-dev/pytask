@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import inspect
 import pickle
+import re
 from pathlib import Path
 from typing import Any
 
@@ -58,13 +59,27 @@ class DataCatalog:
     """
 
     default_node: type[PNode] = PickleNode
-    name: str = "default"
+    entries: dict[str, PNode | PProvisionalNode] = field(factory=dict)
+    name: str = field(default="default")
     path: Path | None = None
     _entries: dict[str, PNode | PProvisionalNode] = field(factory=dict)
     _instance_path: Path = field(factory=_get_parent_path_of_data_catalog_module)
     _session_config: dict[str, Any] = field(
         factory=lambda *x: {"check_casing_of_paths": True}  # noqa: ARG005
     )
+
+    @name.validator
+    def _check(self, attribute: str, value: str) -> None:  # noqa: ARG002
+        _rich_traceback_omit = True
+        if not isinstance(value, str):
+            msg = "The name of a data catalog must be a string."
+            raise TypeError(msg)
+        if not re.match(r"[a-zA-Z0-9-_]+", value):
+            msg = (
+                "The name of a data catalog must be a string containing only letters, "
+                "numbers, hyphens, and underscores."
+            )
+            raise ValueError(msg)
 
     def __attrs_post_init__(self) -> None:
         root_path, _ = find_project_root_and_config((self._instance_path,))
