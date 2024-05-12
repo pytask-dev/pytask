@@ -174,7 +174,7 @@ def count_outcomes(
 
     Examples
     --------
-    >>> from _pytask.outcomes import CollectionOutcome, TaskOutcome
+    >>> from _pytask.outcomes import CollectionOutcome, TaskOutcome, count_outcomes
     >>> count_outcomes([], CollectionOutcome)
     {<CollectionOutcome.SUCCESS: 1>: 0, <CollectionOutcome.FAIL: 2>: 0}
 
