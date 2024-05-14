@@ -162,14 +162,14 @@ def collect(**raw_config: Any | None) -> NoReturn:
             session.dag = create_dag(session=session)
 
             tasks = _select_tasks_by_expressions_and_marker(session)
-            modules = _organize_tasks(tasks)
+            modules = _organize_tasks(tasks, session.dag)
 
             import cloudpickle
 
             with Path("modules.pkl").open("wb") as f:
                 cloudpickle.dump(modules, f)
 
-            console.print()
+            console.print(modules)
             console.rule(style="neutral")
 
         except CollectionError:  # pragma: no cover
@@ -218,7 +218,11 @@ def _organize_tasks(tasks: list[PTaskWithPath], dag: nx.DiGraph) -> list[Module]
 
 def _find_reasons_to_rerun(task: PTask, dag: nx.DiGraph) -> list[str]:
     """Find the reasons to rerun a task."""
-    return [node.name for node in dag.nodes if node.task == task]
+    return [
+        dag.nodes[signature]["task"]
+        for signature in dag.nodes
+        if dag.nodes[signature].get("task") == task
+    ]
 
 
 def _print_collected_tasks(
