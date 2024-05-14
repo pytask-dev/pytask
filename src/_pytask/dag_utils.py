@@ -1,15 +1,17 @@
 """Implement some capabilities to deal with the DAG."""
+
 from __future__ import annotations
 
 import itertools
+from typing import TYPE_CHECKING
 from typing import Generator
 from typing import Iterable
-from typing import TYPE_CHECKING
 
 import networkx as nx
-from _pytask.mark_utils import has_mark
 from attrs import define
 from attrs import field
+
+from _pytask.mark_utils import has_mark
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
@@ -90,9 +92,7 @@ class TopologicalSorter:
         priorities = _extract_priorities_from_tasks(tasks)
 
         task_signatures = {task.signature for task in tasks}
-        task_dict = {
-            name: nx.ancestors(dag, name) & task_signatures for name in task_signatures
-        }
+        task_dict = {s: nx.ancestors(dag, s) & task_signatures for s in task_signatures}
         task_dag = nx.DiGraph(task_dict).reverse()
 
         return cls(dag=task_dag, priorities=priorities)

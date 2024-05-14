@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import os
+import sys
 import textwrap
 
 import pytest
+from pytask import ExitCode
 from pytask import build
 from pytask import cli
-from pytask import ExitCode
+
+from tests.conftest import run_in_subprocess
 
 
 @pytest.mark.end_to_end()
@@ -46,7 +50,7 @@ def test_pass_config_to_cli(tmp_path):
 def test_passing_paths_via_configuration_file(tmp_path, file_or_folder):
     config = f"""
     [tool.pytask.ini_options]
-    paths = "{file_or_folder}"
+    paths = ["{file_or_folder}"]
     """
     tmp_path.joinpath("pyproject.toml").write_text(textwrap.dedent(config))
 
@@ -62,13 +66,60 @@ def test_passing_paths_via_configuration_file(tmp_path, file_or_folder):
     assert len(session.tasks) == 1
 
 
+@pytest.mark.end_to_end()
 def test_not_existing_path_in_config(runner, tmp_path):
     config = """
     [tool.pytask.ini_options]
-    paths = "not_existing_path"
+    paths = ["not_existing_path"]
     """
     tmp_path.joinpath("pyproject.toml").write_text(textwrap.dedent(config))
 
-    with pytest.warns(FutureWarning, match="Specifying paths as a string"):
-        result = runner.invoke(cli, [tmp_path.as_posix()])
+    result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.CONFIGURATION_FAILED
+
+
+@pytest.mark.end_to_end()
+def test_paths_are_relative_to_configuration_file_cli(tmp_path):
+    tmp_path.joinpath("src").mkdir()
+    tmp_path.joinpath("tasks").mkdir()
+    config = """
+    [tool.pytask.ini_options]
+    paths = ["../tasks"]
+    """
+    tmp_path.joinpath("src", "pyproject.toml").write_text(textwrap.dedent(config))
+
+    source = "def task_example(): ..."
+    tmp_path.joinpath("tasks", "task_example.py").write_text(source)
+
+    result = run_in_subprocess(("pytask", "src"), cwd=tmp_path)
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.stdout
+
+
+@pytest.mark.end_to_end()
+@pytest.mark.skipif(
+    sys.platform == "win32" and os.environ.get("CI") == "true",
+    reason="Windows does not pick up the right Python interpreter.",
+)
+def test_paths_are_relative_to_configuration_file(tmp_path):
+    tmp_path.joinpath("src").mkdir()
+    tmp_path.joinpath("tasks").mkdir()
+    config = """
+    [tool.pytask.ini_options]
+    paths = ["../tasks"]
+    """
+    tmp_path.joinpath("src", "pyproject.toml").write_text(textwrap.dedent(config))
+
+    source = "def task_example(): ..."
+    tmp_path.joinpath("tasks", "task_example.py").write_text(source)
+
+    source = """
+    from pytask import build
+    from pathlib import Path
+
+    session = build(paths=[Path("src")])
+    """
+    tmp_path.joinpath("script.py").write_text(textwrap.dedent(source))
+    result = run_in_subprocess(("python", "script.py"), cwd=tmp_path)
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.stdout

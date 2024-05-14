@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-import subprocess
 import sys
 import textwrap
 
 import pytest
+from pytask import ExitCode
 from pytask import build
 from pytask import cli
-from pytask import ExitCode
+
+from tests.conftest import run_in_subprocess
 
 
 @pytest.mark.end_to_end()
@@ -155,22 +156,21 @@ def test_deprecation_warnings_are_not_captured(tmp_path, warning):
     path_to_warn_module.write_text(textwrap.dedent(warn_module))
 
     # Cannot use runner since then warnings are not ignored by default.
-    result = subprocess.run(("pytask"), cwd=tmp_path, capture_output=True, check=False)
-
-    assert result.returncode == ExitCode.OK
-    assert "Warnings" not in result.stdout.decode()
-    assert "warning!!!" not in result.stdout.decode()
+    result = run_in_subprocess(("pytask"), cwd=tmp_path)
+    assert result.exit_code == ExitCode.OK
+    assert "Warnings" not in result.stdout
+    assert "warning!!!" not in result.stdout
 
 
 @pytest.mark.end_to_end()
 def test_multiple_occurrences_of_warning_are_reduced(tmp_path, runner):
     source = """
     import warnings
-    import pytask
+    from pytask import task
 
     for i in range(10):
 
-        @pytask.mark.task
+        @task
         def task_example():
             warnings.warn("warning!!!")
     """

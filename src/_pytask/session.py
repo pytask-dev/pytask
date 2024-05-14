@@ -1,26 +1,23 @@
 """Contains code related to the session object."""
+
 from __future__ import annotations
 
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 
 import networkx as nx
-from _pytask.outcomes import ExitCode
 from attrs import define
 from attrs import field
+from pluggy import HookRelay
 
-# HookRelay was published in v1.3.
-try:
-    from pluggy import HookRelay
-except ImportError:
-    from pluggy._hooks import _HookRelay as HookRelay
+from _pytask.outcomes import ExitCode
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
-    from _pytask.warnings_utils import WarningReport
     from _pytask.reports import CollectionReport
-    from _pytask.reports import ExecutionReport
     from _pytask.reports import DagReport
+    from _pytask.reports import ExecutionReport
+    from _pytask.warnings_utils import WarningReport
 
 
 @define(kw_only=True)

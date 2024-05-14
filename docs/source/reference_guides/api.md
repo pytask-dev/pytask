@@ -63,35 +63,15 @@ The remaining exceptions convey specific errors.
 
 ## Marks
 
-pytask uses marks to attach additional information to task functions which is processed
-by the host or by plugins. The following marks are available by default.
+pytask uses marks to attach additional information to task functions that the host or
+plugins process. The following marks are available by default.
 
 ### Built-in marks
 
 ```{eval-rst}
-.. function:: pytask.mark.depends_on(objects: Any | Iterable[Any] | dict[Any, Any])
-
-    Specify dependencies for a task.
-
-    :type objects: Any | Iterable[Any] | dict[Any, Any]
-    :param objects:
-        Can be any valid Python object or an iterable of any Python objects. To be
-        valid, it must be parsed by some hook implementation for the
-        :func:`_pytask.hookspecs.pytask_collect_node` entry-point.
-
 .. function:: pytask.mark.persist()
 
     A marker for a task which should be persisted.
-
-.. function:: pytask.mark.produces(objects: Any | Iterable[Any] | dict[Any, Any])
-
-    Specify products of a task.
-
-    :type objects: Any | Iterable[Any] | dict[Any, Any]
-    :param objects:
-        Can be any valid Python object or an iterable of any Python objects. To be
-        valid, it must be parsed by some hook implementation for the
-        :func:`_pytask.hookspecs.pytask_collect_node` entry-point.
 
 .. function:: pytask.mark.skipif(condition: bool, *, reason: str)
 
@@ -115,27 +95,6 @@ by the host or by plugins. The following marks are available by default.
 .. function:: pytask.mark.skip()
 
     Skip a task.
-
-.. function:: pytask.mark.task(name, *, id, kwargs)
-
-    The task decorator allows to mark any task function regardless of its name as a task
-    or assigns a new task name.
-
-    It also allows to repeat tasks in for-loops by adding a specific ``id`` or keyword
-    arguments via ``kwargs``.
-
-    .. deprecated:: 0.4.0
-
-       Will be removed in v0.5.0. Use :func:`~pytask.task` instead.
-
-    :type name: str | None
-    :param name: The name of the task.
-    :type id: str | None
-    :param id:  An id for the task if it is part of a parametrization.
-    :type kwargs: dict[Any, Any] | None
-    :param kwargs:
-        A dictionary containing keyword arguments which are passed to the task when it
-        is executed.
 
 .. function:: pytask.mark.try_first
 
@@ -177,8 +136,7 @@ For example:
 
 ```python
 @pytask.mark.timeout(10, "slow", method="thread")
-def task_function():
-    ...
+def task_function(): ...
 ```
 
 Will create and attach a {class}`Mark <pytask.Mark>` object to the collected
@@ -195,8 +153,7 @@ Example for using multiple custom markers:
 ```python
 @pytask.mark.timeout(10, "slow", method="thread")
 @pytask.mark.slow
-def task_function():
-    ...
+def task_function(): ...
 ```
 
 ### Classes
@@ -233,6 +190,8 @@ Protocols define how tasks and nodes for dependencies and products have to be se
    :show-inheritance:
 .. autoprotocol:: pytask.PTaskWithPath
    :show-inheritance:
+.. autoprotocol:: pytask.PProvisionalNode
+   :show-inheritance:
 ```
 
 ## Nodes
@@ -246,15 +205,15 @@ Nodes are the interface for different kinds of dependencies or products.
    :members:
 .. autoclass:: pytask.PythonNode
    :members:
+.. autoclass:: pytask.DirectoryNode
+   :members:
 ```
 
 To parse dependencies and products from nodes, use the following functions.
 
 ```{eval-rst}
-.. autofunction:: pytask.depends_on
 .. autofunction:: pytask.parse_dependencies_from_task_function
 .. autofunction:: pytask.parse_products_from_task_function
-.. autofunction:: pytask.produces
 ```
 
 ## Tasks
@@ -269,7 +228,9 @@ Task are currently represented by the following classes:
 
 ```{eval-rst}
 .. autoclass:: pytask.Task
+   :members:
 .. autoclass:: pytask.TaskWithoutPath
+   :members:
 ```
 
 Currently, there are no different types of tasks since changing the `.function`
@@ -366,6 +327,9 @@ resolution and execution.
 
     An indicator to mark arguments of tasks as products.
 
+    >>> from pathlib import Path
+    >>> from pytask import Product
+    >>> from typing_extensions import Annotated
     >>> def task_example(path: Annotated[Path, Product]) -> None:
     ...     path.write_text("Hello, World!")
 
@@ -375,7 +339,6 @@ resolution and execution.
 ## Tracebacks
 
 ```{eval-rst}
-.. autofunction:: pytask.remove_internal_traceback_frames_from_exc_info
 .. autoclass:: pytask.Traceback
 ```
 

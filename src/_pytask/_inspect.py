@@ -7,7 +7,6 @@ from typing import Any
 from typing import Callable
 from typing import Mapping
 
-
 __all__ = ["get_annotations"]
 
 
@@ -107,7 +106,7 @@ else:  # pragma: no cover
 
         if not isinstance(ann, dict):
             msg = f"{obj!r}.__annotations__ is neither a dict nor None"
-            raise ValueError(msg)
+            raise ValueError(msg)  # noqa: TRY004
 
         if not ann:
             return {}

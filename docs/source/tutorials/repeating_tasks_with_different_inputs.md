@@ -36,18 +36,6 @@ different seeds and output paths as default arguments of the function.
 ```
 
 ````
-
-````{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs1_decorators.py
-```
-
-````
 `````
 
 Executing pytask gives you this:
@@ -84,18 +72,6 @@ You can also add dependencies to repeated tasks just like with any other task.
 ```
 
 ````
-
-````{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs2_decorators.py
-```
-
-````
 `````
 
 (how-to-repeat-a-task-with-different-inputs-the-id)=
@@ -117,17 +93,17 @@ auto-generated ids are used.
 
 ### Auto-generated ids
 
-pytask construct ids by extending the task name with representations of the values used
+pytask constructs ids by extending the task name with representations of the values used
 for each iteration. Booleans, floats, integers, and strings enter the task id directly.
 For example, a task function that receives four arguments, `True`, `1.0`, `2`, and
-`"hello"`, one of each dtype, has the following id.
+`"hello"`, one of each data type, has the following id.
 
 ```
 task_data_preparation.py::task_create_random_data[True-1.0-2-hello]
 ```
 
-Arguments with other dtypes cannot be converted to strings and, thus, are replaced with
-a combination of the argument name and the iteration counter.
+Arguments with other data types cannot be converted to strings and, thus, are replaced
+with a combination of the argument name and the iteration counter.
 
 For example, the following function is parametrized with tuples.
 
@@ -156,23 +132,11 @@ For example, the following function is parametrized with tuples.
 ```
 
 ````
-
-````{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs3_decorators.py
-```
-
-````
 `````
 
 Since the tuples are not converted to strings, the ids of the two tasks are
 
-```
+```text
 task_data_preparation.py::task_create_random_data[seed0]
 task_data_preparation.py::task_create_random_data[seed1]
 ```
@@ -209,23 +173,11 @@ a unique name for the iteration.
 ```
 
 ````
-
-````{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs4_decorators.py
-```
-
-````
 `````
 
 produces these ids
 
-```
+```text
 task_data_preparation.py::task_create_random_data[first]
 task_data_preparation.py::task_create_random_data[second]
 ```
@@ -307,18 +259,6 @@ Following these three tips, the parametrization becomes
 ```
 
 ````
-
-````{tab-item} Decorators
-:sync: decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs5_decorators.py
-```
-
-````
 `````
 
 Unpacking all the arguments can become tedious. Instead, use the `kwargs` argument of
@@ -328,8 +268,7 @@ the {func}`@task <pytask.task>` decorator to pass keyword arguments to the task.
 for id_, kwargs in ID_TO_KWARGS.items():
 
     @task(id=id_, kwargs=kwargs)
-    def task_create_random_data(seed, produces):
-        ...
+    def task_create_random_data(seed, produces): ...
 ```
 
 Writing a function that creates `ID_TO_KWARGS` would be even more pythonic.
@@ -349,8 +288,7 @@ ID_TO_KWARGS = create_parametrization()
 for id_, kwargs in ID_TO_KWARGS.items():
 
     @task(id=id_, kwargs=kwargs)
-    def task_create_random_data(i, produces):
-        ...
+    def task_create_random_data(i, produces): ...
 ```
 
 The {doc}`best-practices guide on parametrizations <../how_to_guides/bp_scaling_tasks>`

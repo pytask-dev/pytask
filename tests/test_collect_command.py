@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import pickle
 import sys
 import textwrap
@@ -10,21 +9,20 @@ import pytest
 from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
 from attrs import define
-from pytask import cli
 from pytask import ExitCode
 from pytask import PathNode
 from pytask import Task
+from pytask import cli
+
+from tests.conftest import enter_directory
 
 
 @pytest.mark.end_to_end()
 def test_collect_task(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_example():
-        pass
+    def task_example(path=Path("in.txt"), produces=Path("out.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").touch()
@@ -55,11 +53,9 @@ def test_collect_task(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_collect_task_new_interface(runner, tmp_path):
     source = """
-    import pytask
     from pathlib import Path
 
-    def task_example(depends_on=Path("in.txt"), arg=1, produces=Path("out.txt")):
-        pass
+    def task_example(depends_on=Path("in.txt"), arg=1, produces=Path("out.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").touch()
@@ -91,20 +87,15 @@ def test_collect_task_new_interface(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_collect_task_in_root_dir(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_example():
-        pass
+    def task_example(path=Path("in.txt"), produces=Path("out.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").touch()
 
-    cwd = Path.cwd()
-    os.chdir(tmp_path)
-    result = runner.invoke(cli, ["collect"])
-    os.chdir(cwd)
+    with enter_directory(tmp_path):
+        result = runner.invoke(cli, ["collect"])
 
     assert result.exit_code == ExitCode.OK
     captured = result.output.replace("\n", "").replace(" ", "")
@@ -117,13 +108,13 @@ def test_collect_task_in_root_dir(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_collect_parametrized_tasks(runner, tmp_path):
     source = """
-    import pytask
+    from pytask import task
+    from pathlib import Path
 
     for arg, produces in [(0, "out_0.txt"), (1, "out_1.txt")]:
 
-        @pytask.mark.task
-        @pytask.mark.depends_on("in.txt")
-        def task_example(arg=arg, produces=produces):
+        @task
+        def task_example(depends_on=Path("in.txt"), arg=arg, produces=produces):
             pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -136,24 +127,17 @@ def test_collect_parametrized_tasks(runner, tmp_path):
     assert "<Module" in captured
     assert "task_module.py>" in captured
     assert "<Function" in captured
-    assert "[0-out_0.txt]>" in captured
-    assert "[1-out_1.txt]>" in captured
+    assert "[depends_on0-0-out_0.txt]>" in captured
+    assert "[depends_on1-1-out_1.txt]>" in captured
 
 
 @pytest.mark.end_to_end()
 def test_collect_task_with_expressions(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in_1.txt")
-    @pytask.mark.produces("out_1.txt")
-    def task_example_1():
-        pass
-
-    @pytask.mark.depends_on("in_2.txt")
-    @pytask.mark.produces("out_2.txt")
-    def task_example_2():
-        pass
+    def task_example_1(path=Path("in_1.txt"), produces=Path("out_1.txt")): ...
+    def task_example_2(path=Path("in_2.txt"), produces=Path("out_2.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in_1.txt").touch()
@@ -188,17 +172,12 @@ def test_collect_task_with_expressions(runner, tmp_path):
 def test_collect_task_with_marker(runner, tmp_path):
     source = """
     import pytask
+    from pathlib import Path
 
     @pytask.mark.wip
-    @pytask.mark.depends_on("in_1.txt")
-    @pytask.mark.produces("out_1.txt")
-    def task_example_1():
-        pass
+    def task_example_1(path=Path("in_1.txt"), produces=Path("out_1.txt")): ...
 
-    @pytask.mark.depends_on("in_2.txt")
-    @pytask.mark.produces("out_2.txt")
-    def task_example_2():
-        pass
+    def task_example_2(path=Path("in_2.txt"), produces=Path("out_2.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in_1.txt").touch()
@@ -239,20 +218,14 @@ def test_collect_task_with_marker(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_collect_task_with_ignore_from_config(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in_1.txt")
-    @pytask.mark.produces("out_1.txt")
-    def task_example_1():
-        pass
+    def task_example_1(path=Path("in_1.txt"), produces=Path("out_1.txt")): ...
     """
     tmp_path.joinpath("task_example_1.py").write_text(textwrap.dedent(source))
 
     source = """
-    @pytask.mark.depends_on("in_2.txt")
-    @pytask.mark.produces("out_2.txt")
-    def task_example_2():
-        pass
+    def task_example_2(path=Path("in_2.txt"), produces=Path("out_2.txt")): ...
     """
     tmp_path.joinpath("task_example_2.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in_1.txt").touch()
@@ -293,21 +266,17 @@ def test_collect_task_with_ignore_from_config(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_collect_task_with_ignore_from_cli(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in_1.txt")
-    @pytask.mark.produces("out_1.txt")
-    def task_example_1():
-        pass
+    def task_example_1(path=Path("in_1.txt"), produces=Path("out_1.txt")): ...
     """
     tmp_path.joinpath("task_example_1.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in_1.txt").touch()
 
     source = """
-    @pytask.mark.depends_on("in_2.txt")
-    @pytask.mark.produces("out_2.txt")
-    def task_example_2():
-        pass
+    from pathlib import Path
+
+    def task_example_2(path=Path("in_2.txt"), produces=Path("out_2.txt")): ...
     """
     tmp_path.joinpath("task_example_2.py").write_text(textwrap.dedent(source))
 
@@ -347,8 +316,7 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
 class Node:
     path: Path
 
-    def state(self):
-        ...
+    def state(self): ...
 
 
 def function(depends_on, produces):  # noqa: ARG001
@@ -660,3 +628,85 @@ def test_more_nested_pytree_and_python_node_as_return_with_names(
     assert result.exit_code == ExitCode.OK
     if sys.platform != "win32":
         assert result.output == snapshot_cli()
+
+
+@pytest.mark.end_to_end()
+@pytest.mark.parametrize(
+    "node_def",
+    [
+        "paths: Annotated[List[Path], DirectoryNode(pattern='*.txt'), Product])",
+        "produces=DirectoryNode(pattern='*.txt'))",
+        ") -> Annotated[None, DirectoryNode(pattern='*.txt')]",
+    ],
+)
+def test_collect_task_with_provisional_path_node_as_product(runner, tmp_path, node_def):
+    source = f"""
+    from pytask import DirectoryNode, Product
+    from typing_extensions import Annotated, List
+    from pathlib import Path
+
+    def task_example({node_def}: ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    # Without nodes.
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    captured = result.output.replace("\n", "").replace(" ", "")
+    assert "<Module" in captured
+    assert "task_module.py>" in captured
+    assert "<Function" in captured
+    assert "task_example>" in captured
+
+    # With nodes.
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix(), "--nodes"])
+    assert result.exit_code == ExitCode.OK
+    captured = result.output.replace("\n", "").replace(" ", "")
+    assert "<Module" in captured
+    assert "task_module.py>" in captured
+    assert "<Function" in captured
+    assert "task_example>" in captured
+    assert "<Product" in captured
+    assert "/*.txt>" in captured
+
+
+@pytest.mark.end_to_end()
+def test_collect_task_with_provisional_dependencies(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DirectoryNode
+    from pathlib import Path
+
+    def task_example(
+        paths = DirectoryNode(pattern="[ab].txt")
+    ) -> Annotated[str, Path("merged.txt")]:
+        path_dict = {path.stem: path for path in paths}
+        return path_dict["a"].read_text() + path_dict["b"].read_text()
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "[ab].txt" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_collect_custom_node_receives_default_name(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+
+    class CustomNode:
+        name: str = ""
+
+        def state(self): return None
+        def signature(self): return "signature"
+        def load(self, is_product): ...
+        def save(self, value): ...
+
+    def task_example() -> Annotated[None, CustomNode()]: ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    output = result.output.replace(" ", "").replace("\n", "")
+    assert "task_example::return" in output

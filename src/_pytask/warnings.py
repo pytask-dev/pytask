@@ -1,27 +1,30 @@
 """Contains code for capturing warnings."""
+
 from __future__ import annotations
 
 from collections import defaultdict
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
-from typing import TYPE_CHECKING
 
 import click
-from _pytask.console import console
-from _pytask.pluginmanager import hookimpl
-from _pytask.warnings_utils import catch_warnings_for_item
-from _pytask.warnings_utils import parse_filterwarnings
-from _pytask.warnings_utils import WarningReport
 from attrs import define
 from rich.padding import Padding
 from rich.panel import Panel
 
+from _pytask.console import console
+from _pytask.pluginmanager import hookimpl
+from _pytask.warnings_utils import WarningReport
+from _pytask.warnings_utils import catch_warnings_for_item
+from _pytask.warnings_utils import parse_filterwarnings
+
 if TYPE_CHECKING:
     from rich.console import Console
-    from _pytask.node_protocols import PTask
     from rich.console import ConsoleOptions
-    from _pytask.session import Session
     from rich.console import RenderResult
+
+    from _pytask.node_protocols import PTask
+    from _pytask.session import Session
 
 
 @hookimpl
@@ -57,20 +60,20 @@ class WarningsNameSpace:
     """A namespace for the warnings plugin."""
 
     @staticmethod
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_collect(session: Session) -> Generator[None, None, None]:
         """Catch warnings while executing a task."""
         with catch_warnings_for_item(session=session):
-            yield
+            return (yield)
 
     @staticmethod
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_execute_task(
         session: Session, task: PTask
     ) -> Generator[None, None, None]:
         """Catch warnings while executing a task."""
         with catch_warnings_for_item(session=session, task=task):
-            yield
+            return (yield)
 
     @staticmethod
     @hookimpl(trylast=True)

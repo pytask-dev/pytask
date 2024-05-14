@@ -1,4 +1,5 @@
 """Contains utility functions for warnings."""
+
 from __future__ import annotations
 
 import functools
@@ -6,14 +7,13 @@ import re
 import textwrap
 import warnings
 from contextlib import contextmanager
-from typing import cast
+from typing import TYPE_CHECKING
 from typing import Generator
 from typing import NamedTuple
-from typing import TYPE_CHECKING
+from typing import cast
 
 from _pytask.mark_utils import get_marks
 from _pytask.outcomes import Exit
-
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
@@ -95,7 +95,7 @@ def parse_warning_filter(  # noqa: PLR0912, C901
             lineno = int(lineno_)
             if lineno < 0:
                 msg = "number is negative"
-                raise ValueError(msg)
+                raise ValueError(msg)  # noqa: TRY301
         except ValueError as e:
             raise Exit(  # noqa: B904
                 error_template.format(error=f"invalid lineno {lineno_!r}: {e}")

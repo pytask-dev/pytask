@@ -1,21 +1,23 @@
 """Contains common parameters for the commands of the command line interface."""
+
 from __future__ import annotations
 
 import importlib.util
 from pathlib import Path
-from typing import Iterable
 from typing import TYPE_CHECKING
+from typing import Iterable
 
 import click
+from click import Context
+from sqlalchemy.engine import URL
+from sqlalchemy.engine import make_url
+from sqlalchemy.exc import ArgumentError
+
 from _pytask.config_utils import set_defaults_from_config
 from _pytask.path import import_path
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import register_hook_impls_from_modules
 from _pytask.pluginmanager import storage
-from click import Context
-from sqlalchemy.engine import make_url
-from sqlalchemy.engine import URL
-from sqlalchemy.exc import ArgumentError
 
 if TYPE_CHECKING:
     from pluggy import PluginManager
@@ -56,7 +58,7 @@ _IGNORE_OPTION = click.Option(
 _PATH_ARGUMENT = click.Argument(
     ["paths"],
     nargs=-1,
-    type=click.Path(exists=True, resolve_path=True),
+    type=click.Path(exists=True, resolve_path=True, path_type=Path),
     is_eager=True,
 )
 """click.Argument: An argument for paths."""
@@ -180,9 +182,11 @@ _HOOK_MODULE_OPTION = click.Option(
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Register general markers."""
     for command in ("build", "clean", "collect", "dag", "profile"):
-        cli.commands[command].params.extend((_PATH_ARGUMENT, _DATABASE_URL_OPTION))
+        cli.commands[command].params.extend((_DATABASE_URL_OPTION,))
     for command in ("build", "clean", "collect", "dag", "markers", "profile"):
-        cli.commands[command].params.extend((_CONFIG_OPTION, _HOOK_MODULE_OPTION))
+        cli.commands[command].params.extend(
+            (_CONFIG_OPTION, _HOOK_MODULE_OPTION, _PATH_ARGUMENT)
+        )
     for command in ("build", "clean", "collect", "profile"):
         cli.commands[command].params.extend([_IGNORE_OPTION, _EDITOR_URL_SCHEME_OPTION])
     for command in ("build",):

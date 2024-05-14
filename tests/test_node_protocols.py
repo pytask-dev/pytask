@@ -4,8 +4,8 @@ import pickle
 import textwrap
 
 import pytest
-from pytask import cli
 from pytask import ExitCode
+from pytask import cli
 
 
 @pytest.mark.end_to_end()

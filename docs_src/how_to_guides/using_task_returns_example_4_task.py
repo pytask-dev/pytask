@@ -1,7 +1,6 @@
 from pytask import PythonNode
 from pytask import task
 
-
 nodes = [
     {"first": PythonNode(name="dict1"), "second": PythonNode(name="dict2")},
     (PythonNode(name="tuple1"), PythonNode(name="tuple2")),

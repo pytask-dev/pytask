@@ -5,13 +5,12 @@ import textwrap
 from pathlib import Path
 
 import pytest
-from pytask import cli
 from pytask import DataCatalog
 from pytask import ExitCode
 from pytask import PathNode
 from pytask import PickleNode
 from pytask import PythonNode
-
+from pytask import cli
 
 try:
     import pexpect
@@ -207,3 +206,45 @@ def test_adding_a_python_node():
     data_catalog = DataCatalog()
     data_catalog.add("node", PythonNode(name="node", value=1))
     assert isinstance(data_catalog["node"], PythonNode)
+
+
+@pytest.mark.end_to_end()
+def test_use_data_catalog_with_provisional_node(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated, List
+
+    from pytask import DataCatalog
+    from pytask import DirectoryNode
+
+    # Generate input data
+    data_catalog = DataCatalog()
+    data_catalog.add("directory", DirectoryNode(pattern="*.txt"))
+
+    def task_add_content(
+        paths: Annotated[List[Path], data_catalog["directory"]]
+    ) -> Annotated[str, Path("output.txt")]:
+        name_to_path = {path.stem: path for path in paths}
+        return name_to_path["a"].read_text() + name_to_path["b"].read_text()
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("a.txt").write_text("Hello, ")
+    tmp_path.joinpath("b.txt").write_text("World!")
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("output.txt").read_text() == "Hello, World!"
+
+
+@pytest.mark.end_to_end()
+def test_data_catalog_has_invalid_name(runner, tmp_path):
+    source = """
+    from pytask import DataCatalog
+
+    data_catalog = DataCatalog(name="?1")
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "The name of a data catalog" in result.stdout

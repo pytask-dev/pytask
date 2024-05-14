@@ -1,4 +1,5 @@
 """Contains code for tree utilities."""
+
 from __future__ import annotations
 
 import functools
@@ -11,7 +12,6 @@ from optree import tree_leaves as _optree_tree_leaves
 from optree import tree_map as _optree_tree_map
 from optree import tree_map_with_path as _optree_tree_map_with_path
 from optree import tree_structure as _optree_tree_structure
-
 
 __all__ = [
     "PyTree",

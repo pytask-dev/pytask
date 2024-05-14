@@ -5,10 +5,63 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.4.6
+## 0.5.0 - 2024-xx-xx
 
 - {pull}`548` fixes the type hints for {meth}`~pytask.Task.execute` and
   {meth}`~pytask.TaskWithoutPath.execute`. Thanks to {user}`Ostheer`.
+- {pull}`551` removes the deprecated `@pytask.mark.depends_on` and
+  `@pytask.mark.produces`.
+- {pull}`552` removes the deprecated `@pytask.mark.task`.
+- {pull}`553` deprecates `paths` as a string in configuration and ensures that paths
+  passed via the command line are relative to CWD and paths in the configuration
+  relative to the config file.
+- {pull}`555` uses new-style hook wrappers and requires pluggy 1.3 for typing.
+- {pull}`557` fixes an issue with `@task(after=...)` in notebooks and terminals.
+- {pull}`566` makes universal-pathlib an official dependency.
+- {pull}`567` adds uv to the CI workflow for faster installation.
+- {pull}`568` restricts `task_files` to a list of patterns and raises a better error.
+- {pull}`569` removes the hooks related to the creation of the DAG.
+- {pull}`571` removes redundant calls to `PNode.state()` which causes a high penalty for
+  remote files.
+- {pull}`573` removes the `pytask_execute_create_scheduler` hook.
+- {pull}`579` fixes an interaction with `--pdb` and `--trace` and task that return. The
+  debugging modes swallowed the return and `None` was returned. Closes {issue}`574`.
+- {pull}`581` simplifies the code for tracebacks and unpublishes some utility functions.
+- {pull}`586` improves linting.
+- {pull}`587` improves typing of `capture.py`.
+- {pull}`588` resets class variables of `ExecutionReport` and `Traceback`.
+- {pull}`589` enables `import_path` to resolve the root path and module name of an
+  imported file.
+- {pull}`590` fixes an error introduced in {pull}`588`.
+- {pull}`591` invalidates the cache of fsspec when checking whether a remote file
+  exists. Otherwise, a remote file might be reported as missing although it was just
+  created. See https://github.com/fsspec/s3fs/issues/851 for more info.
+- {pull}`593` recreate `PythonNode`s every run since they carry the `_NoDefault` enum as
+  the value whose state is `None`.
+- {pull}`594` publishes `NodeLoadError`.
+- {pull}`595` stops unwrapping task functions until a `coiled.function.Function`.
+- {pull}`596` add project management with rye.
+- {pull}`598` replaces requests with httpx.
+- {pull}`599` adds a test fixture for switching the cwd.
+- {pull}`600` refactors test using subprocesses.
+- {pull}`603` fixes an example in the documentation about capturing warnings.
+- {pull}`604` fixes some examples with `PythonNode`s in the documentation.
+- {pull}`605` improves checks and CI.
+- {pull}`606` improves the documentation for data catalogs.
+- {pull}`609` allows a pending status for tasks. Useful for async backends implemented
+  in pytask-parallel.
+- {pull}`611` removes the initial task execution status from
+  `pytask_execute_task_log_start`.
+- {pull}`612` adds validation for data catalog names.
+
+## 0.4.7 - 2024-03-19
+
+- {pull}`580` is a backport of {pull}`579`.
+
+## 0.4.6 - 2024-03-13
+
+- {pull}`576` fixes accidentally collecting `pytask.MarkGenerator` when using
+  `from pytask import mark`.
 
 ## 0.4.5 - 2024-01-09
 
@@ -51,6 +104,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`485` adds missing steps to unconfigure pytask after the job is done, which
   caused flaky tests.
 - {pull}`486` adds default names to {class}`~pytask.PPathNode`.
+- {pull}`487` implements task generators and provisional nodes.
 - {pull}`488` raises an error when an invalid value is used in a return annotation.
 - {pull}`489` and {pull}`491` simplifies parsing products and does not raise an error
   when a product annotation is used with the argument name `produces`. And allow

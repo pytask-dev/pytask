@@ -5,11 +5,11 @@ from pathlib import Path
 
 import networkx as nx
 import pytest
+from _pytask.dag_utils import TopologicalSorter
 from _pytask.dag_utils import _extract_priorities_from_tasks
 from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.dag_utils import task_and_descending_tasks
-from _pytask.dag_utils import TopologicalSorter
 from pytask import Mark
 from pytask import Task
 

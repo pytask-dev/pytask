@@ -1,24 +1,24 @@
 from __future__ import annotations
 
 import json
-import os
 import pickle
 import re
 import subprocess
 import sys
 import textwrap
-from pathlib import Path
 
 import pytask
 import pytest
-from pytask import build
 from pytask import CaptureMethod
-from pytask import cli
 from pytask import ExitCode
 from pytask import NodeNotFoundError
 from pytask import PathNode
 from pytask import TaskOutcome
 from pytask import TaskWithoutPath
+from pytask import build
+from pytask import cli
+
+from tests.conftest import enter_directory
 
 
 @pytest.mark.xfail(sys.platform == "win32", reason="See #293.")
@@ -31,10 +31,8 @@ def test_python_m_pytask(tmp_path):
 @pytest.mark.end_to_end()
 def test_execute_w_autocollect(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
-    cwd = Path.cwd()
-    os.chdir(tmp_path)
-    result = runner.invoke(cli)
-    os.chdir(cwd)
+    with enter_directory(tmp_path):
+        result = runner.invoke(cli)
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
 
@@ -42,10 +40,9 @@ def test_execute_w_autocollect(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_task_did_not_produce_node(tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces("out.txt")
-    def task_example(): ...
+    def task_example(produces=Path("out.txt")): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -59,10 +56,9 @@ def test_task_did_not_produce_node(tmp_path):
 @pytest.mark.end_to_end()
 def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces(["1.txt", "2.txt"])
-    def task_example(): ...
+    def task_example(produces=[Path("1.txt"), Path("2.txt")]): ...
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -72,6 +68,21 @@ def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path)
     assert "NodeNotFoundError" in result.output
     assert "1.txt" in result.output
     assert "2.txt" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_missing_product(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from pytask import Product
+
+    def task_with_non_path_dependency(path: Annotated[Path, Product]): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
 
 
 @pytest.mark.end_to_end()
@@ -113,45 +124,13 @@ def test_node_not_found_in_task_setup(tmp_path):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.parametrize(
-    "dependencies",
-    [[], ["in.txt"], ["in_1.txt", "in_2.txt"]],
-)
-@pytest.mark.parametrize("products", [["out.txt"], ["out_1.txt", "out_2.txt"]])
-def test_execution_w_varying_dependencies_products(tmp_path, dependencies, products):
-    source = f"""
-    import pytask
-    from pathlib import Path
-
-    @pytask.mark.depends_on({dependencies})
-    @pytask.mark.produces({products})
-    def task_example(depends_on, produces):
-        if isinstance(produces, dict):
-            produces = produces.values()
-        elif isinstance(produces, Path):
-            produces = [produces]
-        for product in produces:
-            product.touch()
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    for dependency in dependencies:
-        tmp_path.joinpath(dependency).touch()
-
-    session = build(paths=tmp_path)
-    assert session.exit_code == ExitCode.OK
-
-
-@pytest.mark.end_to_end()
 def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
     source = """
-    import pytask
     from pathlib import Path
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_example(depends_on, produces):
-        assert isinstance(depends_on, Path) and isinstance(produces, Path)
-        produces.write_text(depends_on.read_text())
+    def task_example(path=Path("in.txt"), produces=Path("out.txt")):
+        assert isinstance(path, Path) and isinstance(produces, Path)
+        produces.write_text(path.read_text())
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Here I am. Once again.")
@@ -160,90 +139,6 @@ def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
 
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").read_text() == "Here I am. Once again."
-
-
-@pytest.mark.end_to_end()
-def test_assert_multiple_dependencies_are_merged_to_dict(tmp_path, runner):
-    source = """
-    import pytask
-    from pathlib import Path
-
-    @pytask.mark.depends_on({3: "in_3.txt", 4: "in_4.txt"})
-    @pytask.mark.depends_on(["in_1.txt", "in_2.txt"])
-    @pytask.mark.depends_on("in_0.txt")
-    @pytask.mark.produces("out.txt")
-    def task_example(depends_on, produces):
-        expected = {
-            i: Path(__file__).parent.joinpath(f"in_{i}.txt").resolve()
-            for i in range(5)
-        }
-        assert depends_on == expected
-        produces.touch()
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    for name in [f"in_{i}.txt" for i in range(5)]:
-        tmp_path.joinpath(name).touch()
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-
-    assert result.exit_code == ExitCode.OK
-
-
-@pytest.mark.end_to_end()
-def test_assert_multiple_products_are_merged_to_dict(tmp_path, runner):
-    source = """
-    import pytask
-    from pathlib import Path
-
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces({3: "out_3.txt", 4: "out_4.txt"})
-    @pytask.mark.produces(["out_1.txt", "out_2.txt"])
-    @pytask.mark.produces("out_0.txt")
-    def task_example(depends_on, produces):
-        expected = {
-            i: Path(__file__).parent.joinpath(f"out_{i}.txt").resolve()
-            for i in range(5)
-        }
-        assert produces == expected
-        for product in produces.values():
-            product.touch()
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    tmp_path.joinpath("in.txt").touch()
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-
-    assert result.exit_code == ExitCode.OK
-
-
-@pytest.mark.end_to_end()
-@pytest.mark.parametrize("input_type", ["list", "dict"])
-def test_preserve_input_for_dependencies_and_products(tmp_path, input_type):
-    """Input type for dependencies and products is preserved."""
-    path = tmp_path.joinpath("in.txt")
-    input_ = {0: path.as_posix()} if input_type == "dict" else [path.as_posix()]
-    path.touch()
-
-    path = tmp_path.joinpath("out.txt")
-    output = {0: path.as_posix()} if input_type == "dict" else [path.as_posix()]
-
-    source = f"""
-    import pytask
-    from pathlib import Path
-
-    @pytask.mark.depends_on({input_})
-    @pytask.mark.produces({output})
-    def task_example(depends_on, produces):
-        for nodes in [depends_on, produces]:
-            assert isinstance(nodes, dict)
-            assert len(nodes) == 1
-            assert 0 in nodes
-        produces[0].touch()
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    session = build(paths=tmp_path)
-    assert session.exit_code == ExitCode.OK
 
 
 @pytest.mark.end_to_end()
@@ -329,13 +224,11 @@ def test_show_errors_immediately(runner, tmp_path, show_errors_immediately):
 @pytest.mark.parametrize("verbose", [1, 2])
 def test_traceback_of_previous_task_failed_is_not_shown(runner, tmp_path, verbose):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces("in.txt")
-    def task_first(): raise ValueError
+    def task_first(produces=Path("in.txt")): raise ValueError
 
-    @pytask.mark.depends_on("in.txt")
-    def task_second(): pass
+    def task_second(path=Path("in.txt")): ...
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
@@ -429,9 +322,8 @@ def test_task_with_product_annotation(tmp_path, arg_name):
 def test_task_errors_with_nested_product_annotation(tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing_extensions import Annotated, Dict
     from pytask import Product
-    from typing import Dict
 
     def task_example(
         paths_to_file: Dict[str, Annotated[Path, Product]] = {"a": Path("out.txt")}
@@ -461,8 +353,7 @@ def test_task_with_hashed_python_node(runner, tmp_path, definition):
     import json
     from pathlib import Path
     from pytask import Product, PythonNode
-    from typing import Any
-    from typing_extensions import Annotated
+    from typing_extensions import Annotated, Any
 
     data = json.loads(Path(__file__).parent.joinpath("data.json").read_text())
 
@@ -626,6 +517,12 @@ def test_pytree_and_python_node_as_return(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
+
+    # Test that python nodes are recreated every run.
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output
 
 
 @pytest.mark.end_to_end()
@@ -651,10 +548,6 @@ def test_more_nested_pytree_and_python_node_as_return_with_names(runner, tmp_pat
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
 
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert "1  Skipped" in result.output
-
 
 @pytest.mark.end_to_end()
 def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
@@ -675,15 +568,10 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
 
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert "1  Skipped" in result.output
-
 
 @pytest.mark.end_to_end()
 def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     source = """
-    from pytask import PathNode
     from pytask import PythonNode
     from typing_extensions import Annotated
     from pathlib import Path
@@ -693,9 +581,9 @@ def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     def task_create_text() -> Annotated[int, node_text]:
         return "This is the text."
 
-    node_file = PathNode(path=Path("file.txt"))
-
-    def task_create_file(text: Annotated[int, node_text]) -> Annotated[str, node_file]:
+    def task_create_file(
+        text: Annotated[int, node_text]
+    ) -> Annotated[str, Path("file.txt")]:
         return text
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -711,22 +599,20 @@ def test_execute_tasks_via_functional_api(tmp_path):
     import sys
     from pathlib import Path
     from typing_extensions import Annotated
-    from pytask import PathNode
-    import pytask
-    from pytask import PythonNode
+    from pytask import PathNode, PythonNode, build
 
     node_text = PythonNode()
 
     def create_text() -> Annotated[int, node_text]:
         return "This is the text."
 
-    node_file = PathNode(path=Path("file.txt"))
-
-    def create_file(content: Annotated[str, node_text]) -> Annotated[str, node_file]:
+    def create_file(
+        content: Annotated[str, node_text]
+    ) -> Annotated[str, Path("file.txt")]:
         return content
 
     if __name__ == "__main__":
-        session = pytask.build(tasks=[create_file, create_text])
+        session = build(tasks=[create_file, create_text])
         assert len(session.tasks) == 2
         assert len(session.dag.nodes) == 5
         sys.exit(session.exit_code)
@@ -748,7 +634,6 @@ def test_pass_non_task_to_functional_api_that_are_ignored():
 @pytest.mark.end_to_end()
 def test_multiple_product_annotations(runner, tmp_path):
     source = """
-    from __future__ import annotations
     from pytask import Product
     from typing_extensions import Annotated
     from pathlib import Path
@@ -812,6 +697,7 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
     assert "_pytask/execute.py" not in result.output
 
 
+@pytest.mark.end_to_end()
 def test_hashing_works(tmp_path):
     """Use subprocess or otherwise the cache is filled from other tests."""
     source = """
@@ -836,6 +722,7 @@ def test_hashing_works(tmp_path):
     assert hashes == hashes_
 
 
+@pytest.mark.end_to_end()
 def test_python_node_as_product_with_product_annotation(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -856,6 +743,7 @@ def test_python_node_as_product_with_product_annotation(runner, tmp_path):
     assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
 
 
+@pytest.mark.end_to_end()
 def test_pickle_node_as_product_with_product_annotation(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -879,11 +767,9 @@ def test_pickle_node_as_product_with_product_annotation(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_check_if_root_nodes_are_available(tmp_path, runner):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_d(produces):
+    def task_d(path=Path("in.txt"), produces=Path("out.txt")):
         produces.write_text("1")
     """
     tmp_path.joinpath("task_d.py").write_text(textwrap.dedent(source))
@@ -920,11 +806,9 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder(tmp_path, 
     tmp_path.joinpath("src").mkdir()
     tmp_path.joinpath("bld").mkdir()
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("../bld/in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_d(produces):
+    def task_d(path=Path("../bld/in.txt"), produces=Path("out.txt")):
         produces.write_text("1")
     """
     tmp_path.joinpath("src", "task_d.py").write_text(textwrap.dedent(source))
@@ -936,6 +820,7 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder(tmp_path, 
     assert "bld/in.txt" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_error_when_node_state_throws_error(runner, tmp_path):
     source = """
     from pytask import PythonNode
@@ -950,6 +835,7 @@ def test_error_when_node_state_throws_error(runner, tmp_path):
     assert "TypeError: unhashable type: 'dict'" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_task_is_not_reexecuted(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -974,6 +860,7 @@ def test_task_is_not_reexecuted(runner, tmp_path):
     assert "1  Skipped because unchanged" in result.output
 
 
+@pytest.mark.end_to_end()
 def test_use_functional_interface_with_task(tmp_path):
     def func(path):
         path.touch()
@@ -992,6 +879,7 @@ def test_use_functional_interface_with_task(tmp_path):
     assert session.exit_code == ExitCode.OK
 
 
+@pytest.mark.end_to_end()
 def test_collect_task(runner, tmp_path):
     source = """
     from pytask import Task, PathNode
@@ -1012,6 +900,7 @@ def test_collect_task(runner, tmp_path):
     assert tmp_path.joinpath("out.txt").exists()
 
 
+@pytest.mark.end_to_end()
 def test_collect_task_without_path(runner, tmp_path):
     source = """
     from pytask import TaskWithoutPath, PathNode
@@ -1032,20 +921,242 @@ def test_collect_task_without_path(runner, tmp_path):
     assert tmp_path.joinpath("out.txt").exists()
 
 
-@pytest.mark.skipif(sys.version_info >= (3, 12), reason="Not supported in Python 3.12.")
-def test_with_http_path(runner, tmp_path):
+@pytest.mark.end_to_end()
+def test_task_that_produces_provisional_path_node(tmp_path):
     source = """
-    from upath import UPath
     from typing_extensions import Annotated
+    from pytask import DirectoryNode, Product
+    from pathlib import Path
 
-    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
-
-    def task_example(path = UPath(url)) -> Annotated[str, UPath("data.txt")]:
-        return path.read_text()
+    def task_example(
+        root_path: Annotated[Path, DirectoryNode(pattern="*.txt"), Product]
+    ):
+        root_path.joinpath("a.txt").write_text("Hello, ")
+        root_path.joinpath("b.txt").write_text("World!")
     """
-    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 1
+    assert len(session.tasks[0].produces["root_path"]) == 2
+
+    # Rexecution does skip the task.
+    session = build(paths=tmp_path)
+    assert session.execution_reports[0].outcome == TaskOutcome.SKIP_UNCHANGED
+
+
+@pytest.mark.end_to_end()
+def test_task_that_depends_on_relative_provisional_path_node(tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DirectoryNode
+    from pathlib import Path
+
+    def task_example(
+        paths = DirectoryNode(pattern="[ab].txt")
+    ) -> Annotated[str, Path("merged.txt")]:
+        path_dict = {path.stem: path for path in paths}
+        return path_dict["a"].read_text() + path_dict["b"].read_text()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("a.txt").write_text("Hello, ")
+    tmp_path.joinpath("b.txt").write_text("World!")
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 1
+    assert len(session.tasks[0].depends_on["paths"]) == 2
+
+
+@pytest.mark.end_to_end()
+def test_task_that_depends_on_provisional_path_node_with_root_dir(tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DirectoryNode
+    from pathlib import Path
+
+    root_dir = Path(__file__).parent / "subfolder"
+
+    def task_example(
+        paths = DirectoryNode(root_dir=root_dir, pattern="[ab].txt")
+    ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
+        path_dict = {path.stem: path for path in paths}
+        return path_dict["a"].read_text() + path_dict["b"].read_text()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("subfolder").mkdir()
+    tmp_path.joinpath("subfolder", "a.txt").write_text("Hello, ")
+    tmp_path.joinpath("subfolder", "b.txt").write_text("World!")
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 1
+    assert len(session.tasks[0].depends_on["paths"]) == 2
+
+
+@pytest.mark.end_to_end()
+def test_task_that_depends_on_provisional_task(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DirectoryNode, task
+    from pathlib import Path
+
+    def task_produces() -> Annotated[None, DirectoryNode(pattern="[ab].txt")]:
+        path = Path(__file__).parent
+        path.joinpath("a.txt").write_text("Hello, ")
+        path.joinpath("b.txt").write_text("World!")
+
+    @task(after=task_produces)
+    def task_depends(
+        paths = DirectoryNode(pattern="[ab].txt")
+    ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
+        path_dict = {path.stem: path for path in paths}
+        return path_dict["a"].read_text() + path_dict["b"].read_text()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    print(result.output)  # noqa: T201
     assert result.exit_code == ExitCode.OK
-    assert tmp_path.joinpath("data.txt").exists()
+    assert "2  Collected tasks" in result.output
+    assert "2  Succeeded" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_gracefully_fail_when_dag_raises_error(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DirectoryNode, task
+    from pathlib import Path
+
+    def task_produces() -> Annotated[None, DirectoryNode(pattern="*.txt")]:
+        path = Path(__file__).parent
+        path.joinpath("a.txt").write_text("Hello, ")
+        path.joinpath("b.txt").write_text("World!")
+
+    @task(after=task_produces)
+    def task_depends(
+        paths = DirectoryNode(pattern="[ab].txt")
+    ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
+        path_dict = {path.stem: path for path in paths}
+        return path_dict["a"].read_text() + path_dict["b"].read_text()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+    assert "There are some tasks which produce" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_provisional_task_generation(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DirectoryNode, task
+    from pathlib import Path
+
+    def task_produces() -> Annotated[None, DirectoryNode(pattern="[ab].txt")]:
+        path = Path(__file__).parent
+        path.joinpath("a.txt").write_text("Hello, ")
+        path.joinpath("b.txt").write_text("World!")
+
+    @task(after=task_produces, is_generator=True)
+    def task_depends(
+        paths = DirectoryNode(pattern="[ab].txt")
+    ):
+        for path in paths:
+
+            @task
+            def task_copy(
+                path: Path = path
+            ) -> Annotated[str, path.with_name(path.stem + "-copy.txt")]:
+                return path.read_text()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "4  Collected tasks" in result.output
+    assert "4  Succeeded" in result.output
+    assert tmp_path.joinpath("a-copy.txt").exists()
+    assert tmp_path.joinpath("b-copy.txt").exists()
+
+
+@pytest.mark.end_to_end()
+def test_gracefully_fail_when_task_generator_raises_error(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DirectoryNode, task, Product
+    from pathlib import Path
+
+    @task(is_generator=True)
+    def task_example(
+        root_dir: Annotated[Path, DirectoryNode(pattern="[a].txt"), Product]
+    ) -> ...:
+        raise Exception
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.FAILED
+    assert "1  Collected task" in result.output
+    assert "1  Failed" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_use_provisional_node_as_product_in_generator_without_rerun(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DirectoryNode, task, Product
+    from pathlib import Path
+
+    @task(is_generator=True)
+    def task_example(
+        root_dir: Annotated[Path, DirectoryNode(pattern="[ab].txt"), Product]
+    ) -> ...:
+        for path in (root_dir / "a.txt", root_dir / "b.txt"):
+
+            @task
+            def create_file() -> Annotated[Path, path]:
+                return "content"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "3  Collected task" in result.output
+    assert "3  Succeeded" in result.output
+
+    # No rerun.
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "3  Collected task" in result.output
+    assert "1  Succeeded" in result.output
+    assert "2  Skipped because unchanged" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_download_file(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing_extensions import Annotated
+    from upath import UPath
+
+    url = UPath(
+        "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
+    )
+
+    def task_download_file(path: UPath = url) -> Annotated[str, Path("data.csv")]:
+        return path.read_text()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.output

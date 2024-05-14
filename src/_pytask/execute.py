@@ -1,11 +1,14 @@
 """Contains hook implementations concerning the execution."""
+
 from __future__ import annotations
 
 import inspect
 import sys
 import time
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
+
+from rich.text import Text
 
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
@@ -14,9 +17,9 @@ from _pytask.console import create_url_style_for_task
 from _pytask.console import format_node_name
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import unify_styles
+from _pytask.dag_utils import TopologicalSorter
 from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import node_and_neighbors
-from _pytask.dag_utils import TopologicalSorter
 from _pytask.database_utils import has_node_changed
 from _pytask.database_utils import update_states_in_database
 from _pytask.exceptions import ExecutionError
@@ -26,20 +29,21 @@ from _pytask.mark import Mark
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
-from _pytask.outcomes import count_outcomes
 from _pytask.outcomes import Exit
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
 from _pytask.outcomes import WouldBeExecuted
+from _pytask.outcomes import count_outcomes
 from _pytask.pluginmanager import hookimpl
+from _pytask.provisional_utils import collect_provisional_products
 from _pytask.reports import ExecutionReport
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_structure
-from rich.text import Text
-
+from _pytask.typing import is_task_generator
 
 if TYPE_CHECKING:
     from _pytask.session import Session
@@ -56,7 +60,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 def pytask_execute(session: Session) -> None:
     """Execute tasks."""
     session.hook.pytask_execute_log_start(session=session)
-    session.scheduler = session.hook.pytask_execute_create_scheduler(session=session)
+    session.scheduler = TopologicalSorter.from_dag(session.dag)
     session.hook.pytask_execute_build(session=session)
     session.hook.pytask_execute_log_end(
         session=session, reports=session.execution_reports
@@ -70,12 +74,6 @@ def pytask_execute_log_start(session: Session) -> None:
 
     # New line to separate note on collected items from task statuses.
     console.print()
-
-
-@hookimpl(trylast=True)
-def pytask_execute_create_scheduler(session: Session) -> TopologicalSorter:
-    """Create a scheduler based on topological sorting."""
-    return TopologicalSorter.from_dag(session.dag)
 
 
 @hookimpl
@@ -120,7 +118,7 @@ def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionRepo
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task_setup(session: Session, task: PTask) -> None:
+def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C901
     """Set up the execution of a task.
 
     1. Check whether all dependencies of a task are available.
@@ -132,14 +130,26 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
 
     dag = session.dag
 
-    needs_to_be_executed = session.config["force"]
+    # Task generators are always executed since their states are not updated, but we
+    # skip the checks as well.
+    needs_to_be_executed = session.config["force"] or is_task_generator(task)
+
     if not needs_to_be_executed:
         predecessors = set(dag.predecessors(task.signature)) | {task.signature}
         for node_signature in node_and_neighbors(dag, task.signature):
             node = dag.nodes[node_signature].get("task") or dag.nodes[
                 node_signature
             ].get("node")
-            if node_signature in predecessors and not node.state():
+
+            # Skip provisional nodes that are products since they do not have a state.
+            if node_signature not in predecessors and isinstance(
+                node, PProvisionalNode
+            ):
+                continue
+
+            node_state = node.state()
+
+            if node_signature in predecessors and not node_state:
                 msg = f"{task.name!r} requires missing node {node.name!r}."
                 if IS_FILE_SYSTEM_CASE_SENSITIVE:
                     msg += (
@@ -148,12 +158,13 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
                     )
                 raise NodeNotFoundError(msg)
 
-            has_changed = has_node_changed(task=task, node=node)
+            has_changed = has_node_changed(task=task, node=node, state=node_state)
             if has_changed:
                 needs_to_be_executed = True
                 break
 
     if not needs_to_be_executed:
+        collect_provisional_products(session, task)
         raise SkippedUnchanged
 
     # Create directory for product if it does not exist. Maybe this should be a `setup`
@@ -164,10 +175,10 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
             node.path.parent.mkdir(parents=True, exist_ok=True)
 
 
-def _safe_load(node: PNode, task: PTask, is_product: bool) -> Any:
+def _safe_load(node: PNode | PProvisionalNode, task: PTask, *, is_product: bool) -> Any:
     try:
         return node.load(is_product=is_product)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         msg = f"Exception while loading node {node.name!r} of task {task.name!r}"
         raise NodeLoadError(msg) from e
 
@@ -182,17 +193,20 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
 
     kwargs = {}
     for name, value in task.depends_on.items():
-        kwargs[name] = tree_map(lambda x: _safe_load(x, task, False), value)
+        kwargs[name] = tree_map(lambda x: _safe_load(x, task, is_product=False), value)
 
     for name, value in task.produces.items():
         if name in parameters:
-            kwargs[name] = tree_map(lambda x: _safe_load(x, task, True), value)
+            kwargs[name] = tree_map(
+                lambda x: _safe_load(x, task, is_product=True), value
+            )
 
     out = task.execute(**kwargs)
 
     if "return" in task.produces:
         structure_out = tree_structure(out)
         structure_return = tree_structure(task.produces["return"])
+
         # strict must be false when none is leaf.
         if not structure_return.is_prefix(structure_out, strict=False):
             msg = (
@@ -205,14 +219,19 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
         nodes = tree_leaves(task.produces["return"])
         values = structure_return.flatten_up_to(out)
         for node, value in zip(nodes, values):
-            node.save(value)
+            if not isinstance(node, PProvisionalNode):
+                node.save(value)
 
     return True
 
 
-@hookimpl
+@hookimpl(trylast=True)
 def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
-    """Check if :class:`_pytask.nodes.PathNode` are produced by a task."""
+    """Check if nodes are produced by a task."""
+    if is_task_generator(task):
+        return
+
+    collect_provisional_products(session, task)
     missing_nodes = [node for node in tree_leaves(task.produces) if not node.state()]
     if missing_nodes:
         paths = session.config["paths"]

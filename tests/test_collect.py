@@ -8,14 +8,13 @@ from pathlib import Path
 import pytest
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
-from pytask import build
-from pytask import cli
 from pytask import CollectionOutcome
 from pytask import ExitCode
 from pytask import NodeInfo
-from pytask import NodeNotCollectedError
 from pytask import Session
 from pytask import Task
+from pytask import build
+from pytask import cli
 
 
 @pytest.mark.end_to_end()
@@ -28,13 +27,10 @@ from pytask import Task
 )
 def test_collect_file_with_relative_path(tmp_path, depends_on, produces):
     source = f"""
-    import pytask
     from pathlib import Path
 
-    @pytask.mark.depends_on({depends_on})
-    @pytask.mark.produces({produces})
-    def task_write_text(depends_on, produces):
-        produces.write_text(depends_on.read_text())
+    def task_write_text(path=Path({depends_on}), produces=Path({produces})):
+        produces.write_text(path.read_text())
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("in.txt").write_text("Relative paths work.")
@@ -67,66 +63,16 @@ def test_relative_path_of_path_node(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_collect_depends_on_that_is_not_str_or_path(capsys, tmp_path):
-    """If a node cannot be parsed because unknown type, raise an error."""
-    source = """
-    import pytask
-
-    @pytask.mark.depends_on(True)
-    def task_with_non_path_dependency():
-        pass
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    session = build(paths=tmp_path)
-
-    assert session.exit_code == ExitCode.COLLECTION_FAILED
-    assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
-    exc_info = session.collection_reports[0].exc_info
-    assert isinstance(exc_info[1], NodeNotCollectedError)
-    captured = capsys.readouterr().out
-    assert "'@pytask.mark.depends_on'" in captured
-    # Assert tracebacks are hidden.
-    assert "_pytask/collect.py" not in captured
-
-
-@pytest.mark.end_to_end()
-def test_collect_produces_that_is_not_str_or_path(tmp_path, capsys):
-    """If a node cannot be parsed because unknown type, raise an error."""
-    source = """
-    import pytask
-
-    @pytask.mark.produces(True)
-    def task_with_non_path_dependency():
-        pass
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    session = build(paths=tmp_path)
-
-    assert session.exit_code == ExitCode.COLLECTION_FAILED
-    assert session.collection_reports[0].outcome == CollectionOutcome.FAIL
-    exc_info = session.collection_reports[0].exc_info
-    assert isinstance(exc_info[1], NodeNotCollectedError)
-    captured = capsys.readouterr().out
-    assert "'@pytask.mark.depends_on'" in captured
-
-
-@pytest.mark.end_to_end()
 def test_collect_nodes_with_the_same_name(runner, tmp_path):
     """Nodes with the same filename, not path, are not mistaken for each other."""
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("text.txt")
-    @pytask.mark.produces("out_0.txt")
-    def task_0(depends_on, produces):
-        produces.write_text(depends_on.read_text())
+    def task_0(path=Path("text.txt"), produces=Path("out_0.txt")):
+        produces.write_text(path.read_text())
 
-    @pytask.mark.depends_on("sub/text.txt")
-    @pytask.mark.produces("out_1.txt")
-    def task_1(depends_on, produces):
-        produces.write_text(depends_on.read_text())
+    def task_1(path=Path("sub/text.txt"), produces=Path("out_1.txt")):
+        produces.write_text(path.read_text())
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
@@ -157,10 +103,10 @@ def test_collect_same_task_different_ways(tmp_path, path_extension):
 @pytest.mark.parametrize(
     ("task_files", "pattern", "expected_collected_tasks"),
     [
-        (["example_task.py"], "'*_task.py'", 1),
-        (["tasks_example.py"], "'tasks_*'", 1),
-        (["example_tasks.py"], "'*_tasks.py'", 1),
-        (["task_module.py", "tasks_example.py"], "'tasks_*.py'", 1),
+        (["example_task.py"], "['*_task.py']", 1),
+        (["tasks_example.py"], "['tasks_*']", 1),
+        (["example_tasks.py"], "['*_tasks.py']", 1),
+        (["task_module.py", "tasks_example.py"], "['tasks_*.py']", 1),
         (["task_module.py", "tasks_example.py"], "['task_*.py', 'tasks_*.py']", 2),
     ],
 )
@@ -171,13 +117,28 @@ def test_collect_files_w_custom_file_name_pattern(
         f"[tool.pytask.ini_options]\ntask_files = {pattern}"
     )
 
-    for file in task_files:
-        tmp_path.joinpath(file).write_text("def task_example(): pass")
+    for file_ in task_files:
+        tmp_path.joinpath(file_).write_text("def task_example(): pass")
 
     session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == expected_collected_tasks
+
+
+def test_error_with_invalid_file_name_pattern(runner, tmp_path):
+    tmp_path.joinpath("pyproject.toml").write_text(
+        "[tool.pytask.ini_options]\ntask_files = 'asds'"
+    )
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.CONFIGURATION_FAILED
+    assert "'task_files' must be a list of patterns." in result.output
+
+
+def test_error_with_invalid_file_name_pattern_(tmp_path):
+    session = build(paths=tmp_path, task_files=[1])
+    assert session.exit_code == ExitCode.CONFIGURATION_FAILED
 
 
 @pytest.mark.unit()
@@ -374,25 +335,6 @@ def test_collect_module_name(tmp_path):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.parametrize("decorator", ["", "@task"])
-def test_collect_string_product_with_or_without_task_decorator(
-    runner, tmp_path, decorator
-):
-    source = f"""
-    from pytask import task
-
-    {decorator}
-    def task_write_text(produces="out.txt"):
-        produces.touch()
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert tmp_path.joinpath("out.txt").exists()
-    assert "FutureWarning" in result.output
-
-
-@pytest.mark.end_to_end()
 def test_collect_string_product_raises_error_with_annotation(runner, tmp_path):
     """The string is not converted to a path."""
     source = """
@@ -405,98 +347,6 @@ def test_collect_string_product_raises_error_with_annotation(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.FAILED
-
-
-@pytest.mark.end_to_end()
-def test_product_cannot_mix_different_product_types(tmp_path, capsys):
-    source = """
-    import pytask
-    from typing_extensions import Annotated
-    from pytask import Product
-    from pathlib import Path
-
-    @pytask.mark.produces("out_deco.txt")
-    def task_example(
-        path: Annotated[Path, Product], produces: Path = Path("out_sig.txt")
-    ):
-        ...
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    session = build(paths=tmp_path)
-
-    assert session.exit_code == ExitCode.COLLECTION_FAILED
-    assert len(session.tasks) == 0
-    report = session.collection_reports[0]
-    assert report.outcome == CollectionOutcome.FAIL
-    captured = capsys.readouterr().out
-    assert "The task uses multiple ways" in captured
-
-
-@pytest.mark.end_to_end()
-def test_depends_on_cannot_mix_different_definitions(tmp_path, capsys):
-    source = """
-    import pytask
-    from typing_extensions import Annotated
-    from pytask import Product
-    from pathlib import Path
-
-    @pytask.mark.depends_on("input_1.txt")
-    def task_example(
-        depends_on: Path = "input_2.txt",
-        path: Annotated[Path, Product] = Path("out.txt")
-    ):
-        ...
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    tmp_path.joinpath("input_1.txt").touch()
-    tmp_path.joinpath("input_2.txt").touch()
-    session = build(paths=tmp_path)
-
-    assert session.exit_code == ExitCode.COLLECTION_FAILED
-    assert len(session.tasks) == 0
-    report = session.collection_reports[0]
-    assert report.outcome == CollectionOutcome.FAIL
-    captured = capsys.readouterr().out
-    assert "The task uses multiple" in captured
-
-
-@pytest.mark.end_to_end()
-@pytest.mark.parametrize(
-    ("depends_on", "produces"),
-    [("'in.txt'", "Path('out.txt')"), ("Path('in.txt')", "'out.txt'")],
-)
-def test_deprecation_warning_for_strings_in_former_decorator_args(
-    runner, tmp_path, depends_on, produces
-):
-    source = f"""
-    import pytask
-    from pathlib import Path
-
-    @pytask.mark.depends_on({depends_on})
-    @pytask.mark.produces({produces})
-    def task_write_text(depends_on, produces):
-        produces.touch()
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    tmp_path.joinpath("in.txt").touch()
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert "FutureWarning" in result.output
-
-
-@pytest.mark.end_to_end()
-def test_no_deprecation_warning_for_using_magic_produces(runner, tmp_path):
-    source = """
-    import pytask
-    from pathlib import Path
-
-    def task_write_text(depends_on, produces=Path("out.txt")):
-        produces.touch()
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert "FutureWarning" not in result.output
 
 
 @pytest.mark.end_to_end()
@@ -522,13 +372,11 @@ def test_setting_name_for_path_node_via_annotation(tmp_path):
 @pytest.mark.end_to_end()
 def test_error_when_dependency_is_defined_in_kwargs_and_annotation(runner, tmp_path):
     source = """
-    import pytask
     from pathlib import Path
     from typing_extensions import Annotated
-    from pytask import Product, PathNode
-    from pytask import PythonNode
+    from pytask import Product, PathNode, PythonNode, task
 
-    @pytask.mark.task(kwargs={"in_": "world"})
+    @task(kwargs={"in_": "world"})
     def task_example(
         in_: Annotated[str, PythonNode(name="string", value="hello")],
         path: Annotated[Path, Product, PathNode(path=Path("out.txt"), name="product")],
@@ -544,14 +392,13 @@ def test_error_when_dependency_is_defined_in_kwargs_and_annotation(runner, tmp_p
 @pytest.mark.end_to_end()
 def test_error_when_product_is_defined_in_kwargs_and_annotation(runner, tmp_path):
     source = """
-    import pytask
     from pathlib import Path
     from typing_extensions import Annotated
-    from pytask import Product, PathNode
+    from pytask import Product, PathNode, task
 
     node = PathNode(path=Path("out.txt"), name="product")
 
-    @pytask.mark.task(kwargs={"path": node})
+    @task(kwargs={"path": node})
     def task_example(path: Annotated[Path, Product, node]) -> None:
         path.write_text("text")
     """
@@ -578,6 +425,7 @@ def test_error_when_using_kwargs_and_node_in_annotation(runner, tmp_path):
     assert "is defined twice" in result.output
 
 
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize(
     "node",
     [
@@ -599,6 +447,7 @@ def test_error_when_path_dependency_is_directory(runner, tmp_path, node):
     assert all(i in result.output for i in ("only", "files", "are", "allowed"))
 
 
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize(
     "node",
     [
@@ -622,6 +471,7 @@ def test_error_when_path_product_is_directory(runner, tmp_path, node):
     assert all(i in result.output for i in ("only", "files", "are", "allowed"))
 
 
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize(
     "node",
     [
@@ -647,6 +497,7 @@ def test_default_name_of_path_nodes(tmp_path, node):
     assert session.tasks[0].produces["return"].name == tmp_path.name + "/file.txt"
 
 
+@pytest.mark.end_to_end()
 def test_error_when_return_annotation_cannot_be_parsed(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -692,6 +543,7 @@ def test_module_can_be_collected(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
+    assert "attr_that_definitely_does_not_exist" not in result.output
 
 
 @pytest.mark.end_to_end()
@@ -713,3 +565,20 @@ def test_error_with_multiple_dependency_annotations(runner, tmp_path, second_nod
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.COLLECTION_FAILED
     assert "Parameter 'dependency' has multiple node annot" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_error_if_multiple_return_annotations_are_used(runner, tmp_path):
+    source = """
+    from pytask import task
+    from pathlib import Path
+    from typing_extensions import Annotated
+
+    @task(produces=Path("file.txt"))
+    def task_example() -> Annotated[str, Path("file.txt")]: ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "The task uses multiple ways to parse" in result.output

@@ -1,17 +1,14 @@
 """Contains code related to live objects."""
+
 from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
 from typing import NamedTuple
-from typing import TYPE_CHECKING
 
 import click
-from _pytask.console import console
-from _pytask.console import format_task_name
-from _pytask.outcomes import CollectionOutcome
-from _pytask.outcomes import TaskOutcome
-from _pytask.pluginmanager import hookimpl
 from attrs import define
 from attrs import field
 from rich.box import ROUNDED
@@ -21,11 +18,18 @@ from rich.style import Style
 from rich.table import Table
 from rich.text import Text
 
+from _pytask.console import console
+from _pytask.console import format_task_name
+from _pytask.logging_utils import TaskExecutionStatus
+from _pytask.outcomes import CollectionOutcome
+from _pytask.outcomes import TaskOutcome
+from _pytask.pluginmanager import hookimpl
+
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
+    from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
-    from _pytask.reports import CollectionReport
 
 
 @hookimpl
@@ -69,14 +73,13 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     config["pm"].register(live_collection, "live_collection")
 
 
-@hookimpl(hookwrapper=True)
+@hookimpl(wrapper=True)
 def pytask_execute(session: Session) -> Generator[None, None, None]:
     if session.config["verbose"] >= 1:
         live_execution = session.config["pm"].get_plugin("live_execution")
         if live_execution:
             live_execution.n_tasks = len(session.tasks)
-
-    yield
+    return (yield)
 
 
 @define(eq=False)
@@ -128,6 +131,12 @@ class LiveManager:
         return self._live.is_started
 
 
+@dataclass
+class _TaskEntry:
+    task: PTask
+    status: TaskExecutionStatus
+
+
 class _ReportEntry(NamedTuple):
     name: str
     outcome: TaskOutcome
@@ -142,33 +151,35 @@ class LiveExecution:
     n_entries_in_table: int
     verbose: int
     editor_url_scheme: str
+    initial_status: TaskExecutionStatus = TaskExecutionStatus.RUNNING
     sort_final_table: bool = False
     n_tasks: int | str = "x"
     _reports: list[_ReportEntry] = field(factory=list)
-    _running_tasks: dict[str, PTask] = field(factory=dict)
+    _running_tasks: dict[str, _TaskEntry] = field(factory=dict)
 
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_execute_build(self) -> Generator[None, None, None]:
         """Wrap the execution with the live manager and yield a table at the end."""
         self.live_manager.start()
-        yield
+        result = yield
         self.live_manager.stop(transient=True)
         table = self._generate_table(
             reduce_table=False, sort_table=self.sort_final_table, add_caption=False
         )
         if table is not None:
             console.print(table)
+        return result
 
     @hookimpl(tryfirst=True)
     def pytask_execute_task_log_start(self, task: PTask) -> bool:
         """Mark a new task as running."""
-        self.update_running_tasks(task)
+        self.add_task(new_running_task=task, status=self.initial_status)
         return True
 
     @hookimpl
     def pytask_execute_task_log_end(self, report: ExecutionReport) -> bool:
         """Mark a task as being finished and update outcome."""
-        self.update_reports(report)
+        self.update_report(report)
         return True
 
     def _generate_table(
@@ -230,16 +241,17 @@ class LiveExecution:
                 format_task_name(report.task, editor_url_scheme=self.editor_url_scheme),
                 Text(report.outcome.symbol, style=report.outcome.style),
             )
-        for task in self._running_tasks.values():
+        for task_entry in self._running_tasks.values():
             table.add_row(
-                format_task_name(task, editor_url_scheme=self.editor_url_scheme),
-                "running",
+                format_task_name(
+                    task_entry.task, editor_url_scheme=self.editor_url_scheme
+                ),
+                task_entry.status.value,
             )
 
         # If the table is empty, do not display anything.
         if table.rows == []:
-            table = None
-
+            return None
         return table
 
     def _update_table(
@@ -254,14 +266,21 @@ class LiveExecution:
         )
         self.live_manager.update(table)
 
-    def update_running_tasks(self, new_running_task: PTask) -> None:
+    def add_task(self, new_running_task: PTask, status: TaskExecutionStatus) -> None:
         """Add a new running task."""
-        self._running_tasks[new_running_task.name] = new_running_task
+        self._running_tasks[new_running_task.signature] = _TaskEntry(
+            task=new_running_task, status=status
+        )
         self._update_table()
 
-    def update_reports(self, new_report: ExecutionReport) -> None:
+    def update_task(self, signature: str, status: TaskExecutionStatus) -> None:
+        """Update the status of a running task."""
+        self._running_tasks[signature].status = status
+        self._update_table()
+
+    def update_report(self, new_report: ExecutionReport) -> None:
         """Update the status of a running task by adding its report."""
-        self._running_tasks.pop(new_report.task.name)
+        self._running_tasks.pop(new_report.task.signature)
         self._reports.append(
             _ReportEntry(
                 name=new_report.task.name,
@@ -280,11 +299,11 @@ class LiveCollection:
     _n_collected_tasks: int = 0
     _n_errors: int = 0
 
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_collect(self) -> Generator[None, None, None]:
         """Start the status of the collection."""
         self.live_manager.start()
-        yield
+        return (yield)
 
     @hookimpl
     def pytask_collect_file_log(self, reports: list[CollectionReport]) -> None:
@@ -292,11 +311,11 @@ class LiveCollection:
         self._update_statistics(reports)
         self._update_status()
 
-    @hookimpl(hookwrapper=True)
+    @hookimpl(wrapper=True)
     def pytask_collect_log(self) -> Generator[None, None, None]:
         """Stop the live display when all tasks have been collected."""
         self.live_manager.stop(transient=True)
-        yield
+        return (yield)
 
     def _update_statistics(self, reports: list[CollectionReport]) -> None:
         """Update the statistics on collected tasks and errors."""

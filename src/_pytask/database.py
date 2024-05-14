@@ -1,12 +1,14 @@
 """Contains hooks related to the database."""
+
 from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
 
+from sqlalchemy.engine import make_url
+
 from _pytask.database_utils import create_database
 from _pytask.pluginmanager import hookimpl
-from sqlalchemy.engine import make_url
 
 
 @hookimpl

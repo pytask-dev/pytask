@@ -6,7 +6,7 @@ from pytask import PythonNode
 
 
 def task_example(
-    text: Annotated[str, PythonNode("Hello, World", hash=True)],
+    text: Annotated[str, PythonNode(value="Hello, World", hash=True)],
     path: Annotated[Path, Product] = Path("file.txt"),
 ) -> None:
     path.write_text(text)

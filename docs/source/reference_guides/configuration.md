@@ -187,13 +187,7 @@ command line, you can add the paths to the configuration file. Paths passed via 
 command line will overwrite the configuration value.
 
 ```toml
-
-# For single entries only.
-paths = "src"
-
-# Or single and multiple entries.
 paths = ["folder_1", "folder_2/task_2.py"]
-
 ```
 ````
 
@@ -248,7 +242,7 @@ strict_markers = true
 Change the pattern which identify task files.
 
 ```toml
-task_files = "task_*.py"  # default
+task_files = ["task_*.py"]  # default
 
 task_files = ["task_*.py", "tasks_*.py"]
 ```

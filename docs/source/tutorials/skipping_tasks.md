@@ -13,18 +13,18 @@ skip tasks during development that take too much time to compute right now.
 ```{literalinclude} ../../../docs_src/tutorials/skipping_tasks_example_1.py
 ```
 
-Not only will this task be skipped, but all tasks that depend on
+Not only will this task be skipped, but all tasks depending on
 `time_intensive_product.pkl`.
 
 ## Conditional skipping
 
 In large projects, you may have many long-running tasks that you only want to execute on
-a remote server but not when you are not working locally.
+a remote server, but not when you are not working locally.
 
 In this case, use the {func}`@pytask.mark.skipif <pytask.mark.skipif>` decorator, which
 requires a condition and a reason as arguments.
 
-Place the condition variable in a different module than the task, so you can change it
+Place the condition variable in a module different from the task so you can change it
 without causing a rerun of the task.
 
 ```python
@@ -42,8 +42,9 @@ from config import NO_LONG_RUNNING_TASKS
 
 
 @pytask.mark.skipif(NO_LONG_RUNNING_TASKS, reason="Skip long-running tasks.")
-def task_that_takes_really_long_to_run(path: Path = Path("time_intensive_product.pkl")):
-    ...
+def task_that_takes_really_long_to_run(
+    path: Path = Path("time_intensive_product.pkl"),
+): ...
 ```
 
 ## Further reading

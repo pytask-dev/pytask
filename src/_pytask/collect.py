@@ -1,4 +1,5 @@
 """Implement functionality to collect tasks."""
+
 from __future__ import annotations
 
 import inspect
@@ -7,11 +8,16 @@ import os
 import sys
 import time
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
 from typing import Iterable
-from typing import TYPE_CHECKING
 
+from rich.text import Text
+from upath import UPath
+
+from _pytask.coiled_utils import Function
+from _pytask.coiled_utils import extract_coiled_function_kwargs
 from _pytask.collect_utils import create_name_of_python_node
 from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_products_from_task_function
@@ -21,11 +27,14 @@ from _pytask.console import create_summary_panel
 from _pytask.console import get_file
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import NodeNotCollectedError
+from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
+from _pytask.nodes import DirectoryNode
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
@@ -39,22 +48,14 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.reports import CollectionReport
 from _pytask.shared import find_duplicates
 from _pytask.shared import to_list
+from _pytask.shared import unwrap_task_function
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
-from rich.text import Text
-
-try:
-    from upath import UPath
-except ImportError:  # pragma: no cover
-
-    class UPath:  # type: ignore[no-redef]
-        ...
-
 
 if TYPE_CHECKING:
-    from _pytask.session import Session
     from _pytask.models import NodeInfo
+    from _pytask.session import Session
 
 
 @hookimpl
@@ -235,6 +236,10 @@ def _is_filtered_object(obj: Any) -> bool:
     See :issue:`507`.
 
     """
+    # Filter :class:`pytask.mark.MarkGenerator` which can raise errors on some marks.
+    if isinstance(obj, MarkGenerator):
+        return True
+
     # Filter :class:`pytask.Task` and :class:`pytask.TaskWithoutPath` objects.
     if isinstance(obj, PTask) and inspect.isclass(obj):
         return True
@@ -299,6 +304,8 @@ def pytask_collect_task(
             raise ValueError(msg)
 
         path_nodes = Path.cwd() if path is None else path.parent
+
+        # Collect dependencies and products.
         dependencies = parse_dependencies_from_task_function(
             session, path, name, path_nodes, obj
         )
@@ -307,12 +314,21 @@ def pytask_collect_task(
         )
 
         markers = get_all_marks(obj)
-        collection_id = obj.pytask_meta._id if hasattr(obj, "pytask_meta") else None
-        after = obj.pytask_meta.after if hasattr(obj, "pytask_meta") else []
 
-        # Get the underlying function to avoid having different states of the function,
-        # e.g. due to pytask_meta, in different layers of the wrapping.
-        unwrapped = inspect.unwrap(obj)
+        if hasattr(obj, "pytask_meta"):
+            attributes = {
+                **obj.pytask_meta.attributes,
+                "collection_id": obj.pytask_meta._id,
+                "after": obj.pytask_meta.after,
+                "is_generator": obj.pytask_meta.is_generator,
+            }
+        else:
+            attributes = {"collection_id": None, "after": [], "is_generator": False}
+
+        unwrapped = unwrap_task_function(obj)
+        if isinstance(unwrapped, Function):
+            attributes["coiled_kwargs"] = extract_coiled_function_kwargs(unwrapped)
+            unwrapped = unwrap_task_function(unwrapped.function)
 
         if path is None:
             return TaskWithoutPath(
@@ -321,7 +337,7 @@ def pytask_collect_task(
                 depends_on=dependencies,
                 produces=products,
                 markers=markers,
-                attributes={"collection_id": collection_id, "after": after},
+                attributes=attributes,
             )
         return Task(
             base_name=name,
@@ -330,33 +346,11 @@ def pytask_collect_task(
             depends_on=dependencies,
             produces=products,
             markers=markers,
-            attributes={"collection_id": collection_id, "after": after},
+            attributes=attributes,
         )
     if isinstance(obj, PTask):
         return obj
     return None
-
-
-_TEMPLATE_ERROR: str = """\
-The provided path of the dependency/product is
-
-{}
-
-, but the path of the file on disk is
-
-{}
-
-Case-sensitive file systems would raise an error because the upper and lower case \
-format of the paths does not match.
-
-Please, align the names to ensure reproducibility on case-sensitive file systems \
-(often Linux or macOS) or disable this error with 'check_casing_of_paths = false' in \
-the pyproject.toml file.
-
-Hint: If parts of the path preceding your project directory are not properly \
-formatted, check whether you need to call `.resolve()` on `SRC`, `BLD` or other paths \
-created from the `__file__` attribute of a module.
-"""
 
 
 _TEMPLATE_ERROR_DIRECTORY: str = """\
@@ -364,7 +358,9 @@ The path '{path}' points to a directory, although only files are allowed."""
 
 
 @hookimpl(trylast=True)
-def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PNode:  # noqa: C901, PLR0912
+def pytask_collect_node(  # noqa: C901, PLR0912
+    session: Session, path: Path, node_info: NodeInfo
+) -> PNode | PProvisionalNode:
     """Collect a node of a task as a :class:`pytask.PNode`.
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
@@ -383,6 +379,21 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
 
     """
     node = node_info.value
+
+    if isinstance(node, DirectoryNode):
+        if node.root_dir is None:
+            node.root_dir = path
+        if (
+            not node.name
+            or node.name == node.root_dir.joinpath(node.pattern).as_posix()
+        ):
+            short_root_dir = shorten_path(
+                node.root_dir, session.config["paths"] or (session.config["root"],)
+            )
+            node.name = Path(short_root_dir, node.pattern).as_posix()
+
+    if isinstance(node, PProvisionalNode):
+        return node
 
     if isinstance(node, PythonNode):
         node.node_info = node_info
@@ -418,9 +429,11 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
         raise ValueError(_TEMPLATE_ERROR_DIRECTORY.format(path=node.path))
 
     if isinstance(node, PNode):
+        if not node.name:
+            node.name = create_name_of_python_node(node_info)
         return node
 
-    if isinstance(node, UPath):
+    if isinstance(node, UPath):  # pragma: no cover
         if not node.protocol:
             node = Path(node)
         else:
@@ -439,7 +452,7 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
         name = shorten_path(node, session.config["paths"] or (session.config["root"],))
 
         if isinstance(node, Path) and node.is_dir():
-            raise ValueError(_TEMPLATE_ERROR_DIRECTORY.format(path=path))
+            raise ValueError(_TEMPLATE_ERROR_DIRECTORY.format(path=node))
 
         return PathNode(name=name, path=node)
 
@@ -457,6 +470,28 @@ def pytask_collect_node(session: Session, path: Path, node_info: NodeInfo) -> PN
 
     node_name = create_name_of_python_node(node_info)
     return PythonNode(value=node, name=node_name, node_info=node_info)
+
+
+_TEMPLATE_ERROR: str = """\
+The provided path of the dependency/product is
+
+{}
+
+, but the path of the file on disk is
+
+{}
+
+Case-sensitive file systems would raise an error because the upper and lower case \
+format of the paths does not match.
+
+Please, align the names to ensure reproducibility on case-sensitive file systems \
+(often Linux or macOS) or disable this error with 'check_casing_of_paths = false' in \
+your pytask configuration file.
+
+Hint: If parts of the path preceding your project directory are not properly \
+formatted, check whether you need to call `.resolve()` on `SRC`, `BLD` or other paths \
+created from the `__file__` attribute of a module.
+"""
 
 
 def _raise_error_if_casing_of_path_is_wrong(

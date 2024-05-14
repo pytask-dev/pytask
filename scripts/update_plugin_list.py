@@ -27,21 +27,20 @@ OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+
 from __future__ import annotations
 
 import datetime
 import pathlib
 import re
-from textwrap import dedent
 from textwrap import indent
 from typing import Generator
 
+import httpx
 import packaging.version
-import requests
 import tabulate
 import wcwidth
 from tqdm import tqdm
-
 
 _FILE_HEAD = r"""
 .. _plugin-list:
@@ -52,9 +51,15 @@ Plugin List
 PyPI projects that match "pytask-\*" are considered plugins and are listed
 automatically. Packages classified as inactive are excluded.
 
-.. The following conditional uses a different format for this list when
-   creating a PDF, because otherwise the table gets far too wide for the
-   page.
+.. warning::
+
+   Please be aware that this list is not a curated collection of projects and does not
+   undergo a systematic review process. It serves purely as an informational resource to
+   aid in the discovery of ``pytask`` plugins.
+
+   Do not presume any endorsement from the ``pytask`` project or its developers, and
+   always conduct your own quality assessment before incorporating any of these plugins
+   into your own projects.
 
 """
 
@@ -70,7 +75,7 @@ _DEVELOPMENT_STATUS_CLASSIFIERS = (
 )
 
 
-_EXCLUDED_PACKAGES = ["pytask-io"]
+_EXCLUDED_PACKAGES = ["pytask-io", "pytask-list"]
 
 
 def _escape_rst(text: str) -> str:
@@ -87,7 +92,7 @@ def _escape_rst(text: str) -> str:
 def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
     """Iterate over all plugins and format entries."""
     regex = r">([\d\w-]*)</a>"
-    response = requests.get("https://pypi.org/simple", timeout=20)
+    response = httpx.get("https://pypi.org/simple/", timeout=20)
 
     matches = [
         match
@@ -98,7 +103,7 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
 
     for match in tqdm(matches, smoothing=0):
         name = match.groups()[0]
-        response = requests.get(f"https://pypi.org/pypi/{name}/json", timeout=20)
+        response = httpx.get(f"https://pypi.org/pypi/{name}/json", timeout=20)
         if response.status_code == 404:  # noqa: PLR2004
             # Some packages might return a 404.
             continue
@@ -157,21 +162,6 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
         }
 
 
-def _plugin_definitions(plugins: list[dict[str, str]]) -> Generator[str, None, None]:
-    """Return RST for the plugin list that fits better on a vertical page."""
-    for plugin in plugins:
-        yield dedent(
-            f"""
-            {plugin['name']}
-               *last release*: {plugin["last release"]},
-               *status*: {plugin["status"]},
-               *requires*: {plugin["requires"]}
-
-               {plugin["summary"]}
-            """
-        )
-
-
 def main() -> None:
     plugins = list(_iter_plugins())
 
@@ -181,15 +171,11 @@ def main() -> None:
     with plugin_list.open("w") as f:
         f.write(_FILE_HEAD)
         f.write(f"This list contains {len(plugins)} plugins.\n\n")
-        f.write(".. only:: not latex\n\n")
 
         assert wcwidth  # reference library that must exist for tabulate to work
         plugin_table = tabulate.tabulate(plugins, headers="keys", tablefmt="rst")
         f.write(indent(plugin_table, "   "))
-        f.write("\n\n")
-
-        f.write(".. only:: latex\n\n")
-        f.write(indent("".join(_plugin_definitions(plugins)), "  "))
+        f.write("\n")
 
 
 if __name__ == "__main__":

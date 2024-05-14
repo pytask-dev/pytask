@@ -1,19 +1,24 @@
-"""Contains utilities related to the ``@pytask.mark.task`` decorator."""
+"""Contains utilities related to the :func:`@task <pytask.task>`."""
+
 from __future__ import annotations
 
 import functools
 import inspect
 from collections import defaultdict
 from types import BuiltinFunctionType
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import TYPE_CHECKING
 
 import attrs
+
+from _pytask.coiled_utils import Function
+from _pytask.coiled_utils import extract_coiled_function_kwargs
 from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
+from _pytask.shared import unwrap_task_function
 from _pytask.typing import is_task_function
 
 if TYPE_CHECKING:
@@ -31,17 +36,18 @@ __all__ = [
 COLLECTED_TASKS: dict[Path | None, list[Callable[..., Any]]] = defaultdict(list)
 """A container for collecting tasks.
 
-Tasks marked by the ``@pytask.mark.task`` decorator can be generated in a loop where one
-iteration overwrites the previous task. To retrieve the tasks later, use this dictionary
-mapping from paths of modules to a list of tasks per module.
+Tasks marked by the :func:`@task <pytask.task>` decorator can be generated in a loop
+where one iteration overwrites the previous task. To retrieve the tasks later, use this
+dictionary mapping from paths of modules to a list of tasks per module.
 
 """
 
 
-def task(
+def task(  # noqa: PLR0913
     name: str | None = None,
     *,
     after: str | Callable[..., Any] | list[Callable[..., Any]] | None = None,
+    is_generator: bool = False,
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
     produces: Any | None = None,
@@ -62,6 +68,19 @@ def task(
         An expression or a task function or a list of task functions that need to be
         executed before this task can be executed. See :ref:`after` for more
         information.
+    is_generator
+        An indicator whether this task is a task generator.
+    id
+        An id for the task if it is part of a parametrization. Otherwise, an automatic
+        id will be generated. See
+        :doc:`this tutorial <../tutorials/repeating_tasks_with_different_inputs>` for
+        more information.
+    kwargs
+        A dictionary containing keyword arguments which are passed to the task when it
+        is executed.
+    produces
+        Definition of products to parse the function returns and store them. See
+        :doc:`this how-to guide <../how_to_guides/using_task_returns>` for more
     id
         An id for the task if it is part of a repetition. Otherwise, an automatic id
         will be generated. See :ref:`how-to-repeat-a-task-with-different-inputs-the-id`
@@ -84,7 +103,8 @@ def task(
 
         from typing import Annotated from pytask import task
 
-        @task def create_text_file() -> Annotated[str, Path("file.txt")]:
+        @task()
+        def create_text_file() -> Annotated[str, Path("file.txt")]:
             return "Hello, World!"
 
     """
@@ -96,12 +116,16 @@ def task(
         for arg, arg_name in ((name, "name"), (id, "id")):
             if not (isinstance(arg, str) or arg is None):
                 msg = (
-                    f"Argument {arg_name!r} of @pytask.mark.task must be a str, but it "
-                    f"is {arg!r}."
+                    f"Argument {arg_name!r} of @task must be a str, but it is {arg!r}."
                 )
                 raise ValueError(msg)
 
-        unwrapped = inspect.unwrap(func)
+        unwrapped = unwrap_task_function(func)
+        if isinstance(unwrapped, Function):
+            coiled_kwargs = extract_coiled_function_kwargs(unwrapped)
+            unwrapped = unwrap_task_function(unwrapped.function)
+        else:
+            coiled_kwargs = None
 
         # We do not allow builtins as functions because we would need to use
         # ``inspect.stack`` to infer their caller location and they are unable to carry
@@ -120,21 +144,27 @@ def task(
         parsed_after = _parse_after(after)
 
         if hasattr(unwrapped, "pytask_meta"):
-            unwrapped.pytask_meta.name = parsed_name
+            unwrapped.pytask_meta.after = parsed_after
+            unwrapped.pytask_meta.is_generator = is_generator
+            unwrapped.pytask_meta.id_ = id
             unwrapped.pytask_meta.kwargs = parsed_kwargs
             unwrapped.pytask_meta.markers.append(Mark("task", (), {}))
-            unwrapped.pytask_meta.id_ = id
+            unwrapped.pytask_meta.name = parsed_name
             unwrapped.pytask_meta.produces = produces
             unwrapped.pytask_meta.after = parsed_after
         else:
-            unwrapped.pytask_meta = CollectionMetadata(
-                name=parsed_name,
+            unwrapped.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]
+                after=parsed_after,
+                is_generator=is_generator,
+                id_=id,
                 kwargs=parsed_kwargs,
                 markers=[Mark("task", (), {})],
-                id_=id,
+                name=parsed_name,
                 produces=produces,
-                after=parsed_after,
             )
+
+        if coiled_kwargs and hasattr(unwrapped, "pytask_meta"):
+            unwrapped.pytask_meta.attributes["coiled_kwargs"] = coiled_kwargs
 
         # Store it in the global variable ``COLLECTED_TASKS`` to avoid garbage
         # collection when the function definition is overwritten in a loop.
@@ -172,17 +202,16 @@ def _parse_after(
     if isinstance(after, str):
         return after
     if callable(after):
-        if not hasattr(after, "pytask_meta"):
-            after.pytask_meta = CollectionMetadata()  # type: ignore[attr-defined]
-        return [after.pytask_meta._id]  # type: ignore[attr-defined]
+        after = [after]
     if isinstance(after, list):
         new_after = []
         for func in after:
             if not hasattr(func, "pytask_meta"):
-                func.pytask_meta = CollectionMetadata()  # type: ignore[attr-defined]
-            new_after.append(func.pytask_meta._id)  # type: ignore[attr-defined]
+                func = task()(func)  # noqa: PLW2901
+            new_after.append(func.pytask_meta._id)
+        return new_after
     msg = (
-        "'after' should be an expression string, a task, or a list of class. Got "
+        "'after' should be an expression string, a task, or a list of tasks. Got "
         f"{after}, instead."
     )
     raise TypeError(msg)
@@ -231,7 +260,7 @@ def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
 
     if meta.name is None and task.__name__ == "_":
         msg = (
-            "A task function either needs 'name' passed by the ``@pytask.mark.task`` "
+            "A task function either needs 'name' passed by the ``@task`` "
             "decorator or the function name of the task function must not be '_'."
         )
         raise ValueError(msg)
@@ -255,7 +284,7 @@ def _parse_task_kwargs(kwargs: Any) -> dict[str, Any]:
     if attrs.has(type(kwargs)):
         return attrs.asdict(kwargs)
     msg = (
-        "'@pytask.mark.task(kwargs=...) needs to be a dictionary, namedtuple or an "
+        "'@task(kwargs=...) needs to be a dictionary, namedtuple or an "
         "instance of an attrs class."
     )
     raise ValueError(msg)

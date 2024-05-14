@@ -4,12 +4,12 @@ import textwrap
 
 import pytest
 from _pytask.profile import _to_human_readable_size
-from pytask import build
-from pytask import cli
-from pytask import create_database
 from pytask import DatabaseSession
 from pytask import ExitCode
 from pytask import Runtime
+from pytask import build
+from pytask import cli
+from pytask import create_database
 
 
 @pytest.mark.end_to_end()
@@ -63,10 +63,9 @@ def test_profile_if_there_is_no_information_on_collected_tasks(tmp_path, runner)
 def test_profile_if_there_is_information_on_collected_tasks(tmp_path, runner):
     source = """
     import time
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.produces("out.txt")
-    def task_example(produces):
+    def task_example(produces=Path("out.txt")):
         time.sleep(2)
         produces.write_text("There are nine billion bicycles in Beijing.")
     """

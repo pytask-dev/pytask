@@ -4,6 +4,7 @@ This file only contains a selection of the most common options. For a full list 
 documentation: https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 """
+
 from __future__ import annotations
 
 import inspect
@@ -50,8 +51,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_click",
     "sphinx_toolbox.more_autodoc.autoprotocol",
-    "nbsphinx",
-    "myst_parser",
+    "myst_nb",
     "sphinx_design",
 ]
 

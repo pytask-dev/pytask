@@ -3,12 +3,12 @@ from __future__ import annotations
 import textwrap
 
 import pytest
-from pytask import build
-from pytask import cli
-from pytask import create_database
 from pytask import DatabaseSession
 from pytask import ExitCode
 from pytask import State
+from pytask import build
+from pytask import cli
+from pytask import create_database
 from pytask.path import hash_path
 from sqlalchemy.engine import make_url
 
@@ -17,11 +17,9 @@ from sqlalchemy.engine import make_url
 def test_existence_of_hashes_in_db(tmp_path):
     """Modification dates of input and output files are stored in database."""
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("in.txt")
-    @pytask.mark.produces("out.txt")
-    def task_write(depends_on, produces):
+    def task_write(path=Path("in.txt"), produces=Path("out.txt")):
         produces.touch()
     """
     task_path = tmp_path.joinpath("task_module.py")
@@ -42,7 +40,7 @@ def test_existence_of_hashes_in_db(tmp_path):
     with DatabaseSession() as db_session:
         task_id = session.tasks[0].signature
         out_path = tmp_path.joinpath("out.txt")
-        in_id = session.tasks[0].depends_on["depends_on"].signature
+        in_id = session.tasks[0].depends_on["path"].signature
         out_id = session.tasks[0].produces["produces"].signature
 
         for id_, path in (

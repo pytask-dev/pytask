@@ -95,25 +95,6 @@ the default value of the argument.
 ```
 
 ````
-
-````{tab-item} Decorators
-
-```{warning}
-This approach is deprecated and will be removed in v0.5
-```
-
-To specify a product, pass the path to the
-{func}`@pytask.mark.produces <pytask.mark.produces>` decorator. Then, add `produces` as
-an argument name to use the path inside the task function.
-
-```{literalinclude} ../../../docs_src/tutorials/write_a_task_decorators.py
-:emphasize-lines: 10, 11
-```
-
-To let pytask track the product of the task, you need to use the
-{func}`@pytask.mark.produces <pytask.mark.produces>` decorator.
-
-````
 `````
 
 Now, execute pytask to collect tasks in the current and subsequent directories.
@@ -136,21 +117,14 @@ from pytask import task
 
 
 @task
-def create_random_data():
-    ...
+def create_random_data(): ...
 
 
 # The id will be ".../task_data_preparation.py::create_data".
 
 
 @task(name="create_data")
-def create_random_data():
-    ...
-```
-
-```{warning}
-Since v0.4 users should use {func}`@task <pytask.task>` over
-{func}`@pytask.mark.task <pytask.mark.task>` which will be removed in v0.5.
+def create_random_data(): ...
 ```
 
 ## Customize task module names

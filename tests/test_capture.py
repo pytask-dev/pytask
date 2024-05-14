@@ -7,19 +7,21 @@ import subprocess
 import sys
 import textwrap
 from io import UnsupportedOperation
-from pathlib import Path
 from typing import BinaryIO
 from typing import Generator
 
 import pytest
 from _pytask import capture
-from _pytask.capture import _get_multicapture
 from _pytask.capture import CaptureManager
 from _pytask.capture import CaptureResult
 from _pytask.capture import MultiCapture
+from _pytask.capture import _get_multicapture
 from pytask import CaptureMethod
-from pytask import cli
 from pytask import ExitCode
+from pytask import cli
+
+from tests.conftest import enter_directory
+from tests.conftest import run_in_subprocess
 
 
 @pytest.mark.end_to_end()
@@ -84,34 +86,32 @@ def test_show_capture_with_build(tmp_path, show_capture):
     """
     tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
 
-    result = subprocess.run(  # noqa: PLW1510
-        ("python", "workflow.py"), cwd=tmp_path, capture_output=True
-    )
+    result = run_in_subprocess(("python", "workflow.py"), cwd=tmp_path)
 
-    assert result.returncode == ExitCode.FAILED
+    assert result.exit_code == ExitCode.FAILED
 
-    output = result.stdout.decode()
     if show_capture == "no":
-        assert "Captured" not in output
+        assert "Captured" not in result.stdout
     elif show_capture == "stdout":
-        assert "Captured stdout" in output
-        assert "xxxx" in output
-        assert "Captured stderr" not in output
-        # assert "zzzz" not in output
+        assert "Captured stdout" in result.stdout
+        assert "xxxx" in result.stdout
+        assert "Captured stderr" not in result.stdout
+        # assert "zzzz" not in result.stdout
     elif show_capture == "stderr":
-        assert "Captured stdout" not in output
-        # assert "xxxx" not in output
-        assert "Captured stderr" in output
-        assert "zzzz" in output
+        assert "Captured stdout" not in result.stdout
+        # assert "xxxx" not in result.stdout
+        assert "Captured stderr" in result.stdout
+        assert "zzzz" in result.stdout
     elif show_capture == "all":
-        assert "Captured stdout" in output
-        assert "xxxx" in output
-        assert "Captured stderr" in output
-        assert "zzzz" in output
+        assert "Captured stdout" in result.stdout
+        assert "xxxx" in result.stdout
+        assert "Captured stderr" in result.stdout
+        assert "zzzz" in result.stdout
     else:  # pragma: no cover
         raise NotImplementedError
 
 
+@pytest.mark.end_to_end()
 @pytest.mark.xfail(
     sys.platform == "win32",
     reason="from pytask ... cannot be found",
@@ -128,14 +128,11 @@ def test_wrong_capture_method(tmp_path):
     """
     tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
 
-    result = subprocess.run(  # noqa: PLW1510
-        ("python", "workflow.py"), cwd=tmp_path, capture_output=True
-    )
-
-    assert result.returncode == ExitCode.CONFIGURATION_FAILED
-    assert "Value 'a' is not a valid" in result.stdout.decode()
-    assert "Traceback" not in result.stdout.decode()
-    assert not result.stderr.decode()
+    result = run_in_subprocess(("python", "workflow.py"), cwd=tmp_path)
+    assert result.exit_code == ExitCode.CONFIGURATION_FAILED
+    assert "Value 'a' is not a valid" in result.stdout
+    assert "Traceback" not in result.stdout
+    assert not result.stderr
 
 
 # Following tests are copied from pytest.
@@ -261,13 +258,9 @@ def test_capturing_unicode_with_build(tmp_path, method):
     tmp_path.joinpath("workflow.py").write_text(
         textwrap.dedent(source), encoding="utf-8"
     )
-
-    result = subprocess.run(  # noqa: PLW1510
-        ("python", "workflow.py"), cwd=tmp_path, capture_output=True
-    )
-
-    assert "1  Succeeded" in result.stdout.decode()
-    assert result.returncode == ExitCode.OK
+    result = run_in_subprocess(("python", "workflow.py"), cwd=tmp_path)
+    assert result.exit_code == ExitCode.OK
+    assert "1  Succeeded" in result.stdout
 
 
 @pytest.mark.end_to_end()
@@ -568,13 +561,13 @@ class TestFDCapture:
             pytest.raises(AssertionError, cap.suspend)
 
             assert repr(cap) == (
-                "<FDCapture 1 oldfd={} _state='done' tmpfile={!r}>".format(
+                "<FDCapture 1 oldfd={} _state='done' tmpfile={!r}>".format(  # noqa: UP032
                     cap.targetfd_save, cap.tmpfile
                 )
             )
             # Should not crash with missing "_old".
             assert repr(cap.syscapture) == (
-                "<SysCapture stdout _old=<UNSET> _state='done' tmpfile={!r}>".format(
+                "<SysCapture stdout _old=<UNSET> _state='done' tmpfile={!r}>".format(  # noqa: UP032
                     cap.syscapture.tmpfile
                 )
             )
@@ -819,9 +812,7 @@ class TestStdCaptureFDinvalidFD:
         assert "3  Succeeded" in result.output
 
     def test_fdcapture_invalid_fd_with_fd_reuse(self, tmp_path):
-        cwd = Path.cwd()
-        os.chdir(tmp_path)
-        with saved_fd(1):
+        with enter_directory(tmp_path), saved_fd(1):
             os.close(1)
             cap = capture.FDCaptureBinary(1)
             cap.start()
@@ -834,12 +825,9 @@ class TestStdCaptureFDinvalidFD:
             cap.done()
             with pytest.raises(OSError):
                 os.write(1, b"done")
-        os.chdir(cwd)
 
     def test_fdcapture_invalid_fd_without_fd_reuse(self, tmp_path):
-        cwd = Path.cwd()
-        os.chdir(tmp_path)
-        with saved_fd(1), saved_fd(2):
+        with enter_directory(tmp_path), saved_fd(1), saved_fd(2):
             os.close(1)
             os.close(2)
             cap = capture.FDCaptureBinary(2)
@@ -853,7 +841,6 @@ class TestStdCaptureFDinvalidFD:
             cap.done()
             with pytest.raises(OSError):
                 os.write(2, b"done")
-            os.chdir(cwd)
 
 
 @pytest.mark.unit()

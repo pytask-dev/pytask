@@ -4,28 +4,29 @@ At each of the entry-points, a plugin can register a hook implementation which r
 the message send by the host and may send a response.
 
 """
+
 from __future__ import annotations
 
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 
 import pluggy
 
-
 if TYPE_CHECKING:
+    from pathlib import Path
+
+    import click
+    from pluggy import PluginManager
+
     from _pytask.models import NodeInfo
     from _pytask.node_protocols import PNode
-    import click
+    from _pytask.node_protocols import PProvisionalNode
     from _pytask.node_protocols import PTask
-    import networkx as nx
-    from pathlib import Path
-    from _pytask.session import Session
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
-    from _pytask.reports import DagReport
-    from pluggy import PluginManager
+    from _pytask.session import Session
 
 
 hookspec = pluggy.HookspecMarker("pytask")
@@ -195,7 +196,7 @@ def pytask_collect_task_teardown(session: Session, task: PTask) -> None:
 @hookspec(firstresult=True)
 def pytask_collect_node(
     session: Session, path: Path, node_info: NodeInfo
-) -> PNode | None:
+) -> PNode | PProvisionalNode | None:
     """Collect a node which is a dependency or a product of a task."""
 
 
@@ -208,44 +209,6 @@ def pytask_collect_log(
     This hook reports errors during the collection.
 
     """
-
-
-# Hooks for resolving dependencies.
-
-
-@hookspec(firstresult=True)
-def pytask_dag(session: Session) -> None:
-    """Create a DAG.
-
-    The main hook implementation which controls the resolution of dependencies and calls
-    subordinated hooks.
-
-    """
-
-
-@hookspec(firstresult=True)
-def pytask_dag_create_dag(session: Session, tasks: list[PTask]) -> nx.DiGraph:
-    """Create the DAG.
-
-    This hook creates the DAG from tasks, dependencies and products. The DAG can be used
-    by a scheduler to find an execution order.
-
-    """
-
-
-@hookspec
-def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
-    """Modify the DAG.
-
-    This hook allows to make some changes to the DAG before it is validated and tasks
-    are selected.
-
-    """
-
-
-@hookspec
-def pytask_dag_log(session: Session, report: DagReport) -> None:
-    """Log errors during resolving dependencies."""
 
 
 # Hooks for running tasks.
@@ -266,16 +229,6 @@ def pytask_execute_log_start(session: Session) -> None:
     """Start logging of execution.
 
     This hook allows to provide a header with information before the execution starts.
-
-    """
-
-
-@hookspec(firstresult=True)
-def pytask_execute_create_scheduler(session: Session) -> Any:
-    """Create a scheduler for the execution.
-
-    The scheduler provides information on which tasks are able to be executed. Its
-    foundation is likely a topological ordering of the tasks based on the DAG.
 
     """
 

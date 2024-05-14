@@ -21,7 +21,7 @@ The syntax for specifying warnings filters is the same as in the
 [Python standard library](https://docs.python.org/3/library/warnings.html#the-warnings-filter),
 i.e., a sequence of fields separated by colons:
 
-```
+```text
 action:message:category:module:line
 ```
 
@@ -49,14 +49,20 @@ the Python documentation and there are also
 ## `@pytask.mark.filterwarnings`
 
 You can use the `@pytask.mark.filterwarnings` to add warning filters to specific test
-items, allowing you to have finer control of which warnings should be captured at test,
-class or even module level:
+items, allowing you to have finer control of which warnings should be captured at the
+test, class or even module level:
 
 ```{literalinclude} ../../../docs_src/how_to_guides/capturing_warnings_2.py
 ```
 
 Filters applied using a mark take precedence over filters passed on the command line or
 configured by the `filterwarnings` configuration option.
+
+```{important}
+Note that the type of warning needs to be importable. For example, `UserWarning` is a
+built-in warning with no module specified. `SettingWithCopyWarning` though needs to be
+imported from {mod}`pandas.errors`.
+```
 
 ## Disabling warnings summary
 
@@ -78,16 +84,16 @@ filterwarnings = ["error:.*"]
 
 and then run `pytask`.
 
-Or, you use a temporary environment variable. Here is an example for bash
+Or, you use a temporary environment variable. Here is an example for bash.
 
 ```console
-$ PYTHONWARNINGS=error pytask --pdb
+PYTHONWARNINGS=error pytask --pdb
 ```
 
 and here for Powershell
 
 ```console
-$ $env:PYTHONWARNINGS = 'error'
-$ pytask
-$ Remove-Item env:\PYTHONWARNINGS
+$env:PYTHONWARNINGS = 'error'
+pytask
+Remove-Item env:\PYTHONWARNINGS
 ```

@@ -5,9 +5,6 @@ concurrency:
   group: ${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
-env:
-  CONDA_EXE: mamba
-
 on:
   push:
     branches:
@@ -17,6 +14,21 @@ on:
     - '*'
 
 jobs:
+
+  run-type-checking:
+
+    name: Run tests for type-checking
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          allow-prereleases: true
+          cache: pip
+      - run: pip install tox-uv
+      - run: tox -e typing
 
   run-tests:
 
@@ -36,15 +48,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           allow-prereleases: true
-      - run: pip install tox
+      - run: pip install tox-uv
 
       - if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install graphviz graphviz-dev
-
-      - if: matrix.os == 'macos-latest'
-        run: brew install graphviz
 
       # Unit, integration, and end-to-end tests.
 
@@ -53,7 +62,7 @@ jobs:
         run: tox -e test -- -m "unit or (not integration and not end_to_end)" --cov=src --cov=tests --cov-report=xml -n auto
 
       - name: Upload unit test coverage reports to Codecov with GitHub Action
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           flags: unit
 
@@ -62,7 +71,7 @@ jobs:
         run: tox -e test -- -m integration --cov=src --cov=tests --cov-report=xml -n auto
 
       - name: Upload integration test coverage reports to Codecov with GitHub Action
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           flags: integration
 
@@ -71,6 +80,6 @@ jobs:
         run: tox -e test -- -m end_to_end --cov=src --cov=tests --cov-report=xml -n auto
 
       - name: Upload end_to_end test coverage reports to Codecov with GitHub Action
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           flags: end_to_end

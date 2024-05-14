@@ -1,9 +1,8 @@
 # The `DataCatalog` - Revisited
 
-An introduction to the data catalog can be found in the
-[tutorial](../tutorials/using_a_data_catalog.md).
-
-This guide explains some details that were left out of the tutorial.
+This guide explains more details about the {class}`~pytask.DataCatalog` that were left
+out of the [tutorial](../tutorials/using_a_data_catalog.md). Please, read the tutorial
+for a basic understanding.
 
 ## Changing the default node
 
@@ -15,23 +14,24 @@ For example, use the {class}`~pytask.PythonNode` as the default.
 
 ```python
 from pytask import PythonNode
+from pytask import DataCatalog
 
 
 data_catalog = DataCatalog(default_node=PythonNode)
 ```
 
-Or, learn to write your own node by reading {doc}`writing_custom_nodes`.
+Or, learn to write your node by reading {doc}`writing_custom_nodes`.
 
-Here, is an example for a `PickleNode` that uses cloudpickle instead of the normal
-`pickle` module.
+Here, is an example for a {class}`~pytask.PickleNode` that uses cloudpickle instead of
+the normal {mod}`pickle` module.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/the_data_catalog.py
 ```
 
 ## Changing the name and the default path
 
-By default, the data catalogs store their data in a directory `.pytask/data_catalogs`.
-If you use a `pyproject.toml` with a `[tool.pytask.ini_options]` section, then the
+By default, data catalogs store their data in a directory `.pytask/data_catalogs`. If
+you use a `pyproject.toml` with a `[tool.pytask.ini_options]` section, then the
 `.pytask` folder is in the same folder as the configuration file.
 
 The default name for a catalog is `"default"` and so you will find its data in
@@ -39,7 +39,14 @@ The default name for a catalog is `"default"` and so you will find its data in
 `"data_management"`, you will find the data in `.pytask/data_catalogs/data_management`.
 
 ```python
+from pytask import DataCatalog
+
+
 data_catalog = DataCatalog(name="data_management")
+```
+
+```{note}
+The name of a data catalog is restricted to letters, numbers, hyphens and underscores.
 ```
 
 You can also change the path where the data catalogs will be stored by changing the
@@ -48,6 +55,7 @@ data catalog is defined in `.data`.
 
 ```python
 from pathlib import Path
+from pytask import DataCatalog
 
 
 data_catalog = DataCatalog(path=Path(__file__).parent / ".data")
@@ -55,14 +63,15 @@ data_catalog = DataCatalog(path=Path(__file__).parent / ".data")
 
 ## Multiple data catalogs
 
-You can use multiple data catalogs when you want to separate your datasets across
-multiple catalogs or when you want to use the same names multiple times (although it is
-not recommended!).
+You can use multiple data catalogs when you want to separate your datasets or to avoid
+name collisions of data catalog entries.
 
 Make sure you assign different names to the data catalogs so that their data is stored
 in different directories.
 
 ```python
+from pytask import DataCatalog
+
 # Stored in .pytask/data_catalog/a
 data_catalog_a = DataCatalog(name="a")
 
@@ -71,3 +80,53 @@ data_catalog_b = DataCatalog(name="b")
 ```
 
 Or, use different paths as explained above.
+
+## Nested data catalogs
+
+Name collisions can also occur when you are using multiple levels of repetitions, for
+example, when you are fitting multiple models to multiple data sets.
+
+You can structure your data catalogs like this.
+
+```python
+from pytask import DataCatalog
+
+
+MODEL_NAMES = ("ols", "logistic_regression")
+DATA_NAMES = ("data_1", "data_2")
+
+
+nested_data_catalogs = {
+    model_name: {
+        data_name: DataCatalog(name=f"{model_name}-{data_name}")
+        for data_name in DATA_NAMES
+    }
+    for model_name in MODEL_NAMES
+}
+```
+
+The task could look like this.
+
+```python
+from pathlib import Path
+from pytask import task
+from typing_extensions import Annotated
+
+from my_project.config import DATA_NAMES
+from my_project.config import MODEL_NAMES
+from my_project.config import nested_data_catalogs
+
+
+for model_name in MODEL_NAMES:
+    for data_name in DATA_NAMES:
+
+        @task
+        def fit_model(
+            path: Path = Path("...", data_name)
+        ) -> Annotated[
+            Any, nested_data_catalogs[model_name][data_name]["fitted_model"]
+        ]:
+            data = ...
+            fitted_model = ...
+            return fitted_model
+```

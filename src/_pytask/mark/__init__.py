@@ -1,20 +1,24 @@
 """Contains the main code for the markers plugin."""
+
 from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 from typing import AbstractSet
 from typing import Any
-from typing import TYPE_CHECKING
 
 import click
+from attrs import define
+from rich.table import Table
+
 from _pytask.click import ColoredCommand
 from _pytask.console import console
 from _pytask.dag_utils import task_and_preceding_tasks
 from _pytask.exceptions import ConfigurationError
 from _pytask.mark.expression import Expression
 from _pytask.mark.expression import ParseError
-from _pytask.mark.structures import Mark
 from _pytask.mark.structures import MARK_GEN
+from _pytask.mark.structures import Mark
 from _pytask.mark.structures import MarkDecorator
 from _pytask.mark.structures import MarkGenerator
 from _pytask.outcomes import ExitCode
@@ -22,14 +26,13 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.shared import parse_markers
-from attrs import define
-from rich.table import Table
-
 
 if TYPE_CHECKING:
-    from _pytask.node_protocols import PTask
-    import networkx as nx
     from typing import NoReturn
+
+    import networkx as nx
+
+    from _pytask.node_protocols import PTask
 
 
 __all__ = [
@@ -42,6 +45,7 @@ __all__ = [
     "select_by_after_keyword",
     "select_by_keyword",
     "select_by_mark",
+    "select_tasks_by_marks_and_expressions",
 ]
 
 
@@ -133,9 +137,7 @@ class KeywordMatcher:
         mapped_names = {task.name}
 
         # Add the names attached to the current function through direct assignment.
-        function_obj = task.function
-        if function_obj:
-            mapped_names.update(function_obj.__dict__)
+        mapped_names.update(task.function.__dict__)
 
         # Add the markers to the keywords as we no longer handle them correctly.
         mapped_names.update(mark.name for mark in task.markers)
@@ -149,7 +151,7 @@ class KeywordMatcher:
         return any(subname in name for name in names)
 
 
-def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str]:
+def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str] | None:
     """Deselect tests by keywords."""
     keywordexpr = session.config["expression"]
     if not keywordexpr:
@@ -204,7 +206,7 @@ class MarkMatcher:
         return name in self.own_mark_names
 
 
-def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str]:
+def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str] | None:
     """Deselect tests by marks."""
     matchexpr = session.config["marker_expression"]
     if not matchexpr:
@@ -233,8 +235,7 @@ def _deselect_others_with_mark(
             task.markers.append(mark)
 
 
-@hookimpl
-def pytask_dag_modify_dag(session: Session, dag: nx.DiGraph) -> None:
+def select_tasks_by_marks_and_expressions(session: Session, dag: nx.DiGraph) -> None:
     """Modify the tasks which are executed with expressions and markers."""
     remaining = select_by_keyword(session, dag)
     if remaining is not None:

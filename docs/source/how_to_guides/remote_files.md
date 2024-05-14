@@ -7,15 +7,10 @@ lots of use cases to deal with remote files.
   get started. So, some tasks reference remote files instead of local files.
 - You store the workflow results in remote storage to save and distribute them.
 
-pytask uses [universal_pathlib](https://github.com/fsspec/universal_pathlib) to work
+pytask uses [universal-pathlib](https://github.com/fsspec/universal_pathlib) to work
 with remote files. The package provides a {mod}`pathlib`-like interface, making it very
 easy to interact with files from an HTTP(S)-, Dropbox-, S3-, GCP-, Azure-based
 filesystem, and many more.
-
-```{warning}
-universal_pathlib does currently not support Python 3.12. To track progress, check the
-[releases `>0.1.4`](https://github.com/fsspec/universal_pathlib/releases).
-```
 
 ## HTTP(S)-based filesystem
 
@@ -78,9 +73,9 @@ file as the ETag. If the file changes, so does the ETag, and pytask will detect 
 Many files on the web do not provide an ETag like this version of the iris dataset.
 
 ```pycon
->>> import requests
+>>> import httpx
 >>> url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
->>> r = requests.head(url)
+>>> r = httpx.head(url)
 >>> r.headers
 {'Server': 'nginx/1.25.3', 'Date': 'Sun, 10 Dec 2023 23:59:21 GMT', 'Connection': 'keep-alive'}
 ```

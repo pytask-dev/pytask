@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-import subprocess
-
 import pytest
+from pytask import ExitCode
 from pytask import __version__
 from pytask import cli
-from pytask import ExitCode
+
+from tests.conftest import run_in_subprocess
 
 
 @pytest.mark.end_to_end()
 def test_version_option():
-    process = subprocess.run(["pytask", "--version"], capture_output=True, check=False)
-    assert "pytask, version " + __version__ in process.stdout.decode("utf-8")
+    result = run_in_subprocess(("pytask", "--version"))
+    assert "pytask, version " + __version__ in result.stdout
 
 
 @pytest.mark.end_to_end()

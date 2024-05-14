@@ -1,21 +1,34 @@
 """Contains the implementation of ``pytask collect``."""
+
 from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import NamedTuple
-from typing import TYPE_CHECKING
 
 import click
+from rich._inspect import Inspect
+from rich.text import Text
+from textual import on
+from textual.app import App
+from textual.app import ComposeResult
+from textual.containers import Horizontal
+from textual.containers import VerticalScroll
+from textual.widgets import Header
+from textual.widgets import Static
+from textual.widgets import Tree
+
 from _pytask.click import ColoredCommand
-from _pytask.console import console
-from _pytask.console import create_url_style_for_path
 from _pytask.console import FILE_ICON
-from _pytask.console import format_node_name
-from _pytask.console import format_task_name
 from _pytask.console import PYTHON_ICON
 from _pytask.console import TASK_ICON
+from _pytask.console import console
+from _pytask.console import create_url_style_for_path
+from _pytask.console import format_node_name
+from _pytask.console import format_task_name
+from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
@@ -30,21 +43,12 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.tree_util import tree_leaves
-from rich._inspect import Inspect
-from rich.text import Text
-from textual import on
-from textual.app import App
-from textual.app import ComposeResult
-from textual.containers import Horizontal
-from textual.containers import VerticalScroll
-from textual.widgets import Header
-from textual.widgets import Static
-from textual.widgets import Tree
 
 if TYPE_CHECKING:
-    from textual.widgets.tree import TreeNode
     from typing import NoReturn
+
     import networkx as nx
+    from textual.widgets.tree import TreeNode
 
 
 class Task(NamedTuple):
@@ -155,7 +159,7 @@ def collect(**raw_config: Any | None) -> NoReturn:
         try:
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
-            session.hook.pytask_dag(session=session)
+            session.dag = create_dag(session=session)
 
             tasks = _select_tasks_by_expressions_and_marker(session)
             modules = _organize_tasks(tasks)
@@ -206,19 +210,15 @@ def _organize_tasks(tasks: list[PTaskWithPath], dag: nx.DiGraph) -> list[Module]
             task.path.as_posix(), Module(task.path.as_posix(), [])
         )
         reasons = _find_reasons_to_rerun(task, dag)
-        task_wrap = Task(task=task, reasons_rerun=[])
-        module.tasks.append(task)
+        task_wrap = Task(task=task, reasons_rerun=reasons)
+        module.tasks.append(task_wrap)
         name_to_module[module.name] = module
     return [name_to_module[name] for name in sorted(name_to_module)]
 
 
 def _find_reasons_to_rerun(task: PTask, dag: nx.DiGraph) -> list[str]:
     """Find the reasons to rerun a task."""
-    reasons = []
-    for task in dag.nodes:
-        if node.task == task:
-            reasons.append(node.name)
-    return reasons
+    return [node.name for node in dag.nodes if node.task == task]
 
 
 def _print_collected_tasks(

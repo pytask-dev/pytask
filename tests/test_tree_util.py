@@ -1,33 +1,31 @@
-"""This module contains tests for tree_util and flexible dependencies and products."""
+"""Contains tests for tree_util and flexible dependencies and products."""
+
 from __future__ import annotations
 
 import textwrap
 
 import pytest
+from pytask import ExitCode
 from pytask import build
 from pytask import cli
-from pytask import ExitCode
 from pytask.tree_util import tree_map
 from pytask.tree_util import tree_structure
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.parametrize("decorator_name", ["depends_on", "produces"])
-def test_task_with_complex_product_did_not_produce_node(tmp_path, decorator_name):
+@pytest.mark.parametrize("arg_name", ["depends_on", "produces"])
+def test_task_with_complex_product_did_not_produce_node(tmp_path, arg_name):
     source = f"""
-    import pytask
-
+    from pathlib import Path
 
     complex = [
-        "out.txt",
-        ("tuple_out.txt",),
-        ["list_out.txt"],
-        {{"a": "dict_out.txt", "b": {{"c": "dict_out_2.txt"}}}},
+        Path("out.txt"),
+        (Path("tuple_out.txt"),),
+        [Path("list_out.txt")],
+        {{"a": Path("dict_out.txt"), "b": {{"c": Path("dict_out_2.txt")}}}},
     ]
 
-
-    @pytask.mark.{decorator_name}(complex)
-    def task_example():
+    def task_example({arg_name}=complex):
         pass
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
@@ -36,14 +34,14 @@ def test_task_with_complex_product_did_not_produce_node(tmp_path, decorator_name
 
     assert session.exit_code == ExitCode.FAILED
 
-    products = tree_map(lambda x: x.load(), getattr(session.tasks[0], decorator_name))
-    expected = {
-        0: tmp_path / "out.txt",
-        1: {0: tmp_path / "tuple_out.txt"},
-        2: {0: tmp_path / "list_out.txt"},
-        3: {"a": tmp_path / "dict_out.txt", "b": {"c": tmp_path / "dict_out_2.txt"}},
-    }
-    expected = {decorator_name: expected}
+    products = tree_map(lambda x: x.load(), getattr(session.tasks[0], arg_name))
+    expected = [
+        tmp_path / "out.txt",
+        (tmp_path / "tuple_out.txt",),
+        [tmp_path / "list_out.txt"],
+        {"a": tmp_path / "dict_out.txt", "b": {"c": tmp_path / "dict_out_2.txt"}},
+    ]
+    expected = {arg_name: expected}
     assert products == expected
 
 
@@ -51,11 +49,12 @@ def test_task_with_complex_product_did_not_produce_node(tmp_path, decorator_name
 def test_profile_with_pytree(tmp_path, runner):
     source = """
     import time
-    import pytask
     from pytask.tree_util import tree_leaves
+    from pathlib import Path
 
-    @pytask.mark.produces([{"out_1": "out_1.txt"}, {"out_2": "out_2.txt"}])
-    def task_example(produces):
+    def task_example(
+        produces=[{"out_1": Path("out_1.txt")}, {"out_2": Path("out_2.txt")}]
+    ):
         time.sleep(2)
         for p in tree_leaves(produces):
             p.write_text("There are nine billion bicycles in Beijing.")

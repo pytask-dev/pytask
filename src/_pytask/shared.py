@@ -1,22 +1,28 @@
 """Functions which are used across various modules."""
+
 from __future__ import annotations
 
 import glob
-import warnings
+import inspect
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
+from typing import Callable
 from typing import Iterable
 from typing import Sequence
-from typing import TYPE_CHECKING
 
 import click
+
+from _pytask.coiled_utils import Function
 from _pytask.console import format_node_name
 from _pytask.console import format_task_name
 from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 
 if TYPE_CHECKING:
     from enum import Enum
+
     import networkx as nx
 
 
@@ -27,6 +33,7 @@ __all__ = [
     "parse_paths",
     "reduce_names_of_multiple_nodes",
     "to_list",
+    "unwrap_task_function",
 ]
 
 
@@ -56,20 +63,8 @@ def to_list(scalar_or_iter: Any) -> list[Any]:
     )
 
 
-def parse_paths(x: Any | None) -> list[Path] | None:
+def parse_paths(x: Path | list[Path]) -> list[Path]:
     """Parse paths."""
-    if x is None:
-        return None
-
-    if isinstance(x, str):
-        msg = (
-            "Specifying paths as a string in 'pyproject.toml' is deprecated and will "
-            "result in an error in v0.5. Please use a list of strings instead: "
-            f'["{x}"].'
-        )
-        warnings.warn(msg, category=FutureWarning, stacklevel=1)
-        x = [x]
-
     paths = [Path(p) for p in to_list(x)]
     for p in paths:
         if not p.exists():
@@ -93,10 +88,13 @@ def reduce_names_of_multiple_nodes(
 
         if isinstance(node, PTask):
             short_name = format_task_name(node, editor_url_scheme="no_link").plain
-        elif isinstance(node, PNode):
+        elif isinstance(node, (PNode, PProvisionalNode)):
             short_name = format_node_name(node, paths).plain
         else:
-            msg = f"Requires a 'PTask' or a 'PNode' and not {type(node)!r}."
+            msg = (
+                "Requires a 'PTask', 'PNode', or 'PProvisionalNode' and not "
+                f"{type(node)!r}."
+            )
             raise TypeError(msg)
 
         short_names.append(short_name)
@@ -152,3 +150,13 @@ def convert_to_enum(value: Any, enum: type[Enum]) -> Enum:
         values = [e.value for e in enum]
         msg = f"Value {value!r} is not a valid {enum!r}. Valid values are {values}."
         raise ValueError(msg) from None
+
+
+def unwrap_task_function(obj: Any) -> Callable[..., Any]:
+    """Unwrap a task function.
+
+    Get the underlying function to avoid having different states of the function, e.g.
+    due to pytask_meta, in different layers of the wrapping.
+
+    """
+    return inspect.unwrap(obj, stop=lambda x: isinstance(x, Function))

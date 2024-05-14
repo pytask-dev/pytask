@@ -1,13 +1,14 @@
 """Implements the command line interface."""
+
 from __future__ import annotations
 
 from typing import Any
 
 import click
-from _pytask.click import ColoredGroup
-from _pytask.pluginmanager import storage
 from packaging.version import parse as parse_version
 
+from _pytask.click import ColoredGroup
+from _pytask.pluginmanager import storage
 
 _CONTEXT_SETTINGS: dict[str, Any] = {
     "help_option_names": ("-h", "--help"),

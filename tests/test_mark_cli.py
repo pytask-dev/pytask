@@ -3,9 +3,9 @@ from __future__ import annotations
 import textwrap
 
 import pytest
+from pytask import ExitCode
 from pytask import build
 from pytask import cli
-from pytask import ExitCode
 
 
 @pytest.mark.end_to_end()
@@ -15,11 +15,14 @@ def test_show_markers(runner):
     assert all(
         marker in result.output
         for marker in (
-            "depends_on",
-            "produces",
+            "filterwarnings",
+            "persist",
             "skip",
             "skip_ancestor_failed",
             "skip_unchanged",
+            "skipif",
+            "try_first",
+            "try_last",
         )
     )
 

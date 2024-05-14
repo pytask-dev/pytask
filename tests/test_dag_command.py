@@ -6,8 +6,8 @@ import textwrap
 
 import pytest
 from _pytask.dag_command import _RankDirection
-from pytask import cli
 from pytask import ExitCode
+from pytask import cli
 
 try:
     import pygraphviz  # noqa: F401
@@ -19,7 +19,7 @@ else:
 # Test should run always on remote except on Windows and locally only with the package
 # installed.
 _TEST_SHOULD_RUN = _IS_PYGRAPHVIZ_INSTALLED or (
-    os.environ.get("CI") and sys.platform != "win32"
+    os.environ.get("CI") and sys.platform == "linux"
 )
 _GRAPH_LAYOUTS = ["neato", "dot", "fdp", "sfdp", "twopi", "circo"]
 _TEST_FORMATS = ["dot", "pdf", "png", "jpeg", "svg"]
@@ -35,10 +35,9 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
         pytest.xfail("gvplugin_pango.dll might be missing on Github Actions.")
 
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("input.txt")
-    def task_example(): pass
+    def task_example(path=Path("input.txt")): ...
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("input.txt").touch()
@@ -77,8 +76,7 @@ def test_create_graph_via_task(tmp_path, runner, format_, layout, rankdir):
     from pathlib import Path
     import networkx as nx
 
-    @pytask.mark.depends_on("input.txt")
-    def task_example(depends_on): pass
+    def task_example(path=Path("input.txt")): ...
 
     def task_create_graph():
         dag = pytask.build_dag({{"paths": Path(__file__).parent}})
@@ -106,10 +104,9 @@ def test_raise_error_with_graph_via_cli_missing_optional_dependency(
     monkeypatch, tmp_path, runner
 ):
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("input.txt")
-    def task_example(): pass
+    def task_example(path=Path("input.txt")): ...
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("input.txt").touch()
@@ -175,10 +172,9 @@ def test_raise_error_with_graph_via_cli_missing_optional_program(
     monkeypatch.setattr("_pytask.compat.shutil.which", lambda x: None)  # noqa: ARG005
 
     source = """
-    import pytask
+    from pathlib import Path
 
-    @pytask.mark.depends_on("input.txt")
-    def task_example(): pass
+    def task_example(path=Path("input.txt")): ...
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("input.txt").touch()

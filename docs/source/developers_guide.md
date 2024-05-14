@@ -9,7 +9,7 @@ number of open file descriptors on Unix systems, which causes some tests and the
 the test suite to fail. If that happens, increase the limit with the following command.
 
 ```console
-$ ulimit -n 4096
+ulimit -n 4096
 ```
 
 ## How to release

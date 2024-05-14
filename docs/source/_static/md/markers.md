@@ -6,10 +6,6 @@ $ pytask markers
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Marker                           ┃ Description                             ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
-│ pytask.mark.depends_on           │ Add dependencies to a task. See this    │
-│                                  │ tutorial for more information:          │
-│                                  │ <a href="https://bit.ly/3JlxylS">https://bit.ly/3JlxylS</a>.                 │
-│                                  │                                         │
 │ pytask.mark.persist              │ Prevent execution of a task if all      │
 │                                  │ products exist and even ifsomething has │
 │                                  │ changed (dependencies, source file,     │
@@ -20,10 +16,6 @@ $ pytask markers
 │                                  │ changed will also be remembered and     │
 │                                  │ another run will skip the task with     │
 │                                  │ success.                                │
-│                                  │                                         │
-│ pytask.mark.produces             │ Add products to a task. See this        │
-│                                  │ tutorial for more information:          │
-│                                  │ <a href="https://bit.ly/3JlxylS">https://bit.ly/3JlxylS</a>.                 │
 │                                  │                                         │
 │ pytask.mark.skip                 │ Skip a task and all its dependent tasks.│
 │                                  │                                         │
@@ -36,12 +28,6 @@ $ pytask markers
 │                                  │                                         │
 │ pytask.mark.skipif               │ Skip a task and all its dependent tasks │
 │                                  │ if a condition is met.                  │
-│                                  │                                         │
-│ pytask.mark.task                 │ Mark a function as a task regardless of │
-│                                  │ its name. Or mark tasks which are       │
-│                                  │ repeated in a loop. See this tutorial   │
-│                                  │ for more information:                   │
-│                                  │ <a href="https://bit.ly/3DWrXS3">https://bit.ly/3DWrXS3</a>.                 │
 │                                  │                                         │
 │ pytask.mark.try_first            │ Try to execute a task a early as        │
 │                                  │ possible.                               │

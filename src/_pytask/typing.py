@@ -2,14 +2,15 @@ from __future__ import annotations
 
 import functools
 from enum import Enum
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Final
 from typing import Literal
-from typing import TYPE_CHECKING
 
 from attrs import define
 
 if TYPE_CHECKING:
+    from pytask import PTask
     from typing_extensions import TypeAlias
 
 
@@ -36,6 +37,11 @@ def is_task_function(obj: Any) -> bool:
     return (callable(obj) and hasattr(obj, "__name__")) or (
         isinstance(obj, functools.partial) and hasattr(obj.func, "__name__")
     )
+
+
+def is_task_generator(task: PTask) -> bool:
+    """Check if a task is a generator."""
+    return task.attributes.get("is_generator", False)
 
 
 class _NoDefault(Enum):

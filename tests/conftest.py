@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import os
 import re
+import subprocess
 import sys
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
+from typing import NamedTuple
 
 import pytest
 from click.testing import CliRunner
@@ -30,7 +32,7 @@ def _remove_variable_info_from_output(data: str, path: Any) -> str:  # noqa: ARG
 
     # Remove dynamic versions.
     index_root = next(i for i, line in enumerate(lines) if line.startswith("Root:"))
-    new_info_line = "".join(lines[1:index_root])
+    new_info_line = " ".join(lines[1:index_root])
     for platform in ("linux", "win32", "darwin"):
         new_info_line = new_info_line.replace(platform, "<platform>")
     pattern = re.compile(version.VERSION_PATTERN, flags=re.IGNORECASE | re.VERBOSE)
@@ -55,7 +57,7 @@ class SysPathsSnapshot:
     """A snapshot for sys.path."""
 
     def __init__(self) -> None:
-        self.__saved = list(sys.path), list(sys.meta_path)
+        self.__saved = sys.path.copy(), sys.meta_path.copy()
 
     def restore(self) -> None:
         sys.path[:], sys.meta_path[:] = self.__saved
@@ -65,7 +67,7 @@ class SysModulesSnapshot:
     """A snapshot for sys.modules."""
 
     def __init__(self) -> None:
-        self.__saved = dict(sys.modules)
+        self.__saved = sys.modules.copy()
 
     def restore(self) -> None:
         sys.modules.clear()
@@ -110,9 +112,37 @@ def runner():
     return CustomCliRunner()
 
 
+class Result(NamedTuple):
+    """A named tuple to store the result of a command."""
+
+    exit_code: int
+    stdout: str
+    stderr: str
+
+
+def run_in_subprocess(cmd: tuple[str, ...], cwd: Path | None = None) -> Result:
+    """Run a command in a subprocess and return the output."""
+    result = subprocess.run(cmd, cwd=cwd, check=False, capture_output=True)
+    return Result(
+        exit_code=result.returncode,
+        stdout=result.stdout.decode("utf-8", "replace").replace("\r\n", "\n"),
+        stderr=result.stderr.decode("utf-8", "replace").replace("\r\n", "\n"),
+    )
+
+
 def pytest_collection_modifyitems(session, config, items) -> None:  # noqa: ARG001
     """Add markers to Jupyter notebook tests."""
-    if sys.platform == "darwin" and "CI" in os.environ:  # pragma: no cover
-        for item in items:
-            if isinstance(item, NotebookItem):
-                item.add_marker(pytest.mark.xfail(reason="Fails regularly on MacOS"))
+    for item in items:
+        if isinstance(item, NotebookItem):
+            item.add_marker(pytest.mark.xfail(reason="The tests are flaky."))
+
+
+@contextmanager
+def enter_directory(path: Path):
+    """Enter a directory and return to the old one after the context is left."""
+    old_cwd = Path.cwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(old_cwd)

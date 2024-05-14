@@ -1,32 +1,34 @@
 """Process tracebacks."""
+
 from __future__ import annotations
 
 from pathlib import Path
 from types import TracebackType
+from typing import TYPE_CHECKING
 from typing import ClassVar
 from typing import Generator
 from typing import Tuple
 from typing import Type
-from typing import TYPE_CHECKING
 from typing import Union
 
-import _pytask
 import pluggy
-from _pytask.outcomes import Exit
-from _pytask.tree_util import TREE_UTIL_LIB_DIRECTORY
 from attrs import define
+from attrs import field
 from rich.traceback import Traceback as RichTraceback
 
+import _pytask
+from _pytask.outcomes import Exit
+from _pytask.tree_util import TREE_UTIL_LIB_DIRECTORY
+
 if TYPE_CHECKING:
-    from rich.console import ConsoleOptions
     from rich.console import Console
+    from rich.console import ConsoleOptions
     from rich.console import RenderResult
     from typing_extensions import TypeAlias
 
 
 __all__ = [
     "Traceback",
-    "remove_internal_traceback_frames_from_exc_info",
     "remove_traceback_from_exc_info",
 ]
 
@@ -44,13 +46,18 @@ OptionalExceptionInfo: TypeAlias = Union[ExceptionInfo, Tuple[None, None, None]]
 @define
 class Traceback:
     exc_info: OptionalExceptionInfo
+    show_locals: bool = field()
 
-    show_locals: ClassVar[bool] = False
+    _show_locals: ClassVar[bool] = False
     suppress: ClassVar[tuple[Path, ...]] = (
         _PLUGGY_DIRECTORY,
-        TREE_UTIL_LIB_DIRECTORY,
         _PYTASK_DIRECTORY,
+        TREE_UTIL_LIB_DIRECTORY,
     )
+
+    @show_locals.default
+    def _show_locals_default(self) -> bool:
+        return self._show_locals
 
     def __rich_console__(
         self, console: Console, console_options: ConsoleOptions
@@ -58,7 +65,7 @@ class Traceback:
         if self.exc_info and isinstance(self.exc_info[1], Exit):
             self.exc_info = remove_traceback_from_exc_info(self.exc_info)
 
-        filtered_exc_info = remove_internal_traceback_frames_from_exc_info(
+        filtered_exc_info = _remove_internal_traceback_frames_from_exc_info(
             self.exc_info, suppress=self.suppress
         )
 
@@ -78,7 +85,7 @@ def remove_traceback_from_exc_info(
     return (exc_info[0], exc_info[1], None)  # type: ignore[return-value]
 
 
-def remove_internal_traceback_frames_from_exc_info(
+def _remove_internal_traceback_frames_from_exc_info(
     exc_info: OptionalExceptionInfo,
     suppress: tuple[Path, ...] = (
         _PLUGGY_DIRECTORY,
@@ -115,7 +122,7 @@ def _remove_internal_traceback_frames_from_exception(
     if exc is None:
         return exc
 
-    _, _, tb = remove_internal_traceback_frames_from_exc_info(
+    _, _, tb = _remove_internal_traceback_frames_from_exc_info(
         (type(exc), exc, exc.__traceback__)
     )
     exc.__traceback__ = tb
