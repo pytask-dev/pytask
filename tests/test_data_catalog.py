@@ -234,3 +234,17 @@ def test_use_data_catalog_with_provisional_node(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("output.txt").read_text() == "Hello, World!"
+
+
+@pytest.mark.end_to_end()
+def test_data_catalog_has_invalid_name(runner, tmp_path):
+    source = """
+    from pytask import DataCatalog
+
+    data_catalog = DataCatalog(name="?1")
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "The name of a data catalog" in result.stdout

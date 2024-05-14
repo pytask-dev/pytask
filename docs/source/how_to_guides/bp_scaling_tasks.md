@@ -39,9 +39,6 @@ my_project
 │           ├────config.py
 │           └────task_estimate_models.py
 │
-│
-├───setup.py
-│
 ├───.pytask
 │   └────...
 │

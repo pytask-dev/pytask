@@ -226,6 +226,7 @@ class PythonNode(PNode):
     own hashing function. For example, from the :mod:`deepdiff` library.
 
     >>> from deepdiff import DeepHash
+    >>> from pytask import PythonNode
     >>> node = PythonNode(name="node", value={"a": 1}, hash=lambda x: DeepHash(x)[x])
 
     .. warning:: Hashing big objects can require some time.

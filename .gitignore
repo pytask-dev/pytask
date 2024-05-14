@@ -26,3 +26,4 @@ tests/test_jupyter/*.txt
 .pytest_cache
 .ruff_cache
 .venv
+docs/jupyter_execute

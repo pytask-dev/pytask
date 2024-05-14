@@ -9,8 +9,10 @@ from __future__ import annotations
 import hashlib
 import inspect
 import pickle
+import re
 from pathlib import Path
 from typing import TYPE_CHECKING
+from typing import Any
 
 from attrs import define
 from attrs import field
@@ -50,12 +52,10 @@ class DataCatalog:
         A default node for loading and saving values. By default,
         :class:`~pytask.PickleNode` is used to serialize any Python object with the
         :mod:`pickle` module.
-    entries
-        A collection of entries in the catalog. Entries can be :class:`~pytask.PNode` or
-        a :class:`DataCatalog` itself for nesting catalogs.
     name
-        The name of the data catalog. Use it when you are working with multiple data
-        catalogs that store data under the same keys.
+        The name of the data catalog which can only contain letters, numbers, hyphens
+        and underscores. Use it when you are working with multiple data catalogs to
+        store data in different locations.
     path
         A path where automatically created files are stored. By default, it will be
         ``.pytask/data_catalogs/default``.
@@ -63,13 +63,26 @@ class DataCatalog:
     """
 
     default_node: type[PNode] = PickleNode
-    entries: dict[str, PNode | PProvisionalNode] = field(factory=dict)
-    name: str = "default"
+    name: str = field(default="default")
     path: Path | None = None
+    _entries: dict[str, PNode | PProvisionalNode] = field(factory=dict)
+    _instance_path: Path = field(factory=_get_parent_path_of_data_catalog_module)
     _session_config: Settings = field(
         factory=lambda *x: {"check_casing_of_paths": True}  # noqa: ARG005
     )
-    _instance_path: Path = field(factory=_get_parent_path_of_data_catalog_module)
+
+    @name.validator
+    def _check(self, attribute: str, value: str) -> None:  # noqa: ARG002
+        _rich_traceback_omit = True
+        if not isinstance(value, str):
+            msg = "The name of a data catalog must be a string."
+            raise TypeError(msg)
+        if not re.match(r"[a-zA-Z0-9-_]+", value):
+            msg = (
+                "The name of a data catalog must be a string containing only letters, "
+                "numbers, hyphens, and underscores."
+            )
+            raise ValueError(msg)
 
     def __attrs_post_init__(self) -> None:
         root_path, _ = find_project_root_and_config((self._instance_path,))
@@ -80,24 +93,19 @@ class DataCatalog:
 
         self.path.mkdir(parents=True, exist_ok=True)
 
-        self._initialize()
-
-    def _initialize(self) -> None:
-        """Initialize the data catalog with persisted nodes from previous runs."""
-        for path in self.path.glob("*-node.pkl"):  # type: ignore[union-attr]
+        # Initialize the data catalog with persisted nodes from previous runs.
+        for path in self.path.glob("*-node.pkl"):
             node = pickle.loads(path.read_bytes())  # noqa: S301
-            self.entries[node.name] = node
+            self._entries[node.name] = node
 
     def __getitem__(self, name: str) -> PNode | PProvisionalNode:
         """Allow to access entries with the squared brackets syntax."""
-        if name not in self.entries:
+        if name not in self._entries:
             self.add(name)
-        return self.entries[name]
+        return self._entries[name]
 
-    def add(self, name: str, node: PNode | PProvisionalNode | None = None) -> None:
+    def add(self, name: str, node: PNode | PProvisionalNode | Any = None) -> None:
         """Add an entry to the data catalog."""
-        assert isinstance(self.path, Path)
-
         if not isinstance(name, str):
             msg = "The name of a catalog entry must be a string."
             raise TypeError(msg)
@@ -105,16 +113,16 @@ class DataCatalog:
         if node is None:
             filename = hashlib.sha256(name.encode()).hexdigest()
             if isinstance(self.default_node, PPathNode):
-                self.entries[name] = self.default_node(
+                self._entries[name] = self.default_node(
                     name=name, path=self.path / f"{filename}.pkl"
                 )
             else:
-                self.entries[name] = self.default_node(name=name)  # type: ignore[call-arg]
-            self.path.joinpath(f"{filename}-node.pkl").write_bytes(
-                pickle.dumps(self.entries[name])
+                self._entries[name] = self.default_node(name=name)  # type: ignore[call-arg]
+            self.path.joinpath(f"{filename}-node.pkl").write_bytes(  # type: ignore[union-attr]
+                pickle.dumps(self._entries[name])
             )
         elif isinstance(node, (PNode, PProvisionalNode)):
-            self.entries[name] = node
+            self._entries[name] = node
         else:
             # Acquire the latest pluginmanager.
             session = Session(config=self._session_config, hook=storage.get().hook)
@@ -128,4 +136,4 @@ class DataCatalog:
             if collected_node is None:  # pragma: no cover
                 msg = f"{node!r} cannot be parsed."
                 raise NodeNotCollectedError(msg)
-            self.entries[name] = collected_node
+            self._entries[name] = collected_node

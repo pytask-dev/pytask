@@ -53,7 +53,7 @@ docs = [
     "ipython",
     "matplotlib",
     "myst-parser",
-    "nbsphinx",
+    "myst-nb",
     "sphinx",
     "sphinx-click",
     "sphinx-copybutton",
@@ -92,6 +92,10 @@ build-backend = "hatchling.build"
 [tool.rye]
 managed = true
 dev-dependencies = ["tox-uv>=1.7.0"]
+
+[tool.rye.scripts]
+clean-docs = { cmd = "rm -rf docs/build" }
+build-docs = { cmd = "sphinx-build -b html docs/source docs/build" }
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/_pytask/_version.py"

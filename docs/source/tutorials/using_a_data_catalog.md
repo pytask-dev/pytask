@@ -10,14 +10,14 @@ Two things will quickly become a nuisance in bigger projects.
    they are just intermediate representations.
 
 As a solution, pytask offers a {class}`~pytask.DataCatalog` which is a purely optional
-feature. The tutorial focuses on the main features. To learn about all features, read
-the [how-to guide](../how_to_guides/the_data_catalog.md).
+feature. The tutorial focuses on the main features. To learn about all the features,
+read the [how-to guide](../how_to_guides/the_data_catalog.md).
 
 Let us focus on the previous example and see how the {class}`~pytask.DataCatalog` helps
 us.
 
-The project structure is the same as in the previous example with the exception of the
-`.pytask` folder and the missing `data.pkl` in `bld`.
+The project structure is the same as in the previous example except the `.pytask` folder
+and the missing `data.pkl` in `bld`.
 
 ```text
 my_project
@@ -44,15 +44,51 @@ At first, we define the data catalog in `config.py`.
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_1.py
 ```
 
-## `task_data_preparation`
+## `task_create_random_data`
 
-Next, we will use the data catalog to save the product of the task in
-`task_data_preparation.py`.
+Next, we look at the module `task_data_preparation.py` and its task
+`task_create_random_data`. The task creates a dataframe with simulated data that should
+be stored on the disk.
 
-Instead of using a path, we set the location of the product in the data catalog with
-`data_catalog["data"]`. If the key does not exist, the data catalog will automatically
-create a {class}`~pytask.PickleNode` that allows you to save any Python object to a
-`pickle` file. The `pickle` file is stored within the `.pytask` folder.
+In the previous tutorial, we learned to use {class}`~pathlib.Path`s to define products
+of our tasks. Here we see again the signature of the task function.
+
+`````{tab-set}
+
+````{tab-item} Python 3.10+
+:sync: python310plus
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py310.py
+:lines: 10-12
+```
+````
+
+````{tab-item} Python 3.8+
+:sync: python38plus
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py38.py
+:lines: 10-12
+```
+````
+
+````{tab-item} produces
+:sync: produces
+
+```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_produces.py
+:lines: 8
+```
+````
+`````
+
+When we want to use the data catalog, we replace `BLD / "data.pkl"` with an entry of the
+data catalog like `data_catalog["data"]`. If there is yet no entry with the name
+`"data"`, the data catalog will automatically create a {class}`~pytask.PickleNode`. The
+node allows you to save any Python object to a `pickle` file.
+
+You probably noticed that we did not need to define a path. That is because the data
+catalog takes care of that and stores the `pickle` file in the `.pytask` folder.
+
+Using `data_catalog["data"]` is thus equivalent to using `PickleNode(path=Path(...))`.
 
 The following tabs show you how to use the data catalog given the interface you prefer.
 
@@ -125,10 +161,6 @@ Following one of the interfaces gives you immediate access to the
 ````{tab-item} Python 3.10+
 :sync: python310plus
 
-Use `data_catalog["data"]` as an default argument to access the
-{class}`~pytask.PickleNode` within the task. When you are done transforming your
-{class}`~pandas.DataFrame`, save it with {meth}`~pytask.PickleNode.save`.
-
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_3_py310.py
 :emphasize-lines: 12
 ```
@@ -137,10 +169,6 @@ Use `data_catalog["data"]` as an default argument to access the
 
 ````{tab-item} Python 3.8+
 :sync: python38plus
-
-Use `data_catalog["data"]` as an default argument to access the
-{class}`~pytask.PickleNode` within the task. When you are done transforming your
-{class}`~pandas.DataFrame`, save it with {meth}`~pytask.PickleNode.save`.
 
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_3_py38.py
 :emphasize-lines: 12
@@ -160,7 +188,8 @@ In most projects, you have other data sets that you would like to access via the
 catalog. To add them, call the {meth}`~pytask.DataCatalog.add` method and supply a name
 and a path.
 
-Let's add `file.csv` to the data catalog.
+Let's add `file.csv` with the name `"csv"` to the data catalog and use it to create
+`data["transformed_csv"]`.
 
 ```text
 my_project
@@ -174,8 +203,6 @@ my_project
 │       ├────task_data_preparation.py
 │       └────task_plot_data.py
 │
-├───setup.py
-│
 ├───.pytask
 │   └────...
 │
@@ -184,13 +211,24 @@ my_project
     └────plot.png
 ```
 
-The path can be absolute or relative to the module of the data catalog.
+We can use a relative or an absolute path to define the location of the file. A relative
+path means the location is relative to the module of the data catalog.
 
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_4.py
 ```
 
-You can now use the data catalog as in previous example and use the
-{class}`~~pathlib.Path` in the task.
+You can now use the data catalog as in the previous example and use the
+{class}`~pathlib.Path` in the task.
+
+```{note}
+Note that the value of `data_catalog["csv"]` inside the task becomes a
+{class}`~pathlib.Path`. It is because a {class}`~pathlib.Path` in
+{meth}`~pytask.DataCatalog.add` is not parsed to a {class}`~pytask.PickleNode` but a
+{class}`~pytask.PathNode`.
+
+Read {doc}`../how_to_guides/writing_custom_nodes` for more information about
+different node types which is not relevant now.
+```
 
 `````{tab-set}
 
@@ -224,9 +262,14 @@ You can now use the data catalog as in previous example and use the
 
 ## Developing with the `DataCatalog`
 
-You can also use the data catalog in a Jupyter notebook or in the terminal in the Python
-interpreter. Simply import the data catalog, select a node and call the
-{meth}`~pytask.PNode.load` method of a node to access its value.
+You can also use the data catalog in a Jupyter Notebook or the terminal in the Python
+interpreter. This can be super helpful when you develop tasks interactively in a Jupyter
+Notebook.
+
+Simply import the data catalog, select a node and call the {meth}`~pytask.PNode.load`
+method of a node to access its value.
+
+Here is an example with a terminal.
 
 ```pycon
 >>> from myproject.config import data_catalog
