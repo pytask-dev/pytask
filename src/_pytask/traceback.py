@@ -12,6 +12,7 @@ from typing import Type
 from typing import Union
 
 import pluggy
+import typed_settings as ts
 from attrs import define
 from attrs import field
 from rich.traceback import Traceback as RichTraceback
@@ -19,7 +20,6 @@ from rich.traceback import Traceback as RichTraceback
 import _pytask
 from _pytask.outcomes import Exit
 from _pytask.tree_util import TREE_UTIL_LIB_DIRECTORY
-import typed_settings as ts
 
 if TYPE_CHECKING:
     from rich.console import Console
@@ -38,6 +38,13 @@ _PLUGGY_DIRECTORY = Path(pluggy.__file__).parent
 _PYTASK_DIRECTORY = Path(_pytask.__file__).parent
 _TYPED_SETTINGS_DIRECTORY = Path(ts.__file__).parent
 
+_DEFAULT_SUPPRESS = (
+    _PLUGGY_DIRECTORY,
+    _PYTASK_DIRECTORY,
+    _TYPED_SETTINGS_DIRECTORY,
+    TREE_UTIL_LIB_DIRECTORY,
+)
+
 
 ExceptionInfo: TypeAlias = Tuple[
     Type[BaseException], BaseException, Union[TracebackType, None]
@@ -51,12 +58,7 @@ class Traceback:
     show_locals: bool = field()
 
     _show_locals: ClassVar[bool] = False
-    suppress: ClassVar[tuple[Path, ...]] = (
-        _PLUGGY_DIRECTORY,
-        _PYTASK_DIRECTORY,
-        _TYPED_SETTINGS_DIRECTORY,
-        TREE_UTIL_LIB_DIRECTORY,
-    )
+    suppress: ClassVar[tuple[Path, ...]] = _DEFAULT_SUPPRESS
 
     @show_locals.default
     def _show_locals_default(self) -> bool:
@@ -93,6 +95,7 @@ def _remove_internal_traceback_frames_from_exc_info(
     suppress: tuple[Path, ...] = (
         _PLUGGY_DIRECTORY,
         TREE_UTIL_LIB_DIRECTORY,
+        _TYPED_SETTINGS_DIRECTORY,
         _PYTASK_DIRECTORY,
     ),
 ) -> OptionalExceptionInfo:
@@ -105,6 +108,9 @@ def _remove_internal_traceback_frames_from_exc_info(
     if isinstance(exc_info[1], Exception):
         exc_info[1].__cause__ = _remove_internal_traceback_frames_from_exception(
             exc_info[1].__cause__
+        )
+        exc_info[1].__context__ = _remove_internal_traceback_frames_from_exception(
+            exc_info[1].__context__
         )
 
     if isinstance(exc_info[2], TracebackType):
@@ -135,11 +141,7 @@ def _remove_internal_traceback_frames_from_exception(
 def _is_internal_or_hidden_traceback_frame(
     frame: TracebackType,
     exc_info: ExceptionInfo,
-    suppress: tuple[Path, ...] = (
-        _PLUGGY_DIRECTORY,
-        # _PYTASK_DIRECTORY,
-        TREE_UTIL_LIB_DIRECTORY,
-    ),
+    suppress: tuple[Path, ...] = _DEFAULT_SUPPRESS,
 ) -> bool:
     """Return ``True`` if traceback frame belongs to internal packages or is hidden.
 

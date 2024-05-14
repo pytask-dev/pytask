@@ -5,15 +5,15 @@ from __future__ import annotations
 import sys
 from typing import Any
 
-from _pytask.traceback import Traceback
 import click
 from packaging.version import parse as parse_version
 
 from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
+from _pytask.console import console
 from _pytask.pluginmanager import storage
 from _pytask.settings_utils import SettingsBuilder
-from _pytask.console import console
+from _pytask.traceback import Traceback
 
 _CONTEXT_SETTINGS: dict[str, Any] = {
     "help_option_names": ("-h", "--help"),

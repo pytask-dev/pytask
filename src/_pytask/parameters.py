@@ -11,7 +11,7 @@ from typing import Iterable
 import click
 import typed_settings as ts
 from click import Context
-from pluggy import PluginManager
+from pluggy import PluginManager  # noqa: TCH002
 
 from _pytask.path import import_path
 from _pytask.pluginmanager import get_plugin_manager
