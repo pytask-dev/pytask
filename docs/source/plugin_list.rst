@@ -27,6 +27,6 @@ This list contains 7 plugins.
    :pypi:`pytask-latex`        Compile LaTeX documents with pytask.                                  Nov 30, 2023    4 - Beta   pytask >=0.4.0
    :pypi:`pytask-parallel`     Parallelize the execution of tasks with pytask.                       Jan 12, 2024    4 - Beta   pytask >=0.4.5
    :pypi:`pytask-r`            Run R scripts with pytask.                                            Apr 20, 2024    4 - Beta   pytask>=0.4.5
-   :pypi:`pytask-stata`        Execute do-files with Stata and pytask.                               Jan 23, 2023    4 - Beta   pytask (>=0.3)
+   :pypi:`pytask-stata`        Execute do-files with Stata and pytask.                               May 19, 2024    4 - Beta   pytask>=0.4
    :pypi:`pytask-vscode`       Additional Logging for VS Code integration                            Nov 21, 2023    3 - Alpha  pytask >=0.4.2
    ==========================  ====================================================================  ==============  =========  ==============
