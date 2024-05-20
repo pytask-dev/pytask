@@ -1149,7 +1149,8 @@ def test_download_file(runner, tmp_path):
     from upath import UPath
 
     url = UPath(
-        "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
+        "https://gist.githubusercontent.com/tobiasraabe/64c24426d5398cac4b9d37b85ebfaf"
+        "7c/raw/50c61fa9a5aa0b7d3a7582c4c260b43dabfea720/gistfile1.txt"
     )
 
     def task_download_file(path: UPath = url) -> Annotated[str, Path("data.csv")]:
@@ -1160,3 +1161,4 @@ def test_download_file(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.output
+    assert "Hello, World!" in tmp_path.joinpath("data.csv").read_text()
