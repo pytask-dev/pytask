@@ -53,6 +53,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`611` removes the initial task execution status from
   `pytask_execute_task_log_start`.
 - {pull}`612` adds validation for data catalog names.
+- {pull}`614` improves the documentation of enums.
 
 ## 0.4.7 - 2024-03-19
 

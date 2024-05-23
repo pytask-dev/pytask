@@ -51,6 +51,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_click",
     "sphinx_toolbox.more_autodoc.autoprotocol",
+    "enum_tools.autoenum",
     "myst_nb",
     "sphinx_design",
 ]

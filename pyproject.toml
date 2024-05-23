@@ -59,6 +59,7 @@ docs = [
     "sphinx-design>=0.3",
     "sphinx-toolbox",
     "sphinxext-opengraph",
+    "enum-tools",
 ]
 plugin-list = ["httpx", "tabulate[widechars]", "tqdm"]
 test = [

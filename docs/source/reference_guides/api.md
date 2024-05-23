@@ -250,21 +250,19 @@ attribute of the task function.
 The exit code of pytask is determined by
 
 ```{eval-rst}
-.. autoclass:: pytask.ExitCode
-    :members:
-    :member-order: bysource
+.. autoenum:: pytask.ExitCode
 ```
 
 Collected items can have the following outcomes
 
 ```{eval-rst}
-.. autoclass:: pytask.CollectionOutcome
+.. autoenum:: pytask.CollectionOutcome
 ```
 
 Tasks can have the following outcomes
 
 ```{eval-rst}
-.. autoclass:: pytask.TaskOutcome
+.. autoenum:: pytask.TaskOutcome
 ```
 
 The following exceptions are used to abort the execution of a task with an appropriate
