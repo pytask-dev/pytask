@@ -383,6 +383,17 @@ def pytask_collect_node(  # noqa: C901, PLR0912
     if isinstance(node, DirectoryNode):
         if node.root_dir is None:
             node.root_dir = path
+
+        if not node.root_dir.is_absolute():
+            node.root_dir = path.joinpath(node.root_dir)
+
+            # ``normpath`` removes ``../`` from the path which is necessary for the
+            # casing check which will fail since ``.resolves()`` also normalizes a path.
+            node.root_dir = Path(os.path.normpath(node.root_dir))
+            _raise_error_if_casing_of_path_is_wrong(
+                node.root_dir, session.config["check_casing_of_paths"]
+            )
+
         if (
             not node.name
             or node.name == node.root_dir.joinpath(node.pattern).as_posix()
