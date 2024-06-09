@@ -174,7 +174,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
         node = dag.nodes[product]["node"]
         if isinstance(node, PPathNode):
             node.path.parent.mkdir(parents=True, exist_ok=True)
-        if isinstance(node, DirectoryNode):
+        if isinstance(node, DirectoryNode) and node.root_dir:
             node.root_dir.mkdir(parents=True, exist_ok=True)
 
 
