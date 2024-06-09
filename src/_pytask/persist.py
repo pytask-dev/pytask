@@ -36,7 +36,8 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     """Exit persisting tasks early.
 
-    The decorator needs to be set and all nodes need to exist.
+    This check needs to run after the same hook implementation that resolves provisional
+    dependencies and before the same hook implementation for skipping tasks.
 
     """
     if has_mark(task, "persist"):
