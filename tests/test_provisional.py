@@ -60,7 +60,7 @@ def test_task_that_depends_on_relative_provisional_path_node(tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_task_that_depends_on_provisional_path_node_with_root_dir(tmp_path):
+def test_task_that_depends_on_provisional_path_node_with_absolute_root_dir(tmp_path):
     source = """
     from typing_extensions import Annotated
     from pytask import DirectoryNode
@@ -70,6 +70,31 @@ def test_task_that_depends_on_provisional_path_node_with_root_dir(tmp_path):
 
     def task_example(
         paths = DirectoryNode(root_dir=root_dir, pattern="[ab].txt")
+    ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
+        path_dict = {path.stem: path for path in paths}
+        return path_dict["a"].read_text() + path_dict["b"].read_text()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("subfolder").mkdir()
+    tmp_path.joinpath("subfolder", "a.txt").write_text("Hello, ")
+    tmp_path.joinpath("subfolder", "b.txt").write_text("World!")
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 1
+    assert len(session.tasks[0].depends_on["paths"]) == 2
+
+
+@pytest.mark.end_to_end()
+def test_task_that_depends_on_provisional_path_node_with_relative_root_dir(tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DirectoryNode
+    from pathlib import Path
+
+    def task_example(
+        paths = DirectoryNode(root_dir=Path("subfolder"), pattern="[ab].txt")
     ) -> Annotated[str, Path(__file__).parent.joinpath("merged.txt")]:
         path_dict = {path.stem: path for path in paths}
         return path_dict["a"].read_text() + path_dict["b"].read_text()

@@ -50,9 +50,9 @@ class Traceback:
 
     _show_locals: ClassVar[bool] = False
     suppress: ClassVar[tuple[Path, ...]] = (
-        _PLUGGY_DIRECTORY,
-        _PYTASK_DIRECTORY,
-        TREE_UTIL_LIB_DIRECTORY,
+        # _PLUGGY_DIRECTORY,
+        # _PYTASK_DIRECTORY,
+        # TREE_UTIL_LIB_DIRECTORY,
     )
 
     @show_locals.default
