@@ -8,6 +8,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 ## 0.5.1 - 2024-xx-xx
 
 - {pull}`617` fixes an interaction with provisional nodes and `@mark.persist`.
+- {pull}`618` ensures that `root_dir` of `DirectoryNode` is created before the task is
+  executed.
 
 ## 0.5.0 - 2024-05-26
 

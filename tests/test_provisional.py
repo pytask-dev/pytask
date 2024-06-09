@@ -268,3 +268,26 @@ def test_provisional_nodes_are_resolved_before_persist(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
+
+
+@pytest.mark.end_to_end()
+def test_root_dir_is_created(runner, tmp_path):
+    source = """
+    from typing_extensions import Annotated
+    from pytask import DirectoryNode, Product
+    from pathlib import Path
+
+    def task_example(
+        root_path: Annotated[
+            Path, DirectoryNode(root_dir=Path("subfolder"), pattern="*.txt"), Product
+        ]
+    ):
+        root_path.joinpath("a.txt").write_text("Hello, ")
+        root_path.joinpath("b.txt").write_text("World!")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("subfolder", "a.txt").exists()
+    assert tmp_path.joinpath("subfolder", "b.txt").exists()
