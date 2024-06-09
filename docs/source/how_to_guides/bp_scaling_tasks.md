@@ -1,14 +1,27 @@
 # Scaling tasks
 
-In any bigger project you quickly come to the point where you stack multiple repetitions
-of tasks on top of each other.
+In many projects, tasks are repeated across multiple dimensions that are stacked on top
+of each other.
 
-For example, you have one dataset, four different ways to prepare it, and three
-statistical models to analyze the data. The cartesian product of all steps combined
-comprises twelve differently fitted models.
+For example, take a project that there are four ways to simulate data and there are
+three different models that should be fitted on each dataset.
 
-Here you find some tips on how to set up your tasks such that you can easily modify the
-cartesian product of steps.
+Assuming there is a high-level interface to simulate data, we can loop over the task for
+simulating data four times with different arguments.
+
+Assuming there is a high-level interface to fit models to data,
+
+Assuming that you can easily switch the model the model fitting can be done in a taskThe
+cartesian product of all steps combined comprises twelve differently fitted models.
+
+This guide shows an approach to organizing your tasks that can be best described as
+flattening the loops.
+
+## The data catalog
+
+First of all, we need to create a data catalog in a `config.py` in your project.
+
+The data catalog plays a key role in managing lots of repetitions of tasks because it
 
 ## Scalability
 
@@ -18,7 +31,7 @@ different models to each specification.
 
 This is the structure of the project.
 
-```
+```text
 my_project
 ├───pyproject.toml
 │

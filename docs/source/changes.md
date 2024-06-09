@@ -5,6 +5,10 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.5.1 - 2024-xx-xx
+
+- {pull}`616` redesigns the guide on "Scaling Tasks".
+
 ## 0.5.0 - 2024-05-26
 
 - {pull}`548` fixes the type hints for {meth}`~pytask.Task.execute` and
