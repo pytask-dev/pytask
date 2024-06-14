@@ -5,21 +5,18 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING
-from typing import Any
 
 from _pytask.pluginmanager import hookimpl
-from _pytask.shared import parse_markers
 from _pytask.shared import parse_paths
-from _pytask.shared import to_list
 
 if TYPE_CHECKING:
     from pluggy import PluginManager
 
+    from _pytask.settings import Settings
 
-_IGNORED_FOLDERS: list[str] = [".git/*", ".venv/*"]
 
-
-_IGNORED_FILES: list[str] = [
+_IGNORED_FOLDERS: tuple[str, ...] = (".git/*", ".venv/*")
+_IGNORED_FILES: tuple[str, ...] = (
     ".codecov.yml",
     ".gitignore",
     ".pre-commit-config.yaml",
@@ -31,13 +28,9 @@ _IGNORED_FILES: list[str] = [
     "pyproject.toml",
     "setup.cfg",
     "tox.ini",
-]
-
-
-_IGNORED_FILES_AND_FOLDERS: list[str] = _IGNORED_FILES + _IGNORED_FOLDERS
-
-
-IGNORED_TEMPORARY_FILES_AND_FOLDERS: list[str] = [
+)
+_IGNORED_FILES_AND_FOLDERS: tuple[str, ...] = _IGNORED_FILES + _IGNORED_FOLDERS
+IGNORED_TEMPORARY_FILES_AND_FOLDERS: tuple[str, ...] = (
     "*.egg-info/*",
     ".ipynb_checkpoints/*",
     ".mypy_cache/*",
@@ -48,7 +41,7 @@ IGNORED_TEMPORARY_FILES_AND_FOLDERS: list[str] = [
     "build/*",
     "dist/*",
     "pytest_cache/*",
-]
+)
 
 
 def is_file_system_case_sensitive() -> bool:
@@ -61,57 +54,43 @@ IS_FILE_SYSTEM_CASE_SENSITIVE = is_file_system_case_sensitive()
 
 
 @hookimpl
-def pytask_configure(pm: PluginManager, raw_config: dict[str, Any]) -> dict[str, Any]:
+def pytask_configure(pm: PluginManager, config: Settings) -> Settings:
     """Configure pytask."""
-    # Add all values by default so that many plugins do not need to copy over values.
-    config = {"pm": pm, "markers": {}, **raw_config}
-    config["markers"] = parse_markers(config["markers"])
-
     pm.hook.pytask_parse_config(config=config)
     pm.hook.pytask_post_parse(config=config)
-
     return config
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_parse_config(config: Settings) -> None:
     """Parse the configuration."""
-    config["root"].joinpath(".pytask").mkdir(exist_ok=True, parents=True)
+    config.common.cache.mkdir(exist_ok=True, parents=True)
 
-    config["paths"] = parse_paths(config["paths"])
+    config.common.paths = parse_paths(config.common.paths)
 
-    config["markers"] = {
+    config.markers.markers = {
         "try_first": "Try to execute a task a early as possible.",
         "try_last": "Try to execute a task a late as possible.",
-        **config["markers"],
+        **config.markers.markers,
     }
 
-    config["ignore"] = (
-        to_list(config["ignore"])
+    config.common.ignore = (
+        config.common.ignore
         + _IGNORED_FILES_AND_FOLDERS
         + IGNORED_TEMPORARY_FILES_AND_FOLDERS
     )
 
-    value = config.get("task_files", ["task_*.py"])
-    if not isinstance(value, (list, tuple)) or not all(
-        isinstance(p, str) for p in value
-    ):
-        msg = "'task_files' must be a list of patterns."
-        raise ValueError(msg)
-    config["task_files"] = value
+    if config.build.stop_after_first_failure:
+        config.build.max_failures = 1
 
-    if config["stop_after_first_failure"]:
-        config["max_failures"] = 1
-
-    for name in ("check_casing_of_paths",):
-        config[name] = bool(config.get(name, True))
-
-    if config["debug_pytask"]:
-        config["pm"].trace.root.setwriter(print)
-        config["pm"].enable_tracing()
+    if config.common.debug_pytask:
+        config.common.pm.trace.root.setwriter(print)
+        config.common.pm.enable_tracing()
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Sort markers alphabetically."""
-    config["markers"] = {k: config["markers"][k] for k in sorted(config["markers"])}
+    config.markers.markers = {
+        k: config.markers.markers[k] for k in sorted(config.markers.markers)
+    }

@@ -39,7 +39,7 @@ def test_pass_config_to_cli(tmp_path):
     session = build(config=tmp_path.joinpath("pyproject.toml"), paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
-    assert "elton" in session.config["markers"]
+    assert "elton" in session.config.markers.markers
 
 
 @pytest.mark.end_to_end()
@@ -123,3 +123,15 @@ def test_paths_are_relative_to_configuration_file(tmp_path):
     result = run_in_subprocess(("python", "script.py"), cwd=tmp_path)
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.stdout
+
+
+def test_old_config_section_is_deprecated(): ...
+
+
+def test_new_config_section_is_not_deprecated(): ...
+
+
+def test_old_config_path_is_deprecated(): ...
+
+
+def test_new_config_path_is_not_deprecated(): ...

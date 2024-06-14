@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import NamedTuple
 
-import click
 import pluggy
+import typed_settings as ts
 from rich.text import Text
 
 import _pytask
@@ -28,6 +28,8 @@ if TYPE_CHECKING:
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
     from _pytask.session import Session
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
 
 
 with contextlib.suppress(ImportError):
@@ -41,22 +43,30 @@ class _TimeUnit(NamedTuple):
     in_seconds: int
 
 
-@hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
-    show_locals_option = click.Option(
-        ["--show-locals"],
-        is_flag=True,
+@ts.settings
+class Logging:
+    """Settings for logging."""
+
+    show_locals: bool = ts.option(
         default=False,
+        click={"param_decls": ["--show-locals"], "is_flag": True},
         help="Show local variables in tracebacks.",
     )
-    cli.commands["build"].params.append(show_locals_option)
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
+    settings_builder.option_groups["logging"] = Logging()
+
+
+@hookimpl
+def pytask_parse_config(config: Settings) -> None:
     """Parse configuration."""
-    if config["editor_url_scheme"] not in ("no_link", "file") and IS_WINDOWS_TERMINAL:
-        config["editor_url_scheme"] = "file"
+    if (
+        config.common.editor_url_scheme not in ("no_link", "file")
+        and IS_WINDOWS_TERMINAL
+    ):
+        config.common.editor_url_scheme = "file"
         warnings.warn(
             "Windows Terminal does not support url schemes to applications, yet."
             "See https://github.com/pytask-dev/pytask/issues/171 for more information. "
@@ -66,13 +76,13 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     # Set class variables on traceback object.
-    Traceback._show_locals = config["show_locals"]
+    Traceback._show_locals = config.logging.show_locals
     # Set class variables on Executionreport.
-    ExecutionReport.editor_url_scheme = config["editor_url_scheme"]
-    ExecutionReport.show_capture = config["show_capture"]
-    ExecutionReport.show_locals = config["show_locals"]
+    ExecutionReport.editor_url_scheme = config.common.editor_url_scheme
+    ExecutionReport.show_capture = config.capture.show_capture
+    ExecutionReport.show_locals = config.logging.show_locals
 
 
 @hookimpl
@@ -83,11 +93,11 @@ def pytask_log_session_header(session: Session) -> None:
         f"Platform: {sys.platform} -- Python {platform.python_version()}, "
         f"pytask {_pytask.__version__}, pluggy {pluggy.__version__}"
     )
-    console.print(f"Root: {session.config['root']}")
-    if session.config["config"] is not None:
-        console.print(f"Configuration: {session.config['config']}")
+    console.print(f"Root: {session.config.common.root}")
+    if session.config.common.config_file is not None:
+        console.print(f"Configuration: {session.config.common.config_file}")
 
-    plugin_info = session.config["pm"].list_plugin_distinfo()
+    plugin_info = session.config.common.pm.list_plugin_distinfo()
     if plugin_info:
         formatted_plugins_w_versions = ", ".join(
             _format_plugin_names_and_versions(plugin_info)
@@ -96,7 +106,7 @@ def pytask_log_session_header(session: Session) -> None:
 
 
 def _format_plugin_names_and_versions(
-    plugininfo: list[tuple[str, DistFacade]],
+    plugininfo: list[tuple[Any, DistFacade]],
 ) -> list[str]:
     """Format name and version of loaded plugins."""
     values: list[str] = []

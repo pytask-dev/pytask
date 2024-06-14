@@ -54,7 +54,7 @@ def create_dag_from_session(session: Session) -> nx.DiGraph:
     """Create a DAG from a session."""
     dag = _create_dag_from_tasks(tasks=session.tasks)
     _check_if_dag_has_cycles(dag)
-    _check_if_tasks_have_the_same_products(dag, session.config["paths"])
+    _check_if_tasks_have_the_same_products(dag, session.config.common.paths)
     dag = _modify_dag(session=session, dag=dag)
     select_tasks_by_marks_and_expressions(session=session, dag=dag)
     return dag
@@ -174,7 +174,9 @@ def _format_dictionary_to_tree(dict_: dict[str, list[str]], title: str) -> str:
     return render_to_string(tree, console=console, strip_styles=True)
 
 
-def _check_if_tasks_have_the_same_products(dag: nx.DiGraph, paths: list[Path]) -> None:
+def _check_if_tasks_have_the_same_products(
+    dag: nx.DiGraph, paths: tuple[Path, ...]
+) -> None:
     nodes_created_by_multiple_tasks = []
 
     for node in dag.nodes:

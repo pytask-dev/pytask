@@ -12,7 +12,6 @@ from _pytask.logging_utils import TaskExecutionStatus
 
 from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
-from _pytask.click import EnumChoice
 from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_products_from_task_function
 from _pytask.compat import check_for_optional_program
@@ -98,7 +97,6 @@ __all__ = [
     "DataCatalog",
     "DatabaseSession",
     "DirectoryNode",
-    "EnumChoice",
     "ExecutionError",
     "ExecutionReport",
     "Exit",

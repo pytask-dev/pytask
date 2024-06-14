@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
 from typing import Iterable
@@ -13,6 +14,9 @@ from attrs import validators
 from _pytask.mark_utils import get_all_marks
 from _pytask.models import CollectionMetadata
 from _pytask.typing import is_task_function
+
+if TYPE_CHECKING:
+    from _pytask.settings import Settings
 
 
 @define(frozen=True)
@@ -186,8 +190,7 @@ class MarkGenerator:
 
     """
 
-    config: dict[str, Any] | None = None
-    """Optional[Dict[str, Any]]: The configuration."""
+    config: Settings | None = None
 
     def __getattr__(self, name: str) -> MarkDecorator | Any:
         if name[0] == "_":
@@ -206,7 +209,7 @@ class MarkGenerator:
 
         # If the name is not in the set of known marks after updating,
         # then it really is time to issue a warning or an error.
-        if self.config is not None and name not in self.config["markers"]:
+        if self.config is not None and name not in self.config.markers.markers:
             if name in ("parametrize", "parameterize", "parametrise", "parameterise"):
                 msg = (
                     "@pytask.mark.parametrize has been removed since pytask v0.4. "
@@ -215,7 +218,7 @@ class MarkGenerator:
                 )
                 raise NotImplementedError(msg) from None
 
-            if self.config["strict_markers"]:
+            if self.config.markers.strict_markers:
                 msg = f"Unknown pytask.mark.{name}."
                 raise ValueError(msg)
 

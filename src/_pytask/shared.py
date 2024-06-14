@@ -63,19 +63,18 @@ def to_list(scalar_or_iter: Any) -> list[Any]:
     )
 
 
-def parse_paths(x: Path | list[Path]) -> list[Path]:
+def parse_paths(x: tuple[Path, ...]) -> tuple[Path, ...]:
     """Parse paths."""
     paths = [Path(p) for p in to_list(x)]
     for p in paths:
         if not p.exists():
             msg = f"The path '{p}' does not exist."
             raise FileNotFoundError(msg)
-
-    return [
+    return tuple(
         Path(p).resolve()
         for path in paths
         for p in glob.glob(path.as_posix())  # noqa: PTH207
-    ]
+    )
 
 
 def reduce_names_of_multiple_nodes(

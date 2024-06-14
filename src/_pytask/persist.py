@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from typing import Any
 
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.database_utils import has_node_changed
@@ -18,12 +17,13 @@ if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
+    from _pytask.settings import Settings
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_parse_config(config: Settings) -> None:
     """Add the marker to the configuration."""
-    config["markers"]["persist"] = (
+    config.markers.markers["persist"] = (
         "Prevent execution of a task if all products exist and even if something has "
         "changed (dependencies, source file, products). This decorator might be useful "
         "for expensive tasks where only the formatting of the file has changed. The "

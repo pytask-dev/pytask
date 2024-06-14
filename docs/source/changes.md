@@ -33,6 +33,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`579` fixes an interaction with `--pdb` and `--trace` and task that return. The
   debugging modes swallowed the return and `None` was returned. Closes {issue}`574`.
 - {pull}`581` simplifies the code for tracebacks and unpublishes some utility functions.
+- {pull}`582` use typed-settings to parse configuration files and create the CLI.
 - {pull}`586` improves linting.
 - {pull}`587` improves typing of `capture.py`.
 - {pull}`588` resets class variables of `ExecutionReport` and `Traceback`.

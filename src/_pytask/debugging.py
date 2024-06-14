@@ -11,6 +11,7 @@ from typing import ClassVar
 from typing import Generator
 
 import click
+import typed_settings as ts
 
 from _pytask.console import console
 from _pytask.node_protocols import PTask
@@ -27,37 +28,8 @@ if TYPE_CHECKING:
     from _pytask.capture import CaptureManager
     from _pytask.live import LiveManager
     from _pytask.session import Session
-
-
-@hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
-    """Extend command line interface."""
-    additional_parameters = [
-        click.Option(
-            ["--pdb"],
-            help="Start the interactive debugger on errors.",
-            is_flag=True,
-            default=False,
-        ),
-        click.Option(
-            ["--trace"],
-            help="Enter debugger in the beginning of each task.",
-            is_flag=True,
-            default=False,
-        ),
-        click.Option(
-            ["--pdbcls"],
-            help=(
-                "Start a custom debugger on errors. For example: "
-                "--pdbcls=IPython.terminal.debugger:TerminalPdb"
-            ),
-            type=str,
-            default=None,
-            metavar="module_name:class_name",
-            callback=_pdbcls_callback,
-        ),
-    ]
-    cli.commands["build"].params.extend(additional_parameters)
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
 
 
 def _pdbcls_callback(
@@ -67,36 +39,67 @@ def _pdbcls_callback(
 ) -> tuple[str, str] | None:
     """Validate the debugger class string passed to pdbcls."""
     message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
-
     if value is None:
         return None
     if isinstance(value, str):
         split = value.split(":")
         if len(split) != 2:  # noqa: PLR2004
             raise click.BadParameter(message)
-        return tuple(split)  # type: ignore[return-value]
+        return (split[0], split[1])
     raise click.BadParameter(message)
 
 
+@ts.settings
+class Debugging:
+    pdb: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--pdb",)},
+        help="Start the interactive debugger on errors.",
+    )
+    pdbcls: tuple[str, str] | None = ts.option(
+        default=None,
+        click={
+            "param_decls": ("--pdb-cls",),
+            "metavar": "module_name:class_name",
+            "callback": _pdbcls_callback,
+        },
+        help=(
+            "Start a custom debugger on errors. For example: "
+            "--pdbcls=IPython.terminal.debugger:TerminalPdb"
+        ),
+    )
+    trace: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--trace",)},
+        help="Enter debugger in the beginning of each task.",
+    )
+
+
+@hookimpl
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
+    """Extend command line interface."""
+    settings_builder.option_groups["debugging"] = Debugging()
+
+
 @hookimpl(trylast=True)
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Post parse the configuration.
 
     Register the plugins in this step to let other plugins influence the pdb or trace
     option and may be disable it. Especially thinking about pytask-parallel.
 
     """
-    if config["pdb"]:
-        config["pm"].register(PdbDebugger)
+    if config.debugging.pdb:
+        config.common.pm.register(PdbDebugger)
 
-    if config["trace"]:
-        config["pm"].register(PdbTrace)
+    if config.debugging.trace:
+        config.common.pm.register(PdbTrace)
 
     PytaskPDB._saved.append(
         (pdb.set_trace, PytaskPDB._pluginmanager, PytaskPDB._config)
     )
     pdb.set_trace = PytaskPDB.set_trace
-    PytaskPDB._pluginmanager = config["pm"]
+    PytaskPDB._pluginmanager = config.common.pm
     PytaskPDB._config = config
 
 
@@ -115,10 +118,10 @@ class PytaskPDB:
     """Pseudo PDB that defers to the real pdb."""
 
     _pluginmanager: PluginManager | None = None
-    _config: dict[str, Any] | None = None
+    _config: Settings | None = None
     _saved: ClassVar[list[tuple[Any, ...]]] = []
     _recursive_debug: int = 0
-    _wrapped_pdb_cls: tuple[type[pdb.Pdb], type[pdb.Pdb]] | None = None
+    _wrapped_pdb_cls: tuple[tuple[str, str] | None, type[pdb.Pdb]] | None = None
 
     @classmethod
     def _is_capturing(cls, capman: CaptureManager) -> bool:
@@ -138,7 +141,7 @@ class PytaskPDB:
             # Happens when using pytask.set_trace outside of a task.
             return pdb.Pdb
 
-        usepdb_cls = cls._config["pdbcls"]
+        usepdb_cls = cls._config.debugging.pdbcls
 
         if cls._wrapped_pdb_cls and cls._wrapped_pdb_cls[0] == usepdb_cls:
             return cls._wrapped_pdb_cls[1]
@@ -329,8 +332,12 @@ def wrap_function_for_post_mortem_debugging(session: Session, task: PTask) -> No
 
     @functools.wraps(task_function)
     def wrapper(*args: Any, **kwargs: Any) -> None:
-        capman = session.config["pm"].get_plugin("capturemanager")
-        live_manager = session.config["pm"].get_plugin("live_manager")
+        capman = session.config.common.pm.get_plugin("capturemanager")
+        live_manager = session.config.common.pm.get_plugin("live_manager")
+
+        assert capman
+        assert live_manager
+
         try:
             return task_function(*args, **kwargs)
 
@@ -393,8 +400,11 @@ def wrap_function_for_tracing(session: Session, task: PTask) -> None:
     # of the kwargs to task_function was called `func`.
     @functools.wraps(task_function)
     def wrapper(*args: Any, **kwargs: Any) -> None:
-        capman = session.config["pm"].get_plugin("capturemanager")
-        live_manager = session.config["pm"].get_plugin("live_manager")
+        capman = session.config.common.pm.get_plugin("capturemanager")
+        live_manager = session.config.common.pm.get_plugin("live_manager")
+
+        assert capman
+        assert live_manager
 
         # Order is important! Pausing the live object before the capturemanager would
         # flush the table to stdout and it will be visible in the captured output.

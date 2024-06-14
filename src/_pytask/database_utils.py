@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from sqlalchemy import URL
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
@@ -43,7 +44,7 @@ class State(BaseTable):
     hash_: Mapped[str]
 
 
-def create_database(url: str) -> None:
+def create_database(url: URL) -> None:
     """Create the database."""
     engine = create_engine(url)
     BaseTable.metadata.create_all(bind=engine)

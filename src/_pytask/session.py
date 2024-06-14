@@ -11,6 +11,7 @@ from attrs import field
 from pluggy import HookRelay
 
 from _pytask.outcomes import ExitCode
+from _pytask.settings import Settings
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
@@ -26,6 +27,8 @@ class Session:
 
     Parameters
     ----------
+    attrs
+        A dictionary for storing arbitrary data.
     config
         Configuration of the session.
     collection_reports
@@ -49,7 +52,8 @@ class Session:
 
     """
 
-    config: dict[str, Any] = field(factory=dict)
+    attrs: dict[str, Any] = field(factory=dict)
+    config: Settings = field(factory=Settings)
     collection_reports: list[CollectionReport] = field(factory=list)
     dag: nx.DiGraph = field(factory=nx.DiGraph)
     hook: HookRelay = field(factory=HookRelay)
@@ -71,5 +75,7 @@ class Session:
     @classmethod
     def from_config(cls, config: dict[str, Any]) -> Session:
         """Construct the class from a config."""
-        hook = config["pm"].hook if "pm" in config else HookRelay()
-        return cls(config=config, hook=hook)
+        from _pytask.cli import settings_builder
+
+        settings = settings_builder.load_settings(kwargs=config)
+        return cls(config=settings, hook=settings.common.pm.hook)

@@ -36,8 +36,8 @@ def test_parse_markers(tmp_path):
     session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
-    assert "a1" in session.config["markers"]
-    assert "a2" in session.config["markers"]
+    assert "a1" in session.config.markers.markers
+    assert "a2" in session.config.markers.markers
 
 
 @pytest.mark.end_to_end()

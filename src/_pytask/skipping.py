@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from typing import Any
 
 from _pytask.dag_utils import descending_tasks
 from _pytask.mark import Mark
@@ -20,6 +19,7 @@ if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
+    from _pytask.settings import Settings
 
 
 def skip_ancestor_failed(reason: str = "No reason provided.") -> str:
@@ -33,7 +33,7 @@ def skipif(condition: bool, *, reason: str) -> tuple[bool, str]:
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_parse_config(config: Settings) -> None:
     """Parse the configuration."""
     markers = {
         "skip": "Skip a task and all its dependent tasks.",
@@ -43,7 +43,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
         "executed and have not been changed.",
         "skipif": "Skip a task and all its dependent tasks if a condition is met.",
     }
-    config["markers"] = {**config["markers"], **markers}
+    config.markers.markers = {**config.markers.markers, **markers}
 
 
 @hookimpl
@@ -52,7 +52,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     is_unchanged = has_mark(task, "skip_unchanged") and not has_mark(
         task, "would_be_executed"
     )
-    if is_unchanged and not session.config["force"]:
+    if is_unchanged and not session.config.build.force:
         collect_provisional_products(session, task)
         raise SkippedUnchanged
 

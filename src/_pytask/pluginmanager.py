@@ -46,7 +46,6 @@ def pytask_add_hooks(pm: PluginManager) -> None:
         "_pytask.dag_command",
         "_pytask.database",
         "_pytask.debugging",
-        "_pytask.provisional",
         "_pytask.execute",
         "_pytask.live",
         "_pytask.logging",

@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+import sys
 from typing import Any
 
 import click
 from packaging.version import parse as parse_version
 
+from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
+from _pytask.console import console
 from _pytask.pluginmanager import storage
+from _pytask.settings_utils import SettingsBuilder
+from _pytask.traceback import Traceback
 
 _CONTEXT_SETTINGS: dict[str, Any] = {
     "help_option_names": ("-h", "--help"),
@@ -22,20 +27,18 @@ else:  # pragma: no cover
     _VERSION_OPTION_KWARGS = {}
 
 
-def _extend_command_line_interface(cli: click.Group) -> click.Group:
+def _extend_command_line_interface() -> SettingsBuilder:
     """Add parameters from plugins to the commandline interface."""
     pm = storage.create()
-    pm.hook.pytask_extend_command_line_interface.call_historic(kwargs={"cli": cli})
-    _sort_options_for_each_command_alphabetically(cli)
-    return cli
+    settings_builder = SettingsBuilder()
+    pm.hook.pytask_extend_command_line_interface.call_historic(
+        kwargs={"settings_builder": settings_builder}
+    )
+    return settings_builder
 
 
-def _sort_options_for_each_command_alphabetically(cli: click.Group) -> None:
-    """Sort command line options and arguments for each command alphabetically."""
-    for command in cli.commands:
-        cli.commands[command].params = sorted(
-            cli.commands[command].params, key=lambda x: x.opts[0].replace("-", "")
-        )
+settings_builder = _extend_command_line_interface()
+decorator = settings_builder.build_decorator()
 
 
 @click.group(
@@ -49,11 +52,11 @@ def cli() -> None:
     """Manage your tasks with pytask."""
 
 
-_extend_command_line_interface(cli)
-
-
-DEFAULTS_FROM_CLI = {
-    option.name: option.default
-    for command in cli.commands.values()
-    for option in command.params
-}
+try:
+    for name, func in settings_builder.commands.items():
+        command = click.command(name=name, cls=ColoredCommand)(decorator(func))
+        command.params.extend(settings_builder.arguments)
+        cli.add_command(command)
+except Exception:  # noqa: BLE001
+    traceback = Traceback(sys.exc_info(), show_locals=False)
+    console.print(traceback)

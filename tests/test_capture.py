@@ -561,9 +561,8 @@ class TestFDCapture:
             pytest.raises(AssertionError, cap.suspend)
 
             assert repr(cap) == (
-                "<FDCapture 1 oldfd={} _state='done' tmpfile={!r}>".format(  # noqa: UP032
-                    cap.targetfd_save, cap.tmpfile
-                )
+                f"<FDCapture 1 oldfd={cap.targetfd_save} _state='done' "
+                f"tmpfile={cap.tmpfile!r}>"
             )
             # Should not crash with missing "_old".
             assert repr(cap.syscapture) == (

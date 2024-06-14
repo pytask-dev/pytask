@@ -24,7 +24,6 @@ from _pytask.typing import is_task_function
 if TYPE_CHECKING:
     from pathlib import Path
 
-
 __all__ = [
     "COLLECTED_TASKS",
     "parse_collected_tasks_with_task_marker",

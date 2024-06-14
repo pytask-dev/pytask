@@ -43,65 +43,64 @@ from typing import NamedTuple
 from typing import TextIO
 from typing import final
 
-import click
+import typed_settings as ts
 from typing_extensions import Self
 
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
-from _pytask.click import EnumChoice
 from _pytask.pluginmanager import hookimpl
-from _pytask.shared import convert_to_enum
 
 if TYPE_CHECKING:
     from types import TracebackType
 
     from _pytask.node_protocols import PTask
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
+
+
+@ts.settings
+class Capture:
+    """Settings for capturing."""
+
+    capture: CaptureMethod = ts.option(
+        default=CaptureMethod.FD,
+        click={"param_decls": ["--capture"]},
+        help="Per task capturing method.",
+    )
+    s: bool = ts.option(
+        default=False,
+        click={"param_decls": ["-s"], "is_flag": True},
+        help="Shortcut for --capture=no.",
+    )
+    show_capture: ShowCapture = ts.option(
+        default=ShowCapture.ALL,
+        click={"param_decls": ["--show-capture"]},
+        help="Choose which captured output should be shown for failed tasks.",
+    )
 
 
 @hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Add CLI options for capturing output."""
-    additional_parameters = [
-        click.Option(
-            ["--capture"],
-            type=EnumChoice(CaptureMethod),
-            default=CaptureMethod.FD,
-            help="Per task capturing method.",
-        ),
-        click.Option(
-            ["-s"],
-            is_flag=True,
-            default=False,
-            help="Shortcut for --capture=no.",
-        ),
-        click.Option(
-            ["--show-capture"],
-            type=EnumChoice(ShowCapture),
-            default=ShowCapture.ALL,
-            help="Choose which captured output should be shown for failed tasks.",
-        ),
-    ]
-    cli.commands["build"].params.extend(additional_parameters)
+    settings_builder.option_groups["capture"] = Capture()
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_parse_config(config: Settings) -> None:
     """Parse configuration.
 
     Note that, ``-s`` is a shortcut for ``--capture=no``.
 
     """
-    config["capture"] = convert_to_enum(config["capture"], CaptureMethod)
-    if config["s"]:
-        config["capture"] = CaptureMethod.NO
-    config["show_capture"] = convert_to_enum(config["show_capture"], ShowCapture)
+    if config.capture.s:
+        config.capture.capture = CaptureMethod.NO
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Initialize the CaptureManager."""
-    pluginmanager = config["pm"]
-    capman = CaptureManager(config["capture"])
+    pluginmanager = config.common.pm
+    capman = CaptureManager(config.capture.capture)
     pluginmanager.register(capman, "capturemanager")
     capman.stop_capturing()
     capman.start_capturing()
@@ -466,12 +465,9 @@ class FDCaptureBase(CaptureBase[AnyStr]):
         self._state = "initialized"
 
     def __repr__(self) -> str:
-        return "<{} {} oldfd={} _state={!r} tmpfile={!r}>".format(  # noqa: UP032
-            self.__class__.__name__,
-            self.targetfd,
-            self.targetfd_save,
-            self._state,
-            self.tmpfile,
+        return (
+            f"<{self.__class__.__name__} {self.targetfd} oldfd={self.targetfd_save} "
+            f"_state={self._state!r} tmpfile={self.tmpfile!r}>"
         )
 
     def _assert_state(self, op: str, states: tuple[str, ...]) -> None:
@@ -619,15 +615,9 @@ class MultiCapture(Generic[AnyStr]):
         self.err: CaptureBase[AnyStr] | None = err
 
     def __repr__(self) -> str:
-        return (  # noqa: UP032
-            "<MultiCapture out={!r} err={!r} in_={!r} _state={!r} "
-            "_in_suspended={!r}>"
-        ).format(
-            self.out,
-            self.err,
-            self.in_,
-            self._state,
-            self._in_suspended,
+        return (
+            f"<MultiCapture out={self.out!r} err={self.err!r} in_={self.in_!r} "
+            f"_state={self._state!r} _in_suspended={self._in_suspended!r}>"
         )
 
     def start_capturing(self) -> None:
@@ -734,8 +724,8 @@ class CaptureManager:
         self._capturing: MultiCapture[str] | None = None
 
     def __repr__(self) -> str:
-        return ("<CaptureManager _method={!r} _capturing={!r}>").format(  # noqa: UP032
-            self._method, self._capturing
+        return (
+            f"<CaptureManager _method={self._method!r} _capturing={self._capturing!r}>"
         )
 
     def is_capturing(self) -> bool:

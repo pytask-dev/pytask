@@ -47,7 +47,6 @@ from _pytask.path import shorten_path
 from _pytask.pluginmanager import hookimpl
 from _pytask.reports import CollectionReport
 from _pytask.shared import find_duplicates
-from _pytask.shared import to_list
 from _pytask.shared import unwrap_task_function
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import task as task_decorator
@@ -56,6 +55,7 @@ from _pytask.typing import is_task_function
 if TYPE_CHECKING:
     from _pytask.models import NodeInfo
     from _pytask.session import Session
+    from _pytask.settings import Settings
 
 
 @hookimpl
@@ -94,7 +94,7 @@ def _collect_from_paths(session: Session) -> None:
     Go through all paths, check if the path is ignored, and collect the file if not.
 
     """
-    for path in _not_ignored_paths(session.config["paths"], session):
+    for path in _not_ignored_paths(session.config.common.paths, session):
         reports = session.hook.pytask_collect_file_protocol(
             session=session, path=path, reports=session.collection_reports
         )
@@ -105,7 +105,7 @@ def _collect_from_paths(session: Session) -> None:
 
 def _collect_from_tasks(session: Session) -> None:
     """Collect tasks from user provided tasks via the functional interface."""
-    for raw_task in to_list(session.config.get("tasks", ())):
+    for raw_task in session.attrs.get("tasks", []):
         if is_task_function(raw_task):
             if not hasattr(raw_task, "pytask_meta"):
                 raw_task = task_decorator()(raw_task)  # noqa: PLW2901
@@ -174,9 +174,9 @@ def _collect_not_collected_tasks(session: Session) -> None:
 
 
 @hookimpl
-def pytask_ignore_collect(path: Path, config: dict[str, Any]) -> bool:
+def pytask_ignore_collect(path: Path, config: Settings) -> bool:
     """Ignore a path during the collection."""
-    return any(path.match(pattern) for pattern in config["ignore"])
+    return any(path.match(pattern) for pattern in config.common.ignore)
 
 
 @hookimpl
@@ -190,7 +190,7 @@ def pytask_collect_file_protocol(
         )
         flat_reports = list(itertools.chain.from_iterable(new_reports))
     except Exception:  # noqa: BLE001
-        name = shorten_path(path, session.config["paths"])
+        name = shorten_path(path, session.config.common.paths)
         node = PathNode(name=name, path=path)
         flat_reports = [
             CollectionReport.from_exception(
@@ -208,8 +208,8 @@ def pytask_collect_file(
     session: Session, path: Path, reports: list[CollectionReport]
 ) -> list[CollectionReport] | None:
     """Collect a file."""
-    if any(path.match(pattern) for pattern in session.config["task_files"]):
-        mod = import_path(path, session.config["root"])
+    if any(path.match(pattern) for pattern in session.config.common.task_files):
+        mod = import_path(path, session.config.common.root)
 
         collected_reports = []
         for name, obj in inspect.getmembers(mod):
@@ -399,7 +399,8 @@ def pytask_collect_node(  # noqa: C901, PLR0912
             or node.name == node.root_dir.joinpath(node.pattern).as_posix()
         ):
             short_root_dir = shorten_path(
-                node.root_dir, session.config["paths"] or (session.config["root"],)
+                node.root_dir,
+                session.config.common.paths or (session.config.common.root,),
             )
             node.name = Path(short_root_dir, node.pattern).as_posix()
 
@@ -419,7 +420,7 @@ def pytask_collect_node(  # noqa: C901, PLR0912
         # check which will fail since ``.resolves()`` also normalizes a path.
         node.path = Path(os.path.normpath(node.path))
         _raise_error_if_casing_of_path_is_wrong(
-            node.path, session.config["check_casing_of_paths"]
+            node.path, session.config.build.check_casing_of_paths
         )
 
     if isinstance(node, PPathNode) and (
@@ -427,7 +428,7 @@ def pytask_collect_node(  # noqa: C901, PLR0912
     ):
         # Shorten name of PathNodes.
         node.name = shorten_path(
-            node.path, session.config["paths"] or (session.config["root"],)
+            node.path, session.config.common.paths or (session.config.common.root,)
         )
 
     # Skip ``is_dir`` for remote UPaths because it downloads the file and blocks the
@@ -458,9 +459,11 @@ def pytask_collect_node(  # noqa: C901, PLR0912
         # check which will fail since ``.resolves()`` also normalizes a path.
         node = Path(os.path.normpath(node))
         _raise_error_if_casing_of_path_is_wrong(
-            node, session.config["check_casing_of_paths"]
+            node, session.config.build.check_casing_of_paths
         )
-        name = shorten_path(node, session.config["paths"] or (session.config["root"],))
+        name = shorten_path(
+            node, session.config.common.paths or (session.config.common.root,)
+        )
 
         if isinstance(node, Path) and node.is_dir():
             raise ValueError(_TEMPLATE_ERROR_DIRECTORY.format(path=node))

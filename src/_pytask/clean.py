@@ -2,21 +2,19 @@
 
 from __future__ import annotations
 
-import enum
 import itertools
 import shutil
 import sys
-from pathlib import Path
+from enum import Enum
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
 from typing import Iterable
 
 import click
+import typed_settings as ts
 from attrs import define
 
-from _pytask.click import ColoredCommand
-from _pytask.click import EnumChoice
 from _pytask.console import console
 from _pytask.exceptions import CollectionError
 from _pytask.git import get_all_files
@@ -29,82 +27,82 @@ from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from _pytask.pluginmanager import hookimpl
-from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from _pytask.shared import to_list
+from _pytask.settings_utils import update_settings
 from _pytask.traceback import Traceback
 from _pytask.tree_util import tree_leaves
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import NoReturn
 
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
 
-class _CleanMode(enum.Enum):
+
+_DEFAULT_EXCLUDE: tuple[str, ...] = (".git/*",)
+
+
+class _CleanMode(Enum):
     DRY_RUN = "dry-run"
     FORCE = "force"
     INTERACTIVE = "interactive"
 
 
-_DEFAULT_EXCLUDE: list[str] = [".git/*"]
-
-
-_HELP_TEXT_MODE = (
-    "Choose 'dry-run' to print the paths of files/directories which would be removed, "
-    "'interactive' for a confirmation prompt for every path, and 'force' to remove all "
-    "unknown paths at once."
-)
+@ts.settings
+class Clean:
+    directories: bool = ts.option(
+        default=False,
+        help="Remove whole directories.",
+        click={"is_flag": True, "param_decls": ["-d", "--directories"]},
+    )
+    exclude: tuple[str, ...] = ts.option(
+        factory=tuple,
+        help="A filename pattern to exclude files from the cleaning process.",
+        click={
+            "multiple": True,
+            "metavar": "PATTERN",
+            "param_decls": ["-e", "--exclude"],
+        },
+    )
+    mode: _CleanMode = ts.option(
+        default=_CleanMode.DRY_RUN,
+        help=(
+            "Choose 'dry-run' to print the paths of files/directories which would be "
+            "removed, 'interactive' for a confirmation prompt for every path, and "
+            "'force' to remove all unknown paths at once."
+        ),
+        click={"param_decls": ["-m", "--mode"]},
+    )
+    quiet: bool = ts.option(
+        default=False,
+        help="Do not print the names of the removed paths.",
+        click={"is_flag": True, "param_decls": ["-q", "--quiet"]},
+    )
 
 
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Extend the command line interface."""
-    cli.add_command(clean)
+    settings_builder.commands["clean"] = clean_command
+    settings_builder.option_groups["clean"] = Clean()
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_parse_config(config: Settings) -> None:
     """Parse the configuration."""
-    config["exclude"] = to_list(config["exclude"]) + _DEFAULT_EXCLUDE
+    config.clean.exclude = config.clean.exclude + _DEFAULT_EXCLUDE
 
 
-@click.command(cls=ColoredCommand)
-@click.option(
-    "-d",
-    "--directories",
-    is_flag=True,
-    default=False,
-    help="Remove whole directories.",
-)
-@click.option(
-    "-e",
-    "--exclude",
-    metavar="PATTERN",
-    multiple=True,
-    type=str,
-    help="A filename pattern to exclude files from the cleaning process.",
-)
-@click.option(
-    "--mode",
-    default=_CleanMode.DRY_RUN,
-    type=EnumChoice(_CleanMode),
-    help=_HELP_TEXT_MODE,
-)
-@click.option(
-    "-q",
-    "--quiet",
-    is_flag=True,
-    help="Do not print the names of the removed paths.",
-    default=False,
-)
-def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
+def clean_command(settings: Settings, **arguments: Any) -> NoReturn:  # noqa: C901, PLR0912
     """Clean the provided paths by removing files unknown to pytask."""
-    pm = storage.get()
-    raw_config["command"] = "clean"
+    settings = update_settings(settings, arguments)
+    pm = settings.common.pm
 
     try:
         # Duplication of the same mechanism in :func:`pytask.build`.
-        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
-        session = Session.from_config(config)
+        config = pm.hook.pytask_configure(pm=pm, config=settings)
+        session = Session(config=config, hook=config.common.pm.hook)
 
     except Exception:  # noqa: BLE001  # pragma: no cover
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
@@ -116,32 +114,31 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
             session.hook.pytask_collect(session=session)
 
             known_paths = _collect_all_paths_known_to_pytask(session)
-            exclude = session.config["exclude"]
-            include_directories = session.config["directories"]
+            exclude = session.config.clean.exclude
+            include_directories = session.config.clean.directories
             unknown_paths = _find_all_unknown_paths(
                 session, known_paths, exclude, include_directories
             )
             common_ancestor = find_common_ancestor(
-                *unknown_paths, *session.config["paths"]
+                *unknown_paths, *session.config.common.paths
             )
 
             if unknown_paths:
                 targets = "Files"
-                if session.config["directories"]:
+                if session.config.clean.directories:
                     targets += " and directories"
                 console.print(f"\n{targets} which can be removed:\n")
                 for path in unknown_paths:
                     short_path = relative_to(path, common_ancestor)
-                    if session.config["mode"] == _CleanMode.DRY_RUN:
+                    if session.config.clean.mode == _CleanMode.DRY_RUN:
                         console.print(f"Would remove {short_path}")
                     else:
-                        should_be_deleted = session.config[
-                            "mode"
-                        ] == _CleanMode.FORCE or click.confirm(
-                            f"Would you like to remove {short_path}?"
+                        should_be_deleted = (
+                            session.config.clean.mode == _CleanMode.FORCE
+                            or click.confirm(f"Would you like to remove {short_path}?")
                         )
                         if should_be_deleted:
-                            if not session.config["quiet"]:
+                            if not session.config.clean.quiet:
                                 console.print(f"Remove {short_path}")
                             if path.is_dir():
                                 shutil.rmtree(path)
@@ -185,19 +182,17 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
 
     known_paths = known_files | known_directories
 
-    if session.config["config"]:
-        known_paths.add(session.config["config"])
-    known_paths.add(session.config["root"])
+    if session.config.common.config_file:
+        known_paths.add(session.config.common.config_file)
+    known_paths.add(session.config.common.root)
 
-    database_url = session.config["database_url"]
-    if database_url.drivername == "sqlite" and database_url.database:
-        known_paths.add(Path(database_url.database))
+    known_paths.add(session.config.common.cache / "pytask.sqlite3")
 
     # Add files tracked by git.
     if is_git_installed():
-        git_root = get_root(session.config["root"])
+        git_root = get_root(session.config.common.root)
         if git_root is not None:
-            paths_known_by_git = get_all_files(session.config["root"])
+            paths_known_by_git = get_all_files(session.config.common.root)
             absolute_paths_known_by_git = [
                 git_root.joinpath(p) for p in paths_known_by_git
             ]
@@ -231,7 +226,7 @@ def _find_all_unknown_paths(
     """
     recursive_nodes = [
         _RecursivePathNode.from_path(path, known_paths, exclude)
-        for path in session.config["paths"]
+        for path in session.config.common.paths
     ]
     return list(
         itertools.chain.from_iterable(

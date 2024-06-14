@@ -7,11 +7,10 @@ from typing import TYPE_CHECKING
 from typing import AbstractSet
 from typing import Any
 
-import click
+import typed_settings as ts
 from attrs import define
 from rich.table import Table
 
-from _pytask.click import ColoredCommand
 from _pytask.console import console
 from _pytask.dag_utils import task_and_preceding_tasks
 from _pytask.exceptions import ConfigurationError
@@ -23,8 +22,8 @@ from _pytask.mark.structures import MarkDecorator
 from _pytask.mark.structures import MarkGenerator
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import hookimpl
-from _pytask.pluginmanager import storage
 from _pytask.session import Session
+from _pytask.settings_utils import update_settings
 from _pytask.shared import parse_markers
 
 if TYPE_CHECKING:
@@ -33,6 +32,8 @@ if TYPE_CHECKING:
     import networkx as nx
 
     from _pytask.node_protocols import PTask
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
 
 
 __all__ = [
@@ -49,15 +50,39 @@ __all__ = [
 ]
 
 
-@click.command(cls=ColoredCommand)
-def markers(**raw_config: Any) -> NoReturn:
+@ts.settings
+class Markers:
+    """Settings for markers."""
+
+    strict_markers: bool = ts.option(
+        default=False,
+        click={"param_decls": ["--strict-markers"], "is_flag": True},
+        help="Raise errors for unknown markers.",
+    )
+    markers: dict[str, str] = ts.option(factory=dict, click={"hidden": True})
+    marker_expression: str = ts.option(
+        default="",
+        click={
+            "param_decls": ["-m", "marker_expression"],
+            "metavar": "MARKER_EXPRESSION",
+        },
+        help="Select tasks via marker expressions.",
+    )
+    expression: str = ts.option(
+        default="",
+        click={"param_decls": ["-k", "expression"], "metavar": "EXPRESSION"},
+        help="Select tasks via expressions on task ids.",
+    )
+
+
+def markers_command(settings: Settings, **arguments: Any) -> NoReturn:
     """Show all registered markers."""
-    raw_config["command"] = "markers"
-    pm = storage.get()
+    settings = update_settings(settings, arguments)
+    pm = settings.common.pm
 
     try:
-        config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
-        session = Session.from_config(config)
+        config = pm.hook.pytask_configure(pm=pm, config=settings)
+        session = Session(config=config, hook=config.common.pm.hook)
 
     except (ConfigurationError, Exception):  # pragma: no cover
         console.print_exception()
@@ -66,7 +91,7 @@ def markers(**raw_config: Any) -> NoReturn:
     else:
         table = Table("Marker", "Description", leading=1)
 
-        for name, description in config["markers"].items():
+        for name, description in config.markers.markers.items():
             table.add_row(f"pytask.mark.{name}", description)
 
         console.print(table)
@@ -76,43 +101,21 @@ def markers(**raw_config: Any) -> NoReturn:
 
 
 @hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Add marker related options."""
-    cli.add_command(markers)
-
-    additional_build_parameters = [
-        click.Option(
-            ["--strict-markers"],
-            is_flag=True,
-            help="Raise errors for unknown markers.",
-            default=False,
-        ),
-        click.Option(
-            ["-m", "marker_expression"],
-            metavar="MARKER_EXPRESSION",
-            type=str,
-            help="Select tasks via marker expressions.",
-        ),
-        click.Option(
-            ["-k", "expression"],
-            metavar="EXPRESSION",
-            type=str,
-            help="Select tasks via expressions on task ids.",
-        ),
-    ]
-    for command in ("build", "clean", "collect"):
-        cli.commands[command].params.extend(additional_build_parameters)
+    settings_builder.commands["markers"] = markers_command
+    settings_builder.option_groups["markers"] = Markers()
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
+def pytask_parse_config(config: Settings) -> None:
     """Parse marker related options."""
     MARK_GEN.config = config
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
-    config["markers"] = parse_markers(config["markers"])
+def pytask_post_parse(config: Settings) -> None:
+    config.markers.markers = parse_markers(config.markers.markers)
 
 
 @define(slots=True)
@@ -153,7 +156,7 @@ class KeywordMatcher:
 
 def select_by_keyword(session: Session, dag: nx.DiGraph) -> set[str] | None:
     """Deselect tests by keywords."""
-    keywordexpr = session.config["expression"]
+    keywordexpr = session.config.markers.expression
     if not keywordexpr:
         return None
 
@@ -208,7 +211,7 @@ class MarkMatcher:
 
 def select_by_mark(session: Session, dag: nx.DiGraph) -> set[str] | None:
     """Deselect tests by marks."""
-    matchexpr = session.config["marker_expression"]
+    matchexpr = session.config.markers.marker_expression
     if not matchexpr:
         return None
 

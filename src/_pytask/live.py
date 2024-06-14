@@ -8,11 +8,11 @@ from typing import Any
 from typing import Generator
 from typing import NamedTuple
 
-import click
+import typed_settings as ts
 from attrs import define
 from attrs import field
 from rich.box import ROUNDED
-from rich.live import Live
+from rich.live import Live as RichLive
 from rich.status import Status
 from rich.style import Style
 from rich.table import Table
@@ -30,53 +30,57 @@ if TYPE_CHECKING:
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
+
+
+@ts.settings
+class Live:
+    """Settings for live display during the execution."""
+
+    n_entries_in_table: int = ts.option(
+        default=15,
+        click={"param_decls": ["--n-entries-in-table"]},
+        help="How many entries to display in the table during the execution. "
+        "Tasks which are running are always displayed.",
+    )
+    sort_table: bool = ts.option(
+        default=True,
+        click={"param_decls": ["--sort-table", "--do-not-sort-table"]},
+        help="Sort the table of tasks at the end of the execution.",
+    )
 
 
 @hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Extend command line interface."""
-    additional_parameters = [
-        click.Option(
-            ["--n-entries-in-table"],
-            default=15,
-            type=click.IntRange(min=0),
-            help="How many entries to display in the table during the execution. "
-            "Tasks which are running are always displayed.",
-        ),
-        click.Option(
-            ["--sort-table/--do-not-sort-table"],
-            default=True,
-            type=bool,
-            help="Sort the table of tasks at the end of the execution.",
-        ),
-    ]
-    cli.commands["build"].params.extend(additional_parameters)
+    settings_builder.option_groups["live"] = Live()
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Post-parse the configuration."""
     live_manager = LiveManager()
-    config["pm"].register(live_manager, "live_manager")
+    config.common.pm.register(live_manager, "live_manager")
 
-    if config["verbose"] >= 1:
+    if config.common.verbose >= 1:
         live_execution = LiveExecution(
             live_manager=live_manager,
-            n_entries_in_table=config["n_entries_in_table"],
-            verbose=config["verbose"],
-            editor_url_scheme=config["editor_url_scheme"],
-            sort_final_table=config["sort_table"],
+            n_entries_in_table=config.live.n_entries_in_table,
+            verbose=config.common.verbose,
+            editor_url_scheme=config.common.editor_url_scheme,
+            sort_final_table=config.live.sort_table,
         )
-        config["pm"].register(live_execution, "live_execution")
+        config.common.pm.register(live_execution, "live_execution")
 
     live_collection = LiveCollection(live_manager=live_manager)
-    config["pm"].register(live_collection, "live_collection")
+    config.common.pm.register(live_collection, "live_collection")
 
 
 @hookimpl(wrapper=True)
 def pytask_execute(session: Session) -> Generator[None, None, None]:
-    if session.config["verbose"] >= 1:
-        live_execution = session.config["pm"].get_plugin("live_execution")
+    if session.config.common.verbose >= 1:
+        live_execution = session.config.common.pm.get_plugin("live_execution")
         if live_execution:
             live_execution.n_tasks = len(session.tasks)
     return (yield)
@@ -102,7 +106,7 @@ class LiveManager:
 
     """
 
-    _live = Live(renderable=None, console=console, auto_refresh=False)
+    _live = RichLive(renderable=None, console=console, auto_refresh=False)
 
     def start(self) -> None:
         self._live.start()

@@ -10,61 +10,13 @@ from typing import Sequence
 
 import click
 
-from _pytask.shared import parse_paths
-
 if sys.version_info >= (3, 11):  # pragma: no cover
     import tomllib
 else:  # pragma: no cover
     import tomli as tomllib
 
 
-__all__ = ["find_project_root_and_config", "read_config", "set_defaults_from_config"]
-
-
-def set_defaults_from_config(
-    context: click.Context,
-    param: click.Parameter,  # noqa: ARG001
-    value: Any,
-) -> Path | None:
-    """Set the defaults for the command-line interface from the configuration."""
-    # pytask will later walk through all configuration hooks, even the ones not related
-    # to this command. They might expect the defaults coming from their related
-    # command-line options during parsing. Here, we add their defaults to the
-    # configuration.
-    command_option_names = [option.name for option in context.command.params]
-    commands = context.parent.command.commands  # type: ignore[union-attr]
-    all_defaults_from_cli = {
-        option.name: option.default
-        for name, command in commands.items()
-        for option in command.params
-        if name != context.info_name and option.name not in command_option_names
-    }
-    context.params.update(all_defaults_from_cli)
-
-    if value:
-        context.params["config"] = value
-        context.params["root"] = context.params["config"].parent
-    else:
-        if not context.params["paths"]:
-            context.params["paths"] = (Path.cwd(),)
-
-        context.params["paths"] = parse_paths(context.params["paths"])
-        (
-            context.params["root"],
-            context.params["config"],
-        ) = find_project_root_and_config(context.params["paths"])
-
-    if context.params["config"] is None:
-        return None
-
-    config_from_file = read_config(context.params["config"])
-
-    if context.default_map is None:
-        context.default_map = {}
-    context.default_map.update(config_from_file)
-    context.params.update(config_from_file)
-
-    return context.params["config"]
+__all__ = ["find_project_root_and_config", "read_config"]
 
 
 def find_project_root_and_config(

@@ -3,115 +3,24 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Iterable
 
 import click
+import typed_settings as ts
 from click import Context
-from sqlalchemy.engine import URL
-from sqlalchemy.engine import make_url
-from sqlalchemy.exc import ArgumentError
+from pluggy import PluginManager  # noqa: TCH002
 
-from _pytask.config_utils import set_defaults_from_config
 from _pytask.path import import_path
+from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import register_hook_impls_from_modules
 from _pytask.pluginmanager import storage
 
 if TYPE_CHECKING:
-    from pluggy import PluginManager
-
-
-_CONFIG_OPTION = click.Option(
-    ["-c", "--config"],
-    callback=set_defaults_from_config,
-    is_eager=True,
-    expose_value=False,
-    type=click.Path(
-        exists=True,
-        file_okay=True,
-        dir_okay=False,
-        readable=True,
-        allow_dash=False,
-        path_type=Path,
-        resolve_path=True,
-    ),
-    help="Path to configuration file.",
-)
-"""click.Option: An option for the --config flag."""
-
-
-_IGNORE_OPTION = click.Option(
-    ["--ignore"],
-    type=str,
-    multiple=True,
-    help=(
-        "A pattern to ignore files or directories. Refer to 'pathlib.Path.match' "
-        "for more info."
-    ),
-    default=[],
-)
-"""click.Option: An option for the --ignore flag."""
-
-
-_PATH_ARGUMENT = click.Argument(
-    ["paths"],
-    nargs=-1,
-    type=click.Path(exists=True, resolve_path=True, path_type=Path),
-    is_eager=True,
-)
-"""click.Argument: An argument for paths."""
-
-
-_VERBOSE_OPTION = click.Option(
-    ["-v", "--verbose"],
-    type=click.IntRange(0, 2),
-    default=1,
-    help="Make pytask verbose (>= 0) or quiet (= 0).",
-)
-"""click.Option: An option to control pytask's verbosity."""
-
-
-_EDITOR_URL_SCHEME_OPTION = click.Option(
-    ["--editor-url-scheme"],
-    default="file",
-    help=(
-        "Use file, vscode, pycharm or a custom url scheme to add URLs to task "
-        "ids to quickly jump to the task definition. Use no_link to disable URLs."
-    ),
-)
-"""click.Option: An option to embed URLs in task ids."""
-
-
-def _database_url_callback(
-    ctx: Context,  # noqa: ARG001
-    name: str,  # noqa: ARG001
-    value: str | None,
-) -> URL | None:
-    """Check the url for the database."""
-    # Since sqlalchemy v2.0.19, we need to shortcircuit here.
-    if value is None:
-        return None
-
-    try:
-        return make_url(value)
-    except ArgumentError:
-        msg = (
-            "The 'database_url' must conform to sqlalchemy's url standard: "
-            "https://docs.sqlalchemy.org/en/latest/core/engines.html#backend-specific-urls."
-        )
-        raise click.BadParameter(msg) from None
-
-
-_DATABASE_URL_OPTION = click.Option(
-    ["--database-url"],
-    type=str,
-    help="Url to the database.",
-    default=None,
-    show_default="sqlite:///.../.pytask/pytask.sqlite3",
-    callback=_database_url_callback,
-)
+    from _pytask.settings_utils import SettingsBuilder
 
 
 def _hook_module_callback(
@@ -168,26 +77,107 @@ def _hook_module_callback(
     return parsed_modules
 
 
-_HOOK_MODULE_OPTION = click.Option(
-    ["--hook-module"],
-    type=str,
-    help="Path to a Python module that contains hook implementations.",
-    multiple=True,
-    is_eager=True,
-    callback=_hook_module_callback,
+def _path_callback(
+    ctx: Context,  # noqa: ARG001
+    param: click.Parameter,  # noqa: ARG001
+    value: tuple[Path, ...],
+) -> tuple[Path, ...]:
+    """Convert paths to Path objects."""
+    return value or (Path.cwd(),)
+
+
+@ts.settings
+class Common:
+    """Common settings for the command line interface."""
+
+    cache: Path = ts.option(init=False, click={"hidden": True})
+    config_file: Path | None = ts.option(
+        default=None, click={"param_decls": ["--config"], "hidden": True}
+    )
+    debug_pytask: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--debug-pytask",), "is_flag": True},
+        help="Trace all function calls in the plugin framework.",
+    )
+    editor_url_scheme: str = ts.option(
+        default="file",
+        click={"param_decls": ["--editor-url-scheme"]},
+        help=(
+            "Use file, vscode, pycharm or a custom url scheme to add URLs to task "
+            "ids to quickly jump to the task definition. Use no_link to disable URLs."
+        ),
+    )
+    hook_module: tuple[str, ...] = ts.option(
+        factory=list,
+        help="Path to a Python module that contains hook implementations.",
+        click={
+            "param_decls": ["--hook-module"],
+            "multiple": True,
+            "is_eager": True,
+            "callback": _hook_module_callback,
+        },
+    )
+    ignore: tuple[str, ...] = ts.option(
+        factory=tuple,
+        help=(
+            "A pattern to ignore files or directories. Refer to 'pathlib.Path.match' "
+            "for more info."
+        ),
+        click={"param_decls": ["--ignore"], "multiple": True},
+    )
+    paths: tuple[Path, ...] = ts.option(
+        factory=tuple,
+        click={
+            "param_decls": ["--paths"],
+            "type": click.Path(exists=True, resolve_path=True, path_type=Path),
+            "multiple": True,
+            "callback": _path_callback,
+            "hidden": True,
+        },
+    )
+    pm: PluginManager = ts.option(factory=get_plugin_manager, click={"hidden": True})
+    root: Path = ts.option(init=False, click={"hidden": True})
+    task_files: tuple[str, ...] = ts.option(
+        default=("task_*.py",),
+        help="A list of file patterns for task files.",
+        click={"param_decls": ["--task-files"], "multiple": True, "hidden": True},
+    )
+    verbose: int = ts.option(
+        default=1,
+        help="Make pytask verbose (>= 0) or quiet (= 0).",
+        click={
+            "param_decls": ["-v", "--verbose"],
+            "type": click.IntRange(0, 2),
+            "count": True,
+        },
+    )
+
+    def __attrs_post_init__(self) -> None:
+        # Set self.root.
+        if self.config_file:
+            self.root = self.config_file.parent
+        elif self.paths:
+            candidate = Path(os.path.commonpath(self.paths))
+            if candidate.is_dir():
+                self.root = candidate
+            else:
+                self.root = candidate.parent
+        else:
+            self.root = Path.cwd()
+
+        self.cache = self.root / ".pytask"
+
+
+_PATH_ARGUMENT = click.Argument(
+    ["paths"],
+    nargs=-1,
+    type=click.Path(exists=True, resolve_path=True, path_type=Path),
 )
+"""click.Argument: An argument for paths."""
 
 
 @hookimpl(trylast=True)
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Register general markers."""
-    for command in ("build", "clean", "collect", "dag", "profile"):
-        cli.commands[command].params.extend((_DATABASE_URL_OPTION,))
-    for command in ("build", "clean", "collect", "dag", "markers", "profile"):
-        cli.commands[command].params.extend(
-            (_CONFIG_OPTION, _HOOK_MODULE_OPTION, _PATH_ARGUMENT)
-        )
-    for command in ("build", "clean", "collect", "profile"):
-        cli.commands[command].params.extend([_IGNORE_OPTION, _EDITOR_URL_SCHEME_OPTION])
-    for command in ("build",):
-        cli.commands[command].params.append(_VERBOSE_OPTION)
+    settings_builder.option_groups["common"] = Common()
+    settings_builder.arguments.append(_PATH_ARGUMENT)

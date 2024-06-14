@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import Generator
 
-import click
+import typed_settings as ts
 from attrs import define
 from rich.padding import Padding
 from rich.panel import Panel
@@ -16,7 +15,6 @@ from _pytask.console import console
 from _pytask.pluginmanager import hookimpl
 from _pytask.warnings_utils import WarningReport
 from _pytask.warnings_utils import catch_warnings_for_item
-from _pytask.warnings_utils import parse_filterwarnings
 
 if TYPE_CHECKING:
     from rich.console import Console
@@ -25,35 +23,43 @@ if TYPE_CHECKING:
 
     from _pytask.node_protocols import PTask
     from _pytask.session import Session
+    from _pytask.settings import Settings
+    from _pytask.settings_utils import SettingsBuilder
 
 
-@hookimpl
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
-    """Extend the cli."""
-    cli.commands["build"].params.extend(
-        [
-            click.Option(
-                ["--disable-warnings"],
-                is_flag=True,
-                default=False,
-                help="Disables the summary for warnings.",
-            )
-        ]
+@ts.settings
+class Warnings:
+    """Settings for warnings."""
+
+    filterwarnings: list[str] = ts.option(
+        factory=list,
+        click={"hidden": True},
+        help="Add a filter for a warning to a task.",
+    )
+    disable_warnings: bool = ts.option(
+        default=False,
+        click={"param_decls": ["--disable-warnings"], "is_flag": True},
+        help="Disables the summary for warnings.",
     )
 
 
 @hookimpl
-def pytask_parse_config(config: dict[str, Any]) -> None:
-    """Parse the configuration."""
-    config["filterwarnings"] = parse_filterwarnings(config.get("filterwarnings"))
-    config["markers"]["filterwarnings"] = "Add a filter for a warning to a task."
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
+    """Extend the cli."""
+    settings_builder.option_groups["warnings"] = Warnings()
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_parse_config(config: Settings) -> None:
+    """Parse the configuration."""
+    config.markers.markers["filterwarnings"] = "Add a filter for a warning to a task."
+
+
+@hookimpl
+def pytask_post_parse(config: Settings) -> None:
     """Activate the warnings plugin if not disabled."""
-    if not config["disable_warnings"]:
-        config["pm"].register(WarningsNameSpace)
+    if not config.warnings.disable_warnings:
+        config.common.pm.register(WarningsNameSpace)
 
 
 class WarningsNameSpace:

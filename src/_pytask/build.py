@@ -5,20 +5,14 @@ from __future__ import annotations
 import json
 import sys
 from contextlib import suppress
-from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
 from typing import Iterable
 from typing import Literal
 
-import click
+import typed_settings as ts
 
-from _pytask.capture_utils import CaptureMethod
-from _pytask.capture_utils import ShowCapture
-from _pytask.click import ColoredCommand
-from _pytask.config_utils import find_project_root_and_config
-from _pytask.config_utils import read_config
 from _pytask.console import console
 from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
@@ -27,31 +21,75 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
 from _pytask.path import HashPathCache
-from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
-from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from _pytask.shared import parse_paths
+from _pytask.settings_utils import SettingsBuilder
+from _pytask.settings_utils import update_settings
 from _pytask.shared import to_list
 from _pytask.traceback import Traceback
+from _pytask.typing import NoDefault
+from _pytask.typing import no_default
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import NoReturn
 
+    from _pytask.capture_utils import CaptureMethod
+    from _pytask.capture_utils import ShowCapture
     from _pytask.node_protocols import PTask
+    from _pytask.settings import Settings
+
+
+@ts.settings
+class Build:
+    stop_after_first_failure: bool = ts.option(
+        default=False,
+        click={"param_decls": ("-x", "--stop-after-first-failure"), "is_flag": True},
+        help="Stop after the first failure.",
+    )
+    max_failures: float = ts.option(
+        default=float("inf"),
+        click={"param_decls": ("--max-failures",)},
+        help="Stop after some failures.",
+    )
+    show_errors_immediately: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--show-errors-immediately",), "is_flag": True},
+        help="Show errors with tracebacks as soon as the task fails.",
+    )
+    show_traceback: bool = ts.option(
+        default=True,
+        click={"param_decls": ("--show-traceback", "--show-no-traceback")},
+        help="Choose whether tracebacks should be displayed or not.",
+    )
+    dry_run: bool = ts.option(
+        default=False,
+        click={"param_decls": ("--dry-run",), "is_flag": True},
+        help="Perform a dry-run.",
+    )
+    force: bool = ts.option(
+        default=False,
+        click={"param_decls": ("-f", "--force"), "is_flag": True},
+        help="Execute a task even if it succeeded successfully before.",
+    )
+    check_casing_of_paths: bool = ts.option(
+        default=True,
+        click={"param_decls": ("--check-casing-of-paths",), "hidden": True},
+    )
 
 
 @hookimpl(tryfirst=True)
-def pytask_extend_command_line_interface(cli: click.Group) -> None:
+def pytask_extend_command_line_interface(settings_builder: SettingsBuilder) -> None:
     """Extend the command line interface."""
-    cli.add_command(build_command)
+    settings_builder.commands["build"] = build_command
+    settings_builder.option_groups["build"] = Build()
 
 
 @hookimpl
-def pytask_post_parse(config: dict[str, Any]) -> None:
+def pytask_post_parse(config: Settings) -> None:
     """Fill cache of file hashes with stored hashes."""
     with suppress(Exception):
-        path = config["root"] / ".pytask" / "file_hashes.json"
+        path = config.common.cache / "file_hashes.json"
         cache = json.loads(path.read_text())
 
         for key, value in cache.items():
@@ -61,43 +99,45 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 @hookimpl
 def pytask_unconfigure(session: Session) -> None:
     """Save calculated file hashes to file."""
-    path = session.config["root"] / ".pytask" / "file_hashes.json"
+    path = session.config.common.cache / "file_hashes.json"
     path.write_text(json.dumps(HashPathCache._cache))
 
 
-def build(  # noqa: C901, PLR0912, PLR0913
+def build(  # noqa: PLR0913
     *,
-    capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.FD,
-    check_casing_of_paths: bool = True,
-    config: Path | None = None,
-    database_url: str = "",
-    debug_pytask: bool = False,
-    disable_warnings: bool = False,
-    dry_run: bool = False,
+    capture: Literal["fd", "no", "sys", "tee-sys"]
+    | CaptureMethod
+    | NoDefault = no_default,
+    check_casing_of_paths: bool | NoDefault = no_default,
+    debug_pytask: bool | NoDefault = no_default,
+    disable_warnings: bool | NoDefault = no_default,
+    dry_run: bool | NoDefault = no_default,
     editor_url_scheme: Literal["no_link", "file", "vscode", "pycharm"]  # noqa: PYI051
-    | str = "file",
-    expression: str = "",
-    force: bool = False,
-    ignore: Iterable[str] = (),
-    marker_expression: str = "",
-    max_failures: float = float("inf"),
-    n_entries_in_table: int = 15,
-    paths: Path | Iterable[Path] = (),
-    pdb: bool = False,
-    pdb_cls: str = "",
-    s: bool = False,
+    | str
+    | NoDefault = no_default,
+    expression: str | NoDefault = no_default,
+    force: bool | NoDefault = no_default,
+    ignore: Iterable[str] | NoDefault = no_default,
+    marker_expression: str | NoDefault = no_default,
+    max_failures: float | NoDefault = no_default,
+    n_entries_in_table: int | NoDefault = no_default,
+    paths: Path | Iterable[Path] | NoDefault = no_default,
+    pdb: bool | NoDefault = no_default,
+    pdb_cls: str | NoDefault = no_default,
+    s: bool | NoDefault = no_default,
     show_capture: Literal["no", "stdout", "stderr", "all"]
-    | ShowCapture = ShowCapture.ALL,
-    show_errors_immediately: bool = False,
-    show_locals: bool = False,
-    show_traceback: bool = True,
-    sort_table: bool = True,
-    stop_after_first_failure: bool = False,
-    strict_markers: bool = False,
+    | ShowCapture
+    | NoDefault = no_default,
+    show_errors_immediately: bool | NoDefault = no_default,
+    show_locals: bool | NoDefault = no_default,
+    show_traceback: bool | NoDefault = no_default,
+    sort_table: bool | NoDefault = no_default,
+    stop_after_first_failure: bool | NoDefault = no_default,
+    strict_markers: bool | NoDefault = no_default,
     tasks: Callable[..., Any] | PTask | Iterable[Callable[..., Any] | PTask] = (),
-    task_files: Iterable[str] = ("task_*.py",),
-    trace: bool = False,
-    verbose: int = 1,
+    task_files: Iterable[str] | NoDefault = no_default,
+    trace: bool | NoDefault = no_default,
+    verbose: int | NoDefault = no_default,
     **kwargs: Any,
 ) -> Session:
     """Run pytask.
@@ -112,10 +152,6 @@ def build(  # noqa: C901, PLR0912, PLR0913
         The capture method for stdout and stderr.
     check_casing_of_paths
         Whether errors should be raised when file names have different casings.
-    config
-        A path to the configuration file.
-    database_url
-        An URL to the database that tracks the status of tasks.
     debug_pytask
         Whether debug information should be shown.
     disable_warnings
@@ -180,11 +216,9 @@ def build(  # noqa: C901, PLR0912, PLR0913
 
     """
     try:
-        raw_config = {
+        updates = {
             "capture": capture,
             "check_casing_of_paths": check_casing_of_paths,
-            "config": config,
-            "database_url": database_url,
             "debug_pytask": debug_pytask,
             "disable_warnings": disable_warnings,
             "dry_run": dry_run,
@@ -195,7 +229,7 @@ def build(  # noqa: C901, PLR0912, PLR0913
             "marker_expression": marker_expression,
             "max_failures": max_failures,
             "n_entries_in_table": n_entries_in_table,
-            "paths": paths,
+            "paths": to_list(paths) if paths is not no_default else no_default,
             "pdb": pdb,
             "pdb_cls": pdb_cls,
             "s": s,
@@ -212,48 +246,42 @@ def build(  # noqa: C901, PLR0912, PLR0913
             "verbose": verbose,
             **kwargs,
         }
+        filtered_updates = {k: v for k, v in updates.items() if v is not no_default}
 
-        if "command" not in raw_config:
-            pm = get_plugin_manager()
-            storage.store(pm)
-        else:
-            pm = storage.get()
+        from _pytask.cli import settings_builder
 
-        # If someone called the programmatic interface, we need to do some parsing.
-        if "command" not in raw_config:
-            raw_config["command"] = "build"
-            # Add defaults from cli.
-            from _pytask.cli import DEFAULTS_FROM_CLI
+        settings = settings_builder.load_settings(kwargs=filtered_updates)
+    except (ConfigurationError, Exception):
+        console.print(Traceback(sys.exc_info()))
+        session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
+    else:
+        session = _internal_build(settings=settings, tasks=tasks)
+    return session
 
-            raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
 
-            raw_config["paths"] = parse_paths(raw_config["paths"])
+def build_command(settings: Any, **arguments: Any) -> NoReturn:
+    """Collect tasks, execute them and report the results.
 
-            if raw_config["config"] is not None:
-                raw_config["config"] = Path(raw_config["config"]).resolve()
-                raw_config["root"] = raw_config["config"].parent
-            else:
-                (
-                    raw_config["root"],
-                    raw_config["config"],
-                ) = find_project_root_and_config(raw_config["paths"])
+    The default command. pytask collects tasks from the given paths or the
+    current working directory, executes them and reports the results.
 
-            if raw_config["config"] is not None:
-                config_from_file = read_config(raw_config["config"])
+    """
+    settings = update_settings(settings, arguments)
+    session = _internal_build(settings=settings)
+    sys.exit(session.exit_code)
 
-                if "paths" in config_from_file:
-                    paths = config_from_file["paths"]
-                    paths = [
-                        raw_config["config"].parent.joinpath(path).resolve()
-                        for path in to_list(paths)
-                    ]
-                    config_from_file["paths"] = paths
 
-                raw_config = {**raw_config, **config_from_file}
-
-        config_ = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
-
-        session = Session.from_config(config_)
+def _internal_build(
+    settings: Settings,
+    tasks: Callable[..., Any] | PTask | Iterable[Callable[..., Any] | PTask] = (),
+) -> Session:
+    """Run pytask internally."""
+    try:
+        config = settings.common.pm.hook.pytask_configure(
+            pm=settings.common.pm, config=settings
+        )
+        session = Session(config=config, hook=config.common.pm.hook)
+        session.attrs["tasks"] = tasks
 
     except (ConfigurationError, Exception):
         console.print(Traceback(sys.exc_info()))
@@ -281,57 +309,3 @@ def build(  # noqa: C901, PLR0912, PLR0913
 
         session.hook.pytask_unconfigure(session=session)
     return session
-
-
-@click.command(cls=ColoredCommand, name="build")
-@click.option(
-    "--debug-pytask",
-    is_flag=True,
-    default=False,
-    help="Trace all function calls in the plugin framework.",
-)
-@click.option(
-    "-x",
-    "--stop-after-first-failure",
-    is_flag=True,
-    default=False,
-    help="Stop after the first failure.",
-)
-@click.option(
-    "--max-failures",
-    type=click.FloatRange(min=1),
-    default=float("inf"),
-    help="Stop after some failures.",
-)
-@click.option(
-    "--show-errors-immediately",
-    is_flag=True,
-    default=False,
-    help="Show errors with tracebacks as soon as the task fails.",
-)
-@click.option(
-    "--show-traceback/--show-no-traceback",
-    type=bool,
-    default=True,
-    help="Choose whether tracebacks should be displayed or not.",
-)
-@click.option(
-    "--dry-run", type=bool, is_flag=True, default=False, help="Perform a dry-run."
-)
-@click.option(
-    "-f",
-    "--force",
-    is_flag=True,
-    default=False,
-    help="Execute a task even if it succeeded successfully before.",
-)
-def build_command(**raw_config: Any) -> NoReturn:
-    """Collect tasks, execute them and report the results.
-
-    The default command. pytask collects tasks from the given paths or the
-    current working directory, executes them and reports the results.
-
-    """
-    raw_config["command"] = "build"
-    session = build(**raw_config)
-    sys.exit(session.exit_code)
