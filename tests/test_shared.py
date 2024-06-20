@@ -4,7 +4,6 @@ import functools
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 
-import coiled
 import pytest
 from _pytask.shared import convert_to_enum
 from _pytask.shared import find_duplicates
@@ -75,6 +74,14 @@ def test_unwrap_task_function():
 
     decorated = decorator(task)
     assert unwrap_task_function(decorated) is task
+
+
+@pytest.mark.unit()
+def test_no_unwrap_coiled():
+    coiled = pytest.importorskip("coiled")
+
+    def task():
+        pass
 
     coiled_decorated = coiled.function()(task)
     assert unwrap_task_function(coiled_decorated) is coiled_decorated
