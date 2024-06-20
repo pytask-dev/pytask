@@ -39,20 +39,24 @@ def pytask_collect_log(
     session: Session, reports: list[CollectionReport], tasks: list[PTask]
 ) -> None:
     if (
-        os.environ.get("PYTASK_VSCODE") == "True"
+        os.environ.get("PYTASK_VSCODE") is not None
         and session.config["command"] == "collect"
     ):
-        exitcode = 0
+        try:
+            port = int(os.environ.get("PYTASK_VSCODE"))
+        except ValueError:
+            port = 6000
+        exitcode = "OK"
         for report in reports:
             if report.outcome == CollectionOutcome.FAIL:
-                exitcode = 3
+                exitcode = "COLLECTION_FAILED"
         result = [
-            {"name": task.name.split("/")[-1], "path": str(task.path)}
+            {"name": task.name, "path": str(task.path)}
             if isinstance(task, PTaskWithPath)
             else {"name": task.name, "path": ""}
             for task in tasks
         ]
-        url = "http://localhost:6000/pytask/collect"
+        url = f"http://localhost:{port}/pytask/collect"
         thread = Thread(
             target=send_logging_vscode,
             args=(
@@ -66,21 +70,25 @@ def pytask_collect_log(
 
 @hookimpl(tryfirst=True)
 def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:  # noqa: ARG001
-    if os.environ.get("PYTASK_VSCODE") == "True":
+    if os.environ.get("PYTASK_VSCODE") is not None:
+        try:
+            port = int(os.environ.get("PYTASK_VSCODE"))
+        except ValueError:
+            port = 6000
         if report.outcome == TaskOutcome.FAIL and report.exc_info is not None:
             result = {
                 "type": "task",
-                "name": report.task.name.split("/")[-1],
+                "name": report.task.name,
                 "outcome": str(report.outcome),
                 "exc_info": render_to_string(Traceback(report.exc_info), console),
             }
         else:
             result = {
                 "type": "task",
-                "name": report.task.name.split("/")[-1],
+                "name": report.task.name,
                 "outcome": str(report.outcome),
             }
-        url = "http://localhost:6000/pytask/run"
+        url = f"http://localhost:{port}/pytask/run"
         thread = Thread(
             target=send_logging_vscode,
             args=(url, result, 0.00001),
