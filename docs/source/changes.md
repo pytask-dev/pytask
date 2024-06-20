@@ -5,7 +5,13 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.5.0 - 2024-xx-xx
+## 0.5.1 - 2024-xx-xx
+
+- {pull}`617` fixes an interaction with provisional nodes and `@mark.persist`.
+- {pull}`618` ensures that `root_dir` of `DirectoryNode` is created before the task is
+  executed.
+
+## 0.5.0 - 2024-05-26
 
 - {pull}`548` fixes the type hints for {meth}`~pytask.Task.execute` and
   {meth}`~pytask.TaskWithoutPath.execute`. Thanks to {user}`Ostheer`.
@@ -39,7 +45,20 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`593` recreate `PythonNode`s every run since they carry the `_NoDefault` enum as
   the value whose state is `None`.
 - {pull}`594` publishes `NodeLoadError`.
+- {pull}`595` stops unwrapping task functions until a `coiled.function.Function`.
 - {pull}`596` add project management with rye.
+- {pull}`598` replaces requests with httpx.
+- {pull}`599` adds a test fixture for switching the cwd.
+- {pull}`600` refactors test using subprocesses.
+- {pull}`603` fixes an example in the documentation about capturing warnings.
+- {pull}`604` fixes some examples with `PythonNode`s in the documentation.
+- {pull}`605` improves checks and CI.
+- {pull}`606` improves the documentation for data catalogs.
+- {pull}`609` allows a pending status for tasks. Useful for async backends implemented
+  in pytask-parallel.
+- {pull}`611` removes the initial task execution status from
+  `pytask_execute_task_log_start`.
+- {pull}`612` adds validation for data catalog names.
 
 ## 0.4.7 - 2024-03-19
 

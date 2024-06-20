@@ -22,4 +22,8 @@ src/_pytask/_version.py
 *.pkl
 
 tests/test_jupyter/*.txt
+.mypy_cache
+.pytest_cache
+.ruff_cache
 .venv
+docs/jupyter_execute

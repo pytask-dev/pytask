@@ -8,6 +8,8 @@ import textwrap
 import pytest
 from pytask import ExitCode
 
+from tests.conftest import run_in_subprocess
+
 
 @pytest.mark.end_to_end()
 @pytest.mark.parametrize(
@@ -50,10 +52,9 @@ def test_add_new_hook_via_cli(tmp_path, module_name):
     else:
         args = ("pytask", "build", "--hook-module", "hooks/hooks.py", "--help")
 
-    result = subprocess.run(args, cwd=tmp_path, capture_output=True, check=True)
-
-    assert result.returncode == ExitCode.OK
-    assert "--new-option" in result.stdout.decode()
+    result = run_in_subprocess(args, cwd=tmp_path)
+    assert result.exit_code == ExitCode.OK
+    assert "--new-option" in result.stdout
 
 
 @pytest.mark.end_to_end()
@@ -92,14 +93,9 @@ def test_add_new_hook_via_config(tmp_path, module_name):
     else:
         args = ("pytask", "build", "--help")
 
-    result = subprocess.run(
-        args,
-        cwd=tmp_path,
-        capture_output=True,
-        check=True,
-    )
-    assert result.returncode == ExitCode.OK
-    assert "--new-option" in result.stdout.decode()
+    result = run_in_subprocess(args, cwd=tmp_path)
+    assert result.exit_code == ExitCode.OK
+    assert "--new-option" in result.stdout
 
 
 @pytest.mark.end_to_end()

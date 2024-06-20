@@ -31,6 +31,7 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
+from _pytask.nodes import DirectoryNode
 from _pytask.outcomes import Exit
 from _pytask.outcomes import SkippedUnchanged
 from _pytask.outcomes import TaskOutcome
@@ -173,12 +174,14 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
         node = dag.nodes[product]["node"]
         if isinstance(node, PPathNode):
             node.path.parent.mkdir(parents=True, exist_ok=True)
+        if isinstance(node, DirectoryNode) and node.root_dir:
+            node.root_dir.mkdir(parents=True, exist_ok=True)
 
 
 def _safe_load(node: PNode | PProvisionalNode, task: PTask, *, is_product: bool) -> Any:
     try:
         return node.load(is_product=is_product)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         msg = f"Exception while loading node {node.name!r} of task {task.name!r}"
         raise NodeLoadError(msg) from e
 

@@ -7,6 +7,7 @@ from _pytask._hashlib import hash_value
 from _pytask.build import build
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
+from _pytask.logging_utils import TaskExecutionStatus
 
 
 from _pytask.click import ColoredCommand
@@ -26,7 +27,8 @@ from _pytask.database_utils import create_database
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
-from _pytask.exceptions import NodeNotCollectedError, NodeLoadError
+from _pytask.exceptions import NodeNotCollectedError
+from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.exceptions import PytaskError
 from _pytask.exceptions import ResolvingDependenciesError
@@ -128,6 +130,7 @@ __all__ = [
     "SkippedUnchanged",
     "State",
     "Task",
+    "TaskExecutionStatus",
     "TaskOutcome",
     "TaskWithoutPath",
     "Traceback",
