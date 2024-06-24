@@ -1,5 +1,98 @@
 # Scaling tasks
 
+- \[ \] Write about adding another dimension.
+- \[ \] Write about adding another level.
+- \[ \] Write about executing subsets of tasks.
+- \[ \] Write about grouping by one dimension´or aggregating.
+
+In projects where task inputs and outputs are sufficiently standardized, it is possible
+to make extensive use of task repetition.
+
+A common pattern is to write multiple loops around a task function where each loop
+stands for a different dimension. A dimension, for example, represents different
+datasets or model specifications to analyze the datasets.
+
+There is nothing wrong with using nested loops for simpler projects that are clearly
+defined in scope. But, often they are just the start of looking at a problem from
+different angles and soon you want to add more dimensions.
+
+Adding another loop in a lot of places in your project is cumbersome and the increased
+indentation is visually displeasing.
+
+It is not the most serious problem, though. More importantly, it becomes cumbersome to
+reference dependencies of products and to set unique identifiers for tasks. The latter
+is important to execute only subsets of the project.
+
+How do we solve these problems? Here is a brief explanation of the solution.
+
+1. Create objects to define every dimension in the project. A dimension can be
+   characterized by a single value like a {class}`~pathlib.Path`, an
+   {class}`~enum.Enum`, or a {class}`~typing.NamedTuple` or
+   {func}`~dataclasses.dataclass` if more fields are needed.
+
+1. Create an object like a {class}`~typing.NamedTuple` or a
+   {func}`~dataclasses.dataclass` that has one attribute for each dimension. For lack of
+   a better name, we will call this unit an experiment.
+
+   The experiment combines the information provided by each dimension to create a unique
+   identifier for each experiment and the names or paths of dependencies and products
+   for each task.
+
+To make the idea more tangible, let us focus on an example.
+
+## Example
+
+Let us assume we have a project with multiple datasets and model specifications that
+should be fitted to the data.
+
+The datasets are created by the task from the
+{doc}`tutorials <../tutorials/defining_dependencies_products>` parametrized with
+different coefficients.
+
+Below that is the task that fits different models to the datasets using a double loop.
+
+```python
+from pathlib import Path
+from pytask import task, Product
+
+
+SRC = Path(__file__).parent
+BLD = SRC / "bld"
+
+
+
+
+
+for dat
+
+
+
+for data_name in ("a", "b", "c"):
+    for model_name in ("ols", "logit", "linear_prob"):
+
+        @task
+        def task_fit_model(path_to_data: Path = SRC / f"{data_name}.pkl")
+
+```
+
+1. The level of indentation is not visually pleasing and does not allow us to
+   sufficiently use every line in the file.
+
+1. Whenever we add another dimension to our problem, we need to extend every occurrence
+   of the nested loops.
+
+But, these problems are more annoying than truly
+
+The first and most important problem is that
+
+The first problem is t
+
+There are couple of problems that arise in these projects.
+
+The main problem is that with
+
+In projects where task inputs and outputs can be standardized and general interface
+
 In many projects, tasks are repeated across multiple dimensions that are stacked on top
 of each other.
 
