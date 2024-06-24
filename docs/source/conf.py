@@ -102,7 +102,7 @@ ogp_social_cards = {"image": "_static/images/pytask_w_text.png"}
 
 
 # Linkcode, based on numpy doc/source/conf.py
-def linkcode_resolve(domain: str, info: dict[str, str]) -> str:  # noqa: C901, PLR0912
+def linkcode_resolve(domain: str, info: dict[str, str]) -> str:  # noqa: C901
     """Determine the URL corresponding to Python object."""
     if domain != "py":
         return None
