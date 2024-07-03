@@ -10,6 +10,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`617` fixes an interaction with provisional nodes and `@mark.persist`.
 - {pull}`618` ensures that `root_dir` of `DirectoryNode` is created before the task is
   executed.
+- {pull}`619` makes coiled an optional import for tests. Thanks to {user}`erooke`.
+- {pull}`620` makes tests more flexible about their location. Thanks to {user}`erooke`.
+- {pull}`621` fixes the pull requests template.
 
 ## 0.5.0 - 2024-05-26
 

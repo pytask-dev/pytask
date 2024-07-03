@@ -153,7 +153,7 @@ _ROOT = Path.cwd()
             PathNode.from_path(_ROOT.joinpath("src/module.py")),
             [_ROOT.joinpath("alternative_src")],
             does_not_raise(),
-            Text("pytask/src/module.py"),
+            Text(f"{_ROOT.name}/src/module.py"),
             id="Common path found for PathNode not in 'paths' and 'paths'",
         ),
         pytest.param(
@@ -174,7 +174,7 @@ _ROOT = Path.cwd()
             PythonNode(name=_ROOT.as_posix() + "/task_a.py::task_a::a", value=None),
             [_ROOT],
             does_not_raise(),
-            Text("pytask/task_a.py::task_a::a"),
+            Text(f"{_ROOT.name}/task_a.py::task_a::a"),
             id="PythonNode with automatically assigned name",
         ),
     ],
