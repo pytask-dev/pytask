@@ -43,7 +43,7 @@ def pytask_collect_log(
         and session.config["command"] == "collect"
     ):
         try:
-            port = int(os.environ.get("PYTASK_VSCODE"))
+            port = int(os.environ["PYTASK_VSCODE"])
         except ValueError:
             port = 6000
         exitcode = "OK"
@@ -72,19 +72,17 @@ def pytask_collect_log(
 def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:  # noqa: ARG001
     if os.environ.get("PYTASK_VSCODE") is not None:
         try:
-            port = int(os.environ.get("PYTASK_VSCODE"))
+            port = int(os.environ["PYTASK_VSCODE"])
         except ValueError:
             port = 6000
         if report.outcome == TaskOutcome.FAIL and report.exc_info is not None:
             result = {
-                "type": "task",
                 "name": report.task.name,
                 "outcome": str(report.outcome),
                 "exc_info": render_to_string(Traceback(report.exc_info), console),
             }
         else:
             result = {
-                "type": "task",
                 "name": report.task.name,
                 "outcome": str(report.outcome),
             }
