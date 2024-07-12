@@ -291,7 +291,8 @@ for id_, kwargs in ID_TO_KWARGS.items():
     def task_create_random_data(i, produces): ...
 ```
 
-The {doc}`best-practices guide on parametrizations <../how_to_guides/bp_scaling_tasks>`
+The
+{doc}`best-practices guide on parametrizations <../how_to_guides/bp_complex_task_repetitions>`
 goes into even more detail on how to scale parametrizations.
 
 ## A warning on globals

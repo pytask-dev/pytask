@@ -1,29 +1,35 @@
-# Scaling tasks
+# Complex task repetitions
 
 - \[ \] Write about adding another dimension.
 - \[ \] Write about adding another level.
 - \[ \] Write about executing subsets of tasks.
-- \[ \] Write about grouping by one dimension´or aggregating.
+- \[ \] Write about grouping by one dimension or aggregating.
 
 In projects where task inputs and outputs are sufficiently standardized, it is possible
 to make extensive use of task repetition.
 
 A common pattern is to write multiple loops around a task function where each loop
-stands for a different dimension. A dimension, for example, represents different
-datasets or model specifications to analyze the datasets.
+stands for a different dimension. A dimension might represent different datasets or
+model specifications to analyze the datasets like in the following example.
+
+```{literalinclude} ../../../docs_src/how_to_guides/bp_complex_task_repetitions/example.py
+```
 
 There is nothing wrong with using nested loops for simpler projects that are clearly
 defined in scope. But, often they are just the start of looking at a problem from
-different angles and soon you want to add more dimensions.
+different angles.
 
-Adding another loop in a lot of places in your project is cumbersome and the increased
-indentation is visually displeasing.
+For more complex projects, you are quickly running into a couple of problems.
 
-It is not the most serious problem, though. More importantly, it becomes cumbersome to
-reference dependencies of products and to set unique identifiers for tasks. The latter
-is important to execute only subsets of the project.
+- You need to add the nested loops in a lot of places.
+- Every dimension adds another level of indentation which is not aesthetically pleasing.
+- Adding another dimension leads to a lot of changes in many places.
+- It becomes cumbersome to manage the unique ids of the repeated tasks.
 
-How do we solve these problems? Here is a brief explanation of the solution.
+The rest of the guide lays out a pattern that
+
+To solve these problems, the pattern laid out in the rest of the article proved to be
+helpful.
 
 1. Create objects to define every dimension in the project. A dimension can be
    characterized by a single value like a {class}`~pathlib.Path`, an
