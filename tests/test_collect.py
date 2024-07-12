@@ -99,6 +99,16 @@ def test_collect_same_task_different_ways(tmp_path, path_extension):
     assert len(session.tasks) == 1
 
 
+def test_modules_are_not_collected_twice(runner, tmp_path):
+    """See #624."""
+    tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
+    tmp_path.joinpath("pyproject.toml").write_text(
+        "[tool.pytask.ini_options]\npaths = ['.', '.']"
+    )
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert "Collected 1 task" in result.output
+
+
 @pytest.mark.end_to_end()
 @pytest.mark.parametrize(
     ("task_files", "pattern", "expected_collected_tasks"),
