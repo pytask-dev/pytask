@@ -635,9 +635,9 @@ def test_execute_tasks_via_functional_api(tmp_path):
 
 
 @pytest.mark.end_to_end()
-@pytest.mark.xfail(
-    sys.platform == "win32" and os.environ.get("CI"),
-    reason="Wrong python interpreter used in Github Actions.",
+@pytest.mark.skipif(
+    sys.platform == "win32" and os.environ.get("CI") == "true",
+    reason="Windows does not pick up the right Python interpreter.",
 )
 def test_execute_tasks_multiple_times_via_api(tmp_path):
     """See #625."""
