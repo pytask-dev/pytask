@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import pickle
 import re
 import subprocess
@@ -634,11 +635,15 @@ def test_execute_tasks_via_functional_api(tmp_path):
 
 
 @pytest.mark.end_to_end()
+@pytest.mark.xfail(
+    sys.platform == "win32" and os.environ.get("CI"),
+    reason="Wrong python interpreter used in Github Actions.",
+)
 def test_execute_tasks_multiple_times_via_api(tmp_path):
     """See #625."""
     source = """
     import pathlib
-    from typing import Annotated
+    from typing_extensions import Annotated
     from pytask import build, task
     import sys
 
