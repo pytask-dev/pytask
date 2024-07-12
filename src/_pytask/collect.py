@@ -94,7 +94,7 @@ def _collect_from_paths(session: Session) -> None:
     Go through all paths, check if the path is ignored, and collect the file if not.
 
     """
-    for path in _not_ignored_paths(session.config["paths"], session):
+    for path in _not_ignored_paths(session.config["paths"], session, set()):
         reports = session.hook.pytask_collect_file_protocol(
             session=session, path=path, reports=session.collection_reports
         )
@@ -520,7 +520,7 @@ def _raise_error_if_casing_of_path_is_wrong(
 
 
 def _not_ignored_paths(
-    paths: Iterable[Path], session: Session
+    paths: Iterable[Path], session: Session, seen: set[Path]
 ) -> Generator[Path, None, None]:
     """Traverse paths and yield not ignored paths.
 
@@ -533,8 +533,9 @@ def _not_ignored_paths(
         if not session.hook.pytask_ignore_collect(path=path, config=session.config):
             if path.is_dir():
                 files_in_dir = path.iterdir()
-                yield from _not_ignored_paths(files_in_dir, session)
-            else:
+                yield from _not_ignored_paths(files_in_dir, session, seen)
+            elif path not in seen:
+                seen.add(path)
                 yield path
 
 

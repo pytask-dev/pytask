@@ -13,6 +13,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`619` makes coiled an optional import for tests. Thanks to {user}`erooke`.
 - {pull}`620` makes tests more flexible about their location. Thanks to {user}`erooke`.
 - {pull}`621` fixes the pull requests template.
+- {pull}`628` fixes duplicated collection of task modules. Fixes {issue}`624`. Thanks to
+  {user}`timmens` for the issue.
 
 ## 0.5.0 - 2024-05-26
 
