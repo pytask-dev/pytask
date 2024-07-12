@@ -261,7 +261,15 @@ def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
 
 @pytest.mark.end_to_end()
 def test_task_executed_with_force_although_unchanged(tmp_path):
-    tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
+    source = """
+    from pytask import task
+
+    def task_example(): pass
+
+    @task
+    def task_example_2(): pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     session = build(paths=tmp_path)
     assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
     session = build(paths=tmp_path, force=True)
@@ -623,6 +631,31 @@ def test_execute_tasks_via_functional_api(tmp_path):
     )
     assert result.returncode == ExitCode.OK
     assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
+
+
+@pytest.mark.end_to_end()
+def test_execute_tasks_multiple_times_via_api(tmp_path):
+    """See #625."""
+    source = """
+    import pathlib
+    from typing import Annotated
+    from pytask import build, task
+    import sys
+
+    @task
+    def task1() -> None: pass
+    def task2() -> None: pass
+
+    if __name__ == "__main__":
+        session1 = build(tasks=[task1, task2])
+        session2 = build(tasks=[task1, task2])
+        sys.exit(session2.exit_code)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = subprocess.run(
+        ("python", tmp_path.joinpath("task_module.py").as_posix()), check=False
+    )
+    assert result.returncode == ExitCode.OK
 
 
 @pytest.mark.end_to_end()
