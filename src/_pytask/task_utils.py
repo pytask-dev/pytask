@@ -230,8 +230,7 @@ def parse_collected_tasks_with_task_marker(
         if name in duplicated_names:
             selected_tasks = [i for i in parsed_tasks if i[0] == name]
             names_to_functions = _generate_ids_for_tasks(selected_tasks)
-            for unique_name, task in names_to_functions.items():
-                collected_tasks[unique_name] = task
+            collected_tasks.update(names_to_functions)
         else:
             collected_tasks[name] = next(i[1] for i in parsed_tasks if i[0] == name)
 
