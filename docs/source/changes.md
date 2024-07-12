@@ -15,6 +15,11 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`621` fixes the pull requests template.
 - {pull}`626` resolves an issue with rerunning tasks via the programmatic API. Closes
   {issue}`625`. Thanks to @noppelmax for the issue!
+- {pull}`627` adds a warning when users explicitly pass files to pytask that pytask is
+  going to ignore because they do not match a pattern. Happens quite often when the task
+  module's name does not start with `task_`.
+- {pull}`628` fixes duplicated collection of task modules. Fixes {issue}`624`. Thanks to
+  {user}`timmens` for the issue.
 
 ## 0.5.0 - 2024-05-26
 
