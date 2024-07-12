@@ -13,6 +13,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`619` makes coiled an optional import for tests. Thanks to {user}`erooke`.
 - {pull}`620` makes tests more flexible about their location. Thanks to {user}`erooke`.
 - {pull}`621` fixes the pull requests template.
+- {pull}`627` adds a warning when users explicitly pass files to pytask that pytask is
+  going to ignore because they do not match a pattern. Happens quite often when the task
+  module's name does not start with `task_`.
 
 ## 0.5.0 - 2024-05-26
 

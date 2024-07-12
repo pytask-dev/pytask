@@ -582,3 +582,17 @@ def test_error_if_multiple_return_annotations_are_used(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.COLLECTION_FAILED
     assert "The task uses multiple ways to parse" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_print_warning_if_non_matching_path_is_passed(runner, tmp_path):
+    tmp_path.joinpath("task.py").write_text("def task_example(): pass")
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "Collected 0 tasks" in result.output
+    assert "Warning: The path" not in result.output
+
+    result = runner.invoke(cli, [tmp_path.joinpath("task.py").as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "Collected 0 tasks" in result.output
+    assert "Warning: The path" in result.output
