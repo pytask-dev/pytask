@@ -115,7 +115,9 @@ def _collect_from_tasks(session: Session) -> None:
             name = raw_task.pytask_meta.name
 
         if has_mark(raw_task, "task"):
-            # See #625.
+            # When tasks with @task are passed to the programmatic interface multiple
+            # times, they are deleted from ``COLLECTED_TASKS`` in the first iteration
+            # and are missing in the later. See #625.
             with suppress(ValueError):
                 COLLECTED_TASKS[path].remove(raw_task)
 
