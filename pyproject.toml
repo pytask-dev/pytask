@@ -90,10 +90,7 @@ build-backend = "hatchling.build"
 
 [tool.rye]
 managed = true
-dev-dependencies = [
-    "tox-uv>=1.7.0",
-    "pandas>=2.2.2",
-]
+dev-dependencies = ["tox-uv>=1.7.0"]
 
 [tool.rye.scripts]
 clean-docs = { cmd = "rm -rf docs/build" }
