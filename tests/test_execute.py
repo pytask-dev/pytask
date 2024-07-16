@@ -636,11 +636,11 @@ def test_pytask_on_a_module_that_uses_the_functional_api(tmp_path):
     def task_example(): pass
 
     session = build(tasks=[task_example])
-    assert session.exit_code == ExitCode.FAILED
+    assert session.exit_code == ExitCode.OK
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     result = subprocess.run(("pytask",), cwd=tmp_path, capture_output=True, check=False)
-    assert result.returncode == ExitCode.OK
+    assert result.returncode == ExitCode.COLLECTION_FAILED
     assert "pytask tried to launch a second live display" in result.stdout.decode()
 
 
