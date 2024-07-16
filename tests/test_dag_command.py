@@ -91,6 +91,7 @@ def test_create_graph_via_task(tmp_path, runner, format_, layout, rankdir):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
+    print(result.output)  # noqa: T201
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath(f"dag.{format_}").exists()
 
