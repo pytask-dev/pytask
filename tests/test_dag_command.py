@@ -92,7 +92,9 @@ def test_create_graph_via_task(tmp_path, format_, layout, rankdir):
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("input.txt").touch()
 
-    result = subprocess.run(("python",), cwd=tmp_path, check=True)
+    result = subprocess.run(
+        ("python", "task_example.py"), cwd=tmp_path, check=True, capture_output=True
+    )
 
     assert result.returncode == ExitCode.OK
     assert tmp_path.joinpath(f"dag.{format_}").exists()
