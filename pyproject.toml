@@ -92,7 +92,6 @@ build-backend = "hatchling.build"
 managed = true
 dev-dependencies = [
     "tox-uv>=1.7.0",
-    "pandas>=2.2.2",
 ]
 
 [tool.rye.scripts]
