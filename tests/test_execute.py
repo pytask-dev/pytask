@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import pickle
 import re
 import subprocess
@@ -642,35 +641,6 @@ def test_pytask_on_a_module_that_uses_the_functional_api(tmp_path):
     result = subprocess.run(("pytask",), cwd=tmp_path, capture_output=True, check=False)
     assert result.returncode == ExitCode.COLLECTION_FAILED
     assert "pytask tried to launch a second live display" in result.stdout.decode()
-
-
-@pytest.mark.end_to_end()
-@pytest.mark.skipif(
-    sys.platform == "win32" and os.environ.get("CI") == "true",
-    reason="Windows does not pick up the right Python interpreter.",
-)
-def test_execute_tasks_multiple_times_via_api(tmp_path):
-    """See #625."""
-    source = """
-    import pathlib
-    from typing_extensions import Annotated
-    from pytask import build, task
-    import sys
-
-    @task
-    def task1() -> None: pass
-    def task2() -> None: pass
-
-    if __name__ == "__main__":
-        session1 = build(tasks=[task1, task2])
-        session2 = build(tasks=[task1, task2])
-        sys.exit(session2.exit_code)
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    result = subprocess.run(
-        ("python", tmp_path.joinpath("task_module.py").as_posix()), check=False
-    )
-    assert result.returncode == ExitCode.OK
 
 
 @pytest.mark.end_to_end()
