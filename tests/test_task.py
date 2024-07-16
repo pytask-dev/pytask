@@ -688,7 +688,7 @@ def test_task_will_be_executed_after_another_one_with_function_session(
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
-    result = subprocess.run(("pytask",), cwd=tmp_path, capture_output=True, check=False)
+    result = subprocess.run(("python",), cwd=tmp_path, capture_output=True, check=False)
     assert result.returncode == ExitCode.OK
 
 
