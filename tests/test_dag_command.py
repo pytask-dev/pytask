@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import subprocess
 import sys
 import textwrap
 
@@ -65,7 +66,7 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
 @pytest.mark.parametrize("layout", _GRAPH_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
 @pytest.mark.parametrize("rankdir", [_RankDirection.LR.value, _RankDirection.TB])
-def test_create_graph_via_task(tmp_path, runner, format_, layout, rankdir):
+def test_create_graph_via_task(tmp_path, format_, layout, rankdir):
     if sys.platform == "win32" and format_ == "pdf":  # pragma: no cover
         pytest.xfail("gvplugin_pango.dll might be missing on Github Actions.")
 
@@ -78,21 +79,22 @@ def test_create_graph_via_task(tmp_path, runner, format_, layout, rankdir):
 
     def task_example(path=Path("input.txt")): ...
 
-    def task_create_graph():
+    def main():
         dag = pytask.build_dag({{"paths": Path(__file__).parent}})
         dag.graph = {{"rankdir": "{rankdir_str}"}}
         graph = nx.nx_agraph.to_agraph(dag)
         path = Path(__file__).parent.joinpath("dag.{format_}")
         graph.draw(path, prog="{layout}")
-    """
 
+    if __name__ == "__main__":
+        main()
+    """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
     tmp_path.joinpath("input.txt").touch()
 
-    result = runner.invoke(cli, [tmp_path.as_posix()])
+    result = subprocess.run(("python",), cwd=tmp_path, check=True)
 
-    print(result.output)  # noqa: T201
-    assert result.exit_code == ExitCode.OK
+    assert result.returncode == ExitCode.OK
     assert tmp_path.joinpath(f"dag.{format_}").exists()
 
 

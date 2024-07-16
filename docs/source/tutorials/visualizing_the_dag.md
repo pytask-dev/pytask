@@ -35,7 +35,7 @@ layouts, which are listed [here](https://graphviz.org/docs/layouts/).
 
 ## Programmatic Interface
 
-The programmatic and interactive interface allows customizing the figure.
+The programmatic and interactive interface allows for customizing the figure.
 
 Similar to {func}`pytask.build`, there exists {func}`pytask.build_dag` which returns the
 DAG as a {class}`networkx.DiGraph`.
