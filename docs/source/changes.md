@@ -18,6 +18,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   module's name does not start with `task_`.
 - {pull}`628` fixes duplicated collection of task modules. Fixes {issue}`624`. Thanks to
   {user}`timmens` for the issue.
+- {pull}`631` fixes display issues with the programmatic interface by giving each
+  {class}`~_pytask.live.LiveManager` its own {class}`~rich.live.Live`.
 
 ## 0.5.0 - 2024-05-26
 
