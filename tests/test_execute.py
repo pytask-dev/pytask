@@ -664,6 +664,24 @@ def test_execute_tasks_multiple_times_via_api(tmp_path):
 
 
 @pytest.mark.end_to_end()
+def test_pytask_on_a_module_that_uses_the_functional_api(tmp_path):
+    source = """
+    from pytask import task, ExitCode, build
+    from pathlib import Path
+    from typing_extensions import Annotated
+
+    def task_example(): pass
+
+    session = build(tasks=[task_example])
+    assert session.exit_code == ExitCode.OK
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    result = subprocess.run(("pytask",), cwd=tmp_path, capture_output=True, check=False)
+    assert result.returncode == ExitCode.COLLECTION_FAILED
+    assert "pytask tried to launch a second live display" in result.stdout.decode()
+
+
+@pytest.mark.end_to_end()
 def test_pass_non_task_to_functional_api_that_are_ignored():
     session = pytask.build(tasks=None)
     assert len(session.tasks) == 0
