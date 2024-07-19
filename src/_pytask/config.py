@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 
+from _pytask.console import console
 from _pytask.pluginmanager import hookimpl
 from _pytask.shared import parse_markers
 from _pytask.shared import parse_paths
@@ -115,3 +116,16 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Sort markers alphabetically."""
     config["markers"] = {k: config["markers"][k] for k in sorted(config["markers"])}
+
+    # Show a warning to the user if they passed a path pointing to a Python module that
+    # does not match the task file pattern.
+    for path in config["paths"]:
+        if path.is_file() and not any(
+            path.match(pattern) for pattern in config["task_files"]
+        ):
+            msg = (
+                f"Warning: The path '{path}' does not match any of the task file "
+                f"patterns in {config['task_files']}. Rename the file or configure a "
+                "different 'task_files' pattern if you want to collect it."
+            )
+            console.print(msg, style="warning")

@@ -99,6 +99,16 @@ def test_collect_same_task_different_ways(tmp_path, path_extension):
     assert len(session.tasks) == 1
 
 
+def test_modules_are_not_collected_twice(runner, tmp_path):
+    """See #624."""
+    tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
+    tmp_path.joinpath("pyproject.toml").write_text(
+        "[tool.pytask.ini_options]\npaths = ['.', '.']"
+    )
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert "Collected 1 task" in result.output
+
+
 @pytest.mark.end_to_end()
 @pytest.mark.parametrize(
     ("task_files", "pattern", "expected_collected_tasks"),
@@ -582,3 +592,17 @@ def test_error_if_multiple_return_annotations_are_used(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.COLLECTION_FAILED
     assert "The task uses multiple ways to parse" in result.output
+
+
+@pytest.mark.end_to_end()
+def test_print_warning_if_non_matching_path_is_passed(runner, tmp_path):
+    tmp_path.joinpath("task.py").write_text("def task_example(): pass")
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "Collected 0 tasks" in result.output
+    assert "Warning: The path" not in result.output
+
+    result = runner.invoke(cli, [tmp_path.joinpath("task.py").as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "Collected 0 tasks" in result.output
+    assert "Warning: The path" in result.output
