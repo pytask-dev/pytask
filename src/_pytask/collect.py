@@ -7,6 +7,7 @@ import itertools
 import os
 import sys
 import time
+from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
@@ -114,7 +115,11 @@ def _collect_from_tasks(session: Session) -> None:
             name = raw_task.pytask_meta.name
 
         if has_mark(raw_task, "task"):
-            COLLECTED_TASKS[path].remove(raw_task)
+            # When tasks with @task are passed to the programmatic interface multiple
+            # times, they are deleted from ``COLLECTED_TASKS`` in the first iteration
+            # and are missing in the later. See #625.
+            with suppress(ValueError):
+                COLLECTED_TASKS[path].remove(raw_task)
 
         # When a task is not a callable, it can be anything or a PTask. Set arbitrary
         # values and it will pass without errors and not collected.
