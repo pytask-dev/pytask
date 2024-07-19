@@ -7,6 +7,7 @@ import itertools
 import os
 import sys
 import time
+from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
@@ -94,7 +95,7 @@ def _collect_from_paths(session: Session) -> None:
     Go through all paths, check if the path is ignored, and collect the file if not.
 
     """
-    for path in _not_ignored_paths(session.config["paths"], session):
+    for path in _not_ignored_paths(session.config["paths"], session, set()):
         reports = session.hook.pytask_collect_file_protocol(
             session=session, path=path, reports=session.collection_reports
         )
@@ -114,7 +115,11 @@ def _collect_from_tasks(session: Session) -> None:
             name = raw_task.pytask_meta.name
 
         if has_mark(raw_task, "task"):
-            COLLECTED_TASKS[path].remove(raw_task)
+            # When tasks with @task are passed to the programmatic interface multiple
+            # times, they are deleted from ``COLLECTED_TASKS`` in the first iteration
+            # and are missing in the later. See #625.
+            with suppress(ValueError):
+                COLLECTED_TASKS[path].remove(raw_task)
 
         # When a task is not a callable, it can be anything or a PTask. Set arbitrary
         # values and it will pass without errors and not collected.
@@ -247,11 +252,10 @@ def _is_filtered_object(obj: Any) -> bool:
     # Filter objects overwriting the ``__getattr__`` method like :class:`pytask.mark` or
     # ``from ibis import _``.
     attr_name = "attr_that_definitely_does_not_exist"
-    if hasattr(obj, attr_name) and not bool(
-        inspect.getattr_static(obj, attr_name, False)
-    ):
-        return True
-    return False
+    return bool(
+        hasattr(obj, attr_name)
+        and not bool(inspect.getattr_static(obj, attr_name, False))
+    )
 
 
 @hookimpl
@@ -383,6 +387,17 @@ def pytask_collect_node(  # noqa: C901, PLR0912
     if isinstance(node, DirectoryNode):
         if node.root_dir is None:
             node.root_dir = path
+
+        if not node.root_dir.is_absolute():
+            node.root_dir = path.joinpath(node.root_dir)
+
+            # ``normpath`` removes ``../`` from the path which is necessary for the
+            # casing check which will fail since ``.resolves()`` also normalizes a path.
+            node.root_dir = Path(os.path.normpath(node.root_dir))
+            _raise_error_if_casing_of_path_is_wrong(
+                node.root_dir, session.config["check_casing_of_paths"]
+            )
+
         if (
             not node.name
             or node.name == node.root_dir.joinpath(node.pattern).as_posix()
@@ -509,7 +524,7 @@ def _raise_error_if_casing_of_path_is_wrong(
 
 
 def _not_ignored_paths(
-    paths: Iterable[Path], session: Session
+    paths: Iterable[Path], session: Session, seen: set[Path]
 ) -> Generator[Path, None, None]:
     """Traverse paths and yield not ignored paths.
 
@@ -522,8 +537,9 @@ def _not_ignored_paths(
         if not session.hook.pytask_ignore_collect(path=path, config=session.config):
             if path.is_dir():
                 files_in_dir = path.iterdir()
-                yield from _not_ignored_paths(files_in_dir, session)
-            else:
+                yield from _not_ignored_paths(files_in_dir, session, seen)
+            elif path not in seen:
+                seen.add(path)
                 yield path
 
 

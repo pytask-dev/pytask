@@ -32,9 +32,13 @@ if TYPE_CHECKING:
     from _pytask.session import Session
 
 
-@hookimpl
+@hookimpl(tryfirst=True)
 def pytask_execute_task_setup(session: Session, task: PTask) -> None:
-    """Collect provisional nodes and parse them."""
+    """Collect provisional nodes and parse them.
+
+    Provisional nodes need to be resolved before the same hook in persist.
+
+    """
     task.depends_on = tree_map_with_path(  # type: ignore[assignment]
         lambda p, x: collect_provisional_nodes(session, task, x, p), task.depends_on
     )
