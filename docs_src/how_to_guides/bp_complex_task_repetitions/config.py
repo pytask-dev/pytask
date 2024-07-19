@@ -1,8 +1,12 @@
 from pathlib import Path
 from typing import NamedTuple
 
+from pytask import DataCatalog
+
 SRC = Path(__file__).parent
 BLD = SRC / "bld"
+
+data_catalog = DataCatalog()
 
 
 class Dataset(NamedTuple):
@@ -30,8 +34,8 @@ class Experiment(NamedTuple):
         return f"{self.model.name}-{self.dataset.name}"
 
     @property
-    def path(self) -> Path:
-        return BLD / f"{self.name}.pkl"
+    def fitted_model_name(self) -> str:
+        return f"{self.name}-fitted-model"
 
 
 EXPERIMENTS = [Experiment(dataset, model) for dataset in DATASETS for model in MODELS]
