@@ -5,7 +5,7 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.5.1 - 2024-07-19
+## 0.5.1 - 2024-07-20
 
 - {pull}`616` and {pull}`632` redesign the guide on "Scaling Tasks".
 - {pull}`617` fixes an interaction with provisional nodes and `@mark.persist`.
