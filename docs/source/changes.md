@@ -5,14 +5,24 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.5.1 - 2024-xx-xx
+## 0.5.1 - 2024-07-20
 
+- {pull}`616` and {pull}`632` redesign the guide on "Scaling Tasks".
 - {pull}`617` fixes an interaction with provisional nodes and `@mark.persist`.
 - {pull}`618` ensures that `root_dir` of `DirectoryNode` is created before the task is
   executed.
 - {pull}`619` makes coiled an optional import for tests. Thanks to {user}`erooke`.
 - {pull}`620` makes tests more flexible about their location. Thanks to {user}`erooke`.
 - {pull}`621` fixes the pull requests template.
+- {pull}`626` resolves an issue with rerunning tasks via the programmatic API. Closes
+  {issue}`625`. Thanks to @noppelmax for the issue!
+- {pull}`627` adds a warning when users explicitly pass files to pytask that pytask is
+  going to ignore because they do not match a pattern. Happens quite often when the task
+  module's name does not start with `task_`.
+- {pull}`628` fixes duplicated collection of task modules. Fixes {issue}`624`. Thanks to
+  {user}`timmens` for the issue.
+- {pull}`631` fixes display issues with the programmatic interface by giving each
+  {class}`~_pytask.live.LiveManager` its own {class}`~rich.live.Live`.
 
 ## 0.5.0 - 2024-05-26
 

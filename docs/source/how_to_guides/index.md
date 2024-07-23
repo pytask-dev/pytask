@@ -42,5 +42,5 @@ maxdepth: 1
 bp_structure_of_a_research_project
 bp_structure_of_task_files
 bp_templates_and_projects
-bp_scaling_tasks
+bp_complex_task_repetitions
 ```

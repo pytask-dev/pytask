@@ -8,7 +8,7 @@ from typing_extensions import Annotated
 
 def get_files_without_file_extensions_from_repo() -> list[str]:
     url = "https://api.github.com/repos/pytask-dev/pytask/git/trees/main"
-    response = httpx.get(url)
+    response = httpx.get(url, timeout=10)
     elements = response.json()["tree"]
     return [
         e["path"]

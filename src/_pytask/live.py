@@ -12,6 +12,7 @@ import click
 from attrs import define
 from attrs import field
 from rich.box import ROUNDED
+from rich.errors import LiveError
 from rich.live import Live
 from rich.status import Status
 from rich.style import Style
@@ -22,6 +23,7 @@ from _pytask.console import console
 from _pytask.console import format_task_name
 from _pytask.logging_utils import TaskExecutionStatus
 from _pytask.outcomes import CollectionOutcome
+from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
 
@@ -102,10 +104,21 @@ class LiveManager:
 
     """
 
-    _live = Live(renderable=None, console=console, auto_refresh=False)
+    _live: Live = field(
+        factory=lambda: Live(renderable=None, console=console, auto_refresh=False)
+    )
 
     def start(self) -> None:
-        self._live.start()
+        try:
+            self._live.start()
+        except LiveError:
+            msg = (
+                "pytask tried to launch a second live display which is impossible. the "
+                "issue occurs when you use pytask on the command line on a task module "
+                "that uses the programmatic interface of pytask at the same time. "
+                "Use either the command line or the programmatic interface."
+            )
+            raise Exit(msg) from None
 
     def stop(self, transient: bool | None = None) -> None:
         if transient is not None:
@@ -319,8 +332,6 @@ class LiveCollection:
 
     def _update_statistics(self, reports: list[CollectionReport]) -> None:
         """Update the statistics on collected tasks and errors."""
-        if reports is None:
-            reports = []
         for report in reports:
             if report.outcome == CollectionOutcome.SUCCESS:
                 self._n_collected_tasks += 1

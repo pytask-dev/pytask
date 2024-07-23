@@ -14,7 +14,7 @@ are looking for orientation or inspiration, here are some tips.
   module is for.
 
   ```{seealso}
-  The only exception might be for {doc}`repetitions <bp_scaling_tasks>`.
+  The only exception might be for {doc}`repetitions <bp_complex_task_repetitions>`.
   ```
 
 - The purpose of the task function is to handle IO operations like loading and saving
