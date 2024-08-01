@@ -23,7 +23,7 @@ def test_vscode_collect_failed(runner, tmp_path):
 @pytest.mark.end_to_end()
 def test_vscode_collect(runner, tmp_path):
     source = """
-    def task_raises():
+    def task_example():
         return
     """
     os.environ["PYTASK_VSCODE"] = "6000"
@@ -56,6 +56,9 @@ def test_vscode_env_variable(runner, tmp_path):
     """
     os.environ["PYTASK_VSCODE"] = "TEST"
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["collect", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK

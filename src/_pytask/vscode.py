@@ -25,8 +25,8 @@ if TYPE_CHECKING:
     from _pytask.session import Session
 
 
-def send_logging_vscode(url: str, data: dict[str, Any], timeout: float) -> None:
-    """Send logging information to VSCode."""
+def send_logging_info(url: str, data: dict[str, Any], timeout: float) -> None:
+    """Send logging information to the provided port."""
     with contextlib.suppress(Exception):
         response = json.dumps(data).encode("utf-8")
         req = request.Request(url, data=response)  # noqa: S310
@@ -38,6 +38,7 @@ def send_logging_vscode(url: str, data: dict[str, Any], timeout: float) -> None:
 def pytask_collect_log(
     session: Session, reports: list[CollectionReport], tasks: list[PTask]
 ) -> None:
+    """Start threads to send logging information for collected tasks."""
     if (
         os.environ.get("PYTASK_VSCODE") is not None
         and session.config["command"] == "collect"
@@ -58,7 +59,7 @@ def pytask_collect_log(
         ]
         url = f"http://localhost:{port}/pytask/collect"
         thread = Thread(
-            target=send_logging_vscode,
+            target=send_logging_info,
             args=(
                 url,
                 {"exitcode": exitcode, "tasks": result},
@@ -70,6 +71,7 @@ def pytask_collect_log(
 
 @hookimpl(tryfirst=True)
 def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:  # noqa: ARG001
+    """Start threads to send logging information for executed tasks."""
     if os.environ.get("PYTASK_VSCODE") is not None:
         try:
             port = int(os.environ["PYTASK_VSCODE"])
@@ -88,7 +90,7 @@ def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> No
             }
         url = f"http://localhost:{port}/pytask/run"
         thread = Thread(
-            target=send_logging_vscode,
+            target=send_logging_info,
             args=(url, result, 0.00001),
         )
         thread.start()
