@@ -46,3 +46,16 @@ def test_vscode_build(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.FAILED
+
+
+@pytest.mark.end_to_end()
+def test_vscode_env_variable(runner, tmp_path):
+    source = """
+    def task_example():
+        return
+    """
+    os.environ["PYTASK_VSCODE"] = "TEST"
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
