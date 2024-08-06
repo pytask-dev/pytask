@@ -8,6 +8,7 @@ import os
 from threading import Thread
 from typing import TYPE_CHECKING
 from typing import Any
+from urllib.error import URLError
 from urllib.request import Request
 from urllib.request import urlopen
 
@@ -32,12 +33,7 @@ DEFAULT_VSCODE_PORT = 6000
 
 def send_logging_info(url: str, data: dict[str, Any], timeout: float) -> None:
     """Send logging information to the provided port."""
-    # TODO: Can you add a unit test for this function? And mark it with
-    # pytest.mark.unit()
-
-    with contextlib.suppress(Exception):
-        # TODO: Why do you suppress all exceptions? Maybe we should fix S310
-
+    with contextlib.suppress(URLError, TimeoutError):
         response = json.dumps(data).encode("utf-8")
         req = Request(url, data=response)  # noqa: S310
         req.add_header("Content-Type", "application/json; charset=utf-8")
@@ -56,7 +52,6 @@ def pytask_collect_log(
         try:
             port = int(os.environ["PYTASK_VSCODE"])
         except ValueError:
-            # TODO: When does this case happen?
             port = DEFAULT_VSCODE_PORT
 
         exitcode = "OK"
@@ -90,7 +85,6 @@ def pytask_execute_task_log_end(
         try:
             port = int(os.environ["PYTASK_VSCODE"])
         except ValueError:
-            # TODO: When does this case happen?
             port = DEFAULT_VSCODE_PORT
 
         result = {

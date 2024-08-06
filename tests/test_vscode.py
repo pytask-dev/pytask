@@ -4,6 +4,7 @@ import os
 import textwrap
 
 import pytest
+from _pytask.vscode import send_logging_info
 from pytask import ExitCode
 from pytask import cli
 
@@ -62,3 +63,11 @@ def test_vscode_env_variable(runner, tmp_path):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
+
+
+@pytest.mark.unit()
+def test_send_logging_info():
+    url = "http://localhost:6000/pytask/run"
+    data = {"test": "test"}
+    timeout = 0.00001
+    send_logging_info(url, data, timeout)
