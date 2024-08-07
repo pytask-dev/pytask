@@ -4,9 +4,18 @@ import os
 import textwrap
 
 import pytest
-from _pytask.vscode import send_logging_info
+from _pytask.vscode import send_logging_info, validate_and_return_port
 from pytask import ExitCode
 from pytask import cli
+
+
+def test_validate_and_return_port_valid_port():
+    assert validate_and_return_port("6000") == 6000
+
+
+def test_validate_and_return_port_invalid_port():
+    with pytest.raises(ValueError):
+        validate_and_return_port("not_an_integer")
 
 
 @pytest.mark.end_to_end()

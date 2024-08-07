@@ -32,12 +32,30 @@ DEFAULT_VSCODE_PORT = 6000
 
 
 def send_logging_info(url: str, data: dict[str, Any], timeout: float) -> None:
-    """Send logging information to the provided port."""
+    """Send logging information to the provided port.
+    
+    TODO(@max): Explain why we need to suppress URLError and TimeoutError. Ideally, add
+    link to StackOverflow or similar.
+    
+    """
     with contextlib.suppress(URLError, TimeoutError):
         response = json.dumps(data).encode("utf-8")
         req = Request(url, data=response)  # noqa: S310
         req.add_header("Content-Type", "application/json; charset=utf-8")
         urlopen(req, timeout=timeout)  # noqa: S310
+        
+
+def validate_and_return_port(port: str) -> int:
+    """Validate the port number."""
+    try:
+        port = int(port)
+    except ValueError as e:
+        # TODO(@max):
+        # (1) Add comment to docstring, explaining why we do this
+        # (2) Raise ValueError with "good" error message
+        msg = f"Invalid port number: {port}, must be an integer."
+        raise ValueError(msg) from e
+    return port
 
 
 @hookimpl(tryfirst=True)
@@ -49,10 +67,8 @@ def pytask_collect_log(
         os.environ.get("PYTASK_VSCODE") is not None
         and session.config["command"] == "collect"
     ):
-        try:
-            port = int(os.environ["PYTASK_VSCODE"])
-        except ValueError:
-            port = DEFAULT_VSCODE_PORT
+        
+        port = validate_and_return_port(os.environ["PYTASK_VSCODE"])
 
         exitcode = "OK"
         for report in reports:
@@ -82,10 +98,8 @@ def pytask_execute_task_log_end(
 ) -> None:
     """Start threads to send logging information for executed tasks."""
     if os.environ.get("PYTASK_VSCODE") is not None:
-        try:
-            port = int(os.environ["PYTASK_VSCODE"])
-        except ValueError:
-            port = DEFAULT_VSCODE_PORT
+
+        port = validate_and_return_port(os.environ["PYTASK_VSCODE"])
 
         result = {
             "name": report.task.name,
