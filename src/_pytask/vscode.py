@@ -33,27 +33,34 @@ DEFAULT_VSCODE_PORT = 6000
 
 def send_logging_info(url: str, data: dict[str, Any], timeout: float) -> None:
     """Send logging information to the provided port.
-    
-    TODO(@max): Explain why we need to suppress URLError and TimeoutError. Ideally, add
-    link to StackOverflow or similar.
-    
+
+    A response from the server is not needed, therefore a very low timeout is used to
+    essentially "fire-and-forget" the HTTP request. Because the HTTP protocol expects
+    a response, the urllib will throw an URLError or (rarely) a TimeoutError,
+    which will be suppressed.
     """
+    response = json.dumps(data).encode("utf-8")
+    req = Request(url, data=response)  # noqa: S310
+    req.add_header("Content-Type", "application/json; charset=utf-8")
     with contextlib.suppress(URLError, TimeoutError):
-        response = json.dumps(data).encode("utf-8")
-        req = Request(url, data=response)  # noqa: S310
-        req.add_header("Content-Type", "application/json; charset=utf-8")
         urlopen(req, timeout=timeout)  # noqa: S310
-        
+
 
 def validate_and_return_port(port: str) -> int:
-    """Validate the port number."""
+    """Validate the port number.
+
+    The value of the environment variable is used as a direct input for the url,
+    that the logging info is sent to. To avoid security concerns the value is
+    checked to contain a valid port number and not an arbitrary string that could
+    modify the url.
+    """
     try:
         port = int(port)
     except ValueError as e:
-        # TODO(@max):
-        # (1) Add comment to docstring, explaining why we do this
-        # (2) Raise ValueError with "good" error message
-        msg = f"Invalid port number: {port}, must be an integer."
+        msg = (
+            "The value provided in the environment variable "
+            f"PYTASK_VSCODE must be an integer, got {port} instead."
+        )
         raise ValueError(msg) from e
     return port
 
@@ -67,7 +74,6 @@ def pytask_collect_log(
         os.environ.get("PYTASK_VSCODE") is not None
         and session.config["command"] == "collect"
     ):
-        
         port = validate_and_return_port(os.environ["PYTASK_VSCODE"])
 
         exitcode = "OK"
@@ -98,7 +104,6 @@ def pytask_execute_task_log_end(
 ) -> None:
     """Start threads to send logging information for executed tasks."""
     if os.environ.get("PYTASK_VSCODE") is not None:
-
         port = validate_and_return_port(os.environ["PYTASK_VSCODE"])
 
         result = {
