@@ -9,7 +9,6 @@ from threading import Thread
 from typing import TYPE_CHECKING
 from typing import Any
 from urllib.error import URLError
-from urllib.request import Request
 from urllib.request import urlopen
 
 from _pytask.config import hookimpl
@@ -39,11 +38,9 @@ def send_logging_info(url: str, data: dict[str, Any], timeout: float) -> None:
     a response, the urllib will throw an URLError or (rarely) a TimeoutError,
     which will be suppressed.
     """
-    response = json.dumps(data).encode("utf-8")
-    req = Request(url, data=response)  # noqa: S310
-    req.add_header("Content-Type", "application/json; charset=utf-8")
+    response = json.dumps(data).encode()
     with contextlib.suppress(URLError, TimeoutError):
-        urlopen(req, timeout=timeout)  # noqa: S310
+        urlopen(url=url, data=response, timeout=timeout)  # noqa: S310
 
 
 def validate_and_return_port(port: str) -> int:
