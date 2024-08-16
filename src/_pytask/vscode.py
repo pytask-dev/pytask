@@ -8,7 +8,8 @@ import os
 from threading import Thread
 from typing import TYPE_CHECKING
 from typing import Any
-from urllib import request
+from urllib.error import URLError
+from urllib.request import urlopen
 
 from _pytask.config import hookimpl
 from _pytask.console import console
@@ -25,13 +26,43 @@ if TYPE_CHECKING:
     from _pytask.session import Session
 
 
+TIMEOUT = 0.00001
+DEFAULT_VSCODE_PORT = 6000
+
+
 def send_logging_info(url: str, data: dict[str, Any], timeout: float) -> None:
-    """Send logging information to the provided port."""
-    with contextlib.suppress(Exception):
-        response = json.dumps(data).encode("utf-8")
-        req = request.Request(url, data=response)  # noqa: S310
-        req.add_header("Content-Type", "application/json; charset=utf-8")
-        request.urlopen(req, timeout=timeout)  # noqa: S310
+    """Send logging information to the provided port.
+
+    A response from the server is not needed, therefore a very low timeout is used to
+    essentially "fire-and-forget" the HTTP request. Because the HTTP protocol expects a
+    response, the urllib will throw an URLError or (rarely) a TimeoutError, which will
+    be suppressed.
+
+    """
+    response = json.dumps(data).encode()
+    with contextlib.suppress(URLError, TimeoutError):
+        urlopen(url=url, data=response, timeout=timeout)  # noqa: S310
+
+
+def validate_and_return_port(port: str) -> int:
+    """Validate the port number and return it as an integer.
+
+    The value of the environment variable is used as a direct input for the url, that
+    the logging info is sent to. To avoid security concerns the value is checked to
+    contain a valid port number and not an arbitrary string that could modify the url.
+
+    If the port cannot be converted to an integer, a ValueError is raised.
+
+    """
+    try:
+        out = int(port)
+    except ValueError as e:
+        msg = (
+            "The value provided in the environment variable PYTASK_VSCODE must be an "
+            f"integer, got {port} instead."
+        )
+        raise ValueError(msg) from e
+    return out
 
 
 @hookimpl(tryfirst=True)
@@ -43,54 +74,51 @@ def pytask_collect_log(
         os.environ.get("PYTASK_VSCODE") is not None
         and session.config["command"] == "collect"
     ):
-        try:
-            port = int(os.environ["PYTASK_VSCODE"])
-        except ValueError:
-            port = 6000
+        port = validate_and_return_port(os.environ["PYTASK_VSCODE"])
+
         exitcode = "OK"
         for report in reports:
             if report.outcome == CollectionOutcome.FAIL:
                 exitcode = "COLLECTION_FAILED"
-        result = [
-            {"name": task.name, "path": str(task.path)}
-            if isinstance(task, PTaskWithPath)
-            else {"name": task.name, "path": ""}
-            for task in tasks
-        ]
-        url = f"http://localhost:{port}/pytask/collect"
+
+        result = []
+        for task in tasks:
+            path = str(task.path) if isinstance(task, PTaskWithPath) else ""
+            result.append({"name": task.name, "path": path})
+
         thread = Thread(
             target=send_logging_info,
-            args=(
-                url,
-                {"exitcode": exitcode, "tasks": result},
-                0.00001,
-            ),
+            kwargs={
+                "url": f"http://localhost:{port}/pytask/collect",
+                "data": {"exitcode": exitcode, "tasks": result},
+                "timeout": TIMEOUT,
+            },
         )
         thread.start()
 
 
 @hookimpl(tryfirst=True)
-def pytask_execute_task_log_end(session: Session, report: ExecutionReport) -> None:  # noqa: ARG001
+def pytask_execute_task_log_end(
+    session: Session,  # noqa: ARG001
+    report: ExecutionReport,
+) -> None:
     """Start threads to send logging information for executed tasks."""
     if os.environ.get("PYTASK_VSCODE") is not None:
-        try:
-            port = int(os.environ["PYTASK_VSCODE"])
-        except ValueError:
-            port = 6000
+        port = validate_and_return_port(os.environ["PYTASK_VSCODE"])
+
+        result = {
+            "name": report.task.name,
+            "outcome": str(report.outcome),
+        }
         if report.outcome == TaskOutcome.FAIL and report.exc_info is not None:
-            result = {
-                "name": report.task.name,
-                "outcome": str(report.outcome),
-                "exc_info": render_to_string(Traceback(report.exc_info), console),
-            }
-        else:
-            result = {
-                "name": report.task.name,
-                "outcome": str(report.outcome),
-            }
-        url = f"http://localhost:{port}/pytask/run"
+            result["exc_info"] = render_to_string(Traceback(report.exc_info), console)
+
         thread = Thread(
             target=send_logging_info,
-            args=(url, result, 0.00001),
+            kwargs={
+                "url": f"http://localhost:{port}/pytask/run",
+                "data": result,
+                "timeout": TIMEOUT,
+            },
         )
         thread.start()
