@@ -81,13 +81,13 @@ The body of the task function should contain two things:
 The rest of the module is made of {term}`private functions <private function>` with a
 leading underscore which are used to accomplish this and only this task.
 
-Here is an example of a task module which conforms to all advices.
+Here is an example of a task module which conforms to all advice.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/bp_structure_of_task_files.py
 ```
 
 ```{seealso}
-The structure of the task module is greatly inspired by John Ousterhout's "A Philosopy
+The structure of the task module is greatly inspired by John Ousterhout's "A Philosophy
 of Software Design" in which he coins the name "deep modules". In short, deep modules
 have simple interfaces which are defined by one or a few {term}`public functions <public
 function>` (or classes) which provide the functionality. The complexity is hidden inside

@@ -205,9 +205,6 @@ disable_error_code = ["import-not-found"]
 module = ["_pytask.hookspecs"]
 disable_error_code = ["empty-body"]
 
-[tool.codespell]
-skip = "*.js,*/termynal.css"
-
 [tool.refurb]
 python_version = "3.8"
 

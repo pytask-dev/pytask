@@ -236,7 +236,7 @@ def _find_all_unknown_paths(
     return list(
         itertools.chain.from_iterable(
             [
-                _find_all_unkown_paths_per_recursive_node(node, include_directories)
+                _find_all_unknown_paths_per_recursive_node(node, include_directories)
                 for node in recursive_nodes
             ]
         )
@@ -305,7 +305,7 @@ class _RecursivePathNode:
         return f"<Node at {self.path} is {'unknown' if self.is_unknown else 'known'}>"
 
 
-def _find_all_unkown_paths_per_recursive_node(
+def _find_all_unknown_paths_per_recursive_node(
     node: _RecursivePathNode, include_directories: bool
 ) -> Generator[Path, None, None]:
     """Return unknown paths per recursive file node.
@@ -318,4 +318,6 @@ def _find_all_unkown_paths_per_recursive_node(
         yield node.path
     else:
         for n in node.sub_nodes:
-            yield from _find_all_unkown_paths_per_recursive_node(n, include_directories)
+            yield from _find_all_unknown_paths_per_recursive_node(
+                n, include_directories
+            )
