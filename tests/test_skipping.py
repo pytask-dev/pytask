@@ -261,7 +261,7 @@ def test_pytask_execute_task_setup(marker_name, force, expectation):
 
 
 @pytest.mark.end_to_end()
-def test_skip_has_precendence_over_ancestor_failed(runner, tmp_path):
+def test_skip_has_precedence_over_ancestor_failed(runner, tmp_path):
     source = """
     from pathlib import Path
 
@@ -278,7 +278,7 @@ def test_skip_has_precendence_over_ancestor_failed(runner, tmp_path):
 
 
 @pytest.mark.end_to_end()
-def test_skipif_has_precendence_over_ancestor_failed(runner, tmp_path):
+def test_skipif_has_precedence_over_ancestor_failed(runner, tmp_path):
     source = """
     from pathlib import Path
     import pytask
