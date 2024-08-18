@@ -83,7 +83,7 @@ def find_project_root_and_config(
 
     """
     try:
-        common_ancestor = Path(os.path.commonpath(paths or []))  # type: ignore[arg-type]
+        common_ancestor = Path(os.path.commonpath(paths or []))
     except ValueError:
         common_ancestor = Path.cwd()
 
