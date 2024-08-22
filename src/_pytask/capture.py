@@ -491,7 +491,7 @@ class FDCaptureBase(CaptureBase[AnyStr]):
     def done(self) -> None:
         """Stop capturing.
 
-        Stop capturing, restore streams, return original capture file, seeked to
+        Stop capturing, restore streams, return original capture file, sought to
         position zero.
 
         """

@@ -57,6 +57,27 @@ gutter: 3
 :text-align: center
 :img-top: _static/images/light-bulb.svg
 :class-img-top: index-card-image
+:class-item: only-light
+:shadow: md
+
+```{button-link} tutorials/index.html
+---
+click-parent:
+ref-type: ref
+class: stretched-link index-card-link
+---
+Tutorials
+```
+
+Tutorials help you to get started with pytask and how you manage your first project.
+
+````
+
+````{grid-item-card}
+:text-align: center
+:img-top: _static/images/light-bulb-light.svg
+:class-img-top: index-card-image
+:class-item: only-dark
 :shadow: md
 
 ```{button-link} tutorials/index.html
@@ -76,6 +97,28 @@ Tutorials help you to get started with pytask and how you manage your first proj
 :text-align: center
 :img-top: _static/images/book.svg
 :class-img-top: index-card-image
+:class-item: only-light
+:shadow: md
+
+```{button-link} how_to_guides/index.html
+---
+click-parent:
+ref-type: ref
+class: stretched-link index-card-link
+---
+How-to Guides
+```
+
+How-to guides provide instructions for very specific and advanced tasks and document
+best-practices.
+
+````
+
+````{grid-item-card}
+:text-align: center
+:img-top: _static/images/book-light.svg
+:class-img-top: index-card-image
+:class-item: only-dark
 :shadow: md
 
 ```{button-link} how_to_guides/index.html
@@ -96,6 +139,27 @@ best-practices.
 :text-align: center
 :img-top: _static/images/books.svg
 :class-img-top: index-card-image
+:class-item: only-light
+:shadow: md
+
+```{button-link} explanations/index.html
+---
+click-parent:
+ref-type: ref
+class: stretched-link index-card-link
+---
+Explanations
+```
+
+Explanations deal with key topics and concepts which underlie the package.
+
+````
+
+````{grid-item-card}
+:text-align: center
+:img-top: _static/images/books-light.svg
+:class-img-top: index-card-image
+:class-item: only-dark
 :shadow: md
 
 ```{button-link} explanations/index.html
@@ -115,6 +179,27 @@ Explanations deal with key topics and concepts which underlie the package.
 :text-align: center
 :img-top: _static/images/coding.svg
 :class-img-top: index-card-image
+:class-item: only-light
+:shadow: md
+
+```{button-link} reference_guides/index.html
+---
+click-parent:
+ref-type: ref
+class: stretched-link index-card-link
+---
+Reference Guides
+```
+
+Reference guides explain the implementation and provide an entry-point for developers.
+
+````
+
+````{grid-item-card}
+:text-align: center
+:img-top: _static/images/coding-light.svg
+:class-img-top: index-card-image
+:class-item: only-dark
 :shadow: md
 
 ```{button-link} reference_guides/index.html
