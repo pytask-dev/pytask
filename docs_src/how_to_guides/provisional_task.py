@@ -1,7 +1,8 @@
 from pathlib import Path
 
-from pytask import DirectoryNode
 from typing_extensions import Annotated
+
+from pytask import DirectoryNode
 
 
 def task_merge_files(

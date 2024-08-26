@@ -1,8 +1,9 @@
 from pathlib import Path
 
+from typing_extensions import Annotated
+
 import pytask
 from pytask import Product
-from typing_extensions import Annotated
 
 
 @pytask.mark.skip()

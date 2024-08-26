@@ -1,9 +1,10 @@
 from pathlib import Path
 
 import httpx
+from typing_extensions import Annotated
+
 from pytask import DirectoryNode
 from pytask import Product
-from typing_extensions import Annotated
 
 
 def get_files_without_file_extensions_from_repo() -> list[str]:

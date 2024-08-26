@@ -5,6 +5,7 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
 import pytest
+
 from _pytask.skipping import pytask_execute_task_setup
 from pytask import ExitCode
 from pytask import Mark
@@ -22,7 +23,7 @@ class DummyClass:
     pass
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_skip_unchanged(tmp_path):
     source = """
     def task_dummy():
@@ -37,7 +38,7 @@ def test_skip_unchanged(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_skip_unchanged_w_dependencies_and_products(tmp_path):
     source = """
     from pathlib import Path
@@ -60,7 +61,7 @@ def test_skip_unchanged_w_dependencies_and_products(tmp_path):
     assert tmp_path.joinpath("out.txt").read_text() == "Original content of in.txt."
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_skipif_ancestor_failed(tmp_path):
     source = """
     from pathlib import Path
@@ -80,7 +81,7 @@ def test_skipif_ancestor_failed(tmp_path):
     assert isinstance(session.execution_reports[1].exc_info[1], SkippedAncestorFailed)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_if_skip_decorator_is_applied_to_following_tasks(tmp_path):
     source = """
     import pytask
@@ -102,7 +103,7 @@ def test_if_skip_decorator_is_applied_to_following_tasks(tmp_path):
     assert isinstance(session.execution_reports[1].exc_info[1], Skipped)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "mark_string", ["@pytask.mark.skip", "@pytask.mark.skipif(True, reason='bla')"]
 )
@@ -123,7 +124,7 @@ def test_skip_if_dependency_is_missing(tmp_path, mark_string):
     assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "mark_string", ["@pytask.mark.skip", "@pytask.mark.skipif(True, reason='bla')"]
 )
@@ -149,7 +150,7 @@ def test_skip_if_dependency_is_missing_only_for_one_task(runner, tmp_path, mark_
     assert "task_second" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_if_skipif_decorator_is_applied_skipping(tmp_path):
     source = """
     import pytask
@@ -178,7 +179,7 @@ def test_if_skipif_decorator_is_applied_skipping(tmp_path):
     assert session.execution_reports[0].exc_info[1].args[0] == "bla"
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_if_skipif_decorator_is_applied_execute(tmp_path):
     source = """
     import pytask
@@ -205,7 +206,7 @@ def test_if_skipif_decorator_is_applied_execute(tmp_path):
     assert session.execution_reports[1].exc_info is None
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_if_skipif_decorator_is_applied_any_condition_matches(tmp_path):
     """Any condition of skipif has to be True and only their message is shown."""
     source = """
@@ -239,7 +240,7 @@ def test_if_skipif_decorator_is_applied_any_condition_matches(tmp_path):
     assert session.execution_reports[0].exc_info[1].args[0] == "No, I am not."
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("marker_name", "force", "expectation"),
     [
@@ -260,7 +261,7 @@ def test_pytask_execute_task_setup(marker_name, force, expectation):
         pytask_execute_task_setup(session=session, task=task)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_skip_has_precedence_over_ancestor_failed(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -277,7 +278,7 @@ def test_skip_has_precedence_over_ancestor_failed(runner, tmp_path):
     assert "1  Skipped" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_skipif_has_precedence_over_ancestor_failed(runner, tmp_path):
     source = """
     from pathlib import Path

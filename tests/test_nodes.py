@@ -4,6 +4,7 @@ import pickle
 from pathlib import Path
 
 import pytest
+
 from pytask import NodeInfo
 from pytask import PathNode
 from pytask import PickleNode
@@ -14,7 +15,7 @@ from pytask import Task
 from pytask import TaskWithoutPath
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("value", "hash_", "expected"),
     [
@@ -31,7 +32,7 @@ def test_hash_of_python_node(value, hash_, expected):
     assert state == expected
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("node", "expected"),
     [
@@ -71,7 +72,7 @@ def test_signature(node, expected):
     assert node.signature == expected
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("value", "exists", "expected"),
     [
@@ -91,7 +92,7 @@ def test_hash_of_path_node(tmp_path, value, exists, expected):
         assert state is expected
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("value", "exists", "expected"),
     [
@@ -111,7 +112,7 @@ def test_hash_of_pickle_node(tmp_path, value, exists, expected):
         assert state is expected
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("node", "protocol", "expected"),
     [

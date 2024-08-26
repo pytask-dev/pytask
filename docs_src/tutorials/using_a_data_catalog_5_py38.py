@@ -2,9 +2,10 @@ from pathlib import Path
 
 import pandas as pd
 from my_project.config import data_catalog
+from typing_extensions import Annotated
+
 from pytask import PickleNode
 from pytask import Product
-from typing_extensions import Annotated
 
 
 def task_transform_csv(

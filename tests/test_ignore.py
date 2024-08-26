@@ -3,13 +3,14 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from _pytask.collect import pytask_ignore_collect
 from _pytask.config import _IGNORED_FOLDERS
 from pytask import ExitCode
 from pytask import build
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("ignored_folder", [*_IGNORED_FOLDERS, "pytask.egg-info"])
 def test_ignore_default_paths(tmp_path, ignored_folder):
     folder = ignored_folder.split("/*")[0]
@@ -21,7 +22,7 @@ def test_ignore_default_paths(tmp_path, ignored_folder):
     assert len(session.tasks) == 0
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("ignore", ["", "*task_module.py"])
 @pytest.mark.parametrize("new_line", [True, False])
 def test_ignore_paths(tmp_path, ignore, new_line):
@@ -37,7 +38,7 @@ def test_ignore_paths(tmp_path, ignore, new_line):
     assert len(session.tasks) == 0 if ignore else len(session.tasks) == 1
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("path", "ignored_paths", "expected"),
     [

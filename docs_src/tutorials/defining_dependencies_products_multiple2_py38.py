@@ -2,8 +2,9 @@ from pathlib import Path
 from typing import Dict
 
 from my_project.config import BLD
-from pytask import Product
 from typing_extensions import Annotated
+
+from pytask import Product
 
 _DEPENDENCIES = {"data_0": BLD / "data_0.pkl", "data_1": BLD / "data_1.pkl"}
 _PRODUCTS = {"plot_0": BLD / "plot_0.png", "plot_1": BLD / "plot_1.png"}

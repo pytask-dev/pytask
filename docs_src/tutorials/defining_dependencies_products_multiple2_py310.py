@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Annotated
 
 from my_project.config import BLD
+
 from pytask import Product
 
 _DEPENDENCIES = {"data_0": BLD / "data_0.pkl", "data_1": BLD / "data_1.pkl"}

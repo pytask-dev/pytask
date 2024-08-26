@@ -3,6 +3,7 @@ from typing import Annotated
 
 import pandas as pd
 from my_project.config import data_catalog
+
 from pytask import PickleNode
 from pytask import Product
 

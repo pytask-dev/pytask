@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Annotated
 
 from my_project.config import SRC
+
 from pytask import Product
 from pytask import task
 

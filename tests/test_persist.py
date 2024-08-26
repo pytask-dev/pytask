@@ -3,6 +3,7 @@ from __future__ import annotations
 import textwrap
 
 import pytest
+
 from _pytask.persist import pytask_execute_task_process_report
 from pytask import DatabaseSession
 from pytask import ExitCode
@@ -13,7 +14,6 @@ from pytask import TaskOutcome
 from pytask import build
 from pytask import create_database
 from pytask.path import hash_path
-
 from tests.conftest import restore_sys_path_and_module_after_test_execution
 
 
@@ -21,13 +21,13 @@ class DummyClass:
     pass
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_persist_marker_is_set(tmp_path):
     session = build(paths=tmp_path)
     assert "persist" in session.config["markers"]
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_multiple_runs_with_persist(tmp_path):
     """Perform multiple consecutive runs and check intermediate outcomes with persist.
 
@@ -86,7 +86,7 @@ def test_multiple_runs_with_persist(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_migrating_a_whole_task_with_persist(tmp_path):
     source = """
     import pytask
@@ -110,7 +110,7 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("exc_info", "expected"),
     [

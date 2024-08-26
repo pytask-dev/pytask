@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from my_project.config import BLD
 from my_project.config import data_catalog
-from pytask import Product
 from typing_extensions import Annotated
+
+from pytask import Product
 
 
 def task_plot_data(
