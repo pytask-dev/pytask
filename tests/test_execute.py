@@ -8,8 +8,9 @@ import subprocess
 import sys
 import textwrap
 
-import pytask
 import pytest
+
+import pytask
 from pytask import CaptureMethod
 from pytask import ExitCode
 from pytask import NodeNotFoundError
@@ -18,18 +19,17 @@ from pytask import TaskOutcome
 from pytask import TaskWithoutPath
 from pytask import build
 from pytask import cli
-
 from tests.conftest import enter_directory
 
 
 @pytest.mark.xfail(sys.platform == "win32", reason="See #293.")
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_python_m_pytask(tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
     subprocess.run(["python", "-m", "pytask", tmp_path.as_posix()], check=False)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_execute_w_autocollect(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
     with enter_directory(tmp_path):
@@ -38,7 +38,7 @@ def test_execute_w_autocollect(runner, tmp_path):
     assert "1  Succeeded" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_task_did_not_produce_node(tmp_path):
     source = """
     from pathlib import Path
@@ -54,7 +54,7 @@ def test_task_did_not_produce_node(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], NodeNotFoundError)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -71,7 +71,7 @@ def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path)
     assert "2.txt" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_missing_product(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -86,7 +86,7 @@ def test_missing_product(runner, tmp_path):
     assert result.exit_code == ExitCode.FAILED
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_node_not_found_in_task_setup(tmp_path):
     """Test for :class:`_pytask.exceptions.NodeNotFoundError` in task setup.
 
@@ -124,7 +124,7 @@ def test_node_not_found_in_task_setup(tmp_path):
     assert isinstance(report.exc_info[1], NodeNotFoundError)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
     source = """
     from pathlib import Path
@@ -142,7 +142,7 @@ def test_depends_on_and_produces_can_be_used_in_task(tmp_path):
     assert tmp_path.joinpath("out.txt").read_text() == "Here I am. Once again."
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("n_failures", [1, 2, 3])
 def test_execution_stops_after_n_failures(tmp_path, n_failures):
     source = """
@@ -158,7 +158,7 @@ def test_execution_stops_after_n_failures(tmp_path, n_failures):
     assert len(session.execution_reports) == n_failures
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("stop_after_first_failure", [False, True])
 def test_execution_stop_after_first_failure(tmp_path, stop_after_first_failure):
     source = """
@@ -174,7 +174,7 @@ def test_execution_stop_after_first_failure(tmp_path, stop_after_first_failure):
     assert len(session.execution_reports) == 1 if stop_after_first_failure else 3
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_scheduling_w_priorities(tmp_path):
     source = """
     import pytask
@@ -197,7 +197,7 @@ def test_scheduling_w_priorities(tmp_path):
     assert session.execution_reports[2].task.name.endswith("task_y")
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("show_errors_immediately", [True, False])
 def test_show_errors_immediately(runner, tmp_path, show_errors_immediately):
     source = """
@@ -221,7 +221,7 @@ def test_show_errors_immediately(runner, tmp_path, show_errors_immediately):
         assert len(matches_traceback) == 1
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("verbose", [1, 2])
 def test_traceback_of_previous_task_failed_is_not_shown(runner, tmp_path, verbose):
     source = """
@@ -241,7 +241,7 @@ def test_traceback_of_previous_task_failed_is_not_shown(runner, tmp_path, verbos
     )
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
     source = """
     _DEFINITION = '''
@@ -260,7 +260,7 @@ def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
     assert "Collected 1 task" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_task_executed_with_force_although_unchanged(tmp_path):
     source = """
     from pytask import task
@@ -277,7 +277,7 @@ def test_task_executed_with_force_although_unchanged(tmp_path):
     assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_task_executed_with_force_although_unchanged_runner(runner, tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
     result = runner.invoke(cli, [tmp_path.as_posix()])
@@ -292,7 +292,7 @@ def test_task_executed_with_force_although_unchanged_runner(runner, tmp_path):
     assert "1  Succeeded" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_task_is_not_reexecuted_when_modification_changed_file_not(runner, tmp_path):
     tmp_path.joinpath("task_example.py").write_text("def task_example(): pass")
     result = runner.invoke(cli, [tmp_path.as_posix()])
@@ -305,7 +305,7 @@ def test_task_is_not_reexecuted_when_modification_changed_file_not(runner, tmp_p
     assert "1  Skipped" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("arg_name", ["path", "produces"])
 def test_task_with_product_annotation(tmp_path, arg_name):
     """Using 'produces' with a product annotation should not cause an error."""
@@ -327,7 +327,7 @@ def test_task_with_product_annotation(tmp_path, arg_name):
     assert arg_name in task.produces
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_task_errors_with_nested_product_annotation(tmp_path):
     source = """
     from pathlib import Path
@@ -349,7 +349,7 @@ def test_task_errors_with_nested_product_annotation(tmp_path):
     assert "paths_to_file" not in task.produces
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "definition",
     [
@@ -386,7 +386,7 @@ def test_task_with_hashed_python_node(runner, tmp_path, definition):
     assert tmp_path.joinpath("out.txt").read_text() == "world"
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_return_with_path_annotation_as_return(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -401,7 +401,7 @@ def test_return_with_path_annotation_as_return(runner, tmp_path):
     assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_return_with_pathnode_annotation_as_return(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -417,7 +417,7 @@ def test_return_with_pathnode_annotation_as_return(runner, tmp_path):
     assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("product_def", "return_def"),
     [
@@ -470,7 +470,7 @@ def test_custom_node_as_product(runner, tmp_path, product_def, return_def):
     assert data == 1
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_return_with_tuple_pathnode_annotation_as_return(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -490,7 +490,7 @@ def test_return_with_tuple_pathnode_annotation_as_return(runner, tmp_path):
     assert tmp_path.joinpath("file2.txt").read_text() == "World!"
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_error_when_return_pytree_mismatch(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -511,7 +511,7 @@ def test_error_when_return_pytree_mismatch(runner, tmp_path):
     assert "Return annotation: PyTreeSpec((*, *), NoneIsLeaf)" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_pytree_and_python_node_as_return(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -534,7 +534,7 @@ def test_pytree_and_python_node_as_return(runner, tmp_path):
     assert "1  Succeeded" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_more_nested_pytree_and_python_node_as_return_with_names(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -558,7 +558,7 @@ def test_more_nested_pytree_and_python_node_as_return_with_names(runner, tmp_pat
     assert "1  Succeeded" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -578,7 +578,7 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
     assert "1  Succeeded" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     source = """
     from pytask import PythonNode
@@ -601,7 +601,7 @@ def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.xfail(sys.platform == "win32", reason="Decoding issues in Gitlab Actions.")
 def test_execute_tasks_via_functional_api(tmp_path):
     source = """
@@ -634,7 +634,7 @@ def test_execute_tasks_via_functional_api(tmp_path):
     assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(
     sys.platform == "win32" and os.environ.get("CI") == "true",
     reason="Windows does not pick up the right Python interpreter.",
@@ -663,7 +663,7 @@ def test_execute_tasks_multiple_times_via_api(tmp_path):
     assert result.returncode == ExitCode.OK
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_pytask_on_a_module_that_uses_the_functional_api(tmp_path):
     source = """
     from pytask import task, ExitCode, build
@@ -681,13 +681,13 @@ def test_pytask_on_a_module_that_uses_the_functional_api(tmp_path):
     assert "pytask tried to launch a second live display" in result.stdout.decode()
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_pass_non_task_to_functional_api_that_are_ignored():
     session = pytask.build(tasks=None)
     assert len(session.tasks) == 0
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_multiple_product_annotations(runner, tmp_path):
     source = """
     from pytask import Product
@@ -711,7 +711,7 @@ def test_multiple_product_annotations(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_errors_during_loading_nodes_have_info(runner, tmp_path):
     source = """
     from __future__ import annotations
@@ -753,7 +753,7 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
     assert "_pytask/execute.py" not in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_hashing_works(tmp_path):
     """Use subprocess or otherwise the cache is filled from other tests."""
     source = """
@@ -778,7 +778,7 @@ def test_hashing_works(tmp_path):
     assert hashes == hashes_
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_python_node_as_product_with_product_annotation(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -799,7 +799,7 @@ def test_python_node_as_product_with_product_annotation(runner, tmp_path):
     assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_pickle_node_as_product_with_product_annotation(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -820,7 +820,7 @@ def test_pickle_node_as_product_with_product_annotation(runner, tmp_path):
     assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_check_if_root_nodes_are_available(tmp_path, runner):
     source = """
     from pathlib import Path
@@ -836,7 +836,7 @@ def test_check_if_root_nodes_are_available(tmp_path, runner):
     assert "NodeNotFoundError: 'task_d.py::task_d' requires" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_check_if_root_nodes_are_available_w_name(tmp_path, runner):
     source = """
     from pathlib import Path
@@ -857,7 +857,7 @@ def test_check_if_root_nodes_are_available_w_name(tmp_path, runner):
     assert "input1" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_check_if_root_nodes_are_available_with_separate_build_folder(tmp_path, runner):
     tmp_path.joinpath("src").mkdir()
     tmp_path.joinpath("bld").mkdir()
@@ -876,7 +876,7 @@ def test_check_if_root_nodes_are_available_with_separate_build_folder(tmp_path, 
     assert "bld/in.txt" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_error_when_node_state_throws_error(runner, tmp_path):
     source = """
     from pytask import PythonNode
@@ -891,7 +891,7 @@ def test_error_when_node_state_throws_error(runner, tmp_path):
     assert "TypeError: unhashable type: 'dict'" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_task_is_not_reexecuted(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -916,7 +916,7 @@ def test_task_is_not_reexecuted(runner, tmp_path):
     assert "1  Skipped because unchanged" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_use_functional_interface_with_task(tmp_path):
     def func(path):
         path.touch()
@@ -935,7 +935,7 @@ def test_use_functional_interface_with_task(tmp_path):
     assert session.exit_code == ExitCode.OK
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_task(runner, tmp_path):
     source = """
     from pytask import Task, PathNode
@@ -956,7 +956,7 @@ def test_collect_task(runner, tmp_path):
     assert tmp_path.joinpath("out.txt").exists()
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_task_without_path(runner, tmp_path):
     source = """
     from pytask import TaskWithoutPath, PathNode
@@ -977,7 +977,7 @@ def test_collect_task_without_path(runner, tmp_path):
     assert tmp_path.joinpath("out.txt").exists()
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_download_file(runner, tmp_path):
     source = """
     from pathlib import Path

@@ -3,12 +3,13 @@ from __future__ import annotations
 import textwrap
 
 import pytest
+
 from pytask import ExitCode
 from pytask import build
 from pytask import cli
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_show_markers(runner):
     result = runner.invoke(cli, ["markers"])
 
@@ -27,7 +28,7 @@ def test_show_markers(runner):
     )
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_markers_option(tmp_path, runner):
     toml = """
     [tool.pytask.ini_options.markers]
@@ -43,7 +44,7 @@ def test_markers_option(tmp_path, runner):
     assert all(marker in result.output for marker in ("a1", "a1some", "nodescription"))
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("marker_name", ["lkasd alksds", "1kasd"])
 def test_marker_names(tmp_path, marker_name):
     toml = f"""

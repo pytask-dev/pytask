@@ -3,8 +3,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from my_project.config import BLD
-from pytask import Product
 from typing_extensions import Annotated
+
+from pytask import Product
 
 
 def task_create_random_data(

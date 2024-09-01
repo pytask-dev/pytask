@@ -4,6 +4,7 @@ from typing import Annotated
 import matplotlib.pyplot as plt
 import pandas as pd
 from my_project.config import BLD
+
 from pytask import Product
 
 

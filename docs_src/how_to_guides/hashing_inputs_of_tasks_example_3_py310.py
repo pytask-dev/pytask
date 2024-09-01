@@ -4,6 +4,7 @@ from typing import Annotated
 from typing import Any
 
 from deepdiff import DeepHash
+
 from pytask import Product
 from pytask import PythonNode
 

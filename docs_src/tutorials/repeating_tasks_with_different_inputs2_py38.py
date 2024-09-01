@@ -1,9 +1,10 @@
 from pathlib import Path
 
 from my_project.config import SRC
+from typing_extensions import Annotated
+
 from pytask import Product
 from pytask import task
-from typing_extensions import Annotated
 
 for seed in range(10):
 

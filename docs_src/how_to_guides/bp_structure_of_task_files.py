@@ -2,8 +2,9 @@ from pathlib import Path
 
 import pandas as pd
 from checks import perform_general_checks_on_data
-from pytask import Product
 from typing_extensions import Annotated
+
+from pytask import Product
 
 
 def task_prepare_census_data(

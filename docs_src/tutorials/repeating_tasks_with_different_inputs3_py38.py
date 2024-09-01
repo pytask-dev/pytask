@@ -1,9 +1,10 @@
 from pathlib import Path
 from typing import Tuple
 
+from typing_extensions import Annotated
+
 from pytask import Product
 from pytask import task
-from typing_extensions import Annotated
 
 for seed in ((0,), (1,)):
 
