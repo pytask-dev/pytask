@@ -319,8 +319,7 @@ class Node:
     def state(self): ...
 
 
-def function(depends_on, produces):
-    ...
+def function(depends_on, produces): ...
 
 
 @pytest.mark.unit

@@ -1,14 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import pytest
 from typing_extensions import Annotated
 
 from _pytask.collect_utils import _find_args_with_product_annotation
-
-if TYPE_CHECKING:
-    from pytask import Product
+from pytask import Product  # noqa: TCH001
 
 
 @pytest.mark.unit
