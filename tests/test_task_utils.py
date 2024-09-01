@@ -6,16 +6,17 @@ from pathlib import Path
 from typing import NamedTuple
 
 import pytest
+from attrs import define
+
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import _arg_value_to_id_component
 from _pytask.task_utils import _parse_name
 from _pytask.task_utils import _parse_task_kwargs
-from attrs import define
 from pytask import Mark
 from pytask import task
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("arg_name", "arg_value", "i", "id_func", "expected"),
     [
@@ -46,7 +47,7 @@ class ExampleAttrs:
     b: str = "wonderful"
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("kwargs", "expectation", "expected"),
     [
@@ -64,7 +65,7 @@ def test_parse_task_kwargs(kwargs, expectation, expected):
         assert result == expected
 
 
-@pytest.mark.integration()
+@pytest.mark.integration
 def test_default_values_of_pytask_meta():
     @task()
     def task_example(): ...
@@ -81,11 +82,11 @@ def test_default_values_of_pytask_meta():
     COLLECTED_TASKS.pop(Path(__file__))
 
 
-def task_func(x):  # noqa: ARG001  # pragma: no cover
+def task_func(x):  # pragma: no cover
     pass
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("func", "name", "expectation", "expected"),
     [

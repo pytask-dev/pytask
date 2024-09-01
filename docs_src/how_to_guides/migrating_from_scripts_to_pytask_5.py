@@ -2,8 +2,9 @@ from pathlib import Path
 from typing import Optional
 
 import pandas as pd
-from pytask import Product
 from typing_extensions import Annotated
+
+from pytask import Product
 
 
 def task_merge_data(

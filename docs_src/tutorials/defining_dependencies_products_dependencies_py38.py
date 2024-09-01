@@ -3,8 +3,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 from my_project.config import BLD
-from pytask import Product
 from typing_extensions import Annotated
+
+from pytask import Product
 
 
 def task_plot_data(

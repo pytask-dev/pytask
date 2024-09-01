@@ -1,7 +1,8 @@
 from typing import Any
 
-from pytask import PythonNode
 from typing_extensions import Annotated
+
+from pytask import PythonNode
 
 nodes = [
     {"first": PythonNode(name="dict1"), "second": PythonNode(name="dict2")},

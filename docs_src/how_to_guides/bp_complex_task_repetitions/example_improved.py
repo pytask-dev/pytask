@@ -3,6 +3,7 @@ from typing import Any
 
 from myproject.config import EXPERIMENTS
 from myproject.config import data_catalog
+
 from pytask import task
 
 for experiment in EXPERIMENTS:
