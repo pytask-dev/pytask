@@ -84,6 +84,13 @@ def pytask_execute(session: Session) -> Generator[None, None, None]:
     return (yield)
 
 
+@hookimpl
+def pytask_unconfigure(session: Session) -> None:
+    """Unconfigure the session."""
+    live_manager = session.config["pm"].get_plugin("live_manager")
+    live_manager.stop()
+
+
 @define(eq=False)
 class LiveManager:
     """A class for live displays during a session.
