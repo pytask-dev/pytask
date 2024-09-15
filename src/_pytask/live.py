@@ -84,13 +84,6 @@ def pytask_execute(session: Session) -> Generator[None, None, None]:
     return (yield)
 
 
-@hookimpl
-def pytask_unconfigure(session: Session) -> None:
-    """Unconfigure the session."""
-    live_manager = session.config["pm"].get_plugin("live_manager")
-    live_manager.stop()
-
-
 @define(eq=False)
 class LiveManager:
     """A class for live displays during a session.
@@ -181,14 +174,15 @@ class LiveExecution:
     def pytask_execute_build(self) -> Generator[None, None, None]:
         """Wrap the execution with the live manager and yield a table at the end."""
         self.live_manager.start()
-        result = yield
-        self.live_manager.stop(transient=True)
-        table = self._generate_table(
-            reduce_table=False, sort_table=self.sort_final_table, add_caption=False
-        )
-        if table is not None:
-            console.print(table)
-        return result
+        try:
+            return (yield)
+        finally:
+            self.live_manager.stop(transient=True)
+            table = self._generate_table(
+                reduce_table=False, sort_table=self.sort_final_table, add_caption=False
+            )
+            if table is not None:
+                console.print(table)
 
     @hookimpl(tryfirst=True)
     def pytask_execute_task_log_start(self, task: PTask) -> bool:

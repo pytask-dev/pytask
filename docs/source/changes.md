@@ -5,6 +5,10 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.5.2 - 2024-09-15
+
+- \{pull}\`\` stops the live display when an exception happened during the execution.
+
 ## 0.5.1 - 2024-07-20
 
 - {pull}`616` and {pull}`632` redesign the guide on "Scaling Tasks".
