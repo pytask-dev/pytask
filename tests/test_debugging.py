@@ -439,6 +439,9 @@ def test_pdb_used_outside_task(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
+    if sys.version_info >= (3, 13):
+        child.expect("pdb.set_trace()")
+        child.sendline("n")
     child.expect("x = 5")
     child.expect("Pdb")
     child.sendeof()
