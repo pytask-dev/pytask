@@ -3,11 +3,12 @@ from __future__ import annotations
 import textwrap
 
 import pytest
+
 from pytask import ExitCode
 from pytask import cli
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_execution_failed(runner, tmp_path):
     source = """
     def task_raises():
@@ -19,13 +20,13 @@ def test_execution_failed(runner, tmp_path):
     assert result.exit_code == ExitCode.FAILED
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_configuration_failed(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.joinpath("non_existent_path").as_posix()])
     assert result.exit_code == ExitCode.CONFIGURATION_FAILED
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collection_failed(runner, tmp_path):
     source = """
     raise Exception
@@ -36,7 +37,7 @@ def test_collection_failed(runner, tmp_path):
     assert result.exit_code == ExitCode.COLLECTION_FAILED
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_building_dag_failed(runner, tmp_path):
     source = """
     from pathlib import Path

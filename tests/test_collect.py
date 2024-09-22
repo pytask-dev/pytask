@@ -6,6 +6,7 @@ import warnings
 from pathlib import Path
 
 import pytest
+
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
 from pytask import CollectionOutcome
@@ -17,7 +18,7 @@ from pytask import build
 from pytask import cli
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("depends_on", "produces"),
     [
@@ -41,7 +42,7 @@ def test_collect_file_with_relative_path(tmp_path, depends_on, produces):
     assert tmp_path.joinpath("out.txt").read_text() == "Relative paths work."
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_relative_path_of_path_node(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -62,7 +63,7 @@ def test_relative_path_of_path_node(runner, tmp_path):
     assert tmp_path.joinpath("out.txt").exists()
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_nodes_with_the_same_name(runner, tmp_path):
     """Nodes with the same filename, not path, are not mistaken for each other."""
     source = """
@@ -88,7 +89,7 @@ def test_collect_nodes_with_the_same_name(runner, tmp_path):
     assert tmp_path.joinpath("out_1.txt").read_text() == "in sub"
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("path_extension", ["", "task_module.py"])
 def test_collect_same_task_different_ways(tmp_path, path_extension):
     tmp_path.joinpath("task_module.py").write_text("def task_passes(): pass")
@@ -109,7 +110,7 @@ def test_modules_are_not_collected_twice(runner, tmp_path):
     assert "Collected 1 task" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("task_files", "pattern", "expected_collected_tasks"),
     [
@@ -151,7 +152,7 @@ def test_error_with_invalid_file_name_pattern_(tmp_path):
     assert session.exit_code == ExitCode.CONFIGURATION_FAILED
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("session", "path", "node_info", "expected"),
     [
@@ -192,7 +193,7 @@ def test_pytask_collect_node(session, path, node_info, expected):
     assert str(result.load()) == str(expected)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.skipif(
     sys.platform != "win32", reason="Only works on case-insensitive file systems."
 )
@@ -216,7 +217,7 @@ def test_pytask_collect_node_raises_error_if_path_is_not_correctly_cased(tmp_pat
         )
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize("is_absolute", [True, False])
 def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
     tmp_path, is_absolute
@@ -245,7 +246,7 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
     assert str(result.path) == str(real_node)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
     tasks = []
     expected = {}
@@ -286,7 +287,7 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
     assert result == expected
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_dependencies_from_args_if_depends_on_is_missing(tmp_path):
     source = """
     from pathlib import Path
@@ -304,7 +305,7 @@ def test_collect_dependencies_from_args_if_depends_on_is_missing(tmp_path):
     assert session.tasks[0].depends_on["path_in"].path == tmp_path.joinpath("in.txt")
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
     """We need to check that task modules can have the same name. See #373 and #374."""
     tmp_path.joinpath("a").mkdir()
@@ -322,7 +323,7 @@ def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
     } == {"a.task_module", "b.task_module"}
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_module_name(tmp_path):
     """We need to add a task module to the sys.modules. See #373 and #374."""
     source = """
@@ -344,7 +345,7 @@ def test_collect_module_name(tmp_path):
     assert outcome == CollectionOutcome.SUCCESS
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_collect_string_product_raises_error_with_annotation(runner, tmp_path):
     """The string is not converted to a path."""
     source = """
@@ -359,7 +360,7 @@ def test_collect_string_product_raises_error_with_annotation(runner, tmp_path):
     assert result.exit_code == ExitCode.FAILED
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_setting_name_for_path_node_via_annotation(tmp_path):
     source = """
     from pathlib import Path
@@ -379,7 +380,7 @@ def test_setting_name_for_path_node_via_annotation(tmp_path):
     assert product.name == "product"
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_error_when_dependency_is_defined_in_kwargs_and_annotation(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -399,7 +400,7 @@ def test_error_when_dependency_is_defined_in_kwargs_and_annotation(runner, tmp_p
     assert "ValueError: The value for the parameter 'in_'" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_error_when_product_is_defined_in_kwargs_and_annotation(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -418,7 +419,7 @@ def test_error_when_product_is_defined_in_kwargs_and_annotation(runner, tmp_path
     assert "ValueError: The value for the parameter 'path'" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_error_when_using_kwargs_and_node_in_annotation(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -435,7 +436,7 @@ def test_error_when_using_kwargs_and_node_in_annotation(runner, tmp_path):
     assert "is defined twice" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "node",
     [
@@ -457,7 +458,7 @@ def test_error_when_path_dependency_is_directory(runner, tmp_path, node):
     assert all(i in result.output for i in ("only", "files", "are", "allowed"))
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "node",
     [
@@ -481,7 +482,7 @@ def test_error_when_path_product_is_directory(runner, tmp_path, node):
     assert all(i in result.output for i in ("only", "files", "are", "allowed"))
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "node",
     [
@@ -507,7 +508,7 @@ def test_default_name_of_path_nodes(tmp_path, node):
     assert session.tasks[0].produces["return"].name == tmp_path.name + "/file.txt"
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_error_when_return_annotation_cannot_be_parsed(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -521,7 +522,7 @@ def test_error_when_return_annotation_cannot_be_parsed(runner, tmp_path):
     assert "The return annotation of the task" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_scheduling_w_mixed_priorities(runner, tmp_path):
     source = """
     import pytask
@@ -539,7 +540,7 @@ def test_scheduling_w_mixed_priorities(runner, tmp_path):
     assert "The task cannot have" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_module_can_be_collected(runner, tmp_path):
     source = """
     from pytask import Task, TaskWithoutPath, mark
@@ -556,7 +557,7 @@ def test_module_can_be_collected(runner, tmp_path):
     assert "attr_that_definitely_does_not_exist" not in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "second_node", ["PythonNode()", "PathNode(path=Path('a.txt'))"]
 )
@@ -577,7 +578,7 @@ def test_error_with_multiple_dependency_annotations(runner, tmp_path, second_nod
     assert "Parameter 'dependency' has multiple node annot" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_error_if_multiple_return_annotations_are_used(runner, tmp_path):
     source = """
     from pytask import task
@@ -594,7 +595,7 @@ def test_error_if_multiple_return_annotations_are_used(runner, tmp_path):
     assert "The task uses multiple ways to parse" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_print_warning_if_non_matching_path_is_passed(runner, tmp_path):
     tmp_path.joinpath("task.py").write_text("def task_example(): pass")
     result = runner.invoke(cli, [tmp_path.as_posix()])

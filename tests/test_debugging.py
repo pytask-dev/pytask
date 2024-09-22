@@ -8,6 +8,7 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 
 import click
 import pytest
+
 from _pytask.debugging import _pdbcls_callback
 from pytask import ExitCode
 from pytask import cli
@@ -26,7 +27,7 @@ def _escape_ansi(line):
     return ansi_escape.sub("", line)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("value", "expected", "expectation"),
     [
@@ -51,7 +52,7 @@ def _flush(child):
     assert not child.isalive()
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_post_mortem_on_error(tmp_path):
@@ -71,7 +72,7 @@ def test_post_mortem_on_error(tmp_path):
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_post_mortem_on_error_w_kwargs(tmp_path):
@@ -93,7 +94,7 @@ def test_post_mortem_on_error_w_kwargs(tmp_path):
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_trace(tmp_path):
@@ -111,7 +112,7 @@ def test_trace(tmp_path):
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_trace_w_kwargs(tmp_path):
@@ -132,7 +133,7 @@ def test_trace_w_kwargs(tmp_path):
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_breakpoint(tmp_path):
@@ -151,7 +152,7 @@ def test_breakpoint(tmp_path):
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_set_trace(tmp_path):
@@ -171,7 +172,7 @@ def test_pdb_set_trace(tmp_path):
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.xfail(reason="#312")
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
@@ -203,7 +204,7 @@ def test_pdb_interaction_capturing_simple(tmp_path):  # pragma: no cover
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_set_trace_kwargs(tmp_path):
@@ -233,7 +234,7 @@ def test_pdb_set_trace_kwargs(tmp_path):
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_set_trace_interception(tmp_path):
@@ -260,7 +261,7 @@ def test_pdb_set_trace_interception(tmp_path):
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_set_trace_capturing_afterwards(tmp_path):
@@ -283,7 +284,7 @@ def test_set_trace_capturing_afterwards(tmp_path):
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.xfail(reason="#312")
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
@@ -324,7 +325,7 @@ def test_pdb_interaction_capturing_twice(tmp_path):  # pragma: no cover
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_with_injected_do_debug(tmp_path):
@@ -406,7 +407,7 @@ def test_pdb_with_injected_do_debug(tmp_path):
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_without_capture(tmp_path):
@@ -426,7 +427,7 @@ def test_pdb_without_capture(tmp_path):
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_used_outside_task(tmp_path):
@@ -444,7 +445,7 @@ def test_pdb_used_outside_task(tmp_path):
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_printing_of_local_variables(tmp_path, runner):
     source = """
     def task_example():
@@ -466,7 +467,7 @@ def test_printing_of_local_variables(tmp_path, runner):
     assert "b = 2" in captured
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_set_trace_is_returned_after_pytask_finishes(tmp_path):
@@ -488,7 +489,7 @@ def test_set_trace_is_returned_after_pytask_finishes(tmp_path):
     _flush(child)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_with_task_that_returns(tmp_path, runner):
@@ -506,7 +507,7 @@ def test_pdb_with_task_that_returns(tmp_path, runner):
     assert tmp_path.joinpath("data.txt").read_text() == "1"
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_trace_with_task_that_returns(tmp_path):

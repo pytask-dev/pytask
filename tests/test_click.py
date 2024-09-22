@@ -4,24 +4,25 @@ import enum
 
 import click
 import pytest
+
 from pytask import EnumChoice
 from pytask import cli
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_choices_are_displayed_in_help_page(runner):
     result = runner.invoke(cli, ["build", "--help"])
     assert "[no|stdout|stderr|all]" in result.output
     assert "[fd|no|sys|tee-sys]" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_defaults_are_displayed(runner):
     result = runner.invoke(cli, ["build", "--help"])
     assert "[default: all]" in result.output
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize("method", ["first", "second"])
 def test_enum_choice(runner, method):
     class Method(enum.Enum):
@@ -39,7 +40,7 @@ def test_enum_choice(runner, method):
     assert f"method=Method.{method.upper()}" in result.output
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_enum_choice_error(runner):
     class Method(enum.Enum):
         FIRST = "first"

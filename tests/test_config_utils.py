@@ -3,10 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from _pytask.config_utils import find_project_root_and_config
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("config_filename", "paths", "expected_root", "expected_config"),
     [
@@ -43,7 +44,7 @@ def test_find_project_root_and_config(
         assert config == tmp_path.joinpath(expected_config)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("paths", "expected_root", "expected_config"),
     [(None, Path.cwd(), None), (["/mnt/home/", "C:/Users/"], Path.cwd(), None)],
@@ -56,7 +57,7 @@ def test_find_project_root_and_config_w_no_intersecting_paths(
     assert config == expected_config
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("vc_folder", "path", "expected"),
     [

@@ -13,6 +13,7 @@ import pytest
 from click.testing import CliRunner
 from nbmake.pytest_items import NotebookItem
 from packaging import version
+
 from pytask import console
 from pytask import storage
 
@@ -48,7 +49,7 @@ def _remove_variable_info_from_output(data: str, path: Any) -> str:  # noqa: ARG
     return "\n".join(new_lines)
 
 
-@pytest.fixture()
+@pytest.fixture
 def snapshot_cli(snapshot):
     return snapshot.with_defaults(matcher=_remove_variable_info_from_output)
 
@@ -107,7 +108,7 @@ class CustomCliRunner(CliRunner):
             return super().invoke(*args, **kwargs)
 
 
-@pytest.fixture()
+@pytest.fixture
 def runner():
     return CustomCliRunner()
 

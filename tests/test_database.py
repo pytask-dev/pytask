@@ -3,6 +3,8 @@ from __future__ import annotations
 import textwrap
 
 import pytest
+from sqlalchemy.engine import make_url
+
 from pytask import DatabaseSession
 from pytask import ExitCode
 from pytask import State
@@ -10,10 +12,9 @@ from pytask import build
 from pytask import cli
 from pytask import create_database
 from pytask.path import hash_path
-from sqlalchemy.engine import make_url
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_existence_of_hashes_in_db(tmp_path):
     """Modification dates of input and output files are stored in database."""
     source = """
@@ -52,7 +53,7 @@ def test_existence_of_hashes_in_db(tmp_path):
             assert hash_ == hash_path(path, path.stat().st_mtime)
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_rename_database_w_config(tmp_path, runner):
     """Modification dates of input and output files are stored in database."""
     path_to_db = tmp_path.joinpath(".db.sqlite")
@@ -64,7 +65,7 @@ def test_rename_database_w_config(tmp_path, runner):
     assert path_to_db.exists()
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_rename_database_w_cli(tmp_path, runner):
     """Modification dates of input and output files are stored in database."""
     path_to_db = tmp_path.joinpath(".db.sqlite")

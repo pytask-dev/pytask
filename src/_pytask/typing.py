@@ -10,8 +10,9 @@ from typing import Literal
 from attrs import define
 
 if TYPE_CHECKING:
-    from pytask import PTask
     from typing_extensions import TypeAlias
+
+    from pytask import PTask
 
 
 __all__ = [

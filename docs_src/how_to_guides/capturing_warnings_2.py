@@ -1,9 +1,10 @@
 from pathlib import Path
 
 import pandas as pd
+from typing_extensions import Annotated
+
 import pytask
 from pytask import Product
-from typing_extensions import Annotated
 
 
 def _create_df() -> pd.DataFrame:

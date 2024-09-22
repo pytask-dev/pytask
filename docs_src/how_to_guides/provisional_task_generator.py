@@ -1,8 +1,9 @@
 from pathlib import Path
 
+from typing_extensions import Annotated
+
 from pytask import DirectoryNode
 from pytask import task
-from typing_extensions import Annotated
 
 
 @task(is_generator=True)

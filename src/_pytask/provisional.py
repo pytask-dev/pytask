@@ -9,8 +9,6 @@ from typing import Any
 from typing import Callable
 from typing import Mapping
 
-from pytask import TaskOutcome
-
 from _pytask.config import hookimpl
 from _pytask.exceptions import NodeLoadError
 from _pytask.node_protocols import PNode
@@ -27,6 +25,7 @@ from _pytask.task_utils import parse_collected_tasks_with_task_marker
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
 from _pytask.typing import is_task_generator
+from pytask import TaskOutcome
 
 if TYPE_CHECKING:
     from _pytask.session import Session

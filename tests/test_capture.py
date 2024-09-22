@@ -11,6 +11,7 @@ from typing import BinaryIO
 from typing import Generator
 
 import pytest
+
 from _pytask import capture
 from _pytask.capture import CaptureManager
 from _pytask.capture import CaptureResult
@@ -19,12 +20,11 @@ from _pytask.capture import _get_multicapture
 from pytask import CaptureMethod
 from pytask import ExitCode
 from pytask import cli
-
 from tests.conftest import enter_directory
 from tests.conftest import run_in_subprocess
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("show_capture", ["s", "no", "stdout", "stderr", "all"])
 def test_show_capture(tmp_path, runner, show_capture):
     source = """
@@ -63,7 +63,7 @@ def test_show_capture(tmp_path, runner, show_capture):
         raise NotImplementedError
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("show_capture", ["no", "stdout", "stderr", "all"])
 @pytest.mark.xfail(
     sys.platform == "win32",
@@ -111,7 +111,7 @@ def test_show_capture_with_build(tmp_path, show_capture):
         raise NotImplementedError
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.xfail(
     sys.platform == "win32",
     reason="from pytask ... cannot be found",
@@ -170,7 +170,7 @@ def TeeStdCapture(  # noqa: N802
     )
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 class TestCaptureManager:
     @pytest.mark.parametrize(
         "method", [CaptureMethod.NO, CaptureMethod.SYS, CaptureMethod.FD]
@@ -215,7 +215,7 @@ class TestCaptureManager:
             capouter.stop_capturing()
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("method", ["fd", "sys"])
 def test_capturing_unicode(tmp_path, runner, method):
     obj = "'b\u00f6y'"
@@ -236,7 +236,7 @@ def test_capturing_unicode(tmp_path, runner, method):
     assert result.exit_code == ExitCode.OK
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("method", ["fd", "sys"])
 @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows.")
 def test_capturing_unicode_with_build(tmp_path, method):
@@ -263,7 +263,7 @@ def test_capturing_unicode_with_build(tmp_path, method):
     assert "1  Succeeded" in result.stdout
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.parametrize("method", ["fd", "sys"])
 def test_capturing_bytes_in_utf8_encoding(tmp_path, runner, method):
     source = """
@@ -280,7 +280,7 @@ def test_capturing_bytes_in_utf8_encoding(tmp_path, runner, method):
     assert result.exit_code == ExitCode.OK
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 @pytest.mark.xfail(strict=True, reason="pytask cannot capture during collection.")
 def test_collect_capturing(tmp_path, runner):
     source = """
@@ -302,7 +302,7 @@ def test_collect_capturing(tmp_path, runner):
         assert content in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_capturing_outerr(tmp_path, runner):
     source = """
     import sys
@@ -338,7 +338,7 @@ def test_capturing_outerr(tmp_path, runner):
         assert content in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_capture_badoutput_issue412(tmp_path, runner):
     source = """
     import os
@@ -360,7 +360,7 @@ def test_capture_badoutput_issue412(tmp_path, runner):
         assert content in result.output
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 class TestCaptureIO:
     def test_text(self):
         f = capture.CaptureIO()
@@ -386,7 +386,7 @@ class TestCaptureIO:
         assert f.getvalue() == "foo\r\n"
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 class TestTeeCaptureIO(TestCaptureIO):
     def test_text(self):
         sio = io.StringIO()
@@ -406,7 +406,7 @@ class TestTeeCaptureIO(TestCaptureIO):
         pytest.raises(TypeError, f.write, b"hello")
 
 
-@pytest.mark.integration()
+@pytest.mark.integration
 def test_dontreadfrominput():
     from _pytest.capture import DontReadFromInput
 
@@ -421,7 +421,7 @@ def test_dontreadfrominput():
     f.close()  # just for completeness
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_captureresult() -> None:
     cr = CaptureResult("out", "err")
     assert len(cr) == 2
@@ -452,7 +452,7 @@ def test_captureresult() -> None:
     assert cr._replace(err="replaced") == ("out", "replaced")
 
 
-@pytest.fixture()
+@pytest.fixture
 def tmpfile(tmp_path) -> Generator[BinaryIO, None, None]:
     f = tmp_path.joinpath("task_module.py").open("wb+")
     yield f
@@ -479,7 +479,7 @@ def lsof_check():
     assert len2 < len1 + 3, out2
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 class TestFDCapture:
     def test_simple(self, tmpfile):
         fd = tmpfile.fileno()
@@ -586,7 +586,7 @@ def saved_fd(fd):
         os.close(new_fd)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 class TestStdCapture:
     captureclass = staticmethod(StdCapture)
 
@@ -705,7 +705,7 @@ class TestStdCapture:
             pytest.raises(OSError, sys.stdin.read)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 class TestTeeStdCapture(TestStdCapture):
     captureclass = staticmethod(TeeStdCapture)
 
@@ -722,7 +722,7 @@ class TestTeeStdCapture(TestStdCapture):
         assert out2 == "cap2\n"
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 class TestStdCaptureFD(TestStdCapture):
     captureclass = staticmethod(StdCaptureFD)
 
@@ -764,7 +764,7 @@ class TestStdCaptureFD(TestStdCapture):
                 cap.stop_capturing()
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 class TestStdCaptureFDinvalidFD:
     def test_stdcapture_fd_invalid_fd(self, tmp_path, runner):
         source = """
@@ -843,7 +843,7 @@ class TestStdCaptureFDinvalidFD:
                 os.write(2, b"done")
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test__get_multicapture() -> None:
     assert isinstance(_get_multicapture(CaptureMethod.NO), MultiCapture)
     pytest.raises(ValueError, _get_multicapture, "unknown").match(

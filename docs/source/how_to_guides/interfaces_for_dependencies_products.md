@@ -18,10 +18,10 @@ a task. When we talk about products later, the same interfaces will be used.
 
 |                                         | `def task(arg: ... = ...)` | `Annotated[..., value]` | `@task(kwargs=...)` |
 | --------------------------------------- | :------------------------: | :---------------------: | :-----------------: |
-| Not deprecated                          |             ✅              |            ✅            |          ✅          |
-| No type annotations required            |             ✅              |            ❌            |          ✅          |
-| Flexible choice of argument name        |             ✅              |            ✅            |          ✅          |
-| Supports third-party functions as tasks |             ❌              |            ❌            |          ✅          |
+| Not deprecated                          |             ✅             |           ✅            |         ✅          |
+| No type annotations required            |             ✅             |           ❌            |         ✅          |
+| Flexible choice of argument name        |             ✅             |           ✅            |         ✅          |
+| Supports third-party functions as tasks |             ❌             |           ❌            |         ✅          |
 
 (default-argument)=
 
@@ -60,11 +60,11 @@ dictionary. It applies to dependencies and products alike.
 
 |                                                           | `def task(arg: Annotated[..., Product] = ...)` | `Annotated[..., value, Product]` | `produces` | `@task(produces=...)` | `def task() -> Annotated[..., value]` |
 | --------------------------------------------------------- | :--------------------------------------------: | :------------------------------: | :--------: | :-------------------: | :-----------------------------------: |
-| Not deprecated                                            |                       ✅                        |                ✅                 |     ✅      |           ✅           |                   ✅                   |
-| No type annotations required                              |                       ❌                        |                ❌                 |     ✅      |           ✅           |                   ❌                   |
-| Flexible choice of argument name                          |                       ✅                        |                ✅                 |     ❌      |           ✅           |                   ➖                   |
-| Supports third-party functions as tasks                   |                       ❌                        |                ❌                 |     ❌      |           ✅           |                   ❌                   |
-| Allows to pass custom node while preserving type of value |                       ❌                        |                ✅                 |     ✅      |           ✅           |                   ✅                   |
+| Not deprecated                                            |                       ✅                       |                ✅                |     ✅     |          ✅           |                  ✅                   |
+| No type annotations required                              |                       ❌                       |                ❌                |     ✅     |          ✅           |                  ❌                   |
+| Flexible choice of argument name                          |                       ✅                       |                ✅                |     ❌     |          ✅           |                  ➖                   |
+| Supports third-party functions as tasks                   |                       ❌                       |                ❌                |     ❌     |          ✅           |                  ❌                   |
+| Allows to pass custom node while preserving type of value |                       ❌                       |                ✅                |     ✅     |          ✅           |                  ✅                   |
 
 ### `Product` annotation
 

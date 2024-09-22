@@ -3,13 +3,14 @@ from __future__ import annotations
 import textwrap
 
 import pytest
+
 from pytask import ExitCode
 from pytask import TaskOutcome
 from pytask import build
 from pytask import cli
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_task_that_produces_provisional_path_node(tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -35,7 +36,7 @@ def test_task_that_produces_provisional_path_node(tmp_path):
     assert session.execution_reports[0].outcome == TaskOutcome.SKIP_UNCHANGED
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_task_that_depends_on_relative_provisional_path_node(tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -59,7 +60,7 @@ def test_task_that_depends_on_relative_provisional_path_node(tmp_path):
     assert len(session.tasks[0].depends_on["paths"]) == 2
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_task_that_depends_on_provisional_path_node_with_absolute_root_dir(tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -86,7 +87,7 @@ def test_task_that_depends_on_provisional_path_node_with_absolute_root_dir(tmp_p
     assert len(session.tasks[0].depends_on["paths"]) == 2
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_task_that_depends_on_provisional_path_node_with_relative_root_dir(tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -111,7 +112,7 @@ def test_task_that_depends_on_provisional_path_node_with_relative_root_dir(tmp_p
     assert len(session.tasks[0].depends_on["paths"]) == 2
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_task_that_depends_on_provisional_task(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -138,7 +139,7 @@ def test_task_that_depends_on_provisional_task(runner, tmp_path):
     assert "2  Succeeded" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_gracefully_fail_when_dag_raises_error(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -167,7 +168,7 @@ def test_gracefully_fail_when_dag_raises_error(runner, tmp_path):
     assert "There are some tasks which produce" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_provisional_task_generation(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -201,7 +202,7 @@ def test_provisional_task_generation(runner, tmp_path):
     assert tmp_path.joinpath("b-copy.txt").exists()
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_gracefully_fail_when_task_generator_raises_error(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -222,7 +223,7 @@ def test_gracefully_fail_when_task_generator_raises_error(runner, tmp_path):
     assert "1  Failed" in result.output
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_use_provisional_node_as_product_in_generator_without_rerun(runner, tmp_path):
     source = """
     from typing_extensions import Annotated
@@ -270,7 +271,7 @@ def test_provisional_nodes_are_resolved_before_persist(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
 
 
-@pytest.mark.end_to_end()
+@pytest.mark.end_to_end
 def test_root_dir_is_created(runner, tmp_path):
     source = """
     from typing_extensions import Annotated

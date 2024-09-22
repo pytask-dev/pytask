@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from my_project.config import SRC
+
 from pytask import task
 
 for seed in range(10):
