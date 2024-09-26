@@ -473,10 +473,6 @@ def test_printing_of_local_variables(tmp_path, runner):
 @pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
-@pytest.mark.skipif(
-    sys.platform == "darwin" and sys.version_info == (3, 13),
-    reason="Test skipped on macOS for Python 3.13. Debug when released.",
-)
 def test_set_trace_is_returned_after_pytask_finishes(tmp_path):
     """Motivates unconfiguring of pdb.set_trace."""
     source = f"""
