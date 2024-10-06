@@ -7,6 +7,7 @@
 #   all-features: true
 #   with-sources: false
 #   generate-hashes: false
+#   universal: false
 
 -e file:.
 aiohttp==3.9.5
@@ -24,8 +25,6 @@ apeye-core==1.1.5
     # via apeye
 asttokens==2.4.1
     # via stack-data
-async-timeout==4.0.3
-    # via aiohttp
 attrs==23.2.0
     # via aiohttp
     # via jsonschema
@@ -125,10 +124,6 @@ domdf-python-tools==3.8.0.post2
     # via apeye-core
     # via dict2css
     # via sphinx-toolbox
-exceptiongroup==1.2.1
-    # via anyio
-    # via ipython
-    # via pytest
 execnet==2.1.1
     # via pytest-xdist
 executing==2.0.1
@@ -182,13 +177,8 @@ imagesize==1.4.1
     # via sphinx
 importlib-metadata==7.1.0
     # via coiled
-    # via dask
     # via jupyter-cache
-    # via jupyter-client
     # via myst-nb
-    # via sphinx
-importlib-resources==6.4.0
-    # via matplotlib
 iniconfig==2.0.0
     # via pytest
 invoke==2.2.0
@@ -486,14 +476,7 @@ tokenize-rt==5.2.0
 toml==0.10.2
     # via coiled
 tomli==2.0.1
-    # via autopep8
-    # via coverage
-    # via mypy
     # via nbqa
-    # via pyproject-api
-    # via pytask
-    # via pytest
-    # via tox
 toolz==0.12.1
     # via dask
     # via distributed
@@ -518,10 +501,8 @@ traitlets==5.14.2
     # via nbclient
     # via nbformat
 typing-extensions==4.11.0
-    # via anyio
     # via coiled
     # via domdf-python-tools
-    # via ipython
     # via mypy
     # via myst-nb
     # via optree
@@ -554,4 +535,3 @@ zict==3.0.0
     # via distributed
 zipp==3.19.2
     # via importlib-metadata
-    # via importlib-resources

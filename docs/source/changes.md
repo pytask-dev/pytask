@@ -7,6 +7,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.5.2 - 2024-09-15
 
+- {pull}`633` adds support for Python 3.13.
 - {pull}`640` stops the live display when an exception happened during the execution.
 
 ## 0.5.1 - 2024-07-20
