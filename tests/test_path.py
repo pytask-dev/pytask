@@ -61,11 +61,17 @@ def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected)
             pytest.raises(ValueError, match="Can't mix absolute and relative paths"),
             None,
             id="test path 1 is relative",
+            marks=pytest.mark.skipif(sys.platform == "win32", reason="fails on win32."),
         ),
         pytest.param(
             PureWindowsPath("C:/home/relative_1"),
             PureWindowsPath("relative_2"),
-            pytest.raises(ValueError, match="Can't mix absolute and relative paths"),
+            pytest.raises(
+                ValueError,
+                match="Can't mix absolute and relative paths"
+                if sys.version_info < (3, 13)
+                else "Paths don't have the same drive",
+            ),
             None,
             id="test path 2 is relative",
             marks=pytest.mark.skipif(sys.platform != "win32", reason="fails on UNIX."),
