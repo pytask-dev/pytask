@@ -79,6 +79,12 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse the configuration."""
     config["root"].joinpath(".pytask").mkdir(exist_ok=True, parents=True)
 
+    # Ensure a .gitignore file exists in the .pytask directory to avoid accidentally
+    # committing the cache.
+    gitignore_path = config["root"].joinpath(".pytask", ".gitignore")
+    if not gitignore_path.exists():
+        gitignore_path.write_text("# Automatically added by pytask.\n*\n")
+
     config["paths"] = parse_paths(config["paths"])
 
     config["markers"] = {
