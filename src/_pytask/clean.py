@@ -6,7 +6,6 @@ import enum
 import itertools
 import shutil
 import sys
-from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
@@ -36,6 +35,7 @@ from _pytask.traceback import Traceback
 from _pytask.tree_util import tree_leaves
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import NoReturn
 
 
@@ -64,7 +64,12 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 @hookimpl
 def pytask_parse_config(config: dict[str, Any]) -> None:
     """Parse the configuration."""
-    config["exclude"] = to_list(config["exclude"]) + _DEFAULT_EXCLUDE
+    config["exclude"] = (
+        to_list(config["exclude"])
+        + _DEFAULT_EXCLUDE
+        # Adding the cache folder to the exclude list.
+        + [config["root"].joinpath(".pytask", "*").as_posix()]
+    )
 
 
 @click.command(cls=ColoredCommand)
@@ -116,10 +121,9 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
             session.hook.pytask_collect(session=session)
 
             known_paths = _collect_all_paths_known_to_pytask(session)
-            exclude = session.config["exclude"]
             include_directories = session.config["directories"]
             unknown_paths = _find_all_unknown_paths(
-                session, known_paths, exclude, include_directories
+                session, known_paths, session.config["exclude"], include_directories
             )
             common_ancestor = find_common_ancestor(
                 *unknown_paths, *session.config["paths"]
@@ -188,10 +192,6 @@ def _collect_all_paths_known_to_pytask(session: Session) -> set[Path]:
     if session.config["config"]:
         known_paths.add(session.config["config"])
     known_paths.add(session.config["root"])
-
-    database_url = session.config["database_url"]
-    if database_url.drivername == "sqlite" and database_url.database:
-        known_paths.add(Path(database_url.database))
 
     # Add files tracked by git.
     if is_git_installed():
