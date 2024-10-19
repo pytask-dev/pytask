@@ -123,3 +123,11 @@ def test_paths_are_relative_to_configuration_file(tmp_path):
     result = run_in_subprocess(("python", "script.py"), cwd=tmp_path)
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.stdout
+
+
+@pytest.mark.end_to_end
+def test_create_gitignore_file_in_pytask_directory(tmp_path):
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath(".pytask", ".gitignore").exists()
