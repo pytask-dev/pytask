@@ -1,8 +1,8 @@
 from pathlib import Path
+from typing import Annotated
 
 import pandas as pd
 from checks import perform_general_checks_on_data
-from typing_extensions import Annotated
 
 from pytask import Product
 

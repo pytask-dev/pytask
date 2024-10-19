@@ -329,7 +329,7 @@ resolution and execution.
 
     >>> from pathlib import Path
     >>> from pytask import Product
-    >>> from typing_extensions import Annotated
+    >>> from typing import Annotated
     >>> def task_example(path: Annotated[Path, Product]) -> None:
     ...     path.write_text("Hello, World!")
 

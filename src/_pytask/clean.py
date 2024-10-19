@@ -8,8 +8,6 @@ import shutil
 import sys
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Generator
-from typing import Iterable
 
 import click
 from attrs import define
@@ -35,6 +33,8 @@ from _pytask.traceback import Traceback
 from _pytask.tree_util import tree_leaves
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+    from collections.abc import Iterable
     from pathlib import Path
     from typing import NoReturn
 

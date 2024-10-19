@@ -34,13 +34,16 @@ import datetime
 import pathlib
 import re
 from textwrap import indent
-from typing import Generator
+from typing import TYPE_CHECKING
 
 import httpx
 import packaging.version
 import tabulate
 import wcwidth
 from tqdm import tqdm
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 _FILE_HEAD = r"""
 .. _plugin-list:

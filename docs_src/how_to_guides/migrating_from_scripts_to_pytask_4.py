@@ -1,8 +1,8 @@
 # Content of task_data_management.py
 from pathlib import Path
+from typing import Annotated
 
 import pandas as pd
-from typing_extensions import Annotated
 
 from pytask import Product
 

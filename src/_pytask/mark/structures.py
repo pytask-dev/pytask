@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import Iterable
-from typing import Mapping
 
 from attrs import define
 from attrs import field
@@ -13,6 +12,10 @@ from attrs import validators
 from _pytask.mark_utils import get_all_marks
 from _pytask.models import CollectionMetadata
 from _pytask.typing import is_task_function
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from collections.abc import Mapping
 
 
 @define(frozen=True)

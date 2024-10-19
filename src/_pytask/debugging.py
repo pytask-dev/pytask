@@ -8,7 +8,6 @@ import sys
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import ClassVar
-from typing import Generator
 
 import click
 
@@ -19,6 +18,7 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.traceback import Traceback
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
     from types import FrameType
     from types import TracebackType
 

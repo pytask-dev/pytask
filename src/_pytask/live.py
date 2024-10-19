@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Generator
 from typing import NamedTuple
 
 import click
@@ -28,6 +27,8 @@ from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from _pytask.node_protocols import PTask
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport

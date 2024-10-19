@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from typing import Annotated
+
 import pytest
-from typing_extensions import Annotated
 
 from _pytask.collect_utils import _find_args_with_product_annotation
 from pytask import Product  # noqa: TCH001

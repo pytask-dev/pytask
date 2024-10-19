@@ -12,7 +12,7 @@ from pytask import cli
 @pytest.mark.end_to_end
 def test_node_protocol_for_custom_nodes(runner, tmp_path):
     source = """
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import Product
     from attrs import define
     from pathlib import Path
@@ -48,7 +48,7 @@ def test_node_protocol_for_custom_nodes(runner, tmp_path):
 @pytest.mark.end_to_end
 def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     source = """
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import Product
     from pathlib import Path
     from attrs import define

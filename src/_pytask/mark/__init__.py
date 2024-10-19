@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import sys
 from typing import TYPE_CHECKING
-from typing import AbstractSet
 from typing import Any
 
 import click
@@ -28,6 +27,7 @@ from _pytask.session import Session
 from _pytask.shared import parse_markers
 
 if TYPE_CHECKING:
+    from collections.abc import Set as AbstractSet
     from typing import NoReturn
 
     import networkx as nx

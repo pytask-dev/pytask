@@ -1,6 +1,5 @@
+from typing import Annotated
 from typing import Any
-
-from typing_extensions import Annotated
 
 from pytask import PythonNode
 

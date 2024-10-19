@@ -10,7 +10,6 @@ import time
 from contextlib import suppress
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Generator
 
 import click
 from rich.table import Table
@@ -36,6 +35,7 @@ from _pytask.session import Session
 from _pytask.traceback import Traceback
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
     from pathlib import Path
     from typing import NoReturn
 

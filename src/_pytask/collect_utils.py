@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import inspect
-import sys
 from typing import TYPE_CHECKING
+from typing import Annotated
 from typing import Any
 from typing import Callable
+from typing import get_origin
 
 import attrs
-from typing_extensions import get_origin
 
 from _pytask._inspect import get_annotations
 from _pytask.exceptions import NodeNotCollectedError
@@ -23,11 +23,6 @@ from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map_with_path
 from _pytask.typing import ProductType
 from _pytask.typing import no_default
-
-if sys.version_info >= (3, 9):
-    from typing import Annotated
-else:  # pragma: no cover
-    from typing_extensions import Annotated
 
 if TYPE_CHECKING:
     from pathlib import Path

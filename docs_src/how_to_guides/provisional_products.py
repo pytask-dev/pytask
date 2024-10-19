@@ -1,7 +1,7 @@
 from pathlib import Path
+from typing import Annotated
 
 import httpx
-from typing_extensions import Annotated
 
 from pytask import DirectoryNode
 from pytask import Product

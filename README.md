@@ -82,7 +82,7 @@ with `task_`. Here is an example.
 from pathlib import Path
 
 from pytask import Product
-from typing_extensions import Annotated
+from typing import Annotated
 
 
 def task_hello_earth(path: Annotated[Path, Product] = Path("hello_earth.txt")):

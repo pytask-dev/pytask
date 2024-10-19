@@ -497,7 +497,7 @@ def test_set_trace_is_returned_after_pytask_finishes(tmp_path):
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_with_task_that_returns(tmp_path, runner):
     source = """
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pathlib import Path
 
     def task_example() -> Annotated[str, Path("data.txt")]:
@@ -515,7 +515,7 @@ def test_pdb_with_task_that_returns(tmp_path, runner):
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_trace_with_task_that_returns(tmp_path):
     source = """
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pathlib import Path
 
     def task_example() -> Annotated[str, Path("data.txt")]:

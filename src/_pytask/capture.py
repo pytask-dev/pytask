@@ -36,9 +36,7 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import AnyStr
 from typing import BinaryIO
-from typing import Generator
 from typing import Generic
-from typing import Iterator
 from typing import NamedTuple
 from typing import TextIO
 from typing import final
@@ -53,6 +51,8 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.shared import convert_to_enum
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+    from collections.abc import Iterator
     from types import TracebackType
 
     from _pytask.node_protocols import PTask

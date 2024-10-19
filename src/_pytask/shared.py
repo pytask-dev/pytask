@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import glob
 import inspect
+from collections.abc import Iterable
+from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import Iterable
-from typing import Sequence
 
 import click
 

@@ -5,12 +5,15 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
-from typing import Sequence
 
 import click
 
 from _pytask.shared import parse_paths
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 if sys.version_info >= (3, 11):  # pragma: no cover
     import tomllib

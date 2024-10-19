@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import itertools
 from typing import TYPE_CHECKING
-from typing import Generator
-from typing import Iterable
 
 import networkx as nx
 from attrs import define
@@ -14,6 +12,9 @@ from attrs import field
 from _pytask.mark_utils import has_mark
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+    from collections.abc import Iterable
+
     from _pytask.node_protocols import PTask
 
 

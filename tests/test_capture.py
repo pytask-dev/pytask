@@ -7,8 +7,8 @@ import subprocess
 import sys
 import textwrap
 from io import UnsupportedOperation
+from typing import TYPE_CHECKING
 from typing import BinaryIO
-from typing import Generator
 
 import pytest
 
@@ -22,6 +22,9 @@ from pytask import ExitCode
 from pytask import cli
 from tests.conftest import enter_directory
 from tests.conftest import run_in_subprocess
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 
 @pytest.mark.end_to_end
