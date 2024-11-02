@@ -439,6 +439,9 @@ def test_pdb_used_outside_task(tmp_path):
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
+    if sys.version_info >= (3, 13):
+        child.expect("pdb.set_trace()")
+        child.sendline("n")
     child.expect("x = 5")
     child.expect("Pdb")
     child.sendeof()
@@ -470,6 +473,11 @@ def test_printing_of_local_variables(tmp_path, runner):
 @pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
+@pytest.mark.xfail(
+    condition=sys.version_info >= (3, 13) and sys.platform == "darwin",
+    reason="Can't debug since the debugger hangs.",
+    strict=True,
+)
 def test_set_trace_is_returned_after_pytask_finishes(tmp_path):
     """Motivates unconfiguring of pdb.set_trace."""
     source = f"""
@@ -494,7 +502,7 @@ def test_set_trace_is_returned_after_pytask_finishes(tmp_path):
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_with_task_that_returns(tmp_path, runner):
     source = """
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pathlib import Path
 
     def task_example() -> Annotated[str, Path("data.txt")]:
@@ -512,7 +520,7 @@ def test_pdb_with_task_that_returns(tmp_path, runner):
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_trace_with_task_that_returns(tmp_path):
     source = """
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pathlib import Path
 
     def task_example() -> Annotated[str, Path("data.txt")]:

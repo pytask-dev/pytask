@@ -5,7 +5,6 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 from typing import TYPE_CHECKING
-from typing import Iterable
 
 import click
 from click import Context
@@ -20,6 +19,8 @@ from _pytask.pluginmanager import register_hook_impls_from_modules
 from _pytask.pluginmanager import storage
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from pluggy import PluginManager
 
 

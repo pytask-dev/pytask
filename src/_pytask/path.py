@@ -10,10 +10,13 @@ import os
 import sys
 from pathlib import Path
 from types import ModuleType
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 from _pytask._hashlib import file_digest
 from _pytask.cache import Cache
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __all__ = [
     "find_case_sensitive_path",

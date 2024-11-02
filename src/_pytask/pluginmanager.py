@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import importlib
 import sys
-from typing import Iterable
+from typing import TYPE_CHECKING
 
 from attrs import define
 from pluggy import HookimplMarker
 from pluggy import PluginManager
 
 from _pytask import hookspecs
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 __all__ = [
     "get_plugin_manager",

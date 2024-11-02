@@ -3,9 +3,12 @@ from __future__ import annotations
 import functools
 import sys
 import types
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import Mapping
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 __all__ = ["get_annotations"]
 

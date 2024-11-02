@@ -11,8 +11,6 @@ from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Generator
-from typing import Iterable
 
 from rich.text import Text
 from upath import UPath
@@ -55,6 +53,9 @@ from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+    from collections.abc import Iterable
+
     from _pytask.models import NodeInfo
     from _pytask.session import Session
 

@@ -7,6 +7,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## 0.5.2 - 2024-09-15
 
+- {pull}`633` adds support for Python 3.13 and drops support for 3.8.
 - {pull}`640` stops the live display when an exception happened during the execution.
 - {pull}`646` adds a `.gitignore` to the `.pytask/` folder to exclude it from version
   control.

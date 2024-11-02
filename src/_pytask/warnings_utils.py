@@ -8,7 +8,6 @@ import textwrap
 import warnings
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
-from typing import Generator
 from typing import NamedTuple
 from typing import cast
 
@@ -16,6 +15,8 @@ from _pytask.mark_utils import get_marks
 from _pytask.outcomes import Exit
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from _pytask.node_protocols import PTask
     from _pytask.session import Session
 

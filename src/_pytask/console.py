@@ -11,9 +11,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import Iterable
 from typing import Literal
-from typing import Sequence
 
 from rich.console import Console
 from rich.console import RenderableType
@@ -33,6 +31,8 @@ from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import shorten_path
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from collections.abc import Sequence
     from enum import Enum
 
     from _pytask.node_protocols import PTask

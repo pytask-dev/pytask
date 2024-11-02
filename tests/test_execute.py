@@ -75,7 +75,7 @@ def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path)
 def test_missing_product(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import Product
 
     def task_with_non_path_dependency(path: Annotated[Path, Product]): ...
@@ -99,7 +99,7 @@ def test_node_not_found_in_task_setup(tmp_path):
     """
     source = """
     import pytask
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pathlib import Path
 
     def task_1() -> Annotated[None, (Path("out_1.txt"), Path("deleted.txt"))]:
@@ -311,7 +311,7 @@ def test_task_with_product_annotation(tmp_path, arg_name):
     """Using 'produces' with a product annotation should not cause an error."""
     source = f"""
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import Product
 
     def task_example({arg_name}: Annotated[Path, Product] = Path("out.txt")) -> None:
@@ -331,7 +331,7 @@ def test_task_with_product_annotation(tmp_path, arg_name):
 def test_task_errors_with_nested_product_annotation(tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated, Dict
+    from typing import Annotated, Dict
     from pytask import Product
 
     def task_example(
@@ -362,7 +362,7 @@ def test_task_with_hashed_python_node(runner, tmp_path, definition):
     import json
     from pathlib import Path
     from pytask import Product, PythonNode
-    from typing_extensions import Annotated, Any
+    from typing import Annotated, Any
 
     data = json.loads(Path(__file__).parent.joinpath("data.json").read_text())
 
@@ -390,7 +390,7 @@ def test_task_with_hashed_python_node(runner, tmp_path, definition):
 def test_return_with_path_annotation_as_return(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
 
     def task_example() -> Annotated[str, Path("file.txt")]:
         return "Hello, World!"
@@ -405,7 +405,7 @@ def test_return_with_path_annotation_as_return(runner, tmp_path):
 def test_return_with_pathnode_annotation_as_return(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import PathNode
 
     def task_example() -> Annotated[str, PathNode(path=Path("file.txt"))]:
@@ -436,7 +436,7 @@ def test_custom_node_as_product(runner, tmp_path, product_def, return_def):
     from pathlib import Path
     import pickle
     from typing import Any
-    from typing_extensions import Annotated
+    from typing import Annotated
     import attrs
     from pytask import Product
 
@@ -474,7 +474,7 @@ def test_custom_node_as_product(runner, tmp_path, product_def, return_def):
 def test_return_with_tuple_pathnode_annotation_as_return(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import PathNode
 
     node1 = PathNode(path=Path("file1.txt"))
@@ -495,7 +495,7 @@ def test_error_when_return_pytree_mismatch(runner, tmp_path):
     source = """
     from pathlib import Path
     from typing import Any
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import PathNode
 
     node1 = PathNode(path=Path("file1.txt"))
@@ -516,7 +516,7 @@ def test_pytree_and_python_node_as_return(runner, tmp_path):
     source = """
     from pathlib import Path
     from typing import Any
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import PythonNode
     from typing import Dict
 
@@ -539,7 +539,7 @@ def test_more_nested_pytree_and_python_node_as_return_with_names(runner, tmp_pat
     source = """
     from pathlib import Path
     from typing import Any
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import PythonNode
     from typing import Dict
 
@@ -563,7 +563,7 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
     source = """
     from pathlib import Path
     from typing import Any
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import PythonNode
     from typing import Dict
 
@@ -582,7 +582,7 @@ def test_more_nested_pytree_and_python_node_as_return(runner, tmp_path):
 def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     source = """
     from pytask import PythonNode
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pathlib import Path
 
     node_text = PythonNode(name="text")
@@ -607,7 +607,7 @@ def test_execute_tasks_via_functional_api(tmp_path):
     source = """
     import sys
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import PathNode, PythonNode, build
 
     node_text = PythonNode()
@@ -643,7 +643,7 @@ def test_execute_tasks_multiple_times_via_api(tmp_path):
     """See #625."""
     source = """
     import pathlib
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import build, task
     import sys
 
@@ -668,7 +668,7 @@ def test_pytask_on_a_module_that_uses_the_functional_api(tmp_path):
     source = """
     from pytask import task, ExitCode, build
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
 
     def task_example(): pass
 
@@ -691,7 +691,7 @@ def test_pass_non_task_to_functional_api_that_are_ignored():
 def test_multiple_product_annotations(runner, tmp_path):
     source = """
     from pytask import Product
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pathlib import Path
 
     def task_first(
@@ -758,7 +758,7 @@ def test_hashing_works(tmp_path):
     """Use subprocess or otherwise the cache is filled from other tests."""
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
 
     def task_example() -> Annotated[str, Path("file.txt")]:
         return "Hello, World!"
@@ -781,7 +781,7 @@ def test_hashing_works(tmp_path):
 @pytest.mark.end_to_end
 def test_python_node_as_product_with_product_annotation(runner, tmp_path):
     source = """
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import Product, PythonNode
     from pathlib import Path
 
@@ -802,7 +802,7 @@ def test_python_node_as_product_with_product_annotation(runner, tmp_path):
 @pytest.mark.end_to_end
 def test_pickle_node_as_product_with_product_annotation(runner, tmp_path):
     source = """
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import Product, PickleNode
     from pathlib import Path
 
@@ -840,7 +840,7 @@ def test_check_if_root_nodes_are_available(tmp_path, runner):
 def test_check_if_root_nodes_are_available_w_name(tmp_path, runner):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated, Any
+    from typing import Annotated, Any
     from pytask import PathNode, PythonNode
 
     node1 = PathNode(name="input1", path=Path(__file__).parent / "in.txt")
@@ -894,7 +894,7 @@ def test_error_when_node_state_throws_error(runner, tmp_path):
 @pytest.mark.end_to_end
 def test_task_is_not_reexecuted(runner, tmp_path):
     source = """
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pathlib import Path
 
     def task_first() -> Annotated[str, Path("out.txt")]:
@@ -981,7 +981,7 @@ def test_collect_task_without_path(runner, tmp_path):
 def test_download_file(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from upath import UPath
 
     url = UPath(

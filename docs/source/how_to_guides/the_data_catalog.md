@@ -110,7 +110,7 @@ The task could look like this.
 ```python
 from pathlib import Path
 from pytask import task
-from typing_extensions import Annotated
+from typing import Annotated
 
 from my_project.config import DATA_NAMES
 from my_project.config import MODEL_NAMES

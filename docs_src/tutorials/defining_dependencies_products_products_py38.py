@@ -1,9 +1,9 @@
 from pathlib import Path
+from typing import Annotated
 
 import numpy as np
 import pandas as pd
 from my_project.config import BLD
-from typing_extensions import Annotated
 
 from pytask import Product
 

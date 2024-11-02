@@ -5,7 +5,6 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Generator
 
 import click
 from attrs import define
@@ -19,6 +18,8 @@ from _pytask.warnings_utils import catch_warnings_for_item
 from _pytask.warnings_utils import parse_filterwarnings
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from rich.console import Console
     from rich.console import ConsoleOptions
     from rich.console import RenderResult

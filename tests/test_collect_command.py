@@ -408,7 +408,7 @@ def test_task_name_is_shortened(runner, tmp_path):
 def test_python_node_is_collected(runner, tmp_path):
     source = """
     from pytask import Product
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pathlib import Path
 
     def task_example(
@@ -433,7 +433,7 @@ def test_python_node_is_collected(runner, tmp_path):
 def test_none_is_a_python_node(runner, tmp_path):
     source = """
     from pytask import Product
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pathlib import Path
 
     def task_example(
@@ -458,7 +458,7 @@ def test_none_is_a_python_node(runner, tmp_path):
 def test_python_nodes_are_aggregated_into_one(runner, tmp_path):
     source = """
     from pytask import Product
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pathlib import Path
 
     def task_example(
@@ -483,7 +483,7 @@ def test_python_nodes_are_aggregated_into_one(runner, tmp_path):
 @pytest.mark.end_to_end
 def test_node_protocol_for_custom_nodes(runner, tmp_path):
     source = """
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import Product
     from attrs import define
     from pathlib import Path
@@ -516,7 +516,7 @@ def test_node_protocol_for_custom_nodes(runner, tmp_path):
 @pytest.mark.end_to_end
 def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     source = """
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import Product
     from pathlib import Path
     from attrs import define
@@ -560,7 +560,7 @@ def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
 def test_setting_name_for_python_node_via_annotation(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import Product, PythonNode
     from typing import Any
 
@@ -582,7 +582,7 @@ def test_more_nested_pytree_and_python_node_as_return(runner, snapshot_cli, tmp_
     source = """
     from pathlib import Path
     from typing import Any
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import PythonNode
     from typing import Dict
 
@@ -609,7 +609,7 @@ def test_more_nested_pytree_and_python_node_as_return_with_names(
     source = """
     from pathlib import Path
     from typing import Any
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import PythonNode
     from typing import Dict
 
@@ -641,7 +641,7 @@ def test_more_nested_pytree_and_python_node_as_return_with_names(
 def test_collect_task_with_provisional_path_node_as_product(runner, tmp_path, node_def):
     source = f"""
     from pytask import DirectoryNode, Product
-    from typing_extensions import Annotated, List
+    from typing import Annotated, List
     from pathlib import Path
 
     def task_example({node_def}: ...
@@ -672,7 +672,7 @@ def test_collect_task_with_provisional_path_node_as_product(runner, tmp_path, no
 @pytest.mark.end_to_end
 def test_collect_task_with_provisional_dependencies(runner, tmp_path):
     source = """
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import DirectoryNode
     from pathlib import Path
 
@@ -692,7 +692,7 @@ def test_collect_task_with_provisional_dependencies(runner, tmp_path):
 @pytest.mark.end_to_end
 def test_collect_custom_node_receives_default_name(runner, tmp_path):
     source = """
-    from typing_extensions import Annotated
+    from typing import Annotated
 
     class CustomNode:
         name: str = ""

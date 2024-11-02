@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 import textwrap
 
 import pytest
@@ -475,7 +476,7 @@ def test_task_receives_unknown_kwarg(runner, tmp_path):
 @pytest.mark.end_to_end
 def test_task_receives_namedtuple(runner, tmp_path):
     source = """
-    from typing_extensions import NamedTuple, Annotated
+    from typing import Annotated, NamedTuple
     from pathlib import Path
     from pytask import Product, PythonNode, task
 
@@ -505,7 +506,7 @@ def test_task_kwargs_overwrite_default_arguments(runner, tmp_path):
     source = """
     from pytask import Product, task
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
 
     @task(kwargs={
         "in_path": Path("in.txt"), "addition": "world!", "out_path": Path("out.txt")
@@ -534,7 +535,7 @@ def test_task_kwargs_overwrite_default_arguments(runner, tmp_path):
 def test_return_with_task_decorator(runner, tmp_path, node_def):
     source = f"""
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import task, PathNode
 
     @task(produces={node_def})
@@ -558,7 +559,7 @@ def test_return_with_task_decorator(runner, tmp_path, node_def):
 def test_return_with_tuple_and_task_decorator(runner, tmp_path, node_def):
     source = f"""
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import task, PathNode
 
     @task(produces={node_def})
@@ -576,7 +577,7 @@ def test_return_with_tuple_and_task_decorator(runner, tmp_path, node_def):
 def test_error_when_function_is_defined_outside_loop_body(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import task, Product
 
     def func(path: Annotated[Path, Product]):
@@ -596,7 +597,7 @@ def test_error_when_function_is_defined_outside_loop_body(runner, tmp_path):
 def test_error_when_function_is_defined_outside_loop_body_with_id(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import task
     from pytask import Product
 
@@ -618,7 +619,7 @@ def test_task_will_be_executed_after_another_one_with_string(runner, tmp_path):
     source = """
     from pytask import task
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
 
     @task(after="task_first")
     def task_second():
@@ -650,7 +651,7 @@ def test_task_will_be_executed_after_another_one_with_function(
     source = f"""
     from pytask import task
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
 
     {decorator}
     def task_first() -> Annotated[str, Path("out.txt")]:
@@ -668,13 +669,18 @@ def test_task_will_be_executed_after_another_one_with_function(
 
 @pytest.mark.end_to_end
 @pytest.mark.parametrize("decorator", ["", "@task"])
+@pytest.mark.xfail(
+    reason="Wrong python interpreter picked up in CI?",
+    condition=sys.platform == "win32",
+    strict=True,
+)
 def test_task_will_be_executed_after_another_one_with_function_session(
     tmp_path, decorator
 ):
     source = f"""
     from pytask import task, ExitCode, build
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
 
     {decorator}
     def task_first() -> Annotated[str, Path("out.txt")]:
@@ -689,7 +695,10 @@ def test_task_will_be_executed_after_another_one_with_function_session(
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
-    result = subprocess.run(("python",), cwd=tmp_path, capture_output=True, check=False)
+    result = subprocess.run(
+        ("python", "task_example.py"), cwd=tmp_path, capture_output=True, check=False
+    )
+    assert "2  Succeeded" in result.stdout.decode()
     assert result.returncode == ExitCode.OK
 
 
@@ -698,7 +707,7 @@ def test_raise_error_for_wrong_after_expression(runner, tmp_path):
     source = """
     from pytask import task
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
 
     @task(after="(")
     def task_example() -> Annotated[str, Path("out.txt")]:

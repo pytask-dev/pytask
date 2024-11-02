@@ -1,7 +1,8 @@
+from typing import Annotated
+
 import numpy as np
 import pandas as pd
 from my_project.config import data_catalog
-from typing_extensions import Annotated
 
 from pytask import PickleNode
 from pytask import Product

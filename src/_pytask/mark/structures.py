@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import Iterable
-from typing import Mapping
 
 from attrs import define
 from attrs import field
@@ -14,17 +13,29 @@ from _pytask.mark_utils import get_all_marks
 from _pytask.models import CollectionMetadata
 from _pytask.typing import is_task_function
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from collections.abc import Mapping
+
 
 @define(frozen=True)
 class Mark:
-    """A class for a mark containing the name, positional and keyword arguments."""
+    """A class for a mark containing the name, positional and keyword arguments.
+
+    Attributes
+    ----------
+    name
+        Name of the mark.
+    args
+        Positional arguments of the mark decorator.
+    kwargs
+        Keyword arguments of the mark decorator.
+
+    """
 
     name: str
-    """str: Name of the mark."""
     args: tuple[Any, ...]
-    """Tuple[Any]: Positional arguments of the mark decorator."""
     kwargs: Mapping[str, Any]
-    """Mapping[str, Any]: Keyword arguments of the mark decorator."""
 
     def combined_with(self, other: Mark) -> Mark:
         """Return a new Mark which is a combination of this Mark and another Mark.
@@ -33,7 +44,7 @@ class Mark:
 
         Parameters
         ----------
-        other : pytask.mark.structures.Mark
+        other
             The mark to combine with.
 
         Returns

@@ -27,11 +27,11 @@ from __future__ import annotations
 import ast
 import enum
 import re
+from collections.abc import Iterator
+from collections.abc import Mapping
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 from typing import Callable
-from typing import Iterator
-from typing import Mapping
-from typing import Sequence
 
 from attrs import define
 

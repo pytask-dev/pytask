@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import Iterable
 from typing import Literal
 
 import click
@@ -36,6 +35,7 @@ from _pytask.shared import to_list
 from _pytask.traceback import Traceback
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from typing import NoReturn
 
     from _pytask.node_protocols import PTask
@@ -210,8 +210,7 @@ def build(  # noqa: C901, PLR0912, PLR0913
             "task_files": task_files,
             "trace": trace,
             "verbose": verbose,
-            **kwargs,
-        }
+        } | kwargs
 
         if "command" not in raw_config:
             pm = get_plugin_manager()

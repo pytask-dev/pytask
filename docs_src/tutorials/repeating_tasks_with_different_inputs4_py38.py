@@ -1,6 +1,5 @@
 from pathlib import Path
-
-from typing_extensions import Annotated
+from typing import Annotated
 
 from pytask import Product
 from pytask import task

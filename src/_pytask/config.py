@@ -65,8 +65,8 @@ IS_FILE_SYSTEM_CASE_SENSITIVE = is_file_system_case_sensitive()
 def pytask_configure(pm: PluginManager, raw_config: dict[str, Any]) -> dict[str, Any]:
     """Configure pytask."""
     # Add all values by default so that many plugins do not need to copy over values.
-    config = {"pm": pm, "markers": {}, **raw_config}
-    config["markers"] = parse_markers(config["markers"])
+    config = {"pm": pm, "markers": {}} | raw_config
+    config["markers"] = parse_markers(config["markers"])  # type: ignore[arg-type]
 
     pm.hook.pytask_parse_config(config=config)
     pm.hook.pytask_post_parse(config=config)

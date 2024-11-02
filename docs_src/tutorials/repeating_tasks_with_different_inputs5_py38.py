@@ -1,7 +1,6 @@
 from pathlib import Path
+from typing import Annotated
 from typing import NamedTuple
-
-from typing_extensions import Annotated
 
 from pytask import Product
 from pytask import task

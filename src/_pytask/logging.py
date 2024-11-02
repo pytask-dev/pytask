@@ -104,8 +104,7 @@ def _format_plugin_names_and_versions(
         # Gets us name and version!
         name = f"{dist.project_name}-{dist.version}"
         # Questionable convenience, but it keeps things short.
-        if name.startswith("pytask-"):
-            name = name[7:]
+        name = name.removeprefix("pytask-")
         # We decided to print python package names they can have more than one plugin.
         if name not in values:
             values.append(name)

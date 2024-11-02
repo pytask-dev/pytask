@@ -62,7 +62,7 @@ If you want to refresh your knowledge about type hints, read
 
 ````
 
-````{tab-item} Python 3.8+
+````{tab-item} Python 3.9
 
 The task accepts the argument `path` that points to the file where the data set will be
 stored. The path is passed to the task via the default value, `BLD / "data.pkl"`. To

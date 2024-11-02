@@ -1,8 +1,7 @@
 from pathlib import Path
-from typing import Dict
+from typing import Annotated
 
 from my_project.config import BLD
-from typing_extensions import Annotated
 
 from pytask import Product
 
@@ -11,6 +10,6 @@ _PRODUCTS = {"plot_0": BLD / "plot_0.png", "plot_1": BLD / "plot_1.png"}
 
 
 def task_plot_data(
-    path_to_data: Dict[str, Path] = _DEPENDENCIES,
-    path_to_plots: Annotated[Dict[str, Path], Product] = _PRODUCTS,
+    path_to_data: dict[str, Path] = _DEPENDENCIES,
+    path_to_plots: Annotated[dict[str, Path], Product] = _PRODUCTS,
 ) -> None: ...

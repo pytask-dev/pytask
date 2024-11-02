@@ -46,7 +46,7 @@ def test_collect_file_with_relative_path(tmp_path, depends_on, produces):
 def test_relative_path_of_path_node(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import Product, PathNode
 
     def task_example(
@@ -350,7 +350,7 @@ def test_collect_string_product_raises_error_with_annotation(runner, tmp_path):
     """The string is not converted to a path."""
     source = """
     from pytask import Product
-    from typing_extensions import Annotated
+    from typing import Annotated
 
     def task_write_text(out: Annotated[str, Product] = "out.txt") -> None:
         out.touch()
@@ -364,7 +364,7 @@ def test_collect_string_product_raises_error_with_annotation(runner, tmp_path):
 def test_setting_name_for_path_node_via_annotation(tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import Product, PathNode
 
     def task_example(
@@ -384,7 +384,7 @@ def test_setting_name_for_path_node_via_annotation(tmp_path):
 def test_error_when_dependency_is_defined_in_kwargs_and_annotation(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import Product, PathNode, PythonNode, task
 
     @task(kwargs={"in_": "world"})
@@ -404,7 +404,7 @@ def test_error_when_dependency_is_defined_in_kwargs_and_annotation(runner, tmp_p
 def test_error_when_product_is_defined_in_kwargs_and_annotation(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import Product, PathNode, task
 
     node = PathNode(path=Path("out.txt"), name="product")
@@ -424,7 +424,7 @@ def test_error_when_using_kwargs_and_node_in_annotation(runner, tmp_path):
     source = """
     from pathlib import Path
     from pytask import task, Product
-    from typing_extensions import Annotated
+    from typing import Annotated
 
     @task(kwargs={"path": Path("file.txt")})
     def task_example(path: Annotated[Path, Path("file.txt"), Product]) -> None: ...
@@ -471,7 +471,7 @@ def test_error_when_path_product_is_directory(runner, tmp_path, node):
     source = f"""
     from pathlib import Path
     from pytask import PickleNode, Product, PathNode
-    from typing_extensions import Annotated
+    from typing import Annotated
     from typing import Any
 
     def task_example(path: Annotated[Any, Product] = {node}): ...
@@ -495,7 +495,7 @@ def test_default_name_of_path_nodes(tmp_path, node):
     source = f"""
     from pathlib import Path
     from pytask import PickleNode, Product, PathNode
-    from typing_extensions import Annotated
+    from typing import Annotated
     from typing import Any
 
     def task_example() -> Annotated[str, {node}]:
@@ -511,7 +511,7 @@ def test_default_name_of_path_nodes(tmp_path, node):
 @pytest.mark.end_to_end
 def test_error_when_return_annotation_cannot_be_parsed(runner, tmp_path):
     source = """
-    from typing_extensions import Annotated
+    from typing import Annotated
 
     def task_example() -> Annotated[int, 1]: ...
     """
@@ -563,7 +563,7 @@ def test_module_can_be_collected(runner, tmp_path):
 )
 def test_error_with_multiple_dependency_annotations(runner, tmp_path, second_node):
     source = f"""
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import PythonNode, PathNode
     from pathlib import Path
 
@@ -583,7 +583,7 @@ def test_error_if_multiple_return_annotations_are_used(runner, tmp_path):
     source = """
     from pytask import task
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
 
     @task(produces=Path("file.txt"))
     def task_example() -> Annotated[str, Path("file.txt")]: ...

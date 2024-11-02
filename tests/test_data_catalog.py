@@ -49,7 +49,7 @@ def test_change_default_node():
 def test_use_data_catalog_in_workflow(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
 
     from pytask import DataCatalog
 
@@ -89,7 +89,7 @@ def test_use_data_catalog_in_workflow(runner, tmp_path):
 def test_use_data_catalog_w_config(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import DataCatalog
 
     data_catalog = DataCatalog()
@@ -124,7 +124,7 @@ def _flush(child):
 def test_use_data_catalog_in_terminal(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import DataCatalog
 
     data_catalog = DataCatalog()
@@ -153,7 +153,7 @@ def test_use_data_catalog_in_terminal(runner, tmp_path):
 def test_use_data_catalog_with_different_name(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import DataCatalog
 
     data_catalog = DataCatalog(name="blob")
@@ -174,7 +174,7 @@ def test_use_data_catalog_with_different_name(runner, tmp_path):
 def test_use_data_catalog_with_different_path(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated
+    from typing import Annotated
     from pytask import DataCatalog
 
     data_catalog = DataCatalog(name="blob", path=Path(__file__).parent / ".data")
@@ -213,7 +213,7 @@ def test_adding_a_python_node():
 def test_use_data_catalog_with_provisional_node(runner, tmp_path):
     source = """
     from pathlib import Path
-    from typing_extensions import Annotated, List
+    from typing import Annotated, List
 
     from pytask import DataCatalog
     from pytask import DirectoryNode

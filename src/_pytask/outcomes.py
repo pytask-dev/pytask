@@ -6,9 +6,10 @@ from enum import Enum
 from enum import IntEnum
 from enum import auto
 from typing import TYPE_CHECKING
-from typing import Sequence
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
 

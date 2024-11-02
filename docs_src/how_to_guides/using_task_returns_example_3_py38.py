@@ -1,6 +1,5 @@
 from pathlib import Path
-
-from typing_extensions import Annotated
+from typing import Annotated
 
 
 def task_create_files() -> Annotated[str, (Path("file1.txt"), Path("file2.txt"))]:

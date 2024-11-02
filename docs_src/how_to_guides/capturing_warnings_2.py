@@ -1,7 +1,7 @@
 from pathlib import Path
+from typing import Annotated
 
 import pandas as pd
-from typing_extensions import Annotated
 
 import pytask
 from pytask import Product
