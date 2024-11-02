@@ -2740,6 +2740,12 @@ wheels = [
 ]
 
 [[package]]
+name = "pygraphviz"
+version = "1.11"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/19/db/cc09516573e79a35ac73f437bdcf27893939923d1d06b439897ffc7f3217/pygraphviz-1.11.zip", hash = "sha256:a97eb5ced266f45053ebb1f2c6c6d29091690503e3a5c14be7f908b37b06f2d4", size = 120803 }
+
+[[package]]
 name = "pynacl"
 version = "1.5.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2783,7 +2789,7 @@ wheels = [
 
 [[package]]
 name = "pytask"
-version = "0.5.2.dev35+g3463bdb.d20241102"
+version = "0.5.2.dev37+g53eb5ce"
 source = { editable = "." }
 dependencies = [
     { name = "attrs" },
@@ -2836,6 +2842,7 @@ typing = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "pygraphviz" },
     { name = "tox-uv" },
 ]
 
@@ -2881,7 +2888,10 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "tox-uv", specifier = ">=1.7.0" }]
+dev = [
+    { name = "pygraphviz" },
+    { name = "tox-uv", specifier = ">=1.7.0" },
+]
 
 [[package]]
 name = "pytest"
