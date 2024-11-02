@@ -84,19 +84,20 @@ Tracker = "https://github.com/pytask-dev/pytask/issues"
 [project.scripts]
 pytask = "pytask:cli"
 
+[tool.uv.sources]
+pytask-parallel = { workspace = true }
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv]
+dev-dependencies = [
+    "tox-uv>=1.7.0", "pygraphviz"
+]
+
 [build-system]
 requires = ["hatchling", "hatch_vcs"]
 build-backend = "hatchling.build"
-
-[tool.rye]
-managed = true
-dev-dependencies = [
-    "tox-uv>=1.7.0",
-]
-
-[tool.rye.scripts]
-clean-docs = { cmd = "rm -rf docs/build" }
-build-docs = { cmd = "sphinx-build -b html docs/source docs/build" }
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/_pytask/_version.py"
