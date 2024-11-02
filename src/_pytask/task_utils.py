@@ -268,7 +268,7 @@ def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
     parsed_kwargs = _parse_task_kwargs(meta.kwargs)
 
     signature_kwargs = parse_keyword_arguments_from_signature_defaults(task)
-    meta.kwargs = {**signature_kwargs, **parsed_kwargs}
+    meta.kwargs = signature_kwargs | parsed_kwargs
 
     return parsed_name, task
 

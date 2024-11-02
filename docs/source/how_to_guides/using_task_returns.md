@@ -26,7 +26,7 @@ defines where the return of the function, a string, should be stored.
 
 ````
 
-````{tab-item} Python 3.8+
+````{tab-item} Python 3.9
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_1_py38.py
@@ -68,7 +68,7 @@ of the previous interfaces.
 
 ````
 
-````{tab-item} Python 3.8+
+````{tab-item} Python 3.9
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_3_py38.py
@@ -103,7 +103,7 @@ mapped to the defined nodes.
 
 ````
 
-````{tab-item} Python 3.8+
+````{tab-item} Python 3.9
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_4_py38.py

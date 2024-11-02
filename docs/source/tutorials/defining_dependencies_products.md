@@ -6,8 +6,8 @@ Defining dependencies and products also serves another purpose. By analyzing the
 pytask determines the order to run the tasks.
 
 This tutorial offers you different interfaces. If you are comfortable with type
-annotations or are not afraid to try them, look at the `Python 3.10+` or `3.8+` tabs.
-You find a tutorial on type hints {doc}`here <../type_hints>`.
+annotations or are not afraid to try them, look at the `Python 3.10+` or `3.9` tabs. You
+find a tutorial on type hints {doc}`here <../type_hints>`.
 
 If you want to avoid type annotations for now, look at the tab named `produces`.
 
@@ -60,7 +60,7 @@ task has finished, pytask will check whether the file exists.
 
 ````
 
-````{tab-item} Python 3.8+
+````{tab-item} Python 3.9
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py38.py
@@ -117,7 +117,7 @@ annotation are dependencies of the task.
 
 ````
 
-````{tab-item} Python 3.8+
+````{tab-item} Python 3.9
 :sync: python38plus
 
 To specify that the task relies on the data set `data.pkl`, you can add the path
@@ -169,7 +169,7 @@ are assumed to point to a location relative to the task module.
 
 ````
 
-````{tab-item} Python 3.8+
+````{tab-item} Python 3.9
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_py38.py
@@ -209,7 +209,7 @@ structures if needed.
 
 ````
 
-````{tab-item} Python 3.8+
+````{tab-item} Python 3.9
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple1_py38.py

@@ -63,7 +63,7 @@ of our tasks. Here we see again the signature of the task function.
 ```
 ````
 
-````{tab-item} Python 3.8+
+````{tab-item} Python 3.9
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py38.py
@@ -107,7 +107,7 @@ Use `data_catalog["data"]` as an default argument to access the
 
 ````
 
-````{tab-item} Python 3.8+
+````{tab-item} Python 3.9
 :sync: python38plus
 
 Use `data_catalog["data"]` as an default argument to access the
@@ -167,7 +167,7 @@ Following one of the interfaces gives you immediate access to the
 
 ````
 
-````{tab-item} Python 3.8+
+````{tab-item} Python 3.9
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_3_py38.py
@@ -241,7 +241,7 @@ different node types which is not relevant now.
 
 ````
 
-````{tab-item} Python 3.8+
+````{tab-item} Python 3.9
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_5_py38.py

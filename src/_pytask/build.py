@@ -210,8 +210,7 @@ def build(  # noqa: C901, PLR0912, PLR0913
             "task_files": task_files,
             "trace": trace,
             "verbose": verbose,
-            **kwargs,
-        }
+        } | kwargs
 
         if "command" not in raw_config:
             pm = get_plugin_manager()

@@ -42,7 +42,7 @@ The result will be the following task.
 
 ````
 
-````{tab-item} Python 3.8+
+````{tab-item} Python 3.9
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py38.py
@@ -50,7 +50,7 @@ The result will be the following task.
 
 ````
 
-````{tab-item} Python 3.8+ & Return
+````{tab-item} Python 3.9 & Return
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py38_return.py
@@ -87,7 +87,7 @@ we arrive at the following class.
 
 ````
 
-````{tab-item} Python 3.8+
+````{tab-item} Python 3.9
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_3_py38.py
@@ -142,9 +142,9 @@ databases. [^kedro]
 
 ## References
 
-[^structural-subtyping]: Structural subtyping is similar to ABCs an approach in Python to enforce interfaces, but
-    it can be considered more pythonic since it is closer to duck typing. Hynek Schlawack
-    wrote a comprehensive
+[^structural-subtyping]: Structural subtyping is similar to ABCs an approach in Python to enforce interfaces,
+    but it can be considered more pythonic since it is closer to duck typing. Hynek
+    Schlawack wrote a comprehensive
     [guide on subclassing](https://hynek.me/articles/python-subclassing-redux/) that
     features protocols under "Type 2". Glyph wrote an introduction to protocols called
     [I want a new duck](https://glyph.twistedmatrix.com/2020/07/new-duck.html).

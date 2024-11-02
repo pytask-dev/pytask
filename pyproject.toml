@@ -11,11 +11,11 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Build Tools",
 ]
@@ -207,7 +207,11 @@ module = ["_pytask.hookspecs"]
 disable_error_code = ["empty-body"]
 
 [tool.refurb]
-python_version = "3.8"
+python_version = "3.9"
+
+[[tool.refurb.amend]]
+path = "src/_pytask/mark/structures.py"
+ignore = ["FURB173"]
 
 [tool.coverage.report]
 exclude_also = [
