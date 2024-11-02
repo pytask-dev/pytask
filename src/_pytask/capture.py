@@ -452,7 +452,7 @@ class FDCaptureBase(CaptureBase[AnyStr]):
             self.syscapture: CaptureBase[str] = SysCapture(targetfd)
         else:
             self.tmpfile = EncodedFile(
-                TemporaryFile(buffering=0),
+                TemporaryFile(buffering=0),  # noqa: SIM115
                 encoding="utf-8",
                 errors="replace",
                 newline="",
