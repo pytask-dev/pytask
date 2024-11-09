@@ -2,7 +2,8 @@ version = 1
 requires-python = ">=3.9"
 resolution-markers = [
     "python_full_version < '3.10'",
-    "python_full_version >= '3.10' and python_full_version < '3.12'",
+    "python_full_version == '3.10.*'",
+    "python_full_version == '3.11.*'",
     "python_full_version == '3.12.*'",
     "python_full_version >= '3.13'",
 ]
@@ -2225,7 +2226,8 @@ version = "1.24.4"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.10'",
-    "python_full_version >= '3.10' and python_full_version < '3.12'",
+    "python_full_version == '3.10.*'",
+    "python_full_version == '3.11.*'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a4/9b/027bec52c633f6556dba6b722d9a0befb40498b9ceddd29cbe67a45a127c/numpy-1.24.4.tar.gz", hash = "sha256:80f5e3a4e498641401868df4208b74581206afbee7cf7b8329daae82676d9463", size = 10911229 }
 wheels = [
@@ -2789,7 +2791,7 @@ wheels = [
 
 [[package]]
 name = "pytask"
-version = "0.5.2.dev37+g53eb5ce"
+version = "0.5.2.dev13+g5804f52.d20241108"
 source = { editable = "." }
 dependencies = [
     { name = "attrs" },
