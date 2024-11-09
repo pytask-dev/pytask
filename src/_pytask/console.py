@@ -147,11 +147,7 @@ def format_node_name(
     """Format the name of a node."""
     if isinstance(node, PPathNode):
         if node.name != node.path.as_posix():
-            # Use getattr with default because on existing projects PNode.attribute does
-            # not exist. Remove with v0.6.0.
-            if data_catalog_name := getattr(node, "attributes", {}).get(
-                DATA_CATALOG_NAME_FIELD
-            ):
+            if data_catalog_name := node.attributes.get(DATA_CATALOG_NAME_FIELD):
                 return Text(f"{data_catalog_name}::{node.name}")
             return Text(node.name)
         name = shorten_path(node.path, paths)
