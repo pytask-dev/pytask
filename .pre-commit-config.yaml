@@ -25,11 +25,11 @@ repos:
     -   id: python-no-log-warn
     -   id: text-unicode-replacement-char
 -   repo: https://github.com/aio-libs/sort-all
-    rev: v1.2.0
+    rev: v1.3.0
     hooks:
     -   id: sort-all
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.1
+    rev: v0.7.3
     hooks:
       - id: ruff-format
       - id: ruff
@@ -58,12 +58,12 @@ repos:
         ]
         files: (docs/.)
 -   repo: https://github.com/kynan/nbstripout
-    rev: 0.7.1
+    rev: 0.8.0
     hooks:
     -   id: nbstripout
         exclude: (docs)
 -   repo: https://github.com/crate-ci/typos
-    rev: v1.26.8
+    rev: typos-dict-v0.11.35
     hooks:
     -   id: typos
         exclude: (\.ipynb)
