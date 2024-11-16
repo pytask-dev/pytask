@@ -150,7 +150,7 @@ class PytaskPDB:
                 __import__(modname)
                 mod = sys.modules[modname]
 
-                # Handle --pdbcls=pdb:pdb.Pdb (useful e.g. with pdbpp).
+                # Handle --pdbcls=pdb:pdb.Pdb (useful e.g. with pdbpp or pdbp).
                 parts = classname.split(".")
                 pdb_cls = getattr(mod, parts[0])
                 for part in parts[1:]:
