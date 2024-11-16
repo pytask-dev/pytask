@@ -329,8 +329,8 @@ def test_pdb_interaction_capturing_twice(tmp_path):  # pragma: no cover
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_with_injected_do_debug(tmp_path):
-    """Simulates pdbpp, which injects Pdb into do_debug, and uses self.__class__ in
-    do_continue."""
+    """Simulates pdbpp or pdbp, which injects Pdb into do_debug, and uses self.__class__
+    in do_continue."""
     source = """
     import pdb
 
