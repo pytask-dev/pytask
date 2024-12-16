@@ -13,6 +13,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   control.
 - {pull}`656` fixes the return type of the hash function for {class}`PythonNode`s.
   Thanks to {user}`axtimhaus` for reporting the issue.
+- {pull}`657` documents `pipefunc`, another tool for executing graphs consisting out of
+  functions.
 
 ## 0.5.1 - 2024-07-20
 
