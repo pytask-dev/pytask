@@ -167,6 +167,7 @@ class PathNode(PPathNode):
 
     path: Path
     name: str = ""
+    attributes: dict[Any, Any] = field(factory=dict)
 
     @property
     def signature(self) -> str:
@@ -237,6 +238,7 @@ class PythonNode(PNode):
     value: Any | NoDefault = no_default
     hash: bool | Callable[[Any], int | str] = False
     node_info: NodeInfo | None = None
+    attributes: dict[Any, Any] = field(factory=dict)
 
     @property
     def signature(self) -> str:
@@ -307,6 +309,7 @@ class PickleNode(PPathNode):
 
     path: Path
     name: str = ""
+    attributes: dict[Any, Any] = field(factory=dict)
 
     @property
     def signature(self) -> str:
@@ -356,6 +359,7 @@ class DirectoryNode(PProvisionalNode):
     name: str = ""
     pattern: str = "*"
     root_dir: Path | None = None
+    attributes: dict[Any, Any] = field(factory=dict)
 
     @property
     def signature(self) -> str:
