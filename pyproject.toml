@@ -125,8 +125,6 @@ extend-include = ["*.ipynb"]
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "ANN101",
-    "ANN102",
     "ANN401", # flake8-annotate typing.Any
     "COM812", # Comply with ruff-format.
     "ISC001", # Comply with ruff-format.
@@ -150,7 +148,7 @@ ignore = [
 "scripts/*" = ["D", "INP001"]
 "docs/source/conf.py" = ["D401", "INP001"]
 "docs_src/*" = ["ARG001", "D", "INP001", "S301"]
-"docs_src/*/*.py" = ["FA100", "FA102", "PLR2004", "TCH"]
+"docs_src/*/*.py" = ["FA100", "FA102", "PLR2004", "TC"]
 "docs/source/how_to_guides/functional_interface*" = [
     "B018",
     "D",

@@ -36,8 +36,8 @@ if TYPE_CHECKING:
 
 
 __all__ = [
-    "Expression",
     "MARK_GEN",
+    "Expression",
     "Mark",
     "MarkDecorator",
     "MarkGenerator",
