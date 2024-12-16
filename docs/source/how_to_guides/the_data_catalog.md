@@ -122,7 +122,7 @@ for model_name in MODEL_NAMES:
 
         @task
         def fit_model(
-            path: Path = Path("...", data_name)
+            path: Path = Path("...", data_name),
         ) -> Annotated[
             Any, nested_data_catalogs[model_name][data_name]["fitted_model"]
         ]:

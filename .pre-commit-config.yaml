@@ -39,8 +39,8 @@ repos:
     -   id: mdformat
         additional_dependencies: [
             mdformat-gfm,
-            mdformat-black,
-            mdformat-pyproject,
+            mdformat-ruff,
+            mdformat-pyproject>=0.0.2,
         ]
         files: (README\.md)
 -   repo: https://github.com/executablebooks/mdformat
@@ -49,8 +49,8 @@ repos:
     -   id: mdformat
         additional_dependencies: [
             mdformat-myst,
-            mdformat-black,
-            mdformat-pyproject,
+            mdformat-ruff,
+            mdformat-pyproject>=0.0.2,
         ]
         files: (docs/.)
 -   repo: https://github.com/kynan/nbstripout
