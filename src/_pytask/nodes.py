@@ -7,7 +7,7 @@ import inspect
 import pickle
 from contextlib import suppress
 from os import stat_result
-from pathlib import Path  # noqa: TCH003
+from pathlib import Path  # noqa: TC003
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable

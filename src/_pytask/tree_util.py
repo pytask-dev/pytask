@@ -14,8 +14,8 @@ from optree import tree_map_with_path as _optree_tree_map_with_path
 from optree import tree_structure as _optree_tree_structure
 
 __all__ = [
-    "PyTree",
     "TREE_UTIL_LIB_DIRECTORY",
+    "PyTree",
     "tree_flatten_with_path",
     "tree_leaves",
     "tree_map",
