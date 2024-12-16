@@ -24,10 +24,6 @@ repos:
     -   id: python-check-mock-methods
     -   id: python-no-log-warn
     -   id: text-unicode-replacement-char
--   repo: https://github.com/aio-libs/sort-all
-    rev: v1.3.0
-    hooks:
-    -   id: sort-all
 -   repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.8.3
     hooks:
