@@ -126,3 +126,8 @@ General
 ## [zenml](https://github.com/zenml-io/zenml)
 
 ## [flyte](https://github.com/flyteorg/flyte)
+
+## [pipefunc](https://github.com/pipefunc/pipefunc)
+
+A tool for executing graphs made out of functions. More focused on computational
+compared to workflow graphs.
