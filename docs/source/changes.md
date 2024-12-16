@@ -11,6 +11,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`640` stops the live display when an exception happened during the execution.
 - {pull}`646` adds a `.gitignore` to the `.pytask/` folder to exclude it from version
   control.
+- {pull}`656` fixes the return type of the hash function for {class}`PythonNode`s.
+  Thanks to {user}`axtimhaus` for reporting the issue.
 
 ## 0.5.1 - 2024-07-20
 

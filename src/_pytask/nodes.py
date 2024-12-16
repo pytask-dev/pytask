@@ -216,7 +216,7 @@ class PythonNode(PNode):
         Whether the value should be hashed to determine the state. Use ``True`` for
         objects that are hashable like strings and tuples. For dictionaries and other
         non-hashable objects, you need to provide a function that can hash these
-        objects.
+        objects. The function should return either an integer or a string.
     node_info
         The infos acquired while collecting the node.
 
@@ -235,7 +235,7 @@ class PythonNode(PNode):
 
     name: str = ""
     value: Any | NoDefault = no_default
-    hash: bool | Callable[[Any], bool] = False
+    hash: bool | Callable[[Any], int | str] = False
     node_info: NodeInfo | None = None
 
     @property
@@ -269,7 +269,8 @@ class PythonNode(PNode):
         If ``hash = False``, the function returns ``"0"``, a constant hash value, so the
         :class:`PythonNode` is ignored when checking for a changed state of the task.
 
-        If ``hash`` is a callable, then use this function to calculate a hash.
+        If ``hash`` is a callable, then use this function to calculate a hash expecting
+        an integer or string.
 
         If ``hash = True``, the builtin ``hash()`` function (`link
         <https://docs.python.org/3.11/library/functions.html?highlight=hash#hash>`_) is

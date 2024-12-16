@@ -72,7 +72,8 @@ $ pip install deepdiff
 $ conda install deepdiff
 ```
 
-Then, create the hash function and pass it to the node.
+Then, create the hash function and pass it to the node. Make sure it returns either an
+integer or a string.
 
 `````{tab-set}
 

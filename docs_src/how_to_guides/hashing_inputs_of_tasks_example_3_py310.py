@@ -9,7 +9,7 @@ from pytask import Product
 from pytask import PythonNode
 
 
-def calculate_hash(x: Any) -> str:
+def calculate_hash(x: Any) -> int | str:
     return DeepHash(x)[x]
 
 
