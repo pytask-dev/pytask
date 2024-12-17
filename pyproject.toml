@@ -31,7 +31,6 @@ dependencies = [
     "rich",
     "sqlalchemy>=2",
     'tomli>=1; python_version < "3.11"',
-    'typing-extensions; python_version < "3.9"',
     "universal-pathlib>=0.2.2",
 ]
 
