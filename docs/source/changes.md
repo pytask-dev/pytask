@@ -5,7 +5,7 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.5.2 - 2024-12-16
+## 0.5.2 - 2024-12-19
 
 - {pull}`633` adds support for Python 3.13 and drops support for 3.8.
 - {pull}`640` stops the live display when an exception happened during the execution.
