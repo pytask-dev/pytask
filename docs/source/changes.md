@@ -5,12 +5,16 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.5.2 - 2024-09-15
+## 0.5.2 - 2024-12-19
 
 - {pull}`633` adds support for Python 3.13 and drops support for 3.8.
 - {pull}`640` stops the live display when an exception happened during the execution.
 - {pull}`646` adds a `.gitignore` to the `.pytask/` folder to exclude it from version
   control.
+- {pull}`656` fixes the return type of the hash function for {class}`PythonNode`s.
+  Thanks to {user}`axtimhaus` for reporting the issue.
+- {pull}`657` documents `pipefunc`, another tool for executing graphs consisting out of
+  functions.
 
 ## 0.5.1 - 2024-07-20
 

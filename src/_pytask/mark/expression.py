@@ -81,7 +81,7 @@ class ParseError(Exception):
 
 
 class Scanner:
-    __slots__ = ("tokens", "current")
+    __slots__ = ("current", "tokens")
 
     def __init__(self, input_: str) -> None:
         self.tokens = self.lex(input_)

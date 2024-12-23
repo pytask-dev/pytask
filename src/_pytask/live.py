@@ -114,7 +114,7 @@ class LiveManager:
             self._live.start()
         except LiveError:
             msg = (
-                "pytask tried to launch a second live display which is impossible. the "
+                "pytask tried to launch a second live display which is impossible. The "
                 "issue occurs when you use pytask on the command line on a task module "
                 "that uses the programmatic interface of pytask at the same time. "
                 "Use either the command line or the programmatic interface."

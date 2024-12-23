@@ -24,12 +24,8 @@ repos:
     -   id: python-check-mock-methods
     -   id: python-no-log-warn
     -   id: text-unicode-replacement-char
--   repo: https://github.com/aio-libs/sort-all
-    rev: v1.2.0
-    hooks:
-    -   id: sort-all
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.1
+    rev: v0.8.4
     hooks:
       - id: ruff-format
       - id: ruff
@@ -38,32 +34,32 @@ repos:
     hooks:
     -   id: refurb
 -   repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.18
+    rev: 0.7.21
     hooks:
     -   id: mdformat
         additional_dependencies: [
             mdformat-gfm,
-            mdformat-black,
-            mdformat-pyproject,
+            mdformat-ruff,
+            mdformat-pyproject>=0.0.2,
         ]
         files: (README\.md)
 -   repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.18
+    rev: 0.7.21
     hooks:
     -   id: mdformat
         additional_dependencies: [
             mdformat-myst,
-            mdformat-black,
-            mdformat-pyproject,
+            mdformat-ruff,
+            mdformat-pyproject>=0.0.2,
         ]
         files: (docs/.)
 -   repo: https://github.com/kynan/nbstripout
-    rev: 0.7.1
+    rev: 0.8.1
     hooks:
     -   id: nbstripout
         exclude: (docs)
 -   repo: https://github.com/crate-ci/typos
-    rev: v1.26.8
+    rev: v1.28.4
     hooks:
     -   id: typos
         exclude: (\.ipynb)

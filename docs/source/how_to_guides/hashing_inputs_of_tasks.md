@@ -44,7 +44,7 @@ the `__hash__()` method of the object.
 Some objects like {class}`tuple` and {class}`typing.NamedTuple` are hashable and return
 correct hashes by default.
 
-```python
+```pycon
 >>> hash((1, 2))
 -3550055125485641917
 ```
@@ -54,7 +54,7 @@ from interpreter session to interpreter session for security reasons (see
 {meth}`object.__hash__` for more information). pytask will hash them using the
 {mod}`hashlib` module to create a stable hash.
 
-```python
+```pycon
 >>> from pytask import PythonNode
 >>> node = PythonNode(value="Hello, World!", hash=True)
 >>> node.state()
@@ -72,7 +72,8 @@ $ pip install deepdiff
 $ conda install deepdiff
 ```
 
-Then, create the hash function and pass it to the node.
+Then, create the hash function and pass it to the node. Make sure it returns either an
+integer or a string.
 
 `````{tab-set}
 

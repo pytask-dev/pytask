@@ -257,8 +257,7 @@ Applied to the tasks from before, we could have written `task_plot_data` as
 
 ```python
 @task(after=task_create_random_data)
-def task_plot_data(...):
-    ...
+def task_plot_data(): ...
 ```
 
 You can also pass a list of task functions.
@@ -268,8 +267,7 @@ tasks. Here, we can pass the function name or a significant part of the function
 
 ```python
 @task(after="random_data")
-def task_plot_data(...):
-    ...
+def task_plot_data(): ...
 ```
 
 You will learn more about expressions in {doc}`selecting_tasks`.

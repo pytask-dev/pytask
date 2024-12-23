@@ -89,6 +89,6 @@ content to a `.txt` file.
 ```
 
 ```{important}
-The generated tasks need to be decoratored with {func}`@task <pytask.task>` to be
+The generated tasks need to be decorated with {func}`@task <pytask.task>` to be
 collected.
 ```

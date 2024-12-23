@@ -78,7 +78,7 @@ _DEVELOPMENT_STATUS_CLASSIFIERS = (
 )
 
 
-_EXCLUDED_PACKAGES = ["pytask-io", "pytask-list"]
+_EXCLUDED_PACKAGES = ["pytask-io", "pytask-list", "pytask-queue"]
 
 
 def _escape_rst(text: str) -> str:
