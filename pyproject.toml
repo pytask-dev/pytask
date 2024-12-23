@@ -92,7 +92,7 @@ members = ["packages/*"]
 
 [tool.uv]
 dev-dependencies = [
-    "tox-uv>=1.7.0", "pygraphviz"
+    "tox-uv>=1.7.0", "pygraphviz;platform_system=='Linux'",
 ]
 
 [build-system]
