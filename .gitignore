@@ -27,3 +27,4 @@ tests/test_jupyter/*.txt
 .ruff_cache
 .venv
 docs/jupyter_execute
+uv.lock
