@@ -93,10 +93,9 @@ class DataCatalog:
         # Initialize the data catalog with persisted nodes from previous runs.
         for path in self.path.glob("*-node.pkl"):
             node = pickle.loads(path.read_bytes())  # noqa: S301
-
-            # To ease transition from nodes with and without attributes and it if it
-            # does not exist. Necessary since #650. Remove in v0.6.0.
             if not hasattr(node, "attributes"):
+                warn_about_upcoming_attributes_field_on_nodes()
+            else:
                 node.attributes = {DATA_CATALOG_NAME_FIELD: self.name}
             self._entries[node.name] = node
 
