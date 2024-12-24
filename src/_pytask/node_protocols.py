@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
 from typing import Protocol
 from typing import runtime_checkable
-import warnings
 
 if TYPE_CHECKING:
     from pathlib import Path

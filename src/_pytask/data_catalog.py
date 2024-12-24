@@ -20,9 +20,10 @@ from _pytask.config_utils import find_project_root_and_config
 from _pytask.data_catalog_utils import DATA_CATALOG_NAME_FIELD
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.models import NodeInfo
-from _pytask.node_protocols import PNode, warn_about_upcoming_attributes_field_on_nodes
+from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
+from _pytask.node_protocols import warn_about_upcoming_attributes_field_on_nodes
 from _pytask.nodes import PickleNode
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
