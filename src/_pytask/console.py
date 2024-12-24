@@ -153,7 +153,6 @@ def format_node_name(
                 DATA_CATALOG_NAME_FIELD
             ):
                 return Text(f"{data_catalog_name}::{node.name}")
-            warn_about_upcoming_attributes_field_on_nodes()
             return Text(node.name)
         name = shorten_path(node.path, paths)
         return Text(name)
