@@ -12,6 +12,7 @@ from rich.padding import Padding
 from rich.panel import Panel
 
 from _pytask.console import console
+from _pytask.console import create_panel_title
 from _pytask.pluginmanager import hookimpl
 from _pytask.warnings_utils import WarningReport
 from _pytask.warnings_utils import catch_warnings_for_item
@@ -82,7 +83,9 @@ class WarningsNameSpace:
         """Log warnings at the end of a session."""
         if session.warnings:
             renderable = _WarningsRenderable(session.warnings)
-            panel = Panel(renderable, title="Warnings", style="warning")
+            panel = Panel(
+                renderable, title=create_panel_title("Warnings"), style="warning"
+            )
             console.print(panel)
 
 

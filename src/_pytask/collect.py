@@ -7,6 +7,7 @@ import itertools
 import os
 import sys
 import time
+import warnings
 from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -384,6 +385,16 @@ def pytask_collect_node(  # noqa: C901, PLR0912
 
     """
     node = node_info.value
+
+    if isinstance(node, (PNode, PProvisionalNode)) and not hasattr(node, "attributes"):
+        warnings.warn(
+            "PNode and PProvisionalNode will require an 'attributes' field starting "
+            "with pytask v0.6.0. It is a dictionary with any type of key and values "
+            "similar to PTask. See https://tinyurl.com/pytask-custom-nodes for more "
+            "information about adjusting your custom nodes.",
+            stacklevel=1,
+            category=FutureWarning,
+        )
 
     if isinstance(node, DirectoryNode):
         if node.root_dir is None:

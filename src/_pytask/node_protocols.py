@@ -21,7 +21,6 @@ class PNode(Protocol):
     """Protocol for nodes."""
 
     name: str
-    attributes: dict[Any, Any]
 
     @property
     def signature(self) -> str:
@@ -117,7 +116,6 @@ class PProvisionalNode(Protocol):
     """
 
     name: str
-    attributes: dict[Any, Any]
 
     @property
     def signature(self) -> str:

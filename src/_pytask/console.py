@@ -296,10 +296,15 @@ def create_summary_panel(
 
     return Panel(
         grid,
-        title="[bold #f2f2f2]Summary[/]",
+        title=create_panel_title("Summary"),
         expand=False,
         style="none",
         border_style=outcome_enum.FAIL.style
         if counts[outcome_enum.FAIL]
         else outcome_enum.SUCCESS.style,
     )
+
+
+def create_panel_title(title: str) -> Text:
+    """Create a title for a panel."""
+    return Text(title, style="bold #f2f2f2")

@@ -162,6 +162,8 @@ class PathNode(PPathNode):
         Name of the node which makes it identifiable in the DAG.
     path
         The path to the file.
+    attributes: dict[Any, Any]
+        A dictionary to store additional information of the task.
 
     """
 
@@ -220,6 +222,8 @@ class PythonNode(PNode):
         objects. The function should return either an integer or a string.
     node_info
         The infos acquired while collecting the node.
+    attributes: dict[Any, Any]
+        A dictionary to store additional information of the task.
 
     Examples
     --------
@@ -304,6 +308,8 @@ class PickleNode(PPathNode):
         Name of the node which makes it identifiable in the DAG.
     path
         The path to the file.
+    attributes: dict[Any, Any]
+        A dictionary to store additional information of the task.
 
     """
 
@@ -353,6 +359,8 @@ class DirectoryNode(PProvisionalNode):
     root_dir
         The pattern is interpreted relative to the path given by ``root_dir``. If
         ``root_dir = None``, it is the directory where the path is defined.
+    attributes: dict[Any, Any]
+        A dictionary to store additional information of the task.
 
     """
 
