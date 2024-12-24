@@ -33,6 +33,7 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
+from _pytask.node_protocols import warn_about_upcoming_attributes_field_on_nodes
 from _pytask.nodes import DirectoryNode
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
@@ -384,6 +385,9 @@ def pytask_collect_node(  # noqa: C901, PLR0912
 
     """
     node = node_info.value
+
+    if isinstance(node, (PNode, PProvisionalNode)) and not hasattr(node, "attributes"):
+        warn_about_upcoming_attributes_field_on_nodes()
 
     if isinstance(node, DirectoryNode):
         if node.root_dir is None:

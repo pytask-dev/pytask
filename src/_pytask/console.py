@@ -24,6 +24,7 @@ from rich.text import Text
 from rich.theme import Theme
 from rich.tree import Tree
 
+from _pytask.data_catalog_utils import DATA_CATALOG_NAME_FIELD
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
@@ -42,6 +43,7 @@ if TYPE_CHECKING:
 
 __all__ = [
     "console",
+    "create_panel_title",
     "create_summary_panel",
     "create_url_style_for_path",
     "create_url_style_for_task",
@@ -146,6 +148,11 @@ def format_node_name(
     """Format the name of a node."""
     if isinstance(node, PPathNode):
         if node.name != node.path.as_posix():
+            # For example, any node added to a data catalog has its name set to the key.
+            if data_catalog_name := getattr(node, "attributes", {}).get(
+                DATA_CATALOG_NAME_FIELD
+            ):
+                return Text(f"{data_catalog_name}::{node.name}")
             return Text(node.name)
         name = shorten_path(node.path, paths)
         return Text(name)
@@ -156,6 +163,11 @@ def format_node_name(
             reduced_name = shorten_path(Path(path), paths)
             return Text(f"{reduced_name}::{rest}")
 
+    # Python or other custom nodes that are not PathNodes.
+    if data_catalog_name := getattr(node, "attributes", {}).get(
+        DATA_CATALOG_NAME_FIELD
+    ):
+        return Text(f"{data_catalog_name}::{node.name}")
     return Text(node.name)
 
 
@@ -293,10 +305,15 @@ def create_summary_panel(
 
     return Panel(
         grid,
-        title="[bold #f2f2f2]Summary[/]",
+        title=create_panel_title("Summary"),
         expand=False,
         style="none",
         border_style=outcome_enum.FAIL.style
         if counts[outcome_enum.FAIL]
         else outcome_enum.SUCCESS.style,
     )
+
+
+def create_panel_title(title: str) -> Text:
+    """Create a title for a panel."""
+    return Text(title, style="bold #f2f2f2")

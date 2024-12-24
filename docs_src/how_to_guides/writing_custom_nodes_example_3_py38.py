@@ -16,12 +16,20 @@ class PickleNode:
         Name of the node which makes it identifiable in the DAG.
     path
         The path to the file.
+    attributes
+        Additional attributes that are stored in the node.
 
     """
 
-    def __init__(self, name: str = "", path: Optional[Path] = None) -> None:
+    def __init__(
+        self,
+        name: str = "",
+        path: Optional[Path] = None,
+        attributes: Optional[dict[Any, Any]] = None,
+    ) -> None:
         self.name = name
         self.path = path
+        self.attributes = attributes or {}
 
     @property
     def signature(self) -> str:

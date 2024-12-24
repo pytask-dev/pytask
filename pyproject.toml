@@ -84,12 +84,6 @@ Tracker = "https://github.com/pytask-dev/pytask/issues"
 [project.scripts]
 pytask = "pytask:cli"
 
-[tool.uv.sources]
-pytask-parallel = { workspace = true }
-
-[tool.uv.workspace]
-members = ["packages/*"]
-
 [tool.uv]
 dev-dependencies = [
     "tox-uv>=1.7.0", "pygraphviz;platform_system=='Linux'",

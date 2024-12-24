@@ -17,11 +17,13 @@ from attrs import define
 from attrs import field
 
 from _pytask.config_utils import find_project_root_and_config
+from _pytask.data_catalog_utils import DATA_CATALOG_NAME_FIELD
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
+from _pytask.node_protocols import warn_about_upcoming_attributes_field_on_nodes
 from _pytask.nodes import PickleNode
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
@@ -92,6 +94,10 @@ class DataCatalog:
         # Initialize the data catalog with persisted nodes from previous runs.
         for path in self.path.glob("*-node.pkl"):
             node = pickle.loads(path.read_bytes())  # noqa: S301
+            if not hasattr(node, "attributes"):
+                warn_about_upcoming_attributes_field_on_nodes()
+            else:
+                node.attributes = {DATA_CATALOG_NAME_FIELD: self.name}
             self._entries[node.name] = node
 
     def __getitem__(self, name: str) -> PNode | PProvisionalNode:
@@ -133,3 +139,9 @@ class DataCatalog:
                 msg = f"{node!r} cannot be parsed."
                 raise NodeNotCollectedError(msg)
             self._entries[name] = collected_node
+
+        node = self._entries[name]
+        if hasattr(node, "attributes"):
+            node.attributes[DATA_CATALOG_NAME_FIELD] = self.name
+        else:
+            warn_about_upcoming_attributes_field_on_nodes()

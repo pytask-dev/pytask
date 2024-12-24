@@ -5,6 +5,13 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.5.3 - 2025-xx-xx
+
+- {pull}`650` allows to identify from which data catalog a node is coming from. Thanks
+  to {user}`felixschmitz` for the report! The feature is enabled by adding an
+  `attributes` field on `PNode` and `PProvisionalNode` that will be mandatory on custom
+  nodes in v0.6.0.
+
 ## 0.5.2 - 2024-12-19
 
 - {pull}`633` adds support for Python 3.13 and drops support for 3.8.

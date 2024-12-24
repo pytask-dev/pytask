@@ -24,6 +24,7 @@ from rich.text import Text
 
 from _pytask import __version__ as version
 from _pytask.console import console
+from _pytask.console import create_panel_title
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -109,7 +110,7 @@ class ColoredGroup(DefaultGroup):
         console.print(
             Panel(
                 commands_table,
-                title="[bold #f2f2f2]Commands[/]",
+                title=create_panel_title("Commands"),
                 title_align="left",
                 border_style="grey37",
             )
@@ -244,7 +245,7 @@ def _print_options(group_or_command: Command | DefaultGroup, ctx: Context) -> No
     console.print(
         Panel(
             options_table,
-            title="[bold #f2f2f2]Options[/]",
+            title=create_panel_title("Options"),
             title_align="left",
             border_style="grey37",
         )
