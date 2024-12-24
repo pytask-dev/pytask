@@ -148,6 +148,7 @@ def format_node_name(
     """Format the name of a node."""
     if isinstance(node, PPathNode):
         if node.name != node.path.as_posix():
+            # For example, any node added to a data catalog has its name set to the key.
             if data_catalog_name := getattr(node, "attributes", {}).get(
                 DATA_CATALOG_NAME_FIELD
             ):
@@ -162,6 +163,11 @@ def format_node_name(
             reduced_name = shorten_path(Path(path), paths)
             return Text(f"{reduced_name}::{rest}")
 
+    # Python or other custom nodes that are not PathNodes.
+    if data_catalog_name := getattr(node, "attributes", {}).get(
+        DATA_CATALOG_NAME_FIELD
+    ):
+        return Text(f"{data_catalog_name}::{node.name}")
     return Text(node.name)
 
 
