@@ -43,6 +43,7 @@ if TYPE_CHECKING:
 
 __all__ = [
     "console",
+    "create_panel_title",
     "create_summary_panel",
     "create_url_style_for_path",
     "create_url_style_for_task",
