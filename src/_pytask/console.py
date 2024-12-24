@@ -29,7 +29,6 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTaskWithPath
-from _pytask.node_protocols import warn_about_upcoming_attributes_field_on_nodes
 from _pytask.path import shorten_path
 
 if TYPE_CHECKING:
