@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
 from typing import Literal
+import warnings
 
 from rich.console import Console
 from rich.console import RenderableType
@@ -25,7 +26,7 @@ from rich.theme import Theme
 from rich.tree import Tree
 
 from _pytask.data_catalog_utils import DATA_CATALOG_NAME_FIELD
-from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PNode, warn_about_upcoming_attributes_field_on_nodes
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTaskWithPath
@@ -148,8 +149,9 @@ def format_node_name(
     """Format the name of a node."""
     if isinstance(node, PPathNode):
         if node.name != node.path.as_posix():
-            if data_catalog_name := node.attributes.get(DATA_CATALOG_NAME_FIELD):
+            if data_catalog_name := getattr(node, "attributes", {}).get(DATA_CATALOG_NAME_FIELD):
                 return Text(f"{data_catalog_name}::{node.name}")
+            warn_about_upcoming_attributes_field_on_nodes()
             return Text(node.name)
         name = shorten_path(node.path, paths)
         return Text(name)

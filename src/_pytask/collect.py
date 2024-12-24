@@ -30,7 +30,7 @@ from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
-from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PNode, warn_about_upcoming_attributes_field_on_nodes
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
@@ -387,14 +387,7 @@ def pytask_collect_node(  # noqa: C901, PLR0912
     node = node_info.value
 
     if isinstance(node, (PNode, PProvisionalNode)) and not hasattr(node, "attributes"):
-        warnings.warn(
-            "PNode and PProvisionalNode will require an 'attributes' field starting "
-            "with pytask v0.6.0. It is a dictionary with any type of key and values "
-            "similar to PTask. See https://tinyurl.com/pytask-custom-nodes for more "
-            "information about adjusting your custom nodes.",
-            stacklevel=1,
-            category=FutureWarning,
-        )
+        warn_about_upcoming_attributes_field_on_nodes()
 
     if isinstance(node, DirectoryNode):
         if node.root_dir is None:

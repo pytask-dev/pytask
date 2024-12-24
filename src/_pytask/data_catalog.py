@@ -20,7 +20,7 @@ from _pytask.config_utils import find_project_root_and_config
 from _pytask.data_catalog_utils import DATA_CATALOG_NAME_FIELD
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.models import NodeInfo
-from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PNode, warn_about_upcoming_attributes_field_on_nodes
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.nodes import PickleNode
@@ -139,4 +139,9 @@ class DataCatalog:
                 msg = f"{node!r} cannot be parsed."
                 raise NodeNotCollectedError(msg)
             self._entries[name] = collected_node
-        self._entries[name].attributes[DATA_CATALOG_NAME_FIELD] = self.name
+
+        node = self._entries[name]
+        if hasattr(node, "attributes"):
+            node.attributes[DATA_CATALOG_NAME_FIELD] = self.name
+        else:
+            warn_about_upcoming_attributes_field_on_nodes()
