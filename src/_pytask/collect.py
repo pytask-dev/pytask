@@ -7,7 +7,6 @@ import itertools
 import os
 import sys
 import time
-import warnings
 from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -30,10 +29,11 @@ from _pytask.exceptions import NodeNotCollectedError
 from _pytask.mark import MarkGenerator
 from _pytask.mark_utils import get_all_marks
 from _pytask.mark_utils import has_mark
-from _pytask.node_protocols import PNode, warn_about_upcoming_attributes_field_on_nodes
+from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
+from _pytask.node_protocols import warn_about_upcoming_attributes_field_on_nodes
 from _pytask.nodes import DirectoryNode
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
