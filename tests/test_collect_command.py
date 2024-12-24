@@ -517,6 +517,7 @@ def test_node_protocol_for_custom_nodes(runner, tmp_path):
 def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     source = """
     from typing import Annotated
+    from typing import Any
     from pytask import Product
     from pathlib import Path
     from attrs import define
@@ -527,6 +528,7 @@ def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
         name: str
         path: Path
         signature: str = "id"
+        attributes: dict[Any, Any] = {}
 
         def state(self):
             return str(self.path.stat().st_mtime)
