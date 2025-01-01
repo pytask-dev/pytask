@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from pluggy import PluginManager
 
 
-_IGNORED_FOLDERS: list[str] = [".git/*", ".venv/*"]
+_IGNORED_FOLDERS: list[str] = [".git/*", ".venv/*", ".pixi/*"]
 
 
 _IGNORED_FILES: list[str] = [
