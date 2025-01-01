@@ -11,6 +11,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   to {user}`felixschmitz` for the report! The feature is enabled by adding an
   `attributes` field on `PNode` and `PProvisionalNode` that will be mandatory on custom
   nodes in v0.6.0.
+- {pull}`662` adds the `.pixi` folder to be ignored by default during the collection.
 
 ## 0.5.2 - 2024-12-19
 
