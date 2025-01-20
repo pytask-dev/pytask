@@ -343,10 +343,10 @@ class SysCaptureBase(CaptureBase[AnyStr]):
         )
 
     def _assert_state(self, op: str, states: tuple[str, ...]) -> None:
-        assert (
-            self._state in states
-        ), "cannot {} in state {!r}: expected one of {}".format(
-            op, self._state, ", ".join(states)
+        assert self._state in states, (
+            "cannot {} in state {!r}: expected one of {}".format(
+                op, self._state, ", ".join(states)
+            )
         )
 
     def start(self) -> None:
@@ -475,10 +475,10 @@ class FDCaptureBase(CaptureBase[AnyStr]):
         )
 
     def _assert_state(self, op: str, states: tuple[str, ...]) -> None:
-        assert (
-            self._state in states
-        ), "cannot {} in state {!r}: expected one of {}".format(
-            op, self._state, ", ".join(states)
+        assert self._state in states, (
+            "cannot {} in state {!r}: expected one of {}".format(
+                op, self._state, ", ".join(states)
+            )
         )
 
     def start(self) -> None:
@@ -620,8 +620,7 @@ class MultiCapture(Generic[AnyStr]):
 
     def __repr__(self) -> str:
         return (  # noqa: UP032
-            "<MultiCapture out={!r} err={!r} in_={!r} _state={!r} "
-            "_in_suspended={!r}>"
+            "<MultiCapture out={!r} err={!r} in_={!r} _state={!r} _in_suspended={!r}>"
         ).format(
             self.out,
             self.err,

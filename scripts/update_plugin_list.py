@@ -151,7 +151,7 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
                 last_release = release_date.strftime("%b %d, %Y")
                 break
 
-        name = f':pypi:`{info["name"]}`'
+        name = f":pypi:`{info['name']}`"
         summary = ""
         if info["summary"]:
             summary = _escape_rst(info["summary"].replace("\n", ""))
