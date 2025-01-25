@@ -1,4 +1,4 @@
-"""Add general logging capabilities."""
+"""Add general logging capabilities."""  # noqa: A005
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Process tracebacks."""
+"""Process tracebacks."""  # noqa: A005
 
 from __future__ import annotations
 
