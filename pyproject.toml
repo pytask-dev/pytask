@@ -72,7 +72,7 @@ test = [
     "aiohttp",      # For HTTPPath tests.
     "coiled",
 ]
-typing = ["mypy>=1.9.0,<1.11", "nbqa[mypy]>=1.8.5"]
+typing = ["mypy>=1.9.0,<1.11", "nbqa>=1.8.5"]
 
 [project.urls]
 Changelog = "https://pytask-dev.readthedocs.io/en/stable/changes.html"
