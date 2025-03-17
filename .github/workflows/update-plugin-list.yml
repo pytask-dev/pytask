@@ -37,7 +37,7 @@ jobs:
         run: python scripts/update_plugin_list.py
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@dd2324fc52d5d43c699a5636bcf19fceaa70c284
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e
         with:
           commit-message: '[automated] Update plugin list'
           author: 'Tobias Raabe <tobiasraabe@users.noreply.github.com>'
