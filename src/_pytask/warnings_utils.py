@@ -129,7 +129,7 @@ def _resolve_warning_category(category: str) -> type[Warning]:
     if not issubclass(cat, Warning):
         msg = f"{cat} is not a Warning subclass"
         raise TypeError(msg)
-    return cast(type[Warning], cat)
+    return cast("type[Warning]", cat)
 
 
 def warning_record_to_str(warning_message: warnings.WarningMessage) -> str:

@@ -1,4 +1,4 @@
-"""Contains code for capturing warnings."""  # noqa: A005
+"""Contains code for capturing warnings."""
 
 from __future__ import annotations
 

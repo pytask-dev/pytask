@@ -1,4 +1,4 @@
-"""Contains the code to profile the execution."""  # noqa: A005
+"""Contains the code to profile the execution."""
 
 from __future__ import annotations
 

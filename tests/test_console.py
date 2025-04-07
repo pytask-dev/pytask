@@ -80,7 +80,7 @@ def test_create_url_style_for_path(edtior_url_scheme, expected):
     + [(outcome, CollectionOutcome, "description") for outcome in CollectionOutcome],
 )
 def test_create_summary_panel(capsys, outcome, outcome_enum, total_description):
-    counts = {out: 0 for out in outcome_enum}
+    counts = dict.fromkeys(outcome_enum, 0)
     counts[outcome] = 1
     panel = create_summary_panel(counts, outcome_enum, total_description)
     console.print(panel)
