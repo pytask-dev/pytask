@@ -74,6 +74,9 @@ caption: task_example.py
 As you see, we lost a level of indentation and we moved all the generations of names and
 paths to the dimensions and multi-dimensional objects.
 
+Using a {class}`~pytask.PythonNode` allows us to hash the model and reexecute the task
+if we define other model settings.
+
 ## Adding another level
 
 Extending a dimension by another level is usually quickly done. For example, if we have
