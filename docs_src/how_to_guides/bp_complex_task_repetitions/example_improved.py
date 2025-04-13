@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Annotated
 from typing import Any
 
@@ -12,6 +13,6 @@ for experiment in EXPERIMENTS:
 
     @task(id=experiment.name)
     def task_fit_model(
-        model: Annotated[Model, PythonNode(value=experiment.model, hash=True)],
-        path_to_data: experiment.dataset.path,
+        model: Annotated[Model, PythonNode(hash=True)] = experiment.model,
+        path_to_data: Path = experiment.dataset.path,
     ) -> Annotated[Any, data_catalog[experiment.fitted_model_name]]: ...
