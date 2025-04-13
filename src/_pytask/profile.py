@@ -148,7 +148,7 @@ def profile(**raw_config: Any) -> NoReturn:
         except CollectionError:  # pragma: no cover
             session.exit_code = ExitCode.COLLECTION_FAILED
 
-        except Exception:  # noqa: BLE001; pragma: no cover
+        except Exception:  # noqa: BLE001 pragma: no cover
             session.exit_code = ExitCode.FAILED
             console.print_exception()
             console.rule(style="failed")
