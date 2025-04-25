@@ -53,7 +53,7 @@ from _pytask.nodes import PathNode
 from _pytask.nodes import PickleNode
 from _pytask.nodes import PythonNode
 from _pytask.nodes import Task
-from _pytask.nodes import TaskWithoutPath
+from _pytask.nodes import TaskWithoutPath, get_state_of_path
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import Exit
 from _pytask.outcomes import ExitCode
@@ -146,6 +146,7 @@ __all__ = [
     "get_all_marks",
     "get_marks",
     "get_plugin_manager",
+    "get_state_of_path",
     "has_mark",
     "hash_value",
     "hookimpl",
