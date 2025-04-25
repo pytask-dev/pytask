@@ -13,6 +13,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   nodes in v0.6.0.
 - {pull}`662` adds the `.pixi` folder to be ignored by default during the collection.
 - {pull}`671` enhances the documentation on complex repetitions. Closes {issue}`670`.
+- {pull}`673` adds de-/serializer function attributes to the `PickleNode`. Closes
+  {issue}`669`.
 
 ## 0.5.2 - 2024-12-19
 

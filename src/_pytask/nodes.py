@@ -14,6 +14,7 @@ from typing import Callable
 
 from attrs import define
 from attrs import field
+from typing_extensions import deprecated
 from upath import UPath
 from upath._stat import UPathStatResult
 
@@ -28,6 +29,9 @@ from _pytask.typing import NoDefault
 from _pytask.typing import no_default
 
 if TYPE_CHECKING:
+    from io import BufferedReader
+    from io import BufferedWriter
+
     from _pytask.mark import Mark
     from _pytask.models import NodeInfo
     from _pytask.tree_util import PyTree
@@ -40,6 +44,7 @@ __all__ = [
     "PythonNode",
     "Task",
     "TaskWithoutPath",
+    "get_state_of_path",
 ]
 
 
@@ -145,7 +150,7 @@ class Task(PTaskWithPath):
 
     def state(self) -> str | None:
         """Return the state of the node."""
-        return _get_state(self.path)
+        return get_state_of_path(self.path)
 
     def execute(self, **kwargs: Any) -> Any:
         """Execute the task."""
@@ -188,7 +193,7 @@ class PathNode(PPathNode):
         The state is given by the modification timestamp.
 
         """
-        return _get_state(self.path)
+        return get_state_of_path(self.path)
 
     def load(self, is_product: bool = False) -> Path:  # noqa: ARG002
         """Load the value."""
@@ -310,12 +315,18 @@ class PickleNode(PPathNode):
         The path to the file.
     attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
+    serializer
+        A function to serialize the object. Defaults to :func:`pickle.dump`.
+    deserializer
+        A function to deserialize the object. Defaults to :func:`pickle.load`.
 
     """
 
     path: Path
     name: str = ""
     attributes: dict[Any, Any] = field(factory=dict)
+    serializer: Callable[[Any, BufferedWriter], None] = field(default=pickle.dump)
+    deserializer: Callable[[BufferedReader], Any] = field(default=pickle.load)
 
     @property
     def signature(self) -> str:
@@ -332,17 +343,17 @@ class PickleNode(PPathNode):
         return cls(name=path.as_posix(), path=path)
 
     def state(self) -> str | None:
-        return _get_state(self.path)
+        return get_state_of_path(self.path)
 
     def load(self, is_product: bool = False) -> Any:
         if is_product:
             return self
         with self.path.open("rb") as f:
-            return pickle.load(f)  # noqa: S301
+            return self.deserializer(f)
 
     def save(self, value: Any) -> None:
         with self.path.open("wb") as f:
-            pickle.dump(value, f)
+            self.serializer(value, f)
 
 
 @define(kw_only=True)
@@ -387,7 +398,7 @@ class DirectoryNode(PProvisionalNode):
         return list(self.root_dir.glob(self.pattern))  # type: ignore[union-attr]
 
 
-def _get_state(path: Path) -> str | None:
+def get_state_of_path(path: Path) -> str | None:
     """Get state of a path.
 
     A simple function to handle local and remote files.
@@ -411,3 +422,13 @@ def _get_state(path: Path) -> str | None:
         return stat.as_info().get("ETag", "0")
     msg = "Unknown stat object."
     raise NotImplementedError(msg)
+
+
+@deprecated("Use 'pytask.get_state_of_path' instead.")
+def _get_state(path: Path) -> str | None:
+    """Get state of a path.
+
+    A simple function to handle local and remote files.
+
+    """
+    return get_state_of_path(path)
