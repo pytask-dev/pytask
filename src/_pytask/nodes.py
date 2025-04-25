@@ -315,6 +315,10 @@ class PickleNode(PPathNode):
         The path to the file.
     attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
+    serializer
+        A function to serialize the object. Defaults to :func:`pickle.dump`.
+    deserializer
+        A function to deserialize the object. Defaults to :func:`pickle.load`.
 
     """
 
