@@ -59,7 +59,7 @@ repos:
     -   id: nbstripout
         exclude: (docs)
 -   repo: https://github.com/crate-ci/typos
-    rev: v1
+    rev: v1.32.0
     hooks:
     -   id: typos
         exclude: (\.ipynb)

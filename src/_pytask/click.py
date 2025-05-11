@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.metadata
 import inspect
 from enum import Enum
 from gettext import gettext as _
@@ -9,15 +10,16 @@ from gettext import ngettext
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import ClassVar
+from typing import TypeVar
 
 import click
 from click import Choice
 from click import Command
 from click import Context
 from click import Parameter
-from click.parser import split_opt
 from click_default_group import DefaultGroup
 from rich.highlighter import RegexHighlighter
+from rich.padding import Padding
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
@@ -27,40 +29,57 @@ from _pytask.console import console
 from _pytask.console import create_panel_title
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from collections.abc import Sequence
 
 
 __all__ = ["ColoredCommand", "ColoredGroup", "EnumChoice"]
 
 
-class EnumChoice(Choice):
-    """An enum-based choice type.
+if importlib.metadata.version("click") < "8.2":
+    from click.parser import split_opt
 
-    The implementation is copied from https://github.com/pallets/click/pull/2210 and
-    related discussion can be found in https://github.com/pallets/click/issues/605.
+    class EnumChoice(Choice):  # type: ignore[type-arg]
+        """An enum-based choice type.
 
-    In contrast to using :class:`click.Choice`, using this type ensures that the error
-    message does not show the enum members.
+        The implementation is copied from https://github.com/pallets/click/pull/2210 and
+        related discussion can be found in https://github.com/pallets/click/issues/605.
 
-    In contrast to the proposed implementation in the PR, this implementation does not
-    use the members than rather the values of the enum.
+        In contrast to using :class:`click.Choice`, using this type ensures that the
+        error message does not show the enum members.
 
-    """
+        In contrast to the proposed implementation in the PR, this implementation does
+        not use the members than rather the values of the enum.
 
-    def __init__(self, enum_type: type[Enum], case_sensitive: bool = True) -> None:
-        super().__init__(
-            choices=[element.value for element in enum_type],
-            case_sensitive=case_sensitive,
-        )
-        self.enum_type = enum_type
+        """
 
-    def convert(self, value: Any, param: Parameter | None, ctx: Context | None) -> Any:
-        if isinstance(value, Enum):
-            value = value.value
-        value = super().convert(value=value, param=param, ctx=ctx)
-        if value is None:
-            return None
-        return self.enum_type(value)
+        def __init__(self, enum_type: type[Enum], case_sensitive: bool = True) -> None:
+            super().__init__(
+                choices=[element.value for element in enum_type],
+                case_sensitive=case_sensitive,
+            )
+            self.enum_type = enum_type
+
+        def convert(
+            self, value: Any, param: Parameter | None, ctx: Context | None
+        ) -> Any:
+            if isinstance(value, Enum):
+                value = value.value
+            value = super().convert(value=value, param=param, ctx=ctx)
+            if value is None:
+                return None
+            return self.enum_type(value)
+
+else:
+    from click.parser import _split_opt as split_opt
+
+    ParamTypeValue = TypeVar("ParamTypeValue")
+
+    class EnumChoice(Choice):
+        def __init__(
+            self, choices: Iterable[ParamTypeValue], case_sensitive: bool = False
+        ) -> None:
+            super().__init__(choices=choices, case_sensitive=case_sensitive)
 
 
 class _OptionHighlighter(RegexHighlighter):
@@ -119,7 +138,10 @@ class ColoredGroup(DefaultGroup):
         _print_options(self, ctx)
 
         console.print(
-            "[bold #FF0000]♥[/] [#f2f2f2]https://pytask-dev.readthedocs.io[/]",
+            Padding(
+                "[bold #FF0000]♥[/] [#f2f2f2]https://pytask-dev.readthedocs.io[/]",
+                (0, 3, 0, 0),
+            ),
             justify="right",
         )
 
@@ -197,7 +219,10 @@ class ColoredCommand(Command):
         _print_options(self, ctx)
 
         console.print(
-            "[bold #FF0000]♥[/] [#f2f2f2]https://pytask-dev.readthedocs.io[/]",
+            Padding(
+                "[bold #FF0000]♥[/] [#f2f2f2]https://pytask-dev.readthedocs.io[/]",
+                (0, 3, 0, 0),
+            ),
             justify="right",
         )
 
@@ -235,7 +260,7 @@ def _print_options(group_or_command: Command | DefaultGroup, ctx: Context) -> No
         if param.metavar:
             opt2 += Text(f" {param.metavar}", style="metavar")
         elif isinstance(param.type, click.Choice):
-            choices = "[" + "|".join(param.type.choices) + "]"
+            choices = "[" + "|".join([str(c.value) for c in param.type.choices]) + "]"
             opt2 += Text(f" {choices}", style="metavar", overflow="fold")
 
         help_text = _format_help_text(param, ctx)
@@ -313,7 +338,7 @@ def _format_help_text(  # noqa: C901, PLR0912, PLR0915
         elif param.is_bool_flag and param.secondary_opts:  # type: ignore[attr-defined]
             # For boolean flags that have distinct True/False opts,
             # use the opt without prefix instead of the value.
-            default_string = split_opt(
+            default_string = split_opt(  # type: ignore[operator]
                 (param.opts if param.default else param.secondary_opts)[0]
             )[1]
         elif (
