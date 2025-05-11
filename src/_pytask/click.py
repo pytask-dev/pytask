@@ -75,7 +75,7 @@ else:
 
     ParamTypeValue = TypeVar("ParamTypeValue")
 
-    class EnumChoice(Choice):
+    class EnumChoice(Choice):  # type: ignore[no-redef, type-arg]
         def __init__(
             self, choices: Iterable[ParamTypeValue], case_sensitive: bool = False
         ) -> None:
