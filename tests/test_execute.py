@@ -985,8 +985,7 @@ def test_download_file(runner, tmp_path):
     from upath import UPath
 
     url = UPath(
-        "https://gist.githubusercontent.com/tobiasraabe/64c24426d5398cac4b9d37b85ebfaf"
-        "7c/raw/50c61fa9a5aa0b7d3a7582c4c260b43dabfea720/gistfile1.txt"
+        "https://gist.githubusercontent.com/tobiasraabe/64c24426d5398cac4b9d37b85ebfaf7c/raw/50c61fa9a5aa0b7d3a7582c4c260b43dabfea720/gistfile1.txt"
     )
 
     def task_download_file(path: UPath = url) -> Annotated[str, Path("data.csv")]:
