@@ -18,7 +18,7 @@ from tests.conftest import run_in_subprocess
         pytest.param(
             True,
             marks=pytest.mark.xfail(
-                sys.platform == "win32" and "CI" in os.environ,
+                sys.platform == "win32" and os.environ.get("CI") == "true",
                 reason="pytask is not found in subprocess",
                 strict=True,
             ),
@@ -64,7 +64,7 @@ def test_add_new_hook_via_cli(tmp_path, module_name):
         pytest.param(
             True,
             marks=pytest.mark.xfail(
-                sys.platform == "win32" and "CI" in os.environ,
+                sys.platform == "win32" and os.environ.get("CI") == "true",
                 reason="pytask is not found in subprocess",
                 strict=True,
             ),

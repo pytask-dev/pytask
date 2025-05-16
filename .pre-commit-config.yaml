@@ -29,10 +29,6 @@ repos:
     hooks:
       - id: ruff-format
       - id: ruff
--   repo: https://github.com/dosisod/refurb
-    rev: v2.0.0
-    hooks:
-    -   id: refurb
 -   repo: https://github.com/executablebooks/mdformat
     rev: 0.7.22
     hooks:

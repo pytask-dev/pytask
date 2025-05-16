@@ -110,7 +110,6 @@ source = "vcs"
 allow-direct-references = true
 
 [tool.ruff]
-target-version = "py39"
 fix = true
 unsafe-fixes = true
 extend-include = ["*.ipynb"]
@@ -196,13 +195,6 @@ disable_error_code = ["import-not-found"]
 [[tool.mypy.overrides]]
 module = ["_pytask.hookspecs"]
 disable_error_code = ["empty-body"]
-
-[tool.refurb]
-python_version = "3.9"
-
-[[tool.refurb.amend]]
-path = "src/_pytask/mark/structures.py"
-ignore = ["FURB173"]
 
 [tool.coverage.report]
 exclude_also = [
