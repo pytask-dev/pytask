@@ -28,7 +28,7 @@ class PickleNode:
     ) -> None:
         self.name = name
         self.path = path
-        self.attributes = attributes or {}
+        self.attributes = attributes if attributes is not None else {}
 
     @property
     def signature(self) -> str:
