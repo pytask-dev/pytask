@@ -22,7 +22,7 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "attrs>=21.3",
-    "click",
+    "click>=7,!=8.2.0",
     "click-default-group",
     "networkx>=2.4",
     "optree>=0.9",
