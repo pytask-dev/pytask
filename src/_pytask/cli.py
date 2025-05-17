@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import importlib.metadata
 from typing import Any
 
 import click
-from packaging.version import parse as parse_version
 
 from _pytask.click import ColoredGroup
 from _pytask.pluginmanager import storage
@@ -16,7 +16,7 @@ _CONTEXT_SETTINGS: dict[str, Any] = {
 }
 
 
-if parse_version(click.__version__) >= parse_version("8"):  # pragma: no cover
+if importlib.metadata.version("click") >= "8":  # pragma: no cover
     _VERSION_OPTION_KWARGS = {"package_name": "pytask"}
 else:  # pragma: no cover
     _VERSION_OPTION_KWARGS = {}
