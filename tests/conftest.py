@@ -121,9 +121,11 @@ class Result(NamedTuple):
     stderr: str
 
 
-def run_in_subprocess(cmd: tuple[str, ...], cwd: Path | None = None) -> Result:
+def run_in_subprocess(
+    cmd: tuple[str, ...], cwd: Path | None = None, env: dict[str, str] | None = None
+) -> Result:
     """Run a command in a subprocess and return the output."""
-    result = subprocess.run(cmd, cwd=cwd, check=False, capture_output=True)
+    result = subprocess.run(cmd, cwd=cwd, check=False, capture_output=True, env=env)
     return Result(
         exit_code=result.returncode,
         stdout=result.stdout.decode("utf-8", "replace").replace("\r\n", "\n"),

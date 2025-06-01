@@ -52,7 +52,7 @@ def test_add_new_hook_via_cli(tmp_path, module_name):
     else:
         args = ("pytask", "build", "--hook-module", "hooks/hooks.py", "--help")
 
-    result = run_in_subprocess(args, cwd=tmp_path)
+    result = run_in_subprocess(args, cwd=tmp_path, env={"NO_COLOR": "1"})
     assert result.exit_code == ExitCode.OK
     assert "--new-option" in result.stdout
 
