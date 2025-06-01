@@ -25,8 +25,8 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv run --group typing mypy
-      - run: uv run --group typing nbqa mypy --ignore-missing-imports .
+      - run: uv run --no-dev --group typing mypy
+      - run: uv run --no-dev --group typing nbqa mypy --ignore-missing-imports .
 
   run-tests:
 
