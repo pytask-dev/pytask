@@ -46,10 +46,10 @@ text = "MIT"
 name = "Tobias Raabe"
 email = "raabe@posteo.de"
 
-[project.optional-dependencies]
+[dependency-groups]
 docs = [
     "furo",
-    "ipython",
+    "ipython>=8.13.2",
     "matplotlib",
     "myst-parser",
     "myst-nb",
@@ -86,7 +86,7 @@ Tracker = "https://github.com/pytask-dev/pytask/issues"
 pytask = "pytask:cli"
 
 [tool.uv]
-dev-dependencies = ["tox-uv>=1.7.0", "pygraphviz;platform_system=='Linux'"]
+dev-dependencies = ["pygraphviz>=1.11;platform_system=='Linux'"]
 
 [build-system]
 requires = ["hatchling", "hatch_vcs"]
