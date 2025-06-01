@@ -55,7 +55,7 @@ jobs:
 
       - name: Run unit tests and doctests.
         shell: bash -l {0}
-        run: uv run --extra test pytest --nbmake -m "unit or (not integration and not end_to_end)" --cov=src --cov=tests --cov-report=xml -n auto
+        run: uv run --group test pytest --nbmake -m "unit or (not integration and not end_to_end)" --cov=src --cov=tests --cov-report=xml -n auto
 
       - name: Upload unit test coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v5
@@ -64,7 +64,7 @@ jobs:
 
       - name: Run integration tests.
         shell: bash -l {0}
-        run: uv run --extra test pytest --nbmake -m integration --cov=src --cov=tests --cov-report=xml -n auto
+        run: uv run --group test pytest --nbmake -m integration --cov=src --cov=tests --cov-report=xml -n auto
 
       - name: Upload integration test coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v5
@@ -73,7 +73,7 @@ jobs:
 
       - name: Run end-to-end tests.
         shell: bash -l {0}
-        run: uv run --extra test pytest --nbmake -m end_to_end --cov=src --cov=tests --cov-report=xml -n auto
+        run: uv run --group test pytest --nbmake -m end_to_end --cov=src --cov=tests --cov-report=xml -n auto
 
       - name: Upload end_to_end test coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v5
