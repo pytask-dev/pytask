@@ -22,7 +22,7 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "attrs>=21.3",
-    "click",
+    "click>=7,<8.2.0",
     "click-default-group",
     "networkx>=2.4",
     "optree>=0.9",
@@ -71,6 +71,7 @@ test = [
     "syrupy",
     "aiohttp",      # For HTTPPath tests.
     "coiled",
+    "cloudpickle",
 ]
 typing = ["mypy>=1.9.0,<1.11", "nbqa>=1.8.5"]
 
@@ -85,9 +86,7 @@ Tracker = "https://github.com/pytask-dev/pytask/issues"
 pytask = "pytask:cli"
 
 [tool.uv]
-dev-dependencies = [
-    "tox-uv>=1.7.0", "pygraphviz;platform_system=='Linux'",
-]
+dev-dependencies = ["tox-uv>=1.7.0", "pygraphviz;platform_system=='Linux'"]
 
 [build-system]
 requires = ["hatchling", "hatch_vcs"]
@@ -111,7 +110,6 @@ source = "vcs"
 allow-direct-references = true
 
 [tool.ruff]
-target-version = "py39"
 fix = true
 unsafe-fixes = true
 extend-include = ["*.ipynb"]
@@ -197,13 +195,6 @@ disable_error_code = ["import-not-found"]
 [[tool.mypy.overrides]]
 module = ["_pytask.hookspecs"]
 disable_error_code = ["empty-body"]
-
-[tool.refurb]
-python_version = "3.9"
-
-[[tool.refurb.amend]]
-path = "src/_pytask/mark/structures.py"
-ignore = ["FURB173"]
 
 [tool.coverage.report]
 exclude_also = [

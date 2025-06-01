@@ -3,6 +3,7 @@ from __future__ import annotations
 import pickle
 from pathlib import Path
 
+import cloudpickle
 import pytest
 
 from pytask import NodeInfo
@@ -126,3 +127,43 @@ def test_hash_of_pickle_node(tmp_path, value, exists, expected):
 )
 def test_comply_with_protocol(node, protocol, expected):
     assert isinstance(node, protocol) is expected
+
+
+@pytest.mark.unit
+def test_custom_serializer_deserializer_pickle_node(tmp_path):
+    """Test that PickleNode correctly uses cloudpickle for de-/serialization."""
+
+    # Define custom serializer and deserializer using cloudpickle
+    def custom_serializer(obj, file):
+        # Custom serialization logic that adds a wrapper around the data
+        cloudpickle.dump({"custom_prefix": obj}, file)
+
+    def custom_deserializer(file):
+        # Custom deserialization logic that unwraps the data
+        data = cloudpickle.load(file)
+        return data["custom_prefix"]
+
+    # Create test data and path
+    test_data = {"key": "value"}
+    path = tmp_path.joinpath("custom.pkl")
+
+    # Create PickleNode with custom serializer and deserializer
+    node = PickleNode(
+        name="test",
+        path=path,
+        serializer=custom_serializer,
+        deserializer=custom_deserializer,
+    )
+
+    # Test saving with custom serializer
+    node.save(test_data)
+
+    # Verify custom serialization was used by directly reading the file
+    with path.open("rb") as f:
+        raw_data = cloudpickle.load(f)
+        assert "custom_prefix" in raw_data
+        assert raw_data["custom_prefix"] == test_data
+
+    # Test loading with custom deserializer
+    loaded_data = node.load(is_product=False)
+    assert loaded_data == test_data

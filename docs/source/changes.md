@@ -5,7 +5,7 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.5.3 - 2025-xx-xx
+## 0.5.3 - 2025-05-16
 
 - {pull}`650` allows to identify from which data catalog a node is coming from. Thanks
   to {user}`felixschmitz` for the report! The feature is enabled by adding an
@@ -13,6 +13,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   nodes in v0.6.0.
 - {pull}`662` adds the `.pixi` folder to be ignored by default during the collection.
 - {pull}`671` enhances the documentation on complex repetitions. Closes {issue}`670`.
+- {pull}`673` adds de-/serializer function attributes to the `PickleNode`. Closes
+  {issue}`669`.
+- {pull}`677` excludes the latest click v8.2.0 due to compatibility issues.
+- {pull}`678` enables some tests in CI or offline, removes refurb.
 
 ## 0.5.2 - 2024-12-19
 

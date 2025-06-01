@@ -25,14 +25,10 @@ repos:
     -   id: python-no-log-warn
     -   id: text-unicode-replacement-char
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.8
+    rev: v0.11.12
     hooks:
       - id: ruff-format
       - id: ruff
--   repo: https://github.com/dosisod/refurb
-    rev: v2.0.0
-    hooks:
-    -   id: refurb
 -   repo: https://github.com/executablebooks/mdformat
     rev: 0.7.22
     hooks:
