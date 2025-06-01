@@ -26,7 +26,7 @@ jobs:
         with:
           enable-cache: true
       - run: uv run --group typing mypy
-      - run: nbqa mypy --ignore-missing-imports .
+      - run: uv run --group typing nbqa mypy --ignore-missing-imports .
 
   run-tests:
 
