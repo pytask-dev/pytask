@@ -21,15 +21,15 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "attrs>=21.3",
-    "click>=7,<8.2.0",
-    "click-default-group",
-    "networkx>=2.4",
-    "optree>=0.9",
-    "packaging",
+    "attrs>=21.3.0",
+    "click>=8.1.8,<8.2.0",
+    "click-default-group>=1.2.4",
+    "networkx>=3.0.0",
+    "optree>=0.9.0",
+    "packaging>=23.0.0",
     "pluggy>=1.3.0",
-    "rich",
-    "sqlalchemy>=2",
+    "rich>=13.8.0",
+    "sqlalchemy>=2.0.0",
     'tomli>=1; python_version < "3.11"',
     'typing-extensions; python_version < "3.11"',
     "universal-pathlib>=0.2.2",
@@ -49,30 +49,30 @@ email = "raabe@posteo.de"
 [dependency-groups]
 dev = ["pygraphviz>=1.11;platform_system=='Linux'"]
 docs = [
-    "furo",
+    "furo>=2024.8.6",
     "ipython>=8.13.2",
-    "matplotlib",
+    "matplotlib>=3.5.0",
     "myst-parser",
     "myst-nb",
-    "sphinx",
+    "sphinx>=7.0.0",
     "sphinx-click",
     "sphinx-copybutton",
     "sphinx-design>=0.3",
     "sphinx-toolbox",
     "sphinxext-opengraph",
 ]
-plugin-list = ["httpx", "tabulate[widechars]", "tqdm"]
+plugin-list = ["httpx", "tabulate[widechars]>=0.9.0", "tqdm"]
 test = [
     "deepdiff",
     "nbmake",
     "pexpect",
-    "pytest",
+    "pytest>=8.4.0",
     "pytest-cov",
-    "pytest-xdist",
-    "syrupy",
-    "aiohttp",      # For HTTPPath tests.
-    "coiled",
-    "cloudpickle",
+    "pytest-xdist>=3.6.1",
+    "syrupy>=4.5.0",
+    "aiohttp>=3.11.0",      # For HTTPPath tests.
+    "coiled>=1.42.0",
+    "cloudpickle>=3.0.0",
 ]
 typing = ["mypy>=1.9.0,<1.11", "nbqa>=1.8.5"]
 

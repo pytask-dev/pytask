@@ -57,3 +57,7 @@ jobs:
 
       - name: Upload test coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v5
+
+      - name: test lowest versions
+        if: matrix.python-version == '3.13' && matrix.os == 'ubuntu-latest'
+        run: uv run --group test --resolution lowest-direct pytest
