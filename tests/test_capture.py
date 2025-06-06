@@ -769,6 +769,11 @@ class TestStdCaptureFD(TestStdCapture):
 
 @pytest.mark.unit
 class TestStdCaptureFDinvalidFD:
+    @pytest.mark.skipif(
+        sys.platform == "darwin" and sys.version_info[:2] == (3, 9),
+        reason="Causes following tests to fail and kills the pytest session with exit "
+        "code 137.",
+    )
     def test_stdcapture_fd_invalid_fd(self, tmp_path, runner):
         source = """
         import os

@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import os
 import subprocess
-import sys
 import textwrap
 
 import pytest
@@ -12,20 +10,7 @@ from tests.conftest import run_in_subprocess
 
 
 @pytest.mark.end_to_end
-@pytest.mark.parametrize(
-    "module_name",
-    [
-        pytest.param(
-            True,
-            marks=pytest.mark.xfail(
-                sys.platform == "win32" and os.environ.get("CI") == "true",
-                reason="pytask is not found in subprocess",
-                strict=True,
-            ),
-        ),
-        False,
-    ],
-)
+@pytest.mark.parametrize("module_name", [True, False])
 def test_add_new_hook_via_cli(tmp_path, module_name):
     hooks = """
     import click
@@ -41,6 +26,8 @@ def test_add_new_hook_via_cli(tmp_path, module_name):
 
     if module_name:
         args = (
+            "uv",
+            "run",
             "python",
             "-m",
             "pytask",
@@ -50,7 +37,15 @@ def test_add_new_hook_via_cli(tmp_path, module_name):
             "--help",
         )
     else:
-        args = ("pytask", "build", "--hook-module", "hooks/hooks.py", "--help")
+        args = (
+            "uv",
+            "run",
+            "pytask",
+            "build",
+            "--hook-module",
+            "hooks/hooks.py",
+            "--help",
+        )
 
     result = run_in_subprocess(args, cwd=tmp_path)
     assert result.exit_code == ExitCode.OK
@@ -58,20 +53,7 @@ def test_add_new_hook_via_cli(tmp_path, module_name):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.parametrize(
-    "module_name",
-    [
-        pytest.param(
-            True,
-            marks=pytest.mark.xfail(
-                sys.platform == "win32" and os.environ.get("CI") == "true",
-                reason="pytask is not found in subprocess",
-                strict=True,
-            ),
-        ),
-        False,
-    ],
-)
+@pytest.mark.parametrize("module_name", [True, False])
 def test_add_new_hook_via_config(tmp_path, module_name):
     tmp_path.joinpath("pyproject.toml").write_text(
         "[tool.pytask.ini_options]\nhook_module = ['hooks/hooks.py']"
@@ -89,9 +71,18 @@ def test_add_new_hook_via_config(tmp_path, module_name):
     tmp_path.joinpath("hooks", "hooks.py").write_text(textwrap.dedent(hooks))
 
     if module_name:
-        args = ("python", "-m", "pytask", "build", "--help")
+        args = (
+            "uv",
+            "run",
+            "--no-project",
+            "python",
+            "-m",
+            "pytask",
+            "build",
+            "--help",
+        )
     else:
-        args = ("pytask", "build", "--help")
+        args = ("uv", "run", "--no-project", "pytask", "build", "--help")
 
     result = run_in_subprocess(args, cwd=tmp_path)
     assert result.exit_code == ExitCode.OK

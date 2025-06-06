@@ -22,13 +22,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v5
         with:
-          python-version-file: .python-version
-          allow-prereleases: true
-          cache: pip
-      - run: pip install tox-uv
-      - run: tox -e typing
+          enable-cache: true
+      - run: uv run --no-dev --group typing mypy
+      - run: uv run --no-dev --group typing nbqa mypy --ignore-missing-imports .
 
   run-tests:
 
@@ -43,12 +41,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
-          allow-prereleases: true
-      - run: pip install tox-uv
+          enable-cache: true
 
       - if: matrix.os == 'ubuntu-latest'
         run: |
@@ -59,7 +55,7 @@ jobs:
 
       - name: Run unit tests and doctests.
         shell: bash -l {0}
-        run: tox -e test -- -m "unit or (not integration and not end_to_end)" --cov=src --cov=tests --cov-report=xml -n auto
+        run: uv run --group test pytest --nbmake -m "unit or (not integration and not end_to_end)" --cov=src --cov=tests --cov-report=xml -n auto
 
       - name: Upload unit test coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v5
@@ -68,7 +64,7 @@ jobs:
 
       - name: Run integration tests.
         shell: bash -l {0}
-        run: tox -e test -- -m integration --cov=src --cov=tests --cov-report=xml -n auto
+        run: uv run --group test pytest --nbmake -m integration --cov=src --cov=tests --cov-report=xml -n auto
 
       - name: Upload integration test coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v5
@@ -77,7 +73,7 @@ jobs:
 
       - name: Run end-to-end tests.
         shell: bash -l {0}
-        run: tox -e test -- -m end_to_end --cov=src --cov=tests --cov-report=xml -n auto
+        run: uv run --group test pytest --nbmake -m end_to_end --cov=src --cov=tests --cov-report=xml -n auto
 
       - name: Upload end_to_end test coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v5
