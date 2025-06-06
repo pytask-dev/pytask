@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
 import subprocess
 import sys
 import textwrap
@@ -100,7 +99,16 @@ def test_add_new_hook_via_config(tmp_path, module_name):
     tmp_path.joinpath("hooks", "hooks.py").write_text(textwrap.dedent(hooks))
 
     if module_name:
-        args = ("uv", "run", "--no-project", "python", "-m", "pytask", "build", "--help")
+        args = (
+            "uv",
+            "run",
+            "--no-project",
+            "python",
+            "-m",
+            "pytask",
+            "build",
+            "--help",
+        )
     else:
         args = ("uv", "run", "--no-project", "pytask", "build", "--help")
 
