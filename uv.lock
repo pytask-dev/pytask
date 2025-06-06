@@ -3482,15 +3482,15 @@ typing = [
 
 [package.metadata]
 requires-dist = [
-    { name = "attrs", specifier = ">=21.3" },
+    { name = "attrs", specifier = ">=21.3.0" },
     { name = "click", specifier = ">=8.1.8,<8.2.0" },
     { name = "click-default-group", specifier = ">=1.2.4" },
     { name = "networkx", specifier = ">=3.0.0" },
-    { name = "optree", specifier = ">=0.9" },
-    { name = "packaging" },
+    { name = "optree", specifier = ">=0.9.0" },
+    { name = "packaging", specifier = ">=23.0.0" },
     { name = "pluggy", specifier = ">=1.3.0" },
     { name = "rich", specifier = ">=13.8.0" },
-    { name = "sqlalchemy", specifier = ">=2" },
+    { name = "sqlalchemy", specifier = ">=2.0.0" },
     { name = "tomli", marker = "python_full_version < '3.11'", specifier = ">=1" },
     { name = "typing-extensions", marker = "python_full_version < '3.11'" },
     { name = "universal-pathlib", specifier = ">=0.2.2" },
