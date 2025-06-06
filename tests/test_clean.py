@@ -8,7 +8,6 @@ import pytest
 from _pytask.git import init_repo
 from pytask import ExitCode
 from pytask import cli
-from pytask import storage
 from tests.conftest import enter_directory
 
 _PROJECT_TASK = """
@@ -83,11 +82,9 @@ def test_clean_database_ignored(project, runner):
     with enter_directory(project):
         result = runner.invoke(cli, ["build"])
         assert result.exit_code == ExitCode.OK
-        storage.create()
         result = runner.invoke(cli, ["clean"])
         assert result.exit_code == ExitCode.OK
 
-    assert result.exit_code == ExitCode.OK
     text_without_linebreaks = result.output.replace("\n", "")
     assert "to_be_deleted_file_1.txt" in text_without_linebreaks
     assert "to_be_deleted_file_2.txt" in text_without_linebreaks
