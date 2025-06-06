@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 import subprocess
 import sys
 import textwrap
@@ -41,6 +42,8 @@ def test_add_new_hook_via_cli(tmp_path, module_name):
 
     if module_name:
         args = (
+            "uv",
+            "run",
             "python",
             "-m",
             "pytask",
@@ -50,7 +53,15 @@ def test_add_new_hook_via_cli(tmp_path, module_name):
             "--help",
         )
     else:
-        args = ("pytask", "build", "--hook-module", "hooks/hooks.py", "--help")
+        args = (
+            "uv",
+            "run",
+            "pytask",
+            "build",
+            "--hook-module",
+            "hooks/hooks.py",
+            "--help",
+        )
 
     result = run_in_subprocess(args, cwd=tmp_path)
     assert result.exit_code == ExitCode.OK
@@ -89,9 +100,9 @@ def test_add_new_hook_via_config(tmp_path, module_name):
     tmp_path.joinpath("hooks", "hooks.py").write_text(textwrap.dedent(hooks))
 
     if module_name:
-        args = ("python", "-m", "pytask", "build", "--help")
+        args = ("uv", "run", "--no-project", "python", "-m", "pytask", "build", "--help")
     else:
-        args = ("pytask", "build", "--help")
+        args = ("uv", "run", "--no-project", "pytask", "build", "--help")
 
     result = run_in_subprocess(args, cwd=tmp_path)
     assert result.exit_code == ExitCode.OK

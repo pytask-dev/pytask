@@ -127,7 +127,6 @@ def test_disable_warnings_with_config(tmp_path, runner, add_config):
 
 
 @pytest.mark.end_to_end
-@pytest.mark.xfail(sys.platform == "win32", reason="See #293.")
 @pytest.mark.parametrize("warning", ["DeprecationWarning", "PendingDeprecationWarning"])
 def test_deprecation_warnings_are_not_captured(tmp_path, warning):
     path_to_warn_module = tmp_path.joinpath("warning.py")
@@ -156,7 +155,7 @@ def test_deprecation_warnings_are_not_captured(tmp_path, warning):
     path_to_warn_module.write_text(textwrap.dedent(warn_module))
 
     # Cannot use runner since then warnings are not ignored by default.
-    result = run_in_subprocess(("pytask"), cwd=tmp_path)
+    result = run_in_subprocess(("uv", "run", "pytask"), cwd=tmp_path)
     assert result.exit_code == ExitCode.OK
     assert "Warnings" not in result.stdout
     assert "warning!!!" not in result.stdout

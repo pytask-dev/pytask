@@ -20,13 +20,16 @@ from pytask import TaskWithoutPath
 from pytask import build
 from pytask import cli
 from tests.conftest import enter_directory
+from tests.conftest import run_in_subprocess
 
 
-@pytest.mark.xfail(sys.platform == "win32", reason="See #293.")
 @pytest.mark.end_to_end
 def test_python_m_pytask(tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
-    subprocess.run(["python", "-m", "pytask", tmp_path.as_posix()], check=False)
+    result = run_in_subprocess(
+        ("uv", "run", "python", "-m", "pytask", tmp_path.as_posix())
+    )
+    assert result.exit_code == ExitCode.OK
 
 
 @pytest.mark.end_to_end
@@ -657,10 +660,10 @@ def test_execute_tasks_multiple_times_via_api(tmp_path):
         sys.exit(session2.exit_code)
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    result = subprocess.run(
-        ("python", tmp_path.joinpath("task_module.py").as_posix()), check=False
+    result = run_in_subprocess(
+        ("uv", "run", "python", tmp_path.joinpath("task_module.py").as_posix())
     )
-    assert result.returncode == ExitCode.OK
+    assert result.exit_code == ExitCode.OK
 
 
 @pytest.mark.end_to_end
@@ -765,14 +768,14 @@ def test_hashing_works(tmp_path):
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
-    result = subprocess.run(("pytask"), cwd=tmp_path)  # noqa: PLW1510
-    assert result.returncode == ExitCode.OK
+    result = run_in_subprocess(("pytask",), cwd=tmp_path)
+    assert result.exit_code == ExitCode.OK
 
     hashes = json.loads(tmp_path.joinpath(".pytask", "file_hashes.json").read_text())
     assert len(hashes) == 2
 
-    result = subprocess.run(("pytask"), cwd=tmp_path)  # noqa: PLW1510
-    assert result.returncode == ExitCode.OK
+    result = run_in_subprocess(("pytask",), cwd=tmp_path)
+    assert result.exit_code == ExitCode.OK
 
     hashes_ = json.loads(tmp_path.joinpath(".pytask", "file_hashes.json").read_text())
     assert hashes == hashes_
