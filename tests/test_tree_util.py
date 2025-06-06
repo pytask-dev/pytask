@@ -13,7 +13,6 @@ from pytask.tree_util import tree_map
 from pytask.tree_util import tree_structure
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("arg_name", ["depends_on", "produces"])
 def test_task_with_complex_product_did_not_produce_node(tmp_path, arg_name):
     source = f"""
@@ -46,7 +45,6 @@ def test_task_with_complex_product_did_not_produce_node(tmp_path, arg_name):
     assert products == expected
 
 
-@pytest.mark.end_to_end
 def test_profile_with_pytree(tmp_path, runner):
     source = """
     import time
@@ -75,7 +73,6 @@ def test_profile_with_pytree(tmp_path, runner):
     assert "86 bytes" in result.output
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("prefix_tree", "full_tree", "strict", "expected"),
     [

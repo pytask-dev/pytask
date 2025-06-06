@@ -3,13 +3,10 @@ from __future__ import annotations
 import pickle
 import textwrap
 
-import pytest
-
 from pytask import ExitCode
 from pytask import cli
 
 
-@pytest.mark.end_to_end
 def test_node_protocol_for_custom_nodes(runner, tmp_path):
     source = """
     from typing import Annotated
@@ -48,7 +45,6 @@ def test_node_protocol_for_custom_nodes(runner, tmp_path):
     assert "FutureWarning" not in result.output
 
 
-@pytest.mark.end_to_end
 def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     source = """
     from typing import Annotated
@@ -94,7 +90,6 @@ def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     assert tmp_path.joinpath("out.txt").read_text() == "text"
 
 
-@pytest.mark.end_to_end
 def test_node_protocol_for_custom_nodes_adding_attributes(runner, tmp_path):
     source = """
     from typing import Annotated

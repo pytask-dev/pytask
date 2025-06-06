@@ -2,12 +2,9 @@ from __future__ import annotations
 
 import functools
 
-import pytest
-
 from pytask import is_task_function
 
 
-@pytest.mark.unit
 def test_is_task_function():
     def func(): ...
 

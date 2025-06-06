@@ -11,7 +11,6 @@ from pytask import check_for_optional_program
 from pytask import import_optional_dependency
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("name", "extra", "errors", "caller", "expectation", "expected"),
     [
@@ -79,7 +78,6 @@ def test_check_for_optional_program(  # noqa: PLR0913
         assert program_exists is expected
 
 
-@pytest.mark.unit
 def test_import_optional():
     match = "pytask requires .*notapackage.* pip .* conda .* 'notapackage'"
     with pytest.raises(ImportError, match=match) as exc_info:
@@ -91,13 +89,11 @@ def test_import_optional():
     assert result is None
 
 
-@pytest.mark.unit
 def test_sqlalchemy_version_fallback():
     pytest.importorskip("sqlalchemy")
     import_optional_dependency("sqlalchemy")
 
 
-@pytest.mark.unit
 def test_bad_version(monkeypatch):
     name = "fakemodule"
     module = types.ModuleType(name)
@@ -122,7 +118,6 @@ def test_bad_version(monkeypatch):
     assert result is module
 
 
-@pytest.mark.unit
 def test_submodule(monkeypatch):
     # Create a fake module with a submodule
     name = "fakemodule"
@@ -148,7 +143,6 @@ def test_submodule(monkeypatch):
     assert result is submodule
 
 
-@pytest.mark.unit
 def test_no_version_raises(monkeypatch):
     name = "fakemodule"
     module = types.ModuleType(name)

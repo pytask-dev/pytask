@@ -14,7 +14,6 @@ from pytask import build
 from pytask import cli
 
 
-@pytest.mark.unit
 @pytest.mark.skipif(sys.platform == "win32", reason="Hashes match only on unix.")
 def test_create_dag():
     root = Path("src")
@@ -37,7 +36,6 @@ def test_create_dag():
         assert signature in dag.nodes
 
 
-@pytest.mark.end_to_end
 def test_cycle_in_dag(tmp_path, runner, snapshot_cli):
     source = """
     from pathlib import Path
@@ -57,7 +55,6 @@ def test_cycle_in_dag(tmp_path, runner, snapshot_cli):
         assert result.output == snapshot_cli()
 
 
-@pytest.mark.end_to_end
 def test_two_tasks_have_the_same_product(tmp_path, runner, snapshot_cli):
     source = """
     from pathlib import Path
@@ -77,7 +74,6 @@ def test_two_tasks_have_the_same_product(tmp_path, runner, snapshot_cli):
         assert result.output == snapshot_cli()
 
 
-@pytest.mark.end_to_end
 def test_has_node_changed_catches_notnotfounderror(runner, tmp_path):
     """Missing nodes raise NodeNotFoundError when they do not exist and their state is
     requested."""
@@ -98,7 +94,6 @@ def test_has_node_changed_catches_notnotfounderror(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
 
 
-@pytest.mark.end_to_end
 def test_python_nodes_are_unique(tmp_path):
     tmp_path.joinpath("a").mkdir()
     tmp_path.joinpath("a", "task_example.py").write_text("def task_example(a=1): pass")

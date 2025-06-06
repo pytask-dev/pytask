@@ -9,7 +9,6 @@ from pytask import ExitCode
 from tests.conftest import run_in_subprocess
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("module_name", [True, False])
 def test_add_new_hook_via_cli(tmp_path, module_name):
     hooks = """
@@ -52,7 +51,6 @@ def test_add_new_hook_via_cli(tmp_path, module_name):
     assert "--new-option" in result.stdout
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("module_name", [True, False])
 def test_add_new_hook_via_config(tmp_path, module_name):
     tmp_path.joinpath("pyproject.toml").write_text(
@@ -89,7 +87,6 @@ def test_add_new_hook_via_config(tmp_path, module_name):
     assert "--new-option" in result.stdout
 
 
-@pytest.mark.end_to_end
 def test_error_when_hook_module_path_does_not_exist(tmp_path):
     result = subprocess.run(  # noqa: PLW1510
         ("pytask", "build", "--hook-module", "hooks.py", "--help"),
@@ -100,7 +97,6 @@ def test_error_when_hook_module_path_does_not_exist(tmp_path):
     assert b"Error: Invalid value for '--hook-module'" in result.stderr
 
 
-@pytest.mark.end_to_end
 def test_error_when_hook_module_module_does_not_exist(tmp_path):
     result = subprocess.run(  # noqa: PLW1510
         ("pytask", "build", "--hook-module", "hooks", "--help"),
@@ -111,7 +107,6 @@ def test_error_when_hook_module_module_does_not_exist(tmp_path):
     assert b"Error: Invalid value for '--hook-module':" in result.stderr
 
 
-@pytest.mark.end_to_end
 def test_error_when_hook_module_is_no_iterable(tmp_path):
     tmp_path.joinpath("pyproject.toml").write_text(
         "[tool.pytask.ini_options]\nhook_module = 'hooks'"
