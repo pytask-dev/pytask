@@ -10,28 +10,18 @@ from pytask import ExitCode
 from pytask import cli
 from tests.conftest import enter_directory
 
-_PROJECT_TASK = """
-import pytask
-from pathlib import Path
 
-def task_write_text(path = Path("in.txt"), produces = Path("out.txt")):
-    produces.write_text("a")
-"""
-
-
-_PROJECT_TASK_NEW_INTERFACE = """
-import pytask
-from pathlib import Path
-
-def task_write_text(path=Path("in.txt"), produces=Path("out.txt")):
-    produces.write_text("a")
-"""
-
-
-@pytest.fixture(params=[_PROJECT_TASK, _PROJECT_TASK_NEW_INTERFACE])
-def project(request, tmp_path):
+@pytest.fixture
+def project(tmp_path):
     """Create a sample project to be cleaned."""
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(request.param))
+    content = """
+    import pytask
+    from pathlib import Path
+
+    def task_write_text(path=Path("in.txt"), produces=Path("out.txt")):
+        produces.write_text("a")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(content))
     tmp_path.joinpath("in.txt").touch()
 
     tmp_path.joinpath("to_be_deleted_file_1.txt").touch()
@@ -41,28 +31,17 @@ def project(request, tmp_path):
     return tmp_path
 
 
-_GIT_PROJECT_TASK = """
-import pytask
-from pathlib import Path
-
-def task_write_text(path = Path("in_tracked.txt"), produces = Path("out.txt")):
-    produces.write_text("a")
-"""
-
-
-_GIT_PROJECT_TASK_NEW_INTERFACE = """
-import pytask
-from pathlib import Path
-
-def task_write_text(path=Path("in_tracked.txt"), produces=Path("out.txt")):
-    produces.write_text("a")
-"""
-
-
-@pytest.fixture(params=[_GIT_PROJECT_TASK, _GIT_PROJECT_TASK_NEW_INTERFACE])
-def git_project(request, tmp_path):
+@pytest.fixture
+def git_project(tmp_path):
     """Create a sample project to be cleaned."""
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(request.param))
+    content = """
+    import pytask
+    from pathlib import Path
+
+    def task_write_text(path=Path("in_tracked.txt"), produces=Path("out.txt")):
+        produces.write_text("a")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(content))
     tmp_path.joinpath("in_tracked.txt").touch()
     tmp_path.joinpath("tracked.txt").touch()
 
