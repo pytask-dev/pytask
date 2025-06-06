@@ -47,6 +47,7 @@ name = "Tobias Raabe"
 email = "raabe@posteo.de"
 
 [dependency-groups]
+dev = ["pygraphviz>=1.11;platform_system=='Linux'"]
 docs = [
     "furo",
     "ipython>=8.13.2",
@@ -84,9 +85,6 @@ Tracker = "https://github.com/pytask-dev/pytask/issues"
 
 [project.scripts]
 pytask = "pytask:cli"
-
-[tool.uv]
-dev-dependencies = ["pygraphviz>=1.11;platform_system=='Linux'"]
 
 [build-system]
 requires = ["hatchling", "hatch_vcs"]
