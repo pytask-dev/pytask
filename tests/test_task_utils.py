@@ -16,7 +16,6 @@ from pytask import Mark
 from pytask import task
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("arg_name", "arg_value", "i", "id_func", "expected"),
     [
@@ -47,7 +46,6 @@ class ExampleAttrs:
     b: str = "wonderful"
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("kwargs", "expectation", "expected"),
     [
@@ -65,7 +63,6 @@ def test_parse_task_kwargs(kwargs, expectation, expected):
         assert result == expected
 
 
-@pytest.mark.integration
 def test_default_values_of_pytask_meta():
     @task()
     def task_example(): ...
@@ -86,7 +83,6 @@ def task_func(x):  # pragma: no cover
     pass
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("func", "name", "expectation", "expected"),
     [

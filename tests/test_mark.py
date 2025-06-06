@@ -12,20 +12,17 @@ from pytask import build
 from pytask import cli
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize("attribute", ["hookimpl", "mark"])
 def test_mark_exists_in_pytask_namespace(attribute):
     assert attribute in sys.modules["pytask"].__all__
 
 
-@pytest.mark.unit
 def test_pytask_mark_notcallable() -> None:
     mark = MarkGenerator()
     with pytest.raises(TypeError):
         mark()
 
 
-@pytest.mark.unit
 @pytest.mark.filterwarnings("ignore:Unknown pytask.mark.foo")
 def test_mark_with_param():
     def some_function():  # pragma: no cover
@@ -42,14 +39,12 @@ def test_mark_with_param():
     assert pytask.mark.foo.with_args(SomeClass) is not SomeClass
 
 
-@pytest.mark.unit
 def test_pytask_mark_name_starts_with_underscore():
     mark = MarkGenerator()
     with pytest.raises(AttributeError):
         _ = mark._some_name
 
 
-@pytest.mark.end_to_end
 def test_markers_command(tmp_path, runner):
     toml = """
     [tool.pytask.ini_options]
@@ -64,7 +59,6 @@ def test_markers_command(tmp_path, runner):
         assert out in result.output
 
 
-@pytest.mark.end_to_end
 def test_ini_markers_whitespace(runner, tmp_path):
     tmp_path.joinpath("pyproject.toml").write_text(
         "[tool.pytask.ini_options]\nmarkers = {'a1 ' = 'this is a whitespace marker'}"
@@ -82,7 +76,6 @@ def test_ini_markers_whitespace(runner, tmp_path):
     assert "1  Succeeded" in result.output
 
 
-@pytest.mark.end_to_end
 @pytest.mark.filterwarnings("ignore:Unknown pytask.mark.")
 @pytest.mark.parametrize(
     ("expr", "expected_passed"),
@@ -119,7 +112,6 @@ def test_mark_option(tmp_path, expr: str, expected_passed: str) -> None:
     assert set(tasks_that_run) == set(expected_passed)
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("expr", "expected_passed"),
     [
@@ -163,7 +155,6 @@ def test_keyword_option_custom(tmp_path, expr: str, expected_passed: str) -> Non
     assert set(tasks_that_run) == set(expected_passed)
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("expr", "expected_passed"),
     [
@@ -195,7 +186,6 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
     assert set(tasks_that_run) == set(expected_passed)
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("expr", "expected_error"),
     [
@@ -242,7 +232,6 @@ def test_keyword_option_wrong_arguments(
     ) or expected_error in captured.out.replace("\n", "")
 
 
-@pytest.mark.end_to_end
 def test_configuration_failed(runner, tmp_path):
     result = runner.invoke(
         cli, ["markers", "-c", tmp_path.joinpath("non_existent_path").as_posix()]
@@ -250,7 +239,6 @@ def test_configuration_failed(runner, tmp_path):
     assert result.exit_code == ExitCode.CONFIGURATION_FAILED
 
 
-@pytest.mark.end_to_end
 def test_selecting_task_with_keyword_should_run_predecessor(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -268,7 +256,6 @@ def test_selecting_task_with_keyword_should_run_predecessor(runner, tmp_path):
     assert "2  Succeeded" in result.output
 
 
-@pytest.mark.end_to_end
 def test_selecting_task_with_marker_should_run_predecessor(runner, tmp_path):
     source = """
     import pytask
@@ -289,7 +276,6 @@ def test_selecting_task_with_marker_should_run_predecessor(runner, tmp_path):
     assert "Warnings" in result.output
 
 
-@pytest.mark.end_to_end
 def test_selecting_task_with_keyword_ignores_other_task(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -307,7 +293,6 @@ def test_selecting_task_with_keyword_ignores_other_task(runner, tmp_path):
     assert "1  Skipped" in result.output
 
 
-@pytest.mark.end_to_end
 def test_selecting_task_with_marker_ignores_other_task(runner, tmp_path):
     source = """
     import pytask
@@ -328,7 +313,6 @@ def test_selecting_task_with_marker_ignores_other_task(runner, tmp_path):
     assert "Warnings" in result.output
 
 
-@pytest.mark.end_to_end
 def test_selecting_task_with_unknown_marker_raises_warning(runner, tmp_path):
     source = """
     import pytask
@@ -345,7 +329,6 @@ def test_selecting_task_with_unknown_marker_raises_warning(runner, tmp_path):
     assert "Warnings" in result.output
 
 
-@pytest.mark.end_to_end
 def test_different_mark_import(runner, tmp_path):
     source = """
     from pytask import mark
@@ -359,7 +342,6 @@ def test_different_mark_import(runner, tmp_path):
     assert "Skipped" in result.output
 
 
-@pytest.mark.end_to_end
 def test_error_with_unknown_marker_and_strict(runner, tmp_path):
     source = """
     from pytask import mark
@@ -373,7 +355,6 @@ def test_error_with_unknown_marker_and_strict(runner, tmp_path):
     assert "Unknown pytask.mark.unknown" in result.output
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("name", ["parametrize", "depends_on", "produces", "task"])
 def test_error_with_depreacated_markers(runner, tmp_path, name):
     source = f"""
@@ -388,7 +369,6 @@ def test_error_with_depreacated_markers(runner, tmp_path, name):
     assert f"@pytask.mark.{name}" in result.output
 
 
-@pytest.mark.end_to_end
 def test_error_with_d(runner, tmp_path):
     source = """
     from pytask import mark

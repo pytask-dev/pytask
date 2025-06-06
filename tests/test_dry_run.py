@@ -2,13 +2,10 @@ from __future__ import annotations
 
 import textwrap
 
-import pytest
-
 from pytask import ExitCode
 from pytask import cli
 
 
-@pytest.mark.end_to_end
 def test_dry_run(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -24,7 +21,6 @@ def test_dry_run(runner, tmp_path):
     assert not tmp_path.joinpath("out.txt").exists()
 
 
-@pytest.mark.end_to_end
 def test_dry_run_w_subsequent_task(runner, tmp_path):
     """Subsequent tasks would be executed if their previous task changed."""
     source = """
@@ -59,7 +55,6 @@ def test_dry_run_w_subsequent_task(runner, tmp_path):
     assert "2  Would be executed" in result.output
 
 
-@pytest.mark.end_to_end
 def test_dry_run_w_subsequent_skipped_task(runner, tmp_path):
     """A skip is more important than a would be run."""
     source_1 = """
@@ -95,7 +90,6 @@ def test_dry_run_w_subsequent_skipped_task(runner, tmp_path):
     assert "1  Skipped" in result.output
 
 
-@pytest.mark.end_to_end
 def test_dry_run_skip(runner, tmp_path):
     source = """
     import pytask
@@ -117,7 +111,6 @@ def test_dry_run_skip(runner, tmp_path):
     assert not tmp_path.joinpath("out.txt").exists()
 
 
-@pytest.mark.end_to_end
 def test_dry_run_skip_all(runner, tmp_path):
     source = """
     import pytask
@@ -137,7 +130,6 @@ def test_dry_run_skip_all(runner, tmp_path):
     assert "2  Skipped" in result.output
 
 
-@pytest.mark.end_to_end
 def test_dry_run_skipped_successful(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -158,7 +150,6 @@ def test_dry_run_skipped_successful(runner, tmp_path):
     assert "1  Skipped because unchanged" in result.output
 
 
-@pytest.mark.end_to_end
 def test_dry_run_persisted(runner, tmp_path):
     source = """
     import pytask

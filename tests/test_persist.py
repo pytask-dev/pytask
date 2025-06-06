@@ -21,13 +21,11 @@ class DummyClass:
     pass
 
 
-@pytest.mark.end_to_end
 def test_persist_marker_is_set(tmp_path):
     session = build(paths=tmp_path)
     assert "persist" in session.config["markers"]
 
 
-@pytest.mark.end_to_end
 def test_multiple_runs_with_persist(tmp_path):
     """Perform multiple consecutive runs and check intermediate outcomes with persist.
 
@@ -86,7 +84,6 @@ def test_multiple_runs_with_persist(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
 
 
-@pytest.mark.end_to_end
 def test_migrating_a_whole_task_with_persist(tmp_path):
     source = """
     import pytask
@@ -110,7 +107,6 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
     assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("exc_info", "expected"),
     [

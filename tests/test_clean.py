@@ -56,7 +56,6 @@ def git_project(tmp_path):
     return tmp_path
 
 
-@pytest.mark.end_to_end
 def test_clean_database_ignored(project, runner):
     with enter_directory(project):
         result = runner.invoke(cli, ["build"])
@@ -70,7 +69,6 @@ def test_clean_database_ignored(project, runner):
     assert "pytask.sqlite3" not in text_without_linebreaks
 
 
-@pytest.mark.end_to_end
 def test_clean_with_auto_collect(project, runner):
     with enter_directory(project):
         result = runner.invoke(cli, ["clean"])
@@ -82,7 +80,6 @@ def test_clean_with_auto_collect(project, runner):
     assert "to_be_deleted_file_2.txt" in text_without_linebreaks
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("flag", ["-e", "--exclude"])
 @pytest.mark.parametrize("pattern", ["*_1.txt", "to_be_deleted_file_[1]*"])
 def test_clean_with_excluded_file(project, runner, flag, pattern):
@@ -94,7 +91,6 @@ def test_clean_with_excluded_file(project, runner, flag, pattern):
     assert "to_be_deleted_file_2.txt" in text_without_linebreaks
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("flag", ["-e", "--exclude"])
 @pytest.mark.parametrize("pattern", ["*_1.txt", "to_be_deleted_file_[1]*"])
 def test_clean_with_excluded_file_via_config(project, runner, flag, pattern):
@@ -111,7 +107,6 @@ def test_clean_with_excluded_file_via_config(project, runner, flag, pattern):
     assert "pyproject.toml" in text_without_linebreaks
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("flag", ["-e", "--exclude"])
 def test_clean_with_excluded_directory(project, runner, flag):
     result = runner.invoke(
@@ -123,7 +118,6 @@ def test_clean_with_excluded_directory(project, runner, flag):
     assert "deleted_file_1.txt" in result.output.replace("\n", "")
 
 
-@pytest.mark.end_to_end
 def test_clean_with_nothing_to_remove(tmp_path, runner):
     result = runner.invoke(cli, ["clean", "--exclude", "*", tmp_path.as_posix()])
 
@@ -131,7 +125,6 @@ def test_clean_with_nothing_to_remove(tmp_path, runner):
     assert "There are no files and directories which can be deleted." in result.output
 
 
-@pytest.mark.end_to_end
 def test_clean_dry_run(project, runner):
     result = runner.invoke(cli, ["clean", project.as_posix()])
 
@@ -146,7 +139,6 @@ def test_clean_dry_run(project, runner):
     ).exists()
 
 
-@pytest.mark.end_to_end
 def test_clean_dry_run_w_directories(project, runner):
     result = runner.invoke(cli, ["clean", "-d", project.as_posix()])
 
@@ -158,7 +150,6 @@ def test_clean_dry_run_w_directories(project, runner):
     assert "to_be_deleted_folder_1" in text_without_linebreaks
 
 
-@pytest.mark.end_to_end
 def test_clean_force(project, runner):
     result = runner.invoke(cli, ["clean", "--mode", "force", project.as_posix()])
 
@@ -173,7 +164,6 @@ def test_clean_force(project, runner):
     ).exists()
 
 
-@pytest.mark.end_to_end
 def test_clean_force_w_directories(project, runner):
     result = runner.invoke(cli, ["clean", "-d", "--mode", "force", project.as_posix()])
 
@@ -185,7 +175,6 @@ def test_clean_force_w_directories(project, runner):
     assert "to_be_deleted_folder_1" in text_without_linebreaks
 
 
-@pytest.mark.end_to_end
 def test_clean_interactive(project, runner):
     result = runner.invoke(
         cli,
@@ -204,7 +193,6 @@ def test_clean_interactive(project, runner):
     ).exists()
 
 
-@pytest.mark.end_to_end
 def test_clean_interactive_w_directories(project, runner):
     result = runner.invoke(
         cli,
@@ -222,7 +210,6 @@ def test_clean_interactive_w_directories(project, runner):
     assert not project.joinpath("to_be_deleted_folder_1").exists()
 
 
-@pytest.mark.end_to_end
 def test_configuration_failed(runner, tmp_path):
     result = runner.invoke(
         cli, ["clean", tmp_path.joinpath("non_existent_path").as_posix()]
@@ -230,7 +217,6 @@ def test_configuration_failed(runner, tmp_path):
     assert result.exit_code == ExitCode.CONFIGURATION_FAILED
 
 
-@pytest.mark.end_to_end
 def test_collection_failed(runner, tmp_path):
     source = """
     raise Exception
@@ -241,7 +227,6 @@ def test_collection_failed(runner, tmp_path):
     assert result.exit_code == ExitCode.COLLECTION_FAILED
 
 
-@pytest.mark.end_to_end
 def test_dont_remove_files_tracked_by_git(runner, git_project):
     result = runner.invoke(cli, ["clean", git_project.as_posix()])
 
@@ -251,7 +236,6 @@ def test_dont_remove_files_tracked_by_git(runner, git_project):
     assert ".git" not in result.output
 
 
-@pytest.mark.end_to_end
 def test_clean_git_files_if_git_is_not_installed(monkeypatch, runner, git_project):
     monkeypatch.setattr(
         "_pytask.clean.is_git_installed",
@@ -266,7 +250,6 @@ def test_clean_git_files_if_git_is_not_installed(monkeypatch, runner, git_projec
     assert ".git" not in result.output
 
 
-@pytest.mark.end_to_end
 def test_clean_git_files_if_git_is_installed_but_git_root_is_not_found(
     monkeypatch, runner, git_project
 ):

@@ -10,7 +10,6 @@ from pytask import cli
 from tests.conftest import run_in_subprocess
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "disable_warnings",
     [pytest.param(True, marks=pytest.mark.filterwarnings("ignore:warning!!!")), False],
@@ -32,7 +31,6 @@ def test_disable_warnings_cli(tmp_path, runner, disable_warnings):
     assert ("warning!!!" in result.output) is not disable_warnings
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "disable_warnings",
     [pytest.param(True, marks=pytest.mark.filterwarnings("ignore:warning!!!")), False],
@@ -56,7 +54,6 @@ def test_disable_warnings(tmp_path, disable_warnings):
         assert "warning!!!" in session.warnings[0].message
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("add_marker", [False, True])
 def test_disable_warnings_with_mark(tmp_path, runner, add_marker):
     decorator = "@pytask.mark.filterwarnings('ignore:warning!!!')" if add_marker else ""
@@ -78,7 +75,6 @@ def test_disable_warnings_with_mark(tmp_path, runner, add_marker):
     assert ("warning!!!" in result.output) is not add_marker
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "disable_warnings",
     [pytest.param(True, marks=pytest.mark.filterwarnings("ignore:warning!!!")), False],
@@ -102,7 +98,6 @@ def test_disable_warnings_cli_collection(tmp_path, runner, disable_warnings):
     assert ("warning!!!" in result.output) is not disable_warnings
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("add_config", [False, True])
 def test_disable_warnings_with_config(tmp_path, runner, add_config):
     if add_config:
@@ -125,7 +120,6 @@ def test_disable_warnings_with_config(tmp_path, runner, add_config):
     assert ("warning!!!" in result.output) is not add_config
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("warning", ["DeprecationWarning", "PendingDeprecationWarning"])
 def test_deprecation_warnings_are_not_captured(tmp_path, warning):
     path_to_warn_module = tmp_path.joinpath("warning.py")
@@ -160,7 +154,6 @@ def test_deprecation_warnings_are_not_captured(tmp_path, warning):
     assert "warning!!!" not in result.stdout
 
 
-@pytest.mark.end_to_end
 def test_multiple_occurrences_of_warning_are_reduced(tmp_path, runner):
     source = """
     import warnings
@@ -183,7 +176,6 @@ def test_multiple_occurrences_of_warning_are_reduced(tmp_path, runner):
     assert result.output.count("task_example") in (30, 31)
 
 
-@pytest.mark.end_to_end
 def test_collapsing_of_warnings(tmp_path, runner):
     source = """
     import warnings
@@ -201,7 +193,6 @@ def test_collapsing_of_warnings(tmp_path, runner):
     assert "... in 1 more locations" in result.output
 
 
-@pytest.mark.end_to_end
 def test_raise_error_when_filterwarnings_is_misspecified(tmp_path, runner):
     source = """
     import warnings
@@ -216,7 +207,6 @@ def test_raise_error_when_filterwarnings_is_misspecified(tmp_path, runner):
     assert "arg is not a string" in result.output
 
 
-@pytest.mark.end_to_end
 def test_wrong_value_in_config_in_filterwarnings(tmp_path, runner):
     tmp_path.joinpath("pyproject.toml").write_text(
         "[tool.pytask.ini_options]\nfilterwarnings = true"

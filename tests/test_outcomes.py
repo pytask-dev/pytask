@@ -9,7 +9,6 @@ from pytask import TaskOutcome
 from pytask import count_outcomes
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize("outcome_in_report", CollectionOutcome)
 def test_count_outcomes_collection(outcome_in_report):
     reports = [CollectionReport(outcome_in_report, None, None)]
@@ -23,7 +22,6 @@ def test_count_outcomes_collection(outcome_in_report):
             assert count == 0
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize("outcome_in_report", TaskOutcome)
 def test_count_outcomes_tasks(outcome_in_report):
     reports = [ExecutionReport(None, outcome_in_report, None, None)]

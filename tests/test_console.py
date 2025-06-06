@@ -33,7 +33,6 @@ def task_func(): ...
 _SOURCE_LINE_TASK_FUNC = inspect.getsourcelines(task_func)[1]
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("edtior_url_scheme", "expected"),
     [
@@ -53,7 +52,6 @@ def test_create_url_style_for_task(edtior_url_scheme, expected):
     assert style == Style.parse(expected.format(path=path))
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("edtior_url_scheme", "expected"),
     [
@@ -73,7 +71,6 @@ def test_create_url_style_for_path(edtior_url_scheme, expected):
     assert style == Style.parse(expected.format(path=path))
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("outcome", "outcome_enum", "total_description"),
     [(outcome, TaskOutcome, "description") for outcome in TaskOutcome]
@@ -93,7 +90,6 @@ def test_create_summary_panel(capsys, outcome, outcome_enum, total_description):
     assert "description" in captured
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("color_system", "text", "strip_styles", "expected"),
     [
@@ -111,7 +107,6 @@ def test_render_to_string(color_system, text, strip_styles, expected):
 _THIS_FILE = Path(__file__)
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     (
         "base_name",
@@ -145,7 +140,6 @@ def test_format_task_id(
 _ROOT = Path.cwd()
 
 
-@pytest.mark.integration
 @pytest.mark.parametrize(
     ("node", "paths", "expectation", "expected"),
     [
@@ -188,7 +182,6 @@ def test_reduce_node_name(node, paths, expectation, expected):
 exec("__unknown_lambda = lambda x: x")  # noqa: S102
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("task_func", "skipped_paths", "expected"),
     [
@@ -212,7 +205,6 @@ def test_get_file(task_func, skipped_paths, expected):
     assert result == expected
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("task_func", "expected"),
     [

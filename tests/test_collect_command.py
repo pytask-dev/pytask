@@ -17,7 +17,6 @@ from pytask import cli
 from tests.conftest import enter_directory
 
 
-@pytest.mark.end_to_end
 def test_collect_task(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -50,7 +49,6 @@ def test_collect_task(runner, tmp_path):
     assert "out.txt>" in captured
 
 
-@pytest.mark.end_to_end
 def test_collect_task_new_interface(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -84,7 +82,6 @@ def test_collect_task_new_interface(runner, tmp_path):
     assert "arg" in captured
 
 
-@pytest.mark.end_to_end
 def test_collect_task_in_root_dir(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -105,7 +102,6 @@ def test_collect_task_in_root_dir(runner, tmp_path):
     assert "task_example>" in captured
 
 
-@pytest.mark.end_to_end
 def test_collect_parametrized_tasks(runner, tmp_path):
     source = """
     from pytask import task
@@ -131,7 +127,6 @@ def test_collect_parametrized_tasks(runner, tmp_path):
     assert "[depends_on1-1-out_1.txt]>" in captured
 
 
-@pytest.mark.end_to_end
 def test_collect_task_with_expressions(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -168,7 +163,6 @@ def test_collect_task_with_expressions(runner, tmp_path):
     assert "out_1.txt>" in captured
 
 
-@pytest.mark.end_to_end
 def test_collect_task_with_marker(runner, tmp_path):
     source = """
     import pytask
@@ -215,7 +209,6 @@ def test_collect_task_with_marker(runner, tmp_path):
     assert "out_1.txt>" in captured
 
 
-@pytest.mark.end_to_end
 def test_collect_task_with_ignore_from_config(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -263,7 +256,6 @@ def test_collect_task_with_ignore_from_config(runner, tmp_path):
     assert "out_1.txt>" in captured
 
 
-@pytest.mark.end_to_end
 def test_collect_task_with_ignore_from_cli(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -322,7 +314,6 @@ class Node:
 def function(depends_on, produces): ...
 
 
-@pytest.mark.unit
 def test_print_collected_tasks_without_nodes(capsys):
     dictionary = {
         Path("task_path.py"): [
@@ -345,7 +336,6 @@ def test_print_collected_tasks_without_nodes(capsys):
     assert "<Product out.txt>" not in captured
 
 
-@pytest.mark.unit
 def test_print_collected_tasks_with_nodes(capsys):
     dictionary = {
         Path("task_path.py"): [
@@ -369,7 +359,6 @@ def test_print_collected_tasks_with_nodes(capsys):
     assert "<Product out.txt>" in captured
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(("show_nodes", "expected_add"), [(False, "src"), (True, "..")])
 def test_find_common_ancestor_of_all_nodes(show_nodes, expected_add):
     tasks = [
@@ -392,7 +381,6 @@ def test_find_common_ancestor_of_all_nodes(show_nodes, expected_add):
     assert result == Path.cwd().joinpath(expected_add).resolve()
 
 
-@pytest.mark.end_to_end
 def test_task_name_is_shortened(runner, tmp_path):
     tmp_path.joinpath("a", "b").mkdir(parents=True)
     tmp_path.joinpath("a", "b", "task_example.py").write_text("def task_example(): ...")
@@ -404,7 +392,6 @@ def test_task_name_is_shortened(runner, tmp_path):
     assert "a/b/task_example.py::task_example" not in result.output
 
 
-@pytest.mark.end_to_end
 def test_python_node_is_collected(runner, tmp_path):
     source = """
     from pytask import Product
@@ -429,7 +416,6 @@ def test_python_node_is_collected(runner, tmp_path):
     assert "Product" in captured
 
 
-@pytest.mark.end_to_end
 def test_none_is_a_python_node(runner, tmp_path):
     source = """
     from pytask import Product
@@ -454,7 +440,6 @@ def test_none_is_a_python_node(runner, tmp_path):
     assert "Product" in captured
 
 
-@pytest.mark.end_to_end
 def test_python_nodes_are_aggregated_into_one(runner, tmp_path):
     source = """
     from pytask import Product
@@ -480,7 +465,6 @@ def test_python_nodes_are_aggregated_into_one(runner, tmp_path):
     assert "Product" in captured
 
 
-@pytest.mark.end_to_end
 def test_node_protocol_for_custom_nodes(runner, tmp_path):
     source = """
     from typing import Annotated
@@ -513,7 +497,6 @@ def test_node_protocol_for_custom_nodes(runner, tmp_path):
     assert "<Dependency custom>" in result.output
 
 
-@pytest.mark.end_to_end
 def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     source = """
     from typing import Annotated
@@ -558,7 +541,6 @@ def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     assert "in.pkl" in result.output
 
 
-@pytest.mark.end_to_end
 def test_setting_name_for_python_node_via_annotation(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -579,7 +561,6 @@ def test_setting_name_for_python_node_via_annotation(runner, tmp_path):
     assert "Dependency" in result.output
 
 
-@pytest.mark.end_to_end
 def test_more_nested_pytree_and_python_node_as_return(runner, snapshot_cli, tmp_path):
     source = """
     from pathlib import Path
@@ -604,7 +585,6 @@ def test_more_nested_pytree_and_python_node_as_return(runner, snapshot_cli, tmp_
         assert result.output == snapshot_cli()
 
 
-@pytest.mark.end_to_end
 def test_more_nested_pytree_and_python_node_as_return_with_names(
     runner, snapshot_cli, tmp_path
 ):
@@ -631,7 +611,6 @@ def test_more_nested_pytree_and_python_node_as_return_with_names(
         assert result.output == snapshot_cli()
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "node_def",
     [
@@ -671,7 +650,6 @@ def test_collect_task_with_provisional_path_node_as_product(runner, tmp_path, no
     assert "/*.txt>" in captured
 
 
-@pytest.mark.end_to_end
 def test_collect_task_with_provisional_dependencies(runner, tmp_path):
     source = """
     from typing import Annotated
@@ -691,7 +669,6 @@ def test_collect_task_with_provisional_dependencies(runner, tmp_path):
     assert "[ab].txt" in result.output
 
 
-@pytest.mark.end_to_end
 def test_collect_custom_node_receives_default_name(runner, tmp_path):
     source = """
     from typing import Annotated

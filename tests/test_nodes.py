@@ -16,7 +16,6 @@ from pytask import Task
 from pytask import TaskWithoutPath
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("value", "hash_", "expected"),
     [
@@ -33,7 +32,6 @@ def test_hash_of_python_node(value, hash_, expected):
     assert state == expected
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("node", "expected"),
     [
@@ -73,7 +71,6 @@ def test_signature(node, expected):
     assert node.signature == expected
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("value", "exists", "expected"),
     [
@@ -93,7 +90,6 @@ def test_hash_of_path_node(tmp_path, value, exists, expected):
         assert state is expected
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("value", "exists", "expected"),
     [
@@ -113,7 +109,6 @@ def test_hash_of_pickle_node(tmp_path, value, exists, expected):
         assert state is expected
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("node", "protocol", "expected"),
     [
@@ -129,7 +124,6 @@ def test_comply_with_protocol(node, protocol, expected):
     assert isinstance(node, protocol) is expected
 
 
-@pytest.mark.unit
 def test_custom_serializer_deserializer_pickle_node(tmp_path):
     """Test that PickleNode correctly uses cloudpickle for de-/serialization."""
 
