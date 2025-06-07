@@ -5,6 +5,12 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.5.4 - 2025-xx-xx
+
+- {pull}`676` ensures compatibility with click >8.2.0.
+- {pull}`680` uses uv everywhere.
+- {pull}`684` adds tests for lowest and highest dependency resolutions.
+
 ## 0.5.3 - 2025-05-16
 
 - {pull}`650` allows to identify from which data catalog a node is coming from. Thanks
