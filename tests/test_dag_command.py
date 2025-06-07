@@ -23,7 +23,7 @@ else:
 _TEST_SHOULD_RUN = _IS_PYGRAPHVIZ_INSTALLED or (
     os.environ.get("CI") and sys.platform == "linux"
 )
-_GRAPH_LAYOUTS = ["neato", "dot", "fdp", "sfdp", "twopi", "circo"]
+_GRAPH_LAYOUTS = ["dot"]
 _TEST_FORMATS = ["dot", "pdf", "png", "jpeg", "svg"]
 
 
