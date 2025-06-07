@@ -1,7 +1,7 @@
 # Set up a project
 
-Assuming you want to use pytask for a more extensive project, you want to organize the
-project as a Python package. This tutorial explains the minimal setup.
+To use pytask for larger projects, organize the project as a Python package. This
+tutorial explains the minimal setup.
 
 If you want to use pytask with a collection of scripts, you can skip this lesson and
 move to the next section of the tutorials.
@@ -25,7 +25,7 @@ my_project
 └───pyproject.toml
 ```
 
-You can replicate the directory structure for your project or you start from pytask's
+Replicate this directory structure for your project or start from pytask's
 [cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project)
 template or any other
 {doc}`linked template or example project <../how_to_guides/bp_templates_and_projects>`.
@@ -142,15 +142,15 @@ interact with it.
 
 ## Installation
 
-At last, you can install the package into your environment with
+Install the package into your environment with
 
 ```console
 $ pip install -e .
 ```
 
-This command will trigger an editable install of the project, which is a development
-mode and it means any changes in the package's source files are immediately available in
-the installed version. Again, setuptools makes
+This creates an editable install of the project, a development mode where changes in the
+package's source files are immediately available in the installed version. Again,
+setuptools makes
 [a good job explaining it](https://setuptools.pypa.io/en/latest/userguide/development_mode.html).
 
 ```{important}
