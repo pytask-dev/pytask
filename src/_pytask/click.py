@@ -262,7 +262,7 @@ def _print_options(group_or_command: Command | DefaultGroup, ctx: Context) -> No
         if param.metavar:
             opt2 += Text(f" {param.metavar}", style="metavar")
         elif isinstance(param.type, click.Choice):
-            choices = "[" + "|".join([str(c.value) for c in param.type.choices]) + "]"  # type: ignore[attr-defined]
+            choices = "[" + "|".join(param.type.choices) + "]"  # type: ignore[attr-defined]
             opt2 += Text(f" {choices}", style="metavar", overflow="fold")
 
         help_text = _format_help_text(param, ctx)
