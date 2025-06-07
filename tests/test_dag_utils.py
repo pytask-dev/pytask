@@ -29,7 +29,6 @@ def dag():
     return dag
 
 
-@pytest.mark.unit
 def test_sort_tasks_topologically(dag):
     sorter = TopologicalSorter.from_dag(dag)
     topo_ordering = []
@@ -41,7 +40,6 @@ def test_sort_tasks_topologically(dag):
     assert topo_names == [f".::{i}" for i in range(5)]
 
 
-@pytest.mark.unit
 def test_descending_tasks(dag):
     for i in range(5):
         task = next(
@@ -54,7 +52,6 @@ def test_descending_tasks(dag):
         assert descendant_names == [f".::{i}" for i in range(i + 1, 5)]
 
 
-@pytest.mark.unit
 def test_task_and_descending_tasks(dag):
     for i in range(5):
         task = next(
@@ -67,7 +64,6 @@ def test_task_and_descending_tasks(dag):
         assert descendant_names == [f".::{i}" for i in range(i, 5)]
 
 
-@pytest.mark.unit
 def test_node_and_neighbors(dag):
     for i in range(1, 4):
         task = next(
@@ -80,7 +76,6 @@ def test_node_and_neighbors(dag):
         assert node_names == [f".::{j}" for j in range(i - 1, i + 2)]
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("tasks", "expectation", "expected"),
     [
@@ -147,14 +142,12 @@ def test_extract_priorities_from_tasks(tasks, expectation, expected):
         assert result == expected
 
 
-@pytest.mark.unit
 def test_raise_error_for_undirected_graphs(dag):
     undirected_graph = dag.to_undirected()
     with pytest.raises(ValueError, match="Only directed graphs have a"):
         TopologicalSorter.from_dag(undirected_graph)
 
 
-@pytest.mark.unit
 def test_raise_error_for_cycle_in_graph(dag):
     dag.add_edge(
         "115f685b0af2aef0c7317a0b48562f34cfb7a622549562bd3d34d4d948b4fdab",
@@ -164,14 +157,12 @@ def test_raise_error_for_cycle_in_graph(dag):
         TopologicalSorter.from_dag(dag)
 
 
-@pytest.mark.unit
 def test_ask_for_invalid_number_of_ready_tasks(dag):
     scheduler = TopologicalSorter.from_dag(dag)
     with pytest.raises(ValueError, match="'n' must be"):
         scheduler.get_ready(0)
 
 
-@pytest.mark.unit
 def test_instantiate_sorter_from_other_sorter(dag):
     name_to_sig = {dag.nodes[sig]["task"].name: sig for sig in dag.nodes}
 

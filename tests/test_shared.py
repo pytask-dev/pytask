@@ -14,7 +14,6 @@ from pytask import ShowCapture
 from pytask import build
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("x", "expected"),
     [([], set()), ([1, 2, 3, 1, 2], {1, 2}), (["a", "a", "b"], {"a"})],
@@ -24,7 +23,6 @@ def test_find_duplicates(x, expected):
     assert result == expected
 
 
-@pytest.mark.end_to_end
 def test_parse_markers(tmp_path):
     toml = """
     [tool.pytask.ini_options.markers]
@@ -40,7 +38,6 @@ def test_parse_markers(tmp_path):
     assert "a2" in session.config["markers"]
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("value", "enum", "expectation", "expected"),
     [
@@ -54,7 +51,6 @@ def test_convert_to_enum(value, enum, expectation, expected):
         assert result == expected
 
 
-@pytest.mark.unit
 def test_unwrap_task_function():
     def task():
         pass
@@ -77,7 +73,6 @@ def test_unwrap_task_function():
     assert unwrap_task_function(decorated) is task
 
 
-@pytest.mark.unit
 def test_no_unwrap_coiled():
     coiled = pytest.importorskip("coiled")
 

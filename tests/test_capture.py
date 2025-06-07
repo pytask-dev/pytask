@@ -27,7 +27,6 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("show_capture", ["s", "no", "stdout", "stderr", "all"])
 def test_show_capture(tmp_path, runner, show_capture):
     source = """
@@ -66,7 +65,6 @@ def test_show_capture(tmp_path, runner, show_capture):
         raise NotImplementedError
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("show_capture", ["no", "stdout", "stderr", "all"])
 @pytest.mark.xfail(
     sys.platform == "win32",
@@ -89,7 +87,7 @@ def test_show_capture_with_build(tmp_path, show_capture):
     """
     tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
 
-    result = run_in_subprocess(("python", "workflow.py"), cwd=tmp_path)
+    result = run_in_subprocess(("uv", "run", "python", "workflow.py"), cwd=tmp_path)
 
     assert result.exit_code == ExitCode.FAILED
 
@@ -114,7 +112,6 @@ def test_show_capture_with_build(tmp_path, show_capture):
         raise NotImplementedError
 
 
-@pytest.mark.end_to_end
 @pytest.mark.xfail(
     sys.platform == "win32",
     reason="from pytask ... cannot be found",
@@ -131,7 +128,7 @@ def test_wrong_capture_method(tmp_path):
     """
     tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
 
-    result = run_in_subprocess(("python", "workflow.py"), cwd=tmp_path)
+    result = run_in_subprocess(("uv", "run", "python", "workflow.py"), cwd=tmp_path)
     assert result.exit_code == ExitCode.CONFIGURATION_FAILED
     assert "Value 'a' is not a valid" in result.stdout
     assert "Traceback" not in result.stdout
@@ -173,7 +170,6 @@ def TeeStdCapture(  # noqa: N802
     )
 
 
-@pytest.mark.end_to_end
 class TestCaptureManager:
     @pytest.mark.parametrize(
         "method", [CaptureMethod.NO, CaptureMethod.SYS, CaptureMethod.FD]
@@ -218,7 +214,6 @@ class TestCaptureManager:
             capouter.stop_capturing()
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("method", ["fd", "sys"])
 def test_capturing_unicode(tmp_path, runner, method):
     obj = "'b\u00f6y'"
@@ -239,7 +234,6 @@ def test_capturing_unicode(tmp_path, runner, method):
     assert result.exit_code == ExitCode.OK
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("method", ["fd", "sys"])
 @pytest.mark.skipif(sys.platform == "win32", reason="Fails on Windows.")
 def test_capturing_unicode_with_build(tmp_path, method):
@@ -261,12 +255,11 @@ def test_capturing_unicode_with_build(tmp_path, method):
     tmp_path.joinpath("workflow.py").write_text(
         textwrap.dedent(source), encoding="utf-8"
     )
-    result = run_in_subprocess(("python", "workflow.py"), cwd=tmp_path)
+    result = run_in_subprocess(("uv", "run", "python", "workflow.py"), cwd=tmp_path)
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.stdout
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("method", ["fd", "sys"])
 def test_capturing_bytes_in_utf8_encoding(tmp_path, runner, method):
     source = """
@@ -283,7 +276,6 @@ def test_capturing_bytes_in_utf8_encoding(tmp_path, runner, method):
     assert result.exit_code == ExitCode.OK
 
 
-@pytest.mark.end_to_end
 @pytest.mark.xfail(strict=True, reason="pytask cannot capture during collection.")
 def test_collect_capturing(tmp_path, runner):
     source = """
@@ -305,7 +297,6 @@ def test_collect_capturing(tmp_path, runner):
         assert content in result.output
 
 
-@pytest.mark.end_to_end
 def test_capturing_outerr(tmp_path, runner):
     source = """
     import sys
@@ -341,7 +332,6 @@ def test_capturing_outerr(tmp_path, runner):
         assert content in result.output
 
 
-@pytest.mark.end_to_end
 def test_capture_badoutput_issue412(tmp_path, runner):
     source = """
     import os
@@ -363,7 +353,6 @@ def test_capture_badoutput_issue412(tmp_path, runner):
         assert content in result.output
 
 
-@pytest.mark.unit
 class TestCaptureIO:
     def test_text(self):
         f = capture.CaptureIO()
@@ -389,7 +378,6 @@ class TestCaptureIO:
         assert f.getvalue() == "foo\r\n"
 
 
-@pytest.mark.unit
 class TestTeeCaptureIO(TestCaptureIO):
     def test_text(self):
         sio = io.StringIO()
@@ -409,7 +397,6 @@ class TestTeeCaptureIO(TestCaptureIO):
         pytest.raises(TypeError, f.write, b"hello")
 
 
-@pytest.mark.integration
 def test_dontreadfrominput():
     from _pytest.capture import DontReadFromInput
 
@@ -424,7 +411,6 @@ def test_dontreadfrominput():
     f.close()  # just for completeness
 
 
-@pytest.mark.unit
 def test_captureresult() -> None:
     cr = CaptureResult("out", "err")
     assert len(cr) == 2
@@ -482,7 +468,6 @@ def lsof_check():
     assert len2 < len1 + 3, out2
 
 
-@pytest.mark.unit
 class TestFDCapture:
     def test_simple(self, tmpfile):
         fd = tmpfile.fileno()
@@ -589,7 +574,6 @@ def saved_fd(fd):
         os.close(new_fd)
 
 
-@pytest.mark.unit
 class TestStdCapture:
     captureclass = staticmethod(StdCapture)
 
@@ -708,7 +692,6 @@ class TestStdCapture:
             pytest.raises(OSError, sys.stdin.read)
 
 
-@pytest.mark.unit
 class TestTeeStdCapture(TestStdCapture):
     captureclass = staticmethod(TeeStdCapture)
 
@@ -725,7 +708,6 @@ class TestTeeStdCapture(TestStdCapture):
         assert out2 == "cap2\n"
 
 
-@pytest.mark.unit
 class TestStdCaptureFD(TestStdCapture):
     captureclass = staticmethod(StdCaptureFD)
 
@@ -767,8 +749,12 @@ class TestStdCaptureFD(TestStdCapture):
                 cap.stop_capturing()
 
 
-@pytest.mark.unit
 class TestStdCaptureFDinvalidFD:
+    @pytest.mark.skipif(
+        sys.platform == "darwin" and sys.version_info[:2] == (3, 9),
+        reason="Causes following tests to fail and kills the pytest session with exit "
+        "code 137.",
+    )
     def test_stdcapture_fd_invalid_fd(self, tmp_path, runner):
         source = """
         import os
@@ -846,7 +832,6 @@ class TestStdCaptureFDinvalidFD:
                 os.write(2, b"done")
 
 
-@pytest.mark.unit
 def test__get_multicapture() -> None:
     assert isinstance(_get_multicapture(CaptureMethod.NO), MultiCapture)
     pytest.raises(ValueError, _get_multicapture, "unknown").match(

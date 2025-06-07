@@ -5,7 +5,6 @@ import pytest
 from _pytask.git import is_git_installed
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(("mock_return", "expected"), [(True, True), (None, False)])
 def test_is_git_installed(monkeypatch, mock_return, expected):
     monkeypatch.setattr(

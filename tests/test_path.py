@@ -20,7 +20,6 @@ from _pytask.path import relative_to
 from pytask.path import import_path
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("path", "source", "include_source", "expected"),
     [
@@ -33,7 +32,6 @@ def test_relative_to(path, source, include_source, expected):
     assert result == expected
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("path", "potential_ancestors", "expected"),
     [
@@ -51,7 +49,6 @@ def test_find_closest_ancestor(monkeypatch, path, potential_ancestors, expected)
     assert result == expected
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("path_1", "path_2", "expectation", "expected"),
     [
@@ -107,7 +104,6 @@ def test_find_common_ancestor(path_1, path_2, expectation, expected):
         assert result == expected
 
 
-@pytest.mark.unit
 @pytest.mark.skipif(sys.platform != "win32", reason="Only works on Windows.")
 @pytest.mark.parametrize(
     ("path", "existing_paths", "expected"),
@@ -141,7 +137,6 @@ def simple_module(request, tmp_path: Path) -> Path:
     sys.modules.pop(module_name, None)
 
 
-@pytest.mark.unit
 def test_importmode_importlib(request, simple_module: Path, tmp_path: Path) -> None:
     """`importlib` mode does not change sys.path."""
     module = import_path(simple_module, root=tmp_path)
@@ -153,7 +148,6 @@ def test_importmode_importlib(request, simple_module: Path, tmp_path: Path) -> N
     assert "_src.project" in sys.modules
 
 
-@pytest.mark.unit
 def test_remembers_previous_imports(simple_module: Path, tmp_path: Path) -> None:
     """importlib mode called remembers previous module (pytest#10341, pytest#10811)."""
     module1 = import_path(simple_module, root=tmp_path)
@@ -161,7 +155,6 @@ def test_remembers_previous_imports(simple_module: Path, tmp_path: Path) -> None
     assert module1 is module2
 
 
-@pytest.mark.unit
 def test_no_meta_path_found(
     simple_module: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -185,7 +178,6 @@ def test_no_meta_path_found(
         import_path(simple_module, root=tmp_path)
 
 
-@pytest.mark.unit
 class TestImportLibMode:
     def test_importmode_importlib_with_dataclass(self, tmp_path: Path) -> None:
         """

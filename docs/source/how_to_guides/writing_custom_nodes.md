@@ -111,7 +111,7 @@ Here are some explanations.
   signature is a hash and a unique identifier for the node. For most nodes it will be a
   hash of the path or the name.
 
-- The {func}`classmethod` {meth}`~pytask.PickleNode.from_path` is a convenient method to
+- The classmethod {meth}`~pytask.PickleNode.from_path` is a convenient method to
   instantiate the class.
 
 - The method {meth}`~pytask.PickleNode.state` yields a value that signals the node's
@@ -128,6 +128,13 @@ Here are some explanations.
 
 - {meth}`~pytask.PickleNode.save` is called when a task function returns and allows to
   save the return values.
+
+## Improvements
+
+Usually, you would like your custom node to work with {class}`pathlib.Path` objects and
+{class}`upath.UPath` objects allowing to work with remote filesystems. To simplify
+getting the state of the node, you can use the {class}`pytask.get_state_of_path`
+function.
 
 ## Conclusion
 

@@ -275,7 +275,7 @@ def build(  # noqa: C901, PLR0912, PLR0913
             session.exit_code = ExitCode.FAILED
 
         except Exception:  # noqa: BLE001
-            console.print(Traceback(sys.exc_info()))
+            console.print(Traceback(sys.exc_info(), show_locals=True))
             session.exit_code = ExitCode.FAILED
 
         session.hook.pytask_unconfigure(session=session)

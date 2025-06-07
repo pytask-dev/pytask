@@ -11,7 +11,6 @@ from pytask import build
 from pytask import cli
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("func_name", ["task_example", "func"])
 @pytest.mark.parametrize("task_name", ["the_only_task", None])
 def test_task_with_task_decorator(tmp_path, func_name, task_name):
@@ -36,7 +35,6 @@ def test_task_with_task_decorator(tmp_path, func_name, task_name):
         assert session.tasks[0].name.endswith(f"task_module.py::{func_name}")
 
 
-@pytest.mark.end_to_end
 def test_parametrization_in_for_loop(tmp_path, runner):
     source = """
     from pytask import task
@@ -57,7 +55,6 @@ def test_parametrization_in_for_loop(tmp_path, runner):
     assert "task_example[produces1]" in result.output
 
 
-@pytest.mark.end_to_end
 def test_parametrization_in_for_loop_from_markers(tmp_path, runner):
     source = """
     from pytask import task
@@ -80,7 +77,6 @@ def test_parametrization_in_for_loop_from_markers(tmp_path, runner):
     assert "example[path1-produces1]" in result.output
 
 
-@pytest.mark.end_to_end
 def test_parametrization_in_for_loop_from_signature(tmp_path, runner):
     source = """
     from pytask import task
@@ -103,7 +99,6 @@ def test_parametrization_in_for_loop_from_signature(tmp_path, runner):
     assert "example[path1-produces1]" in result.output
 
 
-@pytest.mark.end_to_end
 def test_parametrization_in_for_loop_from_markers_and_args(tmp_path, runner):
     source = """
     from pytask import task
@@ -124,7 +119,6 @@ def test_parametrization_in_for_loop_from_markers_and_args(tmp_path, runner):
     assert "example[produces1-1]" in result.output
 
 
-@pytest.mark.end_to_end
 def test_parametrization_in_for_loop_from_decorator(tmp_path, runner):
     source = """
     from pytask import task
@@ -145,7 +139,6 @@ def test_parametrization_in_for_loop_from_decorator(tmp_path, runner):
     assert "deco_task[produces1-1]" in result.output
 
 
-@pytest.mark.end_to_end
 def test_parametrization_in_for_loop_with_ids(tmp_path, runner):
     source = """
     from pytask import task
@@ -166,7 +159,6 @@ def test_parametrization_in_for_loop_with_ids(tmp_path, runner):
     assert "deco_task[1]" in result.output
 
 
-@pytest.mark.end_to_end
 def test_parametrization_in_for_loop_with_error(tmp_path, runner):
     source = """
     from pytask import task
@@ -189,7 +181,6 @@ def test_parametrization_in_for_loop_with_error(tmp_path, runner):
     assert "task_example[produces1]" in result.output
 
 
-@pytest.mark.end_to_end
 def test_parametrization_in_for_loop_from_decorator_w_irregular_dicts(tmp_path, runner):
     source = """
     from pytask import task
@@ -218,7 +209,6 @@ def test_parametrization_in_for_loop_from_decorator_w_irregular_dicts(tmp_path, 
     assert "TypeError: example() missing 1 required" in result.output
 
 
-@pytest.mark.end_to_end
 def test_parametrization_in_for_loop_with_one_iteration(tmp_path, runner):
     source = """
     from pytask import task
@@ -239,7 +229,6 @@ def test_parametrization_in_for_loop_with_one_iteration(tmp_path, runner):
     assert "Collected 1 task" in result.output
 
 
-@pytest.mark.end_to_end
 def test_parametrization_in_for_loop_and_normal(tmp_path, runner):
     source = """
     from pytask import task
@@ -265,7 +254,6 @@ def test_parametrization_in_for_loop_and_normal(tmp_path, runner):
     assert "Collected 2 tasks" in result.output
 
 
-@pytest.mark.end_to_end
 def test_parametrized_names_without_parametrization(tmp_path, runner):
     source = """
     from pytask import task
@@ -292,7 +280,6 @@ def test_parametrized_names_without_parametrization(tmp_path, runner):
     assert "Collected 3 tasks" in result.output
 
 
-@pytest.mark.end_to_end
 def test_order_of_decorator_does_not_matter(tmp_path, runner):
     source = """
     from pytask import task, mark
@@ -311,7 +298,6 @@ def test_order_of_decorator_does_not_matter(tmp_path, runner):
     assert "1  Skipped" in result.output
 
 
-@pytest.mark.end_to_end
 def test_task_function_with_partialed_args(tmp_path, runner):
     source = """
     import functools
@@ -332,7 +318,6 @@ def test_task_function_with_partialed_args(tmp_path, runner):
     assert tmp_path.joinpath("out.txt").exists()
 
 
-@pytest.mark.end_to_end
 def test_task_function_with_partialed_args_and_task_decorator(tmp_path, runner):
     source = """
     from pytask import task
@@ -355,7 +340,6 @@ def test_task_function_with_partialed_args_and_task_decorator(tmp_path, runner):
     assert tmp_path.joinpath("out.txt").read_text() == "hello"
 
 
-@pytest.mark.end_to_end
 def test_parametrized_tasks_without_arguments_in_signature(tmp_path, runner):
     """This happens when plugins replace the function with its own implementation.
 
@@ -399,7 +383,6 @@ def test_parametrized_tasks_without_arguments_in_signature(tmp_path, runner):
     assert "Collected 3 tasks" in result.output
 
 
-@pytest.mark.end_to_end
 def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
     source = """
     from pytask import task
@@ -423,7 +406,6 @@ def test_that_dynamically_creates_tasks_are_captured(runner, tmp_path):
     assert "Collected 2 tasks" in result.output
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "irregular_id", [1, (1,), [1], {1}, ["a"], list("abc"), ((1,), (2,)), ({0}, {1})]
 )
@@ -443,7 +425,6 @@ def test_raise_errors_for_irregular_ids(runner, tmp_path, irregular_id):
     assert "Argument 'id' of @task" in result.output
 
 
-@pytest.mark.end_to_end
 def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
     source = """
     from pytask import task
@@ -460,7 +441,6 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
     assert isinstance(session.collection_reports[0].exc_info[1], ValueError)
 
 
-@pytest.mark.end_to_end
 def test_task_receives_unknown_kwarg(runner, tmp_path):
     source = """
     from pytask import task
@@ -473,7 +453,6 @@ def test_task_receives_unknown_kwarg(runner, tmp_path):
     assert result.exit_code == ExitCode.FAILED
 
 
-@pytest.mark.end_to_end
 def test_task_receives_namedtuple(runner, tmp_path):
     source = """
     from typing import Annotated, NamedTuple
@@ -501,7 +480,6 @@ def test_task_receives_namedtuple(runner, tmp_path):
     assert tmp_path.joinpath("output.txt").read_text() == "Hello world!"
 
 
-@pytest.mark.end_to_end
 def test_task_kwargs_overwrite_default_arguments(runner, tmp_path):
     source = """
     from pytask import Product, task
@@ -528,7 +506,6 @@ def test_task_kwargs_overwrite_default_arguments(runner, tmp_path):
     assert not tmp_path.joinpath("not_used_out.txt").exists()
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "node_def", ["PathNode(path=Path('file.txt'))", "Path('file.txt')"]
 )
@@ -548,7 +525,6 @@ def test_return_with_task_decorator(runner, tmp_path, node_def):
     assert tmp_path.joinpath("file.txt").read_text() == "Hello, World!"
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     "node_def",
     [
@@ -573,7 +549,6 @@ def test_return_with_tuple_and_task_decorator(runner, tmp_path, node_def):
     assert tmp_path.joinpath("file2.txt").read_text() == "World!"
 
 
-@pytest.mark.end_to_end
 def test_error_when_function_is_defined_outside_loop_body(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -593,7 +568,6 @@ def test_error_when_function_is_defined_outside_loop_body(runner, tmp_path):
     assert "id=None" in result.output
 
 
-@pytest.mark.end_to_end
 def test_error_when_function_is_defined_outside_loop_body_with_id(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -614,7 +588,6 @@ def test_error_when_function_is_defined_outside_loop_body_with_id(runner, tmp_pa
     assert "id=b.txt" in result.output
 
 
-@pytest.mark.end_to_end
 def test_task_will_be_executed_after_another_one_with_string(runner, tmp_path):
     source = """
     from pytask import task
@@ -643,7 +616,6 @@ def test_task_will_be_executed_after_another_one_with_string(runner, tmp_path):
     assert "1  Skipped because unchanged" in result.output
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("decorator", ["", "@task"])
 def test_task_will_be_executed_after_another_one_with_function(
     runner, tmp_path, decorator
@@ -667,7 +639,6 @@ def test_task_will_be_executed_after_another_one_with_function(
     assert result.exit_code == ExitCode.OK
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("decorator", ["", "@task"])
 @pytest.mark.xfail(
     reason="Wrong python interpreter picked up in CI?",
@@ -696,13 +667,15 @@ def test_task_will_be_executed_after_another_one_with_function_session(
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     result = subprocess.run(
-        ("python", "task_example.py"), cwd=tmp_path, capture_output=True, check=False
+        ("uv", "run", "python", "task_example.py"),
+        cwd=tmp_path,
+        capture_output=True,
+        check=False,
     )
     assert "2  Succeeded" in result.stdout.decode()
     assert result.returncode == ExitCode.OK
 
 
-@pytest.mark.end_to_end
 def test_raise_error_for_wrong_after_expression(runner, tmp_path):
     source = """
     from pytask import task
@@ -720,7 +693,6 @@ def test_raise_error_for_wrong_after_expression(runner, tmp_path):
     assert "Wrong expression passed to 'after'" in result.output
 
 
-@pytest.mark.end_to_end
 def test_raise_error_with_builtin_function_as_task(runner, tmp_path):
     source = """
     from pytask import task
@@ -738,7 +710,6 @@ def test_raise_error_with_builtin_function_as_task(runner, tmp_path):
     assert "Builtin functions cannot be wrapped" in result.output
 
 
-@pytest.mark.end_to_end
 def test_task_function_in_another_module(runner, tmp_path):
     source = """
     def func():

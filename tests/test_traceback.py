@@ -11,7 +11,6 @@ from pytask import cli
 from pytask import console
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("value", "exception", "is_hidden"),
     [
@@ -46,14 +45,12 @@ def test_hide_traceback_from_error_report(
     assert ("This variable should not be shown." in result.output) is not is_hidden
 
 
-@pytest.mark.unit
 def test_render_traceback_with_string_traceback():
     traceback = Traceback((Exception, Exception("Help"), "String traceback."))
     rendered = render_to_string(traceback, console)
     assert "String traceback." in rendered
 
 
-@pytest.mark.unit
 def test_passing_show_locals():
     traceback = Traceback(
         (Exception, Exception("Help"), "String traceback."), show_locals=True

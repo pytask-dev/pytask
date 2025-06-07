@@ -19,7 +19,6 @@ class DummyDist(NamedTuple):
     version: str
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("plugins", "expected"),
     [
@@ -31,7 +30,6 @@ def test_format_plugin_names_and_versions(plugins, expected):
     assert _format_plugin_names_and_versions(plugins) == expected
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("duration", "outcome", "expected"),
     [
@@ -63,7 +61,6 @@ def test_pytask_log_session_footer(capsys, duration, outcome, expected):
     assert expected in captured.out
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize(
     ("func", "expected_1", "expected_2"),
     [
@@ -102,7 +99,6 @@ def test_logging_of_outcomes(tmp_path, runner, func, expected_1, expected_2):
     assert expected_2 in result.output
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     ("amount", "unit", "short_label", "expectation", "expected"),
     [
@@ -134,7 +130,6 @@ def test_humanize_time(amount, unit, short_label, expectation, expected):
         assert result == expected
 
 
-@pytest.mark.end_to_end
 @pytest.mark.parametrize("flag", ["--show-traceback", "--show-no-traceback"])
 def test_show_traceback(runner, tmp_path, flag):
     source = "def task_raises(): raise Exception"

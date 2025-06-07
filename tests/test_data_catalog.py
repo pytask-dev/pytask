@@ -21,13 +21,11 @@ else:
     IS_PEXPECT_INSTALLED = True
 
 
-@pytest.mark.unit
 def test_data_catalog_knows_path_where_it_is_defined():
     data_catalog = DataCatalog()
     assert Path(__file__).parent == data_catalog._instance_path
 
 
-@pytest.mark.unit
 def test_data_catalog_collects_nodes():
     data_catalog = DataCatalog()
 
@@ -38,14 +36,12 @@ def test_data_catalog_collects_nodes():
     assert isinstance(data_catalog["node"], PathNode)
 
 
-@pytest.mark.unit
 def test_change_default_node():
     data_catalog = DataCatalog(default_node=PythonNode)
     default_node = data_catalog["new_default_node"]
     assert isinstance(default_node, PythonNode)
 
 
-@pytest.mark.end_to_end
 def test_use_data_catalog_in_workflow(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -85,7 +81,6 @@ def test_use_data_catalog_in_workflow(runner, tmp_path):
     )
 
 
-@pytest.mark.end_to_end
 def test_use_data_catalog_w_config(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -118,7 +113,6 @@ def _flush(child):
     assert not child.isalive()
 
 
-@pytest.mark.end_to_end
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_use_data_catalog_in_terminal(runner, tmp_path):
@@ -149,7 +143,6 @@ def test_use_data_catalog_in_terminal(runner, tmp_path):
     _flush(child)
 
 
-@pytest.mark.end_to_end
 def test_use_data_catalog_with_different_name(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -170,7 +163,6 @@ def test_use_data_catalog_with_different_name(runner, tmp_path):
     )
 
 
-@pytest.mark.end_to_end
 def test_use_data_catalog_with_different_path(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -189,27 +181,23 @@ def test_use_data_catalog_with_different_path(runner, tmp_path):
     assert len(list(tmp_path.joinpath(".data").iterdir())) == 2
 
 
-@pytest.mark.unit
 def test_error_when_name_of_node_is_not_string():
     data_catalog = DataCatalog()
     with pytest.raises(TypeError, match="The name of a catalog entry"):
         data_catalog.add(True, Path("file.txt"))
 
 
-@pytest.mark.unit
 def test_requesting_new_node_with_python_node_as_default():
     data_catalog = DataCatalog(default_node=PythonNode)
     assert isinstance(data_catalog["node"], PythonNode)
 
 
-@pytest.mark.unit
 def test_adding_a_python_node():
     data_catalog = DataCatalog()
     data_catalog.add("node", PythonNode(name="node", value=1))
     assert isinstance(data_catalog["node"], PythonNode)
 
 
-@pytest.mark.end_to_end
 def test_use_data_catalog_with_provisional_node(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -237,7 +225,6 @@ def test_use_data_catalog_with_provisional_node(runner, tmp_path):
     assert tmp_path.joinpath("output.txt").read_text() == "Hello, World!"
 
 
-@pytest.mark.end_to_end
 def test_data_catalog_has_invalid_name(runner, tmp_path):
     source = """
     from pytask import DataCatalog

@@ -38,6 +38,7 @@ def _remove_variable_info_from_output(data: str, path: Any) -> str:  # noqa: ARG
         new_info_line = new_info_line.replace(platform, "<platform>")
     pattern = re.compile(version.VERSION_PATTERN, flags=re.IGNORECASE | re.VERBOSE)
     new_info_line = re.sub(pattern=pattern, repl="<version>", string=new_info_line)
+    new_info_line = new_info_line.replace("pluggy  <version>", "pluggy <version>")
 
     # Remove dynamic root path
     index_collected = next(
@@ -123,11 +124,20 @@ class Result(NamedTuple):
 
 def run_in_subprocess(cmd: tuple[str, ...], cwd: Path | None = None) -> Result:
     """Run a command in a subprocess and return the output."""
-    result = subprocess.run(cmd, cwd=cwd, check=False, capture_output=True)
+    kwargs = (
+        {
+            "env": os.environ | {"PYTHONIOENCODING": "utf-8", "TERM": "unknown"},
+            "encoding": "utf-8",
+        }
+        if sys.platform == "win32"
+        else {}
+    )
+
+    result = subprocess.run(
+        cmd, cwd=cwd, check=False, capture_output=True, text=True, **kwargs
+    )
     return Result(
-        exit_code=result.returncode,
-        stdout=result.stdout.decode("utf-8", "replace").replace("\r\n", "\n"),
-        stderr=result.stderr.decode("utf-8", "replace").replace("\r\n", "\n"),
+        exit_code=result.returncode, stdout=result.stdout, stderr=result.stderr
     )
 
 
