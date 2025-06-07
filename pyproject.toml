@@ -51,6 +51,7 @@ dev = ["pygraphviz>=1.11;platform_system=='Linux'"]
 docs = [
     "furo>=2024.8.6",
     "ipython>=8.13.2",
+    "ipywidgets>=8.1.6",
     "matplotlib>=3.5.0",
     "myst-parser>=3.0.0",
     "myst-nb>=1.2.0",
