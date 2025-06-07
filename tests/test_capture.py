@@ -87,7 +87,7 @@ def test_show_capture_with_build(tmp_path, show_capture):
     """
     tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
 
-    result = run_in_subprocess(("python", "workflow.py"), cwd=tmp_path)
+    result = run_in_subprocess(("uv", "run", "python", "workflow.py"), cwd=tmp_path)
 
     assert result.exit_code == ExitCode.FAILED
 
@@ -128,7 +128,7 @@ def test_wrong_capture_method(tmp_path):
     """
     tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
 
-    result = run_in_subprocess(("python", "workflow.py"), cwd=tmp_path)
+    result = run_in_subprocess(("uv", "run", "python", "workflow.py"), cwd=tmp_path)
     assert result.exit_code == ExitCode.CONFIGURATION_FAILED
     assert "Value 'a' is not a valid" in result.stdout
     assert "Traceback" not in result.stdout
@@ -255,7 +255,7 @@ def test_capturing_unicode_with_build(tmp_path, method):
     tmp_path.joinpath("workflow.py").write_text(
         textwrap.dedent(source), encoding="utf-8"
     )
-    result = run_in_subprocess(("python", "workflow.py"), cwd=tmp_path)
+    result = run_in_subprocess(("uv", "run", "python", "workflow.py"), cwd=tmp_path)
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.stdout
 

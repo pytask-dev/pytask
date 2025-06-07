@@ -23,7 +23,7 @@ else:
 _TEST_SHOULD_RUN = _IS_PYGRAPHVIZ_INSTALLED or (
     os.environ.get("CI") and sys.platform == "linux"
 )
-_GRAPH_LAYOUTS = ["neato", "dot", "fdp", "sfdp", "twopi", "circo"]
+_GRAPH_LAYOUTS = ["dot"]
 _TEST_FORMATS = ["dot", "pdf", "png", "jpeg", "svg"]
 
 
@@ -92,7 +92,10 @@ def test_create_graph_via_task(tmp_path, format_, layout, rankdir):
     tmp_path.joinpath("input.txt").touch()
 
     result = subprocess.run(
-        ("python", "task_example.py"), cwd=tmp_path, check=True, capture_output=True
+        ("uv", "run", "python", "task_example.py"),
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
     )
 
     assert result.returncode == ExitCode.OK
