@@ -22,7 +22,7 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "attrs>=21.3.0",
-    "click>=8.1.8,<8.2.0",
+    "click>=8.1.8,!=8.2.0",
     "click-default-group>=1.2.4",
     "networkx>=2.4.0",
     "optree>=0.9.0",
@@ -51,6 +51,7 @@ dev = ["pygraphviz>=1.11;platform_system=='Linux'"]
 docs = [
     "furo>=2024.8.6",
     "ipython>=8.13.2",
+    "ipywidgets>=8.1.6",
     "matplotlib>=3.5.0",
     "myst-parser>=3.0.0",
     "myst-nb>=1.2.0",
