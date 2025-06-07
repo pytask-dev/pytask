@@ -82,7 +82,7 @@ TASK_ICON = "" if _IS_LEGACY_WINDOWS else "📝 "
 
 _EDITOR_URL_SCHEMES: dict[str, str] = {
     "no_link": "",
-    "file": "file:///{path}",
+    "file": "file://{path}",
     "vscode": "vscode://file/{path}:{line_number}",
     "pycharm": "pycharm://open?file={path}&line={line_number}",
 }
