@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import Literal
 
 from rich.console import Console
 from rich.console import RenderableType
@@ -55,14 +54,11 @@ __all__ = [
 ]
 
 
-IS_WINDOWS_TERMINAL = "WT_SESSION" in os.environ
+_IS_WINDOWS_TERMINAL = "WT_SESSION" in os.environ
 _IS_WINDOWS = sys.platform == "win32"
 
 
-_IS_LEGACY_WINDOWS = _IS_WINDOWS and not IS_WINDOWS_TERMINAL
-
-
-_COLOR_SYSTEM: Literal["auto"] | None = None if _IS_LEGACY_WINDOWS else "auto"
+_IS_LEGACY_WINDOWS = _IS_WINDOWS and not _IS_WINDOWS_TERMINAL
 
 
 _HORIZONTAL_PADDING = (0, 1, 0, 1)
@@ -108,7 +104,7 @@ theme = Theme(
 )
 
 
-console: Console = Console(theme=theme, color_system=_COLOR_SYSTEM)
+console: Console = Console(theme=theme)
 
 
 def render_to_string(
