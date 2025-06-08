@@ -113,7 +113,7 @@ def _create_or_update_runtime(task_signature: str, start: float, end: float) -> 
     help="Export the profile in the specified format.",
 )
 def profile(**raw_config: Any) -> NoReturn:
-    """Show information about tasks like runtime and memory consumption of products."""
+    """Show information about resource consumption."""
     pm = storage.get()
     raw_config["command"] = "profile"
 
