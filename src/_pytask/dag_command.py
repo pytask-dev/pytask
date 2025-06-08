@@ -81,7 +81,7 @@ _HELP_TEXT_RANK_DIRECTION: str = (
     default=_RankDirection.TB,
 )
 def dag(**raw_config: Any) -> int:
-    """Create a visualization of the project's directed acyclic graph."""
+    """Create a visualization of the directed acyclic graph."""
     try:
         pm = storage.get()
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)

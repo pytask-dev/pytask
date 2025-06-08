@@ -1,10 +1,10 @@
 # Write a task
 
-Starting from the project structure in the {doc}`previous tutorial <set_up_a_project>`,
-you will learn how to write your first task.
+Using the project structure from the {doc}`previous tutorial <set_up_a_project>`, write
+your first task.
 
-The task, `task_create_random_data`, will be defined in
-`src/my_project/task_data_preparation.py`, and it will generate a data set stored in
+The task `task_create_random_data` is defined in
+`src/my_project/task_data_preparation.py` and generates a data set stored in
 `bld/data.pkl`.
 
 The `task_` prefix for modules and task functions is important so that pytask
@@ -46,9 +46,9 @@ The task accepts the argument `path` that points to the file where the data set 
 stored. The path is passed to the task via the default value, `BLD / "data.pkl"`. To
 indicate that this file is a product we add some metadata to the argument.
 
-Look at the type hint `Annotated[Path, Product]`. It uses the
-{obj}`~typing.Annotated` syntax. The first entry is the type of the argument,
-{class}`~pathlib.Path`. The second entry is {class}`~pytask.Product` that marks this
+The type hint `Annotated[Path, Product]` uses
+{obj}`~typing.Annotated` syntax. The first entry specifies the argument type
+({class}`~pathlib.Path`), and the second entry ({class}`~pytask.Product`) marks this
 argument as a product.
 
 ```{literalinclude} ../../../docs_src/tutorials/write_a_task_py310.py
@@ -68,9 +68,9 @@ The task accepts the argument `path` that points to the file where the data set 
 stored. The path is passed to the task via the default value, `BLD / "data.pkl"`. To
 indicate that this file is a product we add some metadata to the argument.
 
-Look at the type hint `Annotated[Path, Product]`. It uses the
-{obj}`~typing.Annotated` syntax. The first entry is the type of the argument,
-{class}`~pathlib.Path`. The second entry is {class}`~pytask.Product` that marks this
+The type hint `Annotated[Path, Product]` uses
+{obj}`~typing.Annotated` syntax. The first entry specifies the argument type
+({class}`~pathlib.Path`), and the second entry ({class}`~pytask.Product`) marks this
 argument as a product.
 
 ```{literalinclude} ../../../docs_src/tutorials/write_a_task_py38.py
