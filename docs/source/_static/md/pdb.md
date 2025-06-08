@@ -4,7 +4,7 @@
 
 $ pytask --pdb
 ──────────────────────────── Start pytask session ────────────────────────────
-Platform: win32 -- Python <span style="color: var(--termynal-blue)">3.10.0</span>, pytask <span style="color: var(--termynal-blue)">0.4.0</span>, pluggy <span style="color: var(--termynal-blue)">1.3.0</span>
+Platform: win32 -- Python <span style="color: var(--termynal-blue)">3.10.0</span>, pytask <span style="color: var(--termynal-blue)">0.5.3</span>, pluggy <span style="color: var(--termynal-blue)">1.3.0</span>
 Root: C:\Users\pytask-dev\git\my_project
 Collected <span style="color: var(--termynal-blue)">1</span> task.
 
