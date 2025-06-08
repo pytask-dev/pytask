@@ -10,6 +10,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`676` ensures compatibility with click >8.2.0.
 - {pull}`680` uses uv everywhere.
 - {pull}`684` adds tests for lowest and highest dependency resolutions.
+- {pull}`685` fixes the file urls in task and node names.
 
 ## 0.5.3 - 2025-05-16
 

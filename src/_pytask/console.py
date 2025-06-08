@@ -4,14 +4,11 @@ from __future__ import annotations
 
 import functools
 import inspect
-import os
-import sys
 from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
-from typing import Literal
 
 from rich.console import Console
 from rich.console import RenderableType
@@ -55,16 +52,6 @@ __all__ = [
 ]
 
 
-IS_WINDOWS_TERMINAL = "WT_SESSION" in os.environ
-_IS_WINDOWS = sys.platform == "win32"
-
-
-_IS_LEGACY_WINDOWS = _IS_WINDOWS and not IS_WINDOWS_TERMINAL
-
-
-_COLOR_SYSTEM: Literal["auto"] | None = None if _IS_LEGACY_WINDOWS else "auto"
-
-
 _HORIZONTAL_PADDING = (0, 1, 0, 1)
 
 
@@ -74,15 +61,15 @@ function.
 
 """
 
-ARROW_DOWN_ICON = "|" if _IS_LEGACY_WINDOWS else "⬇"
-FILE_ICON = "" if _IS_LEGACY_WINDOWS else "📄 "
-PYTHON_ICON = "" if _IS_LEGACY_WINDOWS else "🐍 "
-TASK_ICON = "" if _IS_LEGACY_WINDOWS else "📝 "
+ARROW_DOWN_ICON = "⬇"
+FILE_ICON = "📄 "
+PYTHON_ICON = "🐍 "
+TASK_ICON = "📝 "
 
 
 _EDITOR_URL_SCHEMES: dict[str, str] = {
     "no_link": "",
-    "file": "file:///{path}",
+    "file": "file://{path}",
     "vscode": "vscode://file/{path}:{line_number}",
     "pycharm": "pycharm://open?file={path}&line={line_number}",
 }
@@ -108,7 +95,7 @@ theme = Theme(
 )
 
 
-console: Console = Console(theme=theme, color_system=_COLOR_SYSTEM)
+console: Console = Console(theme=theme)
 
 
 def render_to_string(
