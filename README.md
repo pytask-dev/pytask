@@ -50,17 +50,19 @@ features include:
 <!-- Keep in sync with docs/source/tutorials/installation.md -->
 
 pytask is available on [PyPI](https://pypi.org/project/pytask) and on
-[Anaconda.org](https://anaconda.org/conda-forge/pytask). Install the package with
+[conda-forge](https://anaconda.org/conda-forge/pytask). Install the package with
 
 ```console
-$ pip install pytask
+$ uv add pytask
 ```
 
 or
 
 ```console
-$ conda install -c conda-forge pytask
+$ pixi add pytask
 ```
+
+or use pip, conda, or mamba if you like.
 
 Color support is automatically available on non-Windows platforms. On Windows, please,
 use [Windows Terminal](https://github.com/microsoft/terminal), which can be, for

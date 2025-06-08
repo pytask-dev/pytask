@@ -1,6 +1,6 @@
 # Invoking pytask
 
-You can invoke pytask on the command line with
+Invoke pytask from the command line with
 
 ```console
 $ pytask
@@ -15,7 +15,7 @@ $ pytask -h | --help
 
 ## Commands
 
-pytask has multiple commands that are listed on the main help page.
+pytask has multiple commands listed on the main help page.
 
 ```{include} ../_static/md/help-page.md
 ```
@@ -28,7 +28,7 @@ $ pytask
 $ pytask build
 ```
 
-To display command-specific information, use the help flag after the command.
+Display command-specific information by adding the help flag after the command.
 
 ```console
 $ pytask <command-name> -h/--help
@@ -47,10 +47,10 @@ You can also pass any number of paths of directories or modules to the program.
 $ pytask path/to/task_module.py path/to/folder
 ```
 
-Do not use paths to run a subset of tasks in your project. Use
-{doc}`expressions <selecting_tasks>` instead. When pytask collects tasks from subpaths
-of your project, it cannot infer the whole structure of dependencies and products and
-might run your tasks with missing or outdated dependencies.
+Don't use paths to run task subsets. Use {doc}`expressions <selecting_tasks>` instead.
+When pytask collects tasks from subpaths of your project, it cannot infer the whole
+structure of dependencies and products and might run your tasks with missing or outdated
+dependencies.
 
 ## Options
 
@@ -78,7 +78,7 @@ $ pytask --max-failures 2                 # Stop after the second failure
 
 ### Performing a dry-run
 
-You can do a dry run to see which tasks would be executed without executing them.
+Do a dry run to see which tasks will be executed without executing them.
 
 ```{include} ../_static/md/dry-run.md
 ```

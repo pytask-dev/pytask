@@ -3,8 +3,8 @@
 ```console
 
 $ pytask
-──────────────────────────── Start pytask session ────────────────────────────
-Platform: win32 -- Python <span style="color: var(--termynal-blue)">3.10.0</span>, pytask <span style="color: var(--termynal-blue)">0.4.0</span>, pluggy <span style="color: var(--termynal-blue)">1.3.0</span>
+────────────────────────── Start pytask session ─────────────────────────
+Platform: win32 -- Python <span style="color: var(--termynal-blue)">3.12.0</span>, pytask <span style="color: var(--termynal-blue)">0.5.3</span>, pluggy <span style="color: var(--termynal-blue)">1.3.0</span>
 Root: C:\Users\pytask-dev\git\my_project
 Collected <span style="color: var(--termynal-blue)">1</span> task.
 
@@ -14,7 +14,7 @@ Collected tasks:
         ├── 📄 &lt;Dependency my_project/in.txt&gt;
         └── 📄 &lt;Product my_project/out.txt&gt;
 
-──────────────────────────────────────────────────────────────────────────────
+─────────────────────────────────────────────────────────────────────────
 ```
 
 </div>

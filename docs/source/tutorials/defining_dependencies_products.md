@@ -1,13 +1,12 @@
 # Defining dependencies and products
 
-Tasks have dependencies and products that you must define to run your tasks.
+Define task dependencies and products to run your tasks.
 
-Defining dependencies and products also serves another purpose. By analyzing them,
-pytask determines the order to run the tasks.
+Defining dependencies and products also determines task execution order.
 
-This tutorial offers you different interfaces. If you are comfortable with type
-annotations or are not afraid to try them, look at the `Python 3.10+` or `3.9` tabs. You
-find a tutorial on type hints {doc}`here <../type_hints>`.
+This tutorial offers you different interfaces. For type annotations, see the
+`Python 3.10+` or `3.9` tabs. You find a tutorial on type hints
+{doc}`here <../type_hints>`.
 
 If you want to avoid type annotations for now, look at the tab named `produces`.
 
@@ -105,8 +104,8 @@ we will define it in `task_plot_data.py`.
 ````{tab-item} Python 3.10+
 :sync: python310plus
 
-To specify that the task relies on the data set `data.pkl`, you can add the path
-to the function signature while choosing any argument name, here `path_to_data`.
+To specify the task relies on `data.pkl`, add the path
+to the function signature with any argument name (here `path_to_data`).
 
 pytask assumes that all function arguments that do not have a {class}`~pytask.Product`
 annotation are dependencies of the task.
@@ -120,8 +119,8 @@ annotation are dependencies of the task.
 ````{tab-item} Python 3.9
 :sync: python38plus
 
-To specify that the task relies on the data set `data.pkl`, you can add the path
-to the function signature while choosing any argument name, here `path_to_data`.
+To specify the task relies on `data.pkl`, add the path
+to the function signature with any argument name (here `path_to_data`).
 
 pytask assumes that all function arguments that do not have the {class}`~pytask.Product`
 annotation are dependencies of the task.

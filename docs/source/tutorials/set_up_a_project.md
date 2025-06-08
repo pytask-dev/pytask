@@ -1,7 +1,7 @@
 # Set up a project
 
-Assuming you want to use pytask for a more extensive project, you want to organize the
-project as a Python package. This tutorial explains the minimal setup.
+To use pytask for larger projects, organize the project as a Python package. This
+tutorial explains the minimal setup.
 
 If you want to use pytask with a collection of scripts, you can skip this lesson and
 move to the next section of the tutorials.
@@ -25,7 +25,7 @@ my_project
 └───pyproject.toml
 ```
 
-You can replicate the directory structure for your project or you start from pytask's
+Replicate this directory structure for your project or start from pytask's
 [cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project)
 template or any other
 {doc}`linked template or example project <../how_to_guides/bp_templates_and_projects>`.
@@ -64,76 +64,123 @@ practice to store any outputs of the tasks in your project in a different folder
 Whenever you want to regenerate your project, delete the build directory and rerun
 pytask.
 
-## `pyproject.toml`
+## Configuration Files
 
-The `pyproject.toml` file is the modern configuration file for most Python packages and
-apps. It contains
+The configuration depends on your package manager choice. Each creates different files
+to manage dependencies and project metadata.
 
-1. the configuration for our Python package.
-1. pytask's configuration.
+`````{tab-set}
 
-Let us start with the configuration of the Python package, which contains general
-information about the package, like its name and version, the definition of the package
-folder, `src`.
+````{tab-item} uv
+:sync: uv
+
+Create a `pyproject.toml` file for project configuration and dependencies:
 
 ```toml
-[build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "my_project"
 version = "0.1.0"
-
-[tool.setuptools.package-dir]
-"" = "src"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-namespaces = false
-```
-
-```{seealso}
-You can find more extensive information about this metadata in the documentation of
-[setuptools](https://setuptools.pypa.io/en/latest/userguide/quickstart.html).
-```
-
-Alongside the package information, we include pytask's configuration under the
-`[tool.pytask.ini_options]` section. We only tell pytask to look for tasks in
-`src/my_project`.
-
-```toml
-[tool.pytask.ini_options]
-paths = ["src/my_project"]
-```
-
-You will learn more about the configuration later in {doc}`tutorial <configuration>`.
-
-You can copy the whole content of the `pyproject.toml` here.
-
-<details>
-
-```toml
-[build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "my_project"
-version = "0.1.0"
-
-[tool.setuptools.package-dir]
-"" = "src"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-namespaces = false
+requires-python = ">=3.9"
+dependencies = ["pytask"]
 
 [tool.pytask.ini_options]
 paths = ["src/my_project"]
 ```
 
-</details>
+uv automatically handles build system configuration and package discovery.
+
+````
+
+````{tab-item} pixi
+:sync: pixi
+
+Create a `pixi.toml` file for project configuration:
+
+```toml
+[project]
+name = "my_project"
+version = "0.1.0"
+requires-python = ">=3.9"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
+
+[dependencies]
+pytask = "*"
+python = ">=3.9"
+
+[tool.pytask.ini_options]
+paths = ["src/my_project"]
+```
+
+````
+
+````{tab-item} pip
+:sync: pip
+
+Create a `pyproject.toml` file for project configuration:
+
+```toml
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "my_project"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = ["pytask"]
+
+[tool.pytask.ini_options]
+paths = ["src/my_project"]
+```
+
+Also create a `requirements.txt` file:
+
+```text
+pytask
+```
+
+````
+
+````{tab-item} conda/mamba
+:sync: conda
+
+Create an `environment.yml` file that includes the editable install:
+
+```yaml
+name: my_project
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.9
+  - pytask
+  - pip
+  - pip:
+    - -e .
+```
+
+And a `pyproject.toml` file for project configuration:
+
+```toml
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "my_project"
+version = "0.1.0"
+requires-python = ">=3.9"
+
+[tool.pytask.ini_options]
+paths = ["src/my_project"]
+```
+
+````
+`````
+
+The `[tool.pytask.ini_options]` section tells pytask to look for tasks in
+`src/my_project`. You will learn more about configuration in the
+{doc}`configuration tutorial <configuration>`.
 
 ## The `.pytask` directory
 
@@ -142,23 +189,57 @@ interact with it.
 
 ## Installation
 
-At last, you can install the package into your environment with
+`````{tab-set}
+
+````{tab-item} uv
+:sync: uv
+
+```console
+$ uv sync
+```
+
+The command installs all packages. uv will ensure that all your dependencies are up-to-date.
+
+````
+
+````{tab-item} pixi
+:sync: pixi
+
+```console
+$ pixi install
+```
+
+pixi automatically creates the environment and installs dependencies. pixi will ensure that all your dependencies are up-to-date.
+
+````
+
+````{tab-item} pip
+:sync: pip
 
 ```console
 $ pip install -e .
 ```
 
-This command will trigger an editable install of the project, which is a development
-mode and it means any changes in the package's source files are immediately available in
-the installed version. Again, setuptools makes
-[a good job explaining it](https://setuptools.pypa.io/en/latest/userguide/development_mode.html).
+This creates an editable install where changes in the package's source files are immediately available in the installed version.
 
-```{important}
-Do not forget to rerun the editable install every time after you recreate your Python
-environment.
+````
 
-Also, do not mix it up with the regular installation command `pip install .` because it
-will likely not work. Then, paths defined with the variables `SRC` and `BLD` in
-`config.py` will look for files relative to the location where your package is installed
-like `/home/user/miniconda3/envs/...` and not in the folder you are working in.
+````{tab-item} conda/mamba
+:sync: conda
+
+```console
+$ conda env create -f environment.yml
+$ conda activate my_project
 ```
+
+Or with mamba:
+
+```console
+$ mamba env create -f environment.yml
+$ mamba activate my_project
+```
+
+The editable install is automatically handled by the `pip: -e .` entry in `environment.yml`.
+
+````
+`````
