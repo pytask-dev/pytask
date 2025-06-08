@@ -37,7 +37,7 @@ _SOURCE_LINE_TASK_FUNC = inspect.getsourcelines(task_func)[1]
     ("edtior_url_scheme", "expected"),
     [
         ("no_link", ""),
-        ("file", "link file:///{path}"),
+        ("file", "link file://{path}"),
         ("vscode", f"link vscode://file/{{path}}:{_SOURCE_LINE_TASK_FUNC}"),
         ("pycharm", f"link pycharm://open?file={{path}}&line={_SOURCE_LINE_TASK_FUNC}"),
         (
@@ -56,7 +56,7 @@ def test_create_url_style_for_task(edtior_url_scheme, expected):
     ("edtior_url_scheme", "expected"),
     [
         ("no_link", ""),
-        ("file", "link file:///{path}"),
+        ("file", "link file://{path}"),
         ("vscode", "link vscode://file/{path}:1"),
         ("pycharm", "link pycharm://open?file={path}&line=1"),
         (
