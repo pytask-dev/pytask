@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import functools
 import inspect
-import os
-import sys
 from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -54,13 +52,6 @@ __all__ = [
 ]
 
 
-_IS_WINDOWS_TERMINAL = "WT_SESSION" in os.environ
-_IS_WINDOWS = sys.platform == "win32"
-
-
-_IS_LEGACY_WINDOWS = _IS_WINDOWS and not _IS_WINDOWS_TERMINAL
-
-
 _HORIZONTAL_PADDING = (0, 1, 0, 1)
 
 
@@ -70,10 +61,10 @@ function.
 
 """
 
-ARROW_DOWN_ICON = "|" if _IS_LEGACY_WINDOWS else "⬇"
-FILE_ICON = "" if _IS_LEGACY_WINDOWS else "📄 "
-PYTHON_ICON = "" if _IS_LEGACY_WINDOWS else "🐍 "
-TASK_ICON = "" if _IS_LEGACY_WINDOWS else "📝 "
+ARROW_DOWN_ICON = "⬇"
+FILE_ICON = "📄 "
+PYTHON_ICON = "🐍 "
+TASK_ICON = "📝 "
 
 
 _EDITOR_URL_SCHEMES: dict[str, str] = {
