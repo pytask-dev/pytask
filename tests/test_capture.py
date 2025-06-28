@@ -398,7 +398,7 @@ class TestTeeCaptureIO(TestCaptureIO):
 
 
 def test_dontreadfrominput():
-    from _pytest.capture import DontReadFromInput
+    from _pytest.capture import DontReadFromInput  # noqa: PLC0415
 
     f = DontReadFromInput()
     assert f.buffer is f

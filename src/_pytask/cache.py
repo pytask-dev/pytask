@@ -72,7 +72,7 @@ def _make_memoize_key(
     if kwargs:
         for i, arg in enumerate(argspec.args):
             if arg in kwargs:
-                args = args[:i] + (kwargs.pop(arg),) + args[i:]
+                args = (*args[:i], kwargs.pop(arg), *args[i:])
 
     if args:
         key_args += args

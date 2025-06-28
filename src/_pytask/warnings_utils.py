@@ -119,7 +119,7 @@ def _resolve_warning_category(category: str) -> type[Warning]:
         return Warning
 
     if "." not in category:
-        import builtins as m
+        import builtins as m  # noqa: PLC0415
 
         klass = category
     else:

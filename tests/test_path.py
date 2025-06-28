@@ -164,7 +164,7 @@ def test_no_meta_path_found(
     assert module.foo(2) == 42  # type: ignore[attr-defined]
 
     # mode='importlib' fails if no spec is found to load the module
-    import importlib.util
+    import importlib.util  # noqa: PLC0415
 
     # Force module to be re-imported.
     del sys.modules[module.__name__]
@@ -269,7 +269,7 @@ class TestImportLibMode:
             )
         )
 
-        import pickle
+        import pickle  # noqa: PLC0415
 
         def round_trip(obj):
             s = pickle.dumps(obj)

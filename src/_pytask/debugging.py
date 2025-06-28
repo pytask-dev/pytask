@@ -133,7 +133,7 @@ class PytaskPDB:
     ) -> type[pdb.Pdb]:
         """Create a debugger from an imported class."""
         if not cls._config:
-            import pdb  # noqa: T100
+            import pdb  # noqa: PLC0415, T100
 
             # Happens when using pytask.set_trace outside of a task.
             return pdb.Pdb
@@ -160,7 +160,7 @@ class PytaskPDB:
                 msg = f"--pdbcls: could not import {value!r}: {exc}."
                 raise ValueError(msg) from exc
         else:
-            import pdb  # noqa: T100
+            import pdb  # noqa: PLC0415, T100
 
             pdb_cls = pdb.Pdb
 

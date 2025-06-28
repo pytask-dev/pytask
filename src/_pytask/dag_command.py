@@ -151,7 +151,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
         if "command" not in raw_config:
             raw_config["command"] = "dag"
             # Add defaults from cli.
-            from _pytask.cli import DEFAULTS_FROM_CLI
+            from _pytask.cli import DEFAULTS_FROM_CLI  # noqa: PLC0415
 
             raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
 

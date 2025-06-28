@@ -109,7 +109,7 @@ def test_bad_version(monkeypatch):
     result = import_optional_dependency("fakemodule", min_version="0.8")
     assert result is module
 
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match=match):
         result = import_optional_dependency("fakemodule", errors="warn")
     assert result is None
 
@@ -134,7 +134,7 @@ def test_submodule(monkeypatch):
     with pytest.raises(ImportError, match=match):
         import_optional_dependency("fakemodule.submodule")
 
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match=match):
         result = import_optional_dependency("fakemodule.submodule", errors="warn")
     assert result is None
 
