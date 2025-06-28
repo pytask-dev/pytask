@@ -222,7 +222,7 @@ def build(  # noqa: C901, PLR0912, PLR0913
         if "command" not in raw_config:
             raw_config["command"] = "build"
             # Add defaults from cli.
-            from _pytask.cli import DEFAULTS_FROM_CLI
+            from _pytask.cli import DEFAULTS_FROM_CLI  # noqa: PLC0415
 
             raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
 
