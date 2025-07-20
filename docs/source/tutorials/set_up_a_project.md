@@ -6,6 +6,12 @@ tutorial explains the minimal setup.
 If you want to use pytask with a collection of scripts, you can skip this lesson and
 move to the next section of the tutorials.
 
+```{seealso}
+In case you are thinking about developing multiple packages in the project that should be separated (one for dealing with the data, one for the analysis and a package for the pytask tasks), consider using a [workspace](../how_to_guides/using_workspaces.md).
+```
+
+## The directory structure
+
 The following directory tree gives an overview of the project's different parts.
 
 ```text
@@ -83,6 +89,10 @@ version = "0.1.0"
 requires-python = ">=3.9"
 dependencies = ["pytask"]
 
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
+
 [tool.pytask.ini_options]
 paths = ["src/my_project"]
 ```
@@ -104,6 +114,10 @@ requires-python = ">=3.9"
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [dependencies]
 pytask = "*"
 python = ">=3.9"
@@ -120,15 +134,15 @@ paths = ["src/my_project"]
 Create a `pyproject.toml` file for project configuration:
 
 ```toml
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "my_project"
 version = "0.1.0"
 requires-python = ">=3.9"
 dependencies = ["pytask"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.pytask.ini_options]
 paths = ["src/my_project"]
@@ -162,14 +176,14 @@ dependencies:
 And a `pyproject.toml` file for project configuration:
 
 ```toml
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "my_project"
 version = "0.1.0"
 requires-python = ">=3.9"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling"
 
 [tool.pytask.ini_options]
 paths = ["src/my_project"]

@@ -23,6 +23,7 @@ provisional_nodes_and_task_generators
 writing_custom_nodes
 extending_pytask
 the_data_catalog
+using_workspaces
 ```
 
 ## Best Practice Guides
