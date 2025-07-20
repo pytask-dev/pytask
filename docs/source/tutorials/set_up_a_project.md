@@ -83,11 +83,19 @@ version = "0.1.0"
 requires-python = ">=3.9"
 dependencies = ["pytask"]
 
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
+
 [tool.pytask.ini_options]
 paths = ["src/my_project"]
 ```
 
 uv automatically handles build system configuration and package discovery.
+
+```{seealso}
+Another benefit of using uv is that it makes it easy handling repositories with multiple packages allowing you to separate the package with tasks from your potential scientific package. Read more about [workspaces in the uv documentation](https://docs.astral.sh/uv/concepts/projects/workspaces/).
+```
 
 ````
 
@@ -103,6 +111,10 @@ version = "0.1.0"
 requires-python = ">=3.9"
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [dependencies]
 pytask = "*"
@@ -120,15 +132,15 @@ paths = ["src/my_project"]
 Create a `pyproject.toml` file for project configuration:
 
 ```toml
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "my_project"
 version = "0.1.0"
 requires-python = ">=3.9"
 dependencies = ["pytask"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.pytask.ini_options]
 paths = ["src/my_project"]
@@ -162,14 +174,14 @@ dependencies:
 And a `pyproject.toml` file for project configuration:
 
 ```toml
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "my_project"
 version = "0.1.0"
 requires-python = ">=3.9"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling"
 
 [tool.pytask.ini_options]
 paths = ["src/my_project"]
