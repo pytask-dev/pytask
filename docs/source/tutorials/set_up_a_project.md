@@ -6,6 +6,12 @@ tutorial explains the minimal setup.
 If you want to use pytask with a collection of scripts, you can skip this lesson and
 move to the next section of the tutorials.
 
+```{seealso}
+In case you are thinking about developing multiple packages in the project that should be separated (one for dealing with the data, one for the analysis and a package for the pytask tasks), consider using a [workspace](../how_to_guides/using_workspaces.md).
+```
+
+## The directory structure
+
 The following directory tree gives an overview of the project's different parts.
 
 ```text
@@ -92,10 +98,6 @@ paths = ["src/my_project"]
 ```
 
 uv automatically handles build system configuration and package discovery.
-
-```{seealso}
-Another benefit of using uv is that it makes it easy handling repositories with multiple packages allowing you to separate the package with tasks from your potential scientific package. Read more about [workspaces in the uv documentation](https://docs.astral.sh/uv/concepts/projects/workspaces/).
-```
 
 ````
 
