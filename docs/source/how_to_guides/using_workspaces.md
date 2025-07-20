@@ -47,5 +47,5 @@ uv provides excellent support for workspaces which you can read more about in th
 
 pixi is still working on a native workspace experience, but there are workarounds.
 
-- https://github.com/prefix-dev/pixi/discussions/387
-- https://github.com/Andre-Medina/python-pixi-mono-template
+- [https://github.com/prefix-dev/pixi/discussions/387](https://github.com/prefix-dev/pixi/discussions/387)
+- [https://github.com/Andre-Medina/python-pixi-mono-template](https://github.com/Andre-Medina/python-pixi-mono-template)

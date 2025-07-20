@@ -24,7 +24,7 @@ As an example, look at two repositories from a COVID-19 forecasting project.
   epidemiological model which is applied in the research project.
 
 ```{seealso}
-Consider using [workspaces](using_workspaces.md) which instead of separate repositories.
+Nowadays, consider using [workspaces](using_workspaces.md) instead of separate repositories.
 ```
 
 Separating the model code from the research project provided several benefits.
