@@ -637,6 +637,9 @@ def test_execute_tasks_multiple_times_via_api(tmp_path):
     assert result.exit_code == ExitCode.OK
 
 
+@pytest.mark.xfail(
+    sys.platform == "linux" and sys.version_info == (3, 9), reason="flakey"
+)
 def test_pytask_on_a_module_that_uses_the_functional_api(tmp_path):
     source = """
     from pytask import task, ExitCode, build
