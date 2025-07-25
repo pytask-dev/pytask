@@ -5,6 +5,11 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.5.5 - 2025-07-25
+
+- {pull}`692` documents how to use pytask with workspaces.
+- {pull}`694` fixes {issue}`693` so that missing dependencies are detected in some cases. Thanks to {user}`timmens` for the report!
+
 ## 0.5.4 - 2025-06-08
 
 - {pull}`676` ensures compatibility with click >8.2.0.

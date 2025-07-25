@@ -162,7 +162,6 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
             has_changed = has_node_changed(task=task, node=node, state=node_state)
             if has_changed:
                 needs_to_be_executed = True
-                break
 
     if not needs_to_be_executed:
         collect_provisional_products(session, task)
