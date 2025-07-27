@@ -1,6 +1,3 @@
-ci:
-    skip: [type-checking]
-
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
@@ -31,7 +28,7 @@ repos:
     rev: v0.12.4
     hooks:
       - id: ruff-format
-      - id: ruff
+      - id: ruff-check
 -   repo: https://github.com/executablebooks/mdformat
     rev: 0.7.22
     hooks:
@@ -58,7 +55,7 @@ repos:
     -   id: nbstripout
         exclude: (docs)
 -   repo: https://github.com/crate-ci/typos
-    rev: v1
+    rev: v1.34.0
     hooks:
     -   id: typos
         exclude: (\.ipynb)
@@ -67,10 +64,3 @@ repos:
     -   id: check-hooks-apply
     -   id: check-useless-excludes
     # -   id: identity  # Prints all files passed to pre-commits. Debugging.
--   repo: local
-    hooks:
-    -   id: type-checking
-        name: type-checking
-        entry: uv run --group typing mypy
-        language: system
-        pass_filenames: false
