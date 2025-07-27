@@ -5,6 +5,10 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.5.6 - 2025-xx-xx
+
+- {pull}`696` allows setting the status of a task in the `pytask_execute_task_log_start` hook which enables pending tasks to be displayed by pytask-parallel.
+
 ## 0.5.5 - 2025-07-25
 
 - {pull}`692` documents how to use pytask with workspaces.
