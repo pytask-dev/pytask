@@ -20,7 +20,6 @@ from rich.text import Text
 
 from _pytask.console import console
 from _pytask.console import format_task_name
-from _pytask.logging_utils import TaskExecutionStatus
 from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import Exit
 from _pytask.outcomes import TaskOutcome
@@ -29,6 +28,7 @@ from _pytask.pluginmanager import hookimpl
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+    from _pytask.logging_utils import TaskExecutionStatus
     from _pytask.node_protocols import PTask
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
@@ -165,7 +165,6 @@ class LiveExecution:
     n_entries_in_table: int
     verbose: int
     editor_url_scheme: str
-    initial_status: TaskExecutionStatus = TaskExecutionStatus.RUNNING
     sort_final_table: bool = False
     n_tasks: int | str = "x"
     _reports: list[_ReportEntry] = field(factory=list)
@@ -186,9 +185,11 @@ class LiveExecution:
                 console.print(table)
 
     @hookimpl(tryfirst=True)
-    def pytask_execute_task_log_start(self, task: PTask) -> bool:
+    def pytask_execute_task_log_start(
+        self, task: PTask, status: TaskExecutionStatus
+    ) -> bool:
         """Mark a new task as running."""
-        self.add_task(new_running_task=task, status=self.initial_status)
+        self.add_task(new_running_task=task, status=status)
         return True
 
     @hookimpl
