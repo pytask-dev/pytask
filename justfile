@@ -16,11 +16,11 @@ test-nb:
 
 # Run type checking
 typing:
-    uv run --group typing --isolated mypy
+    uv run --group typing --no-dev --isolated mypy
 
 # Run type checking on notebooks
 typing-nb:
-    uv run --group typing --isolated nbqa mypy --ignore-missing-imports
+    uv run --group typing --no-dev --isolated nbqa mypy --ignore-missing-imports
 
 # Run linting
 lint:
