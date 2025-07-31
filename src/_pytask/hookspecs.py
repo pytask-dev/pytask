@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     import click
     from pluggy import PluginManager
 
+    from _pytask.logging_utils import TaskExecutionStatus
     from _pytask.models import NodeInfo
     from _pytask.node_protocols import PNode
     from _pytask.node_protocols import PProvisionalNode
@@ -255,7 +256,9 @@ def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionRepo
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task_log_start(session: Session, task: PTask) -> None:
+def pytask_execute_task_log_start(
+    session: Session, task: PTask, status: TaskExecutionStatus
+) -> None:
     """Start logging of task execution.
 
     This hook can be used to provide more verbose output during the execution.
