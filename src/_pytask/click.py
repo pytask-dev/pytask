@@ -186,7 +186,7 @@ class ColoredCommand(Command):
         opts, args, param_order = parser.parse_args(args=args)
 
         for param in _iter_params_for_processing(param_order, self.get_params(ctx)):
-            value, args = param.handle_parse_result(ctx, opts, args)
+            _value, args = param.handle_parse_result(ctx, opts, args)
 
         if args and not ctx.allow_extra_args and not ctx.resilient_parsing:
             ctx.fail(
