@@ -213,8 +213,8 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
 
     # Update explanation on task if in explain mode
     if session.config["explain"] and hasattr(task, "_explanation"):
-        task._explanation.would_execute = needs_to_be_executed  # type: ignore[attr-defined]
-        task._explanation.reasons = change_reasons  # type: ignore[attr-defined]
+        task._explanation.would_execute = needs_to_be_executed
+        task._explanation.reasons = change_reasons
 
     if not needs_to_be_executed:
         collect_provisional_products(session, task)
@@ -344,7 +344,7 @@ def pytask_execute_task_process_report(
 
     # Update explanation with outcome if in explain mode
     if explain_mode and hasattr(task, "_explanation"):
-        task._explanation.outcome = report.outcome  # type: ignore[attr-defined]
+        task._explanation.outcome = report.outcome
 
     return True
 

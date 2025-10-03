@@ -66,7 +66,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
             if any_node_changed:
                 collect_provisional_products(session, task)
                 if explain_mode and hasattr(task, "_explanation"):
-                    task._explanation.outcome = TaskOutcome.PERSISTENCE  # type: ignore[attr-defined]
+                    task._explanation.outcome = TaskOutcome.PERSISTENCE
                 raise Persisted
 
 

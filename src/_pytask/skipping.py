@@ -57,13 +57,13 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     if is_unchanged and not session.config["force"]:
         collect_provisional_products(session, task)
         if explain_mode and hasattr(task, "_explanation"):
-            task._explanation.outcome = TaskOutcome.SKIP_UNCHANGED  # type: ignore[attr-defined]
+            task._explanation.outcome = TaskOutcome.SKIP_UNCHANGED
         raise SkippedUnchanged
 
     is_skipped = has_mark(task, "skip")
     if is_skipped:
         if explain_mode and hasattr(task, "_explanation"):
-            task._explanation.outcome = TaskOutcome.SKIP  # type: ignore[attr-defined]
+            task._explanation.outcome = TaskOutcome.SKIP
         raise Skipped
 
     skipif_marks = get_marks(task, "skipif")
@@ -73,7 +73,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
         should_skip = any(arg[0] for arg in marker_args)
         if should_skip:
             if explain_mode and hasattr(task, "_explanation"):
-                task._explanation.outcome = TaskOutcome.SKIP  # type: ignore[attr-defined]
+                task._explanation.outcome = TaskOutcome.SKIP
             raise Skipped(message)
 
     ancestor_failed_marks = get_marks(task, "skip_ancestor_failed")
@@ -83,7 +83,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
             for mark in ancestor_failed_marks
         )
         if explain_mode and hasattr(task, "_explanation"):
-            task._explanation.outcome = TaskOutcome.SKIP_PREVIOUS_FAILED  # type: ignore[attr-defined]
+            task._explanation.outcome = TaskOutcome.SKIP_PREVIOUS_FAILED
         raise SkippedAncestorFailed(message)
 
 
