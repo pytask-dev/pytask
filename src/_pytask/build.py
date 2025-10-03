@@ -76,6 +76,7 @@ def build(  # noqa: C901, PLR0912, PLR0913
     dry_run: bool = False,
     editor_url_scheme: Literal["no_link", "file", "vscode", "pycharm"]  # noqa: PYI051
     | str = "file",
+    explain: bool = False,
     expression: str = "",
     force: bool = False,
     ignore: Iterable[str] = (),
@@ -125,6 +126,8 @@ def build(  # noqa: C901, PLR0912, PLR0913
     editor_url_scheme
         An url scheme that allows to click on task names, node names and filenames and
         jump right into you preferred editor to the right line.
+    explain
+        Explain why tasks need to be executed by showing what changed.
     expression
         Same as ``-k`` on the command line. Select tasks via expressions on task ids.
     force
@@ -189,6 +192,7 @@ def build(  # noqa: C901, PLR0912, PLR0913
             "disable_warnings": disable_warnings,
             "dry_run": dry_run,
             "editor_url_scheme": editor_url_scheme,
+            "explain": explain,
             "expression": expression,
             "force": force,
             "ignore": ignore,
@@ -323,6 +327,12 @@ def build(  # noqa: C901, PLR0912, PLR0913
     is_flag=True,
     default=False,
     help="Execute a task even if it succeeded successfully before.",
+)
+@click.option(
+    "--explain",
+    is_flag=True,
+    default=False,
+    help="Explain why tasks need to be executed by showing what changed.",
 )
 def build_command(**raw_config: Any) -> NoReturn:
     """Collect tasks, execute them and report the results."""
