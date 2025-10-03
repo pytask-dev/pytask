@@ -104,7 +104,7 @@ def pytask_execute_build(session: Session) -> bool | None:
 def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionReport:
     """Follow the protocol to execute each task."""
     # Initialize explanation for this task if in explain mode
-    if session.config.get("explain", False):
+    if session.config["explain"]:
         task.attributes["explanation"] = TaskExplanation(reasons=[])
 
     session.hook.pytask_execute_task_log_start(session=session, task=task)
@@ -136,7 +136,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
     """
     if has_mark(task, "would_be_executed"):
         # Add cascade reason if in explain mode
-        if session.config.get("explain", False) and "explanation" in task.attributes:
+        if session.config["explain"] and "explanation" in task.attributes:
             marks = [m for m in task.markers if m.name == "would_be_executed"]
             if marks:
                 preceding_task_name = marks[0].kwargs.get("task_name", "unknown")
