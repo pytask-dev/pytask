@@ -122,7 +122,6 @@ ignore = [
     "COM812", # Comply with ruff-format.
     "ISC001", # Comply with ruff-format.
     "FBT",
-    "PD901",  # Avoid generic df for dataframes.
     "S101",   # raise errors for asserts.
     "S603",   # Call check with subprocess.run.
     "S607",   # Call subprocess.run with partial executable path.

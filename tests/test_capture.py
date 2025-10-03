@@ -188,7 +188,7 @@ class TestCaptureManager:
             assert outerr == ("", "")
             print("hello")
             capman.suspend()
-            out, err = capman.read()
+            out, _err = capman.read()
             if method == CaptureMethod.NO:
                 assert old == (sys.stdout, sys.stderr, sys.stdin)
             else:

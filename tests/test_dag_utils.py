@@ -153,7 +153,7 @@ def test_raise_error_for_cycle_in_graph(dag):
         "115f685b0af2aef0c7317a0b48562f34cfb7a622549562bd3d34d4d948b4fdab",
         "55c6cef62d3e62d5f8fc65bb846e66d8d0d3ca60608c04f6f7b095ea073a7dcf",
     )
-    with pytest.raises(ValueError, match="The DAG contains cycles."):
+    with pytest.raises(ValueError, match=r"The DAG contains cycles\."):
         TopologicalSorter.from_dag(dag)
 
 
