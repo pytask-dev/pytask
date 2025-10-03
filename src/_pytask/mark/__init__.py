@@ -59,7 +59,7 @@ def markers(**raw_config: Any) -> NoReturn:
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
-    except (ConfigurationError, Exception):  # pragma: no cover
+    except (ConfigurationError, Exception):  # noqa: BLE001  # pragma: no cover
         console.print_exception()
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 

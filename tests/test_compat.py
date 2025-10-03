@@ -149,5 +149,5 @@ def test_no_version_raises(monkeypatch):
     sys.modules[name] = module
     monkeypatch.setitem(_MINIMUM_VERSIONS, name, "1.0.0")
 
-    with pytest.raises(ImportError, match="Can't determine .* fakemodule"):
+    with pytest.raises(ImportError, match=r"Can't determine .* fakemodule"):
         import_optional_dependency(name)
