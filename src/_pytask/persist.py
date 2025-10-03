@@ -40,6 +40,8 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     dependencies and before the same hook implementation for skipping tasks.
 
     """
+    explain_mode = session.config.get("explain", False)
+
     if has_mark(task, "persist"):
         all_states = [
             (
@@ -63,6 +65,8 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
             )
             if any_node_changed:
                 collect_provisional_products(session, task)
+                if explain_mode and hasattr(task, "_explanation"):
+                    task._explanation.outcome = TaskOutcome.PERSISTENCE  # type: ignore[attr-defined]
                 raise Persisted
 
 

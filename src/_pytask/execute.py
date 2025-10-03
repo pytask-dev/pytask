@@ -20,11 +20,15 @@ from _pytask.console import unify_styles
 from _pytask.dag_utils import TopologicalSorter
 from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import node_and_neighbors
+from _pytask.database_utils import get_node_change_info
 from _pytask.database_utils import has_node_changed
 from _pytask.database_utils import update_states_in_database
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
+from _pytask.explain import ChangeReason
+from _pytask.explain import TaskExplanation
+from _pytask.explain import create_change_reason
 from _pytask.mark import Mark
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PNode
@@ -99,6 +103,14 @@ def pytask_execute_build(session: Session) -> bool | None:
 @hookimpl
 def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionReport:
     """Follow the protocol to execute each task."""
+    # Initialize explanation for this task if in explain mode
+    if session.config.get("explain", False):
+        task._explanation = TaskExplanation(  # type: ignore[attr-defined]
+            task_name=task.name,
+            would_execute=False,
+            reasons=[],
+        )
+
     session.hook.pytask_execute_task_log_start(session=session, task=task)
     try:
         session.hook.pytask_execute_task_setup(session=session, task=task)
@@ -119,7 +131,7 @@ def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionRepo
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C901
+def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C901, PLR0912
     """Set up the execution of a task.
 
     1. Check whether all dependencies of a task are available.
@@ -130,10 +142,21 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
         raise WouldBeExecuted
 
     dag = session.dag
+    change_reasons = []
 
     # Task generators are always executed since their states are not updated, but we
     # skip the checks as well.
     needs_to_be_executed = session.config["force"] or is_task_generator(task)
+
+    if session.config["force"] and session.config["explain"]:
+        change_reasons.append(
+            ChangeReason(
+                node_name="",
+                node_type="task",
+                reason="forced",
+                details={},
+            )
+        )
 
     if not needs_to_be_executed:
         predecessors = set(dag.predecessors(task.signature)) | {task.signature}
@@ -159,9 +182,39 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
                     )
                 raise NodeNotFoundError(msg)
 
-            has_changed = has_node_changed(task=task, node=node, state=node_state)
-            if has_changed:
-                needs_to_be_executed = True
+            # Check if node changed and collect detailed info if in explain mode
+            if session.config["explain"]:
+                has_changed, reason, details = get_node_change_info(
+                    task=task, node=node, state=node_state
+                )
+                if has_changed:
+                    needs_to_be_executed = True
+                    # Determine node type
+                    if node_signature == task.signature:
+                        node_type = "source"
+                    elif node_signature in predecessors:
+                        node_type = "dependency"
+                    else:
+                        node_type = "product"
+
+                    change_reasons.append(
+                        create_change_reason(
+                            node=node,
+                            node_type=node_type,
+                            reason=reason,
+                            old_hash=details.get("old_hash"),
+                            new_hash=details.get("new_hash"),
+                        )
+                    )
+            else:
+                has_changed = has_node_changed(task=task, node=node, state=node_state)
+                if has_changed:
+                    needs_to_be_executed = True
+
+    # Update explanation on task if in explain mode
+    if session.config["explain"] and hasattr(task, "_explanation"):
+        task._explanation.would_execute = needs_to_be_executed  # type: ignore[attr-defined]
+        task._explanation.reasons = change_reasons  # type: ignore[attr-defined]
 
     if not needs_to_be_executed:
         collect_provisional_products(session, task)
@@ -188,7 +241,7 @@ def _safe_load(node: PNode | PProvisionalNode, task: PTask, *, is_product: bool)
 @hookimpl(trylast=True)
 def pytask_execute_task(session: Session, task: PTask) -> bool:
     """Execute task."""
-    if session.config["dry_run"]:
+    if session.config["dry_run"] or session.config["explain"]:
         raise WouldBeExecuted
 
     parameters = inspect.signature(task.function).parameters
@@ -255,6 +308,8 @@ def pytask_execute_task_process_report(
 
     """
     task = report.task
+    explain_mode = session.config.get("explain", False)
+
     if report.outcome == TaskOutcome.SUCCESS:
         update_states_in_database(session, task.signature)
     elif report.exc_info and isinstance(report.exc_info[1], WouldBeExecuted):
@@ -286,6 +341,10 @@ def pytask_execute_task_process_report(
 
         if report.exc_info and isinstance(report.exc_info[1], Exit):  # pragma: no cover
             session.should_stop = True
+
+    # Update explanation with outcome if in explain mode
+    if explain_mode and hasattr(task, "_explanation"):
+        task._explanation.outcome = report.outcome  # type: ignore[attr-defined]
 
     return True
 

@@ -22,6 +22,7 @@ __all__ = [
     "BaseTable",
     "DatabaseSession",
     "create_database",
+    "get_node_change_info",
     "update_states_in_database",
 ]
 
@@ -83,3 +84,40 @@ def has_node_changed(task: PTask, node: PTask | PNode, state: str | None) -> boo
         return True
 
     return state != db_state.hash_
+
+
+def get_node_change_info(
+    task: PTask, node: PTask | PNode, state: str | None
+) -> tuple[bool, str, dict[str, str]]:
+    """Get detailed information about why a node changed.
+
+    Returns
+    -------
+    tuple[bool, str, dict[str, str]]
+        A tuple of (has_changed, reason, details) where:
+        - has_changed: Whether the node has changed
+        - reason: The reason for the change ("missing", "not_in_db", "changed",
+          "unchanged")
+        - details: Additional details like old and new hash values
+
+    """
+    details: dict[str, str] = {}
+
+    # If node does not exist, we receive None.
+    if state is None:
+        return True, "missing", details
+
+    with DatabaseSession() as session:
+        db_state = session.get(State, (task.signature, node.signature))
+
+    # If the node is not in the database.
+    if db_state is None:
+        return True, "not_in_db", details
+
+    # Check if state changed
+    if state != db_state.hash_:
+        details["old_hash"] = db_state.hash_
+        details["new_hash"] = state
+        return True, "changed", details
+
+    return False, "unchanged", details

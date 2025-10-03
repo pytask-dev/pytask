@@ -95,6 +95,8 @@ class TaskOutcome(Enum):
         source files and products have not changed.
     SUCCESS
         Outcome for task which was executed successfully.
+    WOULD_BE_EXECUTED
+        Outcome for tasks which would be executed.
 
     """
 
