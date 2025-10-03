@@ -254,7 +254,7 @@ def build(  # noqa: C901, PLR0912, PLR0913
 
         session = Session.from_config(config_)
 
-    except (ConfigurationError, Exception):
+    except (ConfigurationError, Exception):  # noqa: BLE001
         console.print(Traceback(sys.exc_info()))
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 

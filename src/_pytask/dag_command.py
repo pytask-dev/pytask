@@ -87,7 +87,7 @@ def dag(**raw_config: Any) -> int:
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
-    except (ConfigurationError, Exception):  # pragma: no cover
+    except (ConfigurationError, Exception):  # noqa: BLE001  # pragma: no cover
         console.print_exception()
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 
@@ -183,7 +183,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
 
         session = Session.from_config(config)
 
-    except (ConfigurationError, Exception):  # pragma: no cover
+    except (ConfigurationError, Exception):  # noqa: BLE001  # pragma: no cover
         console.print_exception()
         session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
 
