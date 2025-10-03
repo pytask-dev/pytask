@@ -5,6 +5,10 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.5.6 - 2025-xx-xx
+
+- {pull}`703` fixes {issue}`701` by allowing `--capture tee-sys` again.
+
 ## 0.5.5 - 2025-07-25
 
 - {pull}`692` documents how to use pytask with workspaces.
