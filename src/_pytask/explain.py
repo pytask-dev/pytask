@@ -109,11 +109,11 @@ def create_change_reason(
 @hookimpl(tryfirst=True)
 def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> None:
     """Log explanations if --explain flag is set."""
-    if not session.config.get("explain"):
+    if not session.config["explain"]:
         return
 
     console.print()
-    console.rule("Explanation", style="bold blue")
+    console.rule(Text("Explanation", style="bold blue"), style="bold blue")
     console.print()
 
     # Collect all explanations
@@ -139,9 +139,12 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
     verbose = session.config.get("verbose", 1)
 
     if would_execute:
+        # WOULD_BE_EXECUTED has style "success" in TaskOutcome
         console.print(
-            Text("Tasks that would be executed:", style="bold yellow"),
-            style="yellow",
+            Text(
+                "Tasks that would be executed:",
+                style=TaskOutcome.WOULD_BE_EXECUTED.style,
+            ),
         )
         console.print()
         for exp in would_execute:
@@ -149,14 +152,18 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
             console.print()
 
     if skipped:
-        console.print(Text("Skipped tasks:", style="bold blue"), style="blue")
+        # SKIP has style "skipped" in TaskOutcome
+        console.print(Text("Skipped tasks:", style=TaskOutcome.SKIP.style))
         console.print()
         for exp in skipped:
             console.print(exp.format(verbose))
             console.print()
 
     if unchanged and verbose >= 2:  # noqa: PLR2004
-        console.print(Text("Tasks with no changes:", style="bold green"), style="green")
+        # SKIP_UNCHANGED has style "success" in TaskOutcome
+        console.print(
+            Text("Tasks with no changes:", style=TaskOutcome.SKIP_UNCHANGED.style)
+        )
         console.print()
         for exp in unchanged:
             console.print(exp.format(verbose))
