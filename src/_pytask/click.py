@@ -10,7 +10,6 @@ from gettext import ngettext
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import ClassVar
-from typing import TypeVar
 
 import click
 from click import Choice
@@ -29,7 +28,6 @@ from _pytask.console import console
 from _pytask.console import create_panel_title
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
     from collections.abc import Sequence
 
 
@@ -75,13 +73,29 @@ else:
         _split_opt as split_opt,
     )
 
-    ParamTypeValue = TypeVar("ParamTypeValue")
-
     class EnumChoice(Choice):  # type: ignore[no-redef, type-arg, unused-ignore]
-        def __init__(
-            self, choices: Iterable[ParamTypeValue], case_sensitive: bool = False
-        ) -> None:
-            super().__init__(choices=choices, case_sensitive=case_sensitive)  # type: ignore[arg-type, unused-ignore]
+        """An enum-based choice type for click >= 8.2.
+
+        Extracts values from enum members to use as valid choices.
+
+        """
+
+        def __init__(self, enum_type: type[Enum], case_sensitive: bool = False) -> None:
+            super().__init__(
+                choices=[element.value for element in enum_type],
+                case_sensitive=case_sensitive,
+            )
+            self.enum_type = enum_type
+
+        def convert(
+            self, value: Any, param: Parameter | None, ctx: Context | None
+        ) -> Any:
+            if isinstance(value, Enum):
+                value = value.value
+            value = super().convert(value=value, param=param, ctx=ctx)
+            if value is None:
+                return None
+            return self.enum_type(value)
 
 
 class _OptionHighlighter(RegexHighlighter):

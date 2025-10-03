@@ -3,12 +3,12 @@ install:
     uv sync --all-groups
 
 # Run tests
-test:
-    uv run --group test pytest
+test *FLAGS:
+    uv run --group test pytest {{FLAGS}}
 
 # Run tests with coverage
-test-cov:
-    uv run --group test pytest --nbmake --cov=src --cov=tests --cov-report=xml -n auto
+test-cov *FLAGS:
+    uv run --group test pytest --nbmake --cov=src --cov=tests --cov-report=xml -n auto {{FLAGS}}
 
 # Run tests with notebook validation
 test-nb:
