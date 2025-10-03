@@ -159,10 +159,20 @@ def test_explain_with_persist_marker(runner, tmp_path):
     # Change dependency
     tmp_path.joinpath("input.txt").write_text("modified")
 
+    # Test with default verbosity (should show summary)
     result = runner.invoke(cli, ["--explain", tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
-    # Should show as persisted, not as would be executed
-    assert "persist" in result.output.lower() or "unchanged" in result.output.lower()
+    assert "persisted task(s)" in result.output.lower()
+    assert "use -vv to show details" in result.output.lower()
+
+    # Change dependency again for verbose test
+    tmp_path.joinpath("input.txt").write_text("modified again")
+
+    # Test with verbose 2 (should show details)
+    result = runner.invoke(cli, ["--explain", "--verbose", "2", tmp_path.as_posix()])
+    assert result.exit_code == ExitCode.OK
+    assert "Persisted tasks" in result.output
+    assert "Persisted (products exist, changes ignored)" in result.output
 
 
 def test_explain_cascade_execution(runner, tmp_path):
@@ -204,6 +214,10 @@ def test_explain_cascade_execution(runner, tmp_path):
     assert "task_a" in result.output
     assert "task_b" in result.output
     assert "task_c" in result.output
+    # Check cascade explanations
+    assert "Preceding task" in result.output
+    assert "task_a" in result.output
+    assert "Changed" in result.output
 
 
 def test_explain_first_run_no_database(runner, tmp_path):

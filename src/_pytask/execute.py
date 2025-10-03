@@ -135,6 +135,19 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
 
     """
     if has_mark(task, "would_be_executed"):
+        # Add cascade reason if in explain mode
+        if session.config.get("explain", False) and "explanation" in task.attributes:
+            marks = [m for m in task.markers if m.name == "would_be_executed"]
+            if marks:
+                preceding_task_name = marks[0].kwargs.get("task_name", "unknown")
+                task.attributes["explanation"].reasons.append(
+                    ChangeReason(
+                        node_name=preceding_task_name,
+                        node_type="task",
+                        reason="cascade",
+                        details={},
+                    )
+                )
         raise WouldBeExecuted
 
     dag = session.dag
@@ -315,7 +328,10 @@ def pytask_execute_task_process_report(
                 Mark(
                     "would_be_executed",
                     (),
-                    {"reason": f"Previous task {task.name!r} would be executed."},
+                    {
+                        "reason": f"Previous task {task.name!r} would be executed.",
+                        "task_name": task.name,
+                    },
                 )
             )
     else:

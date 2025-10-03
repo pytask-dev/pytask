@@ -49,6 +49,8 @@ class ChangeReason:
             return "  • First execution"
         if self.reason == "forced":
             return "  • Forced execution (--force flag)"
+        if self.reason == "cascade":
+            return f"  • Preceding task '{self.node_name}' would be executed"
         return f"  • {self.node_name}: {self.reason}"
 
 
@@ -104,7 +106,9 @@ def create_change_reason(
 
 
 @hookimpl(tryfirst=True)
-def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> None:
+def pytask_execute_log_end(  # noqa: C901
+    session: Session, reports: list[ExecutionReport]
+) -> None:
     """Log explanations if --explain flag is set."""
     if not session.config["explain"]:
         return
@@ -136,6 +140,9 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
     unchanged = [
         r for r in reports_with_explanations if r.outcome == TaskOutcome.SKIP_UNCHANGED
     ]
+    persisted = [
+        r for r in reports_with_explanations if r.outcome == TaskOutcome.PERSISTENCE
+    ]
 
     verbose = session.config.get("verbose", 1)
 
@@ -166,6 +173,23 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
             console.print(explanation.format(report.task.name, report.outcome, verbose))
             console.print()
 
+    if persisted and verbose >= 2:  # noqa: PLR2004
+        console.rule(
+            Text("─── Persisted tasks", style=TaskOutcome.PERSISTENCE.style),
+            align="left",
+            style=TaskOutcome.PERSISTENCE.style,
+        )
+        console.print()
+        for report in persisted:
+            explanation = report.task.attributes["explanation"]
+            console.print(explanation.format(report.task.name, report.outcome, verbose))
+            console.print()
+    elif persisted and verbose == 1:
+        console.print(
+            f"{len(persisted)} persisted task(s) (use -vv to show details)",
+            highlight=False,
+        )
+
     if unchanged and verbose >= 2:  # noqa: PLR2004
         console.rule(
             Text("─── Tasks with no changes", style=TaskOutcome.SKIP_UNCHANGED.style),
@@ -177,7 +201,6 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
             explanation = report.task.attributes["explanation"]
             console.print(explanation.format(report.task.name, report.outcome, verbose))
             console.print()
-
     elif unchanged and verbose == 1:
         console.print(
             f"{len(unchanged)} task(s) with no changes (use -vv to show details)",
