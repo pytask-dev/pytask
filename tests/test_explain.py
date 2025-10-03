@@ -266,6 +266,7 @@ def test_explain_no_changes(runner, tmp_path):
         or "unchanged" in result.output.lower()
         or "0 " in result.output
     )
+    assert "1 task(s) with no changes (use -vv to show details)" in result.output
 
 
 def test_explain_with_dry_run(runner, tmp_path):

@@ -105,11 +105,7 @@ def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionRepo
     """Follow the protocol to execute each task."""
     # Initialize explanation for this task if in explain mode
     if session.config.get("explain", False):
-        task._explanation = TaskExplanation(  # type: ignore[attr-defined]
-            task_name=task.name,
-            would_execute=False,
-            reasons=[],
-        )
+        task.attributes["explanation"] = TaskExplanation(reasons=[])
 
     session.hook.pytask_execute_task_log_start(session=session, task=task)
     try:
@@ -212,9 +208,8 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
                     needs_to_be_executed = True
 
     # Update explanation on task if in explain mode
-    if session.config["explain"] and hasattr(task, "_explanation"):
-        task._explanation.would_execute = needs_to_be_executed
-        task._explanation.reasons = change_reasons
+    if session.config["explain"] and "explanation" in task.attributes:
+        task.attributes["explanation"].reasons = change_reasons
 
     if not needs_to_be_executed:
         collect_provisional_products(session, task)
@@ -308,7 +303,6 @@ def pytask_execute_task_process_report(
 
     """
     task = report.task
-    explain_mode = session.config.get("explain", False)
 
     if report.outcome == TaskOutcome.SUCCESS:
         update_states_in_database(session, task.signature)
@@ -341,10 +335,6 @@ def pytask_execute_task_process_report(
 
         if report.exc_info and isinstance(report.exc_info[1], Exit):  # pragma: no cover
             session.should_stop = True
-
-    # Update explanation with outcome if in explain mode
-    if explain_mode and hasattr(task, "_explanation"):
-        task._explanation.outcome = report.outcome
 
     return True
 

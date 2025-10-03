@@ -49,21 +49,15 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 @hookimpl
 def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     """Take a short-cut for skipped tasks during setup with an exception."""
-    explain_mode = session.config.get("explain", False)
-
     is_unchanged = has_mark(task, "skip_unchanged") and not has_mark(
         task, "would_be_executed"
     )
     if is_unchanged and not session.config["force"]:
         collect_provisional_products(session, task)
-        if explain_mode and hasattr(task, "_explanation"):
-            task._explanation.outcome = TaskOutcome.SKIP_UNCHANGED
         raise SkippedUnchanged
 
     is_skipped = has_mark(task, "skip")
     if is_skipped:
-        if explain_mode and hasattr(task, "_explanation"):
-            task._explanation.outcome = TaskOutcome.SKIP
         raise Skipped
 
     skipif_marks = get_marks(task, "skipif")
@@ -72,8 +66,6 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
         message = "\n".join(arg[1] for arg in marker_args if arg[0])
         should_skip = any(arg[0] for arg in marker_args)
         if should_skip:
-            if explain_mode and hasattr(task, "_explanation"):
-                task._explanation.outcome = TaskOutcome.SKIP
             raise Skipped(message)
 
     ancestor_failed_marks = get_marks(task, "skip_ancestor_failed")
@@ -82,8 +74,6 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
             skip_ancestor_failed(*mark.args, **mark.kwargs)
             for mark in ancestor_failed_marks
         )
-        if explain_mode and hasattr(task, "_explanation"):
-            task._explanation.outcome = TaskOutcome.SKIP_PREVIOUS_FAILED
         raise SkippedAncestorFailed(message)
 
 

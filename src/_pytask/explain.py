@@ -56,29 +56,26 @@ class ChangeReason:
 class TaskExplanation:
     """Represents the explanation for why a task needs to be executed."""
 
-    task_name: str
-    would_execute: bool
-    outcome: TaskOutcome | None = None
     reasons: list[ChangeReason] = field(factory=list)
 
-    def format(self, verbose: int = 1) -> str:
+    def format(self, task_name: str, outcome: TaskOutcome, verbose: int = 1) -> str:
         """Format the task explanation as a string."""
         lines = []
 
-        if self.outcome == TaskOutcome.SKIP_UNCHANGED:
-            lines.append(f"{self.task_name}")
+        if outcome == TaskOutcome.SKIP_UNCHANGED:
+            lines.append(f"{task_name}")
             lines.append("  ✓ No changes detected")
-        elif self.outcome == TaskOutcome.PERSISTENCE:
-            lines.append(f"{self.task_name}")
+        elif outcome == TaskOutcome.PERSISTENCE:
+            lines.append(f"{task_name}")
             lines.append("  • Persisted (products exist, changes ignored)")
-        elif self.outcome == TaskOutcome.SKIP:
-            lines.append(f"{self.task_name}")
+        elif outcome == TaskOutcome.SKIP:
+            lines.append(f"{task_name}")
             lines.append("  • Skipped by marker")
         elif not self.reasons:
-            lines.append(f"{self.task_name}")
+            lines.append(f"{task_name}")
             lines.append("  ✓ No changes detected")
         else:
-            lines.append(f"{self.task_name}")
+            lines.append(f"{task_name}")
             lines.extend(reason.format(verbose) for reason in self.reasons)
 
         return "\n".join(lines)
@@ -116,55 +113,73 @@ def pytask_execute_log_end(session: Session, reports: list[ExecutionReport]) -> 
     console.rule(Text("Explanation", style="bold blue"), style="bold blue")
     console.print()
 
-    # Collect all explanations
-    explanations = [
-        report.task._explanation
-        for report in reports
-        if hasattr(report.task, "_explanation")
+    # Collect all reports with explanations
+    reports_with_explanations = [
+        report for report in reports if "explanation" in report.task.attributes
     ]
 
-    if not explanations:
+    if not reports_with_explanations:
         console.print("No tasks require execution - everything is up to date.")
         return
 
     # Group by outcome
-    would_execute = [e for e in explanations if e.would_execute]
-    skipped = [
-        e
-        for e in explanations
-        if not e.would_execute and e.outcome != TaskOutcome.SKIP_UNCHANGED
+    would_execute = [
+        r
+        for r in reports_with_explanations
+        if r.outcome == TaskOutcome.WOULD_BE_EXECUTED
     ]
-    unchanged = [e for e in explanations if e.outcome == TaskOutcome.SKIP_UNCHANGED]
+    skipped = [
+        r
+        for r in reports_with_explanations
+        if r.outcome in (TaskOutcome.SKIP, TaskOutcome.SKIP_PREVIOUS_FAILED)
+    ]
+    unchanged = [
+        r for r in reports_with_explanations if r.outcome == TaskOutcome.SKIP_UNCHANGED
+    ]
 
     verbose = session.config.get("verbose", 1)
 
     if would_execute:
-        # WOULD_BE_EXECUTED has style "success" in TaskOutcome
-        console.print(
+        console.rule(
             Text(
-                "Tasks that would be executed:",
+                "─── Tasks that would be executed",
                 style=TaskOutcome.WOULD_BE_EXECUTED.style,
             ),
+            align="left",
+            style=TaskOutcome.WOULD_BE_EXECUTED.style,
         )
         console.print()
-        for exp in would_execute:
-            console.print(exp.format(verbose))
+        for report in would_execute:
+            explanation = report.task.attributes["explanation"]
+            console.print(explanation.format(report.task.name, report.outcome, verbose))
             console.print()
 
     if skipped:
-        # SKIP has style "skipped" in TaskOutcome
-        console.print(Text("Skipped tasks:", style=TaskOutcome.SKIP.style))
+        console.rule(
+            Text("─── Skipped tasks", style=TaskOutcome.SKIP.style),
+            align="left",
+            style=TaskOutcome.SKIP.style,
+        )
         console.print()
-        for exp in skipped:
-            console.print(exp.format(verbose))
+        for report in skipped:
+            explanation = report.task.attributes["explanation"]
+            console.print(explanation.format(report.task.name, report.outcome, verbose))
             console.print()
 
     if unchanged and verbose >= 2:  # noqa: PLR2004
-        # SKIP_UNCHANGED has style "success" in TaskOutcome
-        console.print(
-            Text("Tasks with no changes:", style=TaskOutcome.SKIP_UNCHANGED.style)
+        console.rule(
+            Text("─── Tasks with no changes", style=TaskOutcome.SKIP_UNCHANGED.style),
+            align="left",
+            style=TaskOutcome.SKIP_UNCHANGED.style,
         )
         console.print()
-        for exp in unchanged:
-            console.print(exp.format(verbose))
+        for report in unchanged:
+            explanation = report.task.attributes["explanation"]
+            console.print(explanation.format(report.task.name, report.outcome, verbose))
             console.print()
+
+    elif unchanged and verbose == 1:
+        console.print(
+            f"{len(unchanged)} task(s) with no changes (use -vv to show details)",
+            highlight=False,
+        )
