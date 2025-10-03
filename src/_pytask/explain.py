@@ -50,7 +50,7 @@ class ChangeReason:
         if self.reason == "forced":
             return "  • Forced execution (--force flag)"
         if self.reason == "cascade":
-            return f"  • Preceding task '{self.node_name}' would be executed"
+            return f"  • Preceding {self.node_name} would be executed"
         return f"  • {self.node_name}: {self.reason}"
 
 
