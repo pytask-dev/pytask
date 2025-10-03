@@ -196,7 +196,7 @@ class TestCaptureManager:
             capman.resume()
             print("hello")
             capman.suspend()
-            out, err = capman.read()
+            out, _err = capman.read()
             if method != CaptureMethod.NO:
                 assert out == "hello\n"
             capman.stop_capturing()
@@ -624,7 +624,7 @@ class TestStdCapture:
     def test_capturing_readouterr_unicode(self):
         with self.getcapture() as cap:
             print("hxąć")
-            out, err = cap.readouterr()
+            out, _err = cap.readouterr()
         assert out == "hxąć\n"
 
     def test_reset_twice_error(self):
@@ -656,8 +656,8 @@ class TestStdCapture:
             print("cap1")
             with self.getcapture() as cap2:
                 print("cap2")
-                out2, err2 = cap2.readouterr()
-                out1, err1 = cap1.readouterr()
+                out2, _err2 = cap2.readouterr()
+                out1, _err1 = cap1.readouterr()
         assert out1 == "cap1\n"
         assert out2 == "cap2\n"
 
@@ -702,8 +702,8 @@ class TestTeeStdCapture(TestStdCapture):
             print("cap1")
             with self.getcapture() as cap2:
                 print("cap2")
-                out2, err2 = cap2.readouterr()
-                out1, err1 = cap1.readouterr()
+                out2, _err2 = cap2.readouterr()
+                out1, _err1 = cap1.readouterr()
         assert out1 == "cap1\ncap2\n"
         assert out2 == "cap2\n"
 
