@@ -10,10 +10,17 @@ from attrs import field
 from rich.text import Text
 
 from _pytask.console import console
+from _pytask.console import format_task_name
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from rich.console import Console
+    from rich.console import ConsoleOptions
+    from rich.console import RenderableType
+
     from _pytask.node_protocols import PNode
     from _pytask.node_protocols import PTask
     from _pytask.reports import ExecutionReport
@@ -28,30 +35,33 @@ class ChangeReason:
     node_type: str  # "source", "dependency", "product", "task"
     reason: str  # "changed", "missing", "not_in_db", "first_run"
     details: dict[str, Any] = field(factory=dict)
+    verbose: int = 1
 
-    def format(self, verbose: int = 1) -> str:  # noqa: PLR0911
-        """Format the change reason as a string."""
+    def __rich_console__(
+        self, console: Console, options: ConsoleOptions
+    ) -> Iterator[RenderableType]:
+        """Render the change reason using Rich protocol."""
         if self.reason == "missing":
-            return f"  • {self.node_name}: Missing"
-        if self.reason == "not_in_db":
-            return (
+            yield Text(f"  • {self.node_name}: Missing")
+        elif self.reason == "not_in_db":
+            yield Text(
                 f"  • {self.node_name}: Not in database (first run or database cleared)"
             )
-        if self.reason == "changed":
-            if verbose >= 2 and "old_hash" in self.details:  # noqa: PLR2004
-                return (
-                    f"  • {self.node_name}: Changed\n"
-                    f"    Previous hash: {self.details['old_hash'][:8]}...\n"
-                    f"    Current hash:  {self.details['new_hash'][:8]}..."
-                )
-            return f"  • {self.node_name}: Changed"
-        if self.reason == "first_run":
-            return "  • First execution"
-        if self.reason == "forced":
-            return "  • Forced execution (--force flag)"
-        if self.reason == "cascade":
-            return f"  • Preceding {self.node_name} would be executed"
-        return f"  • {self.node_name}: {self.reason}"
+        elif self.reason == "changed":
+            if self.verbose >= 2 and "old_hash" in self.details:  # noqa: PLR2004
+                yield Text(f"  • {self.node_name}: Changed")
+                yield Text(f"    Previous hash: {self.details['old_hash'][:8]}...")
+                yield Text(f"    Current hash:  {self.details['new_hash'][:8]}...")
+            else:
+                yield Text(f"  • {self.node_name}: Changed")
+        elif self.reason == "first_run":
+            yield Text("  • First execution")
+        elif self.reason == "forced":
+            yield Text("  • Forced execution (--force flag)")
+        elif self.reason == "cascade":
+            yield Text(f"  • Preceding {self.node_name} would be executed")
+        else:
+            yield Text(f"  • {self.node_name}: {self.reason}")
 
 
 @define
@@ -59,28 +69,34 @@ class TaskExplanation:
     """Represents the explanation for why a task needs to be executed."""
 
     reasons: list[ChangeReason] = field(factory=list)
+    task: PTask | None = None
+    outcome: TaskOutcome | None = None
+    verbose: int = 1
+    editor_url_scheme: str = ""
 
-    def format(self, task_name: str, outcome: TaskOutcome, verbose: int = 1) -> str:
-        """Format the task explanation as a string."""
-        lines = []
-
-        if outcome == TaskOutcome.SKIP_UNCHANGED:
-            lines.append(f"{task_name}")
-            lines.append("  ✓ No changes detected")
-        elif outcome == TaskOutcome.PERSISTENCE:
-            lines.append(f"{task_name}")
-            lines.append("  • Persisted (products exist, changes ignored)")
-        elif outcome == TaskOutcome.SKIP:
-            lines.append(f"{task_name}")
-            lines.append("  • Skipped by marker")
-        elif not self.reasons:
-            lines.append(f"{task_name}")
-            lines.append("  ✓ No changes detected")
+    def __rich_console__(
+        self, console: Console, options: ConsoleOptions
+    ) -> Iterator[RenderableType]:
+        """Render the task explanation using Rich protocol."""
+        # Format task name with proper styling and links
+        if self.task:
+            yield format_task_name(self.task, self.editor_url_scheme)
         else:
-            lines.append(f"{task_name}")
-            lines.extend(reason.format(verbose) for reason in self.reasons)
+            yield Text("Unknown task")
 
-        return "\n".join(lines)
+        # Add explanation based on outcome
+        if self.outcome == TaskOutcome.SKIP_UNCHANGED:
+            yield Text("  ✓ No changes detected")
+        elif self.outcome == TaskOutcome.PERSISTENCE:
+            yield Text("  • Persisted (products exist, changes ignored)")
+        elif self.outcome == TaskOutcome.SKIP:
+            yield Text("  • Skipped by marker")
+        elif not self.reasons:
+            yield Text("  ✓ No changes detected")
+        else:
+            for reason in self.reasons:
+                reason.verbose = self.verbose
+                yield reason
 
 
 def create_change_reason(
@@ -106,7 +122,7 @@ def create_change_reason(
 
 
 @hookimpl(tryfirst=True)
-def pytask_execute_log_end(  # noqa: C901
+def pytask_execute_log_end(  # noqa: C901, PLR0915
     session: Session, reports: list[ExecutionReport]
 ) -> None:
     """Log explanations if --explain flag is set."""
@@ -145,6 +161,7 @@ def pytask_execute_log_end(  # noqa: C901
     ]
 
     verbose = session.config.get("verbose", 1)
+    editor_url_scheme = session.config.get("editor_url_scheme", "no_link")
 
     if would_execute:
         console.rule(
@@ -158,7 +175,11 @@ def pytask_execute_log_end(  # noqa: C901
         console.print()
         for report in would_execute:
             explanation = report.task.attributes["explanation"]
-            console.print(explanation.format(report.task.name, report.outcome, verbose))
+            explanation.task = report.task
+            explanation.outcome = report.outcome
+            explanation.verbose = verbose
+            explanation.editor_url_scheme = editor_url_scheme
+            console.print(explanation)
             console.print()
 
     if skipped:
@@ -170,7 +191,11 @@ def pytask_execute_log_end(  # noqa: C901
         console.print()
         for report in skipped:
             explanation = report.task.attributes["explanation"]
-            console.print(explanation.format(report.task.name, report.outcome, verbose))
+            explanation.task = report.task
+            explanation.outcome = report.outcome
+            explanation.verbose = verbose
+            explanation.editor_url_scheme = editor_url_scheme
+            console.print(explanation)
             console.print()
 
     if persisted and verbose >= 2:  # noqa: PLR2004
@@ -182,7 +207,11 @@ def pytask_execute_log_end(  # noqa: C901
         console.print()
         for report in persisted:
             explanation = report.task.attributes["explanation"]
-            console.print(explanation.format(report.task.name, report.outcome, verbose))
+            explanation.task = report.task
+            explanation.outcome = report.outcome
+            explanation.verbose = verbose
+            explanation.editor_url_scheme = editor_url_scheme
+            console.print(explanation)
             console.print()
     elif persisted and verbose == 1:
         console.print(
@@ -199,7 +228,11 @@ def pytask_execute_log_end(  # noqa: C901
         console.print()
         for report in unchanged:
             explanation = report.task.attributes["explanation"]
-            console.print(explanation.format(report.task.name, report.outcome, verbose))
+            explanation.task = report.task
+            explanation.outcome = report.outcome
+            explanation.verbose = verbose
+            explanation.editor_url_scheme = editor_url_scheme
+            console.print(explanation)
             console.print()
     elif unchanged and verbose == 1:
         console.print(
