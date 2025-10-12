@@ -6,7 +6,7 @@ $ pytask profile
 ───────────────────────── Start pytask session ─────────────────────────
 Platform: win32 -- Python <span style="color: var(--termynal-blue)">3.12.0</span>, pytask <span style="color: var(--termynal-blue)">0.5.3</span>, pluggy <span style="color: var(--termynal-blue)">1.3.0</span>
 Root: C:\Users\pytask-dev\git\my_project
-Collected <span style="color: var(--termynal-blue)">18</span> task.
+Collected 18 task.
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
 ┃ Task                                    ┃ Duration (in s) ┃ Size      ┃

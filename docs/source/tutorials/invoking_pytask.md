@@ -83,6 +83,22 @@ Do a dry run to see which tasks will be executed without executing them.
 ```{include} ../_static/md/dry-run.md
 ```
 
+### Explaining why tasks are executed
+
+Use the `--explain` flag to understand why tasks need to be executed. This shows what
+changed (source files, dependencies, products, previous tasks) and helps you understand
+pytask's execution decisions.
+
+```{include} ../_static/md/explain.md
+```
+
+The explanation output respects the `--verbose` flag:
+
+- Default verbosity: Shows tasks that would be executed and skipped tasks
+- `-v` or `--verbose 1`: Same as default, with summary for persisted and unchanged tasks
+- `--verbose 2`: Shows detailed information including persisted and unchanged tasks with
+  change reasons
+
 ## Functional interface
 
 pytask also has a functional interface that is explained in this

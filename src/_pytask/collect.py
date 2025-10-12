@@ -597,7 +597,10 @@ def pytask_collect_log(
     """Log collection."""
     session.collection_end = time.time()
 
-    console.print(f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}.")
+    console.print(
+        f"Collected {len(tasks)} task{'' if len(tasks) == 1 else 's'}.",
+        highlight=False,
+    )
 
     failed_reports = [r for r in reports if r.outcome == CollectionOutcome.FAIL]
     if failed_reports:

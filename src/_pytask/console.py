@@ -169,10 +169,10 @@ def format_strings_as_flat_tree(
 
 
 def create_url_style_for_task(
-    task_function: Callable[..., Any], edtior_url_scheme: str
+    task_function: Callable[..., Any], editor_url_scheme: str
 ) -> Style:
     """Create the style to add a link to a task id."""
-    url_scheme = _EDITOR_URL_SCHEMES.get(edtior_url_scheme, edtior_url_scheme)
+    url_scheme = _EDITOR_URL_SCHEMES.get(editor_url_scheme, editor_url_scheme)
 
     if not url_scheme:
         return Style()
@@ -190,9 +190,9 @@ def create_url_style_for_task(
     return style
 
 
-def create_url_style_for_path(path: Path, edtior_url_scheme: str) -> Style:
+def create_url_style_for_path(path: Path, editor_url_scheme: str) -> Style:
     """Create the style to add a link to a task id."""
-    url_scheme = _EDITOR_URL_SCHEMES.get(edtior_url_scheme, edtior_url_scheme)
+    url_scheme = _EDITOR_URL_SCHEMES.get(editor_url_scheme, editor_url_scheme)
     return (
         Style()
         if not url_scheme
