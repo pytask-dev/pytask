@@ -52,7 +52,7 @@ The type hint `Annotated[Path, Product]` uses
 argument as a product.
 
 ```{literalinclude} ../../../docs_src/tutorials/write_a_task_py310.py
-:emphasize-lines: 3, 11
+:emphasize-lines: 3, 12
 ```
 
 ```{tip}

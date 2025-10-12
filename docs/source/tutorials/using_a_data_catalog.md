@@ -59,7 +59,7 @@ of our tasks. Here we see again the signature of the task function.
 :sync: annotated
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py310.py
-:lines: 10-12
+:lines: 11-12
 ```
 ````
 
@@ -141,7 +141,7 @@ Following one of the interfaces gives you immediate access to the
 :sync: annotated
 
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_3_py310.py
-:emphasize-lines: 12
+:emphasize-lines: 13
 ```
 
 ````
@@ -206,7 +206,7 @@ different node types which is not relevant now.
 :sync: annotated
 
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_5_py310.py
-:emphasize-lines: 11, 12
+:emphasize-lines: 12, 13
 ```
 
 ````

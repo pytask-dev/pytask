@@ -50,7 +50,7 @@ in `task_data_preparation.py`.
 :sync: annotated
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py310.py
-:emphasize-lines: 11
+:emphasize-lines: 8, 12
 ```
 
 {class}`~pytask.Product` allows marking an argument as a product. After the
@@ -98,7 +98,7 @@ pytask assumes that all function arguments that do not have a {class}`~pytask.Pr
 annotation are dependencies of the task.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_py310.py
-:emphasize-lines: 11
+:emphasize-lines: 12
 ```
 
 ````
