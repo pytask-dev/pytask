@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from typing import Literal
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase
@@ -88,12 +89,14 @@ def has_node_changed(task: PTask, node: PTask | PNode, state: str | None) -> boo
 
 def get_node_change_info(
     task: PTask, node: PTask | PNode, state: str | None
-) -> tuple[bool, str, dict[str, str]]:
+) -> tuple[
+    bool, Literal["missing", "not_in_db", "changed", "unchanged"], dict[str, str]
+]:
     """Get detailed information about why a node changed.
 
     Returns
     -------
-    tuple[bool, str, dict[str, str]]
+    tuple[bool, Literal["missing", "not_in_db", "changed", "unchanged"], dict[str, str]]
         A tuple of (has_changed, reason, details) where:
         - has_changed: Whether the node has changed
         - reason: The reason for the change ("missing", "not_in_db", "changed",

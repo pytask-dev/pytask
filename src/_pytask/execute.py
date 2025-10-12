@@ -27,6 +27,8 @@ from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.explain import ChangeReason
+from _pytask.explain import NodeType
+from _pytask.explain import ReasonType
 from _pytask.explain import TaskExplanation
 from _pytask.explain import create_change_reason
 from _pytask.mark import Mark
@@ -127,7 +129,7 @@ def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionRepo
 
 
 @hookimpl(trylast=True)
-def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C901, PLR0912
+def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C901, PLR0912, PLR0915
     """Set up the execution of a task.
 
     1. Check whether all dependencies of a task are available.
@@ -199,6 +201,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
                 if has_changed:
                     needs_to_be_executed = True
                     # Determine node type
+                    node_type: NodeType
                     if node_signature == task.signature:
                         node_type = "source"
                     elif node_signature in predecessors:
@@ -206,11 +209,14 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
                     else:
                         node_type = "product"
 
+                    # Cast reason since get_node_change_info can return "unchanged"
+                    # but we only call this when has_changed is True
+                    reason_typed: ReasonType = reason  # type: ignore[assignment]
                     change_reasons.append(
                         create_change_reason(
                             node=node,
                             node_type=node_type,
-                            reason=reason,
+                            reason=reason_typed,
                             old_hash=details.get("old_hash"),
                             new_hash=details.get("new_hash"),
                         )

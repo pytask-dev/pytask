@@ -6,7 +6,7 @@ $ pytask --explain
 ────────────────────────── Start pytask session ─────────────────────────
 Platform: darwin -- Python <span style="color: var(--termynal-blue)">3.12.0</span>, pytask <span style="color: var(--termynal-blue)">0.5.6</span>, pluggy <span style="color: var(--termynal-blue)">1.6.0</span>
 Root: /Users/pytask-dev/git/my_project
-Collected <span style="color: var(--termynal-blue)">3</span> tasks.
+Collected 3 tasks.
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
 ┃ Task                                              ┃ Outcome ┃

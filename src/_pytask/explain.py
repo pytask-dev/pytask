@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import Literal
 
 from attrs import define
 from attrs import field
@@ -27,13 +28,19 @@ if TYPE_CHECKING:
     from _pytask.session import Session
 
 
+NodeType = Literal["source", "dependency", "product", "task"]
+ReasonType = Literal[
+    "changed", "missing", "not_in_db", "first_run", "forced", "cascade"
+]
+
+
 @define
 class ChangeReason:
     """Represents a reason why a node changed."""
 
     node_name: str
-    node_type: str  # "source", "dependency", "product", "task"
-    reason: str  # "changed", "missing", "not_in_db", "first_run"
+    node_type: NodeType
+    reason: ReasonType
     details: dict[str, Any] = field(factory=dict)
     verbose: int = 1
 
@@ -101,8 +108,8 @@ class TaskExplanation:
 
 def create_change_reason(
     node: PNode | PTask,
-    node_type: str,
-    reason: str,
+    node_type: NodeType,
+    reason: ReasonType,
     old_hash: str | None = None,
     new_hash: str | None = None,
 ) -> ChangeReason:

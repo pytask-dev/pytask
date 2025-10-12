@@ -86,8 +86,8 @@ Do a dry run to see which tasks will be executed without executing them.
 ### Explaining why tasks are executed
 
 Use the `--explain` flag to understand why tasks need to be executed. This shows what
-changed (source files, dependencies, products) and helps you understand pytask's
-execution decisions.
+changed (source files, dependencies, products, previous tasks) and helps you understand
+pytask's execution decisions.
 
 ```{include} ../_static/md/explain.md
 ```

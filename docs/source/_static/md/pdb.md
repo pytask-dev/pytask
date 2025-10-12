@@ -6,7 +6,7 @@ $ pytask --pdb
 ────────────────────────── Start pytask session ─────────────────────────
 Platform: win32 -- Python <span style="color: var(--termynal-blue)">3.12.0</span>, pytask <span style="color: var(--termynal-blue)">0.5.3</span>, pluggy <span style="color: var(--termynal-blue)">1.3.0</span>
 Root: C:\Users\pytask-dev\git\my_project
-Collected <span style="color: var(--termynal-blue)">1</span> task.
+Collected 1 task.
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Traceback >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 <span style="color: #f14c4c">╭───────────────────</span><span style="color: #f14c4c; font-weight: bold;"> Traceback </span><span style="color: #6c1e1e; font-weight: bold">(most recent call last)</span><span style="color: #f14c4c"> ─────────────────╮</span>
