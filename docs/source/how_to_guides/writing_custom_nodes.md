@@ -42,7 +42,7 @@ The result will be the following task.
 
 ````
 
-````{tab-item} Python 3.9
+````{tab-item} Python 3.10
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py38.py
@@ -50,7 +50,7 @@ The result will be the following task.
 
 ````
 
-````{tab-item} Python 3.9 & Return
+````{tab-item} Python 3.10 & Return
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py38_return.py
@@ -87,7 +87,7 @@ we arrive at the following class.
 
 ````
 
-````{tab-item} Python 3.9
+````{tab-item} Python 3.10
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_3_py38.py

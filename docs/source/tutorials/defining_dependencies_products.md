@@ -5,8 +5,7 @@ Define task dependencies and products to run your tasks.
 Defining dependencies and products also determines task execution order.
 
 This tutorial offers you different interfaces. For type annotations, see the
-`Python 3.10+` or `3.9` tabs. You find a tutorial on type hints
-{doc}`here <../type_hints>`.
+`Python 3.10+` tabs. You find a tutorial on type hints {doc}`here <../type_hints>`.
 
 If you want to avoid type annotations for now, look at the tab named `produces`.
 
@@ -59,7 +58,7 @@ task has finished, pytask will check whether the file exists.
 
 ````
 
-````{tab-item} Python 3.9
+````{tab-item} Python 3.10
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py38.py
@@ -116,7 +115,7 @@ annotation are dependencies of the task.
 
 ````
 
-````{tab-item} Python 3.9
+````{tab-item} Python 3.10
 :sync: python38plus
 
 To specify the task relies on `data.pkl`, add the path
@@ -168,7 +167,7 @@ are assumed to point to a location relative to the task module.
 
 ````
 
-````{tab-item} Python 3.9
+````{tab-item} Python 3.10
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_py38.py
@@ -208,7 +207,7 @@ structures if needed.
 
 ````
 
-````{tab-item} Python 3.9
+````{tab-item} Python 3.10
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple1_py38.py

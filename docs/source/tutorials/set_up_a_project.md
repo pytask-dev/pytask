@@ -86,7 +86,7 @@ Create a `pyproject.toml` file for project configuration and dependencies:
 [project]
 name = "my_project"
 version = "0.1.0"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = ["pytask"]
 
 [build-system]
@@ -110,7 +110,7 @@ Create a `pixi.toml` file for project configuration:
 [project]
 name = "my_project"
 version = "0.1.0"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 
@@ -120,7 +120,7 @@ build-backend = "hatchling.build"
 
 [dependencies]
 pytask = "*"
-python = ">=3.9"
+python = ">=3.10"
 
 [tool.pytask.ini_options]
 paths = ["src/my_project"]
@@ -137,7 +137,7 @@ Create a `pyproject.toml` file for project configuration:
 [project]
 name = "my_project"
 version = "0.1.0"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = ["pytask"]
 
 [build-system]
@@ -166,7 +166,7 @@ name: my_project
 channels:
   - conda-forge
 dependencies:
-  - python>=3.9
+  - python>=3.10
   - pytask
   - pip
   - pip:
@@ -179,7 +179,7 @@ And a `pyproject.toml` file for project configuration:
 [project]
 name = "my_project"
 version = "0.1.0"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 [build-system]
 requires = ["hatchling"]

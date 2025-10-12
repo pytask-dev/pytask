@@ -39,7 +39,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.10', '3.11', '3.12', '3.13']
 
     steps:
       - uses: actions/checkout@v5
@@ -63,7 +63,7 @@ jobs:
         uses: codecov/codecov-action@v5
 
       - name: Run tests with lowest resolution
-        if: matrix.python-version == '3.9' && matrix.os == 'ubuntu-latest'
+        if: matrix.python-version == '3.10' && matrix.os == 'ubuntu-latest'
         run: just test-lowest
 
       - name: Run tests with highest resolution

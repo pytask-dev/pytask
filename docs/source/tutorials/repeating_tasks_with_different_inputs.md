@@ -21,7 +21,7 @@ different seeds and output paths as default arguments of the function.
 
 ````
 
-````{tab-item} Python 3.9
+````{tab-item} Python 3.10
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs1_py38.py
@@ -57,7 +57,7 @@ You can also add dependencies to repeated tasks just like with any other task.
 
 ````
 
-````{tab-item} Python 3.9
+````{tab-item} Python 3.10
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs2_py38.py
@@ -117,7 +117,7 @@ For example, the following function is parametrized with tuples.
 
 ````
 
-````{tab-item} Python 3.9
+````{tab-item} Python 3.10
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs3_py38.py
@@ -158,7 +158,7 @@ a unique name for the iteration.
 
 ````
 
-````{tab-item} Python 3.9
+````{tab-item} Python 3.10
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs4_py38.py
@@ -244,7 +244,7 @@ Following these three tips, the parametrization becomes
 
 ````
 
-````{tab-item} Python 3.9
+````{tab-item} Python 3.10
 :sync: python38plus
 
 ```{literalinclude} ../../../docs_src/tutorials/repeating_tasks_with_different_inputs5_py38.py
