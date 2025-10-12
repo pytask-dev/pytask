@@ -126,13 +126,13 @@ def _find_common_ancestor_of_all_nodes(
         if show_nodes:
             all_paths.extend(  # type: ignore[var-annotated]
                 x.path
-                for x in tree_leaves(task.depends_on)
-                if isinstance(x, PPathNode)  # type: ignore[arg-type]
+                for x in tree_leaves(task.depends_on)  # type: ignore[arg-type]
+                if isinstance(x, PPathNode)
             )
             all_paths.extend(  # type: ignore[var-annotated]
                 x.path
-                for x in tree_leaves(task.produces)
-                if isinstance(x, PPathNode)  # type: ignore[arg-type]
+                for x in tree_leaves(task.produces)  # type: ignore[arg-type]
+                if isinstance(x, PPathNode)
             )
 
     return find_common_ancestor(*all_paths, *paths)

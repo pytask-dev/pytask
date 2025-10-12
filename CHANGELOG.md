@@ -11,6 +11,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`704` adds the `--explain` flag to show why tasks would be executed. Closes {issue}`466`.
 - {pull}`706` disables syntax highlighting for platform version information in session header.
 - {pull}`707` drops support for Python 3.9 as it has reached end of life.
+- {pull}`708` updates mypy and fixes type issues.
 
 ## 0.5.5 - 2025-07-25
 

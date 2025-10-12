@@ -301,9 +301,11 @@ def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
         return
 
     collect_provisional_products(session, task)
-    missing_nodes: list[Any] = [
-        node for node in tree_leaves(task.produces) if not node.state()
-    ]  # type: ignore[arg-type, var-annotated]
+    missing_nodes: list[Any] = [  # type: ignore[var-annotated]
+        node
+        for node in tree_leaves(task.produces)  # type: ignore[arg-type]
+        if not node.state()
+    ]
     if missing_nodes:
         paths = session.config["paths"]
         files = [format_node_name(i, paths).plain for i in missing_nodes]
