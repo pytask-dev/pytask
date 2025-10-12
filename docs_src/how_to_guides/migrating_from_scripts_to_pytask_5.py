@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Annotated
-from typing import Optional
 
 import pandas as pd
 
@@ -8,7 +7,7 @@ from pytask import Product
 
 
 def task_merge_data(
-    paths_to_input_data: Optional[dict[str, Path]] = None,
+    paths_to_input_data: dict[str, Path] | None = None,
     path_to_merged_data: Annotated[Path, Product] = Path("merged_data.pkl"),
 ) -> None:
     if paths_to_input_data is None:

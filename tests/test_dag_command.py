@@ -62,9 +62,6 @@ def test_create_graph_via_cli(tmp_path, runner, format_, layout, rankdir):
 
 
 @pytest.mark.skipif(not _TEST_SHOULD_RUN, reason="pygraphviz is required")
-@pytest.mark.xfail(
-    sys.platform == "linux" and sys.version_info[:2] == (3, 9), reason="flakey"
-)
 @pytest.mark.parametrize("layout", _GRAPH_LAYOUTS)
 @pytest.mark.parametrize("format_", _TEST_FORMATS)
 @pytest.mark.parametrize("rankdir", [_RankDirection.LR.value, _RankDirection.TB])

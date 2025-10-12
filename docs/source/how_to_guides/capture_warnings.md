@@ -87,13 +87,5 @@ and then run `pytask`.
 Or, you use a temporary environment variable. Here is an example for bash.
 
 ```console
-PYTHONWARNINGS=error pytask --pdb
-```
-
-and here for Powershell
-
-```console
-$env:PYTHONWARNINGS = 'error'
-pytask
-Remove-Item env:\PYTHONWARNINGS
+$ PYTHONWARNINGS=error pytask --pdb
 ```

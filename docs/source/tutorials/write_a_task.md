@@ -40,7 +40,7 @@ You cannot mix different interfaces for the same task. Choose only one.
 
 `````{tab-set}
 
-````{tab-item} Python 3.10+
+````{tab-item} Annotated
 
 The task accepts the argument `path` that points to the file where the data set will be
 stored. The path is passed to the task via the default value, `BLD / "data.pkl"`. To
@@ -52,29 +52,7 @@ The type hint `Annotated[Path, Product]` uses
 argument as a product.
 
 ```{literalinclude} ../../../docs_src/tutorials/write_a_task_py310.py
-:emphasize-lines: 3, 11
-```
-
-```{tip}
-If you want to refresh your knowledge about type hints, read
-[this guide](../type_hints.md).
-```
-
-````
-
-````{tab-item} Python 3.9
-
-The task accepts the argument `path` that points to the file where the data set will be
-stored. The path is passed to the task via the default value, `BLD / "data.pkl"`. To
-indicate that this file is a product we add some metadata to the argument.
-
-The type hint `Annotated[Path, Product]` uses
-{obj}`~typing.Annotated` syntax. The first entry specifies the argument type
-({class}`~pathlib.Path`), and the second entry ({class}`~pytask.Product`) marks this
-argument as a product.
-
-```{literalinclude} ../../../docs_src/tutorials/write_a_task_py38.py
-:emphasize-lines: 8, 11
+:emphasize-lines: 3, 12
 ```
 
 ```{tip}

@@ -18,21 +18,14 @@ defines where the return of the function, a string, should be stored.
 
 `````{tab-set}
 
-````{tab-item} Python 3.10+
-:sync: python310plus
+````{tab-item} Annotated
+:sync: annotated
 
 ```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_1_py310.py
 ```
 
 ````
 
-````{tab-item} Python 3.9
-:sync: python38plus
-
-```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_1_py38.py
-```
-
-````
 `````
 
 It works because internally the path is converted to a {class}`pytask.PathNode` that is
@@ -60,18 +53,10 @@ of the previous interfaces.
 
 `````{tab-set}
 
-````{tab-item} Python 3.10+
-:sync: python310plus
+````{tab-item} Annotated
+:sync: annotated
 
 ```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_3_py310.py
-```
-
-````
-
-````{tab-item} Python 3.9
-:sync: python38plus
-
-```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_3_py38.py
 ```
 
 ````
@@ -95,18 +80,10 @@ mapped to the defined nodes.
 
 `````{tab-set}
 
-````{tab-item} Python 3.10+
-:sync: python310plus
+````{tab-item} Annotated
+:sync: annotated
 
 ```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_4_py310.py
-```
-
-````
-
-````{tab-item} Python 3.9
-:sync: python38plus
-
-```{literalinclude} ../../../docs_src/how_to_guides/using_task_returns_example_4_py38.py
 ```
 
 ````

@@ -26,37 +26,22 @@ The result will be the following task.
 
 `````{tab-set}
 
-````{tab-item} Python 3.10+
-:sync: python310plus
+````{tab-item} Annotated
+:sync: annotated
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py310.py
 ```
 
 ````
 
-````{tab-item} Python 3.10+ & Return
-:sync: python310plus
+````{tab-item} Annotated & Return
+:sync: annotated
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py310_return.py
 ```
 
 ````
 
-````{tab-item} Python 3.9
-:sync: python38plus
-
-```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py38.py
-```
-
-````
-
-````{tab-item} Python 3.9 & Return
-:sync: python38plus
-
-```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_2_py38_return.py
-```
-
-````
 `````
 
 ## Nodes
@@ -79,21 +64,14 @@ we arrive at the following class.
 
 `````{tab-set}
 
-````{tab-item} Python 3.10+
-:sync: python310plus
+````{tab-item} Annotated
+:sync: annotated
 
 ```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_3_py310.py
 ```
 
 ````
 
-````{tab-item} Python 3.9
-:sync: python38plus
-
-```{literalinclude} ../../../docs_src/how_to_guides/writing_custom_nodes_example_3_py38.py
-```
-
-````
 `````
 
 Here are some explanations.

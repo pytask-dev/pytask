@@ -25,7 +25,7 @@ as the task module because it is a relative path.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/provisional_products.py
 ---
-emphasize-lines: 4, 22
+emphasize-lines: 6, 23
 ---
 ```
 
@@ -57,7 +57,7 @@ downloaded.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/provisional_task.py
 ---
-emphasize-lines: 9
+emphasize-lines: 4, 9
 ---
 ```
 
@@ -86,6 +86,9 @@ The code snippet shows each task takes one of the downloaded files and copies it
 content to a `.txt` file.
 
 ```{literalinclude} ../../../docs_src/how_to_guides/provisional_task_generator.py
+---
+emphasize-lines: 4, 11
+---
 ```
 
 ```{important}

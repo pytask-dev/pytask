@@ -1,7 +1,7 @@
 [project]
 name = "pytask"
 description = "pytask is a workflow management system that facilitates reproducible data analyses."
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
@@ -11,7 +11,6 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -47,7 +46,7 @@ name = "Tobias Raabe"
 email = "raabe@posteo.de"
 
 [dependency-groups]
-dev = ["pygraphviz>=1.11;platform_system=='Linux'"]
+dev = ["pygraphviz>=1.12;platform_system=='Linux'"]
 docs = [
     "furo>=2024.8.6",
     "ipython>=8.13.2",

@@ -287,7 +287,7 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
 
         nodes = tree_leaves(task.produces["return"])
         values = structure_return.flatten_up_to(out)
-        for node, value in zip(nodes, values):
+        for node, value in zip(nodes, values, strict=False):
             if not isinstance(node, PProvisionalNode):
                 node.save(value)
 

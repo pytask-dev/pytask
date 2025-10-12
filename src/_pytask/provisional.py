@@ -6,7 +6,6 @@ import inspect
 import sys
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Callable
 
 from _pytask.config import hookimpl
 from _pytask.exceptions import NodeLoadError
@@ -27,6 +26,7 @@ from _pytask.typing import is_task_generator
 from pytask import TaskOutcome
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from collections.abc import Mapping
 
     from _pytask.session import Session

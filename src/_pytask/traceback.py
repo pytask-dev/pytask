@@ -6,7 +6,6 @@ from pathlib import Path
 from types import TracebackType
 from typing import TYPE_CHECKING
 from typing import ClassVar
-from typing import Union
 
 import pluggy
 from attrs import define
@@ -19,11 +18,11 @@ from _pytask.tree_util import TREE_UTIL_LIB_DIRECTORY
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+    from typing import TypeAlias
 
     from rich.console import Console
     from rich.console import ConsoleOptions
     from rich.console import RenderResult
-    from typing_extensions import TypeAlias
 
 
 __all__ = [
@@ -37,9 +36,9 @@ _PYTASK_DIRECTORY = Path(_pytask.__file__).parent
 
 
 ExceptionInfo: TypeAlias = tuple[
-    type[BaseException], BaseException, Union[TracebackType, None]
+    type[BaseException], BaseException, TracebackType | None
 ]
-OptionalExceptionInfo: TypeAlias = Union[ExceptionInfo, tuple[None, None, None]]
+OptionalExceptionInfo: TypeAlias = ExceptionInfo | tuple[None, None, None]
 
 
 @define

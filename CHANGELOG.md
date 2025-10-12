@@ -10,6 +10,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`703` fixes {issue}`701` by allowing `--capture tee-sys` again.
 - {pull}`704` adds the `--explain` flag to show why tasks would be executed. Closes {issue}`466`.
 - {pull}`706` disables syntax highlighting for platform version information in session header.
+- {pull}`707` drops support for Python 3.9 as it has reached end of life.
 
 ## 0.5.5 - 2025-07-25
 

@@ -10,7 +10,6 @@ from os import stat_result
 from pathlib import Path  # noqa: TC003
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Callable
 
 from attrs import define
 from attrs import field
@@ -29,6 +28,7 @@ from _pytask.typing import NoDefault
 from _pytask.typing import no_default
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from io import BufferedReader
     from io import BufferedWriter
 
