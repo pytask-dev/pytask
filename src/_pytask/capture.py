@@ -39,6 +39,7 @@ from typing import BinaryIO
 from typing import Generic
 from typing import NamedTuple
 from typing import TextIO
+from typing import cast
 from typing import final
 
 import click
@@ -125,8 +126,10 @@ class EncodedFile(io.TextIOWrapper):
 
     @property
     def mode(self) -> str:
-        # TextIOWrapper doesn't expose a mode, but at least some of our tests check it.
-        return self.buffer.mode.replace("b", "")
+        # TextIOWrapper doesn't expose a mode, but at least some of our
+        # tests check it.
+        assert hasattr(self.buffer, "mode")
+        return cast("str", self.buffer.mode.replace("b", ""))
 
 
 class CaptureIO(io.TextIOWrapper):
@@ -153,6 +156,7 @@ class DontReadFromInput(TextIO):
 
     @property
     def encoding(self) -> str:
+        assert sys.__stdin__ is not None
         return sys.__stdin__.encoding
 
     def read(self, size: int = -1) -> str:  # noqa: ARG002
@@ -539,7 +543,7 @@ class FDCaptureBinary(FDCaptureBase[bytes]):
         res = self.tmpfile.buffer.read()
         self.tmpfile.seek(0)
         self.tmpfile.truncate()
-        return res
+        return res  # type: ignore[return-value]
 
     def writeorg(self, data: bytes) -> None:
         """Write to original file descriptor."""

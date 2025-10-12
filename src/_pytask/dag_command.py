@@ -215,7 +215,7 @@ def _shorten_node_labels(dag: nx.DiGraph, paths: list[Path]) -> nx.DiGraph:
     """Shorten the node labels in the graph for a better experience."""
     node_names = dag.nodes
     short_names = reduce_names_of_multiple_nodes(node_names, dag, paths)
-    short_names = [i.plain if isinstance(i, Text) else i for i in short_names]  # type: ignore[attr-defined]
+    short_names = [i.plain if isinstance(i, Text) else i for i in short_names]
     old_to_new = dict(zip(node_names, short_names, strict=False))
     return nx.relabel_nodes(dag, old_to_new)
 

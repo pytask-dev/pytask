@@ -76,7 +76,7 @@ test = [
     "coiled>=1.42.0",
     "cloudpickle>=3.0.0",
 ]
-typing = ["mypy>=1.9.0,<1.11", "nbqa>=1.8.5"]
+typing = ["mypy>=1.11.0", "nbqa>=1.8.5"]
 
 [project.urls]
 Changelog = "https://pytask-dev.readthedocs.io/en/stable/changes.html"

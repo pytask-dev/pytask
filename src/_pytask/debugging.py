@@ -11,7 +11,9 @@ from typing import ClassVar
 
 import click
 
+from _pytask.capture import CaptureManager
 from _pytask.console import console
+from _pytask.live import LiveManager
 from _pytask.node_protocols import PTask
 from _pytask.outcomes import Exit
 from _pytask.pluginmanager import hookimpl
@@ -24,8 +26,6 @@ if TYPE_CHECKING:
 
     from pluggy import PluginManager
 
-    from _pytask.capture import CaptureManager
-    from _pytask.live import LiveManager
     from _pytask.session import Session
 
 
@@ -289,6 +289,7 @@ class PytaskPDB:
                 if header is not None:
                     console.rule(header, characters=">", style="default")
                 else:
+                    assert isinstance(capman, CaptureManager)
                     capturing = cls._is_capturing(capman)
                     if capturing:
                         console.rule(
@@ -299,6 +300,8 @@ class PytaskPDB:
                     else:
                         console.rule(f"PDB {method}", characters=">", style="default")
 
+        assert isinstance(capman, CaptureManager)
+        assert isinstance(live_manager, LiveManager)
         return cls._import_pdb_cls(capman, live_manager)(**kwargs)
 
     @classmethod
@@ -392,7 +395,7 @@ def wrap_function_for_tracing(session: Session, task: PTask) -> None:
     # 3.7.4) runcall's first param is `func`, which means we'd get an exception if one
     # of the kwargs to task_function was called `func`.
     @functools.wraps(task_function)
-    def wrapper(*args: Any, **kwargs: Any) -> None:
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         capman = session.config["pm"].get_plugin("capturemanager")
         live_manager = session.config["pm"].get_plugin("live_manager")
 

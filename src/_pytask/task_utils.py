@@ -208,7 +208,7 @@ def _parse_after(
         for func in after:
             if not hasattr(func, "pytask_meta"):
                 func = task()(func)  # noqa: PLW2901
-            new_after.append(func.pytask_meta._id)
+            new_after.append(func.pytask_meta._id)  # type: ignore[attr-defined]
         return new_after
     msg = (
         "'after' should be an expression string, a task, or a list of tasks. Got "
