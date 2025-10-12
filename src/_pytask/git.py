@@ -16,8 +16,10 @@ def is_git_installed() -> bool:
 def cmd_output(*cmd: str, **kwargs: Any) -> tuple[int, str, str]:
     """Execute a command and capture the output."""
     r = subprocess.run(cmd, capture_output=True, check=False, **kwargs)
-    stdout = r.stdout.decode() if r.stdout is not None else None
-    stderr = r.stderr.decode() if r.stderr is not None else None
+    stdout = r.stdout.decode() if r.stdout is not None else ""
+    stderr = r.stderr.decode() if r.stderr is not None else ""
+    assert isinstance(stdout, str)
+    assert isinstance(stderr, str)
     return r.returncode, stdout, stderr
 
 
