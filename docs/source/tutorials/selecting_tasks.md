@@ -70,12 +70,11 @@ This command only runs the first two tasks.
 $ pytask -k "1 or 2 and not 12"
 ```
 
-To execute a single task, say `task_run_this_one` in `task_example.py`, use
+To execute a single task, say `task_run_this_one` in `task_example.py`, use one of the
+following commands.
 
 ```console
 $ pytask -k task_example.py::task_run_this_one
-
-# or
 
 $ pytask -k task_run_this_one
 ```

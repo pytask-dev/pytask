@@ -8,7 +8,7 @@ Platform: win32 -- Python 3.12.0, pytask 0.5.3, pluggy 1.3.0
 Root: C:\Users\pytask-dev\git\my_project
 Collected 1 task.
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Traceback >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Traceback >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 <span style="color: #f14c4c">╭───────────────────</span><span style="color: #f14c4c; font-weight: bold;"> Traceback </span><span style="color: #6c1e1e; font-weight: bold">(most recent call last)</span><span style="color: #f14c4c"> ─────────────────╮</span>
 <span style="color: #f14c4c">│</span>                                                                       <span style="color: #f14c4c">│</span>
 <span style="color: #f14c4c">│</span> <span style="color: #e5e510">.../task_data_preparation.py</span>:<span style="color: var(--termynal-blue)">23</span> in <span style="color: #23d18b">task_create_random_data</span>            <span style="color: #f14c4c">│</span>
@@ -24,7 +24,7 @@ Collected 1 task.
 <span style="color: #f14c4c; font-weight: bold;">Exception</span>
 
 >>>>>>>>>>>>>>>> PDB post_mortem (IO-capturing turned off) >>>>>>>>>>>>>>
-> ...\git\my_project\task_data_preparation.py(23)task_create_random_data()
+> ...\my_project\task_data_preparation.py(23)task_create_random_data()
 -> raise Exception
 <span data-ty="input" data-ty-prompt="(Pdb)" data-ty-cursor="▋"></span>
 
