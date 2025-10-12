@@ -39,8 +39,8 @@ docs-serve:
 
 # Run tests with lowest dependency resolution (like CI)
 test-lowest:
-    uv run --group test --resolution lowest-direct pytest --nbmake -n auto
+    uv run --python 3.10 --group test --resolution lowest-direct pytest --nbmake
 
 # Run tests with highest dependency resolution (like CI)
 test-highest:
-    uv run --group test --resolution highest pytest --nbmake -n auto
+    uv run --python 3.13 --group test --resolution highest pytest --nbmake -n auto

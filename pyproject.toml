@@ -46,7 +46,7 @@ name = "Tobias Raabe"
 email = "raabe@posteo.de"
 
 [dependency-groups]
-dev = ["pygraphviz>=1.11;platform_system=='Linux'"]
+dev = ["pygraphviz>=1.12;platform_system=='Linux'"]
 docs = [
     "furo>=2024.8.6",
     "ipython>=8.13.2",
