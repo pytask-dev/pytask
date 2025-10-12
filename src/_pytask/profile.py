@@ -201,7 +201,9 @@ def _collect_runtimes(tasks: list[PTask]) -> dict[str, float]:
     """Collect runtimes."""
     with DatabaseSession() as session:
         runtimes = [session.get(Runtime, task.signature) for task in tasks]
-    return {task.name: r.duration for task, r in zip(tasks, runtimes) if r}
+    return {
+        task.name: r.duration for task, r in zip(tasks, runtimes, strict=False) if r
+    }
 
 
 class FileSizeNameSpace:

@@ -8,7 +8,6 @@ from collections import defaultdict
 from types import BuiltinFunctionType
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Callable
 
 import attrs
 
@@ -22,6 +21,7 @@ from _pytask.shared import unwrap_task_function
 from _pytask.typing import is_task_function
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from pathlib import Path
 
 

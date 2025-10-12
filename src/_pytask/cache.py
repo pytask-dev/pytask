@@ -6,13 +6,16 @@ import functools
 import hashlib
 import inspect
 from inspect import FullArgSpec
+from typing import TYPE_CHECKING
 from typing import Any
-from typing import Callable
 
 from attrs import define
 from attrs import field
 
 from _pytask._hashlib import hash_value
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 @define

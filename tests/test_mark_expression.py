@@ -1,11 +1,14 @@
 from __future__ import annotations
 
-from typing import Callable
+from typing import TYPE_CHECKING
 
 import pytest
 
 from _pytask.mark.expression import Expression
 from _pytask.mark.expression import ParseError
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def evaluate(input_: str, matcher: Callable[[str], bool]) -> bool:

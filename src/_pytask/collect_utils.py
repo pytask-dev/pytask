@@ -6,7 +6,6 @@ import inspect
 from typing import TYPE_CHECKING
 from typing import Annotated
 from typing import Any
-from typing import Callable
 from typing import get_origin
 
 import attrs
@@ -25,6 +24,7 @@ from _pytask.typing import ProductType
 from _pytask.typing import no_default
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from pathlib import Path
 
     from _pytask.session import Session

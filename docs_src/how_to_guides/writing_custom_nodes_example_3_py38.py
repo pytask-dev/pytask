@@ -2,7 +2,6 @@ import hashlib
 import pickle
 from pathlib import Path
 from typing import Any
-from typing import Optional
 
 from pytask import hash_value
 
@@ -24,8 +23,8 @@ class PickleNode:
     def __init__(
         self,
         name: str = "",
-        path: Optional[Path] = None,
-        attributes: Optional[dict[Any, Any]] = None,
+        path: Path | None = None,
+        attributes: dict[Any, Any] | None = None,
     ) -> None:
         self.name = name
         self.path = path
@@ -45,7 +44,7 @@ class PickleNode:
             raise ValueError(msg)
         return cls(name=path.as_posix(), path=path)
 
-    def state(self) -> Optional[str]:
+    def state(self) -> str | None:
         """Return the modification timestamp as the state."""
         if self.path.exists():
             return str(self.path.stat().st_mtime)

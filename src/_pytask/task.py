@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Callable
 
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.pluginmanager import hookimpl
@@ -13,6 +12,7 @@ from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import parse_collected_tasks_with_task_marker
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from pathlib import Path
 
     from _pytask.reports import CollectionReport

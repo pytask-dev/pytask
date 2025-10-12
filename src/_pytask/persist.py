@@ -58,7 +58,9 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
                     state=state,
                 )
                 for name, state in zip(
-                    node_and_neighbors(session.dag, task.signature), all_states
+                    node_and_neighbors(session.dag, task.signature),
+                    all_states,
+                    strict=False,
                 )
             )
             if any_node_changed:
