@@ -66,7 +66,8 @@ def pytask_log_session_header(session: Session) -> None:
     console.rule("Start pytask session", style="default")
     console.print(
         f"Platform: {sys.platform} -- Python {platform.python_version()}, "
-        f"pytask {_pytask.__version__}, pluggy {pluggy.__version__}"
+        f"pytask {_pytask.__version__}, pluggy {pluggy.__version__}",
+        highlight=False,
     )
     console.print(f"Root: {session.config['root']}")
     if session.config["config"] is not None:
