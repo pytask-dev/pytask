@@ -34,7 +34,7 @@ _SOURCE_LINE_TASK_FUNC = inspect.getsourcelines(task_func)[1]
 
 
 @pytest.mark.parametrize(
-    ("edtior_url_scheme", "expected"),
+    ("editor_url_scheme", "expected"),
     [
         ("no_link", ""),
         ("file", "link file://{path}"),
@@ -46,14 +46,14 @@ _SOURCE_LINE_TASK_FUNC = inspect.getsourcelines(task_func)[1]
         ),
     ],
 )
-def test_create_url_style_for_task(edtior_url_scheme, expected):
+def test_create_url_style_for_task(editor_url_scheme, expected):
     path = Path(__file__)
-    style = create_url_style_for_task(task_func, edtior_url_scheme)
+    style = create_url_style_for_task(task_func, editor_url_scheme)
     assert style == Style.parse(expected.format(path=path))
 
 
 @pytest.mark.parametrize(
-    ("edtior_url_scheme", "expected"),
+    ("editor_url_scheme", "expected"),
     [
         ("no_link", ""),
         ("file", "link file://{path}"),
@@ -65,9 +65,9 @@ def test_create_url_style_for_task(edtior_url_scheme, expected):
         ),
     ],
 )
-def test_create_url_style_for_path(edtior_url_scheme, expected):
+def test_create_url_style_for_path(editor_url_scheme, expected):
     path = Path(__file__)
-    style = create_url_style_for_path(path, edtior_url_scheme)
+    style = create_url_style_for_path(path, editor_url_scheme)
     assert style == Style.parse(expected.format(path=path))
 
 
