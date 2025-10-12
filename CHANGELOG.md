@@ -12,7 +12,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`706` disables syntax highlighting for platform version information in session header.
 - {pull}`707` drops support for Python 3.9 as it has reached end of life.
 - {pull}`708` updates mypy and fixes type issues.
-- {pull}`709` add uv pre-commit check.
+- {pull}`709` adds uv pre-commit check.
+- {pull}`710` adds support for Python 3.14.
 
 ## 0.5.5 - 2025-07-25
 
