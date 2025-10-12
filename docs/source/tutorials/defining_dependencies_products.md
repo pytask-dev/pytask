@@ -4,8 +4,8 @@ Define task dependencies and products to run your tasks.
 
 Defining dependencies and products also determines task execution order.
 
-This tutorial offers you different interfaces. For type annotations, see the
-`Python 3.10+` tabs. You find a tutorial on type hints {doc}`here <../type_hints>`.
+This tutorial offers you different interfaces. For type annotations, see the `Annotated`
+tabs. You find a tutorial on type hints {doc}`here <../type_hints>`.
 
 If you want to avoid type annotations for now, look at the tab named `produces`.
 
@@ -46,22 +46,10 @@ in `task_data_preparation.py`.
 
 `````{tab-set}
 
-````{tab-item} Python 3.10+
-:sync: python310plus
+````{tab-item} Annotated
+:sync: annotated
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py310.py
-:emphasize-lines: 11
-```
-
-{class}`~pytask.Product` allows marking an argument as a product. After the
-task has finished, pytask will check whether the file exists.
-
-````
-
-````{tab-item} Python 3.10
-:sync: python38plus
-
-```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py38.py
 :emphasize-lines: 11
 ```
 
@@ -100,8 +88,8 @@ we will define it in `task_plot_data.py`.
 
 `````{tab-set}
 
-````{tab-item} Python 3.10+
-:sync: python310plus
+````{tab-item} Annotated
+:sync: annotated
 
 To specify the task relies on `data.pkl`, add the path
 to the function signature with any argument name (here `path_to_data`).
@@ -110,21 +98,6 @@ pytask assumes that all function arguments that do not have a {class}`~pytask.Pr
 annotation are dependencies of the task.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_py310.py
-:emphasize-lines: 11
-```
-
-````
-
-````{tab-item} Python 3.10
-:sync: python38plus
-
-To specify the task relies on `data.pkl`, add the path
-to the function signature with any argument name (here `path_to_data`).
-
-pytask assumes that all function arguments that do not have the {class}`~pytask.Product`
-annotation are dependencies of the task.
-
-```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_dependencies_py38.py
 :emphasize-lines: 11
 ```
 
@@ -158,19 +131,10 @@ are assumed to point to a location relative to the task module.
 
 `````{tab-set}
 
-````{tab-item} Python 3.10+
-:sync: python310plus
+````{tab-item} Annotated
+:sync: annotated
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_py310.py
-:emphasize-lines: 8
-```
-
-````
-
-````{tab-item} Python 3.10
-:sync: python38plus
-
-```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_relative_py38.py
 :emphasize-lines: 8
 ```
 
@@ -192,8 +156,8 @@ Of course, tasks can have multiple dependencies and products.
 
 `````{tab-set}
 
-````{tab-item} Python 3.10+
-:sync: python310plus
+````{tab-item} Annotated
+:sync: annotated
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple1_py310.py
 ```
@@ -203,21 +167,6 @@ argument per input. Use dictionaries (recommended), tuples, lists, or more neste
 structures if needed.
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple2_py310.py
-```
-
-````
-
-````{tab-item} Python 3.10
-:sync: python38plus
-
-```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple1_py38.py
-```
-
-You can group your dependencies and product if you prefer not to have a function
-argument per input. Use dictionaries (recommended), tuples, lists, or more nested
-structures if needed.
-
-```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_multiple2_py38.py
 ```
 
 ````

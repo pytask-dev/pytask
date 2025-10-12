@@ -55,18 +55,10 @@ of our tasks. Here we see again the signature of the task function.
 
 `````{tab-set}
 
-````{tab-item} Python 3.10+
-:sync: python310plus
+````{tab-item} Annotated
+:sync: annotated
 
 ```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py310.py
-:lines: 10-12
-```
-````
-
-````{tab-item} Python 3.10
-:sync: python38plus
-
-```{literalinclude} ../../../docs_src/tutorials/defining_dependencies_products_products_py38.py
 :lines: 10-12
 ```
 ````
@@ -94,8 +86,8 @@ The following tabs show you how to use the data catalog given the interface you 
 
 `````{tab-set}
 
-````{tab-item} Python 3.10+
-:sync: python310plus
+````{tab-item} Annotated
+:sync: annotated
 
 Use `data_catalog["data"]` as an default argument to access the
 {class}`~pytask.PickleNode` within the task. When you are done transforming your
@@ -103,19 +95,6 @@ Use `data_catalog["data"]` as an default argument to access the
 
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_2_py310.py
 :emphasize-lines: 11, 22
-```
-
-````
-
-````{tab-item} Python 3.10
-:sync: python38plus
-
-Use `data_catalog["data"]` as an default argument to access the
-{class}`~pytask.PickleNode` within the task. When you are done transforming your
-{class}`~pandas.DataFrame`, save it with {meth}`~pytask.PickleNode.save`.
-
-```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_2_py38.py
-:emphasize-lines: 10, 21
 ```
 
 ````
@@ -133,7 +112,7 @@ Use `data_catalog["data"]` as an default argument to access the
 
 ````
 
-````{tab-item} ​Python 3.10+ & Return
+````{tab-item} ​Annotated & Return
 :sync: return
 
 An elegant way to use the data catalog is via return type annotations. Add
@@ -158,19 +137,10 @@ Following one of the interfaces gives you immediate access to the
 
 `````{tab-set}
 
-````{tab-item} Python 3.10+
-:sync: python310plus
+````{tab-item} Annotated
+:sync: annotated
 
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_3_py310.py
-:emphasize-lines: 12
-```
-
-````
-
-````{tab-item} Python 3.10
-:sync: python38plus
-
-```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_3_py38.py
 :emphasize-lines: 12
 ```
 
@@ -232,8 +202,8 @@ different node types which is not relevant now.
 
 `````{tab-set}
 
-````{tab-item} Python 3.10+
-:sync: python310plus
+````{tab-item} Annotated
+:sync: annotated
 
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_5_py310.py
 :emphasize-lines: 11, 12
@@ -241,16 +211,7 @@ different node types which is not relevant now.
 
 ````
 
-````{tab-item} Python 3.10
-:sync: python38plus
-
-```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_5_py38.py
-:emphasize-lines: 11, 12
-```
-
-````
-
-````{tab-item} ​Python 3.10+ & Return
+````{tab-item} ​Annotated & Return
 :sync: return
 
 ```{literalinclude} ../../../docs_src/tutorials/using_a_data_catalog_5_py310_return.py
