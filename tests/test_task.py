@@ -667,7 +667,7 @@ def test_task_will_be_executed_after_another_one_with_function_session(
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
     result = subprocess.run(
-        ("uv", "run", "python", "task_example.py"),
+        (sys.executable, "task_example.py"),
         cwd=tmp_path,
         capture_output=True,
         check=False,

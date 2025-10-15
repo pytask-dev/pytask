@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 import textwrap
 
 import pytest
@@ -25,9 +26,7 @@ def test_add_new_hook_via_cli(tmp_path, module_name):
 
     if module_name:
         args = (
-            "uv",
-            "run",
-            "python",
+            sys.executable,
             "-m",
             "pytask",
             "build",
@@ -70,10 +69,7 @@ def test_add_new_hook_via_config(tmp_path, module_name):
 
     if module_name:
         args = (
-            "uv",
-            "run",
-            "--no-project",
-            "python",
+            sys.executable,
             "-m",
             "pytask",
             "build",

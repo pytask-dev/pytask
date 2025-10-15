@@ -92,7 +92,7 @@ def test_create_graph_via_task(tmp_path, format_, layout, rankdir):
     tmp_path.joinpath("input.txt").touch()
 
     result = subprocess.run(
-        ("uv", "run", "python", "task_example.py"),
+        (sys.executable, "task_example.py"),
         cwd=tmp_path,
         check=True,
         capture_output=True,
