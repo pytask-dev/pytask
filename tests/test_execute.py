@@ -25,9 +25,7 @@ from tests.conftest import run_in_subprocess
 
 def test_python_m_pytask(tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
-    result = run_in_subprocess(
-        (sys.executable, "-m", "pytask", tmp_path.as_posix())
-    )
+    result = run_in_subprocess((sys.executable, "-m", "pytask", tmp_path.as_posix()))
     assert result.exit_code == ExitCode.OK
 
 
