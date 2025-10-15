@@ -62,6 +62,7 @@ def pytask_add_hooks(pm: PluginManager) -> None:
         "_pytask.skipping",
         "_pytask.task",
         "_pytask.warnings",
+        "_pytask.vscode",
     )
     register_hook_impls_from_modules(pm, builtin_hook_impl_modules)
 
