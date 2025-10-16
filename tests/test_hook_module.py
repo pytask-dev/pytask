@@ -10,8 +10,8 @@ from pytask import ExitCode
 from tests.conftest import run_in_subprocess
 
 
-@pytest.mark.parametrize("module_name", [True, False])
-def test_add_new_hook_via_cli(tmp_path, module_name):
+@pytest.mark.parametrize("hook_location", ["hooks/hooks.py", "hooks.hooks"])
+def test_add_new_hook_via_cli(tmp_path, hook_location):
     hooks = """
     import click
     from pytask import hookimpl
@@ -24,36 +24,24 @@ def test_add_new_hook_via_cli(tmp_path, module_name):
     tmp_path.joinpath("hooks").mkdir()
     tmp_path.joinpath("hooks", "hooks.py").write_text(textwrap.dedent(hooks))
 
-    if module_name:
-        args = (
-            sys.executable,
-            "-m",
-            "pytask",
-            "build",
-            "--hook-module",
-            "hooks.hooks",
-            "--help",
-        )
-    else:
-        args = (
-            "uv",
-            "run",
-            "pytask",
-            "build",
-            "--hook-module",
-            "hooks/hooks.py",
-            "--help",
-        )
-
+    args = (
+        sys.executable,
+        "-m",
+        "pytask",
+        "build",
+        "--hook-module",
+        hook_location,
+        "--help",
+    )
     result = run_in_subprocess(args, cwd=tmp_path)
     assert result.exit_code == ExitCode.OK
     assert "--new-option" in result.stdout
 
 
-@pytest.mark.parametrize("module_name", [True, False])
-def test_add_new_hook_via_config(tmp_path, module_name):
+@pytest.mark.parametrize("hook_location", ["hooks/hooks.py", "hooks.hooks"])
+def test_add_new_hook_via_config(tmp_path, hook_location):
     tmp_path.joinpath("pyproject.toml").write_text(
-        "[tool.pytask.ini_options]\nhook_module = ['hooks/hooks.py']"
+        f"[tool.pytask.ini_options]\nhook_module = ['{hook_location}']"
     )
 
     hooks = """
@@ -67,16 +55,7 @@ def test_add_new_hook_via_config(tmp_path, module_name):
     tmp_path.joinpath("hooks").mkdir()
     tmp_path.joinpath("hooks", "hooks.py").write_text(textwrap.dedent(hooks))
 
-    if module_name:
-        args = (
-            sys.executable,
-            "-m",
-            "pytask",
-            "build",
-            "--help",
-        )
-    else:
-        args = ("uv", "run", "--no-project", "pytask", "build", "--help")
+    args = (sys.executable, "-m", "pytask", "build", "--help")
 
     result = run_in_subprocess(args, cwd=tmp_path)
     assert result.exit_code == ExitCode.OK
