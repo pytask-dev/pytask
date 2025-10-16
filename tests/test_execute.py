@@ -25,9 +25,7 @@ from tests.conftest import run_in_subprocess
 
 def test_python_m_pytask(tmp_path):
     tmp_path.joinpath("task_module.py").write_text("def task_example(): pass")
-    result = run_in_subprocess(
-        ("uv", "run", "python", "-m", "pytask", tmp_path.as_posix())
-    )
+    result = run_in_subprocess((sys.executable, "-m", "pytask", tmp_path.as_posix()))
     assert result.exit_code == ExitCode.OK
 
 
@@ -602,7 +600,7 @@ def test_execute_tasks_via_functional_api(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = subprocess.run(
-        ("uv", "run", "python", tmp_path.joinpath("task_module.py").as_posix()),
+        (sys.executable, tmp_path.joinpath("task_module.py").as_posix()),
         check=False,
     )
     assert result.returncode == ExitCode.OK
@@ -632,7 +630,7 @@ def test_execute_tasks_multiple_times_via_api(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = run_in_subprocess(
-        ("uv", "run", "python", tmp_path.joinpath("task_module.py").as_posix())
+        (sys.executable, tmp_path.joinpath("task_module.py").as_posix())
     )
     assert result.exit_code == ExitCode.OK
 

@@ -13,6 +13,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`707` drops support for Python 3.9 as it has reached end of life.
 - {pull}`708` updates mypy and fixes type issues.
 - {pull}`709` add uv pre-commit check.
+- {pull}`713` removes uv as a test dependency. Closes {issue}`712`. Thanks to {user}`erooke`!
 
 ## 0.5.5 - 2025-07-25
 
