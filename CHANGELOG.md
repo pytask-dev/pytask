@@ -14,6 +14,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`708` updates mypy and fixes type issues.
 - {pull}`709` adds uv pre-commit check.
 - {pull}`710` adds support for Python 3.14.
+- {pull}`713` removes uv as a test dependency. Closes {issue}`712`. Thanks to {user}`erooke`!
 
 ## 0.5.5 - 2025-07-25
 

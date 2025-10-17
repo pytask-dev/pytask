@@ -114,7 +114,7 @@ def test_paths_are_relative_to_configuration_file(tmp_path):
     session = build(paths=[Path("src")])
     """
     tmp_path.joinpath("script.py").write_text(textwrap.dedent(source))
-    result = run_in_subprocess(("uv", "run", "python", "script.py"), cwd=tmp_path)
+    result = run_in_subprocess((sys.executable, "script.py"), cwd=tmp_path)
     assert result.exit_code == ExitCode.OK
     assert "1  Succeeded" in result.stdout
 
