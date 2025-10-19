@@ -166,6 +166,7 @@ markers = [
 filterwarnings = [
     "ignore:'@pytask.mark.*. is deprecated:FutureWarning",
     "ignore:The --rsyncdir command line argument:DeprecationWarning",
+    "ignore:'asyncio\\..*' is deprecated:DeprecationWarning",
 ]
 
 [tool.mypy]
