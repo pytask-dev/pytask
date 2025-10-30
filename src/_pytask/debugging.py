@@ -60,8 +60,13 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli.commands["build"].params.extend(additional_parameters)
 
 
-def _parse_pdbcls(value: str) -> tuple[str, str]:
+def _parse_pdbcls(value: str | None) -> tuple[str, str] | None:
     """Parse and validate pdbcls string format."""
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        msg = "'pdbcls' must be a string in format 'module:classname'"
+        raise TypeError(msg)
     split = value.split(":")
     if len(split) != 2:  # noqa: PLR2004
         msg = (
@@ -78,24 +83,16 @@ def _pdbcls_callback(
     value: str | None,
 ) -> tuple[str, str] | None:
     """Validate the debugger class string passed to pdbcls."""
-    if value is None:
-        return None
     try:
         return _parse_pdbcls(value)
-    except ValueError as exc:
-        raise click.BadParameter(str(exc)) from exc
+    except Exception as e:
+        raise click.BadParameter(str(e)) from e
 
 
 @hookimpl
 def pytask_parse_config(config: dict[str, Any]) -> None:
-    """Parse the debugger configuration.
-
-    Convert pdbcls from string format to tuple if it comes from config file.
-    When pdbcls comes from CLI, it's already converted by _pdbcls_callback.
-    """
-    pdbcls = config.get("pdbcls")
-    if pdbcls and isinstance(pdbcls, str):
-        config["pdbcls"] = _parse_pdbcls(pdbcls)
+    """Parse the debugger configuration."""
+    config["pdbcls"] = _parse_pdbcls(config.get("pdbcls"))
 
 
 @hookimpl(trylast=True)
