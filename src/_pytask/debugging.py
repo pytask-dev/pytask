@@ -64,11 +64,11 @@ def _parse_pdbcls(value: str | None) -> tuple[str, str] | None:
     """Parse and validate pdbcls string format."""
     if value is None:
         return None
-    if not isinstance(value, str):
-        msg = "'pdbcls' must be a string in format 'module:classname'"
-        raise TypeError(msg)
     if isinstance(value, tuple) and len(value) == 2:  # noqa: PLR2004
         return value
+    if not isinstance(value, str):
+        msg = "'pdbcls' must be a string in format 'module:classname', got {value!r}"
+        raise TypeError(msg)
     split = value.split(":")
     if len(split) != 2:  # noqa: PLR2004
         msg = (
