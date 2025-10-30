@@ -14,6 +14,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`708` updates mypy and fixes type issues.
 - {pull}`709` add uv pre-commit check.
 - {pull}`713` removes uv as a test dependency. Closes {issue}`712`. Thanks to {user}`erooke`!
+- {pull}`718` fixes {issue}`717` by properly parsing the `pdbcls` configuration option from config files. Thanks to {user}`MImmesberger` for the report!
 - {pull}`719` fixes repeated tasks with the same function name in the programmatic interface to ensure all tasks execute correctly.
 
 ## 0.5.5 - 2025-07-25
