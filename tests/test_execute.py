@@ -680,14 +680,14 @@ def test_repeated_tasks_via_functional_interface(tmp_path):
     # Create repeated tasks with the same function name
     tasks = []
     for i in range(3):
-        def create_data(value: int, produces: Annotated[Path, Product]):
+        def create_data(
+            value: int = i * 10,
+            produces: Annotated[Path, Product] = Path(f"output_{i}.txt")
+        ) -> None:
             '''Generate data based on a value.'''
             produces.write_text(str(value))
 
-        t = task(
-            kwargs={"value": i * 10, "produces": Path(f"output_{i}.txt")},
-        )(create_data)
-        tasks.append(t)
+        tasks.append(create_data)
 
     if __name__ == "__main__":
         session = build(tasks=tasks)
