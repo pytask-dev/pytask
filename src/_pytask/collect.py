@@ -121,19 +121,17 @@ def _collect_from_tasks(session: Session) -> None:
             path = get_file(raw_task)
             name = raw_task.pytask_meta.name
 
-            if has_mark(raw_task, "task"):
-                # When tasks with @task are passed to the programmatic interface
-                # multiple times, they are deleted from ``COLLECTED_TASKS`` in the first
-                # iteration and are missing in the later. See #625.
-                with suppress(ValueError):
-                    COLLECTED_TASKS[path].remove(raw_task)
+        if has_mark(raw_task, "task"):
+            # When tasks with @task are passed to the programmatic interface
+            # multiple times, they are deleted from ``COLLECTED_TASKS`` in the first
+            # iteration and are missing in the later. See #625.
+            with suppress(ValueError):
+                COLLECTED_TASKS[path].remove(raw_task)
 
-                # Group tasks by path for parametrization
-                if path not in tasks_by_path:
-                    tasks_by_path[path] = []
-                tasks_by_path[path].append(raw_task)
-            else:
-                non_task_objects.append((raw_task, path, name))
+            # Group tasks by path for parametrization
+            if path not in tasks_by_path:
+                tasks_by_path[path] = []
+            tasks_by_path[path].append(raw_task)
         else:
             # When a task is not a callable, it can be anything or a PTask. Set
             # arbitrary values and it will pass without errors and not collected.
