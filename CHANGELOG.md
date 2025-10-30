@@ -5,7 +5,7 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.5.6 - 2025-xx-xx
+## 0.5.6 - 2025-10-31
 
 - {pull}`703` fixes {issue}`701` by allowing `--capture tee-sys` again.
 - {pull}`704` adds the `--explain` flag to show why tasks would be executed. Closes {issue}`466`.
