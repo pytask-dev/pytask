@@ -191,6 +191,34 @@ paths = ["folder_1", "folder_2/task_2.py"]
 ```
 ````
 
+````{confval} pdbcls
+
+If you want to use a custom debugger instead of the standard Python debugger, you can
+specify it with the `pdbcls` option. The value must be in the format
+`module_name:class_name`.
+
+```console
+$ pytask build --pdbcls=IPython.terminal.debugger:TerminalPdb
+```
+
+Or, use the configuration file:
+
+```toml
+pdbcls = "IPython.terminal.debugger:TerminalPdb"
+```
+
+This is particularly useful when working with enhanced debuggers like `pdbpp` or `pdbp`
+that provide additional features such as syntax highlighting and tab completion:
+
+```toml
+pdbcls = "pdbp:Pdb"
+```
+
+The custom debugger will be used when you invoke the `--pdb` flag for post-mortem
+debugging or when using `breakpoint()` in your task code.
+
+````
+
 ````{confval} show_errors_immediately
 
 If you want to print the exception and tracebacks of errors as soon as they occur,

@@ -60,22 +60,41 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli.commands["build"].params.extend(additional_parameters)
 
 
+def _parse_pdbcls(value: str | None) -> tuple[str, str] | None:
+    """Parse and validate pdbcls string format."""
+    if value is None:
+        return None
+    if isinstance(value, tuple) and len(value) == 2:  # noqa: PLR2004
+        return value
+    if not isinstance(value, str):
+        msg = "'pdbcls' must be a string in format 'module:classname', got {value!r}"
+        raise TypeError(msg)
+    split = value.split(":")
+    if len(split) != 2:  # noqa: PLR2004
+        msg = (
+            f"Invalid 'pdbcls' format: {value!r}. "
+            "Must be like 'IPython.terminal.debugger:TerminalPdb'"
+        )
+        raise ValueError(msg)
+    return tuple(split)  # type: ignore[return-value]
+
+
 def _pdbcls_callback(
     ctx: click.Context,  # noqa: ARG001
     name: str,  # noqa: ARG001
     value: str | None,
 ) -> tuple[str, str] | None:
     """Validate the debugger class string passed to pdbcls."""
-    message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
+    try:
+        return _parse_pdbcls(value)
+    except Exception as e:
+        raise click.BadParameter(str(e)) from e
 
-    if value is None:
-        return None
-    if isinstance(value, str):
-        split = value.split(":")
-        if len(split) != 2:  # noqa: PLR2004
-            raise click.BadParameter(message)
-        return tuple(split)  # type: ignore[return-value]
-    raise click.BadParameter(message)
+
+@hookimpl
+def pytask_parse_config(config: dict[str, Any]) -> None:
+    """Parse the debugger configuration."""
+    config["pdbcls"] = _parse_pdbcls(config.get("pdbcls"))
 
 
 @hookimpl(trylast=True)
