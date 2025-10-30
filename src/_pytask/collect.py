@@ -50,6 +50,7 @@ from _pytask.shared import find_duplicates
 from _pytask.shared import to_list
 from _pytask.shared import unwrap_task_function
 from _pytask.task_utils import COLLECTED_TASKS
+from _pytask.task_utils import parse_collected_tasks_with_task_marker
 from _pytask.task_utils import task as task_decorator
 from _pytask.typing import is_task_function
 
@@ -108,27 +109,46 @@ def _collect_from_paths(session: Session) -> None:
 
 def _collect_from_tasks(session: Session) -> None:
     """Collect tasks from user provided tasks via the functional interface."""
+    # First pass: collect and group tasks by path
+    tasks_by_path: dict[Path | None, list[Any]] = {}
+    non_task_objects = []
+
     for raw_task in to_list(session.config.get("tasks", ())):
         if is_task_function(raw_task):
             if not hasattr(raw_task, "pytask_meta"):
                 raw_task = task_decorator()(raw_task)  # noqa: PLW2901
 
             path = get_file(raw_task)
-            name = raw_task.pytask_meta.name
+            name = raw_task.pytask_meta.name  # type: ignore[attr-defined]
 
-        if has_mark(raw_task, "task"):
-            # When tasks with @task are passed to the programmatic interface multiple
-            # times, they are deleted from ``COLLECTED_TASKS`` in the first iteration
-            # and are missing in the later. See #625.
-            with suppress(ValueError):
-                COLLECTED_TASKS[path].remove(raw_task)
+            if has_mark(raw_task, "task"):
+                # When tasks with @task are passed to the programmatic interface
+                # multiple times, they are deleted from ``COLLECTED_TASKS`` in the first
+                # iteration and are missing in the later. See #625.
+                with suppress(ValueError):
+                    COLLECTED_TASKS[path].remove(raw_task)
 
-        # When a task is not a callable, it can be anything or a PTask. Set arbitrary
-        # values and it will pass without errors and not collected.
+                # Group tasks by path for parametrization
+                if path not in tasks_by_path:
+                    tasks_by_path[path] = []
+                tasks_by_path[path].append(raw_task)
+            else:
+                non_task_objects.append((raw_task, path, name))
         else:
-            name = ""
-            path = None
+            # When a task is not a callable, it can be anything or a PTask. Set
+            # arbitrary values and it will pass without errors and not collected.
+            non_task_objects.append((raw_task, None, ""))
 
+    # Second pass: apply parametrization to grouped tasks
+    parametrized_tasks = []
+    for path, tasks in tasks_by_path.items():
+        # Apply the same parametrization logic as file-based collection
+        name_to_function = parse_collected_tasks_with_task_marker(tasks)
+        for name, function in name_to_function.items():
+            parametrized_tasks.append((function, path, name))
+
+    # Third pass: collect all tasks
+    for raw_task, path, name in parametrized_tasks + non_task_objects:
         report = session.hook.pytask_collect_task_protocol(
             session=session,
             reports=session.collection_reports,
