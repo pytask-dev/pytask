@@ -30,11 +30,11 @@ repos:
       - id: ruff-format
       - id: ruff-check
 -   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.9.5
+    rev: 0.9.6
     hooks:
       - id: uv-lock
 -   repo: https://github.com/executablebooks/mdformat
-    rev: 1.0.0
+    rev: 0.7.22
     hooks:
     -   id: mdformat
         additional_dependencies: [
@@ -44,7 +44,7 @@ repos:
         ]
         files: (README\.md)
 -   repo: https://github.com/executablebooks/mdformat
-    rev: 1.0.0
+    rev: 0.7.22
     hooks:
     -   id: mdformat
         additional_dependencies: [
