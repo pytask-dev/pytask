@@ -60,22 +60,42 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli.commands["build"].params.extend(additional_parameters)
 
 
+def _parse_pdbcls(value: str) -> tuple[str, str]:
+    """Parse and validate pdbcls string format."""
+    split = value.split(":")
+    if len(split) != 2:  # noqa: PLR2004
+        msg = (
+            f"Invalid 'pdbcls' format: {value!r}. "
+            "Must be like 'IPython.terminal.debugger:TerminalPdb'"
+        )
+        raise ValueError(msg)
+    return tuple(split)  # type: ignore[return-value]
+
+
 def _pdbcls_callback(
     ctx: click.Context,  # noqa: ARG001
     name: str,  # noqa: ARG001
     value: str | None,
 ) -> tuple[str, str] | None:
     """Validate the debugger class string passed to pdbcls."""
-    message = "'pdbcls' must be like IPython.terminal.debugger:TerminalPdb"
-
     if value is None:
         return None
-    if isinstance(value, str):
-        split = value.split(":")
-        if len(split) != 2:  # noqa: PLR2004
-            raise click.BadParameter(message)
-        return tuple(split)  # type: ignore[return-value]
-    raise click.BadParameter(message)
+    try:
+        return _parse_pdbcls(value)
+    except ValueError as exc:
+        raise click.BadParameter(str(exc)) from exc
+
+
+@hookimpl
+def pytask_parse_config(config: dict[str, Any]) -> None:
+    """Parse the debugger configuration.
+
+    Convert pdbcls from string format to tuple if it comes from config file.
+    When pdbcls comes from CLI, it's already converted by _pdbcls_callback.
+    """
+    pdbcls = config.get("pdbcls")
+    if pdbcls and isinstance(pdbcls, str):
+        config["pdbcls"] = _parse_pdbcls(pdbcls)
 
 
 @hookimpl(trylast=True)
