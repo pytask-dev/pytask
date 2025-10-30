@@ -660,6 +660,64 @@ def test_pass_non_task_to_functional_api_that_are_ignored():
     assert len(session.tasks) == 0
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32" and os.environ.get("CI") == "true",
+    reason="Windows does not pick up the right Python interpreter.",
+)
+def test_repeated_tasks_via_functional_interface(tmp_path):
+    """Test that repeated tasks with the same function name work correctly.
+
+    This test ensures that when multiple tasks with the same function name are passed
+    to pytask.build(), they all get unique IDs and execute correctly, similar to how
+    file-based collection handles repeated tasks.
+    """
+    source = """
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import Product, task, build, ExitCode
+    import sys
+
+    # Create repeated tasks with the same function name
+    tasks = []
+    for i in range(3):
+        def create_data(
+            value: int = i * 10,
+            produces: Annotated[Path, Product] = Path(f"output_{i}.txt")
+        ) -> None:
+            '''Generate data based on a value.'''
+            produces.write_text(str(value))
+
+        tasks.append(create_data)
+
+    if __name__ == "__main__":
+        session = build(tasks=tasks)
+
+        # Verify all tasks were collected and executed
+        assert session.exit_code == ExitCode.OK, f"Exit code: {session.exit_code}"
+        assert len(session.tasks) == 3, f"Expected 3 tasks, got {len(session.tasks)}"
+        assert len(session.execution_reports) == 3
+
+        # Verify each task executed and produced the correct output
+        assert Path("output_0.txt").read_text() == "0"
+        assert Path("output_1.txt").read_text() == "10"
+        assert Path("output_2.txt").read_text() == "20"
+
+        # Verify tasks have unique names with repeated task IDs
+        task_names = [task.name for task in session.tasks]
+        assert len(task_names) == len(set(task_names)), "Task names should be unique"
+        assert all("create_data[" in name for name in task_names), \\
+            f"Task names should contain repeated task IDs: {task_names}"
+
+        sys.exit(session.exit_code)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = run_in_subprocess(
+        (sys.executable, tmp_path.joinpath("task_module.py").as_posix()),
+        cwd=tmp_path,
+    )
+    assert result.exit_code == ExitCode.OK
+
+
 def test_multiple_product_annotations(runner, tmp_path):
     source = """
     from pytask import Product
