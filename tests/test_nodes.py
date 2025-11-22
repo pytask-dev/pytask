@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pickle
-import sys
 from pathlib import Path
 
 import cloudpickle
@@ -95,15 +94,7 @@ def test_hash_of_path_node(tmp_path, value, exists, expected):
     ("value", "exists", "expected"),
     [
         ("0", False, None),
-        # Python 3.14+ uses pickle protocol 5 by default, which produces different
-        # hashes
-        (
-            "0",
-            True,
-            "1973e23848344dc43a988a9b478663803cfffe1243480253f9a3cf004b14aa7c"
-            if sys.version_info >= (3, 14)
-            else "2e81f502b7a28f824c4f1451c946b952eebe65a8521925ef8f6135ef6f422e8e",
-        ),
+        ("0", True, "2e81f502b7a28f824c4f1451c946b952eebe65a8521925ef8f6135ef6f422e8e"),
     ],
 )
 def test_hash_of_pickle_node(tmp_path, value, exists, expected):
