@@ -5,6 +5,11 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## 0.5.7 - 2025-11-22
+
+- {pull}`721` clarifies the documentation on repeated tasks in notebooks.
+- {pull}`723` fixes an issue with defaults for click options. Thanks to {user}`DrorSh` for contributing the fix!
+
 ## 0.5.6 - 2025-10-31
 
 - {pull}`703` fixes {issue}`701` by allowing `--capture tee-sys` again.
