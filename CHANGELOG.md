@@ -7,7 +7,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
-- {pull}`???` fixes the pickle node hash test by accounting for Python 3.14's
+- {pull}`725` fixes the pickle node hash test by accounting for Python 3.14's
   default pickle protocol.
 
 ## 0.5.7 - 2025-11-22
