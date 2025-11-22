@@ -182,6 +182,8 @@ def test_pdb_interaction_capturing_simple(tmp_path):  # pragma: no cover
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
     child.expect(r"task_1\(\)")
+    child.expect("Pdb")
+    child.sendline("n")
     child.expect("i == 1")
     child.expect("Pdb")
     child.sendline("c")
@@ -294,11 +296,15 @@ def test_pdb_interaction_capturing_twice(tmp_path):  # pragma: no cover
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
     child.expect(["PDB", "set_trace", r"\(IO-capturing", "turned", r"off\)"])
     child.expect("task_1")
+    child.expect("Pdb")
+    child.sendline("n")
     child.expect("x = 3")
     child.expect("Pdb")
     child.sendline("c")
     child.expect(["PDB", "continue", r"\(IO-capturing", r"resumed\)"])
     child.expect(["PDB", "set_trace", r"\(IO-capturing", "turned", r"off\)"])
+    child.expect("Pdb")
+    child.sendline("n")
     child.expect("x = 4")
     child.expect("Pdb")
     child.sendline("c")
@@ -338,6 +344,15 @@ def test_pdb_with_injected_do_debug(tmp_path):
             return orig_do_debug(self, arg)
 
         do_debug.__doc__ = pdb.Pdb.do_debug.__doc__
+
+        if hasattr(pdb.Pdb, "_create_recursive_debugger"):
+
+            def _create_recursive_debugger(self):
+                return self.__class__(
+                    self.completekey,
+                    self.stdin,
+                    self.stdout,
+                )
 
         def do_continue(self, *args, **kwargs):
             global count_continue
