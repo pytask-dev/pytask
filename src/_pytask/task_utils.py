@@ -310,11 +310,15 @@ def parse_keyword_arguments_from_signature_defaults(
 
 def _snapshot_annotation_locals(func: Callable[..., Any]) -> dict[str, Any] | None:
     """Capture the values of free variables at decoration time for annotations."""
-    if func.__closure__ is None:
+    while isinstance(func, functools.partial):
+        func = func.func
+
+    closure = getattr(func, "__closure__", None)
+    if not closure:
         return None
 
     snapshot = {}
-    for name, cell in zip(func.__code__.co_freevars, func.__closure__, strict=False):
+    for name, cell in zip(func.__code__.co_freevars, closure, strict=False):
         with suppress(ValueError):
             snapshot[name] = cell.cell_contents
 

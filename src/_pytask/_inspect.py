@@ -45,7 +45,7 @@ def get_annotations(
     versions without :mod:`annotationlib` - we fall back to the stdlib implementation,
     so behaviour on 3.10-3.13 remains unchanged.
     """
-    if sys.version_info < (3, 14):
+    if sys.version_info < (3, 14) or not eval_str or not hasattr(obj, "__globals__"):
         return _get_annotations_from_inspect(
             obj, globals=globals, locals=locals, eval_str=eval_str
         )
