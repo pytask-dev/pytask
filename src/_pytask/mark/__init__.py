@@ -92,12 +92,14 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             metavar="MARKER_EXPRESSION",
             type=str,
             help="Select tasks via marker expressions.",
+            default=None,
         ),
         click.Option(
             ["-k", "expression"],
             metavar="EXPRESSION",
             type=str,
             help="Select tasks via expressions on task ids.",
+            default=None,
         ),
     ]
     for command in ("build", "clean", "collect"):
