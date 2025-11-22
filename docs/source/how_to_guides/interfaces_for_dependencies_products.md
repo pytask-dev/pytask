@@ -18,7 +18,6 @@ a task. When we talk about products later, the same interfaces will be used.
 
 |                                         | `def task(arg: ... = ...)` | `Annotated[..., value]` | `@task(kwargs=...)` |
 | --------------------------------------- | :------------------------: | :---------------------: | :-----------------: |
-| Not deprecated                          |             ✅             |           ✅            |         ✅          |
 | No type annotations required            |             ✅             |           ❌            |         ✅          |
 | Flexible choice of argument name        |             ✅             |           ✅            |         ✅          |
 | Supports third-party functions as tasks |             ❌             |           ❌            |         ✅          |
@@ -60,7 +59,6 @@ dictionary. It applies to dependencies and products alike.
 
 |                                                           | `def task(arg: Annotated[..., Product] = ...)` | `Annotated[..., value, Product]` | `produces` | `@task(produces=...)` | `def task() -> Annotated[..., value]` |
 | --------------------------------------------------------- | :--------------------------------------------: | :------------------------------: | :--------: | :-------------------: | :-----------------------------------: |
-| Not deprecated                                            |                       ✅                       |                ✅                |     ✅     |          ✅           |                  ✅                   |
 | No type annotations required                              |                       ❌                       |                ❌                |     ✅     |          ✅           |                  ❌                   |
 | Flexible choice of argument name                          |                       ✅                       |                ✅                |     ❌     |          ✅           |                  ➖                   |
 | Supports third-party functions as tasks                   |                       ❌                       |                ❌                |     ❌     |          ✅           |                  ❌                   |
