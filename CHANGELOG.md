@@ -5,6 +5,13 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## Unreleased
+
+- {pull}`725` fixes the pickle node hash test by accounting for Python 3.14's
+  default pickle protocol.
+- {pull}`???` adapts the interactive debugger integration to Python 3.14's
+  updated `pdb` behaviour and keeps pytest-style capturing intact.
+
 ## 0.5.7 - 2025-11-22
 
 - {pull}`721` clarifies the documentation on repeated tasks in notebooks.
