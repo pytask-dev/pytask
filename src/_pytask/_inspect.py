@@ -11,17 +11,12 @@ if TYPE_CHECKING:
 
 __all__ = ["get_annotations"]
 
-try:  # Python < 3.14.
-    import annotationlib  # type: ignore[import-not-found]
-except ModuleNotFoundError:  # pragma: no cover - depends on interpreter version.
-    annotationlib = None
-
 
 def get_annotations(
     obj: Callable[..., Any],
     *,
-    globals: dict[str, Any] | None = None,  # noqa: A002 - mimics inspect signature.
-    locals: dict[str, Any] | None = None,  # noqa: A002 - mimics inspect signature.
+    globals: dict[str, Any] | None = None,  # noqa: A002
+    locals: dict[str, Any] | None = None,  # noqa: A002
     eval_str: bool = False,
 ) -> dict[str, Any]:
     """Return evaluated annotations with better support for deferred evaluation.
@@ -50,16 +45,12 @@ def get_annotations(
     versions without :mod:`annotationlib` - we fall back to the stdlib implementation,
     so behaviour on 3.10-3.13 remains unchanged.
     """
-    if (
-        annotationlib is None
-        or sys.version_info < (3, 14)
-        or not eval_str
-        or not callable(obj)
-        or not hasattr(obj, "__globals__")
-    ):
+    if sys.version_info < (3, 14):
         return _get_annotations_from_inspect(
             obj, globals=globals, locals=locals, eval_str=eval_str
         )
+
+    import annotationlib  # noqa: PLC0415
 
     raw_annotations = annotationlib.get_annotations(
         obj, globals=globals, locals=locals, format=annotationlib.Format.STRING
