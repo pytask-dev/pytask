@@ -5,6 +5,7 @@ from __future__ import annotations
 import functools
 import inspect
 from collections import defaultdict
+from contextlib import suppress
 from types import BuiltinFunctionType
 from typing import TYPE_CHECKING
 from typing import Any
@@ -143,6 +144,8 @@ def task(  # noqa: PLR0913
         parsed_name = _parse_name(unwrapped, name)
         parsed_after = _parse_after(after)
 
+        annotation_locals = _snapshot_annotation_locals(unwrapped)
+
         if hasattr(unwrapped, "pytask_meta"):
             unwrapped.pytask_meta.after = parsed_after
             unwrapped.pytask_meta.is_generator = is_generator
@@ -155,6 +158,7 @@ def task(  # noqa: PLR0913
         else:
             unwrapped.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]
                 after=parsed_after,
+                annotation_locals=annotation_locals,
                 is_generator=is_generator,
                 id_=id,
                 kwargs=parsed_kwargs,
@@ -162,6 +166,9 @@ def task(  # noqa: PLR0913
                 name=parsed_name,
                 produces=produces,
             )
+
+        if annotation_locals is not None and hasattr(unwrapped, "pytask_meta"):
+            unwrapped.pytask_meta.annotation_locals = annotation_locals
 
         if coiled_kwargs and hasattr(unwrapped, "pytask_meta"):
             unwrapped.pytask_meta.attributes["coiled_kwargs"] = coiled_kwargs
@@ -299,6 +306,23 @@ def parse_keyword_arguments_from_signature_defaults(
         if parameter.default is not parameter.empty:
             kwargs[parameter.name] = parameter.default
     return kwargs
+
+
+def _snapshot_annotation_locals(func: Callable[..., Any]) -> dict[str, Any] | None:
+    """Capture the values of free variables at decoration time for annotations."""
+    while isinstance(func, functools.partial):
+        func = func.func
+
+    closure = getattr(func, "__closure__", None)
+    if not closure:
+        return None
+
+    snapshot = {}
+    for name, cell in zip(func.__code__.co_freevars, closure, strict=False):
+        with suppress(ValueError):
+            snapshot[name] = cell.cell_contents
+
+    return snapshot or None
 
 
 def _generate_ids_for_tasks(
