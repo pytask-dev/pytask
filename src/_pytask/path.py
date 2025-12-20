@@ -210,26 +210,22 @@ def _resolve_pkg_root_and_module_name(path: Path) -> tuple[Path, str]:
     (missing any __init__.py files) and no valid namespace package root is found.
 
     """
-    pkg_root: Path | None = None
+    # First, try to find a regular package (with __init__.py files).
     pkg_path = _resolve_package_path(path)
     if pkg_path is not None:
         pkg_root = pkg_path.parent
-
-    # Check for namespace packages by walking up the directory tree.
-    # For each candidate root, compute the module name and verify that Python's
-    # import system would resolve that name to this file.
-    start = pkg_root if pkg_root is not None else path.parent
-    for candidate in (start, *start.parents):
-        module_name = _compute_module_name(candidate, path)
-        if module_name and _is_importable(module_name, path):
-            # Found a root where Python's import system agrees with our module name.
-            pkg_root = candidate
-            break
-
-    if pkg_root is not None:
         module_name = _compute_module_name(pkg_root, path)
         if module_name:
             return pkg_root, module_name
+
+    # No regular package found. Check for namespace packages by walking up the
+    # directory tree and verifying that Python's import system would resolve
+    # the computed module name to this file.
+    for candidate in (path.parent, *path.parent.parents):
+        module_name = _compute_module_name(candidate, path)
+        if module_name and _is_importable(module_name, path):
+            # Found a root where Python's import system agrees with our module name.
+            return candidate, module_name
 
     msg = f"Could not resolve for {path}"
     raise CouldNotResolvePathError(msg)
@@ -270,11 +266,23 @@ def _is_importable(module_name: str, module_path: Path) -> bool:
     This verifies that importing `module_name` via Python's standard import mechanism
     (as if typed in the REPL) would load the file at `module_path`.
 
+    Note: find_spec() has a side effect of creating parent namespace packages in
+    sys.modules. We clean these up to avoid polluting the module namespace.
     """
+    # Track modules before the call to clean up side effects
+    modules_before = set(sys.modules.keys())
+
     try:
         spec = importlib.util.find_spec(module_name)
     except (ImportError, ValueError, ImportWarning):
         return False
+    finally:
+        # Clean up any modules that were added as side effects.
+        # find_spec() can create parent namespace packages in sys.modules.
+        modules_added = set(sys.modules.keys()) - modules_before
+        for mod_name in modules_added:
+            sys.modules.pop(mod_name, None)
+
     return _spec_matches_module_path(spec, module_path)
 
 
@@ -314,7 +322,11 @@ def _import_module_using_spec(
     # Checking with sys.meta_path first in case one of its hooks can import this module,
     # such as our own assertion-rewrite hook.
     for meta_importer in sys.meta_path:
-        spec = meta_importer.find_spec(module_name, [str(module_location)])
+        try:
+            spec = meta_importer.find_spec(module_name, [str(module_location)])
+        except (ImportError, KeyError, ValueError):
+            # Some meta_path finders raise exceptions when parent modules don't exist.
+            continue
         if spec is not None:
             break
     else:
@@ -323,6 +335,7 @@ def _import_module_using_spec(
         mod = importlib.util.module_from_spec(spec)
         sys.modules[module_name] = mod
         spec.loader.exec_module(mod)  # type: ignore[union-attr]
+        _insert_missing_modules(sys.modules, module_name)
         return mod
 
     return None
