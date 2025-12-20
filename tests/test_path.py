@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import importlib
+import importlib.util
 import sys
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
@@ -389,3 +391,93 @@ class TestImportLibMode:
         # Ensure we do not import the same module again (#11475).
         mod2 = import_path(init, root=tmp_path)
         assert mod is mod2
+
+    def test_import_path_namespace_package_consistent_with_python_import(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """
+        Ensure import_path uses module names consistent with Python's import
+        system for namespace packages (directories without __init__.py).
+
+        This prevents double-imports when task files import each other.
+        See: https://github.com/pytask-dev/pytask/issues/XXX
+
+        Structure:
+            src/
+                myproject/
+                    __init__.py          <- regular package
+                    tasks/               <- NO __init__.py (namespace package)
+                        task_a.py
+
+        With PYTHONPATH=src, Python imports task_a.py as "myproject.tasks.task_a".
+        pytask's import_path() should use the same name, not
+        "src.myproject.tasks.task_a".
+        """
+        # Create the directory structure
+        src_dir = tmp_path / "src"
+        pkg_dir = src_dir / "myproject"
+        tasks_dir = pkg_dir / "tasks"
+        tasks_dir.mkdir(parents=True)
+
+        # myproject is a regular package (has __init__.py)
+        (pkg_dir / "__init__.py").write_text("")
+
+        # tasks is a namespace package (NO __init__.py)
+        task_file = tasks_dir / "task_a.py"
+        task_file.write_text(
+            textwrap.dedent(
+                """
+                EXECUTION_COUNT = 0
+
+                def on_import():
+                    global EXECUTION_COUNT
+                    EXECUTION_COUNT += 1
+
+                on_import()
+                """
+            )
+        )
+
+        # Add src/ to sys.path (simulating PYTHONPATH=src)
+        monkeypatch.syspath_prepend(str(src_dir))
+
+        # Verify Python's import system would use "myproject.tasks.task_a"
+        expected_module_name = "myproject.tasks.task_a"
+        spec = importlib.util.find_spec(expected_module_name)
+        assert spec is not None, (
+            f"Python cannot find {expected_module_name!r} - test setup is wrong"
+        )
+        assert spec.origin == str(task_file)
+
+        # Now call pytask's import_path
+        mod = import_path(task_file, root=tmp_path)
+
+        # The module name should match what Python's import system uses
+        assert mod.__name__ == expected_module_name, (
+            f"import_path() used module name {mod.__name__!r} but Python's import "
+            f"system would use {expected_module_name!r}. This mismatch causes "
+            f"double-imports when task files import each other."
+        )
+
+        # The module should be registered in sys.modules under the correct name
+        assert expected_module_name in sys.modules
+        assert sys.modules[expected_module_name] is mod
+
+        # Importing via Python's standard mechanism should return the SAME module
+        # (not re-execute the file)
+        standard_import = importlib.import_module(expected_module_name)
+        assert standard_import is mod, (
+            "Python's import returned a different module object than import_path(). "
+            "This means the file would be executed twice."
+        )
+
+        # Verify the file was only executed once
+        assert mod.EXECUTION_COUNT == 1, (
+            f"Module was executed {mod.EXECUTION_COUNT} times instead of once. "
+            f"Double-import detected!"
+        )
+
+        # Cleanup
+        sys.modules.pop(expected_module_name, None)
+        sys.modules.pop("myproject.tasks", None)
+        sys.modules.pop("myproject", None)
