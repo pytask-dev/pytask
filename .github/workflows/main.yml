@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
@@ -42,7 +42,7 @@ jobs:
         python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
@@ -56,8 +56,15 @@ jobs:
           sudo apt-get install graphviz graphviz-dev
 
       - name: Run tests, doctests, and notebook tests
+        if: matrix.os != 'windows-latest' || matrix.python-version != '3.14'
         shell: bash -l {0}
         run: just test-cov
+
+      # pywin32 has no wheels for Python 3.14 yet, so skip notebook tests
+      - name: Run tests without notebook tests (Windows + Python 3.14)
+        if: matrix.os == 'windows-latest' && matrix.python-version == '3.14'
+        shell: bash -l {0}
+        run: uv run --group test pytest --cov=src --cov=tests --cov-report=xml -n auto
 
       - name: Upload test coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v5

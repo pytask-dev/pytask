@@ -24,7 +24,7 @@ typing-nb:
 
 # Run linting
 lint:
-    uvx --with pre-commit-uv pre-commit run -a
+    uvx prek run -a
 
 # Run all checks (format, lint, typing, test)
 check: lint typing test
