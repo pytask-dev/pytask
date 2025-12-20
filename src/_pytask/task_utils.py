@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import functools
 import inspect
+import sys
 from collections import defaultdict
-from contextlib import suppress
 from types import BuiltinFunctionType
 from typing import TYPE_CHECKING
 from typing import Any
@@ -44,7 +44,7 @@ dictionary mapping from paths of modules to a list of tasks per module.
 """
 
 
-def task(  # noqa: PLR0913
+def task(  # noqa: PLR0913, C901
     name: str | None = None,
     *,
     after: str | Callable[..., Any] | list[Callable[..., Any]] | None = None,
@@ -52,6 +52,7 @@ def task(  # noqa: PLR0913
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
     produces: Any | None = None,
+    _caller_locals: dict[str, Any] | None = None,
 ) -> Callable[..., Callable[..., Any]]:
     """Decorate a task function.
 
@@ -109,6 +110,11 @@ def task(  # noqa: PLR0913
             return "Hello, World!"
 
     """
+    # Capture the caller's frame locals for deferred annotation evaluation in Python
+    # 3.14+. This must be done here (not in wrapper) to get the correct scope when
+    # @task is used without parentheses.
+    if _caller_locals is None:
+        _caller_locals = sys._getframe(1).f_locals.copy()
 
     def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
         # Omits frame when a builtin function is wrapped.
@@ -144,7 +150,7 @@ def task(  # noqa: PLR0913
         parsed_name = _parse_name(unwrapped, name)
         parsed_after = _parse_after(after)
 
-        annotation_locals = _snapshot_annotation_locals(unwrapped)
+        annotation_locals = _snapshot_annotation_locals(_caller_locals)
 
         if hasattr(unwrapped, "pytask_meta"):
             unwrapped.pytask_meta.after = parsed_after
@@ -182,7 +188,7 @@ def task(  # noqa: PLR0913
     # In case the decorator is used without parentheses, wrap the function which is
     # passed as the first argument with the default arguments.
     if is_task_function(name) and kwargs is None:
-        return task()(name)
+        return task(_caller_locals=_caller_locals)(name)
     return wrapper
 
 
@@ -308,21 +314,20 @@ def parse_keyword_arguments_from_signature_defaults(
     return kwargs
 
 
-def _snapshot_annotation_locals(func: Callable[..., Any]) -> dict[str, Any] | None:
-    """Capture the values of free variables at decoration time for annotations."""
-    while isinstance(func, functools.partial):
-        func = func.func
+def _snapshot_annotation_locals(
+    caller_locals: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Capture caller's frame locals at decoration time for deferred annotation eval.
 
-    closure = getattr(func, "__closure__", None)
-    if not closure:
-        return None
+    This function captures variables that may be referenced in type annotations but
+    won't be available when annotations are evaluated later (e.g., loop variables in
+    task generators under Python 3.14's PEP 649 deferred annotations).
 
-    snapshot = {}
-    for name, cell in zip(func.__code__.co_freevars, closure, strict=False):
-        with suppress(ValueError):
-            snapshot[name] = cell.cell_contents
+    We capture the caller's frame locals - variables in the scope where @task is
+    applied (e.g., loop variables like `path` that are only referenced in annotations).
 
-    return snapshot or None
+    """
+    return caller_locals.copy() if caller_locals else None
 
 
 def _generate_ids_for_tasks(

@@ -40,8 +40,10 @@ def get_annotations(
     while collecting tasks. Using :func:`inspect.get_annotations` would therefore yield
     the same product path for every repeated task. By asking :mod:`annotationlib` for
     string representations and re-evaluating them with reconstructed locals (globals,
-    default arguments, and the snapshots captured via ``@task``) we recover the correct
-    per-task values. If any of these ingredients are missing—for example on Python
+    default arguments, and the frame locals captured via ``@task`` at decoration time)
+    we recover the correct per-task values. The frame locals capture is essential for
+    cases where loop variables are only referenced in annotations (not in the function
+    body or closure). If any of these ingredients are missing—for example on Python
     versions without :mod:`annotationlib` - we fall back to the stdlib implementation,
     so behaviour on 3.10-3.13 remains unchanged.
     """
