@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import functools
+import importlib.machinery
 import importlib.util
 import itertools
 import os
@@ -200,19 +201,35 @@ def _resolve_pkg_root_and_module_name(path: Path) -> tuple[Path, str]:
 
     Passing the full path to `models.py` will yield Path("src") and "app.core.models".
 
+    This function also handles namespace packages (directories without __init__.py)
+    by walking up the directory tree and checking if Python's import system can
+    resolve the computed module name to the given path. This prevents double-imports
+    when task files import each other using Python's standard import mechanism.
+
     Raises CouldNotResolvePathError if the given path does not belong to a package
-    (missing any __init__.py files).
+    (missing any __init__.py files) and no valid namespace package root is found.
 
     """
+    pkg_root: Path | None = None
     pkg_path = _resolve_package_path(path)
     if pkg_path is not None:
         pkg_root = pkg_path.parent
 
-        names = list(path.with_suffix("").relative_to(pkg_root).parts)
-        if names[-1] == "__init__":
-            names.pop()
-        module_name = ".".join(names)
-        return pkg_root, module_name
+    # Check for namespace packages by walking up the directory tree.
+    # For each candidate root, compute the module name and verify that Python's
+    # import system would resolve that name to this file.
+    start = pkg_root if pkg_root is not None else path.parent
+    for candidate in (start, *start.parents):
+        module_name = _compute_module_name(candidate, path)
+        if module_name and _is_importable(module_name, path):
+            # Found a root where Python's import system agrees with our module name.
+            pkg_root = candidate
+            break
+
+    if pkg_root is not None:
+        module_name = _compute_module_name(pkg_root, path)
+        if module_name:
+            return pkg_root, module_name
 
     msg = f"Could not resolve for {path}"
     raise CouldNotResolvePathError(msg)
@@ -220,6 +237,69 @@ def _resolve_pkg_root_and_module_name(path: Path) -> tuple[Path, str]:
 
 class CouldNotResolvePathError(Exception):
     """Custom exception raised by _resolve_pkg_root_and_module_name."""
+
+
+def _spec_matches_module_path(
+    module_spec: importlib.machinery.ModuleSpec | None, module_path: Path
+) -> bool:
+    """Return true if the given ModuleSpec can be used to import the given module path.
+
+    Handles both regular modules (via origin) and namespace packages
+    (via submodule_search_locations).
+
+    """
+    if module_spec is None:
+        return False
+
+    if module_spec.origin:
+        return Path(module_spec.origin) == module_path
+
+    # For namespace packages, check submodule_search_locations.
+    # https://docs.python.org/3/library/importlib.html#importlib.machinery.ModuleSpec.submodule_search_locations
+    if module_spec.submodule_search_locations:
+        for location in module_spec.submodule_search_locations:
+            if Path(location) == module_path:
+                return True
+
+    return False
+
+
+def _is_importable(module_name: str, module_path: Path) -> bool:
+    """Check if a module name would resolve to the given path using Python's import.
+
+    This verifies that importing `module_name` via Python's standard import mechanism
+    (as if typed in the REPL) would load the file at `module_path`.
+
+    """
+    try:
+        spec = importlib.util.find_spec(module_name)
+    except (ImportError, ValueError, ImportWarning):
+        return False
+    return _spec_matches_module_path(spec, module_path)
+
+
+def _compute_module_name(root: Path, module_path: Path) -> str | None:
+    """Compute a module name based on a path and a root anchor.
+
+    Returns None if the module name cannot be computed.
+
+    """
+    try:
+        path_without_suffix = module_path.with_suffix("")
+    except ValueError:
+        return None
+
+    try:
+        relative = path_without_suffix.relative_to(root)
+    except ValueError:
+        return None
+
+    names = list(relative.parts)
+    if not names:
+        return None
+    if names[-1] == "__init__":
+        names.pop()
+    return ".".join(names) if names else None
 
 
 def _import_module_using_spec(
