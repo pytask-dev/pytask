@@ -153,12 +153,20 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
             # Add defaults from cli.
             from _pytask.cli import DEFAULTS_FROM_CLI  # noqa: PLC0415
 
-            raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
+            raw_config = {**DEFAULTS_FROM_CLI, **raw_config}  # ty: ignore[invalid-assignment]
 
-            raw_config["paths"] = parse_paths(raw_config["paths"])
+            paths_value = raw_config["paths"]
+            # Type narrow to Path or list for parse_paths
+            if isinstance(paths_value, (Path, list)):
+                raw_config["paths"] = parse_paths(paths_value)
+            else:
+                msg = f"paths must be Path or list, got {type(paths_value)}"
+                raise TypeError(msg)  # noqa: TRY301
 
             if raw_config["config"] is not None:
-                raw_config["config"] = Path(raw_config["config"]).resolve()
+                config_value = raw_config["config"]
+                assert isinstance(config_value, (str, Path))
+                raw_config["config"] = Path(config_value).resolve()
                 raw_config["root"] = raw_config["config"].parent
             else:
                 (

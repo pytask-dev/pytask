@@ -120,7 +120,7 @@ def _collect_from_tasks(session: Session) -> None:
                 raw_task = task_decorator()(raw_task)  # noqa: PLW2901
 
             path = get_file(raw_task)
-            name = raw_task.pytask_meta.name
+            name = raw_task.pytask_meta.name  # ty: ignore[possibly-missing-attribute]
 
         if has_mark(raw_task, "task"):
             # When tasks with @task are passed to the programmatic interface

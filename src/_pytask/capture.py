@@ -129,7 +129,8 @@ class EncodedFile(io.TextIOWrapper):
         # TextIOWrapper doesn't expose a mode, but at least some of our
         # tests check it.
         assert hasattr(self.buffer, "mode")
-        return cast("str", self.buffer.mode.replace("b", ""))
+        mode_value = cast("str", self.buffer.mode)
+        return mode_value.replace("b", "")
 
 
 class CaptureIO(io.TextIOWrapper):

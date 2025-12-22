@@ -108,7 +108,9 @@ def _remove_internal_traceback_frames_from_exc_info(
         # (None, None, None)  # noqa: ERA001
         assert exc_info[0] is not None
         assert exc_info[1] is not None
-        filtered_traceback = _filter_internal_traceback_frames(exc_info, suppress)
+        # Create properly typed tuple for type checker
+        exception_info: ExceptionInfo = (exc_info[0], exc_info[1], exc_info[2])
+        filtered_traceback = _filter_internal_traceback_frames(exception_info, suppress)
         exc_info = (exc_info[0], exc_info[1], filtered_traceback)
     return exc_info
 

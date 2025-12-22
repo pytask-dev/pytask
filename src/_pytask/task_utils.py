@@ -257,15 +257,16 @@ def _parse_tasks_with_preliminary_names(
 def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
     """Parse a single task."""
     meta = task.pytask_meta  # type: ignore[attr-defined]
+    task_name = getattr(task, "__name__", "_")
 
-    if meta.name is None and task.__name__ == "_":
+    if meta.name is None and task_name == "_":
         msg = (
             "A task function either needs 'name' passed by the ``@task`` "
             "decorator or the function name of the task function must not be '_'."
         )
         raise ValueError(msg)
 
-    parsed_name = task.__name__ if meta.name is None else meta.name
+    parsed_name = task_name if meta.name is None else meta.name
     parsed_kwargs = _parse_task_kwargs(meta.kwargs)
 
     signature_kwargs = parse_keyword_arguments_from_signature_defaults(task)

@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 if sys.version_info >= (3, 11):  # pragma: no cover
     import tomllib
 else:  # pragma: no cover
-    import tomli as tomllib
+    import tomli as tomllib  # ty: ignore[unresolved-import]
 
 
 __all__ = ["find_project_root_and_config", "read_config", "set_defaults_from_config"]
@@ -51,7 +51,11 @@ def set_defaults_from_config(
         if not context.params["paths"]:
             context.params["paths"] = (Path.cwd(),)
 
-        context.params["paths"] = parse_paths(context.params["paths"])
+        paths = context.params["paths"]
+        # Convert to list if tuple since parse_paths expects Path | list[Path]
+        if isinstance(paths, tuple):
+            paths = list(paths)
+        context.params["paths"] = parse_paths(paths)
         (
             context.params["root"],
             context.params["config"],

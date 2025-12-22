@@ -358,6 +358,6 @@ def create_name_of_python_node(node_info: NodeInfo) -> str:
     """Create name of PythonNode."""
     node_name = node_info.task_name + "::" + node_info.arg_name
     if node_info.path:
-        suffix = "-".join(map(str, node_info.path))
+        suffix = "-".join(str(p) for p in node_info.path)
         node_name += "::" + suffix
     return node_name

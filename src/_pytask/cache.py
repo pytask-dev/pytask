@@ -31,7 +31,9 @@ class Cache:
     cache_info: CacheInfo = field(factory=CacheInfo)
 
     def memoize(self, func: Callable[..., Any]) -> Callable[..., Any]:
-        prefix = f"{func.__module__}.{func.__name__}:"
+        func_module = getattr(func, "__module__", "")
+        func_name = getattr(func, "__name__", "")
+        prefix = f"{func_module}.{func_name}:"
         argspec = inspect.getfullargspec(func)
 
         @functools.wraps(func)

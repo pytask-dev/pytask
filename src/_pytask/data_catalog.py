@@ -10,11 +10,10 @@ import hashlib
 import inspect
 import pickle
 import re
+from dataclasses import dataclass
+from dataclasses import field
 from pathlib import Path
 from typing import Any
-
-from attrs import define
-from attrs import field
 
 from _pytask.config_utils import find_project_root_and_config
 from _pytask.data_catalog_utils import DATA_CATALOG_NAME_FIELD
@@ -40,7 +39,7 @@ def _get_parent_path_of_data_catalog_module(stacklevel: int = 2) -> Path:
     return Path.cwd()
 
 
-@define(kw_only=True)
+@dataclass(kw_only=True)
 class DataCatalog:
     """A data catalog.
 
@@ -61,28 +60,30 @@ class DataCatalog:
     """
 
     default_node: type[PNode] = PickleNode
-    name: str = field(default="default")
+    name: str = "default"
     path: Path | None = None
-    _entries: dict[str, PNode | PProvisionalNode] = field(factory=dict)
-    _instance_path: Path = field(factory=_get_parent_path_of_data_catalog_module)
+    _entries: dict[str, PNode | PProvisionalNode] = field(default_factory=dict)
+    _instance_path: Path = field(
+        default_factory=_get_parent_path_of_data_catalog_module
+    )
     _session_config: dict[str, Any] = field(
-        factory=lambda *x: {"check_casing_of_paths": True}  # noqa: ARG005
+        default_factory=lambda: {"check_casing_of_paths": True}
     )
 
-    @name.validator
-    def _check(self, attribute: str, value: str) -> None:  # noqa: ARG002
+    def __post_init__(self) -> None:
+        # Validate name
         _rich_traceback_omit = True
-        if not isinstance(value, str):
+        if not isinstance(self.name, str):
             msg = "The name of a data catalog must be a string."
             raise TypeError(msg)
-        if not re.match(r"[a-zA-Z0-9-_]+", value):
+        if not re.match(r"[a-zA-Z0-9-_]+", self.name):
             msg = (
                 "The name of a data catalog must be a string containing only letters, "
                 "numbers, hyphens, and underscores."
             )
             raise ValueError(msg)
 
-    def __attrs_post_init__(self) -> None:
+        # Initialize paths and load persisted nodes
         root_path, _ = find_project_root_and_config((self._instance_path,))
         self._session_config["paths"] = (root_path,)
 
@@ -143,6 +144,6 @@ class DataCatalog:
 
         node = self._entries[name]
         if hasattr(node, "attributes"):
-            node.attributes[DATA_CATALOG_NAME_FIELD] = self.name
+            node.attributes[DATA_CATALOG_NAME_FIELD] = self.name  # ty: ignore[invalid-assignment]
         else:
             warn_about_upcoming_attributes_field_on_nodes()

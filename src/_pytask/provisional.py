@@ -103,11 +103,14 @@ def pytask_execute_task(session: Session, task: PTask) -> None:
             session.hook.pytask_collect_modify_tasks(
                 session=session, tasks=session.tasks
             )
+            # Append the last collection report after successful modification
+            if report:
+                session.collection_reports.append(report)
         except Exception:  # noqa: BLE001  # pragma: no cover
-            report = ExecutionReport.from_task_and_exception(
+            exec_report = ExecutionReport.from_task_and_exception(
                 task=task, exc_info=sys.exc_info()
             )
-        session.collection_reports.append(report)
+            session.execution_reports.append(exec_report)
 
         recreate_dag(session, task)
 
