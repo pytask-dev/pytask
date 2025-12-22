@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 
 import click
 
@@ -52,10 +53,13 @@ def set_defaults_from_config(
             context.params["paths"] = (Path.cwd(),)
 
         paths = context.params["paths"]
-        # Convert to list if tuple since parse_paths expects Path | list[Path]
         if isinstance(paths, tuple):
             paths = list(paths)
-        context.params["paths"] = parse_paths(paths)
+        if not isinstance(paths, (Path, list)):
+            msg = f"paths must be Path or list, got {type(paths)}"
+            raise TypeError(msg)
+        # Cast is justified - we validated at runtime
+        context.params["paths"] = parse_paths(cast("Path | list[Path]", paths))
         (
             context.params["root"],
             context.params["config"],

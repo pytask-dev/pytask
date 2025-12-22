@@ -232,20 +232,20 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
             raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
 
             paths_value = raw_config["paths"]
-            # Type narrow to Path or list for parse_paths
-            if isinstance(paths_value, Path):
-                raw_config["paths"] = parse_paths(paths_value)
-            elif isinstance(paths_value, list):
-                # Cast to list[Path] for type checker
-                paths_list = cast("list[Path]", paths_value)
-                raw_config["paths"] = parse_paths(paths_list)
-            else:
+            # Convert tuple to list since parse_paths expects Path | list[Path]
+            if isinstance(paths_value, tuple):
+                paths_value = list(paths_value)
+            if not isinstance(paths_value, (Path, list)):
                 msg = f"paths must be Path or list, got {type(paths_value)}"
                 raise TypeError(msg)  # noqa: TRY301
+            # Cast is justified - we validated at runtime
+            raw_config["paths"] = parse_paths(cast("Path | list[Path]", paths_value))
 
             if raw_config["config"] is not None:
                 config_value = raw_config["config"]
-                assert isinstance(config_value, (str, Path))
+                if not isinstance(config_value, (str, Path)):
+                    msg = f"config must be str or Path, got {type(config_value)}"
+                    raise TypeError(msg)  # noqa: TRY301
                 raw_config["config"] = Path(config_value).resolve()
                 raw_config["root"] = raw_config["config"].parent
             else:
