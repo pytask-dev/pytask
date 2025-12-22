@@ -101,25 +101,19 @@ def task(  # noqa: PLR0913
     # 3.14+. The wrapper closure captures this variable.
     caller_locals = sys._getframe(1).f_locals.copy()
 
-    # Detect if decorator is used without parentheses: @task instead of @task()
-    # In this case, `name` is actually the function being decorated.
-    if is_task_function(name) and kwargs is None:
-        func_to_wrap = name
-        actual_name = None
-    else:
-        func_to_wrap = None
-        actual_name = name
-        # Validate arguments only when used with parentheses
-        for arg, arg_name in ((name, "name"), (id, "id")):
+    def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
+        # Omits frame when a builtin function is wrapped.
+        _rich_traceback_omit = True
+
+        # When @task is used without parentheses, name is the function, not a string.
+        effective_name = None if is_task_function(name) else name
+
+        for arg, arg_name in ((effective_name, "name"), (id, "id")):
             if not (isinstance(arg, str) or arg is None):
                 msg = (
                     f"Argument {arg_name!r} of @task must be a str, but it is {arg!r}."
                 )
                 raise ValueError(msg)
-
-    def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
-        # Omits frame when a builtin function is wrapped.
-        _rich_traceback_omit = True
 
         unwrapped = unwrap_task_function(func)
         if isinstance(unwrapped, Function):
@@ -141,7 +135,7 @@ def task(  # noqa: PLR0913
         path = get_file(unwrapped)
 
         parsed_kwargs = {} if kwargs is None else kwargs
-        parsed_name = _parse_name(unwrapped, actual_name)
+        parsed_name = _parse_name(unwrapped, effective_name)
         parsed_after = _parse_after(after)
 
         if hasattr(unwrapped, "pytask_meta"):
@@ -174,8 +168,9 @@ def task(  # noqa: PLR0913
 
         return unwrapped
 
-    if func_to_wrap is not None:
-        return wrapper(func_to_wrap)
+    # When decorator is used without parentheses, call wrapper directly.
+    if is_task_function(name) and kwargs is None:
+        return wrapper(name)
     return wrapper
 
 
