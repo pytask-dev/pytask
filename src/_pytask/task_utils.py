@@ -52,7 +52,6 @@ def task(  # noqa: PLR0913
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
     produces: Any | None = None,
-    _caller_locals: dict[str, Any] | None = None,
 ) -> Callable[..., Callable[..., Any]]:
     """Decorate a task function.
 
@@ -99,21 +98,28 @@ def task(  # noqa: PLR0913
 
     """
     # Capture the caller's frame locals for deferred annotation evaluation in Python
-    # 3.14+. This must be done here (not in wrapper) to get the correct scope when
-    # @task is used without parentheses.
-    if _caller_locals is None:
-        _caller_locals = sys._getframe(1).f_locals.copy()
+    # 3.14+. The wrapper closure captures this variable.
+    caller_locals = sys._getframe(1).f_locals.copy()
 
-    def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
-        # Omits frame when a builtin function is wrapped.
-        _rich_traceback_omit = True
-
+    # Detect if decorator is used without parentheses: @task instead of @task()
+    # In this case, `name` is actually the function being decorated.
+    if is_task_function(name) and kwargs is None:
+        func_to_wrap = name
+        actual_name = None
+    else:
+        func_to_wrap = None
+        actual_name = name
+        # Validate arguments only when used with parentheses
         for arg, arg_name in ((name, "name"), (id, "id")):
             if not (isinstance(arg, str) or arg is None):
                 msg = (
                     f"Argument {arg_name!r} of @task must be a str, but it is {arg!r}."
                 )
                 raise ValueError(msg)
+
+    def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
+        # Omits frame when a builtin function is wrapped.
+        _rich_traceback_omit = True
 
         unwrapped = unwrap_task_function(func)
         if isinstance(unwrapped, Function):
@@ -135,7 +141,7 @@ def task(  # noqa: PLR0913
         path = get_file(unwrapped)
 
         parsed_kwargs = {} if kwargs is None else kwargs
-        parsed_name = _parse_name(unwrapped, name)
+        parsed_name = _parse_name(unwrapped, actual_name)
         parsed_after = _parse_after(after)
 
         if hasattr(unwrapped, "pytask_meta"):
@@ -146,11 +152,11 @@ def task(  # noqa: PLR0913
             unwrapped.pytask_meta.markers.append(Mark("task", (), {}))
             unwrapped.pytask_meta.name = parsed_name
             unwrapped.pytask_meta.produces = produces
-            unwrapped.pytask_meta.annotation_locals = _caller_locals
+            unwrapped.pytask_meta.annotation_locals = caller_locals
         else:
             unwrapped.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]
                 after=parsed_after,
-                annotation_locals=_caller_locals,
+                annotation_locals=caller_locals,
                 is_generator=is_generator,
                 id_=id,
                 kwargs=parsed_kwargs,
@@ -168,10 +174,8 @@ def task(  # noqa: PLR0913
 
         return unwrapped
 
-    # In case the decorator is used without parentheses, wrap the function which is
-    # passed as the first argument with the default arguments.
-    if is_task_function(name) and kwargs is None:
-        return task(_caller_locals=_caller_locals)(name)
+    if func_to_wrap is not None:
+        return wrapper(func_to_wrap)
     return wrapper
 
 
