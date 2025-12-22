@@ -2697,8 +2697,6 @@ plugin-list = [
 ]
 test = [
     { name = "aiohttp" },
-    { name = "cloudpickle" },
-    { name = "coiled" },
     { name = "deepdiff" },
     { name = "nbmake" },
     { name = "pexpect" },
@@ -2709,6 +2707,8 @@ test = [
     { name = "syrupy" },
 ]
 typing = [
+    { name = "cloudpickle" },
+    { name = "coiled" },
     { name = "ty" },
 ]
 
@@ -2752,8 +2752,6 @@ plugin-list = [
 ]
 test = [
     { name = "aiohttp", specifier = ">=3.11.0" },
-    { name = "cloudpickle", specifier = ">=3.0.0" },
-    { name = "coiled", specifier = ">=1.42.0" },
     { name = "deepdiff", specifier = ">=7.0.0" },
     { name = "nbmake", specifier = ">=1.5.5" },
     { name = "pexpect", specifier = ">=4.9.0" },
@@ -2763,7 +2761,11 @@ test = [
     { name = "pytest-xdist", specifier = ">=3.6.1" },
     { name = "syrupy", specifier = ">=4.5.0" },
 ]
-typing = [{ name = "ty", specifier = ">=0.0.5" }]
+typing = [
+    { name = "cloudpickle", specifier = ">=3.0.0" },
+    { name = "coiled", specifier = ">=1.42.0" },
+    { name = "ty", specifier = ">=0.0.5" },
+]
 
 [[package]]
 name = "pytest"
