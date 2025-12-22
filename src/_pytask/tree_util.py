@@ -23,6 +23,7 @@ __all__ = [
     "tree_structure",
 ]
 
+assert optree.__file__ is not None
 TREE_UTIL_LIB_DIRECTORY = Path(optree.__file__).parent
 
 

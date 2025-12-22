@@ -115,6 +115,7 @@ class DataCatalog:
         if node is None:
             filename = hashlib.sha256(name.encode()).hexdigest()
             if isinstance(self.default_node, PPathNode):
+                assert self.path is not None
                 self._entries[name] = self.default_node(
                     name=name, path=self.path / f"{filename}.pkl"
                 )

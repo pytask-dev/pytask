@@ -146,7 +146,7 @@ class TeeCaptureIO(CaptureIO):
         self._other = other
         super().__init__()
 
-    def write(self, s: str) -> int:
+    def write(self, s: str, /) -> int:  # ty: ignore[invalid-method-override]
         super().write(s)
         return self._other.write(s)
 
@@ -209,7 +209,7 @@ class DontReadFromInput(TextIO):
         msg = "Cannot truncate stdin."
         raise UnsupportedOperation(msg)
 
-    def write(self, data: str) -> int:  # noqa: ARG002
+    def write(self, data: str, /) -> int:  # noqa: ARG002  # ty: ignore[invalid-method-override]
         msg = "Cannot write to stdin."
         raise UnsupportedOperation(msg)
 
