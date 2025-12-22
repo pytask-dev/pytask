@@ -11,6 +11,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   default pickle protocol.
 - {pull}`???` adapts the interactive debugger integration to Python 3.14's
   updated `pdb` behaviour and keeps pytest-style capturing intact.
+- {pull}`734` migrates from mypy to ty for type checking.
 
 ## 0.5.7 - 2025-11-22
 
