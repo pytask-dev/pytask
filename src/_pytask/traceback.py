@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from dataclasses import field
 from pathlib import Path
 from types import TracebackType
 from typing import TYPE_CHECKING
 from typing import ClassVar
 
 import pluggy
-from attrs import define
-from attrs import field
 from rich.traceback import Traceback as RichTraceback
 
 import _pytask
@@ -41,10 +41,10 @@ ExceptionInfo: TypeAlias = tuple[
 OptionalExceptionInfo: TypeAlias = ExceptionInfo | tuple[None, None, None]
 
 
-@define
+@dataclass
 class Traceback:
     exc_info: OptionalExceptionInfo
-    show_locals: bool = field()
+    show_locals: bool = field(default_factory=lambda: Traceback._show_locals)
 
     _show_locals: ClassVar[bool] = False
     suppress: ClassVar[tuple[Path, ...]] = (
@@ -52,10 +52,6 @@ class Traceback:
         _PYTASK_DIRECTORY,
         TREE_UTIL_LIB_DIRECTORY,
     )
-
-    @show_locals.default
-    def _show_locals_default(self) -> bool:
-        return self._show_locals
 
     def __rich_console__(
         self, console: Console, console_options: ConsoleOptions
