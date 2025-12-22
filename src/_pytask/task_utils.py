@@ -188,7 +188,7 @@ def _parse_name(func: Callable[..., Any], name: str | None) -> str:
         func = func.func
 
     if hasattr(func, "__name__"):
-        return func.__name__
+        return str(func.__name__)
 
     msg = "Cannot infer name for task function."
     raise NotImplementedError(msg)

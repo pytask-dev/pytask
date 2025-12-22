@@ -183,9 +183,10 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
 
         session = Session.from_config(config)
 
-    except (ConfigurationError, Exception):  # noqa: BLE001  # pragma: no cover
+    except (ConfigurationError, Exception) as e:  # pragma: no cover
         console.print_exception()
-        session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
+        msg = "Failed to configure session for dag."
+        raise ConfigurationError(msg) from e
 
     else:
         session.hook.pytask_log_session_header(session=session)

@@ -67,7 +67,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 
 
 @hookspec(firstresult=True)
-def pytask_configure(pm: PluginManager, raw_config: dict[str, Any]) -> dict[str, Any]:
+def pytask_configure(pm: PluginManager, raw_config: dict[str, Any]) -> dict[str, Any]:  # type: ignore[invalid-return-type]
     """Configure pytask.
 
     The main hook implementation which controls the configuration and calls subordinated
@@ -117,7 +117,7 @@ def pytask_collect(session: Session) -> Any:
 
 
 @hookspec(firstresult=True)
-def pytask_ignore_collect(path: Path, config: dict[str, Any]) -> bool:
+def pytask_ignore_collect(path: Path, config: dict[str, Any]) -> bool:  # type: ignore[invalid-return-type]
     """Ignore collected path.
 
     This hook is indicates for each directory and file whether it should be ignored.
@@ -138,7 +138,7 @@ def pytask_collect_modify_tasks(session: Session, tasks: list[PTask]) -> None:
 @hookspec(firstresult=True)
 def pytask_collect_file_protocol(
     session: Session, path: Path, reports: list[CollectionReport]
-) -> list[CollectionReport]:
+) -> list[CollectionReport]:  # type: ignore[invalid-return-type]
     """Start protocol to collect files.
 
     The protocol calls the subordinate hook :func:`pytask_collect_file` which might
@@ -166,7 +166,7 @@ def pytask_collect_file_log(session: Session, reports: list[CollectionReport]) -
 @hookspec(firstresult=True)
 def pytask_collect_task_protocol(
     session: Session, path: Path | None, name: str, obj: Any
-) -> CollectionReport | None:
+) -> CollectionReport | None:  # type: ignore[invalid-return-type]
     """Start protocol to collect tasks."""
 
 
@@ -180,7 +180,7 @@ def pytask_collect_task_setup(
 @hookspec(firstresult=True)
 def pytask_collect_task(
     session: Session, path: Path | None, name: str, obj: Any
-) -> PTask:
+) -> PTask:  # type: ignore[invalid-return-type]
     """Collect a single task."""
 
 
@@ -196,14 +196,14 @@ def pytask_collect_task_teardown(session: Session, task: PTask) -> None:
 @hookspec(firstresult=True)
 def pytask_collect_node(
     session: Session, path: Path, node_info: NodeInfo
-) -> PNode | PProvisionalNode | None:
+) -> PNode | PProvisionalNode | None:  # type: ignore[invalid-return-type]
     """Collect a node which is a dependency or a product of a task."""
 
 
 @hookspec(firstresult=True)
 def pytask_collect_log(
     session: Session, reports: list[CollectionReport], tasks: list[PTask]
-) -> None:
+) -> None:  # type: ignore[invalid-return-type]
     """Log errors occurring during the collection.
 
     This hook reports errors during the collection.
@@ -243,7 +243,7 @@ def pytask_execute_build(session: Session) -> Any:
 
 
 @hookspec(firstresult=True)
-def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionReport:
+def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionReport:  # type: ignore[invalid-return-type]
     """Run the protocol for executing a test.
 
     This hook runs all stages of the execution process, setup, execution, and teardown
