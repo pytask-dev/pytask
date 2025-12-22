@@ -28,7 +28,6 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@v3
       - run: just typing
-      - run: just typing-nb
 
   run-tests:
 

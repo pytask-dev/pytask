@@ -76,7 +76,7 @@ test = [
     "coiled>=1.42.0",
     "cloudpickle>=3.0.0",
 ]
-typing = ["mypy>=1.11.0", "nbqa>=1.8.5"]
+typing = ["ty>=0.0.5"]
 
 [project.urls]
 Changelog = "https://pytask-dev.readthedocs.io/en/stable/changes.html"
@@ -167,33 +167,11 @@ filterwarnings = [
     "ignore:The --rsyncdir command line argument:DeprecationWarning",
 ]
 
-[tool.mypy]
-files = ["src", "tests"]
-check_untyped_defs = true
-disallow_any_generics = true
-disallow_incomplete_defs = true
-disallow_untyped_defs = true
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-disable_error_code = ["import-untyped"]
+[tool.ty.src]
+exclude = ["src/_pytask/_hashlib.py"]
 
-[[tool.mypy.overrides]]
-module = "tests.*"
-disallow_untyped_defs = false
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = ["click_default_group", "networkx"]
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = ["_pytask.coiled_utils"]
-disable_error_code = ["import-not-found"]
-
-[[tool.mypy.overrides]]
-module = ["_pytask.hookspecs"]
-disable_error_code = ["empty-body"]
+[tool.ty.terminal]
+error-on-warning = true
 
 [tool.coverage.report]
 exclude_also = [
