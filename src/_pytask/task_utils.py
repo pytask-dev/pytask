@@ -18,6 +18,7 @@ from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
 from _pytask.shared import unwrap_task_function
+from _pytask.typing import TaskFunction
 from _pytask.typing import is_task_function
 
 if TYPE_CHECKING:
@@ -143,7 +144,7 @@ def task(  # noqa: PLR0913
         parsed_name = _parse_name(unwrapped, name)
         parsed_after = _parse_after(after)
 
-        if hasattr(unwrapped, "pytask_meta"):
+        if isinstance(unwrapped, TaskFunction):
             unwrapped.pytask_meta.after = parsed_after
             unwrapped.pytask_meta.is_generator = is_generator
             unwrapped.pytask_meta.id_ = id
@@ -163,7 +164,7 @@ def task(  # noqa: PLR0913
                 produces=produces,
             )
 
-        if coiled_kwargs and hasattr(unwrapped, "pytask_meta"):
+        if coiled_kwargs and isinstance(unwrapped, TaskFunction):
             unwrapped.pytask_meta.attributes["coiled_kwargs"] = coiled_kwargs
 
         # Store it in the global variable ``COLLECTED_TASKS`` to avoid garbage
@@ -206,7 +207,7 @@ def _parse_after(
     if isinstance(after, list):
         new_after = []
         for func in after:
-            if not hasattr(func, "pytask_meta"):
+            if not isinstance(func, TaskFunction):
                 func = task()(func)  # noqa: PLW2901
             new_after.append(func.pytask_meta._id)  # type: ignore[attr-defined]
         return new_after

@@ -21,6 +21,7 @@ from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map_with_path
 from _pytask.typing import ProductType
+from _pytask.typing import TaskFunction
 from _pytask.typing import no_default
 
 if TYPE_CHECKING:
@@ -57,7 +58,7 @@ def parse_dependencies_from_task_function(
     """Parse dependencies from task function."""
     dependencies = {}
 
-    task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
+    task_kwargs = obj.pytask_meta.kwargs if isinstance(obj, TaskFunction) else {}
     signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
     kwargs = {**signature_defaults, **task_kwargs}
     kwargs.pop("produces", None)
@@ -174,7 +175,7 @@ def parse_products_from_task_function(
 
     out: dict[str, Any] = {}
 
-    task_kwargs = obj.pytask_meta.kwargs if hasattr(obj, "pytask_meta") else {}
+    task_kwargs = obj.pytask_meta.kwargs if isinstance(obj, TaskFunction) else {}
     signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
     kwargs = {**signature_defaults, **task_kwargs}
 
@@ -226,7 +227,7 @@ def parse_products_from_task_function(
             )
             out[parameter_name] = collected_products
 
-    task_produces = obj.pytask_meta.produces if hasattr(obj, "pytask_meta") else None
+    task_produces = obj.pytask_meta.produces if isinstance(obj, TaskFunction) else None
     if task_produces:
         has_task_decorator = True
         collected_products = _collect_nodes_and_provisional_nodes(
