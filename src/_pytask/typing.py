@@ -30,10 +30,14 @@ __all__ = [
 
 @runtime_checkable
 class TaskFunction(Protocol):
-    """Protocol for functions decorated with @task that have pytask_meta attached."""
+    """Protocol for callables decorated with @task that have pytask_meta attached.
+
+    Note: This includes regular functions, functools.partial objects, and any other
+    callable that has been decorated with @task and has pytask_meta attached.
+    We don't require __name__ to support functools.partial.
+    """
 
     pytask_meta: CollectionMetadata
-    __name__: str
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Call the task function."""
