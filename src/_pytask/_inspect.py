@@ -73,11 +73,14 @@ def get_annotations(
 def _build_evaluation_locals(
     obj: Callable[..., Any], provided_locals: dict[str, Any] | None
 ) -> dict[str, Any]:
+    # Order matters: later updates override earlier ones.
+    # Default arguments are lowest priority (fallbacks), then provided_locals,
+    # then snapshot_locals (captured loop variables) have highest priority.
     evaluation_locals: dict[str, Any] = {}
+    evaluation_locals.update(_get_default_argument_locals(obj))
     if provided_locals:
         evaluation_locals.update(provided_locals)
     evaluation_locals.update(_get_snapshot_locals(obj))
-    evaluation_locals.update(_get_default_argument_locals(obj))
     return evaluation_locals
 
 
@@ -95,7 +98,7 @@ def _get_default_argument_locals(obj: Callable[..., Any]) -> dict[str, Any]:
 
     defaults = {}
     for parameter in parameters:
-        if parameter.default is not inspect._empty:
+        if parameter.default is not inspect.Parameter.empty:
             defaults[parameter.name] = parameter.default
     return defaults
 

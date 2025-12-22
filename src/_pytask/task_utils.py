@@ -44,7 +44,7 @@ dictionary mapping from paths of modules to a list of tasks per module.
 """
 
 
-def task(  # noqa: PLR0913, C901
+def task(  # noqa: PLR0913
     name: str | None = None,
     *,
     after: str | Callable[..., Any] | list[Callable[..., Any]] | None = None,
@@ -73,29 +73,17 @@ def task(  # noqa: PLR0913, C901
     is_generator
         An indicator whether this task is a task generator.
     id
-        An id for the task if it is part of a parametrization. Otherwise, an automatic
-        id will be generated. See
-        :doc:`this tutorial <../tutorials/repeating_tasks_with_different_inputs>` for
-        more information.
-    kwargs
-        A dictionary containing keyword arguments which are passed to the task when it
-        is executed.
-    produces
-        Definition of products to parse the function returns and store them. See
-        :doc:`this how-to guide <../how_to_guides/using_task_returns>` for more
-    id
         An id for the task if it is part of a repetition. Otherwise, an automatic id
         will be generated. See :ref:`how-to-repeat-a-task-with-different-inputs-the-id`
         for more information.
     kwargs
-        Use a dictionary to pass any keyword arguments to the task function which can be
-        dependencies or products of the task. Read :ref:`task-kwargs` for more
-        information.
-    produces
-        Use this argument if you want to parse the return of the task function as a
-        product, but you cannot annotate the return of the function. See :doc:`this
-        how-to guide <../how_to_guides/using_task_returns>` or :ref:`task-produces` for
+        A dictionary containing keyword arguments which are passed to the task function.
+        These can be dependencies or products of the task. Read :ref:`task-kwargs` for
         more information.
+    produces
+        Use this argument to parse the return of the task function as a product. See
+        :doc:`this how-to guide <../how_to_guides/using_task_returns>` or
+        :ref:`task-produces` for more information.
 
     Examples
     --------
@@ -150,8 +138,6 @@ def task(  # noqa: PLR0913, C901
         parsed_name = _parse_name(unwrapped, name)
         parsed_after = _parse_after(after)
 
-        annotation_locals = _snapshot_annotation_locals(_caller_locals)
-
         if hasattr(unwrapped, "pytask_meta"):
             unwrapped.pytask_meta.after = parsed_after
             unwrapped.pytask_meta.is_generator = is_generator
@@ -160,11 +146,11 @@ def task(  # noqa: PLR0913, C901
             unwrapped.pytask_meta.markers.append(Mark("task", (), {}))
             unwrapped.pytask_meta.name = parsed_name
             unwrapped.pytask_meta.produces = produces
-            unwrapped.pytask_meta.after = parsed_after
+            unwrapped.pytask_meta.annotation_locals = _caller_locals
         else:
             unwrapped.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]
                 after=parsed_after,
-                annotation_locals=annotation_locals,
+                annotation_locals=_caller_locals,
                 is_generator=is_generator,
                 id_=id,
                 kwargs=parsed_kwargs,
@@ -172,9 +158,6 @@ def task(  # noqa: PLR0913, C901
                 name=parsed_name,
                 produces=produces,
             )
-
-        if annotation_locals is not None and hasattr(unwrapped, "pytask_meta"):
-            unwrapped.pytask_meta.annotation_locals = annotation_locals
 
         if coiled_kwargs and hasattr(unwrapped, "pytask_meta"):
             unwrapped.pytask_meta.attributes["coiled_kwargs"] = coiled_kwargs
@@ -312,22 +295,6 @@ def parse_keyword_arguments_from_signature_defaults(
         if parameter.default is not parameter.empty:
             kwargs[parameter.name] = parameter.default
     return kwargs
-
-
-def _snapshot_annotation_locals(
-    caller_locals: dict[str, Any] | None,
-) -> dict[str, Any] | None:
-    """Capture caller's frame locals at decoration time for deferred annotation eval.
-
-    This function captures variables that may be referenced in type annotations but
-    won't be available when annotations are evaluated later (e.g., loop variables in
-    task generators under Python 3.14's PEP 649 deferred annotations).
-
-    We capture the caller's frame locals - variables in the scope where @task is
-    applied (e.g., loop variables like `path` that are only referenced in annotations).
-
-    """
-    return caller_locals.copy() if caller_locals else None
 
 
 def _generate_ids_for_tasks(
