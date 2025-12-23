@@ -36,7 +36,9 @@ def test_cache_add():
     def func(a):
         return a
 
-    prefix = f"{func.__module__}.{func.__name__}:"
+    func_module = getattr(func, "__module__", "")
+    func_name = getattr(func, "__name__", "")
+    prefix = f"{func_module}.{func_name}:"
     argspec = inspect.getfullargspec(func)
     key = _make_memoize_key((1,), {}, typed=False, argspec=argspec, prefix=prefix)
     cache.add(key, 1)
