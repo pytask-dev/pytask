@@ -8,6 +8,7 @@ from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 
 from rich.console import Console
 from rich.console import RenderableType
@@ -223,14 +224,18 @@ def get_file(  # noqa: PLR0911
     if hasattr(function, "__wrapped__"):
         source_file = inspect.getsourcefile(function)
         if source_file and Path(source_file) in skipped_paths:
-            return get_file(function.__wrapped__)
+            wrapped = cast("Callable[..., Any]", function.__wrapped__)
+            return get_file(wrapped)
     source_file = inspect.getsourcefile(function)
     if source_file:  # pragma: no cover
         if "<stdin>" in source_file or "ipykernel" in source_file:
             return None
         if "<string>" in source_file:
             try:
-                return Path(function.__globals__["__file__"]).absolute().resolve()
+                globals_dict = cast(
+                    "dict[str, Any]", getattr(function, "__globals__", {})
+                )
+                return Path(globals_dict["__file__"]).absolute().resolve()
             except KeyError:
                 return None
         return Path(source_file).absolute().resolve()
@@ -242,7 +247,8 @@ def _get_source_lines(function: Callable[..., Any]) -> int:
     if isinstance(function, functools.partial):
         return _get_source_lines(function.func)
     if hasattr(function, "__wrapped__"):
-        return _get_source_lines(function.__wrapped__)
+        wrapped = cast("Callable[..., Any]", function.__wrapped__)
+        return _get_source_lines(wrapped)
     return inspect.getsourcelines(function)[1]
 
 

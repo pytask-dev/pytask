@@ -74,6 +74,7 @@ from _pytask.session import Session
 from _pytask.task_utils import task
 from _pytask.traceback import Traceback
 from _pytask.typing import Product
+from _pytask.typing import TaskFunction
 from _pytask.typing import is_task_function
 from _pytask.warnings_utils import WarningReport
 from _pytask.warnings_utils import parse_warning_filter
@@ -131,6 +132,7 @@ __all__ = [
     "State",
     "Task",
     "TaskExecutionStatus",
+    "TaskFunction",
     "TaskOutcome",
     "TaskWithoutPath",
     "Traceback",

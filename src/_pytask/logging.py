@@ -137,7 +137,7 @@ def _format_duration(duration: float) -> str:
             i for i in duration_tuples if i[1] not in ("second", "seconds")
         ]
 
-    return ", ".join([" ".join(map(str, i)) for i in duration_tuples])
+    return ", ".join([" ".join(str(x) for x in i) for i in duration_tuples])
 
 
 def _humanize_time(  # noqa: C901, PLR0912

@@ -556,7 +556,7 @@ class TestFDCapture:
             # Should not crash with missing "_old".
             assert repr(cap.syscapture) == (
                 "<SysCapture stdout _old=<UNSET> _state='done' tmpfile={!r}>".format(  # noqa: UP032
-                    cap.syscapture.tmpfile
+                    cap.syscapture.tmpfile  # type: ignore[union-attr]
                 )
             )
 

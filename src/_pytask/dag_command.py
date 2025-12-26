@@ -6,6 +6,7 @@ import enum
 import sys
 from pathlib import Path
 from typing import Any
+from typing import cast
 
 import click
 import networkx as nx
@@ -153,12 +154,24 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
             # Add defaults from cli.
             from _pytask.cli import DEFAULTS_FROM_CLI  # noqa: PLC0415
 
-            raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
+            raw_config = {**DEFAULTS_FROM_CLI, **raw_config}  # ty: ignore[invalid-assignment]
 
-            raw_config["paths"] = parse_paths(raw_config["paths"])
+            paths_value = raw_config["paths"]
+            # Convert tuple to list since parse_paths expects Path | list[Path]
+            if isinstance(paths_value, tuple):
+                paths_value = list(paths_value)
+            if not isinstance(paths_value, (Path, list)):
+                msg = f"paths must be Path or list, got {type(paths_value)}"
+                raise TypeError(msg)  # noqa: TRY301
+            # Cast is justified - we validated at runtime
+            raw_config["paths"] = parse_paths(cast("Path | list[Path]", paths_value))
 
             if raw_config["config"] is not None:
-                raw_config["config"] = Path(raw_config["config"]).resolve()
+                config_value = raw_config["config"]
+                if not isinstance(config_value, (str, Path)):
+                    msg = f"config must be str or Path, got {type(config_value)}"
+                    raise TypeError(msg)  # noqa: TRY301
+                raw_config["config"] = Path(config_value).resolve()
                 raw_config["root"] = raw_config["config"].parent
             else:
                 (
@@ -183,9 +196,10 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
 
         session = Session.from_config(config)
 
-    except (ConfigurationError, Exception):  # noqa: BLE001  # pragma: no cover
+    except (ConfigurationError, Exception) as e:  # pragma: no cover
         console.print_exception()
-        session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
+        msg = "Failed to configure session for dag."
+        raise ConfigurationError(msg) from e
 
     else:
         session.hook.pytask_log_session_header(session=session)

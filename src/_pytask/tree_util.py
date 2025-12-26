@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import functools
 from pathlib import Path
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import TypeVar
 
 import optree
-from optree import PyTree
 from optree import tree_flatten_with_path as _optree_tree_flatten_with_path
 from optree import tree_leaves as _optree_tree_leaves
 from optree import tree_map as _optree_tree_map
@@ -23,6 +25,20 @@ __all__ = [
     "tree_structure",
 ]
 
+_T = TypeVar("_T")
+
+if TYPE_CHECKING:
+    # Use our own recursive type alias for static type checking.
+    # optree's PyTree uses __class_getitem__ to generate Union types at runtime,
+    # but type checkers like ty cannot evaluate these dynamic types properly.
+    # See: https://github.com/metaopt/optree/issues/251
+    PyTree = (
+        _T | tuple["PyTree[_T]", ...] | list["PyTree[_T]"] | dict[Any, "PyTree[_T]"]
+    )
+else:
+    from optree import PyTree
+
+assert optree.__file__ is not None
 TREE_UTIL_LIB_DIRECTORY = Path(optree.__file__).parent
 
 

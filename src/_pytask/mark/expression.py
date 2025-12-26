@@ -180,7 +180,7 @@ def not_expr(s: Scanner) -> ast.expr:
     if ident:
         return ast.Name(IDENT_PREFIX + ident.value, ast.Load())
     s.reject((TokenType.NOT, TokenType.LPAREN, TokenType.IDENT))
-    return None
+    return None  # ty: ignore[invalid-return-type]  # Unreachable: reject() raises
 
 
 class MatcherAdapter(Mapping[str, bool]):

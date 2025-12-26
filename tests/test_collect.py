@@ -143,7 +143,7 @@ def test_error_with_invalid_file_name_pattern(runner, tmp_path):
 
 
 def test_error_with_invalid_file_name_pattern_(tmp_path):
-    session = build(paths=tmp_path, task_files=[1])
+    session = build(paths=tmp_path, task_files=[1])  # type: ignore[arg-type]
     assert session.exit_code == ExitCode.CONFIGURATION_FAILED
 
 
@@ -248,7 +248,9 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
 
     for base_name in ("base_name_ident_0", "base_name_ident_1"):
         task = Task(
-            base_name=base_name, path=path_identifiable_by_base_name, function=None
+            base_name=base_name,
+            path=path_identifiable_by_base_name,
+            function=None,  # type: ignore[arg-type]
         )
         tasks.append(task)
         expected[task.name] = "t.py::" + base_name
@@ -258,7 +260,7 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
 
     for module in ("t.py", "m.py"):
         module_path = dir_identifiable_by_module_name / module
-        task = Task(base_name="task_a", path=module_path, function=None)
+        task = Task(base_name="task_a", path=module_path, function=None)  # type: ignore[arg-type]
         tasks.append(task)
         expected[task.name] = module + "::task_a"
 
@@ -270,7 +272,7 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
 
     for base_path in (dir_identifiable_by_folder_a, dir_identifiable_by_folder_b):
         module_path = base_path / "t.py"
-        task = Task(base_name="task_t", path=module_path, function=None)
+        task = Task(base_name="task_t", path=module_path, function=None)  # type: ignore[arg-type]
         tasks.append(task)
         expected[task.name] = base_path.name + "/t.py::task_t"
 
@@ -308,7 +310,8 @@ def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
         for report in session.collection_reports
     )
     assert {
-        report.node.function.__module__ for report in session.collection_reports
+        report.node.function.__module__  # type: ignore[union-attr]
+        for report in session.collection_reports
     } == {"a.task_module", "b.task_module"}
 
 

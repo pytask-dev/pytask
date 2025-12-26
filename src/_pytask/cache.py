@@ -8,6 +8,9 @@ import inspect
 from inspect import FullArgSpec
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import ParamSpec
+from typing import Protocol
+from typing import TypeVar
 
 from attrs import define
 from attrs import field
@@ -16,6 +19,23 @@ from _pytask._hashlib import hash_value
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+class MemoizedCallable(Protocol[P, R]):
+    """A callable that has been memoized and has a cache attribute.
+
+    Note: We intentionally don't include __name__ or __module__ in the protocol
+    because not all callables have these attributes (e.g., functools.partial).
+    """
+
+    cache: Cache
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> R:
+        """Call the memoized function."""
+        ...
 
 
 @define
@@ -30,12 +50,14 @@ class Cache:
     _sentinel: Any = field(factory=object)
     cache_info: CacheInfo = field(factory=CacheInfo)
 
-    def memoize(self, func: Callable[..., Any]) -> Callable[..., Any]:
-        prefix = f"{func.__module__}.{func.__name__}:"
+    def memoize(self, func: Callable[P, R]) -> MemoizedCallable[P, R]:
+        func_module = getattr(func, "__module__", "")
+        func_name = getattr(func, "__name__", "")
+        prefix = f"{func_module}.{func_name}:"
         argspec = inspect.getfullargspec(func)
 
         @functools.wraps(func)
-        def wrapped(*args: Any, **kwargs: Any) -> Callable[..., Any]:
+        def wrapped(*args: P.args, **kwargs: P.kwargs) -> R:
             key = _make_memoize_key(
                 args, kwargs, typed=False, argspec=argspec, prefix=prefix
             )
@@ -51,8 +73,7 @@ class Cache:
             return value
 
         wrapped.cache = self  # type: ignore[attr-defined]
-
-        return wrapped
+        return wrapped  # type: ignore[return-value]
 
     def add(self, key: str, value: Any) -> None:
         self._cache[key] = value

@@ -11,6 +11,7 @@ from typing import Any
 
 from _pytask.models import CollectionMetadata
 from _pytask.node_protocols import PTask
+from _pytask.typing import TaskFunction
 
 if TYPE_CHECKING:
     from _pytask.mark import Mark
@@ -21,14 +22,14 @@ def get_all_marks(obj_or_task: Any | PTask) -> list[Mark]:
     if isinstance(obj_or_task, PTask):
         return obj_or_task.markers
     obj = obj_or_task
-    return obj.pytask_meta.markers if hasattr(obj, "pytask_meta") else []
+    return obj.pytask_meta.markers if isinstance(obj, TaskFunction) else []
 
 
 def set_marks(obj_or_task: Any | PTask, marks: list[Mark]) -> Any | PTask:
     """Set marks on a callable or task."""
     if isinstance(obj_or_task, PTask):
         obj_or_task.markers = marks
-    elif hasattr(obj_or_task, "pytask_meta"):
+    elif isinstance(obj_or_task, TaskFunction):
         obj_or_task.pytask_meta.markers = marks
     else:
         obj_or_task.pytask_meta = CollectionMetadata(markers=marks)

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Literal
+from typing import cast
 
 import click
 
@@ -65,7 +66,7 @@ def pytask_unconfigure(session: Session) -> None:
     path.write_text(json.dumps(HashPathCache._cache))
 
 
-def build(  # noqa: C901, PLR0912, PLR0913
+def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
     *,
     capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.FD,
     check_casing_of_paths: bool = True,
@@ -230,10 +231,22 @@ def build(  # noqa: C901, PLR0912, PLR0913
 
             raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
 
-            raw_config["paths"] = parse_paths(raw_config["paths"])
+            paths_value = raw_config["paths"]
+            # Convert tuple to list since parse_paths expects Path | list[Path]
+            if isinstance(paths_value, tuple):
+                paths_value = list(paths_value)
+            if not isinstance(paths_value, (Path, list)):
+                msg = f"paths must be Path or list, got {type(paths_value)}"
+                raise TypeError(msg)  # noqa: TRY301
+            # Cast is justified - we validated at runtime
+            raw_config["paths"] = parse_paths(cast("Path | list[Path]", paths_value))
 
             if raw_config["config"] is not None:
-                raw_config["config"] = Path(raw_config["config"]).resolve()
+                config_value = raw_config["config"]
+                if not isinstance(config_value, (str, Path)):
+                    msg = f"config must be str or Path, got {type(config_value)}"
+                    raise TypeError(msg)  # noqa: TRY301
+                raw_config["config"] = Path(config_value).resolve()
                 raw_config["root"] = raw_config["config"].parent
             else:
                 (
