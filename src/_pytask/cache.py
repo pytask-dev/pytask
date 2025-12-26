@@ -25,7 +25,11 @@ R = TypeVar("R")
 
 
 class MemoizedCallable(Protocol[P, R]):
-    """A callable that has been memoized and has a cache attribute."""
+    """A callable that has been memoized and has a cache attribute.
+
+    Note: We intentionally don't include __name__ or __module__ in the protocol
+    because not all callables have these attributes (e.g., functools.partial).
+    """
 
     cache: Cache
 
@@ -69,7 +73,6 @@ class Cache:
             return value
 
         wrapped.cache = self  # type: ignore[attr-defined]
-
         return wrapped  # type: ignore[return-value]
 
     def add(self, key: str, value: Any) -> None:
