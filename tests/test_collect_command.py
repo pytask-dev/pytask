@@ -306,7 +306,7 @@ def test_collect_task_with_ignore_from_cli(runner, tmp_path):
 
 @define
 class Node:
-    path: Path
+    path: str
 
     def state(self): ...
 
@@ -321,8 +321,8 @@ def test_print_collected_tasks_without_nodes(capsys):
                 base_name="function",
                 path=Path("task_path.py"),
                 function=function,
-                depends_on={"depends_on": Node("in.txt")},  # type: ignore[arg-type]
-                produces={"produces": Node("out.txt")},  # type: ignore[arg-type]
+                depends_on={"depends_on": Node("in.txt")},
+                produces={"produces": Node("out.txt")},
             )
         ]
     }
@@ -343,8 +343,8 @@ def test_print_collected_tasks_with_nodes(capsys):
                 base_name="function",
                 path=Path("task_path.py"),
                 function=function,
-                depends_on={"depends_on": PathNode(name="in.txt", path=Path("in.txt"))},  # type: ignore[arg-type]
-                produces={"produces": PathNode(name="out.txt", path=Path("out.txt"))},  # type: ignore[arg-type]
+                depends_on={"depends_on": PathNode(name="in.txt", path=Path("in.txt"))},
+                produces={"produces": PathNode(name="out.txt", path=Path("out.txt"))},
             )
         ]
     }
@@ -366,10 +366,10 @@ def test_find_common_ancestor_of_all_nodes(show_nodes, expected_add):
             base_name="function",
             path=Path.cwd() / "src" / "task_path.py",
             function=function,
-            depends_on={  # type: ignore[arg-type]
+            depends_on={
                 "depends_on": PathNode.from_path(Path.cwd() / "src" / "in.txt")
             },
-            produces={  # type: ignore[arg-type]
+            produces={
                 "produces": PathNode.from_path(
                     Path.cwd().joinpath("..", "bld", "out.txt").resolve()
                 )
