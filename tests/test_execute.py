@@ -49,7 +49,9 @@ def test_task_did_not_produce_node(tmp_path):
 
     assert session.exit_code == ExitCode.FAILED
     assert len(session.execution_reports) == 1
-    assert isinstance(session.execution_reports[0].exc_info[1], NodeNotFoundError)  # type: ignore[index]
+    exc_info = session.execution_reports[0].exc_info
+    assert exc_info is not None
+    assert isinstance(exc_info[1], NodeNotFoundError)
 
 
 def test_task_did_not_produce_multiple_nodes_and_all_are_shown(runner, tmp_path):
@@ -116,7 +118,9 @@ def test_node_not_found_in_task_setup(tmp_path):
 
     report = session.execution_reports[2]
     assert report.outcome == TaskOutcome.FAIL
-    assert isinstance(report.exc_info[1], NodeNotFoundError)  # type: ignore[index]
+    exc_info = report.exc_info
+    assert exc_info is not None
+    assert isinstance(exc_info[1], NodeNotFoundError)
 
 
 def test_depends_on_and_produces_can_be_used_in_task(tmp_path):

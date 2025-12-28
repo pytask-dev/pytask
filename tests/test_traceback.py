@@ -53,8 +53,8 @@ def test_render_traceback_with_string_traceback():
 
 def test_passing_show_locals():
     traceback = Traceback(
-        (Exception, Exception("Help"), "String traceback."),
-        show_locals=True,  # type: ignore[arg-type]
+        (Exception, Exception("Help"), "String traceback."),  # type: ignore[arg-type]
+        show_locals=True,
     )
     assert traceback.show_locals is True
     # Also tests that the class variable has been reset.

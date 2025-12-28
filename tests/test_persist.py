@@ -62,7 +62,9 @@ def test_multiple_runs_with_persist(tmp_path):
     assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1
     assert session.execution_reports[0].outcome == TaskOutcome.PERSISTENCE
-    assert isinstance(session.execution_reports[0].exc_info[1], Persisted)  # type: ignore[index]
+    exc_info = session.execution_reports[0].exc_info
+    assert exc_info is not None
+    assert isinstance(exc_info[1], Persisted)
 
     create_database(
         "sqlite:///" + tmp_path.joinpath(".pytask", "pytask.sqlite3").as_posix()
@@ -81,7 +83,9 @@ def test_multiple_runs_with_persist(tmp_path):
     assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1
     assert session.execution_reports[0].outcome == TaskOutcome.SKIP_UNCHANGED
-    assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)  # type: ignore[index]
+    exc_info2 = session.execution_reports[0].exc_info
+    assert exc_info2 is not None
+    assert isinstance(exc_info2[1], SkippedUnchanged)
 
 
 def test_migrating_a_whole_task_with_persist(tmp_path):
@@ -104,7 +108,9 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
     assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1
     assert session.execution_reports[0].outcome == TaskOutcome.PERSISTENCE
-    assert isinstance(session.execution_reports[0].exc_info[1], Persisted)  # type: ignore[index]
+    exc_info = session.execution_reports[0].exc_info
+    assert exc_info is not None
+    assert isinstance(exc_info[1], Persisted)
 
 
 @pytest.mark.parametrize(

@@ -438,7 +438,9 @@ def test_raise_error_if_parametrization_produces_non_unique_tasks(tmp_path):
     session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.COLLECTION_FAILED
-    assert isinstance(session.collection_reports[0].exc_info[1], ValueError)  # type: ignore[index]
+    exc_info = session.collection_reports[0].exc_info
+    assert exc_info is not None
+    assert isinstance(exc_info[1], ValueError)
 
 
 def test_task_receives_unknown_kwarg(runner, tmp_path):
