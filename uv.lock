@@ -2672,7 +2672,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "coiled" },
-    { name = "pygraphviz", marker = "sys_platform == 'linux'" },
+    { name = "pygraphviz", marker = "sys_platform != 'win32'" },
 ]
 docs = [
     { name = "furo" },
@@ -2731,7 +2731,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "coiled", specifier = ">=1.42.0" },
-    { name = "pygraphviz", marker = "sys_platform == 'linux'", specifier = ">=1.12" },
+    { name = "pygraphviz", marker = "sys_platform != 'win32'", specifier = ">=1.12" },
 ]
 docs = [
     { name = "furo", specifier = ">=2024.8.6" },
