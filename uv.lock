@@ -2687,10 +2687,6 @@ docs = [
     { name = "sphinx-toolbox" },
     { name = "sphinxext-opengraph" },
 ]
-optional = [
-    { name = "coiled" },
-    { name = "pygraphviz" },
-]
 plugin-list = [
     { name = "httpx" },
     { name = "tabulate", extra = ["widechars"] },
@@ -2699,10 +2695,12 @@ plugin-list = [
 test = [
     { name = "aiohttp" },
     { name = "cloudpickle" },
+    { name = "coiled" },
     { name = "deepdiff" },
     { name = "nbmake" },
     { name = "pexpect" },
     { name = "pygments" },
+    { name = "pygraphviz", marker = "sys_platform == 'linux'" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-xdist" },
@@ -2744,10 +2742,6 @@ docs = [
     { name = "sphinx-toolbox", specifier = ">=4.0.0" },
     { name = "sphinxext-opengraph", specifier = ">=0.10.0" },
 ]
-optional = [
-    { name = "coiled", specifier = ">=1.42.0" },
-    { name = "pygraphviz", specifier = ">=1.12" },
-]
 plugin-list = [
     { name = "httpx", specifier = ">=0.27.0" },
     { name = "tabulate", extras = ["widechars"], specifier = ">=0.9.0" },
@@ -2756,10 +2750,12 @@ plugin-list = [
 test = [
     { name = "aiohttp", specifier = ">=3.11.0" },
     { name = "cloudpickle", specifier = ">=3.0.0" },
+    { name = "coiled", specifier = ">=1.42.0" },
     { name = "deepdiff", specifier = ">=7.0.0" },
     { name = "nbmake", specifier = ">=1.5.5" },
     { name = "pexpect", specifier = ">=4.9.0" },
     { name = "pygments", specifier = ">=2.18.0" },
+    { name = "pygraphviz", marker = "sys_platform == 'linux'", specifier = ">=1.12" },
     { name = "pytest", specifier = ">=8.4.0" },
     { name = "pytest-cov", specifier = ">=5.0.0" },
     { name = "pytest-xdist", specifier = ">=3.6.1" },
