@@ -39,10 +39,6 @@ class TaskFunction(Protocol):
 
     pytask_meta: CollectionMetadata
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        """Call the task function."""
-        ...
-
 
 @define(frozen=True)
 class ProductType:
