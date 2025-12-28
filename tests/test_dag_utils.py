@@ -13,6 +13,7 @@ from _pytask.dag_utils import node_and_neighbors
 from _pytask.dag_utils import task_and_descending_tasks
 from pytask import Mark
 from pytask import Task
+from tests.conftest import noop
 
 
 @pytest.fixture
@@ -20,8 +21,8 @@ def dag():
     """Create a dag with five nodes in a line."""
     dag = nx.DiGraph()
     for i in range(4):
-        task = Task(base_name=str(i), path=Path(), function=None)  # type: ignore[arg-type]
-        next_task = Task(base_name=str(i + 1), path=Path(), function=None)  # type: ignore[arg-type]
+        task = Task(base_name=str(i), path=Path(), function=noop)
+        next_task = Task(base_name=str(i + 1), path=Path(), function=noop)
         dag.add_node(task.signature, task=task)
         dag.add_node(next_task.signature, task=next_task)
         dag.add_edge(task.signature, next_task.signature)
@@ -172,8 +173,8 @@ def test_instantiate_sorter_from_other_sorter(dag):
         scheduler.done(task_name)
     assert scheduler._nodes_done == {name_to_sig[name] for name in (".::0", ".::1")}
 
-    task = Task(base_name="5", path=Path(), function=None)  # type: ignore[arg-type]
-    dag.add_node(task.signature, task=Task(base_name="5", path=Path(), function=None))  # type: ignore[arg-type]
+    task = Task(base_name="5", path=Path(), function=noop)
+    dag.add_node(task.signature, task=Task(base_name="5", path=Path(), function=noop))
     dag.add_edge(name_to_sig[".::4"], task.signature)
 
     new_scheduler = TopologicalSorter.from_dag_and_sorter(dag, scheduler)

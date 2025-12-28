@@ -72,9 +72,13 @@ def test_multiple_runs_with_persist(tmp_path):
 
     with DatabaseSession() as db_session:
         task_id = session.tasks[0].signature
-        node_id = session.tasks[0].produces["produces"].signature  # type: ignore[union-attr]
+        produces = session.tasks[0].produces
+        assert produces is not None
+        node_id = produces["produces"].signature  # type: ignore[union-attr]
 
-        hash_ = db_session.get(State, (task_id, node_id)).hash_  # type: ignore[union-attr]
+        state = db_session.get(State, (task_id, node_id))
+        assert state is not None
+        hash_ = state.hash_
         path = tmp_path.joinpath("out.txt")
         assert hash_ == hash_path(path, path.stat().st_mtime)
 

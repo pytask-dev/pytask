@@ -17,10 +17,7 @@ from pytask import Task
 from pytask import TaskOutcome
 from pytask import build
 from pytask import cli
-
-
-class DummyClass:
-    pass
+from tests.conftest import noop
 
 
 def test_skip_unchanged(tmp_path):
@@ -174,6 +171,7 @@ def test_if_skipif_decorator_is_applied_skipping(tmp_path):
 
     session = build(paths=tmp_path)
     node = session.collection_reports[0].node
+    assert node is not None
     assert len(node.markers) == 1  # type: ignore[union-attr]
     assert node.markers[0].name == "skipif"  # type: ignore[union-attr]
     assert node.markers[0].args == ()  # type: ignore[union-attr]
@@ -205,7 +203,7 @@ def test_if_skipif_decorator_is_applied_execute(tmp_path):
 
     session = build(paths=tmp_path)
     node = session.collection_reports[0].node
-
+    assert node is not None
     assert len(node.markers) == 1  # type: ignore[union-attr]
     assert node.markers[0].name == "skipif"  # type: ignore[union-attr]
     assert node.markers[0].args == (False,)  # type: ignore[union-attr]
@@ -234,6 +232,7 @@ def test_if_skipif_decorator_is_applied_any_condition_matches(tmp_path):
 
     session = build(paths=tmp_path)
     node = session.collection_reports[0].node
+    assert node is not None
     assert len(node.markers) == 2  # type: ignore[union-attr]
     assert node.markers[0].name == "skipif"  # type: ignore[union-attr]
     assert node.markers[0].args == ()  # type: ignore[union-attr]
@@ -265,7 +264,7 @@ def test_if_skipif_decorator_is_applied_any_condition_matches(tmp_path):
 )
 def test_pytask_execute_task_setup(marker_name, force, expectation):
     session = Session.from_config({"force": force})
-    task = Task(base_name="task", path=Path(), function=None)  # type: ignore[arg-type]
+    task = Task(base_name="task", path=Path(), function=noop)
     kwargs = {"reason": ""} if marker_name == "skip_ancestor_failed" else {}
     task.markers = [Mark(marker_name, (), kwargs)]
 
