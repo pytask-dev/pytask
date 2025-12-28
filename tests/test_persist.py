@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import textwrap
+from unittest.mock import Mock
 
 import pytest
 
@@ -15,10 +16,6 @@ from pytask import build
 from pytask import create_database
 from pytask.path import hash_path
 from tests.conftest import restore_sys_path_and_module_after_test_execution
-
-
-class DummyClass:
-    pass
 
 
 def test_persist_marker_is_set(tmp_path):
@@ -131,21 +128,14 @@ def test_pytask_execute_task_process_report(monkeypatch, exc_info, expected):
         lambda *x: None,  # noqa: ARG005
     )
 
-    task = DummyClass()
-    task.name = None  # type: ignore[attr-defined]
-    task.signature = "id"  # type: ignore[attr-defined]
-
-    session = DummyClass()
-    session.dag = None  # type: ignore[attr-defined]
-
-    report = DummyClass()
-    report.exc_info = exc_info  # type: ignore[attr-defined]
-    report.task = task  # type: ignore[attr-defined]
+    task = Mock(name=None, signature="id")
+    session = Mock(dag=None)
+    report = Mock(exc_info=exc_info, task=task)
 
     result = pytask_execute_task_process_report(session, report)  # type: ignore[arg-type]
 
     if expected:
-        assert report.outcome == TaskOutcome.PERSISTENCE  # type: ignore[attr-defined]
+        assert report.outcome == TaskOutcome.PERSISTENCE
         assert result is True
     else:
         assert result is None
