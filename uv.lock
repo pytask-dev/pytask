@@ -2671,6 +2671,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "coiled" },
     { name = "pygraphviz", marker = "sys_platform == 'linux'" },
 ]
 docs = [
@@ -2697,6 +2698,7 @@ plugin-list = [
 ]
 test = [
     { name = "aiohttp" },
+    { name = "cloudpickle" },
     { name = "deepdiff" },
     { name = "nbmake" },
     { name = "pexpect" },
@@ -2707,8 +2709,6 @@ test = [
     { name = "syrupy" },
 ]
 typing = [
-    { name = "cloudpickle" },
-    { name = "coiled" },
     { name = "ty" },
 ]
 
@@ -2729,7 +2729,10 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "pygraphviz", marker = "sys_platform == 'linux'", specifier = ">=1.12" }]
+dev = [
+    { name = "coiled", specifier = ">=1.42.0" },
+    { name = "pygraphviz", marker = "sys_platform == 'linux'", specifier = ">=1.12" },
+]
 docs = [
     { name = "furo", specifier = ">=2024.8.6" },
     { name = "ipython", specifier = ">=8.13.2" },
@@ -2752,6 +2755,7 @@ plugin-list = [
 ]
 test = [
     { name = "aiohttp", specifier = ">=3.11.0" },
+    { name = "cloudpickle", specifier = ">=3.0.0" },
     { name = "deepdiff", specifier = ">=7.0.0" },
     { name = "nbmake", specifier = ">=1.5.5" },
     { name = "pexpect", specifier = ">=4.9.0" },
@@ -2761,11 +2765,7 @@ test = [
     { name = "pytest-xdist", specifier = ">=3.6.1" },
     { name = "syrupy", specifier = ">=4.5.0" },
 ]
-typing = [
-    { name = "cloudpickle", specifier = ">=3.0.0" },
-    { name = "coiled", specifier = ">=1.42.0" },
-    { name = "ty", specifier = ">=0.0.5" },
-]
+typing = [{ name = "ty", specifier = ">=0.0.5" }]
 
 [[package]]
 name = "pytest"

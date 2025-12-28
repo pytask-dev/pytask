@@ -16,7 +16,7 @@ test-nb:
 
 # Run type checking
 typing:
-    uv run --group typing --group test ty check src/ tests/
+    uv run --group dev --group typing --group test ty check src/ tests/
 
 # Run linting
 lint:
