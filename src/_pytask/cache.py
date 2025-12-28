@@ -19,19 +19,20 @@ from _pytask._hashlib import hash_value
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from typing import TypeAlias
+
+    from ty_extensions import Intersection
+
+    Memoized: TypeAlias = "Intersection[Callable[P, R], HasCache]"
 
 P = ParamSpec("P")
 R = TypeVar("R")
 
 
-class MemoizedCallable(Protocol[P, R]):
-    """A callable that has been memoized and has a cache attribute."""
+class HasCache(Protocol):
+    """Protocol for objects that have a cache attribute."""
 
     cache: Cache
-
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> R:
-        """Call the memoized function."""
-        ...
 
 
 @define
@@ -46,7 +47,7 @@ class Cache:
     _sentinel: Any = field(factory=object)
     cache_info: CacheInfo = field(factory=CacheInfo)
 
-    def memoize(self, func: Callable[P, R]) -> MemoizedCallable[P, R]:
+    def memoize(self, func: Callable[P, R]) -> Memoized[P, R]:
         func_module = getattr(func, "__module__", "")
         func_name = getattr(func, "__name__", "")
         prefix = f"{func_module}.{func_name}:"
@@ -68,9 +69,9 @@ class Cache:
 
             return value
 
-        wrapped.cache = self  # type: ignore[attr-defined]
+        wrapped.cache = self  # ty: ignore[unresolved-attribute]
 
-        return wrapped  # type: ignore[return-value]
+        return wrapped
 
     def add(self, key: str, value: Any) -> None:
         self._cache[key] = value

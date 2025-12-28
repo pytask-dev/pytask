@@ -121,7 +121,7 @@ class DataCatalog:
                     name=name, path=self.path / f"{filename}.pkl"
                 )
             else:
-                self._entries[name] = self.default_node(name=name)  # type: ignore[call-arg]
+                self._entries[name] = self.default_node(name=name)
             self.path.joinpath(f"{filename}-node.pkl").write_bytes(  # type: ignore[union-attr]
                 pickle.dumps(self._entries[name])
             )

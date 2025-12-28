@@ -37,12 +37,10 @@ __all__ = ["ColoredCommand", "ColoredGroup", "EnumChoice"]
 if importlib.metadata.version("click") < "8.2":
     from click.parser import split_opt
 else:
-    from click.parser import (  # type: ignore[attr-defined, no-redef, unused-ignore, unresolved-import]
-        _split_opt as split_opt,  # ty: ignore[unresolved-import]
-    )
+    from click.parser import _split_opt as split_opt  # ty: ignore[unresolved-import]
 
 
-class EnumChoice(Choice):  # type: ignore[type-arg, unused-ignore]
+class EnumChoice(Choice):
     """An enum-based choice type.
 
     The implementation is copied from https://github.com/pallets/click/pull/2210 and
@@ -75,7 +73,7 @@ class EnumChoice(Choice):  # type: ignore[type-arg, unused-ignore]
 class _OptionHighlighter(RegexHighlighter):
     """A highlighter for help texts."""
 
-    highlights: ClassVar = [  # type: ignore[misc]
+    highlights: ClassVar = [
         r"(?P<switch>\-\w)\b",
         r"(?P<option>\-\-[\w\-]+)",
         r"\-\-[\w\-]+(?P<metavar>[ |=][\w\.:]+)",
@@ -329,7 +327,7 @@ def _format_help_text(  # noqa: C901, PLR0912, PLR0915
         elif param.is_bool_flag and param.secondary_opts:  # type: ignore[attr-defined]
             # For boolean flags that have distinct True/False opts,
             # use the opt without prefix instead of the value.
-            default_string = split_opt(  # type: ignore[operator, unused-ignore]
+            default_string = split_opt(
                 (param.opts if param.default else param.secondary_opts)[0]
             )[1]
         elif (

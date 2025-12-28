@@ -67,13 +67,13 @@ def test_default_values_of_pytask_meta():
     @task()
     def task_example(): ...
 
-    assert task_example.pytask_meta.after == []  # type: ignore[attr-defined]
-    assert not task_example.pytask_meta.is_generator  # type: ignore[attr-defined]
-    assert task_example.pytask_meta.id_ is None  # type: ignore[attr-defined]
-    assert task_example.pytask_meta.kwargs == {}  # type: ignore[attr-defined]
-    assert task_example.pytask_meta.markers == [Mark("task", (), {})]  # type: ignore[attr-defined]
-    assert task_example.pytask_meta.name == "task_example"  # type: ignore[attr-defined]
-    assert task_example.pytask_meta.produces is None  # type: ignore[attr-defined]
+    assert task_example.pytask_meta.after == []
+    assert not task_example.pytask_meta.is_generator
+    assert task_example.pytask_meta.id_ is None
+    assert task_example.pytask_meta.kwargs == {}
+    assert task_example.pytask_meta.markers == [Mark("task", (), {})]
+    assert task_example.pytask_meta.name == "task_example"
+    assert task_example.pytask_meta.produces is None
 
     # Remove collected task.
     COLLECTED_TASKS.pop(Path(__file__))

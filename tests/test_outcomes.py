@@ -11,7 +11,7 @@ from pytask import count_outcomes
 
 @pytest.mark.parametrize("outcome_in_report", CollectionOutcome)
 def test_count_outcomes_collection(outcome_in_report):
-    reports = [CollectionReport(outcome_in_report, None, None)]  # type: ignore[arg-type]
+    reports = [CollectionReport(outcome_in_report, None, None)]
 
     counts = count_outcomes(reports, CollectionOutcome)
 

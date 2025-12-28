@@ -112,7 +112,7 @@ def parse_dependencies_from_task_function(
             )
             dependencies[parameter_name] = PythonNode(value=value, name=node_name)
         else:
-            dependencies[parameter_name] = nodes  # type: ignore[assignment]
+            dependencies[parameter_name] = nodes
     return dependencies
 
 

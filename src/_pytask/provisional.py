@@ -39,9 +39,9 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     Provisional nodes need to be resolved before the same hook in persist.
 
     """
-    task.depends_on = tree_map_with_path(  # type: ignore[assignment]
+    task.depends_on = tree_map_with_path(
         lambda p, x: collect_provisional_nodes(session, task, x, p),
-        task.depends_on,  # type: ignore[arg-type]
+        task.depends_on,
     )
     if task.signature in TASKS_WITH_PROVISIONAL_NODES:
         recreate_dag(session, task)

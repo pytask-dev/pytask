@@ -146,7 +146,7 @@ def simple_module(request, tmp_path: Path) -> Generator[Path, None, None]:
 def test_importmode_importlib(request, simple_module: Path, tmp_path: Path) -> None:
     """`importlib` mode does not change sys.path."""
     module = import_path(simple_module, root=tmp_path)
-    assert module.foo(2) == 42  # type: ignore[attr-defined]
+    assert module.foo(2) == 42
     assert str(simple_module.parent) not in sys.path
     assert module.__name__ in sys.modules
     assert module.__name__ == f"_src.project.mymod_{request.node.name}"
@@ -167,7 +167,7 @@ def test_no_meta_path_found(
     """Even without any meta_path should still import module."""
     monkeypatch.setattr(sys, "meta_path", [])
     module = import_path(simple_module, root=tmp_path)
-    assert module.foo(2) == 42  # type: ignore[attr-defined]
+    assert module.foo(2) == 42
 
     # mode='importlib' fails if no spec is found to load the module
     import importlib.util  # noqa: PLC0415

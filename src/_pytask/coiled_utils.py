@@ -13,7 +13,7 @@ try:
 except ImportError:
 
     @define
-    class Function:  # type: ignore[no-redef]
+    class Function:
         cluster_kwargs: dict[str, Any]
         environ: dict[str, Any]
         function: Callable[..., Any] | None

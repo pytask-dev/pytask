@@ -166,7 +166,7 @@ def pytask_collect_file_log(session: Session, reports: list[CollectionReport]) -
 @hookspec(firstresult=True)
 def pytask_collect_task_protocol(
     session: Session, path: Path | None, name: str, obj: Any
-) -> CollectionReport | None:  # type: ignore[invalid-return-type]
+) -> CollectionReport | None:
     """Start protocol to collect tasks."""
 
 
@@ -180,7 +180,7 @@ def pytask_collect_task_setup(
 @hookspec(firstresult=True)
 def pytask_collect_task(
     session: Session, path: Path | None, name: str, obj: Any
-) -> PTask:  # type: ignore[invalid-return-type]
+) -> PTask:  # ty: ignore[invalid-return-type]
     """Collect a single task."""
 
 
@@ -196,14 +196,14 @@ def pytask_collect_task_teardown(session: Session, task: PTask) -> None:
 @hookspec(firstresult=True)
 def pytask_collect_node(
     session: Session, path: Path, node_info: NodeInfo
-) -> PNode | PProvisionalNode | None:  # type: ignore[invalid-return-type]
+) -> PNode | PProvisionalNode | None:
     """Collect a node which is a dependency or a product of a task."""
 
 
 @hookspec(firstresult=True)
 def pytask_collect_log(
     session: Session, reports: list[CollectionReport], tasks: list[PTask]
-) -> None:  # type: ignore[invalid-return-type]
+) -> None:
     """Log errors occurring during the collection.
 
     This hook reports errors during the collection.

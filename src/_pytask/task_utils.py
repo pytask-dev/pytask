@@ -8,6 +8,7 @@ from collections import defaultdict
 from types import BuiltinFunctionType
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import TypeVar
 
 import attrs
 
@@ -24,6 +25,13 @@ from _pytask.typing import is_task_function
 if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
+    from typing import TypeAlias
+
+    from ty_extensions import Intersection
+
+    TaskDecorated: TypeAlias = "Intersection[T, TaskFunction]"
+
+T = TypeVar("T", bound="Callable[..., Any]")
 
 
 __all__ = [
@@ -52,7 +60,7 @@ def task(  # noqa: PLR0913
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
     produces: Any | None = None,
-) -> Callable[..., Callable[..., Any]]:
+) -> Callable[[T], TaskDecorated[T]]:
     """Decorate a task function.
 
     This decorator declares every callable as a pytask task.
@@ -110,7 +118,7 @@ def task(  # noqa: PLR0913
 
     """
 
-    def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
+    def wrapper(func: T) -> TaskDecorated[T]:
         # Omits frame when a builtin function is wrapped.
         _rich_traceback_omit = True
 
@@ -209,7 +217,7 @@ def _parse_after(
         for func in after:
             if not isinstance(func, TaskFunction):
                 func = task()(func)  # noqa: PLW2901
-            new_after.append(func.pytask_meta._id)  # type: ignore[attr-defined]
+            new_after.append(func.pytask_meta._id)
         return new_after
     msg = (
         "'after' should be an expression string, a task, or a list of tasks. Got "

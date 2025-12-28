@@ -132,7 +132,7 @@ def test_pytask_execute_task_process_report(monkeypatch, exc_info, expected):
     session = Mock(dag=None)
     report = Mock(exc_info=exc_info, task=task)
 
-    result = pytask_execute_task_process_report(session, report)  # type: ignore[arg-type]
+    result = pytask_execute_task_process_report(session, report)
 
     if expected:
         assert report.outcome == TaskOutcome.PERSISTENCE
