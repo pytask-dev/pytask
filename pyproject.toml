@@ -170,14 +170,6 @@ filterwarnings = [
 ]
 
 [tool.ty.src]
-include = [
-    "tests/test_build.py",
-    "tests/test_cache.py",
-    "tests/test_capture.py",
-    "tests/test_clean.py",
-    "tests/test_cli.py",
-    "tests/test_collect.py",
-]
 exclude = ["src/_pytask/_hashlib.py"]
 
 [tool.ty.terminal]

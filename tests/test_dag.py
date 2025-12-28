@@ -20,8 +20,8 @@ def test_create_dag():
     task = Task(
         base_name="task_dummy",
         path=root,
-        function=None,
-        depends_on={
+        function=None,  # type: ignore[arg-type]
+        depends_on={  # type: ignore[arg-type]
             0: PathNode.from_path(root / "node_1"),
             1: PathNode.from_path(root / "node_2"),
         },

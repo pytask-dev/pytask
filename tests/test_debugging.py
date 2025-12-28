@@ -40,7 +40,7 @@ def _escape_ansi(line):
 )
 def test_capture_callback(value, expected, expectation):
     with expectation:
-        result = _pdbcls_callback(None, None, value)
+        result = _pdbcls_callback(None, None, value)  # type: ignore[arg-type]
         assert result == expected
 
 
@@ -214,7 +214,7 @@ def test_pdb_set_trace_kwargs(tmp_path):
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
     child.expect("== my_header ==")
-    assert "PDB set_trace" not in child.before.decode()
+    assert "PDB set_trace" not in child.before.decode()  # type: ignore[union-attr]
     child.expect("Pdb")
     child.sendline("c")
     rest = child.read().decode("utf-8")
@@ -385,16 +385,16 @@ def test_pdb_with_injected_do_debug(tmp_path):
     child.expect(r"\n\(\(Pdb")
     child.sendline("c")
     child.expect("LEAVING RECURSIVE DEBUGGER")
-    assert b"PDB continue" not in child.before
+    assert b"PDB continue" not in child.before  # type: ignore[operator]
     # No extra newline.
-    assert child.before.endswith(b"c\r\nprint_from_foo\r\n")
+    assert child.before.endswith(b"c\r\nprint_from_foo\r\n")  # type: ignore[union-attr]
 
     # set_debug should not raise outcomes. Exit, if used recursively.
     child.sendline("debug 42")
     child.sendline("q")
     child.expect("LEAVING RECURSIVE DEBUGGER")
-    assert b"ENTERING RECURSIVE DEBUGGER" in child.before
-    assert b"Quitting debugger" not in child.before
+    assert b"ENTERING RECURSIVE DEBUGGER" in child.before  # type: ignore[operator]
+    assert b"Quitting debugger" not in child.before  # type: ignore[operator]
 
     child.sendline("c")
     child.expect(["PDB", "continue", r"\(IO-capturing", r"resumed\)"])

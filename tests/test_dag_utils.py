@@ -20,8 +20,8 @@ def dag():
     """Create a dag with five nodes in a line."""
     dag = nx.DiGraph()
     for i in range(4):
-        task = Task(base_name=str(i), path=Path(), function=None)
-        next_task = Task(base_name=str(i + 1), path=Path(), function=None)
+        task = Task(base_name=str(i), path=Path(), function=None)  # type: ignore[arg-type]
+        next_task = Task(base_name=str(i + 1), path=Path(), function=None)  # type: ignore[arg-type]
         dag.add_node(task.signature, task=task)
         dag.add_node(next_task.signature, task=next_task)
         dag.add_edge(task.signature, next_task.signature)
@@ -84,7 +84,7 @@ def test_node_and_neighbors(dag):
                 Task(
                     base_name="1",
                     path=Path(),
-                    function=None,
+                    function=None,  # type: ignore[arg-type]
                     markers=[Mark("try_last", (), {})],
                 )
             ],
@@ -97,7 +97,7 @@ def test_node_and_neighbors(dag):
                 Task(
                     base_name="1",
                     path=Path(),
-                    function=None,
+                    function=None,  # type: ignore[arg-type]
                     markers=[Mark("try_first", (), {})],
                 )
             ],
@@ -106,7 +106,7 @@ def test_node_and_neighbors(dag):
             id="test try_first",
         ),
         pytest.param(
-            [Task(base_name="1", path=Path(), function=None, markers=[])],
+            [Task(base_name="1", path=Path(), function=None, markers=[])],  # type: ignore[arg-type]
             does_not_raise(),
             {"c12d8d4f7e2e3128d27878d1fb3d8e3583e90e68000a13634dfbf21f4d1456f3": 0},
             id="test no priority",
@@ -116,14 +116,14 @@ def test_node_and_neighbors(dag):
                 Task(
                     base_name="1",
                     path=Path(),
-                    function=None,
+                    function=None,  # type: ignore[arg-type]
                     markers=[Mark("try_first", (), {})],
                 ),
-                Task(base_name="2", path=Path(), function=None, markers=[]),
+                Task(base_name="2", path=Path(), function=None, markers=[]),  # type: ignore[arg-type]
                 Task(
                     base_name="3",
                     path=Path(),
-                    function=None,
+                    function=None,  # type: ignore[arg-type]
                     markers=[Mark("try_last", (), {})],
                 ),
             ],
@@ -172,8 +172,8 @@ def test_instantiate_sorter_from_other_sorter(dag):
         scheduler.done(task_name)
     assert scheduler._nodes_done == {name_to_sig[name] for name in (".::0", ".::1")}
 
-    task = Task(base_name="5", path=Path(), function=None)
-    dag.add_node(task.signature, task=Task(base_name="5", path=Path(), function=None))
+    task = Task(base_name="5", path=Path(), function=None)  # type: ignore[arg-type]
+    dag.add_node(task.signature, task=Task(base_name="5", path=Path(), function=None))  # type: ignore[arg-type]
     dag.add_edge(name_to_sig[".::4"], task.signature)
 
     new_scheduler = TopologicalSorter.from_dag_and_sorter(dag, scheduler)

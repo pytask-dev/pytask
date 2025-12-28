@@ -184,7 +184,7 @@ def test_use_data_catalog_with_different_path(runner, tmp_path):
 def test_error_when_name_of_node_is_not_string():
     data_catalog = DataCatalog()
     with pytest.raises(TypeError, match="The name of a catalog entry"):
-        data_catalog.add(True, Path("file.txt"))
+        data_catalog.add(True, Path("file.txt"))  # type: ignore[arg-type]
 
 
 def test_requesting_new_node_with_python_node_as_default():

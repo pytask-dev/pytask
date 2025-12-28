@@ -62,7 +62,7 @@ def test_multiple_runs_with_persist(tmp_path):
     assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1
     assert session.execution_reports[0].outcome == TaskOutcome.PERSISTENCE
-    assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
+    assert isinstance(session.execution_reports[0].exc_info[1], Persisted)  # type: ignore[index]
 
     create_database(
         "sqlite:///" + tmp_path.joinpath(".pytask", "pytask.sqlite3").as_posix()
@@ -70,9 +70,9 @@ def test_multiple_runs_with_persist(tmp_path):
 
     with DatabaseSession() as db_session:
         task_id = session.tasks[0].signature
-        node_id = session.tasks[0].produces["produces"].signature
+        node_id = session.tasks[0].produces["produces"].signature  # type: ignore[union-attr]
 
-        hash_ = db_session.get(State, (task_id, node_id)).hash_
+        hash_ = db_session.get(State, (task_id, node_id)).hash_  # type: ignore[union-attr]
         path = tmp_path.joinpath("out.txt")
         assert hash_ == hash_path(path, path.stat().st_mtime)
 
@@ -81,7 +81,7 @@ def test_multiple_runs_with_persist(tmp_path):
     assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1
     assert session.execution_reports[0].outcome == TaskOutcome.SKIP_UNCHANGED
-    assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
+    assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)  # type: ignore[index]
 
 
 def test_migrating_a_whole_task_with_persist(tmp_path):
@@ -104,7 +104,7 @@ def test_migrating_a_whole_task_with_persist(tmp_path):
     assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 1
     assert session.execution_reports[0].outcome == TaskOutcome.PERSISTENCE
-    assert isinstance(session.execution_reports[0].exc_info[1], Persisted)
+    assert isinstance(session.execution_reports[0].exc_info[1], Persisted)  # type: ignore[index]
 
 
 @pytest.mark.parametrize(
@@ -122,20 +122,20 @@ def test_pytask_execute_task_process_report(monkeypatch, exc_info, expected):
     )
 
     task = DummyClass()
-    task.name = None
-    task.signature = "id"
+    task.name = None  # type: ignore[attr-defined]
+    task.signature = "id"  # type: ignore[attr-defined]
 
     session = DummyClass()
-    session.dag = None
+    session.dag = None  # type: ignore[attr-defined]
 
     report = DummyClass()
-    report.exc_info = exc_info
-    report.task = task
+    report.exc_info = exc_info  # type: ignore[attr-defined]
+    report.task = task  # type: ignore[attr-defined]
 
-    result = pytask_execute_task_process_report(session, report)
+    result = pytask_execute_task_process_report(session, report)  # type: ignore[arg-type]
 
     if expected:
-        assert report.outcome == TaskOutcome.PERSISTENCE
+        assert report.outcome == TaskOutcome.PERSISTENCE  # type: ignore[attr-defined]
         assert result is True
     else:
         assert result is None

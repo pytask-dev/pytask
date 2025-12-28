@@ -294,7 +294,7 @@ def test_collect_dependencies_from_args_if_depends_on_is_missing(tmp_path):
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
-    assert session.tasks[0].depends_on["path_in"].path == tmp_path.joinpath("in.txt")
+    assert session.tasks[0].depends_on["path_in"].path == tmp_path.joinpath("in.txt")  # type: ignore[union-attr]
 
 
 def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
@@ -366,7 +366,7 @@ def test_setting_name_for_path_node_via_annotation(tmp_path):
     session = build(paths=tmp_path)
     assert session.exit_code == ExitCode.OK
     product = session.tasks[0].produces["path"]
-    assert product.name == "product"
+    assert product.name == "product"  # type: ignore[union-attr]
 
 
 def test_error_when_dependency_is_defined_in_kwargs_and_annotation(runner, tmp_path):
@@ -488,7 +488,7 @@ def test_default_name_of_path_nodes(tmp_path, node):
     session = build(paths=tmp_path)
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("file.txt").exists()
-    assert session.tasks[0].produces["return"].name == tmp_path.name + "/file.txt"
+    assert session.tasks[0].produces["return"].name == tmp_path.name + "/file.txt"  # type: ignore[union-attr]
 
 
 def test_error_when_return_annotation_cannot_be_parsed(runner, tmp_path):

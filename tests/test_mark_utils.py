@@ -29,7 +29,7 @@ from pytask import set_marks
     ],
 )
 def test_get_all_marks_from_task(markers, expected):
-    task = Task(base_name="name", path=Path(), function=None, markers=markers)
+    task = Task(base_name="name", path=Path(), function=None, markers=markers)  # type: ignore[arg-type]
     result = get_all_marks(task)
     assert result == expected
 
@@ -53,7 +53,7 @@ def test_get_all_marks_from_obj(markers, expected):
     def func(): ...
 
     if markers is not None:
-        func.pytask_meta = CollectionMetadata(markers=markers)
+        func.pytask_meta = CollectionMetadata(markers=markers)  # type: ignore[attr-defined]
 
     result = get_all_marks(func)
     assert result == expected
@@ -76,7 +76,7 @@ def test_get_all_marks_from_obj(markers, expected):
     ],
 )
 def test_get_marks_from_task(markers, marker_name, expected):
-    task = Task(base_name="name", path=Path(), function=None, markers=markers)
+    task = Task(base_name="name", path=Path(), function=None, markers=markers)  # type: ignore[arg-type]
     result = get_marks(task, marker_name)
     assert result == expected
 
@@ -102,7 +102,7 @@ def test_get_marks_from_obj(markers, marker_name, expected):
     def func(): ...
 
     if markers is not None:
-        func.pytask_meta = CollectionMetadata(markers=markers)
+        func.pytask_meta = CollectionMetadata(markers=markers)  # type: ignore[attr-defined]
 
     result = get_marks(func, marker_name)
     assert result == expected
@@ -125,7 +125,7 @@ def test_get_marks_from_obj(markers, marker_name, expected):
     ],
 )
 def test_has_mark_for_task(markers, marker_name, expected):
-    task = Task(base_name="name", path=Path(), function=None, markers=markers)
+    task = Task(base_name="name", path=Path(), function=None, markers=markers)  # type: ignore[arg-type]
     result = has_mark(task, marker_name)
     assert result is expected
 
@@ -147,7 +147,7 @@ def test_has_mark(markers, marker_name, expected):
     def func(): ...
 
     if markers is not None:
-        func.pytask_meta = CollectionMetadata(markers=markers)
+        func.pytask_meta = CollectionMetadata(markers=markers)  # type: ignore[attr-defined]
 
     result = has_mark(func, marker_name)
     assert result == expected
@@ -174,7 +174,7 @@ def test_has_mark(markers, marker_name, expected):
 def test_remove_marks_from_task(
     markers, marker_name, expected_markers, expected_others
 ):
-    task = Task(base_name="name", path=Path(), function=None, markers=markers)
+    task = Task(base_name="name", path=Path(), function=None, markers=markers)  # type: ignore[arg-type]
     _, result_markers = remove_marks(task, marker_name)
     assert task.markers == expected_others
     assert result_markers == expected_markers
@@ -205,7 +205,7 @@ def test_remove_marks_from_func(
     def func(): ...
 
     if markers is not None:
-        func.pytask_meta = CollectionMetadata(markers=markers)
+        func.pytask_meta = CollectionMetadata(markers=markers)  # type: ignore[attr-defined]
 
     obj, result_markers = remove_marks(func, marker_name)
     markers = get_all_marks(obj)
@@ -222,7 +222,7 @@ def test_remove_marks_from_func(
     ],
 )
 def test_set_marks_to_task(markers):
-    task = Task(base_name="name", path=Path(), function=None)
+    task = Task(base_name="name", path=Path(), function=None)  # type: ignore[arg-type]
     result = set_marks(task, markers)
     assert result.markers == markers
 
@@ -239,4 +239,4 @@ def test_set_marks_to_obj(markers):
     def func(): ...
 
     result = set_marks(func, markers)
-    assert result.pytask_meta.markers == markers
+    assert result.pytask_meta.markers == markers  # type: ignore[union-attr]
