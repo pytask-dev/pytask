@@ -9,6 +9,7 @@ from pathlib import Path
 from pathlib import PurePosixPath
 from pathlib import PureWindowsPath
 from types import ModuleType
+from typing import TYPE_CHECKING
 from typing import Any
 
 import pytest
@@ -20,6 +21,9 @@ from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
 from pytask.path import import_path
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 
 @pytest.mark.parametrize(
@@ -129,7 +133,7 @@ def test_find_case_sensitive_path(tmp_path, path, existing_paths, expected):
 
 
 @pytest.fixture
-def simple_module(request, tmp_path: Path) -> Path:
+def simple_module(request, tmp_path: Path) -> Generator[Path, None, None]:
     name = f"mymod_{request.node.name}"
     fn = tmp_path / f"_src/project/{name}.py"
     fn.parent.mkdir(parents=True)
@@ -142,7 +146,7 @@ def simple_module(request, tmp_path: Path) -> Path:
 def test_importmode_importlib(request, simple_module: Path, tmp_path: Path) -> None:
     """`importlib` mode does not change sys.path."""
     module = import_path(simple_module, root=tmp_path)
-    assert module.foo(2) == 42  # type: ignore[attr-defined]
+    assert module.foo(2) == 42
     assert str(simple_module.parent) not in sys.path
     assert module.__name__ in sys.modules
     assert module.__name__ == f"_src.project.mymod_{request.node.name}"
@@ -163,7 +167,7 @@ def test_no_meta_path_found(
     """Even without any meta_path should still import module."""
     monkeypatch.setattr(sys, "meta_path", [])
     module = import_path(simple_module, root=tmp_path)
-    assert module.foo(2) == 42  # type: ignore[attr-defined]
+    assert module.foo(2) == 42
 
     # mode='importlib' fails if no spec is found to load the module
     import importlib.util  # noqa: PLC0415

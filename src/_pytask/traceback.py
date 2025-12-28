@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from dataclasses import field
 from pathlib import Path
 from types import TracebackType
 from typing import TYPE_CHECKING
 from typing import ClassVar
 
 import pluggy
-from attrs import define
-from attrs import field
 from rich.traceback import Traceback as RichTraceback
 
 import _pytask
@@ -31,6 +31,8 @@ __all__ = [
 ]
 
 
+assert pluggy.__file__ is not None
+assert _pytask.__file__ is not None
 _PLUGGY_DIRECTORY = Path(pluggy.__file__).parent
 _PYTASK_DIRECTORY = Path(_pytask.__file__).parent
 
@@ -41,10 +43,10 @@ ExceptionInfo: TypeAlias = tuple[
 OptionalExceptionInfo: TypeAlias = ExceptionInfo | tuple[None, None, None]
 
 
-@define
+@dataclass
 class Traceback:
     exc_info: OptionalExceptionInfo
-    show_locals: bool = field()
+    show_locals: bool = field(default_factory=lambda: Traceback._show_locals)
 
     _show_locals: ClassVar[bool] = False
     suppress: ClassVar[tuple[Path, ...]] = (
@@ -52,10 +54,6 @@ class Traceback:
         _PYTASK_DIRECTORY,
         TREE_UTIL_LIB_DIRECTORY,
     )
-
-    @show_locals.default
-    def _show_locals_default(self) -> bool:
-        return self._show_locals
 
     def __rich_console__(
         self, console: Console, console_options: ConsoleOptions
@@ -70,9 +68,12 @@ class Traceback:
         # The tracebacks returned by pytask-parallel are strings.
         if isinstance(filtered_exc_info[2], str):
             yield filtered_exc_info[2]
-        else:
+        elif filtered_exc_info[0] is not None and filtered_exc_info[1] is not None:
             yield RichTraceback.from_exception(
-                *filtered_exc_info, show_locals=self.show_locals
+                filtered_exc_info[0],
+                filtered_exc_info[1],
+                filtered_exc_info[2],
+                show_locals=self.show_locals,
             )
 
 
@@ -103,8 +104,14 @@ def _remove_internal_traceback_frames_from_exc_info(
         )
 
     if isinstance(exc_info[2], TracebackType):
-        filtered_traceback = _filter_internal_traceback_frames(exc_info, suppress)
-        exc_info = (*exc_info[:2], filtered_traceback)
+        # If exc_info[2] is TracebackType, we know exc_info is ExceptionInfo, not
+        # (None, None, None)  # noqa: ERA001
+        assert exc_info[0] is not None
+        assert exc_info[1] is not None
+        # Create properly typed tuple for type checker
+        exception_info: ExceptionInfo = (exc_info[0], exc_info[1], exc_info[2])
+        filtered_traceback = _filter_internal_traceback_frames(exception_info, suppress)
+        exc_info = (exc_info[0], exc_info[1], filtered_traceback)
     return exc_info
 
 

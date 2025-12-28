@@ -9,9 +9,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - {pull}`725` fixes the pickle node hash test by accounting for Python 3.14's
   default pickle protocol.
-- {pull}`???` adapts the interactive debugger integration to Python 3.14's
+- {pull}`726` adapts the interactive debugger integration to Python 3.14's
   updated `pdb` behaviour and keeps pytest-style capturing intact.
-- {pull}`???` updates the comparison to other tools documentation and adds a section on
+- {pull}`734` migrates from mypy to ty for type checking.
+- {pull}`736` updates the comparison to other tools documentation and adds a section on
   the Common Workflow Language (CWL) and WorkflowHub.
 
 ## 0.5.7 - 2025-11-22

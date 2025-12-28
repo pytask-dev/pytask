@@ -124,15 +124,11 @@ def _find_common_ancestor_of_all_nodes(
     for task in tasks:
         all_paths.append(task.path)
         if show_nodes:
-            all_paths.extend(  # type: ignore[var-annotated]
-                x.path
-                for x in tree_leaves(task.depends_on)  # type: ignore[arg-type]
-                if isinstance(x, PPathNode)
+            all_paths.extend(
+                x.path for x in tree_leaves(task.depends_on) if isinstance(x, PPathNode)
             )
-            all_paths.extend(  # type: ignore[var-annotated]
-                x.path
-                for x in tree_leaves(task.produces)  # type: ignore[arg-type]
-                if isinstance(x, PPathNode)
+            all_paths.extend(
+                x.path for x in tree_leaves(task.produces) if isinstance(x, PPathNode)
             )
 
     return find_common_ancestor(*all_paths, *paths)
@@ -200,7 +196,7 @@ def _print_collected_tasks(
             )
 
             if show_nodes:
-                deps: list[Any] = list(tree_leaves(task.depends_on))  # type: ignore[arg-type]
+                deps: list[Any] = list(tree_leaves(task.depends_on))
                 for node in sorted(
                     deps,
                     key=(
@@ -212,7 +208,7 @@ def _print_collected_tasks(
                     text = format_node_name(node, (common_ancestor,))
                     task_branch.add(Text.assemble(FILE_ICON, "<Dependency ", text, ">"))
 
-                products: list[Any] = list(tree_leaves(task.produces))  # type: ignore[arg-type]
+                products: list[Any] = list(tree_leaves(task.produces))
                 for node in sorted(
                     products,
                     key=lambda x: x.path.as_posix()

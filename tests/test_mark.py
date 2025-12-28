@@ -20,7 +20,7 @@ def test_mark_exists_in_pytask_namespace(attribute):
 def test_pytask_mark_notcallable() -> None:
     mark = MarkGenerator()
     with pytest.raises(TypeError):
-        mark()
+        mark()  # type: ignore[call-non-callable]
 
 
 @pytest.mark.filterwarnings("ignore:Unknown pytask.mark.foo")
@@ -223,7 +223,7 @@ def test_keyword_option_wrong_arguments(
     tmp_path.joinpath("task_module.py").write_text(
         textwrap.dedent("def task_func(arg): pass")
     )
-    session = build(paths=tmp_path, **{option: expr})
+    session = build(paths=tmp_path, **{option: expr})  # type: ignore[arg-type]
     assert session.exit_code == ExitCode.DAG_FAILED
 
     captured = capsys.readouterr()

@@ -46,14 +46,15 @@ def test_hide_traceback_from_error_report(
 
 
 def test_render_traceback_with_string_traceback():
-    traceback = Traceback((Exception, Exception("Help"), "String traceback."))
-    rendered = render_to_string(traceback, console)
+    traceback = Traceback((Exception, Exception("Help"), "String traceback."))  # type: ignore[arg-type]
+    rendered = render_to_string(traceback, console)  # type: ignore[arg-type]
     assert "String traceback." in rendered
 
 
 def test_passing_show_locals():
     traceback = Traceback(
-        (Exception, Exception("Help"), "String traceback."), show_locals=True
+        (Exception, Exception("Help"), "String traceback."),  # type: ignore[arg-type]
+        show_locals=True,
     )
     assert traceback.show_locals is True
     # Also tests that the class variable has been reset.

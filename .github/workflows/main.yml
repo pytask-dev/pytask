@@ -28,8 +28,11 @@ jobs:
           enable-cache: true
       - name: Install just
         uses: extractions/setup-just@v3
+      - name: Install graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install graphviz graphviz-dev
       - run: just typing
-      - run: just typing-nb
 
   run-tests:
 

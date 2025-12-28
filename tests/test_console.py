@@ -197,7 +197,7 @@ exec("__unknown_lambda = lambda x: x")  # noqa: S102
             _THIS_FILE,
         ),
         (lambda x: x, None, Path(__file__)),
-        (__unknown_lambda, None, Path(__file__)),  # noqa: F821
+        (__unknown_lambda, None, Path(__file__)),  # type: ignore[unresolved-reference]  # noqa: F821
     ],
 )
 def test_get_file(task_func, skipped_paths, expected):

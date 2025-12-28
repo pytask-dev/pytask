@@ -97,7 +97,7 @@ def test_sqlalchemy_version_fallback():
 def test_bad_version(monkeypatch):
     name = "fakemodule"
     module = types.ModuleType(name)
-    module.__version__ = "0.9.0"
+    module.__version__ = "0.9.0"  # type: ignore[attr-defined]
     sys.modules[name] = module
     monkeypatch.setitem(_MINIMUM_VERSIONS, name, "1.0.0")
 
@@ -113,7 +113,7 @@ def test_bad_version(monkeypatch):
         result = import_optional_dependency("fakemodule", errors="warn")
     assert result is None
 
-    module.__version__ = "1.0.0"  # exact match is OK
+    module.__version__ = "1.0.0"  # type: ignore[attr-defined]  # exact match is OK
     result = import_optional_dependency("fakemodule")
     assert result is module
 
@@ -122,7 +122,7 @@ def test_submodule(monkeypatch):
     # Create a fake module with a submodule
     name = "fakemodule"
     module = types.ModuleType(name)
-    module.__version__ = "0.9.0"
+    module.__version__ = "0.9.0"  # type: ignore[attr-defined]
     sys.modules[name] = module
     sub_name = "submodule"
     submodule = types.ModuleType(sub_name)
@@ -138,7 +138,7 @@ def test_submodule(monkeypatch):
         result = import_optional_dependency("fakemodule.submodule", errors="warn")
     assert result is None
 
-    module.__version__ = "1.0.0"  # exact match is OK
+    module.__version__ = "1.0.0"  # type: ignore[attr-defined]  # exact match is OK
     result = import_optional_dependency("fakemodule.submodule")
     assert result is submodule
 

@@ -13,7 +13,7 @@ try:
 except ImportError:
 
     @define
-    class Function:  # type: ignore[no-redef]
+    class Function:
         cluster_kwargs: dict[str, Any]
         environ: dict[str, Any]
         function: Callable[..., Any] | None
@@ -26,9 +26,9 @@ __all__ = ["Function"]
 def extract_coiled_function_kwargs(func: Function) -> dict[str, Any]:
     """Extract the kwargs for a coiled function."""
     return {
-        "cluster_kwargs": func._cluster_kwargs,
+        "cluster_kwargs": func._cluster_kwargs,  # ty: ignore[possibly-missing-attribute]
         "keepalive": func.keepalive,
-        "environ": func._environ,
-        "local": func._local,
-        "name": func._name,
+        "environ": func._environ,  # ty: ignore[possibly-missing-attribute]
+        "local": func._local,  # ty: ignore[possibly-missing-attribute]
+        "name": func._name,  # ty: ignore[possibly-missing-attribute]
     }

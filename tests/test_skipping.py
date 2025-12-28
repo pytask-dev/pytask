@@ -17,10 +17,7 @@ from pytask import Task
 from pytask import TaskOutcome
 from pytask import build
 from pytask import cli
-
-
-class DummyClass:
-    pass
+from tests.conftest import noop
 
 
 def test_skip_unchanged(tmp_path):
@@ -34,7 +31,9 @@ def test_skip_unchanged(tmp_path):
     assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
 
     session = build(paths=tmp_path)
-    assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
+    exc_info = session.execution_reports[0].exc_info
+    assert exc_info is not None
+    assert isinstance(exc_info[1], SkippedUnchanged)
 
 
 def test_skip_unchanged_w_dependencies_and_products(tmp_path):
@@ -55,7 +54,9 @@ def test_skip_unchanged_w_dependencies_and_products(tmp_path):
     session = build(paths=tmp_path)
 
     assert session.execution_reports[0].outcome == TaskOutcome.SKIP_UNCHANGED
-    assert isinstance(session.execution_reports[0].exc_info[1], SkippedUnchanged)
+    exc_info = session.execution_reports[0].exc_info
+    assert exc_info is not None
+    assert isinstance(exc_info[1], SkippedUnchanged)
     assert tmp_path.joinpath("out.txt").read_text() == "Original content of in.txt."
 
 
@@ -73,9 +74,13 @@ def test_skipif_ancestor_failed(tmp_path):
     session = build(paths=tmp_path)
 
     assert session.execution_reports[0].outcome == TaskOutcome.FAIL
-    assert isinstance(session.execution_reports[0].exc_info[1], Exception)
+    exc_info_0 = session.execution_reports[0].exc_info
+    assert exc_info_0 is not None
+    assert isinstance(exc_info_0[1], Exception)
     assert session.execution_reports[1].outcome == TaskOutcome.SKIP_PREVIOUS_FAILED
-    assert isinstance(session.execution_reports[1].exc_info[1], SkippedAncestorFailed)
+    exc_info_1 = session.execution_reports[1].exc_info
+    assert exc_info_1 is not None
+    assert isinstance(exc_info_1[1], SkippedAncestorFailed)
 
 
 def test_if_skip_decorator_is_applied_to_following_tasks(tmp_path):
@@ -94,9 +99,13 @@ def test_if_skip_decorator_is_applied_to_following_tasks(tmp_path):
     session = build(paths=tmp_path)
 
     assert session.execution_reports[0].outcome == TaskOutcome.SKIP
-    assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
+    exc_info_0 = session.execution_reports[0].exc_info
+    assert exc_info_0 is not None
+    assert isinstance(exc_info_0[1], Skipped)
     assert session.execution_reports[1].outcome == TaskOutcome.SKIP
-    assert isinstance(session.execution_reports[1].exc_info[1], Skipped)
+    exc_info_1 = session.execution_reports[1].exc_info
+    assert exc_info_1 is not None
+    assert isinstance(exc_info_1[1], Skipped)
 
 
 @pytest.mark.parametrize(
@@ -116,7 +125,9 @@ def test_skip_if_dependency_is_missing(tmp_path, mark_string):
     session = build(paths=tmp_path)
 
     assert session.execution_reports[0].outcome == TaskOutcome.SKIP
-    assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
+    exc_info = session.execution_reports[0].exc_info
+    assert exc_info is not None
+    assert isinstance(exc_info[1], Skipped)
 
 
 @pytest.mark.parametrize(
@@ -160,16 +171,21 @@ def test_if_skipif_decorator_is_applied_skipping(tmp_path):
 
     session = build(paths=tmp_path)
     node = session.collection_reports[0].node
-    assert len(node.markers) == 1
-    assert node.markers[0].name == "skipif"
-    assert node.markers[0].args == ()
-    assert node.markers[0].kwargs == {"condition": True, "reason": "bla"}
+    assert node is not None
+    assert len(node.markers) == 1  # type: ignore[union-attr]
+    assert node.markers[0].name == "skipif"  # type: ignore[union-attr]
+    assert node.markers[0].args == ()  # type: ignore[union-attr]
+    assert node.markers[0].kwargs == {"condition": True, "reason": "bla"}  # type: ignore[union-attr]
 
     assert session.execution_reports[0].outcome == TaskOutcome.SKIP
-    assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
+    exc_info_0 = session.execution_reports[0].exc_info
+    assert exc_info_0 is not None
+    assert isinstance(exc_info_0[1], Skipped)
     assert session.execution_reports[1].outcome == TaskOutcome.SKIP
-    assert isinstance(session.execution_reports[1].exc_info[1], Skipped)
-    assert session.execution_reports[0].exc_info[1].args[0] == "bla"
+    exc_info_1 = session.execution_reports[1].exc_info
+    assert exc_info_1 is not None
+    assert isinstance(exc_info_1[1], Skipped)
+    assert exc_info_0[1].args[0] == "bla"
 
 
 def test_if_skipif_decorator_is_applied_execute(tmp_path):
@@ -187,11 +203,11 @@ def test_if_skipif_decorator_is_applied_execute(tmp_path):
 
     session = build(paths=tmp_path)
     node = session.collection_reports[0].node
-
-    assert len(node.markers) == 1
-    assert node.markers[0].name == "skipif"
-    assert node.markers[0].args == (False,)
-    assert node.markers[0].kwargs == {"reason": "bla"}
+    assert node is not None
+    assert len(node.markers) == 1  # type: ignore[union-attr]
+    assert node.markers[0].name == "skipif"  # type: ignore[union-attr]
+    assert node.markers[0].args == (False,)  # type: ignore[union-attr]
+    assert node.markers[0].kwargs == {"reason": "bla"}  # type: ignore[union-attr]
     assert session.execution_reports[0].outcome == TaskOutcome.SUCCESS
     assert session.execution_reports[0].exc_info is None
     assert session.execution_reports[1].outcome == TaskOutcome.SUCCESS
@@ -216,19 +232,24 @@ def test_if_skipif_decorator_is_applied_any_condition_matches(tmp_path):
 
     session = build(paths=tmp_path)
     node = session.collection_reports[0].node
-    assert len(node.markers) == 2
-    assert node.markers[0].name == "skipif"
-    assert node.markers[0].args == ()
-    assert node.markers[0].kwargs == {"condition": True, "reason": "No, I am not."}
-    assert node.markers[1].name == "skipif"
-    assert node.markers[1].args == ()
-    assert node.markers[1].kwargs == {"condition": False, "reason": "I am fine"}
+    assert node is not None
+    assert len(node.markers) == 2  # type: ignore[union-attr]
+    assert node.markers[0].name == "skipif"  # type: ignore[union-attr]
+    assert node.markers[0].args == ()  # type: ignore[union-attr]
+    assert node.markers[0].kwargs == {"condition": True, "reason": "No, I am not."}  # type: ignore[union-attr]
+    assert node.markers[1].name == "skipif"  # type: ignore[union-attr]
+    assert node.markers[1].args == ()  # type: ignore[union-attr]
+    assert node.markers[1].kwargs == {"condition": False, "reason": "I am fine"}  # type: ignore[union-attr]
 
     assert session.execution_reports[0].outcome == TaskOutcome.SKIP
-    assert isinstance(session.execution_reports[0].exc_info[1], Skipped)
+    exc_info_0 = session.execution_reports[0].exc_info
+    assert exc_info_0 is not None
+    assert isinstance(exc_info_0[1], Skipped)
     assert session.execution_reports[1].outcome == TaskOutcome.SKIP
-    assert isinstance(session.execution_reports[1].exc_info[1], Skipped)
-    assert session.execution_reports[0].exc_info[1].args[0] == "No, I am not."
+    exc_info_1 = session.execution_reports[1].exc_info
+    assert exc_info_1 is not None
+    assert isinstance(exc_info_1[1], Skipped)
+    assert exc_info_0[1].args[0] == "No, I am not."
 
 
 @pytest.mark.parametrize(
@@ -243,7 +264,7 @@ def test_if_skipif_decorator_is_applied_any_condition_matches(tmp_path):
 )
 def test_pytask_execute_task_setup(marker_name, force, expectation):
     session = Session.from_config({"force": force})
-    task = Task(base_name="task", path=Path(), function=None)
+    task = Task(base_name="task", path=Path(), function=noop)
     kwargs = {"reason": ""} if marker_name == "skip_ancestor_failed" else {}
     task.markers = [Mark(marker_name, (), kwargs)]
 
