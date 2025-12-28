@@ -11,6 +11,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   default pickle protocol.
 - {pull}`???` adapts the interactive debugger integration to Python 3.14's
   updated `pdb` behaviour and keeps pytest-style capturing intact.
+- {pull}`???` updates the comparison to other tools documentation and adds a section on
+  the Common Workflow Language (CWL) and WorkflowHub.
 
 ## 0.5.7 - 2025-11-22
 
