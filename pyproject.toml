@@ -46,7 +46,6 @@ name = "Tobias Raabe"
 email = "raabe@posteo.de"
 
 [dependency-groups]
-dev = ["pygraphviz>=1.12;platform_system!='Windows'", "coiled>=1.42.0"]
 docs = [
     "furo>=2024.8.6",
     "ipython>=8.13.2",
@@ -62,6 +61,7 @@ docs = [
     "sphinxext-opengraph>=0.10.0",
     "sphinx-autobuild>=2024.10.3",
 ]
+optional = ["pygraphviz>=1.12", "coiled>=1.42.0"]
 plugin-list = ["httpx>=0.27.0", "tabulate[widechars]>=0.9.0", "tqdm>=4.66.3"]
 test = [
     "cloudpickle>=3.0.0",
