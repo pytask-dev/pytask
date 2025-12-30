@@ -342,6 +342,68 @@ def test_collect_module_name(tmp_path):
     assert outcome == CollectionOutcome.SUCCESS
 
 
+def test_lazy_annotations_capture_loop_locals(tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    for i in range(2):
+        path = Path(f"out-{i}.txt")
+
+        @task
+        def task_example() -> Annotated[str, path]:
+            return "Hello"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out-0.txt").exists()
+    assert tmp_path.joinpath("out-1.txt").exists()
+
+
+def test_lazy_annotations_use_current_globals(tmp_path):
+    source = """
+    from __future__ import annotations
+
+    from pathlib import Path
+    from typing import Annotated
+
+    OUTPUT = Path("first.txt")
+
+    def task_example() -> Annotated[str, OUTPUT]:
+        return "Hello"
+
+    OUTPUT = Path("second.txt")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("second.txt").exists()
+    assert not tmp_path.joinpath("first.txt").exists()
+
+
+def test_string_literal_annotations_are_resolved(tmp_path):
+    source = """
+    from __future__ import annotations
+
+    from pathlib import Path
+    from typing import Annotated
+
+    OUTPUT = Path("out.txt")
+
+    def task_example() -> 'Annotated[str, OUTPUT]':
+        return "Hello"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").exists()
+
+
 def test_collect_string_product_raises_error_with_annotation(runner, tmp_path):
     """The string is not converted to a path."""
     source = """

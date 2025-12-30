@@ -38,6 +38,9 @@ class CollectionMetadata:
     kwargs
         A dictionary containing keyword arguments which are passed to the task when it
         is executed.
+    annotation_locals
+        A snapshot of local variables captured during decoration which helps evaluate
+        deferred annotations later on.
     markers
         A list of markers that are attached to the task.
     name
@@ -51,6 +54,7 @@ class CollectionMetadata:
 
     after: str | list[Callable[..., Any]] = field(factory=list)
     attributes: dict[str, Any] = field(factory=dict)
+    annotation_locals: dict[str, Any] | None = None
     is_generator: bool = False
     id_: str | None = None
     kwargs: dict[str, Any] = field(factory=dict)
