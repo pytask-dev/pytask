@@ -11,8 +11,12 @@ from typing import NamedTuple
 
 import pytest
 from click.testing import CliRunner
-from nbmake.pytest_items import NotebookItem
 from packaging import version
+
+try:
+    from nbmake.pytest_items import NotebookItem
+except ImportError:
+    NotebookItem = None
 
 from pytask import console
 from pytask import storage
@@ -143,6 +147,8 @@ def run_in_subprocess(cmd: tuple[str, ...], cwd: Path | None = None) -> Result:
 
 def pytest_collection_modifyitems(session, config, items) -> None:  # noqa: ARG001
     """Add markers to Jupyter notebook tests."""
+    if NotebookItem is None:
+        return
     for item in items:
         if isinstance(item, NotebookItem):
             item.add_marker(pytest.mark.xfail(reason="The tests are flaky."))

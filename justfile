@@ -35,4 +35,4 @@ test-lowest:
 
 # Run tests with highest dependency resolution (like CI)
 test-highest:
-    uv run --python 3.13 --group test --resolution highest pytest --nbmake -n auto
+    uv run --python 3.14 --group test --resolution highest pytest --nbmake -n auto
