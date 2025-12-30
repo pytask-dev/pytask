@@ -1,6 +1,7 @@
 """Contains utilities related to the :func:`@task <pytask.task>`."""
 
 from __future__ import annotations
+import __future__
 
 import functools
 import inspect
@@ -10,6 +11,7 @@ from types import BuiltinFunctionType
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
+from typing import cast
 
 import attrs
 
@@ -107,8 +109,13 @@ def task(  # noqa: PLR0913
 
     """
     # Capture the caller's frame locals for deferred annotation evaluation in Python
-    # 3.14+. The wrapper closure captures this variable.
-    caller_locals = sys._getframe(1).f_locals.copy()
+    # 3.14+. If ``from __future__ import annotations`` is active, keep the pre-3.14
+    # behavior by evaluating annotations against current globals instead of snapshots.
+    caller_frame = sys._getframe(1)
+    has_future_annotations = bool(
+        caller_frame.f_code.co_flags & __future__.annotations.compiler_flag
+    )
+    caller_locals = None if has_future_annotations else caller_frame.f_locals.copy()
 
     def wrapper(func: T) -> TaskDecorated[T]:
         # Omits frame when a builtin function is wrapped.
@@ -179,7 +186,7 @@ def task(  # noqa: PLR0913
 
     # When decorator is used without parentheses, call wrapper directly.
     if is_task_function(name) and kwargs is None:
-        return wrapper(name)
+        return wrapper(cast("T", name))
     return wrapper
 
 

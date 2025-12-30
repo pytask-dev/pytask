@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import inspect
 import sys
 from inspect import get_annotations as _get_annotations_from_inspect
@@ -109,4 +110,15 @@ def _evaluate_annotation_expression(
     if not isinstance(expression, str):
         return expression
     evaluation_globals = globals_ if globals_ is not None else {}
-    return eval(expression, evaluation_globals, locals_)  # noqa: S307
+    evaluated = eval(expression, evaluation_globals, locals_)  # noqa: S307
+    if isinstance(evaluated, str):
+        try:
+            literal = ast.literal_eval(expression)
+        except (SyntaxError, ValueError):
+            return evaluated
+        if isinstance(literal, str):
+            try:
+                return eval(literal, evaluation_globals, locals_)  # noqa: S307
+            except Exception:  # noqa: BLE001
+                return evaluated
+    return evaluated
