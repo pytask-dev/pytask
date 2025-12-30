@@ -48,10 +48,23 @@ def get_annotations(
     versions without :mod:`annotationlib` - we fall back to the stdlib implementation,
     so behaviour on 3.10-3.13 remains unchanged.
     """
-    if sys.version_info < (3, 14) or not eval_str or not hasattr(obj, "__globals__"):
+    if not eval_str or not hasattr(obj, "__globals__"):
         return _get_annotations_from_inspect(
             obj, globals=globals, locals=locals, eval_str=eval_str
         )
+
+    if sys.version_info < (3, 14):
+        raw_annotations = _get_annotations_from_inspect(
+            obj, globals=globals, locals=locals, eval_str=False
+        )
+        evaluation_globals = obj.__globals__ if globals is None else globals
+        evaluation_locals = evaluation_globals if locals is None else locals
+        evaluated_annotations = {}
+        for name, expression in raw_annotations.items():
+            evaluated_annotations[name] = _evaluate_annotation_expression(
+                expression, evaluation_globals, evaluation_locals
+            )
+        return evaluated_annotations
 
     import annotationlib  # noqa: PLC0415
 
