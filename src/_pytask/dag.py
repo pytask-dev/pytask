@@ -88,8 +88,8 @@ def _create_dag_from_tasks(tasks: list[PTask]) -> nx.DiGraph:
     for task in tasks:
         dag.add_node(task.signature, task=task)
 
-        tree_map(lambda x: _add_dependency(dag, task, x), task.depends_on)  # type: ignore[arg-type]
-        tree_map(lambda x: _add_product(dag, task, x), task.produces)  # type: ignore[arg-type]
+        tree_map(lambda x: _add_dependency(dag, task, x), task.depends_on)
+        tree_map(lambda x: _add_product(dag, task, x), task.produces)
 
         # If a node is a PythonNode wrapped in another PythonNode, it is a product from
         # another task that is a dependency in the current task. Thus, draw an edge
@@ -98,7 +98,7 @@ def _create_dag_from_tasks(tasks: list[PTask]) -> nx.DiGraph:
             lambda x: dag.add_edge(x.value.signature, x.signature)
             if isinstance(x, PythonNode) and isinstance(x.value, PythonNode)
             else None,
-            task.depends_on,  # type: ignore[arg-type]
+            task.depends_on,
         )
     return dag
 

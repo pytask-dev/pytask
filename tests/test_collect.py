@@ -16,6 +16,7 @@ from pytask import Session
 from pytask import Task
 from pytask import build
 from pytask import cli
+from tests.conftest import noop
 
 
 @pytest.mark.parametrize(
@@ -143,7 +144,7 @@ def test_error_with_invalid_file_name_pattern(runner, tmp_path):
 
 
 def test_error_with_invalid_file_name_pattern_(tmp_path):
-    session = build(paths=tmp_path, task_files=[1])
+    session = build(paths=tmp_path, task_files=[1])  # type: ignore[arg-type]
     assert session.exit_code == ExitCode.CONFIGURATION_FAILED
 
 
@@ -248,7 +249,9 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
 
     for base_name in ("base_name_ident_0", "base_name_ident_1"):
         task = Task(
-            base_name=base_name, path=path_identifiable_by_base_name, function=None
+            base_name=base_name,
+            path=path_identifiable_by_base_name,
+            function=noop,
         )
         tasks.append(task)
         expected[task.name] = "t.py::" + base_name
@@ -258,7 +261,7 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
 
     for module in ("t.py", "m.py"):
         module_path = dir_identifiable_by_module_name / module
-        task = Task(base_name="task_a", path=module_path, function=None)
+        task = Task(base_name="task_a", path=module_path, function=noop)
         tasks.append(task)
         expected[task.name] = module + "::task_a"
 
@@ -270,7 +273,7 @@ def test_find_shortest_uniquely_identifiable_names_for_tasks(tmp_path):
 
     for base_path in (dir_identifiable_by_folder_a, dir_identifiable_by_folder_b):
         module_path = base_path / "t.py"
-        task = Task(base_name="task_t", path=module_path, function=None)
+        task = Task(base_name="task_t", path=module_path, function=noop)
         tasks.append(task)
         expected[task.name] = base_path.name + "/t.py::task_t"
 
@@ -292,7 +295,9 @@ def test_collect_dependencies_from_args_if_depends_on_is_missing(tmp_path):
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
-    assert session.tasks[0].depends_on["path_in"].path == tmp_path.joinpath("in.txt")
+    depends_on = session.tasks[0].depends_on
+    assert depends_on is not None
+    assert depends_on["path_in"].path == tmp_path.joinpath("in.txt")  # type: ignore[union-attr]
 
 
 def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
@@ -307,9 +312,13 @@ def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
         report.outcome == CollectionOutcome.SUCCESS
         for report in session.collection_reports
     )
-    assert {
-        report.node.function.__module__ for report in session.collection_reports
-    } == {"a.task_module", "b.task_module"}
+    modules = set()
+    for report in session.collection_reports:
+        node = report.node
+        assert node is not None
+        assert node.function is not None  # type: ignore[union-attr]
+        modules.add(node.function.__module__)  # type: ignore[union-attr]
+    assert modules == {"a.task_module", "b.task_module"}
 
 
 def test_collect_module_name(tmp_path):
@@ -362,8 +371,10 @@ def test_setting_name_for_path_node_via_annotation(tmp_path):
 
     session = build(paths=tmp_path)
     assert session.exit_code == ExitCode.OK
-    product = session.tasks[0].produces["path"]
-    assert product.name == "product"
+    produces = session.tasks[0].produces
+    assert produces is not None
+    product = produces["path"]
+    assert product.name == "product"  # type: ignore[union-attr]
 
 
 def test_error_when_dependency_is_defined_in_kwargs_and_annotation(runner, tmp_path):
@@ -485,7 +496,9 @@ def test_default_name_of_path_nodes(tmp_path, node):
     session = build(paths=tmp_path)
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("file.txt").exists()
-    assert session.tasks[0].produces["return"].name == tmp_path.name + "/file.txt"
+    produces = session.tasks[0].produces
+    assert produces is not None
+    assert produces["return"].name == tmp_path.name + "/file.txt"  # type: ignore[union-attr]
 
 
 def test_error_when_return_annotation_cannot_be_parsed(runner, tmp_path):

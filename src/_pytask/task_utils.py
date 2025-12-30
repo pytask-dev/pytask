@@ -8,6 +8,7 @@ from collections import defaultdict
 from types import BuiltinFunctionType
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import TypeVar
 
 import attrs
 
@@ -18,11 +19,19 @@ from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
 from _pytask.shared import unwrap_task_function
+from _pytask.typing import TaskFunction
 from _pytask.typing import is_task_function
 
 if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
+    from typing import TypeAlias
+
+    from ty_extensions import Intersection
+
+    TaskDecorated: TypeAlias = "Intersection[T, TaskFunction]"
+
+T = TypeVar("T", bound="Callable[..., Any]")
 
 
 __all__ = [
@@ -51,7 +60,7 @@ def task(  # noqa: PLR0913
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
     produces: Any | None = None,
-) -> Callable[..., Callable[..., Any]]:
+) -> Callable[[T], TaskDecorated[T]]:
     """Decorate a task function.
 
     This decorator declares every callable as a pytask task.
@@ -109,7 +118,7 @@ def task(  # noqa: PLR0913
 
     """
 
-    def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
+    def wrapper(func: T) -> TaskDecorated[T]:
         # Omits frame when a builtin function is wrapped.
         _rich_traceback_omit = True
 
@@ -143,7 +152,7 @@ def task(  # noqa: PLR0913
         parsed_name = _parse_name(unwrapped, name)
         parsed_after = _parse_after(after)
 
-        if hasattr(unwrapped, "pytask_meta"):
+        if isinstance(unwrapped, TaskFunction):
             unwrapped.pytask_meta.after = parsed_after
             unwrapped.pytask_meta.is_generator = is_generator
             unwrapped.pytask_meta.id_ = id
@@ -163,7 +172,7 @@ def task(  # noqa: PLR0913
                 produces=produces,
             )
 
-        if coiled_kwargs and hasattr(unwrapped, "pytask_meta"):
+        if coiled_kwargs and isinstance(unwrapped, TaskFunction):
             unwrapped.pytask_meta.attributes["coiled_kwargs"] = coiled_kwargs
 
         # Store it in the global variable ``COLLECTED_TASKS`` to avoid garbage
@@ -188,7 +197,7 @@ def _parse_name(func: Callable[..., Any], name: str | None) -> str:
         func = func.func
 
     if hasattr(func, "__name__"):
-        return func.__name__
+        return str(func.__name__)
 
     msg = "Cannot infer name for task function."
     raise NotImplementedError(msg)
@@ -206,9 +215,9 @@ def _parse_after(
     if isinstance(after, list):
         new_after = []
         for func in after:
-            if not hasattr(func, "pytask_meta"):
+            if not isinstance(func, TaskFunction):
                 func = task()(func)  # noqa: PLW2901
-            new_after.append(func.pytask_meta._id)  # type: ignore[attr-defined]
+            new_after.append(func.pytask_meta._id)
         return new_after
     msg = (
         "'after' should be an expression string, a task, or a list of tasks. Got "
@@ -256,15 +265,16 @@ def _parse_tasks_with_preliminary_names(
 def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
     """Parse a single task."""
     meta = task.pytask_meta  # type: ignore[attr-defined]
+    task_name = getattr(task, "__name__", "_")
 
-    if meta.name is None and task.__name__ == "_":
+    if meta.name is None and task_name == "_":
         msg = (
             "A task function either needs 'name' passed by the ``@task`` "
             "decorator or the function name of the task function must not be '_'."
         )
         raise ValueError(msg)
 
-    parsed_name = task.__name__ if meta.name is None else meta.name
+    parsed_name = task_name if meta.name is None else meta.name
     parsed_kwargs = _parse_task_kwargs(meta.kwargs)
 
     signature_kwargs = parse_keyword_arguments_from_signature_defaults(task)

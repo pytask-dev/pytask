@@ -39,9 +39,9 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     Provisional nodes need to be resolved before the same hook in persist.
 
     """
-    task.depends_on = tree_map_with_path(  # type: ignore[assignment]
+    task.depends_on = tree_map_with_path(
         lambda p, x: collect_provisional_nodes(session, task, x, p),
-        task.depends_on,  # type: ignore[arg-type]
+        task.depends_on,
     )
     if task.signature in TASKS_WITH_PROVISIONAL_NODES:
         recreate_dag(session, task)
@@ -103,11 +103,14 @@ def pytask_execute_task(session: Session, task: PTask) -> None:
             session.hook.pytask_collect_modify_tasks(
                 session=session, tasks=session.tasks
             )
+            # Append the last collection report after successful modification
+            if report:
+                session.collection_reports.append(report)
         except Exception:  # noqa: BLE001  # pragma: no cover
-            report = ExecutionReport.from_task_and_exception(
+            exec_report = ExecutionReport.from_task_and_exception(
                 task=task, exc_info=sys.exc_info()
             )
-        session.collection_reports.append(report)
+            session.execution_reports.append(exec_report)
 
         recreate_dag(session, task)
 

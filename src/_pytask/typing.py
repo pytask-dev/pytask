@@ -6,12 +6,15 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import Final
 from typing import Literal
+from typing import Protocol
+from typing import runtime_checkable
 
 from attrs import define
 
 if TYPE_CHECKING:
     from typing import TypeAlias
 
+    from _pytask.models import CollectionMetadata
     from pytask import PTask
 
 
@@ -19,9 +22,22 @@ __all__ = [
     "NoDefault",
     "Product",
     "ProductType",
+    "TaskFunction",
     "is_task_function",
     "no_default",
 ]
+
+
+@runtime_checkable
+class TaskFunction(Protocol):
+    """Protocol for callables decorated with @task that have pytask_meta attached.
+
+    Note: This includes regular functions, functools.partial objects, and any other
+    callable that has been decorated with @task and has pytask_meta attached.
+    We don't require __name__ to support functools.partial.
+    """
+
+    pytask_meta: CollectionMetadata
 
 
 @define(frozen=True)
@@ -34,7 +50,7 @@ Product = ProductType()
 
 
 def is_task_function(obj: Any) -> bool:
-    """Check if an object is a task function."""
+    """Check if an object could be decorated as a task function."""
     return (callable(obj) and hasattr(obj, "__name__")) or (
         isinstance(obj, functools.partial) and hasattr(obj.func, "__name__")
     )

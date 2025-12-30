@@ -57,6 +57,7 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     from _pytask.node_protocols import PTask
+    from _pytask.session import Session
 
 
 @hookimpl
@@ -109,6 +110,14 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     capman.suspend()
 
 
+@hookimpl
+def pytask_unconfigure(session: Session) -> None:
+    """Stop capturing and release file descriptors."""
+    capman = session.config["pm"].get_plugin("capturemanager")
+    if isinstance(capman, CaptureManager):
+        capman.stop_capturing()
+
+
 # Copied from pytest with slightly modified docstrings.
 
 
@@ -129,7 +138,8 @@ class EncodedFile(io.TextIOWrapper):
         # TextIOWrapper doesn't expose a mode, but at least some of our
         # tests check it.
         assert hasattr(self.buffer, "mode")
-        return cast("str", self.buffer.mode.replace("b", ""))
+        mode_value = cast("str", self.buffer.mode)
+        return mode_value.replace("b", "")
 
 
 class CaptureIO(io.TextIOWrapper):
@@ -146,7 +156,7 @@ class TeeCaptureIO(CaptureIO):
         self._other = other
         super().__init__()
 
-    def write(self, s: str) -> int:
+    def write(self, s: str) -> int:  # ty: ignore[invalid-method-override]
         super().write(s)
         return self._other.write(s)
 
@@ -209,7 +219,7 @@ class DontReadFromInput(TextIO):
         msg = "Cannot truncate stdin."
         raise UnsupportedOperation(msg)
 
-    def write(self, data: str) -> int:  # noqa: ARG002
+    def write(self, data: str) -> int:  # noqa: ARG002  # ty: ignore[invalid-method-override]
         msg = "Cannot write to stdin."
         raise UnsupportedOperation(msg)
 

@@ -10,17 +10,9 @@ test *FLAGS:
 test-cov *FLAGS:
     uv run --group test pytest --nbmake --cov=src --cov=tests --cov-report=xml -n auto {{FLAGS}}
 
-# Run tests with notebook validation
-test-nb:
-    uv run --group test pytest --nbmake -n auto
-
 # Run type checking
 typing:
-    uv run --group typing --no-dev --isolated mypy
-
-# Run type checking on notebooks
-typing-nb:
-    uv run --group typing --no-dev --isolated nbqa mypy --ignore-missing-imports .
+    uv run --group typing --group test ty check src/ tests/
 
 # Run linting
 lint:

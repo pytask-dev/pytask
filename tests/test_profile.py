@@ -34,6 +34,7 @@ def test_duration_is_stored_in_task(tmp_path):
 
     with DatabaseSession() as session:
         runtime = session.get(Runtime, task.signature)
+        assert runtime is not None
         assert runtime.duration > 2
 
 
