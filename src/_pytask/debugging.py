@@ -114,7 +114,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     PytaskPDB._saved.append(
         (pdb.set_trace, PytaskPDB._pluginmanager, PytaskPDB._config)
     )
-    pdb.set_trace = PytaskPDB.set_trace
+    pdb.set_trace = PytaskPDB.set_trace  # ty: ignore[invalid-assignment]
     PytaskPDB._pluginmanager = config["pm"]
     PytaskPDB._config = config
 

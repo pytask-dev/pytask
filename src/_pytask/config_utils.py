@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 
 import click
 
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
 if sys.version_info >= (3, 11):  # pragma: no cover
     import tomllib
 else:  # pragma: no cover
-    import tomli as tomllib
+    import tomli as tomllib  # ty: ignore[unresolved-import]
 
 
 __all__ = ["find_project_root_and_config", "read_config", "set_defaults_from_config"]
@@ -51,7 +52,14 @@ def set_defaults_from_config(
         if not context.params["paths"]:
             context.params["paths"] = (Path.cwd(),)
 
-        context.params["paths"] = parse_paths(context.params["paths"])
+        paths = context.params["paths"]
+        if isinstance(paths, tuple):
+            paths = list(paths)
+        if not isinstance(paths, (Path, list)):
+            msg = f"paths must be Path or list, got {type(paths)}"
+            raise TypeError(msg)
+        # Cast is justified - we validated at runtime
+        context.params["paths"] = parse_paths(cast("Path | list[Path]", paths))
         (
             context.params["root"],
             context.params["config"],

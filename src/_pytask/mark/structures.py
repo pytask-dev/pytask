@@ -10,6 +10,7 @@ from attrs import validators
 
 from _pytask.mark_utils import get_all_marks
 from _pytask.models import CollectionMetadata
+from _pytask.typing import TaskFunction
 from _pytask.typing import is_task_function
 
 if TYPE_CHECKING:
@@ -166,7 +167,7 @@ def store_mark(obj: Callable[..., Any], mark: Mark) -> None:
 
     """
     assert isinstance(mark, Mark), mark
-    if hasattr(obj, "pytask_meta"):
+    if isinstance(obj, TaskFunction):
         obj.pytask_meta.markers = [*get_unpacked_marks(obj), mark]
     else:
         obj.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]

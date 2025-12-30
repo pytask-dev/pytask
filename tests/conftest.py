@@ -163,3 +163,7 @@ def enter_directory(path: Path):
         yield
     finally:
         os.chdir(old_cwd)
+
+
+def noop() -> None:
+    """A no-op function for use in tests that need a Task with a function."""

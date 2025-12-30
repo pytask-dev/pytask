@@ -65,7 +65,7 @@ def collect_provisional_nodes(
                 task_name=task_name,
             ),
         ),
-        provisional_nodes,  # type: ignore[arg-type]
+        provisional_nodes,
     )
 
 
@@ -99,9 +99,9 @@ def collect_provisional_products(session: Session, task: PTask) -> None:
         return
 
     # Replace provisional nodes with their actually resolved nodes.
-    task.produces = tree_map_with_path(  # type: ignore[assignment]
+    task.produces = tree_map_with_path(
         lambda p, x: collect_provisional_nodes(session, task, x, p),
-        task.produces,  # type: ignore[arg-type]
+        task.produces,
     )
 
     if task.signature in TASKS_WITH_PROVISIONAL_NODES:

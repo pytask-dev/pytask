@@ -24,7 +24,7 @@ def test_count_outcomes_collection(outcome_in_report):
 
 @pytest.mark.parametrize("outcome_in_report", TaskOutcome)
 def test_count_outcomes_tasks(outcome_in_report):
-    reports = [ExecutionReport(None, outcome_in_report, None, None)]
+    reports = [ExecutionReport(None, outcome_in_report, None, None)]  # type: ignore[arg-type]
 
     counts = count_outcomes(reports, TaskOutcome)
 

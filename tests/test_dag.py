@@ -12,6 +12,7 @@ from pytask import PathNode
 from pytask import Task
 from pytask import build
 from pytask import cli
+from tests.conftest import noop
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="Hashes match only on unix.")
@@ -20,8 +21,8 @@ def test_create_dag():
     task = Task(
         base_name="task_dummy",
         path=root,
-        function=None,
-        depends_on={
+        function=noop,
+        depends_on={  # type: ignore[arg-type]
             0: PathNode.from_path(root / "node_1"),
             1: PathNode.from_path(root / "node_2"),
         },

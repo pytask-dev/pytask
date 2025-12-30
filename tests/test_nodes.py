@@ -59,11 +59,11 @@ def test_hash_of_python_node(value, hash_, expected):
             "7284475a87b8f1aa49c40126c5064269f0ba926265b8fe9158a39a882c6a1512",
         ),
         (
-            Task(base_name="task", path=Path("task.py"), function=None),
+            Task(base_name="task", path=Path("task.py"), function=None),  # type: ignore[arg-type]
             "4c96feb6042210c859938d4f6fc835ac1bde64960aeda101d2e2367644f9c22b",
         ),
         (
-            TaskWithoutPath(name="task", function=None),
+            TaskWithoutPath(name="task", function=None),  # type: ignore[arg-type]
             "ac80b202671ece4c139a9b2d6e03a499c8b6e016dcd2022ac580fbf1c64fc63b",
         ),
     ],

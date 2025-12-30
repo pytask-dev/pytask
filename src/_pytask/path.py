@@ -161,7 +161,7 @@ def import_path(path: Path, root: Path) -> ModuleType:
 
     mod = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = mod
-    spec.loader.exec_module(mod)  # type: ignore[union-attr]
+    spec.loader.exec_module(mod)
     _insert_missing_modules(sys.modules, module_name)
     return mod
 
@@ -334,7 +334,7 @@ def _import_module_using_spec(
     if spec is not None:
         mod = importlib.util.module_from_spec(spec)
         sys.modules[module_name] = mod
-        spec.loader.exec_module(mod)  # type: ignore[union-attr]
+        spec.loader.exec_module(mod)  # ty: ignore[possibly-missing-attribute]
         _insert_missing_modules(sys.modules, module_name)
         return mod
 

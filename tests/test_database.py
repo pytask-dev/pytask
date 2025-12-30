@@ -31,7 +31,7 @@ def test_existence_of_hashes_in_db(tmp_path):
     assert session.exit_code == ExitCode.OK
 
     create_database(
-        make_url(
+        make_url(  # type: ignore[arg-type]
             "sqlite:///" + tmp_path.joinpath(".pytask", "pytask.sqlite3").as_posix()
         )
     )
@@ -39,15 +39,21 @@ def test_existence_of_hashes_in_db(tmp_path):
     with DatabaseSession() as db_session:
         task_id = session.tasks[0].signature
         out_path = tmp_path.joinpath("out.txt")
-        in_id = session.tasks[0].depends_on["path"].signature
-        out_id = session.tasks[0].produces["produces"].signature
+        depends_on = session.tasks[0].depends_on
+        produces = session.tasks[0].produces
+        assert depends_on is not None
+        assert produces is not None
+        in_id = depends_on["path"].signature  # type: ignore[union-attr]
+        out_id = produces["produces"].signature  # type: ignore[union-attr]
 
         for id_, path in (
             (task_id, task_path),
             (in_id, in_path),
             (out_id, out_path),
         ):
-            hash_ = db_session.get(State, (task_id, id_)).hash_
+            state = db_session.get(State, (task_id, id_))
+            assert state is not None
+            hash_ = state.hash_
             assert hash_ == hash_path(path, path.stat().st_mtime)
 
 

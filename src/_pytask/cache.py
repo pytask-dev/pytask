@@ -8,6 +8,9 @@ import inspect
 from inspect import FullArgSpec
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import ParamSpec
+from typing import Protocol
+from typing import TypeVar
 
 from attrs import define
 from attrs import field
@@ -16,6 +19,20 @@ from _pytask._hashlib import hash_value
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from typing import TypeAlias
+
+    from ty_extensions import Intersection
+
+    Memoized: TypeAlias = "Intersection[Callable[P, R], HasCache]"
+
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+class HasCache(Protocol):
+    """Protocol for objects that have a cache attribute."""
+
+    cache: Cache
 
 
 @define
@@ -30,12 +47,14 @@ class Cache:
     _sentinel: Any = field(factory=object)
     cache_info: CacheInfo = field(factory=CacheInfo)
 
-    def memoize(self, func: Callable[..., Any]) -> Callable[..., Any]:
-        prefix = f"{func.__module__}.{func.__name__}:"
+    def memoize(self, func: Callable[P, R]) -> Memoized[P, R]:
+        func_module = getattr(func, "__module__", "")
+        func_name = getattr(func, "__name__", "")
+        prefix = f"{func_module}.{func_name}:"
         argspec = inspect.getfullargspec(func)
 
         @functools.wraps(func)
-        def wrapped(*args: Any, **kwargs: Any) -> Callable[..., Any]:
+        def wrapped(*args: P.args, **kwargs: P.kwargs) -> R:
             key = _make_memoize_key(
                 args, kwargs, typed=False, argspec=argspec, prefix=prefix
             )
@@ -50,7 +69,7 @@ class Cache:
 
             return value
 
-        wrapped.cache = self  # type: ignore[attr-defined]
+        wrapped.cache = self  # ty: ignore[unresolved-attribute]
 
         return wrapped
 
