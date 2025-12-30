@@ -177,7 +177,7 @@ unused-ignore-comment = "error"
 include = [
     "src/_pytask/_version.py",
     "src/_pytask/click.py",
-    "src/_pytask/dag_command.py",
+    "tests/test_dag_command.py",
 ]
 
 [tool.ty.overrides.rules]
