@@ -174,7 +174,7 @@ filterwarnings = [
 unused-ignore-comment = "error"
 
 [[tool.ty.overrides]]
-include = ["src/_pytask/_version.py"]
+include = ["src/_pytask/_version.py", "src/_pytask/click.py"]
 
 [tool.ty.overrides.rules]
 unused-ignore-comment = "ignore"
