@@ -7,16 +7,27 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
-- {pull}`739` closes file descriptors for the capture manager between CLI runs and
-  disposes stale database engines to prevent hitting OS file descriptor limits in
-  large test runs.
+- Nothing yet.
+
+## 0.5.8 - 2025-12-30
+
+- {pull}`710` adds support for Python 3.14.
+- {pull}`724` handles lazy annotations for task generators in Python 3.14.
 - {pull}`725` fixes the pickle node hash test by accounting for Python 3.14's
   default pickle protocol.
 - {pull}`726` adapts the interactive debugger integration to Python 3.14's
   updated `pdb` behaviour and keeps pytest-style capturing intact.
+- {pull}`732` fixes importing packages with missing `__init__.py` files.
+- {pull}`739` closes file descriptors for the capture manager between CLI runs and
+  disposes stale database engines to prevent hitting OS file descriptor limits in
+  large test runs.
 - {pull}`734` migrates from mypy to ty for type checking.
 - {pull}`736` updates the comparison to other tools documentation and adds a section on
   the Common Workflow Language (CWL) and WorkflowHub.
+- {pull}`730` updates GitHub Actions dependencies.
+- {pull}`731` enables automerge for pre-commit and Dependabot.
+- {pull}`733` and {pull}`727` refresh pre-commit hooks.
+- {pull}`737` enables merge groups.
 
 ## 0.5.7 - 2025-11-22
 
