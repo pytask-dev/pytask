@@ -2680,12 +2680,14 @@ docs = [
     { name = "myst-parser" },
     { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "sphinx-autobuild" },
     { name = "sphinx-click" },
     { name = "sphinx-copybutton" },
     { name = "sphinx-design" },
     { name = "sphinx-toolbox" },
     { name = "sphinxext-opengraph" },
+]
+docs-live = [
+    { name = "sphinx-autobuild" },
 ]
 plugin-list = [
     { name = "httpx" },
@@ -2735,13 +2737,13 @@ docs = [
     { name = "myst-nb", specifier = ">=1.2.0" },
     { name = "myst-parser", specifier = ">=3.0.0" },
     { name = "sphinx", specifier = ">=7.0.0" },
-    { name = "sphinx-autobuild", specifier = ">=2024.10.3" },
     { name = "sphinx-click", specifier = ">=6.0.0" },
     { name = "sphinx-copybutton", specifier = ">=0.5.2" },
     { name = "sphinx-design", specifier = ">=0.3" },
     { name = "sphinx-toolbox", specifier = ">=4.0.0" },
     { name = "sphinxext-opengraph", specifier = ">=0.10.0" },
 ]
+docs-live = [{ name = "sphinx-autobuild", specifier = ">=2024.10.3" }]
 plugin-list = [
     { name = "httpx", specifier = ">=0.27.0" },
     { name = "tabulate", extras = ["widechars"], specifier = ">=0.9.0" },
