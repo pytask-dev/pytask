@@ -12,7 +12,7 @@ from pytask import ExitCode
 from pytask import cli
 
 try:
-    import pygraphviz  # noqa: F401
+    import pygraphviz  # type: ignore[unresolved-import]  # noqa: F401
 except ImportError:  # pragma: no cover
     _IS_PYGRAPHVIZ_INSTALLED = False
 else:

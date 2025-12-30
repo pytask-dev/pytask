@@ -1,14 +1,17 @@
 """Contains utilities related to the :func:`@task <pytask.task>`."""
 
 from __future__ import annotations
+import __future__
 
 import functools
 import inspect
+import sys
 from collections import defaultdict
 from types import BuiltinFunctionType
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
+from typing import cast
 
 import attrs
 
@@ -80,29 +83,17 @@ def task(  # noqa: PLR0913
     is_generator
         An indicator whether this task is a task generator.
     id
-        An id for the task if it is part of a parametrization. Otherwise, an automatic
-        id will be generated. See
-        :doc:`this tutorial <../tutorials/repeating_tasks_with_different_inputs>` for
-        more information.
-    kwargs
-        A dictionary containing keyword arguments which are passed to the task when it
-        is executed.
-    produces
-        Definition of products to parse the function returns and store them. See
-        :doc:`this how-to guide <../how_to_guides/using_task_returns>` for more
-    id
         An id for the task if it is part of a repetition. Otherwise, an automatic id
         will be generated. See :ref:`how-to-repeat-a-task-with-different-inputs-the-id`
         for more information.
     kwargs
-        Use a dictionary to pass any keyword arguments to the task function which can be
-        dependencies or products of the task. Read :ref:`task-kwargs` for more
-        information.
-    produces
-        Use this argument if you want to parse the return of the task function as a
-        product, but you cannot annotate the return of the function. See :doc:`this
-        how-to guide <../how_to_guides/using_task_returns>` or :ref:`task-produces` for
+        A dictionary containing keyword arguments which are passed to the task function.
+        These can be dependencies or products of the task. Read :ref:`task-kwargs` for
         more information.
+    produces
+        Use this argument to parse the return of the task function as a product. See
+        :doc:`this how-to guide <../how_to_guides/using_task_returns>` or
+        :ref:`task-produces` for more information.
 
     Examples
     --------
@@ -117,12 +108,23 @@ def task(  # noqa: PLR0913
             return "Hello, World!"
 
     """
+    # Capture the caller's frame locals for deferred annotation evaluation in Python
+    # 3.14+. If ``from __future__ import annotations`` is active, keep the pre-3.14
+    # behavior by evaluating annotations against current globals instead of snapshots.
+    caller_frame = sys._getframe(1)
+    has_future_annotations = bool(
+        caller_frame.f_code.co_flags & __future__.annotations.compiler_flag
+    )
+    caller_locals = None if has_future_annotations else caller_frame.f_locals.copy()
 
     def wrapper(func: T) -> TaskDecorated[T]:
         # Omits frame when a builtin function is wrapped.
         _rich_traceback_omit = True
 
-        for arg, arg_name in ((name, "name"), (id, "id")):
+        # When @task is used without parentheses, name is the function, not a string.
+        effective_name = None if is_task_function(name) else name
+
+        for arg, arg_name in ((effective_name, "name"), (id, "id")):
             if not (isinstance(arg, str) or arg is None):
                 msg = (
                     f"Argument {arg_name!r} of @task must be a str, but it is {arg!r}."
@@ -149,7 +151,7 @@ def task(  # noqa: PLR0913
         path = get_file(unwrapped)
 
         parsed_kwargs = {} if kwargs is None else kwargs
-        parsed_name = _parse_name(unwrapped, name)
+        parsed_name = _parse_name(unwrapped, effective_name)
         parsed_after = _parse_after(after)
 
         if isinstance(unwrapped, TaskFunction):
@@ -160,10 +162,11 @@ def task(  # noqa: PLR0913
             unwrapped.pytask_meta.markers.append(Mark("task", (), {}))
             unwrapped.pytask_meta.name = parsed_name
             unwrapped.pytask_meta.produces = produces
-            unwrapped.pytask_meta.after = parsed_after
+            unwrapped.pytask_meta.annotation_locals = caller_locals
         else:
             unwrapped.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]
                 after=parsed_after,
+                annotation_locals=caller_locals,
                 is_generator=is_generator,
                 id_=id,
                 kwargs=parsed_kwargs,
@@ -181,10 +184,9 @@ def task(  # noqa: PLR0913
 
         return unwrapped
 
-    # In case the decorator is used without parentheses, wrap the function which is
-    # passed as the first argument with the default arguments.
+    # When decorator is used without parentheses, call wrapper directly.
     if is_task_function(name) and kwargs is None:
-        return task()(name)
+        return wrapper(cast("T", name))
     return wrapper
 
 

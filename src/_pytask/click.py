@@ -35,9 +35,11 @@ __all__ = ["ColoredCommand", "ColoredGroup", "EnumChoice"]
 
 
 if importlib.metadata.version("click") < "8.2":
-    from click.parser import split_opt
+    from click.parser import split_opt as _split_opt
 else:
-    from click.parser import _split_opt as split_opt  # ty: ignore[unresolved-import]
+    from click.parser import _split_opt  # ty: ignore[unresolved-import]
+
+split_opt = _split_opt
 
 
 class EnumChoice(Choice):
