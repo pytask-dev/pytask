@@ -31,7 +31,7 @@ __all__ = [
 
 
 DatabaseSession = sessionmaker()
-_ENGINE_BOX: dict[str, Engine] = {}
+_ENGINE: Engine | None = None
 
 
 class BaseTable(DeclarativeBase):
@@ -50,13 +50,12 @@ class State(BaseTable):
 
 def create_database(url: str) -> None:
     """Create the database."""
-    engine = _ENGINE_BOX.get("engine")
-    if engine is not None:
-        engine.dispose()
-    engine = create_engine(url)
-    _ENGINE_BOX["engine"] = engine
-    BaseTable.metadata.create_all(bind=engine)
-    DatabaseSession.configure(bind=engine)
+    global _ENGINE  # noqa: PLW0603
+    if _ENGINE is not None:
+        _ENGINE.dispose()
+    _ENGINE = create_engine(url)
+    BaseTable.metadata.create_all(bind=_ENGINE)
+    DatabaseSession.configure(bind=_ENGINE)
 
 
 def _create_or_update_state(first_key: str, second_key: str, hash_: str) -> None:
