@@ -57,6 +57,7 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     from _pytask.node_protocols import PTask
+    from _pytask.session import Session
 
 
 @hookimpl
@@ -107,6 +108,14 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     capman.stop_capturing()
     capman.start_capturing()
     capman.suspend()
+
+
+@hookimpl
+def pytask_unconfigure(session: Session) -> None:
+    """Stop capturing and release file descriptors."""
+    capman = session.config["pm"].get_plugin("capturemanager")
+    if isinstance(capman, CaptureManager):
+        capman.stop_capturing()
 
 
 # Copied from pytest with slightly modified docstrings.
