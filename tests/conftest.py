@@ -14,11 +14,6 @@ import pytest
 from click.testing import CliRunner
 from packaging import version
 
-try:
-    from nbmake.pytest_items import NotebookItem
-except ImportError:
-    NotebookItem = None
-
 from pytask import console
 from pytask import storage
 
