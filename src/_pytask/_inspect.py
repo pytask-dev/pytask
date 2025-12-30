@@ -6,6 +6,7 @@ import sys
 from inspect import get_annotations as _get_annotations_from_inspect
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -57,7 +58,9 @@ def get_annotations(
         raw_annotations = _get_annotations_from_inspect(
             obj, globals=globals, locals=locals, eval_str=False
         )
-        evaluation_globals = obj.__globals__ if globals is None else globals
+        evaluation_globals = cast(
+            "dict[str, Any]", obj.__globals__ if globals is None else globals
+        )
         evaluation_locals = evaluation_globals if locals is None else locals
         evaluated_annotations = {}
         for name, expression in raw_annotations.items():

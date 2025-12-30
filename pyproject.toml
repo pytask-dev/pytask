@@ -173,6 +173,12 @@ filterwarnings = [
 [tool.ty.rules]
 unused-ignore-comment = "error"
 
+[[tool.ty.overrides]]
+include = ["src/_pytask/_version.py"]
+
+[tool.ty.overrides.rules]
+unused-ignore-comment = "ignore"
+
 [tool.ty.src]
 exclude = ["src/_pytask/_hashlib.py"]
 

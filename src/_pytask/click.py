@@ -35,9 +35,11 @@ __all__ = ["ColoredCommand", "ColoredGroup", "EnumChoice"]
 
 
 if importlib.metadata.version("click") < "8.2":
-    from click.parser import split_opt
+    from click.parser import split_opt as _split_opt
 else:
-    from click.parser import _split_opt as split_opt  # ty: ignore[unresolved-import]
+    from click.parser import _split_opt
+
+split_opt = _split_opt
 
 
 class EnumChoice(Choice):
@@ -249,7 +251,7 @@ def _print_options(group_or_command: Command | DefaultGroup, ctx: Context) -> No
         if param.metavar:
             opt2 += Text(f" {param.metavar}", style="metavar")
         elif isinstance(param.type, click.Choice):
-            choices = "[" + "|".join(param.type.choices) + "]"
+            choices = "[" + "|".join(param.type.choices) + "]"  # ty: ignore[no-matching-overload]
             opt2 += Text(f" {choices}", style="metavar", overflow="fold")
 
         help_text = _format_help_text(param, ctx)
@@ -327,7 +329,7 @@ def _format_help_text(  # noqa: C901, PLR0912, PLR0915
         elif param.is_bool_flag and param.secondary_opts:  # type: ignore[attr-defined]
             # For boolean flags that have distinct True/False opts,
             # use the opt without prefix instead of the value.
-            default_string = split_opt(
+            default_string = split_opt(  # ty: ignore[call-non-callable]
                 (param.opts if param.default else param.secondary_opts)[0]
             )[1]
         elif (
