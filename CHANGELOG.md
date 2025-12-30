@@ -7,6 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- {pull}`XXX` closes file descriptors for the capture manager between CLI runs and
+  disposes stale database engines to prevent hitting OS file descriptor limits in
+  large test runs.
 - {pull}`725` fixes the pickle node hash test by accounting for Python 3.14's
   default pickle protocol.
 - {pull}`726` adapts the interactive debugger integration to Python 3.14's

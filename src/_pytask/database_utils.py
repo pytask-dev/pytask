@@ -14,6 +14,8 @@ from sqlalchemy.orm import sessionmaker
 from _pytask.dag_utils import node_and_neighbors
 
 if TYPE_CHECKING:
+    from sqlalchemy.engine import Engine
+
     from _pytask.node_protocols import PNode
     from _pytask.node_protocols import PTask
     from _pytask.session import Session
@@ -29,6 +31,7 @@ __all__ = [
 
 
 DatabaseSession = sessionmaker()
+_ENGINE_BOX: dict[str, Engine] = {}
 
 
 class BaseTable(DeclarativeBase):
@@ -47,7 +50,11 @@ class State(BaseTable):
 
 def create_database(url: str) -> None:
     """Create the database."""
+    engine = _ENGINE_BOX.get("engine")
+    if engine is not None:
+        engine.dispose()
     engine = create_engine(url)
+    _ENGINE_BOX["engine"] = engine
     BaseTable.metadata.create_all(bind=engine)
     DatabaseSession.configure(bind=engine)
 
