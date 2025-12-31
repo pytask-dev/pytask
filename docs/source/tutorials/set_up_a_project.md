@@ -129,7 +129,6 @@ paths = ["src/my_project"]
 ````
 
 
-````
 `````
 
 The `[tool.pytask.ini_options]` section tells pytask to look for tasks in
