@@ -33,7 +33,7 @@ repos:
     rev: 0.9.18
     hooks:
       - id: uv-lock
-        args: [--check, --no-build, --no-build-isolation]
+        args: [--check, --no-build, --no-build-isolation, --python, python3]
         additional_dependencies:
           - hatchling
           - hatch-vcs
