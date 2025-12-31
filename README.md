@@ -62,8 +62,6 @@ or
 $ pixi add pytask
 ```
 
-or use pip, conda, or mamba if you like.
-
 Color support is automatically available on non-Windows platforms. On Windows, please,
 use [Windows Terminal](https://github.com/microsoft/terminal), which can be, for
 example, installed via the [Microsoft Store](https://aka.ms/terminal).

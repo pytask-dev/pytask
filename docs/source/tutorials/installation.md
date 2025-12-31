@@ -22,20 +22,6 @@ $ pixi add pytask
 
 Learn more about [uv](https://docs.astral.sh/uv/) and [pixi](https://pixi.sh/).
 
-## Traditional
-
-You can also install pytask using traditional package managers:
-
-```console
-$ pip install pytask
-```
-
-or
-
-```console
-$ conda install -c conda-forge pytask
-```
-
 <!-- END: Keep in sync with README.md -->
 
 Verify the installation by displaying the help page listing all available commands and

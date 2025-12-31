@@ -10,6 +10,7 @@ from gettext import ngettext
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import ClassVar
+from typing import cast
 
 import click
 from click import Choice
@@ -28,6 +29,7 @@ from _pytask.console import console
 from _pytask.console import create_panel_title
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from collections.abc import Sequence
 
 
@@ -39,7 +41,10 @@ if importlib.metadata.version("click") < "8.2":
 else:
     from click.parser import _split_opt  # ty: ignore[unresolved-import]
 
-split_opt = _split_opt
+
+def split_opt(option: str) -> tuple[str, str]:
+    """Split an option into prefix and name."""
+    return cast("Callable[[str], tuple[str, str]]", _split_opt)(option)
 
 
 class EnumChoice(Choice):
@@ -251,7 +256,7 @@ def _print_options(group_or_command: Command | DefaultGroup, ctx: Context) -> No
         if param.metavar:
             opt2 += Text(f" {param.metavar}", style="metavar")
         elif isinstance(param.type, click.Choice):
-            choices = "[" + "|".join(param.type.choices) + "]"
+            choices = "[" + "|".join(map(str, param.type.choices)) + "]"
             opt2 += Text(f" {choices}", style="metavar", overflow="fold")
 
         help_text = _format_help_text(param, ctx)

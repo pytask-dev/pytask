@@ -52,7 +52,11 @@ $ python -m cProfile -o log.pstats -m pytask directory/with/tasks
 The profile can be visualized with
 
 ```console
-$ pip install yelp-gprof2dot
+$ uv add yelp-gprof2dot
+
+# or
+
+$ pixi add --pypi yelp-gprof2dot
 $ gprof2dot log.pstats | dot -T svg -o out.svg
 ```
 

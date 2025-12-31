@@ -128,66 +128,6 @@ paths = ["src/my_project"]
 
 ````
 
-````{tab-item} pip
-:sync: pip
-
-Create a `pyproject.toml` file for project configuration:
-
-```toml
-[project]
-name = "my_project"
-version = "0.1.0"
-requires-python = ">=3.10"
-dependencies = ["pytask"]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.pytask.ini_options]
-paths = ["src/my_project"]
-```
-
-Also create a `requirements.txt` file:
-
-```text
-pytask
-```
-
-````
-
-````{tab-item} conda/mamba
-:sync: conda
-
-Create an `environment.yml` file that includes the editable install:
-
-```yaml
-name: my_project
-channels:
-  - conda-forge
-dependencies:
-  - python>=3.10
-  - pytask
-  - pip
-  - pip:
-    - -e .
-```
-
-And a `pyproject.toml` file for project configuration:
-
-```toml
-[project]
-name = "my_project"
-version = "0.1.0"
-requires-python = ">=3.10"
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling"
-
-[tool.pytask.ini_options]
-paths = ["src/my_project"]
-```
 
 ````
 `````
@@ -227,33 +167,4 @@ pixi automatically creates the environment and installs dependencies. pixi will 
 
 ````
 
-````{tab-item} pip
-:sync: pip
-
-```console
-$ pip install -e .
-```
-
-This creates an editable install where changes in the package's source files are immediately available in the installed version.
-
-````
-
-````{tab-item} conda/mamba
-:sync: conda
-
-```console
-$ conda env create -f environment.yml
-$ conda activate my_project
-```
-
-Or with mamba:
-
-```console
-$ mamba env create -f environment.yml
-$ mamba activate my_project
-```
-
-The editable install is automatically handled by the `pip: -e .` entry in `environment.yml`.
-
-````
 `````
