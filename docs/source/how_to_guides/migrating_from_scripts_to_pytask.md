@@ -21,12 +21,12 @@ guide concludes with an additional example of an R script.
 
 ## Installation
 
-To get started with pytask, simply install it with pip or conda:
+To get started with pytask, install it with uv or pixi:
 
 ```console
-$ pip install pytask pytask-parallel
+$ uv add pytask pytask-parallel
 
-$ conda -c conda-forge pytask pytask-parallel
+$ pixi add pytask pytask-parallel
 ```
 
 ## From Python script to task
@@ -104,9 +104,9 @@ about the plugin in the repo's readme.
 First, we will install the package.
 
 ```console
-$ pip install pytask-r
+$ uv add pytask-r
 
-$ conda install -c conda-forge pytask-r
+$ pixi add pytask-r
 ```
 
 ```{seealso}

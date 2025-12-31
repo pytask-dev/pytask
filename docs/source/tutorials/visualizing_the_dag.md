@@ -2,10 +2,10 @@
 
 To visualize the {term}`DAG` of the project, first, install
 [pygraphviz](https://github.com/pygraphviz/pygraphviz) and
-[graphviz](https://graphviz.org/). For example, you can both install with conda
+[graphviz](https://graphviz.org/). For example, you can both install with pixi
 
 ```console
-$ conda install -c conda-forge pygraphviz
+$ pixi add pygraphviz graphviz
 ```
 
 After that, pytask offers two interfaces to visualize your project's {term}`DAG`.

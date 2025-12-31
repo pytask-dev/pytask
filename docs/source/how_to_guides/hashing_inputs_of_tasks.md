@@ -54,8 +54,8 @@ function to the {class}`~pytask.PythonNode` that generates a stable hash.
 First, install `deepdiff`.
 
 ```console
-$ pip install deepdiff
-$ conda install deepdiff
+$ uv add deepdiff
+$ pixi add deepdiff
 ```
 
 Then, create the hash function and pass it to the node. Make sure it returns either an

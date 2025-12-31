@@ -78,7 +78,7 @@ test = [
     "coiled>=1.42.0",
     "pygraphviz>=1.12;platform_system=='Linux'",
 ]
-typing = ["ty>=0.0.7"]
+typing = ["ty>=0.0.8"]
 
 [project.urls]
 Changelog = "https://pytask-dev.readthedocs.io/en/stable/changes.html"
