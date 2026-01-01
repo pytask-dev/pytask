@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from dataclasses import field
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import NamedTuple
 from uuid import UUID
 from uuid import uuid4
-
-from attrs import define
-from attrs import field
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -19,7 +18,7 @@ if TYPE_CHECKING:
     from _pytask.tree_util import PyTree
 
 
-@define
+@dataclass
 class CollectionMetadata:
     """A class for carrying metadata from functions to tasks.
 
@@ -52,16 +51,16 @@ class CollectionMetadata:
         information.
     """
 
-    after: str | list[Callable[..., Any]] = field(factory=list)
-    attributes: dict[str, Any] = field(factory=dict)
+    after: str | list[Callable[..., Any]] = field(default_factory=list)
+    attributes: dict[str, Any] = field(default_factory=dict)
     annotation_locals: dict[str, Any] | None = None
     is_generator: bool = False
     id_: str | None = None
-    kwargs: dict[str, Any] = field(factory=dict)
-    markers: list[Mark] = field(factory=list)
+    kwargs: dict[str, Any] = field(default_factory=dict)
+    markers: list[Mark] = field(default_factory=list)
     name: str | None = None
     produces: PyTree[Any] | None = None
-    _id: UUID = field(factory=uuid4)
+    _id: UUID = field(default_factory=uuid4)
 
 
 class NodeInfo(NamedTuple):

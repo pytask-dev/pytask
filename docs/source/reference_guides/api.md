@@ -203,6 +203,7 @@ Nodes are the interface for different kinds of dependencies or products.
    :members:
 .. autoclass:: pytask.PickleNode
    :members:
+   :exclude-members: serializer, deserializer
 .. autoclass:: pytask.PythonNode
    :members:
 .. autoclass:: pytask.DirectoryNode

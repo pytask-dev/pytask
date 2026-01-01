@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING
 from typing import Any
@@ -8,8 +9,6 @@ from typing import Final
 from typing import Literal
 from typing import Protocol
 from typing import runtime_checkable
-
-from attrs import define
 
 if TYPE_CHECKING:
     from typing import TypeAlias
@@ -40,7 +39,7 @@ class TaskFunction(Protocol):
     pytask_meta: CollectionMetadata
 
 
-@define(frozen=True)
+@dataclass(frozen=True)
 class ProductType:
     """A class to mark products."""
 

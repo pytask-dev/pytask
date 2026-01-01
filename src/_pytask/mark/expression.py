@@ -31,9 +31,8 @@ from collections.abc import Callable
 from collections.abc import Iterator
 from collections.abc import Mapping
 from collections.abc import Sequence
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
-
-from attrs import define
 
 if TYPE_CHECKING:
     import types
@@ -53,7 +52,7 @@ class TokenType(enum.Enum):
     EOF = "end of input"
 
 
-@define(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True)
 class Token:
     type_: TokenType
     value: str

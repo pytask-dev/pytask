@@ -7,13 +7,13 @@ import functools
 import inspect
 import sys
 from collections import defaultdict
+from dataclasses import asdict
+from dataclasses import is_dataclass
 from types import BuiltinFunctionType
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
 from typing import cast
-
-import attrs
 
 from _pytask.coiled_utils import Function
 from _pytask.coiled_utils import extract_coiled_function_kwargs
@@ -292,11 +292,11 @@ def _parse_task_kwargs(kwargs: Any) -> dict[str, Any]:
     # Handle namedtuples.
     if callable(getattr(kwargs, "_asdict", None)):
         return kwargs._asdict()
-    if attrs.has(type(kwargs)):
-        return attrs.asdict(kwargs)
+    if is_dataclass(kwargs) and not isinstance(kwargs, type):
+        return asdict(kwargs)
     msg = (
         "'@task(kwargs=...) needs to be a dictionary, namedtuple or an "
-        "instance of an attrs class."
+        "instance of a dataclass."
     )
     raise ValueError(msg)
 

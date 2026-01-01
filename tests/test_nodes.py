@@ -121,12 +121,12 @@ def test_hash_of_pickle_node(tmp_path, value, exists, expected):
 @pytest.mark.parametrize(
     ("node", "protocol", "expected"),
     [
-        (PathNode, PNode, True),
-        (PathNode, PPathNode, True),
-        (PythonNode, PNode, True),
-        (PythonNode, PPathNode, False),
-        (PickleNode, PNode, True),
-        (PickleNode, PPathNode, True),
+        (PathNode(name="pathnode", path=Path("file.txt")), PNode, True),
+        (PathNode(name="pathnode", path=Path("file.txt")), PPathNode, True),
+        (PythonNode(name="node", value=None), PNode, True),
+        (PythonNode(name="node", value=None), PPathNode, False),
+        (PickleNode(name="node", path=Path("file.pkl")), PNode, True),
+        (PickleNode(name="node", path=Path("file.pkl")), PPathNode, True),
     ],
 )
 def test_comply_with_protocol(node, protocol, expected):

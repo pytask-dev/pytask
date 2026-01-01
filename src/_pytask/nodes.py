@@ -6,13 +6,12 @@ import hashlib
 import inspect
 import pickle
 from contextlib import suppress
+from dataclasses import dataclass
+from dataclasses import field
 from os import stat_result
-from pathlib import Path  # noqa: TC003
 from typing import TYPE_CHECKING
 from typing import Any
 
-from attrs import define
-from attrs import field
 from typing_extensions import deprecated
 from upath import UPath
 from upath._stat import UPathStatResult
@@ -31,6 +30,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from io import BufferedReader
     from io import BufferedWriter
+    from pathlib import Path
 
     from _pytask.mark import Mark
     from _pytask.models import NodeInfo
@@ -48,7 +48,7 @@ __all__ = [
 ]
 
 
-@define(kw_only=True)
+@dataclass(kw_only=True)
 class TaskWithoutPath(PTask):
     """The class for tasks without a source file.
 
@@ -77,11 +77,13 @@ class TaskWithoutPath(PTask):
 
     name: str
     function: Callable[..., Any]
-    depends_on: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
-    produces: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
-    markers: list[Mark] = field(factory=list)
-    report_sections: list[tuple[str, str, str]] = field(factory=list)
-    attributes: dict[Any, Any] = field(factory=dict)
+    depends_on: dict[str, PyTree[PNode | PProvisionalNode]] = field(
+        default_factory=dict
+    )
+    produces: dict[str, PyTree[PNode | PProvisionalNode]] = field(default_factory=dict)
+    markers: list[Mark] = field(default_factory=list)
+    report_sections: list[tuple[str, str, str]] = field(default_factory=list)
+    attributes: dict[Any, Any] = field(default_factory=dict)
 
     @property
     def signature(self) -> str:
@@ -100,7 +102,7 @@ class TaskWithoutPath(PTask):
         return self.function(**kwargs)
 
 
-@define(kw_only=True)
+@dataclass(kw_only=True)
 class Task(PTaskWithPath):
     """The class for tasks which are Python functions.
 
@@ -131,13 +133,15 @@ class Task(PTaskWithPath):
     path: Path
     function: Callable[..., Any]
     name: str = field(default="", init=False)
-    depends_on: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
-    produces: dict[str, PyTree[PNode | PProvisionalNode]] = field(factory=dict)
-    markers: list[Mark] = field(factory=list)
-    report_sections: list[tuple[str, str, str]] = field(factory=list)
-    attributes: dict[Any, Any] = field(factory=dict)
+    depends_on: dict[str, PyTree[PNode | PProvisionalNode]] = field(
+        default_factory=dict
+    )
+    produces: dict[str, PyTree[PNode | PProvisionalNode]] = field(default_factory=dict)
+    markers: list[Mark] = field(default_factory=list)
+    report_sections: list[tuple[str, str, str]] = field(default_factory=list)
+    attributes: dict[Any, Any] = field(default_factory=dict)
 
-    def __attrs_post_init__(self: Task) -> None:
+    def __post_init__(self: Task) -> None:
         """Change class after initialization."""
         if not self.name:
             self.name = self.path.as_posix() + "::" + self.base_name
@@ -157,7 +161,7 @@ class Task(PTaskWithPath):
         return self.function(**kwargs)
 
 
-@define(kw_only=True)
+@dataclass(kw_only=True)
 class PathNode(PPathNode):
     """The class for a node which is a path.
 
@@ -174,7 +178,7 @@ class PathNode(PPathNode):
 
     path: Path
     name: str = ""
-    attributes: dict[Any, Any] = field(factory=dict)
+    attributes: dict[Any, Any] = field(default_factory=dict)
 
     @property
     def signature(self) -> str:
@@ -210,7 +214,7 @@ class PathNode(PPathNode):
             raise TypeError(msg)
 
 
-@define(kw_only=True)
+@dataclass(kw_only=True)
 class PythonNode(PNode):
     """The class for a node which is a Python object.
 
@@ -247,7 +251,7 @@ class PythonNode(PNode):
     value: Any | NoDefault = no_default
     hash: bool | Callable[[Any], int | str] = False
     node_info: NodeInfo | None = None
-    attributes: dict[Any, Any] = field(factory=dict)
+    attributes: dict[Any, Any] = field(default_factory=dict)
 
     @property
     def signature(self) -> str:
@@ -303,7 +307,7 @@ class PythonNode(PNode):
         return "0"
 
 
-@define
+@dataclass
 class PickleNode(PPathNode):
     """A node for pickle files.
 
@@ -324,7 +328,7 @@ class PickleNode(PPathNode):
 
     path: Path
     name: str = ""
-    attributes: dict[Any, Any] = field(factory=dict)
+    attributes: dict[Any, Any] = field(default_factory=dict)
     serializer: Callable[[Any, BufferedWriter], None] = field(default=pickle.dump)
     deserializer: Callable[[BufferedReader], Any] = field(default=pickle.load)
 
@@ -356,7 +360,7 @@ class PickleNode(PPathNode):
             self.serializer(value, f)
 
 
-@define(kw_only=True)
+@dataclass(kw_only=True)
 class DirectoryNode(PProvisionalNode):
     """The class for a provisional node that works with directories.
 
@@ -378,7 +382,7 @@ class DirectoryNode(PProvisionalNode):
     name: str = ""
     pattern: str = "*"
     root_dir: Path | None = None
-    attributes: dict[Any, Any] = field(factory=dict)
+    attributes: dict[Any, Any] = field(default_factory=dict)
 
     @property
     def signature(self) -> str:

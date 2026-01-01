@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from dataclasses import field
 from typing import TYPE_CHECKING
 from typing import ClassVar
 
-from attrs import define
-from attrs import field
 from rich.rule import Rule
 from rich.text import Text
 
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
 
 
-@define
+@dataclass
 class CollectionReport:
     """A collection report for a task."""
 
@@ -58,7 +58,7 @@ class CollectionReport:
         yield ""
 
 
-@define
+@dataclass
 class DagReport:
     """A report for an error during the creation of the DAG."""
 
@@ -75,14 +75,14 @@ class DagReport:
         yield traceback
 
 
-@define
+@dataclass
 class ExecutionReport:
     """A report for an executed task."""
 
     task: PTask
     outcome: TaskOutcome
     exc_info: OptionalExceptionInfo | None = None
-    sections: list[tuple[str, str, str]] = field(factory=list)
+    sections: list[tuple[str, str, str]] = field(default_factory=list)
 
     editor_url_scheme: ClassVar[str] = "file"
     show_locals: ClassVar[bool] = False

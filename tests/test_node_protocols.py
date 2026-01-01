@@ -12,15 +12,16 @@ def test_node_protocol_for_custom_nodes(runner, tmp_path):
     from typing import Annotated
     from typing import Any
     from pytask import Product
-    from attrs import define
+    from dataclasses import dataclass
+    from dataclasses import field
     from pathlib import Path
 
-    @define
+    @dataclass
     class CustomNode:
         name: str
         value: str
         signature: str = "id"
-        attributes: dict[Any, Any] = {}
+        attributes: dict[Any, Any] = field(default_factory=dict)
 
         def state(self):
             return self.value
@@ -51,16 +52,17 @@ def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     from typing import Any
     from pytask import Product
     from pathlib import Path
-    from attrs import define
+    from dataclasses import dataclass
+    from dataclasses import field
     import pickle
 
-    @define
+    @dataclass
     class PickleFile:
         name: str
         path: Path
         value: Path
         signature: str = "id"
-        attributes: dict[Any, Any] = {}
+        attributes: dict[Any, Any] = field(default_factory=dict)
 
         def state(self):
             return str(self.path.stat().st_mtime)
@@ -94,10 +96,10 @@ def test_node_protocol_for_custom_nodes_adding_attributes(runner, tmp_path):
     source = """
     from typing import Annotated
     from pytask import Product
-    from attrs import define
+    from dataclasses import dataclass
     from pathlib import Path
 
-    @define
+    @dataclass
     class CustomNode:
         name: str
         value: str

@@ -1,12 +1,9 @@
 from __future__ import annotations
 
 import warnings
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any
-
-from attrs import define
-from attrs import field
-from attrs import validators
 
 from _pytask.mark_utils import get_all_marks
 from _pytask.models import CollectionMetadata
@@ -19,7 +16,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
 
-@define(frozen=True)
+@dataclass(frozen=True)
 class Mark:
     """A class for a mark containing the name, positional and keyword arguments.
 
@@ -58,7 +55,7 @@ class Mark:
         return Mark(self.name, self.args + other.args, {**self.kwargs, **other.kwargs})
 
 
-@define
+@dataclass
 class MarkDecorator:
     """A decorator for applying a mark on task function.
 
@@ -94,7 +91,12 @@ class MarkDecorator:
 
     """
 
-    mark: Mark = field(validator=validators.instance_of(Mark))
+    mark: Mark
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.mark, Mark):
+            msg = f"'mark' must be a Mark instance, got {type(self.mark)!r}."
+            raise TypeError(msg)
 
     @property
     def name(self) -> str:

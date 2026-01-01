@@ -1,11 +1,11 @@
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import cloudpickle
-from attrs import define
 
 
-@define
+@dataclass
 class PickleNode:
     """A node for pickle files.
 

@@ -1,9 +1,8 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any
-
-from attrs import define
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -12,7 +11,7 @@ try:
     from coiled.function import Function
 except ImportError:
 
-    @define
+    @dataclass
     class Function:
         cluster_kwargs: dict[str, Any]
         environ: dict[str, Any]

@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import itertools
+from dataclasses import dataclass
+from dataclasses import field
 from typing import TYPE_CHECKING
 
 import networkx as nx
-from attrs import define
-from attrs import field
 
 from _pytask.mark_utils import has_mark
 
@@ -61,7 +61,7 @@ def node_and_neighbors(dag: nx.DiGraph, node: str) -> Iterable[str]:
     return itertools.chain(dag.predecessors(node), [node], dag.successors(node))
 
 
-@define
+@dataclass
 class TopologicalSorter:
     """The topological sorter class.
 
@@ -78,9 +78,9 @@ class TopologicalSorter:
     """
 
     dag: nx.DiGraph
-    priorities: dict[str, int] = field(factory=dict)
-    _nodes_processing: set[str] = field(factory=set)
-    _nodes_done: set[str] = field(factory=set)
+    priorities: dict[str, int] = field(default_factory=dict)
+    _nodes_processing: set[str] = field(default_factory=set)
+    _nodes_done: set[str] = field(default_factory=set)
 
     @classmethod
     def from_dag(cls, dag: nx.DiGraph) -> TopologicalSorter:

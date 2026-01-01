@@ -5,15 +5,14 @@ from __future__ import annotations
 import functools
 import hashlib
 import inspect
+from dataclasses import dataclass
+from dataclasses import field
 from inspect import FullArgSpec
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import ParamSpec
 from typing import Protocol
 from typing import TypeVar
-
-from attrs import define
-from attrs import field
 
 from _pytask._hashlib import hash_value
 
@@ -35,17 +34,17 @@ class HasCache(Protocol):
     cache: Cache
 
 
-@define
+@dataclass
 class CacheInfo:
     hits: int = 0
     misses: int = 0
 
 
-@define
+@dataclass
 class Cache:
-    _cache: dict[str, Any] = field(factory=dict)
-    _sentinel: Any = field(factory=object)
-    cache_info: CacheInfo = field(factory=CacheInfo)
+    _cache: dict[str, Any] = field(default_factory=dict)
+    _sentinel: Any = field(default_factory=object)
+    cache_info: CacheInfo = field(default_factory=CacheInfo)
 
     def memoize(self, func: Callable[P, R]) -> Memoized[P, R]:
         func_module = getattr(func, "__module__", "")

@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from dataclasses import field
 from typing import TYPE_CHECKING
 from typing import Any
 
 import networkx as nx
-from attrs import define
-from attrs import field
 from pluggy import HookRelay
 
 from _pytask.outcomes import ExitCode
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from _pytask.warnings_utils import WarningReport
 
 
-@define(kw_only=True)
+@dataclass(kw_only=True)
 class Session:
     """The session of pytask.
 
@@ -49,13 +49,13 @@ class Session:
 
     """
 
-    config: dict[str, Any] = field(factory=dict)
-    collection_reports: list[CollectionReport] = field(factory=list)
-    dag: nx.DiGraph = field(factory=nx.DiGraph)
-    hook: HookRelay = field(factory=HookRelay)
-    tasks: list[PTask] = field(factory=list)
+    config: dict[str, Any] = field(default_factory=dict)
+    collection_reports: list[CollectionReport] = field(default_factory=list)
+    dag: nx.DiGraph = field(default_factory=nx.DiGraph)
+    hook: HookRelay = field(default_factory=HookRelay)
+    tasks: list[PTask] = field(default_factory=list)
     dag_report: DagReport | None = None
-    execution_reports: list[ExecutionReport] = field(factory=list)
+    execution_reports: list[ExecutionReport] = field(default_factory=list)
     exit_code: ExitCode = ExitCode.OK
 
     collection_start: float = float("inf")
@@ -66,7 +66,7 @@ class Session:
     n_tasks_failed: int = 0
     scheduler: Any = None
     should_stop: bool = False
-    warnings: list[WarningReport] = field(factory=list)
+    warnings: list[WarningReport] = field(default_factory=list)
 
     @classmethod
     def from_config(cls, config: dict[str, Any]) -> Session:

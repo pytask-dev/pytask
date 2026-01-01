@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any
 
 import click
-from attrs import define
 from rich.padding import Padding
 from rich.panel import Panel
 
@@ -89,7 +89,7 @@ class WarningsNameSpace:
             console.print(panel)
 
 
-@define
+@dataclass
 class _WarningsRenderable:
     """A renderable for warnings."""
 

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from contextlib import ExitStack as does_not_raise  # noqa: N813
+from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 from typing import NamedTuple
 
 import pytest
-from attrs import define
 
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import _arg_value_to_id_component
@@ -41,8 +41,8 @@ class ExampleNT(NamedTuple):
     a: int = 1
 
 
-@define
-class ExampleAttrs:
+@dataclass
+class ExampleDataclass:
     b: str = "wonderful"
 
 
@@ -52,8 +52,8 @@ class ExampleAttrs:
         ({"hello": 1}, does_not_raise(), {"hello": 1}),
         (ExampleNT(), does_not_raise(), {"a": 1}),
         (ExampleNT, pytest.raises(TypeError, match=r"(_asdict\(\) missing 1)"), None),
-        (ExampleAttrs(), does_not_raise(), {"b": "wonderful"}),
-        (ExampleAttrs, pytest.raises(ValueError, match="@task"), None),
+        (ExampleDataclass(), does_not_raise(), {"b": "wonderful"}),
+        (ExampleDataclass, pytest.raises(ValueError, match="@task"), None),
         (1, pytest.raises(ValueError, match="@task"), None),
     ],
 )

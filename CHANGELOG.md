@@ -7,7 +7,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
-- Nothing yet.
+- Removed the direct dependency on attrs and migrated internal models to dataclasses.
 
 ## 0.5.8 - 2025-12-30
 

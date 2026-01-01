@@ -20,7 +20,6 @@ from _pytask.data_catalog_utils import DATA_CATALOG_NAME_FIELD
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import PNode
-from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import warn_about_upcoming_attributes_field_on_nodes
 from _pytask.nodes import PickleNode
@@ -37,6 +36,14 @@ def _get_parent_path_of_data_catalog_module(stacklevel: int = 2) -> Path:
     if potential_path:
         return Path(potential_path).parent
     return Path.cwd()
+
+
+def _is_path_node_type(node_type: type[Any]) -> bool:
+    """Return True if the class looks like a path-based node."""
+    for cls in node_type.__mro__:
+        if "path" in getattr(cls, "__annotations__", {}):
+            return True
+    return False
 
 
 @dataclass(kw_only=True)
@@ -115,7 +122,7 @@ class DataCatalog:
 
         if node is None:
             filename = hashlib.sha256(name.encode()).hexdigest()
-            if isinstance(self.default_node, PPathNode):
+            if _is_path_node_type(self.default_node):
                 assert self.path is not None
                 self._entries[name] = self.default_node(
                     name=name, path=self.path / f"{filename}.pkl"
