@@ -7,7 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
-- Nothing yet.
+- {issue}`735` adds the `pytask.lock` lockfile as the primary state backend with a
+  portable format, documentation, and a one-run SQLite fallback when no lockfile
+  exists.
 
 ## 0.5.8 - 2025-12-30
 
