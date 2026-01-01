@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from dataclasses import field
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Literal
 
-from attrs import define
-from attrs import field
 from rich.text import Text
 
 from _pytask.console import console
@@ -34,14 +34,14 @@ ReasonType = Literal[
 ]
 
 
-@define
+@dataclass
 class ChangeReason:
     """Represents a reason why a node changed."""
 
     node_name: str
     node_type: NodeType
     reason: ReasonType
-    details: dict[str, Any] = field(factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
     verbose: int = 1
 
     def __rich_console__(
@@ -71,11 +71,11 @@ class ChangeReason:
             yield Text(f"  • {self.node_name}: {self.reason}")
 
 
-@define
+@dataclass
 class TaskExplanation:
     """Represents the explanation for why a task needs to be executed."""
 
-    reasons: list[ChangeReason] = field(factory=list)
+    reasons: list[ChangeReason] = field(default_factory=list)
     task: PTask | None = None
     outcome: TaskOutcome | None = None
     verbose: int = 1

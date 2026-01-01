@@ -52,7 +52,7 @@ def test_cycle_in_dag(tmp_path, runner, snapshot_cli):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.DAG_FAILED
-    if sys.platform == "linux":
+    if sys.platform != "win32":
         assert result.output == snapshot_cli()
 
 
@@ -71,7 +71,7 @@ def test_two_tasks_have_the_same_product(tmp_path, runner, snapshot_cli):
     result = runner.invoke(cli, [tmp_path.as_posix()])
 
     assert result.exit_code == ExitCode.DAG_FAILED
-    if sys.platform == "linux":
+    if sys.platform != "win32":
         assert result.output == snapshot_cli()
 
 
