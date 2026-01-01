@@ -35,7 +35,7 @@ def has_node_changed(
             entry = lockfile_state.get_task_entry(task_id)
             if entry is None:
                 return True
-            return state != entry.state.value
+            return state != entry.state
         node_id = (
             build_portable_task_id(node, lockfile_state.root)
             if isinstance(node, PTask)
@@ -67,7 +67,7 @@ def get_node_change_info(
         entry = lockfile_state.get_task_entry(task_id)
         if entry is None:
             return True, "not_in_db", details
-        stored_state = entry.state.value
+        stored_state = entry.state
     else:
         node_id = (
             build_portable_task_id(node, lockfile_state.root)

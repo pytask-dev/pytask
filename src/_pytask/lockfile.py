@@ -18,12 +18,13 @@ from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import PythonNode
+from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import hookimpl
 
 if TYPE_CHECKING:
     from _pytask.session import Session
 
-CURRENT_LOCKFILE_VERSION = "1.0"
+CURRENT_LOCKFILE_VERSION = "1"
 
 
 class LockfileError(Exception):
@@ -34,20 +35,11 @@ class LockfileVersionError(LockfileError):
     """Raised when a lockfile version is not supported."""
 
 
-class _State(msgspec.Struct):
-    value: str
-
-
-class _NodeEntry(msgspec.Struct):
-    id: str
-    state: _State
-
-
 class _TaskEntry(msgspec.Struct):
     id: str
-    state: _State
-    depends_on: list[_NodeEntry] = msgspec.field(default_factory=list)
-    produces: list[_NodeEntry] = msgspec.field(default_factory=list)
+    state: str
+    depends_on: dict[str, str] = msgspec.field(default_factory=dict)
+    produces: dict[str, str] = msgspec.field(default_factory=dict)
 
 
 class _Lockfile(msgspec.Struct, forbid_unknown_fields=False):
@@ -109,28 +101,25 @@ def read_lockfile(path: Path) -> _Lockfile | None:
         msg = "Lockfile is missing 'lock-version'."
         raise LockfileError(msg)
 
-    if Version(version) > Version(CURRENT_LOCKFILE_VERSION):
+    if Version(version) != Version(CURRENT_LOCKFILE_VERSION):
         msg = (
             f"Unsupported lock-version {version!r}. "
             f"Current version is {CURRENT_LOCKFILE_VERSION}."
         )
         raise LockfileVersionError(msg)
 
-    lockfile = msgspec.toml.decode(path.read_bytes(), type=_Lockfile)
-
-    if Version(version) < Version(CURRENT_LOCKFILE_VERSION):
-        lockfile = _Lockfile(
-            lock_version=CURRENT_LOCKFILE_VERSION,
-            task=lockfile.task,
-        )
-    return lockfile
+    try:
+        return msgspec.toml.decode(path.read_bytes(), type=_Lockfile)
+    except msgspec.DecodeError:
+        msg = "Lockfile has invalid format."
+        raise LockfileError(msg) from None
 
 
 def _normalize_lockfile(lockfile: _Lockfile) -> _Lockfile:
     tasks = []
     for task in sorted(lockfile.task, key=lambda entry: entry.id):
-        depends_on = sorted(task.depends_on, key=lambda entry: entry.id)
-        produces = sorted(task.produces, key=lambda entry: entry.id)
+        depends_on = {key: task.depends_on[key] for key in sorted(task.depends_on)}
+        produces = {key: task.produces[key] for key in sorted(task.produces)}
         tasks.append(
             _TaskEntry(
                 id=task.id,
@@ -159,7 +148,7 @@ def _build_task_entry(session: Session, task: PTask, root: Path) -> _TaskEntry |
     predecessors = set(dag.predecessors(task.signature))
     successors = set(dag.successors(task.signature))
 
-    depends_on = []
+    depends_on: dict[str, str] = {}
     for node_signature in predecessors:
         node = (
             dag.nodes[node_signature].get("task") or dag.nodes[node_signature]["node"]
@@ -174,9 +163,9 @@ def _build_task_entry(session: Session, task: PTask, root: Path) -> _TaskEntry |
             if isinstance(node, PTask)
             else build_portable_node_id(node, root)
         )
-        depends_on.append(_NodeEntry(id=node_id, state=_State(state)))
+        depends_on[node_id] = state
 
-    produces = []
+    produces: dict[str, str] = {}
     for node_signature in successors:
         node = (
             dag.nodes[node_signature].get("task") or dag.nodes[node_signature]["node"]
@@ -191,11 +180,11 @@ def _build_task_entry(session: Session, task: PTask, root: Path) -> _TaskEntry |
             if isinstance(node, PTask)
             else build_portable_node_id(node, root)
         )
-        produces.append(_NodeEntry(id=node_id, state=_State(state)))
+        produces[node_id] = state
 
     return _TaskEntry(
         id=build_portable_task_id(task, root),
-        state=_State(task_state),
+        state=task_state,
         depends_on=depends_on,
         produces=produces,
     )
@@ -238,9 +227,7 @@ class LockfileState:
         self._task_index = {task.id: task for task in self.lockfile.task}
         self._node_index = {}
         for task in self.lockfile.task:
-            nodes = {}
-            for entry in task.depends_on + task.produces:
-                nodes[entry.id] = entry.state.value
+            nodes = {**task.depends_on, **task.produces}
             self._node_index[task.id] = nodes
 
     def get_task_entry(self, task_id: str) -> _TaskEntry | None:
@@ -261,6 +248,21 @@ class LockfileState:
         self._rebuild_indexes()
         write_lockfile(self.path, self.lockfile)
 
+    def rebuild_from_session(self, session: Session) -> None:
+        if session.dag is None:
+            return
+        tasks = []
+        for task in session.tasks:
+            entry = _build_task_entry(session, task, self.root)
+            if entry is not None:
+                tasks.append(entry)
+        self.lockfile = _Lockfile(
+            lock_version=CURRENT_LOCKFILE_VERSION,
+            task=tasks,
+        )
+        self._rebuild_indexes()
+        write_lockfile(self.path, self.lockfile)
+
 
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
@@ -268,3 +270,20 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     path = config["root"] / "pytask.lock"
     config["lockfile_path"] = path
     config["lockfile_state"] = LockfileState.from_path(path, config["root"])
+
+
+@hookimpl
+def pytask_unconfigure(session: Session) -> None:
+    """Optionally rewrite the lockfile to drop stale entries."""
+    if session.config.get("command") != "build":
+        return
+    if not session.config.get("clean_lockfile"):
+        return
+    if session.config.get("dry_run"):
+        return
+    if session.exit_code != ExitCode.OK:
+        return
+    lockfile_state = session.config.get("lockfile_state")
+    if lockfile_state is None:
+        return
+    lockfile_state.rebuild_from_session(session)

@@ -12,7 +12,7 @@ This guide explains how to keep pytask state portable across machines.
 
 1. **Portable State Values**
 
-   - `state.value` is opaque and comes from `PNode.state()` / `PTask.state()`.
+   - `state` is opaque and comes from `PNode.state()` / `PTask.state()`.
    - Content hashes are portable; timestamps or absolute paths are not.
    - Custom nodes should avoid machine‑specific paths in `state()`.
 
@@ -25,6 +25,21 @@ This guide explains how to keep pytask state portable across machines.
 - For `PythonNode` values that are not natively stable, provide a custom hash function.
 - If inputs live outside the project root, IDs will include `..` segments to remain
   relative; this is expected.
+
+## Cleaning Up the Lockfile
+
+`pytask.lock` is updated incrementally. Entries are only replaced when the corresponding
+tasks run. If tasks are removed or renamed, their old entries remain as stale data and
+are ignored.
+
+To clean up stale entries without deleting the file, run:
+
+```
+pytask build --clean-lockfile
+```
+
+This rewrites the lockfile after a successful build with only the currently collected
+tasks and their current state values.
 
 ## Legacy SQLite
 
