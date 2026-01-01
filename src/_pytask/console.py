@@ -111,10 +111,26 @@ def render_to_string(
     example, render warnings with colors or text in exceptions.
 
     """
-    buffer = console.render(renderable)
+    render_console = console
+    if not strip_styles and console.no_color and console.color_system is not None:
+        theme: Theme | None
+        try:
+            theme = Theme(console._theme_stack._entries[-1])  # type: ignore[attr-defined]
+        except (AttributeError, IndexError, TypeError):
+            theme = None
+        render_console = Console(
+            color_system=console.color_system,
+            force_terminal=True,
+            width=console.width,
+            no_color=False,
+            markup=getattr(console, "_markup", True),
+            theme=theme,
+        )
+
+    buffer = render_console.render(renderable)
     if strip_styles:
         buffer = Segment.strip_styles(buffer)
-    return console._render_buffer(buffer)
+    return render_console._render_buffer(buffer)
 
 
 def format_task_name(task: PTask, editor_url_scheme: str) -> Text:

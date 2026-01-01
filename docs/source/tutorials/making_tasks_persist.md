@@ -9,7 +9,7 @@ In this case, you can apply the {func}`@pytask.mark.persist <pytask.mark.persist
 decorator to the task, which will skip its execution as long as all products exist.
 
 Internally, the state of the dependencies, the source file, and the products are updated
-in the database such that the subsequent execution will skip the task successfully.
+in the lockfile such that the subsequent execution will skip the task successfully.
 
 ## When is this useful?
 
