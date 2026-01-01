@@ -115,11 +115,11 @@ def render_to_string(
     if not strip_styles and console.no_color and console.color_system is not None:
         theme: Theme | None
         try:
-            theme = Theme(console._theme_stack._entries[-1])  # type: ignore[attr-defined]
+            theme = Theme(console._theme_stack._entries[-1])
         except (AttributeError, IndexError, TypeError):
             theme = None
         render_console = Console(
-            color_system=console.color_system,
+            color_system=console.color_system,  # type: ignore[invalid-argument-type]
             force_terminal=True,
             width=console.width,
             no_color=False,
