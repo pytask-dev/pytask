@@ -8,7 +8,9 @@ import pytest
 from _pytask.lockfile import build_portable_node_id
 from _pytask.lockfile import build_portable_task_id
 from _pytask.lockfile import read_lockfile
+from _pytask.node_protocols import PNode
 from _pytask.persist import pytask_execute_task_process_report
+from _pytask.tree_util import tree_leaves
 from pytask import ExitCode
 from pytask import Persisted
 from pytask import SkippedUnchanged
@@ -69,7 +71,10 @@ def test_multiple_runs_with_persist(tmp_path):
     entry = tasks_by_id[build_portable_task_id(task, tmp_path)]
     produces = task.produces
     assert produces is not None
-    node = produces["produces"]  # type: ignore[union-attr]
+    nodes = tree_leaves(produces["produces"])
+    assert len(nodes) == 1
+    node = nodes[0]
+    assert isinstance(node, PNode)
     node_id = build_portable_node_id(node, tmp_path)
     assert entry.produces[node_id] == node.state()
 

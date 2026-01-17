@@ -5,6 +5,8 @@ import textwrap
 from _pytask.lockfile import build_portable_node_id
 from _pytask.lockfile import build_portable_task_id
 from _pytask.lockfile import read_lockfile
+from _pytask.node_protocols import PNode
+from _pytask.tree_util import tree_leaves
 from pytask import ExitCode
 from pytask import build
 from pytask import cli
@@ -40,8 +42,14 @@ def test_existence_of_hashes_in_lockfile(tmp_path):
     produces = task.produces
     assert depends_on is not None
     assert produces is not None
-    in_node = depends_on["path"]  # type: ignore[union-attr]
-    out_node = produces["produces"]  # type: ignore[union-attr]
+    in_nodes = tree_leaves(depends_on["path"])
+    out_nodes = tree_leaves(produces["produces"])
+    assert len(in_nodes) == 1
+    assert len(out_nodes) == 1
+    in_node = in_nodes[0]
+    out_node = out_nodes[0]
+    assert isinstance(in_node, PNode)
+    assert isinstance(out_node, PNode)
 
     in_id = build_portable_node_id(in_node, tmp_path)
     out_id = build_portable_node_id(out_node, tmp_path)
