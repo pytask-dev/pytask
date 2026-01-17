@@ -44,4 +44,5 @@ tasks and their current state values.
 ## Legacy SQLite
 
 SQLite is the old state format. It is used only when no lockfile exists, and the
-lockfile is written during that run. Subsequent runs rely on the lockfile.
+lockfile is written during that run. Subsequent runs rely on the lockfile and do not
+update database state.

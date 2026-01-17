@@ -5,7 +5,8 @@ git-friendly format so runs can be resumed or shared across machines.
 
 ```{note}
 SQLite is the legacy format. It is still read when no lockfile exists, and a lockfile
-is written during that first run. Subsequent runs use the lockfile only.
+is written during that first run. Subsequent runs use only the lockfile and do not
+update the database state.
 ```
 
 ## Example
@@ -35,9 +36,8 @@ On each run, pytask:
 1. Compares current dependency/product/task `state()` to stored `state`.
 1. Skips tasks whose states match; runs the rest.
 1. Updates `pytask.lock` after each completed task (atomic write).
-
-`pytask-parallel` uses a single coordinator to write the lock file, so writes are
-serialized even when tasks execute in parallel.
+1. Updates `pytask.lock` after skipping unchanged tasks (unless `--dry-run` or
+   `--explain` are active).
 
 ## Portability
 

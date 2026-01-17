@@ -46,7 +46,8 @@ are welcome to also support macOS.
 
 SQLite is the legacy state format. pytask now uses `pytask.lock` as the primary state
 backend and only consults the database when no lockfile exists. During that first run,
-the lockfile is written and subsequent runs use the lockfile only.
+the lockfile is written. Subsequent runs use only the lockfile and do not update the
+database state.
 
 The `database_url` option remains for backwards compatibility and controls the legacy
 database location and dialect ([supported by sqlalchemy](https://docs.sqlalchemy.org/en/latest/core/engines.html#backend-specific-urls)).
