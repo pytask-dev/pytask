@@ -47,6 +47,10 @@ class _Lockfile(msgspec.Struct, forbid_unknown_fields=False):
     task: list[_TaskEntry] = msgspec.field(default_factory=list)
 
 
+def _encode_node_path(path: tuple[str | int, ...]) -> str:
+    return msgspec.json.encode(path).decode()
+
+
 def _relative_path(path: Path, root: Path) -> str:
     if isinstance(path, UPath) and path.protocol:
         return str(path)
@@ -79,7 +83,7 @@ def build_portable_node_id(node: PNode, root: Path) -> str:
         )
         node_id = f"{task_id}::{node.node_info.arg_name}"
         if node.node_info.path:
-            suffix = "-".join(str(p) for p in node.node_info.path)
+            suffix = _encode_node_path(node.node_info.path)
             node_id = f"{node_id}::{suffix}"
         return node_id
     if isinstance(node, PPathNode):
@@ -91,7 +95,11 @@ def read_lockfile(path: Path) -> _Lockfile | None:
     if not path.exists():
         return None
 
-    raw = msgspec.toml.decode(path.read_bytes())
+    try:
+        raw = msgspec.toml.decode(path.read_bytes())
+    except msgspec.DecodeError:
+        msg = "Lockfile has invalid format."
+        raise LockfileError(msg) from None
     if not isinstance(raw, dict):
         msg = "Lockfile has invalid format."
         raise LockfileError(msg)

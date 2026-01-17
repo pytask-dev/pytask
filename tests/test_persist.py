@@ -5,16 +5,15 @@ from unittest.mock import Mock
 
 import pytest
 
+from _pytask.lockfile import build_portable_node_id
+from _pytask.lockfile import build_portable_task_id
+from _pytask.lockfile import read_lockfile
 from _pytask.persist import pytask_execute_task_process_report
-from pytask import DatabaseSession
 from pytask import ExitCode
 from pytask import Persisted
 from pytask import SkippedUnchanged
-from pytask import State
 from pytask import TaskOutcome
 from pytask import build
-from pytask import create_database
-from pytask.path import hash_path
 from tests.conftest import restore_sys_path_and_module_after_test_execution
 
 
@@ -27,7 +26,7 @@ def test_multiple_runs_with_persist(tmp_path):
     """Perform multiple consecutive runs and check intermediate outcomes with persist.
 
     1. The product is missing which should result in a normal execution of the task.
-    2. Change the product, check that run is successful and state in database has
+    2. Change the product, check that run is successful and state in lockfile has
        changed.
     3. Run the task another time. Now, the task is skipped successfully.
 
@@ -63,21 +62,16 @@ def test_multiple_runs_with_persist(tmp_path):
     assert exc_info is not None
     assert isinstance(exc_info[1], Persisted)
 
-    create_database(
-        "sqlite:///" + tmp_path.joinpath(".pytask", "pytask.sqlite3").as_posix()
-    )
-
-    with DatabaseSession() as db_session:
-        task_id = session.tasks[0].signature
-        produces = session.tasks[0].produces
-        assert produces is not None
-        node_id = produces["produces"].signature  # type: ignore[union-attr]
-
-        state = db_session.get(State, (task_id, node_id))
-        assert state is not None
-        hash_ = state.hash_
-        path = tmp_path.joinpath("out.txt")
-        assert hash_ == hash_path(path, path.stat().st_mtime)
+    lockfile = read_lockfile(tmp_path / "pytask.lock")
+    assert lockfile is not None
+    tasks_by_id = {entry.id: entry for entry in lockfile.task}
+    task = session.tasks[0]
+    entry = tasks_by_id[build_portable_task_id(task, tmp_path)]
+    produces = task.produces
+    assert produces is not None
+    node = produces["produces"]  # type: ignore[union-attr]
+    node_id = build_portable_node_id(node, tmp_path)
+    assert entry.produces[node_id] == node.state()
 
     session = build(paths=tmp_path)
 

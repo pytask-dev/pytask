@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+import sqlite3
 import textwrap
 
 import pytest
 
+from _pytask.lockfile import LockfileError
 from _pytask.lockfile import LockfileVersionError
+from _pytask.lockfile import build_portable_node_id
 from _pytask.lockfile import read_lockfile
+from _pytask.models import NodeInfo
+from _pytask.nodes import PythonNode
 from pytask import ExitCode
 from pytask import PathNode
 from pytask import TaskWithoutPath
@@ -42,6 +47,60 @@ def test_lockfile_rejects_newer_version(tmp_path):
 
     with pytest.raises(LockfileVersionError):
         read_lockfile(path)
+
+
+def test_lockfile_rejects_invalid_format(tmp_path):
+    path = tmp_path / "pytask.lock"
+    path.write_text("{not toml")
+
+    with pytest.raises(LockfileError):
+        read_lockfile(path)
+
+
+def test_python_node_id_is_collision_free(tmp_path):
+    task_path = tmp_path / "task.py"
+    node_info_left = NodeInfo(
+        arg_name="value",
+        path=("a-b", "c"),
+        task_path=task_path,
+        task_name="task",
+        value=None,
+    )
+    node_info_right = NodeInfo(
+        arg_name="value",
+        path=("a", "b-c"),
+        task_path=task_path,
+        task_name="task",
+        value=None,
+    )
+    node_left = PythonNode(name="node", value=1, node_info=node_info_left)
+    node_right = PythonNode(name="node", value=1, node_info=node_info_right)
+
+    left_id = build_portable_node_id(node_left, tmp_path)
+    right_id = build_portable_node_id(node_right, tmp_path)
+    assert left_id != right_id
+
+
+def test_lockfile_does_not_write_state_to_database(tmp_path):
+    def func(path):
+        path.write_text("data")
+
+    task = TaskWithoutPath(
+        name="task",
+        function=func,
+        produces={"path": PathNode(path=tmp_path / "out.txt")},
+    )
+
+    session = build(tasks=[task], paths=tmp_path)
+    assert session.exit_code == ExitCode.OK
+    assert (tmp_path / "pytask.lock").exists()
+
+    db_path = tmp_path / ".pytask" / "pytask.sqlite3"
+    assert db_path.exists()
+    with sqlite3.connect(db_path) as connection:
+        cursor = connection.execute("SELECT COUNT(*) FROM state")
+        count = cursor.fetchone()[0]
+    assert count == 0
 
 
 def test_clean_lockfile_removes_stale_entries(tmp_path):
