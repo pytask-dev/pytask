@@ -6,18 +6,24 @@ from typing import TYPE_CHECKING
 from typing import Any
 
 from _pytask.dag_utils import node_and_neighbors
-from _pytask.database_utils import has_node_changed
-from _pytask.database_utils import update_states_in_database
+from _pytask.database_utils import update_states_in_database as _db_update_states
 from _pytask.mark_utils import has_mark
 from _pytask.outcomes import Persisted
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
 from _pytask.provisional_utils import collect_provisional_products
+from _pytask.state import has_node_changed
+from _pytask.state import update_states
 
 if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
+
+
+def update_states_in_database(session: Session, task_signature: str) -> None:
+    """Compatibility wrapper for older callers/tests."""
+    _db_update_states(session, task_signature)
 
 
 @hookimpl
@@ -52,6 +58,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
         if all_nodes_exist:
             any_node_changed = any(
                 has_node_changed(
+                    session=session,
                     task=task,
                     node=session.dag.nodes[name].get("task")
                     or session.dag.nodes[name]["node"],
@@ -79,6 +86,6 @@ def pytask_execute_task_process_report(
     """
     if report.exc_info and isinstance(report.exc_info[1], Persisted):
         report.outcome = TaskOutcome.PERSISTENCE
-        update_states_in_database(session, report.task.signature)
+        update_states(session, report.task)
         return True
     return None
