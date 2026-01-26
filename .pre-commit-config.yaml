@@ -25,12 +25,12 @@ repos:
     -   id: python-no-log-warn
     -   id: text-unicode-replacement-char
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.10
+    rev: v0.14.14
     hooks:
       - id: ruff-format
       - id: ruff-check
 -   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.9.18
+    rev: 0.9.26
     hooks:
       - id: uv-lock
 -   repo: https://github.com/executablebooks/mdformat
@@ -54,12 +54,12 @@ repos:
         ]
         files: (docs/.)
 -   repo: https://github.com/kynan/nbstripout
-    rev: 0.8.2
+    rev: 0.9.0
     hooks:
     -   id: nbstripout
         exclude: (docs)
 -   repo: https://github.com/crate-ci/typos
-    rev: typos-dict-v0.13.13
+    rev: v1
     hooks:
     -   id: typos
         exclude: (\.ipynb)
