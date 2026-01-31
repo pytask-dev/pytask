@@ -2652,7 +2652,7 @@ plugin-list = [
 test = [
     { name = "aiohttp" },
     { name = "cloudpickle" },
-    { name = "coiled" },
+    { name = "coiled", marker = "python_full_version < '3.14'" },
     { name = "deepdiff" },
     { name = "nbmake", marker = "python_full_version < '3.14' or sys_platform != 'win32'" },
     { name = "pexpect" },
@@ -2707,7 +2707,7 @@ plugin-list = [
 test = [
     { name = "aiohttp", specifier = ">=3.11.0" },
     { name = "cloudpickle", specifier = ">=3.0.0" },
-    { name = "coiled", specifier = ">=1.42.0" },
+    { name = "coiled", marker = "python_full_version < '3.14'", specifier = ">=1.42.0" },
     { name = "deepdiff", specifier = ">=7.0.0" },
     { name = "nbmake", marker = "python_full_version < '3.14' or sys_platform != 'win32'", specifier = ">=1.5.5" },
     { name = "pexpect", specifier = ">=4.9.0" },
