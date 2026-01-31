@@ -180,7 +180,7 @@ def pytask_collect_task_setup(
 @hookspec(firstresult=True)
 def pytask_collect_task(
     session: Session, path: Path | None, name: str, obj: Any
-) -> PTask:  # ty: ignore[invalid-return-type]
+) -> PTask | None:
     """Collect a single task."""
 
 
