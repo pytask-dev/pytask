@@ -13,16 +13,12 @@ from typing import Any
 
 import click
 from rich.table import Table
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
 
 from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
 from _pytask.console import console
 from _pytask.console import format_task_name
 from _pytask.dag import create_dag
-from _pytask.database_utils import BaseTable
-from _pytask.database_utils import DatabaseSession
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.node_protocols import PPathNode
@@ -31,6 +27,7 @@ from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
+from _pytask.runtime_store import RuntimeState
 from _pytask.session import Session
 from _pytask.traceback import Traceback
 
@@ -48,16 +45,6 @@ class _ExportFormats(enum.Enum):
     CSV = "csv"
 
 
-class Runtime(BaseTable):
-    """Record of runtimes of tasks."""
-
-    __tablename__ = "runtime"
-
-    task: Mapped[str] = mapped_column(primary_key=True)
-    date: Mapped[float]
-    duration: Mapped[float]
-
-
 @hookimpl(tryfirst=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface."""
@@ -67,6 +54,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Register the export option."""
+    config["runtime_state"] = RuntimeState.from_root(config["root"])
     config["pm"].register(ExportNameSpace)
     config["pm"].register(DurationNameSpace)
     config["pm"].register(FileSizeNameSpace)
@@ -83,26 +71,16 @@ def pytask_execute_task(task: PTask) -> Generator[None, None, None]:
 
 
 @hookimpl
-def pytask_execute_task_process_report(report: ExecutionReport) -> None:
-    """Store runtime of successfully finishing tasks in database."""
+def pytask_execute_task_process_report(
+    session: Session, report: ExecutionReport
+) -> None:
+    """Store runtime of successfully finishing tasks."""
     task = report.task
     duration = task.attributes.get("duration")
     if report.outcome == TaskOutcome.SUCCESS and duration is not None:
-        _create_or_update_runtime(task.signature, *duration)
-
-
-def _create_or_update_runtime(task_signature: str, start: float, end: float) -> None:
-    """Create or update a runtime entry."""
-    with DatabaseSession() as session:
-        runtime = session.get(Runtime, task_signature)
-
-        if not runtime:
-            session.add(Runtime(task=task_signature, date=start, duration=end - start))
-        else:
-            for attr, val in (("date", start), ("duration", end - start)):
-                setattr(runtime, attr, val)
-
-        session.commit()
+        runtime_state = session.config.get("runtime_state")
+        if runtime_state is not None:
+            runtime_state.update_task(task, *duration)
 
 
 @click.command(cls=ColoredCommand)
@@ -189,20 +167,23 @@ class DurationNameSpace:
     @staticmethod
     @hookimpl
     def pytask_profile_add_info_on_task(
-        tasks: list[PTask], profile: dict[str, dict[str, Any]]
+        session: Session, tasks: list[PTask], profile: dict[str, dict[str, Any]]
     ) -> None:
         """Add the runtime for tasks to the profile."""
-        runtimes = _collect_runtimes(tasks)
+        runtimes = _collect_runtimes(session, tasks)
         for name, duration in runtimes.items():
             profile[name]["Duration (in s)"] = round(duration, 2)
 
 
-def _collect_runtimes(tasks: list[PTask]) -> dict[str, float]:
+def _collect_runtimes(session: Session, tasks: list[PTask]) -> dict[str, float]:
     """Collect runtimes."""
-    with DatabaseSession() as session:
-        runtimes = [session.get(Runtime, task.signature) for task in tasks]
+    runtime_state = session.config.get("runtime_state")
+    if runtime_state is None:
+        return {}
     return {
-        task.name: r.duration for task, r in zip(tasks, runtimes, strict=False) if r
+        task.name: duration
+        for task in tasks
+        if (duration := runtime_state.get_duration(task)) is not None
     }
 
 
@@ -313,3 +294,16 @@ def _get_info_names(profile: dict[str, dict[str, Any]]) -> list[str]:
     base: set[str] = set()
     info_names: list[str] = sorted(base.union(*(set(val) for val in profile.values())))
     return info_names
+
+
+@hookimpl
+def pytask_unconfigure(session: Session) -> None:
+    """Flush runtime information on normal build exits."""
+    if session.config.get("command") != "build":
+        return
+    if session.config.get("dry_run") or session.config.get("explain"):
+        return
+    runtime_state = session.config.get("runtime_state")
+    if runtime_state is None:
+        return
+    runtime_state.flush()
