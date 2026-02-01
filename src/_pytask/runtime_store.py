@@ -15,8 +15,6 @@ if TYPE_CHECKING:
 
     from _pytask.node_protocols import PTask
 
-CURRENT_RUNTIME_VERSION = "1"
-
 
 class _RuntimeEntry(msgspec.Struct):
     id: str
@@ -25,12 +23,10 @@ class _RuntimeEntry(msgspec.Struct):
 
 
 class _RuntimeFile(msgspec.Struct, forbid_unknown_fields=False):
-    runtime_version: str = msgspec.field(name="runtime-version")
     task: list[_RuntimeEntry] = msgspec.field(default_factory=list)
 
 
-class _RuntimeJournalEntry(msgspec.Struct):
-    runtime_version: str = msgspec.field(name="runtime-version")
+class _RuntimeJournalEntry(msgspec.Struct, forbid_unknown_fields=False):
     id: str
     date: float
     duration: float
@@ -56,10 +52,6 @@ def _read_runtimes(path: Path) -> _RuntimeFile | None:
     except msgspec.DecodeError:
         path.unlink()
         return None
-
-    if data.runtime_version != CURRENT_RUNTIME_VERSION:
-        path.unlink()
-        return None
     return data
 
 
@@ -73,12 +65,7 @@ def _write_runtimes(path: Path, runtimes: _RuntimeFile) -> None:
 def _read_journal(
     journal: JsonlJournal[_RuntimeJournalEntry],
 ) -> list[_RuntimeJournalEntry]:
-    entries = journal.read()
-    for entry in entries:
-        if entry.runtime_version != CURRENT_RUNTIME_VERSION:
-            journal.delete()
-            return []
-    return entries
+    return journal.read()
 
 
 def _apply_journal(
@@ -92,7 +79,6 @@ def _apply_journal(
             id=entry.id, date=entry.date, duration=entry.duration
         )
     return _RuntimeFile(
-        runtime_version=CURRENT_RUNTIME_VERSION,
         task=list(index.values()),
     )
 
@@ -116,7 +102,6 @@ class RuntimeState:
         journal_entries = _read_journal(journal)
         if existing is None:
             runtimes = _RuntimeFile(
-                runtime_version=CURRENT_RUNTIME_VERSION,
                 task=[],
             )
             runtimes = _apply_journal(runtimes, journal_entries)
@@ -137,12 +122,10 @@ class RuntimeState:
         entry = _RuntimeEntry(id=task_id, date=start, duration=end - start)
         self._index[entry.id] = entry
         self.runtimes = _RuntimeFile(
-            runtime_version=CURRENT_RUNTIME_VERSION,
             task=list(self._index.values()),
         )
         self._rebuild_index()
         journal_entry = _RuntimeJournalEntry(
-            runtime_version=CURRENT_RUNTIME_VERSION,
             id=entry.id,
             date=entry.date,
             duration=entry.duration,

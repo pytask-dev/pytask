@@ -58,3 +58,22 @@ def test_runtime_state_flushes_journal(tmp_path):
 
     reloaded = RuntimeState.from_root(tmp_path)
     assert reloaded.get_duration(task) == pytest.approx(3.5)
+
+
+def test_runtime_state_recovers_from_corrupt_journal(tmp_path):
+    tmp_path.joinpath(".pytask").mkdir()
+    task_a = DummyTask(name="task_a")
+    task_b = DummyTask(name="task_b")
+
+    state = RuntimeState.from_root(tmp_path)
+    state.update_task(task_a, 1.0, 3.0)
+    state.update_task(task_b, 2.0, 6.0)
+
+    journal_path = tmp_path / ".pytask" / "runtimes.journal"
+    with journal_path.open("ab") as journal_file:
+        journal_file.write(b'{"id": "corrupt"')
+
+    recovered = RuntimeState.from_root(tmp_path)
+    assert recovered.get_duration(task_a) == pytest.approx(2.0)
+    assert recovered.get_duration(task_b) == pytest.approx(4.0)
+    assert b'"corrupt"' not in journal_path.read_bytes()

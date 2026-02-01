@@ -28,19 +28,25 @@ class JsonlJournal(Generic[T]):
             journal_file.write(msgspec.json.encode(payload) + b"\n")
 
     def read(self) -> list[T]:
-        """Read entries, clearing the journal on decode errors."""
+        """Read entries, keeping valid entries on decode errors."""
         if not self.path.exists():
             return []
 
         entries: list[T] = []
-        for line in self.path.read_bytes().splitlines():
-            if not line.strip():
+        data = self.path.read_bytes()
+        offset = 0
+        for line in data.splitlines(keepends=True):
+            stripped = line.strip()
+            if not stripped:
+                offset += len(line)
                 continue
             try:
-                entries.append(msgspec.json.decode(line, type=self.type_))
+                entries.append(msgspec.json.decode(stripped, type=self.type_))
             except msgspec.DecodeError:
-                self.delete()
-                return []
+                with self.path.open("rb+") as journal_file:
+                    journal_file.truncate(offset)
+                return entries
+            offset += len(line)
         return entries
 
     def delete(self) -> None:

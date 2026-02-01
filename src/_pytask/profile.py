@@ -99,6 +99,7 @@ class ProfilePlugin:
         self.runtime_state.flush()
 
 
+@dataclass
 class DurationNameSpace:
     """A namespace for adding durations to the profile."""
 
