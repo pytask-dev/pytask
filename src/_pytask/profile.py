@@ -54,7 +54,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Register the export option."""
-    config["pm"].register(ProfilePlugin(RuntimeState.from_root(config["root"])))
+    runtime_state = RuntimeState.from_root(config["root"])
+    config["pm"].register(ProfilePlugin(runtime_state))
+    config["pm"].register(DurationNameSpace(runtime_state))
     config["pm"].register(ExportNameSpace)
     config["pm"].register(FileSizeNameSpace)
 
@@ -87,15 +89,6 @@ class ProfilePlugin:
             self.runtime_state.update_task(task, *duration)
 
     @hookimpl
-    def pytask_profile_add_info_on_task(
-        self, session: Session, tasks: list[PTask], profile: dict[str, dict[str, Any]]
-    ) -> None:
-        """Add the runtime for tasks to the profile."""
-        _ = session
-        for name, duration in self._collect_runtimes(tasks).items():
-            profile[name]["Duration (in s)"] = round(duration, 2)
-
-    @hookimpl
     def pytask_unconfigure(self, session: Session) -> None:
         """Flush runtime information on normal build exits."""
         if session.config.get("command") != "build":
@@ -104,13 +97,23 @@ class ProfilePlugin:
             return
         self.runtime_state.flush()
 
-    def _collect_runtimes(self, tasks: list[PTask]) -> dict[str, float]:
-        """Collect runtimes."""
-        return {
-            task.name: duration
-            for task in tasks
-            if (duration := self.runtime_state.get_duration(task)) is not None
-        }
+
+class DurationNameSpace:
+    """A namespace for adding durations to the profile."""
+
+    def __init__(self, runtime_state: RuntimeState) -> None:
+        self.runtime_state = runtime_state
+
+    @hookimpl
+    def pytask_profile_add_info_on_task(
+        self, session: Session, tasks: list[PTask], profile: dict[str, dict[str, Any]]
+    ) -> None:
+        """Add the runtime for tasks to the profile."""
+        _ = session
+        for task in tasks:
+            duration = self.runtime_state.get_duration(task)
+            if duration is not None:
+                profile[task.name]["Duration (in s)"] = round(duration, 2)
 
 
 @click.command(cls=ColoredCommand)

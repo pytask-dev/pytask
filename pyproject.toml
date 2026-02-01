@@ -179,6 +179,7 @@ include = [
 unused-ignore-comment = "ignore"
 
 [tool.ty.src]
+include = ["src", "tests"]
 exclude = ["src/_pytask/_hashlib.py"]
 
 [tool.ty.terminal]
