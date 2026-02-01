@@ -7,7 +7,7 @@ from typing import Any
 
 from sqlalchemy.engine import make_url
 
-from _pytask.database_utils import create_database
+from _pytask.database_utils import configure_database_if_present
 from _pytask.pluginmanager import hookimpl
 
 
@@ -42,4 +42,8 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Post-parse the configuration."""
-    create_database(config["database_url"])
+    lockfile_path = config["root"] / "pytask.lock"
+    command = config.get("command")
+    if lockfile_path.exists() and command in (None, "build"):
+        return
+    configure_database_if_present(config["database_url"])

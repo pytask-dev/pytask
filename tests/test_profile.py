@@ -20,6 +20,9 @@ def test_duration_is_stored_in_task(tmp_path):
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
+    db_path = tmp_path.joinpath(".pytask", "pytask.sqlite3")
+    create_database(f"sqlite:///{db_path.as_posix()}")
+
     session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
@@ -27,10 +30,6 @@ def test_duration_is_stored_in_task(tmp_path):
     task = session.tasks[0]
     duration = task.attributes["duration"]
     assert duration[1] - duration[0] > 2
-
-    create_database(
-        "sqlite:///" + tmp_path.joinpath(".pytask", "pytask.sqlite3").as_posix()
-    )
 
     with DatabaseSession() as session:
         runtime = session.get(Runtime, task.signature)

@@ -23,6 +23,7 @@ from _pytask.console import format_task_name
 from _pytask.dag import create_dag
 from _pytask.database_utils import BaseTable
 from _pytask.database_utils import DatabaseSession
+from _pytask.database_utils import database_is_configured
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.node_protocols import PPathNode
@@ -93,6 +94,8 @@ def pytask_execute_task_process_report(report: ExecutionReport) -> None:
 
 def _create_or_update_runtime(task_signature: str, start: float, end: float) -> None:
     """Create or update a runtime entry."""
+    if not database_is_configured():
+        return
     with DatabaseSession() as session:
         runtime = session.get(Runtime, task_signature)
 
@@ -199,6 +202,8 @@ class DurationNameSpace:
 
 def _collect_runtimes(tasks: list[PTask]) -> dict[str, float]:
     """Collect runtimes."""
+    if not database_is_configured():
+        return {}
     with DatabaseSession() as session:
         runtimes = [session.get(Runtime, task.signature) for task in tasks]
     return {

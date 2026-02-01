@@ -58,22 +58,22 @@ def test_existence_of_hashes_in_lockfile(tmp_path):
 
 
 def test_rename_database_w_config(tmp_path, runner):
-    """Modification dates of input and output files are stored in database."""
+    """Database files are not created when using the lockfile backend."""
     path_to_db = tmp_path.joinpath(".db.sqlite")
     tmp_path.joinpath("pyproject.toml").write_text(
         "[tool.pytask.ini_options]\ndatabase_url='sqlite:///.db.sqlite'"
     )
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
-    assert path_to_db.exists()
+    assert not path_to_db.exists()
 
 
 def test_rename_database_w_cli(tmp_path, runner):
-    """Modification dates of input and output files are stored in database."""
+    """Database files are not created when using the lockfile backend."""
     path_to_db = tmp_path.joinpath(".db.sqlite")
     result = runner.invoke(
         cli,
         ["--database-url", "sqlite:///.db.sqlite", tmp_path.as_posix()],
     )
     assert result.exit_code == ExitCode.OK
-    assert path_to_db.exists()
+    assert not path_to_db.exists()

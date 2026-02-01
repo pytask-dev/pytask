@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import sqlite3
 import textwrap
 
 import pytest
@@ -96,11 +95,7 @@ def test_lockfile_does_not_write_state_to_database(tmp_path):
     assert (tmp_path / "pytask.lock").exists()
 
     db_path = tmp_path / ".pytask" / "pytask.sqlite3"
-    assert db_path.exists()
-    with sqlite3.connect(db_path) as connection:
-        cursor = connection.execute("SELECT COUNT(*) FROM state")
-        count = cursor.fetchone()[0]
-    assert count == 0
+    assert not db_path.exists()
 
 
 def test_clean_lockfile_removes_stale_entries(tmp_path):
