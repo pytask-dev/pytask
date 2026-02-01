@@ -7,6 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- {issue}`735` adds the `pytask.lock` lockfile as the primary state backend with a
+  portable format, documentation, and a one-run SQLite fallback when no lockfile
+  exists.
 - {pull}`766` moves runtime profiling persistence from SQLite to a JSON snapshot plus
   append-only journal in `.pytask/`, keeping runtime data resilient to crashes and
   compacted on normal build exits.
