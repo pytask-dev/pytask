@@ -8,22 +8,18 @@ import json
 import sys
 import time
 from contextlib import suppress
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any
 
 import click
 from rich.table import Table
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
 
 from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
 from _pytask.console import console
 from _pytask.console import format_task_name
 from _pytask.dag import create_dag
-from _pytask.database_utils import BaseTable
-from _pytask.database_utils import DatabaseSession
-from _pytask.database_utils import database_is_configured
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.node_protocols import PPathNode
@@ -32,6 +28,7 @@ from _pytask.outcomes import ExitCode
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
+from _pytask.runtime_store import RuntimeState
 from _pytask.session import Session
 from _pytask.traceback import Traceback
 
@@ -49,16 +46,6 @@ class _ExportFormats(enum.Enum):
     CSV = "csv"
 
 
-class Runtime(BaseTable):
-    """Record of runtimes of tasks."""
-
-    __tablename__ = "runtime"
-
-    task: Mapped[str] = mapped_column(primary_key=True)
-    date: Mapped[float]
-    duration: Mapped[float]
-
-
 @hookimpl(tryfirst=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend the command line interface."""
@@ -68,8 +55,10 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Register the export option."""
+    runtime_state = RuntimeState.from_root(config["root"])
+    config["pm"].register(ProfilePlugin(runtime_state))
+    config["pm"].register(DurationNameSpace(runtime_state))
     config["pm"].register(ExportNameSpace)
-    config["pm"].register(DurationNameSpace)
     config["pm"].register(FileSizeNameSpace)
 
 
@@ -83,29 +72,50 @@ def pytask_execute_task(task: PTask) -> Generator[None, None, None]:
     return result
 
 
-@hookimpl
-def pytask_execute_task_process_report(report: ExecutionReport) -> None:
-    """Store runtime of successfully finishing tasks in database."""
-    task = report.task
-    duration = task.attributes.get("duration")
-    if report.outcome == TaskOutcome.SUCCESS and duration is not None:
-        _create_or_update_runtime(task.signature, *duration)
+@dataclass
+class ProfilePlugin:
+    """Collect and persist runtime profiling data."""
+
+    runtime_state: RuntimeState
+
+    @hookimpl
+    def pytask_execute_task_process_report(
+        self, session: Session, report: ExecutionReport
+    ) -> None:
+        """Store runtime of successfully finishing tasks."""
+        _ = session
+        task = report.task
+        duration = task.attributes.get("duration")
+        if report.outcome == TaskOutcome.SUCCESS and duration is not None:
+            self.runtime_state.update_task(task, *duration)
+
+    @hookimpl
+    def pytask_unconfigure(self, session: Session) -> None:
+        """Flush runtime information on normal build exits."""
+        if session.config.get("command") != "build":
+            return
+        if session.config.get("dry_run") or session.config.get("explain"):
+            return
+        self.runtime_state.flush()
 
 
-def _create_or_update_runtime(task_signature: str, start: float, end: float) -> None:
-    """Create or update a runtime entry."""
-    if not database_is_configured():
-        return
-    with DatabaseSession() as session:
-        runtime = session.get(Runtime, task_signature)
+@dataclass
+class DurationNameSpace:
+    """A namespace for adding durations to the profile."""
 
-        if not runtime:
-            session.add(Runtime(task=task_signature, date=start, duration=end - start))
-        else:
-            for attr, val in (("date", start), ("duration", end - start)):
-                setattr(runtime, attr, val)
+    def __init__(self, runtime_state: RuntimeState) -> None:
+        self.runtime_state = runtime_state
 
-        session.commit()
+    @hookimpl
+    def pytask_profile_add_info_on_task(
+        self, session: Session, tasks: list[PTask], profile: dict[str, dict[str, Any]]
+    ) -> None:
+        """Add the runtime for tasks to the profile."""
+        _ = session
+        for task in tasks:
+            duration = self.runtime_state.get_duration(task)
+            if duration is not None:
+                profile[task.name]["Duration (in s)"] = round(duration, 2)
 
 
 @click.command(cls=ColoredCommand)
@@ -184,31 +194,6 @@ def _print_profile_table(
         console.print(table)
     else:
         console.print("No information is stored on the collected tasks.")
-
-
-class DurationNameSpace:
-    """A namespace for adding durations to the profile."""
-
-    @staticmethod
-    @hookimpl
-    def pytask_profile_add_info_on_task(
-        tasks: list[PTask], profile: dict[str, dict[str, Any]]
-    ) -> None:
-        """Add the runtime for tasks to the profile."""
-        runtimes = _collect_runtimes(tasks)
-        for name, duration in runtimes.items():
-            profile[name]["Duration (in s)"] = round(duration, 2)
-
-
-def _collect_runtimes(tasks: list[PTask]) -> dict[str, float]:
-    """Collect runtimes."""
-    if not database_is_configured():
-        return {}
-    with DatabaseSession() as session:
-        runtimes = [session.get(Runtime, task.signature) for task in tasks]
-    return {
-        task.name: r.duration for task, r in zip(tasks, runtimes, strict=False) if r
-    }
 
 
 class FileSizeNameSpace:

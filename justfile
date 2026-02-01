@@ -12,7 +12,7 @@ test-cov *FLAGS:
 
 # Run type checking
 typing:
-    uv run --group typing --group test --isolated ty check src/ tests/
+    uv run --group typing --group test --isolated ty check
 
 # Run linting
 lint:

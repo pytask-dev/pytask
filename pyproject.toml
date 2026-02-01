@@ -24,6 +24,7 @@ dependencies = [
     "attrs>=21.3.0",
     "click>=8.1.8,!=8.2.0",
     "click-default-group>=1.2.4",
+    "msgspec>=0.18.6",
     "networkx>=2.4.0",
     "optree>=0.9.0",
     "packaging>=23.0.0",
@@ -179,6 +180,7 @@ include = [
 unused-ignore-comment = "ignore"
 
 [tool.ty.src]
+include = ["src", "tests"]
 exclude = ["src/_pytask/_hashlib.py"]
 
 [tool.ty.terminal]
