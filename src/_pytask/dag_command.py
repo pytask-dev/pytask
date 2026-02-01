@@ -10,6 +10,7 @@ from typing import cast
 
 import click
 import networkx as nx
+from click._utils import Sentinel
 from rich.text import Text
 
 from _pytask.click import ColoredCommand
@@ -156,28 +157,8 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
 
             raw_config = {**DEFAULTS_FROM_CLI, **raw_config}  # ty: ignore[invalid-assignment]
 
-            paths_value = raw_config["paths"]
-            # Convert tuple to list since parse_paths expects Path | list[Path]
-            if isinstance(paths_value, tuple):
-                paths_value = list(paths_value)
-            if not isinstance(paths_value, (Path, list)):
-                msg = f"paths must be Path or list, got {type(paths_value)}"
-                raise TypeError(msg)  # noqa: TRY301
-            # Cast is justified - we validated at runtime
-            raw_config["paths"] = parse_paths(cast("Path | list[Path]", paths_value))
-
-            if raw_config["config"] is not None:
-                config_value = raw_config["config"]
-                if not isinstance(config_value, (str, Path)):
-                    msg = f"config must be str or Path, got {type(config_value)}"
-                    raise TypeError(msg)  # noqa: TRY301
-                raw_config["config"] = Path(config_value).resolve()
-                raw_config["root"] = raw_config["config"].parent
-            else:
-                (
-                    raw_config["root"],
-                    raw_config["config"],
-                ) = find_project_root_and_config(raw_config["paths"])
+            raw_config["paths"] = _normalize_paths_value(raw_config["paths"])
+            _normalize_config_value(raw_config)
 
             if raw_config["config"] is not None:
                 config_from_file = read_config(raw_config["config"])
@@ -213,6 +194,35 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
         session.dag = create_dag(session=session)
         session.hook.pytask_unconfigure(session=session)
         return _refine_dag(session)
+
+
+def _normalize_paths_value(paths_value: Any) -> list[Path]:
+    """Normalize paths from the programmatic interface."""
+    if isinstance(paths_value, tuple):
+        paths_value = list(paths_value)
+    if not isinstance(paths_value, (Path, list)):
+        msg = f"paths must be Path or list, got {type(paths_value)}"
+        raise TypeError(msg)
+    # Cast is justified - we validated at runtime
+    return parse_paths(cast("Path | list[Path]", paths_value))
+
+
+def _normalize_config_value(raw_config: dict[str, Any]) -> None:
+    """Normalize config value from the programmatic interface."""
+    config_value = raw_config["config"]
+    if isinstance(config_value, Sentinel):
+        config_value = None
+        raw_config["config"] = None
+    if config_value is not None:
+        if not isinstance(config_value, (str, Path)):
+            msg = f"config must be str or Path, got {type(config_value)}"
+            raise TypeError(msg)
+        raw_config["config"] = Path(config_value).resolve()
+        raw_config["root"] = raw_config["config"].parent
+    else:
+        raw_config["root"], raw_config["config"] = find_project_root_and_config(
+            raw_config["paths"]
+        )
 
 
 def _refine_dag(session: Session) -> nx.DiGraph:
