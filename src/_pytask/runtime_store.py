@@ -32,18 +32,6 @@ class _RuntimeJournalEntry(msgspec.Struct, forbid_unknown_fields=False):
     duration: float
 
 
-def _runtimes_path(root: Path) -> Path:
-    return root / ".pytask" / "runtimes.json"
-
-
-def _journal_path(path: Path) -> Path:
-    return path.with_suffix(".journal")
-
-
-def _journal(path: Path) -> JsonlJournal[_RuntimeJournalEntry]:
-    return JsonlJournal(path=_journal_path(path), type_=_RuntimeJournalEntry)
-
-
 def _read_runtimes(path: Path) -> _RuntimeFile | None:
     if not path.exists():
         return None
@@ -96,8 +84,10 @@ class RuntimeState:
 
     @classmethod
     def from_root(cls, root: Path) -> RuntimeState:
-        path = _runtimes_path(root)
-        journal = _journal(path)
+        path = root / ".pytask" / "runtimes.json"
+        journal = JsonlJournal(
+            path=path.with_suffix(".journal"), type_=_RuntimeJournalEntry
+        )
         existing = _read_runtimes(path)
         journal_entries = _read_journal(journal)
         if existing is None:
