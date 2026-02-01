@@ -54,9 +54,8 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Register the export option."""
-    config["runtime_state"] = RuntimeState.from_root(config["root"])
+    config["pm"].register(ProfilePlugin(RuntimeState.from_root(config["root"])))
     config["pm"].register(ExportNameSpace)
-    config["pm"].register(DurationNameSpace)
     config["pm"].register(FileSizeNameSpace)
 
 
@@ -70,17 +69,48 @@ def pytask_execute_task(task: PTask) -> Generator[None, None, None]:
     return result
 
 
-@hookimpl
-def pytask_execute_task_process_report(
-    session: Session, report: ExecutionReport
-) -> None:
-    """Store runtime of successfully finishing tasks."""
-    task = report.task
-    duration = task.attributes.get("duration")
-    if report.outcome == TaskOutcome.SUCCESS and duration is not None:
-        runtime_state = session.config.get("runtime_state")
-        if runtime_state is not None:
-            runtime_state.update_task(task, *duration)
+class ProfilePlugin:
+    """Collect and persist runtime profiling data."""
+
+    def __init__(self, runtime_state: RuntimeState) -> None:
+        self.runtime_state = runtime_state
+
+    @hookimpl
+    def pytask_execute_task_process_report(
+        self, session: Session, report: ExecutionReport
+    ) -> None:
+        """Store runtime of successfully finishing tasks."""
+        _ = session
+        task = report.task
+        duration = task.attributes.get("duration")
+        if report.outcome == TaskOutcome.SUCCESS and duration is not None:
+            self.runtime_state.update_task(task, *duration)
+
+    @hookimpl
+    def pytask_profile_add_info_on_task(
+        self, session: Session, tasks: list[PTask], profile: dict[str, dict[str, Any]]
+    ) -> None:
+        """Add the runtime for tasks to the profile."""
+        _ = session
+        for name, duration in self._collect_runtimes(tasks).items():
+            profile[name]["Duration (in s)"] = round(duration, 2)
+
+    @hookimpl
+    def pytask_unconfigure(self, session: Session) -> None:
+        """Flush runtime information on normal build exits."""
+        if session.config.get("command") != "build":
+            return
+        if session.config.get("dry_run") or session.config.get("explain"):
+            return
+        self.runtime_state.flush()
+
+    def _collect_runtimes(self, tasks: list[PTask]) -> dict[str, float]:
+        """Collect runtimes."""
+        return {
+            task.name: duration
+            for task in tasks
+            if (duration := self.runtime_state.get_duration(task)) is not None
+        }
 
 
 @click.command(cls=ColoredCommand)
@@ -159,32 +189,6 @@ def _print_profile_table(
         console.print(table)
     else:
         console.print("No information is stored on the collected tasks.")
-
-
-class DurationNameSpace:
-    """A namespace for adding durations to the profile."""
-
-    @staticmethod
-    @hookimpl
-    def pytask_profile_add_info_on_task(
-        session: Session, tasks: list[PTask], profile: dict[str, dict[str, Any]]
-    ) -> None:
-        """Add the runtime for tasks to the profile."""
-        runtimes = _collect_runtimes(session, tasks)
-        for name, duration in runtimes.items():
-            profile[name]["Duration (in s)"] = round(duration, 2)
-
-
-def _collect_runtimes(session: Session, tasks: list[PTask]) -> dict[str, float]:
-    """Collect runtimes."""
-    runtime_state = session.config.get("runtime_state")
-    if runtime_state is None:
-        return {}
-    return {
-        task.name: duration
-        for task in tasks
-        if (duration := runtime_state.get_duration(task)) is not None
-    }
 
 
 class FileSizeNameSpace:
@@ -294,16 +298,3 @@ def _get_info_names(profile: dict[str, dict[str, Any]]) -> list[str]:
     base: set[str] = set()
     info_names: list[str] = sorted(base.union(*(set(val) for val in profile.values())))
     return info_names
-
-
-@hookimpl
-def pytask_unconfigure(session: Session) -> None:
-    """Flush runtime information on normal build exits."""
-    if session.config.get("command") != "build":
-        return
-    if session.config.get("dry_run") or session.config.get("explain"):
-        return
-    runtime_state = session.config.get("runtime_state")
-    if runtime_state is None:
-        return
-    runtime_state.flush()
