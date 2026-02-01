@@ -1,32 +1,85 @@
 # Portability
 
-This guide explains how to keep pytask state portable across machines.
+This guide explains what you need to do to move a pytask project between machines and
+why the lockfile is central to that process.
 
-## Two Portability Concerns
+```{seealso}
+The lockfile format and behavior are documented in the
+[reference guide](../reference_guides/lockfile.md).
+```
 
-1. **Portable IDs**
+## What makes a project portable
 
-   - The lockfile stores task and node IDs.
-   - IDs must be project‑relative and stable across machines.
-   - pytask builds these IDs from the project root; no action required for most users.
+There are two things that must stay stable across machines:
 
-1. **Portable State Values**
+First, task and node IDs must be stable. An ID is the unique identifier that ties a task
+or node to an entry in `pytask.lock`. pytask builds these IDs from project-relative
+paths anchored at the project root, so most users do not need to do anything. If you
+implement custom nodes, make sure their IDs remain project-relative and stable across
+machines.
 
-   - `state` is opaque and comes from `PNode.state()` / `PTask.state()`.
-   - Content hashes are portable; timestamps or absolute paths are not.
-   - Custom nodes should avoid machine‑specific paths in `state()`.
+Second, state values must be portable. The lockfile stores opaque state strings from
+`PNode.state()` and `PTask.state()`, and pytask uses them to decide whether a task is up
+to date. Content hashes are portable; timestamps or absolute paths are not. This mostly
+matters when you define custom nodes or custom hash functions.
 
-## Tips
+## How to port a project
 
-- Commit `pytask.lock` to your repository. If you ship the repository together with the
-  build artifacts (for example, a zipped project folder including `pytask.lock` and the
-  produced files), you can move it to another machine and runs will skip recomputation.
+Use this checklist when you move a project to another machine or environment.
+
+1. **Update state once on the source machine.**
+
+   Run a normal build so `pytask.lock` is up to date:
+
+   ```console
+   $ pytask build
+   ```
+
+   If you already have a recent lockfile and up-to-date outputs, you can skip this step.
+   If the lockfile has stale entries, clean it first:
+
+   ```console
+   $ pytask build --clean-lockfile
+   ```
+
+1. **Ship the right files.**
+
+   Commit `pytask.lock` to your repository and move it with the project. In practice,
+   you should move:
+
+   - the project files tracked in version control (source, configuration, data inputs)
+   - `pytask.lock`
+   - the build artifacts you want to reuse (often in `bld/` if you follow the tutorial
+     layout)
+
+   The lockfile does not contain the artifacts themselves. If you move only the lockfile
+   but not the outputs, pytask will re-run tasks because output states will not match.
+
+1. **Preserve relative paths.**
+
+   IDs are project-relative. If your dependencies or products live outside the project
+   root, their IDs include `..` segments. Make sure the same relative layout exists on
+   the target machine, or update the paths and run `pytask build` once to refresh
+   `pytask.lock`.
+
+1. **Run pytask on the target machine.**
+
+   When states match, tasks are skipped. When they differ, tasks run and the lockfile is
+   updated.
+
+## Tips for stable state values
+
 - Prefer file content hashes over timestamps for custom nodes.
 - For `PythonNode` values that are not natively stable, provide a custom hash function.
-- If inputs live outside the project root, IDs will include `..` segments to remain
-  relative; this is expected.
+- Avoid machine-specific paths or timestamps in custom `state()` implementations.
 
-## Cleaning Up the Lockfile
+```{seealso}
+For custom nodes, see [Writing custom nodes](writing_custom_nodes.md).
+For hashing guidance, see
+[Hashing inputs of tasks](hashing_inputs_of_tasks.md).
+```
+
+## Cleaning up the lockfile
 
 `pytask.lock` is updated incrementally. Entries are only replaced when the corresponding
 tasks run. If tasks are removed or renamed, their old entries remain as stale data and
@@ -34,15 +87,9 @@ are ignored.
 
 To clean up stale entries without deleting the file, run:
 
-```
-pytask build --clean-lockfile
+```console
+$ pytask build --clean-lockfile
 ```
 
 This rewrites the lockfile after a successful build with only the currently collected
 tasks and their current state values.
-
-## Legacy SQLite
-
-SQLite is the old state format. It is used only when no lockfile exists, and the
-lockfile is written during that run. Subsequent runs rely on the lockfile and do not
-update database state.
