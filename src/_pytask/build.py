@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import sys
 from contextlib import suppress
-from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Literal
@@ -16,8 +15,7 @@ import click
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
 from _pytask.click import ColoredCommand
-from _pytask.config_utils import find_project_root_and_config
-from _pytask.config_utils import read_config
+from _pytask.config_utils import normalize_programmatic_config
 from _pytask.console import console
 from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
@@ -30,13 +28,12 @@ from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
-from _pytask.shared import parse_paths
-from _pytask.shared import to_list
 from _pytask.traceback import Traceback
 
 if TYPE_CHECKING:
     from collections.abc import Callable
     from collections.abc import Iterable
+    from pathlib import Path
     from typing import NoReturn
 
     from _pytask.node_protocols import PTask
@@ -66,7 +63,7 @@ def pytask_unconfigure(session: Session) -> None:
     path.write_text(json.dumps(HashPathCache._cache))
 
 
-def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
+def build(  # noqa: PLR0913
     *,
     capture: Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod = CaptureMethod.FD,
     check_casing_of_paths: bool = True,
@@ -225,47 +222,14 @@ def build(  # noqa: C901, PLR0912, PLR0913, PLR0915
 
         # If someone called the programmatic interface, we need to do some parsing.
         if "command" not in raw_config:
-            raw_config["command"] = "build"
             # Add defaults from cli.
             from _pytask.cli import DEFAULTS_FROM_CLI  # noqa: PLC0415
 
-            raw_config = {**DEFAULTS_FROM_CLI, **raw_config}
-
-            paths_value = raw_config["paths"]
-            # Convert tuple to list since parse_paths expects Path | list[Path]
-            if isinstance(paths_value, tuple):
-                paths_value = list(paths_value)
-            if not isinstance(paths_value, (Path, list)):
-                msg = f"paths must be Path or list, got {type(paths_value)}"
-                raise TypeError(msg)  # noqa: TRY301
-            # Cast is justified - we validated at runtime
-            raw_config["paths"] = parse_paths(cast("Path | list[Path]", paths_value))
-
-            if raw_config["config"] is not None:
-                config_value = raw_config["config"]
-                if not isinstance(config_value, (str, Path)):
-                    msg = f"config must be str or Path, got {type(config_value)}"
-                    raise TypeError(msg)  # noqa: TRY301
-                raw_config["config"] = Path(config_value).resolve()
-                raw_config["root"] = raw_config["config"].parent
-            else:
-                (
-                    raw_config["root"],
-                    raw_config["config"],
-                ) = find_project_root_and_config(raw_config["paths"])
-
-            if raw_config["config"] is not None:
-                config_from_file = read_config(raw_config["config"])
-
-                if "paths" in config_from_file:
-                    paths = config_from_file["paths"]
-                    paths = [
-                        raw_config["config"].parent.joinpath(path).resolve()
-                        for path in to_list(paths)
-                    ]
-                    config_from_file["paths"] = paths
-
-                raw_config = {**raw_config, **config_from_file}
+            raw_config = normalize_programmatic_config(
+                raw_config,
+                command="build",
+                defaults_from_cli=cast("dict[str, Any]", DEFAULTS_FROM_CLI),
+            )
 
         config_ = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
 
