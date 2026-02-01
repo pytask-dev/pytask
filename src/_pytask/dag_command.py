@@ -10,7 +10,6 @@ from typing import cast
 
 import click
 import networkx as nx
-from click._utils import Sentinel
 from rich.text import Text
 
 from _pytask.click import ColoredCommand
@@ -210,7 +209,7 @@ def _normalize_paths_value(paths_value: Any) -> list[Path]:
 def _normalize_config_value(raw_config: dict[str, Any]) -> None:
     """Normalize config value from the programmatic interface."""
     config_value = raw_config["config"]
-    if isinstance(config_value, Sentinel):
+    if _is_click_sentinel(config_value):
         config_value = None
         raw_config["config"] = None
     if config_value is not None:
@@ -223,6 +222,16 @@ def _normalize_config_value(raw_config: dict[str, Any]) -> None:
         raw_config["root"], raw_config["config"] = find_project_root_and_config(
             raw_config["paths"]
         )
+
+
+def _is_click_sentinel(value: Any) -> bool:
+    """Return True if value looks like Click's Sentinel.UNSET."""
+    return (
+        isinstance(value, enum.Enum)
+        and value.name == "UNSET"
+        and value.__class__.__name__ == "Sentinel"
+        and value.__class__.__module__ == "click._utils"
+    )
 
 
 def _refine_dag(session: Session) -> nx.DiGraph:
