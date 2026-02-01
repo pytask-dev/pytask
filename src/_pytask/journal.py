@@ -28,7 +28,7 @@ class JsonlJournal(Generic[T]):
             journal_file.write(msgspec.json.encode(payload) + b"\n")
 
     def read(self) -> list[T]:
-        """Read entries, stopping at the first invalid line."""
+        """Read entries, clearing the journal on decode errors."""
         if not self.path.exists():
             return []
 
@@ -39,7 +39,8 @@ class JsonlJournal(Generic[T]):
             try:
                 entries.append(msgspec.json.decode(line, type=self.type_))
             except msgspec.DecodeError:
-                break
+                self.delete()
+                return []
         return entries
 
     def delete(self) -> None:

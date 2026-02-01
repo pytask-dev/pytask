@@ -7,7 +7,6 @@ from dataclasses import field
 from typing import TYPE_CHECKING
 
 import msgspec
-from packaging.version import Version
 
 from _pytask.journal import JsonlJournal
 
@@ -17,14 +16,6 @@ if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
 
 CURRENT_RUNTIME_VERSION = "1"
-
-
-class RuntimeStoreError(Exception):
-    """Raised when reading or writing runtime files fails."""
-
-
-class RuntimeStoreVersionError(RuntimeStoreError):
-    """Raised when a runtime file version is not supported."""
 
 
 class _RuntimeEntry(msgspec.Struct):
@@ -63,15 +54,12 @@ def _read_runtimes(path: Path) -> _RuntimeFile | None:
     try:
         data = msgspec.json.decode(path.read_bytes(), type=_RuntimeFile)
     except msgspec.DecodeError:
-        msg = "Runtime file has invalid format."
-        raise RuntimeStoreError(msg) from None
+        path.unlink()
+        return None
 
-    if Version(data.runtime_version) != Version(CURRENT_RUNTIME_VERSION):
-        msg = (
-            f"Unsupported runtime-version {data.runtime_version!r}. "
-            f"Current version is {CURRENT_RUNTIME_VERSION}."
-        )
-        raise RuntimeStoreVersionError(msg)
+    if data.runtime_version != CURRENT_RUNTIME_VERSION:
+        path.unlink()
+        return None
     return data
 
 
@@ -87,12 +75,9 @@ def _read_journal(
 ) -> list[_RuntimeJournalEntry]:
     entries = journal.read()
     for entry in entries:
-        if Version(entry.runtime_version) != Version(CURRENT_RUNTIME_VERSION):
-            msg = (
-                f"Unsupported runtime-version {entry.runtime_version!r}. "
-                f"Current version is {CURRENT_RUNTIME_VERSION}."
-            )
-            raise RuntimeStoreVersionError(msg)
+        if entry.runtime_version != CURRENT_RUNTIME_VERSION:
+            journal.delete()
+            return []
     return entries
 
 
@@ -147,12 +132,8 @@ class RuntimeState:
     def _rebuild_index(self) -> None:
         self._index = {entry.id: entry for entry in self.runtimes.task}
 
-    @staticmethod
-    def _task_id(task: PTask) -> str:
-        return task.name
-
     def update_task(self, task: PTask, start: float, end: float) -> None:
-        task_id = self._task_id(task)
+        task_id = task.name
         entry = _RuntimeEntry(id=task_id, date=start, duration=end - start)
         self._index[entry.id] = entry
         self.runtimes = _RuntimeFile(
@@ -170,7 +151,7 @@ class RuntimeState:
         self._dirty = True
 
     def get_duration(self, task: PTask) -> float | None:
-        task_id = self._task_id(task)
+        task_id = task.name
         entry = self._index.get(task_id)
         if entry is None:
             return None
