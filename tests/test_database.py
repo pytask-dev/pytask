@@ -68,6 +68,17 @@ def test_rename_database_w_config(tmp_path, runner):
     assert path_to_db.exists()
 
 
+def test_database_url_from_config_is_parsed(tmp_path):
+    tmp_path.joinpath("pyproject.toml").write_text(
+        "[tool.pytask.ini_options]\ndatabase_url='sqlite:///.db.sqlite'"
+    )
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert session.config["database_url"].drivername == "sqlite"
+
+
 def test_rename_database_w_cli(tmp_path, runner):
     """Modification dates of input and output files are stored in database."""
     path_to_db = tmp_path.joinpath(".db.sqlite")
