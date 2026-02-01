@@ -248,6 +248,9 @@ class LockfileState:
         entry = _build_task_entry(session, task, self.root)
         if entry is None:
             return
+        existing = self._task_index.get(entry.id)
+        if existing == entry:
+            return
         self._task_index[entry.id] = entry
         self.lockfile = _Lockfile(
             lock_version=CURRENT_LOCKFILE_VERSION,

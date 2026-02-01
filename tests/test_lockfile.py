@@ -4,6 +4,7 @@ import textwrap
 
 import pytest
 
+import _pytask.lockfile as lockfile_module
 from _pytask.lockfile import LockfileError
 from _pytask.lockfile import LockfileVersionError
 from _pytask.lockfile import build_portable_node_id
@@ -127,3 +128,33 @@ def test_clean_lockfile_removes_stale_entries(tmp_path):
     lockfile = read_lockfile(tmp_path / "pytask.lock")
     assert lockfile is not None
     assert {entry.id for entry in lockfile.task} == {"task_first"}
+
+
+def test_update_task_skips_write_when_unchanged(tmp_path, monkeypatch):
+    def func(path):
+        path.write_text("data")
+
+    task = TaskWithoutPath(
+        name="task",
+        function=func,
+        produces={"path": PathNode(path=tmp_path / "out.txt")},
+    )
+
+    session = build(tasks=[task], paths=tmp_path)
+    assert session.exit_code == ExitCode.OK
+
+    lockfile_state = session.config["lockfile_state"]
+    assert lockfile_state is not None
+
+    calls = {"count": 0}
+
+    original_write = lockfile_module.write_lockfile
+
+    def _counting_write(path, lockfile):
+        calls["count"] += 1
+        return original_write(path, lockfile)
+
+    monkeypatch.setattr(lockfile_module, "write_lockfile", _counting_write)
+    lockfile_state.update_task(session, session.tasks[0])
+
+    assert calls["count"] == 0
