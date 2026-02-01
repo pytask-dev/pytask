@@ -11,6 +11,7 @@ from pluggy import HookimplMarker
 from pluggy import PluginManager
 
 from _pytask import hookspecs
+from _pytask.profile import ProfilePlugin
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -58,12 +59,12 @@ def pytask_add_hooks(pm: PluginManager) -> None:
         "_pytask.nodes",
         "_pytask.parameters",
         "_pytask.persist",
-        "_pytask.profile",
         "_pytask.skipping",
         "_pytask.task",
         "_pytask.warnings",
     )
     register_hook_impls_from_modules(pm, builtin_hook_impl_modules)
+    pm.register(ProfilePlugin())
 
 
 def get_plugin_manager() -> PluginManager:
