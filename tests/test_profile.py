@@ -5,12 +5,10 @@ import textwrap
 import pytest
 
 from _pytask.profile import _to_human_readable_size
-from pytask import DatabaseSession
+from _pytask.runtime_store import RuntimeState
 from pytask import ExitCode
-from pytask import Runtime
 from pytask import build
 from pytask import cli
-from pytask import create_database
 
 
 def test_duration_is_stored_in_task(tmp_path):
@@ -28,14 +26,10 @@ def test_duration_is_stored_in_task(tmp_path):
     duration = task.attributes["duration"]
     assert duration[1] - duration[0] > 2
 
-    create_database(
-        "sqlite:///" + tmp_path.joinpath(".pytask", "pytask.sqlite3").as_posix()
-    )
-
-    with DatabaseSession() as session:
-        runtime = session.get(Runtime, task.signature)
-        assert runtime is not None
-        assert runtime.duration > 2
+    runtime_state = RuntimeState.from_root(tmp_path)
+    duration = runtime_state.get_duration(task)
+    assert duration is not None
+    assert duration > 2
 
 
 def test_profile_if_no_tasks_are_collected(tmp_path, runner):
