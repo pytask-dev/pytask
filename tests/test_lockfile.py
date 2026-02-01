@@ -148,13 +148,13 @@ def test_update_task_skips_write_when_unchanged(tmp_path, monkeypatch):
 
     calls = {"count": 0}
 
-    original_append = lockfile_module._append_journal_entry
+    original_append = lockfile_module.JsonlJournal.append
 
-    def _counting_append(path, entry):
+    def _counting_append(self, payload):
         calls["count"] += 1
-        return original_append(path, entry)
+        return original_append(self, payload)
 
-    monkeypatch.setattr(lockfile_module, "_append_journal_entry", _counting_append)
+    monkeypatch.setattr(lockfile_module.JsonlJournal, "append", _counting_append)
     lockfile_state.update_task(session, session.tasks[0])
 
     assert calls["count"] == 0

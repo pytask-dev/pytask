@@ -13,6 +13,7 @@ import msgspec
 from packaging.version import Version
 from upath import UPath
 
+from _pytask.journal import JsonlJournal
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
@@ -99,50 +100,22 @@ def build_portable_node_id(node: PNode, root: Path) -> str:
     return node.name
 
 
-def _journal_path(path: Path) -> Path:
-    return path.with_suffix(f"{path.suffix}.journal")
-
-
-def _append_journal_entry(path: Path, entry: _TaskEntry) -> None:
-    journal_path = _journal_path(path)
-    payload = _JournalEntry(
-        lock_version=CURRENT_LOCKFILE_VERSION,
-        id=entry.id,
-        state=entry.state,
-        depends_on=entry.depends_on,
-        produces=entry.produces,
+def _journal(path: Path) -> JsonlJournal[_JournalEntry]:
+    return JsonlJournal(
+        path=path.with_suffix(f"{path.suffix}.journal"), type_=_JournalEntry
     )
-    with journal_path.open("ab") as journal_file:
-        journal_file.write(msgspec.json.encode(payload) + b"\n")
 
 
-def _read_journal_entries(path: Path) -> list[_JournalEntry]:
-    journal_path = _journal_path(path)
-    if not journal_path.exists():
-        return []
-
-    entries: list[_JournalEntry] = []
-    for line in journal_path.read_bytes().splitlines():
-        if not line.strip():
-            continue
-        try:
-            entry = msgspec.json.decode(line, type=_JournalEntry)
-        except msgspec.DecodeError:
-            break
+def _read_journal_entries(journal: JsonlJournal[_JournalEntry]) -> list[_JournalEntry]:
+    entries = journal.read()
+    for entry in entries:
         if Version(entry.lock_version) != Version(CURRENT_LOCKFILE_VERSION):
             msg = (
                 f"Unsupported lock-version {entry.lock_version!r}. "
                 f"Current version is {CURRENT_LOCKFILE_VERSION}."
             )
             raise LockfileVersionError(msg)
-        entries.append(entry)
     return entries
-
-
-def _delete_journal(path: Path) -> None:
-    journal_path = _journal_path(path)
-    if journal_path.exists():
-        journal_path.unlink()
 
 
 def read_lockfile(path: Path) -> _Lockfile | None:
@@ -285,7 +258,8 @@ class LockfileState:
     @classmethod
     def from_path(cls, path: Path, root: Path) -> LockfileState:
         existing = read_lockfile(path)
-        journal_entries = _read_journal_entries(path)
+        journal = _journal(path)
+        journal_entries = _read_journal_entries(journal)
         if existing is None:
             lockfile = _Lockfile(
                 lock_version=CURRENT_LOCKFILE_VERSION,
@@ -338,7 +312,16 @@ class LockfileState:
             task=list(self._task_index.values()),
         )
         self._rebuild_indexes()
-        _append_journal_entry(self.path, entry)
+        journal = _journal(self.path)
+        journal.append(
+            _JournalEntry(
+                lock_version=CURRENT_LOCKFILE_VERSION,
+                id=entry.id,
+                state=entry.state,
+                depends_on=entry.depends_on,
+                produces=entry.produces,
+            )
+        )
         self._dirty = True
 
     def rebuild_from_session(self, session: Session) -> None:
@@ -355,14 +338,14 @@ class LockfileState:
         )
         self._rebuild_indexes()
         write_lockfile(self.path, self.lockfile)
-        _delete_journal(self.path)
+        _journal(self.path).delete()
         self._dirty = False
 
     def flush(self) -> None:
         if not self._dirty:
             return
         write_lockfile(self.path, self.lockfile)
-        _delete_journal(self.path)
+        _journal(self.path).delete()
         self._dirty = False
 
 
