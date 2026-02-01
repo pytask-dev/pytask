@@ -9,9 +9,7 @@ from typing import TYPE_CHECKING
 import msgspec
 from packaging.version import Version
 
-from _pytask.journal import append_jsonl
-from _pytask.journal import delete_if_exists
-from _pytask.journal import read_jsonl
+from _pytask.journal import JsonlJournal
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -55,6 +53,10 @@ def _journal_path(path: Path) -> Path:
     return path.with_suffix(".journal")
 
 
+def _journal(path: Path) -> JsonlJournal[_RuntimeJournalEntry]:
+    return JsonlJournal(path=_journal_path(path), type_=_RuntimeJournalEntry)
+
+
 def _read_runtimes(path: Path) -> _RuntimeFile | None:
     if not path.exists():
         return None
@@ -80,9 +82,10 @@ def _write_runtimes(path: Path, runtimes: _RuntimeFile) -> None:
     tmp.replace(path)
 
 
-def _read_journal(path: Path) -> list[_RuntimeJournalEntry]:
-    journal_path = _journal_path(path)
-    entries = read_jsonl(journal_path, type_=_RuntimeJournalEntry)
+def _read_journal(
+    journal: JsonlJournal[_RuntimeJournalEntry],
+) -> list[_RuntimeJournalEntry]:
+    entries = journal.read()
     for entry in entries:
         if Version(entry.runtime_version) != Version(CURRENT_RUNTIME_VERSION):
             msg = (
@@ -109,14 +112,11 @@ def _apply_journal(
     )
 
 
-def _build_task_id(task: PTask) -> str:
-    return task.name
-
-
 @dataclass
 class RuntimeState:
     path: Path
     runtimes: _RuntimeFile
+    journal: JsonlJournal[_RuntimeJournalEntry]
     _index: dict[str, _RuntimeEntry] = field(init=False, default_factory=dict)
     _dirty: bool = field(init=False, default=False)
 
@@ -126,18 +126,19 @@ class RuntimeState:
     @classmethod
     def from_root(cls, root: Path) -> RuntimeState:
         path = _runtimes_path(root)
+        journal = _journal(path)
         existing = _read_runtimes(path)
-        journal_entries = _read_journal(path)
+        journal_entries = _read_journal(journal)
         if existing is None:
             runtimes = _RuntimeFile(
                 runtime_version=CURRENT_RUNTIME_VERSION,
                 task=[],
             )
             runtimes = _apply_journal(runtimes, journal_entries)
-            state = cls(path=path, runtimes=runtimes)
+            state = cls(path=path, runtimes=runtimes, journal=journal)
         else:
             runtimes = _apply_journal(existing, journal_entries)
-            state = cls(path=path, runtimes=runtimes)
+            state = cls(path=path, runtimes=runtimes, journal=journal)
 
         if journal_entries:
             state._dirty = True
@@ -146,8 +147,12 @@ class RuntimeState:
     def _rebuild_index(self) -> None:
         self._index = {entry.id: entry for entry in self.runtimes.task}
 
+    @staticmethod
+    def _task_id(task: PTask) -> str:
+        return task.name
+
     def update_task(self, task: PTask, start: float, end: float) -> None:
-        task_id = _build_task_id(task)
+        task_id = self._task_id(task)
         entry = _RuntimeEntry(id=task_id, date=start, duration=end - start)
         self._index[entry.id] = entry
         self.runtimes = _RuntimeFile(
@@ -161,11 +166,11 @@ class RuntimeState:
             date=entry.date,
             duration=entry.duration,
         )
-        append_jsonl(_journal_path(self.path), journal_entry)
+        self.journal.append(journal_entry)
         self._dirty = True
 
     def get_duration(self, task: PTask) -> float | None:
-        task_id = _build_task_id(task)
+        task_id = self._task_id(task)
         entry = self._index.get(task_id)
         if entry is None:
             return None
@@ -175,5 +180,5 @@ class RuntimeState:
         if not self._dirty:
             return
         _write_runtimes(self.path, self.runtimes)
-        delete_if_exists(_journal_path(self.path))
+        self.journal.delete()
         self._dirty = False
