@@ -33,7 +33,6 @@ from _pytask.session import Session
 from _pytask.traceback import Traceback
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
     from collections.abc import Generator
     from pathlib import Path
     from typing import NoReturn
@@ -47,35 +46,37 @@ class _ExportFormats(enum.Enum):
     CSV = "csv"
 
 
+@hookimpl(tryfirst=True)
+def pytask_extend_command_line_interface(cli: click.Group) -> None:
+    """Extend the command line interface."""
+    cli.add_command(profile)
+
+
+@hookimpl
+def pytask_post_parse(config: dict[str, Any]) -> None:
+    """Register the export option."""
+    runtime_state = RuntimeState.from_root(config["root"])
+    config["pm"].register(ProfilePlugin(runtime_state))
+    config["pm"].register(DurationNameSpace(runtime_state))
+    config["pm"].register(ExportNameSpace)
+    config["pm"].register(FileSizeNameSpace)
+
+
+@hookimpl(wrapper=True)
+def pytask_execute_task(task: PTask) -> Generator[None, None, None]:
+    """Attach the duration of the execution to the task."""
+    start = time.time()
+    result = yield
+    end = time.time()
+    task.attributes["duration"] = (start, end)
+    return result
+
+
 @dataclass
 class ProfilePlugin:
     """Collect and persist runtime profiling data."""
 
-    runtime_state: RuntimeState | None = None
-    runtime_state_factory: Callable[[Path], RuntimeState] = RuntimeState.from_root
-
-    @hookimpl(tryfirst=True)
-    def pytask_extend_command_line_interface(self, cli: click.Group) -> None:
-        """Extend the command line interface."""
-        cli.add_command(profile)
-
-    @hookimpl
-    def pytask_post_parse(self, config: dict[str, Any]) -> None:
-        """Register the export option."""
-        runtime_state = self.runtime_state_factory(config["root"])
-        self.runtime_state = runtime_state
-        config["pm"].register(DurationNameSpace(runtime_state))
-        config["pm"].register(ExportNameSpace)
-        config["pm"].register(FileSizeNameSpace)
-
-    @hookimpl(wrapper=True)
-    def pytask_execute_task(self, task: PTask) -> Generator[None, None, None]:
-        """Attach the duration of the execution to the task."""
-        start = time.time()
-        result = yield
-        end = time.time()
-        task.attributes["duration"] = (start, end)
-        return result
+    runtime_state: RuntimeState
 
     @hookimpl
     def pytask_execute_task_process_report(
@@ -83,25 +84,19 @@ class ProfilePlugin:
     ) -> None:
         """Store runtime of successfully finishing tasks."""
         _ = session
-        runtime_state = self.runtime_state
-        if runtime_state is None:
-            return
         task = report.task
         duration = task.attributes.get("duration")
         if report.outcome == TaskOutcome.SUCCESS and duration is not None:
-            runtime_state.update_task(task, *duration)
+            self.runtime_state.update_task(task, *duration)
 
     @hookimpl
     def pytask_unconfigure(self, session: Session) -> None:
         """Flush runtime information on normal build exits."""
-        runtime_state = self.runtime_state
-        if runtime_state is None:
-            return
         if session.config.get("command") != "build":
             return
         if session.config.get("dry_run") or session.config.get("explain"):
             return
-        runtime_state.flush()
+        self.runtime_state.flush()
 
 
 class DurationNameSpace:
