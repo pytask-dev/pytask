@@ -148,13 +148,108 @@ def test_update_task_skips_write_when_unchanged(tmp_path, monkeypatch):
 
     calls = {"count": 0}
 
-    original_write = lockfile_module.write_lockfile
+    original_append = lockfile_module._append_journal_entry
 
-    def _counting_write(path, lockfile):
+    def _counting_append(path, entry):
         calls["count"] += 1
-        return original_write(path, lockfile)
+        return original_append(path, entry)
 
-    monkeypatch.setattr(lockfile_module, "write_lockfile", _counting_write)
+    monkeypatch.setattr(lockfile_module, "_append_journal_entry", _counting_append)
     lockfile_state.update_task(session, session.tasks[0])
 
     assert calls["count"] == 0
+
+
+def test_update_task_appends_journal_on_change(tmp_path):
+    def func(path):
+        path.write_text("data")
+
+    task = TaskWithoutPath(
+        name="task",
+        function=func,
+        produces={"path": PathNode(path=tmp_path / "out.txt")},
+    )
+
+    session = build(tasks=[task], paths=tmp_path)
+    assert session.exit_code == ExitCode.OK
+
+    lockfile_state = session.config["lockfile_state"]
+    assert lockfile_state is not None
+
+    def new_func(path):
+        path.write_text("changed")
+
+    session.tasks[0].function = new_func
+
+    lockfile_state.update_task(session, session.tasks[0])
+
+    journal_path = (tmp_path / "pytask.lock").with_suffix(".lock.journal")
+    assert journal_path.exists()
+    assert journal_path.read_text().strip()
+
+
+def test_journal_replay_updates_lockfile_state(tmp_path):
+    def func(path):
+        path.write_text("data")
+
+    task = TaskWithoutPath(
+        name="task",
+        function=func,
+        produces={"path": PathNode(path=tmp_path / "out.txt")},
+    )
+
+    session = build(tasks=[task], paths=tmp_path)
+    assert session.exit_code == ExitCode.OK
+
+    lockfile_state = session.config["lockfile_state"]
+    assert lockfile_state is not None
+
+    def new_func(path):
+        path.write_text("changed")
+
+    session.tasks[0].function = new_func
+    lockfile_state.update_task(session, session.tasks[0])
+
+    journal_path = (tmp_path / "pytask.lock").with_suffix(".lock.journal")
+    assert journal_path.exists()
+
+    reloaded = lockfile_module.LockfileState.from_path(
+        tmp_path / "pytask.lock", tmp_path
+    )
+    entry = reloaded.get_task_entry("task")
+    assert entry is not None
+    assert entry.state == session.tasks[0].state()
+
+
+def test_flush_writes_lockfile_and_deletes_journal(tmp_path):
+    def func(path):
+        path.write_text("data")
+
+    task = TaskWithoutPath(
+        name="task",
+        function=func,
+        produces={"path": PathNode(path=tmp_path / "out.txt")},
+    )
+
+    session = build(tasks=[task], paths=tmp_path)
+    assert session.exit_code == ExitCode.OK
+
+    lockfile_state = session.config["lockfile_state"]
+    assert lockfile_state is not None
+
+    def new_func(path):
+        path.write_text("changed")
+
+    session.tasks[0].function = new_func
+    lockfile_state.update_task(session, session.tasks[0])
+
+    journal_path = (tmp_path / "pytask.lock").with_suffix(".lock.journal")
+    assert journal_path.exists()
+
+    lockfile_state.flush()
+
+    assert not journal_path.exists()
+    lockfile = read_lockfile(tmp_path / "pytask.lock")
+    assert lockfile is not None
+    entries = {entry.id: entry for entry in lockfile.task}
+    assert entries["task"].state == session.tasks[0].state()

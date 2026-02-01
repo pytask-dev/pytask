@@ -47,6 +47,14 @@ class _Lockfile(msgspec.Struct, forbid_unknown_fields=False):
     task: list[_TaskEntry] = msgspec.field(default_factory=list)
 
 
+class _JournalEntry(msgspec.Struct):
+    lock_version: str = msgspec.field(name="lock-version")
+    id: str
+    state: str
+    depends_on: dict[str, str] = msgspec.field(default_factory=dict)
+    produces: dict[str, str] = msgspec.field(default_factory=dict)
+
+
 def _encode_node_path(path: tuple[str | int, ...]) -> str:
     return msgspec.json.encode(path).decode()
 
@@ -89,6 +97,52 @@ def build_portable_node_id(node: PNode, root: Path) -> str:
     if isinstance(node, PPathNode):
         return _relative_path(node.path, root)
     return node.name
+
+
+def _journal_path(path: Path) -> Path:
+    return path.with_suffix(f"{path.suffix}.journal")
+
+
+def _append_journal_entry(path: Path, entry: _TaskEntry) -> None:
+    journal_path = _journal_path(path)
+    payload = _JournalEntry(
+        lock_version=CURRENT_LOCKFILE_VERSION,
+        id=entry.id,
+        state=entry.state,
+        depends_on=entry.depends_on,
+        produces=entry.produces,
+    )
+    with journal_path.open("ab") as journal_file:
+        journal_file.write(msgspec.json.encode(payload) + b"\n")
+
+
+def _read_journal_entries(path: Path) -> list[_JournalEntry]:
+    journal_path = _journal_path(path)
+    if not journal_path.exists():
+        return []
+
+    entries: list[_JournalEntry] = []
+    for line in journal_path.read_bytes().splitlines():
+        if not line.strip():
+            continue
+        try:
+            entry = msgspec.json.decode(line, type=_JournalEntry)
+        except msgspec.DecodeError:
+            break
+        if Version(entry.lock_version) != Version(CURRENT_LOCKFILE_VERSION):
+            msg = (
+                f"Unsupported lock-version {entry.lock_version!r}. "
+                f"Current version is {CURRENT_LOCKFILE_VERSION}."
+            )
+            raise LockfileVersionError(msg)
+        entries.append(entry)
+    return entries
+
+
+def _delete_journal(path: Path) -> None:
+    journal_path = _journal_path(path)
+    if journal_path.exists():
+        journal_path.unlink()
 
 
 def read_lockfile(path: Path) -> _Lockfile | None:
@@ -145,6 +199,23 @@ def write_lockfile(path: Path, lockfile: _Lockfile) -> None:
     tmp = path.with_suffix(f"{path.suffix}.tmp")
     tmp.write_bytes(data)
     tmp.replace(path)
+
+
+def _apply_journal(lockfile: _Lockfile, entries: list[_JournalEntry]) -> _Lockfile:
+    if not entries:
+        return lockfile
+    task_index = {task.id: task for task in lockfile.task}
+    for entry in entries:
+        task_index[entry.id] = _TaskEntry(
+            id=entry.id,
+            state=entry.state,
+            depends_on=entry.depends_on,
+            produces=entry.produces,
+        )
+    return _Lockfile(
+        lock_version=CURRENT_LOCKFILE_VERSION,
+        task=list(task_index.values()),
+    )
 
 
 def _build_task_entry(session: Session, task: PTask, root: Path) -> _TaskEntry | None:
@@ -206,6 +277,7 @@ class LockfileState:
     lockfile: _Lockfile
     _task_index: dict[str, _TaskEntry] = field(init=False, default_factory=dict)
     _node_index: dict[str, dict[str, str]] = field(init=False, default_factory=dict)
+    _dirty: bool = field(init=False, default=False)
 
     def __post_init__(self) -> None:
         self._rebuild_indexes()
@@ -213,23 +285,32 @@ class LockfileState:
     @classmethod
     def from_path(cls, path: Path, root: Path) -> LockfileState:
         existing = read_lockfile(path)
+        journal_entries = _read_journal_entries(path)
         if existing is None:
             lockfile = _Lockfile(
                 lock_version=CURRENT_LOCKFILE_VERSION,
                 task=[],
             )
-            return cls(
+            lockfile = _apply_journal(lockfile, journal_entries)
+            state = cls(
                 path=path,
                 root=root,
-                use_lockfile_for_skip=False,
+                use_lockfile_for_skip=bool(journal_entries),
                 lockfile=lockfile,
             )
-        return cls(
+            if journal_entries:
+                state._dirty = True
+            return state
+        lockfile = _apply_journal(existing, journal_entries)
+        state = cls(
             path=path,
             root=root,
             use_lockfile_for_skip=True,
-            lockfile=existing,
+            lockfile=lockfile,
         )
+        if journal_entries:
+            state._dirty = True
+        return state
 
     def _rebuild_indexes(self) -> None:
         self._task_index = {task.id: task for task in self.lockfile.task}
@@ -257,7 +338,8 @@ class LockfileState:
             task=list(self._task_index.values()),
         )
         self._rebuild_indexes()
-        write_lockfile(self.path, self.lockfile)
+        _append_journal_entry(self.path, entry)
+        self._dirty = True
 
     def rebuild_from_session(self, session: Session) -> None:
         if session.dag is None:
@@ -273,6 +355,15 @@ class LockfileState:
         )
         self._rebuild_indexes()
         write_lockfile(self.path, self.lockfile)
+        _delete_journal(self.path)
+        self._dirty = False
+
+    def flush(self) -> None:
+        if not self._dirty:
+            return
+        write_lockfile(self.path, self.lockfile)
+        _delete_journal(self.path)
+        self._dirty = False
 
 
 @hookimpl
@@ -288,13 +379,20 @@ def pytask_unconfigure(session: Session) -> None:
     """Optionally rewrite the lockfile to drop stale entries."""
     if session.config.get("command") != "build":
         return
-    if not session.config.get("clean_lockfile"):
-        return
     if session.config.get("dry_run"):
         return
+    if session.config.get("explain"):
+        return
     if session.exit_code != ExitCode.OK:
+        lockfile_state = session.config.get("lockfile_state")
+        if lockfile_state is None:
+            return
+        lockfile_state.flush()
         return
     lockfile_state = session.config.get("lockfile_state")
     if lockfile_state is None:
         return
-    lockfile_state.rebuild_from_session(session)
+    if session.config.get("clean_lockfile"):
+        lockfile_state.rebuild_from_session(session)
+    else:
+        lockfile_state.flush()
