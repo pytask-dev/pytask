@@ -103,9 +103,8 @@ def _clear_annotation_locals(tasks: list[PTask]) -> None:
     example locks) and break parallel backends that cloudpickle task functions.
     """
     for task in tasks:
-        meta = getattr(task.function, "pytask_meta", None)
-        if meta is not None and getattr(meta, "annotation_locals", None) is not None:
-            meta.annotation_locals = None
+        if isinstance(task.function, TaskFunction):
+            task.function.pytask_meta.annotation_locals = None
 
 
 def _collect_from_paths(session: Session) -> None:
