@@ -10,8 +10,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - {pull}`766` moves runtime profiling persistence from SQLite to a JSON snapshot plus
   append-only journal in `.pytask/`, keeping runtime data resilient to crashes and
   compacted on normal build exits.
-- Clear decoration-time `annotation_locals` snapshots after collection so task
-  functions remain picklable in parallel/process execution backends.
+- {pull}`776` clears decoration-time `annotation_locals` snapshots after collection so
+  task functions remain picklable in process-based parallel backends.
 
 ## 0.5.8 - 2025-12-30
 
