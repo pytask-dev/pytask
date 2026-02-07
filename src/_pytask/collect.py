@@ -90,7 +90,21 @@ def pytask_collect(session: Session) -> bool:
         session=session, reports=session.collection_reports, tasks=session.tasks
     )
 
+    _clear_annotation_locals(session.tasks)
+
     return True
+
+
+def _clear_annotation_locals(tasks: list[PTask]) -> None:
+    """Drop decoration-time locals snapshots once collection finishes.
+
+    The snapshot is only needed to evaluate deferred annotations while collecting
+    dependencies/products. Keeping it afterwards can retain non-picklable objects (for
+    example locks) and break parallel backends that cloudpickle task functions.
+    """
+    for task in tasks:
+        if isinstance(task.function, TaskFunction):
+            task.function.pytask_meta.annotation_locals = None
 
 
 def _collect_from_paths(session: Session) -> None:
