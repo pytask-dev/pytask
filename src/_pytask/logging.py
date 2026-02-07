@@ -68,6 +68,7 @@ def pytask_log_session_header(session: Session) -> None:
         f"Platform: {sys.platform} -- Python {platform.python_version()}, "
         f"pytask {_pytask.__version__}, pluggy {pluggy.__version__}",
         highlight=False,
+        soft_wrap=True,
     )
     console.print(f"Root: {session.config['root']}")
     if session.config["config"] is not None:

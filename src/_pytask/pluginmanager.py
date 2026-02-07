@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import importlib
 import sys
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from attrs import define
 from pluggy import HookimplMarker
 from pluggy import PluginManager
 
@@ -78,7 +78,7 @@ def get_plugin_manager() -> PluginManager:
     return pm
 
 
-@define
+@dataclass
 class _PluginManagerStorage:
     """A class to store the plugin manager.
 

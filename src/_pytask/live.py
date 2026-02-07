@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from dataclasses import field
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import NamedTuple
 
 import click
-from attrs import define
-from attrs import field
 from rich.box import ROUNDED
 from rich.errors import LiveError
 from rich.live import Live
@@ -88,7 +87,7 @@ def pytask_execute(session: Session) -> Generator[None, None, None]:
     return (yield)
 
 
-@define(eq=False)
+@dataclass(eq=False)
 class LiveManager:
     """A class for live displays during a session.
 
@@ -109,7 +108,9 @@ class LiveManager:
     """
 
     _live: Live = field(
-        factory=lambda: Live(renderable=None, console=console, auto_refresh=False)
+        default_factory=lambda: Live(
+            renderable=None, console=console, auto_refresh=False
+        )
     )
 
     def start(self) -> None:
@@ -176,7 +177,7 @@ class _ReportEntry(NamedTuple):
     task: PTask
 
 
-@define(eq=False, kw_only=True)
+@dataclass(eq=False, kw_only=True)
 class LiveExecution:
     """A class for managing the table displaying task progress during the execution."""
 
@@ -187,8 +188,8 @@ class LiveExecution:
     initial_status: TaskExecutionStatus = TaskExecutionStatus.RUNNING
     sort_final_table: bool = False
     n_tasks: int | str = "x"
-    _reports: list[_ReportEntry] = field(factory=list)
-    _running_tasks: dict[str, _TaskEntry] = field(factory=dict)
+    _reports: list[_ReportEntry] = field(default_factory=list)
+    _running_tasks: dict[str, _TaskEntry] = field(default_factory=dict)
 
     @hookimpl(wrapper=True)
     def pytask_execute_build(self) -> Generator[None, None, None]:
@@ -325,7 +326,7 @@ class LiveExecution:
         self._update_table()
 
 
-@define(eq=False, kw_only=True)
+@dataclass(eq=False, kw_only=True)
 class LiveCollection:
     """A class for managing the live status during the collection."""
 

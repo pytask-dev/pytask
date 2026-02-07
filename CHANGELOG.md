@@ -7,6 +7,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- {pull}`744` Removed the direct dependency on attrs and migrated internal models to
+  dataclasses.
 - {pull}`766` moves runtime profiling persistence from SQLite to a JSON snapshot plus
   append-only journal in `.pytask/`, keeping runtime data resilient to crashes and
   compacted on normal build exits.

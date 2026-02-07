@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import sys
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any
 
 import click
-from attrs import define
 from rich.table import Table
 
 from _pytask.click import ColoredCommand
@@ -117,7 +117,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     config["markers"] = parse_markers(config["markers"])
 
 
-@define(slots=True)
+@dataclass(slots=True)
 class KeywordMatcher:
     """A matcher for keywords.
 
@@ -189,7 +189,7 @@ def select_by_after_keyword(session: Session, after: str) -> set[str]:
     return ancestors
 
 
-@define(slots=True)
+@dataclass(slots=True)
 class MarkMatcher:
     """A matcher for markers which are present.
 

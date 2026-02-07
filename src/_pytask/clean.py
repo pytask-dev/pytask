@@ -6,11 +6,11 @@ import enum
 import itertools
 import shutil
 import sys
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any
 
 import click
-from attrs import define
 
 from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
@@ -243,7 +243,7 @@ def _find_all_unknown_paths(
     )
 
 
-@define(repr=False)
+@dataclass(repr=False)
 class _RecursivePathNode:
     """A class for a path to a file or directory which recursively instantiates itself.
 
