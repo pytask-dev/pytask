@@ -156,7 +156,7 @@ class TeeCaptureIO(CaptureIO):
         self._other = other
         super().__init__()
 
-    def write(self, s: str) -> int:  # ty: ignore[invalid-method-override]
+    def write(self, s: str) -> int:
         super().write(s)
         return self._other.write(s)
 

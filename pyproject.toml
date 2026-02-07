@@ -23,6 +23,7 @@ dynamic = ["version"]
 dependencies = [
     "click>=8.1.8,!=8.2.0",
     "click-default-group>=1.2.4",
+    "msgspec>=0.18.6",
     "networkx>=2.4.0",
     "optree>=0.9.0",
     "packaging>=23.0.0",
@@ -74,7 +75,7 @@ test = [
     "pytest-xdist>=3.6.1",
     "syrupy>=4.5.0",
     "aiohttp>=3.11.0",                                                        # For HTTPPath tests.
-    "coiled>=1.42.0",
+    "coiled>=1.42.0; python_version < '3.14'",
     "pygraphviz>=1.12;platform_system=='Linux'",
 ]
 typing = ["ty>=0.0.8"]
@@ -177,6 +178,7 @@ include = [
 unused-ignore-comment = "ignore"
 
 [tool.ty.src]
+include = ["src", "tests"]
 exclude = ["src/_pytask/_hashlib.py"]
 
 [tool.ty.terminal]

@@ -66,7 +66,6 @@ from _pytask.outcomes import count_outcomes
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
-from _pytask.profile import Runtime
 from _pytask.reports import CollectionReport
 from _pytask.reports import DagReport
 from _pytask.reports import ExecutionReport
@@ -123,7 +122,6 @@ __all__ = [
     "PytaskError",
     "PythonNode",
     "ResolvingDependenciesError",
-    "Runtime",
     "Session",
     "ShowCapture",
     "Skipped",

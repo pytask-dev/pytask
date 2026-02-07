@@ -34,6 +34,9 @@ if TYPE_CHECKING:
     from _pytask.session import Session
 
 
+_LIVE_DISPLAY_OWNER: LiveManager | None = None
+
+
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Extend command line interface."""
@@ -111,6 +114,18 @@ class LiveManager:
     )
 
     def start(self) -> None:
+        global _LIVE_DISPLAY_OWNER  # noqa: PLW0603
+        if _LIVE_DISPLAY_OWNER is not None and _LIVE_DISPLAY_OWNER is not self:
+            msg = (
+                "pytask tried to launch a second live display which is impossible. The "
+                "issue occurs when you use pytask on the command line on a task module "
+                "that uses the programmatic interface of pytask at the same time. "
+                "Use either the command line or the programmatic interface."
+            )
+            raise Exit(msg)
+        if self._live.is_started:
+            _LIVE_DISPLAY_OWNER = self
+            return
         try:
             self._live.start()
         except LiveError:
@@ -121,11 +136,15 @@ class LiveManager:
                 "Use either the command line or the programmatic interface."
             )
             raise Exit(msg) from None
+        _LIVE_DISPLAY_OWNER = self
 
     def stop(self, transient: bool | None = None) -> None:
+        global _LIVE_DISPLAY_OWNER  # noqa: PLW0603
         if transient is not None:
             self._live.transient = transient
         self._live.stop()
+        if _LIVE_DISPLAY_OWNER is self:
+            _LIVE_DISPLAY_OWNER = None
 
     def pause(self) -> None:
         self._live.transient = True

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import enum
 import os
 import sys
 from pathlib import Path
@@ -12,6 +13,7 @@ from typing import cast
 import click
 
 from _pytask.shared import parse_paths
+from _pytask.shared import to_list
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -22,7 +24,12 @@ else:  # pragma: no cover
     import tomli as tomllib  # ty: ignore[unresolved-import]
 
 
-__all__ = ["find_project_root_and_config", "read_config", "set_defaults_from_config"]
+__all__ = [
+    "find_project_root_and_config",
+    "normalize_programmatic_config",
+    "read_config",
+    "set_defaults_from_config",
+]
 
 
 def set_defaults_from_config(
@@ -76,6 +83,73 @@ def set_defaults_from_config(
     context.params.update(config_from_file)
 
     return context.params["config"]
+
+
+def normalize_programmatic_config(
+    raw_config: dict[str, Any],
+    *,
+    command: str,
+    defaults_from_cli: dict[str, Any],
+) -> dict[str, Any]:
+    """Normalize programmatic raw_config inputs."""
+    raw_config = {**defaults_from_cli, **raw_config}
+    raw_config["command"] = command
+    raw_config["paths"] = _normalize_paths_value(raw_config["paths"])
+    _normalize_config_value(raw_config)
+
+    if raw_config["config"] is not None:
+        config_from_file = read_config(raw_config["config"])
+
+        if "paths" in config_from_file:
+            paths = config_from_file["paths"]
+            paths = [
+                raw_config["config"].parent.joinpath(path).resolve()
+                for path in to_list(paths)
+            ]
+            config_from_file["paths"] = paths
+
+        raw_config = {**raw_config, **config_from_file}
+
+    return raw_config
+
+
+def _normalize_paths_value(paths_value: Any) -> list[Path]:
+    """Normalize paths from programmatic inputs."""
+    if isinstance(paths_value, tuple):
+        paths_value = list(paths_value)
+    if not isinstance(paths_value, (Path, list)):
+        msg = f"paths must be Path or list, got {type(paths_value)}"
+        raise TypeError(msg)
+    # Cast is justified - we validated at runtime
+    return parse_paths(cast("Path | list[Path]", paths_value))
+
+
+def _normalize_config_value(raw_config: dict[str, Any]) -> None:
+    """Normalize config value from programmatic inputs."""
+    config_value = raw_config["config"]
+    if _is_click_sentinel(config_value):
+        config_value = None
+        raw_config["config"] = None
+    if config_value is not None:
+        if not isinstance(config_value, (str, Path)):
+            msg = f"config must be str or Path, got {type(config_value)}"
+            raise TypeError(msg)
+        raw_config["config"] = Path(config_value).resolve()
+        raw_config["root"] = raw_config["config"].parent
+    else:
+        raw_config["root"], raw_config["config"] = find_project_root_and_config(
+            raw_config["paths"]
+        )
+
+
+def _is_click_sentinel(value: Any) -> bool:
+    """Return True if value looks like Click's Sentinel.UNSET."""
+    return (
+        isinstance(value, enum.Enum)
+        and value.name == "UNSET"
+        and value.__class__.__name__ == "Sentinel"
+        and value.__class__.__module__ == "click._utils"
+    )
 
 
 def find_project_root_and_config(
