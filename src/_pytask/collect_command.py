@@ -200,9 +200,9 @@ def _print_collected_tasks(
                 for node in sorted(
                     deps,
                     key=(
-                        lambda x: x.path.as_posix()
-                        if isinstance(x, PPathNode)
-                        else x.name
+                        lambda x: (
+                            x.path.as_posix() if isinstance(x, PPathNode) else x.name
+                        )
                     ),
                 ):
                     text = format_node_name(node, (common_ancestor,))
@@ -211,9 +211,9 @@ def _print_collected_tasks(
                 products: list[Any] = list(tree_leaves(task.produces))
                 for node in sorted(
                     products,
-                    key=lambda x: x.path.as_posix()
-                    if isinstance(x, PPathNode)
-                    else x.name,
+                    key=lambda x: (
+                        x.path.as_posix() if isinstance(x, PPathNode) else x.name
+                    ),
                 ):
                     text = format_node_name(node, (common_ancestor,))
                     task_branch.add(Text.assemble(FILE_ICON, "<Product ", text, ">"))
