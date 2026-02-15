@@ -1,6 +1,6 @@
 # Visualizing the DAG
 
-To visualize the `DAG` of the project, first, install
+To visualize the [DAG](../glossary.md#dag) of the project, first, install
 [pygraphviz](https://github.com/pygraphviz/pygraphviz) and
 [graphviz](https://graphviz.org/). For example, you can both install with pixi
 

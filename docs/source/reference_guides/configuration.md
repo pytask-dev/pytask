@@ -94,7 +94,8 @@ editor_url_scheme = "no_link"
 
 ### `hook_module`
 
-Register additional modules containing hook implementations.
+Register additional modules containing
+[hook implementations](../glossary.md#hook-implementation).
 
 ```toml
 hook_modules = ["myproject.hooks", "hooks.py"]

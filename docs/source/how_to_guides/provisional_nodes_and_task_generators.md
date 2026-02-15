@@ -3,7 +3,7 @@
 pytask's execution model can usually be separated into three phases.
 
 1. Collection of tasks, dependencies, and products.
-1. Building the DAG.
+1. Building the [DAG](../glossary.md#dag).
 1. Executing the tasks.
 
 But, in some situations, pytask needs to be more flexible.

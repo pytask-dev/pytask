@@ -5,7 +5,7 @@ but less dynamic than selecting tasks via [markers](selecting_tasks.md#markers) 
 [expressions](selecting_tasks.md#expressions).
 
 In contrast to tasks in ignored files, ignored with `ignore`, pytask will still check
-whether skipped tasks are consistent with the DAG of the project.
+whether skipped tasks are consistent with the [DAG](../glossary.md#dag) of the project.
 
 For example, you can use the `@pytask.mark.skip` decorator to skip tasks during
 development that take too much time to compute right now.

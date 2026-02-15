@@ -7,47 +7,48 @@ are looking for orientation or inspiration, here are some tips.
 ## TL;DR
 
 - Use task modules to separate task functions from another. Separating tasks by the
-  stages in research project like data management, analysis, plotting is a good start.
-  Separate further when task modules become crowded.
+    stages in research project like data management, analysis, plotting is a good start.
+    Separate further when task modules become crowded.
 
 - Task functions should be at the top of a task module to easily identify what the
-  module is for.
+    module is for.
 
-  !!! note
+    !!! note
 
-  ````
-  The only exception might be for [repetitions](bp_complex_task_repetitions.md).
-  ```
-  ````
+    ````
+    The only exception might be for [repetitions](bp_complex_task_repetitions.md).
+    ```
+    ````
 
-  - The purpose of the task function is to handle IO operations like loading and saving
-    files and calling Python functions on the task's inputs. IO should not be handled in
-    any other function.
+    - The purpose of the task function is to handle IO operations like loading and saving
+      files and calling Python functions on the task's inputs. IO should not be handled
+      in any other function.
 
-  - Non-task functions in the task module are `private functions` and only used within
-    this task module. The functions should not have side-effects.
+    - Non-task functions in the task module are
+      [`private functions`](../glossary.md#private-function) and only used within this
+      task module. The functions should not have side-effects.
 
-  - It should never be necessary to import from task modules. So if you need a function
-    in multiple task modules, put it in a separate module (which does not start with
-    `task_`).
+    - It should never be necessary to import from task modules. So if you need a function
+      in multiple task modules, put it in a separate module (which does not start with
+      `task_`).
 
-  ## Best Practices
+    ## Best Practices
 
-  ### Number of tasks in a module
+    ### Number of tasks in a module
 
-  There are two reasons to split tasks across several modules.
+    There are two reasons to split tasks across several modules.
 
-  The first reason concerns readability and complexity. Tasks deal with different
-  concepts and, thus, should be split. Even if tasks deal with the same concept, they
-  might becna very complex and separate modules help the reader (most likely you or your
-  colleagues) to focus on one thing.
+    The first reason concerns readability and complexity. Tasks deal with different
+    concepts and, thus, should be split. Even if tasks deal with the same concept, they
+    might becna very complex and separate modules help the reader (most likely you or
+    your colleagues) to focus on one thing.
 
-  The second reason is about runtime. If a task module is changed, all tasks within the
-  module are re-run. If the runtime of all tasks in the module is high, you wait longer
-  for your tasks to finish or until an error occurs which prolongs your feedback loops
-  and hurts your productivity. \{seealso} Use `@pytask.mark.persist` if you want to
-  avoid accidentally triggering an expensive task. It is also explained in
-  [this tutorial](../tutorials/making_tasks_persist).
+    The second reason is about runtime. If a task module is changed, all tasks within the
+    module are re-run. If the runtime of all tasks in the module is high, you wait
+    longer for your tasks to finish or until an error occurs which prolongs your
+    feedback loops and hurts your productivity. {seealso} Use `@pytask.mark.persist` if
+    you want to avoid accidentally triggering an expensive task. It is also explained in
+    [this tutorial](../tutorials/making_tasks_persist).
 
 ````
 
@@ -58,11 +59,11 @@ For the following example, let us assume that the task module contains one task.
 The task function should be the first function in the module. It should have a
 descriptive name and a docstring which explains what the task accomplishes.
 
-It should be the only `public function` in the module which means the only
-function without a leading underscore. This is a convention to keep
-`public functions` separate from
-`private functions` (with a leading underscore) where the
-latter must only be used in the same module and not imported elsewhere.
+It should be the only [`public function`](../glossary.md#public-function) in the module
+which means the only function without a leading underscore. This is a convention to keep
+[`public functions`](../glossary.md#public-function) separate from
+[`private functions`](../glossary.md#private-function) (with a leading underscore) where
+the latter must only be used in the same module and not imported elsewhere.
 
 The body of the task function should contain two things:
 

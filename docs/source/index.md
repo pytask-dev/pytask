@@ -17,29 +17,29 @@
 
 <!-- Keep in sync with README.md -->
 
-pytask is a workflow management system that facilitates reproducible data analyses. Its
-features include:
+pytask is a [workflow management system](glossary.md#workflow-management-system) that
+facilitates reproducible data analyses. Its features include:
 
 - **Automatic discovery of tasks.**
 - **Lazy evaluation.** If a task, its dependencies, and its products have not changed,
-  do not execute it.
+    do not execute it.
 - **Debug mode.**
-  [Jump into the debugger](https://pytask-dev.readthedocs.io/en/stable/tutorials/debugging.html)
-  if a task fails, get feedback quickly, and be more productive.
+    [Jump into the debugger](https://pytask-dev.readthedocs.io/en/stable/tutorials/debugging.html)
+    if a task fails, get feedback quickly, and be more productive.
 - **Repeat a task with different inputs.**
-  [Loop over task functions](https://pytask-dev.readthedocs.io/en/stable/tutorials/repeating_tasks_with_different_inputs.html)
-  to run the same task with different inputs.
+    [Loop over task functions](https://pytask-dev.readthedocs.io/en/stable/tutorials/repeating_tasks_with_different_inputs.html)
+    to run the same task with different inputs.
 - **Select tasks via expressions.** Run only a subset of tasks with
-  [expressions and marker expressions](https://pytask-dev.readthedocs.io/en/stable/tutorials/selecting_tasks.html).
+    [expressions and marker expressions](https://pytask-dev.readthedocs.io/en/stable/tutorials/selecting_tasks.html).
 - **Easily extensible with plugins**. pytask is built on top of
-  [pluggy](https://pluggy.readthedocs.io/en/latest/), a plugin management framework,
-  which allows you to adjust pytask to your needs. Plugins are available for
-  [parallelization](https://github.com/pytask-dev/pytask-parallel),
-  [LaTeX](https://github.com/pytask-dev/pytask-latex),
-  [R](https://github.com/pytask-dev/pytask-r), and
-  [Stata](https://github.com/pytask-dev/pytask-stata), and more can be found
-  [here](https://github.com/topics/pytask). Learn more about plugins in
-  [this tutorial](https://pytask-dev.readthedocs.io/en/stable/tutorials/plugins.html).
+    [pluggy](https://pluggy.readthedocs.io/en/latest/), a plugin management framework,
+    which allows you to adjust pytask to your needs. Plugins are available for
+    [parallelization](https://github.com/pytask-dev/pytask-parallel),
+    [LaTeX](https://github.com/pytask-dev/pytask-latex),
+    [R](https://github.com/pytask-dev/pytask-r), and
+    [Stata](https://github.com/pytask-dev/pytask-stata), and more can be found
+    [here](https://github.com/topics/pytask). Learn more about plugins in
+    [this tutorial](https://pytask-dev.readthedocs.io/en/stable/tutorials/plugins.html).
 
 To get started with pytask, the documentation includes a series of tutorials. Go to the
 first [tutorial](tutorials/installation.md) for the installation and proceed from there.

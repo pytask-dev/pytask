@@ -1,6 +1,7 @@
 # Hook Specifications
 
-Hook specifications are the `entry-points` provided by pytask to change the behavior of
+[Hook specifications](../glossary.md#hook-specification) are the
+[entry-points](../glossary.md#entry-point) provided by pytask to change the behavior of
 the program.
 
 The names of hooks always start with `pytask_` by convention. If you encounter hooks

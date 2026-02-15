@@ -64,35 +64,35 @@ as a template, and with some minor modifications, we arrive at the following cla
 Here are some explanations.
 
 - The node does not need to inherit from the protocol `pytask.PPathNode`, but you can do
-  it to be more explicit.
+    it to be more explicit.
 
 - The node has two attributes
 
-  - `name` identifies the node in the DAG, so the name must be unique.
-  - `path` holds the path to the file and identifies the node as a path node that is
-    handled slightly differently than normal nodes within pytask.
+    - `name` identifies the node in the DAG, so the name must be unique.
+    - `path` holds the path to the file and identifies the node as a path node that is
+        handled slightly differently than normal nodes within pytask.
 
 - The node has an additional property that computes the signature of the node. The
-  signature is a hash and a unique identifier for the node. For most nodes it will be a
-  hash of the path or the name.
+    signature is a hash and a unique identifier for the node. For most nodes it will be
+    a hash of the path or the name.
 
 - The classmethod `pytask.PickleNode.from_path` is a convenient method to instantiate
-  the class.
+    the class.
 
 - The method `pytask.PickleNode.state` yields a value that signals the node's state. If
-  the value changes, pytask knows it needs to regenerate the workflow. We can use the
-  timestamp of when the node was last modified.
+    the value changes, pytask knows it needs to regenerate the workflow. We can use the
+    timestamp of when the node was last modified.
 
 - pytask calls `pytask.PickleNode.load` when it collects the values of function
-  arguments to run the function. The argument `is_product` signals that the node is
-  loaded as a product with a `pytask.Product` annotation or via `produces`.
+    arguments to run the function. The argument `is_product` signals that the node is
+    loaded as a product with a `pytask.Product` annotation or via `produces`.
 
-  When the node is loaded as a dependency, we want to inject the value of the pickle
-  file. In the other case, the node returns itself so users can call
-  `pytask.PickleNode.save` themselves.
+    When the node is loaded as a dependency, we want to inject the value of the pickle
+    file. In the other case, the node returns itself so users can call
+    `pytask.PickleNode.save` themselves.
 
 - `pytask.PickleNode.save` is called when a task function returns and allows to save the
-  return values.
+    return values.
 
 ## Improvements
 
@@ -102,24 +102,23 @@ state of the node, you can use the `pytask.get_state_of_path` function.
 
 ## Conclusion
 
-Nodes are an important in concept pytask. They allow to pytask to build a DAG and
-generate a workflow, and they also allow users to extract IO operations from the task
-function into the nodes.
+Nodes are an important in concept pytask. They allow to pytask to build a
+[DAG](../glossary.md#dag) and generate a workflow, and they also allow users to extract
+IO operations from the task function into the nodes.
 
 pytask only implements two node types, `pytask.PathNode` and `pytask.PythonNode`, but
-many more are possible. In the future, there should probably be a plugin that implements
-nodes for many other data sources like AWS S3 or databases. [^kedro]
+many more are possible. In the future, there should probably be a
+[plugin](../glossary.md#plugin) that implements nodes for many other data sources like
+AWS S3 or databases. [^kedro]
 
 ## References
 
-[^structural-subtyping]: Structural subtyping is similar to ABCs an approach in Python
-    to enforce interfaces, but it can be considered more pythonic
-    since it is closer to duck typing. Hynek Schlawack wrote a
-    comprehensive
-    [guide on subclassing](https://hynek.me/articles/python-subclassing-redux/)
-    that features protocols under "Type 2". Glyph wrote an
-    introduction to protocols called
-    [I want a new duck](https://glyph.twistedmatrix.com/2020/07/new-duck.html).
+\[^structural-subtyping\]: Structural subtyping is similar to ABCs an approach in Python
+to enforce interfaces, but it can be considered more pythonic since it is closer to duck
+typing. Hynek Schlawack wrote a comprehensive
+[guide on subclassing](https://hynek.me/articles/python-subclassing-redux/) that
+features protocols under "Type 2". Glyph wrote an introduction to protocols called
+[I want a new duck](https://glyph.twistedmatrix.com/2020/07/new-duck.html).
 
-[^kedro]: Kedro, another workflow system, provides many adapters to data sources:
-    https://docs.kedro.org/en/stable/kedro_datasets.html.
+\[^kedro\]: Kedro, another workflow system, provides many adapters to data sources:
+https://docs.kedro.org/en/stable/kedro_datasets.html.

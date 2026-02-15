@@ -1,7 +1,7 @@
 # Plugin List
 
-PyPI projects that match `pytask-*` are considered plugins and are listed automatically.
-Packages classified as inactive are excluded.
+PyPI projects that match `pytask-*` are considered [plugins](glossary.md#plugin) and are
+listed automatically. Packages classified as inactive are excluded.
 
 !!! warning
 

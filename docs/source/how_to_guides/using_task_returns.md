@@ -65,9 +65,9 @@ of the previous interfaces.
 
 Each return is mapped to its node by respecting its position in the tuple.
 
-In fact, any `PyTree` can be used. The only requirement is that the PyTree of nodes
-defined to capture the function returns has the same structure as the returns or is a
-shallower tree.
+In fact, any [PyTree](../glossary.md#pytree) can be used. The only requirement is that
+the PyTree of nodes defined to capture the function returns has the same structure as
+the returns or is a shallower tree.
 
 The following example shows how a task function with a complex structure of returns is
 mapped to the defined nodes.

@@ -6,14 +6,15 @@ to maintain over time? Then pytask is here to help!
 With pytask, you can enjoy features like:
 
 - **Lazy builds**. Only execute the scripts that need to be run or re-run because
-  something has changed, saving you lots of time.
+    something has changed, saving you lots of time.
 - **Parallelization**. Use
-  [pytask-parallel](https://github.com/pytask-dev/pytask-parallel) to speed up your
-  scripts by running them in parallel.
-- **Cross-language projects**. pytask has several plugins for running scripts written in
-  other popular languages: [pytask-r](https://github.com/pytask-dev/pytask-r),
-  [pytask-julia](https://github.com/pytask-dev/pytask-julia), and
-  [pytask-stata](https://github.com/pytask-dev/pytask-stata).
+    [pytask-parallel](https://github.com/pytask-dev/pytask-parallel) to speed up your
+    scripts by running them in parallel.
+- **Cross-language projects**. pytask has several [plugins](../glossary.md#plugin) for
+    running scripts written in other popular languages:
+    [pytask-r](https://github.com/pytask-dev/pytask-r),
+    [pytask-julia](https://github.com/pytask-dev/pytask-julia), and
+    [pytask-stata](https://github.com/pytask-dev/pytask-stata).
 
 The following guide will walk you through a series of steps to quickly migrate your
 scripts to a workflow managed by pytask. The focus is first on Python scripts, but the
@@ -104,10 +105,11 @@ You can find more information on pytask-parallel in the
 ## Bonus: From R script to task
 
 pytask wants to help you get your job done, and sometimes a different programming
-language can make your life easier. Thus, pytask has several plugins to integrate code
-written in R, Julia, and Stata. Here, we explore how to incorporate an R script with
+language can make your life easier. Thus, pytask has several
+[plugins](../glossary.md#plugin) to integrate code written in R, Julia, and Stata. Here,
+we explore how to incorporate an R script with
 [pytask-r](https://github.com/pytask-dev/pytask-r). You can also find more information
-about the plugin in the repo's readme.
+about the [plugin](../glossary.md#plugin) in the repo's readme.
 
 First, we will install the package.
 

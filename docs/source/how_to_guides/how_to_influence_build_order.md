@@ -15,11 +15,11 @@ tasks. Use `@pytask.mark.try_first` to execute a task as early as possible and
 !!! note
 
 ```
-A little bit more background: Tasks, dependencies and products form a directed acyclic
-graph (DAG). A [topological ordering](https://en.wikipedia.org/wiki/Topological_sorting)
-determines the order in which tasks are executed such that tasks are not run until their
-predecessors have been executed. You should not assume a fixed ordering in which tasks
-are executed.
+A little bit more background: Tasks, dependencies and products form a
+[directed acyclic graph (DAG)](../glossary.md#dag). A
+[topological ordering](https://en.wikipedia.org/wiki/Topological_sorting) determines the
+order in which tasks are executed such that tasks are not run until their predecessors
+have been executed. You should not assume a fixed ordering in which tasks are executed.
 ```
 
 As an example, here are two tasks where the decorator ensures that the output of the
