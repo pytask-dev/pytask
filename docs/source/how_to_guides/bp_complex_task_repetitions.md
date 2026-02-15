@@ -16,8 +16,8 @@ different dimension. A dimension might represent different datasets or model
 specifications to analyze the datasets like in the following example. The task arguments
 are derived from the dimensions.
 
-```python
---8 < --"docs_src/how_to_guides/bp_complex_task_repetitions/example.py"
+```py
+--8<-- "docs_src/how_to_guides/bp_complex_task_repetitions/example.py"
 ```
 
 There is nothing wrong with using nested loops for simpler projects. But, often projects
@@ -25,7 +25,7 @@ are growing over time and you run into these problems.
 
 - When you add a new task, you need to duplicate the nested loops in another module.
 - When you add a dimension, you need to touch multiple files in your project and add
-  another loop and level of indentation.
+    another loop and level of indentation.
 
 ## Solution
 
@@ -36,7 +36,7 @@ Secondly, we will combine dimensions in multi-dimensional objects such that we o
 to iterate over instances of this object in a single loop. Here and for the lack of a
 better name, we will call the object an experiment.
 
-Lastly, we will also use the `pytask.DataCatalog` to not be bothered with defining
+Lastly, we will also use the \[`pytask.DataCatalog`\][] to not be bothered with defining
 paths.
 
 !!! note
@@ -47,30 +47,30 @@ If you have not learned about the `pytask.DataCatalog` yet, start with the
 [how-to guide](the_data_catalog.md).
 ```
 
-```python
---8 < --"docs_src/how_to_guides/bp_complex_task_repetitions/config.py"
+```py
+--8<-- "docs_src/how_to_guides/bp_complex_task_repetitions/config.py"
 ```
 
 There are some things to be said.
 
 - The `.name` attributes on each dimension need to return unique names and to ensure
-  that by combining them for the name of the experiment, we get a unique and descriptive
-  id.
+    that by combining them for the name of the experiment, we get a unique and
+    descriptive id.
 - Dimensions might need more attributes than just a name, like paths, keys for the data
-  catalog, or other arguments for the task.
+    catalog, or other arguments for the task.
 
 Next, we will use these newly defined data structures and see how our tasks change when
 we use them.
 
-```python
---8 < --"docs_src/how_to_guides/bp_complex_task_repetitions/example_improved.py"
+```py
+--8<-- "docs_src/how_to_guides/bp_complex_task_repetitions/example_improved.py"
 ```
 
 As you see, we lost a level of indentation and we moved all the generations of names and
 paths to the dimensions and multi-dimensional objects.
 
-Using a `pytask.PythonNode` allows us to hash the model and reexecute the task if we
-define other model settings.
+Using a \[`pytask.PythonNode`\][] allows us to hash the model and reexecute the task if
+we define other model settings.
 
 ## Adding another level
 

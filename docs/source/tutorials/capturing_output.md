@@ -28,12 +28,12 @@ subprocess started by a task.
 There are three ways in which `pytask` can perform capturing:
 
 - `fd` (file descriptor) level capturing (default): All writes going to the operating
-  system file descriptors 1 and 2 will be captured.
+    system file descriptors 1 and 2 will be captured.
 - `sys` level capturing: Only writes to Python files `sys.stdout` and `sys.stderr` will
-  be captured. No capturing of writes to file descriptors is performed.
+    be captured. No capturing of writes to file descriptors is performed.
 - `tee-sys` capturing: Python writes to `sys.stdout` and `sys.stderr` will be captured.
-  However, the writes will also be passed through to the actual `sys.stdout` and
-  `sys.stderr`.
+    However, the writes will also be passed through to the actual `sys.stdout` and
+    `sys.stderr`.
 
 You can influence output-capturing mechanisms from the command line:
 
@@ -66,4 +66,4 @@ def task_func2():
 And running this module will show you precisely the output of the failing function and
 hide the other one:
 
---8\<-- "docs/source/\_static/md/capture.md"
+--8<-- "docs/source/_static/md/capture.md"

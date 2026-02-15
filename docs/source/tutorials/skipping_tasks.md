@@ -10,8 +10,8 @@ whether skipped tasks are consistent with the [DAG](../glossary.md#dag) of the p
 For example, you can use the `@pytask.mark.skip` decorator to skip tasks during
 development that take too much time to compute right now.
 
-```python
---8 < --"docs_src/tutorials/skipping_tasks_example_1.py"
+```py
+--8<-- "docs_src/tutorials/skipping_tasks_example_1.py"
 ```
 
 Not only will this task be skipped, but all tasks depending on

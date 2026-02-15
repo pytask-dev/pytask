@@ -4,13 +4,13 @@ pytask captures warnings during the execution.
 
 Here is an example with the most infamous warning in the world of scientific Python.
 
-```python
---8 < --"docs_src/how_to_guides/capturing_warnings_1.py"
+```py
+--8<-- "docs_src/how_to_guides/capturing_warnings_1.py"
 ```
 
 Running pytask produces
 
---8\<-- "docs/source/\_static/md/warning.md"
+--8<-- "docs/source/_static/md/warning.md"
 
 ## Controlling warnings
 
@@ -52,8 +52,8 @@ You can use the `@pytask.mark.filterwarnings` to add warning filters to specific
 items, allowing you to have finer control of which warnings should be captured at the
 test, class or even module level:
 
-```python
---8 < --"docs_src/how_to_guides/capturing_warnings_2.py"
+```py
+--8<-- "docs_src/how_to_guides/capturing_warnings_2.py"
 ```
 
 Filters applied using a mark take precedence over filters passed on the command line or

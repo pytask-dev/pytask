@@ -23,18 +23,19 @@ files without a file extension from the root folder of the pytask GitHub reposit
 files are downloaded to a folder called `downloads`. `downloads` is in the same folder
 as the task module because it is a relative path.
 
-```python
---8 < --"docs_src/how_to_guides/provisional_products.py"
+```py
+--8<-- "docs_src/how_to_guides/provisional_products.py"
 ```
 
 Since the names of the files are not known when pytask is started, we need to use a
-`pytask.DirectoryNode` to define the task's product. With a `pytask.DirectoryNode` we
-can specify where pytask can find the files. The files are described with a root path
-(default is the directory of the task module) and a glob pattern (default is `*`).
+\[`pytask.DirectoryNode`\][] to define the task's product. With a
+\[`pytask.DirectoryNode`\][] we can specify where pytask can find the files. The files
+are described with a root path (default is the directory of the task module) and a glob
+pattern (default is `*`).
 
-When we use the `pytask.DirectoryNode` as a product annotation, we get access to the
-`root_dir` as a `pathlib.Path` object inside the function, which allows us to store the
-files.
+When we use the \[`pytask.DirectoryNode`\][] as a product annotation, we get access to
+the `root_dir` as a `pathlib.Path` object inside the function, which allows us to store
+the files.
 
 !!! note
 
@@ -54,17 +55,17 @@ downloaded files into one file.
 The difficulty here is how can we reference the downloaded files before they have been
 downloaded.
 
-```python
---8 < --"docs_src/how_to_guides/provisional_task.py"
+```py
+--8<-- "docs_src/how_to_guides/provisional_task.py"
 ```
 
-To reference the files that will be downloaded, we use the `pytask.DirectoryNode` is a
-dependency. Before the task is executed, the list of files in the folder defined by the
-root path and the pattern are automatically collected and passed to the task.
+To reference the files that will be downloaded, we use the \[`pytask.DirectoryNode`\][]
+is a dependency. Before the task is executed, the list of files in the folder defined by
+the root path and the pattern are automatically collected and passed to the task.
 
-If we use a `pytask.DirectoryNode` with the same `root_dir` and `pattern` in both tasks,
-pytask will automatically recognize that the second task depends on the first. If that
-is not true, you might need to make this dependency more explicit by using
+If we use a \[`pytask.DirectoryNode`\][] with the same `root_dir` and `pattern` in both
+tasks, pytask will automatically recognize that the second task depends on the first. If
+that is not true, you might need to make this dependency more explicit by using
 `@task(after=...)`, which is explained
 [here](../tutorials/defining_dependencies_products.md#after).
 
@@ -82,8 +83,8 @@ writing functions in a task module.
 The code snippet shows each task takes one of the downloaded files and copies its
 content to a `.txt` file.
 
-```python
---8 < --"docs_src/how_to_guides/provisional_task_generator.py"
+```py
+--8<-- "docs_src/how_to_guides/provisional_task_generator.py"
 ```
 
 !!! important

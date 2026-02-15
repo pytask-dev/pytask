@@ -17,8 +17,8 @@ and many more.
 As an example for dealing with an HTTP(S)-based filesystem, we will download the iris
 data set and save it as a CSV file.
 
-```python
---8 < --"docs_src/how_to_guides/remote_files/https.py"
+```py
+--8<-- "docs_src/how_to_guides/remote_files/https.py"
 ```
 
 ## Other filesystems

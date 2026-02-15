@@ -115,7 +115,7 @@ pytask assumes that all function arguments that are not passed to the argument
 
 Now, let us execute the two paths.
 
---8\<-- "docs/source/\_static/md/defining-dependencies-products.md"
+--8<-- "docs/source/_static/md/defining-dependencies-products.md"
 
 ## Relative paths
 
@@ -145,7 +145,7 @@ Of course, tasks can have multiple dependencies and products.
 === "Annotated"
 
 ````
-```python
+```py
 --8<-- "docs_src/tutorials/defining_dependencies_products_multiple1_py310.py"
 ```
 
@@ -153,7 +153,7 @@ You can group your dependencies and product if you prefer not to have a function
 argument per input. Use dictionaries (recommended), tuples, lists, or more nested
 structures if needed.
 
-```python
+```py
 --8<-- "docs_src/tutorials/defining_dependencies_products_multiple2_py310.py"
 ```
 ````
@@ -164,13 +164,13 @@ structures if needed.
 If your task has multiple products, group them in one container like a dictionary
 (recommended), tuples, lists, or more nested structures.
 
-```python
+```py
 --8<-- "docs_src/tutorials/defining_dependencies_products_multiple1_produces.py"
 ```
 
 You can do the same with dependencies.
 
-```python
+```py
 --8<-- "docs_src/tutorials/defining_dependencies_products_multiple2_produces.py"
 ```
 ````
@@ -209,8 +209,8 @@ You will learn more about expressions in [selecting tasks](selecting_tasks.md).
 ## Further reading
 
 - There is an additional way to specify products by treating the returns of a task
-  function as a product. Read
-  [using task returns](../how_to_guides/using_task_returns.md) to learn more about it.
+    function as a product. Read
+    [using task returns](../how_to_guides/using_task_returns.md) to learn more about it.
 - An overview of all ways to specify dependencies and products and their strengths and
-  weaknesses can be found in
-  [interfaces for dependencies products](../how_to_guides/interfaces_for_dependencies_products.md).
+    weaknesses can be found in
+    [interfaces for dependencies products](../how_to_guides/interfaces_for_dependencies_products.md).

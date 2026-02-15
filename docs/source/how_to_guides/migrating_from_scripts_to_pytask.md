@@ -35,21 +35,21 @@ $ pixi add pytask pytask-parallel
 We must rewrite your scripts and move the executable part to a task function. You might
 contain the code in the main namespace of your script, like in this example.
 
-```python
---8 < --"docs_src/how_to_guides/migrating_from_scripts_to_pytask_1.py"
+```py
+--8<-- "docs_src/how_to_guides/migrating_from_scripts_to_pytask_1.py"
 ```
 
 Or, you might use an `if __name__ == "__main__"` block like this example.
 
-```python
---8 < --"docs_src/how_to_guides/migrating_from_scripts_to_pytask_2.py"
+```py
+--8<-- "docs_src/how_to_guides/migrating_from_scripts_to_pytask_2.py"
 ```
 
 For pytask, you need to move the code into a task that is a function whose name starts
 with `task_` in a module with the same prefix like `task_data_management.py`.
 
-```python
---8 < --"docs_src/how_to_guides/migrating_from_scripts_to_pytask_3.py"
+```py
+--8<-- "docs_src/how_to_guides/migrating_from_scripts_to_pytask_3.py"
 ```
 
 An `if __name__ == "__main__"` block must be deleted.
@@ -59,16 +59,16 @@ An `if __name__ == "__main__"` block must be deleted.
 To let pytask know the order in which to execute tasks and when to re-run them, you'll
 need to specify task dependencies and products. Add dependencies as arguments to the
 function with default values. Do the same for products, but also add the special
-`pytask.Product` annotation with `Annotated[Path, Product]`. For example:
+\[`pytask.Product`\][] annotation with `Annotated[Path, Product]`. For example:
 
-```python
---8 < --"docs_src/how_to_guides/migrating_from_scripts_to_pytask_4.py"
+```py
+--8<-- "docs_src/how_to_guides/migrating_from_scripts_to_pytask_4.py"
 ```
 
 You can also use a dictionary to group multiple dependencies or products.
 
-```python
---8 < --"docs_src/how_to_guides/migrating_from_scripts_to_pytask_5.py"
+```py
+--8<-- "docs_src/how_to_guides/migrating_from_scripts_to_pytask_5.py"
 ```
 
 !!! note
@@ -83,7 +83,7 @@ If you want to learn more about dependencies and products, read the
 Finally, execute your newly defined tasks with pytask. Assuming your scripts lie in the
 current directory of your terminal or a subsequent directory, run the following.
 
---8\<-- "docs/source/\_static/md/migrating-from-scripts-to-pytask.md"
+--8<-- "docs/source/_static/md/migrating-from-scripts-to-pytask.md"
 
 Otherwise, pass the paths explicitly to the pytask executable.
 
@@ -140,8 +140,8 @@ saveRDS(df, "data.rds")
 Next, we create a task function to point pytask to the script and the dependencies and
 products.
 
-```python
---8 < --"docs_src/how_to_guides/migrating_from_scripts_to_pytask_6.py"
+```py
+--8<-- "docs_src/how_to_guides/migrating_from_scripts_to_pytask_6.py"
 ```
 
 pytask automatically makes the paths to the dependencies and products available to the R

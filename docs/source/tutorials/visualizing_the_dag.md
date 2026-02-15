@@ -36,13 +36,13 @@ which are listed [here](https://graphviz.org/docs/layouts/).
 
 The programmatic and interactive interface allows for customizing the figure.
 
-Similar to `pytask.build`, there exists `pytask.build_dag` which returns the DAG as a
-`networkx.DiGraph`.
+Similar to \[`pytask.build`\][], there exists \[`pytask.build_dag`\][] which returns the
+DAG as a `networkx.DiGraph`.
 
 Create an executable script that you can execute with `python script.py`.
 
-```python
---8 < --"docs_src/tutorials/visualizing_the_dag.py"
+```py
+--8<-- "docs_src/tutorials/visualizing_the_dag.py"
 ```
 
 Customization works best on the `networkx.DiGraph`. For example, here, we set the shape

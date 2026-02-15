@@ -17,12 +17,12 @@ One way to declare the returns of functions as products is annotating the return
 In the following example, the second value of `typing.Annotated` is a path that defines
 where the return of the function, a string, should be stored.
 
-```python
---8 < --"docs_src/how_to_guides/using_task_returns_example_1_py310.py"
+```py
+--8<-- "docs_src/how_to_guides/using_task_returns_example_1_py310.py"
 ```
 
-It works because internally the path is converted to a `pytask.PathNode` that is able to
-store objects of type `str` and `bytes`.
+It works because internally the path is converted to a \[`pytask.PathNode`\][] that is
+able to store objects of type `str` and `bytes`.
 
 !!! note
 
@@ -37,8 +37,8 @@ In case you are not able to set a return type annotation to the task function, f
 example, because it is a lambda or a third-party function, you can use
 `@pytask.task(produces=...)`.
 
-```python
---8 < --"docs_src/how_to_guides/using_task_returns_example_2_task.py"
+```py
+--8<-- "docs_src/how_to_guides/using_task_returns_example_2_task.py"
 ```
 
 ## Multiple returns
@@ -50,7 +50,7 @@ of the previous interfaces.
 === "Annotated"
 
 ````
-```python
+```py
 --8<-- "docs_src/how_to_guides/using_task_returns_example_3_py310.py"
 ```
 ````
@@ -58,7 +58,7 @@ of the previous interfaces.
 === "@pytask.task"
 
 ````
-```python
+```py
 --8<-- "docs_src/how_to_guides/using_task_returns_example_3_task.py"
 ```
 ````
@@ -75,7 +75,7 @@ mapped to the defined nodes.
 === "Annotated"
 
 ````
-```python
+```py
 --8<-- "docs_src/how_to_guides/using_task_returns_example_4_py310.py"
 ```
 ````
@@ -83,7 +83,7 @@ mapped to the defined nodes.
 === "@pytask.task"
 
 ````
-```python
+```py
 --8<-- "docs_src/how_to_guides/using_task_returns_example_4_task.py"
 ```
 ````

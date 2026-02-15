@@ -14,7 +14,7 @@ output paths as default arguments of the function.
 === "Annotated"
 
 ````
-```python
+```py
 --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs1_py310.py"
 ```
 ````
@@ -22,14 +22,14 @@ output paths as default arguments of the function.
 === "produces"
 
 ````
-```python
+```py
 --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs1_produces.py"
 ```
 ````
 
 Executing pytask gives you this:
 
---8\<-- "docs/source/\_static/md/repeating-tasks.md"
+--8<-- "docs/source/_static/md/repeating-tasks.md"
 
 ## Dependencies
 
@@ -38,7 +38,7 @@ You can also add dependencies to repeated tasks just like with any other task.
 === "Annotated"
 
 ````
-```python
+```py
 --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs2_py310.py"
 ```
 ````
@@ -46,7 +46,7 @@ You can also add dependencies to repeated tasks just like with any other task.
 === "produces"
 
 ````
-```python
+```py
 --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs2_produces.py"
 ```
 ````
@@ -87,7 +87,7 @@ For example, the following function is parametrized with tuples.
 === "Annotated"
 
 ````
-```python
+```py
 --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs3_py310.py"
 ```
 ````
@@ -95,7 +95,7 @@ For example, the following function is parametrized with tuples.
 === "produces"
 
 ````
-```python
+```py
 --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs3_produces.py"
 ```
 ````
@@ -117,7 +117,7 @@ the iteration.
 === "Annotated"
 
 ````
-```python
+```py
 --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs4_py310.py"
 ```
 ````
@@ -125,7 +125,7 @@ the iteration.
 === "produces"
 
 ````
-```python
+```py
 --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs4_produces.py"
 ```
 ````
@@ -176,17 +176,17 @@ ID_TO_KWARGS = {
 ```
 
 1. `@task` has a `kwargs` argument that allows you inject arguments to the function
-   instead of adding them as default arguments.
+    instead of adding them as default arguments.
 
 1. If the generation of arguments for the task function is complex, we should use a
-   function.
+    function.
 
 Following these three tips, the parametrization becomes
 
 === "Annotated"
 
 ````
-```python
+```py
 --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs5_py310.py"
 ```
 ````
@@ -194,7 +194,7 @@ Following these three tips, the parametrization becomes
 === "produces"
 
 ````
-```python
+```py
 --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs5_produces.py"
 ```
 ````

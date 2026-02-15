@@ -4,7 +4,7 @@ Projects usually become cluttered with obsolete files after some time.
 
 To clean the project, type `pytask clean`
 
---8\<-- "docs/source/\_static/md/clean-dry-run.md"
+--8<-- "docs/source/_static/md/clean-dry-run.md"
 
 pytask performs a dry-run by default and lists all removable files.
 
@@ -17,7 +17,7 @@ modes.
 If you want to delete complete folders instead of single files, use
 `pytask clean --directories`.
 
---8\<-- "docs/source/\_static/md/clean-dry-run-directories.md"
+--8<-- "docs/source/_static/md/clean-dry-run-directories.md"
 
 ## Excluding files
 

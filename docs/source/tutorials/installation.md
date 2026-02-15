@@ -27,7 +27,7 @@ Learn more about [uv](https://docs.astral.sh/uv/) and [pixi](https://pixi.sh/).
 Verify the installation by displaying the help page listing all available commands and
 some options.
 
---8\<-- "docs/source/\_static/md/help-page.md"
+--8<-- "docs/source/_static/md/help-page.md"
 
 For command-specific help, type
 
