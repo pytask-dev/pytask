@@ -95,9 +95,11 @@ def _create_dag_from_tasks(tasks: list[PTask]) -> nx.DiGraph:
         # another task that is a dependency in the current task. Thus, draw an edge
         # connecting the two nodes.
         tree_map(
-            lambda x: dag.add_edge(x.value.signature, x.signature)
-            if isinstance(x, PythonNode) and isinstance(x.value, PythonNode)
-            else None,
+            lambda x: (
+                dag.add_edge(x.value.signature, x.signature)
+                if isinstance(x, PythonNode) and isinstance(x.value, PythonNode)
+                else None
+            ),
             task.depends_on,
         )
     return dag
