@@ -125,7 +125,7 @@ class KeywordMatcher:
     inclusion check is case-insensitive.
 
     Will match on the name of the task, including the names of its parents. Only matches
-    names of items which are either a :class:`Class` or :class:`Function`.
+    names of items which are either a `Class` or `Function`.
 
     Additionally, matches on names in the 'extra_keyword_matches' set of any task, as
     well as names directly assigned to test functions.

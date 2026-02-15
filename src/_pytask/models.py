@@ -30,7 +30,7 @@ class CollectionMetadata:
     id_
         An id for the task if it is part of a parametrization. Otherwise, an automatic
         id will be generated. See
-        :doc:`this tutorial <../tutorials/repeating_tasks_with_different_inputs>` for
+        [this tutorial](../tutorials/repeating_tasks_with_different_inputs.md) for
         more information.
     is_generator
         An indicator for whether a task generates other tasks or not.
@@ -47,7 +47,7 @@ class CollectionMetadata:
         callable.
     produces
         Definition of products to parse the function returns and store them. See
-        :doc:`this how-to guide <../how_to_guides/using_task_returns>` for more
+        [this how-to guide](../how_to_guides/using_task_returns.md) for more
         information.
     """
 

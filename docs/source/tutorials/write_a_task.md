@@ -1,6 +1,6 @@
 # Write a task
 
-Using the project structure from the {doc}`previous tutorial <set_up_a_project>`, write
+Using the project structure from the [previous tutorial](set_up_a_project.md), write
 your first task.
 
 The task `task_create_random_data` is defined in
@@ -34,59 +34,57 @@ The following interfaces are different ways to specify the products of a task wh
 necessary for pytask to correctly run a workflow. The interfaces are ordered from most
 (left) to least recommended (right).
 
-```{important}
-You cannot mix different interfaces for the same task. Choose only one.
-```
+!!! important
 
-`````{tab-set}
+    You cannot mix different interfaces for the same task. Choose only one.
 
-````{tab-item} Annotated
+=== "Annotated"
 
-The task accepts the argument `path` that points to the file where the data set will be
-stored. The path is passed to the task via the default value, `BLD / "data.pkl"`. To
-indicate that this file is a product we add some metadata to the argument.
+    The task accepts the argument `path` that points to the file where the data set will be
+    stored. The path is passed to the task via the default value, `BLD / "data.pkl"`. To
+    indicate that this file is a product we add some metadata to the argument.
 
-The type hint `Annotated[Path, Product]` uses
-{obj}`~typing.Annotated` syntax. The first entry specifies the argument type
-({class}`~pathlib.Path`), and the second entry ({class}`~pytask.Product`) marks this
-argument as a product.
+    The type hint `Annotated[Path, Product]` uses
+    [`typing.Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated)
+    syntax. The first entry specifies the argument type
+    ([`pathlib.Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)), and the
+    second entry ([`pytask.Product`](../api/utilities_and_typing.md#pytask.Product)) marks
+    this argument as a product.
 
-```{literalinclude} ../../../docs_src/tutorials/write_a_task_py310.py
-:emphasize-lines: 3, 12
-```
+    ```{ .python .annotate hl_lines="2 12" title="task_data_preparation.py" }
+    --8<-- "docs_src/tutorials/write_a_task_py310.py"
+    ```
 
-```{tip}
-If you want to refresh your knowledge about type hints, read
-[this guide](../type_hints.md).
-```
+    1. `Annotated[Path, Product]` marks the argument as a task product.
 
-````
+    !!! tip
 
-````{tab-item} produces
+        If you want to refresh your knowledge about type hints, read
+        [this guide](../type_hints.md).
 
-Tasks can use `produces` as an argument name. Every value, or in this case path, passed
-to this argument is automatically treated as a task product. Here, the path is given by
-the default value of the argument.
+=== "produces"
 
-```{literalinclude} ../../../docs_src/tutorials/write_a_task_produces.py
-:emphasize-lines: 9
-```
+    Tasks can use `produces` as an argument name. Every value, or in this case path, passed
+    to this argument is automatically treated as a task product. Here, the path is given by
+    the default value of the argument.
 
-````
-`````
+    ```{ .python .annotate hl_lines="8" title="task_data_preparation.py" }
+    --8<-- "docs_src/tutorials/write_a_task_produces.py"
+    ```
+
+    1. Using the argument name `produces` marks this path as a task product.
 
 Now, execute pytask to collect tasks in the current and subsequent directories.
 
-```{include} ../_static/md/write-a-task.md
-```
+--8<-- "docs/source/_static/md/write-a-task.md"
 
-(customize-task-names)=
+<a id="customize-task-names"></a>
 
 ## Customize task names
 
-Use the {func}`@task <pytask.task>` decorator to mark a function as a task regardless of
-its function name. You can optionally pass a new name for the task. Otherwise, pytask
-uses the function name.
+Use the [`@task`](../api/nodes_and_tasks.md#pytask.task) decorator to mark a function as
+a task regardless of its function name. You can optionally pass a new name for the task.
+Otherwise, pytask uses the function name.
 
 ```python
 from pytask import task
@@ -107,6 +105,7 @@ def create_random_data(): ...
 
 ## Customize task module names
 
-Use the configuration value {confval}`task_files` if you prefer a different naming
-scheme for the task modules. `task_*.py` is the default. You can specify one or multiple
-patterns to collect tasks from other files.
+Use the configuration value
+[`task_files`](../reference_guides/configuration.md#task_files) if you prefer a
+different naming scheme for the task modules. `task_*.py` is the default. You can
+specify one or multiple patterns to collect tasks from other files.

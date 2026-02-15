@@ -1,4 +1,4 @@
-"""Contain hooks related to the :func:`@task <pytask.task>`."""
+"""Contain hooks related to the [`@task`][pytask.task]."""
 
 from __future__ import annotations
 

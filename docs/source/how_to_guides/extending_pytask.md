@@ -1,24 +1,30 @@
 # Extending pytask
 
 pytask can be extended since it is built upon
-[pluggy](https://pluggy.readthedocs.io/en/latest/), a plugin system for Python.
+[pluggy](https://pluggy.readthedocs.io/en/latest/), a [plugin](../glossary.md#plugin)
+system for Python.
 
-How does it work? Throughout the execution, pytask arrives at entrypoints, called hook
-functions. When pytask calls a hook function it loops through hook implementations and
-each hook implementation can alter the result of the entrypoint.
+How does it work? Throughout the execution, pytask arrives at
+[entry-points](../glossary.md#entry-point), called hook functions. When pytask calls a
+hook function it loops through
+[hook implementations](../glossary.md#hook-implementation) and each hook implementation
+can alter the result of the entrypoint.
 
-The full list of hook functions is specified in {doc}`../reference_guides/hookspecs`.
+The full list of hook functions is specified in
+[hookspecs](../reference_guides/hookspecs.md).
 
 More general information about pluggy can be found in its
 [documentation](https://pluggy.readthedocs.io/en/latest/).
 
-There are two ways to add new hook implementations.
+There are two ways to add new
+[hook implementations](../glossary.md#hook-implementation).
 
-1. Using the {option}`pytask build --hook-module` commandline option or the
-   {confval}`hook_module` configuration value.
-1. Packaging your plugin as a Python package to publish and share it.
+1. Using the `pytask build --hook-module` commandline option or the `hook_module`
+    configuration value.
+1. Packaging your [plugin](../glossary.md#plugin) as a Python package to publish and
+    share it.
 
-(hook-module)=
+<a id="hook-module"></a>
 
 ## Using `--hook-module` and `hook_module`
 
@@ -49,8 +55,9 @@ hook_module = ["myproject.hooks"]
 ```
 
 In `hooks.py` we can add another commandline option to `pytask build` by providing an
-addition hook implementation for the hook specification
-{func}`~_pytask.hookspecs.pytask_extend_command_line_interface`.
+additional [hook implementation](../glossary.md#hook-implementation) for the
+[hook specification](../glossary.md#hook-specification)
+`_pytask.hookspecs.pytask_extend_command_line_interface`.
 
 ```python
 import click
@@ -70,19 +77,19 @@ def pytask_extend_command_line_interface(cli):
 Before you start implementing your plugin, the following notes may help you.
 
 - [cookiecutter-pytask-plugin](https://github.com/pytask-dev/cookiecutter-pytask-plugin)
-  is a template if you want to create a plugin.
+    is a template if you want to create a plugin.
 - Check whether there exist plugins which offer similar functionality. For example, many
-  plugins provide convenient interfaces to run another program with inputs via the
-  command line. Naturally, there is a lot of overlap in the structure of the program and
-  even the test battery. Finding the right plugin as a template may save you a lot of
-  time.
+    plugins provide convenient interfaces to run another program with inputs via the
+    command line. Naturally, there is a lot of overlap in the structure of the program
+    and even the test battery. Finding the right plugin as a template may save you a lot
+    of time.
 - Make a list of hooks you want to implement. Think about how this plugin relates to
-  functionality defined in pytask and other plugins. Maybe skim the documentation on
-  [pluggy](../explanations/pluggy.md) to see whether there is advanced pattern which
-  makes your implementation easier.
+    functionality defined in pytask and other plugins. Maybe skim the documentation on
+    [pluggy](../explanations/pluggy.md) to see whether there is advanced pattern which
+    makes your implementation easier.
 - File an issue on [Github](https://github.com/pytask-dev/pytask) and make a proposal
-  for your plugin to get feedback from other developers. Your proposal should be concise
-  and explain what problem you want to solve and how.
+    for your plugin to get feedback from other developers. Your proposal should be
+    concise and explain what problem you want to solve and how.
 
 ### Writing your plugin
 
@@ -90,9 +97,10 @@ This section explains some steps which are required for all plugins.
 
 #### Set up the setuptools entry-point
 
-pytask discovers plugins via `setuptools` entry-points. Following the approach advocated
-for by [setuptools_scm](https://github.com/pypa/setuptools_scm), the entry-point is
-specified in `pyproject.toml`.
+pytask discovers plugins via `setuptools` [entry-points](../glossary.md#entry-point).
+Following the approach advocated for by
+[setuptools_scm](https://github.com/pypa/setuptools_scm), the entry-point is specified
+in `pyproject.toml`.
 
 ```toml
 [project]
@@ -127,18 +135,16 @@ The entry-point for pytask is called `"pytask"` and points to a module called
 
 #### `plugin.py`
 
-`plugin.py` is the entrypoint for pytask to your package. You can put all of your hook
-implementations in this module, but it is recommended to imitate the structure of pytask
-and its modules. For example, all hook implementations which change the configuration
-should be implemented in `pytask_plugin.config`.
+`plugin.py` is the [entry-point](../glossary.md#entry-point) for pytask to your package.
+You can put all of your hook implementations in this module, but it is recommended to
+imitate the structure of pytask and its modules. For example, all hook implementations
+which change the configuration should be implemented in `pytask_plugin.config`.
 
 If you follow the recommendations, the only content in `plugin.py` is a single hook
 implementation which registers other hook implementations of your plugin. The following
 example registers all hooks implemented in `config.py`.
 
-```python
-# Content of plugin.py
-
+```py title="plugin.py"
 from pytask import hookimpl
 from pytask_plugin import config
 

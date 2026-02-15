@@ -23,11 +23,13 @@ check: lint typing test
 
 # Build documentation
 docs:
-    uv run --group docs sphinx-build docs/source docs/build
+    uv run --group plugin-list python scripts/update_plugin_list.py
+    uv run --group docs zensical build
 
 # Serve documentation with auto-reload
 docs-serve:
-    uv run --group docs sphinx-autobuild docs/source docs/build
+    uv run --group plugin-list python scripts/update_plugin_list.py
+    uv run --group docs zensical serve -a 127.0.0.1:8000
 
 # Run tests with lowest dependency resolution (like CI)
 test-lowest:

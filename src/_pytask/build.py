@@ -101,82 +101,80 @@ def build(  # noqa: PLR0913
 ) -> Session:
     """Run pytask.
 
-    This is the main command to run pytask which usually receives kwargs from the
-    command line interface. It can also be used to run pytask interactively. Pass
-    configuration in a dictionary.
+    This function is the programmatic interface to ``pytask build``.
 
     Parameters
     ----------
-    capture
+    capture : Literal["fd", "no", "sys", "tee-sys"] | CaptureMethod
         The capture method for stdout and stderr.
-    check_casing_of_paths
+    check_casing_of_paths : bool, default=True
         Whether errors should be raised when file names have different casings.
-    config
+    config : Path | None, default=None
         A path to the configuration file.
-    database_url
-        An URL to the database that tracks the status of tasks.
-    debug_pytask
+    database_url : str, default=""
+        A URL to the database that tracks the status of tasks.
+    debug_pytask : bool, default=False
         Whether debug information should be shown.
-    disable_warnings
+    disable_warnings : bool, default=False
         Whether warnings should be disabled and not displayed.
-    dry_run
+    dry_run : bool, default=False
         Whether a dry-run should be performed that shows which tasks need to be rerun.
-    editor_url_scheme
-        An url scheme that allows to click on task names, node names and filenames and
-        jump right into you preferred editor to the right line.
-    explain
+    editor_url_scheme : Literal["no_link", "file", "vscode", "pycharm"] | str
+        A URL scheme that allows task, node, and file names to become clickable links.
+    explain : bool, default=False
         Explain why tasks need to be executed by showing what changed.
-    expression
+    expression : str, default=""
         Same as ``-k`` on the command line. Select tasks via expressions on task ids.
-    force
+    force : bool, default=False
         Run tasks even though they would be skipped since nothing has changed.
-    ignore
+    ignore : Iterable[str], default=()
         A pattern to ignore files or directories. Refer to ``pathlib.Path.match`` for
-        more info.
-    marker_expression
+        more information.
+    marker_expression : str, default=""
         Same as ``-m`` on the command line. Select tasks via marker expressions.
-    max_failures
+    max_failures : float, default=float("inf")
         Stop after some failures.
-    n_entries_in_table
+    n_entries_in_table : int, default=15
         How many entries to display in the table during the execution. Tasks which are
         running are always displayed.
-    paths
+    paths : Path | Iterable[Path], default=()
         A path or collection of paths where pytask looks for the configuration and
         tasks.
-    pdb
+    pdb : bool, default=False
         Start the interactive debugger on errors.
-    pdb_cls
+    pdb_cls : str, default=""
         Start a custom debugger on errors. For example:
         ``--pdbcls=IPython.terminal.debugger:TerminalPdb``
-    s
+    s : bool, default=False
         Shortcut for ``capture="no"``.
-    show_capture
+    show_capture : Literal["no", "stdout", "stderr", "all"] | ShowCapture
         Choose which captured output should be shown for failed tasks.
-    show_errors_immediately
+    show_errors_immediately : bool, default=False
         Show errors with tracebacks as soon as the task fails.
-    show_locals
+    show_locals : bool, default=False
         Show local variables in tracebacks.
-    show_traceback
+    show_traceback : bool, default=True
         Choose whether tracebacks should be displayed or not.
-    sort_table
+    sort_table : bool, default=True
         Sort the table of tasks at the end of the execution.
-    stop_after_first_failure
+    stop_after_first_failure : bool, default=False
         Stop after the first failure.
-    strict_markers
+    strict_markers : bool, default=False
         Raise errors for unknown markers.
-    tasks
-        A task or a collection of tasks which can be callables or instances following
-        {class}`~pytask.PTask`.
-    task_files
+    tasks : Callable[..., Any] | PTask | Iterable[Callable[..., Any] | PTask]
+        A task or collection of tasks as callables or [pytask.PTask][] instances.
+    task_files : Iterable[str], default=("task_*.py",)
         A pattern to describe modules that contain tasks.
-    trace
+    trace : bool, default=False
         Enter debugger in the beginning of each task.
-    verbose
+    verbose : int, default=1
         Make pytask verbose (>= 0) or quiet (= 0).
+    **kwargs : Any
+        Additional configuration forwarded to pytask's configuration pipeline.
 
     Returns
     -------
-    session : pytask.Session
+    Session
         The session captures all the information of the current run.
 
     """

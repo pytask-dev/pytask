@@ -1,4 +1,4 @@
-"""Contains utilities related to the :func:`@task <pytask.task>`."""
+"""Contains utilities related to the [`@task`][pytask.task]."""
 
 from __future__ import annotations
 import __future__
@@ -48,7 +48,7 @@ __all__ = [
 COLLECTED_TASKS: dict[Path | None, list[Callable[..., Any]]] = defaultdict(list)
 """A container for collecting tasks.
 
-Tasks marked by the :func:`@task <pytask.task>` decorator can be generated in a loop
+Tasks marked by the [`@task`][pytask.task] decorator can be generated in a loop
 where one iteration overwrites the previous task. To retrieve the tasks later, use this
 dictionary mapping from paths of modules to a list of tasks per module.
 
@@ -75,37 +75,50 @@ def task(  # noqa: PLR0913
     ----------
     name
         Use it to override the name of the task that is, by default, the name of the
-        task function. Read :ref:`customize-task-names` for more information.
+        task function. Read
+        [customize task names](../tutorials/write_a_task.md#customize-task-names)
+        for more information.
     after
         An expression or a task function or a list of task functions that need to be
-        executed before this task can be executed. See :ref:`after` for more
+        executed before this task can be executed. See
+        [after](../tutorials/defining_dependencies_products.md#after) for more
         information.
     is_generator
         An indicator whether this task is a task generator.
     id
         An id for the task if it is part of a repetition. Otherwise, an automatic id
-        will be generated. See :ref:`how-to-repeat-a-task-with-different-inputs-the-id`
-        for more information.
+        will be generated. See
+        [this section](
+        ../tutorials/repeating_tasks_with_different_inputs.md#how-to-repeat-a-task-with-different-inputs-the-id
+        ) for more information.
     kwargs
         A dictionary containing keyword arguments which are passed to the task function.
-        These can be dependencies or products of the task. Read :ref:`task-kwargs` for
-        more information.
+        These can be dependencies or products of the task. Read
+        [task kwargs](
+        ../how_to_guides/interfaces_for_dependencies_products.md#task-kwargs
+        ) for more information.
     produces
         Use this argument to parse the return of the task function as a product. See
-        :doc:`this how-to guide <../how_to_guides/using_task_returns>` or
-        :ref:`task-produces` for more information.
+        [this how-to guide](../how_to_guides/using_task_returns.md) or
+        [task produces](
+        ../how_to_guides/interfaces_for_dependencies_products.md#task-produces
+        ) for more information.
 
     Examples
     --------
     To mark a function without the ``task_`` prefix as a task, attach the decorator.
 
-    .. code-block:: python
+    ```python
+    from pathlib import Path
+    from typing import Annotated
 
-        from typing import Annotated from pytask import task
+    from pytask import task
 
-        @task()
-        def create_text_file() -> Annotated[str, Path("file.txt")]:
-            return "Hello, World!"
+
+    @task()
+    def create_text_file() -> Annotated[str, Path("file.txt")]:
+        return "Hello, World!"
+    ```
 
     """
     # Capture the caller's frame locals for deferred annotation evaluation in Python
@@ -271,7 +284,7 @@ def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
 
     if meta.name is None and task_name == "_":
         msg = (
-            "A task function either needs 'name' passed by the ``@task`` "
+            "A task function either needs 'name' passed by the '@task' "
             "decorator or the function name of the task function must not be '_'."
         )
         raise ValueError(msg)
@@ -357,8 +370,8 @@ def _arg_value_to_id_component(
     """Create id component from the name and value of the argument.
 
     First, transform the value of the argument with a user-defined function if given.
-    Otherwise, take the original value. Then, if the value is a :obj:`bool`,
-    :obj:`float`, :obj:`int`, or :obj:`str`, cast it to a string. Otherwise, define a
+    Otherwise, take the original value. Then, if the value is a `bool`,
+    `float`, `int`, or `str`, cast it to a string. Otherwise, define a
     placeholder value from the name of the argument and the iteration.
 
     Parameters
@@ -370,8 +383,8 @@ def _arg_value_to_id_component(
     i : int
         The ith iteration of the parametrization.
     id_func : Union[Callable[..., Any], None]
-        A callable which maps argument values to :obj:`bool`, :obj:`float`, :obj:`int`,
-        or :obj:`str` or anything else. Any object with a different dtype than the first
+        A callable which maps argument values to `bool`, `float`, `int`,
+        or `str` or anything else. Any object with a different dtype than the first
         will be mapped to an auto-generated id component.
 
     Returns

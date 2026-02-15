@@ -123,8 +123,10 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 def pytask_unconfigure() -> None:
     """Return the resources.
 
-    If the :func:`pdb.set_trace` function would not be returned, using breakpoints in
-    test functions with pytask would fail.
+    If the
+    [pdb.set_trace](https://docs.python.org/3/library/pdb.html#pdb.set_trace)
+    function would not be returned, using breakpoints in test functions with pytask
+    would fail.
 
     """
     pdb.set_trace, _, _ = PytaskPDB._saved.pop()

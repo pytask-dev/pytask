@@ -153,10 +153,10 @@ class TopologicalSorter:
 def _extract_priorities_from_tasks(tasks: list[PTask]) -> dict[str, int]:
     """Extract priorities from tasks.
 
-    Priorities are set via the ``pytask.mark.try_first`` and ``pytask.mark.try_last``
+    Priorities are set via the [pytask.mark.try_first][] and [pytask.mark.try_last][]
     markers. We recode these markers to numeric values to sort all available by
     priorities. ``try_first`` is assigned the highest value such that it has the
-    rightmost position in the list. Then, we can simply call :meth:`list.pop` on the
+    rightmost position in the list. Then, we can simply call `list.pop` on the
     list which is far more efficient than ``list.pop(0)``.
 
     """

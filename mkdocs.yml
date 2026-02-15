@@ -1,0 +1,140 @@
+site_name: pytask
+site_url: https://pytask-dev.readthedocs.io/en/stable
+repo_url: https://github.com/pytask-dev/pytask
+repo_name: pytask-dev/pytask
+site_description: pytask is a workflow management system that facilitates reproducible data analyses.
+
+use_directory_urls: false
+docs_dir: docs/source
+site_dir: docs/build
+exclude_docs: |
+  _static/md/**
+
+nav:
+  - Home: index.md
+  - Tutorials:
+      - Overview: tutorials/index.md
+      - Installation: tutorials/installation.md
+      - Set Up A Project: tutorials/set_up_a_project.md
+      - Write A Task: tutorials/write_a_task.md
+      - Defining Dependencies And Products: tutorials/defining_dependencies_products.md
+      - Using A Data Catalog: tutorials/using_a_data_catalog.md
+      - Invoking pytask: tutorials/invoking_pytask.md
+      - Configuration: tutorials/configuration.md
+      - Plugins: tutorials/plugins.md
+      - Debugging: tutorials/debugging.md
+      - Repeating Tasks With Different Inputs: tutorials/repeating_tasks_with_different_inputs.md
+      - Selecting Tasks: tutorials/selecting_tasks.md
+      - Skipping Tasks: tutorials/skipping_tasks.md
+      - Making Tasks Persist: tutorials/making_tasks_persist.md
+      - Capturing Output: tutorials/capturing_output.md
+      - Markers: tutorials/markers.md
+      - Collecting Tasks: tutorials/collecting_tasks.md
+      - Profiling Tasks: tutorials/profiling_tasks.md
+      - Cleaning Projects: tutorials/cleaning_projects.md
+      - Visualizing The DAG: tutorials/visualizing_the_dag.md
+  - How-To Guides:
+      - Overview: how_to_guides/index.md
+      - Migrating From Scripts To pytask: how_to_guides/migrating_from_scripts_to_pytask.md
+      - Interfaces For Dependencies And Products: how_to_guides/interfaces_for_dependencies_products.md
+      - Remote Files: how_to_guides/remote_files.md
+      - Functional Interface: how_to_guides/functional_interface.md
+      - Capture Warnings: how_to_guides/capture_warnings.md
+      - How To Influence Build Order: how_to_guides/how_to_influence_build_order.md
+      - Hashing Inputs Of Tasks: how_to_guides/hashing_inputs_of_tasks.md
+      - Using Task Returns: how_to_guides/using_task_returns.md
+      - Provisional Nodes And Task Generators: how_to_guides/provisional_nodes_and_task_generators.md
+      - Writing Custom Nodes: how_to_guides/writing_custom_nodes.md
+      - Extending pytask: how_to_guides/extending_pytask.md
+      - The Data Catalog: how_to_guides/the_data_catalog.md
+      - Using Workspaces: how_to_guides/using_workspaces.md
+      - Best Practices:
+          - Structure Of A Research Project: how_to_guides/bp_structure_of_a_research_project.md
+          - Structure Of Task Files: how_to_guides/bp_structure_of_task_files.md
+          - Templates And Projects: how_to_guides/bp_templates_and_projects.md
+          - Complex Task Repetitions: how_to_guides/bp_complex_task_repetitions.md
+  - Explanations:
+      - Overview: explanations/index.md
+      - Why pytask: explanations/why_pytask.md
+      - Comparison To Other Tools: explanations/comparison_to_other_tools.md
+      - Pluggy: explanations/pluggy.md
+  - CLI:
+      - Overview: commands/index.md
+      - build: commands/build.md
+      - clean: commands/clean.md
+      - collect: commands/collect.md
+      - dag: commands/dag.md
+      - markers: commands/markers.md
+      - profile: commands/profile.md
+  - Reference Guides:
+      - Overview: reference_guides/index.md
+      - Configuration: reference_guides/configuration.md
+      - Hook Specifications: reference_guides/hookspecs.md
+  - API:
+      - Overview: api/index.md
+      - CLI Imports: api/cli_and_programmatic.md
+      - Functional Interfaces: api/functional_interfaces.md
+      - Core Classes And Exceptions: api/core_classes_and_exceptions.md
+      - Marks: api/marks.md
+      - Nodes And Tasks: api/nodes_and_tasks.md
+      - Outcomes, Reports, And Warnings: api/outcomes_reports_and_warnings.md
+      - Utilities And Typing: api/utilities_and_typing.md
+  - Plugin List: plugin_list.md
+  - Type Hints: type_hints.md
+  - Developer's Guide: developers_guide.md
+  - Glossary: glossary.md
+  - Changelog: changes.md
+
+theme:
+  name: zensical
+  logo: _static/images/pytask.svg
+  favicon: _static/images/pytask.ico
+  features:
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: numpy
+            docstring_section_style: table
+            filters: public
+            members: null
+            show_root_heading: true
+            show_signature: true
+            show_source: false
+            heading_level: 3
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+      combine_header_slug: true
+  - pymdownx.snippets:
+      check_paths: true
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+
+extra_css:
+  - _static/css/termynal.css
+  - _static/css/termynal_custom.css
+  - _static/css/custom.css
+
+extra_javascript:
+  - _static/js/termynal.js
+  - _static/js/custom.js
