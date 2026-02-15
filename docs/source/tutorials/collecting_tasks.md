@@ -11,12 +11,12 @@ Let us take the following task.
 
 Now, running `pytask collect` will produce the following output.
 
---8\<-- "docs/source/\_static/md/collect.txt"
+--8\<-- "docs/source/\_static/md/collect.md"
 
 If you want to have more information regarding the dependencies and products of the
 task, append the `pytask collect --nodes` flag.
 
---8\<-- "docs/source/\_static/md/collect-nodes.txt"
+--8\<-- "docs/source/\_static/md/collect-nodes.md"
 
 To restrict the set of tasks you are looking at, use markers, expressions and ignore
 patterns as usual.

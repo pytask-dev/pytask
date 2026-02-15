@@ -66,4 +66,4 @@ def task_func2():
 And running this module will show you precisely the output of the failing function and
 hide the other one:
 
---8\<-- "docs/source/\_static/md/capture.txt"
+--8\<-- "docs/source/\_static/md/capture.md"

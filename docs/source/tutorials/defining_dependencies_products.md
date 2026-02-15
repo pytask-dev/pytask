@@ -115,7 +115,7 @@ pytask assumes that all function arguments that are not passed to the argument
 
 Now, let us execute the two paths.
 
---8\<-- "docs/source/\_static/md/defining-dependencies-products.txt"
+--8\<-- "docs/source/\_static/md/defining-dependencies-products.md"
 
 ## Relative paths
 

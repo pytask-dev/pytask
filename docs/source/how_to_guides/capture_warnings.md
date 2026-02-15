@@ -10,7 +10,7 @@ Here is an example with the most infamous warning in the world of scientific Pyt
 
 Running pytask produces
 
---8\<-- "docs/source/\_static/md/warning.txt"
+--8\<-- "docs/source/\_static/md/warning.md"
 
 ## Controlling warnings
 

@@ -82,7 +82,7 @@ If you want to learn more about dependencies and products, read the
 Finally, execute your newly defined tasks with pytask. Assuming your scripts lie in the
 current directory of your terminal or a subsequent directory, run the following.
 
---8\<-- "docs/source/\_static/md/migrating-from-scripts-to-pytask.txt"
+--8\<-- "docs/source/\_static/md/migrating-from-scripts-to-pytask.md"
 
 Otherwise, pass the paths explicitly to the pytask executable.
 

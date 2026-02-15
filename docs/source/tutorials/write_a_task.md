@@ -82,7 +82,7 @@ the default value of the argument.
 
 Now, execute pytask to collect tasks in the current and subsequent directories.
 
---8\<-- "docs/source/\_static/md/write-a-task.txt"
+--8\<-- "docs/source/\_static/md/write-a-task.md"
 
 <a id="customize-task-names"></a>
 

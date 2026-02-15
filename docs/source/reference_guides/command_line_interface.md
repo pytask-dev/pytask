@@ -12,7 +12,7 @@ uses a maintained help-text snapshot as a workaround.
 
 ## Help output
 
---8\<-- "docs/source/\_static/md/help-page.txt"
+--8\<-- "docs/source/\_static/md/help-page.md"
 
 ## Source
 

@@ -17,7 +17,7 @@ $ pytask -h | --help
 
 pytask has multiple commands listed on the main help page.
 
---8\<-- "docs/source/\_static/md/help-page.txt"
+--8\<-- "docs/source/\_static/md/help-page.md"
 
 The `build` command is the default command, meaning the following two calls are
 identical.
@@ -79,7 +79,7 @@ $ pytask --max-failures 2                 # Stop after the second failure
 
 Do a dry run to see which tasks will be executed without executing them.
 
---8\<-- "docs/source/\_static/md/dry-run.txt"
+--8\<-- "docs/source/\_static/md/dry-run.md"
 
 ### Explaining why tasks are executed
 
@@ -87,7 +87,7 @@ Use the `--explain` flag to understand why tasks need to be executed. This shows
 changed (source files, dependencies, products, previous tasks) and helps you understand
 pytask's execution decisions.
 
---8\<-- "docs/source/\_static/md/explain.txt"
+--8\<-- "docs/source/\_static/md/explain.md"
 
 The explanation output respects the `--verbose` flag:
 

@@ -29,7 +29,7 @@ output paths as default arguments of the function.
 
 Executing pytask gives you this:
 
---8\<-- "docs/source/\_static/md/repeating-tasks.txt"
+--8\<-- "docs/source/\_static/md/repeating-tasks.md"
 
 ## Dependencies
 

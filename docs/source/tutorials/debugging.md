@@ -9,7 +9,7 @@ Using `pytask build --pdb` enables the post-mortem debugger. Whenever an excepti
 raised inside a task, the prompt will enter the debugger enabling you to find out the
 cause of the exception.
 
---8\<-- "docs/source/\_static/md/pdb.txt"
+--8\<-- "docs/source/\_static/md/pdb.md"
 
 !!! tip
 
@@ -30,14 +30,14 @@ Combine it with the `pytask build --pdb` flag to debug specific tasks.
 If you want to enter the debugger at the start of every task, use
 `pytask build --trace`.
 
---8\<-- "docs/source/\_static/md/trace.txt"
+--8\<-- "docs/source/\_static/md/trace.md"
 
 ## Tracebacks
 
 You can enrich the display of tracebacks by showing local variables in each stack frame.
 Just execute `pytask build --show-locals`.
 
---8\<-- "docs/source/\_static/md/show-locals.txt"
+--8\<-- "docs/source/\_static/md/show-locals.md"
 
 ## Custom debugger
 

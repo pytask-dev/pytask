@@ -42,7 +42,7 @@ def task_second():
 
 The execution yields (use `-s` to make the output visible in the terminal)
 
---8\<-- "docs/source/\_static/md/try-first.txt"
+--8\<-- "docs/source/\_static/md/try-first.md"
 
 Replacing `pytask.mark.try_first` with `pytask.mark.try_last` yields
 
@@ -63,4 +63,4 @@ def task_second():
 
 and
 
---8\<-- "docs/source/\_static/md/try-last.txt"
+--8\<-- "docs/source/\_static/md/try-last.md"

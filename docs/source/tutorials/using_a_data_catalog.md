@@ -132,7 +132,7 @@ the task without any additional line to load it.
 
 Finally, let's execute the two tasks.
 
---8\<-- "docs/source/\_static/md/defining-dependencies-products.txt"
+--8\<-- "docs/source/\_static/md/defining-dependencies-products.md"
 
 ## Adding data to the catalog
 

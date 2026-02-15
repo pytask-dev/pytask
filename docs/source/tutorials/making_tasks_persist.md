@@ -44,15 +44,15 @@ Here is the text.
 
 Running pytask will execute the task since the product is missing.
 
---8\<-- "docs/source/\_static/md/persist-executed.txt"
+--8\<-- "docs/source/\_static/md/persist-executed.md"
 
 After that, we accidentally changed the task's source file by formatting the file with
 Black. Without the `@pytask.mark.persist` decorator, the task would run again since the
 source has changed. With the decorator, a green p signals that the execution is skipped.
 
---8\<-- "docs/source/\_static/md/persist-persisted.txt"
+--8\<-- "docs/source/\_static/md/persist-persisted.md"
 
 If we rerun the task, it is skipped because nothing has changed and not because it is
 marked with `@pytask.mark.persist`.
 
---8\<-- "docs/source/\_static/md/persist-skipped.txt"
+--8\<-- "docs/source/\_static/md/persist-skipped.md"
