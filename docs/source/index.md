@@ -42,201 +42,31 @@ features include:
   [this tutorial](https://pytask-dev.readthedocs.io/en/stable/tutorials/plugins.html).
 
 To get started with pytask, the documentation includes a series of tutorials. Go to the
-first {doc}`tutorial <tutorials/installation>` for the installation and proceed from
-there.
+first [tutorial](tutorials/installation.md) for the installation and proceed from there.
 
 ## Documentation
 
-If you want to know more about pytask, dive into one of the following topics
+If you want to know more about pytask, dive into one of the following topics.
 
-`````{grid} 1 2 2 2
----
-gutter: 3
----
-````{grid-item-card}
-:text-align: center
-:img-top: _static/images/light-bulb.svg
-:class-img-top: index-card-image
-:class-item: only-light
-:shadow: md
-
-```{button-link} tutorials/index.html
----
-click-parent:
-ref-type: ref
-class: stretched-link index-card-link
----
-Tutorials
-```
-
-Tutorials help you to get started with pytask and how you manage your first project.
-
-````
-
-````{grid-item-card}
-:text-align: center
-:img-top: _static/images/light-bulb-light.svg
-:class-img-top: index-card-image
-:class-item: only-dark
-:shadow: md
-
-```{button-link} tutorials/index.html
----
-click-parent:
-ref-type: ref
-class: stretched-link index-card-link
----
-Tutorials
-```
-
-Tutorials help you to get started with pytask and how you manage your first project.
-
-````
-
-````{grid-item-card}
-:text-align: center
-:img-top: _static/images/book.svg
-:class-img-top: index-card-image
-:class-item: only-light
-:shadow: md
-
-```{button-link} how_to_guides/index.html
----
-click-parent:
-ref-type: ref
-class: stretched-link index-card-link
----
-How-to Guides
-```
-
-How-to guides provide instructions for very specific and advanced tasks and document
-best-practices.
-
-````
-
-````{grid-item-card}
-:text-align: center
-:img-top: _static/images/book-light.svg
-:class-img-top: index-card-image
-:class-item: only-dark
-:shadow: md
-
-```{button-link} how_to_guides/index.html
----
-click-parent:
-ref-type: ref
-class: stretched-link index-card-link
----
-How-to Guides
-```
-
-How-to guides provide instructions for very specific and advanced tasks and document
-best-practices.
-
-````
-
-````{grid-item-card}
-:text-align: center
-:img-top: _static/images/books.svg
-:class-img-top: index-card-image
-:class-item: only-light
-:shadow: md
-
-```{button-link} explanations/index.html
----
-click-parent:
-ref-type: ref
-class: stretched-link index-card-link
----
-Explanations
-```
-
-Explanations deal with key topics and concepts which underlie the package.
-
-````
-
-````{grid-item-card}
-:text-align: center
-:img-top: _static/images/books-light.svg
-:class-img-top: index-card-image
-:class-item: only-dark
-:shadow: md
-
-```{button-link} explanations/index.html
----
-click-parent:
-ref-type: ref
-class: stretched-link index-card-link
----
-Explanations
-```
-
-Explanations deal with key topics and concepts which underlie the package.
-
-````
-
-````{grid-item-card}
-:text-align: center
-:img-top: _static/images/coding.svg
-:class-img-top: index-card-image
-:class-item: only-light
-:shadow: md
-
-```{button-link} reference_guides/index.html
----
-click-parent:
-ref-type: ref
-class: stretched-link index-card-link
----
-Reference Guides
-```
-
-Reference guides explain the implementation and provide an entry-point for developers.
-
-````
-
-````{grid-item-card}
-:text-align: center
-:img-top: _static/images/coding-light.svg
-:class-img-top: index-card-image
-:class-item: only-dark
-:shadow: md
-
-```{button-link} reference_guides/index.html
----
-click-parent:
-ref-type: ref
-class: stretched-link index-card-link
----
-Reference Guides
-```
-
-Reference guides explain the implementation and provide an entry-point for developers.
-
-````
-
-`````
-
-```{toctree}
----
-hidden: true
----
-tutorials/index
-how_to_guides/index
-explanations/index
-reference_guides/index
-```
-
-Furthermore, the documentation includes the following topics.
-
-```{toctree}
----
-maxdepth: 1
----
-plugin_list
-type_hints
-developers_guide
-glossary
-changes
-On Github <https://github.com/pytask-dev/pytask>
-```
+<div class="home-tiles">
+  <a class="home-tile" href="tutorials/index.html">
+    <img src="_static/images/light-bulb.svg" alt="Tutorials icon">
+    <h3>Tutorials</h3>
+    <p>Tutorials help you get started with pytask and build your first project.</p>
+  </a>
+  <a class="home-tile" href="how_to_guides/index.html">
+    <img src="_static/images/book.svg" alt="How-to guides icon">
+    <h3>How-to Guides</h3>
+    <p>Step-by-step instructions for concrete tasks and advanced workflows.</p>
+  </a>
+  <a class="home-tile" href="explanations/index.html">
+    <img src="_static/images/books.svg" alt="Explanations icon">
+    <h3>Explanations</h3>
+    <p>Background and conceptual context for design decisions in pytask.</p>
+  </a>
+  <a class="home-tile" href="reference_guides/index.html">
+    <img src="_static/images/coding.svg" alt="Reference guides icon">
+    <h3>Reference Guides</h3>
+    <p>API and implementation details for developers and plugin authors.</p>
+  </a>
+</div>

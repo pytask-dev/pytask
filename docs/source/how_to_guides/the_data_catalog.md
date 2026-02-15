@@ -1,16 +1,16 @@
 # The `DataCatalog` - Revisited
 
-This guide explains more details about the {class}`~pytask.DataCatalog` that were left
-out of the [tutorial](../tutorials/using_a_data_catalog.md). Please, read the tutorial
-for a basic understanding.
+This guide explains more details about the `pytask.DataCatalog` that were left out of
+the [tutorial](../tutorials/using_a_data_catalog.md). Please, read the tutorial for a
+basic understanding.
 
 ## Changing the default node
 
-The data catalog uses the {class}`~pytask.PickleNode` by default to serialize any kind
-of Python object. You can use any other node that follows the {protocol}`~pytask.PNode`
-protocol and register it when creating the data catalog.
+The data catalog uses the `pytask.PickleNode` by default to serialize any kind of Python
+object. You can use any other node that follows the {protocol}`~pytask.PNode` protocol
+and register it when creating the data catalog.
 
-For example, use the {class}`~pytask.PythonNode` as the default.
+For example, use the `pytask.PythonNode` as the default.
 
 ```python
 from pytask import PythonNode
@@ -20,12 +20,13 @@ from pytask import DataCatalog
 data_catalog = DataCatalog(default_node=PythonNode)
 ```
 
-Or, learn to write your node by reading {doc}`writing_custom_nodes`.
+Or, learn to write your node by reading [writing custom nodes](writing_custom_nodes.md).
 
-Here, is an example for a {class}`~pytask.PickleNode` that uses cloudpickle instead of
-the normal {mod}`pickle` module.
+Here, is an example for a `pytask.PickleNode` that uses cloudpickle instead of the
+normal `pickle` module.
 
-```{literalinclude} ../../../docs_src/how_to_guides/the_data_catalog.py
+```python
+--8 < --"docs_src/how_to_guides/the_data_catalog.py"
 ```
 
 ## Changing the name and the default path
@@ -45,7 +46,9 @@ from pytask import DataCatalog
 data_catalog = DataCatalog(name="data_management")
 ```
 
-```{note}
+!!! note
+
+```
 The name of a data catalog is restricted to letters, numbers, hyphens and underscores.
 ```
 

@@ -22,37 +22,40 @@ a task. When we talk about products later, the same interfaces will be used.
 | Flexible choice of argument name        |             ✅             |           ✅            |         ✅          |
 | Supports third-party functions as tasks |             ❌             |           ❌            |         ✅          |
 
-(default-argument)=
+<a id="default-argument"></a>
 
 ### Default argument
 
 You can pass a value to a task as a default argument.
 
-```{literalinclude} ../../../docs_src/how_to_guides/interfaces/dependencies_default.py
+```python
+--8 < --"docs_src/how_to_guides/interfaces/dependencies_default.py"
 ```
 
-(annotation)=
+<a id="annotation"></a>
 
 ### Annotation with value
 
 It is possible to include the value in the type annotation.
 
-It is especially helpful if you pass a {class}`~pytask.PNode` to the task. If you passed
-a node as the default argument, type checkers like mypy would expect the node to enter
-the task, but the value injected into the task depends on the nodes
-{meth}`~pytask.PNode.load` method. For a {class}`~pytask.PathNode`
+It is especially helpful if you pass a `pytask.PNode` to the task. If you passed a node
+as the default argument, type checkers like mypy would expect the node to enter the
+task, but the value injected into the task depends on the nodes `pytask.PNode.load`
+method. For a `pytask.PathNode`
 
-```{literalinclude} ../../../docs_src/how_to_guides/interfaces/dependencies_annotation.py
+```python
+--8 < --"docs_src/how_to_guides/interfaces/dependencies_annotation.py"
 ```
 
-(task-kwargs)=
+<a id="task-kwargs"></a>
 
 ### `@task(kwargs=...)`
 
-You can use the `kwargs` argument of the {func}`@task <pytask.task>` decorator to pass a
-dictionary. It applies to dependencies and products alike.
+You can use the `kwargs` argument of the `@task` decorator to pass a dictionary. It
+applies to dependencies and products alike.
 
-```{literalinclude} ../../../docs_src/how_to_guides/interfaces/dependencies_task_kwargs.py
+```python
+--8 < --"docs_src/how_to_guides/interfaces/dependencies_task_kwargs.py"
 ```
 
 ## Products
@@ -66,18 +69,20 @@ dictionary. It applies to dependencies and products alike.
 
 ### `Product` annotation
 
-The syntax is the same as {ref}`default-argument`, but the {class}`~pytask.Product`
-annotation turns the argument into a task product.
+The syntax is the same as [default argument](#default-argument), but the
+`pytask.Product` annotation turns the argument into a task product.
 
-```{literalinclude} ../../../docs_src/how_to_guides/interfaces/products_annotation.py
+```python
+--8 < --"docs_src/how_to_guides/interfaces/products_annotation.py"
 ```
 
 ### `Product` annotation with value
 
-The syntax is the same as {ref}`annotation`, but the {class}`~pytask.Product` annotation
+The syntax is the same as [annotation](#annotation), but the `pytask.Product` annotation
 turns the argument into a task product.
 
-```{literalinclude} ../../../docs_src/how_to_guides/interfaces/products_annotation_with_pnode.py
+```python
+--8 < --"docs_src/how_to_guides/interfaces/products_annotation_with_pnode.py"
 ```
 
 ### `produces`
@@ -85,28 +90,31 @@ turns the argument into a task product.
 Without using any type annotation, you can use `produces` as a magical argument name to
 treat every value passed to it as a task product.
 
-```{literalinclude} ../../../docs_src/how_to_guides/interfaces/products_produces.py
+```python
+--8 < --"docs_src/how_to_guides/interfaces/products_produces.py"
 ```
 
-(return-annotation)=
+<a id="return-annotation"></a>
 
 ### Return annotation
 
 You can also add a node or a value that will be parsed to a node to the annotation of
 the return type. It allows us to treat the returns of the task function as products.
 
-```{literalinclude} ../../../docs_src/how_to_guides/interfaces/products_return_annotation.py
+```python
+--8 < --"docs_src/how_to_guides/interfaces/products_return_annotation.py"
 ```
 
-(task-produces)=
+<a id="task-produces"></a>
 
 ### `@task(produces=...)`
 
-In situations where the task return is the product like {ref}`return-annotation`, but
-you cannot modify the type annotation of the return, use the argument `produces` of the
-{func}`@task <pytask.task>` decorator.
+In situations where the task return is the product like
+[return annotation](#return-annotation), but you cannot modify the type annotation of
+the return, use the argument `produces` of the `@task` decorator.
 
 Pass the node or value you otherwise include in the type annotation to `produces`.
 
-```{literalinclude} ../../../docs_src/how_to_guides/interfaces/products_task_produces.py
+```python
+--8 < --"docs_src/how_to_guides/interfaces/products_task_produces.py"
 ```

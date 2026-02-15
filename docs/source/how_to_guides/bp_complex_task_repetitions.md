@@ -1,7 +1,7 @@
 # Complex task repetitions
 
-{doc}`Task repetitions <../tutorials/repeating_tasks_with_different_inputs>` are amazing
-if you want to execute lots of tasks while not repeating yourself in code.
+[Task repetitions](../tutorials/repeating_tasks_with_different_inputs.md) are amazing if
+you want to execute lots of tasks while not repeating yourself in code.
 
 But, in any bigger project, repetitions can become hard to maintain because there are
 multiple layers or dimensions of repetition.
@@ -16,10 +16,8 @@ different dimension. A dimension might represent different datasets or model
 specifications to analyze the datasets like in the following example. The task arguments
 are derived from the dimensions.
 
-```{literalinclude} ../../../docs_src/how_to_guides/bp_complex_task_repetitions/example.py
----
-caption: task_example.py
----
+```python
+--8 < --"docs_src/how_to_guides/bp_complex_task_repetitions/example.py"
 ```
 
 There is nothing wrong with using nested loops for simpler projects. But, often projects
@@ -32,26 +30,25 @@ are growing over time and you run into these problems.
 ## Solution
 
 The main idea for the solution is quickly explained. We will, first, formalize
-dimensions into objects using {class}`~typing.NamedTuple` or
-{func}`~dataclasses.dataclass`.
+dimensions into objects using `typing.NamedTuple` or `dataclasses.dataclass`.
 
 Secondly, we will combine dimensions in multi-dimensional objects such that we only have
 to iterate over instances of this object in a single loop. Here and for the lack of a
 better name, we will call the object an experiment.
 
-Lastly, we will also use the {class}`~pytask.DataCatalog` to not be bothered with
-defining paths.
+Lastly, we will also use the `pytask.DataCatalog` to not be bothered with defining
+paths.
 
-```{seealso}
-If you have not learned about the {class}`~pytask.DataCatalog` yet, start with the
-{doc}`tutorial <../tutorials/using_a_data_catalog>` and continue with the
-{doc}`how-to guide <the_data_catalog>`.
+!!! note
+
+```
+If you have not learned about the `pytask.DataCatalog` yet, start with the
+[tutorial](../tutorials/using_a_data_catalog.md) and continue with the
+[how-to guide](the_data_catalog.md).
 ```
 
-```{literalinclude} ../../../docs_src/how_to_guides/bp_complex_task_repetitions/config.py
----
-caption: config.py
----
+```python
+--8 < --"docs_src/how_to_guides/bp_complex_task_repetitions/config.py"
 ```
 
 There are some things to be said.
@@ -65,17 +62,15 @@ There are some things to be said.
 Next, we will use these newly defined data structures and see how our tasks change when
 we use them.
 
-```{literalinclude} ../../../docs_src/how_to_guides/bp_complex_task_repetitions/example_improved.py
----
-caption: task_example.py
----
+```python
+--8 < --"docs_src/how_to_guides/bp_complex_task_repetitions/example_improved.py"
 ```
 
 As you see, we lost a level of indentation and we moved all the generations of names and
 paths to the dimensions and multi-dimensional objects.
 
-Using a {class}`~pytask.PythonNode` allows us to hash the model and reexecute the task
-if we define other model settings.
+Using a `pytask.PythonNode` allows us to hash the model and reexecute the task if we
+define other model settings.
 
 ## Adding another level
 
@@ -83,10 +78,7 @@ Extending a dimension by another level is usually quickly done. For example, if 
 another model that we want to fit to the data, we extend `MODELS` which will
 automatically lead to all downstream tasks being created.
 
-```{code-block} python
----
-caption: config.py
----
+```python
 ...
 MODELS = [Model("ols"), Model("logit"), Model("linear_prob"), Model("new_model")]
 ...
@@ -114,15 +106,16 @@ related to the logit model.
 pytask -k logit
 ```
 
-```{seealso}
+!!! note
+
+```
 Expressions and markers for selecting tasks are explained in
-{doc}`../tutorials/selecting_tasks`.
+[selecting tasks](../tutorials/selecting_tasks.md).
 ```
 
 ## Extending repetitions
 
 Some repeated tasks are costly to run - costly in terms of computing power, memory, or
 runtime. If you change a task module, you might accidentally trigger all other tasks in
-the module to be rerun. Use the {func}`@pytask.mark.persist <pytask.mark.persist>`
-decorator, which is explained in more detail in this
-{doc}`tutorial <../tutorials/making_tasks_persist>`.
+the module to be rerun. Use the `@pytask.mark.persist` decorator, which is explained in
+more detail in this [tutorial](../tutorials/making_tasks_persist.md).

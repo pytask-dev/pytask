@@ -2,7 +2,7 @@
 
 Multiple options exist if you want to run a subset of tasks.
 
-(markers)=
+<a id="markers"></a>
 
 ## Markers
 
@@ -21,23 +21,22 @@ Run this command in your terminal to execute only tasks with the `wip` marker.
 $ pytask -m wip
 ```
 
-You can pass more complex expressions to {option}`pytask build -m` by using multiple
-markers and `and`, `or`, `not`, and `()`. The following pattern selects all tasks that
-belong to the data management but not those that produce plots and plots for the
-analysis.
+You can pass more complex expressions to `pytask build -m` by using multiple markers and
+`and`, `or`, `not`, and `()`. The following pattern selects all tasks that belong to the
+data management but not those that produce plots and plots for the analysis.
 
 ```console
 $ pytask -m "(data_management and not plots) or (analysis and plots)"
 ```
 
-If you create your markers, use {confval}`markers` to register and document them.
+If you create your markers, use `markers` to register and document them.
 
-(expressions)=
+<a id="expressions"></a>
 
 ## Expressions
 
 Expressions are similar to markers and offer the same syntax but target the task ids
-with {option}`pytask build -k`. Assume you have the following tasks.
+with `pytask build -k`. Assume you have the following tasks.
 
 ```python
 def task_1():
@@ -103,7 +102,9 @@ pytask uses booleans, floats, integers, and strings in the task id. It replaces 
 Python objects like tuples with a combination of the argument name and an iteration
 counter and separates multiple arguments via dashes.
 
-```{seealso}
-Read this {ref}`section <how-to-repeat-a-task-with-different-inputs-the-id>` for more
+!!! note
+
+```
+Read this [section](repeating_tasks_with_different_inputs.md#how-to-repeat-a-task-with-different-inputs-the-id) for more
 information on how ids for repeated tasks are created and can be customized.
 ```

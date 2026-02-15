@@ -1,2 +1,1 @@
-```{include} ../../CHANGELOG.md
-```
+--8\<-- "docs/source/includes/changelog.txt"

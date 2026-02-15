@@ -43,7 +43,7 @@ The following list covers all steps of a release cycle.
 
 To profile pytask, you can follow this
 [video](https://www.youtube.com/watch?v=qiZyDLEJHh0) (it also features explanations for
-`git bisect`, caching, and profiling tools). We use {mod}`cProfile` with
+`git bisect`, caching, and profiling tools). We use `cProfile` with
 
 ```console
 $ python -m cProfile -o log.pstats -m pytask directory/with/tasks

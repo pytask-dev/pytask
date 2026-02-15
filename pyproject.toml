@@ -48,20 +48,12 @@ email = "raabe@posteo.de"
 
 [dependency-groups]
 docs = [
-    "furo>=2024.8.6",
     "ipython>=8.13.2",
     "ipywidgets>=8.1.6",
     "matplotlib>=3.5.0",
-    "myst-parser>=3.0.0",
-    "myst-nb>=1.2.0",
-    "sphinx>=7.0.0",
-    "sphinx-click>=6.0.0",
-    "sphinx-copybutton>=0.5.2",
-    "sphinx-design>=0.3",
-    "sphinx-toolbox>=4.0.0",
-    "sphinxext-opengraph>=0.10.0",
+    "mkdocstrings[python]>=0.30.0",
+    "zensical>=0.0.23",
 ]
-docs-live = ["sphinx-autobuild>=2024.10.3"]
 plugin-list = ["httpx>=0.27.0", "tabulate[widechars]>=0.9.0", "tqdm>=4.66.3"]
 test = [
     "cloudpickle>=3.0.0",
@@ -139,7 +131,6 @@ ignore = [
 "tests/*" = ["ANN", "D", "FBT", "PLR2004", "S101"]
 "tests/test_jupyter/*" = ["INP001"]
 "scripts/*" = ["D", "INP001"]
-"docs/source/conf.py" = ["D401", "INP001"]
 "docs_src/*" = ["ARG001", "D", "INP001", "S301"]
 "docs_src/*/*.py" = ["FA100", "FA102", "PLR2004", "TC"]
 "docs/source/how_to_guides/functional_interface*" = [

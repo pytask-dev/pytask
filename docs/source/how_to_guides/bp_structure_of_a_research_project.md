@@ -23,7 +23,9 @@ As an example, look at two repositories from a COVID-19 forecasting project.
 - [sid](https://github.com/covid-19-impact-lab/sid) contains the code for the
   epidemiological model which is applied in the research project.
 
-```{seealso}
+!!! note
+
+```
 Nowadays, consider using [workspaces](using_workspaces.md) instead of separate repositories.
 ```
 

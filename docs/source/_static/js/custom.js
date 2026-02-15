@@ -131,3 +131,110 @@ function loadVisibleTermynals() {
 window.addEventListener("scroll", loadVisibleTermynals);
 createTermynals();
 loadVisibleTermynals();
+
+function isTextInputElement(element) {
+    if (!element) {
+        return false;
+    }
+    const tagName = element.tagName.toLowerCase();
+    return (
+        tagName === "input" ||
+        tagName === "textarea" ||
+        tagName === "select" ||
+        element.isContentEditable
+    );
+}
+
+document.addEventListener("keydown", event => {
+    if (
+        event.defaultPrevented ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        isTextInputElement(document.activeElement)
+    ) {
+        return;
+    }
+
+    let rel;
+    if (event.key === "ArrowLeft") {
+        rel = "prev";
+    } else if (event.key === "ArrowRight") {
+        rel = "next";
+    } else {
+        return;
+    }
+
+    const link = document.querySelector(`link[rel="${rel}"]`);
+    if (link && link.href) {
+        event.preventDefault();
+        window.location.href = link.href;
+    }
+});
+
+function getTitleForUrl(url) {
+    const targetPath = new URL(url, window.location.href).pathname;
+    const navLinks = document.querySelectorAll(".md-nav a[href], .md-tabs a[href]");
+
+    for (const link of navLinks) {
+        const linkPath = new URL(link.href, window.location.href).pathname;
+        if (linkPath === targetPath) {
+            return link.textContent.trim().replace(/\s+/g, " ");
+        }
+    }
+
+    const fileName = targetPath.split("/").pop() || "";
+    return fileName.replace(".html", "").replace(/[-_]/g, " ");
+}
+
+function createPageHintNav() {
+    const prev = document.querySelector('link[rel="prev"]');
+    const next = document.querySelector('link[rel="next"]');
+
+    if (!prev && !next) {
+        return;
+    }
+
+    const article = document.querySelector("article.md-content__inner");
+    if (!article) {
+        return;
+    }
+
+    const nav = document.createElement("nav");
+    nav.className = "page-hint-nav";
+    nav.setAttribute("aria-label", "Page navigation");
+
+    function buildLink(rel, href) {
+        const direction = rel === "next" ? "next" : "prev";
+        const anchor = document.createElement("a");
+        anchor.className = `page-hint page-hint--${direction}`;
+        anchor.href = href;
+
+        const label = document.createElement("span");
+        label.className = "page-hint__label";
+        label.textContent = direction === "next" ? "Next" : "Previous";
+
+        const title = document.createElement("span");
+        title.className = "page-hint__title";
+        title.textContent = getTitleForUrl(href);
+
+        const caret = document.createElement("span");
+        caret.className = "page-hint__caret";
+        caret.textContent = direction === "next" ? "›" : "‹";
+
+        anchor.append(label, title, caret);
+        return anchor;
+    }
+
+    if (prev?.href) {
+        nav.appendChild(buildLink("prev", prev.href));
+    }
+    if (next?.href) {
+        nav.appendChild(buildLink("next", next.href));
+    }
+
+    article.appendChild(nav);
+}
+
+createPageHintNav();
