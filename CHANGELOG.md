@@ -17,6 +17,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   compacted on normal build exits.
 - {pull}`776` clears decoration-time `annotation_locals` snapshots after collection so
   task functions remain picklable in process-based parallel backends.
+- {pull}`788` updates debugger interaction tests to support Python-version-specific
+  `pdb` stepping behavior and avoid frame-specific assumptions on repeated breakpoints.
 
 ## 0.5.8 - 2025-12-30
 
