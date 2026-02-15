@@ -17,5 +17,5 @@ uses a maintained help-text snapshot as a workaround.
 ## Source
 
 - CLI entrypoint:
-  [`_pytask/cli.py`](https://github.com/pytask-dev/pytask/blob/main/src/_pytask/cli.py)
-- Public command object: [`pytask.cli`](api.md#command-line-interface)
+    [`_pytask/cli.py`](https://github.com/pytask-dev/pytask/blob/main/src/_pytask/cli.py)
+- Public command object: [`pytask.cli`](../api/cli_and_programmatic.md)

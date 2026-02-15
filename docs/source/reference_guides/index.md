@@ -6,4 +6,4 @@ additional details on the inner workings of pytask.
 - [Command Line Interface](command_line_interface.md)
 - [Configuration](configuration.md)
 - [Hookspecs](hookspecs.md)
-- [Api](api.md)
+- [API](../api/index.md)

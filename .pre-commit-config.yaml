@@ -48,11 +48,12 @@ repos:
     hooks:
     -   id: mdformat
         additional_dependencies: [
-            mdformat-myst,
+            mdformat-mkdocs,
             mdformat-ruff,
             mdformat-pyproject>=0.0.2,
         ]
         files: (docs/.)
+        exclude: (docs/source/reference_guides/hookspecs\.md|docs/source/api/.*\.md)
 -   repo: https://github.com/kynan/nbstripout
     rev: 0.9.0
     hooks:

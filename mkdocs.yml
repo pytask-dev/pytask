@@ -63,7 +63,14 @@ nav:
       - Command Line Interface: reference_guides/command_line_interface.md
       - Configuration: reference_guides/configuration.md
       - Hook Specifications: reference_guides/hookspecs.md
-      - API: reference_guides/api.md
+  - API:
+      - Overview: api/index.md
+      - CLI And Programmatic Interfaces: api/cli_and_programmatic.md
+      - Core Classes And Exceptions: api/core_classes_and_exceptions.md
+      - Marks: api/marks.md
+      - Nodes And Tasks: api/nodes_and_tasks.md
+      - Outcomes, Reports, And Warnings: api/outcomes_reports_and_warnings.md
+      - Utilities And Typing: api/utilities_and_typing.md
   - Plugin List: plugin_list.md
   - Type Hints: type_hints.md
   - Developer's Guide: developers_guide.md
