@@ -1,1 +1,1 @@
---8\<-- "docs/source/includes/changelog.txt"
+--8\<-- "CHANGELOG.md"
