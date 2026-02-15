@@ -421,6 +421,7 @@ def test_custom_node_as_product(runner, tmp_path, product_def, return_def):
     from typing import Any
     from typing import Annotated
     from dataclasses import dataclass
+    from dataclasses import field
     from pytask import Product
 
     @dataclass
@@ -428,6 +429,7 @@ def test_custom_node_as_product(runner, tmp_path, product_def, return_def):
         path: Path
         name: str = ""
         signature: str = "id"
+        attributes: dict[Any, Any] = field(default_factory=dict)
 
         def state(self) -> str | None:
             if self.path.exists():
@@ -751,6 +753,7 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
     from pathlib import Path
     from typing import Any
     from dataclasses import dataclass
+    from dataclasses import field
     import pickle
 
     @dataclass
@@ -758,6 +761,7 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
         name: str
         path: Path
         signature: str = "id"
+        attributes: dict[Any, Any] = field(default_factory=dict)
 
         def state(self) -> str | None:
             if self.path.exists():

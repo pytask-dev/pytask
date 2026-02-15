@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Protocol
@@ -22,6 +21,7 @@ class PNode(Protocol):
     """Protocol for nodes."""
 
     name: str
+    attributes: dict[Any, Any]
 
     @property
     def signature(self) -> str:
@@ -117,6 +117,7 @@ class PProvisionalNode(Protocol):
     """
 
     name: str
+    attributes: dict[Any, Any]
 
     @property
     def signature(self) -> str:
@@ -139,14 +140,3 @@ class PProvisionalNode(Protocol):
 
     def collect(self) -> list[Any]:
         """Collect the objects that are defined by the provisional nodes."""
-
-
-def warn_about_upcoming_attributes_field_on_nodes() -> None:
-    warnings.warn(
-        "PNode and PProvisionalNode will require an 'attributes' field starting "
-        "with pytask v0.6.0. It is a dictionary with any type of key and values "
-        "similar to PTask. See https://tinyurl.com/pytask-custom-nodes for more "
-        "information about adjusting your custom nodes.",
-        stacklevel=1,
-        category=FutureWarning,
-    )

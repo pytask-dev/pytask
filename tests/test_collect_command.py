@@ -468,8 +468,10 @@ def test_python_nodes_are_aggregated_into_one(runner, tmp_path):
 def test_node_protocol_for_custom_nodes(runner, tmp_path):
     source = """
     from typing import Annotated
+    from typing import Any
     from pytask import Product
     from dataclasses import dataclass
+    from dataclasses import field
     from pathlib import Path
 
     @dataclass
@@ -477,6 +479,7 @@ def test_node_protocol_for_custom_nodes(runner, tmp_path):
         name: str
         value: str
         signature: str = "id"
+        attributes: dict[Any, Any] = field(default_factory=dict)
 
         def state(self):
             return self.value
@@ -673,9 +676,11 @@ def test_collect_task_with_provisional_dependencies(runner, tmp_path):
 def test_collect_custom_node_receives_default_name(runner, tmp_path):
     source = """
     from typing import Annotated
+    from typing import Any
 
     class CustomNode:
         name: str = ""
+        attributes: dict[Any, Any] = {}
 
         def state(self): return None
         def signature(self): return "signature"
