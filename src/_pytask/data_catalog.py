@@ -101,7 +101,7 @@ class DataCatalog:
         # Initialize the data catalog with persisted nodes from previous runs.
         for path in self.path.glob("*-node.pkl"):
             node = pickle.loads(path.read_bytes())  # noqa: S301
-            node.attributes = {DATA_CATALOG_NAME_FIELD: self.name}
+            node.attributes[DATA_CATALOG_NAME_FIELD] = self.name
             self._entries[node.name] = node
 
     def __getitem__(self, name: str) -> PNode | PProvisionalNode:
