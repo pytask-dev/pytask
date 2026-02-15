@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import hashlib
+import pickle
 import sys
 import textwrap
 from pathlib import Path
 
 import pytest
 
+from _pytask.data_catalog_utils import DATA_CATALOG_NAME_FIELD
 from pytask import DataCatalog
 from pytask import ExitCode
 from pytask import PathNode
@@ -196,6 +199,25 @@ def test_adding_a_python_node():
     data_catalog = DataCatalog()
     data_catalog.add("node", PythonNode(name="node", value=1))
     assert isinstance(data_catalog["node"], PythonNode)
+
+
+def test_reloading_data_catalog_preserves_node_attributes(tmp_path):
+    data_catalog = DataCatalog(_instance_path=tmp_path)
+    _ = data_catalog["node"]
+    assert data_catalog.path is not None
+
+    filename = hashlib.sha256(b"node").hexdigest()
+    path_to_node = data_catalog.path / f"{filename}-node.pkl"
+
+    node = pickle.loads(path_to_node.read_bytes())  # noqa: S301
+    node.attributes["custom"] = "value"
+    path_to_node.write_bytes(pickle.dumps(node))
+
+    reloaded_data_catalog = DataCatalog(_instance_path=tmp_path)
+    reloaded_node = reloaded_data_catalog["node"]
+
+    assert reloaded_node.attributes["custom"] == "value"
+    assert reloaded_node.attributes[DATA_CATALOG_NAME_FIELD] == "default"
 
 
 def test_use_data_catalog_with_provisional_node(runner, tmp_path):

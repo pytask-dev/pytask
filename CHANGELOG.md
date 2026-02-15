@@ -7,13 +7,18 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
-- [#744](https://github.com/pytask-dev/pytask/pull/744) Removed the direct dependency on attrs and migrated internal models to
+- {pull}`787` makes the `attributes` field mandatory on `PNode` and
+  `PProvisionalNode`, and preserves existing node attributes when loading entries from
+  the data catalog.
+- {pull}`744` Removed the direct dependency on attrs and migrated internal models to
   dataclasses.
 - [#766](https://github.com/pytask-dev/pytask/pull/766) moves runtime profiling persistence from SQLite to a JSON snapshot plus
   append-only journal in `.pytask/`, keeping runtime data resilient to crashes and
   compacted on normal build exits.
 - [#776](https://github.com/pytask-dev/pytask/pull/776) clears decoration-time `annotation_locals` snapshots after collection so
   task functions remain picklable in process-based parallel backends.
+- {pull}`788` updates debugger interaction tests to support Python-version-specific
+  `pdb` stepping behavior and avoid frame-specific assumptions on repeated breakpoints.
 
 ## 0.5.8 - 2025-12-30
 
