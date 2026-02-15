@@ -1,16 +1,20 @@
 # The `DataCatalog` - Revisited
 
-This guide explains more details about the \[`pytask.DataCatalog`\][] that were left out
-of the [tutorial](../tutorials/using_a_data_catalog.md). Please, read the tutorial for a
-basic understanding.
+This guide explains more details about the
+[pytask.DataCatalog](../api/core_classes_and_exceptions.md#pytask.DataCatalog) that were
+left out of the [tutorial](../tutorials/using_a_data_catalog.md). Please, read the
+tutorial for a basic understanding.
 
 ## Changing the default node
 
-The data catalog uses the \[`pytask.PickleNode`\][] by default to serialize any kind of
-Python object. You can use any other node that follows the {protocol}`~pytask.PNode`
-protocol and register it when creating the data catalog.
+The data catalog uses the
+[pytask.PickleNode](../api/nodes_and_tasks.md#pytask.PickleNode) by default to serialize
+any kind of Python object. You can use any other node that follows the
+[pytask.PNode](../api/nodes_and_tasks.md#pytask.PNode) protocol and register it when
+creating the data catalog.
 
-For example, use the \[`pytask.PythonNode`\][] as the default.
+For example, use the [pytask.PythonNode](../api/nodes_and_tasks.md#pytask.PythonNode) as
+the default.
 
 ```python
 from pytask import PythonNode
@@ -22,8 +26,9 @@ data_catalog = DataCatalog(default_node=PythonNode)
 
 Or, learn to write your node by reading [writing custom nodes](writing_custom_nodes.md).
 
-Here, is an example for a \[`pytask.PickleNode`\][] that uses cloudpickle instead of the
-normal `pickle` module.
+Here, is an example for a
+[pytask.PickleNode](../api/nodes_and_tasks.md#pytask.PickleNode) that uses cloudpickle
+instead of the normal `pickle` module.
 
 ```py
 --8<-- "docs_src/how_to_guides/the_data_catalog.py"
@@ -48,9 +53,7 @@ data_catalog = DataCatalog(name="data_management")
 
 !!! note
 
-```
-The name of a data catalog is restricted to letters, numbers, hyphens and underscores.
-```
+    The name of a data catalog is restricted to letters, numbers, hyphens and underscores.
 
 You can also change the path where the data catalogs will be stored by changing the
 `path` attribute. Here, we store the data catalog's data next to the module where the

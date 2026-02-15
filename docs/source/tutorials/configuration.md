@@ -11,7 +11,7 @@ The file also indicates the root of your project, where pytask stores informatio
 You only need to add the header to the configuration file to indicate the root of your
 project.
 
-```toml
+```toml title="pyproject.toml"
 [tool.pytask.ini_options]
 ```
 
@@ -19,7 +19,7 @@ We can also overwrite pytask's behavior of collecting tasks from the current wor
 directory and, instead, search for paths in a directory called `src` next to the
 configuration file.
 
-```toml
+```toml title="pyproject.toml"
 [tool.pytask.ini_options]
 paths = ["src"]
 ```
@@ -31,10 +31,10 @@ There are two ways to point pytask to the configuration file.
 The first option is to let pytask try to find the configuration itself.
 
 1. Find the common directory of all paths passed to pytask (default to the current
-   working directory).
+    working directory).
 1. Look at all parent directories from this directory and return the file if it exists.
 1. Stop searching if a directory contains a `.git` directory/file or a valid
-   configuration file with the correct section.
+    configuration file with the correct section.
 
 Secondly, it is possible to pass the location of the configuration file via
 `pytask build -c` like

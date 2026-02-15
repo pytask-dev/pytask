@@ -44,7 +44,7 @@ class PNode(Protocol):
             Indicates whether the node is loaded as a dependency or as a product. It can
             be used to return a different value when the node is loaded with a product
             annotation. Then, we usually want to insert the node itself to allow the
-            user calling :meth:`PNode.load`.
+            user calling `PNode.load`.
 
         """
 
@@ -106,9 +106,9 @@ class PTaskWithPath(PTask, Protocol):
 class PProvisionalNode(Protocol):
     """A protocol for provisional nodes.
 
-    This type of nodes is provisional since it resolves to actual nodes, :class:`PNode`,
-    right before a task is executed as a dependency and after the task is executed as a
-    product.
+    This type of nodes is provisional since it resolves to actual nodes,
+    [pytask.PNode][], right before a task is executed as a dependency and after the
+    task is executed as a product.
 
     Provisional nodes are nodes that define how the actual nodes look like. They can be
     useful when, for example, a task produces an unknown amount of nodes because it
@@ -130,7 +130,7 @@ class PProvisionalNode(Protocol):
 
         It is possible to load a provisional node as a dependency so that it can inject
         basic information about it in the task. For example,
-        :meth:`pytask.DirectoryNode.load` injects the root directory.
+        [pytask.DirectoryNode.load][] injects the root directory.
 
         """
         if is_product:

@@ -21,15 +21,14 @@ where the return of the function, a string, should be stored.
 --8<-- "docs_src/how_to_guides/using_task_returns_example_1_py310.py"
 ```
 
-It works because internally the path is converted to a \[`pytask.PathNode`\][] that is
-able to store objects of type `str` and `bytes`.
+It works because internally the path is converted to a
+[pytask.PathNode](../api/nodes_and_tasks.md#pytask.PathNode) that is able to store
+objects of type `str` and `bytes`.
 
 !!! note
 
-```
-Read the explanation on [nodes](../how_to_guides/writing_custom_nodes.md) to learn
-more about how nodes work.
-```
+    Read the explanation on [nodes](../how_to_guides/writing_custom_nodes.md) to learn more
+    about how nodes work.
 
 ## Task decorator
 
@@ -49,19 +48,15 @@ of the previous interfaces.
 
 === "Annotated"
 
-````
-```py
---8<-- "docs_src/how_to_guides/using_task_returns_example_3_py310.py"
-```
-````
+    ```py
+    --8<-- "docs_src/how_to_guides/using_task_returns_example_3_py310.py"
+    ```
 
 === "@pytask.task"
 
-````
-```py
---8<-- "docs_src/how_to_guides/using_task_returns_example_3_task.py"
-```
-````
+    ```py
+    --8<-- "docs_src/how_to_guides/using_task_returns_example_3_task.py"
+    ```
 
 Each return is mapped to its node by respecting its position in the tuple.
 
@@ -74,19 +69,15 @@ mapped to the defined nodes.
 
 === "Annotated"
 
-````
-```py
---8<-- "docs_src/how_to_guides/using_task_returns_example_4_py310.py"
-```
-````
+    ```py
+    --8<-- "docs_src/how_to_guides/using_task_returns_example_4_py310.py"
+    ```
 
 === "@pytask.task"
 
-````
-```py
---8<-- "docs_src/how_to_guides/using_task_returns_example_4_task.py"
-```
-````
+    ```py
+    --8<-- "docs_src/how_to_guides/using_task_returns_example_4_task.py"
+    ```
 
 The returns are mapped to the nodes as follows.
 

@@ -50,10 +50,7 @@ $ pytask --capture=tee-sys   # combines 'sys' and '-s', capturing sys.stdout/std
 One primary benefit of the default capturing of stdout/stderr output is that you can use
 print statements for debugging:
 
-```python
-# content of task_capture.py
-
-
+```py title="task_capture.py"
 def task_func1():
     assert True
 

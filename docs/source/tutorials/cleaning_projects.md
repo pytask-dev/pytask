@@ -44,4 +44,4 @@ exclude = ["obsolete_folder"]
 
 ## Further reading
 
-- [command line interface](../reference_guides/command_line_interface.md).
+- [command reference for `pytask clean`](../commands/clean.md).

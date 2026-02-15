@@ -36,16 +36,15 @@ Secondly, we will combine dimensions in multi-dimensional objects such that we o
 to iterate over instances of this object in a single loop. Here and for the lack of a
 better name, we will call the object an experiment.
 
-Lastly, we will also use the \[`pytask.DataCatalog`\][] to not be bothered with defining
-paths.
+Lastly, we will also use the
+[pytask.DataCatalog](../api/core_classes_and_exceptions.md#pytask.DataCatalog) to not be
+bothered with defining paths.
 
 !!! note
 
-```
-If you have not learned about the `pytask.DataCatalog` yet, start with the
-[tutorial](../tutorials/using_a_data_catalog.md) and continue with the
-[how-to guide](the_data_catalog.md).
-```
+    If you have not learned about the `pytask.DataCatalog` yet, start with the
+    [tutorial](../tutorials/using_a_data_catalog.md) and continue with the
+    [how-to guide](the_data_catalog.md).
 
 ```py
 --8<-- "docs_src/how_to_guides/bp_complex_task_repetitions/config.py"
@@ -69,8 +68,8 @@ we use them.
 As you see, we lost a level of indentation and we moved all the generations of names and
 paths to the dimensions and multi-dimensional objects.
 
-Using a \[`pytask.PythonNode`\][] allows us to hash the model and reexecute the task if
-we define other model settings.
+Using a [pytask.PythonNode](../api/nodes_and_tasks.md#pytask.PythonNode) allows us to
+hash the model and reexecute the task if we define other model settings.
 
 ## Adding another level
 
@@ -108,10 +107,8 @@ pytask -k logit
 
 !!! note
 
-```
-Expressions and markers for selecting tasks are explained in
-[selecting tasks](../tutorials/selecting_tasks.md).
-```
+    Expressions and markers for selecting tasks are explained in
+    [selecting tasks](../tutorials/selecting_tasks.md).
 
 ## Extending repetitions
 

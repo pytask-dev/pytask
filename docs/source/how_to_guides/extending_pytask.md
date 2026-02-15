@@ -144,9 +144,7 @@ If you follow the recommendations, the only content in `plugin.py` is a single h
 implementation which registers other hook implementations of your plugin. The following
 example registers all hooks implemented in `config.py`.
 
-```python
-# Content of plugin.py
-
+```py title="plugin.py"
 from pytask import hookimpl
 from pytask_plugin import config
 

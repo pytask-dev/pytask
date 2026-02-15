@@ -8,7 +8,7 @@ use_directory_urls: false
 docs_dir: docs/source
 site_dir: docs/build
 exclude_docs: |
-  _static/md/*
+  _static/md/**
 
 nav:
   - Home: index.md
@@ -58,14 +58,22 @@ nav:
       - Why pytask: explanations/why_pytask.md
       - Comparison To Other Tools: explanations/comparison_to_other_tools.md
       - Pluggy: explanations/pluggy.md
+  - CLI:
+      - Overview: commands/index.md
+      - build: commands/build.md
+      - clean: commands/clean.md
+      - collect: commands/collect.md
+      - dag: commands/dag.md
+      - markers: commands/markers.md
+      - profile: commands/profile.md
   - Reference Guides:
       - Overview: reference_guides/index.md
-      - Command Line Interface: reference_guides/command_line_interface.md
       - Configuration: reference_guides/configuration.md
       - Hook Specifications: reference_guides/hookspecs.md
   - API:
       - Overview: api/index.md
-      - CLI And Programmatic Interfaces: api/cli_and_programmatic.md
+      - CLI Imports: api/cli_and_programmatic.md
+      - Functional Interfaces: api/functional_interfaces.md
       - Core Classes And Exceptions: api/core_classes_and_exceptions.md
       - Marks: api/marks.md
       - Nodes And Tasks: api/nodes_and_tasks.md
@@ -87,11 +95,18 @@ theme:
 
 plugins:
   - search
+  - autorefs
   - mkdocstrings:
       handlers:
         python:
           paths: [src]
           options:
+            docstring_style: numpy
+            docstring_section_style: table
+            filters: public
+            members: null
+            show_root_heading: true
+            show_signature: true
             show_source: false
             heading_level: 3
 
@@ -99,6 +114,7 @@ markdown_extensions:
   - admonition
   - attr_list
   - def_list
+  - footnotes
   - md_in_html
   - pymdownx.arithmatex:
       generic: true

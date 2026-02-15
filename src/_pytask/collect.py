@@ -273,18 +273,18 @@ def pytask_collect_file(
 def _is_filtered_object(obj: Any) -> bool:
     """Filter some objects that are only causing harm later on.
 
-    See :issue:`507`.
+    See [#507](https://github.com/pytask-dev/pytask/issues/507).
 
     """
-    # Filter :class:`pytask.mark.MarkGenerator` which can raise errors on some marks.
+    # Filter `pytask.mark.MarkGenerator` which can raise errors on some marks.
     if isinstance(obj, MarkGenerator):
         return True
 
-    # Filter :class:`pytask.Task` and :class:`pytask.TaskWithoutPath` objects.
+    # Filter `pytask.Task` and `pytask.TaskWithoutPath` objects.
     if isinstance(obj, PTask) and inspect.isclass(obj):
         return True
 
-    # Filter objects overwriting the ``__getattr__`` method like :class:`pytask.mark` or
+    # Filter objects overwriting the ``__getattr__`` method like `pytask.mark` or
     # ``from ibis import _``.
     attr_name = "attr_that_definitely_does_not_exist"
     return bool(
@@ -330,7 +330,7 @@ def pytask_collect_task(
     """Collect a task which is a function.
 
     There is some discussion on how to detect functions in this thread:
-    https://stackoverflow.com/q/624926/7523785. :class:`types.FunctionType` does not
+    https://stackoverflow.com/q/624926/7523785. `types.FunctionType` does not
     detect built-ins which is not possible anyway.
 
     """
@@ -400,7 +400,7 @@ The path '{path}' points to a directory, although only files are allowed."""
 def pytask_collect_node(  # noqa: C901, PLR0912
     session: Session, path: Path, node_info: NodeInfo
 ) -> PNode | PProvisionalNode:
-    """Collect a node of a task as a :class:`pytask.PNode`.
+    """Collect a node of a task as a [pytask.PNode][].
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
     hook is executed at last and possible errors will be shown, it seems reasonable and

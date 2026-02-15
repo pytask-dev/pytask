@@ -92,7 +92,7 @@ class LiveManager:
     """A class for live displays during a session.
 
     This class allows to display live information during a session and handles the
-    interaction with the :class:`_pytask.debugging.PytaskPDB`.
+    interaction with the `_pytask.debugging.PytaskPDB`.
 
     The renderable is not updated automatically for two reasons.
 

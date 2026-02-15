@@ -59,7 +59,8 @@ An `if __name__ == "__main__"` block must be deleted.
 To let pytask know the order in which to execute tasks and when to re-run them, you'll
 need to specify task dependencies and products. Add dependencies as arguments to the
 function with default values. Do the same for products, but also add the special
-\[`pytask.Product`\][] annotation with `Annotated[Path, Product]`. For example:
+[pytask.Product](../api/utilities_and_typing.md#pytask.Product) annotation with
+`Annotated[Path, Product]`. For example:
 
 ```py
 --8<-- "docs_src/how_to_guides/migrating_from_scripts_to_pytask_4.py"
@@ -73,10 +74,8 @@ You can also use a dictionary to group multiple dependencies or products.
 
 !!! note
 
-```
-If you want to learn more about dependencies and products, read the
-[tutorial](../tutorials/defining_dependencies_products.md).
-```
+    If you want to learn more about dependencies and products, read the
+    [tutorial](../tutorials/defining_dependencies_products.md).
 
 ## Execution
 
@@ -97,10 +96,8 @@ $ pytask -n 4
 
 !!! note
 
-```
-You can find more information on pytask-parallel in the
-[readme](https://github.com/pytask-dev/pytask-parallel) on Github.
-```
+    You can find more information on pytask-parallel in the
+    [readme](https://github.com/pytask-dev/pytask-parallel) on Github.
 
 ## Bonus: From R script to task
 
@@ -121,15 +118,12 @@ $ pixi add pytask-r
 
 !!! note
 
-```
-Checkout [pytask-julia](https://github.com/pytask-dev/pytask-julia) and
-[pytask-stata](https://github.com/pytask-dev/pytask-stata), too!
-```
+    Checkout [pytask-julia](https://github.com/pytask-dev/pytask-julia) and
+    [pytask-stata](https://github.com/pytask-dev/pytask-stata), too!
 
 And here is the R script `prepare_data.r` that we want to integrate.
 
-```r
-# Content of prepare_data.r
+```r title="prepare_data.r"
 df <- read.csv("data.csv")
 
 # Many operations.
@@ -148,8 +142,7 @@ pytask automatically makes the paths to the dependencies and products available 
 file via a JSON file. Let us amend the R script to load the information from the JSON
 file.
 
-```r
-# Content of prepare_data.r
+```r title="prepare_data.r"
 library(jsonlite)
 
 # Read the JSON file whose path is passed to the script

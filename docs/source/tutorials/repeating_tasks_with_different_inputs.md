@@ -8,24 +8,21 @@ We reuse the task from the previous [tutorial](write_a_task.md), which generates
 data and repeat the same operation over several seeds to receive multiple, reproducible
 samples.
 
-Apply the `@task` decorator, loop over the function and supply different seeds and
-output paths as default arguments of the function.
+Apply the [`@task`](../api/nodes_and_tasks.md#pytask.task) decorator, loop over the
+function and supply different seeds and output paths as default arguments of the
+function.
 
 === "Annotated"
 
-````
-```py
---8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs1_py310.py"
-```
-````
+    ```py
+    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs1_py310.py"
+    ```
 
 === "produces"
 
-````
-```py
---8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs1_produces.py"
-```
-````
+    ```py
+    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs1_produces.py"
+    ```
 
 Executing pytask gives you this:
 
@@ -37,19 +34,15 @@ You can also add dependencies to repeated tasks just like with any other task.
 
 === "Annotated"
 
-````
-```py
---8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs2_py310.py"
-```
-````
+    ```py
+    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs2_py310.py"
+    ```
 
 === "produces"
 
-````
-```py
---8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs2_produces.py"
-```
-````
+    ```py
+    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs2_produces.py"
+    ```
 
 <a id="how-to-repeat-a-task-with-different-inputs-the-id"></a>
 
@@ -86,19 +79,15 @@ For example, the following function is parametrized with tuples.
 
 === "Annotated"
 
-````
-```py
---8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs3_py310.py"
-```
-````
+    ```py
+    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs3_py310.py"
+    ```
 
 === "produces"
 
-````
-```py
---8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs3_produces.py"
-```
-````
+    ```py
+    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs3_produces.py"
+    ```
 
 Since the tuples are not converted to strings, the ids of the two tasks are
 
@@ -111,24 +100,20 @@ task_data_preparation.py::task_create_random_data[seed1]
 
 ### User-defined ids
 
-The `@task` decorator has an `id` keyword, allowing the user to set a unique name for
-the iteration.
+The [`@task`](../api/nodes_and_tasks.md#pytask.task) decorator has an `id` keyword,
+allowing the user to set a unique name for the iteration.
 
 === "Annotated"
 
-````
-```py
---8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs4_py310.py"
-```
-````
+    ```py
+    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs4_py310.py"
+    ```
 
 === "produces"
 
-````
-```py
---8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs4_produces.py"
-```
-````
+    ```py
+    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs4_produces.py"
+    ```
 
 produces these ids
 
@@ -144,36 +129,36 @@ and arguments. Here are three tips to organize the repetitions.
 
 1. Use suitable containers to organize your ids and the function arguments.
 
-**NamedTuple**
+    **NamedTuple**
 
-`typing.NamedTuple` or `collections.namedtuple` are useful containers to organize the
-arguments of the parametrizations. They also provide better support for heterogeneous
-types than dictionaries.
+    `typing.NamedTuple` or `collections.namedtuple` are useful containers to organize the
+    arguments of the parametrizations. They also provide better support for
+    heterogeneous types than dictionaries.
 
-```python
-from pathlib import Path
-from typing import NamedTuple
-
-
-class Arguments(NamedTuple):
-    seed: int
-    path_to_data: Path
+    ```python
+    from pathlib import Path
+    from typing import NamedTuple
 
 
-ID_TO_KWARGS = {
-    "first": Arguments(seed=0, path_to_data=Path("data_0.pkl")),
-    "second": Arguments(seed=1, path_to_data=Path("data_1.pkl")),
-}
-```
+    class Arguments(NamedTuple):
+        seed: int
+        path_to_data: Path
 
-**Dictionary**
 
-```python
-ID_TO_KWARGS = {
-    "first": {"seed": 0, "produces": "data_0.pkl"},
-    "second": {"seed": 1, "produces": "data_1.pkl"},
-}
-```
+    ID_TO_KWARGS = {
+        "first": Arguments(seed=0, path_to_data=Path("data_0.pkl")),
+        "second": Arguments(seed=1, path_to_data=Path("data_1.pkl")),
+    }
+    ```
+
+    **Dictionary**
+
+    ```python
+    ID_TO_KWARGS = {
+        "first": {"seed": 0, "produces": "data_0.pkl"},
+        "second": {"seed": 1, "produces": "data_1.pkl"},
+    }
+    ```
 
 1. `@task` has a `kwargs` argument that allows you inject arguments to the function
     instead of adding them as default arguments.
@@ -185,22 +170,19 @@ Following these three tips, the parametrization becomes
 
 === "Annotated"
 
-````
-```py
---8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs5_py310.py"
-```
-````
+    ```py
+    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs5_py310.py"
+    ```
 
 === "produces"
 
-````
-```py
---8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs5_produces.py"
-```
-````
+    ```py
+    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs5_produces.py"
+    ```
 
 Unpacking all the arguments can become tedious. Instead, use the `kwargs` argument of
-the `@task` decorator to pass keyword arguments to the task.
+the [`@task`](../api/nodes_and_tasks.md#pytask.task) decorator to pass keyword arguments
+to the task.
 
 ```python
 for id_, kwargs in ID_TO_KWARGS.items():
@@ -267,33 +249,28 @@ Why did the first two tasks fail?
 
 ??? note "Explanation"
 
-````
-The problem with this example is the running variable `i` which is a global variable
-with changing state.
+    The problem with this example is the running variable `i` which is a global variable
+    with changing state.
 
-When pytask imports the task module, it collects all three task functions, each of them
-having the correct product assigned.
+    When pytask imports the task module, it collects all three task functions, each of them
+    having the correct product assigned.
 
-But, when pytask executes the tasks, the running variable `i` in the function body is 2,
-or the last state of the loop.
+    But, when pytask executes the tasks, the running variable `i` in the function body is 2,
+    or the last state of the loop.
 
-So, all three tasks create the same file, `out_2.txt`.
+    So, all three tasks create the same file, `out_2.txt`.
 
-The solution is to use the intended channels to pass variables to tasks which are the
-`kwargs` argument of `@task` or the default value in the
-function signature.
+    The solution is to use the intended channels to pass variables to tasks which are the
+    `kwargs` argument of `@task` or the default value in the function signature.
 
-```python
-for i in range(3):
+    ```python
+    for i in range(3):
 
-    @task(kwargs={"i": i})
-    def task_example(i, path: Annotated[Path, Product] = Path(f"out_{i}.txt")):
-        ...
+        @task(kwargs={"i": i})
+        def task_example(i, path: Annotated[Path, Product] = Path(f"out_{i}.txt")): ...
 
-    # or
+        # or
 
-    @task
-    def task_example(i=i, path: Annotated[Path, Product] = Path(f"out_{i}.txt")):
-        ...
-```
-````
+        @task
+        def task_example(i=i, path: Annotated[Path, Product] = Path(f"out_{i}.txt")): ...
+    ```

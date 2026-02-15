@@ -104,7 +104,6 @@ counter and separates multiple arguments via dashes.
 
 !!! note
 
-```
-Read this [section](repeating_tasks_with_different_inputs.md#how-to-repeat-a-task-with-different-inputs-the-id) for more
-information on how ids for repeated tasks are created and can be customized.
-```
+    Read this
+    [section](repeating_tasks_with_different_inputs.md#how-to-repeat-a-task-with-different-inputs-the-id)
+    for more information on how ids for repeated tasks are created and can be customized.

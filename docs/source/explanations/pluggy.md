@@ -1,8 +1,7 @@
 # pluggy and the Plugin Architecture
 
-pluggy ([^id4], [^id5], [^id6]) is at the heart of pytask and enables its
-[plugin](../glossary.md#plugin) system. The mechanism to achieve extensibility is called
-[hooking](../glossary.md#hooking).
+pluggy is at the heart of pytask and enables its [plugin](../glossary.md#plugin) system.
+The mechanism to achieve extensibility is called [hooking](../glossary.md#hooking).
 
 At specific points, pytask, or more generally the [host](../glossary.md#host),
 implements [entry-points](../glossary.md#entry-point) called
@@ -27,10 +26,6 @@ It is the host's responsibility to design the entry-points in a way such that
 
 ## References
 
-\[^id4\]: [pluggy's documentation](https://pluggy.readthedocs.io/en/latest/).
-
-\[^id5\]:
-[A talk by Floris Bruynooghe about pluggy and pytest](https://youtu.be/zZsNPDfOoHU).
-
-\[^id6\]:
-[An introduction to pluggy by Kracekumar Ramaraju](https://kracekumar.com/post/build_plugins_with_pluggy).
+- [pluggy's documentation](https://pluggy.readthedocs.io/en/latest/)
+- [A talk by Floris Bruynooghe about pluggy and pytest](https://youtu.be/zZsNPDfOoHU)
+- [An introduction to pluggy by Kracekumar Ramaraju](https://kracekumar.com/post/build_plugins_with_pluggy)

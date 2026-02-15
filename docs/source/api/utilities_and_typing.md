@@ -3,6 +3,9 @@
 ## Path Utilities
 
 ::: pytask.path.import_path
+    options:
+      show_root_heading: true
+      show_signature: true
 ::: pytask.path.hash_path
 
 ## Tree Utilities

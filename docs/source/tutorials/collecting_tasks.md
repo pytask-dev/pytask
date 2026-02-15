@@ -23,7 +23,7 @@ patterns as usual.
 
 ## Further reading
 
-- The documentation on the command line interface of `pytask collect` can be found
-    [here](../reference_guides/command_line_interface.md).
+- The command reference for `pytask collect` can be found
+    [here](../commands/collect.md).
 - Read [here](selecting_tasks.md) about selecting tasks.
 - Paths can be ignored with `ignore`.

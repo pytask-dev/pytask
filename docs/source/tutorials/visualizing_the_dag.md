@@ -36,7 +36,8 @@ which are listed [here](https://graphviz.org/docs/layouts/).
 
 The programmatic and interactive interface allows for customizing the figure.
 
-Similar to \[`pytask.build`\][], there exists \[`pytask.build_dag`\][] which returns the
+Similar to [pytask.build](../api/functional_interfaces.md#pytask.build), there exists
+[pytask.build_dag](../api/functional_interfaces.md#pytask.build_dag) which returns the
 DAG as a `networkx.DiGraph`.
 
 Create an executable script that you can execute with `python script.py`.

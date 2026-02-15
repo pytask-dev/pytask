@@ -11,11 +11,9 @@ If you want to avoid type annotations for now, look at the tab named `produces`.
 
 !!! note
 
-```
-In this tutorial, we only deal with local files. If you want to use pytask with files
-online, S3, GCP, Azure, etc., read the
-[guide on remote files](../how_to_guides/remote_files.md).
-```
+    In this tutorial, we only deal with local files. If you want to use pytask with files
+    online, S3, GCP, Azure, etc., read the
+    [guide on remote files](../how_to_guides/remote_files.md).
 
 First, we focus on defining products that should already be familiar to you. Then, we
 focus on how you can declare task dependencies.
@@ -48,34 +46,29 @@ Let's revisit the task from the [previous tutorial](write_a_task.md) that we def
 
 === "Annotated"
 
-````
-```python hl_lines="8 12"
---8<-- "docs_src/tutorials/defining_dependencies_products_products_py310.py"
-```
+    ```py hl_lines="8 12"
+    --8<-- "docs_src/tutorials/defining_dependencies_products_products_py310.py"
+    ```
 
-`pytask.Product` allows marking an argument as a product. After the
-task has finished, pytask will check whether the file exists.
-````
+    [`pytask.Product`](../api/utilities_and_typing.md#pytask.Product) allows marking an
+    argument as a product. After the task has finished, pytask will check whether the file
+    exists.
 
 === "produces"
 
-````
-```python hl_lines="8"
---8<-- "docs_src/tutorials/defining_dependencies_products_products_produces.py"
-```
+    ```py hl_lines="8"
+    --8<-- "docs_src/tutorials/defining_dependencies_products_products_produces.py"
+    ```
 
-Tasks can use `produces` as a "magic" argument name. Every value, or in this case path,
-passed to this argument is automatically treated as a task product. Here, we pass the
-path as the default argument.
-````
+    Tasks can use `produces` as a "magic" argument name. Every value, or in this case path,
+    passed to this argument is automatically treated as a task product. Here, we pass the
+    path as the default argument.
 
 !!! tip
 
-```
-If you do not know about `pathlib` check out this guide by
-[RealPython](https://realpython.com/python-pathlib/). The module is beneficial for
-handling paths conveniently and across platforms.
-```
+    If you do not know about `pathlib` check out this guide by
+    [RealPython](https://realpython.com/python-pathlib/). The module is beneficial for
+    handling paths conveniently and across platforms.
 
 ## Dependencies
 
@@ -87,31 +80,27 @@ we will define it in `task_plot_data.py`.
 
 === "Annotated"
 
-````
-To specify the task relies on `data.pkl`, add the path
-to the function signature with any argument name (here `path_to_data`).
+    To specify the task relies on `data.pkl`, add the path to the function signature with
+    any argument name (here `path_to_data`).
 
-pytask assumes that all function arguments that do not have a `pytask.Product`
-annotation are dependencies of the task.
+    pytask assumes that all function arguments that do not have a `pytask.Product`
+    annotation are dependencies of the task.
 
-```python hl_lines="12"
---8<-- "docs_src/tutorials/defining_dependencies_products_dependencies_py310.py"
-```
-````
+    ```py hl_lines="12"
+    --8<-- "docs_src/tutorials/defining_dependencies_products_dependencies_py310.py"
+    ```
 
 === "produces"
 
-````
-To specify that the task relies on the data set `data.pkl`, you can add the path to the
-function signature while choosing any argument name, here `path_to_data`.
+    To specify that the task relies on the data set `data.pkl`, you can add the path to the
+    function signature while choosing any argument name, here `path_to_data`.
 
-pytask assumes that all function arguments that are not passed to the argument
-`produces` are dependencies of the task.
+    pytask assumes that all function arguments that are not passed to the argument
+    `produces` are dependencies of the task.
 
-```python hl_lines="9"
---8<-- "docs_src/tutorials/defining_dependencies_products_dependencies_produces.py"
-```
-````
+    ```py hl_lines="9"
+    --8<-- "docs_src/tutorials/defining_dependencies_products_dependencies_produces.py"
+    ```
 
 Now, let us execute the two paths.
 
@@ -124,19 +113,15 @@ are assumed to point to a location relative to the task module.
 
 === "Annotated"
 
-````
-```python hl_lines="8"
---8<-- "docs_src/tutorials/defining_dependencies_products_relative_py310.py"
-```
-````
+    ```py hl_lines="8"
+    --8<-- "docs_src/tutorials/defining_dependencies_products_relative_py310.py"
+    ```
 
 === "produces"
 
-````
-```python hl_lines="4"
---8<-- "docs_src/tutorials/defining_dependencies_products_relative_produces.py"
-```
-````
+    ```py hl_lines="4"
+    --8<-- "docs_src/tutorials/defining_dependencies_products_relative_produces.py"
+    ```
 
 ## Multiple dependencies and products
 
@@ -144,36 +129,32 @@ Of course, tasks can have multiple dependencies and products.
 
 === "Annotated"
 
-````
-```py
---8<-- "docs_src/tutorials/defining_dependencies_products_multiple1_py310.py"
-```
+    ```py
+    --8<-- "docs_src/tutorials/defining_dependencies_products_multiple1_py310.py"
+    ```
 
-You can group your dependencies and product if you prefer not to have a function
-argument per input. Use dictionaries (recommended), tuples, lists, or more nested
-structures if needed.
+    You can group your dependencies and product if you prefer not to have a function
+    argument per input. Use dictionaries (recommended), tuples, lists, or more nested
+    structures if needed.
 
-```py
---8<-- "docs_src/tutorials/defining_dependencies_products_multiple2_py310.py"
-```
-````
+    ```py
+    --8<-- "docs_src/tutorials/defining_dependencies_products_multiple2_py310.py"
+    ```
 
 === "produces"
 
-````
-If your task has multiple products, group them in one container like a dictionary
-(recommended), tuples, lists, or more nested structures.
+    If your task has multiple products, group them in one container like a dictionary
+    (recommended), tuples, lists, or more nested structures.
 
-```py
---8<-- "docs_src/tutorials/defining_dependencies_products_multiple1_produces.py"
-```
+    ```py
+    --8<-- "docs_src/tutorials/defining_dependencies_products_multiple1_produces.py"
+    ```
 
-You can do the same with dependencies.
+    You can do the same with dependencies.
 
-```py
---8<-- "docs_src/tutorials/defining_dependencies_products_multiple2_produces.py"
-```
-````
+    ```py
+    --8<-- "docs_src/tutorials/defining_dependencies_products_multiple2_produces.py"
+    ```
 
 <a id="after"></a>
 
@@ -184,7 +165,8 @@ In some situations, you want to define a task depending on another task.
 pytask allows you to do that, but you lose features like access to paths, which is why
 defining dependencies explicitly is always preferred.
 
-There are two modes for it, and both use `@task(after=...)`.
+There are two modes for it, and both use
+[`@task(after=...)`](../api/nodes_and_tasks.md#pytask.task).
 
 First, you can pass the task function or multiple task functions to the decorator.
 Applied to the tasks from before, we could have written `task_plot_data` as

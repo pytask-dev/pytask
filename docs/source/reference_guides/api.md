@@ -3,7 +3,8 @@
 The API reference now lives in the top-level **API** section:
 
 - [API overview](../api/index.md)
-- [CLI and Programmatic Interfaces](../api/cli_and_programmatic.md)
+- [CLI Imports](../api/cli_and_programmatic.md)
+- [Functional Interfaces](../api/functional_interfaces.md)
 - [Core Classes and Exceptions](../api/core_classes_and_exceptions.md)
 - [Marks](../api/marks.md)
 - [Nodes and Tasks](../api/nodes_and_tasks.md)

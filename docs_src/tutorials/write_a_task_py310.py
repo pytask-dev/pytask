@@ -1,4 +1,3 @@
-# (1)!
 from pathlib import Path
 from typing import Annotated
 
@@ -10,7 +9,7 @@ from pytask import Product
 
 
 def task_create_random_data(
-    path: Annotated[Path, Product] = BLD / "data.pkl",  # (2)!
+    path: Annotated[Path, Product] = BLD / "data.pkl",  # (1)!
 ) -> None:
     rng = np.random.default_rng(0)
     beta = 2

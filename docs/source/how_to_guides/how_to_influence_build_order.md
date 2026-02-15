@@ -2,11 +2,9 @@
 
 !!! important
 
-```
-This guide shows how to influence the order in which tasks are executed. The feature
-should be treated with caution since it might make projects work whose dependencies and
-products are not fully specified.
-```
+    This guide shows how to influence the order in which tasks are executed. The feature
+    should be treated with caution since it might make projects work whose dependencies and
+    products are not fully specified.
 
 You can influence the order in which tasks are executed by assigning preferences to
 tasks. Use `@pytask.mark.try_first` to execute a task as early as possible and
@@ -14,20 +12,16 @@ tasks. Use `@pytask.mark.try_first` to execute a task as early as possible and
 
 !!! note
 
-```
-A little bit more background: Tasks, dependencies and products form a
-[directed acyclic graph (DAG)](../glossary.md#dag). A
-[topological ordering](https://en.wikipedia.org/wiki/Topological_sorting) determines the
-order in which tasks are executed such that tasks are not run until their predecessors
-have been executed. You should not assume a fixed ordering in which tasks are executed.
-```
+    A little bit more background: Tasks, dependencies and products form a
+    [directed acyclic graph (DAG)](../glossary.md#dag). A
+    [topological ordering](https://en.wikipedia.org/wiki/Topological_sorting) determines the
+    order in which tasks are executed such that tasks are not run until their predecessors
+    have been executed. You should not assume a fixed ordering in which tasks are executed.
 
 As an example, here are two tasks where the decorator ensures that the output of the
 second task is always shown before the output of the first task.
 
-```python
-# Content of task_example.py
-
+```py title="task_example.py"
 import pytask
 
 
@@ -46,9 +40,7 @@ The execution yields (use `-s` to make the output visible in the terminal)
 
 Replacing `pytask.mark.try_first` with `pytask.mark.try_last` yields
 
-```python
-# Content of task_example.py
-
+```py title="task_example.py"
 import pytask
 
 

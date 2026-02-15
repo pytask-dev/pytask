@@ -13,17 +13,13 @@ cause of the exception.
 
 !!! tip
 
-```
-If you do not know about the Python debugger or pdb yet, check out this [explanation
-from RealPython](https://realpython.com/python-debugging-pdb/).
-```
+    If you do not know about the Python debugger or pdb yet, check out this
+    [explanation from RealPython](https://realpython.com/python-debugging-pdb/).
 
 !!! note
 
-```
-A following tutorial explains [how to select a subset of tasks](selecting_tasks.md).
-Combine it with the `pytask build --pdb` flag to debug specific tasks.
-```
+    A following tutorial explains [how to select a subset of tasks](selecting_tasks.md).
+    Combine it with the `pytask build --pdb` flag to debug specific tasks.
 
 ## Tracing
 

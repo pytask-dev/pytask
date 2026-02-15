@@ -28,24 +28,22 @@ as the task module because it is a relative path.
 ```
 
 Since the names of the files are not known when pytask is started, we need to use a
-\[`pytask.DirectoryNode`\][] to define the task's product. With a
-\[`pytask.DirectoryNode`\][] we can specify where pytask can find the files. The files
-are described with a root path (default is the directory of the task module) and a glob
-pattern (default is `*`).
+[pytask.DirectoryNode](../api/nodes_and_tasks.md#pytask.DirectoryNode) to define the
+task's product. With a
+[pytask.DirectoryNode](../api/nodes_and_tasks.md#pytask.DirectoryNode) we can specify
+where pytask can find the files. The files are described with a root path (default is
+the directory of the task module) and a glob pattern (default is `*`).
 
-When we use the \[`pytask.DirectoryNode`\][] as a product annotation, we get access to
-the `root_dir` as a `pathlib.Path` object inside the function, which allows us to store
-the files.
+When we use the [pytask.DirectoryNode](../api/nodes_and_tasks.md#pytask.DirectoryNode)
+as a product annotation, we get access to the `root_dir` as a `pathlib.Path` object
+inside the function, which allows us to store the files.
 
 !!! note
 
-```
-The `pytask.DirectoryNode` is a provisional node that implements
-`pytask.PProvisionalNode`. A provisional node is not a `pytask.PNode`,
-but when its `pytask.PProvisionalNode.collect` method is called, it returns
-actual nodes. A `pytask.DirectoryNode`, for example, returns
-`pytask.PathNode`.
-```
+    The `pytask.DirectoryNode` is a provisional node that implements
+    `pytask.PProvisionalNode`. A provisional node is not a `pytask.PNode`, but when its
+    `pytask.PProvisionalNode.collect` method is called, it returns actual nodes. A
+    `pytask.DirectoryNode`, for example, returns `pytask.PathNode`.
 
 ## Depending on provisional nodes
 
@@ -59,14 +57,15 @@ downloaded.
 --8<-- "docs_src/how_to_guides/provisional_task.py"
 ```
 
-To reference the files that will be downloaded, we use the \[`pytask.DirectoryNode`\][]
-is a dependency. Before the task is executed, the list of files in the folder defined by
-the root path and the pattern are automatically collected and passed to the task.
+To reference the files that will be downloaded, we use the
+[pytask.DirectoryNode](../api/nodes_and_tasks.md#pytask.DirectoryNode) is a dependency.
+Before the task is executed, the list of files in the folder defined by the root path
+and the pattern are automatically collected and passed to the task.
 
-If we use a \[`pytask.DirectoryNode`\][] with the same `root_dir` and `pattern` in both
-tasks, pytask will automatically recognize that the second task depends on the first. If
-that is not true, you might need to make this dependency more explicit by using
-`@task(after=...)`, which is explained
+If we use a [pytask.DirectoryNode](../api/nodes_and_tasks.md#pytask.DirectoryNode) with
+the same `root_dir` and `pattern` in both tasks, pytask will automatically recognize
+that the second task depends on the first. If that is not true, you might need to make
+this dependency more explicit by using `@task(after=...)`, which is explained
 [here](../tutorials/defining_dependencies_products.md#after).
 
 ## Task generators
@@ -89,7 +88,4 @@ content to a `.txt` file.
 
 !!! important
 
-```
-The generated tasks need to be decorated with `@task` to be
-collected.
-```
+    The generated tasks need to be decorated with `@task` to be collected.

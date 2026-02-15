@@ -18,28 +18,28 @@ packages.
 As an example, look at two repositories from a COVID-19 forecasting project.
 
 - [sid-germany](https://github.com/covid-19-impact-lab/sid-germany) contains the
-  research code managed by pytask which runs epidemiological forecasts across a wide
-  range of scenarios.
+    research code managed by pytask which runs epidemiological forecasts across a wide
+    range of scenarios.
+
 - [sid](https://github.com/covid-19-impact-lab/sid) contains the code for the
-  epidemiological model which is applied in the research project.
+    epidemiological model which is applied in the research project.
 
 !!! note
 
-```
-Nowadays, consider using [workspaces](using_workspaces.md) instead of separate repositories.
-```
+    Nowadays, consider using [workspaces](using_workspaces.md) instead of separate
+    repositories.
 
 Separating the model code from the research project provided several benefits.
 
 - The model code is isolated and has its own test suite. Assessing and ensuring the code
-  quality is thus easier.
+    quality is thus easier.
 - Versioning enhances reproducibility and also allows to develop the model independently
-  from the research project.
+    from the research project.
 - One is forced to think more about the interface of model since you wear two hats at
-  the same time, the one of a maintainer and a user. This improves the quality of the
-  package tremendously.
+    the same time, the one of a maintainer and a user. This improves the quality of the
+    package tremendously.
 - Developing sid as a package makes it easier for other researchers to contribute to the
-  project, make their research or review your work.
+    project, make their research or review your work.
 
 In conclusion, this setup contributed a lot to build a new model from scratch and
 produce several publications in a short time span.

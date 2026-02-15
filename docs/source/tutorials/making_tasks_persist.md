@@ -5,8 +5,8 @@ Sometimes you want to skip the execution of a task and pretend nothing has chang
 A typical scenario is that you formatted the task's source files with
 [black](https://github.com/psf/black) which would rerun the task.
 
-In this case, you can apply the `@pytask.mark.persist` decorator to the task, which will
-skip its execution as long as all products exist.
+In this case, you can apply the [`@pytask.mark.persist`](../api/marks.md#pytask.mark)
+decorator to the task, which will skip its execution as long as all products exist.
 
 Internally, the state of the dependencies, the source file, and the products are updated
 in the database such that the subsequent execution will skip the task successfully.
@@ -34,9 +34,7 @@ First, we create a task and its dependency.
 --8<-- "docs_src/tutorials/making_tasks_persist.py"
 ```
 
-```md
-<!-- Content of input.md. -->
-
+```md title="input.md"
 Here is the text.
 ```
 
@@ -45,12 +43,13 @@ Running pytask will execute the task since the product is missing.
 --8<-- "docs/source/_static/md/persist-executed.md"
 
 After that, we accidentally changed the task's source file by formatting the file with
-Black. Without the `@pytask.mark.persist` decorator, the task would run again since the
-source has changed. With the decorator, a green p signals that the execution is skipped.
+Black. Without the [`@pytask.mark.persist`](../api/marks.md#pytask.mark) decorator, the
+task would run again since the source has changed. With the decorator, a green p signals
+that the execution is skipped.
 
 --8<-- "docs/source/_static/md/persist-persisted.md"
 
 If we rerun the task, it is skipped because nothing has changed and not because it is
-marked with `@pytask.mark.persist`.
+marked with [`@pytask.mark.persist`](../api/marks.md#pytask.mark).
 
 --8<-- "docs/source/_static/md/persist-skipped.md"

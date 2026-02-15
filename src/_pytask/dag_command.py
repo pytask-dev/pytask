@@ -122,23 +122,19 @@ def dag(**raw_config: Any) -> int:
 def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
     """Build the DAG.
 
-    This function is the programmatic interface to ``pytask dag`` and returns a
-    preprocessed :class:`pygraphviz.AGraph` which makes plotting easier than with
-    matplotlib.
-
-    To change the style of the graph, it might be easier to convert the graph back to
-    networkx, set attributes, and convert back to pygraphviz.
+    This function is the programmatic interface to ``pytask dag``.
 
     Parameters
     ----------
-    raw_config : Dict[str, Any]
+    raw_config : dict[str, Any]
         The configuration usually received from the CLI. For example, use ``{"paths":
         "example-directory/"}`` to collect tasks from a directory.
 
     Returns
     -------
-    pygraphviz.AGraph
-        A preprocessed graph which can be customized and exported.
+    nx.DiGraph
+        A refined DAG which can be customized or converted to ``pygraphviz.AGraph``
+        before exporting.
 
     """
     try:

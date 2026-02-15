@@ -3,7 +3,8 @@
 The API documentation is split into focused pages to keep navigation lightweight and to
 avoid one long reference document.
 
-- [CLI and Programmatic Interfaces](cli_and_programmatic.md)
+- [CLI Imports](cli_and_programmatic.md)
+- [Functional Interfaces](functional_interfaces.md)
 - [Core Classes and Exceptions](core_classes_and_exceptions.md)
 - [Marks](marks.md)
 - [Nodes and Tasks](nodes_and_tasks.md)

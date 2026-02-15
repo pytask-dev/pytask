@@ -35,10 +35,11 @@ $ pytask <command-name> -h/--help
 
 ## The build command
 
-The build command accepts many options paths as positional arguments. If no paths are
-passed via the command line interface, pytask will look for the `paths` key in the
-configuration file. At last, pytask will collect tasks from the current working
-directory and subsequent folders.
+The build command accepts many options and paths as positional arguments. If no paths
+are passed via the command line interface, pytask will look for
+[`paths`](../reference_guides/configuration.md#paths) in the configuration file. At
+last, pytask will collect tasks from the current working directory and subsequent
+folders.
 
 You can also pass any number of paths of directories or modules to the program.
 

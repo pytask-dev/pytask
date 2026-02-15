@@ -10,10 +10,8 @@ exceptions which are handled and stored in a report.
 
 !!! note "Migration status"
 
-```
-This page now uses `mkdocstrings` instead of Sphinx autodoc. Cross-reference
-backlinks are more limited for now.
-```
+    This page now uses `mkdocstrings` instead of Sphinx autodoc. Cross-reference
+    backlinks are more limited for now.
 
 ## General
 

@@ -8,9 +8,9 @@ move to the next section of the tutorials.
 
 !!! note
 
-```
-In case you are thinking about developing multiple packages in the project that should be separated (one for dealing with the data, one for the analysis and a package for the pytask tasks), consider using a [workspace](../how_to_guides/using_workspaces.md).
-```
+    In case you are thinking about developing multiple packages in the project that should
+    be separated (one for dealing with the data, one for the analysis and a package for the
+    pytask tasks), consider using a [workspace](../how_to_guides/using_workspaces.md).
 
 ## The directory structure
 
@@ -48,8 +48,7 @@ It contains a `config.py` or a similar module to store the project's configurati
 should define paths pointing to the source and build directory of the project. They
 later help to define other paths.
 
-```python
-# Content of config.py.
+```py title="config.py"
 from pathlib import Path
 
 
@@ -59,11 +58,9 @@ BLD = SRC.joinpath("..", "..", "bld").resolve()
 
 !!! note
 
-```
-If you want to know more about the "`src` layout" and why it is NASA-approved, read
-[this article by Hynek Schlawack](https://hynek.me/articles/testing-packaging/) or this
-[setuptools article](https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#src-layout).
-```
+    If you want to know more about the "`src` layout" and why it is NASA-approved, read
+    [this article by Hynek Schlawack](https://hynek.me/articles/testing-packaging/) or this
+    [setuptools article](https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#src-layout).
 
 ## The `bld` directory
 
@@ -81,56 +78,52 @@ to manage dependencies and project metadata.
 
 === "uv"
 
-````
-Create a `pyproject.toml` file for project configuration and dependencies:
+    Create a `pyproject.toml` file for project configuration and dependencies:
 
-``` { .toml .annotate }
-[project]
-name = "my_project"
-version = "0.1.0"
-requires-python = ">=3.10"
-dependencies = ["pytask"]
+    ```{ .toml .annotate title="pyproject.toml" }
+    [project]
+    name = "my_project"
+    version = "0.1.0"
+    requires-python = ">=3.10"
+    dependencies = ["pytask"]
 
-[build-system]
-requires = ["uv_build"] # (1)!
-build-backend = "uv_build"
+    [build-system]
+    requires = ["uv_build"] # (1)!
+    build-backend = "uv_build"
 
-[tool.pytask.ini_options]
-paths = ["src/my_project"] # (2)!
-```
+    [tool.pytask.ini_options]
+    paths = ["src/my_project"] # (2)!
+    ```
 
-1. `uv_build` provides the build backend for this minimal package layout.
-2. `paths` tells pytask where to collect task modules.
-````
+    1. `uv_build` provides the build backend for this minimal package layout.
+    1. `paths` tells pytask where to collect task modules.
 
 === "pixi"
 
-````
-Create a `pixi.toml` file for project configuration:
+    Create a `pixi.toml` file for project configuration:
 
-``` { .toml .annotate }
-[project]
-name = "my_project"
-version = "0.1.0"
-requires-python = ">=3.10"
-channels = ["conda-forge"] # (1)!
-platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
+    ```{ .toml .annotate title="pixi.toml" }
+    [project]
+    name = "my_project"
+    version = "0.1.0"
+    requires-python = ">=3.10"
+    channels = ["conda-forge"] # (1)!
+    platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+    [build-system]
+    requires = ["hatchling"]
+    build-backend = "hatchling.build"
 
-[dependencies]
-pytask = "*"
-python = ">=3.10"
+    [dependencies]
+    pytask = "*"
+    python = ">=3.10"
 
-[tool.pytask.ini_options]
-paths = ["src/my_project"] # (2)!
-```
+    [tool.pytask.ini_options]
+    paths = ["src/my_project"] # (2)!
+    ```
 
-1. `conda-forge` is the default package source for the pixi environment.
-2. `paths` tells pytask where to collect task modules.
-````
+    1. `conda-forge` is the default package source for the pixi environment.
+    1. `paths` tells pytask where to collect task modules.
 
 The `[tool.pytask.ini_options]` section tells pytask to look for tasks in
 `src/my_project`. You will learn more about configuration in the
@@ -145,20 +138,18 @@ interact with it.
 
 === "uv"
 
-````
-```console
-$ uv sync
-```
+    ```console
+    $ uv sync
+    ```
 
-The command installs all packages. uv will ensure that all your dependencies are up-to-date.
-````
+    The command installs all packages. uv will ensure that all your dependencies are
+    up-to-date.
 
 === "pixi"
 
-````
-```console
-$ pixi install
-```
+    ```console
+    $ pixi install
+    ```
 
-pixi automatically creates the environment and installs dependencies. pixi will ensure that all your dependencies are up-to-date.
-````
+    pixi automatically creates the environment and installs dependencies. pixi will ensure
+    that all your dependencies are up-to-date.

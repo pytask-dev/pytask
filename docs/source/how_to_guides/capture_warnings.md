@@ -61,11 +61,9 @@ configured by the `filterwarnings` configuration option.
 
 !!! important
 
-```
-Note that the type of warning needs to be importable. For example, `UserWarning` is a
-built-in warning with no module specified. `SettingWithCopyWarning` though needs to be
-imported from `pandas.errors`.
-```
+    Note that the type of warning needs to be importable. For example, `UserWarning` is a
+    built-in warning with no module specified. `SettingWithCopyWarning` though needs to be
+    imported from `pandas.errors`.
 
 ## Disabling warnings summary
 

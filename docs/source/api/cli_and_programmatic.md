@@ -1,21 +1,30 @@
-# CLI and Programmatic Interfaces
+# CLI Imports
 
-## Command Line Interface
+This page documents the public CLI-related imports from `pytask`.
+
+For command usage and options, see the [CLI reference](../commands/index.md).
+
+## Command Line Entry Point
+
+::: pytask.cli
+    options:
+      show_root_heading: true
+      show_signature: true
+
+## CLI Types
 
 ::: pytask.ColoredCommand
+    options:
+      filters:
+        - "!^_[^_].*"
+        - "!^__.*__$"
 ::: pytask.ColoredGroup
+    options:
+      filters:
+        - "!^_[^_].*"
+        - "!^__.*__$"
 ::: pytask.EnumChoice
-
-## Compatibility Helpers
-
-::: pytask.check_for_optional_program
-::: pytask.import_optional_dependency
-
-## Console
-
-::: pytask.console
-
-## Programmatic Interfaces
-
-::: pytask.build_dag
-::: pytask.build
+    options:
+      filters:
+        - "!^_[^_].*"
+        - "!^__.*__$"

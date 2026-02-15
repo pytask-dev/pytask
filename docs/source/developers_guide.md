@@ -17,25 +17,26 @@ ulimit -n 4096
 The following list covers all steps of a release cycle.
 
 - Start a new release cycle by opening a milestone. Assign all relevant issues and merge
-  requests to this milestone.
+    requests to this milestone.
 
 - Every change is pushed to the repository's main branch and will make it into the next
-  release.
+    release.
 
 - Once all additions to a release are merged, prepare `docs/source/changes.md` listing
-  all changes that made it into the release.
+    all changes that made it into the release.
 
 - Update the version numbers in the animations if you create a new major or minor
-  release.
+    release.
 
 - Go to the main branch and set a new tag with `git tag vx.x.x -m "vx.x.x"`. Then, push
-  the tag to the repository.
+    the tag to the repository.
 
 - Creating a tag will trigger a pipeline that builds the package and uploads it to PyPI,
-  consequently triggering a new release on conda-forge.
+    consequently triggering a new release on conda-forge.
 
-  The pipeline also creates a GitHub release under
-  [releases](https://github.com/pytask-dev/pytask/releases). Fill out the release notes.
+    The pipeline also creates a GitHub release under
+    [releases](https://github.com/pytask-dev/pytask/releases). Fill out the release
+    notes.
 
 ## Profiling the application
 
