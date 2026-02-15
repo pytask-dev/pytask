@@ -7,6 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- {pull}`787` makes the `attributes` field mandatory on `PNode` and
+  `PProvisionalNode`, and preserves existing node attributes when loading entries from
+  the data catalog.
 - {pull}`744` Removed the direct dependency on attrs and migrated internal models to
   dataclasses.
 - {pull}`766` moves runtime profiling persistence from SQLite to a JSON snapshot plus
