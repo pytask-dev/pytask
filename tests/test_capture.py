@@ -8,7 +8,9 @@ import sys
 import textwrap
 from io import UnsupportedOperation
 from typing import TYPE_CHECKING
+from typing import Any
 from typing import BinaryIO
+from typing import cast
 
 import pytest
 
@@ -366,7 +368,7 @@ class TestCaptureIO:
         f = capture.CaptureIO()
         f.write("\u00f6")
         with pytest.raises(TypeError):
-            f.write(b"hello")
+            f.write(cast("Any", b"hello"))
 
     def test_write_bytes_to_buffer(self):
         """In python3, stdout / stderr are text io wrappers (exposing a buffer property
@@ -397,7 +399,7 @@ class TestTeeCaptureIO(TestCaptureIO):
         f = capture.TeeCaptureIO(sio)
         f.write("\u00f6")
         with pytest.raises(TypeError):
-            f.write(b"hello")
+            f.write(cast("Any", b"hello"))
 
 
 def test_dontreadfrominput():
@@ -841,4 +843,4 @@ class TestStdCaptureFDinvalidFD:
 def test__get_multicapture() -> None:
     assert isinstance(_get_multicapture(CaptureMethod.NO), MultiCapture)
     with pytest.raises(ValueError, match=r"^unknown capturing method: 'unknown'"):
-        _get_multicapture("unknown")
+        _get_multicapture(cast("CaptureMethod", "unknown"))

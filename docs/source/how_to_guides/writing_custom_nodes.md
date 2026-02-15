@@ -127,11 +127,13 @@ databases. [^kedro]
 
 ## References
 
-[^structural-subtyping]: Structural subtyping is similar to ABCs an approach in Python to enforce interfaces,
-    but it can be considered more pythonic since it is closer to duck typing. Hynek
-    Schlawack wrote a comprehensive
-    [guide on subclassing](https://hynek.me/articles/python-subclassing-redux/) that
-    features protocols under "Type 2". Glyph wrote an introduction to protocols called
+[^structural-subtyping]: Structural subtyping is similar to ABCs an approach in Python
+    to enforce interfaces, but it can be considered more pythonic
+    since it is closer to duck typing. Hynek Schlawack wrote a
+    comprehensive
+    [guide on subclassing](https://hynek.me/articles/python-subclassing-redux/)
+    that features protocols under "Type 2". Glyph wrote an
+    introduction to protocols called
     [I want a new duck](https://glyph.twistedmatrix.com/2020/07/new-duck.html).
 
 [^kedro]: Kedro, another workflow system, provides many adapters to data sources:
