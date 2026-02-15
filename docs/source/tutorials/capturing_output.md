@@ -1,8 +1,7 @@
 # Capturing output
 
-What is capturing? Some of your tasks may use {func}`print` statements, have progress
-bars, require user input, or the libraries you are using show information during
-execution.
+What is capturing? Some of your tasks may use `print` statements, have progress bars,
+require user input, or the libraries you are using show information during execution.
 
 Since the output would pollute the terminal and the information shown by pytask, it
 captures all the output during execution and attaches it to the report of this task by
@@ -21,7 +20,7 @@ it because it is rarely desired to wait for interactive input when running autom
 tasks.
 
 By default, capturing is done by intercepting writes to low-level file descriptors. This
-allows capturing output from simple {func}`print` statements as well as output from a
+allows capturing output from simple `print` statements as well as output from a
 subprocess started by a task.
 
 ## Setting capturing methods or disabling capturing
@@ -67,5 +66,4 @@ def task_func2():
 And running this module will show you precisely the output of the failing function and
 hide the other one:
 
-```{include} ../_static/md/capture.md
-```
+--8\<-- "docs/source/\_static/md/capture.txt"

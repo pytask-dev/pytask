@@ -7,18 +7,19 @@ How does it work? Throughout the execution, pytask arrives at entrypoints, calle
 functions. When pytask calls a hook function it loops through hook implementations and
 each hook implementation can alter the result of the entrypoint.
 
-The full list of hook functions is specified in {doc}`../reference_guides/hookspecs`.
+The full list of hook functions is specified in
+[hookspecs](../reference_guides/hookspecs.md).
 
 More general information about pluggy can be found in its
 [documentation](https://pluggy.readthedocs.io/en/latest/).
 
 There are two ways to add new hook implementations.
 
-1. Using the {option}`pytask build --hook-module` commandline option or the
-   {confval}`hook_module` configuration value.
+1. Using the `pytask build --hook-module` commandline option or the `hook_module`
+   configuration value.
 1. Packaging your plugin as a Python package to publish and share it.
 
-(hook-module)=
+<a id="hook-module"></a>
 
 ## Using `--hook-module` and `hook_module`
 
@@ -50,7 +51,7 @@ hook_module = ["myproject.hooks"]
 
 In `hooks.py` we can add another commandline option to `pytask build` by providing an
 addition hook implementation for the hook specification
-{func}`~_pytask.hookspecs.pytask_extend_command_line_interface`.
+`_pytask.hookspecs.pytask_extend_command_line_interface`.
 
 ```python
 import click

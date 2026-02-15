@@ -13,42 +13,43 @@ are looking for orientation or inspiration, here are some tips.
 - Task functions should be at the top of a task module to easily identify what the
   module is for.
 
-  ```{seealso}
-  The only exception might be for {doc}`repetitions <bp_complex_task_repetitions>`.
+  !!! note
+
+  ````
+  The only exception might be for [repetitions](bp_complex_task_repetitions.md).
   ```
+  ````
 
-- The purpose of the task function is to handle IO operations like loading and saving
-  files and calling Python functions on the task's inputs. IO should not be handled in
-  any other function.
+  - The purpose of the task function is to handle IO operations like loading and saving
+    files and calling Python functions on the task's inputs. IO should not be handled in
+    any other function.
 
-- Non-task functions in the task module are {term}`private functions <private function>`
-  and only used within this task module. The functions should not have side-effects.
+  - Non-task functions in the task module are `private functions` and only used within
+    this task module. The functions should not have side-effects.
 
-- It should never be necessary to import from task modules. So if you need a function in
-  multiple task modules, put it in a separate module (which does not start with
-  `task_`).
+  - It should never be necessary to import from task modules. So if you need a function
+    in multiple task modules, put it in a separate module (which does not start with
+    `task_`).
 
-## Best Practices
+  ## Best Practices
 
-### Number of tasks in a module
+  ### Number of tasks in a module
 
-There are two reasons to split tasks across several modules.
+  There are two reasons to split tasks across several modules.
 
-The first reason concerns readability and complexity. Tasks deal with different concepts
-and, thus, should be split. Even if tasks deal with the same concept, they might becna
-very complex and separate modules help the reader (most likely you or your colleagues)
-to focus on one thing.
+  The first reason concerns readability and complexity. Tasks deal with different
+  concepts and, thus, should be split. Even if tasks deal with the same concept, they
+  might becna very complex and separate modules help the reader (most likely you or your
+  colleagues) to focus on one thing.
 
-The second reason is about runtime. If a task module is changed, all tasks within the
-module are re-run. If the runtime of all tasks in the module is high, you wait longer
-for your tasks to finish or until an error occurs which prolongs your feedback loops and
-hurts your productivity.
+  The second reason is about runtime. If a task module is changed, all tasks within the
+  module are re-run. If the runtime of all tasks in the module is high, you wait longer
+  for your tasks to finish or until an error occurs which prolongs your feedback loops
+  and hurts your productivity. \{seealso} Use `@pytask.mark.persist` if you want to
+  avoid accidentally triggering an expensive task. It is also explained in
+  [this tutorial](../tutorials/making_tasks_persist).
 
-```{seealso}
-Use {func}`@pytask.mark.persist <pytask.mark.persist>` if you want to avoid accidentally
-triggering an expensive task. It is also explained in [this
-tutorial](../tutorials/making_tasks_persist).
-```
+````
 
 ### Structure of the module
 
@@ -57,10 +58,10 @@ For the following example, let us assume that the task module contains one task.
 The task function should be the first function in the module. It should have a
 descriptive name and a docstring which explains what the task accomplishes.
 
-It should be the only {term}`public function` in the module which means the only
+It should be the only `public function` in the module which means the only
 function without a leading underscore. This is a convention to keep
-{term}`public functions <public function>` separate from
-{term}`private functions <private function>` (with a leading underscore) where the
+`public functions` separate from
+`private functions` (with a leading underscore) where the
 latter must only be used in the same module and not imported elsewhere.
 
 The body of the task function should contain two things:
@@ -74,23 +75,25 @@ The body of the task function should contain two things:
    If we bundle all IO operations in the task functions, all other functions used in
    task remain pure (without side-effects) which makes testing the functions easier.
 
-1. The task function should either call {term}`private functions <private function>`
+1. The task function should either call `private functions`
    defined inside the task module or functions which are shared between tasks and
    defined in a module separated from all tasks.
 
-The rest of the module is made of {term}`private functions <private function>` with a
+The rest of the module is made of `private functions` with a
 leading underscore which are used to accomplish this and only this task.
 
 Here is an example of a task module which conforms to all advice.
 
-```{literalinclude} ../../../docs_src/how_to_guides/bp_structure_of_task_files.py
-```
+```python
+--8<-- "docs_src/how_to_guides/bp_structure_of_task_files.py"
+````
 
-```{seealso}
+!!! note
+
+```
 The structure of the task module is greatly inspired by John Ousterhout's "A Philosophy
 of Software Design" in which he coins the name "deep modules". In short, deep modules
-have simple interfaces which are defined by one or a few {term}`public functions <public
-function>` (or classes) which provide the functionality. The complexity is hidden inside
-the module in {term}`private functions <private function>` which are called by the
-{term}`public functions <public function>`.
+have simple interfaces which are defined by one or a few `public functions` (or classes) which provide the functionality. The complexity is hidden inside
+the module in `private functions` which are called by the
+`public functions`.
 ```

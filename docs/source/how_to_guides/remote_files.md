@@ -8,16 +8,17 @@ lots of use cases to deal with remote files.
 - You store the workflow results in remote storage to save and distribute them.
 
 pytask uses [universal-pathlib](https://github.com/fsspec/universal_pathlib) to work
-with remote files. The package provides a {mod}`pathlib`-like interface, making it very
-easy to interact with files from an HTTP(S)-, Dropbox-, S3-, GCP-, Azure-based
-filesystem, and many more.
+with remote files. The package provides a `pathlib`-like interface, making it very easy
+to interact with files from an HTTP(S)-, Dropbox-, S3-, GCP-, Azure-based filesystem,
+and many more.
 
 ## HTTP(S)-based filesystem
 
 As an example for dealing with an HTTP(S)-based filesystem, we will download the iris
 data set and save it as a CSV file.
 
-```{literalinclude} ../../../docs_src/how_to_guides/remote_files/https.py
+```python
+--8 < --"docs_src/how_to_guides/remote_files/https.py"
 ```
 
 ## Other filesystems
@@ -26,7 +27,7 @@ universal_pathlib supports Azure Storage, Dropbox, Google Cloud Storage, AWS S3,
 [many more filesystems](https://github.com/fsspec/universal_pathlib#currently-supported-filesystems-and-schemes).
 
 For example, let us try accessing a file in an S3 bucket. We pass `anon=True` to
-{class}`~upath.UPath` since no credentials are required.
+`upath.UPath` since no credentials are required.
 
 ```pycon
 >>> from upath import UPath

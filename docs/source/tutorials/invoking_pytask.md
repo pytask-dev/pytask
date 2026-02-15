@@ -17,8 +17,7 @@ $ pytask -h | --help
 
 pytask has multiple commands listed on the main help page.
 
-```{include} ../_static/md/help-page.md
-```
+--8\<-- "docs/source/\_static/md/help-page.txt"
 
 The `build` command is the default command, meaning the following two calls are
 identical.
@@ -47,9 +46,9 @@ You can also pass any number of paths of directories or modules to the program.
 $ pytask path/to/task_module.py path/to/folder
 ```
 
-Don't use paths to run task subsets. Use {doc}`expressions <selecting_tasks>` instead.
-When pytask collects tasks from subpaths of your project, it cannot infer the whole
-structure of dependencies and products and might run your tasks with missing or outdated
+Don't use paths to run task subsets. Use [expressions](selecting_tasks.md) instead. When
+pytask collects tasks from subpaths of your project, it cannot infer the whole structure
+of dependencies and products and might run your tasks with missing or outdated
 dependencies.
 
 ## Options
@@ -80,8 +79,7 @@ $ pytask --max-failures 2                 # Stop after the second failure
 
 Do a dry run to see which tasks will be executed without executing them.
 
-```{include} ../_static/md/dry-run.md
-```
+--8\<-- "docs/source/\_static/md/dry-run.txt"
 
 ### Explaining why tasks are executed
 
@@ -89,8 +87,7 @@ Use the `--explain` flag to understand why tasks need to be executed. This shows
 changed (source files, dependencies, products, previous tasks) and helps you understand
 pytask's execution decisions.
 
-```{include} ../_static/md/explain.md
-```
+--8\<-- "docs/source/\_static/md/explain.txt"
 
 The explanation output respects the `--verbose` flag:
 

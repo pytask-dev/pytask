@@ -5,8 +5,8 @@ Sometimes you want to skip the execution of a task and pretend nothing has chang
 A typical scenario is that you formatted the task's source files with
 [black](https://github.com/psf/black) which would rerun the task.
 
-In this case, you can apply the {func}`@pytask.mark.persist <pytask.mark.persist>`
-decorator to the task, which will skip its execution as long as all products exist.
+In this case, you can apply the `@pytask.mark.persist` decorator to the task, which will
+skip its execution as long as all products exist.
 
 Internally, the state of the dependencies, the source file, and the products are updated
 in the database such that the subsequent execution will skip the task successfully.
@@ -19,7 +19,9 @@ in the database such that the subsequent execution will skip the task successful
 - You want to integrate a task that you have already run elsewhere. Copy over the
   dependencies and products and the task definition and make the task persist.
 
-```{caution}
+!!! caution
+
+```
 This feature can corrupt the integrity of your project. Document why you have applied
 the decorator out of consideration for yourself and other contributors.
 ```
@@ -30,7 +32,8 @@ To create a persisting task, apply the correct decorator, and, et voilà, it is 
 
 First, we create a task and its dependency.
 
-```{literalinclude} ../../../docs_src/tutorials/making_tasks_persist.py
+```python
+--8 < --"docs_src/tutorials/making_tasks_persist.py"
 ```
 
 ```md
@@ -41,19 +44,15 @@ Here is the text.
 
 Running pytask will execute the task since the product is missing.
 
-```{include} ../_static/md/persist-executed.md
-```
+--8\<-- "docs/source/\_static/md/persist-executed.txt"
 
 After that, we accidentally changed the task's source file by formatting the file with
-Black. Without the {func}`@pytask.mark.persist <pytask.mark.persist>` decorator, the
-task would run again since the source has changed. With the decorator, a green p signals
-that the execution is skipped.
+Black. Without the `@pytask.mark.persist` decorator, the task would run again since the
+source has changed. With the decorator, a green p signals that the execution is skipped.
 
-```{include} ../_static/md/persist-persisted.md
-```
+--8\<-- "docs/source/\_static/md/persist-persisted.txt"
 
 If we rerun the task, it is skipped because nothing has changed and not because it is
-marked with {func}`@pytask.mark.persist <pytask.mark.persist>`.
+marked with `@pytask.mark.persist`.
 
-```{include} ../_static/md/persist-skipped.md
-```
+--8\<-- "docs/source/\_static/md/persist-skipped.txt"

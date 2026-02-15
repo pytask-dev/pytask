@@ -1,7 +1,7 @@
 version: 2
 
-sphinx:
-  configuration: docs/source/conf.py
+mkdocs:
+  configuration: mkdocs.yml
   fail_on_warning: true
 
 build:

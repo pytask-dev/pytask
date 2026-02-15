@@ -33,7 +33,6 @@ from __future__ import annotations
 import datetime
 import pathlib
 import re
-from textwrap import indent
 from typing import TYPE_CHECKING
 
 import httpx
@@ -45,24 +44,20 @@ from tqdm import tqdm
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-_FILE_HEAD = r"""
-.. _plugin-list:
+_FILE_HEAD = """# Plugin List
 
-Plugin List
-===========
-
-PyPI projects that match "pytask-\*" are considered plugins and are listed
+PyPI projects that match `pytask-*` are considered plugins and are listed
 automatically. Packages classified as inactive are excluded.
 
-.. warning::
+!!! warning
 
-   Please be aware that this list is not a curated collection of projects and does not
-   undergo a systematic review process. It serves purely as an informational resource to
-   aid in the discovery of ``pytask`` plugins.
+    Please be aware that this list is not a curated collection of projects and does not
+    undergo a systematic review process. It serves purely as an informational resource
+    to aid in the discovery of `pytask` plugins.
 
-   Do not presume any endorsement from the ``pytask`` project or its developers, and
-   always conduct your own quality assessment before incorporating any of these plugins
-   into your own projects.
+    Do not presume any endorsement from the `pytask` project or its developers, and
+    always conduct your own quality assessment before incorporating any of these plugins
+    into your own projects.
 
 """
 
@@ -81,15 +76,9 @@ _DEVELOPMENT_STATUS_CLASSIFIERS = (
 _EXCLUDED_PACKAGES = ["pytask-io", "pytask-list", "pytask-queue"]
 
 
-def _escape_rst(text: str) -> str:
-    """Rudimentary attempt to escape special RST characters to appear as plain text."""
-    text = (
-        text.replace("*", "\\*")
-        .replace("<", "\\<")
-        .replace(">", "\\>")
-        .replace("`", "\\`")
-    )
-    return re.sub(r"_\b", "", text)
+def _escape_markdown(text: str) -> str:
+    """Rudimentary attempt to escape special Markdown table characters."""
+    return text.replace("|", "\\|")
 
 
 def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
@@ -151,10 +140,10 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
                 last_release = release_date.strftime("%b %d, %Y")
                 break
 
-        name = f":pypi:`{info['name']}`"
+        name = f"[{info['name']}](https://pypi.org/project/{info['name']}/)"
         summary = ""
         if info["summary"]:
-            summary = _escape_rst(info["summary"].replace("\n", ""))
+            summary = _escape_markdown(info["summary"].replace("\n", ""))
 
         yield {
             "name": name,
@@ -170,14 +159,14 @@ def main() -> None:
 
     reference_dir = pathlib.Path("docs", "source")
 
-    plugin_list = reference_dir / "plugin_list.rst"
+    plugin_list = reference_dir / "plugin_list.md"
     with plugin_list.open("w") as f:
         f.write(_FILE_HEAD)
         f.write(f"This list contains {len(plugins)} plugins.\n\n")
 
         assert wcwidth  # reference library that must exist for tabulate to work
-        plugin_table = tabulate.tabulate(plugins, headers="keys", tablefmt="rst")
-        f.write(indent(plugin_table, "   "))
+        plugin_table = tabulate.tabulate(plugins, headers="keys", tablefmt="github")
+        f.write(plugin_table)
         f.write("\n")
 
 

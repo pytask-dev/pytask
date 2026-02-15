@@ -19,15 +19,14 @@ pytask tries to address this point in many ways.
    will learn two tools simultaneously.
 
 1. pytask tries to improve your productivity by offering a couple of features like
-   {doc}`repeating tasks <../tutorials/repeating_tasks_with_different_inputs>`,
-   {doc}`debugging of tasks <../tutorials/debugging>` and
-   {doc}`selecting subsets of tasks <../tutorials/selecting_tasks>`.
+   [repeating tasks](../tutorials/repeating_tasks_with_different_inputs.md),
+   [debugging of tasks](../tutorials/debugging.md) and
+   [selecting subsets of tasks](../tutorials/selecting_tasks.md).
 
 1. pytask integrates with other tools used in the scientific community, such as R and
-   Julia, and offers solutions to bridge the gap between a
-   {term}`workflow management system` written in Python and scripts in another language.
-   For example, pytask makes paths to dependencies and products available in the
-   scripts.
+   Julia, and offers solutions to bridge the gap between a `workflow management system`
+   written in Python and scripts in another language. For example, pytask makes paths to
+   dependencies and products available in the scripts.
 
 1. The plugin system lets power users tailor pytask to their needs by adding additional
    functionality. It makes pytask extraordinarily versatile and offers people from

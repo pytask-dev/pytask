@@ -8,5 +8,4 @@ $ pytask profile
 
 Here is an example
 
-```{include} ../_static/md/profiling-tasks.md
-```
+--8\<-- "docs/source/\_static/md/profiling-tasks.txt"
