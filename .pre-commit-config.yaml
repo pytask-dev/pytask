@@ -25,12 +25,12 @@ repos:
     -   id: python-no-log-warn
     -   id: text-unicode-replacement-char
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.0
+    rev: v0.15.1
     hooks:
       - id: ruff-format
       - id: ruff-check
 -   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.9.28
+    rev: 0.10.3
     hooks:
       - id: uv-lock
 -   repo: https://github.com/executablebooks/mdformat
