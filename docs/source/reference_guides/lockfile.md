@@ -5,8 +5,9 @@ git-friendly format so runs can be resumed or shared across machines.
 
 ```{note}
 SQLite is the legacy format. It is still read when no lockfile exists, and a lockfile
-is written during that first run. Subsequent runs use only the lockfile and do not
-update the database state.
+is written during that first run. The lockfile remains the primary backend for skip
+decisions, but pytask also keeps the legacy database updated for downgrade
+compatibility.
 ```
 
 ## Example

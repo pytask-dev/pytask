@@ -11,8 +11,10 @@ from _pytask.lockfile import build_portable_node_id
 from _pytask.lockfile import read_lockfile
 from _pytask.models import NodeInfo
 from _pytask.nodes import PythonNode
+from pytask import DatabaseSession
 from pytask import ExitCode
 from pytask import PathNode
+from pytask import State
 from pytask import TaskWithoutPath
 from pytask import build
 
@@ -81,7 +83,7 @@ def test_python_node_id_is_collision_free(tmp_path):
     assert left_id != right_id
 
 
-def test_lockfile_does_not_write_state_to_database(tmp_path):
+def test_lockfile_writes_state_to_database_for_compatibility(tmp_path):
     def func(path):
         path.write_text("data")
 
@@ -96,7 +98,13 @@ def test_lockfile_does_not_write_state_to_database(tmp_path):
     assert (tmp_path / "pytask.lock").exists()
 
     db_path = tmp_path / ".pytask" / "pytask.sqlite3"
-    assert not db_path.exists()
+    assert db_path.exists()
+
+    task_signature = session.tasks[0].signature
+    with DatabaseSession() as db_session:
+        state = db_session.get(State, (task_signature, task_signature))
+    assert state is not None
+    assert state.hash_ == session.tasks[0].state()
 
 
 def test_clean_lockfile_removes_stale_entries(tmp_path):

@@ -45,9 +45,9 @@ are welcome to also support macOS.
 ````{confval} database_url
 
 SQLite is the legacy state format. pytask now uses `pytask.lock` as the primary state
-backend and only consults the database when no lockfile exists. During that first run,
-the lockfile is written. Subsequent runs use only the lockfile and do not update the
-database state.
+backend for change detection. During migration, pytask consults the database when no
+lockfile exists and writes `pytask.lock`. For downgrade compatibility, pytask also keeps
+the legacy database state updated during builds.
 
 The `database_url` option remains for backwards compatibility and controls the legacy
 database location and dialect ([supported by sqlalchemy](https://docs.sqlalchemy.org/en/latest/core/engines.html#backend-specific-urls)).
