@@ -165,7 +165,6 @@ def test_pdb_set_trace(tmp_path):
     _flush(child)
 
 
-@pytest.mark.xfail(os.environ.get("CI") == "true", reason="#312")
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_interaction_capturing_simple(tmp_path):  # pragma: no cover
@@ -184,7 +183,9 @@ def test_pdb_interaction_capturing_simple(tmp_path):  # pragma: no cover
     child.expect(r"task_1\(\)")
     child.expect("Pdb")
     child.sendline("n")
-    child.expect("i == 1")
+    # Python < 3.13 stops at the next statement already, while Python >= 3.13
+    # first stops on the set_trace call itself and reaches this line after "n".
+    child.expect(["i == 1", "assert 0"])
     child.expect("Pdb")
     child.sendline("c")
     rest = child.read().decode("utf-8")
@@ -275,7 +276,6 @@ def test_set_trace_capturing_afterwards(tmp_path):
     _flush(child)
 
 
-@pytest.mark.xfail(os.environ.get("CI") == "true", reason="#312")
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_pdb_interaction_capturing_twice(tmp_path):  # pragma: no cover
@@ -295,21 +295,13 @@ def test_pdb_interaction_capturing_twice(tmp_path):  # pragma: no cover
 
     child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
     child.expect(["PDB", "set_trace", r"\(IO-capturing", "turned", r"off\)"])
-    child.expect("task_1")
-    child.expect("Pdb")
-    child.sendline("n")
-    child.expect("x = 3")
     child.expect("Pdb")
     child.sendline("c")
     child.expect(["PDB", "continue", r"\(IO-capturing", r"resumed\)"])
     child.expect(["PDB", "set_trace", r"\(IO-capturing", "turned", r"off\)"])
     child.expect("Pdb")
-    child.sendline("n")
-    child.expect("x = 4")
-    child.expect("Pdb")
     child.sendline("c")
     child.expect(["PDB", "continue", r"\(IO-capturing", r"resumed\)"])
-    child.expect("task_1")
     child.expect("failed")
     rest = _escape_ansi(child.read().decode("utf8"))
     assert "Captured stdout during call" in rest

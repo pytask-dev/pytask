@@ -33,7 +33,6 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
-from _pytask.node_protocols import warn_about_upcoming_attributes_field_on_nodes
 from _pytask.nodes import DirectoryNode
 from _pytask.nodes import PathNode
 from _pytask.nodes import PythonNode
@@ -90,7 +89,21 @@ def pytask_collect(session: Session) -> bool:
         session=session, reports=session.collection_reports, tasks=session.tasks
     )
 
+    _clear_annotation_locals(session.tasks)
+
     return True
+
+
+def _clear_annotation_locals(tasks: list[PTask]) -> None:
+    """Drop decoration-time locals snapshots once collection finishes.
+
+    The snapshot is only needed to evaluate deferred annotations while collecting
+    dependencies/products. Keeping it afterwards can retain non-picklable objects (for
+    example locks) and break parallel backends that cloudpickle task functions.
+    """
+    for task in tasks:
+        if isinstance(task.function, TaskFunction):
+            task.function.pytask_meta.annotation_locals = None
 
 
 def _collect_from_paths(session: Session) -> None:
@@ -404,9 +417,6 @@ def pytask_collect_node(  # noqa: C901, PLR0912
 
     """
     node = node_info.value
-
-    if isinstance(node, (PNode, PProvisionalNode)) and not hasattr(node, "attributes"):
-        warn_about_upcoming_attributes_field_on_nodes()
 
     if isinstance(node, DirectoryNode):
         if node.root_dir is None:

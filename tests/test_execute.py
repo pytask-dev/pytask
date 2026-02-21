@@ -420,14 +420,16 @@ def test_custom_node_as_product(runner, tmp_path, product_def, return_def):
     import pickle
     from typing import Any
     from typing import Annotated
-    import attrs
+    from dataclasses import dataclass
+    from dataclasses import field
     from pytask import Product
 
-    @attrs.define
+    @dataclass
     class PickleNode:
         path: Path
         name: str = ""
         signature: str = "id"
+        attributes: dict[Any, Any] = field(default_factory=dict)
 
         def state(self) -> str | None:
             if self.path.exists():
@@ -752,14 +754,16 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
     from __future__ import annotations
     from pathlib import Path
     from typing import Any
-    import attrs
+    from dataclasses import dataclass
+    from dataclasses import field
     import pickle
 
-    @attrs.define
+    @dataclass
     class PickleNode:
         name: str
         path: Path
         signature: str = "id"
+        attributes: dict[Any, Any] = field(default_factory=dict)
 
         def state(self) -> str | None:
             if self.path.exists():

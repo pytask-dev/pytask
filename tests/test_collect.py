@@ -5,10 +5,12 @@ import textwrap
 import warnings
 from pathlib import Path
 
+import cloudpickle
 import pytest
 
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
+from _pytask.node_protocols import PPathNode
 from pytask import CollectionOutcome
 from pytask import ExitCode
 from pytask import NodeInfo
@@ -236,6 +238,7 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
         )
         assert not record
 
+    assert isinstance(result, PPathNode)
     assert str(result.path) == str(real_node)
 
 
@@ -402,6 +405,32 @@ def test_string_literal_annotations_are_resolved(tmp_path):
     session = build(paths=tmp_path)
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").exists()
+
+
+def test_annotation_locals_are_cleared_after_collection_to_allow_pickling(tmp_path):
+    source = """
+    import threading
+
+    from pytask import task
+
+    lock = threading.RLock()
+
+    for i in range(2):
+        @task
+        def task_example():
+            return None
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path, dry_run=True)
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 2
+
+    for collected_task in session.tasks:
+        meta = getattr(collected_task.function, "pytask_meta", None)
+        assert meta is not None
+        assert meta.annotation_locals is None
+        cloudpickle.dumps(collected_task.function)
 
 
 def test_collect_string_product_raises_error_with_annotation(runner, tmp_path):

@@ -12,15 +12,16 @@ def test_node_protocol_for_custom_nodes(runner, tmp_path):
     from typing import Annotated
     from typing import Any
     from pytask import Product
-    from attrs import define
+    from dataclasses import dataclass
+    from dataclasses import field
     from pathlib import Path
 
-    @define
+    @dataclass
     class CustomNode:
         name: str
         value: str
         signature: str = "id"
-        attributes: dict[Any, Any] = {}
+        attributes: dict[Any, Any] = field(default_factory=dict)
 
         def state(self):
             return self.value
@@ -51,16 +52,17 @@ def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     from typing import Any
     from pytask import Product
     from pathlib import Path
-    from attrs import define
+    from dataclasses import dataclass
+    from dataclasses import field
     import pickle
 
-    @define
+    @dataclass
     class PickleFile:
         name: str
         path: Path
         value: Path
         signature: str = "id"
-        attributes: dict[Any, Any] = {}
+        attributes: dict[Any, Any] = field(default_factory=dict)
 
         def state(self):
             return str(self.path.stat().st_mtime)
@@ -90,14 +92,12 @@ def test_node_protocol_for_custom_nodes_with_paths(runner, tmp_path):
     assert tmp_path.joinpath("out.txt").read_text() == "text"
 
 
-def test_node_protocol_for_custom_nodes_adding_attributes(runner, tmp_path):
+def test_node_protocol_for_custom_nodes_requires_attributes(runner, tmp_path):
     source = """
     from typing import Annotated
-    from pytask import Product
-    from attrs import define
-    from pathlib import Path
+    from dataclasses import dataclass
 
-    @define
+    @dataclass
     class CustomNode:
         name: str
         value: str
@@ -112,15 +112,11 @@ def test_node_protocol_for_custom_nodes_adding_attributes(runner, tmp_path):
         def save(self, value):
             self.value = value
 
-    def task_example(
-        data = CustomNode("custom", "text"),
-        out: Annotated[Path, Product] = Path("out.txt"),
-    ) -> None:
-        out.write_text(data)
+    def task_example() -> Annotated[str, CustomNode("custom", "text")]:
+        return "text"
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-    assert tmp_path.joinpath("out.txt").read_text() == "text"
-    assert "FutureWarning" in result.output
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "does not follow the 'pytask.PNode' protocol" in result.output

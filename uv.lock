@@ -3410,7 +3410,6 @@ wheels = [
 name = "pytask"
 source = { editable = "." }
 dependencies = [
-    { name = "attrs" },
     { name = "click" },
     { name = "click-default-group" },
     { name = "msgspec", extra = ["toml"] },
@@ -3473,7 +3472,6 @@ typing = [
 
 [package.metadata]
 requires-dist = [
-    { name = "attrs", specifier = ">=21.3.0" },
     { name = "click", specifier = ">=8.1.8,!=8.2.0" },
     { name = "click-default-group", specifier = ">=1.2.4" },
     { name = "msgspec", specifier = ">=0.18.6" },

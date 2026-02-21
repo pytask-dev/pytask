@@ -20,9 +20,7 @@ from _pytask.data_catalog_utils import DATA_CATALOG_NAME_FIELD
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import PNode
-from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
-from _pytask.node_protocols import warn_about_upcoming_attributes_field_on_nodes
 from _pytask.nodes import PickleNode
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
@@ -37,6 +35,14 @@ def _get_parent_path_of_data_catalog_module(stacklevel: int = 2) -> Path:
     if potential_path:
         return Path(potential_path).parent
     return Path.cwd()
+
+
+def _is_path_node_type(node_type: type[Any]) -> bool:
+    """Return True if the class looks like a path-based node."""
+    for cls in node_type.__mro__:
+        if "path" in getattr(cls, "__annotations__", {}):
+            return True
+    return False
 
 
 @dataclass(kw_only=True)
@@ -95,10 +101,7 @@ class DataCatalog:
         # Initialize the data catalog with persisted nodes from previous runs.
         for path in self.path.glob("*-node.pkl"):
             node = pickle.loads(path.read_bytes())  # noqa: S301
-            if not hasattr(node, "attributes"):
-                warn_about_upcoming_attributes_field_on_nodes()
-            else:
-                node.attributes = {DATA_CATALOG_NAME_FIELD: self.name}
+            node.attributes[DATA_CATALOG_NAME_FIELD] = self.name
             self._entries[node.name] = node
 
     def __getitem__(self, name: str) -> PNode | PProvisionalNode:
@@ -115,7 +118,7 @@ class DataCatalog:
 
         if node is None:
             filename = hashlib.sha256(name.encode()).hexdigest()
-            if isinstance(self.default_node, PPathNode):
+            if _is_path_node_type(self.default_node):
                 assert self.path is not None
                 self._entries[name] = self.default_node(
                     name=name, path=self.path / f"{filename}.pkl"
@@ -143,7 +146,4 @@ class DataCatalog:
             self._entries[name] = collected_node
 
         node = self._entries[name]
-        if hasattr(node, "attributes"):
-            node.attributes[DATA_CATALOG_NAME_FIELD] = self.name  # ty: ignore[invalid-assignment]
-        else:
-            warn_about_upcoming_attributes_field_on_nodes()
+        node.attributes[DATA_CATALOG_NAME_FIELD] = self.name

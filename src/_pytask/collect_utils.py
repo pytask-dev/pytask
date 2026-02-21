@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import inspect
+from dataclasses import replace
 from typing import TYPE_CHECKING
 from typing import Annotated
 from typing import Any
 from typing import get_origin
-
-import attrs
 
 from _pytask._inspect import get_annotations
 from _pytask.exceptions import NodeNotCollectedError
@@ -308,7 +307,7 @@ def collect_dependency(
         # If a node is a dependency and its value is not set, the node is a product in
         # another task and the value will be set there. Thus, we wrap the original node
         # in another node to retrieve the value after it is set.
-        new_node = attrs.evolve(node, value=node)
+        new_node = replace(node, value=node)
         node_info = node_info._replace(value=new_node)
 
     collected_node = session.hook.pytask_collect_node(
