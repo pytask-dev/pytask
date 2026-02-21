@@ -7,6 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- {issue}`735` adds the `pytask.lock` lockfile as the primary state backend with a
+  portable format, documentation, and a one-run SQLite fallback when no lockfile
+  exists.
 - {pull}`787` makes the `attributes` field mandatory on `PNode` and
   `PProvisionalNode`, and preserves existing node attributes when loading entries from
   the data catalog.

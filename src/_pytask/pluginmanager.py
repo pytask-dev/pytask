@@ -53,6 +53,7 @@ def pytask_add_hooks(pm: PluginManager) -> None:
         "_pytask.provisional",
         "_pytask.execute",
         "_pytask.live",
+        "_pytask.lockfile",
         "_pytask.logging",
         "_pytask.mark",
         "_pytask.nodes",

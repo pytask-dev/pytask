@@ -72,6 +72,7 @@ def build(  # noqa: PLR0913
     debug_pytask: bool = False,
     disable_warnings: bool = False,
     dry_run: bool = False,
+    clean_lockfile: bool = False,
     editor_url_scheme: Literal["no_link", "file", "vscode", "pycharm"]  # noqa: PYI051
     | str = "file",
     explain: bool = False,
@@ -121,6 +122,8 @@ def build(  # noqa: PLR0913
         Whether warnings should be disabled and not displayed.
     dry_run
         Whether a dry-run should be performed that shows which tasks need to be rerun.
+    clean_lockfile
+        Whether the lockfile should be rewritten to only include collected tasks.
     editor_url_scheme
         An url scheme that allows to click on task names, node names and filenames and
         jump right into you preferred editor to the right line.
@@ -189,6 +192,7 @@ def build(  # noqa: PLR0913
             "debug_pytask": debug_pytask,
             "disable_warnings": disable_warnings,
             "dry_run": dry_run,
+            "clean_lockfile": clean_lockfile,
             "editor_url_scheme": editor_url_scheme,
             "explain": explain,
             "expression": expression,
@@ -304,6 +308,12 @@ def build(  # noqa: PLR0913
     is_flag=True,
     default=False,
     help="Execute a task even if it succeeded successfully before.",
+)
+@click.option(
+    "--clean-lockfile",
+    is_flag=True,
+    default=False,
+    help="Rewrite the lockfile with only currently collected tasks.",
 )
 @click.option(
     "--explain",

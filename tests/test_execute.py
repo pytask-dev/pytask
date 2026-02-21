@@ -608,6 +608,7 @@ def test_execute_tasks_via_functional_api(tmp_path):
     result = subprocess.run(
         (sys.executable, tmp_path.joinpath("task_module.py").as_posix()),
         check=False,
+        cwd=tmp_path,
     )
     assert result.returncode == ExitCode.OK
     assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
@@ -636,7 +637,8 @@ def test_execute_tasks_multiple_times_via_api(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
     result = run_in_subprocess(
-        (sys.executable, tmp_path.joinpath("task_module.py").as_posix())
+        (sys.executable, tmp_path.joinpath("task_module.py").as_posix()),
+        cwd=tmp_path,
     )
     assert result.exit_code == ExitCode.OK
 
@@ -955,11 +957,11 @@ def test_use_functional_interface_with_task(tmp_path):
         produces={"path": PathNode(path=tmp_path / "out.txt")},
     )
 
-    session = build(tasks=[task])
+    session = build(tasks=[task], paths=tmp_path)
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").exists()
 
-    session = build(tasks=task)
+    session = build(tasks=task, paths=tmp_path)
     assert session.exit_code == ExitCode.OK
 
 

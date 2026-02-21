@@ -44,11 +44,13 @@ are welcome to also support macOS.
 
 ````{confval} database_url
 
-pytask uses a database to keep track of tasks, products, and dependencies over runs. By
-default, it will create an SQLite database in the project's root directory called
-`.pytask/pytask.sqlite3`. If you want to use a different name or a different dialect
-[supported by sqlalchemy](https://docs.sqlalchemy.org/en/latest/core/engines.html#backend-specific-urls),
-use either {option}`pytask build --database-url` or `database_url` in the config.
+SQLite is the legacy state format. pytask now uses `pytask.lock` as the primary state
+backend for change detection. During migration, pytask consults the database when no
+lockfile exists and writes `pytask.lock`. For downgrade compatibility, pytask also keeps
+the legacy database state updated during builds.
+
+The `database_url` option remains for backwards compatibility and controls the legacy
+database location and dialect ([supported by sqlalchemy](https://docs.sqlalchemy.org/en/latest/core/engines.html#backend-specific-urls)).
 
 ```toml
 database_url = "sqlite:///.pytask/pytask.sqlite3"
