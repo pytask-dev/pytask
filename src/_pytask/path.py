@@ -331,10 +331,10 @@ def _import_module_using_spec(
             break
     else:
         spec = importlib.util.spec_from_file_location(module_name, str(module_path))
-    if spec is not None:
+    if spec is not None and spec.loader is not None:
         mod = importlib.util.module_from_spec(spec)
         sys.modules[module_name] = mod
-        spec.loader.exec_module(mod)  # ty: ignore[possibly-missing-attribute]
+        spec.loader.exec_module(mod)
         _insert_missing_modules(sys.modules, module_name)
         return mod
 

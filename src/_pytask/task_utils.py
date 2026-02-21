@@ -186,7 +186,7 @@ def task(  # noqa: PLR0913
 
     # When decorator is used without parentheses, call wrapper directly.
     if is_task_function(name) and kwargs is None:
-        return wrapper(cast("T", name))
+        return wrapper(cast("T", name))  # ty: ignore[invalid-argument-type]
     return wrapper
 
 
