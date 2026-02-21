@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import os
 import subprocess
 import sys
@@ -12,7 +13,7 @@ from pytask import ExitCode
 from pytask import cli
 
 try:
-    import pygraphviz  # type: ignore[unresolved-import]  # noqa: F401
+    importlib.import_module("pygraphviz")
 except ImportError:  # pragma: no cover
     _IS_PYGRAPHVIZ_INSTALLED = False
 else:
