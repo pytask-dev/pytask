@@ -2,19 +2,18 @@ from __future__ import annotations
 
 import textwrap
 
-from sqlalchemy.engine import make_url
-
-from pytask import DatabaseSession
+from _pytask.lockfile import build_portable_node_id
+from _pytask.lockfile import build_portable_task_id
+from _pytask.lockfile import read_lockfile
+from _pytask.node_protocols import PNode
+from _pytask.tree_util import tree_leaves
 from pytask import ExitCode
-from pytask import State
 from pytask import build
 from pytask import cli
-from pytask import create_database
-from pytask.path import hash_path
 
 
-def test_existence_of_hashes_in_db(tmp_path):
-    """Modification dates of input and output files are stored in database."""
+def test_existence_of_hashes_in_lockfile(tmp_path):
+    """Modification dates of input and output files are stored in the lockfile."""
     source = """
     from pathlib import Path
 
@@ -30,35 +29,36 @@ def test_existence_of_hashes_in_db(tmp_path):
 
     assert session.exit_code == ExitCode.OK
 
-    create_database(
-        make_url(  # type: ignore[arg-type]
-            "sqlite:///" + tmp_path.joinpath(".pytask", "pytask.sqlite3").as_posix()
-        )
-    )
+    lockfile = read_lockfile(tmp_path / "pytask.lock")
+    assert lockfile is not None
+    tasks_by_id = {entry.id: entry for entry in lockfile.task}
 
-    with DatabaseSession() as db_session:
-        task_id = session.tasks[0].signature
-        out_path = tmp_path.joinpath("out.txt")
-        depends_on = session.tasks[0].depends_on
-        produces = session.tasks[0].produces
-        assert depends_on is not None
-        assert produces is not None
-        in_id = depends_on["path"].signature  # type: ignore[union-attr]
-        out_id = produces["produces"].signature  # type: ignore[union-attr]
+    task = session.tasks[0]
+    task_id = build_portable_task_id(task, tmp_path)
+    entry = tasks_by_id[task_id]
+    assert entry.state == task.state()
 
-        for id_, path in (
-            (task_id, task_path),
-            (in_id, in_path),
-            (out_id, out_path),
-        ):
-            state = db_session.get(State, (task_id, id_))
-            assert state is not None
-            hash_ = state.hash_
-            assert hash_ == hash_path(path, path.stat().st_mtime)
+    depends_on = task.depends_on
+    produces = task.produces
+    assert depends_on is not None
+    assert produces is not None
+    in_nodes = tree_leaves(depends_on["path"])
+    out_nodes = tree_leaves(produces["produces"])
+    assert len(in_nodes) == 1
+    assert len(out_nodes) == 1
+    in_node = in_nodes[0]
+    out_node = out_nodes[0]
+    assert isinstance(in_node, PNode)
+    assert isinstance(out_node, PNode)
+
+    in_id = build_portable_node_id(in_node, tmp_path)
+    out_id = build_portable_node_id(out_node, tmp_path)
+    assert entry.depends_on[in_id] == in_node.state()
+    assert entry.produces[out_id] == out_node.state()
 
 
 def test_rename_database_w_config(tmp_path, runner):
-    """Modification dates of input and output files are stored in database."""
+    """Database files are created for compatibility with legacy backends."""
     path_to_db = tmp_path.joinpath(".db.sqlite")
     tmp_path.joinpath("pyproject.toml").write_text(
         "[tool.pytask.ini_options]\ndatabase_url='sqlite:///.db.sqlite'"
@@ -80,7 +80,7 @@ def test_database_url_from_config_is_parsed(tmp_path):
 
 
 def test_rename_database_w_cli(tmp_path, runner):
-    """Modification dates of input and output files are stored in database."""
+    """Database files are created for compatibility with legacy backends."""
     path_to_db = tmp_path.joinpath(".db.sqlite")
     result = runner.invoke(
         cli,

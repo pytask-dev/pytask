@@ -9,6 +9,7 @@ maxdepth: 1
 ---
 command_line_interface
 configuration
+lockfile
 hookspecs
 api
 ```
