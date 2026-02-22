@@ -4,9 +4,9 @@
 git-friendly format so runs can be resumed or shared across machines.
 
 ```{note}
-SQLite is the legacy format. It is still read when no lockfile exists, and a lockfile
-is written during that first run. The lockfile remains the primary backend for skip
-decisions, but pytask also keeps the legacy database updated for downgrade
+SQLite is the legacy format. When no lockfile exists, pytask reads the legacy database
+state and writes `pytask.lock`. The lockfile remains the primary backend for skip
+decisions, and `pytask build` also keeps the legacy database updated for downgrade
 compatibility.
 ```
 
