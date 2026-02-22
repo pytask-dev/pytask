@@ -17,6 +17,7 @@ from pytask import PathNode
 from pytask import State
 from pytask import TaskWithoutPath
 from pytask import build
+from pytask import cli
 
 
 def test_lockfile_rejects_older_version(tmp_path):
@@ -51,6 +52,22 @@ def test_lockfile_rejects_newer_version(tmp_path):
         read_lockfile(path)
 
 
+def test_lockfile_rejects_invalid_version_string(tmp_path):
+    path = tmp_path / "pytask.lock"
+    path.write_text(
+        textwrap.dedent(
+            """
+            lock-version = "abc"
+            task = []
+            """
+        ).strip()
+        + "\n"
+    )
+
+    with pytest.raises(LockfileVersionError, match=r"Invalid lock-version"):
+        read_lockfile(path)
+
+
 def test_lockfile_rejects_invalid_format(tmp_path):
     path = tmp_path / "pytask.lock"
     path.write_text("{not toml")
@@ -81,6 +98,44 @@ def test_python_node_id_is_collision_free(tmp_path):
     left_id = build_portable_node_id(node_left, tmp_path)
     right_id = build_portable_node_id(node_right, tmp_path)
     assert left_id != right_id
+
+
+def test_collection_fails_for_ambiguous_lockfile_ids(runner, tmp_path):
+    source = """
+    from dataclasses import dataclass, field
+    from pathlib import Path
+    from typing import Any
+
+    @dataclass
+    class CustomNode:
+        name: str
+        value: str
+        signature: str
+        attributes: dict[Any, Any] = field(default_factory=dict)
+
+        def state(self):
+            return self.value
+
+        def load(self, is_product=False):
+            return self.value
+
+        def save(self, value):
+            self.value = value
+
+    def task_example(
+        first=CustomNode(name="dup", value="1", signature="signature-a"),
+        second=CustomNode(name="dup", value="2", signature="signature-b"),
+        produces=Path("out.txt"),
+    ):
+        produces.write_text(first + second)
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Ambiguous lockfile ids detected" in result.output
+    assert "lockfile id 'dup'" in result.output
 
 
 def test_lockfile_writes_state_to_database_for_compatibility(tmp_path):

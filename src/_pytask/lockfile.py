@@ -5,11 +5,13 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from dataclasses import field
+from itertools import chain
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 
 import msgspec
+from packaging.version import InvalidVersion
 from packaging.version import Version
 from upath import UPath
 
@@ -21,6 +23,7 @@ from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import PythonNode
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import hookimpl
+from _pytask.tree_util import tree_leaves
 
 if TYPE_CHECKING:
     from _pytask.session import Session
@@ -108,8 +111,14 @@ def _journal(path: Path) -> JsonlJournal[_JournalEntry]:
 
 def _read_journal_entries(journal: JsonlJournal[_JournalEntry]) -> list[_JournalEntry]:
     entries = journal.read()
+    current_version = Version(CURRENT_LOCKFILE_VERSION)
     for entry in entries:
-        if Version(entry.lock_version) != Version(CURRENT_LOCKFILE_VERSION):
+        try:
+            entry_version = Version(entry.lock_version)
+        except InvalidVersion:
+            msg = f"Invalid lock-version {entry.lock_version!r}."
+            raise LockfileVersionError(msg) from None
+        if entry_version != current_version:
             msg = (
                 f"Unsupported lock-version {entry.lock_version!r}. "
                 f"Current version is {CURRENT_LOCKFILE_VERSION}."
@@ -136,7 +145,13 @@ def read_lockfile(path: Path) -> _Lockfile | None:
         msg = "Lockfile is missing 'lock-version'."
         raise LockfileError(msg)
 
-    if Version(version) != Version(CURRENT_LOCKFILE_VERSION):
+    try:
+        parsed_version = Version(version)
+    except InvalidVersion:
+        msg = f"Invalid lock-version {version!r}."
+        raise LockfileVersionError(msg) from None
+
+    if parsed_version != Version(CURRENT_LOCKFILE_VERSION):
         msg = (
             f"Unsupported lock-version {version!r}. "
             f"Current version is {CURRENT_LOCKFILE_VERSION}."
@@ -240,6 +255,55 @@ def _build_task_entry(session: Session, task: PTask, root: Path) -> _TaskEntry |
         depends_on=depends_on,
         produces=produces,
     )
+
+
+def _raise_error_if_lockfile_ids_are_ambiguous(tasks: list[PTask], root: Path) -> None:
+    errors: list[str] = []
+
+    for task in tasks:
+        task_id = build_portable_task_id(task, root)
+        seen: dict[str, tuple[str, str, str]] = {}
+
+        dependencies = (
+            ("dependency", node)
+            for node in tree_leaves(task.depends_on)
+            if isinstance(node, PNode)
+        )
+        products = (
+            ("product", node)
+            for node in tree_leaves(task.produces)
+            if isinstance(node, PNode)
+        )
+
+        for kind, node in chain(dependencies, products):
+            if node.state() is None:
+                continue
+
+            node_id = build_portable_node_id(node, root)
+            current = (node.signature, kind, node.name)
+            previous = seen.get(node_id)
+            if previous is None:
+                seen[node_id] = current
+                continue
+
+            previous_signature, previous_kind, previous_name = previous
+            current_signature, current_kind, current_name = current
+
+            if previous_signature != current_signature:
+                errors.append(
+                    f"- task {task_id!r}: lockfile id {node_id!r} is used by "
+                    f"{previous_kind} {previous_name!r} (signature "
+                    f"{previous_signature[:8]}...) and {current_kind} "
+                    f"{current_name!r} (signature {current_signature[:8]}...)."
+                )
+
+    if errors:
+        msg = (
+            "Ambiguous lockfile ids detected. Each dependency/product that contributes "
+            "state must map to a unique lockfile id within a task.\n\n"
+            + "\n".join(errors)
+        )
+        raise ValueError(msg)
 
 
 @dataclass
@@ -355,6 +419,12 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
     path = config["root"] / "pytask.lock"
     config["lockfile_path"] = path
     config["lockfile_state"] = LockfileState.from_path(path, config["root"])
+
+
+@hookimpl(trylast=True)
+def pytask_collect_modify_tasks(session: Session, tasks: list[PTask]) -> None:
+    """Validate that lockfile ids are unambiguous for collected tasks."""
+    _raise_error_if_lockfile_ids_are_ambiguous(tasks, session.config["root"])
 
 
 @hookimpl

@@ -76,6 +76,16 @@ state values without executing tasks again.
 Node entries are stored as key-value pairs inside `depends_on` and `produces`, where the
 key is the node id and the value is the node state string.
 
+### IDs vs Signatures
+
+`id` in the lockfile is a portable identifier used to match entries across runs and
+machines. It is not the same as a node or task `signature` used internally in the DAG.
+
+- `signature`: runtime identity in the in-memory DAG.
+- `id`: portable lockfile key persisted to `pytask.lock`.
+
+When implementing custom nodes, keep lockfile IDs stable and unique within a task.
+
 ## Version Compatibility
 
 Only lock-version `"1"` is supported. Older or newer versions error with a clear upgrade
