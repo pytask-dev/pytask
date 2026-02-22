@@ -276,7 +276,14 @@ def _raise_error_if_lockfile_ids_are_ambiguous(tasks: list[PTask], root: Path) -
         )
 
         for kind, node in chain(dependencies, products):
-            if node.state() is None:
+            try:
+                node_state = node.state()
+            except Exception:  # noqa: BLE001
+                # Preserve existing behavior where state() errors are raised during
+                # task execution, not during collection-time lockfile validation.
+                node_state = None
+
+            if node_state is None:
                 continue
 
             node_id = build_portable_node_id(node, root)
