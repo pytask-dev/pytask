@@ -5,17 +5,20 @@ import sys
 import textwrap
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 from _pytask.collect_command import _find_common_ancestor_of_all_nodes
 from _pytask.collect_command import _print_collected_tasks
-from _pytask.node_protocols import PTaskWithPath
 from pytask import ExitCode
 from pytask import PathNode
 from pytask import Task
 from pytask import cli
 from tests.conftest import enter_directory
+
+if TYPE_CHECKING:
+    from _pytask.node_protocols import PTaskWithPath
 
 
 def test_collect_task(runner, tmp_path):
