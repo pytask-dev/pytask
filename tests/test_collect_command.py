@@ -5,6 +5,7 @@ import sys
 import textwrap
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -15,6 +16,9 @@ from pytask import PathNode
 from pytask import Task
 from pytask import cli
 from tests.conftest import enter_directory
+
+if TYPE_CHECKING:
+    from _pytask.node_protocols import PTaskWithPath
 
 
 def test_collect_task(runner, tmp_path):
@@ -315,7 +319,7 @@ def function(depends_on, produces): ...
 
 
 def test_print_collected_tasks_without_nodes(capsys):
-    dictionary = {
+    dictionary: dict[Path, list[PTaskWithPath]] = {
         Path("task_path.py"): [
             Task(
                 base_name="function",
@@ -337,7 +341,7 @@ def test_print_collected_tasks_without_nodes(capsys):
 
 
 def test_print_collected_tasks_with_nodes(capsys):
-    dictionary = {
+    dictionary: dict[Path, list[PTaskWithPath]] = {
         Path("task_path.py"): [
             Task(
                 base_name="function",
@@ -361,7 +365,7 @@ def test_print_collected_tasks_with_nodes(capsys):
 
 @pytest.mark.parametrize(("show_nodes", "expected_add"), [(False, "src"), (True, "..")])
 def test_find_common_ancestor_of_all_nodes(show_nodes, expected_add):
-    tasks = [
+    tasks: list[PTaskWithPath] = [
         Task(
             base_name="function",
             path=Path.cwd() / "src" / "task_path.py",
