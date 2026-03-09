@@ -18,11 +18,6 @@ from _pytask._hashlib import hash_value
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import TypeAlias
-
-    from ty_extensions import Intersection
-
-    Memoized: TypeAlias = "Intersection[Callable[P, R], HasCache]"
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -46,7 +41,7 @@ class Cache:
     _sentinel: Any = field(default_factory=object)
     cache_info: CacheInfo = field(default_factory=CacheInfo)
 
-    def memoize(self, func: Callable[P, R]) -> Memoized[P, R]:
+    def memoize(self, func: Callable[P, R]) -> Callable[P, R]:
         func_module = getattr(func, "__module__", "")
         func_name = getattr(func, "__name__", "")
         prefix = f"{func_module}.{func_name}:"

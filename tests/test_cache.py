@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import inspect
+from typing import cast
 
 from _pytask.cache import Cache
+from _pytask.cache import HasCache
 from _pytask.cache import _make_memoize_key
 
 
@@ -13,20 +15,22 @@ def test_cache():
     def func(a, b):
         return a + b
 
-    assert func.cache.cache_info.hits == 0
-    assert func.cache.cache_info.misses == 0
+    cached_func = cast("HasCache", func)
+
+    assert cached_func.cache.cache_info.hits == 0
+    assert cached_func.cache.cache_info.misses == 0
 
     value = func(1, b=2)
     assert value == 3
-    assert func.cache.cache_info.hits == 0
-    assert func.cache.cache_info.misses == 1
+    assert cached_func.cache.cache_info.hits == 0
+    assert cached_func.cache.cache_info.misses == 1
 
     assert next(i for i in cache._cache.values()) == 3
 
     value = func(1, b=2)
     assert value == 3
-    assert func.cache.cache_info.hits == 1
-    assert func.cache.cache_info.misses == 1
+    assert cached_func.cache.cache_info.hits == 1
+    assert cached_func.cache.cache_info.misses == 1
 
 
 def test_cache_add():
