@@ -13,25 +13,27 @@ from typing import Any
 from typing import ParamSpec
 from typing import Protocol
 from typing import TypeVar
+from typing import cast
 
 from _pytask._hashlib import hash_value
 
-if TYPE_CHECKING:
-    from collections.abc import Callable
-    from typing import TypeAlias
-
-    from ty_extensions import Intersection
-
-    Memoized: TypeAlias = "Intersection[Callable[P, R], HasCache]"
-
 P = ParamSpec("P")
 R = TypeVar("R")
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from ty_extensions import Intersection
 
 
 class HasCache(Protocol):
     """Protocol for objects that have a cache attribute."""
 
     cache: Cache
+
+
+if TYPE_CHECKING:
+    Memoized = Intersection[Callable[P, R], HasCache]
 
 
 @dataclass
@@ -68,9 +70,10 @@ class Cache:
 
             return value
 
-        wrapped.cache = self  # ty: ignore[unresolved-attribute]
+        wrapped_with_cache = cast("Memoized[P, R]", wrapped)
+        wrapped_with_cache.cache = self
 
-        return wrapped
+        return wrapped_with_cache
 
     def add(self, key: str, value: Any) -> None:
         self._cache[key] = value

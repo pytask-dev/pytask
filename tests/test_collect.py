@@ -10,6 +10,7 @@ import pytest
 
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
+from _pytask.node_protocols import PPathNode
 from pytask import CollectionOutcome
 from pytask import ExitCode
 from pytask import NodeInfo
@@ -237,6 +238,7 @@ def test_pytask_collect_node_does_not_raise_error_if_path_is_not_normalized(
         )
         assert not record
 
+    assert isinstance(result, PPathNode)
     assert str(result.path) == str(real_node)
 
 

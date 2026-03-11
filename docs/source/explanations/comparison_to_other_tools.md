@@ -97,6 +97,11 @@ pipefunc is a lightweight library for creating function pipelines as
 handles execution order, supports map-reduce operations, parallel execution, and
 provides resource profiling.
 
+## [Hamilton](https://github.com/dagworks-inc/hamilton)
+
+Hamilton is a Python framework for building dataflows as function graphs, with a focus
+on modular transformations, lineage, and observability for data and ML pipelines.
+
 ## [Common Workflow Language (CWL)](https://www.commonwl.org/)
 
 CWL is an open standard for describing data analysis workflows in a portable,

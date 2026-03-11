@@ -352,6 +352,7 @@ def pytask_collect_task(
         )
 
         markers = get_all_marks(obj)
+        attributes: dict[str, Any]
 
         if isinstance(obj, TaskFunction):
             attributes = {
@@ -361,7 +362,11 @@ def pytask_collect_task(
                 "is_generator": obj.pytask_meta.is_generator,
             }
         else:
-            attributes = {"collection_id": None, "after": [], "is_generator": False}
+            attributes = {
+                "collection_id": None,
+                "after": [],
+                "is_generator": False,
+            }
 
         unwrapped = unwrap_task_function(obj)
         if isinstance(unwrapped, Function):
