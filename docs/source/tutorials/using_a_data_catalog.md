@@ -86,7 +86,7 @@ The following tabs show you how to use the data catalog given the interface you 
 
     Use `data_catalog["data"]` as an default argument to access the
     [`pytask.PickleNode`](../api/nodes_and_tasks.md#pytask.PickleNode) within the task. When
-    you are done transforming your `pandas.DataFrame`, save it with
+    you are done transforming your \[`pandas.DataFrame`\][], save it with
     [`pytask.PNode.save`](../api/nodes_and_tasks.md#pytask.PNode.save).
 
     ```py hl_lines="11 22" title="task_data_preparation.py"
@@ -97,7 +97,7 @@ The following tabs show you how to use the data catalog given the interface you 
 
     Use `data_catalog["data"]` as an default argument to access the
     [`pytask.PickleNode`](../api/nodes_and_tasks.md#pytask.PickleNode) within the task. When
-    you are done transforming your `pandas.DataFrame`, save it with
+    you are done transforming your \[`pandas.DataFrame`\][], save it with
     [`pytask.PNode.save`](../api/nodes_and_tasks.md#pytask.PNode.save).
 
     ```py hl_lines="7 17" title="task_data_preparation.py"
@@ -122,8 +122,7 @@ The following tabs show you how to use the data catalog given the interface you 
 
 Next, we will define the second task that consumes the data set from the previous task.
 Following one of the interfaces gives you immediate access to the
-[`pandas.DataFrame`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html)
-in the task without any additional line to load it.
+\[`pandas.DataFrame`\][] in the task without any additional line to load it.
 
 ```py hl_lines="13" title="task_plot_data.py"
 --8<-- "docs_src/tutorials/using_a_data_catalog_3_py310.py"
@@ -170,13 +169,13 @@ path means the location is relative to the module of the data catalog.
 --8<-- "docs_src/tutorials/using_a_data_catalog_4.py"
 ```
 
-You can now use the data catalog as in the previous example and use the `pathlib.Path`
-in the task.
+You can now use the data catalog as in the previous example and use the
+\[`pathlib.Path`\][] in the task.
 
 !!! note
 
-    Note that the value of `data_catalog["csv"]` inside the task becomes a `pathlib.Path`.
-    It is because a `pathlib.Path` in
+    Note that the value of `data_catalog["csv"]` inside the task becomes a
+    \[`pathlib.Path`\][]. It is because a \[`pathlib.Path`\][] in
     [`pytask.DataCatalog.add`](../api/core_classes_and_exceptions.md#pytask.DataCatalog.add)
     is not parsed to a [`pytask.PickleNode`](../api/nodes_and_tasks.md#pytask.PickleNode)
     but a [`pytask.PathNode`](../api/nodes_and_tasks.md#pytask.PathNode).
@@ -219,6 +218,6 @@ WindowsPath('C:\Users\pytask-dev\git\my_project\file.csv')
 
 `data_catalog["data"]` was stored with a
 [`pytask.PickleNode`](../api/nodes_and_tasks.md#pytask.PickleNode) and returns the
-`pandas.DataFrame` whereas `data_catalog["csv"]` becomes a
+\[`pandas.DataFrame`\][] whereas `data_catalog["csv"]` becomes a
 [`pytask.PathNode`](../api/nodes_and_tasks.md#pytask.PathNode) and
 [`pytask.PNode.load`](../api/nodes_and_tasks.md#pytask.PNode.load) returns the path.

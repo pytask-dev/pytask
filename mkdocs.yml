@@ -100,6 +100,11 @@ plugins:
       handlers:
         python:
           paths: [src]
+          inventories:
+            - https://docs.python.org/3/objects.inv
+            - https://pandas.pydata.org/docs/objects.inv
+            - https://universal-pathlib.readthedocs.io/en/latest/objects.inv
+            - https://mypy.readthedocs.io/en/stable/objects.inv
           options:
             docstring_style: numpy
             docstring_section_style: table

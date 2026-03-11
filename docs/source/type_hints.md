@@ -6,7 +6,8 @@ information on the type of variables.
 Type hints can be used
 
 - by editors to provide better introspection into objects.
-- by tools like mypy that check your code given the variable types.
+- by tools like \[`mypy`\][] and [ty](https://github.com/astral-sh/ty) from Astral that
+    check your code given the variable types.
 - as additional documentation.
 
 pytask uses type hints as part of its interface.

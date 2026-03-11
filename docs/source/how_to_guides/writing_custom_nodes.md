@@ -3,7 +3,7 @@
 In the previous tutorials and how-to guides, you learned that dependencies and products
 can be represented as plain Python objects with
 [pytask.PythonNode](../api/nodes_and_tasks.md#pytask.PythonNode) or as paths where every
-`pathlib.Path` is converted to a
+\[`pathlib.Path`\][] is converted to a
 [pytask.PathNode](../api/nodes_and_tasks.md#pytask.PathNode).
 
 In this how-to guide, you will learn about the general concept of nodes and how to write
@@ -11,9 +11,10 @@ your own to improve your workflows.
 
 ## Use-case
 
-A typical task operation is to load data like a `pandas.DataFrame` from a pickle file,
-transform it, and store it on disk. The usual way would be to use paths to point to
-inputs and outputs and call `pandas.read_pickle` and `pandas.DataFrame.to_pickle`.
+A typical task operation is to load data like a \[`pandas.DataFrame`\][] from a pickle
+file, transform it, and store it on disk. The usual way would be to use paths to point
+to inputs and outputs and call \[`pandas.read_pickle`\][] and
+\[`pandas.DataFrame.to_pickle`\][].
 
 ```py
 --8<-- "docs_src/how_to_guides/writing_custom_nodes_example_1.py"
@@ -23,7 +24,7 @@ To remove IO operations from the task and delegate them to pytask, we will repli
 [pytask.PickleNode](../api/nodes_and_tasks.md#pytask.PickleNode) that automatically
 loads and stores Python objects.
 
-And we pass the value to `df` via `typing.Annotated` to preserve the type hint.
+And we pass the value to `df` via \[`typing.Annotated`\][] to preserve the type hint.
 
 The result will be the following task.
 
@@ -82,28 +83,34 @@ Here are some explanations.
     [pytask.PickleNode.from_path](../api/nodes_and_tasks.md#pytask.PickleNode.from_path)
     is a convenient method to instantiate the class.
 
-- The method `pytask.PickleNode.state` yields a value that signals the node's state. If
-    the value changes, pytask knows it needs to regenerate the workflow. We can use the
-    timestamp of when the node was last modified.
+- The method
+    [`pytask.PickleNode.state`](../api/nodes_and_tasks.md#pytask.PickleNode.state) yields
+    a value that signals the node's state. If the value changes, pytask knows it needs
+    to regenerate the workflow. We can use the timestamp of when the node was last
+    modified.
 
-- pytask calls `pytask.PickleNode.load` when it collects the values of function
-    arguments to run the function. The argument `is_product` signals that the node is
-    loaded as a product with a
+- pytask calls
+    [`pytask.PickleNode.load`](../api/nodes_and_tasks.md#pytask.PickleNode.load) when it
+    collects the values of function arguments to run the function. The argument
+    `is_product` signals that the node is loaded as a product with a
     [pytask.Product](../api/utilities_and_typing.md#pytask.Product) annotation or via
     `produces`.
 
     When the node is loaded as a dependency, we want to inject the value of the pickle
     file. In the other case, the node returns itself so users can call
-    `pytask.PickleNode.save` themselves.
+    [`pytask.PickleNode.save`](../api/nodes_and_tasks.md#pytask.PickleNode.save)
+    themselves.
 
-- `pytask.PickleNode.save` is called when a task function returns and allows to save the
-    return values.
+- [`pytask.PickleNode.save`](../api/nodes_and_tasks.md#pytask.PickleNode.save) is called
+    when a task function returns and allows to save the return values.
 
 ## Improvements
 
-Usually, you would like your custom node to work with `pathlib.Path` objects and
-`upath.UPath` objects allowing to work with remote filesystems. To simplify getting the
-state of the node, you can use the `pytask.get_state_of_path` function.
+Usually, you would like your custom node to work with \[`pathlib.Path`\][] objects and
+\[`upath.UPath`\][] objects allowing to work with remote filesystems. To simplify
+getting the state of the node, you can use the
+[`pytask.get_state_of_path`](../api/utilities_and_typing.md#pytask.get_state_of_path)
+function.
 
 ## Conclusion
 

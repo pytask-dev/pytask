@@ -6,6 +6,7 @@
     options:
       show_root_heading: true
       show_signature: true
+::: pytask.get_state_of_path
 ::: pytask.path.hash_path
 
 ## Tree Utilities

@@ -35,15 +35,20 @@ where pytask can find the files. The files are described with a root path (defau
 the directory of the task module) and a glob pattern (default is `*`).
 
 When we use the [pytask.DirectoryNode](../api/nodes_and_tasks.md#pytask.DirectoryNode)
-as a product annotation, we get access to the `root_dir` as a `pathlib.Path` object
-inside the function, which allows us to store the files.
+as a product annotation, we get access to the `root_dir` as a \[`pathlib.Path`\][]
+object inside the function, which allows us to store the files.
 
 !!! note
 
-    The `pytask.DirectoryNode` is a provisional node that implements
-    `pytask.PProvisionalNode`. A provisional node is not a `pytask.PNode`, but when its
-    `pytask.PProvisionalNode.collect` method is called, it returns actual nodes. A
-    `pytask.DirectoryNode`, for example, returns `pytask.PathNode`.
+    The [`pytask.DirectoryNode`](../api/nodes_and_tasks.md#pytask.DirectoryNode) is a
+    provisional node that implements
+    [`pytask.PProvisionalNode`](../api/nodes_and_tasks.md#pytask.PProvisionalNode). A
+    provisional node is not a [`pytask.PNode`](../api/nodes_and_tasks.md#pytask.PNode), but
+    when its
+    [`pytask.PProvisionalNode.collect`](../api/nodes_and_tasks.md#pytask.PProvisionalNode.collect)
+    method is called, it returns actual nodes. A
+    [`pytask.DirectoryNode`](../api/nodes_and_tasks.md#pytask.DirectoryNode), for example,
+    returns a [`pytask.PathNode`](../api/nodes_and_tasks.md#pytask.PathNode).
 
 ## Depending on provisional nodes
 
@@ -57,8 +62,8 @@ downloaded.
 --8<-- "docs_src/how_to_guides/provisional_task.py"
 ```
 
-To reference the files that will be downloaded, we use the
-[pytask.DirectoryNode](../api/nodes_and_tasks.md#pytask.DirectoryNode) is a dependency.
+To reference the files that will be downloaded, we use
+[pytask.DirectoryNode](../api/nodes_and_tasks.md#pytask.DirectoryNode) as a dependency.
 Before the task is executed, the list of files in the folder defined by the root path
 and the pattern are automatically collected and passed to the task.
 

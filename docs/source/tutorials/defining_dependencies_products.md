@@ -66,7 +66,7 @@ Let's revisit the task from the [previous tutorial](write_a_task.md) that we def
 
 !!! tip
 
-    If you do not know about `pathlib` check out this guide by
+    If you do not know about \[`pathlib`\][] check out this guide by
     [RealPython](https://realpython.com/python-pathlib/). The module is beneficial for
     handling paths conveniently and across platforms.
 
@@ -83,8 +83,9 @@ we will define it in `task_plot_data.py`.
     To specify the task relies on `data.pkl`, add the path to the function signature with
     any argument name (here `path_to_data`).
 
-    pytask assumes that all function arguments that do not have a `pytask.Product`
-    annotation are dependencies of the task.
+    pytask assumes that all function arguments that do not have a
+    [`pytask.Product`](../api/utilities_and_typing.md#pytask.Product) annotation are
+    dependencies of the task.
 
     ```py hl_lines="12"
     --8<-- "docs_src/tutorials/defining_dependencies_products_dependencies_py310.py"
