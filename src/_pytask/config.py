@@ -64,12 +64,14 @@ IS_FILE_SYSTEM_CASE_SENSITIVE = is_file_system_case_sensitive()
 @hookimpl
 def pytask_configure(pm: PluginManager, raw_config: dict[str, Any]) -> dict[str, Any]:
     """Configure pytask."""
-    # Add all values by default so that many plugins do not need to copy over values.
     markers = raw_config.get("markers", {})
     if not isinstance(markers, (dict, list, tuple)):
         msg = "'markers' must be a mapping or a sequence of marker definitions."
         raise TypeError(msg)
-    config = {"pm": pm, "markers": parse_markers(markers)} | raw_config
+
+    # Add all values by default so that many plugins do not need to copy over values.
+    config = {"pm": pm, "markers": {}} | raw_config
+    config["markers"] = parse_markers(markers)
 
     pm.hook.pytask_parse_config(config=config)
     pm.hook.pytask_post_parse(config=config)

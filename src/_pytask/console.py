@@ -5,6 +5,7 @@ from __future__ import annotations
 import functools
 import inspect
 from contextlib import suppress
+from copy import copy
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
@@ -111,10 +112,15 @@ def render_to_string(
     example, render warnings with colors or text in exceptions.
 
     """
-    buffer = console.render(renderable)
+    render_console = console
+    if not strip_styles and console.no_color:
+        render_console = copy(console)
+        render_console.no_color = False
+
+    buffer = render_console.render(renderable)
     if strip_styles:
         buffer = Segment.strip_styles(buffer)
-    return console._render_buffer(buffer)
+    return render_console._render_buffer(buffer)
 
 
 def format_task_name(task: PTask, editor_url_scheme: str) -> Text:
