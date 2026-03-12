@@ -3,7 +3,7 @@
 In the previous tutorials and how-to guides, you learned that dependencies and products
 can be represented as plain Python objects with
 [pytask.PythonNode](../api/nodes_and_tasks.md#pytask.PythonNode) or as paths where every
-\[`pathlib.Path`\][] is converted to a
+[`pathlib.Path`][] is converted to a
 [pytask.PathNode](../api/nodes_and_tasks.md#pytask.PathNode).
 
 In this how-to guide, you will learn about the general concept of nodes and how to write
@@ -11,10 +11,10 @@ your own to improve your workflows.
 
 ## Use-case
 
-A typical task operation is to load data like a \[`pandas.DataFrame`\][] from a pickle
-file, transform it, and store it on disk. The usual way would be to use paths to point
-to inputs and outputs and call \[`pandas.read_pickle`\][] and
-\[`pandas.DataFrame.to_pickle`\][].
+A typical task operation is to load data like a [`pandas.DataFrame`][]
+from a pickle file, transform it, and store it on disk. The usual way would be to use
+paths to point to inputs and outputs and call [`pandas.read_pickle`][] and
+[`pandas.DataFrame.to_pickle`][].
 
 ```py
 --8<-- "docs_src/how_to_guides/writing_custom_nodes_example_1.py"
@@ -24,7 +24,8 @@ To remove IO operations from the task and delegate them to pytask, we will repli
 [pytask.PickleNode](../api/nodes_and_tasks.md#pytask.PickleNode) that automatically
 loads and stores Python objects.
 
-And we pass the value to `df` via \[`typing.Annotated`\][] to preserve the type hint.
+And we pass the value to `df` via [`typing.Annotated`][] to preserve
+the type hint.
 
 The result will be the following task.
 
@@ -106,9 +107,9 @@ Here are some explanations.
 
 ## Improvements
 
-Usually, you would like your custom node to work with \[`pathlib.Path`\][] objects and
-\[`upath.UPath`\][] objects allowing to work with remote filesystems. To simplify
-getting the state of the node, you can use the
+Usually, you would like your custom node to work with [`pathlib.Path`][] objects and
+[`upath.UPath`][] objects allowing to work with remote
+filesystems. To simplify getting the state of the node, you can use the
 [`pytask.get_state_of_path`](../api/utilities_and_typing.md#pytask.get_state_of_path)
 function.
 

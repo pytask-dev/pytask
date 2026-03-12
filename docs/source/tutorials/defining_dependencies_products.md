@@ -66,7 +66,7 @@ Let's revisit the task from the [previous tutorial](write_a_task.md) that we def
 
 !!! tip
 
-    If you do not know about \[`pathlib`\][] check out this guide by
+    If you do not know about [`pathlib`][] check out this guide by
     [RealPython](https://realpython.com/python-pathlib/). The module is beneficial for
     handling paths conveniently and across platforms.
 

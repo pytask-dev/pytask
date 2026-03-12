@@ -35,8 +35,9 @@ where pytask can find the files. The files are described with a root path (defau
 the directory of the task module) and a glob pattern (default is `*`).
 
 When we use the [pytask.DirectoryNode](../api/nodes_and_tasks.md#pytask.DirectoryNode)
-as a product annotation, we get access to the `root_dir` as a \[`pathlib.Path`\][]
-object inside the function, which allows us to store the files.
+as a product annotation, we get access to the `root_dir` as a
+[`pathlib.Path`][] object inside the function, which allows us to store
+the files.
 
 !!! note
 

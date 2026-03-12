@@ -1,7 +1,7 @@
 # Hashing inputs of tasks
 
 Any input to a task function is parsed by pytask's nodes. For example,
-\[`pathlib.Path`\][]s are parsed by
+[`pathlib.Path`][]s are parsed by
 [pytask.PathNode](../api/nodes_and_tasks.md#pytask.PathNode)s. The
 [pytask.PathNode](../api/nodes_and_tasks.md#pytask.PathNode) handles among other things
 how changes in the underlying file are detected.
