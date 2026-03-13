@@ -236,14 +236,16 @@ class PythonNode(PNode):
 
     Examples
     --------
-    To allow a :class:`PythonNode` to hash a dictionary, you need to pass your
-    own hashing function. For example, from the :mod:`deepdiff` library.
+    To allow a [pytask.PythonNode][] to hash a dictionary, you need to pass your
+    own hashing function. For example, from the `deepdiff` library.
 
     >>> from deepdiff import DeepHash
     >>> from pytask import PythonNode
     >>> node = PythonNode(name="node", value={"a": 1}, hash=lambda x: DeepHash(x)[x])
 
-    .. warning:: Hashing big objects can require some time.
+    !!! warning
+
+        Hashing big objects can require some time.
 
     """
 
@@ -282,7 +284,7 @@ class PythonNode(PNode):
         """Calculate state of the node.
 
         If ``hash = False``, the function returns ``"0"``, a constant hash value, so the
-        :class:`PythonNode` is ignored when checking for a changed state of the task.
+        [pytask.PythonNode][] is ignored when checking for a changed state of the task.
 
         If ``hash`` is a callable, then use this function to calculate a hash expecting
         an integer or string.
@@ -294,7 +296,9 @@ class PythonNode(PNode):
         The hash for strings and bytes is calculated using hashlib because
         ``hash("asd")`` returns a different value every invocation since the hash of
         strings is salted with a random integer and it would confuse users. See
-        {meth}`object.__hash__` for more information.
+        [`object.__hash__`](
+        https://docs.python.org/3/reference/datamodel.html#object.__hash__
+        ) for more information.
 
         """
         if self.value is no_default:
@@ -320,9 +324,9 @@ class PickleNode(PPathNode):
     attributes: dict[Any, Any]
         A dictionary to store additional information of the task.
     serializer
-        A function to serialize the object. Defaults to :func:`pickle.dump`.
+        A function to serialize the object. Defaults to [pickle.dump](https://docs.python.org/3/library/pickle.html#pickle.dump).
     deserializer
-        A function to deserialize the object. Defaults to :func:`pickle.load`.
+        A function to deserialize the object. Defaults to [pickle.load](https://docs.python.org/3/library/pickle.html#pickle.load).
 
     """
 
@@ -369,7 +373,7 @@ class DirectoryNode(PProvisionalNode):
     name
         The name of the node.
     pattern
-        Patterns are the same as for :mod:`fnmatch`, with the addition of ``**`` which
+        Patterns are the same as for `fnmatch`, with the addition of ``**`` which
         means "this directory and all subdirectories, recursively".
     root_dir
         The pattern is interpreted relative to the path given by ``root_dir``. If

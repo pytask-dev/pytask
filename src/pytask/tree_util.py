@@ -1,4 +1,4 @@
-"""Publishes functions of :mod:`_pytask.tree_util`."""
+"""Publishes functions of `_pytask.tree_util`."""
 
 from __future__ import annotations
 

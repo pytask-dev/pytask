@@ -6,9 +6,11 @@ tutorial explains the minimal setup.
 If you want to use pytask with a collection of scripts, you can skip this lesson and
 move to the next section of the tutorials.
 
-```{seealso}
-In case you are thinking about developing multiple packages in the project that should be separated (one for dealing with the data, one for the analysis and a package for the pytask tasks), consider using a [workspace](../how_to_guides/using_workspaces.md).
-```
+!!! note
+
+    In case you are thinking about developing multiple packages in the project that should
+    be separated (one for dealing with the data, one for the analysis and a package for the
+    pytask tasks), consider using a [workspace](../how_to_guides/using_workspaces.md).
 
 ## The directory structure
 
@@ -34,7 +36,7 @@ my_project
 Replicate this directory structure for your project or start from pytask's
 [cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project)
 template or any other
-{doc}`linked template or example project <../how_to_guides/bp_templates_and_projects>`.
+[linked template or example project](../how_to_guides/bp_templates_and_projects.md).
 
 ## The `src` directory
 
@@ -46,8 +48,7 @@ It contains a `config.py` or a similar module to store the project's configurati
 should define paths pointing to the source and build directory of the project. They
 later help to define other paths.
 
-```python
-# Content of config.py.
+```py title="config.py"
 from pathlib import Path
 
 
@@ -55,11 +56,11 @@ SRC = Path(__file__).parent.resolve()
 BLD = SRC.joinpath("..", "..", "bld").resolve()
 ```
 
-```{seealso}
-If you want to know more about the "`src` layout" and why it is NASA-approved, read
-[this article by Hynek Schlawack](https://hynek.me/articles/testing-packaging/) or this
-[setuptools article](https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#src-layout).
-```
+!!! note
+
+    If you want to know more about the "`src` layout" and why it is NASA-approved, read
+    [this article by Hynek Schlawack](https://hynek.me/articles/testing-packaging/) or this
+    [setuptools article](https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#src-layout).
 
 ## The `bld` directory
 
@@ -75,65 +76,58 @@ pytask.
 The configuration depends on your package manager choice. Each creates different files
 to manage dependencies and project metadata.
 
-`````{tab-set}
+=== "uv"
 
-````{tab-item} uv
-:sync: uv
+    Create a `pyproject.toml` file for project configuration and dependencies:
 
-Create a `pyproject.toml` file for project configuration and dependencies:
+    ```{ .toml .annotate title="pyproject.toml" }
+    [project]
+    name = "my_project"
+    version = "0.1.0"
+    requires-python = ">=3.10"
+    dependencies = ["pytask"]
 
-```toml
-[project]
-name = "my_project"
-version = "0.1.0"
-requires-python = ">=3.10"
-dependencies = ["pytask"]
+    [build-system]
+    requires = ["uv_build"] # (1)!
+    build-backend = "uv_build"
 
-[build-system]
-requires = ["uv_build"]
-build-backend = "uv_build"
+    [tool.pytask.ini_options]
+    paths = ["src/my_project"] # (2)!
+    ```
 
-[tool.pytask.ini_options]
-paths = ["src/my_project"]
-```
+    1. `uv_build` provides the build backend for this minimal package layout.
+    1. `paths` tells pytask where to collect task modules.
 
-uv automatically handles build system configuration and package discovery.
+=== "pixi"
 
-````
+    Create a `pixi.toml` file for project configuration:
 
-````{tab-item} pixi
-:sync: pixi
+    ```{ .toml .annotate title="pixi.toml" }
+    [project]
+    name = "my_project"
+    version = "0.1.0"
+    requires-python = ">=3.10"
+    channels = ["conda-forge"] # (1)!
+    platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 
-Create a `pixi.toml` file for project configuration:
+    [build-system]
+    requires = ["hatchling"]
+    build-backend = "hatchling.build"
 
-```toml
-[project]
-name = "my_project"
-version = "0.1.0"
-requires-python = ">=3.10"
-channels = ["conda-forge"]
-platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
+    [dependencies]
+    pytask = "*"
+    python = ">=3.10"
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+    [tool.pytask.ini_options]
+    paths = ["src/my_project"] # (2)!
+    ```
 
-[dependencies]
-pytask = "*"
-python = ">=3.10"
-
-[tool.pytask.ini_options]
-paths = ["src/my_project"]
-```
-
-````
-
-
-`````
+    1. `conda-forge` is the default package source for the pixi environment.
+    1. `paths` tells pytask where to collect task modules.
 
 The `[tool.pytask.ini_options]` section tells pytask to look for tasks in
 `src/my_project`. You will learn more about configuration in the
-{doc}`configuration tutorial <configuration>`.
+[configuration tutorial](configuration.md).
 
 ## The `.pytask` directory
 
@@ -142,28 +136,20 @@ interact with it.
 
 ## Installation
 
-`````{tab-set}
+=== "uv"
 
-````{tab-item} uv
-:sync: uv
+    ```console
+    $ uv sync
+    ```
 
-```console
-$ uv sync
-```
+    The command installs all packages. uv will ensure that all your dependencies are
+    up-to-date.
 
-The command installs all packages. uv will ensure that all your dependencies are up-to-date.
+=== "pixi"
 
-````
+    ```console
+    $ pixi install
+    ```
 
-````{tab-item} pixi
-:sync: pixi
-
-```console
-$ pixi install
-```
-
-pixi automatically creates the environment and installs dependencies. pixi will ensure that all your dependencies are up-to-date.
-
-````
-
-`````
+    pixi automatically creates the environment and installs dependencies. pixi will ensure
+    that all your dependencies are up-to-date.

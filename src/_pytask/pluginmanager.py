@@ -86,11 +86,11 @@ class _PluginManagerStorage:
     CLI or the API.
 
     When pytask is called from the CLI, the plugin manager is created in
-    :mod:`_pytask.cli` outside the click command to extend the command line interface.
+    `_pytask.cli` outside the click command to extend the command line interface.
     Afterwards, it needs to be accessed in the different commands.
 
     When pytask is called from the API, the plugin manager needs to be created inside
-    the function, for example, :func:`~pytask.build` to ensure each call can start from
+    the function, for example, [pytask.build][] to ensure each call can start from
     a blank slate and is able to register any plugins.
 
     """

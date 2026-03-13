@@ -59,35 +59,36 @@ class Mark:
 class MarkDecorator:
     """A decorator for applying a mark on task function.
 
-    Decorators are created with :class:`pytask.mark`.
+    Decorators are created with [`pytask.mark`][].
 
-    .. code-block:: python
-
-        mark1 = pytask.mark.NAME  # Simple MarkDecorator
-        mark2 = pytask.mark.NAME(name1=value)  # Parametrized MarkDecorator
+    ```python
+    mark1 = pytask.mark.NAME  # Simple MarkDecorator
+    mark2 = pytask.mark.NAME(name1=value)  # Parametrized MarkDecorator
+    ```
 
     and can then be applied as decorators to task functions
 
-    .. code-block:: python
+    ```python
+    @mark2
+    def task_function():
+        pass
+    ```
 
-        @mark2
-        def task_function():
-            pass
-
-    When a :class:`MarkDecorator` is called it does the following:
+    When a [`pytask.MarkDecorator`][] is called it does the following:
 
     1. If called with a single function as its only positional argument and no
        additional keyword arguments, it attaches the mark to the function, containing
-       all the arguments already stored internally in the :class:`MarkDecorator`.
-    2. When called in any other case, it returns a new :class:`MarkDecorator` instance
-       with the original :class:`MarkDecorator`'s content updated with the arguments
-       passed to this call.
+       all the arguments already stored internally in the [`pytask.MarkDecorator`][].
+    2. When called in any other case, it returns a new
+       [`pytask.MarkDecorator`][] instance with the original
+       [`pytask.MarkDecorator`][]'s content updated with the arguments passed to this
+       call.
 
     Notes
     -----
     The rules above prevent decorators from storing only a single function or class
     reference as their positional argument with no additional keyword or positional
-    arguments. You can work around this by using :meth:`MarkDecorator.with_args()`.
+    arguments. You can work around this by using `MarkDecorator.with_args()`.
 
     """
 
@@ -119,8 +120,9 @@ class MarkDecorator:
     def with_args(self, *args: Any, **kwargs: Any) -> MarkDecorator:
         """Return a MarkDecorator with extra arguments added.
 
-        Unlike calling the MarkDecorator, ``with_args()`` can be used even if the sole
-        argument is a callable.
+        Unlike calling the [`pytask.MarkDecorator`][],
+        [`pytask.MarkDecorator.with_args`][] can be used even if the sole argument is a
+        callable.
 
         """
         mark = Mark(self.name, args, kwargs)
@@ -184,19 +186,19 @@ https://tinyurl.com/pytask-deps-prods.
 
 
 class MarkGenerator:
-    """Factory for :class:`MarkDecorator` objects.
-
-    Exposed as a :class:`pytask.mark` singleton instance.
+    """Factory for [`pytask.MarkDecorator`][] objects.
 
     Example
     -------
-    >>> import pytask
+    ```python
+    import pytask
 
-    >>> @pytask.mark.skip
-    ... def task_function():
-    ...    pass
+    @pytask.mark.skip
+    def task_function() -> None:
+        pass
+    ```
 
-    applies a 'skip' :class:`Mark` on ``task_function``.
+    This applies a ``skip`` [`pytask.mark`][] to ``task_function``.
 
     """
 
@@ -243,3 +245,4 @@ class MarkGenerator:
 
 
 MARK_GEN = MarkGenerator()
+"""The singleton instance of the [`pytask.MarkGenerator`][]."""

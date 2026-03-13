@@ -1,8 +1,7 @@
 # Capturing output
 
-What is capturing? Some of your tasks may use {func}`print` statements, have progress
-bars, require user input, or the libraries you are using show information during
-execution.
+What is capturing? Some of your tasks may use `print` statements, have progress bars,
+require user input, or the libraries you are using show information during execution.
 
 Since the output would pollute the terminal and the information shown by pytask, it
 captures all the output during execution and attaches it to the report of this task by
@@ -21,7 +20,7 @@ it because it is rarely desired to wait for interactive input when running autom
 tasks.
 
 By default, capturing is done by intercepting writes to low-level file descriptors. This
-allows capturing output from simple {func}`print` statements as well as output from a
+allows capturing output from simple `print` statements as well as output from a
 subprocess started by a task.
 
 ## Setting capturing methods or disabling capturing
@@ -29,12 +28,12 @@ subprocess started by a task.
 There are three ways in which `pytask` can perform capturing:
 
 - `fd` (file descriptor) level capturing (default): All writes going to the operating
-  system file descriptors 1 and 2 will be captured.
+    system file descriptors 1 and 2 will be captured.
 - `sys` level capturing: Only writes to Python files `sys.stdout` and `sys.stderr` will
-  be captured. No capturing of writes to file descriptors is performed.
+    be captured. No capturing of writes to file descriptors is performed.
 - `tee-sys` capturing: Python writes to `sys.stdout` and `sys.stderr` will be captured.
-  However, the writes will also be passed through to the actual `sys.stdout` and
-  `sys.stderr`.
+    However, the writes will also be passed through to the actual `sys.stdout` and
+    `sys.stderr`.
 
 You can influence output-capturing mechanisms from the command line:
 
@@ -51,10 +50,7 @@ $ pytask --capture=tee-sys   # combines 'sys' and '-s', capturing sys.stdout/std
 One primary benefit of the default capturing of stdout/stderr output is that you can use
 print statements for debugging:
 
-```python
-# content of task_capture.py
-
-
+```py title="task_capture.py"
 def task_func1():
     assert True
 
@@ -67,5 +63,4 @@ def task_func2():
 And running this module will show you precisely the output of the failing function and
 hide the other one:
 
-```{include} ../_static/md/capture.md
-```
+--8<-- "docs/source/_static/md/capture.md"

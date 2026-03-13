@@ -33,7 +33,7 @@ def collect_provisional_nodes(
 ) -> PyTree[PNode | PProvisionalNode]:
     """Collect provisional nodes.
 
-    1. Call the :meth:`pytask.PProvisionalNode.collect` to receive the raw nodes.
+    1. Call the [pytask.PProvisionalNode.collect][] to receive the raw nodes.
     2. Collect the raw nodes as usual.
 
     """
