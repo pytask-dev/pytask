@@ -45,4 +45,7 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Post-parse the configuration."""
+    command = config.get("command")
+    if command not in (None, "build"):
+        return
     create_database(config["database_url"])

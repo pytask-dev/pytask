@@ -20,9 +20,6 @@ from _pytask.console import unify_styles
 from _pytask.dag_utils import TopologicalSorter
 from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import node_and_neighbors
-from _pytask.database_utils import get_node_change_info
-from _pytask.database_utils import has_node_changed
-from _pytask.database_utils import update_states_in_database
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
@@ -46,6 +43,9 @@ from _pytask.outcomes import count_outcomes
 from _pytask.pluginmanager import hookimpl
 from _pytask.provisional_utils import collect_provisional_products
 from _pytask.reports import ExecutionReport
+from _pytask.state import get_node_change_info
+from _pytask.state import has_node_changed
+from _pytask.state import update_states
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map
@@ -196,7 +196,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
             # Check if node changed and collect detailed info if in explain mode
             if session.config["explain"]:
                 has_changed, reason, details = get_node_change_info(
-                    task=task, node=node, state=node_state
+                    session=session, task=task, node=node, state=node_state
                 )
                 if has_changed:
                     needs_to_be_executed = True
@@ -222,7 +222,9 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
                         )
                     )
             else:
-                has_changed = has_node_changed(task=task, node=node, state=node_state)
+                has_changed = has_node_changed(
+                    session=session, task=task, node=node, state=node_state
+                )
                 if has_changed:
                     needs_to_be_executed = True
 
@@ -232,6 +234,8 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
 
     if not needs_to_be_executed:
         collect_provisional_products(session, task)
+        if not session.config["dry_run"] and not session.config["explain"]:
+            update_states(session, task)
         raise SkippedUnchanged
 
     # Create directory for product if it does not exist. Maybe this should be a `setup`
@@ -326,7 +330,7 @@ def pytask_execute_task_process_report(
     task = report.task
 
     if report.outcome == TaskOutcome.SUCCESS:
-        update_states_in_database(session, task.signature)
+        update_states(session, task)
     elif report.exc_info and isinstance(report.exc_info[1], WouldBeExecuted):
         report.outcome = TaskOutcome.WOULD_BE_EXECUTED
 

@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Literal
 
 from sqlalchemy import create_engine
+from sqlalchemy import inspect
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -24,7 +27,9 @@ if TYPE_CHECKING:
 __all__ = [
     "BaseTable",
     "DatabaseSession",
+    "configure_database_if_present",
     "create_database",
+    "database_is_configured",
     "get_node_change_info",
     "update_states_in_database",
 ]
@@ -58,6 +63,42 @@ def create_database(url: str) -> None:
     DatabaseSession.configure(bind=_ENGINE)
 
 
+def database_is_configured() -> bool:
+    """Return whether the database session is configured."""
+    return _ENGINE is not None
+
+
+def configure_database_if_present(url: str) -> bool:
+    """Configure the database session if a legacy database exists."""
+    global _ENGINE  # noqa: PLW0603
+    if _ENGINE is not None:
+        return True
+
+    try:
+        engine = create_engine(url)
+    except SQLAlchemyError:
+        return False
+
+    if engine.url.drivername == "sqlite":
+        db_path = engine.url.database
+        if not db_path or not Path(db_path).exists():
+            engine.dispose()
+            return False
+
+    try:
+        inspector = inspect(engine)
+        if "state" not in inspector.get_table_names():
+            engine.dispose()
+            return False
+    except SQLAlchemyError:
+        engine.dispose()
+        return False
+
+    _ENGINE = engine
+    DatabaseSession.configure(bind=_ENGINE)
+    return True
+
+
 def _create_or_update_state(first_key: str, second_key: str, hash_: str) -> None:
     """Create or update a state."""
     with DatabaseSession() as session:
@@ -71,6 +112,8 @@ def _create_or_update_state(first_key: str, second_key: str, hash_: str) -> None
 
 def update_states_in_database(session: Session, task_signature: str) -> None:
     """Update the state for each node of a task in the database."""
+    if _ENGINE is None:
+        return
     for name in node_and_neighbors(session.dag, task_signature):
         node = session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
         hash_ = node.state()
@@ -81,6 +124,8 @@ def has_node_changed(task: PTask, node: PTask | PNode, state: str | None) -> boo
     """Indicate whether a single dependency or product has changed."""
     # If node does not exist, we receive None.
     if state is None:
+        return True
+    if _ENGINE is None:
         return True
 
     with DatabaseSession() as session:
@@ -115,6 +160,8 @@ def get_node_change_info(
     # If node does not exist, we receive None.
     if state is None:
         return True, "missing", details
+    if _ENGINE is None:
+        return True, "not_in_db", details
 
     with DatabaseSession() as session:
         db_state = session.get(State, (task.signature, node.signature))
