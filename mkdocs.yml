@@ -59,20 +59,15 @@ nav:
       - Why pytask: explanations/why_pytask.md
       - Comparison To Other Tools: explanations/comparison_to_other_tools.md
       - Pluggy: explanations/pluggy.md
-  - CLI:
-      - Overview: commands/index.md
-      - build: commands/build.md
-      - clean: commands/clean.md
-      - collect: commands/collect.md
-      - dag: commands/dag.md
-      - markers: commands/markers.md
-      - profile: commands/profile.md
   - Reference Guides:
       - Overview: reference_guides/index.md
       - Command Line Interface: reference_guides/command_line_interface.md
       - Configuration: reference_guides/configuration.md
       - Lockfile: reference_guides/lockfile.md
       - Hook Specifications: reference_guides/hookspecs.md
+      - Type Hints: type_hints.md
+      - Developer's Guide: developers_guide.md
+      - Glossary: glossary.md
   - API:
       - Overview: api/index.md
       - CLI Imports: api/cli_and_programmatic.md
@@ -82,10 +77,15 @@ nav:
       - Nodes And Tasks: api/nodes_and_tasks.md
       - Outcomes, Reports, And Warnings: api/outcomes_reports_and_warnings.md
       - Utilities And Typing: api/utilities_and_typing.md
+  - CLI:
+      - Overview: commands/index.md
+      - build: commands/build.md
+      - clean: commands/clean.md
+      - collect: commands/collect.md
+      - dag: commands/dag.md
+      - markers: commands/markers.md
+      - profile: commands/profile.md
   - Plugin List: plugin_list.md
-  - Type Hints: type_hints.md
-  - Developer's Guide: developers_guide.md
-  - Glossary: glossary.md
   - Changelog: changes.md
 
 theme:
@@ -95,6 +95,30 @@ theme:
   features:
     - content.code.copy
     - content.code.annotate
+    - navigation.footer
+    - navigation.path
+    - navigation.top
+    - search.highlight
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: lucide/sun-moon
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: lucide/sun
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: lucide/moon
+        name: Switch to system preference
 
 plugins:
   - search

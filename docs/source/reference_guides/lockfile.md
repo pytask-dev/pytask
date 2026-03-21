@@ -1,14 +1,14 @@
-# The Lock File
+# The Lockfile
 
 `pytask.lock` is the default state backend. It stores task state in a portable,
 git-friendly format so runs can be resumed or shared across machines.
 
-```{note}
-SQLite is the legacy format. When no lockfile exists, pytask reads the legacy database
-state and writes `pytask.lock`. The lockfile remains the primary backend for skip
-decisions, and `pytask build` also keeps the legacy database updated for downgrade
-compatibility.
-```
+!!! note
+
+    SQLite is the legacy format. When no lockfile exists, pytask reads the legacy database
+    state and writes `pytask.lock`. The lockfile remains the primary backend for skip
+    decisions, and `pytask build` also keeps the legacy database updated for downgrade
+    compatibility.
 
 ## Example
 

@@ -11,6 +11,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   lockfile as the primary state backend with a portable format and documentation. When
   no lockfile exists, pytask reads the legacy SQLite state and writes `pytask.lock`;
   `pytask build` continues updating the legacy database for downgrade compatibility.
+- [#789](https://github.com/pytask-dev/pytask/pull/789) switches the documentation
+  site to [Zensical](https://zensical.org/).
 - [#787](https://github.com/pytask-dev/pytask/pull/787) makes the `attributes` field mandatory on `PNode` and
   `PProvisionalNode`, and preserves existing node attributes when loading entries from
   the data catalog.
