@@ -100,7 +100,14 @@ def test_python_node_id_is_collision_free(tmp_path):
     assert left_id != right_id
 
 
-def test_collection_fails_for_ambiguous_lockfile_ids(runner, tmp_path):
+@pytest.mark.parametrize(
+    "args",
+    [
+        pytest.param(lambda path: [path.as_posix()], id="build"),
+        pytest.param(lambda path: ["collect", path.as_posix()], id="collect"),
+    ],
+)
+def test_collection_fails_for_ambiguous_lockfile_ids(runner, tmp_path, args):
     source = """
     from dataclasses import dataclass, field
     from pathlib import Path
@@ -130,6 +137,63 @@ def test_collection_fails_for_ambiguous_lockfile_ids(runner, tmp_path):
         produces.write_text(first + second)
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, args(tmp_path))
+
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "Ambiguous lockfile ids detected" in result.output
+    assert "lockfile id 'dup'" in result.output
+
+
+def test_markers_command_ignores_invalid_lockfile(runner, tmp_path):
+    tmp_path.joinpath("pytask.lock").write_text("{not toml")
+
+    result = runner.invoke(cli, ["markers", tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "persist" in result.output
+
+
+def test_collection_fails_for_ambiguous_lockfile_ids_with_missing_product_state(
+    runner, tmp_path
+):
+    source = """
+    from dataclasses import dataclass, field
+    from pathlib import Path
+    from typing import Annotated, Any
+
+    from pytask import Product
+
+    @dataclass
+    class CustomNode:
+        name: str
+        filepath: Path
+        signature: str
+        attributes: dict[Any, Any] = field(default_factory=dict)
+
+        def state(self):
+            if not self.filepath.exists():
+                return None
+            return self.filepath.read_text()
+
+        def load(self, is_product=False):
+            return self if is_product else self.filepath.read_text()
+
+        def save(self, value):
+            self.filepath.write_text(value)
+
+    def task_example(
+        dependency=CustomNode(
+            name="dup", filepath=Path("in.txt"), signature="signature-a"
+        ),
+        product: Annotated[CustomNode, Product] = CustomNode(
+            name="dup", filepath=Path("out.txt"), signature="signature-b"
+        ),
+    ):
+        product.save(dependency.upper())
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.txt").write_text("hello")
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
 

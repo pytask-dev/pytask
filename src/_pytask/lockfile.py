@@ -59,6 +59,14 @@ class _JournalEntry(msgspec.Struct):
     produces: dict[str, str] = msgspec.field(default_factory=dict)
 
 
+def _should_initialize_lockfile_state(command: str | None) -> bool:
+    return command in (None, "build")
+
+
+def _should_validate_lockfile_ids(command: str | None) -> bool:
+    return command in (None, "build", "collect")
+
+
 def _encode_node_path(path: tuple[str | int, ...]) -> str:
     return msgspec.json.encode(path).decode()
 
@@ -276,16 +284,6 @@ def _raise_error_if_lockfile_ids_are_ambiguous(tasks: list[PTask], root: Path) -
         )
 
         for kind, node in chain(dependencies, products):
-            try:
-                node_state = node.state()
-            except Exception:  # noqa: BLE001
-                # Preserve existing behavior where state() errors are raised during
-                # task execution, not during collection-time lockfile validation.
-                node_state = None
-
-            if node_state is None:
-                continue
-
             node_id = build_portable_node_id(node, root)
             current = (node.signature, kind, node.name)
             previous = seen.get(node_id)
@@ -306,9 +304,8 @@ def _raise_error_if_lockfile_ids_are_ambiguous(tasks: list[PTask], root: Path) -
 
     if errors:
         msg = (
-            "Ambiguous lockfile ids detected. Each dependency/product that contributes "
-            "state must map to a unique lockfile id within a task.\n\n"
-            + "\n".join(errors)
+            "Ambiguous lockfile ids detected. Each dependency/product must map to a "
+            "unique lockfile id within a task.\n\n" + "\n".join(errors)
         )
         raise ValueError(msg)
 
@@ -423,6 +420,8 @@ class LockfileState:
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Initialize the lockfile state."""
+    if not _should_initialize_lockfile_state(config.get("command")):
+        return
     path = config["root"] / "pytask.lock"
     config["lockfile_path"] = path
     config["lockfile_state"] = LockfileState.from_path(path, config["root"])
@@ -431,6 +430,8 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 @hookimpl(trylast=True)
 def pytask_collect_modify_tasks(session: Session, tasks: list[PTask]) -> None:
     """Validate that lockfile ids are unambiguous for collected tasks."""
+    if not _should_validate_lockfile_ids(session.config.get("command")):
+        return
     _raise_error_if_lockfile_ids_are_ambiguous(tasks, session.config["root"])
 
 
