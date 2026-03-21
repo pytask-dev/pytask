@@ -1,0 +1,11 @@
+lock-version = "1"
+
+[[task]]
+id = "task_example.py::task_create_output"
+state = "b4a2f46e74bb7fb4fdcb8b67b89a5b3f68e83992128ab0638835489c87d45b3c"
+
+[task.depends_on]
+"input.txt" = "72fca1d369c99d96f3c6dfcbdf5a29c86671fec3f0cf0194ea97fbbfb08adf63"
+
+[task.produces]
+"output.txt" = "e34bf52a65679202422cc650c3b12e4a6094ee6181a0252335e70a87348dd234"

@@ -37,6 +37,7 @@ nav:
       - Overview: how_to_guides/index.md
       - Migrating From Scripts To pytask: how_to_guides/migrating_from_scripts_to_pytask.md
       - Interfaces For Dependencies And Products: how_to_guides/interfaces_for_dependencies_products.md
+      - Portability: how_to_guides/portability.md
       - Remote Files: how_to_guides/remote_files.md
       - Functional Interface: how_to_guides/functional_interface.md
       - Capture Warnings: how_to_guides/capture_warnings.md
@@ -68,7 +69,9 @@ nav:
       - profile: commands/profile.md
   - Reference Guides:
       - Overview: reference_guides/index.md
+      - Command Line Interface: reference_guides/command_line_interface.md
       - Configuration: reference_guides/configuration.md
+      - Lockfile: reference_guides/lockfile.md
       - Hook Specifications: reference_guides/hookspecs.md
   - API:
       - Overview: api/index.md

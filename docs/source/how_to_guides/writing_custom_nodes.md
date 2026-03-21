@@ -80,6 +80,13 @@ Here are some explanations.
     signature is a hash and a unique identifier for the node. For most nodes it will be
     a hash of the path or the name.
 
+- `signature` and lockfile `id` are different concepts.
+
+    - `signature` is the runtime identity in pytask's in-memory DAG.
+    - lockfile `id` is the portable key stored in `pytask.lock`.
+
+    For custom nodes, make sure the lockfile id stays stable and unique within a task.
+
 - The classmethod
     [pytask.PickleNode.from_path](../api/nodes_and_tasks.md#pytask.PickleNode.from_path)
     is a convenient method to instantiate the class.

@@ -5,7 +5,6 @@ from __future__ import annotations
 import functools
 import inspect
 from contextlib import suppress
-from copy import copy
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
@@ -113,9 +112,20 @@ def render_to_string(
 
     """
     render_console = console
-    if not strip_styles and console.no_color:
-        render_console = copy(console)
-        render_console.no_color = False
+    if not strip_styles and console.no_color and console.color_system is not None:
+        theme: Theme | None
+        try:
+            theme = Theme(console._theme_stack._entries[-1])
+        except (AttributeError, IndexError, TypeError):
+            theme = None
+        render_console = Console(
+            color_system=console.color_system,  # type: ignore[invalid-argument-type]
+            force_terminal=True,
+            width=console.width,
+            no_color=False,
+            markup=getattr(console, "_markup", True),
+            theme=theme,
+        )
 
     buffer = render_console.render(renderable)
     if strip_styles:

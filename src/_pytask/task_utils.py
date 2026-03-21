@@ -12,8 +12,10 @@ from dataclasses import is_dataclass
 from types import BuiltinFunctionType
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import TypeGuard
 from typing import TypeVar
 from typing import cast
+from typing import overload
 
 from _pytask.coiled_utils import Function
 from _pytask.coiled_utils import extract_coiled_function_kwargs
@@ -37,6 +39,11 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound="Callable[..., Any]")
 
 
+def _is_task_decorator_target(obj: object) -> TypeGuard[Callable[..., Any]]:
+    """Narrow objects accepted by bare ``@task`` usage to named callables."""
+    return is_task_function(obj)
+
+
 __all__ = [
     "COLLECTED_TASKS",
     "parse_collected_tasks_with_task_marker",
@@ -55,15 +62,34 @@ dictionary mapping from paths of modules to a list of tasks per module.
 """
 
 
-def task(  # noqa: PLR0913
+@overload
+def task(
+    name: T,
+    /,
+) -> TaskDecorated[T]: ...
+
+
+@overload
+def task(
     name: str | None = None,
+    *,
+    after: str | Callable[..., Any] | list[Callable[..., Any]] | None = None,
+    is_generator: bool = False,
+    id: str | None = None,
+    kwargs: dict[Any, Any] | None = None,
+    produces: Any | None = None,
+) -> Callable[[T], TaskDecorated[T]]: ...
+
+
+def task(  # noqa: PLR0913
+    name: str | T | None = None,
     *,
     after: str | Callable[..., Any] | list[Callable[..., Any]] | None = None,
     is_generator: bool = False,
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
     produces: Any | None = None,
-) -> Callable[[T], TaskDecorated[T]]:
+) -> TaskDecorated[T] | Callable[[T], TaskDecorated[T]]:
     """Decorate a task function.
 
     This decorator declares every callable as a pytask task.
@@ -135,7 +161,7 @@ def task(  # noqa: PLR0913
         _rich_traceback_omit = True
 
         # When @task is used without parentheses, name is the function, not a string.
-        effective_name = None if is_task_function(name) else name
+        effective_name = name if isinstance(name, str) else None
 
         for arg, arg_name in ((effective_name, "name"), (id, "id")):
             if not (isinstance(arg, str) or arg is None):
@@ -198,8 +224,9 @@ def task(  # noqa: PLR0913
         return unwrapped
 
     # When decorator is used without parentheses, call wrapper directly.
-    if is_task_function(name) and kwargs is None:
-        return wrapper(cast("T", name))
+    if _is_task_decorator_target(name) and kwargs is None:
+        func = cast("T", name)
+        return wrapper(func)
     return wrapper
 
 

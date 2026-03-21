@@ -30,6 +30,7 @@ dependencies = [
     "pluggy>=1.3.0",
     "rich>=13.8.0",
     "sqlalchemy>=2.0.31",
+    "msgspec[toml]>=0.18.6",
     'tomli>=1; python_version < "3.11"',
     'typing-extensions>=4.8.0; python_version < "3.11"',
     "universal-pathlib>=0.2.2",
@@ -48,12 +49,14 @@ email = "raabe@posteo.de"
 
 [dependency-groups]
 docs = [
+    "furo>=2024.8.6",
     "ipython>=8.13.2",
     "ipywidgets>=8.1.6",
     "matplotlib>=3.5.0",
     "mkdocstrings[python]>=0.30.0",
     "zensical>=0.0.23",
 ]
+docs-live = ["sphinx-autobuild>=2024.10.3"]
 plugin-list = ["httpx>=0.27.0", "tabulate[widechars]>=0.9.0", "tqdm>=4.66.3"]
 test = [
     "cloudpickle>=3.0.0",
@@ -130,6 +133,9 @@ ignore = [
 "tests/test_capture.py" = ["T201", "PT011"]
 "tests/*" = ["ANN", "D", "FBT", "PLR2004", "S101"]
 "tests/test_jupyter/*" = ["INP001"]
+"tests/_test_data/*" = ["INP001"]
+"tests/_test_data/*/*" = ["INP001"]
+"tests/_test_data/*/*/*" = ["INP001"]
 "scripts/*" = ["D", "INP001"]
 "docs_src/*" = ["ARG001", "D", "INP001", "S301"]
 "docs_src/*/*.py" = ["FA100", "FA102", "PLR2004", "TC"]
