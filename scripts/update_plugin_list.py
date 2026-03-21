@@ -73,7 +73,12 @@ _DEVELOPMENT_STATUS_CLASSIFIERS = (
 )
 
 
-_EXCLUDED_PACKAGES = ["pytask-io", "pytask-list", "pytask-queue"]
+_EXCLUDED_PACKAGES = [
+    "pytask-environment",
+    "pytask-io",
+    "pytask-list",
+    "pytask-queue",
+]
 
 
 def _escape_markdown(text: str) -> str:
