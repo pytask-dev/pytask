@@ -22,7 +22,7 @@ where the return of the function, a string, should be stored.
 ```
 
 It works because internally the path is converted to a
-[pytask.PathNode](../api/nodes_and_tasks.md#pytask.PathNode) that is able to store
+[`pytask.PathNode`](../api/nodes_and_tasks.md#pytask.PathNode) that is able to store
 objects of type `str` and `bytes`.
 
 !!! note

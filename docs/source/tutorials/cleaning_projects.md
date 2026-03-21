@@ -8,14 +8,14 @@ To clean the project, type `pytask clean`
 
 pytask performs a dry-run by default and lists all removable files.
 
-If you want to remove the files, use `pytask clean --mode` with one of the following
-modes.
+If you want to remove the files, use
+[`pytask clean --mode`](../commands/clean.md#options) with one of the following modes.
 
 - `force` removes all files suggested in the `dry-run` without any confirmation.
 - `interactive` allows you to decide for every file whether to keep it or not.
 
 If you want to delete complete folders instead of single files, use
-`pytask clean --directories`.
+[`pytask clean --directories`](../commands/clean.md#options).
 
 --8<-- "docs/source/_static/md/clean-dry-run-directories.md"
 
@@ -23,8 +23,8 @@ If you want to delete complete folders instead of single files, use
 
 pytask excludes files that are under version control with git.
 
-Use the `pytask clean --exclude` option or the `exclude` key in the configuration file
-to exclude files and directories.
+Use the [`pytask clean --exclude`](../commands/clean.md#options) option or the `exclude`
+key in the configuration file to exclude files and directories.
 
 Values can be Unix filename patterns that, for example, support the wildcard character
 `*` for any characters. You find the documentation in `fnmatch`.

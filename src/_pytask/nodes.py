@@ -351,15 +351,18 @@ class PickleNode(PPathNode):
         return cls(name=path.as_posix(), path=path)
 
     def state(self) -> str | None:
+        """Return the current state of the node."""
         return get_state_of_path(self.path)
 
     def load(self, is_product: bool = False) -> Any:
+        """Load the value or return the node when used as a product."""
         if is_product:
             return self
         with self.path.open("rb") as f:
             return self.deserializer(f)
 
     def save(self, value: Any) -> None:
+        """Serialize and save the value to disk."""
         with self.path.open("wb") as f:
             self.serializer(value, f)
 

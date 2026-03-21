@@ -113,7 +113,8 @@ information.
 pytask can ignore files and directories and exclude some tasks or reduce the duration of
 the collection.
 
-To ignore some file/folder via the command line, use the `--ignore` flag multiple times.
+To ignore some file/folder via the command line, use the
+[`--ignore`](../commands/build.md#options) flag multiple times.
 
 ```console
 $ pytask --ignore some_file.py --ignore some_directory/*
@@ -201,8 +202,9 @@ that provide additional features such as syntax highlighting and tab completion:
 pdbcls = "pdbp:Pdb"
 ```
 
-The custom debugger will be used when you invoke the `--pdb` flag for post-mortem
-debugging or when using `breakpoint()` in your task code.
+The custom debugger will be used when you invoke the
+[`--pdb`](../commands/build.md#options) flag for post-mortem debugging or when using
+`breakpoint()` in your task code.
 
 ### `show_errors_immediately`
 

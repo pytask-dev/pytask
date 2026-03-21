@@ -28,13 +28,13 @@ as the task module because it is a relative path.
 ```
 
 Since the names of the files are not known when pytask is started, we need to use a
-[pytask.DirectoryNode](../api/nodes_and_tasks.md#pytask.DirectoryNode) to define the
+[`pytask.DirectoryNode`](../api/nodes_and_tasks.md#pytask.DirectoryNode) to define the
 task's product. With a
-[pytask.DirectoryNode](../api/nodes_and_tasks.md#pytask.DirectoryNode) we can specify
+[`pytask.DirectoryNode`](../api/nodes_and_tasks.md#pytask.DirectoryNode) we can specify
 where pytask can find the files. The files are described with a root path (default is
 the directory of the task module) and a glob pattern (default is `*`).
 
-When we use the [pytask.DirectoryNode](../api/nodes_and_tasks.md#pytask.DirectoryNode)
+When we use the [`pytask.DirectoryNode`](../api/nodes_and_tasks.md#pytask.DirectoryNode)
 as a product annotation, we get access to the `root_dir` as a
 [`pathlib.Path`][] object inside the function, which allows us to store
 the files.
@@ -64,11 +64,11 @@ downloaded.
 ```
 
 To reference the files that will be downloaded, we use
-[pytask.DirectoryNode](../api/nodes_and_tasks.md#pytask.DirectoryNode) as a dependency.
+[`pytask.DirectoryNode`](../api/nodes_and_tasks.md#pytask.DirectoryNode) as a dependency.
 Before the task is executed, the list of files in the folder defined by the root path
 and the pattern are automatically collected and passed to the task.
 
-If we use a [pytask.DirectoryNode](../api/nodes_and_tasks.md#pytask.DirectoryNode) with
+If we use a [`pytask.DirectoryNode`](../api/nodes_and_tasks.md#pytask.DirectoryNode) with
 the same `root_dir` and `pattern` in both tasks, pytask will automatically recognize
 that the second task depends on the first. If that is not true, you might need to make
 this dependency more explicit by using `@task(after=...)`, which is explained

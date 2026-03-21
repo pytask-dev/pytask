@@ -2,9 +2,9 @@
 
 In the previous tutorials and how-to guides, you learned that dependencies and products
 can be represented as plain Python objects with
-[pytask.PythonNode](../api/nodes_and_tasks.md#pytask.PythonNode) or as paths where every
+[`pytask.PythonNode`](../api/nodes_and_tasks.md#pytask.PythonNode) or as paths where every
 [`pathlib.Path`][] is converted to a
-[pytask.PathNode](../api/nodes_and_tasks.md#pytask.PathNode).
+[`pytask.PathNode`](../api/nodes_and_tasks.md#pytask.PathNode).
 
 In this how-to guide, you will learn about the general concept of nodes and how to write
 your own to improve your workflows.
@@ -21,7 +21,7 @@ paths to point to inputs and outputs and call [`pandas.read_pickle`][] and
 ```
 
 To remove IO operations from the task and delegate them to pytask, we will replicate the
-[pytask.PickleNode](../api/nodes_and_tasks.md#pytask.PickleNode) that automatically
+[`pytask.PickleNode`](../api/nodes_and_tasks.md#pytask.PickleNode) that automatically
 loads and stores Python objects.
 
 And we pass the value to `df` via [`typing.Annotated`][] to preserve
@@ -49,15 +49,15 @@ A custom node needs to follow an interface so that pytask can perform several ac
 - Load and save values when tasks are executed.
 
 This interface is defined by protocols. A custom node must follow at least the protocol
-[pytask.PNode](../api/nodes_and_tasks.md#pytask.PNode) or, even better,
-[pytask.PPathNode](../api/nodes_and_tasks.md#pytask.PPathNode) if it is based on a path.
-The common node for paths, [pytask.PathNode](../api/nodes_and_tasks.md#pytask.PathNode),
-follows the protocol [pytask.PPathNode](../api/nodes_and_tasks.md#pytask.PPathNode).
+[`pytask.PNode`](../api/nodes_and_tasks.md#pytask.PNode) or, even better,
+[`pytask.PPathNode`](../api/nodes_and_tasks.md#pytask.PPathNode) if it is based on a path.
+The common node for paths, [`pytask.PathNode`](../api/nodes_and_tasks.md#pytask.PathNode),
+follows the protocol [`pytask.PPathNode`](../api/nodes_and_tasks.md#pytask.PPathNode).
 
 ## `PickleNode`
 
-Since our [pytask.PickleNode](../api/nodes_and_tasks.md#pytask.PickleNode) will only
-vary slightly from [pytask.PathNode](../api/nodes_and_tasks.md#pytask.PathNode), we use
+Since our [`pytask.PickleNode`](../api/nodes_and_tasks.md#pytask.PickleNode) will only
+vary slightly from [`pytask.PathNode`](../api/nodes_and_tasks.md#pytask.PathNode), we use
 it as a template, and with some minor modifications, we arrive at the following class.
 
 ```py
@@ -67,7 +67,7 @@ it as a template, and with some minor modifications, we arrive at the following 
 Here are some explanations.
 
 - The node does not need to inherit from the protocol
-    [pytask.PPathNode](../api/nodes_and_tasks.md#pytask.PPathNode), but you can do it to
+    [`pytask.PPathNode`](../api/nodes_and_tasks.md#pytask.PPathNode), but you can do it to
     be more explicit.
 
 - The node has two attributes
@@ -88,7 +88,7 @@ Here are some explanations.
     For custom nodes, make sure the lockfile id stays stable and unique within a task.
 
 - The classmethod
-    [pytask.PickleNode.from_path](../api/nodes_and_tasks.md#pytask.PickleNode.from_path)
+    [`pytask.PickleNode.from_path`](../api/nodes_and_tasks.md#pytask.PickleNode.from_path)
     is a convenient method to instantiate the class.
 
 - The method
@@ -101,7 +101,7 @@ Here are some explanations.
     [`pytask.PickleNode.load`](../api/nodes_and_tasks.md#pytask.PickleNode.load) when it
     collects the values of function arguments to run the function. The argument
     `is_product` signals that the node is loaded as a product with a
-    [pytask.Product](../api/utilities_and_typing.md#pytask.Product) annotation or via
+    [`pytask.Product`](../api/utilities_and_typing.md#pytask.Product) annotation or via
     `produces`.
 
     When the node is loaded as a dependency, we want to inject the value of the pickle
@@ -127,8 +127,8 @@ Nodes are an important in concept pytask. They allow to pytask to build a
 IO operations from the task function into the nodes.
 
 pytask only implements two node types,
-[pytask.PathNode](../api/nodes_and_tasks.md#pytask.PathNode) and
-[pytask.PythonNode](../api/nodes_and_tasks.md#pytask.PythonNode), but many more are
+[`pytask.PathNode`](../api/nodes_and_tasks.md#pytask.PathNode) and
+[`pytask.PythonNode`](../api/nodes_and_tasks.md#pytask.PythonNode), but many more are
 possible. In the future, there should probably be a [plugin](../glossary.md#plugin) that
 implements nodes for many other data sources like AWS S3 or databases. See
 [Kedro datasets](https://docs.kedro.org/en/stable/kedro_datasets.html) for one example.

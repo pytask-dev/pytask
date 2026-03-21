@@ -35,7 +35,8 @@ There are three ways in which `pytask` can perform capturing:
     However, the writes will also be passed through to the actual `sys.stdout` and
     `sys.stderr`.
 
-You can influence output-capturing mechanisms from the command line:
+You can influence output-capturing mechanisms from the command line with
+[`-s`](../commands/build.md#options) and [`--capture`](../commands/build.md#options):
 
 ```console
 $ pytask -s                  # disable all capturing

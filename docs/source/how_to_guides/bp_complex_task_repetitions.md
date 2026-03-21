@@ -37,8 +37,8 @@ to iterate over instances of this object in a single loop. Here and for the lack
 better name, we will call the object an experiment.
 
 Lastly, we will also use the
-[pytask.DataCatalog](../api/core_classes_and_exceptions.md#pytask.DataCatalog) to not be
-bothered with defining paths.
+[`pytask.DataCatalog`](../api/core_classes_and_exceptions.md#pytask.DataCatalog) to not
+be bothered with defining paths.
 
 !!! note
 
@@ -68,7 +68,7 @@ we use them.
 As you see, we lost a level of indentation and we moved all the generations of names and
 paths to the dimensions and multi-dimensional objects.
 
-Using a [pytask.PythonNode](../api/nodes_and_tasks.md#pytask.PythonNode) allows us to
+Using a [`pytask.PythonNode`](../api/nodes_and_tasks.md#pytask.PythonNode) allows us to
 hash the model and reexecute the task if we define other model settings.
 
 ## Adding another level

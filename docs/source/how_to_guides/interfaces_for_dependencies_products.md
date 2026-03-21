@@ -39,11 +39,11 @@ You can pass a value to a task as a default argument.
 It is possible to include the value in the type annotation.
 
 It is especially helpful if you pass a
-[pytask.PNode](../api/nodes_and_tasks.md#pytask.PNode) to the task. If you passed a node
-as the default argument, type checkers like mypy would expect the node to enter the
+[`pytask.PNode`](../api/nodes_and_tasks.md#pytask.PNode) to the task. If you passed a
+node as the default argument, type checkers like mypy would expect the node to enter the
 task, but the value injected into the task depends on the nodes
-[pytask.PNode.load](../api/nodes_and_tasks.md#pytask.PNode.load) method. For a
-[pytask.PathNode](../api/nodes_and_tasks.md#pytask.PathNode)
+[`pytask.PNode.load`](../api/nodes_and_tasks.md#pytask.PNode.load) method. For a
+[`pytask.PathNode`](../api/nodes_and_tasks.md#pytask.PathNode)
 
 ```py
 --8<-- "docs_src/how_to_guides/interfaces/dependencies_annotation.py"
@@ -72,7 +72,7 @@ applies to dependencies and products alike.
 ### `Product` annotation
 
 The syntax is the same as [default argument](#default-argument), but the
-[pytask.Product](../api/utilities_and_typing.md#pytask.Product) annotation turns the
+[`pytask.Product`](../api/utilities_and_typing.md#pytask.Product) annotation turns the
 argument into a task product.
 
 ```py
@@ -82,7 +82,7 @@ argument into a task product.
 ### `Product` annotation with value
 
 The syntax is the same as [annotation](#annotation), but the
-[pytask.Product](../api/utilities_and_typing.md#pytask.Product) annotation turns the
+[`pytask.Product`](../api/utilities_and_typing.md#pytask.Product) annotation turns the
 argument into a task product.
 
 ```py

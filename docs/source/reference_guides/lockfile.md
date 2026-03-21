@@ -37,8 +37,9 @@ On each run, pytask:
 1. Compares current dependency/product/task `state()` to stored `state`.
 1. Skips tasks whose states match; runs the rest.
 1. Updates `pytask.lock` after each completed task (atomic write).
-1. Updates `pytask.lock` after skipping unchanged tasks (unless `--dry-run` or
-   `--explain` are active).
+1. Updates `pytask.lock` after skipping unchanged tasks (unless
+    [`--dry-run`](../commands/build.md#options) or
+    [`--explain`](../commands/build.md#options) are active).
 
 ## Portability
 
@@ -46,13 +47,13 @@ There are two portability concerns:
 
 1. **IDs**: Lockfile IDs must be project‑relative and stable across machines.
 1. **State values**: `state` is opaque; portability depends on each node’s `state()`
-   implementation. Content hashes are portable; timestamps are not.
+    implementation. Content hashes are portable; timestamps are not.
 
 ## Maintenance
 
-Use `pytask build --clean-lockfile` to rewrite `pytask.lock` with only currently
-collected tasks. The rewrite happens after a successful build and recomputes current
-state values without executing tasks again.
+Use [`pytask build --clean-lockfile`](../commands/build.md#options) to rewrite
+`pytask.lock` with only currently collected tasks. The rewrite happens after a
+successful build and recomputes current state values without executing tasks again.
 
 ## File Format Reference
 

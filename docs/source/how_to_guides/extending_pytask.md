@@ -19,8 +19,8 @@ More general information about pluggy can be found in its
 There are two ways to add new
 [hook implementations](../glossary.md#hook-implementation).
 
-1. Using the `pytask build --hook-module` commandline option or the `hook_module`
-    configuration value.
+1. Using the [`pytask build --hook-module`](../commands/build.md#options) commandline
+    option or the `hook_module` configuration value.
 1. Packaging your [plugin](../glossary.md#plugin) as a Python package to publish and
     share it.
 

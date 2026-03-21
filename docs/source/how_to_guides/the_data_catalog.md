@@ -1,20 +1,20 @@
 # The `DataCatalog` - Revisited
 
 This guide explains more details about the
-[pytask.DataCatalog](../api/core_classes_and_exceptions.md#pytask.DataCatalog) that were
-left out of the [tutorial](../tutorials/using_a_data_catalog.md). Please, read the
+[`pytask.DataCatalog`](../api/core_classes_and_exceptions.md#pytask.DataCatalog) that
+were left out of the [tutorial](../tutorials/using_a_data_catalog.md). Please, read the
 tutorial for a basic understanding.
 
 ## Changing the default node
 
 The data catalog uses the
-[pytask.PickleNode](../api/nodes_and_tasks.md#pytask.PickleNode) by default to serialize
-any kind of Python object. You can use any other node that follows the
-[pytask.PNode](../api/nodes_and_tasks.md#pytask.PNode) protocol and register it when
+[`pytask.PickleNode`](../api/nodes_and_tasks.md#pytask.PickleNode) by default to
+serialize any kind of Python object. You can use any other node that follows the
+[`pytask.PNode`](../api/nodes_and_tasks.md#pytask.PNode) protocol and register it when
 creating the data catalog.
 
-For example, use the [pytask.PythonNode](../api/nodes_and_tasks.md#pytask.PythonNode) as
-the default.
+For example, use the [`pytask.PythonNode`](../api/nodes_and_tasks.md#pytask.PythonNode)
+as the default.
 
 ```python
 from pytask import PythonNode
@@ -27,7 +27,7 @@ data_catalog = DataCatalog(default_node=PythonNode)
 Or, learn to write your node by reading [writing custom nodes](writing_custom_nodes.md).
 
 Here, is an example for a
-[pytask.PickleNode](../api/nodes_and_tasks.md#pytask.PickleNode) that uses cloudpickle
+[`pytask.PickleNode`](../api/nodes_and_tasks.md#pytask.PickleNode) that uses cloudpickle
 instead of the normal `pickle` module.
 
 ```py
