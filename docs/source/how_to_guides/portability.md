@@ -14,36 +14,36 @@ Use this checklist when you move a project to another machine or environment.
 
 1. **Update state once on the source machine.**
 
-   Run a normal build so `pytask.lock` is up to date:
+    Run a normal build so `pytask.lock` is up to date:
 
-   ```console
-   $ pytask build
-   ```
+    ```console
+    $ pytask build
+    ```
 
-   If you already have a recent lockfile and up-to-date outputs, you can skip this step.
+    If you already have a recent lockfile and up-to-date outputs, you can skip this step.
 
 1. **Ship the right files.**
 
-   Commit `pytask.lock` to your repository and move it with the project. In practice,
-   you should move:
+    Commit `pytask.lock` to your repository and move it with the project. In practice,
+    you should move:
 
-   - the project files tracked in version control (source, configuration, data inputs
-     and `pytask.lock`)
-   - the build artifacts you want to reuse (often in `bld/` if you follow the tutorial
-     layout)
-   - the `.pytask` folder in case you are using the data catalog and it manages some of
-     the files
+    - the project files tracked in version control (source, configuration, data inputs
+        and `pytask.lock`)
+    - the build artifacts you want to reuse (often in `bld/` if you follow the tutorial
+        layout)
+    - the `.pytask` folder in case you are using the data catalog and it manages some of
+        the files
 
 1. **Files outside the project**
 
-   If you have files outside the project root (the folder with the `pyproject.toml`
-   file), you need to make sure that the same relative layout exists on the target
-   machine.
+    If you have files outside the project root (the folder with the `pyproject.toml`
+    file), you need to make sure that the same relative layout exists on the target
+    machine.
 
 1. **Run pytask on the target machine.**
 
-   When states match, tasks are skipped. When they differ, tasks run and the lockfile is
-   updated.
+    When states match, tasks are skipped. When they differ, tasks run and the lockfile is
+    updated.
 
 ## What makes a project portable
 
