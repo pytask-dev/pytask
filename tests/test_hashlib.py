@@ -49,3 +49,11 @@ def test_hash_value_of_remote_upath():
     hash_ = hash_value(upath.UPath("s3://bucket/file.pkl"))
 
     assert hash_ == "5bbedd1ab74242143481060b901083e77080661d97003b96e0cbae3a887ebce6"
+
+
+@pytest.mark.parametrize("protocol", ["file", "local"])
+def test_hash_value_of_local_upath_matches_path(tmp_path, protocol):
+    path = tmp_path / "file.pkl"
+    upath_value = upath.UPath(f"{protocol}:///{path.as_posix().lstrip('/')}")
+
+    assert hash_value(upath_value) == hash_value(path)
