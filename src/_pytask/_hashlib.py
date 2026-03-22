@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import sys
 from contextlib import suppress
-from pathlib import Path
 from typing import Any
+
+from upath import UPath
 
 
 if sys.version_info >= (3, 11):  # pragma: no cover
@@ -227,8 +229,10 @@ def hash_value(value: Any) -> int | str:
         return 0xFCA86420
     if isinstance(value, (tuple, list)):
         value = "".join(str(hash_value(i)) for i in value)
-    if isinstance(value, Path):
+    if isinstance(value, UPath):
         value = str(value)
+    elif isinstance(value, os.PathLike):
+        value = os.fspath(value)
     if isinstance(value, str):
         value = value.encode()
     if isinstance(value, bytes):
