@@ -42,6 +42,7 @@ from _pytask.outcomes import CollectionOutcome
 from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
 from _pytask.path import import_path
+from _pytask.path import is_non_local_path
 from _pytask.path import shorten_path
 from _pytask.pluginmanager import hookimpl
 from _pytask.reports import CollectionReport
@@ -455,7 +456,11 @@ def pytask_collect_node(  # noqa: C901, PLR0912
             node.name = create_name_of_python_node(node_info)
         return node
 
-    if isinstance(node, PPathNode) and not node.path.is_absolute():
+    if (
+        isinstance(node, PPathNode)
+        and not is_non_local_path(node.path)
+        and not node.path.is_absolute()
+    ):
         node.path = path.joinpath(node.path)
 
         # ``normpath`` removes ``../`` from the path which is necessary for the casing
