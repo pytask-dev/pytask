@@ -39,6 +39,12 @@ with contextlib.suppress(ImportError):
     pass
 
 
+if TYPE_CHECKING:
+    LoggingStreamHandler = logging.StreamHandler[io.StringIO]
+else:
+    LoggingStreamHandler = logging.StreamHandler
+
+
 DEFAULT_LOG_FORMAT = "%(levelname)-8s %(name)s:%(filename)s:%(lineno)d %(message)s"
 DEFAULT_LOG_DATE_FORMAT = "%H:%M:%S"
 
@@ -287,7 +293,7 @@ def _humanize_time(  # noqa: C901, PLR0912
     return result
 
 
-class LogCaptureHandler(logging.StreamHandler[io.StringIO]):
+class LogCaptureHandler(LoggingStreamHandler):
     """Capture logs in a string buffer."""
 
     def __init__(self) -> None:
