@@ -7,6 +7,7 @@ from pathlib import Path
 
 import cloudpickle
 import pytest
+import upath
 
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
@@ -196,8 +197,6 @@ def test_pytask_collect_node(session, path, node_info, expected):
 
 
 def test_pytask_collect_remote_path_node_keeps_uri_name():
-    upath = pytest.importorskip("upath")
-
     session = Session.from_config(
         {"check_casing_of_paths": False, "paths": (Path.cwd(),), "root": Path.cwd()}
     )
@@ -220,8 +219,6 @@ def test_pytask_collect_remote_path_node_keeps_uri_name():
 
 @pytest.mark.parametrize("protocol", ["file", "local"])
 def test_pytask_collect_local_upath_protocol_node_is_shortened(tmp_path, protocol):
-    upath = pytest.importorskip("upath")
-
     session = Session.from_config(
         {"check_casing_of_paths": False, "paths": (tmp_path,), "root": tmp_path}
     )

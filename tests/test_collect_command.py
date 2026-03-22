@@ -401,8 +401,6 @@ def test_task_name_is_shortened(runner, tmp_path):
 
 
 def test_collect_task_with_remote_upath_node(runner, tmp_path):
-    pytest.importorskip("upath")
-
     source = """
     from pathlib import Path
     from typing import Annotated
@@ -427,8 +425,6 @@ def test_collect_task_with_remote_upath_node(runner, tmp_path):
 
 @pytest.mark.parametrize("protocol", ["file", "local"])
 def test_collect_task_with_local_upath_protocol_node(runner, tmp_path, protocol):
-    pytest.importorskip("upath")
-
     uri = _make_local_upath_uri(tmp_path / "in.pkl", protocol)
 
     source = f"""
