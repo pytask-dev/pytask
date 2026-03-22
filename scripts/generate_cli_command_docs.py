@@ -21,6 +21,11 @@ def _strip_click_suffixes(help_text: str) -> str:
     return help_text.strip()
 
 
+def _escape_table_cell(text: str) -> str:
+    """Escape markdown table separators inside cell content."""
+    return text.replace("|", r"\|").replace("\n", " ")
+
+
 def _format_default(option: click.Option) -> str:
     default = option.default
     result = "-"
@@ -67,13 +72,15 @@ def _write_options(command_name: str) -> None:
             continue
 
         option_decl, description = help_record
+        escaped_option_decl = _escape_table_cell(option_decl)
+        escaped_description = _escape_table_cell(_strip_click_suffixes(description))
         lines.append(
             "| "
-            f"`{option_decl}`"
+            f"`{escaped_option_decl}`"
             " | "
-            f"{_format_default(param)}"
+            f"{_escape_table_cell(_format_default(param))}"
             " | "
-            f"{_strip_click_suffixes(description)}"
+            f"{escaped_description}"
             " |"
         )
 
@@ -96,7 +103,9 @@ def _write_arguments(command_name: str) -> None:
         has_arguments = True
         metavar = param.make_metavar(click.Context(command)).strip()
         description = "Paths where pytask looks for task files and configuration."
-        lines.append(f"| `{metavar}` | {description} |")
+        lines.append(
+            f"| `{_escape_table_cell(metavar)}` | {_escape_table_cell(description)} |"
+        )
 
     if not has_arguments:
         lines.append("| - | This command does not take positional arguments. |")
@@ -108,7 +117,11 @@ def _write_arguments(command_name: str) -> None:
 def _write_commands_table() -> None:
     lines = ["| Command | Description |", "|---|---|"]
     lines.extend(
-        f"| [`{name}`]({name}.md) | {cli.commands[name].help} |" for name in COMMANDS
+        (
+            f"| [`{name}`]({name}.md) | "
+            f"{_escape_table_cell(cli.commands[name].help or '')} |"
+        )
+        for name in COMMANDS
     )
 
     output = "\n".join(lines) + "\n"
@@ -126,7 +139,13 @@ def _write_root_options() -> None:
         if help_record is None:
             continue
         option_decl, description = help_record
-        lines.append(f"| `{option_decl}` | {_strip_click_suffixes(description)} |")
+        lines.append(
+            "| "
+            f"`{_escape_table_cell(option_decl)}`"
+            " | "
+            f"{_escape_table_cell(_strip_click_suffixes(description))}"
+            " |"
+        )
 
     lines.append("| `-h, --help` | Show this message and exit. |")
 

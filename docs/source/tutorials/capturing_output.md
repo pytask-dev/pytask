@@ -61,6 +61,11 @@ You can also export task logs to a file with `--log-file` and customize the form
 with `--log-format`, `--log-date-format`, `--log-file-format`, and
 `--log-file-date-format`.
 
+The animation below shows the same warning appearing once as a live log line during
+execution and again as captured log output in the failure report.
+
+--8<-- "docs/source/_static/md/logging-live.md"
+
 ## Using print statements for debugging
 
 One primary benefit of the default capturing of stdout/stderr output is that you can use
