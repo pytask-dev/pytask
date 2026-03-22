@@ -28,9 +28,13 @@ __all__ = [
     "hash_path",
     "import_path",
     "is_non_local_path",
+    "normalize_local_upath",
     "relative_to",
     "shorten_path",
 ]
+
+
+_LOCAL_UPATH_PROTOCOLS = frozenset(("", "file", "local"))
 
 
 def relative_to(path: Path, source: Path, *, include_source: bool = True) -> Path:
@@ -61,7 +65,14 @@ def relative_to(path: Path, source: Path, *, include_source: bool = True) -> Pat
 
 def is_non_local_path(path: Path) -> bool:
     """Return whether a path points to a non-local `UPath` resource."""
-    return isinstance(path, UPath) and bool(path.protocol)
+    return isinstance(path, UPath) and path.protocol not in _LOCAL_UPATH_PROTOCOLS
+
+
+def normalize_local_upath(path: Path) -> Path:
+    """Convert local `UPath` variants to a stdlib `Path`."""
+    if isinstance(path, UPath) and path.protocol in {"file", "local"}:
+        return Path(path.path)
+    return path
 
 
 def find_closest_ancestor(
@@ -442,6 +453,9 @@ def shorten_path(path: Path, paths: Sequence[Path]) -> str:
     """
     if is_non_local_path(path):
         return path.as_posix()
+
+    path = normalize_local_upath(path)
+    paths = [normalize_local_upath(p) for p in paths]
 
     ancestor = find_closest_ancestor(path, paths)
     if ancestor is None:

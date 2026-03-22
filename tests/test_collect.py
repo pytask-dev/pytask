@@ -214,6 +214,31 @@ def test_pytask_collect_remote_path_node_keeps_uri_name():
     assert result.name == "s3://bucket/file.pkl"
 
 
+@pytest.mark.parametrize("protocol", ["file", "local"])
+def test_pytask_collect_local_upath_protocol_node_is_shortened(tmp_path, protocol):
+    upath = pytest.importorskip("upath")
+
+    session = Session.from_config(
+        {"check_casing_of_paths": False, "paths": (tmp_path,), "root": tmp_path}
+    )
+
+    result = pytask_collect_node(
+        session,
+        tmp_path,
+        NodeInfo(
+            arg_name="path",
+            path=(),
+            value=PickleNode(path=upath.UPath(f"{protocol}://{tmp_path}/file.pkl")),
+            task_path=tmp_path / "task_example.py",
+            task_name="task_example",
+        ),
+    )
+
+    assert isinstance(result, PPathNode)
+    assert result.path == tmp_path / "file.pkl"
+    assert result.name == f"{tmp_path.name}/file.pkl"
+
+
 @pytest.mark.skipif(
     sys.platform != "win32", reason="Only works on case-insensitive file systems."
 )

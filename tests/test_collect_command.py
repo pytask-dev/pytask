@@ -421,6 +421,32 @@ def test_collect_task_with_remote_upath_node(runner, tmp_path):
     assert "s3://bucket/in.pkl" in result.output
 
 
+@pytest.mark.parametrize("protocol", ["file", "local"])
+def test_collect_task_with_local_upath_protocol_node(runner, tmp_path, protocol):
+    pytest.importorskip("upath")
+
+    source = f"""
+    from pathlib import Path
+    from typing import Annotated
+
+    from upath import UPath
+
+    from pytask import PickleNode
+    from pytask import Product
+
+    def task_example(
+        data=PickleNode(path=UPath("{protocol}://{tmp_path.as_posix()}/in.pkl")),
+        path: Annotated[Path, Product] = Path("out.txt"),
+    ): ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert f"{tmp_path.name}/in.pkl" in result.output
+
+
 def test_python_node_is_collected(runner, tmp_path):
     source = """
     from pytask import Product

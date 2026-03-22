@@ -19,6 +19,7 @@ from _pytask.path import _module_name_from_path
 from _pytask.path import find_case_sensitive_path
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
+from _pytask.path import is_non_local_path
 from _pytask.path import relative_to
 from _pytask.path import shorten_path
 from pytask.path import import_path
@@ -117,6 +118,16 @@ def test_shorten_path_keeps_non_local_uri():
     path = upath.UPath("s3://bucket/file.pkl")
 
     assert shorten_path(path, [Path.cwd()]) == "s3://bucket/file.pkl"
+
+
+@pytest.mark.parametrize("protocol", ["file", "local"])
+def test_shorten_path_treats_local_upath_protocols_as_local(tmp_path, protocol):
+    upath = pytest.importorskip("upath")
+
+    path = upath.UPath(f"{protocol}://{tmp_path.as_posix()}/file.pkl")
+
+    assert not is_non_local_path(path)
+    assert shorten_path(path, [tmp_path]) == f"{tmp_path.name}/file.pkl"
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Only works on Windows.")

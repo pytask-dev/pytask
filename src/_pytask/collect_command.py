@@ -31,6 +31,7 @@ from _pytask.node_protocols import PTaskWithPath
 from _pytask.outcomes import ExitCode
 from _pytask.path import find_common_ancestor
 from _pytask.path import is_non_local_path
+from _pytask.path import normalize_local_upath
 from _pytask.path import relative_to
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
@@ -126,12 +127,12 @@ def _find_common_ancestor_of_all_nodes(
         all_paths.append(task.path)
         if show_nodes:
             all_paths.extend(
-                x.path
+                normalize_local_upath(x.path)
                 for x in tree_leaves(task.depends_on)
                 if isinstance(x, PPathNode) and not is_non_local_path(x.path)
             )
             all_paths.extend(
-                x.path
+                normalize_local_upath(x.path)
                 for x in tree_leaves(task.produces)
                 if isinstance(x, PPathNode) and not is_non_local_path(x.path)
             )

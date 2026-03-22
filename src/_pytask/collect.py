@@ -43,6 +43,7 @@ from _pytask.outcomes import count_outcomes
 from _pytask.path import find_case_sensitive_path
 from _pytask.path import import_path
 from _pytask.path import is_non_local_path
+from _pytask.path import normalize_local_upath
 from _pytask.path import shorten_path
 from _pytask.pluginmanager import hookimpl
 from _pytask.reports import CollectionReport
@@ -456,6 +457,9 @@ def pytask_collect_node(  # noqa: C901, PLR0912
             node.name = create_name_of_python_node(node_info)
         return node
 
+    if isinstance(node, PPathNode):
+        node.path = normalize_local_upath(node.path)
+
     if (
         isinstance(node, PPathNode)
         and not is_non_local_path(node.path)
@@ -491,6 +495,9 @@ def pytask_collect_node(  # noqa: C901, PLR0912
         if not node.name:
             node.name = create_name_of_python_node(node_info)
         return node
+
+    if isinstance(node, UPath):  # pragma: no cover
+        node = normalize_local_upath(node)
 
     if isinstance(node, UPath):  # pragma: no cover
         if not node.protocol:
