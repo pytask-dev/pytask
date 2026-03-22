@@ -14,6 +14,7 @@ from _pytask.node_protocols import PPathNode
 from pytask import CollectionOutcome
 from pytask import ExitCode
 from pytask import NodeInfo
+from pytask import PickleNode
 from pytask import Session
 from pytask import Task
 from pytask import build
@@ -188,6 +189,29 @@ def test_error_with_invalid_file_name_pattern_(tmp_path):
 def test_pytask_collect_node(session, path, node_info, expected):
     result = pytask_collect_node(session, path, node_info)
     assert str(result.load()) == str(expected)
+
+
+def test_pytask_collect_remote_path_node_keeps_uri_name():
+    upath = pytest.importorskip("upath")
+
+    session = Session.from_config(
+        {"check_casing_of_paths": False, "paths": (Path.cwd(),), "root": Path.cwd()}
+    )
+
+    result = pytask_collect_node(
+        session,
+        Path.cwd(),
+        NodeInfo(
+            arg_name="path",
+            path=(),
+            value=PickleNode(path=upath.UPath("s3://bucket/file.pkl")),
+            task_path=Path.cwd() / "task_example.py",
+            task_name="task_example",
+        ),
+    )
+
+    assert isinstance(result, PPathNode)
+    assert result.name == "s3://bucket/file.pkl"
 
 
 @pytest.mark.skipif(

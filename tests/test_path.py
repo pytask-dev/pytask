@@ -20,6 +20,7 @@ from _pytask.path import find_case_sensitive_path
 from _pytask.path import find_closest_ancestor
 from _pytask.path import find_common_ancestor
 from _pytask.path import relative_to
+from _pytask.path import shorten_path
 from pytask.path import import_path
 
 if TYPE_CHECKING:
@@ -108,6 +109,14 @@ def test_find_common_ancestor(path_1, path_2, expectation, expected):
     with expectation:
         result = find_common_ancestor(path_1, path_2)
         assert result == expected
+
+
+def test_shorten_path_keeps_non_local_uri():
+    upath = pytest.importorskip("upath")
+
+    path = upath.UPath("s3://bucket/file.pkl")
+
+    assert shorten_path(path, [Path.cwd()]) == "s3://bucket/file.pkl"
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Only works on Windows.")
