@@ -7,6 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#820](https://github.com/pytask-dev/pytask/pull/820) fixes collection and node
+  display for remote `UPath`-backed nodes, while preserving correct handling of local
+  `file://` and `local://` `UPath`s across platforms.
 - [#743](https://github.com/pytask-dev/pytask/pull/743) adds the `pytask.lock`
   lockfile as the primary state backend with a portable format and documentation. When
   no lockfile exists, pytask reads the legacy SQLite state and writes `pytask.lock`;

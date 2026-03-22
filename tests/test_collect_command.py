@@ -21,6 +21,10 @@ if TYPE_CHECKING:
     from _pytask.node_protocols import PTaskWithPath
 
 
+def _make_local_upath_uri(path: Path, protocol: str) -> str:
+    return f"{protocol}:///{path.as_posix().lstrip('/')}"
+
+
 def test_collect_task(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -394,6 +398,59 @@ def test_task_name_is_shortened(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
     assert "task_example.py::task_example" in result.output
     assert "a/b/task_example.py::task_example" not in result.output
+
+
+def test_collect_task_with_remote_upath_node(runner, tmp_path):
+    pytest.importorskip("upath")
+
+    source = """
+    from pathlib import Path
+    from typing import Annotated
+
+    from upath import UPath
+
+    from pytask import PickleNode
+    from pytask import Product
+
+    def task_example(
+        data=PickleNode(path=UPath("s3://bucket/in.pkl")),
+        path: Annotated[Path, Product] = Path("out.txt"),
+    ): ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert "s3://bucket/in.pkl" in result.output
+
+
+@pytest.mark.parametrize("protocol", ["file", "local"])
+def test_collect_task_with_local_upath_protocol_node(runner, tmp_path, protocol):
+    pytest.importorskip("upath")
+
+    uri = _make_local_upath_uri(tmp_path / "in.pkl", protocol)
+
+    source = f"""
+    from pathlib import Path
+    from typing import Annotated
+
+    from upath import UPath
+
+    from pytask import PickleNode
+    from pytask import Product
+
+    def task_example(
+        data=PickleNode(path=UPath("{uri}")),
+        path: Annotated[Path, Product] = Path("out.txt"),
+    ): ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, ["collect", "--nodes", tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert f"{tmp_path.name}/in.pkl" in result.output
 
 
 def test_python_node_is_collected(runner, tmp_path):

@@ -13,6 +13,8 @@ from pathlib import Path
 from types import ModuleType
 from typing import TYPE_CHECKING
 
+from upath import UPath
+
 from _pytask._hashlib import file_digest
 from _pytask.cache import Cache
 
@@ -25,9 +27,15 @@ __all__ = [
     "find_common_ancestor",
     "hash_path",
     "import_path",
+    "is_non_local_path",
+    "normalize_local_upath",
     "relative_to",
     "shorten_path",
 ]
+
+
+_LOCAL_UPATH_PROTOCOLS = frozenset(("", "file", "local"))
+_WINDOWS_DRIVE_PREFIX_LENGTH = 3
 
 
 def relative_to(path: Path, source: Path, *, include_source: bool = True) -> Path:
@@ -54,6 +62,27 @@ def relative_to(path: Path, source: Path, *, include_source: bool = True) -> Pat
     """
     source_name = source.name if include_source else ""
     return Path(source_name, path.relative_to(source))
+
+
+def is_non_local_path(path: Path) -> bool:
+    """Return whether a path points to a non-local `UPath` resource."""
+    return isinstance(path, UPath) and path.protocol not in _LOCAL_UPATH_PROTOCOLS
+
+
+def normalize_local_upath(path: Path) -> Path:
+    """Convert local `UPath` variants to a stdlib `Path`."""
+    if isinstance(path, UPath) and path.protocol in {"file", "local"}:
+        local_path = path.path
+        if (
+            sys.platform == "win32"
+            and local_path.startswith("/")
+            and len(local_path) >= _WINDOWS_DRIVE_PREFIX_LENGTH
+            and local_path[1].isalpha()
+            and local_path[2] == ":"
+        ):
+            local_path = local_path[1:]
+        return Path(local_path)
+    return path
 
 
 def find_closest_ancestor(
@@ -432,6 +461,12 @@ def shorten_path(path: Path, paths: Sequence[Path]) -> str:
     path from one path in ``session.config["paths"]`` to the node.
 
     """
+    if is_non_local_path(path):
+        return path.as_posix()
+
+    path = normalize_local_upath(path)
+    paths = [normalize_local_upath(p) for p in paths]
+
     ancestor = find_closest_ancestor(path, paths)
     if ancestor is None:
         try:
