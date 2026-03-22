@@ -54,6 +54,9 @@ $ pytask --capture=tee-sys   # combines 'sys' and '-s', capturing sys.stdout/std
 Use `--show-capture=log` to only display captured log records for failing tasks or
 `--show-capture=all` to display logs together with captured `stdout` and `stderr`.
 
+Use `--log-cli` to stream log records to the terminal while tasks run. You can customize
+the live output with `--log-cli-level`, `--log-cli-format`, and `--log-cli-date-format`.
+
 You can also export task logs to a file with `--log-file` and customize the formatting
 with `--log-format`, `--log-date-format`, `--log-file-format`, and
 `--log-file-date-format`.

@@ -29,6 +29,8 @@ if TYPE_CHECKING:
 
     from pluggy._manager import DistFacade
 
+    from _pytask.capture import CaptureManager
+    from _pytask.live import LiveManager
     from _pytask.node_protocols import PTask
     from _pytask.outcomes import CollectionOutcome
     from _pytask.outcomes import TaskOutcome
@@ -60,6 +62,27 @@ class _TimeUnit(NamedTuple):
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     cli.commands["build"].params.extend(
         [
+            click.Option(
+                ["--log-cli/--no-log-cli"],
+                default=False,
+                help="Enable live log display during task execution.",
+            ),
+            click.Option(
+                ["--log-cli-level"],
+                default=None,
+                metavar="LEVEL",
+                help="CLI logging level.",
+            ),
+            click.Option(
+                ["--log-cli-format"],
+                default=None,
+                help="Log format used by the logging module for live logs.",
+            ),
+            click.Option(
+                ["--log-cli-date-format"],
+                default=None,
+                help="Log date format used by the logging module for live logs.",
+            ),
             click.Option(
                 ["--show-locals"],
                 is_flag=True,
@@ -119,6 +142,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
 @hookimpl
 def pytask_parse_config(config: dict[str, Any]) -> None:
     config["show_capture"] = convert_to_enum(config["show_capture"], ShowCapture)
+    config["log_cli_level"] = _parse_log_level(
+        config["log_cli_level"], option_name="log_cli_level"
+    )
     config["log_level"] = _parse_log_level(config["log_level"], option_name="log_level")
     config["log_file_level"] = _parse_log_level(
         config["log_file_level"], option_name="log_file_level"
@@ -308,17 +334,60 @@ class LogCaptureHandler(LoggingStreamHandler):
         return self.stream.getvalue().strip()
 
 
-class LoggingManager:
-    """Capture task logs for reports and optional log files."""
+class LiveLogHandler(logging.Handler):
+    """Write log records to the terminal immediately."""
 
     def __init__(
         self,
         *,
+        plugin_manager: Any,
+    ) -> None:
+        super().__init__()
+        self.plugin_manager = plugin_manager
+
+    def _get_capture_manager(self) -> CaptureManager | None:
+        capture_manager = self.plugin_manager.get_plugin("capturemanager")
+        return capture_manager if hasattr(capture_manager, "write_to_stdout") else None
+
+    def _get_live_manager(self) -> LiveManager | None:
+        live_manager = self.plugin_manager.get_plugin("live_manager")
+        return live_manager if hasattr(live_manager, "pause") else None
+
+    def emit(self, record: logging.LogRecord) -> None:
+        message = self.format(record)
+        capture_manager = self._get_capture_manager()
+        live_manager = self._get_live_manager()
+        resume_live = live_manager is not None and live_manager.is_started
+
+        if resume_live and live_manager is not None:
+            live_manager.pause()
+
+        try:
+            if capture_manager is not None:
+                capture_manager.write_to_stdout(message + "\n")
+            else:
+                sys.stdout.write(message + "\n")
+                sys.stdout.flush()
+        finally:
+            if resume_live and live_manager is not None:
+                live_manager.resume()
+
+
+class LoggingManager:
+    """Capture task logs for reports and optional log files."""
+
+    def __init__(  # noqa: PLR0913
+        self,
+        *,
         formatter: logging.Formatter,
+        live_log_handler: logging.Handler | None,
+        log_cli_level: int | None,
         log_level: int | None,
         log_file_handler: logging.FileHandler | None,
         log_file_level: int | None,
     ) -> None:
+        self.live_log_handler = live_log_handler
+        self.log_cli_level = log_cli_level
         self.log_level = log_level
         self.log_file_level = log_file_level
         self.report_handler = LogCaptureHandler()
@@ -327,10 +396,19 @@ class LoggingManager:
 
     @classmethod
     def from_config(cls, config: dict[str, Any]) -> LoggingManager:
+        log_cli_level = (
+            config["log_cli_level"]
+            if config["log_cli_level"] is not None
+            else config["log_level"]
+        )
         log_file_level = (
             config["log_file_level"]
             if config["log_file_level"] is not None
             else config["log_level"]
+        )
+        live_log_handler = _create_live_log_handler(
+            config=config,
+            log_cli_level=log_cli_level,
         )
         log_file_handler = _create_log_file_handler(
             log_file=config["log_file"],
@@ -344,6 +422,8 @@ class LoggingManager:
             formatter=logging.Formatter(
                 config["log_format"], datefmt=config["log_date_format"]
             ),
+            live_log_handler=live_log_handler,
+            log_cli_level=log_cli_level,
             log_level=config["log_level"],
             log_file_handler=log_file_handler,
             log_file_level=log_file_level,
@@ -353,6 +433,8 @@ class LoggingManager:
     def _catching_logs(self) -> Generator[None, None, None]:
         root_logger = logging.getLogger()
         handlers: list[logging.Handler] = [self.report_handler]
+        if self.live_log_handler is not None:
+            handlers.append(self.live_log_handler)
         if self.log_file_handler is not None:
             handlers.append(self.log_file_handler)
 
@@ -360,6 +442,7 @@ class LoggingManager:
         configured_levels = [
             level
             for level in (
+                self.log_cli_level,
                 self.log_level,
                 self.log_file_level,
             )
@@ -454,3 +537,22 @@ def _create_log_file_handler(
         log_file_level if log_file_level is not None else logging.NOTSET
     )
     return log_file_handler
+
+
+def _create_live_log_handler(
+    *, config: dict[str, Any], log_cli_level: int | None
+) -> logging.Handler | None:
+    if not (config["log_cli"] or config["log_cli_level"] is not None):
+        return None
+
+    live_log_handler = LiveLogHandler(plugin_manager=config["pm"])
+    live_log_handler.setFormatter(
+        logging.Formatter(
+            config["log_cli_format"] or config["log_format"],
+            datefmt=config["log_cli_date_format"] or config["log_date_format"],
+        )
+    )
+    live_log_handler.setLevel(
+        log_cli_level if log_cli_level is not None else logging.NOTSET
+    )
+    return live_log_handler

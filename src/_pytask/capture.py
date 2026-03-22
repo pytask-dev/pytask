@@ -779,6 +779,13 @@ class CaptureManager:
         assert self._capturing is not None
         return self._capturing.readouterr()
 
+    def write_to_stdout(self, text: str) -> None:
+        if self._capturing is not None and self._capturing.out is not None:
+            self._capturing.out.writeorg(text)
+            return
+        sys.stdout.write(text)
+        sys.stdout.flush()
+
     # Helper context managers
 
     @contextlib.contextmanager

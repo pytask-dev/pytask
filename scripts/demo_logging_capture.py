@@ -28,6 +28,22 @@ def main() -> None:
 
     _run_demo_case(
         repo_root=repo_root,
+        title="Stream logs live while tasks run",
+        args=[
+            str(demo_root),
+            "--force",
+            "--log-cli",
+            "--log-cli-level=INFO",
+            "--log-cli-date-format=%H:%M:%S",
+            "--log-cli-format=%(asctime)s %(levelname)-8s %(name)s:%(message)s",
+            "--log-level=INFO",
+            "--log-date-format=%H:%M:%S",
+            "--log-format=%(asctime)s %(levelname)-8s %(name)s:%(message)s",
+        ],
+    )
+
+    _run_demo_case(
+        repo_root=repo_root,
         title="Show only captured logs for the failing task",
         args=[
             str(demo_root),
@@ -65,7 +81,8 @@ def main() -> None:
     _write_line(f"  cd {repo_root}")
     _write_line(
         "  uv run python -m pytask "
-        f"{demo_root} --log-level=INFO --show-capture=all --log-file=build.log"
+        f"{demo_root} "
+        "--log-cli --log-level=INFO --show-capture=all --log-file=build.log"
     )
     _write_line("=" * 80)
 

@@ -86,6 +86,10 @@ def build(  # noqa: PLR0913
     pdb: bool = False,
     pdb_cls: str = "",
     log_date_format: str = "%H:%M:%S",
+    log_cli: bool = False,
+    log_cli_date_format: str | None = None,
+    log_cli_format: str | None = None,
+    log_cli_level: int | str | None = None,
     log_file: Path | str | None = None,
     log_file_date_format: str | None = None,
     log_file_format: str | None = None,
@@ -158,6 +162,15 @@ def build(  # noqa: PLR0913
         ``--pdbcls=IPython.terminal.debugger:TerminalPdb``
     log_date_format : str, default="%H:%M:%S"
         The date format used for captured logs.
+    log_cli : bool, default=False
+        Whether log records should be streamed to the terminal while tasks run.
+    log_cli_date_format : str | None, default=None
+        The date format used for live logs. Falls back to ``log_date_format``.
+    log_cli_format : str | None, default=None
+        The format used for live logs. Falls back to ``log_format``.
+    log_cli_level : int | str | None, default=None
+        The level of messages streamed live to the terminal. Falls back to
+        ``log_level``.
     log_file : Path | str | None, default=None
         A path to a file where logs from executed tasks should be written.
     log_file_date_format : str | None, default=None
@@ -228,6 +241,10 @@ def build(  # noqa: PLR0913
             "pdb": pdb,
             "pdb_cls": pdb_cls,
             "log_date_format": log_date_format,
+            "log_cli": log_cli,
+            "log_cli_date_format": log_cli_date_format,
+            "log_cli_format": log_cli_format,
+            "log_cli_level": log_cli_level,
             "log_file": log_file,
             "log_file_date_format": log_file_date_format,
             "log_file_format": log_file_format,
