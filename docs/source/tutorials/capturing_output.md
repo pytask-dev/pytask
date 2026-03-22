@@ -26,6 +26,11 @@ By default, capturing is done by intercepting writes to low-level file descripto
 allows capturing output from simple `print` statements as well as output from a
 subprocess started by a task.
 
+!!! seealso
+
+    [Manage logging](../how_to_guides/logging.md) for a dedicated guide to captured logs,
+    live logs, log files, and logging configuration.
+
 ## Setting capturing methods or disabling capturing
 
 There are three ways in which `pytask` can perform capturing:
@@ -48,23 +53,6 @@ $ pytask --capture=fd        # also point filedescriptors 1 and 2 to temp file
 $ pytask --capture=tee-sys   # combines 'sys' and '-s', capturing sys.stdout/stderr
                              # and passing it along to the actual sys.stdout/stderr
 ```
-
-## Controlling captured log output
-
-Use `--show-capture=log` to only display captured log records for failing tasks or
-`--show-capture=all` to display logs together with captured `stdout` and `stderr`.
-
-Use `--log-cli` to stream log records to the terminal while tasks run. You can customize
-the live output with `--log-cli-level`, `--log-cli-format`, and `--log-cli-date-format`.
-
-You can also export task logs to a file with `--log-file` and customize the formatting
-with `--log-format`, `--log-date-format`, `--log-file-format`, and
-`--log-file-date-format`.
-
-The animation below shows the same warning appearing once as a live log line during
-execution and again as captured log output in the failure report.
-
---8<-- "docs/source/_static/md/logging-live.md"
 
 ## Using print statements for debugging
 
