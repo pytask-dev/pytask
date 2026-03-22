@@ -33,12 +33,13 @@ __all__ = [
 def relative_to(path: Path, source: Path, *, include_source: bool = True) -> Path:
     """Make a path relative to another path.
 
-    In contrast to :meth:`pathlib.Path.relative_to`, this function allows to keep the
-    name of the source path.
+    In contrast to
+    [pathlib.Path.relative_to](https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.relative_to),
+    this function allows to keep the name of the source path.
 
     Examples
     --------
-    The default behavior of :mod:`pathlib` is to exclude the source path from the
+    The default behavior of `pathlib` is to exclude the source path from the
     relative path.
 
     >>> relative_to(Path("folder/file.py"), Path("folder"), False).as_posix()
@@ -62,11 +63,12 @@ def find_closest_ancestor(
 
     In case a path is the path to the task file itself, we return the path.
 
-    .. note::
+    !!! note
 
-        The check :meth:`pathlib.Path.is_file` only succeeds when the file exists. This
-        must be true as otherwise an error is raised by :obj:`click` while using the
-        cli.
+        The check
+        [pathlib.Path.is_file](https://docs.python.org/3/library/pathlib.html#pathlib.Path.is_file)
+        only succeeds when the file exists. This must be true as otherwise an error is
+        raised by `click` while using the cli.
 
     Examples
     --------
@@ -111,17 +113,22 @@ def find_case_sensitive_path(path: Path, platform: str) -> Path:
     and ``TeXt.TxT`` would point to the same file but not on case-sensitive file
     systems.
 
-    On Windows, we can use :meth:`pathlib.Path.resolve` to find the real path.
+    On Windows, we can use
+    [pathlib.Path.resolve](https://docs.python.org/3/library/pathlib.html#pathlib.Path.resolve)
+    to find the real path.
 
     This does not work on POSIX systems since Python implements them as if they are
     always case-sensitive. Some observations:
 
-    - On case-sensitive POSIX systems, :meth:`pathlib.Path.exists` fails with a
-      case-insensitive path.
-    - On case-insensitive POSIX systems, :meth:`pathlib.Path.exists` succeeds with a
-      case-insensitive path.
-    - On case-insensitive POSIX systems, :meth:`pathlib.Path.resolve` does not return
-      a case-sensitive path which it does on Windows.
+    - On case-sensitive POSIX systems,
+      [pathlib.Path.exists](https://docs.python.org/3/library/pathlib.html#pathlib.Path.exists)
+      fails with a case-insensitive path.
+    - On case-insensitive POSIX systems,
+      [pathlib.Path.exists](https://docs.python.org/3/library/pathlib.html#pathlib.Path.exists)
+      succeeds with a case-insensitive path.
+    - On case-insensitive POSIX systems,
+      [pathlib.Path.resolve](https://docs.python.org/3/library/pathlib.html#pathlib.Path.resolve)
+      does not return a case-sensitive path which it does on Windows.
 
     """
     return path.resolve() if platform == "win32" else path
@@ -133,7 +140,7 @@ def import_path(path: Path, root: Path) -> ModuleType:
     The functions are taken from pytest when the import mode is set to ``importlib``. It
     was assumed to be the new default import mode but insurmountable tradeoffs caused
     the default to be set to ``prepend``. More discussion and information can be found
-    in :issue:`373`.
+    in [#373](https://github.com/pytask-dev/pytask/issues/373).
 
     """
     try:
@@ -192,12 +199,14 @@ def _resolve_pkg_root_and_module_name(path: Path) -> tuple[Path, str]:
     Return the path to the directory of the root package that contains the given Python
     file, and its module name:
 
-    .. code-block:: text
-
-        src/
-            app/
-                __init__.py core/
-                    __init__.py models.py
+    ```text
+    src/
+        app/
+            __init__.py
+            core/
+                __init__.py
+                models.py
+    ```
 
     Passing the full path to `models.py` will yield Path("src") and "app.core.models".
 

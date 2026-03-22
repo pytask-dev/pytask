@@ -1,4 +1,3 @@
-# Content of task_data_preparation.py.
 from pathlib import Path
 
 import numpy as np
@@ -6,7 +5,7 @@ import pandas as pd
 from my_project.config import BLD
 
 
-def task_create_random_data(produces: Path = BLD / "data.pkl") -> None:
+def task_create_random_data(produces: Path = BLD / "data.pkl") -> None:  # (1)!
     rng = np.random.default_rng(0)
     beta = 2
 

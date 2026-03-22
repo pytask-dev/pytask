@@ -1,4 +1,4 @@
-"""Contains utility functions for :mod:`_pytask.collect`."""
+"""Contains utility functions for `_pytask.collect`."""
 
 from __future__ import annotations
 
@@ -330,7 +330,7 @@ def _collect_product(
     """Collect products for a task.
 
     Defining products with strings is only allowed when using the decorator. Parameter
-    defaults can only be :class:`pathlib.Path`s.
+    defaults can only be `pathlib.Path`s.
 
     Raises
     ------

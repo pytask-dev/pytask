@@ -53,8 +53,9 @@ class EnumChoice(Choice):
     The implementation is copied from https://github.com/pallets/click/pull/2210 and
     related discussion can be found in https://github.com/pallets/click/issues/605.
 
-    In contrast to using :class:`click.Choice`, using this type ensures that the
-    error message does not show the enum members.
+    In contrast to using
+    [click.Choice](https://click.palletsprojects.com/en/stable/api/#click.Choice),
+    using this type ensures that the error message does not show the enum members.
 
     In contrast to the proposed implementation in the PR, this implementation does
     not use the members than rather the values of the enum.
@@ -280,7 +281,7 @@ def _format_help_text(  # noqa: C901, PLR0912, PLR0915
     """Format the help of a click parameter.
 
     A large chunk of the function is copied from
-    :meth:`click.core.Option.get_help_record` to support styling, show values of enums,
+    `click.core.Option.get_help_record` to support styling, show values of enums,
     etc..
 
     """
@@ -383,7 +384,7 @@ def _describe_range(
 ) -> str:
     """Describe the range for use in help text.
 
-    It differs from the :meth:`click.types._NumberRangeBase._describe_range()` because
+    It differs from the `click.types._NumberRangeBase._describe_range()` because
     intervals are always ordered as on the number line.
 
     Examples

@@ -109,7 +109,7 @@ def parse_warning_filter(  # noqa: C901
 def _resolve_warning_category(category: str) -> type[Warning]:
     """Resolve the category of a warning.
 
-    Copied from :func:`warnings._getcategory`, but changed so it lets exceptions
+    Copied from `warnings._getcategory`, but changed so it lets exceptions
     (specially ImportErrors) propagate so we can get access to their tracebacks (pytest-
     dev/pytask/#9218).
 

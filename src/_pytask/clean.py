@@ -107,7 +107,7 @@ def clean(**raw_config: Any) -> NoReturn:  # noqa: C901, PLR0912
     raw_config["command"] = "clean"
 
     try:
-        # Duplication of the same mechanism in :func:`pytask.build`.
+        # Duplication of the same mechanism in `pytask.build`.
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
         session = Session.from_config(config)
 
@@ -225,7 +225,7 @@ def _find_all_unknown_paths(
 ) -> list[Path]:
     """Find all unknown paths.
 
-    First, create a tree of :class:`_RecursivePathNode`. Then, create a list of unknown
+    First, create a tree of `_RecursivePathNode`. Then, create a list of unknown
     paths and potentially take short-cuts if complete directories can be deleted.
 
     """

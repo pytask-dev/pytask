@@ -40,7 +40,7 @@ def pytask_add_hooks(pm: PluginManager) -> None:
     specifications and implementations.
 
     If you want to register plugins dynamically depending on the configuration, use
-    :func:`pytask_post_parse` instead. See :mod:`_pytask.debugging` for an example.
+    `pytask_post_parse` instead. See `_pytask.debugging` for an example.
 
     """
 
@@ -97,8 +97,8 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 def pytask_unconfigure(session: Session) -> None:
     """Unconfigure a pytask session before the process is exited.
 
-    The hook allows to return resources previously borrowed like :func:`pdb.set_trace`
-    by :class:`_pytask.debugging.PytaskPDB` and do other stuff at the end of a session.
+    The hook allows to return resources previously borrowed like [pdb.set_trace](https://docs.python.org/3/library/pdb.html#pdb.set_trace)
+    by `_pytask.debugging.PytaskPDB` and do other stuff at the end of a session.
 
     """
 
@@ -141,8 +141,8 @@ def pytask_collect_file_protocol(
 ) -> list[CollectionReport]:  # type: ignore[invalid-return-type]
     """Start protocol to collect files.
 
-    The protocol calls the subordinate hook :func:`pytask_collect_file` which might
-    error if the file has a :class:`SyntaxError`.
+    The protocol calls the subordinate hook `pytask_collect_file` which might
+    error if the file has a `SyntaxError`.
 
     """
 

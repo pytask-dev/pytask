@@ -1,6 +1,6 @@
 """Capture stdout and stderr during collection and execution.
 
-This module implements the :class:`CaptureManager` plugin which allows for capturing in
+This module implements the `CaptureManager` plugin which allows for capturing in
 three ways.
 
 - fd (file descriptor) level capturing (default): All writes going to the operating
@@ -316,7 +316,7 @@ class NoCapture(CaptureBase[str]):
 class SysCaptureBase(CaptureBase[AnyStr]):
     """Capture IO to/from Python's buffer for stdin, stdout, and stderr.
 
-    Instead of :class:`SysCapture`, this class produces bytes instead of text.
+    Instead of `SysCapture`, this class produces bytes instead of text.
 
     """
 
@@ -411,7 +411,7 @@ class SysCaptureBinary(SysCaptureBase[bytes]):
 class SysCapture(SysCaptureBase[str]):
     """Capture IO to/from Python's buffer for stdin, stdout, and stderr.
 
-    Instead of :class:`SysCaptureBinary`, this class produces text instead of bytes.
+    Instead of `SysCaptureBinary`, this class produces text instead of bytes.
 
     """
 
@@ -708,7 +708,7 @@ class MultiCapture(Generic[AnyStr]):
 def _get_multicapture(method: CaptureMethod) -> MultiCapture[str]:
     """Set up the MultiCapture class with the passed method.
 
-    For each valid method, the function instantiates the :class:`MultiCapture` class
+    For each valid method, the function instantiates the `MultiCapture` class
     with the specified buffers for ``stdin``, ``stdout``, and ``stderr``.
 
     """
@@ -733,7 +733,7 @@ class CaptureManager:
     """The capture plugin.
 
     This class is the capture plugin which implements some hooks and provides an
-    interface around :func:`_get_multicapture` and :class:`MultiCapture` adjusted to
+    interface around `_get_multicapture` and `MultiCapture` adjusted to
     pytask.
 
     The class manages that the appropriate capture method is enabled/disabled during the
@@ -821,10 +821,12 @@ class CaptureManager:
     def pytask_collect_log(self) -> Generator[None, None, None]:
         """Suspend capturing at the end of the collection.
 
-        This hook needs to be here as long as the collection has no proper capturing. If
-        ``pdb.set_trace`` stops the collection, continuation in ``do_continue`` enables
-        the capture manager. Then, the collection status will be captured and displayed
-        in the output of the first task.
+        This hook needs to be here as long as the collection has no proper capturing.
+        If
+        [pdb.set_trace](https://docs.python.org/3/library/pdb.html#pdb.set_trace)
+        stops the collection, continuation in ``do_continue`` enables the capture
+        manager. Then, the collection status will be captured and displayed in the
+        output of the first task.
 
         Here, we stop the capture manager before logging the final collection status.
 

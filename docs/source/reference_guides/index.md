@@ -3,13 +3,10 @@
 Reference guides are articles which can be read alongside the code and provide
 additional details on the inner workings of pytask.
 
-```{toctree}
----
-maxdepth: 1
----
-command_line_interface
-configuration
-lockfile
-hookspecs
-api
-```
+- [Configuration](configuration.md)
+- [Lockfile](lockfile.md)
+- [Hookspecs](hookspecs.md)
+- [Type Hints](../type_hints.md)
+- [Developer's Guide](../developers_guide.md)
+- [Glossary](../glossary.md)
+- [API](../api/index.md)

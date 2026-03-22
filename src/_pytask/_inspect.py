@@ -28,7 +28,7 @@ def get_annotations(
     * PEP 649 introduces deferred annotations which are only evaluated when explicitly
       requested. See https://peps.python.org/pep-0649/ for background and why locals can
       disappear between definition and evaluation time.
-    * Python 3.14 ships :mod:`annotationlib` which exposes the raw annotation source and
+    * Python 3.14 ships `annotationlib` which exposes the raw annotation source and
       provides the building blocks we reuse here. The module doc explains the available
       formats: https://docs.python.org/3/library/annotationlib.html
     * Other projects run into the same constraints. Pydantic tracks their work in
@@ -39,14 +39,17 @@ def get_annotations(
     ---------
     When annotations refer to loop variables inside task generators, the locals that
     existed during decoration have vanished by the time pytask evaluates annotations
-    while collecting tasks. Using :func:`inspect.get_annotations` would therefore yield
-    the same product path for every repeated task. By asking :mod:`annotationlib` for
-    string representations and re-evaluating them with reconstructed locals (globals,
-    default arguments, and the frame locals captured via ``@task`` at decoration time)
-    we recover the correct per-task values. The frame locals capture is essential for
+    while collecting tasks. Using
+    [inspect.get_annotations](
+    https://docs.python.org/3/library/inspect.html#inspect.get_annotations
+    ) would therefore yield the same product path for every repeated task. By asking
+    `annotationlib` for string representations and re-evaluating them with
+    reconstructed locals (globals, default arguments, and the frame locals captured via
+    [`@task`][pytask.task] at decoration time) we recover the correct per-task values.
+    The frame locals capture is essential for
     cases where loop variables are only referenced in annotations (not in the function
     body or closure). If any of these ingredients are missing—for example on Python
-    versions without :mod:`annotationlib` - we fall back to the stdlib implementation,
+    versions without `annotationlib` - we fall back to the stdlib implementation,
     so behaviour on 3.10-3.13 remains unchanged.
     """
     if not eval_str or not hasattr(obj, "__globals__"):

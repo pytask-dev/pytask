@@ -4,10 +4,10 @@ There are situations where you want to structure your project as a multi-package
 workspace. Reasons are
 
 - You are developing a scientific package alongside the project that you want to publish
-  later.
+    later.
 - The code for dealing with the dataset should be reused in other projects.
 - You want to strictly separate the pytask tasks from the remaining code to be able to
-  switch to another build system.
+    switch to another build system.
 
 In those instances, a workspace might be the right choice.
 

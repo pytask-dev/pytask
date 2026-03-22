@@ -131,3 +131,44 @@ function loadVisibleTermynals() {
 window.addEventListener("scroll", loadVisibleTermynals);
 createTermynals();
 loadVisibleTermynals();
+
+function isTextInputElement(element) {
+    if (!element) {
+        return false;
+    }
+    const tagName = element.tagName.toLowerCase();
+    return (
+        tagName === "input" ||
+        tagName === "textarea" ||
+        tagName === "select" ||
+        element.isContentEditable
+    );
+}
+
+document.addEventListener("keydown", event => {
+    if (
+        event.defaultPrevented ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        isTextInputElement(document.activeElement)
+    ) {
+        return;
+    }
+
+    let rel;
+    if (event.key === "ArrowLeft") {
+        rel = "prev";
+    } else if (event.key === "ArrowRight") {
+        rel = "next";
+    } else {
+        return;
+    }
+
+    const link = document.querySelector(`link[rel="${rel}"]`);
+    if (link && link.href) {
+        event.preventDefault();
+        window.location.href = link.href;
+    }
+});
