@@ -13,6 +13,11 @@ Global options are available on the top-level `pytask` command.
 
 --8<-- "docs/source/_static/md/commands/root-options.md"
 
+## Help output
+
+--8<-- "docs/source/_static/md/help-page.md"
+
 ## Default command behavior
 
-Running `pytask` without a subcommand is equivalent to running `pytask build`.
+Running `pytask` without a subcommand is equivalent to running
+[`pytask build`](build.md).

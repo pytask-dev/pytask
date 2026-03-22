@@ -3,7 +3,7 @@
 Sometimes you want to skip the execution of a task and pretend nothing has changed.
 
 A typical scenario is that you formatted the task's source files with
-[black](https://github.com/psf/black) which would rerun the task.
+[`ruff format`](https://docs.astral.sh/ruff/formatter/) which would rerun the task.
 
 In this case, you can apply the [`@pytask.mark.persist`](../api/marks.md#pytask.mark)
 decorator to the task, which will skip its execution as long as all products exist.

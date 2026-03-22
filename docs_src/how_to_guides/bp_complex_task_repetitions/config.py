@@ -1,5 +1,5 @@
+from dataclasses import dataclass
 from pathlib import Path
-from typing import NamedTuple
 
 from pytask import DataCatalog
 
@@ -9,7 +9,8 @@ BLD = SRC / "bld"
 data_catalog = DataCatalog()
 
 
-class Dataset(NamedTuple):
+@dataclass
+class Dataset:
     name: str
 
     @property
@@ -17,7 +18,8 @@ class Dataset(NamedTuple):
         return SRC / f"{self.name}.pkl"
 
 
-class Model(NamedTuple):
+@dataclass
+class Model:
     name: str
 
 
@@ -25,7 +27,8 @@ DATASETS = [Dataset("a"), Dataset("b"), Dataset("c")]
 MODELS = [Model("ols"), Model("logit"), Model("linear_prob")]
 
 
-class Experiment(NamedTuple):
+@dataclass
+class Experiment:
     dataset: Dataset
     model: Model
 

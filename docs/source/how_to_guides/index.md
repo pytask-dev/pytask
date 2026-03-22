@@ -32,7 +32,7 @@ Contributions - additions, comments, experiences, and requests for clarification
 highly appreciated. File either an [issue](https://github.com/pytask-dev/pytask/issues)
 or start a [discussion](https://github.com/pytask-dev/pytask/discussions).
 
-- [Bp Structure Of A Research Project](bp_structure_of_a_research_project.md)
-- [Bp Structure Of Task Files](bp_structure_of_task_files.md)
-- [Bp Templates And Projects](bp_templates_and_projects.md)
-- [Bp Complex Task Repetitions](bp_complex_task_repetitions.md)
+- [Structure Of A Research Project](bp_structure_of_a_research_project.md)
+- [Structure Of Task Files](bp_structure_of_task_files.md)
+- [Templates And Projects](bp_templates_and_projects.md)
+- [Complex Task Repetitions](bp_complex_task_repetitions.md)

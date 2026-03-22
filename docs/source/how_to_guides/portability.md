@@ -3,10 +3,10 @@
 This guide explains what you need to do to move a pytask project between machines and
 why the lockfile is central to that process.
 
-```{seealso}
-The lockfile format and behavior are documented in the
-[reference guide](../reference_guides/lockfile.md).
-```
+!!! seealso
+
+    The lockfile format and behavior are documented in the
+    [reference guide](../reference_guides/lockfile.md).
 
 ## How to port a project
 
@@ -14,13 +14,16 @@ Use this checklist when you move a project to another machine or environment.
 
 1. **Update state once on the source machine.**
 
-    Run a normal build so `pytask.lock` is up to date:
+Run a normal build with [`pytask build`](../commands/build.md) so `pytask.lock` is up to
+date:
 
-    ```console
-    $ pytask build
-    ```
+````
+```console
+$ pytask build
+```
 
-    If you already have a recent lockfile and up-to-date outputs, you can skip this step.
+If you already have a recent lockfile and up-to-date outputs, you can skip this step.
+````
 
 1. **Ship the right files.**
 
@@ -56,21 +59,24 @@ implement custom nodes, make sure their IDs remain project-relative and stable a
 machines.
 
 Second, state values must be portable. The lockfile stores opaque state strings from
-`PNode.state()` and `PTask.state()`, and pytask uses them to decide whether a task is up
-to date. Content hashes are portable; timestamps or absolute paths are not. This mostly
-matters when you define custom nodes or custom hash functions.
+[`PNode.state()`](../api/nodes_and_tasks.md#pytask.PNode.state) and
+[`PTask.state()`](../api/nodes_and_tasks.md#pytask.PTask.state), and pytask uses them to
+decide whether a task is up to date. Content hashes are portable; timestamps or absolute
+paths are not. This mostly matters when you define custom nodes or custom hash
+functions.
 
 ## Tips for stable state values
 
 - Prefer file content hashes over timestamps for custom nodes.
-- For `PythonNode` values that are not natively stable, provide a custom hash function.
-- Avoid machine-specific paths or timestamps in custom `state()` implementations.
+- For [`PythonNode`](../api/nodes_and_tasks.md#pytask.PythonNode) values that are not
+    natively stable, provide a custom hash function.
+- Avoid machine-specific paths or timestamps in custom
+    [`state()`](../api/nodes_and_tasks.md#pytask.PNode.state) implementations.
 
-```{seealso}
-For custom nodes, see [Writing custom nodes](writing_custom_nodes.md).
-For hashing guidance, see
-[Hashing inputs of tasks](hashing_inputs_of_tasks.md).
-```
+!!! seealso
+
+    For custom nodes, see [Writing custom nodes](writing_custom_nodes.md). For hashing
+    guidance, see [Hashing inputs of tasks](hashing_inputs_of_tasks.md).
 
 ## Cleaning up the lockfile
 
@@ -78,7 +84,8 @@ For hashing guidance, see
 tasks run. If tasks are removed or renamed, their old entries remain as stale data and
 are ignored.
 
-To clean up stale entries without deleting the file, run:
+To clean up stale entries without deleting the file, run
+[`pytask build --clean-lockfile`](../commands/build.md#options):
 
 ```console
 $ pytask build --clean-lockfile

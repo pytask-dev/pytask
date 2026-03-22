@@ -1,7 +1,7 @@
 # Markers
 
 pytask uses markers to attach additional information to a task. You can see all
-available markers by using the `pytask markers` command.
+available markers by using the [`pytask markers`](../commands/markers.md) command.
 
 --8<-- "docs/source/_static/md/markers.md"
 

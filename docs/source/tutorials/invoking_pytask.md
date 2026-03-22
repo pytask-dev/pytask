@@ -102,7 +102,7 @@ The explanation output respects the [`--verbose`](../commands/build.md#options) 
 - `--verbose 2`: Shows detailed information including persisted and unchanged tasks with
     change reasons
 
-## Functional interface
+!!! seealso
 
-pytask also has a functional interface that is explained in this
-[article](../how_to_guides/functional_interface.ipynb).
+    `pytask` also has a functional interface that is explained in
+    [this article](../how_to_guides/functional_interface.ipynb).

@@ -7,8 +7,9 @@
     products are not fully specified.
 
 You can influence the order in which tasks are executed by assigning preferences to
-tasks. Use `@pytask.mark.try_first` to execute a task as early as possible and
-`@pytask.mark.try_last` to defer execution.
+tasks. Use [`@pytask.mark.try_first`](../api/marks.md#pytask.mark.try_first) to execute
+a task as early as possible and
+[`@pytask.mark.try_last`](../api/marks.md#pytask.mark.try_last) to defer execution.
 
 !!! note
 
@@ -34,11 +35,13 @@ def task_second():
     print("I'm first.")
 ```
 
-The execution yields (use `-s` to make the output visible in the terminal)
+The execution yields (use [`-s`](../commands/build.md#options) to make the output
+visible in the terminal)
 
 --8<-- "docs/source/_static/md/try-first.md"
 
-Replacing `pytask.mark.try_first` with `pytask.mark.try_last` yields
+Replacing [`pytask.mark.try_first`](../api/marks.md#pytask.mark.try_first) with
+[`pytask.mark.try_last`](../api/marks.md#pytask.mark.try_last) yields
 
 ```py title="task_example.py"
 import pytask

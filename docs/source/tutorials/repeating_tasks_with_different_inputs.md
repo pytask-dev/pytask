@@ -129,18 +129,19 @@ and arguments. Here are three tips to organize the repetitions.
 
 1. Use suitable containers to organize your ids and the function arguments.
 
-    **NamedTuple**
+    **Dataclass**
 
-    `typing.NamedTuple` or `collections.namedtuple` are useful containers to organize the
-    arguments of the parametrizations. They also provide better support for
-    heterogeneous types than dictionaries.
+    [`dataclasses.dataclass`](https://docs.python.org/3/library/dataclasses.html#dataclasses.dataclass)
+    is a useful container to organize the arguments of the parametrizations. It also
+    works well with type checkers.
 
     ```python
+    from dataclasses import dataclass
     from pathlib import Path
-    from typing import NamedTuple
 
 
-    class Arguments(NamedTuple):
+    @dataclass
+    class Arguments:
         seed: int
         path_to_data: Path
 
@@ -151,17 +152,8 @@ and arguments. Here are three tips to organize the repetitions.
     }
     ```
 
-    **Dictionary**
-
-    ```python
-    ID_TO_KWARGS = {
-        "first": {"seed": 0, "produces": "data_0.pkl"},
-        "second": {"seed": 1, "produces": "data_1.pkl"},
-    }
-    ```
-
-1. `@task` has a `kwargs` argument that allows you inject arguments to the function
-    instead of adding them as default arguments.
+1. [`@task`](../api/nodes_and_tasks.md#pytask.task) has a `kwargs` argument that allows
+    you inject arguments to the function instead of adding them as default arguments.
 
 1. If the generation of arguments for the task function is complex, we should use a
     function.

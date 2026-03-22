@@ -115,7 +115,8 @@ the return type. It allows us to treat the returns of the task function as produ
 
 In situations where the task return is the product like
 [return annotation](#return-annotation), but you cannot modify the type annotation of
-the return, use the argument `produces` of the `@task` decorator.
+the return, use the argument `produces` of the
+[`@task`](../api/nodes_and_tasks.md#pytask.task) decorator.
 
 Pass the node or value you otherwise include in the type annotation to `produces`.
 

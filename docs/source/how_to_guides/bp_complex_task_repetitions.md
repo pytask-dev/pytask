@@ -30,7 +30,8 @@ are growing over time and you run into these problems.
 ## Solution
 
 The main idea for the solution is quickly explained. We will, first, formalize
-dimensions into objects using `typing.NamedTuple` or `dataclasses.dataclass`.
+dimensions into objects using
+[`dataclasses.dataclass`](https://docs.python.org/3/library/dataclasses.html#dataclasses.dataclass).
 
 Secondly, we will combine dimensions in multi-dimensional objects such that we only have
 to iterate over instances of this object in a single loop. Here and for the lack of a
@@ -98,8 +99,8 @@ When you are using the `.name` attributes of the dimensions and multi-dimensiona
 objects like in the example above, you ensure that the names of dimensions are included
 in all downstream tasks.
 
-Thus, you can simply call pytask with the following expression to execute all tasks
-related to the logit model.
+Thus, you can simply call [`pytask -k`](../commands/build.md#options) with the following
+expression to execute all tasks related to the logit model.
 
 ```console
 pytask -k logit
@@ -114,5 +115,6 @@ pytask -k logit
 
 Some repeated tasks are costly to run - costly in terms of computing power, memory, or
 runtime. If you change a task module, you might accidentally trigger all other tasks in
-the module to be rerun. Use the `@pytask.mark.persist` decorator, which is explained in
-more detail in this [tutorial](../tutorials/making_tasks_persist.md).
+the module to be rerun. Use the [`@pytask.mark.persist`](../api/marks.md#pytask.mark)
+decorator, which is explained in more detail in this
+[tutorial](../tutorials/making_tasks_persist.md).

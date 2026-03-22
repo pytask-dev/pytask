@@ -1,10 +1,11 @@
+from dataclasses import dataclass
 from pathlib import Path
-from typing import NamedTuple
 
 from pytask import task
 
 
-class _Arguments(NamedTuple):
+@dataclass
+class _Arguments:
     seed: int
     path_to_data: Path
 

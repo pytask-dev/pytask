@@ -61,7 +61,6 @@ nav:
       - Pluggy: explanations/pluggy.md
   - Reference Guides:
       - Overview: reference_guides/index.md
-      - Command Line Interface: reference_guides/command_line_interface.md
       - Configuration: reference_guides/configuration.md
       - Lockfile: reference_guides/lockfile.md
       - Hook Specifications: reference_guides/hookspecs.md
@@ -132,6 +131,7 @@ plugins:
             - https://pandas.pydata.org/docs/objects.inv
             - https://universal-pathlib.readthedocs.io/en/latest/objects.inv
             - https://mypy.readthedocs.io/en/stable/objects.inv
+            - https://networkx.org/documentation/stable/objects.inv
           options:
             docstring_style: numpy
             docstring_section_style: table

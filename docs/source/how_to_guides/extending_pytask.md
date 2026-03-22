@@ -38,7 +38,7 @@ pytask --hook-module hooks.py
 
 or
 
-```toml
+```toml title="pyproject.toml"
 [tool.pytask.ini_options]
 hook_module = ["hooks.py"]
 ```
@@ -49,17 +49,18 @@ configuration file or relative to the current working directory as a fallback.
 The value can also be a module name. For example, if `hooks.py` lies your projects
 package called `myproject` which is importable, then, you can also use
 
-```toml
+```toml title="pyproject.toml"
 [tool.pytask.ini_options]
 hook_module = ["myproject.hooks"]
 ```
 
-In `hooks.py` we can add another commandline option to `pytask build` by providing an
-additional [hook implementation](../glossary.md#hook-implementation) for the
+In `hooks.py` we can add another commandline option to
+[`pytask build`](../commands/build.md) by providing an additional
+[hook implementation](../glossary.md#hook-implementation) for the
 [hook specification](../glossary.md#hook-specification)
 `_pytask.hookspecs.pytask_extend_command_line_interface`.
 
-```python
+```py title="hooks.py"
 import click
 from _pytask.pluginmanager import hookimpl
 
@@ -102,7 +103,7 @@ Following the approach advocated for by
 [setuptools_scm](https://github.com/pypa/setuptools_scm), the entry-point is specified
 in `pyproject.toml`.
 
-```toml
+```toml title="pyproject.toml"
 [project]
 name = "pytask-plugin"
 
@@ -119,7 +120,7 @@ pytask_plugin = "pytask_plugin.plugin"
 
 For `setuptools_scm` you also need the following additions in `pyproject.toml`.
 
-```toml
+```toml title="pyproject.toml"
 [build-system]
 requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.0"]
 

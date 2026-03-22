@@ -37,7 +37,7 @@ The first option is to let pytask try to find the configuration itself.
     configuration file with the correct section.
 
 Secondly, it is possible to pass the location of the configuration file via
-`pytask build -c` like
+[`pytask build -c`](../commands/build.md#options) like
 
 ```console
 $ pytask -c config/pyproject.toml

@@ -2,7 +2,7 @@
 
 Projects usually become cluttered with obsolete files after some time.
 
-To clean the project, type `pytask clean`
+To clean the project, type [`pytask clean`](../commands/clean.md).
 
 --8<-- "docs/source/_static/md/clean-dry-run.md"
 

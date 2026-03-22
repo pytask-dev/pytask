@@ -8,11 +8,6 @@ The names of hooks always start with `pytask_` by convention. If you encounter h
 which are suffixed with `_protocol`, it means that subsequent hooks are allowed to raise
 exceptions which are handled and stored in a report.
 
-!!! note "Migration status"
-
-    This page now uses `mkdocstrings` instead of Sphinx autodoc. Cross-reference
-    backlinks are more limited for now.
-
 ## General
 
 ::: _pytask.hookspecs.pytask_add_hooks

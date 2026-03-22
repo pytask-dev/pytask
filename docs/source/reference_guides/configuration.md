@@ -43,8 +43,8 @@ check_casing_of_paths = false
 
 SQLite is the legacy state format. pytask uses `pytask.lock` as the primary state
 backend for change detection. When no lockfile exists, pytask reads the configured
-database and writes `pytask.lock`. For downgrade compatibility, `pytask build` also
-keeps the legacy database state updated.
+database and writes `pytask.lock`. For downgrade compatibility,
+[`pytask build`](../commands/build.md) also keeps the legacy database state updated.
 
 The `database_url` option remains for backward compatibility and controls the legacy
 database location and dialect
@@ -133,13 +133,11 @@ ignore = ["some_directory/*", "some_file.py"]
 ### `markers`
 
 pytask uses markers to attach additional information to task functions. To see which
-markers are available, type
+markers are available, use the [`pytask markers`](../commands/markers.md) command.
 
 ```console
 $ pytask markers
 ```
-
-on the command-line interface.
 
 If you use a marker which has not been configured, you will get a warning. To silence
 the warning and document the marker, provide the following information in your pytask
