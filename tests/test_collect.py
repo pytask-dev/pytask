@@ -14,11 +14,16 @@ from _pytask.node_protocols import PPathNode
 from pytask import CollectionOutcome
 from pytask import ExitCode
 from pytask import NodeInfo
+from pytask import PickleNode
 from pytask import Session
 from pytask import Task
 from pytask import build
 from pytask import cli
 from tests.conftest import noop
+
+
+def _make_local_upath_uri(path: Path, protocol: str) -> str:
+    return f"{protocol}:///{path.as_posix().lstrip('/')}"
 
 
 @pytest.mark.parametrize(
@@ -188,6 +193,56 @@ def test_error_with_invalid_file_name_pattern_(tmp_path):
 def test_pytask_collect_node(session, path, node_info, expected):
     result = pytask_collect_node(session, path, node_info)
     assert str(result.load()) == str(expected)
+
+
+def test_pytask_collect_remote_path_node_keeps_uri_name():
+    upath = pytest.importorskip("upath")
+
+    session = Session.from_config(
+        {"check_casing_of_paths": False, "paths": (Path.cwd(),), "root": Path.cwd()}
+    )
+
+    result = pytask_collect_node(
+        session,
+        Path.cwd(),
+        NodeInfo(
+            arg_name="path",
+            path=(),
+            value=PickleNode(path=upath.UPath("s3://bucket/file.pkl")),
+            task_path=Path.cwd() / "task_example.py",
+            task_name="task_example",
+        ),
+    )
+
+    assert isinstance(result, PPathNode)
+    assert result.name == "s3://bucket/file.pkl"
+
+
+@pytest.mark.parametrize("protocol", ["file", "local"])
+def test_pytask_collect_local_upath_protocol_node_is_shortened(tmp_path, protocol):
+    upath = pytest.importorskip("upath")
+
+    session = Session.from_config(
+        {"check_casing_of_paths": False, "paths": (tmp_path,), "root": tmp_path}
+    )
+
+    result = pytask_collect_node(
+        session,
+        tmp_path,
+        NodeInfo(
+            arg_name="path",
+            path=(),
+            value=PickleNode(
+                path=upath.UPath(_make_local_upath_uri(tmp_path / "file.pkl", protocol))
+            ),
+            task_path=tmp_path / "task_example.py",
+            task_name="task_example",
+        ),
+    )
+
+    assert isinstance(result, PPathNode)
+    assert result.path == tmp_path / "file.pkl"
+    assert result.name == f"{tmp_path.name}/file.pkl"
 
 
 @pytest.mark.skipif(
