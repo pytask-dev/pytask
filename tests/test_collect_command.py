@@ -21,6 +21,10 @@ if TYPE_CHECKING:
     from _pytask.node_protocols import PTaskWithPath
 
 
+def _make_local_upath_uri(path: Path, protocol: str) -> str:
+    return f"{protocol}:///{path.as_posix().lstrip('/')}"
+
+
 def test_collect_task(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -425,6 +429,8 @@ def test_collect_task_with_remote_upath_node(runner, tmp_path):
 def test_collect_task_with_local_upath_protocol_node(runner, tmp_path, protocol):
     pytest.importorskip("upath")
 
+    uri = _make_local_upath_uri(tmp_path / "in.pkl", protocol)
+
     source = f"""
     from pathlib import Path
     from typing import Annotated
@@ -435,7 +441,7 @@ def test_collect_task_with_local_upath_protocol_node(runner, tmp_path, protocol)
     from pytask import Product
 
     def task_example(
-        data=PickleNode(path=UPath("{protocol}://{tmp_path.as_posix()}/in.pkl")),
+        data=PickleNode(path=UPath("{uri}")),
         path: Annotated[Path, Product] = Path("out.txt"),
     ): ...
     """

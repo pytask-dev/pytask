@@ -35,6 +35,7 @@ __all__ = [
 
 
 _LOCAL_UPATH_PROTOCOLS = frozenset(("", "file", "local"))
+_WINDOWS_DRIVE_PREFIX_LENGTH = 3
 
 
 def relative_to(path: Path, source: Path, *, include_source: bool = True) -> Path:
@@ -71,7 +72,16 @@ def is_non_local_path(path: Path) -> bool:
 def normalize_local_upath(path: Path) -> Path:
     """Convert local `UPath` variants to a stdlib `Path`."""
     if isinstance(path, UPath) and path.protocol in {"file", "local"}:
-        return Path(path.path)
+        local_path = path.path
+        if (
+            sys.platform == "win32"
+            and local_path.startswith("/")
+            and len(local_path) >= _WINDOWS_DRIVE_PREFIX_LENGTH
+            and local_path[1].isalpha()
+            and local_path[2] == ":"
+        ):
+            local_path = local_path[1:]
+        return Path(local_path)
     return path
 
 

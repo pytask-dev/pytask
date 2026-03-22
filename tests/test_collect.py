@@ -22,6 +22,10 @@ from pytask import cli
 from tests.conftest import noop
 
 
+def _make_local_upath_uri(path: Path, protocol: str) -> str:
+    return f"{protocol}:///{path.as_posix().lstrip('/')}"
+
+
 @pytest.mark.parametrize(
     ("depends_on", "produces"),
     [
@@ -228,7 +232,9 @@ def test_pytask_collect_local_upath_protocol_node_is_shortened(tmp_path, protoco
         NodeInfo(
             arg_name="path",
             path=(),
-            value=PickleNode(path=upath.UPath(f"{protocol}://{tmp_path}/file.pkl")),
+            value=PickleNode(
+                path=upath.UPath(_make_local_upath_uri(tmp_path / "file.pkl", protocol))
+            ),
             task_path=tmp_path / "task_example.py",
             task_name="task_example",
         ),
