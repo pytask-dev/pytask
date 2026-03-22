@@ -374,7 +374,21 @@ class LiveLogHandler(logging.Handler):
 
 
 class LoggingManager:
-    """Capture task logs for reports and optional log files."""
+    """Capture task logs for reports and optional log files.
+
+    This intentionally follows pytest's handler-on-root design instead of trying to
+    intercept logging internals. The tradeoff is that task-local logging
+    reconfiguration is not fully isolated from pytask:
+
+    - ``logging.basicConfig()`` inside a task can become a no-op because pytask has
+      already attached a handler to the root logger.
+    - ``logging.basicConfig(force=True)`` or direct mutation of ``root.handlers`` can
+      remove or close pytask-managed handlers for the remainder of the task/session.
+
+    We accept these limitations for parity with pytest and to keep the integration
+    simple. A more isolated design would need to avoid attaching handlers to the root
+    logger in the first place.
+    """
 
     def __init__(  # noqa: PLR0913
         self,
@@ -450,6 +464,9 @@ class LoggingManager:
         ]
 
         try:
+            # Attaching handlers to the root logger is the key design choice here. It
+            # keeps pytask aligned with pytest, but it also means task code that
+            # reconfigures the root logger can affect pytask's own logging handlers.
             for handler in handlers:
                 handler.setLevel(
                     self.log_level
@@ -527,6 +544,9 @@ def _create_log_file_handler(
         return None
 
     log_file.parent.mkdir(parents=True, exist_ok=True)
+    # This handler is session-scoped and reattached around each task. If user code
+    # force-reconfigures the root logger, Python may close this handler as part of
+    # removing existing root handlers.
     log_file_handler = logging.FileHandler(
         log_file, mode=log_file_mode, encoding="utf-8"
     )
