@@ -22,14 +22,14 @@ lint:
 check: lint typing test
 
 # Build documentation
-docs:
+docs *FLAGS:
     uv run --group plugin-list python scripts/update_plugin_list.py
-    uv run --group docs zensical build
+    uv run --group docs zensical build {{FLAGS}}
 
 # Serve documentation with auto-reload
-docs-serve:
+docs-serve *FLAGS:
     uv run --group plugin-list python scripts/update_plugin_list.py
-    uv run --group docs zensical serve -a 127.0.0.1:8000
+    uv run --group docs zensical serve -a 127.0.0.1:8000 {{FLAGS}}
 
 # Run tests with lowest dependency resolution (like CI)
 test-lowest:
