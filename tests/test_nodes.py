@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import hashlib
 import pickle
 import sys
 from pathlib import Path
+from typing import cast
 
 import cloudpickle
 import pytest
+import upath
 
 from pytask import NodeInfo
 from pytask import PathNode
@@ -116,6 +119,29 @@ def test_hash_of_pickle_node(tmp_path, value, exists, expected):
         assert state == expected
     else:
         assert state is expected
+
+
+@pytest.mark.parametrize("node_cls", [PathNode, PickleNode])
+def test_signature_of_remote_upath_node(node_cls):
+    node = node_cls(name="test", path=cast("Path", upath.UPath("s3://bucket/file.pkl")))
+
+    expected = hashlib.sha256(
+        b"5bbedd1ab74242143481060b901083e77080661d97003b96e0cbae3a887ebce6"
+    ).hexdigest()
+
+    assert node.signature == expected
+
+
+@pytest.mark.parametrize("node_cls", [PathNode, PickleNode])
+@pytest.mark.parametrize("protocol", ["file", "local"])
+def test_signature_of_local_upath_node_matches_path(tmp_path, node_cls, protocol):
+    path = tmp_path / "file.pkl"
+    upath_value = upath.UPath(f"{protocol}:///{path.as_posix().lstrip('/')}")
+
+    local_node = node_cls(name="test", path=path)
+    upath_node = node_cls(name="test", path=cast("Path", upath_value))
+
+    assert upath_node.signature == local_node.signature
 
 
 @pytest.mark.parametrize(

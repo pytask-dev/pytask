@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 from typing import Any
 
 import pytest
+import upath
 
 from _pytask.path import _insert_missing_modules
 from _pytask.path import _module_name_from_path
@@ -118,8 +119,6 @@ def test_find_common_ancestor(path_1, path_2, expectation, expected):
 
 
 def test_shorten_path_keeps_non_local_uri():
-    upath = pytest.importorskip("upath")
-
     path = upath.UPath("s3://bucket/file.pkl")
 
     assert shorten_path(path, [Path.cwd()]) == "s3://bucket/file.pkl"
@@ -127,8 +126,6 @@ def test_shorten_path_keeps_non_local_uri():
 
 @pytest.mark.parametrize("protocol", ["file", "local"])
 def test_shorten_path_treats_local_upath_protocols_as_local(tmp_path, protocol):
-    upath = pytest.importorskip("upath")
-
     path = upath.UPath(_make_local_upath_uri(tmp_path / "file.pkl", protocol))
 
     assert not is_non_local_path(path)
@@ -137,8 +134,6 @@ def test_shorten_path_treats_local_upath_protocols_as_local(tmp_path, protocol):
 
 @pytest.mark.parametrize("protocol", ["file", "local"])
 def test_normalize_local_upath_strips_windows_drive_prefix(monkeypatch, protocol):
-    upath = pytest.importorskip("upath")
-
     monkeypatch.setattr(sys, "platform", "win32")
     path = upath.UPath(f"{protocol}:///C:/tmp/file.pkl")
 

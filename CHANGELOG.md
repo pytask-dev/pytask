@@ -7,6 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#822](https://github.com/pytask-dev/pytask/pull/822) fixes unstable signatures
+  for remote `UPath`-backed `PathNode`s and `PickleNode`s so unchanged remote inputs
+  are no longer reported as missing from the state database on subsequent runs.
 - [#820](https://github.com/pytask-dev/pytask/pull/820) fixes collection and node
   display for remote `UPath`-backed nodes, while preserving correct handling of local
   `file://` and `local://` `UPath`s across platforms.
