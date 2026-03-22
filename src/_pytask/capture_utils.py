@@ -9,6 +9,7 @@ class ShowCapture(enum.Enum):
     NO = "no"
     STDOUT = "stdout"
     STDERR = "stderr"
+    LOG = "log"
     ALL = "all"
 
 
