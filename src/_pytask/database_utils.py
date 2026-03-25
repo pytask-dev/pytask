@@ -8,6 +8,7 @@ from typing import Literal
 
 from sqlalchemy import create_engine
 from sqlalchemy import inspect
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
@@ -101,12 +102,18 @@ def configure_database_if_present(url: str) -> bool:
 
 
 def _create_or_update_state(
-    session: SASession, first_key: str, second_key: str, hash_: str
+    existing_states: dict[str, State],
+    session: SASession,
+    first_key: str,
+    second_key: str,
+    hash_: str,
 ) -> None:
     """Create or update a state."""
-    state_in_db = session.get(State, (first_key, second_key))
+    state_in_db = existing_states.get(second_key)
     if not state_in_db:
-        session.add(State(task=first_key, node=second_key, hash_=hash_))
+        state_in_db = State(task=first_key, node=second_key, hash_=hash_)
+        session.add(state_in_db)
+        existing_states[second_key] = state_in_db
     else:
         state_in_db.hash_ = hash_
 
@@ -116,12 +123,25 @@ def update_states_in_database(session: Session, task_signature: str) -> None:
     if _ENGINE is None:
         return
     with DatabaseSession() as db_session:
-        for name in node_and_neighbors(session.dag, task_signature):
-            node = (
-                session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
-            )
+        nodes = [
+            session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
+            for name in node_and_neighbors(session.dag, task_signature)
+        ]
+        node_signatures = [node.signature for node in nodes]
+        existing_states = {
+            state.node: state
+            for state in db_session.execute(
+                select(State).where(
+                    State.task == task_signature, State.node.in_(node_signatures)
+                )
+            ).scalars()
+        }
+
+        for node in nodes:
             hash_ = node.state()
-            _create_or_update_state(db_session, task_signature, node.signature, hash_)
+            _create_or_update_state(
+                existing_states, db_session, task_signature, node.signature, hash_
+            )
         db_session.commit()
 
 
