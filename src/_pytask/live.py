@@ -190,6 +190,7 @@ class LiveExecution:
     n_tasks: int | str = "x"
     _reports: list[_ReportEntry] = field(default_factory=list)
     _running_tasks: dict[str, _TaskEntry] = field(default_factory=dict)
+    _task_name_cache: dict[str, Text] = field(default_factory=dict)
 
     @hookimpl(wrapper=True)
     def pytask_execute_build(self) -> Generator[None, None, None]:
@@ -216,6 +217,13 @@ class LiveExecution:
         """Mark a task as being finished and update outcome."""
         self.update_report(report)
         return True
+
+    def _format_task_name(self, task: PTask) -> Text:
+        formatted = self._task_name_cache.get(task.signature)
+        if formatted is None:
+            formatted = format_task_name(task, editor_url_scheme=self.editor_url_scheme)
+            self._task_name_cache[task.signature] = formatted
+        return formatted.copy()
 
     def _generate_table(
         self, reduce_table: bool, sort_table: bool, add_caption: bool
@@ -273,15 +281,12 @@ class LiveExecution:
         table.add_column("Outcome")
         for report in relevant_reports:
             table.add_row(
-                format_task_name(report.task, editor_url_scheme=self.editor_url_scheme),
+                self._format_task_name(report.task),
                 Text(report.outcome.symbol, style=report.outcome.style),
             )
         for task_entry in self._running_tasks.values():
             table.add_row(
-                format_task_name(
-                    task_entry.task, editor_url_scheme=self.editor_url_scheme
-                ),
-                task_entry.status.value,
+                self._format_task_name(task_entry.task), task_entry.status.value
             )
 
         # If the table is empty, do not display anything.
