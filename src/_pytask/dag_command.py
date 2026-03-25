@@ -3,32 +3,33 @@
 from __future__ import annotations
 
 import enum
+import importlib
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import cast
 
 import click
-import networkx as nx
 from rich.text import Text
 
 from _pytask.click import ColoredCommand
 from _pytask.click import EnumChoice
 from _pytask.compat import check_for_optional_program
 from _pytask.compat import import_optional_dependency
-from _pytask.config_utils import normalize_programmatic_config
 from _pytask.console import console
-from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
-from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
-from _pytask.session import Session
 from _pytask.shared import reduce_names_of_multiple_nodes
-from _pytask.traceback import Traceback
+
+if TYPE_CHECKING:
+    import networkx as nx
+
+    from _pytask.session import Session
 
 
 class _RankDirection(enum.Enum):
@@ -80,17 +81,19 @@ _HELP_TEXT_RANK_DIRECTION: str = (
 )
 def dag(**raw_config: Any) -> int:
     """Create a visualization of the directed acyclic graph."""
+    session_cls = importlib.import_module("_pytask.session").Session
     try:
         pm = storage.get()
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
-        session = Session.from_config(config)
+        session = session_cls.from_config(config)
 
     except (ConfigurationError, Exception):  # noqa: BLE001  # pragma: no cover
         console.print_exception()
-        session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
+        session = session_cls(exit_code=ExitCode.CONFIGURATION_FAILED)
 
     else:
         try:
+            create_dag = importlib.import_module("_pytask.dag").create_dag
             session.hook.pytask_log_session_header(session=session)
             import_optional_dependency("pygraphviz")
             check_for_optional_program(
@@ -110,9 +113,10 @@ def dag(**raw_config: Any) -> int:
             session.exit_code = ExitCode.DAG_FAILED
 
         except Exception:  # noqa: BLE001
+            traceback_cls = importlib.import_module("_pytask.traceback").Traceback
             session.exit_code = ExitCode.FAILED
             console.print()
-            console.print(Traceback(sys.exc_info()))
+            console.print(traceback_cls(sys.exc_info()))
             console.rule(style="failed")
 
     session.hook.pytask_unconfigure(session=session)
@@ -138,6 +142,10 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
 
     """
     try:
+        get_plugin_manager = importlib.import_module(
+            "_pytask.pluginmanager"
+        ).get_plugin_manager
+        session_cls = importlib.import_module("_pytask.session").Session
         pm = get_plugin_manager()
         storage.store(pm)
 
@@ -145,6 +153,10 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
         if "command" not in raw_config:
             # Add defaults from cli.
             from _pytask.cli import DEFAULTS_FROM_CLI  # noqa: PLC0415
+
+            normalize_programmatic_config = importlib.import_module(
+                "_pytask.config_utils"
+            ).normalize_programmatic_config
 
             raw_config = normalize_programmatic_config(
                 raw_config,
@@ -154,7 +166,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
 
         config = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
 
-        session = Session.from_config(config)
+        session = session_cls.from_config(config)
 
     except (ConfigurationError, Exception) as e:  # pragma: no cover
         console.print_exception()
@@ -162,6 +174,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
         raise ConfigurationError(msg) from e
 
     else:
+        create_dag = importlib.import_module("_pytask.dag").create_dag
         session.hook.pytask_log_session_header(session=session)
         import_optional_dependency("pygraphviz")
         check_for_optional_program(
@@ -187,6 +200,7 @@ def _refine_dag(session: Session) -> nx.DiGraph:
 
 def _shorten_node_labels(dag: nx.DiGraph, paths: list[Path]) -> nx.DiGraph:
     """Shorten the node labels in the graph for a better experience."""
+    nx = importlib.import_module("networkx")
     node_names = dag.nodes
     short_names = reduce_names_of_multiple_nodes(node_names, dag, paths)
     short_names = [i.plain if isinstance(i, Text) else i for i in short_names]
@@ -203,6 +217,7 @@ def _clean_dag(dag: nx.DiGraph) -> nx.DiGraph:
 
 def _style_dag(dag: nx.DiGraph) -> nx.DiGraph:
     """Style the DAG."""
+    nx = importlib.import_module("networkx")
     shapes = {name: "hexagon" if "::task_" in name else "box" for name in dag.nodes}
     nx.set_node_attributes(dag, shapes, "shape")
     return dag
@@ -210,6 +225,7 @@ def _style_dag(dag: nx.DiGraph) -> nx.DiGraph:
 
 def _write_graph(dag: nx.DiGraph, path: Path, layout: str) -> None:
     """Write the graph to disk."""
+    nx = importlib.import_module("networkx")
     path.parent.mkdir(exist_ok=True, parents=True)
     graph = nx.nx_agraph.to_agraph(dag)
     graph.draw(path, prog=layout)
