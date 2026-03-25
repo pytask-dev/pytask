@@ -15,8 +15,8 @@ from typing import Any
 from rich.text import Text
 from upath import UPath
 
-from _pytask.coiled_utils import Function
 from _pytask.coiled_utils import extract_coiled_function_kwargs
+from _pytask.coiled_utils import is_coiled_function
 from _pytask.collect_utils import create_name_of_python_node
 from _pytask.collect_utils import parse_dependencies_from_task_function
 from _pytask.collect_utils import parse_products_from_task_function
@@ -371,7 +371,7 @@ def pytask_collect_task(
             }
 
         unwrapped = unwrap_task_function(obj)
-        if isinstance(unwrapped, Function):
+        if is_coiled_function(unwrapped):
             attributes["coiled_kwargs"] = extract_coiled_function_kwargs(unwrapped)
             unwrapped = unwrap_task_function(unwrapped.function)
 

@@ -13,7 +13,7 @@ from typing import Any
 
 import click
 
-from _pytask.coiled_utils import Function
+from _pytask.coiled_utils import is_coiled_function
 from _pytask.console import format_node_name
 from _pytask.console import format_task_name
 from _pytask.node_protocols import PNode
@@ -159,4 +159,4 @@ def unwrap_task_function(obj: Any) -> Callable[..., Any]:
     due to pytask_meta, in different layers of the wrapping.
 
     """
-    return inspect.unwrap(obj, stop=lambda x: isinstance(x, Function))
+    return inspect.unwrap(obj, stop=is_coiled_function)

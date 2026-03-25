@@ -17,8 +17,8 @@ from typing import TypeVar
 from typing import cast
 from typing import overload
 
-from _pytask.coiled_utils import Function
 from _pytask.coiled_utils import extract_coiled_function_kwargs
+from _pytask.coiled_utils import is_coiled_function
 from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
@@ -171,7 +171,7 @@ def task(  # noqa: PLR0913
                 raise ValueError(msg)
 
         unwrapped = unwrap_task_function(func)
-        if isinstance(unwrapped, Function):
+        if is_coiled_function(unwrapped):
             coiled_kwargs = extract_coiled_function_kwargs(unwrapped)
             unwrapped = unwrap_task_function(unwrapped.function)
         else:

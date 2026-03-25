@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import sys
+
 import pytest
 
 from pytask import ExitCode
@@ -11,6 +13,12 @@ from tests.conftest import run_in_subprocess
 def test_version_option():
     result = run_in_subprocess(("pytask", "--version"))
     assert "pytask, version " + __version__ in result.stdout
+
+
+def test_import_pytask_does_not_import_coiled():
+    script = "import pytask, sys; print('coiled' in sys.modules)"
+    result = run_in_subprocess((sys.executable, "-c", script))
+    assert result.stdout.strip() == "False"
 
 
 @pytest.mark.parametrize("help_option", ["-h", "--help"])

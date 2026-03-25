@@ -1,29 +1,17 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import TypeGuard
 from typing import cast
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
     from typing import Protocol
 
-try:
     from coiled.function import Function
-except ImportError:
-
-    @dataclass
-    class Function:
-        _cluster_kwargs: dict[str, Any]
-        _environ: dict[str, Any] | None
-        _local: bool
-        _name: str
-        function: Callable[..., Any] | None
-        keepalive: Any | None
 
 
-__all__ = ["Function"]
+__all__ = ["extract_coiled_function_kwargs", "is_coiled_function"]
 
 
 if TYPE_CHECKING:
@@ -34,6 +22,12 @@ if TYPE_CHECKING:
         _local: bool
         _name: str
         keepalive: Any | None
+
+
+def is_coiled_function(obj: Any) -> TypeGuard[Function]:
+    """Check whether an object is coiled's function wrapper."""
+    cls = type(obj)
+    return cls.__module__ == "coiled.function" and cls.__qualname__ == "Function"
 
 
 def _as_coiled_private_attrs(func: Function) -> _CoiledFunctionPrivateAttrs:
