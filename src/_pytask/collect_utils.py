@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import inspect
+from dataclasses import dataclass
 from dataclasses import replace
 from typing import TYPE_CHECKING
 from typing import Annotated
@@ -55,16 +56,50 @@ def parse_dependencies_from_task_function(
     session: Session, task_path: Path | None, task_name: str, node_path: Path, obj: Any
 ) -> dict[str, Any]:
     """Parse dependencies from task function."""
+    return _parse_dependencies_from_task_function_with_metadata(
+        session=session,
+        task_path=task_path,
+        task_name=task_name,
+        node_path=node_path,
+        obj=obj,
+        metadata=_parse_task_function_metadata(obj),
+    )
+
+
+@dataclass(slots=True)
+class _TaskFunctionMetadata:
+    signature_defaults: dict[str, Any]
+    parameters: list[str]
+    parameters_with_product_annot: list[str]
+    parameters_with_node_annot: dict[str, PNode | PProvisionalNode]
+
+
+def _parse_task_function_metadata(obj: Any) -> _TaskFunctionMetadata:
+    return _TaskFunctionMetadata(
+        signature_defaults=parse_keyword_arguments_from_signature_defaults(obj),
+        parameters=list(inspect.signature(obj).parameters),
+        parameters_with_product_annot=_find_args_with_product_annotation(obj),
+        parameters_with_node_annot=_find_args_with_node_annotation(obj),
+    )
+
+
+def _parse_dependencies_from_task_function_with_metadata(  # noqa: PLR0913
+    session: Session,
+    task_path: Path | None,
+    task_name: str,
+    node_path: Path,
+    obj: Any,
+    metadata: _TaskFunctionMetadata,
+) -> dict[str, Any]:
+    """Parse dependencies from task function with precomputed metadata."""
     dependencies = {}
 
     task_kwargs = obj.pytask_meta.kwargs if isinstance(obj, TaskFunction) else {}
-    signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
-    kwargs = {**signature_defaults, **task_kwargs}
+    kwargs = {**metadata.signature_defaults, **task_kwargs}
     kwargs.pop("produces", None)
 
-    parameters_with_product_annot = _find_args_with_product_annotation(obj)
-    parameters_with_product_annot.append("return")
-    parameters_with_node_annot = _find_args_with_node_annotation(obj)
+    parameters_with_product_annot = [*metadata.parameters_with_product_annot, "return"]
+    parameters_with_node_annot = dict(metadata.parameters_with_node_annot)
 
     # Complete kwargs with node annotations, when no value is given by kwargs.
     for name in list(parameters_with_node_annot):
@@ -169,18 +204,36 @@ def parse_products_from_task_function(
         used.
 
     """
+    return _parse_products_from_task_function_with_metadata(
+        session=session,
+        task_path=task_path,
+        task_name=task_name,
+        node_path=node_path,
+        obj=obj,
+        metadata=_parse_task_function_metadata(obj),
+    )
+
+
+def _parse_products_from_task_function_with_metadata(  # noqa: PLR0913
+    session: Session,
+    task_path: Path | None,
+    task_name: str,
+    node_path: Path,
+    obj: Any,
+    metadata: _TaskFunctionMetadata,
+) -> dict[str, Any]:
+    """Parse products from task function with precomputed metadata."""
     has_return = False
     has_task_decorator = False
 
     out: dict[str, Any] = {}
 
     task_kwargs = obj.pytask_meta.kwargs if isinstance(obj, TaskFunction) else {}
-    signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
-    kwargs = {**signature_defaults, **task_kwargs}
+    kwargs = {**metadata.signature_defaults, **task_kwargs}
 
-    parameters = list(inspect.signature(obj).parameters)
-    parameters_with_product_annot = _find_args_with_product_annotation(obj)
-    parameters_with_node_annot = _find_args_with_node_annotation(obj)
+    parameters = metadata.parameters
+    parameters_with_product_annot = [*metadata.parameters_with_product_annot]
+    parameters_with_node_annot = dict(metadata.parameters_with_node_annot)
 
     # Allow to collect products from 'produces'.
     if "produces" in parameters and "produces" not in parameters_with_product_annot:

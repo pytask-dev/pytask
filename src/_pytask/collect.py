@@ -17,9 +17,10 @@ from upath import UPath
 
 from _pytask.coiled_utils import extract_coiled_function_kwargs
 from _pytask.coiled_utils import is_coiled_function
+from _pytask.collect_utils import _parse_dependencies_from_task_function_with_metadata
+from _pytask.collect_utils import _parse_products_from_task_function_with_metadata
+from _pytask.collect_utils import _parse_task_function_metadata
 from _pytask.collect_utils import create_name_of_python_node
-from _pytask.collect_utils import parse_dependencies_from_task_function
-from _pytask.collect_utils import parse_products_from_task_function
 from _pytask.config import IS_FILE_SYSTEM_CASE_SENSITIVE
 from _pytask.console import console
 from _pytask.console import create_summary_panel
@@ -346,11 +347,12 @@ def pytask_collect_task(
         path_nodes = Path.cwd() if path is None else path.parent
 
         # Collect dependencies and products.
-        dependencies = parse_dependencies_from_task_function(
-            session, path, name, path_nodes, obj
+        metadata = _parse_task_function_metadata(obj)
+        dependencies = _parse_dependencies_from_task_function_with_metadata(
+            session, path, name, path_nodes, obj, metadata
         )
-        products = parse_products_from_task_function(
-            session, path, name, path_nodes, obj
+        products = _parse_products_from_task_function_with_metadata(
+            session, path, name, path_nodes, obj, metadata
         )
 
         markers = get_all_marks(obj)
