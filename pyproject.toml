@@ -64,6 +64,7 @@ test = [
     # nbmake requires pywin32 on Windows, which has no wheels for Python 3.14 yet
     "nbmake>=1.5.5; platform_system != 'Windows' or python_version < '3.14'",
     "pygments>=2.18.0",
+    "pytest-benchmark>=5.1.0",
     "pexpect>=4.9.0",
     "pytest>=8.4.0",
     "pytest-cov>=5.0.0",
