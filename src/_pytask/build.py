@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 import json
 import sys
 from contextlib import suppress
@@ -15,20 +16,15 @@ import click
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
 from _pytask.click import ColoredCommand
-from _pytask.config_utils import normalize_programmatic_config
 from _pytask.console import console
-from _pytask.dag import create_dag
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.outcomes import ExitCode
 from _pytask.path import HashPathCache
-from _pytask.pluginmanager import get_plugin_manager
 from _pytask.pluginmanager import hookimpl
 from _pytask.pluginmanager import storage
-from _pytask.session import Session
-from _pytask.traceback import Traceback
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -37,6 +33,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
     from _pytask.node_protocols import PTask
+    from _pytask.session import Session
 
 
 @hookimpl(tryfirst=True)
@@ -182,6 +179,9 @@ def build(  # noqa: PLR0913
 
     """
     try:
+        session_cls = importlib.import_module("_pytask.session").Session
+        traceback_cls = importlib.import_module("_pytask.traceback").Traceback
+
         raw_config = {
             "capture": capture,
             "check_casing_of_paths": check_casing_of_paths,
@@ -217,6 +217,10 @@ def build(  # noqa: PLR0913
         } | kwargs
 
         if "command" not in raw_config:
+            get_plugin_manager = importlib.import_module(
+                "_pytask.pluginmanager"
+            ).get_plugin_manager
+
             pm = get_plugin_manager()
             storage.store(pm)
         else:
@@ -227,6 +231,10 @@ def build(  # noqa: PLR0913
             # Add defaults from cli.
             from _pytask.cli import DEFAULTS_FROM_CLI  # noqa: PLC0415
 
+            normalize_programmatic_config = importlib.import_module(
+                "_pytask.config_utils"
+            ).normalize_programmatic_config
+
             raw_config = normalize_programmatic_config(
                 raw_config,
                 command="build",
@@ -235,14 +243,16 @@ def build(  # noqa: PLR0913
 
         config_ = pm.hook.pytask_configure(pm=pm, raw_config=raw_config)
 
-        session = Session.from_config(config_)
+        session = session_cls.from_config(config_)
 
     except (ConfigurationError, Exception):  # noqa: BLE001
-        console.print(Traceback(sys.exc_info()))
-        session = Session(exit_code=ExitCode.CONFIGURATION_FAILED)
+        console.print(traceback_cls(sys.exc_info()))
+        session = session_cls(exit_code=ExitCode.CONFIGURATION_FAILED)
 
     else:
         try:
+            create_dag = importlib.import_module("_pytask.dag").create_dag
+
             session.hook.pytask_log_session_header(session=session)
             session.hook.pytask_collect(session=session)
             session.dag = create_dag(session=session)
@@ -258,7 +268,7 @@ def build(  # noqa: PLR0913
             session.exit_code = ExitCode.FAILED
 
         except Exception:  # noqa: BLE001
-            console.print(Traceback(sys.exc_info(), show_locals=True))
+            console.print(traceback_cls(sys.exc_info(), show_locals=True))
             session.exit_code = ExitCode.FAILED
 
         session.hook.pytask_unconfigure(session=session)
