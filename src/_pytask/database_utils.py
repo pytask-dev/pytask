@@ -11,6 +11,7 @@ from sqlalchemy import inspect
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import Session as SASession
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import sessionmaker
 
@@ -99,25 +100,29 @@ def configure_database_if_present(url: str) -> bool:
     return True
 
 
-def _create_or_update_state(first_key: str, second_key: str, hash_: str) -> None:
+def _create_or_update_state(
+    session: SASession, first_key: str, second_key: str, hash_: str
+) -> None:
     """Create or update a state."""
-    with DatabaseSession() as session:
-        state_in_db = session.get(State, (first_key, second_key))
-        if not state_in_db:
-            session.add(State(task=first_key, node=second_key, hash_=hash_))
-        else:
-            state_in_db.hash_ = hash_
-        session.commit()
+    state_in_db = session.get(State, (first_key, second_key))
+    if not state_in_db:
+        session.add(State(task=first_key, node=second_key, hash_=hash_))
+    else:
+        state_in_db.hash_ = hash_
 
 
 def update_states_in_database(session: Session, task_signature: str) -> None:
     """Update the state for each node of a task in the database."""
     if _ENGINE is None:
         return
-    for name in node_and_neighbors(session.dag, task_signature):
-        node = session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
-        hash_ = node.state()
-        _create_or_update_state(task_signature, node.signature, hash_)
+    with DatabaseSession() as db_session:
+        for name in node_and_neighbors(session.dag, task_signature):
+            node = (
+                session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
+            )
+            hash_ = node.state()
+            _create_or_update_state(db_session, task_signature, node.signature, hash_)
+        db_session.commit()
 
 
 def has_node_changed(task: PTask, node: PTask | PNode, state: str | None) -> bool:
