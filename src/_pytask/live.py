@@ -70,11 +70,14 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
             n_entries_in_table=config["n_entries_in_table"],
             verbose=config["verbose"],
             editor_url_scheme=config["editor_url_scheme"],
+            render_immediately=console.is_interactive,
             sort_final_table=config["sort_table"],
         )
         config["pm"].register(live_execution, "live_execution")
 
-    live_collection = LiveCollection(live_manager=live_manager)
+    live_collection = LiveCollection(
+        live_manager=live_manager, render_immediately=console.is_interactive
+    )
     config["pm"].register(live_collection, "live_collection")
 
 
@@ -187,6 +190,7 @@ class LiveExecution:
     editor_url_scheme: str
     initial_status: TaskExecutionStatus = TaskExecutionStatus.RUNNING
     sort_final_table: bool = False
+    render_immediately: bool = True
     n_tasks: int | str = "x"
     _reports: list[_ReportEntry] = field(default_factory=list)
     _running_tasks: dict[str, _TaskEntry] = field(default_factory=dict)
@@ -306,12 +310,14 @@ class LiveExecution:
         self._running_tasks[new_running_task.signature] = _TaskEntry(
             task=new_running_task, status=status
         )
-        self._update_table()
+        if self.render_immediately:
+            self._update_table()
 
     def update_task(self, signature: str, status: TaskExecutionStatus) -> None:
         """Update the status of a running task."""
         self._running_tasks[signature].status = status
-        self._update_table()
+        if self.render_immediately:
+            self._update_table()
 
     def update_report(self, new_report: ExecutionReport) -> None:
         """Update the status of a running task by adding its report."""
@@ -323,7 +329,8 @@ class LiveExecution:
                 task=new_report.task,
             )
         )
-        self._update_table()
+        if self.render_immediately:
+            self._update_table()
 
 
 @dataclass(eq=False, kw_only=True)
@@ -331,6 +338,7 @@ class LiveCollection:
     """A class for managing the live status during the collection."""
 
     live_manager: LiveManager
+    render_immediately: bool = True
     _n_collected_tasks: int = 0
     _n_errors: int = 0
 
@@ -362,6 +370,8 @@ class LiveCollection:
 
     def _update_status(self) -> None:
         """Update the status."""
+        if not self.render_immediately:
+            return
         status = self._generate_status()
         self.live_manager.update(status)
 
