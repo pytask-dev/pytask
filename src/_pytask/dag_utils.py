@@ -8,8 +8,6 @@ from typing import TYPE_CHECKING
 from _pytask.dag_graph import DiGraph
 from _pytask.dag_graph import ancestors
 from _pytask.dag_graph import descendants
-from _pytask.scheduler import SimpleScheduler
-from _pytask.scheduler import TopologicalSorter
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -17,8 +15,6 @@ if TYPE_CHECKING:
 
 
 __all__ = [
-    "SimpleScheduler",
-    "TopologicalSorter",
     "descending_tasks",
     "node_and_neighbors",
     "preceding_tasks",

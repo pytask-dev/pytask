@@ -121,9 +121,6 @@ class SimpleScheduler:
         return self.from_dag_and_sorter(dag, self)
 
 
-TopologicalSorter = SimpleScheduler
-
-
 def _extract_priorities_from_tasks(tasks: list[PTask]) -> dict[str, int]:
     """Extract priorities from tasks.
 
