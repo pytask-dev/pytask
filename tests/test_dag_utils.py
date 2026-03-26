@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextlib import ExitStack as does_not_raise  # noqa: N813
+from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
@@ -143,10 +144,15 @@ def test_extract_priorities_from_tasks(tasks, expectation, expected):
         assert result == expected
 
 
-def test_raise_error_for_undirected_graphs(dag):
-    undirected_graph = dag.to_undirected()
+@dataclass
+class _UndirectedGraphStub:
+    def is_directed(self):
+        return False
+
+
+def test_raise_error_for_undirected_graphs():
     with pytest.raises(ValueError, match="Only directed graphs have a"):
-        TopologicalSorter.from_dag(undirected_graph)
+        TopologicalSorter.from_dag(_UndirectedGraphStub())  # type: ignore[arg-type]
 
 
 def test_raise_error_for_cycle_in_graph(dag):

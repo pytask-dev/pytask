@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import itertools
+from dataclasses import dataclass
+from dataclasses import field
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import cast
@@ -17,56 +19,18 @@ class NoCycleError(Exception):
     """Raised when no cycle is found in a graph."""
 
 
-class NodeView:
-    """A minimal mapping-like view over node attributes."""
-
-    def __init__(self, node_attributes: dict[str, dict[str, Any]]) -> None:
-        self._node_attributes = node_attributes
-
-    def __getitem__(self, node: str) -> dict[str, Any]:
-        return self._node_attributes[node]
-
-    def __iter__(self) -> Iterator[str]:
-        return iter(self._node_attributes)
-
-    def __len__(self) -> int:
-        return len(self._node_attributes)
-
-    def __contains__(self, node: object) -> bool:
-        return node in self._node_attributes
-
-
-class UndirectedGraph:
-    """A minimal undirected graph used for validation tests."""
-
-    def __init__(
-        self,
-        node_attributes: dict[str, dict[str, Any]],
-        adjacency: dict[str, dict[str, None]],
-        graph_attributes: dict[str, Any],
-    ) -> None:
-        self._node_attributes = {
-            node: attributes.copy() for node, attributes in node_attributes.items()
-        }
-        self._adjacency = {
-            node: neighbors.copy() for node, neighbors in adjacency.items()
-        }
-        self.graph = graph_attributes.copy()
-        self.nodes = NodeView(self._node_attributes)
-
-    def is_directed(self) -> bool:
-        return False
-
-
+@dataclass
 class DiGraph:
     """A minimal directed graph tailored to pytask's needs."""
 
-    def __init__(self) -> None:
-        self._node_attributes: dict[str, dict[str, Any]] = {}
-        self._successors: dict[str, dict[str, None]] = {}
-        self._predecessors: dict[str, dict[str, None]] = {}
-        self.graph: dict[str, Any] = {}
-        self.nodes = NodeView(self._node_attributes)
+    _node_attributes: dict[str, dict[str, Any]] = field(default_factory=dict)
+    _successors: dict[str, dict[str, None]] = field(default_factory=dict)
+    _predecessors: dict[str, dict[str, None]] = field(default_factory=dict)
+    graph: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def nodes(self) -> dict[str, dict[str, Any]]:
+        return self._node_attributes
 
     def add_node(self, node_name: str, **attributes: Any) -> None:
         if node_name not in self._node_attributes:
@@ -137,16 +101,6 @@ class DiGraph:
         for node, value in values.items():
             if node in self._node_attributes:
                 self._node_attributes[node][name] = value
-
-    def to_undirected(self) -> UndirectedGraph:
-        adjacency = {
-            node: {
-                **self._predecessors[node],
-                **self._successors[node],
-            }
-            for node in self._node_attributes
-        }
-        return UndirectedGraph(self._node_attributes, adjacency, self.graph)
 
     def to_networkx(self) -> Any:
         nx = cast("Any", import_optional_dependency("networkx"))
