@@ -17,9 +17,7 @@ from upath import UPath
 
 from _pytask.journal import JsonlJournal
 from _pytask.node_protocols import PNode
-from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PTask
-from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import PythonNode
 from _pytask.outcomes import ExitCode
 from _pytask.pluginmanager import hookimpl
@@ -82,9 +80,10 @@ def _relative_path(path: Path, root: Path) -> str:
 
 
 def build_portable_task_id(task: PTask, root: Path) -> str:
-    if isinstance(task, PTaskWithPath):
+    task_path = getattr(task, "path", None)
+    if task_path is not None:
         base_name = getattr(task, "base_name", None) or task.name
-        return f"{_relative_path(task.path, root)}::{base_name}"
+        return f"{_relative_path(task_path, root)}::{base_name}"
     return task.name
 
 
@@ -106,8 +105,9 @@ def build_portable_node_id(node: PNode, root: Path) -> str:
             suffix = _encode_node_path(node.node_info.path)
             node_id = f"{node_id}::{suffix}"
         return node_id
-    if isinstance(node, PPathNode):
-        return _relative_path(node.path, root)
+    node_path = getattr(node, "path", None)
+    if node_path is not None:
+        return _relative_path(node_path, root)
     return node.name
 
 
