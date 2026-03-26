@@ -469,7 +469,7 @@ def lsof_check():
         UnicodeDecodeError,
     ) as exc:  # pragma: no cover
         # about UnicodeDecodeError, see note on pytester
-        pytest.skip(f"could not run 'lsof' ({exc!r})")
+        pytest.skip(f"could not run 'lsof' ({exc!r})")  # ty: ignore[invalid-argument-type, too-many-positional-arguments]
     yield
     out2 = subprocess.check_output(("lsof", "-p", str(pid))).decode()
     len1 = len([x for x in out.split("\n") if "REG" in x])
