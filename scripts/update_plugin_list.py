@@ -38,7 +38,6 @@ from typing import TYPE_CHECKING
 import httpx
 import packaging.version
 import wcwidth
-from tqdm import tqdm
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -136,7 +135,7 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
         and match.groups()[0] not in _EXCLUDED_PACKAGES
     ]
 
-    for match in tqdm(matches, smoothing=0):
+    for match in matches:
         name = match.groups()[0]
         response = httpx.get(f"https://pypi.org/pypi/{name}/json", timeout=20)
         if response.status_code == 404:  # noqa: PLR2004
