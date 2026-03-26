@@ -107,15 +107,20 @@ def _create_or_update_state(
     first_key: str,
     second_key: str,
     hash_: str,
-) -> None:
+) -> bool:
     """Create or update a state."""
     state_in_db = existing_states.get(second_key)
     if not state_in_db:
         state_in_db = State(task=first_key, node=second_key, hash_=hash_)
         session.add(state_in_db)
         existing_states[second_key] = state_in_db
-    else:
-        state_in_db.hash_ = hash_
+        return True
+
+    if state_in_db.hash_ == hash_:
+        return False
+
+    state_in_db.hash_ = hash_
+    return True
 
 
 def update_states_in_database(session: Session, task_signature: str) -> None:
@@ -137,12 +142,14 @@ def update_states_in_database(session: Session, task_signature: str) -> None:
             ).scalars()
         }
 
+        needs_commit = False
         for node in nodes:
             hash_ = node.state()
-            _create_or_update_state(
+            needs_commit |= _create_or_update_state(
                 existing_states, db_session, task_signature, node.signature, hash_
             )
-        db_session.commit()
+        if needs_commit:
+            db_session.commit()
 
 
 def has_node_changed(task: PTask, node: PTask | PNode, state: str | None) -> bool:
