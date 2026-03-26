@@ -23,7 +23,7 @@ from _pytask.node_protocols import PTask
 if TYPE_CHECKING:
     from enum import Enum
 
-    import networkx as nx
+    from _pytask.dag_graph import DiGraph
 
 
 __all__ = [
@@ -79,7 +79,7 @@ def parse_paths(x: Path | list[Path]) -> list[Path]:
 
 
 def reduce_names_of_multiple_nodes(
-    names: list[str], dag: nx.DiGraph, paths: Sequence[Path]
+    names: Iterable[str], dag: DiGraph, paths: Sequence[Path]
 ) -> list[str]:
     """Reduce the names of multiple nodes in the DAG."""
     short_names = []

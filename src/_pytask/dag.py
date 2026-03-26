@@ -6,7 +6,6 @@ import itertools
 import sys
 from typing import TYPE_CHECKING
 
-import networkx as nx
 from rich.text import Text
 from rich.tree import Tree
 
@@ -17,6 +16,9 @@ from _pytask.console import console
 from _pytask.console import format_node_name
 from _pytask.console import format_task_name
 from _pytask.console import render_to_string
+from _pytask.dag_graph import DiGraph
+from _pytask.dag_graph import NoCycleError
+from _pytask.dag_graph import find_cycle
 from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.mark import select_by_after_keyword
 from _pytask.mark import select_tasks_by_marks_and_expressions
@@ -37,7 +39,7 @@ if TYPE_CHECKING:
 __all__ = ["create_dag", "create_dag_from_session"]
 
 
-def create_dag(session: Session) -> nx.DiGraph:
+def create_dag(session: Session) -> DiGraph:
     """Create a directed acyclic graph (DAG) for the workflow."""
     try:
         dag = create_dag_from_session(session)
@@ -50,7 +52,7 @@ def create_dag(session: Session) -> nx.DiGraph:
     return dag
 
 
-def create_dag_from_session(session: Session) -> nx.DiGraph:
+def create_dag_from_session(session: Session) -> DiGraph:
     """Create a DAG from a session."""
     dag = _create_dag_from_tasks(tasks=session.tasks)
     _check_if_dag_has_cycles(dag)
@@ -60,11 +62,11 @@ def create_dag_from_session(session: Session) -> nx.DiGraph:
     return dag
 
 
-def _create_dag_from_tasks(tasks: list[PTask]) -> nx.DiGraph:
+def _create_dag_from_tasks(tasks: list[PTask]) -> DiGraph:
     """Create the DAG from tasks, dependencies and products."""
 
     def _add_dependency(
-        dag: nx.DiGraph, task: PTask, node: PNode | PProvisionalNode
+        dag: DiGraph, task: PTask, node: PNode | PProvisionalNode
     ) -> None:
         """Add a dependency to the DAG."""
         dag.add_node(node.signature, node=node)
@@ -76,14 +78,12 @@ def _create_dag_from_tasks(tasks: list[PTask]) -> nx.DiGraph:
         if isinstance(node, PythonNode) and isinstance(node.value, PythonNode):
             dag.add_edge(node.value.signature, node.signature)
 
-    def _add_product(
-        dag: nx.DiGraph, task: PTask, node: PNode | PProvisionalNode
-    ) -> None:
+    def _add_product(dag: DiGraph, task: PTask, node: PNode | PProvisionalNode) -> None:
         """Add a product to the DAG."""
         dag.add_node(node.signature, node=node)
         dag.add_edge(task.signature, node.signature)
 
-    dag = nx.DiGraph()
+    dag = DiGraph()
 
     for task in tasks:
         dag.add_node(task.signature, task=task)
@@ -105,7 +105,7 @@ def _create_dag_from_tasks(tasks: list[PTask]) -> nx.DiGraph:
     return dag
 
 
-def _modify_dag(session: Session, dag: nx.DiGraph) -> nx.DiGraph:
+def _modify_dag(session: Session, dag: DiGraph) -> DiGraph:
     """Create dependencies between tasks when using ``@task(after=...)``."""
     temporary_id_to_task = {
         task.attributes["collection_id"]: task
@@ -129,11 +129,11 @@ def _modify_dag(session: Session, dag: nx.DiGraph) -> nx.DiGraph:
     return dag
 
 
-def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:
+def _check_if_dag_has_cycles(dag: DiGraph) -> None:
     """Check if DAG has cycles."""
     try:
-        cycles = nx.algorithms.cycles.find_cycle(dag)
-    except nx.NetworkXNoCycle:
+        cycles = find_cycle(dag)
+    except NoCycleError:
         pass
     else:
         msg = (
@@ -145,7 +145,7 @@ def _check_if_dag_has_cycles(dag: nx.DiGraph) -> None:
         raise ResolvingDependenciesError(msg)
 
 
-def _format_cycles(dag: nx.DiGraph, cycles: list[tuple[str, ...]]) -> str:
+def _format_cycles(dag: DiGraph, cycles: list[tuple[str, str]]) -> str:
     """Format cycles as a paths connected by arrows."""
     chain = [
         x for i, x in enumerate(itertools.chain.from_iterable(cycles)) if i % 2 == 0
@@ -176,7 +176,7 @@ def _format_dictionary_to_tree(dict_: dict[str, list[str]], title: str) -> str:
     return render_to_string(tree, console=console, strip_styles=True)
 
 
-def _check_if_tasks_have_the_same_products(dag: nx.DiGraph, paths: list[Path]) -> None:
+def _check_if_tasks_have_the_same_products(dag: DiGraph, paths: list[Path]) -> None:
     nodes_created_by_multiple_tasks = []
 
     for node in dag.nodes:

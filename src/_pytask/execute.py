@@ -7,6 +7,7 @@ import sys
 import time
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 
 from rich.text import Text
 
@@ -172,9 +173,11 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
     if not needs_to_be_executed:
         predecessors = set(dag.predecessors(task.signature)) | {task.signature}
         for node_signature in node_and_neighbors(dag, task.signature):
-            node = dag.nodes[node_signature].get("task") or dag.nodes[
-                node_signature
-            ].get("node")
+            node = cast(
+                "PTask | PNode | PProvisionalNode",
+                dag.nodes[node_signature].get("task")
+                or dag.nodes[node_signature].get("node"),
+            )
 
             # Skip provisional nodes that are products since they do not have a state.
             if node_signature not in predecessors and isinstance(
@@ -182,7 +185,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
             ):
                 continue
 
-            node_state = node.state()
+            node_state = cast("Any", node).state()
 
             if node_signature in predecessors and not node_state:
                 msg = f"{task.name!r} requires missing node {node.name!r}."
@@ -196,7 +199,10 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
             # Check if node changed and collect detailed info if in explain mode
             if session.config["explain"]:
                 has_changed, reason, details = get_node_change_info(
-                    session=session, task=task, node=node, state=node_state
+                    session=session,
+                    task=task,
+                    node=cast("PTask | PNode", node),
+                    state=node_state,
                 )
                 if has_changed:
                     needs_to_be_executed = True
@@ -214,7 +220,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
                     reason_typed: ReasonType = reason  # type: ignore[assignment]
                     change_reasons.append(
                         create_change_reason(
-                            node=node,
+                            node=cast("PTask | PNode", node),
                             node_type=node_type,
                             reason=reason_typed,
                             old_hash=details.get("old_hash"),
@@ -223,7 +229,10 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
                     )
             else:
                 has_changed = has_node_changed(
-                    session=session, task=task, node=node, state=node_state
+                    session=session,
+                    task=task,
+                    node=cast("PTask | PNode", node),
+                    state=node_state,
                 )
                 if has_changed:
                     needs_to_be_executed = True

@@ -3,9 +3,9 @@ from __future__ import annotations
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
-import networkx as nx
 import pytest
 
+from _pytask.dag_graph import DiGraph
 from _pytask.dag_utils import TopologicalSorter
 from _pytask.dag_utils import _extract_priorities_from_tasks
 from _pytask.dag_utils import descending_tasks
@@ -19,7 +19,7 @@ from tests.conftest import noop
 @pytest.fixture
 def dag():
     """Create a dag with five nodes in a line."""
-    dag = nx.DiGraph()
+    dag = DiGraph()
     for i in range(4):
         task = Task(base_name=str(i), path=Path(), function=noop)
         next_task = Task(base_name=str(i + 1), path=Path(), function=noop)

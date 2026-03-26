@@ -7,8 +7,11 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import TYPE_CHECKING
 
-import networkx as nx
-
+from _pytask.dag_graph import DiGraph
+from _pytask.dag_graph import NoCycleError
+from _pytask.dag_graph import ancestors
+from _pytask.dag_graph import descendants
+from _pytask.dag_graph import find_cycle
 from _pytask.mark_utils import has_mark
 
 if TYPE_CHECKING:
@@ -18,37 +21,37 @@ if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
 
 
-def descending_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, None]:
+def descending_tasks(task_name: str, dag: DiGraph) -> Generator[str, None, None]:
     """Yield only descending tasks."""
-    for descendant in nx.descendants(dag, task_name):
+    for descendant in descendants(dag, task_name):
         if "task" in dag.nodes[descendant]:
             yield descendant
 
 
 def task_and_descending_tasks(
-    task_name: str, dag: nx.DiGraph
+    task_name: str, dag: DiGraph
 ) -> Generator[str, None, None]:
     """Yield task and descending tasks."""
     yield task_name
     yield from descending_tasks(task_name, dag)
 
 
-def preceding_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, None]:
+def preceding_tasks(task_name: str, dag: DiGraph) -> Generator[str, None, None]:
     """Yield only preceding tasks."""
-    for ancestor in nx.ancestors(dag, task_name):
+    for ancestor in ancestors(dag, task_name):
         if "task" in dag.nodes[ancestor]:
             yield ancestor
 
 
 def task_and_preceding_tasks(
-    task_name: str, dag: nx.DiGraph
+    task_name: str, dag: DiGraph
 ) -> Generator[str, None, None]:
     """Yield task and preceding tasks."""
     yield task_name
     yield from preceding_tasks(task_name, dag)
 
 
-def node_and_neighbors(dag: nx.DiGraph, node: str) -> Iterable[str]:
+def node_and_neighbors(dag: DiGraph, node: str) -> Iterable[str]:
     """Yield node and neighbors which are first degree predecessors and successors.
 
     We cannot use ``dag.neighbors`` as it only considers successors as neighbors in a
@@ -77,13 +80,13 @@ class TopologicalSorter:
 
     """
 
-    dag: nx.DiGraph
+    dag: DiGraph
     priorities: dict[str, int] = field(default_factory=dict)
     _nodes_processing: set[str] = field(default_factory=set)
     _nodes_done: set[str] = field(default_factory=set)
 
     @classmethod
-    def from_dag(cls, dag: nx.DiGraph) -> TopologicalSorter:
+    def from_dag(cls, dag: DiGraph) -> TopologicalSorter:
         """Instantiate from a DAG."""
         cls.check_dag(dag)
 
@@ -93,14 +96,18 @@ class TopologicalSorter:
         priorities = _extract_priorities_from_tasks(tasks)
 
         task_signatures = {task.signature for task in tasks}
-        task_dict = {s: nx.ancestors(dag, s) & task_signatures for s in task_signatures}
-        task_dag = nx.DiGraph(task_dict).reverse()
+        task_dag = DiGraph()
+        for signature in task_signatures:
+            task_dag.add_node(signature)
+        for signature in task_signatures:
+            for ancestor_ in ancestors(dag, signature) & task_signatures:
+                task_dag.add_edge(ancestor_, signature)
 
         return cls(dag=task_dag, priorities=priorities)
 
     @classmethod
     def from_dag_and_sorter(
-        cls, dag: nx.DiGraph, sorter: TopologicalSorter
+        cls, dag: DiGraph, sorter: TopologicalSorter
     ) -> TopologicalSorter:
         """Instantiate a sorter from another sorter and a DAG."""
         new_sorter = cls.from_dag(dag)
@@ -109,14 +116,14 @@ class TopologicalSorter:
         return new_sorter
 
     @staticmethod
-    def check_dag(dag: nx.DiGraph) -> None:
+    def check_dag(dag: DiGraph) -> None:
         if not dag.is_directed():
             msg = "Only directed graphs have a topological order."
             raise ValueError(msg)
 
         try:
-            nx.algorithms.cycles.find_cycle(dag)
-        except nx.NetworkXNoCycle:
+            find_cycle(dag)
+        except NoCycleError:
             pass
         else:
             msg = "The DAG contains cycles."

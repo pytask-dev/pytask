@@ -1,11 +1,12 @@
 # Visualizing the DAG
 
 To visualize the [DAG](../glossary.md#dag) of the project, first, install
-[pygraphviz](https://github.com/pygraphviz/pygraphviz) and
-[graphviz](https://graphviz.org/). For example, you can both install with pixi
+[networkx](https://networkx.org/),
+[pygraphviz](https://github.com/pygraphviz/pygraphviz), and
+[graphviz](https://graphviz.org/). For example, you can install them with pixi
 
 ```console
-$ pixi add pygraphviz graphviz
+$ pixi add networkx pygraphviz graphviz
 ```
 
 After that, pytask offers two interfaces to visualize your project's `DAG`.
