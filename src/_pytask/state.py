@@ -90,5 +90,7 @@ def update_states(session: Session, task: PTask) -> None:
         return
     lockfile_state = _get_lockfile_state(session)
     if lockfile_state is not None:
-        lockfile_state.update_task(session, task)
+        lockfile_changed = lockfile_state.update_task(session, task)
+        if lockfile_state.use_lockfile_for_skip and not lockfile_changed:
+            return
     _db_update_states(session, task.signature)

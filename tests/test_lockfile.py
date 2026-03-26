@@ -5,6 +5,7 @@ import textwrap
 import pytest
 
 import _pytask.lockfile as lockfile_module
+import _pytask.state as state_module
 from _pytask.lockfile import LockfileError
 from _pytask.lockfile import LockfileVersionError
 from _pytask.lockfile import build_portable_node_id
@@ -15,6 +16,7 @@ from pytask import DatabaseSession
 from pytask import ExitCode
 from pytask import PathNode
 from pytask import State
+from pytask import TaskOutcome
 from pytask import TaskWithoutPath
 from pytask import build
 from pytask import cli
@@ -284,6 +286,37 @@ def test_update_task_skips_write_when_unchanged(tmp_path, monkeypatch):
     monkeypatch.setattr(lockfile_module.JsonlJournal, "append", _counting_append)
     lockfile_state.update_task(session, session.tasks[0])
 
+    assert calls["count"] == 0
+
+
+def test_skip_unchanged_task_skips_database_compatibility_write_when_lockfile_matches(
+    tmp_path, monkeypatch
+):
+    def func(path):
+        path.write_text("data")
+
+    task = TaskWithoutPath(
+        name="task",
+        function=func,
+        produces={"path": PathNode(path=tmp_path / "out.txt")},
+    )
+
+    session = build(tasks=[task], paths=tmp_path)
+    assert session.exit_code == ExitCode.OK
+
+    calls = {"count": 0}
+    original_update = state_module._db_update_states
+
+    def _counting_update(session, task_signature):
+        calls["count"] += 1
+        return original_update(session, task_signature)
+
+    monkeypatch.setattr(state_module, "_db_update_states", _counting_update)
+
+    session = build(tasks=[task], paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert session.execution_reports[0].outcome == TaskOutcome.SKIP_UNCHANGED
     assert calls["count"] == 0
 
 

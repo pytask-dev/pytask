@@ -367,13 +367,13 @@ class LockfileState:
     def get_node_state(self, task_id: str, node_id: str) -> str | None:
         return self._node_index.get(task_id, {}).get(node_id)
 
-    def update_task(self, session: Session, task: PTask) -> None:
+    def update_task(self, session: Session, task: PTask) -> bool:
         entry = _build_task_entry(session, task, self.root)
         if entry is None:
-            return
+            return False
         existing = self._task_index.get(entry.id)
         if existing == entry:
-            return
+            return False
         self._task_index[entry.id] = entry
         self.lockfile = _Lockfile(
             lock_version=CURRENT_LOCKFILE_VERSION,
@@ -391,6 +391,7 @@ class LockfileState:
             )
         )
         self._dirty = True
+        return True
 
     def rebuild_from_session(self, session: Session) -> None:
         if session.dag is None:
