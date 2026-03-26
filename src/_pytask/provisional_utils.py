@@ -18,6 +18,7 @@ from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import Task
 from _pytask.reports import ExecutionReport
 from _pytask.tree_util import PyTree
+from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map_with_path
 from _pytask.typing import is_task_generator
 
@@ -26,6 +27,11 @@ if TYPE_CHECKING:
 
 
 TASKS_WITH_PROVISIONAL_NODES = set()
+
+
+def has_provisional_nodes(tree: PyTree[Any]) -> bool:
+    """Return whether a pytree contains provisional nodes."""
+    return any(isinstance(node, PProvisionalNode) for node in tree_leaves(tree))
 
 
 def collect_provisional_nodes(
@@ -96,6 +102,11 @@ def collect_provisional_products(session: Session, task: PTask) -> None:
 
     """
     if is_task_generator(task):
+        return
+
+    if task.signature not in TASKS_WITH_PROVISIONAL_NODES and not has_provisional_nodes(
+        task.produces
+    ):
         return
 
     # Replace provisional nodes with their actually resolved nodes.

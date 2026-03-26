@@ -16,6 +16,7 @@ from _pytask.node_protocols import PTaskWithPath
 from _pytask.outcomes import CollectionOutcome
 from _pytask.provisional_utils import TASKS_WITH_PROVISIONAL_NODES
 from _pytask.provisional_utils import collect_provisional_nodes
+from _pytask.provisional_utils import has_provisional_nodes
 from _pytask.provisional_utils import recreate_dag
 from _pytask.reports import ExecutionReport
 from _pytask.task_utils import COLLECTED_TASKS
@@ -39,6 +40,9 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     Provisional nodes need to be resolved before the same hook in persist.
 
     """
+    if not has_provisional_nodes(task.depends_on):
+        return
+
     task.depends_on = tree_map_with_path(
         lambda p, x: collect_provisional_nodes(session, task, x, p),
         task.depends_on,
