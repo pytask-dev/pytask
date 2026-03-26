@@ -24,13 +24,13 @@ from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.path import hash_path
 from _pytask.typing import NoDefault
+from _pytask.typing import NodePath
 from _pytask.typing import no_default
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from io import BufferedReader
-    from io import BufferedWriter
     from pathlib import Path
+    from typing import BinaryIO
 
     from _pytask.mark import Mark
     from _pytask.models import NodeInfo
@@ -176,7 +176,7 @@ class PathNode(PPathNode):
 
     """
 
-    path: Path
+    path: NodePath
     name: str = ""
     attributes: dict[Any, Any] = field(default_factory=dict)
 
@@ -187,7 +187,7 @@ class PathNode(PPathNode):
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
     @classmethod
-    def from_path(cls, path: Path) -> PathNode:
+    def from_path(cls, path: NodePath) -> PathNode:
         """Instantiate class from path to file."""
         return cls(name=path.as_posix(), path=path)
 
@@ -199,7 +199,7 @@ class PathNode(PPathNode):
         """
         return get_state_of_path(self.path)
 
-    def load(self, is_product: bool = False) -> Path:  # noqa: ARG002
+    def load(self, is_product: bool = False) -> NodePath:  # noqa: ARG002
         """Load the value."""
         return self.path
 
@@ -330,11 +330,11 @@ class PickleNode(PPathNode):
 
     """
 
-    path: Path
+    path: NodePath
     name: str = ""
     attributes: dict[Any, Any] = field(default_factory=dict)
-    serializer: Callable[[Any, BufferedWriter], None] = field(default=pickle.dump)
-    deserializer: Callable[[BufferedReader], Any] = field(default=pickle.load)
+    serializer: Callable[[Any, BinaryIO], None] = field(default=pickle.dump)
+    deserializer: Callable[[BinaryIO], Any] = field(default=pickle.load)
 
     @property
     def signature(self) -> str:
@@ -343,7 +343,7 @@ class PickleNode(PPathNode):
         return hashlib.sha256(raw_key.encode()).hexdigest()
 
     @classmethod
-    def from_path(cls, path: Path) -> PickleNode:
+    def from_path(cls, path: NodePath) -> PickleNode:
         """Instantiate class from path to file."""
         if not path.is_absolute():
             msg = "Node must be instantiated from absolute path."
@@ -409,7 +409,7 @@ class DirectoryNode(PProvisionalNode):
         return list(self.root_dir.glob(self.pattern))  # type: ignore[union-attr]
 
 
-def get_state_of_path(path: Path) -> str | None:
+def get_state_of_path(path: NodePath) -> str | None:
     """Get state of a path.
 
     A simple function to handle local and remote files.
@@ -436,7 +436,7 @@ def get_state_of_path(path: Path) -> str | None:
 
 
 @deprecated("Use 'pytask.get_state_of_path' instead.")
-def _get_state(path: Path) -> str | None:
+def _get_state(path: NodePath) -> str | None:
     """Get state of a path.
 
     A simple function to handle local and remote files.

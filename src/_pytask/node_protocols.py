@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
     from _pytask.mark import Mark
     from _pytask.tree_util import PyTree
+    from _pytask.typing import NodePath
 
 
 __all__ = ["PNode", "PPathNode", "PProvisionalNode", "PTask", "PTaskWithPath"]
@@ -60,7 +61,7 @@ class PPathNode(PNode, Protocol):
 
     """
 
-    path: Path
+    path: NodePath
 
 
 @runtime_checkable
