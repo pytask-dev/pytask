@@ -8,6 +8,7 @@ from dataclasses import replace
 from typing import TYPE_CHECKING
 from typing import Annotated
 from typing import Any
+from typing import NamedTuple
 from typing import get_origin
 
 from _pytask._inspect import get_annotations
@@ -16,7 +17,6 @@ from _pytask.models import NodeInfo
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.nodes import PythonNode
-from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
 from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map_with_path
@@ -74,12 +74,19 @@ class _TaskFunctionMetadata:
     parameters_with_node_annot: dict[str, PNode | PProvisionalNode]
 
 
+class _AnnotatedMetadata(NamedTuple):
+    product_parameters: list[str]
+    node_parameters: dict[str, PNode | PProvisionalNode]
+
+
 def _parse_task_function_metadata(obj: Any) -> _TaskFunctionMetadata:
+    signature = inspect.signature(obj)
+    annotated_metadata = _collect_annotated_metadata(obj)
     return _TaskFunctionMetadata(
-        signature_defaults=parse_keyword_arguments_from_signature_defaults(obj),
-        parameters=list(inspect.signature(obj).parameters),
-        parameters_with_product_annot=_find_args_with_product_annotation(obj),
-        parameters_with_node_annot=_find_args_with_node_annotation(obj),
+        signature_defaults=_parse_keyword_arguments_from_signature(signature),
+        parameters=list(signature.parameters),
+        parameters_with_product_annot=annotated_metadata.product_parameters,
+        parameters_with_node_annot=annotated_metadata.node_parameters,
     )
 
 
@@ -150,10 +157,8 @@ def _parse_dependencies_from_task_function_with_metadata(  # noqa: PLR0913
     return dependencies
 
 
-def _find_args_with_node_annotation(
-    func: Callable[..., Any],
-) -> dict[str, PNode | PProvisionalNode]:
-    """Find args with node annotations."""
+def _collect_annotated_metadata(func: Callable[..., Any]) -> _AnnotatedMetadata:
+    """Collect product and node annotations in one pass."""
     annotations = get_annotations(func, eval_str=True)
     metas = {
         name: annotation.__metadata__
@@ -162,7 +167,11 @@ def _find_args_with_node_annotation(
     }
 
     args_with_node_annotation = {}
+    args_with_product_annot = []
     for name, meta in metas.items():
+        if any(isinstance(i, ProductType) for i in meta):
+            args_with_product_annot.append(name)
+
         annot = [i for i in meta if not isinstance(i, ProductType)]
         if len(annot) >= 2:  # noqa: PLR2004
             msg = (
@@ -173,7 +182,10 @@ def _find_args_with_node_annotation(
         if annot:
             args_with_node_annotation[name] = annot[0]
 
-    return args_with_node_annotation
+    return _AnnotatedMetadata(
+        product_parameters=args_with_product_annot,
+        node_parameters=args_with_node_annotation,
+    )
 
 
 _ERROR_MULTIPLE_TASK_RETURN_DEFINITIONS = """The task uses multiple ways to parse \
@@ -327,20 +339,17 @@ def _collect_nodes_and_provisional_nodes(  # noqa: PLR0913
 
 def _find_args_with_product_annotation(func: Callable[..., Any]) -> list[str]:
     """Find args with product annotations."""
-    annotations = get_annotations(func, eval_str=True)
-    metas = {
-        name: annotation.__metadata__
-        for name, annotation in annotations.items()
-        if get_origin(annotation) is Annotated
-    }
+    return _collect_annotated_metadata(func).product_parameters
 
-    args_with_product_annot = []
-    for name, meta in metas.items():
-        has_product_annot = any(isinstance(i, ProductType) for i in meta)
-        if has_product_annot:
-            args_with_product_annot.append(name)
 
-    return args_with_product_annot
+def _parse_keyword_arguments_from_signature(
+    signature: inspect.Signature,
+) -> dict[str, Any]:
+    kwargs = {}
+    for parameter in signature.parameters.values():
+        if parameter.default is not parameter.empty:
+            kwargs[parameter.name] = parameter.default
+    return kwargs
 
 
 def collect_dependency(
