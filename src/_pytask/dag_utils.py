@@ -10,7 +10,6 @@ from _pytask.dag_graph import ancestors
 from _pytask.dag_graph import descendants
 from _pytask.scheduler import SimpleScheduler
 from _pytask.scheduler import TopologicalSorter
-from _pytask.scheduler import _extract_priorities_from_tasks
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -20,7 +19,6 @@ if TYPE_CHECKING:
 __all__ = [
     "SimpleScheduler",
     "TopologicalSorter",
-    "_extract_priorities_from_tasks",
     "descending_tasks",
     "node_and_neighbors",
     "preceding_tasks",

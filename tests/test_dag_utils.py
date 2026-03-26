@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from contextlib import ExitStack as does_not_raise  # noqa: N813
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -11,7 +10,6 @@ from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.dag_utils import task_and_descending_tasks
 from _pytask.scheduler import SimpleScheduler
-from _pytask.scheduler import _extract_priorities_from_tasks
 from pytask import Mark
 from pytask import Task
 from tests.conftest import noop
@@ -78,70 +76,32 @@ def test_node_and_neighbors(dag):
         assert node_names == [f".::{j}" for j in range(i - 1, i + 2)]
 
 
-@pytest.mark.parametrize(
-    ("tasks", "expectation", "expected"),
-    [
-        pytest.param(
-            [
-                Task(
-                    base_name="1",
-                    path=Path(),
-                    function=None,  # type: ignore[arg-type]
-                    markers=[Mark("try_last", (), {})],
-                )
-            ],
-            does_not_raise(),
-            {"c12d8d4f7e2e3128d27878d1fb3d8e3583e90e68000a13634dfbf21f4d1456f3": -1},
-            id="test try_last",
-        ),
-        pytest.param(
-            [
-                Task(
-                    base_name="1",
-                    path=Path(),
-                    function=None,  # type: ignore[arg-type]
-                    markers=[Mark("try_first", (), {})],
-                )
-            ],
-            does_not_raise(),
-            {"c12d8d4f7e2e3128d27878d1fb3d8e3583e90e68000a13634dfbf21f4d1456f3": 1},
-            id="test try_first",
-        ),
-        pytest.param(
-            [Task(base_name="1", path=Path(), function=None, markers=[])],  # type: ignore[arg-type]
-            does_not_raise(),
-            {"c12d8d4f7e2e3128d27878d1fb3d8e3583e90e68000a13634dfbf21f4d1456f3": 0},
-            id="test no priority",
-        ),
-        pytest.param(
-            [
-                Task(
-                    base_name="1",
-                    path=Path(),
-                    function=None,  # type: ignore[arg-type]
-                    markers=[Mark("try_first", (), {})],
-                ),
-                Task(base_name="2", path=Path(), function=None, markers=[]),  # type: ignore[arg-type]
-                Task(
-                    base_name="3",
-                    path=Path(),
-                    function=None,  # type: ignore[arg-type]
-                    markers=[Mark("try_last", (), {})],
-                ),
-            ],
-            does_not_raise(),
-            {
-                "c12d8d4f7e2e3128d27878d1fb3d8e3583e90e68000a13634dfbf21f4d1456f3": 1,
-                "c5f667e69824043475b1283ed8920e513cb4343ec7077f71a3d9f5972f5204b9": 0,
-                "dca295f815f54d282b33e8d9398cea4962d0dfbe881d2ab28fc48ff9e060203a": -1,
-            },
-        ),
-    ],
-)
-def test_extract_priorities_from_tasks(tasks, expectation, expected):
-    with expectation:
-        result = _extract_priorities_from_tasks(tasks)
-        assert result == expected
+def test_prioritize_try_first_and_try_last_tasks():
+    dag = DiGraph()
+    first = Task(
+        base_name="first",
+        path=Path(),
+        function=noop,
+        markers=[Mark("try_first", (), {})],
+    )
+    default = Task(base_name="default", path=Path(), function=noop)
+    last = Task(
+        base_name="last",
+        path=Path(),
+        function=noop,
+        markers=[Mark("try_last", (), {})],
+    )
+
+    for task in (first, default, last):
+        dag.add_node(task.signature, task=task)
+
+    scheduler = SimpleScheduler.from_dag(dag)
+
+    first_batch = scheduler.get_ready(3)
+    first_batch_names = [dag.nodes[sig]["task"].name for sig in first_batch]
+
+    assert first_batch_names[-1] == ".::first"
+    assert first_batch_names[0] == ".::last"
 
 
 @dataclass
