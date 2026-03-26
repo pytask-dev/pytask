@@ -100,6 +100,9 @@ class TopologicalSorter:
         for signature in task_signatures:
             task_dag.add_node(signature)
         for signature in task_signatures:
+            # The scheduler graph uses edges from predecessor -> successor so that
+            # zero in-degree means "ready to run". This is the same orientation the
+            # previous networkx-based implementation reached after calling reverse().
             for ancestor_ in ancestors(dag, signature) & task_signatures:
                 task_dag.add_edge(ancestor_, signature)
 
