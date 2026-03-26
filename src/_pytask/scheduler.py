@@ -65,16 +65,6 @@ class SimpleScheduler:
 
         return cls(dag=task_dag, priorities=priorities)
 
-    @classmethod
-    def from_dag_and_sorter(
-        cls, dag: DiGraph, sorter: SimpleScheduler
-    ) -> SimpleScheduler:
-        """Instantiate a sorter from another sorter and a DAG."""
-        new_sorter = cls.from_dag(dag)
-        new_sorter.done(*sorter._nodes_done)
-        new_sorter._nodes_processing = sorter._nodes_processing
-        return new_sorter
-
     @staticmethod
     def check_dag(dag: DiGraph) -> None:
         if not dag.is_directed():
@@ -118,7 +108,10 @@ class SimpleScheduler:
 
     def rebuild(self, dag: DiGraph) -> SimpleScheduler:
         """Rebuild the scheduler from an updated DAG while preserving state."""
-        return self.from_dag_and_sorter(dag, self)
+        new_scheduler = type(self).from_dag(dag)
+        new_scheduler.done(*self._nodes_done)
+        new_scheduler._nodes_processing = self._nodes_processing.copy()
+        return new_scheduler
 
 
 def _extract_priorities_from_tasks(tasks: list[PTask]) -> dict[str, int]:
