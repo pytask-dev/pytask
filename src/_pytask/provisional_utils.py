@@ -9,7 +9,6 @@ from typing import Any
 
 from _pytask.collect_utils import collect_dependency
 from _pytask.dag import create_dag_from_session
-from _pytask.dag_utils import TopologicalSorter
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PProvisionalNode
@@ -78,9 +77,8 @@ def recreate_dag(session: Session, task: PTask) -> None:
     """
     try:
         session.dag = create_dag_from_session(session)
-        session.scheduler = TopologicalSorter.from_dag_and_sorter(
-            session.dag, session.scheduler
-        )
+        if session.scheduler is not None:
+            session.scheduler = session.scheduler.rebuild(session.dag)
 
     except Exception:  # noqa: BLE001
         report = ExecutionReport.from_task_and_exception(task, sys.exc_info())

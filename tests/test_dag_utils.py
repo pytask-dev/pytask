@@ -7,11 +7,11 @@ from pathlib import Path
 import pytest
 
 from _pytask.dag_graph import DiGraph
-from _pytask.dag_utils import TopologicalSorter
-from _pytask.dag_utils import _extract_priorities_from_tasks
 from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.dag_utils import task_and_descending_tasks
+from _pytask.scheduler import SimpleScheduler
+from _pytask.scheduler import _extract_priorities_from_tasks
 from pytask import Mark
 from pytask import Task
 from tests.conftest import noop
@@ -32,7 +32,7 @@ def dag():
 
 
 def test_sort_tasks_topologically(dag):
-    sorter = TopologicalSorter.from_dag(dag)
+    sorter = SimpleScheduler.from_dag(dag)
     topo_ordering = []
     while sorter.is_active():
         task_name = sorter.get_ready()[0]
@@ -152,7 +152,7 @@ class _UndirectedGraphStub:
 
 def test_raise_error_for_undirected_graphs():
     with pytest.raises(ValueError, match="Only directed graphs have a"):
-        TopologicalSorter.from_dag(_UndirectedGraphStub())  # type: ignore[arg-type]
+        SimpleScheduler.from_dag(_UndirectedGraphStub())  # type: ignore[arg-type]
 
 
 def test_raise_error_for_cycle_in_graph(dag):
@@ -161,11 +161,11 @@ def test_raise_error_for_cycle_in_graph(dag):
         "55c6cef62d3e62d5f8fc65bb846e66d8d0d3ca60608c04f6f7b095ea073a7dcf",
     )
     with pytest.raises(ValueError, match=r"The DAG contains cycles\."):
-        TopologicalSorter.from_dag(dag)
+        SimpleScheduler.from_dag(dag)
 
 
 def test_ask_for_invalid_number_of_ready_tasks(dag):
-    scheduler = TopologicalSorter.from_dag(dag)
+    scheduler = SimpleScheduler.from_dag(dag)
     with pytest.raises(ValueError, match="'n' must be"):
         scheduler.get_ready(0)
 
@@ -173,7 +173,7 @@ def test_ask_for_invalid_number_of_ready_tasks(dag):
 def test_instantiate_sorter_from_other_sorter(dag):
     name_to_sig = {dag.nodes[sig]["task"].name: sig for sig in dag.nodes}
 
-    scheduler = TopologicalSorter.from_dag(dag)
+    scheduler = SimpleScheduler.from_dag(dag)
     for _ in range(2):
         task_name = scheduler.get_ready()[0]
         scheduler.done(task_name)
@@ -183,7 +183,7 @@ def test_instantiate_sorter_from_other_sorter(dag):
     dag.add_node(task.signature, task=Task(base_name="5", path=Path(), function=noop))
     dag.add_edge(name_to_sig[".::4"], task.signature)
 
-    new_scheduler = TopologicalSorter.from_dag_and_sorter(dag, scheduler)
+    new_scheduler = scheduler.rebuild(dag)
     while new_scheduler.is_active():
         task_name = new_scheduler.get_ready()[0]
         new_scheduler.done(task_name)

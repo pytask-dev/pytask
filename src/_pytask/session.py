@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from _pytask.reports import CollectionReport
     from _pytask.reports import DagReport
     from _pytask.reports import ExecutionReport
+    from _pytask.scheduler import PScheduler
     from _pytask.warnings_utils import WarningReport
 
 
@@ -64,7 +65,7 @@ class Session:
     execution_end: float = float("inf")
 
     n_tasks_failed: int = 0
-    scheduler: Any = None
+    scheduler: PScheduler | None = None
     should_stop: bool = False
     warnings: list[WarningReport] = field(default_factory=list)
 

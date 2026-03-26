@@ -18,7 +18,6 @@ from _pytask.console import create_url_style_for_task
 from _pytask.console import format_node_name
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import unify_styles
-from _pytask.dag_utils import TopologicalSorter
 from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.exceptions import ExecutionError
@@ -44,6 +43,7 @@ from _pytask.outcomes import count_outcomes
 from _pytask.pluginmanager import hookimpl
 from _pytask.provisional_utils import collect_provisional_products
 from _pytask.reports import ExecutionReport
+from _pytask.scheduler import SimpleScheduler
 from _pytask.state import get_node_change_info
 from _pytask.state import has_node_changed
 from _pytask.state import update_states
@@ -68,7 +68,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 def pytask_execute(session: Session) -> None:
     """Execute tasks."""
     session.hook.pytask_execute_log_start(session=session)
-    session.scheduler = TopologicalSorter.from_dag(session.dag)
+    session.scheduler = SimpleScheduler.from_dag(session.dag)
     session.hook.pytask_execute_build(session=session)
     session.hook.pytask_execute_log_end(
         session=session, reports=session.execution_reports
@@ -87,15 +87,16 @@ def pytask_execute_log_start(session: Session) -> None:
 @hookimpl
 def pytask_execute_build(session: Session) -> bool | None:
     """Execute tasks."""
-    if isinstance(session.scheduler, TopologicalSorter):
-        while session.scheduler.is_active():
-            task_name = session.scheduler.get_ready()[0]
+    scheduler = session.scheduler
+    if scheduler is not None:
+        while scheduler.is_active():
+            task_name = scheduler.get_ready()[0]
             task = session.dag.nodes[task_name]["task"]
             report = session.hook.pytask_execute_task_protocol(
                 session=session, task=task
             )
             session.execution_reports.append(report)
-            session.scheduler.done(task_name)
+            scheduler.done(task_name)
 
             if session.should_stop:
                 return True
