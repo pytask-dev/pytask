@@ -37,27 +37,27 @@ from typing import TYPE_CHECKING
 
 import httpx
 import packaging.version
-import tabulate
 import wcwidth
-from tqdm import tqdm
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
 _FILE_HEAD = """# Plugin List
 
-PyPI projects that match `pytask-*` are considered plugins and are listed
-automatically. Packages classified as inactive are excluded.
+PyPI projects that match `pytask-*` are considered plugins and are listed automatically.
+Packages classified as inactive are excluded.
 
 !!! warning
 
-    Please be aware that this list is not a curated collection of projects and does not
-    undergo a systematic review process. It serves purely as an informational resource
-    to aid in the discovery of `pytask` plugins.
+```
+Please be aware that this list is not a curated collection of projects and does not
+undergo a systematic review process. It serves purely as an informational resource
+to aid in the discovery of `pytask` plugins.
 
-    Do not presume any endorsement from the `pytask` project or its developers, and
-    always conduct your own quality assessment before incorporating any of these plugins
-    into your own projects.
+Do not presume any endorsement from the `pytask` project or its developers, and
+always conduct your own quality assessment before incorporating any of these plugins
+into your own projects.
+```
 
 """
 
@@ -86,6 +86,43 @@ def _escape_markdown(text: str) -> str:
     return text.replace("|", "\\|")
 
 
+def _pad(text: str, width: int) -> str:
+    """Pad text to the requested display width."""
+    return text + " " * (width - wcwidth.wcswidth(text))
+
+
+def _create_table(entries: list[dict[str, str]]) -> str:
+    """Create a markdown table in the repository's canonical format."""
+    if not entries:
+        msg = "Cannot create a plugin table without entries."
+        raise ValueError(msg)
+
+    headers = list(entries[0])
+    widths = [
+        max(
+            wcwidth.wcswidth(header),
+            *(wcwidth.wcswidth(row[header]) for row in entries),
+        )
+        for header in headers
+    ]
+
+    header_cells = (
+        _pad(header, width) for header, width in zip(headers, widths, strict=False)
+    )
+    header = "| " + " | ".join(header_cells) + " |"
+    separator = "| " + " | ".join("-" * width for width in widths) + " |"
+    rows = [
+        "| "
+        + " | ".join(
+            _pad(row[header], width)
+            for header, width in zip(headers, widths, strict=False)
+        )
+        + " |"
+        for row in entries
+    ]
+    return "\n".join([header, separator, *rows])
+
+
 def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
     """Iterate over all plugins and format entries."""
     regex = r">([\d\w-]*)</a>"
@@ -98,7 +135,7 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
         and match.groups()[0] not in _EXCLUDED_PACKAGES
     ]
 
-    for match in tqdm(matches, smoothing=0):
+    for match in matches:
         name = match.groups()[0]
         response = httpx.get(f"https://pypi.org/pypi/{name}/json", timeout=20)
         if response.status_code == 404:  # noqa: PLR2004
@@ -168,10 +205,7 @@ def main() -> None:
     with plugin_list.open("w") as f:
         f.write(_FILE_HEAD)
         f.write(f"This list contains {len(plugins)} plugins.\n\n")
-
-        assert wcwidth  # reference library that must exist for tabulate to work
-        plugin_table = tabulate.tabulate(plugins, headers="keys", tablefmt="github")
-        f.write(plugin_table)
+        f.write(_create_table(plugins))
         f.write("\n")
 
 
