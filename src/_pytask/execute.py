@@ -205,10 +205,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
             # Check if node changed and collect detailed info if in explain mode
             if session.config["explain"]:
                 has_changed, reason, details = get_node_change_info(
-                    session=session,
-                    task=task,
-                    node=node,
-                    state=node_state,
+                    session=session, task=task, node=node, state=node_state
                 )
                 if has_changed:
                     needs_to_be_executed = True
@@ -235,10 +232,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
                     )
             else:
                 has_changed = has_node_changed(
-                    session=session,
-                    task=task,
-                    node=node,
-                    state=node_state,
+                    session=session, task=task, node=node, state=node_state
                 )
                 if has_changed:
                     needs_to_be_executed = True

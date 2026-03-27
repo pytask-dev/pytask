@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 from typing import Any
 
 from _pytask.dag_utils import node_and_neighbors
-from _pytask.database_utils import update_states_in_database as _db_update_states
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.outcomes import Persisted
@@ -21,11 +20,6 @@ if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
-
-
-def update_states_in_database(session: Session, task_signature: str) -> None:
-    """Compatibility wrapper for older callers/tests."""
-    _db_update_states(session, task_signature)
 
 
 @hookimpl
