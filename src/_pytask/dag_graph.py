@@ -10,9 +10,18 @@ from typing import Any
 from typing import cast
 
 from _pytask.compat import import_optional_dependency
+from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PProvisionalNode
+from _pytask.node_protocols import PTask
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+    from collections.abc import Iterable
     from collections.abc import Iterator
+    from collections.abc import Mapping
+
+
+DAGEntry = PTask | PNode | PProvisionalNode
 
 
 class NoCycleError(Exception):
@@ -20,30 +29,29 @@ class NoCycleError(Exception):
 
 
 @dataclass
-class DiGraph:
+class DAG:
     """A minimal directed graph tailored to pytask's needs."""
 
-    _node_attributes: dict[str, dict[str, Any]] = field(default_factory=dict)
-    _successors: dict[str, dict[str, None]] = field(default_factory=dict)
-    _predecessors: dict[str, dict[str, None]] = field(default_factory=dict)
-    graph: dict[str, Any] = field(default_factory=dict)
+    _node_data: dict[str, DAGEntry] = field(default_factory=dict)
+    _successors: dict[str, set[str]] = field(default_factory=dict)
+    _predecessors: dict[str, set[str]] = field(default_factory=dict)
 
     @property
-    def nodes(self) -> dict[str, dict[str, Any]]:
-        return self._node_attributes
+    def nodes(self) -> dict[str, DAGEntry]:
+        return self._node_data
 
-    def add_node(self, node_name: str, **attributes: Any) -> None:
-        if node_name not in self._node_attributes:
-            self._node_attributes[node_name] = {}
-            self._successors[node_name] = {}
-            self._predecessors[node_name] = {}
-        self._node_attributes[node_name].update(attributes)
+    def add_node(self, node_name: str, data: DAGEntry) -> None:
+        if node_name not in self._node_data:
+            self._successors[node_name] = set()
+            self._predecessors[node_name] = set()
+        self._node_data[node_name] = data
 
     def add_edge(self, source: str, target: str) -> None:
-        self.add_node(source)
-        self.add_node(target)
-        self._successors[source][target] = None
-        self._predecessors[target][source] = None
+        if source not in self._node_data or target not in self._node_data:
+            msg = "Both nodes must exist before adding an edge."
+            raise KeyError(msg)
+        self._successors[source].add(target)
+        self._predecessors[target].add(source)
 
     def successors(self, node: str) -> Iterator[str]:
         return iter(self._successors[node])
@@ -55,94 +63,71 @@ class DiGraph:
         for node, predecessors_ in self._predecessors.items():
             yield node, len(predecessors_)
 
-    def remove_nodes_from(self, nodes: list[str] | set[str] | tuple[str, ...]) -> None:
+    def remove_nodes_from(self, nodes: Iterable[str]) -> None:
         for node in nodes:
-            if node not in self._node_attributes:
+            if node not in self._node_data:
                 continue
             for predecessor in tuple(self._predecessors[node]):
-                self._successors[predecessor].pop(node, None)
+                self._successors[predecessor].discard(node)
             for successor in tuple(self._successors[node]):
-                self._predecessors[successor].pop(node, None)
-            del self._node_attributes[node]
+                self._predecessors[successor].discard(node)
+            del self._node_data[node]
             del self._successors[node]
             del self._predecessors[node]
 
-    def is_directed(self) -> bool:
-        return True
+    def descendants(self, node: str) -> set[str]:
+        """Return all descendants of a node."""
+        return self._traverse(node, self.successors)
 
-    def reverse(self) -> DiGraph:
-        graph = DiGraph()
-        graph.graph = self.graph.copy()
-        for node, attributes in self._node_attributes.items():
-            graph.add_node(node, **attributes.copy())
-        for source, successors in self._successors.items():
-            for target in successors:
-                graph.add_edge(target, source)
-        return graph
+    def ancestors(self, node: str) -> set[str]:
+        """Return all ancestors of a node."""
+        return self._traverse(node, self.predecessors)
 
-    def relabel_nodes(self, mapping: dict[str, str]) -> DiGraph:
-        graph = DiGraph()
-        graph.graph = self.graph.copy()
+    def relabel_nodes(self, mapping: Mapping[str, str]) -> DAG:
+        graph = DAG()
 
-        new_labels = [mapping.get(node, node) for node in self._node_attributes]
+        new_labels = [mapping.get(node, node) for node in self._node_data]
         if len(new_labels) != len(set(new_labels)):
             msg = "Relabeling nodes requires unique target labels."
             raise ValueError(msg)
 
-        for node, attributes in self._node_attributes.items():
-            graph.add_node(mapping.get(node, node), **attributes.copy())
+        for node, data in self._node_data.items():
+            graph.add_node(mapping.get(node, node), data)
         for source, successors in self._successors.items():
             new_source = mapping.get(source, source)
             for target in successors:
                 graph.add_edge(new_source, mapping.get(target, target))
         return graph
 
-    def set_node_attributes(self, values: dict[str, Any], name: str) -> None:
-        for node, value in values.items():
-            if node in self._node_attributes:
-                self._node_attributes[node][name] = value
-
     def to_networkx(self) -> Any:
         nx = cast("Any", import_optional_dependency("networkx"))
         graph = nx.DiGraph()
-        graph.graph = self.graph.copy()
-        for node, attributes in self._node_attributes.items():
-            graph.add_node(node, **attributes.copy())
+        for node in self._node_data:
+            graph.add_node(node)
         for source, successors in self._successors.items():
             for target in successors:
                 graph.add_edge(source, target)
         return graph
 
+    def _traverse(
+        self,
+        node: str,
+        adjacency: Callable[[str], Iterable[str]],
+    ) -> set[str]:
+        visited: set[str] = set()
+        stack = list(adjacency(node))
 
-def descendants(dag: DiGraph, node: str) -> set[str]:
-    """Return all descendants of a node."""
-    return _traverse(dag, node, dag.successors)
+        while stack:
+            current = stack.pop()
+            if current in visited:
+                continue
+            visited.add(current)
+            stack.extend(adjacency(current))
 
-
-def ancestors(dag: DiGraph, node: str) -> set[str]:
-    """Return all ancestors of a node."""
-    return _traverse(dag, node, dag.predecessors)
-
-
-def _traverse(
-    _dag: DiGraph,
-    node: str,
-    adjacency: Any,
-) -> set[str]:
-    visited: set[str] = set()
-    stack = list(adjacency(node))
-
-    while stack:
-        current = stack.pop()
-        if current in visited:
-            continue
-        visited.add(current)
-        stack.extend(adjacency(current))
-
-    return visited
+        return visited
 
 
-def find_cycle(dag: DiGraph) -> list[tuple[str, str]]:
+def find_cycle(dag: DAG) -> list[tuple[str, str]]:
     """Find one cycle in the graph."""
     visited: set[str] = set()
     active: set[str] = set()

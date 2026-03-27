@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from _pytask.database_utils import get_node_change_info as _db_get_node_change_info
-from _pytask.database_utils import has_node_changed as _db_has_node_changed
-from _pytask.database_utils import update_states_in_database as _db_update_states
+from _pytask.database_utils import get_node_change_info as db_get_node_change_info
+from _pytask.database_utils import has_node_changed as db_has_node_changed
+from _pytask.database_utils import update_states_in_database
 from _pytask.lockfile import LockfileState
 from _pytask.lockfile import build_portable_node_id
 from _pytask.lockfile import build_portable_task_id
@@ -17,14 +17,10 @@ if TYPE_CHECKING:
     from _pytask.session import Session
 
 
-def _get_lockfile_state(session: Session) -> LockfileState | None:
-    return session.config.get("lockfile_state")
-
-
 def has_node_changed(
     session: Session, task: PTask, node: PTask | PNode, state: str | None
 ) -> bool:
-    lockfile_state = _get_lockfile_state(session)
+    lockfile_state: LockfileState | None = session.config.get("lockfile_state")
     if lockfile_state and lockfile_state.use_lockfile_for_skip:
         if state is None:
             return True
@@ -45,15 +41,15 @@ def has_node_changed(
         if stored_state is None:
             return True
         return state != stored_state
-    return _db_has_node_changed(task=task, node=node, state=state)
+    return db_has_node_changed(task=task, node=node, state=state)
 
 
 def get_node_change_info(
     session: Session, task: PTask, node: PTask | PNode, state: str | None
 ) -> tuple[bool, str, dict[str, str]]:
-    lockfile_state = _get_lockfile_state(session)
+    lockfile_state: LockfileState | None = session.config.get("lockfile_state")
     if not (lockfile_state and lockfile_state.use_lockfile_for_skip):
-        return _db_get_node_change_info(task=task, node=node, state=state)
+        return db_get_node_change_info(task=task, node=node, state=state)
 
     details: dict[str, str] = {}
     if state is None:
@@ -88,7 +84,7 @@ def get_node_change_info(
 def update_states(session: Session, task: PTask) -> None:
     if session.dag is None:
         return
-    lockfile_state = _get_lockfile_state(session)
+    lockfile_state: LockfileState | None = session.config.get("lockfile_state")
     if lockfile_state is not None:
         lockfile_state.update_task(session, task)
-    _db_update_states(session, task.signature)
+    update_states_in_database(session, task.signature)

@@ -210,7 +210,7 @@ class FileSizeNameSpace:
             if successors:
                 sum_bytes = 0
                 for successor in successors:
-                    node = session.dag.nodes[successor]["node"]
+                    node = session.dag.nodes[successor]
                     if isinstance(node, PPathNode):
                         with suppress(FileNotFoundError):
                             sum_bytes += node.path.stat().st_size

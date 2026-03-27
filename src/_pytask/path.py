@@ -21,6 +21,8 @@ from _pytask.cache import Cache
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from _pytask.typing import NodePath
+
 __all__ = [
     "find_case_sensitive_path",
     "find_closest_ancestor",
@@ -64,24 +66,27 @@ def relative_to(path: Path, source: Path, *, include_source: bool = True) -> Pat
     return Path(source_name, path.relative_to(source))
 
 
-def is_non_local_path(path: Path) -> bool:
+def is_non_local_path(path: NodePath) -> bool:
     """Return whether a path points to a non-local `UPath` resource."""
     return isinstance(path, UPath) and path.protocol not in _LOCAL_UPATH_PROTOCOLS
 
 
-def normalize_local_upath(path: Path) -> Path:
+def normalize_local_upath(path: NodePath) -> NodePath:
     """Convert local `UPath` variants to a stdlib `Path`."""
-    if isinstance(path, UPath) and path.protocol in {"file", "local"}:
-        local_path = path.path
-        if (
-            sys.platform == "win32"
-            and local_path.startswith("/")
-            and len(local_path) >= _WINDOWS_DRIVE_PREFIX_LENGTH
-            and local_path[1].isalpha()
-            and local_path[2] == ":"
-        ):
-            local_path = local_path[1:]
-        return Path(local_path)
+    if isinstance(path, UPath):
+        if path.protocol in {"file", "local"}:
+            local_path = path.path
+            if (
+                sys.platform == "win32"
+                and local_path.startswith("/")
+                and len(local_path) >= _WINDOWS_DRIVE_PREFIX_LENGTH
+                and local_path[1].isalpha()
+                and local_path[2] == ":"
+            ):
+                local_path = local_path[1:]
+            return Path(local_path)
+        if not path.protocol:
+            return Path(str(path))
     return path
 
 
@@ -451,7 +456,7 @@ def _insert_missing_modules(modules: dict[str, ModuleType], module_name: str) ->
         module_name = ".".join(module_parts)
 
 
-def shorten_path(path: Path, paths: Sequence[Path]) -> str:
+def shorten_path(path: NodePath, paths: Sequence[NodePath]) -> str:
     """Shorten a path.
 
     The whole path of a node - which includes the drive letter - can be very long
@@ -466,6 +471,8 @@ def shorten_path(path: Path, paths: Sequence[Path]) -> str:
 
     path = normalize_local_upath(path)
     paths = [normalize_local_upath(p) for p in paths]
+    path = Path(str(path)) if isinstance(path, UPath) else path
+    paths = [Path(str(p)) if isinstance(p, UPath) else p for p in paths]
 
     ancestor = find_closest_ancestor(path, paths)
     if ancestor is None:

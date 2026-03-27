@@ -27,6 +27,7 @@ from _pytask.tree_util import tree_leaves
 
 if TYPE_CHECKING:
     from _pytask.session import Session
+    from _pytask.typing import NodePath
 
 CURRENT_LOCKFILE_VERSION = "1"
 
@@ -71,13 +72,14 @@ def _encode_node_path(path: tuple[str | int, ...]) -> str:
     return msgspec.json.encode(path).decode()
 
 
-def _relative_path(path: Path, root: Path) -> str:
+def _relative_path(path: NodePath, root: Path) -> str:
     if isinstance(path, UPath) and path.protocol:
         return str(path)
+    local_path = Path(str(path)) if isinstance(path, UPath) else path
     try:
-        rel = os.path.relpath(path, root)
+        rel = os.path.relpath(local_path, root)
     except ValueError:
-        return path.as_posix()
+        return local_path.as_posix()
     return Path(rel).as_posix()
 
 
@@ -225,9 +227,7 @@ def _build_task_entry(session: Session, task: PTask, root: Path) -> _TaskEntry |
 
     depends_on: dict[str, str] = {}
     for node_signature in predecessors:
-        node = (
-            dag.nodes[node_signature].get("task") or dag.nodes[node_signature]["node"]
-        )
+        node = dag.nodes[node_signature]
         if not isinstance(node, (PNode, PTask)):
             continue
         state = node.state()
@@ -242,9 +242,7 @@ def _build_task_entry(session: Session, task: PTask, root: Path) -> _TaskEntry |
 
     produces: dict[str, str] = {}
     for node_signature in successors:
-        node = (
-            dag.nodes[node_signature].get("task") or dag.nodes[node_signature]["node"]
-        )
+        node = dag.nodes[node_signature]
         if not isinstance(node, (PNode, PTask)):
             continue
         state = node.state()

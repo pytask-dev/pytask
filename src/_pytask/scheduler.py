@@ -4,17 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from dataclasses import field
-from typing import TYPE_CHECKING
 from typing import Protocol
 
-from _pytask.dag_graph import DiGraph
+from _pytask.dag_graph import DAG
 from _pytask.dag_graph import NoCycleError
-from _pytask.dag_graph import ancestors
 from _pytask.dag_graph import find_cycle
 from _pytask.mark_utils import has_mark
-
-if TYPE_CHECKING:
-    from _pytask.node_protocols import PTask
+from _pytask.node_protocols import PTask
 
 
 class PScheduler(Protocol):
@@ -29,7 +25,7 @@ class PScheduler(Protocol):
     def done(self, *nodes: str) -> None:
         """Mark some tasks as done."""
 
-    def rebuild(self, dag: DiGraph) -> PScheduler:
+    def rebuild(self, dag: DAG) -> PScheduler:
         """Rebuild the scheduler from an updated DAG while preserving state."""
 
 
@@ -37,40 +33,34 @@ class PScheduler(Protocol):
 class SimpleScheduler:
     """The default scheduler based on topological sorting."""
 
-    dag: DiGraph
+    dag: DAG
     priorities: dict[str, int] = field(default_factory=dict)
     _nodes_processing: set[str] = field(default_factory=set)
     _nodes_done: set[str] = field(default_factory=set)
 
     @classmethod
-    def from_dag(cls, dag: DiGraph) -> SimpleScheduler:
+    def from_dag(cls, dag: DAG) -> SimpleScheduler:
         """Instantiate from a DAG."""
         cls.check_dag(dag)
 
-        tasks = [
-            dag.nodes[node]["task"] for node in dag.nodes if "task" in dag.nodes[node]
-        ]
+        tasks = [node for node in dag.nodes.values() if isinstance(node, PTask)]
         priorities = _extract_priorities_from_tasks(tasks)
 
         task_signatures = {task.signature for task in tasks}
-        task_dag = DiGraph()
+        task_dag = DAG()
         for signature in task_signatures:
-            task_dag.add_node(signature)
+            task_dag.add_node(signature, dag.nodes[signature])
         for signature in task_signatures:
             # The scheduler graph uses edges from predecessor -> successor so that
             # zero in-degree means "ready to run". This is the same orientation the
             # previous networkx-based implementation reached after calling reverse().
-            for ancestor_ in ancestors(dag, signature) & task_signatures:
+            for ancestor_ in dag.ancestors(signature) & task_signatures:
                 task_dag.add_edge(ancestor_, signature)
 
         return cls(dag=task_dag, priorities=priorities)
 
     @staticmethod
-    def check_dag(dag: DiGraph) -> None:
-        if not dag.is_directed():
-            msg = "Only directed graphs have a topological order."
-            raise ValueError(msg)
-
+    def check_dag(dag: DAG) -> None:
         try:
             find_cycle(dag)
         except NoCycleError:
@@ -106,7 +96,7 @@ class SimpleScheduler:
         self.dag.remove_nodes_from(nodes)
         self._nodes_done.update(nodes)
 
-    def rebuild(self, dag: DiGraph) -> SimpleScheduler:
+    def rebuild(self, dag: DAG) -> SimpleScheduler:
         """Rebuild the scheduler from an updated DAG while preserving state."""
         new_scheduler = type(self).from_dag(dag)
         new_scheduler.done(*self._nodes_done)

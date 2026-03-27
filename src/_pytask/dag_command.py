@@ -33,7 +33,7 @@ from _pytask.traceback import Traceback
 if TYPE_CHECKING:
     import networkx as nx
 
-    from _pytask.dag_graph import DiGraph
+    from _pytask.dag_graph import DAG
 
 
 class _RankDirection(enum.Enum):
@@ -106,7 +106,7 @@ def dag(**raw_config: Any) -> int:
             )
             session.hook.pytask_collect(session=session)
             session.dag = create_dag(session=session)
-            dag = _refine_dag(session).to_networkx()
+            dag = _to_visualization_graph(session)
             _write_graph(dag, session.config["output_path"], session.config["layout"])
 
         except CollectionError:  # pragma: no cover
@@ -147,9 +147,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
         pm = get_plugin_manager()
         storage.store(pm)
 
-        # If someone called the programmatic interface, we need to do some parsing.
         if "command" not in raw_config:
-            # Add defaults from cli.
             from _pytask.cli import DEFAULTS_FROM_CLI  # noqa: PLC0415
 
             raw_config = normalize_programmatic_config(
@@ -179,20 +177,26 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
         session.hook.pytask_collect(session=session)
         session.dag = create_dag(session=session)
         session.hook.pytask_unconfigure(session=session)
-        return _refine_dag(session).to_networkx()
+        return _to_visualization_graph(session)
 
 
-def _refine_dag(session: Session) -> DiGraph:
+def _refine_dag(session: Session) -> DAG:
     """Refine the dag for plotting."""
     dag = _shorten_node_labels(session.dag, session.config["paths"])
-    dag = _clean_dag(dag)
-    dag = _style_dag(dag)
-    dag.graph["graph"] = {"rankdir": session.config["rank_direction"].name}
+    return _clean_dag(dag)
 
+
+def _to_visualization_graph(session: Session) -> nx.DiGraph:
+    """Convert the internal DAG to a styled networkx graph for visualization."""
+    nx = cast("Any", import_optional_dependency("networkx"))
+    dag = _refine_dag(session).to_networkx()
+    dag.graph["graph"] = {"rankdir": session.config["rank_direction"].name}
+    shapes = {name: "hexagon" if "::task_" in name else "box" for name in dag.nodes}
+    nx.set_node_attributes(dag, shapes, "shape")
     return dag
 
 
-def _shorten_node_labels(dag: DiGraph, paths: list[Path]) -> DiGraph:
+def _shorten_node_labels(dag: DAG, paths: list[Path]) -> DAG:
     """Shorten the node labels in the graph for a better experience."""
     node_names = dag.nodes
     short_names = reduce_names_of_multiple_nodes(node_names, dag, paths)
@@ -201,17 +205,8 @@ def _shorten_node_labels(dag: DiGraph, paths: list[Path]) -> DiGraph:
     return dag.relabel_nodes(old_to_new)
 
 
-def _clean_dag(dag: DiGraph) -> DiGraph:
+def _clean_dag(dag: DAG) -> DAG:
     """Clean the DAG."""
-    for node in dag.nodes:
-        dag.nodes[node].clear()
-    return dag
-
-
-def _style_dag(dag: DiGraph) -> DiGraph:
-    """Style the DAG."""
-    shapes = {name: "hexagon" if "::task_" in name else "box" for name in dag.nodes}
-    dag.set_node_attributes(shapes, "shape")
     return dag
 
 
