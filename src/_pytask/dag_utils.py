@@ -9,8 +9,6 @@ from typing import TYPE_CHECKING
 
 from _pytask.dag_graph import DAG
 from _pytask.dag_graph import NoCycleError
-from _pytask.dag_graph import ancestors
-from _pytask.dag_graph import descendants
 from _pytask.dag_graph import find_cycle
 from _pytask.mark_utils import has_mark
 from _pytask.node_protocols import PTask
@@ -22,7 +20,7 @@ if TYPE_CHECKING:
 
 def descending_tasks(task_name: str, dag: DAG) -> Generator[str, None, None]:
     """Yield only descending tasks."""
-    for descendant in descendants(dag, task_name):
+    for descendant in dag.descendants(task_name):
         if isinstance(dag.nodes[descendant], PTask):
             yield descendant
 
@@ -35,7 +33,7 @@ def task_and_descending_tasks(task_name: str, dag: DAG) -> Generator[str, None, 
 
 def preceding_tasks(task_name: str, dag: DAG) -> Generator[str, None, None]:
     """Yield only preceding tasks."""
-    for ancestor in ancestors(dag, task_name):
+    for ancestor in dag.ancestors(task_name):
         if isinstance(dag.nodes[ancestor], PTask):
             yield ancestor
 
@@ -96,7 +94,7 @@ class TopologicalSorter:
             # The scheduler graph uses edges from predecessor -> successor so that
             # zero in-degree means "ready to run". This is the same orientation the
             # previous networkx-based implementation reached after calling reverse().
-            for ancestor_ in ancestors(dag, signature) & task_signatures:
+            for ancestor_ in dag.ancestors(signature) & task_signatures:
                 task_dag.add_edge(ancestor_, signature)
 
         return cls(dag=task_dag, priorities=priorities)
@@ -113,10 +111,6 @@ class TopologicalSorter:
 
     @staticmethod
     def check_dag(dag: DAG) -> None:
-        if not dag.is_directed():
-            msg = "Only directed graphs have a topological order."
-            raise ValueError(msg)
-
         try:
             find_cycle(dag)
         except NoCycleError:

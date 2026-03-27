@@ -75,17 +75,13 @@ class DAG:
             del self._successors[node]
             del self._predecessors[node]
 
-    def is_directed(self) -> bool:
-        return True
+    def descendants(self, node: str) -> set[str]:
+        """Return all descendants of a node."""
+        return self._traverse(node, self.successors)
 
-    def reverse(self) -> DAG:
-        graph = DAG()
-        for node, data in self._node_data.items():
-            graph.add_node(node, data)
-        for source, successors in self._successors.items():
-            for target in successors:
-                graph.add_edge(target, source)
-        return graph
+    def ancestors(self, node: str) -> set[str]:
+        """Return all ancestors of a node."""
+        return self._traverse(node, self.predecessors)
 
     def relabel_nodes(self, mapping: Mapping[str, str]) -> DAG:
         graph = DAG()
@@ -113,33 +109,22 @@ class DAG:
                 graph.add_edge(source, target)
         return graph
 
+    def _traverse(
+        self,
+        node: str,
+        adjacency: Callable[[str], Iterable[str]],
+    ) -> set[str]:
+        visited: set[str] = set()
+        stack = list(adjacency(node))
 
-def descendants(dag: DAG, node: str) -> set[str]:
-    """Return all descendants of a node."""
-    return _traverse(dag, node, dag.successors)
+        while stack:
+            current = stack.pop()
+            if current in visited:
+                continue
+            visited.add(current)
+            stack.extend(adjacency(current))
 
-
-def ancestors(dag: DAG, node: str) -> set[str]:
-    """Return all ancestors of a node."""
-    return _traverse(dag, node, dag.predecessors)
-
-
-def _traverse(
-    _dag: DAG,
-    node: str,
-    adjacency: Callable[[str], Iterable[str]],
-) -> set[str]:
-    visited: set[str] = set()
-    stack = list(adjacency(node))
-
-    while stack:
-        current = stack.pop()
-        if current in visited:
-            continue
-        visited.add(current)
-        stack.extend(adjacency(current))
-
-    return visited
+        return visited
 
 
 def find_cycle(
