@@ -33,8 +33,7 @@ from _pytask.traceback import Traceback
 if TYPE_CHECKING:
     import networkx as nx
 
-    from _pytask.dag_graph import DagNode
-    from _pytask.dag_graph import DiGraph
+    from _pytask.dag_graph import DAG
 
 
 class _RankDirection(enum.Enum):
@@ -183,7 +182,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
         return _to_visualization_graph(session)
 
 
-def _refine_dag(session: Session) -> DiGraph[str, DagNode]:
+def _refine_dag(session: Session) -> DAG:
     """Refine the dag for plotting."""
     dag = _shorten_node_labels(session.dag, session.config["paths"])
     return _clean_dag(dag)
@@ -199,9 +198,7 @@ def _to_visualization_graph(session: Session) -> nx.DiGraph:
     return dag
 
 
-def _shorten_node_labels(
-    dag: DiGraph[str, DagNode], paths: list[Path]
-) -> DiGraph[str, DagNode]:
+def _shorten_node_labels(dag: DAG, paths: list[Path]) -> DAG:
     """Shorten the node labels in the graph for a better experience."""
     node_names = dag.nodes
     short_names = reduce_names_of_multiple_nodes(node_names, dag, paths)
@@ -210,7 +207,7 @@ def _shorten_node_labels(
     return dag.relabel_nodes(old_to_new)
 
 
-def _clean_dag(dag: DiGraph[str, DagNode]) -> DiGraph[str, DagNode]:
+def _clean_dag(dag: DAG) -> DAG:
     """Clean the DAG."""
     return dag
 

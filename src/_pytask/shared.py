@@ -23,8 +23,7 @@ from _pytask.node_protocols import PTask
 if TYPE_CHECKING:
     from enum import Enum
 
-    from _pytask.dag_graph import DagNode
-    from _pytask.dag_graph import DiGraph
+    from _pytask.dag_graph import DAG
 
 
 __all__ = [
@@ -80,7 +79,7 @@ def parse_paths(x: Path | list[Path]) -> list[Path]:
 
 
 def reduce_names_of_multiple_nodes(
-    names: Iterable[str], dag: DiGraph[str, DagNode], paths: Sequence[Path]
+    names: Iterable[str], dag: DAG, paths: Sequence[Path]
 ) -> list[str]:
     """Reduce the names of multiple nodes in the DAG."""
     short_names = []

@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from _pytask.dag_graph import DagNode
-from _pytask.dag_graph import DiGraph
+from _pytask.dag_graph import DAG
+from _pytask.dag_graph import DAGNode
 from _pytask.dag_utils import TopologicalSorter
 from _pytask.dag_utils import _extract_priorities_from_tasks
 from _pytask.dag_utils import descending_tasks
@@ -21,12 +21,12 @@ from tests.conftest import noop
 @pytest.fixture
 def dag():
     """Create a dag with five nodes in a line."""
-    dag = DiGraph[str, DagNode]()
+    dag = DAG()
     for i in range(4):
         task = Task(base_name=str(i), path=Path(), function=noop)
         next_task = Task(base_name=str(i + 1), path=Path(), function=noop)
-        dag.add_node(task.signature, DagNode.from_task(task))
-        dag.add_node(next_task.signature, DagNode.from_task(next_task))
+        dag.add_node(task.signature, DAGNode.from_task(task))
+        dag.add_node(next_task.signature, DAGNode.from_task(next_task))
         dag.add_edge(task.signature, next_task.signature)
 
     return dag
@@ -185,7 +185,7 @@ def test_instantiate_sorter_from_other_sorter(dag):
     assert scheduler._nodes_done == {name_to_sig[name] for name in (".::0", ".::1")}
 
     task = Task(base_name="5", path=Path(), function=noop)
-    dag.add_node(task.signature, DagNode.from_task(task))
+    dag.add_node(task.signature, DAGNode.from_task(task))
     dag.add_edge(name_to_sig[".::4"], task.signature)
 
     new_scheduler = TopologicalSorter.from_dag_and_sorter(dag, scheduler)

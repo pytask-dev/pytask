@@ -6,10 +6,8 @@ import itertools
 from dataclasses import dataclass
 from dataclasses import field
 from typing import TYPE_CHECKING
-from typing import Any
 
-from _pytask.dag_graph import DagNode
-from _pytask.dag_graph import DiGraph
+from _pytask.dag_graph import DAG
 from _pytask.dag_graph import NoCycleError
 from _pytask.dag_graph import ancestors
 from _pytask.dag_graph import descendants
@@ -23,41 +21,33 @@ if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
 
 
-def descending_tasks(
-    task_name: str, dag: DiGraph[str, DagNode]
-) -> Generator[str, None, None]:
+def descending_tasks(task_name: str, dag: DAG) -> Generator[str, None, None]:
     """Yield only descending tasks."""
     for descendant in descendants(dag, task_name):
         if dag.nodes[descendant].task is not None:
             yield descendant
 
 
-def task_and_descending_tasks(
-    task_name: str, dag: DiGraph[str, DagNode]
-) -> Generator[str, None, None]:
+def task_and_descending_tasks(task_name: str, dag: DAG) -> Generator[str, None, None]:
     """Yield task and descending tasks."""
     yield task_name
     yield from descending_tasks(task_name, dag)
 
 
-def preceding_tasks(
-    task_name: str, dag: DiGraph[str, DagNode]
-) -> Generator[str, None, None]:
+def preceding_tasks(task_name: str, dag: DAG) -> Generator[str, None, None]:
     """Yield only preceding tasks."""
     for ancestor in ancestors(dag, task_name):
         if dag.nodes[ancestor].task is not None:
             yield ancestor
 
 
-def task_and_preceding_tasks(
-    task_name: str, dag: DiGraph[str, DagNode]
-) -> Generator[str, None, None]:
+def task_and_preceding_tasks(task_name: str, dag: DAG) -> Generator[str, None, None]:
     """Yield task and preceding tasks."""
     yield task_name
     yield from preceding_tasks(task_name, dag)
 
 
-def node_and_neighbors(dag: DiGraph[str, DagNode], node: str) -> Iterable[str]:
+def node_and_neighbors(dag: DAG, node: str) -> Iterable[str]:
     """Yield node and neighbors which are first degree predecessors and successors.
 
     We cannot use ``dag.neighbors`` as it only considers successors as neighbors in a
@@ -86,13 +76,13 @@ class TopologicalSorter:
 
     """
 
-    dag: DiGraph[str, None]
+    dag: DAG
     priorities: dict[str, int] = field(default_factory=dict)
     _nodes_processing: set[str] = field(default_factory=set)
     _nodes_done: set[str] = field(default_factory=set)
 
     @classmethod
-    def from_dag(cls, dag: DiGraph[str, DagNode]) -> TopologicalSorter:
+    def from_dag(cls, dag: DAG) -> TopologicalSorter:
         """Instantiate from a DAG."""
         cls.check_dag(dag)
 
@@ -100,9 +90,9 @@ class TopologicalSorter:
         priorities = _extract_priorities_from_tasks(tasks)
 
         task_signatures = {task.signature for task in tasks}
-        task_dag = DiGraph[str, None]()
+        task_dag = DAG()
         for signature in task_signatures:
-            task_dag.add_node(signature, None)
+            task_dag.add_node(signature, dag.nodes[signature])
         for signature in task_signatures:
             # The scheduler graph uses edges from predecessor -> successor so that
             # zero in-degree means "ready to run". This is the same orientation the
@@ -114,7 +104,7 @@ class TopologicalSorter:
 
     @classmethod
     def from_dag_and_sorter(
-        cls, dag: DiGraph[str, DagNode], sorter: TopologicalSorter
+        cls, dag: DAG, sorter: TopologicalSorter
     ) -> TopologicalSorter:
         """Instantiate a sorter from another sorter and a DAG."""
         new_sorter = cls.from_dag(dag)
@@ -123,7 +113,7 @@ class TopologicalSorter:
         return new_sorter
 
     @staticmethod
-    def check_dag(dag: DiGraph[str, Any]) -> None:
+    def check_dag(dag: DAG) -> None:
         if not dag.is_directed():
             msg = "Only directed graphs have a topological order."
             raise ValueError(msg)

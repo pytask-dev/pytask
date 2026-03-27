@@ -3,13 +3,10 @@
 from __future__ import annotations
 
 import itertools
-from collections.abc import Hashable
 from dataclasses import dataclass
 from dataclasses import field
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Generic
-from typing import TypeVar
 from typing import cast
 
 from _pytask.compat import import_optional_dependency
@@ -25,16 +22,12 @@ if TYPE_CHECKING:
     from _pytask.node_protocols import PTask
 
 
-NodeIdT = TypeVar("NodeIdT", bound=Hashable)
-PayloadT = TypeVar("PayloadT")
-
-
 class NoCycleError(Exception):
     """Raised when no cycle is found in a graph."""
 
 
 @dataclass(slots=True)
-class DagNode:
+class DAGNode:
     """Payload stored for nodes in pytask's internal DAG."""
 
     task: PTask | None = None
@@ -46,12 +39,12 @@ class DagNode:
             raise ValueError(msg)
 
     @classmethod
-    def from_task(cls, task: PTask) -> DagNode:
+    def from_task(cls, task: PTask) -> DAGNode:
         """Create a DAG node from a task."""
         return cls(task=task)
 
     @classmethod
-    def from_node(cls, node: PNode | PProvisionalNode) -> DagNode:
+    def from_node(cls, node: PNode | PProvisionalNode) -> DAGNode:
         """Create a DAG node from a dependency or product node."""
         return cls(node=node)
 
@@ -78,41 +71,41 @@ class DagNode:
 
 
 @dataclass
-class DiGraph(Generic[NodeIdT, PayloadT]):
+class DAG:
     """A minimal directed graph tailored to pytask's needs."""
 
-    _node_data: dict[NodeIdT, PayloadT] = field(default_factory=dict)
-    _successors: dict[NodeIdT, set[NodeIdT]] = field(default_factory=dict)
-    _predecessors: dict[NodeIdT, set[NodeIdT]] = field(default_factory=dict)
+    _node_data: dict[str, DAGNode] = field(default_factory=dict)
+    _successors: dict[str, set[str]] = field(default_factory=dict)
+    _predecessors: dict[str, set[str]] = field(default_factory=dict)
 
     @property
-    def nodes(self) -> dict[NodeIdT, PayloadT]:
+    def nodes(self) -> dict[str, DAGNode]:
         return self._node_data
 
-    def add_node(self, node_name: NodeIdT, data: PayloadT) -> None:
+    def add_node(self, node_name: str, data: DAGNode) -> None:
         if node_name not in self._node_data:
             self._successors[node_name] = set()
             self._predecessors[node_name] = set()
         self._node_data[node_name] = data
 
-    def add_edge(self, source: NodeIdT, target: NodeIdT) -> None:
+    def add_edge(self, source: str, target: str) -> None:
         if source not in self._node_data or target not in self._node_data:
             msg = "Both nodes must exist before adding an edge."
             raise KeyError(msg)
         self._successors[source].add(target)
         self._predecessors[target].add(source)
 
-    def successors(self, node: NodeIdT) -> Iterator[NodeIdT]:
+    def successors(self, node: str) -> Iterator[str]:
         return iter(self._successors[node])
 
-    def predecessors(self, node: NodeIdT) -> Iterator[NodeIdT]:
+    def predecessors(self, node: str) -> Iterator[str]:
         return iter(self._predecessors[node])
 
-    def in_degree(self) -> Iterator[tuple[NodeIdT, int]]:
+    def in_degree(self) -> Iterator[tuple[str, int]]:
         for node, predecessors_ in self._predecessors.items():
             yield node, len(predecessors_)
 
-    def remove_nodes_from(self, nodes: Iterable[NodeIdT]) -> None:
+    def remove_nodes_from(self, nodes: Iterable[str]) -> None:
         for node in nodes:
             if node not in self._node_data:
                 continue
@@ -127,8 +120,8 @@ class DiGraph(Generic[NodeIdT, PayloadT]):
     def is_directed(self) -> bool:
         return True
 
-    def reverse(self) -> DiGraph[NodeIdT, PayloadT]:
-        graph = DiGraph[NodeIdT, PayloadT]()
+    def reverse(self) -> DAG:
+        graph = DAG()
         for node, data in self._node_data.items():
             graph.add_node(node, data)
         for source, successors in self._successors.items():
@@ -136,10 +129,8 @@ class DiGraph(Generic[NodeIdT, PayloadT]):
                 graph.add_edge(target, source)
         return graph
 
-    def relabel_nodes(
-        self, mapping: Mapping[NodeIdT, NodeIdT]
-    ) -> DiGraph[NodeIdT, PayloadT]:
-        graph = DiGraph[NodeIdT, PayloadT]()
+    def relabel_nodes(self, mapping: Mapping[str, str]) -> DAG:
+        graph = DAG()
 
         new_labels = [mapping.get(node, node) for node in self._node_data]
         if len(new_labels) != len(set(new_labels)):
@@ -165,22 +156,22 @@ class DiGraph(Generic[NodeIdT, PayloadT]):
         return graph
 
 
-def descendants(dag: DiGraph[NodeIdT, PayloadT], node: NodeIdT) -> set[NodeIdT]:
+def descendants(dag: DAG, node: str) -> set[str]:
     """Return all descendants of a node."""
     return _traverse(dag, node, dag.successors)
 
 
-def ancestors(dag: DiGraph[NodeIdT, PayloadT], node: NodeIdT) -> set[NodeIdT]:
+def ancestors(dag: DAG, node: str) -> set[str]:
     """Return all ancestors of a node."""
     return _traverse(dag, node, dag.predecessors)
 
 
 def _traverse(
-    _dag: DiGraph[NodeIdT, PayloadT],
-    node: NodeIdT,
-    adjacency: Callable[[NodeIdT], Iterable[NodeIdT]],
-) -> set[NodeIdT]:
-    visited: set[NodeIdT] = set()
+    _dag: DAG,
+    node: str,
+    adjacency: Callable[[str], Iterable[str]],
+) -> set[str]:
+    visited: set[str] = set()
     stack = list(adjacency(node))
 
     while stack:
@@ -194,14 +185,14 @@ def _traverse(
 
 
 def find_cycle(
-    dag: DiGraph[NodeIdT, PayloadT],
-) -> list[tuple[NodeIdT, NodeIdT]]:
+    dag: DAG,
+) -> list[tuple[str, str]]:
     """Find one cycle in the graph."""
-    visited: set[NodeIdT] = set()
-    active: set[NodeIdT] = set()
-    path: list[NodeIdT] = []
+    visited: set[str] = set()
+    active: set[str] = set()
+    path: list[str] = []
 
-    def _visit(node: NodeIdT) -> list[tuple[NodeIdT, NodeIdT]] | None:
+    def _visit(node: str) -> list[tuple[str, str]] | None:
         visited.add(node)
         active.add(node)
         path.append(node)
