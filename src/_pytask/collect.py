@@ -465,7 +465,10 @@ def pytask_collect_node(  # noqa: C901, PLR0912
         and not is_non_local_path(node.path)
         and not node.path.is_absolute()
     ):
-        node.path = path.joinpath(node.path)
+        local_node_path = (
+            Path(str(node.path)) if isinstance(node.path, UPath) else node.path
+        )
+        node.path = path.joinpath(local_node_path)
 
         # ``normpath`` removes ``../`` from the path which is necessary for the casing
         # check which will fail since ``.resolves()`` also normalizes a path.
@@ -501,7 +504,7 @@ def pytask_collect_node(  # noqa: C901, PLR0912
 
     if isinstance(node, UPath):  # pragma: no cover
         if not node.protocol:
-            node = Path(node)
+            node = Path(str(node))
         else:
             return PathNode(name=node.name, path=node)
 

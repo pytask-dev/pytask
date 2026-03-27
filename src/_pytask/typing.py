@@ -3,28 +3,35 @@ from __future__ import annotations
 import functools
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Final
 from typing import Literal
 from typing import Protocol
+from typing import TypeAlias
 from typing import runtime_checkable
 
-if TYPE_CHECKING:
-    from typing import TypeAlias
+from upath import UPath
 
+if TYPE_CHECKING:
     from _pytask.models import CollectionMetadata
     from pytask import PTask
 
 
 __all__ = [
     "NoDefault",
+    "NodePath",
     "Product",
     "ProductType",
     "TaskFunction",
     "is_task_function",
     "no_default",
 ]
+
+
+NodePath: TypeAlias = Path | UPath
+"""A local stdlib path or a universal-pathlib path."""
 
 
 @runtime_checkable
