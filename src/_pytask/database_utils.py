@@ -15,6 +15,7 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import sessionmaker
 
 from _pytask.dag_utils import node_and_neighbors
+from _pytask.node_protocols import PProvisionalNode
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import Engine
@@ -115,8 +116,12 @@ def update_states_in_database(session: Session, task_signature: str) -> None:
     if _ENGINE is None:
         return
     for name in node_and_neighbors(session.dag, task_signature):
-        node = session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
+        node = session.dag.nodes[name].value
+        if isinstance(node, PProvisionalNode):
+            continue
         hash_ = node.state()
+        if hash_ is None:
+            continue
         _create_or_update_state(task_signature, node.signature, hash_)
 
 

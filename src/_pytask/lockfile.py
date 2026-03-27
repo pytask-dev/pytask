@@ -225,9 +225,7 @@ def _build_task_entry(session: Session, task: PTask, root: Path) -> _TaskEntry |
 
     depends_on: dict[str, str] = {}
     for node_signature in predecessors:
-        node = (
-            dag.nodes[node_signature].get("task") or dag.nodes[node_signature]["node"]
-        )
+        node = dag.nodes[node_signature].value
         if not isinstance(node, (PNode, PTask)):
             continue
         state = node.state()
@@ -242,9 +240,7 @@ def _build_task_entry(session: Session, task: PTask, root: Path) -> _TaskEntry |
 
     produces: dict[str, str] = {}
     for node_signature in successors:
-        node = (
-            dag.nodes[node_signature].get("task") or dag.nodes[node_signature]["node"]
-        )
+        node = dag.nodes[node_signature].value
         if not isinstance(node, (PNode, PTask)):
             continue
         state = node.state()

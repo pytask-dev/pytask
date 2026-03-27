@@ -97,7 +97,9 @@ def pytask_execute_task_process_report(
             report.outcome = TaskOutcome.SKIP
 
             for descending_task_name in descending_tasks(task.signature, session.dag):
-                descending_task = session.dag.nodes[descending_task_name]["task"]
+                descending_task = session.dag.nodes[
+                    descending_task_name
+                ].task_or_raise()
                 descending_task.markers.append(
                     Mark(
                         "skip",

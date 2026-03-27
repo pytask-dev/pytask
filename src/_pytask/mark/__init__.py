@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from collections.abc import Set as AbstractSet
     from typing import NoReturn
 
+    from _pytask.dag_graph import DagNode
     from _pytask.dag_graph import DiGraph
     from _pytask.node_protocols import PTask
 
@@ -152,7 +153,7 @@ class KeywordMatcher:
         return any(subname in name for name in names)
 
 
-def select_by_keyword(session: Session, dag: DiGraph) -> set[str] | None:
+def select_by_keyword(session: Session, dag: DiGraph[str, DagNode]) -> set[str] | None:
     """Deselect tests by keywords."""
     keywordexpr = session.config["expression"]
     if not keywordexpr:
@@ -207,7 +208,7 @@ class MarkMatcher:
         return name in self.own_mark_names
 
 
-def select_by_mark(session: Session, dag: DiGraph) -> set[str] | None:
+def select_by_mark(session: Session, dag: DiGraph[str, DagNode]) -> set[str] | None:
     """Deselect tests by marks."""
     matchexpr = session.config["marker_expression"]
     if not matchexpr:
@@ -236,7 +237,9 @@ def _deselect_others_with_mark(
             task.markers.append(mark)
 
 
-def select_tasks_by_marks_and_expressions(session: Session, dag: DiGraph) -> None:
+def select_tasks_by_marks_and_expressions(
+    session: Session, dag: DiGraph[str, DagNode]
+) -> None:
     """Modify the tasks which are executed with expressions and markers."""
     remaining = select_by_keyword(session, dag)
     if remaining is not None:

@@ -9,6 +9,7 @@ from typing import Any
 
 from pluggy import HookRelay
 
+from _pytask.dag_graph import DagNode
 from _pytask.dag_graph import DiGraph
 from _pytask.outcomes import ExitCode
 
@@ -51,7 +52,7 @@ class Session:
 
     config: dict[str, Any] = field(default_factory=dict)
     collection_reports: list[CollectionReport] = field(default_factory=list)
-    dag: DiGraph = field(default_factory=DiGraph)
+    dag: DiGraph[str, DagNode] = field(default_factory=DiGraph)
     hook: HookRelay = field(default_factory=HookRelay)
     tasks: list[PTask] = field(default_factory=list)
     dag_report: DagReport | None = None

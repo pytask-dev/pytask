@@ -16,6 +16,7 @@ from _pytask.console import console
 from _pytask.console import format_node_name
 from _pytask.console import format_task_name
 from _pytask.console import render_to_string
+from _pytask.dag_graph import DagNode
 from _pytask.dag_graph import DiGraph
 from _pytask.dag_graph import NoCycleError
 from _pytask.dag_graph import find_cycle
@@ -39,7 +40,7 @@ if TYPE_CHECKING:
 __all__ = ["create_dag", "create_dag_from_session"]
 
 
-def create_dag(session: Session) -> DiGraph:
+def create_dag(session: Session) -> DiGraph[str, DagNode]:
     """Create a directed acyclic graph (DAG) for the workflow."""
     try:
         dag = create_dag_from_session(session)
@@ -52,7 +53,7 @@ def create_dag(session: Session) -> DiGraph:
     return dag
 
 
-def create_dag_from_session(session: Session) -> DiGraph:
+def create_dag_from_session(session: Session) -> DiGraph[str, DagNode]:
     """Create a DAG from a session."""
     dag = _create_dag_from_tasks(tasks=session.tasks)
     _check_if_dag_has_cycles(dag)
@@ -62,14 +63,20 @@ def create_dag_from_session(session: Session) -> DiGraph:
     return dag
 
 
-def _create_dag_from_tasks(tasks: list[PTask]) -> DiGraph:
+def _create_dag_from_tasks(tasks: list[PTask]) -> DiGraph[str, DagNode]:
     """Create the DAG from tasks, dependencies and products."""
 
+    def _add_node_data(
+        dag: DiGraph[str, DagNode], node: PNode | PProvisionalNode
+    ) -> None:
+        dag.add_node(node.signature, DagNode.from_node(node))
+        if isinstance(node, PythonNode) and isinstance(node.value, PythonNode):
+            _add_node_data(dag, node.value)
+
     def _add_dependency(
-        dag: DiGraph, task: PTask, node: PNode | PProvisionalNode
+        dag: DiGraph[str, DagNode], task: PTask, node: PNode | PProvisionalNode
     ) -> None:
         """Add a dependency to the DAG."""
-        dag.add_node(node.signature, node=node)
         dag.add_edge(node.signature, task.signature)
 
         # If a node is a PythonNode wrapped in another PythonNode, it is a product from
@@ -78,34 +85,26 @@ def _create_dag_from_tasks(tasks: list[PTask]) -> DiGraph:
         if isinstance(node, PythonNode) and isinstance(node.value, PythonNode):
             dag.add_edge(node.value.signature, node.signature)
 
-    def _add_product(dag: DiGraph, task: PTask, node: PNode | PProvisionalNode) -> None:
+    def _add_product(
+        dag: DiGraph[str, DagNode], task: PTask, node: PNode | PProvisionalNode
+    ) -> None:
         """Add a product to the DAG."""
-        dag.add_node(node.signature, node=node)
         dag.add_edge(task.signature, node.signature)
 
-    dag = DiGraph()
+    dag = DiGraph[str, DagNode]()
 
     for task in tasks:
-        dag.add_node(task.signature, task=task)
+        dag.add_node(task.signature, DagNode.from_task(task))
+        tree_map(lambda x: _add_node_data(dag, x), task.depends_on)
+        tree_map(lambda x: _add_node_data(dag, x), task.produces)
 
+    for task in tasks:
         tree_map(lambda x: _add_dependency(dag, task, x), task.depends_on)
         tree_map(lambda x: _add_product(dag, task, x), task.produces)
-
-        # If a node is a PythonNode wrapped in another PythonNode, it is a product from
-        # another task that is a dependency in the current task. Thus, draw an edge
-        # connecting the two nodes.
-        tree_map(
-            lambda x: (
-                dag.add_edge(x.value.signature, x.signature)
-                if isinstance(x, PythonNode) and isinstance(x.value, PythonNode)
-                else None
-            ),
-            task.depends_on,
-        )
     return dag
 
 
-def _modify_dag(session: Session, dag: DiGraph) -> DiGraph:
+def _modify_dag(session: Session, dag: DiGraph[str, DagNode]) -> DiGraph[str, DagNode]:
     """Create dependencies between tasks when using ``@task(after=...)``."""
     temporary_id_to_task = {
         task.attributes["collection_id"]: task
@@ -129,7 +128,7 @@ def _modify_dag(session: Session, dag: DiGraph) -> DiGraph:
     return dag
 
 
-def _check_if_dag_has_cycles(dag: DiGraph) -> None:
+def _check_if_dag_has_cycles(dag: DiGraph[str, DagNode]) -> None:
     """Check if DAG has cycles."""
     try:
         cycles = find_cycle(dag)
@@ -145,7 +144,7 @@ def _check_if_dag_has_cycles(dag: DiGraph) -> None:
         raise ResolvingDependenciesError(msg)
 
 
-def _format_cycles(dag: DiGraph, cycles: list[tuple[str, str]]) -> str:
+def _format_cycles(dag: DiGraph[str, DagNode], cycles: list[tuple[str, str]]) -> str:
     """Format cycles as a paths connected by arrows."""
     chain = [
         x for i, x in enumerate(itertools.chain.from_iterable(cycles)) if i % 2 == 0
@@ -154,7 +153,7 @@ def _format_cycles(dag: DiGraph, cycles: list[tuple[str, str]]) -> str:
 
     lines: list[str] = []
     for x in chain:
-        node = dag.nodes[x].get("task") or dag.nodes[x].get("node")
+        node = dag.nodes[x].value
         if isinstance(node, PTask):
             short_name = format_task_name(node, editor_url_scheme="no_link").plain
         elif isinstance(node, (PNode, PProvisionalNode)):
@@ -176,12 +175,13 @@ def _format_dictionary_to_tree(dict_: dict[str, list[str]], title: str) -> str:
     return render_to_string(tree, console=console, strip_styles=True)
 
 
-def _check_if_tasks_have_the_same_products(dag: DiGraph, paths: list[Path]) -> None:
+def _check_if_tasks_have_the_same_products(
+    dag: DiGraph[str, DagNode], paths: list[Path]
+) -> None:
     nodes_created_by_multiple_tasks = []
 
     for node in dag.nodes:
-        is_node = "node" in dag.nodes[node]
-        if is_node:
+        if dag.nodes[node].node is not None:
             parents = list(dag.predecessors(node))
             if len(parents) > 1:
                 nodes_created_by_multiple_tasks.append(node)
@@ -189,11 +189,13 @@ def _check_if_tasks_have_the_same_products(dag: DiGraph, paths: list[Path]) -> N
     if nodes_created_by_multiple_tasks:
         dictionary = {}
         for node in nodes_created_by_multiple_tasks:
-            short_node_name = format_node_name(dag.nodes[node]["node"], paths).plain
+            short_node_name = format_node_name(
+                dag.nodes[node].node_or_raise(), paths
+            ).plain
             short_predecessors = reduce_names_of_multiple_nodes(
                 dag.predecessors(node), dag, paths
             )
-            dictionary[short_node_name] = short_predecessors
+            dictionary[short_node_name] = sorted(short_predecessors)
         text = _format_dictionary_to_tree(dictionary, "Products from multiple tasks:")
         msg = (
             f"There are some tasks which produce the same output. See the following "

@@ -7,7 +7,6 @@ import sys
 import time
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import cast
 
 from rich.text import Text
 
@@ -90,7 +89,7 @@ def pytask_execute_build(session: Session) -> bool | None:
     if isinstance(session.scheduler, TopologicalSorter):
         while session.scheduler.is_active():
             task_name = session.scheduler.get_ready()[0]
-            task = session.dag.nodes[task_name]["task"]
+            task = session.dag.nodes[task_name].task_or_raise()
             report = session.hook.pytask_execute_task_protocol(
                 session=session, task=task
             )
@@ -173,9 +172,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
     if not needs_to_be_executed:
         predecessors = set(dag.predecessors(task.signature)) | {task.signature}
         for node_signature in node_and_neighbors(dag, task.signature):
-            node = dag.nodes[node_signature].get("task") or dag.nodes[
-                node_signature
-            ].get("node")
+            node = dag.nodes[node_signature].value
 
             # Skip provisional nodes that are products since they do not have a state.
             if node_signature not in predecessors and isinstance(
@@ -190,8 +187,6 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
                     f"{node.name!r} during execution setup."
                 )
                 raise ExecutionError(msg)
-
-            node = cast("PTask | PNode", node)
 
             node_state = node.state()
 
@@ -258,7 +253,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
     # Create directory for product if it does not exist. Maybe this should be a `setup`
     # method for the node classes.
     for product in dag.successors(task.signature):
-        node = dag.nodes[product]["node"]
+        node = dag.nodes[product].node_or_raise()
         if isinstance(node, PPathNode):
             node.path.parent.mkdir(parents=True, exist_ok=True)
         if isinstance(node, DirectoryNode) and node.root_dir:
@@ -352,7 +347,7 @@ def pytask_execute_task_process_report(
         report.outcome = TaskOutcome.WOULD_BE_EXECUTED
 
         for descending_task_name in descending_tasks(task.signature, session.dag):
-            descending_task = session.dag.nodes[descending_task_name]["task"]
+            descending_task = session.dag.nodes[descending_task_name].task_or_raise()
             descending_task.markers.append(
                 Mark(
                     "would_be_executed",
@@ -365,7 +360,7 @@ def pytask_execute_task_process_report(
             )
     else:
         for descending_task_name in descending_tasks(task.signature, session.dag):
-            descending_task = session.dag.nodes[descending_task_name]["task"]
+            descending_task = session.dag.nodes[descending_task_name].task_or_raise()
             descending_task.markers.append(
                 Mark(
                     "skip_ancestor_failed",
