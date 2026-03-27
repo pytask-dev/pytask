@@ -36,8 +36,8 @@ class Session:
         Holds all hooks collected by pytask.
     tasks
         List of collected tasks.
-    dag_reports
-        Reports for resolving dependencies failed.
+    dag_report
+        Report for failed dependency resolution.
     execution_reports
         Reports for executed tasks.
     n_tasks_failed

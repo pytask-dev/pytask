@@ -24,12 +24,12 @@ check: lint typing test
 # Build documentation
 docs:
     uv run --group plugin-list python scripts/update_plugin_list.py
-    uv run --group docs zensical build
+    PYTASK_DOCS_VERSION="$(uv run --group docs python -c 'import importlib.metadata as m; print(m.version("pytask"))')" uv run --group docs zensical build
 
 # Serve documentation with auto-reload
 docs-serve:
     uv run --group plugin-list python scripts/update_plugin_list.py
-    uv run --group docs zensical serve -a 127.0.0.1:8000
+    PYTASK_DOCS_VERSION="$(uv run --group docs python -c 'import importlib.metadata as m; print(m.version("pytask"))')" uv run --group docs zensical serve -a 127.0.0.1:8000
 
 # Run tests with lowest dependency resolution (like CI)
 test-lowest:

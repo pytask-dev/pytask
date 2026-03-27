@@ -19,7 +19,7 @@ build:
       - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --group docs
     build:
       html:
-        - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv run --group docs zensical build
+        - PYTASK_DOCS_VERSION="$(UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv run --group docs python -c 'import importlib.metadata as m; print(m.version("pytask"))')" UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv run --group docs zensical build
     post_build:
       - mkdir -p "${READTHEDOCS_OUTPUT}/html"
       - cp -a docs/build/. "${READTHEDOCS_OUTPUT}/html/"

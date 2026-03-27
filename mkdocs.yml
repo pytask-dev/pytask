@@ -89,6 +89,7 @@ nav:
 
 theme:
   name: zensical
+  custom_dir: docs/theme_overrides
   logo: _static/images/pytask.svg
   favicon: _static/images/pytask.ico
   features:
@@ -170,3 +171,6 @@ extra_css:
 extra_javascript:
   - _static/js/termynal.js
   - _static/js/custom.js
+
+extra:
+  version: !ENV [PYTASK_DOCS_VERSION, ""]
