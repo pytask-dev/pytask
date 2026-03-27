@@ -106,7 +106,7 @@ def dag(**raw_config: Any) -> int:
             )
             session.hook.pytask_collect(session=session)
             session.dag = create_dag(session=session)
-            dag = _refine_dag(session).to_networkx()
+            dag = _to_visualization_graph(session)
             _write_graph(dag, session.config["output_path"], session.config["layout"])
 
         except CollectionError:  # pragma: no cover
@@ -179,16 +179,22 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
         session.hook.pytask_collect(session=session)
         session.dag = create_dag(session=session)
         session.hook.pytask_unconfigure(session=session)
-        return _refine_dag(session).to_networkx()
+        return _to_visualization_graph(session)
 
 
 def _refine_dag(session: Session) -> DiGraph:
     """Refine the dag for plotting."""
     dag = _shorten_node_labels(session.dag, session.config["paths"])
-    dag = _clean_dag(dag)
-    dag = _style_dag(dag)
-    dag.graph["graph"] = {"rankdir": session.config["rank_direction"].name}
+    return _clean_dag(dag)
 
+
+def _to_visualization_graph(session: Session) -> nx.DiGraph:
+    """Convert the internal DAG to a styled networkx graph for visualization."""
+    nx = cast("Any", import_optional_dependency("networkx"))
+    dag = _refine_dag(session).to_networkx()
+    dag.graph["graph"] = {"rankdir": session.config["rank_direction"].name}
+    shapes = {name: "hexagon" if "::task_" in name else "box" for name in dag.nodes}
+    nx.set_node_attributes(dag, shapes, "shape")
     return dag
 
 
@@ -205,13 +211,6 @@ def _clean_dag(dag: DiGraph) -> DiGraph:
     """Clean the DAG."""
     for node in dag.nodes:
         dag.nodes[node].clear()
-    return dag
-
-
-def _style_dag(dag: DiGraph) -> DiGraph:
-    """Style the DAG."""
-    shapes = {name: "hexagon" if "::task_" in name else "box" for name in dag.nodes}
-    dag.set_node_attributes(shapes, "shape")
     return dag
 
 

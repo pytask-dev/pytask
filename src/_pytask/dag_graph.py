@@ -12,6 +12,8 @@ from typing import cast
 from _pytask.compat import import_optional_dependency
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+    from collections.abc import Iterable
     from collections.abc import Iterator
 
 
@@ -26,7 +28,6 @@ class DiGraph:
     _node_attributes: dict[str, dict[str, Any]] = field(default_factory=dict)
     _successors: dict[str, dict[str, None]] = field(default_factory=dict)
     _predecessors: dict[str, dict[str, None]] = field(default_factory=dict)
-    graph: dict[str, Any] = field(default_factory=dict)
 
     @property
     def nodes(self) -> dict[str, dict[str, Any]]:
@@ -72,7 +73,6 @@ class DiGraph:
 
     def reverse(self) -> DiGraph:
         graph = DiGraph()
-        graph.graph = self.graph.copy()
         for node, attributes in self._node_attributes.items():
             graph.add_node(node, **attributes.copy())
         for source, successors in self._successors.items():
@@ -82,7 +82,6 @@ class DiGraph:
 
     def relabel_nodes(self, mapping: dict[str, str]) -> DiGraph:
         graph = DiGraph()
-        graph.graph = self.graph.copy()
 
         new_labels = [mapping.get(node, node) for node in self._node_attributes]
         if len(new_labels) != len(set(new_labels)):
@@ -97,15 +96,9 @@ class DiGraph:
                 graph.add_edge(new_source, mapping.get(target, target))
         return graph
 
-    def set_node_attributes(self, values: dict[str, Any], name: str) -> None:
-        for node, value in values.items():
-            if node in self._node_attributes:
-                self._node_attributes[node][name] = value
-
     def to_networkx(self) -> Any:
         nx = cast("Any", import_optional_dependency("networkx"))
         graph = nx.DiGraph()
-        graph.graph = self.graph.copy()
         for node, attributes in self._node_attributes.items():
             graph.add_node(node, **attributes.copy())
         for source, successors in self._successors.items():
@@ -127,7 +120,7 @@ def ancestors(dag: DiGraph, node: str) -> set[str]:
 def _traverse(
     _dag: DiGraph,
     node: str,
-    adjacency: Any,
+    adjacency: Callable[[str], Iterable[str]],
 ) -> set[str]:
     visited: set[str] = set()
     stack = list(adjacency(node))
