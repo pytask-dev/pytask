@@ -120,7 +120,11 @@ def test_raise_error_with_graph_via_cli_missing_optional_dependency(
 
     monkeypatch.setattr(
         "_pytask.compat.import_module",
-        lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: ARG005
+        lambda x: (
+            _raise_exc(ImportError("pygraphviz not found"))
+            if x == "pygraphviz"
+            else importlib.import_module(x)
+        ),
     )
 
     result = runner.invoke(
@@ -132,6 +136,33 @@ def test_raise_error_with_graph_via_cli_missing_optional_dependency(
     assert "pytask requires the optional dependency 'pygraphviz'." in result.output
     assert "pip" in result.output
     assert "conda" in result.output
+    assert "Traceback" not in result.output
+    assert not tmp_path.joinpath("dag.png").exists()
+
+
+def test_raise_error_with_graph_via_cli_missing_networkx(monkeypatch, tmp_path, runner):
+    source = """
+    from pathlib import Path
+
+    def task_example(path=Path("input.txt")): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("input.txt").touch()
+
+    monkeypatch.setattr(
+        "_pytask.compat.import_module",
+        lambda x: (
+            _raise_exc(ImportError("networkx not found")) if x == "networkx" else None
+        ),
+    )
+
+    result = runner.invoke(
+        cli,
+        ["dag", tmp_path.as_posix(), "-o", tmp_path.joinpath("dag.png"), "-l", "dot"],
+    )
+
+    assert result.exit_code == ExitCode.FAILED
+    assert "pytask requires the optional dependency 'networkx'." in result.output
     assert "Traceback" not in result.output
     assert not tmp_path.joinpath("dag.png").exists()
 
@@ -154,7 +185,11 @@ def test_raise_error_with_graph_via_task_missing_optional_dependency(
 
     monkeypatch.setattr(
         "_pytask.compat.import_module",
-        lambda x: _raise_exc(ImportError("pygraphviz not found")),  # noqa: ARG005
+        lambda x: (
+            _raise_exc(ImportError("pygraphviz not found"))
+            if x == "pygraphviz"
+            else importlib.import_module(x)
+        ),
     )
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
@@ -163,6 +198,39 @@ def test_raise_error_with_graph_via_task_missing_optional_dependency(
     assert "pytask requires the optional dependency 'pygraphviz'." in result.output
     assert "pip" in result.output
     assert "conda" in result.output
+    assert "Traceback" in result.output
+    assert not tmp_path.joinpath("dag.png").exists()
+
+
+def test_raise_error_with_graph_via_task_missing_networkx(
+    monkeypatch, tmp_path, runner
+):
+    source = """
+    import pytask
+    from pathlib import Path
+    import networkx as nx
+
+    def task_create_graph():
+        dag = pytask.build_dag({"paths": Path(__file__).parent})
+        graph = nx.nx_agraph.to_agraph(dag)
+        path = Path(__file__).parent.joinpath("dag.png")
+        graph.draw(path, prog="dot")
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    monkeypatch.setattr(
+        "_pytask.compat.import_module",
+        lambda x: (
+            _raise_exc(ImportError("networkx not found"))
+            if x == "networkx"
+            else importlib.import_module(x)
+        ),
+    )
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.FAILED
+    assert "pytask requires the optional dependency 'networkx'." in result.output
     assert "Traceback" in result.output
     assert not tmp_path.joinpath("dag.png").exists()
 

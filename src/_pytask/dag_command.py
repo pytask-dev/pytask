@@ -5,11 +5,11 @@ from __future__ import annotations
 import enum
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import cast
 
 import click
-import networkx as nx
 from rich.text import Text
 
 from _pytask.click import ColoredCommand
@@ -29,6 +29,11 @@ from _pytask.pluginmanager import storage
 from _pytask.session import Session
 from _pytask.shared import reduce_names_of_multiple_nodes
 from _pytask.traceback import Traceback
+
+if TYPE_CHECKING:
+    import networkx as nx
+
+    from _pytask.dag_graph import DAG
 
 
 class _RankDirection(enum.Enum):
@@ -92,6 +97,7 @@ def dag(**raw_config: Any) -> int:
     else:
         try:
             session.hook.pytask_log_session_header(session=session)
+            import_optional_dependency("networkx")
             import_optional_dependency("pygraphviz")
             check_for_optional_program(
                 session.config["layout"],
@@ -100,7 +106,7 @@ def dag(**raw_config: Any) -> int:
             )
             session.hook.pytask_collect(session=session)
             session.dag = create_dag(session=session)
-            dag = _refine_dag(session)
+            dag = _to_visualization_graph(session)
             _write_graph(dag, session.config["output_path"], session.config["layout"])
 
         except CollectionError:  # pragma: no cover
@@ -163,6 +169,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
 
     else:
         session.hook.pytask_log_session_header(session=session)
+        import_optional_dependency("networkx")
         import_optional_dependency("pygraphviz")
         check_for_optional_program(
             session.config["layout"],
@@ -172,44 +179,42 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
         session.hook.pytask_collect(session=session)
         session.dag = create_dag(session=session)
         session.hook.pytask_unconfigure(session=session)
-        return _refine_dag(session)
+        return _to_visualization_graph(session)
 
 
-def _refine_dag(session: Session) -> nx.DiGraph:
+def _refine_dag(session: Session) -> DAG:
     """Refine the dag for plotting."""
     dag = _shorten_node_labels(session.dag, session.config["paths"])
-    dag = _clean_dag(dag)
-    dag = _style_dag(dag)
+    return _clean_dag(dag)
+
+
+def _to_visualization_graph(session: Session) -> nx.DiGraph:
+    """Convert the internal DAG to a styled networkx graph for visualization."""
+    nx = cast("Any", import_optional_dependency("networkx"))
+    dag = _refine_dag(session).to_networkx()
     dag.graph["graph"] = {"rankdir": session.config["rank_direction"].name}
-
-    return dag
-
-
-def _shorten_node_labels(dag: nx.DiGraph, paths: list[Path]) -> nx.DiGraph:
-    """Shorten the node labels in the graph for a better experience."""
-    node_names = dag.nodes
-    short_names = reduce_names_of_multiple_nodes(node_names, dag, paths)
-    short_names = [i.plain if isinstance(i, Text) else i for i in short_names]
-    old_to_new = dict(zip(node_names, short_names, strict=False))
-    return nx.relabel_nodes(dag, old_to_new)
-
-
-def _clean_dag(dag: nx.DiGraph) -> nx.DiGraph:
-    """Clean the DAG."""
-    for node in dag.nodes:
-        dag.nodes[node].clear()
-    return dag
-
-
-def _style_dag(dag: nx.DiGraph) -> nx.DiGraph:
-    """Style the DAG."""
     shapes = {name: "hexagon" if "::task_" in name else "box" for name in dag.nodes}
     nx.set_node_attributes(dag, shapes, "shape")
     return dag
 
 
+def _shorten_node_labels(dag: DAG, paths: list[Path]) -> DAG:
+    """Shorten the node labels in the graph for a better experience."""
+    node_names = dag.nodes
+    short_names = reduce_names_of_multiple_nodes(node_names, dag, paths)
+    short_names = [i.plain if isinstance(i, Text) else i for i in short_names]
+    old_to_new = dict(zip(node_names, short_names, strict=False))
+    return dag.relabel_nodes(old_to_new)
+
+
+def _clean_dag(dag: DAG) -> DAG:
+    """Clean the DAG."""
+    return dag
+
+
 def _write_graph(dag: nx.DiGraph, path: Path, layout: str) -> None:
     """Write the graph to disk."""
+    nx = cast("Any", import_optional_dependency("networkx"))
     path.parent.mkdir(exist_ok=True, parents=True)
     graph = nx.nx_agraph.to_agraph(dag)
     graph.draw(path, prog=layout)

@@ -7,48 +7,44 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import TYPE_CHECKING
 
-import networkx as nx
-
+from _pytask.dag_graph import DAG
+from _pytask.dag_graph import NoCycleError
+from _pytask.dag_graph import find_cycle
 from _pytask.mark_utils import has_mark
+from _pytask.node_protocols import PTask
 
 if TYPE_CHECKING:
     from collections.abc import Generator
     from collections.abc import Iterable
 
-    from _pytask.node_protocols import PTask
 
-
-def descending_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, None]:
+def descending_tasks(task_name: str, dag: DAG) -> Generator[str, None, None]:
     """Yield only descending tasks."""
-    for descendant in nx.descendants(dag, task_name):
-        if "task" in dag.nodes[descendant]:
+    for descendant in dag.descendants(task_name):
+        if isinstance(dag.nodes[descendant], PTask):
             yield descendant
 
 
-def task_and_descending_tasks(
-    task_name: str, dag: nx.DiGraph
-) -> Generator[str, None, None]:
+def task_and_descending_tasks(task_name: str, dag: DAG) -> Generator[str, None, None]:
     """Yield task and descending tasks."""
     yield task_name
     yield from descending_tasks(task_name, dag)
 
 
-def preceding_tasks(task_name: str, dag: nx.DiGraph) -> Generator[str, None, None]:
+def preceding_tasks(task_name: str, dag: DAG) -> Generator[str, None, None]:
     """Yield only preceding tasks."""
-    for ancestor in nx.ancestors(dag, task_name):
-        if "task" in dag.nodes[ancestor]:
+    for ancestor in dag.ancestors(task_name):
+        if isinstance(dag.nodes[ancestor], PTask):
             yield ancestor
 
 
-def task_and_preceding_tasks(
-    task_name: str, dag: nx.DiGraph
-) -> Generator[str, None, None]:
+def task_and_preceding_tasks(task_name: str, dag: DAG) -> Generator[str, None, None]:
     """Yield task and preceding tasks."""
     yield task_name
     yield from preceding_tasks(task_name, dag)
 
 
-def node_and_neighbors(dag: nx.DiGraph, node: str) -> Iterable[str]:
+def node_and_neighbors(dag: DAG, node: str) -> Iterable[str]:
     """Yield node and neighbors which are first degree predecessors and successors.
 
     We cannot use ``dag.neighbors`` as it only considers successors as neighbors in a
@@ -77,30 +73,35 @@ class TopologicalSorter:
 
     """
 
-    dag: nx.DiGraph
+    dag: DAG
     priorities: dict[str, int] = field(default_factory=dict)
     _nodes_processing: set[str] = field(default_factory=set)
     _nodes_done: set[str] = field(default_factory=set)
 
     @classmethod
-    def from_dag(cls, dag: nx.DiGraph) -> TopologicalSorter:
+    def from_dag(cls, dag: DAG) -> TopologicalSorter:
         """Instantiate from a DAG."""
         cls.check_dag(dag)
 
-        tasks = [
-            dag.nodes[node]["task"] for node in dag.nodes if "task" in dag.nodes[node]
-        ]
+        tasks = [node for node in dag.nodes.values() if isinstance(node, PTask)]
         priorities = _extract_priorities_from_tasks(tasks)
 
         task_signatures = {task.signature for task in tasks}
-        task_dict = {s: nx.ancestors(dag, s) & task_signatures for s in task_signatures}
-        task_dag = nx.DiGraph(task_dict).reverse()
+        task_dag = DAG()
+        for signature in task_signatures:
+            task_dag.add_node(signature, dag.nodes[signature])
+        for signature in task_signatures:
+            # The scheduler graph uses edges from predecessor -> successor so that
+            # zero in-degree means "ready to run". This is the same orientation the
+            # previous networkx-based implementation reached after calling reverse().
+            for ancestor_ in dag.ancestors(signature) & task_signatures:
+                task_dag.add_edge(ancestor_, signature)
 
         return cls(dag=task_dag, priorities=priorities)
 
     @classmethod
     def from_dag_and_sorter(
-        cls, dag: nx.DiGraph, sorter: TopologicalSorter
+        cls, dag: DAG, sorter: TopologicalSorter
     ) -> TopologicalSorter:
         """Instantiate a sorter from another sorter and a DAG."""
         new_sorter = cls.from_dag(dag)
@@ -109,14 +110,10 @@ class TopologicalSorter:
         return new_sorter
 
     @staticmethod
-    def check_dag(dag: nx.DiGraph) -> None:
-        if not dag.is_directed():
-            msg = "Only directed graphs have a topological order."
-            raise ValueError(msg)
-
+    def check_dag(dag: DAG) -> None:
         try:
-            nx.algorithms.cycles.find_cycle(dag)
-        except nx.NetworkXNoCycle:
+            find_cycle(dag)
+        except NoCycleError:
             pass
         else:
             msg = "The DAG contains cycles."
