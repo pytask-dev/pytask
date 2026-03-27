@@ -17,7 +17,6 @@ from _pytask.console import format_node_name
 from _pytask.console import format_task_name
 from _pytask.console import render_to_string
 from _pytask.dag_graph import DAG
-from _pytask.dag_graph import DAGNode
 from _pytask.dag_graph import NoCycleError
 from _pytask.dag_graph import find_cycle
 from _pytask.exceptions import ResolvingDependenciesError
@@ -67,7 +66,7 @@ def _create_dag_from_tasks(tasks: list[PTask]) -> DAG:
     """Create the DAG from tasks, dependencies and products."""
 
     def _add_node_data(dag: DAG, node: PNode | PProvisionalNode) -> None:
-        dag.add_node(node.signature, DAGNode.from_node(node))
+        dag.add_node(node.signature, node)
         if isinstance(node, PythonNode) and isinstance(node.value, PythonNode):
             _add_node_data(dag, node.value)
 
@@ -88,7 +87,7 @@ def _create_dag_from_tasks(tasks: list[PTask]) -> DAG:
     dag = DAG()
 
     for task in tasks:
-        dag.add_node(task.signature, DAGNode.from_task(task))
+        dag.add_node(task.signature, task)
         tree_map(lambda x: _add_node_data(dag, x), task.depends_on)
         tree_map(lambda x: _add_node_data(dag, x), task.produces)
 
@@ -147,7 +146,7 @@ def _format_cycles(dag: DAG, cycles: list[tuple[str, str]]) -> str:
 
     lines: list[str] = []
     for x in chain:
-        node = dag.nodes[x].value
+        node = dag.nodes[x]
         if isinstance(node, PTask):
             short_name = format_task_name(node, editor_url_scheme="no_link").plain
         elif isinstance(node, (PNode, PProvisionalNode)):
@@ -173,7 +172,7 @@ def _check_if_tasks_have_the_same_products(dag: DAG, paths: list[Path]) -> None:
     nodes_created_by_multiple_tasks = []
 
     for node in dag.nodes:
-        if dag.nodes[node].node is not None:
+        if isinstance(dag.nodes[node], (PNode, PProvisionalNode)):
             parents = list(dag.predecessors(node))
             if len(parents) > 1:
                 nodes_created_by_multiple_tasks.append(node)
@@ -181,9 +180,11 @@ def _check_if_tasks_have_the_same_products(dag: DAG, paths: list[Path]) -> None:
     if nodes_created_by_multiple_tasks:
         dictionary = {}
         for node in nodes_created_by_multiple_tasks:
-            short_node_name = format_node_name(
-                dag.nodes[node].node_or_raise(), paths
-            ).plain
+            payload = dag.nodes[node]
+            if not isinstance(payload, (PNode, PProvisionalNode)):
+                msg = f"Expected product node for signature {node!r}."
+                raise TypeError(msg)
+            short_node_name = format_node_name(payload, paths).plain
             short_predecessors = reduce_names_of_multiple_nodes(
                 dag.predecessors(node), dag, paths
             )

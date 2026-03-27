@@ -116,7 +116,7 @@ def update_states_in_database(session: Session, task_signature: str) -> None:
     if _ENGINE is None:
         return
     for name in node_and_neighbors(session.dag, task_signature):
-        node = session.dag.nodes[name].value
+        node = session.dag.nodes[name]
         if isinstance(node, PProvisionalNode):
             continue
         hash_ = node.state()

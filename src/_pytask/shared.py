@@ -84,7 +84,7 @@ def reduce_names_of_multiple_nodes(
     """Reduce the names of multiple nodes in the DAG."""
     short_names = []
     for name in names:
-        node = dag.nodes[name].value
+        node = dag.nodes[name]
 
         if isinstance(node, PTask):
             short_name = format_task_name(node, editor_url_scheme="no_link").plain

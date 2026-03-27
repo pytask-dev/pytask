@@ -10,6 +10,9 @@ from typing import Any
 from typing import cast
 
 from _pytask.compat import import_optional_dependency
+from _pytask.node_protocols import PNode
+from _pytask.node_protocols import PProvisionalNode
+from _pytask.node_protocols import PTask
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -17,72 +20,27 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from collections.abc import Mapping
 
-    from _pytask.node_protocols import PNode
-    from _pytask.node_protocols import PProvisionalNode
-    from _pytask.node_protocols import PTask
+
+DAGEntry = PTask | PNode | PProvisionalNode
 
 
 class NoCycleError(Exception):
     """Raised when no cycle is found in a graph."""
 
 
-@dataclass(slots=True)
-class DAGNode:
-    """Payload stored for nodes in pytask's internal DAG."""
-
-    task: PTask | None = None
-    node: PNode | PProvisionalNode | None = None
-
-    def __post_init__(self) -> None:
-        if (self.task is None) == (self.node is None):
-            msg = "A DAG node must store exactly one of 'task' or 'node'."
-            raise ValueError(msg)
-
-    @classmethod
-    def from_task(cls, task: PTask) -> DAGNode:
-        """Create a DAG node from a task."""
-        return cls(task=task)
-
-    @classmethod
-    def from_node(cls, node: PNode | PProvisionalNode) -> DAGNode:
-        """Create a DAG node from a dependency or product node."""
-        return cls(node=node)
-
-    @property
-    def value(self) -> PTask | PNode | PProvisionalNode:
-        """Return the wrapped task or node."""
-        if self.task is not None:
-            return self.task
-        return cast("PNode | PProvisionalNode", self.node)
-
-    def task_or_raise(self) -> PTask:
-        """Return the wrapped task."""
-        if self.task is None:
-            msg = "Expected DAG payload to contain a task."
-            raise TypeError(msg)
-        return self.task
-
-    def node_or_raise(self) -> PNode | PProvisionalNode:
-        """Return the wrapped dependency or product node."""
-        if self.node is None:
-            msg = "Expected DAG payload to contain a node."
-            raise TypeError(msg)
-        return self.node
-
-
 @dataclass
 class DAG:
     """A minimal directed graph tailored to pytask's needs."""
 
-    _node_data: dict[str, DAGNode] = field(default_factory=dict)
+    _node_data: dict[str, DAGEntry] = field(default_factory=dict)
     _successors: dict[str, set[str]] = field(default_factory=dict)
     _predecessors: dict[str, set[str]] = field(default_factory=dict)
 
     @property
-    def nodes(self) -> dict[str, DAGNode]:
+    def nodes(self) -> dict[str, DAGEntry]:
         return self._node_data
 
-    def add_node(self, node_name: str, data: DAGNode) -> None:
+    def add_node(self, node_name: str, data: DAGEntry) -> None:
         if node_name not in self._node_data:
             self._successors[node_name] = set()
             self._predecessors[node_name] = set()

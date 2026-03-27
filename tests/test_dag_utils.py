@@ -7,7 +7,6 @@ from pathlib import Path
 import pytest
 
 from _pytask.dag_graph import DAG
-from _pytask.dag_graph import DAGNode
 from _pytask.dag_utils import TopologicalSorter
 from _pytask.dag_utils import _extract_priorities_from_tasks
 from _pytask.dag_utils import descending_tasks
@@ -25,8 +24,8 @@ def dag():
     for i in range(4):
         task = Task(base_name=str(i), path=Path(), function=noop)
         next_task = Task(base_name=str(i + 1), path=Path(), function=noop)
-        dag.add_node(task.signature, DAGNode.from_task(task))
-        dag.add_node(next_task.signature, DAGNode.from_task(next_task))
+        dag.add_node(task.signature, task)
+        dag.add_node(next_task.signature, next_task)
         dag.add_edge(task.signature, next_task.signature)
 
     return dag
@@ -39,47 +38,37 @@ def test_sort_tasks_topologically(dag):
         task_name = sorter.get_ready()[0]
         topo_ordering.append(task_name)
         sorter.done(task_name)
-    topo_names = [dag.nodes[sig].task_or_raise().name for sig in topo_ordering]
+    topo_names = [dag.nodes[sig].name for sig in topo_ordering]
     assert topo_names == [f".::{i}" for i in range(5)]
 
 
 def test_descending_tasks(dag):
     for i in range(5):
         task = next(
-            dag.nodes[sig].task_or_raise()
-            for sig in dag.nodes
-            if dag.nodes[sig].task_or_raise().name == f".::{i}"
+            dag.nodes[sig] for sig in dag.nodes if dag.nodes[sig].name == f".::{i}"
         )
         descendants = descending_tasks(task.signature, dag)
-        descendant_names = sorted(
-            dag.nodes[sig].task_or_raise().name for sig in descendants
-        )
+        descendant_names = sorted(dag.nodes[sig].name for sig in descendants)
         assert descendant_names == [f".::{i}" for i in range(i + 1, 5)]
 
 
 def test_task_and_descending_tasks(dag):
     for i in range(5):
         task = next(
-            dag.nodes[sig].task_or_raise()
-            for sig in dag.nodes
-            if dag.nodes[sig].task_or_raise().name == f".::{i}"
+            dag.nodes[sig] for sig in dag.nodes if dag.nodes[sig].name == f".::{i}"
         )
         descendants = task_and_descending_tasks(task.signature, dag)
-        descendant_names = sorted(
-            dag.nodes[sig].task_or_raise().name for sig in descendants
-        )
+        descendant_names = sorted(dag.nodes[sig].name for sig in descendants)
         assert descendant_names == [f".::{i}" for i in range(i, 5)]
 
 
 def test_node_and_neighbors(dag):
     for i in range(1, 4):
         task = next(
-            dag.nodes[sig].task_or_raise()
-            for sig in dag.nodes
-            if dag.nodes[sig].task_or_raise().name == f".::{i}"
+            dag.nodes[sig] for sig in dag.nodes if dag.nodes[sig].name == f".::{i}"
         )
         nodes = node_and_neighbors(dag, task.signature)
-        node_names = [dag.nodes[sig].task_or_raise().name for sig in nodes]
+        node_names = [dag.nodes[sig].name for sig in nodes]
         assert node_names == [f".::{j}" for j in range(i - 1, i + 2)]
 
 
@@ -176,7 +165,7 @@ def test_ask_for_invalid_number_of_ready_tasks(dag):
 
 
 def test_instantiate_sorter_from_other_sorter(dag):
-    name_to_sig = {dag.nodes[sig].task_or_raise().name: sig for sig in dag.nodes}
+    name_to_sig = {dag.nodes[sig].name: sig for sig in dag.nodes}
 
     scheduler = TopologicalSorter.from_dag(dag)
     for _ in range(2):
@@ -185,7 +174,7 @@ def test_instantiate_sorter_from_other_sorter(dag):
     assert scheduler._nodes_done == {name_to_sig[name] for name in (".::0", ".::1")}
 
     task = Task(base_name="5", path=Path(), function=noop)
-    dag.add_node(task.signature, DAGNode.from_task(task))
+    dag.add_node(task.signature, task)
     dag.add_edge(name_to_sig[".::4"], task.signature)
 
     new_scheduler = TopologicalSorter.from_dag_and_sorter(dag, scheduler)

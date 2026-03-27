@@ -51,7 +51,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
     if has_mark(task, "persist"):
         stateful_nodes: list[tuple[PTask | PNode, str | None]] = []
         for name in node_and_neighbors(session.dag, task.signature):
-            node = session.dag.nodes[name].value
+            node = session.dag.nodes[name]
             if isinstance(node, PProvisionalNode):
                 continue
             stateful_nodes.append((node, node.state()))

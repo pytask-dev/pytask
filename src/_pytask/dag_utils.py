@@ -13,18 +13,17 @@ from _pytask.dag_graph import ancestors
 from _pytask.dag_graph import descendants
 from _pytask.dag_graph import find_cycle
 from _pytask.mark_utils import has_mark
+from _pytask.node_protocols import PTask
 
 if TYPE_CHECKING:
     from collections.abc import Generator
     from collections.abc import Iterable
 
-    from _pytask.node_protocols import PTask
-
 
 def descending_tasks(task_name: str, dag: DAG) -> Generator[str, None, None]:
     """Yield only descending tasks."""
     for descendant in descendants(dag, task_name):
-        if dag.nodes[descendant].task is not None:
+        if isinstance(dag.nodes[descendant], PTask):
             yield descendant
 
 
@@ -37,7 +36,7 @@ def task_and_descending_tasks(task_name: str, dag: DAG) -> Generator[str, None, 
 def preceding_tasks(task_name: str, dag: DAG) -> Generator[str, None, None]:
     """Yield only preceding tasks."""
     for ancestor in ancestors(dag, task_name):
-        if dag.nodes[ancestor].task is not None:
+        if isinstance(dag.nodes[ancestor], PTask):
             yield ancestor
 
 
@@ -86,7 +85,7 @@ class TopologicalSorter:
         """Instantiate from a DAG."""
         cls.check_dag(dag)
 
-        tasks = [node.task for node in dag.nodes.values() if node.task is not None]
+        tasks = [node for node in dag.nodes.values() if isinstance(node, PTask)]
         priorities = _extract_priorities_from_tasks(tasks)
 
         task_signatures = {task.signature for task in tasks}
