@@ -152,7 +152,6 @@ def _format_cycles(dag: DAG, cycles: list[tuple[str, str]]) -> str:
         elif isinstance(node, (PNode, PProvisionalNode)):
             short_name = node.name
         lines.extend((short_name, "     " + ARROW_DOWN_ICON))
-    # Join while removing last arrow.
     return "\n".join(lines[:-1])
 
 

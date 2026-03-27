@@ -127,9 +127,7 @@ class DAG:
         return visited
 
 
-def find_cycle(
-    dag: DAG,
-) -> list[tuple[str, str]]:
+def find_cycle(dag: DAG) -> list[tuple[str, str]]:
     """Find one cycle in the graph."""
     visited: set[str] = set()
     active: set[str] = set()

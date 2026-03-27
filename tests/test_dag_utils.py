@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-from contextlib import ExitStack as does_not_raise  # noqa: N813
 from pathlib import Path
 
 import pytest
 
 from _pytask.dag_graph import DAG
-from _pytask.dag_utils import TopologicalSorter
-from _pytask.dag_utils import _extract_priorities_from_tasks
 from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.dag_utils import task_and_descending_tasks
+from _pytask.scheduler import SimpleScheduler
 from pytask import Mark
 from pytask import Task
 from tests.conftest import noop
@@ -31,7 +29,7 @@ def dag():
 
 
 def test_sort_tasks_topologically(dag):
-    sorter = TopologicalSorter.from_dag(dag)
+    sorter = SimpleScheduler.from_dag(dag)
     topo_ordering = []
     while sorter.is_active():
         task_name = sorter.get_ready()[0]
@@ -71,70 +69,32 @@ def test_node_and_neighbors(dag):
         assert node_names == [f".::{j}" for j in range(i - 1, i + 2)]
 
 
-@pytest.mark.parametrize(
-    ("tasks", "expectation", "expected"),
-    [
-        pytest.param(
-            [
-                Task(
-                    base_name="1",
-                    path=Path(),
-                    function=None,  # type: ignore[arg-type]
-                    markers=[Mark("try_last", (), {})],
-                )
-            ],
-            does_not_raise(),
-            {"c12d8d4f7e2e3128d27878d1fb3d8e3583e90e68000a13634dfbf21f4d1456f3": -1},
-            id="test try_last",
-        ),
-        pytest.param(
-            [
-                Task(
-                    base_name="1",
-                    path=Path(),
-                    function=None,  # type: ignore[arg-type]
-                    markers=[Mark("try_first", (), {})],
-                )
-            ],
-            does_not_raise(),
-            {"c12d8d4f7e2e3128d27878d1fb3d8e3583e90e68000a13634dfbf21f4d1456f3": 1},
-            id="test try_first",
-        ),
-        pytest.param(
-            [Task(base_name="1", path=Path(), function=None, markers=[])],  # type: ignore[arg-type]
-            does_not_raise(),
-            {"c12d8d4f7e2e3128d27878d1fb3d8e3583e90e68000a13634dfbf21f4d1456f3": 0},
-            id="test no priority",
-        ),
-        pytest.param(
-            [
-                Task(
-                    base_name="1",
-                    path=Path(),
-                    function=None,  # type: ignore[arg-type]
-                    markers=[Mark("try_first", (), {})],
-                ),
-                Task(base_name="2", path=Path(), function=None, markers=[]),  # type: ignore[arg-type]
-                Task(
-                    base_name="3",
-                    path=Path(),
-                    function=None,  # type: ignore[arg-type]
-                    markers=[Mark("try_last", (), {})],
-                ),
-            ],
-            does_not_raise(),
-            {
-                "c12d8d4f7e2e3128d27878d1fb3d8e3583e90e68000a13634dfbf21f4d1456f3": 1,
-                "c5f667e69824043475b1283ed8920e513cb4343ec7077f71a3d9f5972f5204b9": 0,
-                "dca295f815f54d282b33e8d9398cea4962d0dfbe881d2ab28fc48ff9e060203a": -1,
-            },
-        ),
-    ],
-)
-def test_extract_priorities_from_tasks(tasks, expectation, expected):
-    with expectation:
-        result = _extract_priorities_from_tasks(tasks)
-        assert result == expected
+def test_prioritize_try_first_and_try_last_tasks():
+    dag = DAG()
+    first = Task(
+        base_name="first",
+        path=Path(),
+        function=noop,
+        markers=[Mark("try_first", (), {})],
+    )
+    default = Task(base_name="default", path=Path(), function=noop)
+    last = Task(
+        base_name="last",
+        path=Path(),
+        function=noop,
+        markers=[Mark("try_last", (), {})],
+    )
+
+    for task in (first, default, last):
+        dag.add_node(task.signature, task)
+
+    scheduler = SimpleScheduler.from_dag(dag)
+
+    first_batch = scheduler.get_ready(3)
+    first_batch_names = [dag.nodes[sig].name for sig in first_batch]
+
+    assert first_batch_names[-1] == ".::first"
+    assert first_batch_names[0] == ".::last"
 
 
 def test_raise_error_for_cycle_in_graph(dag):
@@ -143,11 +103,11 @@ def test_raise_error_for_cycle_in_graph(dag):
         "55c6cef62d3e62d5f8fc65bb846e66d8d0d3ca60608c04f6f7b095ea073a7dcf",
     )
     with pytest.raises(ValueError, match=r"The DAG contains cycles\."):
-        TopologicalSorter.from_dag(dag)
+        SimpleScheduler.from_dag(dag)
 
 
 def test_ask_for_invalid_number_of_ready_tasks(dag):
-    scheduler = TopologicalSorter.from_dag(dag)
+    scheduler = SimpleScheduler.from_dag(dag)
     with pytest.raises(ValueError, match="'n' must be"):
         scheduler.get_ready(0)
 
@@ -155,7 +115,7 @@ def test_ask_for_invalid_number_of_ready_tasks(dag):
 def test_instantiate_sorter_from_other_sorter(dag):
     name_to_sig = {dag.nodes[sig].name: sig for sig in dag.nodes}
 
-    scheduler = TopologicalSorter.from_dag(dag)
+    scheduler = SimpleScheduler.from_dag(dag)
     for _ in range(2):
         task_name = scheduler.get_ready()[0]
         scheduler.done(task_name)
@@ -165,7 +125,7 @@ def test_instantiate_sorter_from_other_sorter(dag):
     dag.add_node(task.signature, task)
     dag.add_edge(name_to_sig[".::4"], task.signature)
 
-    new_scheduler = TopologicalSorter.from_dag_and_sorter(dag, scheduler)
+    new_scheduler = scheduler.rebuild(dag)
     while new_scheduler.is_active():
         task_name = new_scheduler.get_ready()[0]
         new_scheduler.done(task_name)

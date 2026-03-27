@@ -147,9 +147,7 @@ def build_dag(raw_config: dict[str, Any]) -> nx.DiGraph:
         pm = get_plugin_manager()
         storage.store(pm)
 
-        # If someone called the programmatic interface, we need to do some parsing.
         if "command" not in raw_config:
-            # Add defaults from cli.
             from _pytask.cli import DEFAULTS_FROM_CLI  # noqa: PLC0415
 
             raw_config = normalize_programmatic_config(
