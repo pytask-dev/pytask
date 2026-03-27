@@ -173,4 +173,4 @@ extra_javascript:
   - _static/js/custom.js
 
 extra:
-  version: !ENV [PYTASK_DOCS_VERSION, ""]
+  version: ""
