@@ -86,10 +86,9 @@ def pytask_execute_log_start(session: Session) -> None:
 @hookimpl
 def pytask_execute_build(session: Session) -> bool | None:
     """Execute tasks."""
-    scheduler = session.scheduler
-    if scheduler is not None:
-        while scheduler.is_active():
-            task_name = scheduler.get_ready()[0]
+    if session.scheduler is not None:
+        while session.scheduler.is_active():
+            task_name = session.scheduler.get_ready()[0]
             task = session.dag.nodes[task_name]
             if not isinstance(task, PTask):
                 msg = f"Expected task node for signature {task_name!r}."
@@ -98,7 +97,7 @@ def pytask_execute_build(session: Session) -> bool | None:
                 session=session, task=task
             )
             session.execution_reports.append(report)
-            scheduler.done(task_name)
+            session.scheduler.done(task_name)
 
             if session.should_stop:
                 return True
