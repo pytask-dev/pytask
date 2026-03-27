@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Literal
-from typing import cast
 
 from sqlalchemy import create_engine
 from sqlalchemy import inspect
@@ -124,7 +123,6 @@ def update_states_in_database(session: Session, task_signature: str) -> None:
                 f"{node.name!r} when updating database states."
             )
             raise TypeError(msg)
-        node = cast("PTask | PNode", node)
         hash_ = node.state()
         if hash_ is None:
             continue
