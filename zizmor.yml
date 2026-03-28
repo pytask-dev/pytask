@@ -1,0 +1,5 @@
+rules:
+  dependabot-cooldown:
+    ignore:
+      # Keep security update PRs immediate instead of delaying them with cooldowns.
+      - dependabot.yml
