@@ -115,7 +115,7 @@ class ExecutionReport:
         yield ""
 
         for when, key, content in self.sections:
-            if key in ("stdout", "stderr") and self.show_capture in (
+            if key in ("stdout", "stderr", "log") and self.show_capture in (
                 ShowCapture(key),
                 ShowCapture.ALL,
             ):

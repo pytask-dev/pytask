@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
 from typing import NamedTuple
@@ -12,6 +13,7 @@ from _pytask.logging import pytask_log_session_footer
 from pytask import ExitCode
 from pytask import TaskOutcome
 from pytask import cli
+from tests.conftest import run_in_subprocess
 
 
 class DummyDist(NamedTuple):
@@ -97,6 +99,200 @@ def test_logging_of_outcomes(tmp_path, runner, func, expected_1, expected_2):
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert expected_2 in result.output
+
+
+def test_log_file_exports_logs(tmp_path, runner):
+    source = """
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    def task_example():
+        logger.warning("hello from task")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(
+        cli,
+        [
+            tmp_path.as_posix(),
+            "--log-file=build.log",
+            "--log-format=%(levelname)s:%(message)s",
+        ],
+    )
+
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("build.log").read_text() == "WARNING:hello from task\n"
+
+
+def test_build_log_file_exports_logs(tmp_path):
+    source = """
+    import logging
+    import sys
+    from pytask import build
+
+    logger = logging.getLogger(__name__)
+
+    def task_example(produces="out.txt"):
+        logger.warning("hello from task")
+        return "done"
+
+    if __name__ == "__main__":
+        session = build(
+            tasks=[task_example],
+            force=True,
+            log_file="build.log",
+            log_format="%(levelname)s:%(message)s",
+        )
+        sys.exit(session.exit_code)
+    """
+    tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
+
+    result = run_in_subprocess((sys.executable, "workflow.py"), cwd=tmp_path)
+
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("build.log").read_text() == "WARNING:hello from task\n"
+
+
+def test_log_cli_streams_logs(tmp_path):
+    source = """
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    def task_example():
+        logger.info("hello from live log")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = run_in_subprocess(
+        (
+            "pytask",
+            tmp_path.as_posix(),
+            "--log-cli",
+            "--log-cli-level=INFO",
+            "--log-cli-format=%(levelname)s:%(message)s",
+        ),
+        cwd=tmp_path,
+    )
+
+    assert result.exit_code == ExitCode.OK
+    assert "INFO:hello from live log" in result.stdout
+
+
+def test_build_log_cli_streams_logs(tmp_path):
+    source = """
+    import logging
+    import sys
+    from pathlib import Path
+    from pytask import build
+
+    logger = logging.getLogger(__name__)
+
+    def task_example(produces=Path("out.txt")):
+        logger.info("hello from live log")
+        produces.write_text("done")
+
+    if __name__ == "__main__":
+        session = build(
+            tasks=[task_example],
+            force=True,
+            log_cli=True,
+            log_cli_level="INFO",
+            log_cli_format="%(levelname)s:%(message)s",
+        )
+        sys.exit(session.exit_code)
+    """
+    tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
+
+    result = run_in_subprocess((sys.executable, "workflow.py"), cwd=tmp_path)
+
+    assert result.exit_code == ExitCode.OK
+    assert "INFO:hello from live log" in result.stdout
+
+
+def test_log_cli_level_from_config_does_not_enable_live_logging(tmp_path):
+    source = """
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    def task_example():
+        logger.info("hello from live log")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("pyproject.toml").write_text(
+        textwrap.dedent(
+            """
+            [tool.pytask.ini_options]
+            log_cli = false
+            log_cli_level = "INFO"
+            log_cli_format = "%(levelname)s:%(message)s"
+            """
+        )
+    )
+
+    result = run_in_subprocess(("pytask", tmp_path.as_posix()), cwd=tmp_path)
+
+    assert result.exit_code == ExitCode.OK
+    assert "INFO:hello from live log" not in result.stdout
+
+
+@pytest.mark.parametrize(
+    ("destination_args", "expected_destination_output"),
+    [
+        (
+            (
+                "--log-cli",
+                "--log-cli-level=INFO",
+                "--log-cli-format=%(levelname)s:%(message)s",
+            ),
+            "INFO:hello from destination-specific log",
+        ),
+        (
+            (
+                "--log-file=build.log",
+                "--log-file-level=INFO",
+                "--log-file-format=%(levelname)s:%(message)s",
+            ),
+            None,
+        ),
+    ],
+    ids=["live-log", "log-file"],
+)
+def test_destination_specific_levels_do_not_affect_failure_report(
+    tmp_path, destination_args, expected_destination_output
+):
+    source = """
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    def task_example():
+        logger.info("hello from destination-specific log")
+        raise Exception("boom")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = run_in_subprocess(
+        (
+            "pytask",
+            tmp_path.as_posix(),
+            "--show-capture=log",
+            *destination_args,
+        ),
+        cwd=tmp_path,
+    )
+
+    assert result.exit_code == ExitCode.FAILED
+    assert "Captured log" not in result.stdout
+    if expected_destination_output is not None:
+        assert expected_destination_output in result.stdout
+    else:
+        assert (
+            tmp_path.joinpath("build.log").read_text()
+            == "INFO:hello from destination-specific log\n"
+        )
 
 
 @pytest.mark.parametrize(

@@ -85,8 +85,20 @@ def build(  # noqa: PLR0913
     paths: Path | Iterable[Path] = (),
     pdb: bool = False,
     pdb_cls: str = "",
+    log_date_format: str = "%H:%M:%S",
+    log_cli: bool = False,
+    log_cli_date_format: str | None = None,
+    log_cli_format: str | None = None,
+    log_cli_level: int | str | None = None,
+    log_file: Path | str | None = None,
+    log_file_date_format: str | None = None,
+    log_file_format: str | None = None,
+    log_file_level: int | str | None = None,
+    log_file_mode: Literal["w", "a"] = "w",
+    log_format: str = "%(levelname)-8s %(name)s:%(filename)s:%(lineno)d %(message)s",
+    log_level: int | str | None = None,
     s: bool = False,
-    show_capture: Literal["no", "stdout", "stderr", "all"]
+    show_capture: Literal["no", "stdout", "stderr", "log", "all"]
     | ShowCapture = ShowCapture.ALL,
     show_errors_immediately: bool = False,
     show_locals: bool = False,
@@ -148,9 +160,35 @@ def build(  # noqa: PLR0913
     pdb_cls : str, default=""
         Start a custom debugger on errors. For example:
         ``--pdbcls=IPython.terminal.debugger:TerminalPdb``
+    log_date_format : str, default="%H:%M:%S"
+        The date format used for captured logs.
+    log_cli : bool, default=False
+        Whether log records should be streamed to the terminal while tasks run.
+    log_cli_date_format : str | None, default=None
+        The date format used for live logs. Falls back to ``log_date_format``.
+    log_cli_format : str | None, default=None
+        The format used for live logs. Falls back to ``log_format``.
+    log_cli_level : int | str | None, default=None
+        The level of messages streamed live to the terminal. Falls back to
+        ``log_level``.
+    log_file : Path | str | None, default=None
+        A path to a file where logs from executed tasks should be written.
+    log_file_date_format : str | None, default=None
+        The date format used for exported logs. Falls back to ``log_date_format``.
+    log_file_format : str | None, default=None
+        The format used for exported logs. Falls back to ``log_format``.
+    log_file_level : int | str | None, default=None
+        The level of messages written to the log file. Falls back to ``log_level``.
+    log_file_mode : Literal["w", "a"], default="w"
+        The file mode used for the exported log file.
+    log_format : str, default="%(levelname)-8s %(name)s:%(filename)s:%(lineno)d "
+        "%(message)s"
+        The format used for captured logs.
+    log_level : int | str | None, default=None
+        The level of messages to capture. If not set, the logger configuration is used.
     s : bool, default=False
         Shortcut for ``capture="no"``.
-    show_capture : Literal["no", "stdout", "stderr", "all"] | ShowCapture
+    show_capture : Literal["no", "stdout", "stderr", "log", "all"] | ShowCapture
         Choose which captured output should be shown for failed tasks.
     show_errors_immediately : bool, default=False
         Show errors with tracebacks as soon as the task fails.
@@ -202,6 +240,18 @@ def build(  # noqa: PLR0913
             "paths": paths,
             "pdb": pdb,
             "pdb_cls": pdb_cls,
+            "log_date_format": log_date_format,
+            "log_cli": log_cli,
+            "log_cli_date_format": log_cli_date_format,
+            "log_cli_format": log_cli_format,
+            "log_cli_level": log_cli_level,
+            "log_file": log_file,
+            "log_file_date_format": log_file_date_format,
+            "log_file_format": log_file_format,
+            "log_file_level": log_file_level,
+            "log_file_mode": log_file_mode,
+            "log_format": log_format,
+            "log_level": log_level,
             "s": s,
             "show_capture": show_capture,
             "show_errors_immediately": show_errors_immediately,

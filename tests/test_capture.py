@@ -29,12 +29,14 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
 
-@pytest.mark.parametrize("show_capture", ["s", "no", "stdout", "stderr", "all"])
+@pytest.mark.parametrize("show_capture", ["s", "no", "stdout", "stderr", "log", "all"])
 def test_show_capture(tmp_path, runner, show_capture):
     source = """
+    import logging
     import sys
 
     def task_show_capture():
+        logging.getLogger(__name__).warning("yyyy")
         sys.stdout.write("xxxx")
         sys.stderr.write("zzzz")
         raise Exception
@@ -46,8 +48,13 @@ def test_show_capture(tmp_path, runner, show_capture):
 
     assert result.exit_code == ExitCode.FAILED
 
-    if show_capture in ("no", "s"):
+    if show_capture == "no":
         assert "Captured" not in result.output
+    elif show_capture == "s":
+        assert "Captured stdout" not in result.output
+        assert "Captured stderr" not in result.output
+        assert "Captured log" in result.output
+        assert "yyyy" in result.output
     elif show_capture == "stdout":
         assert "Captured stdout" in result.output
         assert "xxxx" in result.output
@@ -58,16 +65,24 @@ def test_show_capture(tmp_path, runner, show_capture):
         # assert "xxxx" not in result.output
         assert "Captured stderr" in result.output
         assert "zzzz" in result.output
+        assert "Captured log" not in result.output
+    elif show_capture == "log":
+        assert "Captured stdout" not in result.output
+        assert "Captured stderr" not in result.output
+        assert "Captured log" in result.output
+        assert "yyyy" in result.output
     elif show_capture == "all":
         assert "Captured stdout" in result.output
         assert "xxxx" in result.output
         assert "Captured stderr" in result.output
         assert "zzzz" in result.output
+        assert "Captured log" in result.output
+        assert "yyyy" in result.output
     else:  # pragma: no cover
         raise NotImplementedError
 
 
-@pytest.mark.parametrize("show_capture", ["no", "stdout", "stderr", "all"])
+@pytest.mark.parametrize("show_capture", ["no", "stdout", "stderr", "log", "all"])
 @pytest.mark.xfail(
     sys.platform == "win32",
     reason="Fails on Windows due to encoding.",
@@ -75,10 +90,12 @@ def test_show_capture(tmp_path, runner, show_capture):
 )
 def test_show_capture_with_build(tmp_path, show_capture):
     source = f"""
+    import logging
     import sys
     from pytask import build
 
     def task_show_capture():
+        logging.getLogger(__name__).warning("yyyy")
         sys.stdout.write("xxxx")
         sys.stderr.write("zzzz")
         raise Exception
@@ -105,11 +122,19 @@ def test_show_capture_with_build(tmp_path, show_capture):
         # assert "xxxx" not in result.stdout
         assert "Captured stderr" in result.stdout
         assert "zzzz" in result.stdout
+        assert "Captured log" not in result.stdout
+    elif show_capture == "log":
+        assert "Captured stdout" not in result.stdout
+        assert "Captured stderr" not in result.stdout
+        assert "Captured log" in result.stdout
+        assert "yyyy" in result.stdout
     elif show_capture == "all":
         assert "Captured stdout" in result.stdout
         assert "xxxx" in result.stdout
         assert "Captured stderr" in result.stdout
         assert "zzzz" in result.stdout
+        assert "Captured log" in result.stdout
+        assert "yyyy" in result.stdout
     else:  # pragma: no cover
         raise NotImplementedError
 

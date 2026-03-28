@@ -10,10 +10,13 @@ default.
 If the task fails, the output is shown along with the traceback to help you track down
 the error.
 
-## Default stdout/stderr/stdin capturing behavior
+## Default stdout/stderr/logging/stdin capturing behavior
 
 Any output sent to `stdout` and `stderr` is captured during task execution. pytask
 displays it only if the task fails in addition to the traceback.
+
+Log records emitted with Python's `logging` module are also captured during task
+execution and shown in their own report section for failing tasks.
 
 In addition, `stdin` is set to a "null" object which will fail on attempts to read from
 it because it is rarely desired to wait for interactive input when running automated
@@ -22,6 +25,11 @@ tasks.
 By default, capturing is done by intercepting writes to low-level file descriptors. This
 allows capturing output from simple `print` statements as well as output from a
 subprocess started by a task.
+
+!!! seealso
+
+    [Manage logging](../how_to_guides/logging.md) for a dedicated guide to captured logs,
+    live logs, log files, and logging configuration.
 
 ## Setting capturing methods or disabling capturing
 
