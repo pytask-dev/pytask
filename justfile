@@ -18,6 +18,10 @@ typing:
 lint:
     uvx prek run -a
 
+# Run static analysis for GitHub Actions
+zizmor:
+    uvx --from zizmor zizmor .
+
 # Run all checks (format, lint, typing, test)
 check: lint typing test
 
