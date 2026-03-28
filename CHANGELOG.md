@@ -7,6 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#837](https://github.com/pytask-dev/pytask/pull/837) skips incremental live
+  rendering on non-interactive output while preserving the final build table and
+  live-manager lifecycle.
 - [#830](https://github.com/pytask-dev/pytask/pull/830) replaces the internal
   `networkx` dependency with a pytask-owned DAG implementation, lazy-loads
   `networkx` only for DAG export and visualization, and makes the `networkx`
