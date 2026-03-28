@@ -7,9 +7,9 @@ from dataclasses import field
 from typing import TYPE_CHECKING
 from typing import Any
 
-import networkx as nx
 from pluggy import HookRelay
 
+from _pytask.dag_graph import DAG
 from _pytask.outcomes import ExitCode
 
 if TYPE_CHECKING:
@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from _pytask.reports import CollectionReport
     from _pytask.reports import DagReport
     from _pytask.reports import ExecutionReport
+    from _pytask.scheduler import PScheduler
     from _pytask.warnings_utils import WarningReport
 
 
@@ -51,7 +52,7 @@ class Session:
 
     config: dict[str, Any] = field(default_factory=dict)
     collection_reports: list[CollectionReport] = field(default_factory=list)
-    dag: nx.DiGraph = field(default_factory=nx.DiGraph)
+    dag: DAG = field(default_factory=DAG)
     hook: HookRelay = field(default_factory=HookRelay)
     tasks: list[PTask] = field(default_factory=list)
     dag_report: DagReport | None = None
@@ -64,7 +65,7 @@ class Session:
     execution_end: float = float("inf")
 
     n_tasks_failed: int = 0
-    scheduler: Any = None
+    scheduler: PScheduler | None = None
     should_stop: bool = False
     warnings: list[WarningReport] = field(default_factory=list)
 

@@ -7,6 +7,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#830](https://github.com/pytask-dev/pytask/pull/830) replaces the internal
+  `networkx` dependency with a pytask-owned DAG implementation, lazy-loads
+  `networkx` only for DAG export and visualization, and makes the `networkx`
+  dependency optional for core builds.
 - [#822](https://github.com/pytask-dev/pytask/pull/822) fixes unstable signatures
   for remote `UPath`-backed `PathNode`s and `PickleNode`s so unchanged remote inputs
   are no longer reported as missing from the state database on subsequent runs.

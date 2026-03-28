@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING
 from typing import Any
 
 from _pytask.dag_utils import node_and_neighbors
-from _pytask.database_utils import update_states_in_database as _db_update_states
 from _pytask.mark_utils import has_mark
+from _pytask.node_protocols import PProvisionalNode
 from _pytask.outcomes import Persisted
 from _pytask.outcomes import TaskOutcome
 from _pytask.pluginmanager import hookimpl
@@ -16,14 +16,10 @@ from _pytask.state import has_node_changed
 from _pytask.state import update_states
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import PNode
     from _pytask.node_protocols import PTask
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
-
-
-def update_states_in_database(session: Session, task_signature: str) -> None:
-    """Compatibility wrapper for older callers/tests."""
-    _db_update_states(session, task_signature)
 
 
 @hookimpl
@@ -47,12 +43,14 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
 
     """
     if has_mark(task, "persist"):
-        all_states = [
-            (
-                session.dag.nodes[name].get("task") or session.dag.nodes[name]["node"]
-            ).state()
-            for name in node_and_neighbors(session.dag, task.signature)
-        ]
+        stateful_nodes: list[tuple[PTask | PNode, str | None]] = []
+        for name in node_and_neighbors(session.dag, task.signature):
+            node = session.dag.nodes[name]
+            if isinstance(node, PProvisionalNode):
+                continue
+            stateful_nodes.append((node, node.state()))
+
+        all_states = [state for _, state in stateful_nodes]
         all_nodes_exist = all(all_states)
 
         if all_nodes_exist:
@@ -60,15 +58,10 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
                 has_node_changed(
                     session=session,
                     task=task,
-                    node=session.dag.nodes[name].get("task")
-                    or session.dag.nodes[name]["node"],
+                    node=node,
                     state=state,
                 )
-                for name, state in zip(
-                    node_and_neighbors(session.dag, task.signature),
-                    all_states,
-                    strict=False,
-                )
+                for node, state in stateful_nodes
             )
             if any_node_changed:
                 collect_provisional_products(session, task)

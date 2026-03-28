@@ -9,6 +9,7 @@ from _pytask.dag_utils import descending_tasks
 from _pytask.mark import Mark
 from _pytask.mark_utils import get_marks
 from _pytask.mark_utils import has_mark
+from _pytask.node_protocols import PTask
 from _pytask.outcomes import Skipped
 from _pytask.outcomes import SkippedAncestorFailed
 from _pytask.outcomes import SkippedUnchanged
@@ -17,7 +18,6 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.provisional_utils import collect_provisional_products
 
 if TYPE_CHECKING:
-    from _pytask.node_protocols import PTask
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
 
@@ -97,7 +97,13 @@ def pytask_execute_task_process_report(
             report.outcome = TaskOutcome.SKIP
 
             for descending_task_name in descending_tasks(task.signature, session.dag):
-                descending_task = session.dag.nodes[descending_task_name]["task"]
+                descending_task = session.dag.nodes[descending_task_name]
+                if not isinstance(descending_task, PTask):
+                    msg = (
+                        f"Expected descending task for signature "
+                        f"{descending_task_name!r}."
+                    )
+                    raise TypeError(msg)
                 descending_task.markers.append(
                     Mark(
                         "skip",

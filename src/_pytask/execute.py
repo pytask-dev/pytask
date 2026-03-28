@@ -17,7 +17,6 @@ from _pytask.console import create_url_style_for_task
 from _pytask.console import format_node_name
 from _pytask.console import format_strings_as_flat_tree
 from _pytask.console import unify_styles
-from _pytask.dag_utils import TopologicalSorter
 from _pytask.dag_utils import descending_tasks
 from _pytask.dag_utils import node_and_neighbors
 from _pytask.exceptions import ExecutionError
@@ -43,6 +42,7 @@ from _pytask.outcomes import count_outcomes
 from _pytask.pluginmanager import hookimpl
 from _pytask.provisional_utils import collect_provisional_products
 from _pytask.reports import ExecutionReport
+from _pytask.scheduler import SimpleScheduler
 from _pytask.state import get_node_change_info
 from _pytask.state import has_node_changed
 from _pytask.state import update_states
@@ -67,7 +67,7 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 def pytask_execute(session: Session) -> None:
     """Execute tasks."""
     session.hook.pytask_execute_log_start(session=session)
-    session.scheduler = TopologicalSorter.from_dag(session.dag)
+    session.scheduler = SimpleScheduler.from_dag(session.dag)
     session.hook.pytask_execute_build(session=session)
     session.hook.pytask_execute_log_end(
         session=session, reports=session.execution_reports
@@ -86,10 +86,13 @@ def pytask_execute_log_start(session: Session) -> None:
 @hookimpl
 def pytask_execute_build(session: Session) -> bool | None:
     """Execute tasks."""
-    if isinstance(session.scheduler, TopologicalSorter):
+    if session.scheduler is not None:
         while session.scheduler.is_active():
             task_name = session.scheduler.get_ready()[0]
-            task = session.dag.nodes[task_name]["task"]
+            task = session.dag.nodes[task_name]
+            if not isinstance(task, PTask):
+                msg = f"Expected task node for signature {task_name!r}."
+                raise TypeError(msg)
             report = session.hook.pytask_execute_task_protocol(
                 session=session, task=task
             )
@@ -172,15 +175,21 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
     if not needs_to_be_executed:
         predecessors = set(dag.predecessors(task.signature)) | {task.signature}
         for node_signature in node_and_neighbors(dag, task.signature):
-            node = dag.nodes[node_signature].get("task") or dag.nodes[
-                node_signature
-            ].get("node")
+            node = dag.nodes[node_signature]
 
             # Skip provisional nodes that are products since they do not have a state.
             if node_signature not in predecessors and isinstance(
                 node, PProvisionalNode
             ):
                 continue
+
+            # Provisional dependencies should have been resolved before task setup.
+            if isinstance(node, PProvisionalNode):
+                msg = (
+                    f"Task {task.name!r} still references provisional node "
+                    f"{node.name!r} during execution setup."
+                )
+                raise ExecutionError(msg)
 
             node_state = node.state()
 
@@ -241,7 +250,10 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
     # Create directory for product if it does not exist. Maybe this should be a `setup`
     # method for the node classes.
     for product in dag.successors(task.signature):
-        node = dag.nodes[product]["node"]
+        node = dag.nodes[product]
+        if not isinstance(node, (PNode, PProvisionalNode)):
+            msg = f"Expected product node for signature {product!r}."
+            raise TypeError(msg)
         if isinstance(node, PPathNode):
             node.path.parent.mkdir(parents=True, exist_ok=True)
         if isinstance(node, DirectoryNode) and node.root_dir:
@@ -335,7 +347,12 @@ def pytask_execute_task_process_report(
         report.outcome = TaskOutcome.WOULD_BE_EXECUTED
 
         for descending_task_name in descending_tasks(task.signature, session.dag):
-            descending_task = session.dag.nodes[descending_task_name]["task"]
+            descending_task = session.dag.nodes[descending_task_name]
+            if not isinstance(descending_task, PTask):
+                msg = (
+                    f"Expected descending task for signature {descending_task_name!r}."
+                )
+                raise TypeError(msg)
             descending_task.markers.append(
                 Mark(
                     "would_be_executed",
@@ -348,7 +365,12 @@ def pytask_execute_task_process_report(
             )
     else:
         for descending_task_name in descending_tasks(task.signature, session.dag):
-            descending_task = session.dag.nodes[descending_task_name]["task"]
+            descending_task = session.dag.nodes[descending_task_name]
+            if not isinstance(descending_task, PTask):
+                msg = (
+                    f"Expected descending task for signature {descending_task_name!r}."
+                )
+                raise TypeError(msg)
             descending_task.markers.append(
                 Mark(
                     "skip_ancestor_failed",
