@@ -7,6 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#836](https://github.com/pytask-dev/pytask/pull/836) hardens GitHub Actions
+  workflows with zizmor, pinned action SHAs, explicit permissions, and a dedicated
+  code-scanning upload workflow.
 - [#830](https://github.com/pytask-dev/pytask/pull/830) replaces the internal
   `networkx` dependency with a pytask-owned DAG implementation, lazy-loads
   `networkx` only for DAG export and visualization, and makes the `networkx`
