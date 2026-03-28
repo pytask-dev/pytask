@@ -437,10 +437,10 @@ class LoggingManager:
                 config["log_format"], datefmt=config["log_date_format"]
             ),
             live_log_handler=live_log_handler,
-            log_cli_level=log_cli_level,
+            log_cli_level=log_cli_level if live_log_handler is not None else None,
             log_level=config["log_level"],
             log_file_handler=log_file_handler,
-            log_file_level=log_file_level,
+            log_file_level=log_file_level if log_file_handler is not None else None,
         )
 
     @contextlib.contextmanager
@@ -453,11 +453,12 @@ class LoggingManager:
             handlers.append(self.log_file_handler)
 
         original_level = root_logger.level
+        report_level = self.log_level if self.log_level is not None else original_level
         configured_levels = [
             level
             for level in (
+                report_level,
                 self.log_cli_level,
-                self.log_level,
                 self.log_file_level,
             )
             if level not in (None, logging.NOTSET)
@@ -469,9 +470,7 @@ class LoggingManager:
             # reconfigures the root logger can affect pytask's own logging handlers.
             for handler in handlers:
                 handler.setLevel(
-                    self.log_level
-                    if handler is self.report_handler and self.log_level is not None
-                    else handler.level
+                    report_level if handler is self.report_handler else handler.level
                 )
                 root_logger.addHandler(handler)
 
@@ -562,7 +561,7 @@ def _create_log_file_handler(
 def _create_live_log_handler(
     *, config: dict[str, Any], log_cli_level: int | None
 ) -> logging.Handler | None:
-    if not (config["log_cli"] or config["log_cli_level"] is not None):
+    if not config["log_cli"]:
         return None
 
     live_log_handler = LiveLogHandler(plugin_manager=config["pm"])
