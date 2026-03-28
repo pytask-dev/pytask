@@ -7,6 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#837](https://github.com/pytask-dev/pytask/pull/837) skips incremental live
+  rendering on non-interactive output while preserving the final build table and
+  live-manager lifecycle.
 - [#836](https://github.com/pytask-dev/pytask/pull/836) hardens GitHub Actions
   workflows with zizmor, pinned action SHAs, explicit permissions, and a dedicated
   code-scanning upload workflow.
