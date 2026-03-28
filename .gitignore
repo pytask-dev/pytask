@@ -7,6 +7,8 @@ coverage.*
 .ipynb_checkpoints
 .tox
 .vscode
+.claude
+.codex
 _build
 __pycache__
 _generated
