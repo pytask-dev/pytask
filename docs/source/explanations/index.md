@@ -5,4 +5,5 @@ systems in general as well as its design.
 
 - [Why Pytask](why_pytask.md)
 - [Comparison To Other Tools](comparison_to_other_tools.md)
+- [Execution Policies](execution_policies.md)
 - [Pluggy](pluggy.md)

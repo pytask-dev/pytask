@@ -55,6 +55,13 @@ Use [`pytask build --clean-lockfile`](../commands/build.md#options) to rewrite
 `pytask.lock` with only currently collected tasks. The rewrite happens after a
 successful build and recomputes current state values without executing tasks again.
 
+!!! warning
+
+    This area is currently under discussion. If
+    [`pytask lock clean`](../commands/lock.md#clean) is introduced, it is still an open
+    question whether `--clean-lockfile` should remain as a build flag or be deprecated in
+    favor of the dedicated `lock` subcommand.
+
 ## File Format Reference
 
 ### Top-Level
