@@ -192,7 +192,8 @@ def _collect_not_collected_tasks(session: Session) -> None:
     for path in list(COLLECTED_TASKS):
         tasks = COLLECTED_TASKS.pop(path)
         for task in tasks:
-            name = task.pytask_meta.name  # type: ignore[attr-defined]
+            name = task.pytask_meta.name
+            assert name is not None
             node: PTask
             if path:
                 node = Task(base_name=name, path=path, function=task)

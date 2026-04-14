@@ -8,6 +8,7 @@ from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import Literal
 from typing import cast
 
 from rich.console import Console
@@ -32,7 +33,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from collections.abc import Iterable
     from collections.abc import Sequence
-    from enum import Enum
 
     from _pytask.node_protocols import PTask
     from _pytask.outcomes import CollectionOutcome
@@ -119,7 +119,10 @@ def render_to_string(
         except (AttributeError, IndexError, TypeError):
             theme = None
         render_console = Console(
-            color_system=console.color_system,  # type: ignore[invalid-argument-type]
+            color_system=cast(
+                "Literal['auto', 'standard', '256', 'truecolor', 'windows'] | None",
+                console.color_system,
+            ),
             force_terminal=True,
             width=console.width,
             no_color=False,
@@ -282,7 +285,7 @@ def unify_styles(*styles: str | Style) -> Style:
 
 
 def create_summary_panel(
-    counts: dict[Enum, int],
+    counts: dict[CollectionOutcome | TaskOutcome, int],
     outcome_enum: type[CollectionOutcome | TaskOutcome],
     description_total: str,
 ) -> Panel:
@@ -302,14 +305,14 @@ def create_summary_panel(
             grid.add_row(
                 Padding(str(value), pad=_HORIZONTAL_PADDING),
                 Padding(
-                    outcome.description,  # type: ignore[attr-defined]
+                    outcome.description,
                     pad=_HORIZONTAL_PADDING,
                 ),
                 Padding(
                     percentage,
                     pad=_HORIZONTAL_PADDING,
                 ),
-                style=outcome.style_textonly,  # type: ignore[attr-defined]
+                style=outcome.style_textonly,
             )
 
     return Panel(

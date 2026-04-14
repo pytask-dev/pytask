@@ -81,7 +81,9 @@ def remove_traceback_from_exc_info(
     exc_info: OptionalExceptionInfo,
 ) -> OptionalExceptionInfo:
     """Remove traceback from exception."""
-    return (exc_info[0], exc_info[1], None)  # type: ignore[return-value]
+    if exc_info[0] is None or exc_info[1] is None:
+        return (None, None, None)
+    return (exc_info[0], exc_info[1], None)
 
 
 def _remove_internal_traceback_frames_from_exc_info(

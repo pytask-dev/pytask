@@ -125,7 +125,8 @@ class DataCatalog:
                 )
             else:
                 self._entries[name] = self.default_node(name=name)
-            self.path.joinpath(f"{filename}-node.pkl").write_bytes(  # type: ignore[union-attr]
+            assert self.path is not None
+            self.path.joinpath(f"{filename}-node.pkl").write_bytes(
                 pickle.dumps(self._entries[name])
             )
         elif isinstance(node, (PNode, PProvisionalNode)):

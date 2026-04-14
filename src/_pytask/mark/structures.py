@@ -8,6 +8,8 @@ from typing import Any
 from _pytask.mark_utils import get_all_marks
 from _pytask.models import CollectionMetadata
 from _pytask.typing import TaskFunction
+from _pytask.typing import attach_task_metadata
+from _pytask.typing import is_task_decorator_target
 from _pytask.typing import is_task_function
 
 if TYPE_CHECKING:
@@ -174,9 +176,10 @@ def store_mark(obj: Callable[..., Any], mark: Mark) -> None:
     if isinstance(obj, TaskFunction):
         obj.pytask_meta.markers = [*get_unpacked_marks(obj), mark]
     else:
-        obj.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]
-            markers=[mark]
-        )
+        if not is_task_decorator_target(obj):
+            msg = "Marks can only be stored on user-defined callables."
+            raise TypeError(msg)
+        attach_task_metadata(obj, CollectionMetadata(markers=[mark]))
 
 
 _DEPRECATION_DECORATOR = """'@pytask.mark.{}' was removed in pytask v0.5.0. To upgrade \
