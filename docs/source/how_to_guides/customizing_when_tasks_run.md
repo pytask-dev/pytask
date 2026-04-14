@@ -93,7 +93,7 @@ from pathlib import Path
 import pytask
 
 
-def run_on(ctx): ...
+def run_on(task): ...
 
 
 @pytask.task(
@@ -104,11 +104,65 @@ def task_copy(depends_on: Path, produces: Path) -> None:
     produces.write_text(depends_on.read_text())
 ```
 
-The callable receives a context object as its first positional argument.
+The callable receives the current task as its first positional argument.
 
-The exact shape of `ctx` is still to be determined. The goal is to keep enough
-information available for advanced decisions without making the API harder to understand
-than necessary.
+A public helper can be used to read recorded state from the lockfile:
+
+- `pytask.get_recorded_state(task)` for the task itself
+- `pytask.get_recorded_state(task, node)` for a dependency or product node
+
+For example:
+
+```python
+from optree import tree_leaves
+
+import pytask
+
+
+def run_on(task) -> bool:
+    for node in tree_leaves(task.depends_on):
+        if node.state() != pytask.get_recorded_state(task, node):
+            return True
+    return task.state() != pytask.get_recorded_state(task)
+```
+
+An expiration rule after seven days could also inspect file modification times for
+path-based tasks and nodes. For example:
+
+```python
+from datetime import datetime, timedelta, timezone
+
+from optree import tree_leaves
+
+import pytask
+
+
+def run_on(task) -> bool:
+    deadline = datetime.now(timezone.utc) - timedelta(days=7)
+
+    if isinstance(task, pytask.PTaskWithPath):
+        modified = datetime.fromtimestamp(task.path.stat().st_mtime, tz=timezone.utc)
+        if modified < deadline:
+            return True
+
+    for node in tree_leaves(task.depends_on):
+        if isinstance(node, pytask.PPathNode):
+            modified = datetime.fromtimestamp(
+                node.path.stat().st_mtime, tz=timezone.utc
+            )
+            if modified < deadline:
+                return True
+
+    for node in tree_leaves(task.produces):
+        if isinstance(node, pytask.PPathNode):
+            modified = datetime.fromtimestamp(
+                node.path.stat().st_mtime, tz=timezone.utc
+            )
+            if modified < deadline:
+                return True
+
+    return False
+```
 
 The relevant use cases for a callable are currently:
 
