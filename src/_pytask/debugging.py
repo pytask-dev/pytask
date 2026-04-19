@@ -76,7 +76,8 @@ def _parse_pdbcls(value: str | None) -> tuple[str, str] | None:
             "Must be like 'IPython.terminal.debugger:TerminalPdb'"
         )
         raise ValueError(msg)
-    return tuple(split)  # type: ignore[return-value]
+    modname, classname = split
+    return modname, classname
 
 
 def _pdbcls_callback(
@@ -383,7 +384,8 @@ def wrap_function_for_post_mortem_debugging(session: Session, task: PTask) -> No
             console.rule("Traceback", characters=">", style="default")
             console.print(Traceback(exc_info))
 
-            post_mortem(exc_info[2])  # type: ignore[arg-type]
+            assert exc_info[2] is not None
+            post_mortem(exc_info[2])
 
             live_manager.resume()
             capman.resume()

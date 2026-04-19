@@ -400,13 +400,15 @@ class DirectoryNode(PProvisionalNode):
     def load(self, is_product: bool = False) -> Path:
         """Inject a path into the task when loaded as a product."""
         if is_product:
-            return self.root_dir  # type: ignore[return-value]
+            assert self.root_dir is not None
+            return self.root_dir
         msg = "'DirectoryNode' cannot be loaded as a dependency"  # pragma: no cover
         raise NotImplementedError(msg)  # pragma: no cover
 
     def collect(self) -> list[Path]:
         """Collect paths defined by the pattern."""
-        return list(self.root_dir.glob(self.pattern))  # type: ignore[union-attr]
+        assert self.root_dir is not None
+        return list(self.root_dir.glob(self.pattern))
 
 
 def get_state_of_path(path: NodePath) -> str | None:
