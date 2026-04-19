@@ -14,6 +14,8 @@ specific tasks with pytask.
 - [Functional Interface](functional_interface.md)
 - [Capture Warnings](capture_warnings.md)
 - [Manage Logging](logging.md)
+- [Customizing When Tasks Run](customizing_when_tasks_run.md)
+- [Reconciling Lockfile State](reconciling_lockfile_state.md)
 - [How To Influence Build Order](how_to_influence_build_order.md)
 - [Hashing Inputs Of Tasks](hashing_inputs_of_tasks.md)
 - [Using Task Returns](using_task_returns.md)

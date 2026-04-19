@@ -8,6 +8,7 @@ repos:
     -   id: check-merge-conflict
     -   id: check-vcs-permalinks
     -   id: check-yaml
+        exclude: (^mkdocs\.yml$)
     -   id: debug-statements
         exclude: (debugging\.py)
     -   id: end-of-file-fixer
