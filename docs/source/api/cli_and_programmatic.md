@@ -2,7 +2,8 @@
 
 This page documents the public CLI-related imports from `pytask`.
 
-For command usage and options, see the [CLI reference](../commands/index.md).
+For command usage and options, see the
+[command reference](../reference_guides/commands.md).
 
 ## Command Line Entry Point
 

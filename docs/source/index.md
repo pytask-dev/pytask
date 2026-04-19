@@ -71,4 +71,4 @@ If you want to know more about pytask, dive into one of the following topics.
   </a>
 </div>
 
-For command-line usage, see the [CLI reference](commands/index.md).
+For command-line usage, see the [command reference](reference_guides/commands.md).

@@ -44,7 +44,8 @@ There are three ways in which `pytask` can perform capturing:
     `sys.stderr`.
 
 You can influence output-capturing mechanisms from the command line with
-[`-s`](../commands/build.md#options) and [`--capture`](../commands/build.md#options):
+[`-s`](../reference_guides/commands.md#pytask-build--s) and
+[`--capture`](../reference_guides/commands.md#pytask-build--capture):
 
 ```console
 $ pytask -s                  # disable all capturing

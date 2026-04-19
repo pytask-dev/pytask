@@ -62,6 +62,7 @@ nav:
       - Pluggy: explanations/pluggy.md
   - Reference Guides:
       - Overview: reference_guides/index.md
+      - Commands: reference_guides/commands.md
       - Configuration: reference_guides/configuration.md
       - Lockfile: reference_guides/lockfile.md
       - Hook Specifications: reference_guides/hookspecs.md
@@ -77,14 +78,6 @@ nav:
       - Nodes And Tasks: api/nodes_and_tasks.md
       - Outcomes, Reports, And Warnings: api/outcomes_reports_and_warnings.md
       - Utilities And Typing: api/utilities_and_typing.md
-  - CLI:
-      - Overview: commands/index.md
-      - build: commands/build.md
-      - clean: commands/clean.md
-      - collect: commands/collect.md
-      - dag: commands/dag.md
-      - markers: commands/markers.md
-      - profile: commands/profile.md
   - Plugin List: plugin_list.md
   - Changelog: changes.md
 

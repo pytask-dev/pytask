@@ -27,11 +27,13 @@ check: lint typing test
 
 # Build documentation
 docs *FLAGS:
+    uv run python scripts/generate_cli_reference.py
     uv run --group plugin-list python scripts/update_plugin_list.py
     uv run --group docs zensical build {{FLAGS}}
 
 # Serve documentation with auto-reload
 docs-serve *FLAGS:
+    uv run python scripts/generate_cli_reference.py
     uv run --group plugin-list python scripts/update_plugin_list.py
     uv run --group docs zensical serve -a 127.0.0.1:8000 {{FLAGS}}
 

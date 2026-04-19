@@ -14,8 +14,8 @@ Use this checklist when you move a project to another machine or environment.
 
 1. **Update state once on the source machine.**
 
-Run a normal build with [`pytask build`](../commands/build.md) so `pytask.lock` is up to
-date:
+Run a normal build with [`pytask build`](../reference_guides/commands.md#pytask-build)
+so `pytask.lock` is up to date:
 
 ````
 ```console
@@ -85,7 +85,7 @@ tasks run. If tasks are removed or renamed, their old entries remain as stale da
 are ignored.
 
 To clean up stale entries without deleting the file, run
-[`pytask build --clean-lockfile`](../commands/build.md#options):
+[`pytask build --clean-lockfile`](../reference_guides/commands.md#pytask-build--clean-lockfile):
 
 ```console
 $ pytask build --clean-lockfile
