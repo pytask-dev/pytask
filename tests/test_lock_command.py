@@ -517,7 +517,9 @@ def test_lock_accept_fails_with_provisional_dependencies(runner, tmp_path):
 
     from pytask import DirectoryNode
 
-    def task_example(paths=DirectoryNode(pattern="*.txt")) -> Annotated[str, Path("out.txt")]:
+    def task_example(
+        paths=DirectoryNode(pattern="*.txt")
+    ) -> Annotated[str, Path("out.txt")]:
         raise RuntimeError("should not execute")
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
