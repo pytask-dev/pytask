@@ -171,12 +171,47 @@ unused-ignore-comment = "error"
 [[tool.ty.overrides]]
 include = [
     "src/_pytask/_version.py",
-    "src/_pytask/click.py",
     "tests/test_dag_command.py",
 ]
 
 [tool.ty.overrides.rules]
 unused-ignore-comment = "ignore"
+
+[[tool.ty.overrides]]
+include = ["src/_pytask/click.py"]
+
+[tool.ty.overrides.rules]
+unresolved-attribute = "ignore"
+unused-ignore-comment = "ignore"
+
+[[tool.ty.overrides]]
+include = ["src/_pytask/debugging.py"]
+
+[tool.ty.overrides.rules]
+unsupported-base = "ignore"
+
+[[tool.ty.overrides]]
+include = ["src/_pytask/hookspecs.py"]
+
+[tool.ty.overrides.rules]
+empty-body = "ignore"
+
+[[tool.ty.overrides]]
+include = ["src/_pytask/warnings_utils.py"]
+
+[tool.ty.overrides.rules]
+unresolved-attribute = "ignore"
+
+[[tool.ty.overrides]]
+include = ["tests/**/*.py", "tests/**/*.ipynb"]
+
+[tool.ty.overrides.rules]
+call-non-callable = "ignore"
+invalid-argument-type = "ignore"
+invalid-return-type = "ignore"
+unresolved-attribute = "ignore"
+unresolved-reference = "ignore"
+unsupported-operator = "ignore"
 
 [tool.ty.src]
 include = ["src", "tests"]

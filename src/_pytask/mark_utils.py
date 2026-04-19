@@ -12,6 +12,8 @@ from typing import Any
 from _pytask.models import CollectionMetadata
 from _pytask.node_protocols import PTask
 from _pytask.typing import TaskFunction
+from _pytask.typing import attach_task_metadata
+from _pytask.typing import is_task_decorator_target
 
 if TYPE_CHECKING:
     from _pytask.mark import Mark
@@ -32,7 +34,10 @@ def set_marks(obj_or_task: Any | PTask, marks: list[Mark]) -> Any | PTask:
     elif isinstance(obj_or_task, TaskFunction):
         obj_or_task.pytask_meta.markers = marks
     else:
-        obj_or_task.pytask_meta = CollectionMetadata(markers=marks)
+        if not is_task_decorator_target(obj_or_task):
+            msg = "Marks can only be stored on tasks or user-defined callables."
+            raise TypeError(msg)
+        attach_task_metadata(obj_or_task, CollectionMetadata(markers=marks))
     return obj_or_task
 
 

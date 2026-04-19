@@ -7,6 +7,7 @@ import sys
 import time
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 
 from rich.text import Text
 
@@ -220,7 +221,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
 
                     # Cast reason since get_node_change_info can return "unchanged"
                     # but we only call this when has_changed is True
-                    reason_typed: ReasonType = reason  # type: ignore[assignment]
+                    reason_typed = cast("ReasonType", reason)
                     change_reasons.append(
                         create_change_reason(
                             node=node,

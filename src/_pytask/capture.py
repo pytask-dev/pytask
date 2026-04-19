@@ -244,7 +244,7 @@ class DontReadFromInput(TextIO):
     @property
     def buffer(self) -> BinaryIO:
         # The str/bytes doesn't actually matter in this type, so OK to fake.
-        return self  # type: ignore[return-value]
+        return cast("BinaryIO", self)
 
 
 # Capture classes.
@@ -553,7 +553,7 @@ class FDCaptureBinary(FDCaptureBase[bytes]):
         res = self.tmpfile.buffer.read()
         self.tmpfile.seek(0)
         self.tmpfile.truncate()
-        return res  # type: ignore[return-value]
+        return cast("bytes", res)
 
     def writeorg(self, data: bytes) -> None:
         """Write to original file descriptor."""
@@ -656,8 +656,10 @@ class MultiCapture(Generic[AnyStr]):
         """Pop current snapshot out/err capture and flush to orig streams."""
         out, err = self.readouterr()
         if out:
+            assert self.out is not None
             self.out.writeorg(out)  # type: ignore[union-attr]
         if err:
+            assert self.err is not None
             self.err.writeorg(err)  # type: ignore[union-attr]
         return out, err
 
@@ -678,7 +680,8 @@ class MultiCapture(Generic[AnyStr]):
         if self.err:
             self.err.resume()
         if self._in_suspended:
-            self.in_.resume()  # type: ignore[union-attr]
+            assert self.in_ is not None
+            self.in_.resume()
             self._in_suspended = False
 
     def stop_capturing(self) -> None:
@@ -699,10 +702,9 @@ class MultiCapture(Generic[AnyStr]):
         return self._state == "started"
 
     def readouterr(self) -> CaptureResult[AnyStr]:
-        out = self.out.snap() if self.out else ""
-        err = self.err.snap() if self.err else ""
-        # Will be fixed by pytest. This type error is real, need to fix.
-        return CaptureResult(out, err)  # type: ignore[arg-type]
+        out = self.out.snap() if self.out else cast("AnyStr", "")
+        err = self.err.snap() if self.err else cast("AnyStr", "")
+        return CaptureResult(out, err)
 
 
 def _get_multicapture(method: CaptureMethod) -> MultiCapture[str]:

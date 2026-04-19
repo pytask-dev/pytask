@@ -4,6 +4,7 @@ import functools
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+from types import BuiltinFunctionType
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Final
@@ -24,7 +25,10 @@ __all__ = [
     "NodePath",
     "Product",
     "ProductType",
+    "TaskDecoratorTarget",
     "TaskFunction",
+    "attach_task_metadata",
+    "is_task_decorator_target",
     "is_task_function",
     "no_default",
 ]
@@ -43,7 +47,18 @@ class TaskFunction(Protocol):
     We don't require __name__ to support functools.partial.
     """
 
+    def __call__(self, *args: Any, **kwargs: Any) -> Any: ...
+
     pytask_meta: CollectionMetadata
+
+
+@runtime_checkable
+class TaskDecoratorTarget(Protocol):
+    """Protocol for callables that can store pytask metadata on ``__dict__``."""
+
+    __dict__: dict[str, Any]
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any: ...
 
 
 @dataclass(frozen=True)
@@ -60,6 +75,23 @@ def is_task_function(obj: Any) -> bool:
     return (callable(obj) and hasattr(obj, "__name__")) or (
         isinstance(obj, functools.partial) and hasattr(obj.func, "__name__")
     )
+
+
+def is_task_decorator_target(obj: Any) -> bool:
+    """Check if an object can store pytask metadata on itself."""
+    return (
+        is_task_function(obj)
+        and not isinstance(obj, BuiltinFunctionType)
+        and isinstance(obj, TaskDecoratorTarget)
+    )
+
+
+def attach_task_metadata(
+    obj: TaskDecoratorTarget, metadata: CollectionMetadata
+) -> None:
+    """Attach pytask metadata to a decorator target."""
+    attribute_name = "pytask_meta"
+    setattr(obj, attribute_name, metadata)
 
 
 def is_task_generator(task: PTask) -> bool:

@@ -12,11 +12,11 @@ from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import parse_collected_tasks_with_task_marker
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
     from pathlib import Path
 
     from _pytask.reports import CollectionReport
     from _pytask.session import Session
+    from _pytask.typing import TaskFunction
 
 
 @hookimpl
@@ -59,7 +59,7 @@ def pytask_collect_file(
 
 
 def _raise_error_when_task_functions_are_duplicated(
-    tasks: list[Callable[..., Any]],
+    tasks: list[TaskFunction],
 ) -> None:
     """Raise error when task functions are duplicated.
 

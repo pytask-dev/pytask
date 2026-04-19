@@ -25,7 +25,8 @@ from _pytask.models import CollectionMetadata
 from _pytask.shared import find_duplicates
 from _pytask.shared import unwrap_task_function
 from _pytask.typing import TaskFunction
-from _pytask.typing import is_task_function
+from _pytask.typing import attach_task_metadata
+from _pytask.typing import is_task_decorator_target as is_task_decorator_target_runtime
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -41,7 +42,7 @@ T = TypeVar("T", bound="Callable[..., Any]")
 
 def _is_task_decorator_target(obj: object) -> TypeGuard[Callable[..., Any]]:
     """Narrow objects accepted by bare ``@task`` usage to named callables."""
-    return is_task_function(obj)
+    return is_task_decorator_target_runtime(obj)
 
 
 __all__ = [
@@ -52,7 +53,7 @@ __all__ = [
 ]
 
 
-COLLECTED_TASKS: dict[Path | None, list[Callable[..., Any]]] = defaultdict(list)
+COLLECTED_TASKS: dict[Path | None, list[TaskFunction]] = defaultdict(list)
 """A container for collecting tasks.
 
 Tasks marked by the [`@task`][pytask.task] decorator can be generated in a loop
@@ -186,6 +187,9 @@ def task(  # noqa: PLR0913
                 "the builtin function in a function or lambda expression."
             )
             raise NotImplementedError(msg)
+        if not is_task_decorator_target_runtime(unwrapped):
+            msg = "Task functions must be user-defined callables or functools.partial."
+            raise TypeError(msg)
 
         path = get_file(unwrapped)
 
@@ -203,18 +207,22 @@ def task(  # noqa: PLR0913
             unwrapped.pytask_meta.produces = produces
             unwrapped.pytask_meta.annotation_locals = caller_locals
         else:
-            unwrapped.pytask_meta = CollectionMetadata(  # type: ignore[attr-defined]
-                after=parsed_after,
-                annotation_locals=caller_locals,
-                is_generator=is_generator,
-                id_=id,
-                kwargs=parsed_kwargs,
-                markers=[Mark("task", (), {})],
-                name=parsed_name,
-                produces=produces,
+            attach_task_metadata(
+                unwrapped,
+                CollectionMetadata(
+                    after=parsed_after,
+                    annotation_locals=caller_locals,
+                    is_generator=is_generator,
+                    id_=id,
+                    kwargs=parsed_kwargs,
+                    markers=[Mark("task", (), {})],
+                    name=parsed_name,
+                    produces=produces,
+                ),
             )
+            assert isinstance(unwrapped, TaskFunction)
 
-        if coiled_kwargs and isinstance(unwrapped, TaskFunction):
+        if coiled_kwargs:
             unwrapped.pytask_meta.attributes["coiled_kwargs"] = coiled_kwargs
 
         # Store it in the global variable ``COLLECTED_TASKS`` to avoid garbage
@@ -269,8 +277,8 @@ def _parse_after(
 
 
 def parse_collected_tasks_with_task_marker(
-    tasks: list[Callable[..., Any]],
-) -> dict[str, Callable[..., Any]]:
+    tasks: list[TaskFunction],
+) -> dict[str, TaskFunction]:
     """Parse collected tasks with a task marker."""
     parsed_tasks = _parse_tasks_with_preliminary_names(tasks)
     all_names = {i[0] for i in parsed_tasks}
@@ -289,8 +297,8 @@ def parse_collected_tasks_with_task_marker(
 
 
 def _parse_tasks_with_preliminary_names(
-    tasks: list[Callable[..., Any]],
-) -> list[tuple[str, Callable[..., Any]]]:
+    tasks: list[TaskFunction],
+) -> list[tuple[str, TaskFunction]]:
     """Parse tasks and generate preliminary names for tasks.
 
     The names are preliminary since they can be duplicated and need to be extended to
@@ -304,9 +312,9 @@ def _parse_tasks_with_preliminary_names(
     return parsed_tasks
 
 
-def _parse_task(task: Callable[..., Any]) -> tuple[str, Callable[..., Any]]:
+def _parse_task(task: TaskFunction) -> tuple[str, TaskFunction]:
     """Parse a single task."""
-    meta = task.pytask_meta  # type: ignore[attr-defined]
+    meta = task.pytask_meta
     task_name = getattr(task, "__name__", "_")
 
     if meta.name is None and task_name == "_":
@@ -354,24 +362,22 @@ def parse_keyword_arguments_from_signature_defaults(
 
 
 def _generate_ids_for_tasks(
-    tasks: list[tuple[str, Callable[..., Any]]],
-) -> dict[str, Callable[..., Any]]:
+    tasks: list[tuple[str, TaskFunction]],
+) -> dict[str, TaskFunction]:
     """Generate unique ids for parametrized tasks."""
     parameters = inspect.signature(tasks[0][1]).parameters
 
-    out = {}
+    out: dict[str, TaskFunction] = {}
     for i, (name, task) in enumerate(tasks):
-        if task.pytask_meta.id_ is not None:  # type: ignore[attr-defined]
-            id_ = f"{name}[{task.pytask_meta.id_}]"  # type: ignore[attr-defined]
+        if task.pytask_meta.id_ is not None:
+            id_ = f"{name}[{task.pytask_meta.id_}]"
         elif not parameters:
             id_ = f"{name}[{i}]"
         else:
             stringified_args = [
                 _arg_value_to_id_component(
                     arg_name=parameter,
-                    arg_value=task.pytask_meta.kwargs.get(  # type: ignore[attr-defined]
-                        parameter
-                    ),
+                    arg_value=task.pytask_meta.kwargs.get(parameter),
                     i=i,
                     id_func=None,
                 )

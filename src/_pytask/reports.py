@@ -48,7 +48,8 @@ class CollectionReport:
         self, console: Console, console_options: ConsoleOptions
     ) -> RenderResult:
         header = "Error" if self.node is None else f"Could not collect {self.node.name}"
-        traceback = Traceback(self.exc_info)  # type: ignore[arg-type]
+        assert self.exc_info is not None
+        traceback = Traceback(self.exc_info)
         yield Rule(
             Text(header, style=CollectionOutcome.FAIL.style),
             style=CollectionOutcome.FAIL.style,
@@ -107,7 +108,8 @@ class ExecutionReport:
             task=self.task, editor_url_scheme=self.editor_url_scheme
         )
         text = Text.assemble("Task ", task_name, " failed", style="failed")
-        traceback = Traceback(self.exc_info)  # type: ignore[arg-type]
+        assert self.exc_info is not None
+        traceback = Traceback(self.exc_info)
 
         yield Rule(text, style=self.outcome.style)
         yield ""
