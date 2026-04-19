@@ -1,96 +1,31 @@
-/* Classes for the index page. */
-.home-tiles {
-    display: grid;
+.home-card-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
-    margin: 1.25rem 0 1rem;
 }
 
-.home-tile {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.55rem;
-    padding: 1rem 1.1rem;
-    border: 1px solid rgba(15, 23, 42, 0.14);
-    border-radius: 14px;
-    background: #ffffff;
-    color: inherit;
-    text-decoration: none;
+.home-card-grid li {
     text-align: center;
-    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.11);
-    transition:
-        transform 120ms ease-in-out,
-        box-shadow 120ms ease-in-out,
-        border-color 120ms ease-in-out;
 }
 
-.home-tile,
-.home-tile:hover,
-.home-tile:focus,
-.home-tile:focus-visible,
-.home-tile * {
-    text-decoration: none;
-}
-
-.home-tile:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.16);
-    border-color: #91a9ca;
-}
-
-.md-typeset a.home-tile,
-.md-typeset a.home-tile:hover,
-.md-typeset a.home-tile:focus,
-.md-typeset a.home-tile:focus-visible,
-.md-typeset a.home-tile:active,
-.md-typeset a.home-tile:visited {
-    text-decoration: none !important;
-    border-bottom: 0 !important;
-    background-image: none !important;
-    color: inherit !important;
-}
-
-body[data-md-color-scheme="default"] .md-typeset a.home-tile,
-body[data-md-color-scheme="default"] .md-typeset a.home-tile:hover,
-body[data-md-color-scheme="default"] .md-typeset a.home-tile:focus,
-body[data-md-color-scheme="default"] .md-typeset a.home-tile:focus-visible,
-body[data-md-color-scheme="default"] .md-typeset a.home-tile:active,
-body[data-md-color-scheme="default"] .md-typeset a.home-tile:visited {
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-}
-
-.md-typeset a.home-tile *,
-.md-typeset a.home-tile:hover *,
-.md-typeset a.home-tile:focus *,
-.md-typeset a.home-tile:focus-visible *,
-.md-typeset a.home-tile:active *,
-.md-typeset a.home-tile:visited * {
-    text-decoration: none !important;
-    border-bottom: 0 !important;
-    background-image: none !important;
-}
-
-.home-tile h3 {
-    margin: 0;
-    font-size: 1.05rem;
-}
-
-.home-tile p {
-    margin: 0;
-    color: inherit;
-    line-height: 1.45;
-}
-
-.home-tile img {
+.home-card-icon {
+    display: block;
+    margin: 0 auto 0.75rem;
     width: 44px;
     height: 44px;
     object-fit: contain;
 }
 
+.home-card-title,
+.home-card-title:hover,
+.home-card-title:focus,
+.home-card-title:focus-visible,
+.home-card-title:visited {
+    color: inherit !important;
+    text-decoration: none !important;
+    font-size: 1.15em;
+}
+
 @media (max-width: 760px) {
-    .home-tiles {
+    .home-card-grid {
         grid-template-columns: 1fr;
     }
 }
@@ -98,32 +33,4 @@ body[data-md-color-scheme="default"] .md-typeset a.home-tile:visited {
 pre,
 li pre {
     padding-left: 0;
-}
-
-body[data-md-color-scheme="slate"] .home-tile {
-    border-color: rgba(203, 213, 225, 0.24);
-    background: rgba(15, 23, 42, 0.38);
-    box-shadow: 0 4px 12px rgba(2, 6, 23, 0.38);
-}
-
-body[data-md-color-scheme="slate"] .home-tile:hover {
-    border-color: rgba(147, 197, 253, 0.55);
-    box-shadow: 0 12px 26px rgba(2, 6, 23, 0.46);
-}
-
-body[data-md-color-scheme="slate"] .home-tile p {
-    color: inherit;
-}
-
-@media (prefers-color-scheme: dark) {
-    .home-tile {
-        border-color: rgba(203, 213, 225, 0.24);
-        background: rgba(15, 23, 42, 0.38);
-        box-shadow: 0 4px 12px rgba(2, 6, 23, 0.38);
-    }
-
-    .home-tile:hover {
-        border-color: rgba(147, 197, 253, 0.55);
-        box-shadow: 0 12px 26px rgba(2, 6, 23, 0.46);
-    }
 }

@@ -48,27 +48,32 @@ first [tutorial](tutorials/installation.md) for the installation and proceed fro
 
 If you want to know more about pytask, dive into one of the following topics.
 
-<div class="home-tiles">
-  <a class="home-tile" href="tutorials/index.html">
-    <img src="_static/images/light-bulb.svg" alt="Tutorials icon">
-    <h3>Tutorials</h3>
-    <p>Tutorials help you get started with pytask and build your first project.</p>
-  </a>
-  <a class="home-tile" href="how_to_guides/index.html">
-    <img src="_static/images/book.svg" alt="How-to guides icon">
-    <h3>How-to Guides</h3>
-    <p>Step-by-step instructions for concrete tasks and advanced workflows.</p>
-  </a>
-  <a class="home-tile" href="explanations/index.html">
-    <img src="_static/images/books.svg" alt="Explanations icon">
-    <h3>Explanations</h3>
-    <p>Background and conceptual context for design decisions in pytask.</p>
-  </a>
-  <a class="home-tile" href="reference_guides/index.html">
-    <img src="_static/images/coding.svg" alt="Reference guides icon">
-    <h3>Reference Guides</h3>
-    <p>API and implementation details for developers and plugin authors.</p>
-  </a>
+<div class="grid cards home-card-grid" markdown>
+
+- ![Tutorials icon](_static/images/light-bulb.svg){ .home-card-icon }
+
+    [__Tutorials__](tutorials/index.md){ .home-card-title }
+
+    Tutorials help you get started with pytask and build your first project.
+
+- ![How-to guides icon](_static/images/book.svg){ .home-card-icon }
+
+    [__How-to Guides__](how_to_guides/index.md){ .home-card-title }
+
+    Step-by-step instructions for concrete tasks and advanced workflows.
+
+- ![Explanations icon](_static/images/books.svg){ .home-card-icon }
+
+    [__Explanations__](explanations/index.md){ .home-card-title }
+
+    Background and conceptual context for design decisions in pytask.
+
+- ![Reference guides icon](_static/images/coding.svg){ .home-card-icon }
+
+    [__Reference Guides__](reference_guides/index.md){ .home-card-title }
+
+    API and implementation details for developers and plugin authors.
+
 </div>
 
 For command-line usage, see the [CLI reference](commands/index.md).
