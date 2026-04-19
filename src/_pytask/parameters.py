@@ -5,7 +5,6 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 from typing import TYPE_CHECKING
-from typing import cast
 
 import click
 from click import Context
@@ -13,6 +12,7 @@ from sqlalchemy.engine import URL
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import ArgumentError
 
+from _pytask.click import get_command
 from _pytask.config_utils import set_defaults_from_config
 from _pytask.path import import_path
 from _pytask.pluginmanager import hookimpl
@@ -180,13 +180,6 @@ _HOOK_MODULE_OPTION = click.Option(
 )
 
 
-def _get_command(cli: click.Group, name: str) -> click.Command:
-    command: click.Command = cli
-    for part in name.split():
-        command = cast("click.Group", command).commands[part]
-    return command
-
-
 @hookimpl(trylast=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Register general markers."""
@@ -203,7 +196,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         "markers",
         "profile",
     ):
-        target = _get_command(cli, command)
+        target = get_command(cli, command)
         target.params.extend((_CONFIG_OPTION, _HOOK_MODULE_OPTION, _PATH_ARGUMENT))
     for command in (
         "build",
@@ -214,7 +207,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         "lock reset",
         "profile",
     ):
-        target = _get_command(cli, command)
+        target = get_command(cli, command)
         target.params.extend([_IGNORE_OPTION, _EDITOR_URL_SCHEME_OPTION])
     for command in ("build",):
         cli.commands[command].params.append(_VERBOSE_OPTION)

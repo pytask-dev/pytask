@@ -43,6 +43,27 @@ if TYPE_CHECKING:
     from _pytask.lockfile import LockfileState
 
 
+def _add_lock_command_options(
+    *, dry_run_help: str
+) -> Callable[[Callable[..., None]], Callable[..., None]]:
+    def decorator(func: Callable[..., None]) -> Callable[..., None]:
+        func = click.option(
+            "--dry-run",
+            is_flag=True,
+            default=False,
+            help=dry_run_help,
+        )(func)
+        return click.option(
+            "-y",
+            "--yes",
+            is_flag=True,
+            default=False,
+            help="Apply the changes without prompting for confirmation.",
+        )(func)
+
+    return decorator
+
+
 @dataclass(slots=True)
 class _PlannedChange:
     kind: str
@@ -237,6 +258,7 @@ def _run_lock_command(
     planner: Callable[[Session], list[_PlannedChange]] | None = None,
     planner_with_tasks: Callable[[Session, list[PTask]], list[_PlannedChange]]
     | None = None,
+    select_tasks: Callable[[Session], list[PTask]] | None = None,
     empty_message: str,
 ) -> int:
     _validate_confirmation_options(raw_config)
@@ -259,11 +281,8 @@ def _run_lock_command(
             session.dag = create_dag(session=session)
 
             if planner_with_tasks is not None:
-                tasks = (
-                    _select_tasks_with_ancestors(session)
-                    if raw_config["subcommand"] == "accept"
-                    else _select_tasks_exact(session)
-                )
+                assert select_tasks is not None
+                tasks = select_tasks(session)
                 planned_changes = planner_with_tasks(session, tasks)
             else:
                 assert planner is not None
@@ -305,70 +324,40 @@ def lock() -> None:
 
 
 @lock.command(cls=ColoredCommand)
-@click.option(
-    "--dry-run",
-    is_flag=True,
-    default=False,
-    help="Show which recorded states would be updated without writing changes.",
-)
-@click.option(
-    "-y",
-    "--yes",
-    is_flag=True,
-    default=False,
-    help="Apply the changes without prompting for confirmation.",
+@_add_lock_command_options(
+    dry_run_help="Show which recorded states would be updated without writing changes."
 )
 def accept(**raw_config: Any) -> None:
     """Accept the current state for selected tasks and their ancestors."""
-    raw_config["subcommand"] = "accept"
     sys.exit(
         _run_lock_command(
             raw_config,
             planner_with_tasks=_plan_accept_changes,
+            select_tasks=_select_tasks_with_ancestors,
             empty_message="No lockfile entries need updating.",
         )
     )
 
 
 @lock.command(cls=ColoredCommand)
-@click.option(
-    "--dry-run",
-    is_flag=True,
-    default=False,
-    help="Show which recorded states would be removed without writing changes.",
-)
-@click.option(
-    "-y",
-    "--yes",
-    is_flag=True,
-    default=False,
-    help="Apply the changes without prompting for confirmation.",
+@_add_lock_command_options(
+    dry_run_help="Show which recorded states would be removed without writing changes."
 )
 def reset(**raw_config: Any) -> None:
     """Remove recorded state for selected tasks."""
-    raw_config["subcommand"] = "reset"
     sys.exit(
         _run_lock_command(
             raw_config,
             planner_with_tasks=_plan_reset_changes,
+            select_tasks=_select_tasks_exact,
             empty_message="No lockfile entries need removing.",
         )
     )
 
 
 @lock.command(cls=ColoredCommand)
-@click.option(
-    "--dry-run",
-    is_flag=True,
-    default=False,
-    help="Show which stale entries would be removed without writing changes.",
-)
-@click.option(
-    "-y",
-    "--yes",
-    is_flag=True,
-    default=False,
-    help="Apply the changes without prompting for confirmation.",
+@_add_lock_command_options(
+    dry_run_help="Show which stale entries would be removed without writing changes."
 )
 def clean(**raw_config: Any) -> None:
     """Remove stale lockfile entries which no longer correspond to collected tasks."""

@@ -6,12 +6,12 @@ import sys
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import cast
 
 import click
 from rich.table import Table
 
 from _pytask.click import ColoredCommand
+from _pytask.click import get_command
 from _pytask.console import console
 from _pytask.dag_utils import task_and_preceding_tasks
 from _pytask.exceptions import ConfigurationError
@@ -75,13 +75,6 @@ def markers(**raw_config: Any) -> NoReturn:
     sys.exit(session.exit_code)
 
 
-def _get_command(cli: click.Group, name: str) -> click.Command:
-    command: click.Command = cli
-    for part in name.split():
-        command = cast("click.Group", command).commands[part]
-    return command
-
-
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Add marker related options."""
@@ -110,7 +103,7 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
         ),
     ]
     for command in ("build", "clean", "collect", "lock accept", "lock reset"):
-        target = _get_command(cli, command)
+        target = get_command(cli, command)
         target.params.extend(additional_build_parameters)
 
 
