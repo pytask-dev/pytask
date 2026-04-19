@@ -70,5 +70,3 @@ If you want to know more about pytask, dive into one of the following topics.
     <p>API and implementation details for developers and plugin authors.</p>
   </a>
 </div>
-
-For command-line usage, see the [command reference](reference_guides/commands.md).
