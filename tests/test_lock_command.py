@@ -63,6 +63,20 @@ def _write_marked_chain_project(tmp_path):
     )
 
 
+def _write_single_task_project(tmp_path):
+    tmp_path.joinpath("task_example.py").write_text(
+        textwrap.dedent(
+            """
+            from pathlib import Path
+
+
+            def task_example(produces=Path("out.txt")):
+                produces.write_text("data")
+            """
+        )
+    )
+
+
 def _task_ids(tmp_path):
     lockfile = read_lockfile(tmp_path / "pytask.lock")
     assert lockfile is not None
@@ -126,7 +140,7 @@ def test_lock_accept_creates_lockfile_without_executing_tasks(runner, tmp_path):
     assert "should not execute" not in result.output
 
 
-def test_lock_accept_can_include_ancestors(runner, tmp_path):
+def test_lock_accept_includes_ancestors_of_selected_tasks(runner, tmp_path):
     _write_chain_project(tmp_path)
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
@@ -149,7 +163,6 @@ def test_lock_accept_can_include_ancestors(runner, tmp_path):
             "accept",
             "-k",
             "downstream",
-            "--with-ancestors",
             "--yes",
             tmp_path.as_posix(),
         ],
@@ -166,7 +179,7 @@ def test_lock_accept_can_include_ancestors(runner, tmp_path):
     )
 
 
-def test_lock_accept_can_include_descendants(runner, tmp_path):
+def test_lock_accept_does_not_include_descendants_of_selected_tasks(runner, tmp_path):
     _write_chain_project(tmp_path)
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
@@ -189,7 +202,6 @@ def test_lock_accept_can_include_descendants(runner, tmp_path):
             "accept",
             "-k",
             "upstream",
-            "--with-descendants",
             "--yes",
             tmp_path.as_posix(),
         ],
@@ -202,7 +214,7 @@ def test_lock_accept_can_include_descendants(runner, tmp_path):
     )
     assert (
         _task_state_by_suffix(tmp_path, "task_downstream.py::task_downstream")
-        != downstream_before
+        == downstream_before
     )
 
 
@@ -315,8 +327,7 @@ def test_lock_accept_interactive_only_applies_confirmed_changes(runner, tmp_path
             "lock",
             "accept",
             "-k",
-            "upstream",
-            "--with-descendants",
+            "downstream",
             tmp_path.as_posix(),
         ],
         input="y\nn\n",
@@ -531,7 +542,7 @@ def test_lock_accept_fails_with_provisional_dependencies(runner, tmp_path):
     assert "accepting lockfile state" in result.output
 
 
-def test_lock_reset_does_not_include_ancestors_by_default(runner, tmp_path):
+def test_lock_reset_only_affects_exact_selection(runner, tmp_path):
     _write_chain_project(tmp_path)
 
     result = runner.invoke(cli, [tmp_path.as_posix()])
@@ -543,52 +554,6 @@ def test_lock_reset_does_not_include_ancestors_by_default(runner, tmp_path):
 
     assert result.exit_code == ExitCode.OK
     assert _task_ids(tmp_path) == {"task_upstream.py::task_upstream"}
-
-
-def test_lock_reset_can_include_ancestors(runner, tmp_path):
-    _write_chain_project(tmp_path)
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-
-    result = runner.invoke(
-        cli,
-        [
-            "lock",
-            "reset",
-            "-k",
-            "downstream",
-            "--with-ancestors",
-            "--yes",
-            tmp_path.as_posix(),
-        ],
-    )
-
-    assert result.exit_code == ExitCode.OK
-    assert _task_ids(tmp_path) == set()
-
-
-def test_lock_reset_can_include_descendants(runner, tmp_path):
-    _write_chain_project(tmp_path)
-
-    result = runner.invoke(cli, [tmp_path.as_posix()])
-    assert result.exit_code == ExitCode.OK
-
-    result = runner.invoke(
-        cli,
-        [
-            "lock",
-            "reset",
-            "-k",
-            "upstream",
-            "--with-descendants",
-            "--yes",
-            tmp_path.as_posix(),
-        ],
-    )
-
-    assert result.exit_code == ExitCode.OK
-    assert _task_ids(tmp_path) == set()
 
 
 def test_lock_reset_uses_intersection_of_keyword_and_marker_selection(runner, tmp_path):
@@ -664,9 +629,6 @@ def test_lock_reset_interactive_only_applies_confirmed_changes(runner, tmp_path)
         [
             "lock",
             "reset",
-            "-k",
-            "upstream",
-            "--with-descendants",
             tmp_path.as_posix(),
         ],
         input="y\nn\n",
@@ -872,6 +834,190 @@ def test_lock_accept_followed_by_build_skips_changed_task(runner, tmp_path):
 
     assert result.exit_code == ExitCode.OK
     assert "2  Skipped because unchanged" in result.output
+
+
+class TestScenarios:
+    def test_lock_accept_and_reset_end_to_end_workflow_for_single_task(
+        self, runner, tmp_path
+    ):
+        _write_single_task_project(tmp_path)
+
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+
+        task = tmp_path / "task_example.py"
+        task.write_text(task.read_text() + "\n# changed without rerunning\n")
+
+        result = runner.invoke(
+            cli, ["lock", "accept", "-k", "example", "--yes", tmp_path.as_posix()]
+        )
+        assert result.exit_code == ExitCode.OK
+
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+        assert "1  Skipped because unchanged" in result.output
+
+        result = runner.invoke(
+            cli, ["lock", "reset", "-k", "example", "--yes", tmp_path.as_posix()]
+        )
+        assert result.exit_code == ExitCode.OK
+
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+        assert "1  Succeeded" in result.output
+
+    def test_lock_accept_downstream_target_then_build_skips_target_and_ancestors(
+        self, runner, tmp_path
+    ):
+        _write_chain_project(tmp_path)
+
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+
+        upstream = tmp_path / "task_upstream.py"
+        downstream = tmp_path / "task_downstream.py"
+        upstream.write_text(upstream.read_text() + "\n# changed upstream\n")
+        downstream.write_text(downstream.read_text() + "\n# changed downstream\n")
+
+        result = runner.invoke(
+            cli, ["lock", "accept", "-k", "downstream", "--yes", tmp_path.as_posix()]
+        )
+        assert result.exit_code == ExitCode.OK
+
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+        assert "2  Skipped because unchanged" in result.output
+
+    def test_lock_accept_upstream_target_then_build_only_runs_unaccepted_descendant(
+        self, runner, tmp_path
+    ):
+        _write_chain_project(tmp_path)
+
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+
+        upstream = tmp_path / "task_upstream.py"
+        downstream = tmp_path / "task_downstream.py"
+        upstream.write_text(upstream.read_text() + "\n# changed upstream\n")
+        downstream.write_text(downstream.read_text() + "\n# changed downstream\n")
+
+        result = runner.invoke(
+            cli, ["lock", "accept", "-k", "upstream", "--yes", tmp_path.as_posix()]
+        )
+        assert result.exit_code == ExitCode.OK
+
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+        assert "1  Succeeded" in result.output
+        assert "1  Skipped because unchanged" in result.output
+
+    def test_lock_accept_with_ancestors_then_exact_reset_reexecutes_only_target(
+        self, runner, tmp_path
+    ):
+        _write_chain_project(tmp_path)
+
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+
+        upstream = tmp_path / "task_upstream.py"
+        downstream = tmp_path / "task_downstream.py"
+        upstream.write_text(upstream.read_text() + "\n# changed upstream\n")
+        downstream.write_text(downstream.read_text() + "\n# changed downstream\n")
+
+        result = runner.invoke(
+            cli, ["lock", "accept", "-k", "downstream", "--yes", tmp_path.as_posix()]
+        )
+        assert result.exit_code == ExitCode.OK
+
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+        assert "2  Skipped because unchanged" in result.output
+
+        result = runner.invoke(
+            cli, ["lock", "reset", "-k", "downstream", "--yes", tmp_path.as_posix()]
+        )
+        assert result.exit_code == ExitCode.OK
+
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+        assert "1  Succeeded" in result.output
+        assert "1  Skipped because unchanged" in result.output
+
+    def test_lock_accept_interactive_partial_workflow_only_reexecutes_unaccepted_tasks(
+        self, runner, tmp_path
+    ):
+        _write_chain_project(tmp_path)
+
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+
+        upstream = tmp_path / "task_upstream.py"
+        downstream = tmp_path / "task_downstream.py"
+        upstream.write_text(upstream.read_text() + "\n# changed upstream\n")
+        downstream.write_text(downstream.read_text() + "\n# changed downstream\n")
+
+        result = runner.invoke(
+            cli,
+            ["lock", "accept", "-k", "downstream", tmp_path.as_posix()],
+            input="y\nn\n",
+        )
+        assert result.exit_code == ExitCode.OK
+
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+        assert "1  Succeeded" in result.output
+        assert "1  Skipped because unchanged" in result.output
+
+    def test_lock_clean_removes_stale_entries_without_accepting_new_tasks_workflow(
+        self, runner, tmp_path
+    ):
+        tmp_path.joinpath("task_alpha.py").write_text(
+            textwrap.dedent(
+                """
+                from pathlib import Path
+
+
+                def task_alpha(produces=Path("alpha.txt")):
+                    produces.write_text("alpha")
+                """
+            )
+        )
+        tmp_path.joinpath("task_beta.py").write_text(
+            textwrap.dedent(
+                """
+                from pathlib import Path
+
+
+                def task_beta(produces=Path("beta.txt")):
+                    produces.write_text("beta")
+                """
+            )
+        )
+
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+
+        tmp_path.joinpath("task_alpha.py").unlink()
+        tmp_path.joinpath("task_gamma.py").write_text(
+            textwrap.dedent(
+                """
+                from pathlib import Path
+
+
+                def task_gamma(produces=Path("gamma.txt")):
+                    produces.write_text("gamma")
+                """
+            )
+        )
+
+        result = runner.invoke(cli, ["lock", "clean", "--yes", tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+        assert _task_ids(tmp_path) == {"task_beta.py::task_beta"}
+
+        result = runner.invoke(cli, [tmp_path.as_posix()])
+        assert result.exit_code == ExitCode.OK
+        assert "1  Succeeded" in result.output
+        assert "1  Skipped because unchanged" in result.output
 
 
 @pytest.mark.parametrize(

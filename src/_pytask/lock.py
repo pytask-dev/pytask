@@ -15,7 +15,6 @@ from _pytask.click import ColoredCommand
 from _pytask.click import ColoredGroup
 from _pytask.console import console
 from _pytask.dag import create_dag
-from _pytask.dag_utils import task_and_descending_tasks
 from _pytask.dag_utils import task_and_preceding_tasks
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
@@ -25,6 +24,10 @@ from _pytask.exceptions import ResolvingDependenciesError
 from _pytask.lockfile import _build_task_entry
 from _pytask.lockfile import _TaskEntry
 from _pytask.lockfile import build_portable_task_id
+from _pytask.mark import Expression
+from _pytask.mark import KeywordMatcher
+from _pytask.mark import MarkMatcher
+from _pytask.mark import ParseError
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
@@ -37,7 +40,6 @@ from _pytask.traceback import Traceback
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from _pytask.dag_graph import DAG
     from _pytask.lockfile import LockfileState
 
 
@@ -55,10 +57,6 @@ def _validate_confirmation_options(raw_config: dict[str, Any]) -> None:
 
 
 def _keyword_filter(tasks: list[PTask], expression: str) -> set[str]:
-    from _pytask.mark import Expression  # noqa: PLC0415
-    from _pytask.mark import KeywordMatcher  # noqa: PLC0415
-    from _pytask.mark import ParseError  # noqa: PLC0415
-
     try:
         compiled = Expression.compile_(expression)
     except ParseError as e:
@@ -73,10 +71,6 @@ def _keyword_filter(tasks: list[PTask], expression: str) -> set[str]:
 
 
 def _marker_filter(tasks: list[PTask], expression: str) -> set[str]:
-    from _pytask.mark import Expression  # noqa: PLC0415
-    from _pytask.mark import MarkMatcher  # noqa: PLC0415
-    from _pytask.mark import ParseError  # noqa: PLC0415
-
     try:
         compiled = Expression.compile_(expression)
     except ParseError as e:
@@ -90,32 +84,7 @@ def _marker_filter(tasks: list[PTask], expression: str) -> set[str]:
     }
 
 
-def _expand_task_selection(
-    task_signatures: set[str],
-    dag: DAG,
-    *,
-    with_ancestors: bool,
-    with_descendants: bool,
-) -> set[str]:
-    selected = set(task_signatures)
-    if with_ancestors:
-        selected |= set(
-            chain.from_iterable(
-                task_and_preceding_tasks(signature, dag)
-                for signature in task_signatures
-            )
-        )
-    if with_descendants:
-        selected |= set(
-            chain.from_iterable(
-                task_and_descending_tasks(signature, dag)
-                for signature in task_signatures
-            )
-        )
-    return selected
-
-
-def _select_tasks(session: Session) -> list[PTask]:
+def _select_tasks_exact(session: Session) -> list[PTask]:
     selected = {task.signature for task in session.tasks}
 
     expression = session.config.get("expression")
@@ -126,11 +95,15 @@ def _select_tasks(session: Session) -> list[PTask]:
     if marker_expression:
         selected &= _marker_filter(session.tasks, marker_expression)
 
-    selected = _expand_task_selection(
-        selected,
-        session.dag,
-        with_ancestors=session.config.get("with_ancestors", False),
-        with_descendants=session.config.get("with_descendants", False),
+    return [task for task in session.tasks if task.signature in selected]
+
+
+def _select_tasks_with_ancestors(session: Session) -> list[PTask]:
+    selected = {task.signature for task in _select_tasks_exact(session)}
+    selected |= set(
+        chain.from_iterable(
+            task_and_preceding_tasks(signature, session.dag) for signature in selected
+        )
     )
     return [task for task in session.tasks if task.signature in selected]
 
@@ -286,7 +259,11 @@ def _run_lock_command(
             session.dag = create_dag(session=session)
 
             if planner_with_tasks is not None:
-                tasks = _select_tasks(session)
+                tasks = (
+                    _select_tasks_with_ancestors(session)
+                    if raw_config["subcommand"] == "accept"
+                    else _select_tasks_exact(session)
+                )
                 planned_changes = planner_with_tasks(session, tasks)
             else:
                 assert planner is not None
@@ -329,18 +306,6 @@ def lock() -> None:
 
 @lock.command(cls=ColoredCommand)
 @click.option(
-    "--with-ancestors",
-    is_flag=True,
-    default=False,
-    help="Also include preceding tasks of the selected tasks.",
-)
-@click.option(
-    "--with-descendants",
-    is_flag=True,
-    default=False,
-    help="Also include descending tasks of the selected tasks.",
-)
-@click.option(
     "--dry-run",
     is_flag=True,
     default=False,
@@ -354,7 +319,8 @@ def lock() -> None:
     help="Apply the changes without prompting for confirmation.",
 )
 def accept(**raw_config: Any) -> None:
-    """Accept the current state for selected tasks without executing them."""
+    """Accept the current state for selected tasks and their ancestors."""
+    raw_config["subcommand"] = "accept"
     sys.exit(
         _run_lock_command(
             raw_config,
@@ -365,18 +331,6 @@ def accept(**raw_config: Any) -> None:
 
 
 @lock.command(cls=ColoredCommand)
-@click.option(
-    "--with-ancestors",
-    is_flag=True,
-    default=False,
-    help="Also include preceding tasks of the selected tasks.",
-)
-@click.option(
-    "--with-descendants",
-    is_flag=True,
-    default=False,
-    help="Also include descending tasks of the selected tasks.",
-)
 @click.option(
     "--dry-run",
     is_flag=True,
@@ -392,6 +346,7 @@ def accept(**raw_config: Any) -> None:
 )
 def reset(**raw_config: Any) -> None:
     """Remove recorded state for selected tasks."""
+    raw_config["subcommand"] = "reset"
     sys.exit(
         _run_lock_command(
             raw_config,
