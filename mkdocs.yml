@@ -62,29 +62,22 @@ nav:
       - Pluggy: explanations/pluggy.md
   - Reference Guides:
       - Overview: reference_guides/index.md
+      - API:
+          - Overview: api/index.md
+          - CLI Imports: api/cli_and_programmatic.md
+          - Functional Interfaces: api/functional_interfaces.md
+          - Core Classes And Exceptions: api/core_classes_and_exceptions.md
+          - Marks: api/marks.md
+          - Nodes And Tasks: api/nodes_and_tasks.md
+          - Outcomes, Reports, And Warnings: api/outcomes_reports_and_warnings.md
+          - Utilities And Typing: api/utilities_and_typing.md
+      - Commands: reference_guides/commands.md
       - Configuration: reference_guides/configuration.md
-      - Lockfile: reference_guides/lockfile.md
       - Hook Specifications: reference_guides/hookspecs.md
-      - Type Hints: type_hints.md
-      - Developer's Guide: developers_guide.md
-      - Glossary: glossary.md
-  - API:
-      - Overview: api/index.md
-      - CLI Imports: api/cli_and_programmatic.md
-      - Functional Interfaces: api/functional_interfaces.md
-      - Core Classes And Exceptions: api/core_classes_and_exceptions.md
-      - Marks: api/marks.md
-      - Nodes And Tasks: api/nodes_and_tasks.md
-      - Outcomes, Reports, And Warnings: api/outcomes_reports_and_warnings.md
-      - Utilities And Typing: api/utilities_and_typing.md
-  - CLI:
-      - Overview: commands/index.md
-      - build: commands/build.md
-      - clean: commands/clean.md
-      - collect: commands/collect.md
-      - dag: commands/dag.md
-      - markers: commands/markers.md
-      - profile: commands/profile.md
+      - Lockfile: reference_guides/lockfile.md
+      - Type Hints: reference_guides/type_hints.md
+      - Developer's Guide: reference_guides/developers_guide.md
+      - Glossary: reference_guides/glossary.md
   - Plugin List: plugin_list.md
   - Changelog: changes.md
 
@@ -95,8 +88,13 @@ theme:
   features:
     - content.code.copy
     - content.code.annotate
+    - content.tabs.link
+    - navigation.top
     - navigation.footer
     - navigation.path
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
     - navigation.top
     - search.highlight
   palette:

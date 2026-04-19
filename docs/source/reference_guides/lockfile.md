@@ -38,8 +38,8 @@ On each run, pytask:
 1. Skips tasks whose states match; runs the rest.
 1. Updates `pytask.lock` after each completed task (atomic write).
 1. Updates `pytask.lock` after skipping unchanged tasks (unless
-    [`--dry-run`](../commands/build.md#options) or
-    [`--explain`](../commands/build.md#options) are active).
+    [`--dry-run`](commands.md#pytask-build--dry-run) or
+    [`--explain`](commands.md#pytask-build--explain) are active).
 
 ## Portability
 
@@ -51,8 +51,8 @@ There are two portability concerns:
 
 ## Maintenance
 
-Use [`pytask build --clean-lockfile`](../commands/build.md#options) to rewrite
-`pytask.lock` with only currently collected tasks. The rewrite happens after a
+Use [`pytask build --clean-lockfile`](commands.md#pytask-build--clean-lockfile) to
+rewrite `pytask.lock` with only currently collected tasks. The rewrite happens after a
 successful build and recomputes current state values without executing tasks again.
 
 ## File Format Reference

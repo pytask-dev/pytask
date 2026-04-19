@@ -53,7 +53,7 @@ repos:
             mdformat-pyproject>=0.0.2,
         ]
         files: (docs/.)
-        exclude: (docs/source/reference_guides/hookspecs\.md|docs/source/api/.*\.md|docs/source/how_to_guides/capture_warnings\.md|docs/source/how_to_guides/hashing_inputs_of_tasks\.md|docs/source/how_to_guides/provisional_nodes_and_task_generators\.md|docs/source/how_to_guides/remote_files\.md|docs/source/how_to_guides/writing_custom_nodes\.md|docs/source/tutorials/defining_dependencies_products\.md|docs/source/tutorials/using_a_data_catalog\.md)
+        exclude: (docs/source/reference_guides/hookspecs\.md|docs/source/reference_guides/api/.*\.md|docs/source/how_to_guides/capture_warnings\.md|docs/source/how_to_guides/hashing_inputs_of_tasks\.md|docs/source/how_to_guides/provisional_nodes_and_task_generators\.md|docs/source/how_to_guides/remote_files\.md|docs/source/how_to_guides/writing_custom_nodes\.md|docs/source/tutorials/defining_dependencies_products\.md|docs/source/tutorials/using_a_data_catalog\.md)
 -   repo: https://github.com/kynan/nbstripout
     rev: 0.9.1
     hooks:

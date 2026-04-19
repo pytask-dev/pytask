@@ -22,24 +22,26 @@ $ pytask -m wip
 ```
 
 You can pass more complex expressions to
-[`pytask build -m`](../commands/build.md#options) by using multiple markers and `and`,
-`or`, `not`, and `()`. The following pattern selects all tasks that belong to the data
-management but not those that produce plots and plots for the analysis.
+[`pytask build -m`](../reference_guides/commands.md#pytask-build--m) by using multiple
+markers and `and`, `or`, `not`, and `()`. The following pattern selects all tasks that
+belong to the data management but not those that produce plots and plots for the
+analysis.
 
 ```console
 $ pytask -m "(data_management and not plots) or (analysis and plots)"
 ```
 
-If you create your markers, use the [`pytask markers`](../commands/markers.md) command
-to register and document them.
+If you create your markers, use the
+[`pytask markers`](../reference_guides/commands.md#pytask-markers) command to register
+and document them.
 
 <a id="expressions"></a>
 
 ## Expressions
 
 Expressions are similar to markers and offer the same syntax but target the task ids
-with [`pytask build -k`](../commands/build.md#options). Assume you have the following
-tasks.
+with [`pytask build -k`](../reference_guides/commands.md#pytask-build--k). Assume you
+have the following tasks.
 
 ```python
 def task_1():
