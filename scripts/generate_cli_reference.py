@@ -261,8 +261,6 @@ def generate_cli_reference() -> str:
         "",
         "# CLI Reference",
         "",
-        "This page is generated from pytask's Click command tree.",
-        "",
         "Running `pytask` without a subcommand is equivalent to `pytask build`.",
         "",
         "## Command Index",
