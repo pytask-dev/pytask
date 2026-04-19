@@ -85,11 +85,11 @@ tasks run. If tasks are removed or renamed, their old entries remain as stale da
 are ignored.
 
 To clean up stale entries without deleting the file, run
-[`pytask build --clean-lockfile`](../reference_guides/commands.md#pytask-build--clean-lockfile):
+[`pytask lock clean`](../reference_guides/commands.md#pytask-lock-clean):
 
 ```console
-$ pytask build --clean-lockfile
+$ pytask lock clean
 ```
 
-This rewrites the lockfile after a successful build with only the currently collected
-tasks and their current state values.
+This rewrites the lockfile with only the currently collected tasks and their current
+state values.

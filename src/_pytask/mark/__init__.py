@@ -6,6 +6,7 @@ import sys
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 
 import click
 from rich.table import Table
@@ -74,6 +75,13 @@ def markers(**raw_config: Any) -> NoReturn:
     sys.exit(session.exit_code)
 
 
+def _get_command(cli: click.Group, name: str) -> click.Command:
+    command: click.Command = cli
+    for part in name.split():
+        command = cast("click.Group", command).commands[part]
+    return command
+
+
 @hookimpl
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Add marker related options."""
@@ -101,8 +109,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             default=None,
         ),
     ]
-    for command in ("build", "clean", "collect"):
-        cli.commands[command].params.extend(additional_build_parameters)
+    for command in ("build", "clean", "collect", "lock accept", "lock reset"):
+        target = _get_command(cli, command)
+        target.params.extend(additional_build_parameters)
 
 
 @hookimpl

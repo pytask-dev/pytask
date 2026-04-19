@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 from typing import TYPE_CHECKING
+from typing import cast
 
 import click
 from click import Context
@@ -179,16 +180,41 @@ _HOOK_MODULE_OPTION = click.Option(
 )
 
 
+def _get_command(cli: click.Group, name: str) -> click.Command:
+    command: click.Command = cli
+    for part in name.split():
+        command = cast("click.Group", command).commands[part]
+    return command
+
+
 @hookimpl(trylast=True)
 def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Register general markers."""
     for command in ("build", "clean", "collect", "dag", "profile"):
         cli.commands[command].params.extend((_DATABASE_URL_OPTION,))
-    for command in ("build", "clean", "collect", "dag", "markers", "profile"):
-        cli.commands[command].params.extend(
-            (_CONFIG_OPTION, _HOOK_MODULE_OPTION, _PATH_ARGUMENT)
-        )
-    for command in ("build", "clean", "collect", "profile"):
-        cli.commands[command].params.extend([_IGNORE_OPTION, _EDITOR_URL_SCHEME_OPTION])
+    for command in (
+        "build",
+        "clean",
+        "collect",
+        "dag",
+        "lock accept",
+        "lock clean",
+        "lock reset",
+        "markers",
+        "profile",
+    ):
+        target = _get_command(cli, command)
+        target.params.extend((_CONFIG_OPTION, _HOOK_MODULE_OPTION, _PATH_ARGUMENT))
+    for command in (
+        "build",
+        "clean",
+        "collect",
+        "lock accept",
+        "lock clean",
+        "lock reset",
+        "profile",
+    ):
+        target = _get_command(cli, command)
+        target.params.extend([_IGNORE_OPTION, _EDITOR_URL_SCHEME_OPTION])
     for command in ("build",):
         cli.commands[command].params.append(_VERBOSE_OPTION)
