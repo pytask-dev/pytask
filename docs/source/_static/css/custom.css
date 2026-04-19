@@ -11,7 +11,6 @@
     margin: 0 auto 0.75rem;
     width: 44px;
     height: 44px;
-    object-fit: contain;
 }
 
 .home-card-title,
@@ -22,12 +21,6 @@
     color: inherit !important;
     text-decoration: none !important;
     font-size: 1.15em;
-}
-
-@media (max-width: 760px) {
-    .home-card-grid {
-        grid-template-columns: 1fr;
-    }
 }
 
 pre,
