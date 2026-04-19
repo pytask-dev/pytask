@@ -35,8 +35,8 @@ def task_second():
     print("I'm first.")
 ```
 
-The execution yields (use [`-s`](../commands/build.md#options) to make the output
-visible in the terminal)
+The execution yields (use [`-s`](../reference_guides/commands.md#pytask-build--s) to
+make the output visible in the terminal)
 
 --8<-- "docs/source/_static/md/try-first.md"
 

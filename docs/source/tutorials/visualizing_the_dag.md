@@ -31,19 +31,19 @@ $ pytask dag
 It generates a `dag.pdf` in the current working directory.
 
 If you do not want to generate a PDF, use
-[`pytask dag --output-path`](../commands/dag.md#options) or, shorter,
-[`pytask dag -o`](../commands/dag.md#options) to choose a different format inferred from
-the file-ending. Select any format supported by
-[graphviz](https://graphviz.org/docs/outputs/).
+[`pytask dag --output-path`](../reference_guides/commands.md#pytask-dag--output-path)
+or, shorter, [`pytask dag -o`](../reference_guides/commands.md#pytask-dag--output-path)
+to choose a different format inferred from the file-ending. Select any format supported
+by [graphviz](https://graphviz.org/docs/outputs/).
 
 ```console
 $ pytask dag -o dag.png
 ```
 
 You can change the graph's layout by using the
-[`pytask dag --layout`](../commands/dag.md#options) option. Its default is set to `dot`
-and produces a hierarchical structure. graphviz supports other layouts, which are listed
-[here](https://graphviz.org/docs/layouts/).
+[`pytask dag --layout`](../reference_guides/commands.md#pytask-dag--layout) option. Its
+default is set to `dot` and produces a hierarchical structure. graphviz supports other
+layouts, which are listed [here](https://graphviz.org/docs/layouts/).
 
 ## Programmatic Interface
 

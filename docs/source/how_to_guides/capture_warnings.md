@@ -71,14 +71,14 @@ configured by the `filterwarnings` configuration option.
 ## Disabling warnings summary
 
 Although not recommended, you can use the
-[`--disable-warnings`](../commands/build.md#options) command-line option to suppress the
+[`--disable-warnings`](../reference_guides/commands.md#pytask-build--disable-warnings) command-line option to suppress the
 warning summary entirely from the test run output.
 
 ## Debugging warnings
 
 Sometimes it is not clear which line of code triggered a warning. To find the location,
 you can turn warnings into exceptions and then use the
-[`pytask build --pdb`](../commands/build.md#options) flag to enter the debugger.
+[`pytask build --pdb`](../reference_guides/commands.md#pytask-build--pdb) flag to enter the debugger.
 
 You can use the configuration to convert warnings to errors by setting
 

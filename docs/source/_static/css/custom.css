@@ -34,3 +34,34 @@ pre,
 li pre {
     padding-left: 0;
 }
+
+.md-typeset dl.cli-reference {
+    margin: 0.75rem 0 1.25rem;
+}
+
+.md-typeset dl.cli-reference dt {
+    margin: 0.85rem 0 0;
+    font-weight: 500;
+}
+
+.md-typeset dl.cli-reference dd {
+    margin: 0.2rem 0 0.75rem 1.5rem;
+}
+
+.md-typeset dl.cli-reference dd p {
+    margin: 0;
+}
+
+.md-typeset dl.cli-reference dd p + p {
+    margin-top: 0.25rem;
+    color: var(--md-default-fg-color--light);
+}
+
+.md-typeset dl.cli-reference dt a,
+.md-typeset dl.cli-reference dt a:hover,
+.md-typeset dl.cli-reference dt a:focus,
+.md-typeset dl.cli-reference dt a:visited {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 0;
+}

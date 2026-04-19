@@ -35,9 +35,9 @@ $ pytask <command-name> -h/--help
 
 ## The build command
 
-The [`build`](../commands/build.md) command accepts many
-[`options`](../commands/build.md#options) and paths as positional arguments. If no paths
-are passed via the command line interface, pytask will look for
+The [`build`](../reference_guides/commands.md#pytask-build) command accepts many
+[`options`](../reference_guides/commands.md#pytask-build) and paths as positional
+arguments. If no paths are passed via the command line interface, pytask will look for
 [`paths`](../reference_guides/configuration.md#paths) in the configuration file. At
 last, pytask will collect tasks from the current working directory and subsequent
 folders.
@@ -66,7 +66,8 @@ $ pytask --show-errors-immediately
 ```
 
 It can be helpful when you have a long-running workflow but want feedback as soon as it
-is available. See [`--show-errors-immediately`](../commands/build.md#options).
+is available. See
+[`--show-errors-immediately`](../reference_guides/commands.md#pytask-build--show-errors-immediately).
 
 ### Stopping after the first (N) failures
 
@@ -77,25 +78,28 @@ $ pytask -x | --stop-after-first-failure  # Stop after the first failure
 $ pytask --max-failures 2                 # Stop after the second failure
 ```
 
-See [`-x, --stop-after-first-failure`](../commands/build.md#options) and
-[`--max-failures`](../commands/build.md#options).
+See
+[`-x, --stop-after-first-failure`](../reference_guides/commands.md#pytask-build--stop-after-first-failure)
+and [`--max-failures`](../reference_guides/commands.md#pytask-build--max-failures).
 
 ### Performing a dry-run
 
-Do a dry run with [`--dry-run`](../commands/build.md#options) to see which tasks will be
-executed without executing them.
+Do a dry run with [`--dry-run`](../reference_guides/commands.md#pytask-build--dry-run)
+to see which tasks will be executed without executing them.
 
 --8<-- "docs/source/_static/md/dry-run.md"
 
 ### Explaining why tasks are executed
 
-Use the [`--explain`](../commands/build.md#options) flag to understand why tasks need to
-be executed. This shows what changed (source files, dependencies, products, previous
-tasks) and helps you understand pytask's execution decisions.
+Use the [`--explain`](../reference_guides/commands.md#pytask-build--explain) flag to
+understand why tasks need to be executed. This shows what changed (source files,
+dependencies, products, previous tasks) and helps you understand pytask's execution
+decisions.
 
 --8<-- "docs/source/_static/md/explain.md"
 
-The explanation output respects the [`--verbose`](../commands/build.md#options) flag:
+The explanation output respects the
+[`--verbose`](../reference_guides/commands.md#pytask-build--verbose) flag:
 
 - Default verbosity: Shows tasks that would be executed and skipped tasks
 - `-v` or `--verbose 1`: Same as default, with summary for persisted and unchanged tasks
