@@ -52,6 +52,11 @@ class _PlannedChange:
     def is_accept(self) -> bool:
         return self.entry is not None
 
+    def describe(self) -> str:
+        if self.is_accept:
+            return f"Accept recorded state for {self.task_id}"
+        return f"Remove recorded state for {self.task_id}"
+
 
 # Task selection.
 
@@ -190,25 +195,19 @@ def _plan_clean_changes(session: Session) -> list[_PlannedChange]:
 # Change application.
 
 
-def _describe_change(change: _PlannedChange) -> str:
-    if change.is_accept:
-        return f"Accept recorded state for {change.task_id}"
-    return f"Remove recorded state for {change.task_id}"
-
-
 def _apply_changes(
     session: Session, planned_changes: list[_PlannedChange]
 ) -> list[_PlannedChange]:
     if session.config["dry_run"]:
         for change in planned_changes:
-            console.print(f"Would {_describe_change(change).lower()}.")
+            console.print(f"Would {change.describe().lower()}.")
         return planned_changes
 
     accepted = planned_changes
     if not session.config["yes"]:
         accepted = []
         for change in planned_changes:
-            prompt = f"{_describe_change(change)}?"
+            prompt = f"{change.describe()}?"
             if click.confirm(prompt, default=False):
                 accepted.append(change)
 
@@ -227,7 +226,7 @@ def _apply_changes(
     state.flush()
 
     for change in accepted:
-        console.print(f"{_describe_change(change)}.")
+        console.print(f"{change.describe()}.")
 
     return accepted
 
