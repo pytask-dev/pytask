@@ -4,23 +4,14 @@ Use [`pytask lock`](../reference_guides/commands.md#pytask-lock) when the curren
 in the project are already correct and only the recorded state in `pytask.lock` needs to
 catch up.
 
-This is an advanced workflow. Most of the time,
-[`pytask build`](../reference_guides/commands.md#pytask-build) is the right command.
-Reach for `pytask lock` when you want to change the lockfile without executing tasks.
-
-!!! warning
-
-    `pytask lock` is a sharp tool. It updates recorded state without proving that the files
-    were produced by the current task definitions.
-
 ## When is this useful?
 
 Typical situations are:
 
 - You reformatted or reorganized a task file and do not want to rerun an expensive task.
 - You renamed or moved a task and want to accept the current outputs for the new task.
-- You produced outputs manually or elsewhere and now want to register them in the
-    lockfile.
+- You produced outputs outside of pytask and now want to register the task along the
+    outputs in the lockfile.
 - You deleted or renamed tasks and want to remove their stale lockfile entries.
 
 ## Preview changes first
@@ -72,14 +63,19 @@ instead of accepting incomplete state.
 ## Reset recorded state
 
 Use [`pytask lock reset`](../reference_guides/commands.md#pytask-lock-reset) to remove
-recorded state for selected tasks.
+recorded state for selected tasks. The following command removes the recorded state for
+all tasks.
+
+```console
+$ pytask lock reset
+```
+
+Unlike `accept`, `reset` with a selector works on the exact selected tasks. It does not
+automatically include ancestors.
 
 ```console
 $ pytask lock reset -k train
 ```
-
-Unlike `accept`, `reset` works on the exact selected tasks. It does not automatically
-include ancestors.
 
 On the next build, `pytask` determines again whether these tasks require execution. This
 is useful when state was accepted too broadly or when you want a specific task to be
