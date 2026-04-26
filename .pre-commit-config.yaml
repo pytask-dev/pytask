@@ -37,8 +37,8 @@ repos:
     hooks:
     -   id: check-termynal-line-lengths
         name: Check Termynal line lengths
-        entry: uv run python scripts/check_termynal_line_lengths.py
-        language: system
+        entry: python scripts/check_termynal_line_lengths.py
+        language: python
         files: ^docs/source/_static/md/.*\.md$
 -   repo: https://github.com/executablebooks/mdformat
     rev: 1.0.0
