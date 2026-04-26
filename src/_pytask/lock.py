@@ -43,32 +43,17 @@ if TYPE_CHECKING:
     from _pytask.lockfile import LockfileState
 
 
-def _add_lock_command_options(
-    *, dry_run_help: str
-) -> Callable[[Callable[..., None]], Callable[..., None]]:
-    def decorator(func: Callable[..., None]) -> Callable[..., None]:
-        func = click.option(
-            "--dry-run",
-            is_flag=True,
-            default=False,
-            help=dry_run_help,
-        )(func)
-        return click.option(
-            "-y",
-            "--yes",
-            is_flag=True,
-            default=False,
-            help="Apply the changes without prompting for confirmation.",
-        )(func)
-
-    return decorator
-
-
 @dataclass(slots=True)
 class _PlannedChange:
-    kind: str
     task_id: str
     entry: _TaskEntry | None = None
+
+    @property
+    def is_accept(self) -> bool:
+        return self.entry is not None
+
+
+# Task selection.
 
 
 def _validate_confirmation_options(raw_config: dict[str, Any]) -> None:
@@ -77,31 +62,20 @@ def _validate_confirmation_options(raw_config: dict[str, Any]) -> None:
         raise click.UsageError(msg)
 
 
-def _keyword_filter(tasks: list[PTask], expression: str) -> set[str]:
+def _expression_filter(
+    tasks: list[PTask],
+    expression: str,
+    option: str,
+    matcher_from_task: Callable[[PTask], Any],
+) -> set[str]:
     try:
         compiled = Expression.compile_(expression)
     except ParseError as e:
-        msg = f"Wrong expression passed to '-k': {expression}: {e}"
+        msg = f"Wrong expression passed to {option!r}: {expression}: {e}"
         raise ValueError(msg) from None
 
     return {
-        task.signature
-        for task in tasks
-        if compiled.evaluate(KeywordMatcher.from_task(task))
-    }
-
-
-def _marker_filter(tasks: list[PTask], expression: str) -> set[str]:
-    try:
-        compiled = Expression.compile_(expression)
-    except ParseError as e:
-        msg = f"Wrong expression passed to '-m': {expression}: {e}"
-        raise ValueError(msg) from None
-
-    return {
-        task.signature
-        for task in tasks
-        if compiled.evaluate(MarkMatcher.from_task(task))
+        task.signature for task in tasks if compiled.evaluate(matcher_from_task(task))
     }
 
 
@@ -110,11 +84,15 @@ def _select_tasks_exact(session: Session) -> list[PTask]:
 
     expression = session.config.get("expression")
     if expression:
-        selected &= _keyword_filter(session.tasks, expression)
+        selected &= _expression_filter(
+            session.tasks, expression, "-k", KeywordMatcher.from_task
+        )
 
     marker_expression = session.config.get("marker_expression")
     if marker_expression:
-        selected &= _marker_filter(session.tasks, marker_expression)
+        selected &= _expression_filter(
+            session.tasks, marker_expression, "-m", MarkMatcher.from_task
+        )
 
     return [task for task in session.tasks if task.signature in selected]
 
@@ -127,6 +105,9 @@ def _select_tasks_with_ancestors(session: Session) -> list[PTask]:
         )
     )
     return [task for task in session.tasks if task.signature in selected]
+
+
+# Change planning.
 
 
 def _validate_task_for_accept(session: Session, task: PTask) -> None:
@@ -180,9 +161,7 @@ def _plan_accept_changes(session: Session, tasks: list[PTask]) -> list[_PlannedC
 
         existing = session.config["lockfile_state"].get_task_entry(entry.id)
         if existing != entry:
-            planned_changes.append(
-                _PlannedChange(kind="accept", task_id=entry.id, entry=entry)
-            )
+            planned_changes.append(_PlannedChange(task_id=entry.id, entry=entry))
 
     return planned_changes
 
@@ -194,7 +173,7 @@ def _plan_reset_changes(session: Session, tasks: list[PTask]) -> list[_PlannedCh
     for task in tasks:
         task_id = build_portable_task_id(task, root)
         if session.config["lockfile_state"].get_task_entry(task_id) is not None:
-            planned_changes.append(_PlannedChange(kind="reset", task_id=task_id))
+            planned_changes.append(_PlannedChange(task_id=task_id))
 
     return planned_changes
 
@@ -205,13 +184,14 @@ def _plan_clean_changes(session: Session) -> list[_PlannedChange]:
         build_portable_task_id(task, session.config["root"]) for task in session.tasks
     }
     stale_ids = state.task_ids() - current_task_ids
-    return [
-        _PlannedChange(kind="clean", task_id=task_id) for task_id in sorted(stale_ids)
-    ]
+    return [_PlannedChange(task_id=task_id) for task_id in sorted(stale_ids)]
+
+
+# Change application.
 
 
 def _describe_change(change: _PlannedChange) -> str:
-    if change.kind == "accept":
+    if change.is_accept:
         return f"Accept recorded state for {change.task_id}"
     return f"Remove recorded state for {change.task_id}"
 
@@ -250,6 +230,9 @@ def _apply_changes(
         console.print(f"{_describe_change(change)}.")
 
     return accepted
+
+
+# Command execution.
 
 
 def _run_lock_command(
@@ -310,6 +293,30 @@ def _run_lock_command(
     if hasattr(session.hook, "pytask_unconfigure"):
         session.hook.pytask_unconfigure(session=session)
     return session.exit_code
+
+
+# Command line interface.
+
+
+def _add_lock_command_options(
+    *, dry_run_help: str
+) -> Callable[[Callable[..., None]], Callable[..., None]]:
+    def decorator(func: Callable[..., None]) -> Callable[..., None]:
+        func = click.option(
+            "--dry-run",
+            is_flag=True,
+            default=False,
+            help=dry_run_help,
+        )(func)
+        return click.option(
+            "-y",
+            "--yes",
+            is_flag=True,
+            default=False,
+            help="Apply the changes without prompting for confirmation.",
+        )(func)
+
+    return decorator
 
 
 @hookimpl(tryfirst=True)
