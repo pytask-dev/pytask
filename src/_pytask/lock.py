@@ -147,11 +147,11 @@ def _validate_task_for_accept(session: Session, task: PTask) -> None:
         raise NodeNotFoundError(msg)
 
 
-def _plan_accept_changes(session: Session, tasks: list[PTask]) -> list[_PlannedChange]:
+def _plan_accept_changes(session: Session) -> list[_PlannedChange]:
     root = session.config["root"]
     planned_changes = []
 
-    for task in tasks:
+    for task in _select_tasks_with_ancestors(session):
         _validate_task_for_accept(session, task)
         entry = _build_task_entry(session, task, root)
         if entry is None:
@@ -166,11 +166,11 @@ def _plan_accept_changes(session: Session, tasks: list[PTask]) -> list[_PlannedC
     return planned_changes
 
 
-def _plan_reset_changes(session: Session, tasks: list[PTask]) -> list[_PlannedChange]:
+def _plan_reset_changes(session: Session) -> list[_PlannedChange]:
     root = session.config["root"]
     planned_changes = []
 
-    for task in tasks:
+    for task in _select_tasks_exact(session):
         task_id = build_portable_task_id(task, root)
         if session.config["lockfile_state"].get_task_entry(task_id) is not None:
             planned_changes.append(_PlannedChange(task_id=task_id))
@@ -238,10 +238,7 @@ def _apply_changes(
 def _run_lock_command(
     raw_config: dict[str, Any],
     *,
-    planner: Callable[[Session], list[_PlannedChange]] | None = None,
-    planner_with_tasks: Callable[[Session, list[PTask]], list[_PlannedChange]]
-    | None = None,
-    select_tasks: Callable[[Session], list[PTask]] | None = None,
+    planner: Callable[[Session], list[_PlannedChange]],
     empty_message: str,
 ) -> int:
     _validate_confirmation_options(raw_config)
@@ -263,13 +260,7 @@ def _run_lock_command(
             session.hook.pytask_collect(session=session)
             session.dag = create_dag(session=session)
 
-            if planner_with_tasks is not None:
-                assert select_tasks is not None
-                tasks = select_tasks(session)
-                planned_changes = planner_with_tasks(session, tasks)
-            else:
-                assert planner is not None
-                planned_changes = planner(session)
+            planned_changes = planner(session)
 
             if planned_changes:
                 _apply_changes(session, planned_changes)
@@ -339,8 +330,7 @@ def accept(**raw_config: Any) -> None:
     sys.exit(
         _run_lock_command(
             raw_config,
-            planner_with_tasks=_plan_accept_changes,
-            select_tasks=_select_tasks_with_ancestors,
+            planner=_plan_accept_changes,
             empty_message="No lockfile entries need updating.",
         )
     )
@@ -355,8 +345,7 @@ def reset(**raw_config: Any) -> None:
     sys.exit(
         _run_lock_command(
             raw_config,
-            planner_with_tasks=_plan_reset_changes,
-            select_tasks=_select_tasks_exact,
+            planner=_plan_reset_changes,
             empty_message="No lockfile entries need removing.",
         )
     )
