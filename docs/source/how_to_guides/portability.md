@@ -17,13 +17,11 @@ Use this checklist when you move a project to another machine or environment.
 Run a normal build with [`pytask build`](../reference_guides/commands.md#pytask-build)
 so `pytask.lock` is up to date:
 
-````
 ```console
 $ pytask build
 ```
 
 If you already have a recent lockfile and up-to-date outputs, you can skip this step.
-````
 
 1. **Ship the right files.**
 
