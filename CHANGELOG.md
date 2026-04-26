@@ -7,6 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#868](https://github.com/pytask-dev/pytask/pull/868) resets the global marker
+  configuration during unconfigure so `--strict-markers` no longer leaks into later
+  marker access in the same process.
 - [#837](https://github.com/pytask-dev/pytask/pull/837) skips incremental live
   rendering on non-interactive output while preserving the final build table and
   live-manager lifecycle.
