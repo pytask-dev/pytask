@@ -114,6 +114,12 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
 
 
 @hookimpl
+def pytask_unconfigure() -> None:
+    """Reset marker state after pytask is done."""
+    MARK_GEN.config = None
+
+
+@hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     config["markers"] = parse_markers(config["markers"])
 
