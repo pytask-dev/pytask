@@ -113,14 +113,6 @@ $ pytask build
 After `accept`, the next build skips unchanged tasks according to the updated lockfile.
 After `reset`, the selected tasks are reconsidered on the next build.
 
-## Be explicit about scope
-
-Start with narrow task selections, preview changes with `--dry-run`, and widen the
-selection only when needed.
-
-This is especially important for `accept`: it is often better to accept a small part of
-the DAG first and then inspect the result than to update the whole project at once.
-
 ## Related
 
 - [`pytask lock`](../reference_guides/commands.md#pytask-lock)

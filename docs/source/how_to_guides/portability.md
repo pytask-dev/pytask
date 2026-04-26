@@ -89,5 +89,4 @@ To clean up stale entries without deleting the file, run
 $ pytask lock clean
 ```
 
-This rewrites the lockfile with only the currently collected tasks and their current
-state values.
+This removes lockfile entries for tasks which are no longer collected.
