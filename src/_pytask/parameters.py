@@ -12,6 +12,7 @@ from sqlalchemy.engine import URL
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import ArgumentError
 
+from _pytask.click import get_command
 from _pytask.config_utils import set_defaults_from_config
 from _pytask.path import import_path
 from _pytask.pluginmanager import hookimpl
@@ -184,11 +185,29 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
     """Register general markers."""
     for command in ("build", "clean", "collect", "dag", "profile"):
         cli.commands[command].params.extend((_DATABASE_URL_OPTION,))
-    for command in ("build", "clean", "collect", "dag", "markers", "profile"):
-        cli.commands[command].params.extend(
-            (_CONFIG_OPTION, _HOOK_MODULE_OPTION, _PATH_ARGUMENT)
-        )
-    for command in ("build", "clean", "collect", "profile"):
-        cli.commands[command].params.extend([_IGNORE_OPTION, _EDITOR_URL_SCHEME_OPTION])
+    for command in (
+        "build",
+        "clean",
+        "collect",
+        "dag",
+        "lock accept",
+        "lock clean",
+        "lock reset",
+        "markers",
+        "profile",
+    ):
+        target = get_command(cli, command)
+        target.params.extend((_CONFIG_OPTION, _HOOK_MODULE_OPTION, _PATH_ARGUMENT))
+    for command in (
+        "build",
+        "clean",
+        "collect",
+        "lock accept",
+        "lock clean",
+        "lock reset",
+        "profile",
+    ):
+        target = get_command(cli, command)
+        target.params.extend([_IGNORE_OPTION, _EDITOR_URL_SCHEME_OPTION])
     for command in ("build",):
         cli.commands[command].params.append(_VERBOSE_OPTION)
