@@ -267,6 +267,12 @@ def _run_lock_command(
                 console.print()
                 console.print(empty_message)
 
+            # Journal replay can make the lockfile state dirty even if this lock command
+            # has no net changes. Flush it so replayed entries are persisted and the
+            # journal is removed.
+            if not session.config["dry_run"]:
+                session.config["lockfile_state"].flush()
+
             console.print()
             console.rule(style="default")
         except CollectionError:
@@ -280,6 +286,8 @@ def _run_lock_command(
             console.rule(style="failed")
             session.exit_code = ExitCode.FAILED
 
+    # Configuration can fail before the session receives the plugin manager's hook
+    # relay. A fallback session only has a bare HookRelay without this hook.
     if hasattr(session.hook, "pytask_unconfigure"):
         session.hook.pytask_unconfigure(session=session)
     return session.exit_code
