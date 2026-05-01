@@ -3,7 +3,14 @@
 }
 
 .home-card-grid li {
+    position: relative;
     text-align: center;
+}
+
+.home-card-grid li .home-card-title::after {
+    position: absolute;
+    inset: 0;
+    content: "";
 }
 
 .home-card-icon {

@@ -3,7 +3,7 @@
 ```console
 $ pytask lock clean
 <span class="termynal-dim">──────────────────────────</span> Start pytask session <span class="termynal-dim">──────────────────────────</span>
-Platform: win32 -- Python 3.12.0, pytask 0.5.3
+Platform: win32 -- Python 3.13.0, pytask 0.6.0
 Root: C:\Users\pytask-dev\git\my_project
 Collected 2 tasks.
 # Remove recorded state for task_old.py::task_train? [y/N]: $ y

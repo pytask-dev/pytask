@@ -4,7 +4,7 @@
 
 $ pytask --explain
 ────────────────────────── Start pytask session ─────────────────────────
-Platform: darwin -- Python 3.12.0, pytask 0.5.6, pluggy 1.6.0
+Platform: darwin -- Python 3.13.0, pytask 0.6.0, pluggy 1.6.0
 Root: /Users/pytask-dev/git/my_project
 Collected 3 tasks.
 

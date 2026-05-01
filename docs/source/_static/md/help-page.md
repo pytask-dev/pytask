@@ -3,7 +3,7 @@
 ```console
 $ pytask --help
 
-<center>pytask <span class="termynal-dim">v0.5.3</span></center>
+<center>pytask <span class="termynal-dim">v0.6.0</span></center>
 Usage: <b>pytask [OPTIONS] [COMMAND] [PATHS]</b>
 
 <span class="termynal-dim">Manage your tasks with pytask.</span>
