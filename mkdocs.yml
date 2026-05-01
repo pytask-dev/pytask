@@ -38,6 +38,7 @@ nav:
       - Migrating From Scripts To pytask: how_to_guides/migrating_from_scripts_to_pytask.md
       - Interfaces For Dependencies And Products: how_to_guides/interfaces_for_dependencies_products.md
       - Portability: how_to_guides/portability.md
+      - Reconciling Lockfile State: how_to_guides/reconciling_lockfile_state.md
       - Remote Files: how_to_guides/remote_files.md
       - Functional Interface: how_to_guides/functional_interface.md
       - Capture Warnings: how_to_guides/capture_warnings.md

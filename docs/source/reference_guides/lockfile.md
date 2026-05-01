@@ -51,9 +51,9 @@ There are two portability concerns:
 
 ## Maintenance
 
-Use [`pytask build --clean-lockfile`](commands.md#pytask-build--clean-lockfile) to
-rewrite `pytask.lock` with only currently collected tasks. The rewrite happens after a
-successful build and recomputes current state values without executing tasks again.
+Use [`pytask lock clean`](commands.md#pytask-lock-clean) to rewrite `pytask.lock` with
+only currently collected tasks. The command removes stale task entries without executing
+tasks again.
 
 ## File Format Reference
 

@@ -17,13 +17,11 @@ Use this checklist when you move a project to another machine or environment.
 Run a normal build with [`pytask build`](../reference_guides/commands.md#pytask-build)
 so `pytask.lock` is up to date:
 
-````
 ```console
 $ pytask build
 ```
 
 If you already have a recent lockfile and up-to-date outputs, you can skip this step.
-````
 
 1. **Ship the right files.**
 
@@ -85,11 +83,10 @@ tasks run. If tasks are removed or renamed, their old entries remain as stale da
 are ignored.
 
 To clean up stale entries without deleting the file, run
-[`pytask build --clean-lockfile`](../reference_guides/commands.md#pytask-build--clean-lockfile):
+[`pytask lock clean`](../reference_guides/commands.md#pytask-lock-clean):
 
 ```console
-$ pytask build --clean-lockfile
+$ pytask lock clean
 ```
 
-This rewrites the lockfile after a successful build with only the currently collected
-tasks and their current state values.
+This removes lockfile entries for tasks which are no longer collected.

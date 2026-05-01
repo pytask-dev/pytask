@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
-__all__ = ["ColoredCommand", "ColoredGroup", "EnumChoice"]
+__all__ = ["ColoredCommand", "ColoredGroup", "EnumChoice", "get_command"]
 
 
 if importlib.metadata.version("click") < "8.2":
@@ -45,6 +45,14 @@ else:
 def split_opt(option: str) -> tuple[str, str]:
     """Split an option into prefix and name."""
     return cast("Callable[[str], tuple[str, str]]", _split_opt)(option)
+
+
+def get_command(cli: click.Group, name: str) -> click.Command:
+    """Get a nested command by name."""
+    command: click.Command = cli
+    for part in name.split():
+        command = cast("click.Group", command).commands[part]
+    return command
 
 
 class EnumChoice(Choice):

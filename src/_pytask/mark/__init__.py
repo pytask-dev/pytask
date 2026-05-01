@@ -11,6 +11,7 @@ import click
 from rich.table import Table
 
 from _pytask.click import ColoredCommand
+from _pytask.click import get_command
 from _pytask.console import console
 from _pytask.dag_utils import task_and_preceding_tasks
 from _pytask.exceptions import ConfigurationError
@@ -101,8 +102,9 @@ def pytask_extend_command_line_interface(cli: click.Group) -> None:
             default=None,
         ),
     ]
-    for command in ("build", "clean", "collect"):
-        cli.commands[command].params.extend(additional_build_parameters)
+    for command in ("build", "clean", "collect", "lock accept", "lock reset"):
+        target = get_command(cli, command)
+        target.params.extend(additional_build_parameters)
 
 
 @hookimpl
