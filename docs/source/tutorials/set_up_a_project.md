@@ -14,7 +14,8 @@ move to the next section of the tutorials.
 
 ## The directory structure
 
-The following directory tree gives an overview of the project's different parts.
+The following directory tree gives an overview of the project's different parts after
+the first build.
 
 ```text
 my_project
@@ -30,13 +31,16 @@ my_project
 │       ├────config.py
 │       └────...
 │
+├───pytask.lock
+│
 └───pyproject.toml
 ```
 
-Replicate this directory structure for your project or start from pytask's
+Create the project files and folders for your project or start from pytask's
 [cookiecutter-pytask-project](https://github.com/pytask-dev/cookiecutter-pytask-project)
 template or any other
 [linked template or example project](../how_to_guides/bp_templates_and_projects.md).
+pytask creates the `.pytask` folder and `pytask.lock` file during builds.
 
 ## The `src` directory
 
@@ -133,6 +137,12 @@ The `[tool.pytask.ini_options]` section tells pytask to look for tasks in
 
 The `.pytask` directory is where pytask stores its information. You do not need to
 interact with it.
+
+## The `pytask.lock` file
+
+The `pytask.lock` file records which tasks and products are up to date. pytask updates
+it during builds so later runs can skip unchanged tasks. This file should be kept in
+version control.
 
 ## Installation
 

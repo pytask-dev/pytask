@@ -36,6 +36,8 @@ my_project
 │       ├────task_data_preparation.py
 │       └────task_plot_data.py
 │
+├───pytask.lock
+│
 └───pyproject.toml
 ```
 
@@ -147,6 +149,8 @@ Let's add `file.csv` with the name `"csv"` to the data catalog and use it to cre
 my_project
 │
 ├───pyproject.toml
+│
+├───pytask.lock
 │
 ├───src
 │   └───my_project

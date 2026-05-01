@@ -36,6 +36,8 @@ my_project
 │       ├────task_data_preparation.py
 │       └────task_plot_data.py
 │
+├───pytask.lock
+│
 └───pyproject.toml
 ```
 
@@ -106,6 +108,10 @@ we will define it in `task_plot_data.py`.
 Now, let us execute the two paths.
 
 --8<-- "docs/source/_static/md/defining-dependencies-products.md"
+
+The build updates `pytask.lock` with the state of both tasks. When you run the same
+tasks again without changing their dependencies, products, or source files, pytask uses
+the lockfile to skip them.
 
 ## Relative paths
 
