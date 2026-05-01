@@ -162,5 +162,5 @@ saveRDS(df, config$produces)
 Congrats! You have just set up your first workflow with pytask!
 
 If you enjoyed what you have seen, you should discover the other parts of the
-documentation. The [tutorials](../tutorials/installation.md) are a good entry point to
-start with pytask and learn about many concepts step-by-step.
+documentation. The [tutorials](../tutorials/index.md) are a good entry point to start
+with pytask and learn about many concepts step-by-step.
