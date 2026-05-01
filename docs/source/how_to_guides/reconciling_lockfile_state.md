@@ -1,42 +1,29 @@
-# Reconciling Lockfile State
+# Update the Lockfile to Match Project State
 
 Use [`pytask lock`](../reference_guides/commands.md#pytask-lock) when the current files
-in the project are already correct and only the recorded state in `pytask.lock` needs to
-catch up.
+and outputs in the project are already correct, but the recorded state in `pytask.lock`
+needs to catch up. This can happen after refactoring task files, moving or renaming
+tasks, producing outputs outside of pytask, or deleting tasks.
 
-## When is this useful?
-
-Typical situations are:
-
-- You reformatted or reorganized a task file and do not want to rerun an expensive task.
-- You renamed or moved a task and want to accept the current outputs for the new task.
-- You produced outputs outside of pytask and now want to register the task along the
-    outputs in the lockfile.
-- You deleted or renamed tasks and want to remove their stale lockfile entries.
-
-## Preview changes first
-
-By default, `pytask lock` runs interactively. It shows the planned changes and then asks
-for confirmation one by one. Only entries which would actually change appear in the
-prompt sequence.
-
-To preview changes without writing them, use `--dry-run`:
-
---8<-- "docs/source/_static/md/lock-accept-dry-run.md"
-
-To apply all planned changes without prompting, use `--yes`:
-
-```console
-$ pytask lock accept -k train --yes
-```
-
-## Accept the current state
+## Accept current files and outputs
 
 Use [`pytask lock accept`](../reference_guides/commands.md#pytask-lock-accept) when the
 current dependencies, products, and task definition are already correct and should
 become the new recorded state.
 
+Preview the changes without writing them with `--dry-run`:
+
+--8<-- "docs/source/_static/md/lock-accept-dry-run.md"
+
+Then accept the planned changes interactively:
+
 --8<-- "docs/source/_static/md/lock-accept-interactive.md"
+
+Add `--yes` to apply all planned changes without prompting:
+
+```console
+$ pytask lock accept -k train --yes
+```
 
 If no selectors are provided, `pytask lock accept` applies to all collected tasks in the
 provided paths.
@@ -60,58 +47,73 @@ $ pytask lock accept -k "train or evaluate"
 If a selected task is missing a required dependency or product, the command fails
 instead of accepting incomplete state.
 
-## Reset recorded state
-
-Use [`pytask lock reset`](../reference_guides/commands.md#pytask-lock-reset) to remove
-recorded state for selected tasks. The following command removes the recorded state for
-all tasks.
+Run a build afterwards to check that unchanged tasks are skipped according to the
+updated lockfile.
 
 ```console
-$ pytask lock reset
+$ pytask build
 ```
 
-Unlike `accept`, `reset` with a selector works on the exact selected tasks. It does not
-automatically include ancestors.
+## Reset state for selected tasks
+
+Use [`pytask lock reset`](../reference_guides/commands.md#pytask-lock-reset) to remove
+recorded state for selected tasks when state was accepted too broadly or when specific
+tasks should be reconsidered from scratch.
 
 ```console
 $ pytask lock reset -k train
 ```
 
-On the next build, `pytask` determines again whether these tasks require execution. This
-is useful when state was accepted too broadly or when you want a specific task to be
-reconsidered from scratch.
+Unlike `accept`, `reset` with a selector works on the exact selected tasks. It does not
+automatically include ancestors.
 
-## Remove stale lockfile entries
+Preview the reset with `--dry-run` if you want to check the affected tasks first:
 
-Use [`pytask lock clean`](../reference_guides/commands.md#pytask-lock-clean) to remove
-entries from the lockfile which no longer correspond to collected tasks in the current
-project.
+```console
+$ pytask lock reset -k train --dry-run
+```
 
---8<-- "docs/source/_static/md/lock-clean.md"
+Add `--yes` to remove all planned entries without prompting:
 
-This is useful after deleting, renaming, or moving tasks when old entries should no
-longer remain in the lockfile.
+```console
+$ pytask lock reset -k train --yes
+```
 
-## Example workflow
+If no selectors are provided, `pytask lock reset` removes the recorded state for all
+collected tasks in the provided paths.
 
-One common workflow looks like this:
-
-1. Run a normal build once.
-1. Change a task file in a way that should not force a rerun.
-1. Accept the current state.
-1. Verify that a later build skips the task.
-1. Reset the task if you want `pytask` to reconsider it again.
+Run a build afterwards so `pytask` determines again whether the selected tasks require
+execution.
 
 ```console
 $ pytask build
-$ pytask lock accept -k train --yes
-$ pytask build
-$ pytask lock reset -k train --yes
-$ pytask build
 ```
 
-After `accept`, the next build skips unchanged tasks according to the updated lockfile.
-After `reset`, the selected tasks are reconsidered on the next build.
+## Remove stale entries for deleted or moved tasks
+
+Use [`pytask lock clean`](../reference_guides/commands.md#pytask-lock-clean) to remove
+entries from the lockfile which no longer correspond to collected tasks in the current
+project. This is useful after deleting, renaming, or moving tasks when old entries
+should no longer remain in the lockfile.
+
+Preview stale entries without writing them with `--dry-run`:
+
+```console
+$ pytask lock clean --dry-run
+```
+
+Then remove stale entries interactively:
+
+--8<-- "docs/source/_static/md/lock-clean.md"
+
+Add `--yes` to remove all stale entries without prompting:
+
+```console
+$ pytask lock clean --yes
+```
+
+`clean` only removes entries for tasks which are no longer collected. It does not accept
+or update the current state of collected tasks.
 
 ## Related
 
