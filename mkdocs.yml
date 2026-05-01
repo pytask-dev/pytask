@@ -13,7 +13,6 @@ exclude_docs: |
 nav:
   - Home: index.md
   - Tutorials:
-      - Overview: tutorials/index.md
       - Installation: tutorials/installation.md
       - Set Up A Project: tutorials/set_up_a_project.md
       - Write A Task: tutorials/write_a_task.md
@@ -34,7 +33,6 @@ nav:
       - Cleaning Projects: tutorials/cleaning_projects.md
       - Visualizing The DAG: tutorials/visualizing_the_dag.md
   - How-To Guides:
-      - Overview: how_to_guides/index.md
       - Migrating From Scripts To pytask: how_to_guides/migrating_from_scripts_to_pytask.md
       - Interfaces For Dependencies And Products: how_to_guides/interfaces_for_dependencies_products.md
       - Move a Project to Another Machine: how_to_guides/move_project_to_another_machine.md
@@ -57,14 +55,11 @@ nav:
           - Templates And Projects: how_to_guides/bp_templates_and_projects.md
           - Complex Task Repetitions: how_to_guides/bp_complex_task_repetitions.md
   - Explanations:
-      - Overview: explanations/index.md
       - Why pytask: explanations/why_pytask.md
       - Comparison To Other Tools: explanations/comparison_to_other_tools.md
       - Pluggy: explanations/pluggy.md
   - Reference Guides:
-      - Overview: reference_guides/index.md
       - API:
-          - Overview: api/index.md
           - CLI Imports: api/cli_and_programmatic.md
           - Functional Interfaces: api/functional_interfaces.md
           - Core Classes And Exceptions: api/core_classes_and_exceptions.md
