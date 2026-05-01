@@ -7,8 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
-- Improves the documentation homepage cards by making the full tile clickable and
-  fixes the plugin list warning admonition formatting.
+- [#875](https://github.com/pytask-dev/pytask/pull/875) improves the documentation
+  homepage cards by making the full tile clickable and fixes the plugin list warning
+  admonition formatting.
 - [#874](https://github.com/pytask-dev/pytask/pull/874) improves the lockfile
   documentation by restructuring related guides around user workflows and introducing
   `pytask.lock` in the tutorials.
