@@ -24,6 +24,8 @@ my_project
 │       ├────config.py
 │       └────task_data_preparation.py
 │
+├───pytask.lock
+│
 └───pyproject.toml
 ```
 
@@ -77,6 +79,9 @@ necessary for pytask to correctly run a workflow. The interfaces are ordered fro
 Now, execute pytask to collect tasks in the current and subsequent directories.
 
 --8<-- "docs/source/_static/md/write-a-task.md"
+
+After the task succeeds, pytask writes `pytask.lock` next to `pyproject.toml`. Keep this
+file under version control so later builds can detect unchanged tasks.
 
 <a id="customize-task-names"></a>
 
