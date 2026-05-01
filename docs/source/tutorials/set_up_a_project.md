@@ -133,22 +133,24 @@ The `[tool.pytask.ini_options]` section tells pytask to look for tasks in
 `src/my_project`. You will learn more about configuration in the
 [configuration tutorial](configuration.md).
 
-## The `.pytask` directory
-
-The `.pytask` directory is where pytask stores its information. You do not need to
-interact with it.
-
 ## The `pytask.lock` file
 
 The `pytask.lock` file records which tasks and products are up to date. pytask updates
 it during builds so later runs can skip unchanged tasks. This file should be kept in
 version control.
 
-When you move a project to another machine, see
-[Move a Project to Another Machine](../how_to_guides/move_project_to_another_machine.md).
-To update recorded task state manually, use
-[`pytask lock`](../reference_guides/commands.md#pytask-lock). For details on what pytask
-stores in the file, see [Lockfile](../reference_guides/lockfile.md).
+!!! seealso
+
+    You will later learn how to sync the state of the lockfile with the project state with
+    the [`pytask lock`](../reference_guides/commands.md#pytask-lock) command or how the
+    lockfile enables you to
+    [move a project to another machine](../how_to_guides/move_project_to_another_machine.md),
+    but don't worry about it for now.
+
+## The `.pytask` directory
+
+The `.pytask` directory is where pytask stores some of its ephemeral information. You do
+not need to interact with it, nor do you need to keep it in version control.
 
 ## Installation
 

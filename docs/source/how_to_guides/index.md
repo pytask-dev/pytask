@@ -10,7 +10,7 @@ specific tasks with pytask.
 - [Migrating From Scripts To Pytask](migrating_from_scripts_to_pytask.md)
 - [Interfaces For Dependencies Products](interfaces_for_dependencies_products.md)
 - [Move a Project to Another Machine](move_project_to_another_machine.md)
-- [Update the Lockfile to Match Project State](reconciling_lockfile_state.md)
+- [Update the Lockfile to Match Project State](update_the_lockfile_to_match_project_state.md)
 - [Remote Files](remote_files.md)
 - [Functional Interface](functional_interface.md)
 - [Capture Warnings](capture_warnings.md)
