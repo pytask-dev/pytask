@@ -144,6 +144,12 @@ The `pytask.lock` file records which tasks and products are up to date. pytask u
 it during builds so later runs can skip unchanged tasks. This file should be kept in
 version control.
 
+When you move a project to another machine, see
+[Move a Project to Another Machine](../how_to_guides/move_project_to_another_machine.md).
+To update recorded task state manually, use
+[`pytask lock`](../reference_guides/commands.md#pytask-lock). For details on what pytask
+stores in the file, see [Lockfile](../reference_guides/lockfile.md).
+
 ## Installation
 
 === "uv"
