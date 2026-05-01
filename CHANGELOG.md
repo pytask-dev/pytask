@@ -7,6 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#874](https://github.com/pytask-dev/pytask/pull/874) improves the lockfile
+  documentation by restructuring related guides around user workflows and introducing
+  `pytask.lock` in the tutorials.
 - [#868](https://github.com/pytask-dev/pytask/pull/868) resets the global marker
   configuration during unconfigure so `--strict-markers` no longer leaks into later
   marker access in the same process.
