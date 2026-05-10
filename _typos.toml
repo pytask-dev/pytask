@@ -1,3 +1,4 @@
 [default.extend-words]
 ines = "ines"
 thes = "thes"  # profiling-tasks.md
+scap = "scap"

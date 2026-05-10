@@ -83,7 +83,6 @@ nav:
   - Changelog: changes.md
 
 theme:
-  name: zensical
   logo: _static/images/pytask.svg
   favicon: _static/images/pytask.ico
   features:
