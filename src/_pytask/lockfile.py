@@ -61,11 +61,11 @@ class _JournalEntry(msgspec.Struct):
 
 
 def _should_initialize_lockfile_state(command: str | None) -> bool:
-    return command in (None, "build")
+    return command in (None, "build", "lock")
 
 
 def _should_validate_lockfile_ids(command: str | None) -> bool:
-    return command in (None, "build", "collect")
+    return command in (None, "build", "collect", "lock")
 
 
 def _encode_node_path(path: tuple[str | int, ...]) -> str:
@@ -365,6 +365,17 @@ class LockfileState:
     def get_node_state(self, task_id: str, node_id: str) -> str | None:
         return self._node_index.get(task_id, {}).get(node_id)
 
+    def task_ids(self) -> set[str]:
+        return set(self._task_index)
+
+    def _update_from_task_index(self) -> None:
+        self.lockfile = _Lockfile(
+            lock_version=CURRENT_LOCKFILE_VERSION,
+            task=list(self._task_index.values()),
+        )
+        self._rebuild_indexes()
+        self._dirty = True
+
     def update_task(self, session: Session, task: PTask) -> None:
         entry = _build_task_entry(session, task, self.root)
         if entry is None:
@@ -389,6 +400,28 @@ class LockfileState:
             )
         )
         self._dirty = True
+
+    def set_task_entries(self, entries: list[_TaskEntry]) -> list[str]:
+        changed = []
+        for entry in entries:
+            existing = self._task_index.get(entry.id)
+            if existing == entry:
+                continue
+            self._task_index[entry.id] = entry
+            changed.append(entry.id)
+        if changed:
+            self._update_from_task_index()
+        return changed
+
+    def remove_task_entries(self, task_ids: set[str]) -> list[str]:
+        removed = []
+        for task_id in task_ids:
+            if task_id in self._task_index:
+                del self._task_index[task_id]
+                removed.append(task_id)
+        if removed:
+            self._update_from_task_index()
+        return removed
 
     def rebuild_from_session(self, session: Session) -> None:
         if session.dag is None:
@@ -451,7 +484,4 @@ def pytask_unconfigure(session: Session) -> None:
     lockfile_state = session.config.get("lockfile_state")
     if lockfile_state is None:
         return
-    if session.config.get("clean_lockfile"):
-        lockfile_state.rebuild_from_session(session)
-    else:
-        lockfile_state.flush()
+    lockfile_state.flush()

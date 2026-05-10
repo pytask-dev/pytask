@@ -1,23 +1,16 @@
 <div class="termy">
 
 ```console
-
 $ pytask lock accept -k train --dry-run
-────────────────────────── Start pytask session ─────────────────────────
-Platform: win32 -- Python 3.12.0, pytask 0.5.3, pluggy 1.3.0
+
+<span class="termynal-dim">──────────────────────────</span> Start pytask session <span class="termynal-dim">──────────────────────────</span>
+Platform: win32 -- Python 3.13.0, pytask 0.6.0
 Root: C:\Users\pytask-dev\git\my_project
 Collected 2 tasks.
+<span class="termynal-success">Would accept recorded state for task_train.py::task_train.</span>
+<span class="termynal-success">Would accept recorded state for task_evaluate.py::task_evaluate.</span>
 
-The following recorded states would be updated:
-
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Task                                           ┃ Reason               ┃
-┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━┩
-│ <span class="termynal-dim">task_train.py::</span>task_train_model                │ task_change          │
-│ <span class="termynal-dim">task_train.py::</span>task_evaluate_model             │ dependency_change    │
-└────────────────────────────────────────────────┴──────────────────────┘
-
-<span class="termynal-warning">No changes were written because --dry-run was used.</span>
+<span class="termynal-dim">─────────────────────────────────────────────────────────────────────────</span>
 ```
 
 </div>

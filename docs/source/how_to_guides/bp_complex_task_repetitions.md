@@ -99,8 +99,8 @@ When you are using the `.name` attributes of the dimensions and multi-dimensiona
 objects like in the example above, you ensure that the names of dimensions are included
 in all downstream tasks.
 
-Thus, you can simply call [`pytask -k`](../commands/build.md#options) with the following
-expression to execute all tasks related to the logit model.
+Thus, you can simply call [`pytask -k`](../reference_guides/commands.md#pytask-build--k)
+with the following expression to execute all tasks related to the logit model.
 
 ```console
 pytask -k logit

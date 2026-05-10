@@ -5,8 +5,17 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## Unreleased
+## 0.6.0 - 2026-05-01
 
+- [#875](https://github.com/pytask-dev/pytask/pull/875) improves the documentation
+  homepage cards by making the full tile clickable and fixes the plugin list warning
+  admonition formatting.
+- [#874](https://github.com/pytask-dev/pytask/pull/874) improves the lockfile
+  documentation by restructuring related guides around user workflows and introducing
+  `pytask.lock` in the tutorials.
+- [#868](https://github.com/pytask-dev/pytask/pull/868) resets the global marker
+  configuration during unconfigure so `--strict-markers` no longer leaks into later
+  marker access in the same process.
 - [#837](https://github.com/pytask-dev/pytask/pull/837) skips incremental live
   rendering on non-interactive output while preserving the final build table and
   live-manager lifecycle.

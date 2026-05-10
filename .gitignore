@@ -30,3 +30,4 @@ tests/test_jupyter/*.txt
 .venv
 docs/jupyter_execute
 .DS_Store
+docs/source/reference_guides/commands.md

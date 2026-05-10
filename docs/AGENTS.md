@@ -2,6 +2,11 @@
 
 ## General
 
+- The structure of the documentation follows https://diataxis.fr/. When writing or
+    editing an article, read the relevant guidance from the Diataxis Framework before:
+    https://diataxis.fr/tutorials, https://diataxis.fr/how-to-guides/,
+    https://diataxis.fr/explanation/, https://diataxis.fr/reference/.
+    https://diataxis.fr/compass/ tells you where belongs what and how do they relate.
 - Document only public APIs and user-facing behavior - exclude internals, framework
     abstractions, and implementation plumbing - Users need actionable documentation on
     what they can use, not confusing details about internal mechanics they can't control

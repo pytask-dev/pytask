@@ -19,8 +19,9 @@ More general information about pluggy can be found in its
 There are two ways to add new
 [hook implementations](../glossary.md#hook-implementation).
 
-1. Using the [`pytask build --hook-module`](../commands/build.md#options) commandline
-    option or the `hook_module` configuration value.
+1. Using the
+    [`pytask build --hook-module`](../reference_guides/commands.md#pytask-build--hook-module)
+    commandline option or the `hook_module` configuration value.
 1. Packaging your [plugin](../glossary.md#plugin) as a Python package to publish and
     share it.
 
@@ -55,8 +56,8 @@ hook_module = ["myproject.hooks"]
 ```
 
 In `hooks.py` we can add another commandline option to
-[`pytask build`](../commands/build.md) by providing an additional
-[hook implementation](../glossary.md#hook-implementation) for the
+[`pytask build`](../reference_guides/commands.md#pytask-build) by providing an
+additional [hook implementation](../glossary.md#hook-implementation) for the
 [hook specification](../glossary.md#hook-specification)
 `_pytask.hookspecs.pytask_extend_command_line_interface`.
 

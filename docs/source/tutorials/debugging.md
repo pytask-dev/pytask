@@ -5,9 +5,9 @@ help you to gain more information on the root cause.
 
 ## Post-mortem debugger
 
-Using [`pytask build --pdb`](../commands/build.md#options) enables the post-mortem
-debugger. Whenever an exception is raised inside a task, the prompt will enter the
-debugger enabling you to find out the cause of the exception.
+Using [`pytask build --pdb`](../reference_guides/commands.md#pytask-build--pdb) enables
+the post-mortem debugger. Whenever an exception is raised inside a task, the prompt will
+enter the debugger enabling you to find out the cause of the exception.
 
 --8<-- "docs/source/_static/md/pdb.md"
 
@@ -19,28 +19,30 @@ debugger enabling you to find out the cause of the exception.
 !!! note
 
     A following tutorial explains [how to select a subset of tasks](selecting_tasks.md).
-    Combine it with the [`pytask build --pdb`](../commands/build.md#options) flag to debug
+    Combine it with the
+    [`pytask build --pdb`](../reference_guides/commands.md#pytask-build--pdb) flag to debug
     specific tasks.
 
 ## Tracing
 
 If you want to enter the debugger at the start of every task, use
-[`pytask build --trace`](../commands/build.md#options).
+[`pytask build --trace`](../reference_guides/commands.md#pytask-build--trace).
 
 --8<-- "docs/source/_static/md/trace.md"
 
 ## Tracebacks
 
 You can enrich the display of tracebacks by showing local variables in each stack frame.
-Just execute [`pytask build --show-locals`](../commands/build.md#options).
+Just execute
+[`pytask build --show-locals`](../reference_guides/commands.md#pytask-build--show-locals).
 
 --8<-- "docs/source/_static/md/show-locals.md"
 
 ## Custom debugger
 
 If you want to use your custom debugger, make sure it is importable and use
-[`pytask build --pdbcls`](../commands/build.md#options). Here, we change the standard
-`pdb` debugger to IPython's implementation.
+[`pytask build --pdbcls`](../reference_guides/commands.md#pytask-build--pdbcls). Here,
+we change the standard `pdb` debugger to IPython's implementation.
 
 ```console
 $ pytask --pdbcls=IPython.terminal.debugger:TerminalPdb

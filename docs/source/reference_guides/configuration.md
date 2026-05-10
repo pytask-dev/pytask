@@ -44,7 +44,7 @@ check_casing_of_paths = false
 SQLite is the legacy state format. pytask uses `pytask.lock` as the primary state
 backend for change detection. When no lockfile exists, pytask reads the configured
 database and writes `pytask.lock`. For downgrade compatibility,
-[`pytask build`](../commands/build.md) also keeps the legacy database state updated.
+[`pytask build`](commands.md#pytask-build) also keeps the legacy database state updated.
 
 The `database_url` option remains for backward compatibility and controls the legacy
 database location and dialect
@@ -114,7 +114,7 @@ pytask can ignore files and directories and exclude some tasks or reduce the dur
 the collection.
 
 To ignore some file/folder via the command line, use the
-[`--ignore`](../commands/build.md#options) flag multiple times.
+[`--ignore`](commands.md#pytask-build--ignore) flag multiple times.
 
 ```console
 $ pytask --ignore some_file.py --ignore some_directory/*
@@ -133,7 +133,7 @@ ignore = ["some_directory/*", "some_file.py"]
 ### `markers`
 
 pytask uses markers to attach additional information to task functions. To see which
-markers are available, use the [`pytask markers`](../commands/markers.md) command.
+markers are available, use the [`pytask markers`](commands.md#pytask-markers) command.
 
 ```console
 $ pytask markers
@@ -201,7 +201,7 @@ pdbcls = "pdbp:Pdb"
 ```
 
 The custom debugger will be used when you invoke the
-[`--pdb`](../commands/build.md#options) flag for post-mortem debugging or when using
+[`--pdb`](commands.md#pytask-build--pdb) flag for post-mortem debugging or when using
 `breakpoint()` in your task code.
 
 ### `show_errors_immediately`

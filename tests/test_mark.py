@@ -355,6 +355,27 @@ def test_error_with_unknown_marker_and_strict(runner, tmp_path):
     assert "Unknown pytask.mark.unknown" in result.output
 
 
+@pytest.mark.filterwarnings("ignore:Unknown pytask\\.mark\\.foo")
+def test_strict_markers_do_not_leak_after_unconfigure(runner, tmp_path):
+    source = """
+    from pytask import mark
+
+    @mark.unknown
+    def task_write_text(): ...
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    result = runner.invoke(cli, [tmp_path.as_posix(), "--strict-markers"])
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+
+    # If the strict config leaked through MARK_GEN.config, this unknown marker would
+    # raise instead of warning and returning a MarkDecorator.
+    md = pytask.mark.foo(1, "2", three=3)
+
+    assert md.name == "foo"
+    assert md.args == (1, "2")
+    assert md.kwargs == {"three": 3}
+
+
 @pytest.mark.parametrize("name", ["parametrize", "depends_on", "produces", "task"])
 def test_error_with_deprecated_markers(runner, tmp_path, name):
     source = f"""

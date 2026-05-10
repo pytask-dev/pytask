@@ -8,7 +8,6 @@ repos:
     -   id: check-merge-conflict
     -   id: check-vcs-permalinks
     -   id: check-yaml
-        exclude: (^mkdocs\.yml$)
     -   id: debug-statements
         exclude: (debugging\.py)
     -   id: end-of-file-fixer
@@ -26,14 +25,21 @@ repos:
     -   id: python-no-log-warn
     -   id: text-unicode-replacement-char
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.10
+    rev: v0.15.12
     hooks:
       - id: ruff-format
       - id: ruff-check
 -   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.6
+    rev: 0.11.12
     hooks:
       - id: uv-lock
+-   repo: local
+    hooks:
+    -   id: check-termynal-line-lengths
+        name: Check Termynal line lengths
+        entry: python scripts/check_termynal_line_lengths.py
+        language: python
+        files: ^docs/source/_static/md/.*\.md$
 -   repo: https://github.com/executablebooks/mdformat
     rev: 1.0.0
     hooks:
@@ -54,14 +60,14 @@ repos:
             mdformat-pyproject>=0.0.2,
         ]
         files: (docs/.)
-        exclude: (docs/source/reference_guides/hookspecs\.md|docs/source/api/.*\.md|docs/source/how_to_guides/capture_warnings\.md|docs/source/how_to_guides/hashing_inputs_of_tasks\.md|docs/source/how_to_guides/provisional_nodes_and_task_generators\.md|docs/source/how_to_guides/remote_files\.md|docs/source/how_to_guides/writing_custom_nodes\.md|docs/source/tutorials/defining_dependencies_products\.md|docs/source/tutorials/using_a_data_catalog\.md)
+        exclude: (docs/source/reference_guides/hookspecs\.md|docs/source/reference_guides/api/.*\.md|docs/source/how_to_guides/capture_warnings\.md|docs/source/how_to_guides/hashing_inputs_of_tasks\.md|docs/source/how_to_guides/provisional_nodes_and_task_generators\.md|docs/source/how_to_guides/remote_files\.md|docs/source/how_to_guides/writing_custom_nodes\.md|docs/source/tutorials/defining_dependencies_products\.md|docs/source/tutorials/using_a_data_catalog\.md)
 -   repo: https://github.com/kynan/nbstripout
     rev: 0.9.1
     hooks:
     -   id: nbstripout
         exclude: (docs)
 -   repo: https://github.com/crate-ci/typos
-    rev: v1
+    rev: v1.46.1
     hooks:
     -   id: typos
         exclude: (\.ipynb)

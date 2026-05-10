@@ -19,7 +19,7 @@ build:
       - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --group docs
     build:
       html:
-        - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv run --group docs zensical build
+        - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uvx --from rust-just just docs
     post_build:
       - mkdir -p "${READTHEDOCS_OUTPUT}/html"
       - cp -a docs/build/. "${READTHEDOCS_OUTPUT}/html/"

@@ -174,6 +174,4 @@ This part of the interface is still more open than the declarative values above.
 
 ## Related
 
-- [Task Execution Model](../explanations/execution_policies.md)
-- [Reconciling Lockfile State](reconciling_lockfile_state.md)
 - [Hashing Inputs Of Tasks](hashing_inputs_of_tasks.md)
