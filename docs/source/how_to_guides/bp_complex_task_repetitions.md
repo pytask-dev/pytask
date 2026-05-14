@@ -30,16 +30,15 @@ are growing over time and you run into these problems.
 ## Solution
 
 The main idea for the solution is quickly explained. We will, first, formalize
-dimensions into objects using
-[`dataclasses.dataclass`](https://docs.python.org/3/library/dataclasses.html#dataclasses.dataclass).
+dimensions into objects using [dataclasses.dataclass][].
 
 Secondly, we will combine dimensions in multi-dimensional objects such that we only have
 to iterate over instances of this object in a single loop. Here and for the lack of a
 better name, we will call the object an experiment.
 
 Lastly, we will also use the
-[`pytask.DataCatalog`](../api/core_classes_and_exceptions.md#pytask.DataCatalog) to not
-be bothered with defining paths.
+[`pytask.DataCatalog`](../reference_guides/api/core_classes_and_exceptions.md#pytask.DataCatalog)
+to not be bothered with defining paths.
 
 !!! note
 
@@ -69,8 +68,9 @@ we use them.
 As you see, we lost a level of indentation and we moved all the generations of names and
 paths to the dimensions and multi-dimensional objects.
 
-Using a [`pytask.PythonNode`](../api/nodes_and_tasks.md#pytask.PythonNode) allows us to
-hash the model and reexecute the task if we define other model settings.
+Using a
+[`pytask.PythonNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PythonNode)
+allows us to hash the model and reexecute the task if we define other model settings.
 
 ## Adding another level
 
@@ -115,6 +115,7 @@ pytask -k logit
 
 Some repeated tasks are costly to run - costly in terms of computing power, memory, or
 runtime. If you change a task module, you might accidentally trigger all other tasks in
-the module to be rerun. Use the [`@pytask.mark.persist`](../api/marks.md#pytask.mark)
-decorator, which is explained in more detail in this
+the module to be rerun. Use the
+[`@pytask.mark.persist`](../reference_guides/api/marks.md#pytaskmarkpersist) decorator,
+which is explained in more detail in this
 [tutorial](../tutorials/making_tasks_persist.md).

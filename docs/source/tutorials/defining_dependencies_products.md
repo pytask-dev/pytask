@@ -5,7 +5,7 @@ Define task dependencies and products to run your tasks.
 Defining dependencies and products also determines task execution order.
 
 This tutorial offers you different interfaces. For type annotations, see the `Annotated`
-tabs. You find a tutorial on type hints [here](../type_hints.md).
+tabs. You find a tutorial on type hints [here](../reference_guides/type_hints.md).
 
 If you want to avoid type annotations for now, look at the tab named `produces`.
 
@@ -52,7 +52,7 @@ Let's revisit the task from the [previous tutorial](write_a_task.md) that we def
     --8<-- "docs_src/tutorials/defining_dependencies_products_products_py310.py"
     ```
 
-    [`pytask.Product`](../api/utilities_and_typing.md#pytask.Product) allows marking an
+    [`pytask.Product`](../reference_guides/api/utilities_and_typing.md#pytask.Product) allows marking an
     argument as a product. After the task has finished, pytask will check whether the file
     exists.
 
@@ -68,7 +68,7 @@ Let's revisit the task from the [previous tutorial](write_a_task.md) that we def
 
 !!! tip
 
-    If you do not know about [`pathlib`][] check out this guide by
+    If you do not know about [`pathlib`](https://docs.python.org/3/library/pathlib.html) check out this guide by
     [RealPython](https://realpython.com/python-pathlib/). The module is beneficial for
     handling paths conveniently and across platforms.
 
@@ -86,7 +86,7 @@ we will define it in `task_plot_data.py`.
     any argument name (here `path_to_data`).
 
     pytask assumes that all function arguments that do not have a
-    [`pytask.Product`](../api/utilities_and_typing.md#pytask.Product) annotation are
+    [`pytask.Product`](../reference_guides/api/utilities_and_typing.md#pytask.Product) annotation are
     dependencies of the task.
 
     ```py hl_lines="12"
@@ -173,7 +173,7 @@ pytask allows you to do that, but you lose features like access to paths, which 
 defining dependencies explicitly is always preferred.
 
 There are two modes for it, and both use
-[`@task(after=...)`](../api/nodes_and_tasks.md#pytask.task).
+[`@task(after=...)`](../reference_guides/api/nodes_and_tasks.md#pytask.task).
 
 First, you can pass the task function or multiple task functions to the decorator.
 Applied to the tasks from before, we could have written `task_plot_data` as
@@ -198,8 +198,8 @@ You will learn more about expressions in [selecting tasks](selecting_tasks.md).
 ## Further reading
 
 - There is an additional way to specify products by treating the returns of a task
-    function as a product. Read
-    [using task returns](../how_to_guides/using_task_returns.md) to learn more about it.
+  function as a product. Read
+  [using task returns](../how_to_guides/using_task_returns.md) to learn more about it.
 - An overview of all ways to specify dependencies and products and their strengths and
-    weaknesses can be found in
-    [interfaces for dependencies products](../how_to_guides/interfaces_for_dependencies_products.md).
+  weaknesses can be found in
+  [interfaces for dependencies products](../how_to_guides/interfaces_for_dependencies_products.md).

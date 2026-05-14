@@ -10,9 +10,9 @@ With pytask, you can enjoy features like:
 - **Parallelization**. Use
     [pytask-parallel](https://github.com/pytask-dev/pytask-parallel) to speed up your
     scripts by running them in parallel.
-- **Cross-language projects**. pytask has several [plugins](../glossary.md#plugin) for
-    running scripts written in other popular languages:
-    [pytask-r](https://github.com/pytask-dev/pytask-r),
+- **Cross-language projects**. pytask has several
+    [plugins](../reference_guides/glossary.md#plugin) for running scripts written in
+    other popular languages: [pytask-r](https://github.com/pytask-dev/pytask-r),
     [pytask-julia](https://github.com/pytask-dev/pytask-julia), and
     [pytask-stata](https://github.com/pytask-dev/pytask-stata).
 
@@ -59,8 +59,8 @@ An `if __name__ == "__main__"` block must be deleted.
 To let pytask know the order in which to execute tasks and when to re-run them, you'll
 need to specify task dependencies and products. Add dependencies as arguments to the
 function with default values. Do the same for products, but also add the special
-[`pytask.Product`](../api/utilities_and_typing.md#pytask.Product) annotation with
-`Annotated[Path, Product]`. For example:
+[`pytask.Product`](../reference_guides/api/utilities_and_typing.md#pytask.Product)
+annotation with `Annotated[Path, Product]`. For example:
 
 ```py
 --8<-- "docs_src/how_to_guides/migrating_from_scripts_to_pytask_4.py"
@@ -103,10 +103,10 @@ $ pytask -n 4
 
 pytask wants to help you get your job done, and sometimes a different programming
 language can make your life easier. Thus, pytask has several
-[plugins](../glossary.md#plugin) to integrate code written in R, Julia, and Stata. Here,
-we explore how to incorporate an R script with
+[plugins](../reference_guides/glossary.md#plugin) to integrate code written in R, Julia,
+and Stata. Here, we explore how to incorporate an R script with
 [pytask-r](https://github.com/pytask-dev/pytask-r). You can also find more information
-about the [plugin](../glossary.md#plugin) in the repo's readme.
+about the [plugin](../reference_guides/glossary.md#plugin) in the repo's readme.
 
 First, we will install the package.
 

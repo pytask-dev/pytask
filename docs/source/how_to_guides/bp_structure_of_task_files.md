@@ -15,8 +15,8 @@ are looking for orientation or inspiration, here are some tips.
     files and calling Python functions on the task's inputs. IO should not be handled in
     any other function.
 - Non-task functions in the task module are
-    [`private functions`](../glossary.md#private-function) and only used within this
-    task module. The functions should not have side-effects.
+    [`private functions`](../reference_guides/glossary.md#private-function) and only
+    used within this task module. The functions should not have side-effects.
 - It should never be necessary to import from task modules. So if you need a function in
     multiple task modules, put it in a separate module (which does not start with
     `task_`).
@@ -39,8 +39,9 @@ to focus on one thing.
 The second reason is about runtime. If a task module is changed, all tasks within the
 module are re-run. If the runtime of all tasks in the module is high, you wait longer
 for your tasks to finish or until an error occurs which prolongs your feedback loops and
-hurts your productivity. Use [`@pytask.mark.persist`](../api/marks.md#pytaskmarkpersist)
-if you want to avoid accidentally triggering an expensive task. It is also explained in
+hurts your productivity. Use
+[`@pytask.mark.persist`](../reference_guides/api/marks.md#pytaskmarkpersist) if you want
+to avoid accidentally triggering an expensive task. It is also explained in
 [this tutorial](../tutorials/making_tasks_persist.md).
 
 ### Structure of the module
@@ -50,11 +51,13 @@ For the following example, let us assume that the task module contains one task.
 The task function should be the first function in the module. It should have a
 descriptive name and a docstring which explains what the task accomplishes.
 
-It should be the only [`public function`](../glossary.md#public-function) in the module
-which means the only function without a leading underscore. This is a convention to keep
-[`public functions`](../glossary.md#public-function) separate from
-[`private functions`](../glossary.md#private-function) (with a leading underscore) where
-the latter must only be used in the same module and not imported elsewhere.
+It should be the only
+[`public function`](../reference_guides/glossary.md#public-function) in the module which
+means the only function without a leading underscore. This is a convention to keep
+[`public functions`](../reference_guides/glossary.md#public-function) separate from
+[`private functions`](../reference_guides/glossary.md#private-function) (with a leading
+underscore) where the latter must only be used in the same module and not imported
+elsewhere.
 
 The body of the task function should contain two things:
 
@@ -76,8 +79,8 @@ are used to accomplish this and only this task.
 
 Here is an example of a task module which conforms to all advice.
 
-```python
---8 < --"docs_src/how_to_guides/bp_structure_of_task_files.py"
+```py
+--8<-- "docs_src/how_to_guides/bp_structure_of_task_files.py"
 ```
 
 !!! note

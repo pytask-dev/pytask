@@ -7,15 +7,15 @@ Two things will quickly become a nuisance in bigger projects.
 
 1. We have to define the same paths again and again.
 1. We have to define paths to files that we are not particularly interested in since
-    they are just intermediate representations.
+   they are just intermediate representations.
 
 As a solution, pytask offers a
-[`pytask.DataCatalog`](../api/core_classes_and_exceptions.md#pytask.DataCatalog), which
+[`pytask.DataCatalog`](../reference_guides/api/core_classes_and_exceptions.md#pytask.DataCatalog), which
 is a purely optional feature. The tutorial focuses on the main features. To learn about
 all the features, read the [how-to guide](../how_to_guides/the_data_catalog.md).
 
 Let us focus on the previous example and see how
-[`pytask.DataCatalog`](../api/core_classes_and_exceptions.md#pytask.DataCatalog) helps
+[`pytask.DataCatalog`](../reference_guides/api/core_classes_and_exceptions.md#pytask.DataCatalog) helps
 us.
 
 The project structure is the same as in the previous example except the `.pytask` folder
@@ -56,7 +56,7 @@ Next, we look at the module `task_data_preparation.py` and its task
 be stored on the disk.
 
 In the previous tutorial, we learned to use
-[`pathlib.Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)s to define
+[pathlib.Path][]s to define
 products of our tasks. Here we see again the signature of the task function.
 
 === "Annotated"
@@ -74,7 +74,7 @@ products of our tasks. Here we see again the signature of the task function.
 When we want to use the data catalog, we replace `BLD / "data.pkl"` with an entry of the
 data catalog like `data_catalog["data"]`. If there is yet no entry with the name
 `"data"`, the data catalog will automatically create a
-[`pytask.PickleNode`](../api/nodes_and_tasks.md#pytask.PickleNode). The node allows you
+[`pytask.PickleNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PickleNode). The node allows you
 to save any Python object to a `pickle` file.
 
 You probably noticed that we did not need to define a path. That is because the data
@@ -87,9 +87,9 @@ The following tabs show you how to use the data catalog given the interface you 
 === "Annotated"
 
     Use `data_catalog["data"]` as an default argument to access the
-    [`pytask.PickleNode`](../api/nodes_and_tasks.md#pytask.PickleNode) within the task. When
-    you are done transforming your [`pandas.DataFrame`][], save it with
-    [`pytask.PNode.save`](../api/nodes_and_tasks.md#pytask.PNode.save).
+    [`pytask.PickleNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PickleNode) within the task. When
+    you are done transforming your [pandas.DataFrame][], save it with
+    [`pytask.PNode.save`](../reference_guides/api/nodes_and_tasks.md#pytask.PNode.save).
 
     ```py hl_lines="11 22" title="task_data_preparation.py"
     --8<-- "docs_src/tutorials/using_a_data_catalog_2_py310.py"
@@ -98,9 +98,9 @@ The following tabs show you how to use the data catalog given the interface you 
 === "produces"
 
     Use `data_catalog["data"]` as an default argument to access the
-    [`pytask.PickleNode`](../api/nodes_and_tasks.md#pytask.PickleNode) within the task. When
-    you are done transforming your [`pandas.DataFrame`][], save it with
-    [`pytask.PNode.save`](../api/nodes_and_tasks.md#pytask.PNode.save).
+    [`pytask.PickleNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PickleNode) within the task. When
+    you are done transforming your [pandas.DataFrame][], save it with
+    [`pytask.PNode.save`](../reference_guides/api/nodes_and_tasks.md#pytask.PNode.save).
 
     ```py hl_lines="7 17" title="task_data_preparation.py"
     --8<-- "docs_src/tutorials/using_a_data_catalog_2_produces.py"
@@ -110,7 +110,7 @@ The following tabs show you how to use the data catalog given the interface you 
 
     An elegant way to use the data catalog is via return type annotations. Add
     `data_catalog["data"]` to the annotated return and simply return the
-    [`pandas.DataFrame`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html)
+    [pandas.DataFrame][]
     to store it.
 
     You can read more about return type annotations in
@@ -124,7 +124,7 @@ The following tabs show you how to use the data catalog given the interface you 
 
 Next, we will define the second task that consumes the data set from the previous task.
 Following one of the interfaces gives you immediate access to the
-[`pandas.DataFrame`][] in the task without any additional line to load
+[pandas.DataFrame][] in the task without any additional line to load
 it.
 
 ```py hl_lines="13" title="task_plot_data.py"
@@ -139,7 +139,7 @@ Finally, let's execute the two tasks.
 
 In most projects, you have other data sets that you would like to access via the data
 catalog. To add them, call the
-[`pytask.DataCatalog.add`](../api/core_classes_and_exceptions.md#pytask.DataCatalog.add)
+[`pytask.DataCatalog.add`](../reference_guides/api/core_classes_and_exceptions.md#pytask.DataCatalog.add)
 method and supply a name and a path.
 
 Let's add `file.csv` with the name `"csv"` to the data catalog and use it to create
@@ -175,15 +175,15 @@ path means the location is relative to the module of the data catalog.
 ```
 
 You can now use the data catalog as in the previous example and use the
-[`pathlib.Path`][] in the task.
+[pathlib.Path][] in the task.
 
 !!! note
 
     Note that the value of `data_catalog["csv"]` inside the task becomes a
-    [`pathlib.Path`][]. It is because a [`pathlib.Path`][] in
-    [`pytask.DataCatalog.add`](../api/core_classes_and_exceptions.md#pytask.DataCatalog.add)
-    is not parsed to a [`pytask.PickleNode`](../api/nodes_and_tasks.md#pytask.PickleNode)
-    but a [`pytask.PathNode`](../api/nodes_and_tasks.md#pytask.PathNode).
+    [pathlib.Path][]. It is because a [pathlib.Path][] in
+    [`pytask.DataCatalog.add`](../reference_guides/api/core_classes_and_exceptions.md#pytask.DataCatalog.add)
+    is not parsed to a [`pytask.PickleNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PickleNode)
+    but a [`pytask.PathNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PathNode).
 
     Read [writing custom nodes](../how_to_guides/writing_custom_nodes.md) for more
     information about different node types which is not relevant now.
@@ -207,7 +207,7 @@ interpreter. This can be super helpful when you develop tasks interactively in a
 Notebook.
 
 Simply import the data catalog, select a node and call
-[`pytask.PNode.load`](../api/nodes_and_tasks.md#pytask.PNode.load) to access its value.
+[`pytask.PNode.load`](../reference_guides/api/nodes_and_tasks.md#pytask.PNode.load) to access its value.
 
 Here is an example with a terminal.
 
@@ -222,7 +222,7 @@ WindowsPath('C:\Users\pytask-dev\git\my_project\file.csv')
 ```
 
 `data_catalog["data"]` was stored with a
-[`pytask.PickleNode`](../api/nodes_and_tasks.md#pytask.PickleNode) and returns the
-[`pandas.DataFrame`][] whereas `data_catalog["csv"]` becomes a
-[`pytask.PathNode`](../api/nodes_and_tasks.md#pytask.PathNode) and
-[`pytask.PNode.load`](../api/nodes_and_tasks.md#pytask.PNode.load) returns the path.
+[`pytask.PickleNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PickleNode) and returns the
+[pandas.DataFrame][] whereas `data_catalog["csv"]` becomes a
+[`pytask.PathNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PathNode) and
+[`pytask.PNode.load`](../reference_guides/api/nodes_and_tasks.md#pytask.PNode.load) returns the path.

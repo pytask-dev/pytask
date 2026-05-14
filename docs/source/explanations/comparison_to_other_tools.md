@@ -2,8 +2,8 @@
 
 There exist some alternatives to pytask which are listed below. The short descriptions
 don't do them justice and you should check them out to see which
-[workflow management system](../glossary.md#workflow-management-system) (WFM) fits you
-and your use case best.
+[workflow management system](../reference_guides/glossary.md#workflow-management-system)
+(WFM) fits you and your use case best.
 
 Feel free to contribute to this list and add points which you found particularly
 favorable. The list also serves as an inspiration for pytask to adopt features present
@@ -93,9 +93,9 @@ Azure.
 ## [pipefunc](https://github.com/pipefunc/pipefunc)
 
 pipefunc is a lightweight library for creating function pipelines as
-[directed acyclic graphs (DAGs)](../glossary.md#dag) in pure Python. It automatically
-handles execution order, supports map-reduce operations, parallel execution, and
-provides resource profiling.
+[directed acyclic graphs (DAGs)](../reference_guides/glossary.md#dag) in pure Python. It
+automatically handles execution order, supports map-reduce operations, parallel
+execution, and provides resource profiling.
 
 ## [Hamilton](https://github.com/dagworks-inc/hamilton)
 

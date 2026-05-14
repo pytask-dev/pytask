@@ -29,7 +29,7 @@ check: lint typing test
 docs *FLAGS:
     uv run python scripts/generate_cli_reference.py
     uv run --group plugin-list python scripts/update_plugin_list.py
-    uv run --group docs zensical build {{FLAGS}}
+    uv run --group docs zensical build --strict {{FLAGS}}
 
 # Serve documentation with auto-reload
 docs-serve *FLAGS:

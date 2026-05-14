@@ -4,11 +4,11 @@ So far, we have only dealt with local files in the tutorials and guides. But the
 lots of use cases to deal with remote files.
 
 - You distribute the workflow without the data and want to make it easy for others to
-    get started. So, some tasks reference remote files instead of local files.
+  get started. So, some tasks reference remote files instead of local files.
 - You store the workflow results in remote storage to save and distribute them.
 
 pytask uses [universal-pathlib](https://github.com/fsspec/universal_pathlib) to work
-with remote files. The package provides a [`pathlib`][]-like interface, making
+with remote files. The package provides a [`pathlib`](https://docs.python.org/3/library/pathlib.html)-like interface, making
 it very easy to interact with files from an HTTP(S)-, Dropbox-, S3-, GCP-, Azure-based
 filesystem, and many more.
 
@@ -41,7 +41,7 @@ ImportError: Install s3fs to access S3
 Some filesystems are supported
 [out-of-the-box](https://filesystem-spec.readthedocs.io/en/latest/api.html#built-in-implementations).
 [Others](https://filesystem-spec.readthedocs.io/en/latest/api.html#other-known-implementations)
-are available as [plugins](../glossary.md#plugin) and require additional packages.
+are available as [plugins](../reference_guides/glossary.md#plugin) and require additional packages.
 
 After installing s3fs, rerun the command.
 

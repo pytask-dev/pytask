@@ -1,7 +1,7 @@
 # Visualizing the DAG
 
-To visualize the [DAG](../glossary.md#dag) of the project, first, install
-[networkx](https://networkx.org/),
+To visualize the [DAG](../reference_guides/glossary.md#dag) of the project, first,
+install [networkx](https://networkx.org/),
 [pygraphviz](https://github.com/pygraphviz/pygraphviz), and
 [graphviz](https://graphviz.org/).
 
@@ -49,9 +49,11 @@ layouts, which are listed [here](https://graphviz.org/docs/layouts/).
 
 The programmatic and interactive interface allows for customizing the figure.
 
-Similar to [`pytask.build`](../api/functional_interfaces.md#pytask.build), there exists
-[`pytask.build_dag`](../api/functional_interfaces.md#pytask.build_dag) which returns the
-DAG as a \[`networkx.DiGraph`\][].
+Similar to
+[`pytask.build`](../reference_guides/api/functional_interfaces.md#pytask.build), there
+exists
+[`pytask.build_dag`](../reference_guides/api/functional_interfaces.md#pytask.build_dag)
+which returns the DAG as a [networkx.DiGraph][].
 
 Create an executable script that you can execute with `python script.py`.
 
@@ -59,10 +61,8 @@ Create an executable script that you can execute with `python script.py`.
 --8<-- "docs_src/tutorials/visualizing_the_dag.py"
 ```
 
-Customization works best on the
-[`networkx.DiGraph`](https://networkx.org/documentation/stable/reference/classes/digraph.html).
-For example, here, we set the shape of all nodes to hexagons by adding the property to
-the node attributes.
+Customization works best on the [networkx.DiGraph][]. For example, here, we set the
+shape of all nodes to hexagons by adding the property to the node attributes.
 
 For drawing, you better switch to pygraphviz since the matplotlib backend handles shapes
 with texts poorly. Here we store the graph as a `.svg`.

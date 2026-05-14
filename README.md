@@ -21,29 +21,23 @@ ______________________________________________________________________
 
 <!-- Keep in sync with docs/source/index.md -->
 
-pytask is a workflow management system that facilitates reproducible data analyses. Its
-features include:
+pytask facilitates reproducible data analyses. Its features are:
 
-- **Automatic discovery of tasks.**
-- **Lazy evaluation.** If a task, its dependencies, and its products have not changed,
-  do not execute it.
-- **Debug mode.**
+- **Automatic discovery of tasks**
+- **Lazy execution**: Skip tasks when inputs and outputs are unchanged.
+- **Debug mode**:
   [Jump into the debugger](https://pytask-dev.readthedocs.io/en/stable/tutorials/debugging.html)
-  if a task fails, get feedback quickly, and be more productive.
-- **Repeat a task with different inputs.**
-  [Loop over task functions](https://pytask-dev.readthedocs.io/en/stable/tutorials/repeating_tasks_with_different_inputs.html)
-  to run the same task with different inputs.
-- **Select tasks via expressions.** Run only a subset of tasks with
-  [expressions and marker expressions](https://pytask-dev.readthedocs.io/en/stable/tutorials/selecting_tasks.html).
-- **Easily extensible with plugins**. pytask is built on
-  [pluggy](https://pluggy.readthedocs.io/en/latest/), a plugin management framework that
-  allows you to adjust pytask to your needs. Plugins are available for
+  if a task fails.
+- **Repeat a task with different inputs**:
+  [Loop over task functions](https://pytask-dev.readthedocs.io/en/stable/tutorials/repeating_tasks_with_different_inputs.html).
+- **Task Selection**: Run subsets with
+  [expressions and markers](https://pytask-dev.readthedocs.io/en/stable/tutorials/selecting_tasks.html).
+- **Plugins**: Extend pytask with plugins for
   [parallelization](https://github.com/pytask-dev/pytask-parallel),
   [LaTeX](https://github.com/pytask-dev/pytask-latex),
   [R](https://github.com/pytask-dev/pytask-r), and
-  [Stata](https://github.com/pytask-dev/pytask-stata) and more can be found
-  [here](https://github.com/topics/pytask). Learn more about plugins in
-  [this tutorial](https://pytask-dev.readthedocs.io/en/stable/tutorials/plugins.html).
+  [Stata](https://github.com/pytask-dev/pytask-stata), and
+  [more](https://pytask-dev.readthedocs.io/en/stable/tutorials/plugins.html).
 
 # Installation
 

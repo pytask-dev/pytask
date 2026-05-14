@@ -14,9 +14,8 @@ Running pytask produces
 
 ## Controlling warnings
 
-You can use the
-[`filterwarnings`](../reference_guides/configuration.md#filterwarnings) option in
-`pyproject.toml` to configure pytask's behavior when it comes to warnings.
+You can use the [`filterwarnings`](../reference_guides/configuration.md#filterwarnings)
+option in `pyproject.toml` to configure pytask's behavior when it comes to warnings.
 
 The syntax for specifying warnings filters is the same as in the
 [Python standard library](https://docs.python.org/3/library/warnings.html#the-warnings-filter),
@@ -49,7 +48,7 @@ the Python documentation and there are also
 
 ## `@pytask.mark.filterwarnings`
 
-You can use [`@pytask.mark.filterwarnings`](../api/marks.md#pytask.mark.filterwarnings)
+You can use [`@pytask.mark.filterwarnings`](../reference_guides/api/marks.md#pytaskmarkfilterwarnings)
 to add warning filters to specific test items, allowing you to have finer control of
 which warnings should be captured at the test, class or even module level:
 
