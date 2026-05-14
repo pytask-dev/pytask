@@ -222,7 +222,7 @@ log_file_date_format = "%Y-%m-%d %H:%M:%S"
 ## Use logging with the programmatic interface
 
 The same options are available via
-[`pytask.build`](../api/functional_interfaces.md#build-workflow).
+[`pytask.build`](../reference_guides/api/functional_interfaces.md#build-workflow).
 
 ```py title="build.py"
 from pytask import build

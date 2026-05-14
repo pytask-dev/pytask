@@ -1,14 +1,14 @@
 # Extending pytask
 
 pytask can be extended since it is built upon
-[pluggy](https://pluggy.readthedocs.io/en/latest/), a [plugin](../glossary.md#plugin)
-system for Python.
+[pluggy](https://pluggy.readthedocs.io/en/latest/), a
+[plugin](../reference_guides/glossary.md#plugin) system for Python.
 
 How does it work? Throughout the execution, pytask arrives at
-[entry-points](../glossary.md#entry-point), called hook functions. When pytask calls a
-hook function it loops through
-[hook implementations](../glossary.md#hook-implementation) and each hook implementation
-can alter the result of the entrypoint.
+[entry-points](../reference_guides/glossary.md#entry-point), called hook functions. When
+pytask calls a hook function it loops through
+[hook implementations](../reference_guides/glossary.md#hook-implementation) and each
+hook implementation can alter the result of the entrypoint.
 
 The full list of hook functions is specified in
 [hookspecs](../reference_guides/hookspecs.md).
@@ -17,13 +17,13 @@ More general information about pluggy can be found in its
 [documentation](https://pluggy.readthedocs.io/en/latest/).
 
 There are two ways to add new
-[hook implementations](../glossary.md#hook-implementation).
+[hook implementations](../reference_guides/glossary.md#hook-implementation).
 
 1. Using the
     [`pytask build --hook-module`](../reference_guides/commands.md#pytask-build--hook-module)
     commandline option or the `hook_module` configuration value.
-1. Packaging your [plugin](../glossary.md#plugin) as a Python package to publish and
-    share it.
+1. Packaging your [plugin](../reference_guides/glossary.md#plugin) as a Python package
+    to publish and share it.
 
 <a id="hook-module"></a>
 
@@ -57,8 +57,8 @@ hook_module = ["myproject.hooks"]
 
 In `hooks.py` we can add another commandline option to
 [`pytask build`](../reference_guides/commands.md#pytask-build) by providing an
-additional [hook implementation](../glossary.md#hook-implementation) for the
-[hook specification](../glossary.md#hook-specification)
+additional [hook implementation](../reference_guides/glossary.md#hook-implementation)
+for the [hook specification](../reference_guides/glossary.md#hook-specification)
 `_pytask.hookspecs.pytask_extend_command_line_interface`.
 
 ```py title="hooks.py"
@@ -99,10 +99,10 @@ This section explains some steps which are required for all plugins.
 
 #### Set up the setuptools entry-point
 
-pytask discovers plugins via `setuptools` [entry-points](../glossary.md#entry-point).
-Following the approach advocated for by
-[setuptools_scm](https://github.com/pypa/setuptools_scm), the entry-point is specified
-in `pyproject.toml`.
+pytask discovers plugins via `setuptools`
+[entry-points](../reference_guides/glossary.md#entry-point). Following the approach
+advocated for by [setuptools_scm](https://github.com/pypa/setuptools_scm), the
+entry-point is specified in `pyproject.toml`.
 
 ```toml title="pyproject.toml"
 [project]
@@ -137,10 +137,11 @@ The entry-point for pytask is called `"pytask"` and points to a module called
 
 #### `plugin.py`
 
-`plugin.py` is the [entry-point](../glossary.md#entry-point) for pytask to your package.
-You can put all of your hook implementations in this module, but it is recommended to
-imitate the structure of pytask and its modules. For example, all hook implementations
-which change the configuration should be implemented in `pytask_plugin.config`.
+`plugin.py` is the [entry-point](../reference_guides/glossary.md#entry-point) for pytask
+to your package. You can put all of your hook implementations in this module, but it is
+recommended to imitate the structure of pytask and its modules. For example, all hook
+implementations which change the configuration should be implemented in
+`pytask_plugin.config`.
 
 If you follow the recommendations, the only content in `plugin.py` is a single hook
 implementation which registers other hook implementations of your plugin. The following

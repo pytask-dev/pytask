@@ -5,6 +5,9 @@ repo_name: pytask-dev/pytask
 site_description: pytask is a workflow management system that facilitates reproducible data analyses.
 
 use_directory_urls: false
+validation:
+  # https://github.com/zensical/zensical/issues/600
+  unresolved_references: false
 docs_dir: docs/source
 site_dir: docs/build
 exclude_docs: |
@@ -64,14 +67,14 @@ nav:
   - Reference Guides:
       - Overview: reference_guides/index.md
       - API:
-          - Overview: api/index.md
-          - CLI Imports: api/cli_and_programmatic.md
-          - Functional Interfaces: api/functional_interfaces.md
-          - Core Classes And Exceptions: api/core_classes_and_exceptions.md
-          - Marks: api/marks.md
-          - Nodes And Tasks: api/nodes_and_tasks.md
-          - Outcomes, Reports, And Warnings: api/outcomes_reports_and_warnings.md
-          - Utilities And Typing: api/utilities_and_typing.md
+          - Overview: reference_guides/api/index.md
+          - CLI Imports: reference_guides/api/cli_and_programmatic.md
+          - Functional Interfaces: reference_guides/api/functional_interfaces.md
+          - Core Classes And Exceptions: reference_guides/api/core_classes_and_exceptions.md
+          - Marks: reference_guides/api/marks.md
+          - Nodes And Tasks: reference_guides/api/nodes_and_tasks.md
+          - Outcomes, Reports, And Warnings: reference_guides/api/outcomes_reports_and_warnings.md
+          - Utilities And Typing: reference_guides/api/utilities_and_typing.md
       - Commands: reference_guides/commands.md
       - Configuration: reference_guides/configuration.md
       - Hook Specifications: reference_guides/hookspecs.md

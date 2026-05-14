@@ -96,7 +96,7 @@ editor_url_scheme = "no_link"
 ### `hook_module`
 
 Register additional modules containing
-[hook implementations](../glossary.md#hook-implementation).
+[hook implementations](../reference_guides/glossary.md#hook-implementation).
 
 ```toml
 hook_modules = ["myproject.hooks", "hooks.py"]
@@ -129,6 +129,24 @@ ignore = "some_file.py"
 # Or single and multiple entries.
 ignore = ["some_directory/*", "some_file.py"]
 ```
+
+### `filterwarnings`
+
+You can configure how pytask handles warnings during a build with the `filterwarnings`
+option. The value can be a string or a list of strings using the same colon-separated
+warning filter syntax as Python's
+[`warnings`](https://docs.python.org/3/library/warnings.html#the-warnings-filter)
+module.
+
+```toml
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+]
+```
+
+The [capture warnings](../how_to_guides/capture_warnings.md) guide explains the
+available fields and shows more examples.
 
 ### `markers`
 

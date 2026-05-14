@@ -1,9 +1,9 @@
 # Why pytask?
 
 There are a lot of
-[workflow management systems](../glossary.md#workflow-management-system) out there with
-existing communities that accumulated a lot of experience over time. So why bother
-creating another workflow management system?
+[workflow management systems](../reference_guides/glossary.md#workflow-management-system)
+out there with existing communities that accumulated a lot of experience over time. So
+why bother creating another workflow management system?
 
 pytask is created having a particular audience in mind. Many researchers are not
 computer scientists first. Instead, they acquired some programming skills throughout
@@ -26,9 +26,9 @@ pytask tries to address this point in many ways.
 
 1. pytask integrates with other tools used in the scientific community, such as R and
     Julia, and offers solutions to bridge the gap between a
-    [workflow management system](../glossary.md#workflow-management-system) written in
-    Python and scripts in another language. For example, pytask makes paths to
-    dependencies and products available in the scripts.
+    [workflow management system](../reference_guides/glossary.md#workflow-management-system)
+    written in Python and scripts in another language. For example, pytask makes
+    paths to dependencies and products available in the scripts.
 
 1. The plugin system lets power users tailor pytask to their needs by adding additional
     functionality. It makes pytask extraordinarily versatile and offers people from

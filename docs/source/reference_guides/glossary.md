@@ -28,7 +28,7 @@ message sent by the host at an entry-point. A plugin can consist of one or more
 
 ## Hooking { #hooking }
 
-See the reference guide on [pluggy](explanations/pluggy.md) or the more general
+See the reference guide on [pluggy](../explanations/pluggy.md) or the more general
 explanation on [Wikipedia](https://en.wikipedia.org/wiki/Hooking).
 
 ## Hook specification { #hook-specification }

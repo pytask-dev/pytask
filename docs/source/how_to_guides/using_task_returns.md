@@ -22,8 +22,8 @@ where the return of the function, a string, should be stored.
 ```
 
 It works because internally the path is converted to a
-[`pytask.PathNode`](../api/nodes_and_tasks.md#pytask.PathNode) that is able to store
-objects of type `str` and `bytes`.
+[`pytask.PathNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PathNode) that is
+able to store objects of type `str` and `bytes`.
 
 !!! note
 
@@ -60,9 +60,9 @@ of the previous interfaces.
 
 Each return is mapped to its node by respecting its position in the tuple.
 
-In fact, any [PyTree](../glossary.md#pytree) can be used. The only requirement is that
-the PyTree of nodes defined to capture the function returns has the same structure as
-the returns or is a shallower tree.
+In fact, any [PyTree](../reference_guides/glossary.md#pytree) can be used. The only
+requirement is that the PyTree of nodes defined to capture the function returns has the
+same structure as the returns or is a shallower tree.
 
 The following example shows how a task function with a complex structure of returns is
 mapped to the defined nodes.
