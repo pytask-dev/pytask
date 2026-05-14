@@ -11,7 +11,7 @@ your own to improve your workflows.
 
 ## Use-case
 
-A typical task operation is to load data like a [pandas.DataFrame][]
+A typical task operation is to load data like a [`pandas.DataFrame`][]
 from a pickle file, transform it, and store it on disk. The usual way would be to use
 paths to point to inputs and outputs and call [`pandas.read_pickle`](https://pandas.pydata.org/docs/reference/api/pandas.read_pickle.html) and
 [`pandas.DataFrame.to_pickle`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_pickle.html).
@@ -115,7 +115,7 @@ Here are some explanations.
 ## Improvements
 
 Usually, you would like your custom node to work with [`pathlib.Path`][] objects and
-[upath.UPath][] objects allowing to work with remote
+[`upath.UPath`][] objects allowing to work with remote
 filesystems. To simplify getting the state of the node, you can use the
 [`pytask.get_state_of_path`](../reference_guides/api/utilities_and_typing.md#pytask.get_state_of_path)
 function.
