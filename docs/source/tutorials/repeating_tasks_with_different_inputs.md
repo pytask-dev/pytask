@@ -131,7 +131,7 @@ and arguments. Here are three tips to organize the repetitions.
 
     **Dataclass**
 
-    \[`dataclasses.dataclass`\][] is a useful container to organize the arguments of the
+    [`dataclasses.dataclass`][] is a useful container to organize the arguments of the
     parametrizations. It also works well with type checkers.
 
     ```python
