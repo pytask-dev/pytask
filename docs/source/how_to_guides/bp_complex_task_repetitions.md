@@ -30,7 +30,7 @@ are growing over time and you run into these problems.
 ## Solution
 
 The main idea for the solution is quickly explained. We will, first, formalize
-dimensions into objects using [dataclasses.dataclass][].
+dimensions into objects using \[`dataclasses.dataclass`\][].
 
 Secondly, we will combine dimensions in multi-dimensional objects such that we only have
 to iterate over instances of this object in a single loop. Here and for the lack of a
