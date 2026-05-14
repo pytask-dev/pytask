@@ -27,6 +27,7 @@ OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+# ruff: noqa: E501
 
 from __future__ import annotations
 
@@ -49,13 +50,13 @@ Packages classified as inactive are excluded.
 
 !!! warning
 
-    Please be aware that this list is not a curated collection of projects and does
-    not undergo a systematic review process. It serves purely as an informational
-    resource to aid in the discovery of `pytask` plugins.
+    Please be aware that this list is not a curated collection of projects and does not
+    undergo a systematic review process. It serves purely as an informational resource to
+    aid in the discovery of `pytask` plugins.
 
-    Do not presume any endorsement from the `pytask` project or its developers, and
-    always conduct your own quality assessment before incorporating any of these
-    plugins into your own projects.
+    Do not presume any endorsement from the `pytask` project or its developers, and always
+    conduct your own quality assessment before incorporating any of these plugins into your
+    own projects.
 
 """
 
