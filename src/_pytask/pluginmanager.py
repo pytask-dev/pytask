@@ -92,7 +92,7 @@ class _PluginManagerStorage:
     Afterwards, it needs to be accessed in the different commands.
 
     When pytask is called from the API, the plugin manager needs to be created inside
-    the function, for example, [pytask.build][] to ensure each call can start from
+    the function, for example, [`pytask.build`][] to ensure each call can start from
     a blank slate and is able to register any plugins.
 
     """

@@ -200,7 +200,7 @@ def build(  # noqa: PLR0913
     strict_markers : bool, default=False
         Raise errors for unknown markers.
     tasks : Callable[..., Any] | PTask | Iterable[Callable[..., Any] | PTask]
-        A task or collection of tasks as callables or [pytask.PTask][] instances.
+        A task or collection of tasks as callables or [`pytask.PTask`][] instances.
     task_files : Iterable[str], default=("task_*.py",)
         A pattern to describe modules that contain tasks.
     trace : bool, default=False
