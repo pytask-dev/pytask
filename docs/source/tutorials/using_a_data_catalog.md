@@ -56,7 +56,7 @@ Next, we look at the module `task_data_preparation.py` and its task
 be stored on the disk.
 
 In the previous tutorial, we learned to use
-[pathlib.Path][]s to define
+[`pathlib.Path`][]s to define
 products of our tasks. Here we see again the signature of the task function.
 
 === "Annotated"
@@ -175,12 +175,12 @@ path means the location is relative to the module of the data catalog.
 ```
 
 You can now use the data catalog as in the previous example and use the
-[pathlib.Path][] in the task.
+[`pathlib.Path`][] in the task.
 
 !!! note
 
     Note that the value of `data_catalog["csv"]` inside the task becomes a
-    [pathlib.Path][]. It is because a [pathlib.Path][] in
+    [`pathlib.Path`][]. It is because a [`pathlib.Path`][] in
     [`pytask.DataCatalog.add`](../reference_guides/api/core_classes_and_exceptions.md#pytask.DataCatalog.add)
     is not parsed to a [`pytask.PickleNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PickleNode)
     but a [`pytask.PathNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PathNode).

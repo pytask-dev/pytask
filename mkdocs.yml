@@ -7,6 +7,7 @@ site_description: pytask is a workflow management system that facilitates reprod
 use_directory_urls: false
 validation:
   unresolved_footnotes: false
+  # https://github.com/zensical/zensical/issues/600
   unresolved_references: false
 docs_dir: docs/source
 site_dir: docs/build

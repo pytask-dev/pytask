@@ -48,7 +48,7 @@ necessary for pytask to correctly run a workflow. The interfaces are ordered fro
 
     The type hint `Annotated[Path, Product]` uses
     [`typing.Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated)
-    syntax. The first entry specifies the argument type ([pathlib.Path][]), and the second
+    syntax. The first entry specifies the argument type ([`pathlib.Path`][]), and the second
     entry
     ([`pytask.Product`](../reference_guides/api/utilities_and_typing.md#pytask.Product))
     marks this argument as a product.

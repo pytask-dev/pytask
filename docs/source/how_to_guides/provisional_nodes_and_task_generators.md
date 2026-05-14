@@ -36,7 +36,7 @@ the directory of the task module) and a glob pattern (default is `*`).
 
 When we use the [`pytask.DirectoryNode`](../reference_guides/api/nodes_and_tasks.md#pytask.DirectoryNode)
 as a product annotation, we get access to the `root_dir` as a
-[pathlib.Path][] object inside the function, which allows us to store
+[`pathlib.Path`][] object inside the function, which allows us to store
 the files.
 
 !!! note

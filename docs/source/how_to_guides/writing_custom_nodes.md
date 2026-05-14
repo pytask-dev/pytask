@@ -3,7 +3,7 @@
 In the previous tutorials and how-to guides, you learned that dependencies and products
 can be represented as plain Python objects with
 [`pytask.PythonNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PythonNode) or as paths where every
-[pathlib.Path][] is converted to a
+[`pathlib.Path`][] is converted to a
 [`pytask.PathNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PathNode).
 
 In this how-to guide, you will learn about the general concept of nodes and how to write
@@ -114,7 +114,7 @@ Here are some explanations.
 
 ## Improvements
 
-Usually, you would like your custom node to work with [pathlib.Path][] objects and
+Usually, you would like your custom node to work with [`pathlib.Path`][] objects and
 [upath.UPath][] objects allowing to work with remote
 filesystems. To simplify getting the state of the node, you can use the
 [`pytask.get_state_of_path`](../reference_guides/api/utilities_and_typing.md#pytask.get_state_of_path)
