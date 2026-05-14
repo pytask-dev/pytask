@@ -53,7 +53,7 @@ class DataCatalog:
     ----------
     default_node
         A default node for loading and saving values. By default,
-        [pytask.PickleNode][] is used to serialize any Python object with the
+        [`pytask.PickleNode`][] is used to serialize any Python object with the
         `pickle` module.
     name
         The name of the data catalog which can only contain letters, numbers, hyphens

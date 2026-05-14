@@ -236,7 +236,7 @@ class PythonNode(PNode):
 
     Examples
     --------
-    To allow a [pytask.PythonNode][] to hash a dictionary, you need to pass your
+    To allow a [`pytask.PythonNode`][] to hash a dictionary, you need to pass your
     own hashing function. For example, from the `deepdiff` library.
 
     >>> from deepdiff import DeepHash
@@ -284,7 +284,8 @@ class PythonNode(PNode):
         """Calculate state of the node.
 
         If ``hash = False``, the function returns ``"0"``, a constant hash value, so the
-        [pytask.PythonNode][] is ignored when checking for a changed state of the task.
+        [`pytask.PythonNode`][] is ignored when checking for a changed state of the
+        task.
 
         If ``hash`` is a callable, then use this function to calculate a hash expecting
         an integer or string.
@@ -297,8 +298,8 @@ class PythonNode(PNode):
         ``hash("asd")`` returns a different value every invocation since the hash of
         strings is salted with a random integer and it would confuse users. See
         [`object.__hash__`](
-        https://docs.python.org/3/reference/datamodel.html#object.__hash__
-        ) for more information.
+        https://docs.python.org/3/reference/datamodel.html#object.__hash__ ) for more
+        information.
 
         """
         if self.value is no_default:
