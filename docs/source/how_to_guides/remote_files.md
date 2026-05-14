@@ -8,7 +8,7 @@ lots of use cases to deal with remote files.
 - You store the workflow results in remote storage to save and distribute them.
 
 pytask uses [universal-pathlib](https://github.com/fsspec/universal_pathlib) to work
-with remote files. The package provides a [`pathlib`](https://docs.python.org/3/library/pathlib.html)-like interface, making
+with remote files. The package provides a [`pathlib`][]-like interface, making
 it very easy to interact with files from an HTTP(S)-, Dropbox-, S3-, GCP-, Azure-based
 filesystem, and many more.
 

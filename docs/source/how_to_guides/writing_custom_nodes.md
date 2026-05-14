@@ -13,8 +13,8 @@ your own to improve your workflows.
 
 A typical task operation is to load data like a [`pandas.DataFrame`][]
 from a pickle file, transform it, and store it on disk. The usual way would be to use
-paths to point to inputs and outputs and call [`pandas.read_pickle`](https://pandas.pydata.org/docs/reference/api/pandas.read_pickle.html) and
-[`pandas.DataFrame.to_pickle`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_pickle.html).
+paths to point to inputs and outputs and call [`pandas.read_pickle`][] and
+[`pandas.DataFrame.to_pickle`][].
 
 ```py
 --8<-- "docs_src/how_to_guides/writing_custom_nodes_example_1.py"
@@ -24,7 +24,7 @@ To remove IO operations from the task and delegate them to pytask, we will repli
 [`pytask.PickleNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PickleNode) that automatically
 loads and stores Python objects.
 
-And we pass the value to `df` via [`typing.Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated) to preserve
+And we pass the value to `df` via [`typing.Annotated`][] to preserve
 the type hint.
 
 The result will be the following task.

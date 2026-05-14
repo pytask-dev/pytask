@@ -62,23 +62,11 @@ See [how to influence build order](../../how_to_guides/how_to_influence_build_or
 ## Mark Classes
 
 ::: pytask.Mark
-options:
-filters:
-\- "!^_\[^_\].*"
-\- "!^\_\_.*__$"
-show_root_heading: true
-show_signature: true
+    show_root_heading: true
+    show_signature: true
 ::: pytask.mark
 ::: pytask.MarkDecorator
-options:
-filters:
-\- "!^_\[^_\].\*"
-\- "!^__.*\_\_$"
 ::: pytask.MarkGenerator
-options:
-filters:
-\- "!^_\[^_\].*"
-\- "!^__.\*__$"
 
 ## Mark Utilities
 
