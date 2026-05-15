@@ -3,18 +3,29 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Protocol
+from typing import TypeAlias
 from typing import runtime_checkable
+
+from _pytask.tree_util import PyTree
 
 if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
 
     from _pytask.mark import Mark
-    from _pytask.tree_util import PyTree
     from _pytask.typing import NodePath
 
 
-__all__ = ["PNode", "PPathNode", "PProvisionalNode", "PTask", "PTaskWithPath"]
+__all__ = [
+    "NodeTree",
+    "PNode",
+    "PPathNode",
+    "PProvisionalNode",
+    "PTask",
+    "PTaskWithPath",
+    "TaskIO",
+    "TaskNode",
+]
 
 
 @runtime_checkable
@@ -65,45 +76,6 @@ class PPathNode(PNode, Protocol):
 
 
 @runtime_checkable
-class PTask(Protocol):
-    """Protocol for nodes."""
-
-    name: str
-    depends_on: dict[str, PyTree[PNode | PProvisionalNode]]
-    produces: dict[str, PyTree[PNode | PProvisionalNode]]
-    function: Callable[..., Any]
-    markers: list[Mark]
-    report_sections: list[tuple[str, str, str]]
-    attributes: dict[Any, Any]
-
-    @property
-    def signature(self) -> str:
-        """Return the signature of the node."""
-
-    def state(self) -> str | None:
-        """Return the state of the node.
-
-        The state can be something like a hash or a last modified timestamp. If the node
-        does not exist, you can also return ``None``.
-
-        """
-
-    def execute(self, **kwargs: Any) -> Any:
-        """Return the value of the node that will be injected into the task."""
-
-
-@runtime_checkable
-class PTaskWithPath(PTask, Protocol):
-    """Tasks with paths.
-
-    Tasks with paths receive special handling when it comes to printing their names.
-
-    """
-
-    path: Path
-
-
-@runtime_checkable
 class PProvisionalNode(Protocol):
     """A protocol for provisional nodes.
 
@@ -141,3 +113,52 @@ class PProvisionalNode(Protocol):
 
     def collect(self) -> list[Any]:
         """Collect the objects that are defined by the provisional nodes."""
+
+
+TaskNode: TypeAlias = PNode | PProvisionalNode
+"""A concrete or provisional pytask node."""
+
+NodeTree: TypeAlias = PyTree[TaskNode]
+"""A pytask tree whose leaves are concrete or provisional nodes."""
+
+TaskIO: TypeAlias = dict[str, NodeTree]
+"""The top-level task argument mapping for dependencies and products."""
+
+
+@runtime_checkable
+class PTask(Protocol):
+    """Protocol for nodes."""
+
+    name: str
+    depends_on: TaskIO
+    produces: TaskIO
+    function: Callable[..., Any]
+    markers: list[Mark]
+    report_sections: list[tuple[str, str, str]]
+    attributes: dict[Any, Any]
+
+    @property
+    def signature(self) -> str:
+        """Return the signature of the node."""
+
+    def state(self) -> str | None:
+        """Return the state of the node.
+
+        The state can be something like a hash or a last modified timestamp. If the node
+        does not exist, you can also return ``None``.
+
+        """
+
+    def execute(self, **kwargs: Any) -> Any:
+        """Return the value of the node that will be injected into the task."""
+
+
+@runtime_checkable
+class PTaskWithPath(PTask, Protocol):
+    """Tasks with paths.
+
+    Tasks with paths receive special handling when it comes to printing their names.
+
+    """
+
+    path: Path

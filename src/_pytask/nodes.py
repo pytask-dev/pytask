@@ -22,6 +22,7 @@ from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
+from _pytask.node_protocols import TaskIO
 from _pytask.path import hash_path
 from _pytask.typing import NoDefault
 from _pytask.typing import NodePath
@@ -34,7 +35,6 @@ if TYPE_CHECKING:
 
     from _pytask.mark import Mark
     from _pytask.models import NodeInfo
-    from _pytask.tree_util import PyTree
 
 
 __all__ = [
@@ -77,10 +77,8 @@ class TaskWithoutPath(PTask):
 
     name: str
     function: Callable[..., Any]
-    depends_on: dict[str, PyTree[PNode | PProvisionalNode]] = field(
-        default_factory=dict
-    )
-    produces: dict[str, PyTree[PNode | PProvisionalNode]] = field(default_factory=dict)
+    depends_on: TaskIO = field(default_factory=dict)
+    produces: TaskIO = field(default_factory=dict)
     markers: list[Mark] = field(default_factory=list)
     report_sections: list[tuple[str, str, str]] = field(default_factory=list)
     attributes: dict[Any, Any] = field(default_factory=dict)
@@ -133,10 +131,8 @@ class Task(PTaskWithPath):
     path: Path
     function: Callable[..., Any]
     name: str = field(default="", init=False)
-    depends_on: dict[str, PyTree[PNode | PProvisionalNode]] = field(
-        default_factory=dict
-    )
-    produces: dict[str, PyTree[PNode | PProvisionalNode]] = field(default_factory=dict)
+    depends_on: TaskIO = field(default_factory=dict)
+    produces: TaskIO = field(default_factory=dict)
     markers: list[Mark] = field(default_factory=list)
     report_sections: list[tuple[str, str, str]] = field(default_factory=list)
     attributes: dict[Any, Any] = field(default_factory=dict)

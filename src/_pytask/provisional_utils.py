@@ -10,13 +10,12 @@ from typing import Any
 from _pytask.collect_utils import collect_dependency
 from _pytask.dag import create_dag_from_session
 from _pytask.models import NodeInfo
-from _pytask.node_protocols import PNode
+from _pytask.node_protocols import NodeTree
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import Task
 from _pytask.reports import ExecutionReport
-from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_map_with_path
 from _pytask.typing import is_task_generator
 
@@ -29,7 +28,7 @@ TASKS_WITH_PROVISIONAL_NODES = set()
 
 def collect_provisional_nodes(
     session: Session, task: PTask, node: Any, path: tuple[Any, ...]
-) -> PyTree[PNode | PProvisionalNode]:
+) -> NodeTree:
     """Collect provisional nodes.
 
     1. Call the [`pytask.PProvisionalNode.collect`][] to receive the raw nodes.
