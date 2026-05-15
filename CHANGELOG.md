@@ -5,6 +5,12 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
+## Unreleased
+
+- [#889](https://github.com/pytask-dev/pytask/pull/889) improves typing for tree
+  operations by wrapping optree's pytree utilities with pytask-specific signatures
+  and requiring optree 0.16.0 or newer.
+
 ## 0.6.0 - 2026-05-01
 
 - [#875](https://github.com/pytask-dev/pytask/pull/875) improves the documentation
