@@ -12,11 +12,11 @@ from typing import get_origin
 from _pytask._inspect import get_annotations
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.models import NodeInfo
+from _pytask.node_protocols import NodeTree
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.nodes import PythonNode
 from _pytask.task_utils import parse_keyword_arguments_from_signature_defaults
-from _pytask.tree_util import PyTree
 from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_map_with_path
 from _pytask.typing import ProductType
@@ -254,7 +254,7 @@ def _collect_nodes_and_provisional_nodes(  # noqa: PLR0913
     task_path: Path | None,
     parameter_name: str,
     value: Any,
-) -> PyTree[PProvisionalNode | PNode]:
+) -> NodeTree:
     return tree_map_with_path(
         lambda p, x: collection_func(
             session,
