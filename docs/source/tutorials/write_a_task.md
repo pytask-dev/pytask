@@ -48,10 +48,10 @@ necessary for pytask to correctly run a workflow. The interfaces are ordered fro
 
     The type hint `Annotated[Path, Product]` uses
     [`typing.Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated)
-    syntax. The first entry specifies the argument type
-    ([`pathlib.Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)), and the
-    second entry ([`pytask.Product`](../api/utilities_and_typing.md#pytask.Product)) marks
-    this argument as a product.
+    syntax. The first entry specifies the argument type ([`pathlib.Path`][]), and the second
+    entry
+    ([`pytask.Product`](../reference_guides/api/utilities_and_typing.md#pytask.Product))
+    marks this argument as a product.
 
     ```{ .python .annotate hl_lines="2 12" title="task_data_preparation.py" }
     --8<-- "docs_src/tutorials/write_a_task_py310.py"
@@ -62,7 +62,7 @@ necessary for pytask to correctly run a workflow. The interfaces are ordered fro
     !!! tip
 
         If you want to refresh your knowledge about type hints, read
-        [this guide](../type_hints.md).
+        [this guide](../reference_guides/type_hints.md).
 
 === "produces"
 
@@ -87,9 +87,9 @@ file under version control so later builds can detect unchanged tasks.
 
 ## Customize task names
 
-Use the [`@task`](../api/nodes_and_tasks.md#pytask.task) decorator to mark a function as
-a task regardless of its function name. You can optionally pass a new name for the task.
-Otherwise, pytask uses the function name.
+Use the [`@task`](../reference_guides/api/nodes_and_tasks.md#pytask.task) decorator to
+mark a function as a task regardless of its function name. You can optionally pass a new
+name for the task. Otherwise, pytask uses the function name.
 
 ```python
 from pytask import task

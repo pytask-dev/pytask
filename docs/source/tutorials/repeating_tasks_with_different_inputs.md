@@ -8,9 +8,9 @@ We reuse the task from the previous [tutorial](write_a_task.md), which generates
 data and repeat the same operation over several seeds to receive multiple, reproducible
 samples.
 
-Apply the [`@task`](../api/nodes_and_tasks.md#pytask.task) decorator, loop over the
-function and supply different seeds and output paths as default arguments of the
-function.
+Apply the [`@task`](../reference_guides/api/nodes_and_tasks.md#pytask.task) decorator,
+loop over the function and supply different seeds and output paths as default arguments
+of the function.
 
 === "Annotated"
 
@@ -100,8 +100,8 @@ task_data_preparation.py::task_create_random_data[seed1]
 
 ### User-defined ids
 
-The [`@task`](../api/nodes_and_tasks.md#pytask.task) decorator has an `id` keyword,
-allowing the user to set a unique name for the iteration.
+The [`@task`](../reference_guides/api/nodes_and_tasks.md#pytask.task) decorator has an
+`id` keyword, allowing the user to set a unique name for the iteration.
 
 === "Annotated"
 
@@ -131,9 +131,8 @@ and arguments. Here are three tips to organize the repetitions.
 
     **Dataclass**
 
-    [`dataclasses.dataclass`](https://docs.python.org/3/library/dataclasses.html#dataclasses.dataclass)
-    is a useful container to organize the arguments of the parametrizations. It also
-    works well with type checkers.
+    [`dataclasses.dataclass`][] is a useful container to organize the arguments of the
+    parametrizations. It also works well with type checkers.
 
     ```python
     from dataclasses import dataclass
@@ -152,8 +151,9 @@ and arguments. Here are three tips to organize the repetitions.
     }
     ```
 
-1. [`@task`](../api/nodes_and_tasks.md#pytask.task) has a `kwargs` argument that allows
-    you inject arguments to the function instead of adding them as default arguments.
+1. [`@task`](../reference_guides/api/nodes_and_tasks.md#pytask.task) has a `kwargs`
+    argument that allows you inject arguments to the function instead of adding them as
+    default arguments.
 
 1. If the generation of arguments for the task function is complex, we should use a
     function.
@@ -173,8 +173,8 @@ Following these three tips, the parametrization becomes
     ```
 
 Unpacking all the arguments can become tedious. Instead, use the `kwargs` argument of
-the [`@task`](../api/nodes_and_tasks.md#pytask.task) decorator to pass keyword arguments
-to the task.
+the [`@task`](../reference_guides/api/nodes_and_tasks.md#pytask.task) decorator to pass
+keyword arguments to the task.
 
 ```python
 for id_, kwargs in ID_TO_KWARGS.items():

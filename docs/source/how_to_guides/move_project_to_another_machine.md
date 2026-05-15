@@ -62,10 +62,11 @@ Make sure custom node IDs and state values stay stable across machines:
 - Use project-relative IDs instead of absolute paths.
 - Prefer file content hashes over timestamps.
 - Avoid machine-specific paths or timestamps in custom
-    [`state()`](../api/nodes_and_tasks.md#pytask.PNode.state) implementations.
+    [`state()`](../reference_guides/api/nodes_and_tasks.md#pytask.PNode.state)
+    implementations.
 - Provide a custom hash function for
-    [`PythonNode`](../api/nodes_and_tasks.md#pytask.PythonNode) values that are not
-    natively stable.
+    [`PythonNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PythonNode) values
+    that are not natively stable.
 
 Most projects that only use built-in nodes do not need extra work here.
 

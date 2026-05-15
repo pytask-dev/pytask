@@ -5,8 +5,9 @@ Sometimes you want to skip the execution of a task and pretend nothing has chang
 A typical scenario is that you formatted the task's source files with
 [`ruff format`](https://docs.astral.sh/ruff/formatter/) which would rerun the task.
 
-In this case, you can apply the [`@pytask.mark.persist`](../api/marks.md#pytask.mark)
-decorator to the task, which will skip its execution as long as all products exist.
+In this case, you can apply the
+[`@pytask.mark.persist`](../reference_guides/api/marks.md#pytaskmarkpersist) decorator
+to the task, which will skip its execution as long as all products exist.
 
 Internally, the state of the dependencies, the source file, and the products are updated
 in the lockfile such that the subsequent execution will skip the task successfully.
@@ -43,13 +44,15 @@ Running pytask will execute the task since the product is missing.
 --8<-- "docs/source/_static/md/persist-executed.md"
 
 After that, we accidentally changed the task's source file by formatting the file with
-Black. Without the [`@pytask.mark.persist`](../api/marks.md#pytask.mark) decorator, the
-task would run again since the source has changed. With the decorator, a green p signals
-that the execution is skipped.
+Black. Without the
+[`@pytask.mark.persist`](../reference_guides/api/marks.md#pytaskmarkpersist) decorator,
+the task would run again since the source has changed. With the decorator, a green p
+signals that the execution is skipped.
 
 --8<-- "docs/source/_static/md/persist-persisted.md"
 
 If we rerun the task, it is skipped because nothing has changed and not because it is
-marked with [`@pytask.mark.persist`](../api/marks.md#pytask.mark).
+marked with
+[`@pytask.mark.persist`](../reference_guides/api/marks.md#pytaskmarkpersist).
 
 --8<-- "docs/source/_static/md/persist-skipped.md"

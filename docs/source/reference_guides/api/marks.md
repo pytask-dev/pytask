@@ -12,7 +12,16 @@ manually here.
 ```
 
 Prevent execution of a task when all neighboring nodes exist, even if something changed.
-See [making tasks persist](../tutorials/making_tasks_persist.md).
+See [making tasks persist](../../tutorials/making_tasks_persist.md).
+
+### `pytask.mark.filterwarnings`
+
+```python
+@pytask.mark.filterwarnings("ignore:warning message")
+```
+
+Add warning filters to a task.
+See [capture warnings](../../how_to_guides/capture_warnings.md).
 
 ### `pytask.mark.skip`
 
@@ -21,7 +30,7 @@ See [making tasks persist](../tutorials/making_tasks_persist.md).
 ```
 
 Skip a task and all downstream tasks.
-See [skipping tasks](../tutorials/skipping_tasks.md).
+See [skipping tasks](../../tutorials/skipping_tasks.md).
 
 ### `pytask.mark.skipif`
 
@@ -30,7 +39,7 @@ See [skipping tasks](../tutorials/skipping_tasks.md).
 ```
 
 Skip a task and all downstream tasks when `condition` is `True`.
-See [skipping tasks](../tutorials/skipping_tasks.md).
+See [skipping tasks](../../tutorials/skipping_tasks.md).
 
 ### `pytask.mark.try_first`
 
@@ -39,7 +48,7 @@ See [skipping tasks](../tutorials/skipping_tasks.md).
 ```
 
 Prefer running a task as early as possible in the DAG.
-See [how to influence build order](../how_to_guides/how_to_influence_build_order.md).
+See [how to influence build order](../../how_to_guides/how_to_influence_build_order.md).
 
 ### `pytask.mark.try_last`
 
@@ -48,28 +57,16 @@ See [how to influence build order](../how_to_guides/how_to_influence_build_order
 ```
 
 Prefer running a task as late as possible in the DAG.
-See [how to influence build order](../how_to_guides/how_to_influence_build_order.md).
+See [how to influence build order](../../how_to_guides/how_to_influence_build_order.md).
 
 ## Mark Classes
 
 ::: pytask.Mark
-    options:
-      filters:
-        - "!^_[^_].*"
-        - "!^__.*__$"
-      show_root_heading: true
-      show_signature: true
+    show_root_heading: true
+    show_signature: true
 ::: pytask.mark
 ::: pytask.MarkDecorator
-    options:
-      filters:
-        - "!^_[^_].*"
-        - "!^__.*__$"
 ::: pytask.MarkGenerator
-    options:
-      filters:
-        - "!^_[^_].*"
-        - "!^__.*__$"
 
 ## Mark Utilities
 

@@ -407,7 +407,7 @@ The path '{path}' points to a directory, although only files are allowed."""
 def pytask_collect_node(  # noqa: C901, PLR0912
     session: Session, path: Path, node_info: NodeInfo
 ) -> PNode | PProvisionalNode:
-    """Collect a node of a task as a [pytask.PNode][].
+    """Collect a node of a task as a [`pytask.PNode`][].
 
     Strings are assumed to be paths. This might be a strict assumption, but since this
     hook is executed at last and possible errors will be shown, it seems reasonable and

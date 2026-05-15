@@ -119,5 +119,4 @@ or update the current state of collected tasks.
 
 - [`pytask lock`](../reference_guides/commands.md#pytask-lock)
 - [`pytask build`](../reference_guides/commands.md#pytask-build)
-- [Portability](portability.md)
 - [The lockfile](../reference_guides/lockfile.md)

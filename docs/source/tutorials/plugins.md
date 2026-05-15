@@ -4,14 +4,15 @@ Users employ pytask in many different contexts, making it impossible for pytask'
 maintainers to cater to all possible use cases.
 
 Therefore, pytask uses [pluggy](https://github.com/pytest-dev/pluggy), a
-[plugin](../glossary.md#plugin) framework, to allow users to extend pytask.
+[plugin](../reference_guides/glossary.md#plugin) framework, to allow users to extend
+pytask.
 
 ## How to extend pytask
 
 A quick method to extend pytask is explained in the
 [guide on extending pytask](../how_to_guides/extending_pytask.md). You will learn how to
-add your own [hook implementations](../glossary.md#hook-implementation) or write your
-[plugin](../glossary.md#plugin).
+add your own [hook implementations](../reference_guides/glossary.md#hook-implementation)
+or write your [plugin](../reference_guides/glossary.md#plugin).
 
 ## Where can I find plugins?
 

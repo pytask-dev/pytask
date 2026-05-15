@@ -108,7 +108,7 @@ class PProvisionalNode(Protocol):
     """A protocol for provisional nodes.
 
     This type of nodes is provisional since it resolves to actual nodes,
-    [pytask.PNode][], right before a task is executed as a dependency and after the
+    [`pytask.PNode`][], right before a task is executed as a dependency and after the
     task is executed as a product.
 
     Provisional nodes are nodes that define how the actual nodes look like. They can be
@@ -132,7 +132,7 @@ class PProvisionalNode(Protocol):
 
         It is possible to load a provisional node as a dependency so that it can inject
         basic information about it in the task. For example,
-        [pytask.DirectoryNode.load][] injects the root directory.
+        [`pytask.DirectoryNode.load`][] injects the root directory.
 
         """
         if is_product:

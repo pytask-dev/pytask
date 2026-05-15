@@ -15,17 +15,5 @@ For command usage and options, see the
 ## CLI Types
 
 ::: pytask.ColoredCommand
-    options:
-      filters:
-        - "!^_[^_].*"
-        - "!^__.*__$"
 ::: pytask.ColoredGroup
-    options:
-      filters:
-        - "!^_[^_].*"
-        - "!^__.*__$"
 ::: pytask.EnumChoice
-    options:
-      filters:
-        - "!^_[^_].*"
-        - "!^__.*__$"

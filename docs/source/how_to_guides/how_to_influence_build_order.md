@@ -7,14 +7,16 @@
     products are not fully specified.
 
 You can influence the order in which tasks are executed by assigning preferences to
-tasks. Use [`@pytask.mark.try_first`](../api/marks.md#pytask.mark.try_first) to execute
-a task as early as possible and
-[`@pytask.mark.try_last`](../api/marks.md#pytask.mark.try_last) to defer execution.
+tasks. Use
+[`@pytask.mark.try_first`](../reference_guides/api/marks.md#pytaskmarktry_first) to
+execute a task as early as possible and
+[`@pytask.mark.try_last`](../reference_guides/api/marks.md#pytaskmarktry_last) to defer
+execution.
 
 !!! note
 
     A little bit more background: Tasks, dependencies and products form a
-    [directed acyclic graph (DAG)](../glossary.md#dag). A
+    [directed acyclic graph (DAG)](../reference_guides/glossary.md#dag). A
     [topological ordering](https://en.wikipedia.org/wiki/Topological_sorting) determines the
     order in which tasks are executed such that tasks are not run until their predecessors
     have been executed. You should not assume a fixed ordering in which tasks are executed.
@@ -40,8 +42,9 @@ make the output visible in the terminal)
 
 --8<-- "docs/source/_static/md/try-first.md"
 
-Replacing [`pytask.mark.try_first`](../api/marks.md#pytask.mark.try_first) with
-[`pytask.mark.try_last`](../api/marks.md#pytask.mark.try_last) yields
+Replacing
+[`pytask.mark.try_first`](../reference_guides/api/marks.md#pytaskmarktry_first) with
+[`pytask.mark.try_last`](../reference_guides/api/marks.md#pytaskmarktry_last) yields
 
 ```py title="task_example.py"
 import pytask
