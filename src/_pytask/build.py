@@ -206,7 +206,7 @@ def build(  # noqa: PLR0913
     trace : bool, default=False
         Enter debugger in the beginning of each task.
     verbose : int, default=1
-        Make pytask verbose (>= 0) or quiet (= 0).
+        Set pytask verbosity: 0 = quiet, 1 = default, 2 = verbose.
     **kwargs : Any
         Additional configuration forwarded to pytask's configuration pipeline.
 
