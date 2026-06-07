@@ -70,7 +70,7 @@ _VERBOSE_OPTION = click.Option(
     ["-v", "--verbose"],
     type=click.IntRange(0, 2),
     default=1,
-    help="Make pytask verbose (>= 0) or quiet (= 0).",
+    help="Set pytask verbosity: 0 = quiet, 1 = default, 2 = verbose.",
 )
 """click.Option: An option to control pytask's verbosity."""
 
