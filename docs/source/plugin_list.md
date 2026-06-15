@@ -13,12 +13,11 @@ Packages classified as inactive are excluded.
     conduct your own quality assessment before incorporating any of these plugins into your
     own projects.
 
-This list contains 5 plugins.
+This list contains 4 plugins.
 
 | name                                                     | summary                                    | last release | status    | requires       |
 | -------------------------------------------------------- | ------------------------------------------ | ------------ | --------- | -------------- |
 | [pytask-julia](https://pypi.org/project/pytask-julia/)   | A Pytask plugin for Julia                  | Oct 07, 2023 | 4 - Beta  | pytask >=0.4.0 |
 | [pytask-latex](https://pypi.org/project/pytask-latex/)   | Compile LaTeX documents with pytask.       | Jun 01, 2025 | 4 - Beta  | pytask>=0.4.0  |
 | [pytask-r](https://pypi.org/project/pytask-r/)           | Run R scripts with pytask.                 | Apr 20, 2024 | 4 - Beta  | pytask>=0.4.5  |
-| [pytask-stata](https://pypi.org/project/pytask-stata/)   | Execute do-files with Stata and pytask.    | Jul 26, 2025 | 4 - Beta  | pytask>=0.5.2  |
 | [pytask-vscode](https://pypi.org/project/pytask-vscode/) | Additional Logging for VS Code integration | Nov 21, 2023 | 3 - Alpha | pytask >=0.4.2 |
