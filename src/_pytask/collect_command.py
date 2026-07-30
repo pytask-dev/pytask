@@ -6,6 +6,7 @@ import sys
 from collections import defaultdict
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 
 import click
 from rich.text import Text
@@ -127,12 +128,12 @@ def _find_common_ancestor_of_all_nodes(
         all_paths.append(task.path)
         if show_nodes:
             all_paths.extend(
-                normalize_local_upath(x.path)
+                cast("Path", normalize_local_upath(x.path))
                 for x in tree_leaves(task.depends_on)
                 if isinstance(x, PPathNode) and not is_non_local_path(x.path)
             )
             all_paths.extend(
-                normalize_local_upath(x.path)
+                cast("Path", normalize_local_upath(x.path))
                 for x in tree_leaves(task.produces)
                 if isinstance(x, PPathNode) and not is_non_local_path(x.path)
             )

@@ -50,7 +50,9 @@ def set_defaults_from_config(
         option.name: option.default
         for name, command in commands.items()
         for option in command.params
-        if name != context.info_name and option.name not in command_option_names
+        if name != context.info_name
+        and option.name is not None
+        and option.name not in command_option_names
     }
     context.params.update(all_defaults_from_cli)
 

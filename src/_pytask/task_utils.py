@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
     from typing import TypeAlias
+    from uuid import UUID
 
     from ty_extensions import Intersection
 
@@ -255,7 +256,7 @@ def _parse_name(func: Callable[..., Any], name: str | None) -> str:
 
 def _parse_after(
     after: str | Callable[..., Any] | list[Callable[..., Any]] | None,
-) -> str | list[Callable[..., Any]]:
+) -> str | list[UUID]:
     if not after:
         return []
     if isinstance(after, str):
