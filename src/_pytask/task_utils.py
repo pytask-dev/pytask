@@ -230,7 +230,9 @@ def task(  # noqa: PLR0913
         # collection when the function definition is overwritten in a loop.
         COLLECTED_TASKS[path].append(unwrapped)
 
-        return unwrapped
+        # Runtime validation and metadata attachment establish both parts of the
+        # intersection, but the generic relationship cannot be narrowed automatically.
+        return cast("TaskDecorated[T]", unwrapped)
 
     # When decorator is used without parentheses, call wrapper directly.
     if _is_task_decorator_target(name) and kwargs is None:
