@@ -174,7 +174,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
         )
 
     if not needs_to_be_executed:
-        predecessors = set(dag.predecessors(task.signature)) | {task.signature}
+        predecessors = set(dag.predecessors(task.signature))
         for node_signature in node_and_neighbors(dag, task.signature):
             node = dag.nodes[node_signature]
 
