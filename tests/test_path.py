@@ -24,6 +24,7 @@ from _pytask.path import is_non_local_path
 from _pytask.path import normalize_local_upath
 from _pytask.path import relative_to
 from _pytask.path import shorten_path
+from pytask.path import ImportPathMismatchError
 from pytask.path import import_path
 
 if TYPE_CHECKING:
@@ -191,6 +192,28 @@ def test_remembers_previous_imports(simple_module: Path, tmp_path: Path) -> None
     module1 = import_path(simple_module, root=tmp_path)
     module2 = import_path(simple_module, root=tmp_path)
     assert module1 is module2
+
+
+def test_rejects_cached_module_from_different_path(tmp_path: Path) -> None:
+    module_name = "task_import_path_mismatch"
+    first_path = tmp_path / "first" / f"{module_name}.py"
+    second_path = tmp_path / "second" / f"{module_name}.py"
+    first_path.parent.mkdir()
+    second_path.parent.mkdir()
+    first_path.write_text("VALUE = 'first'")
+    second_path.write_text("VALUE = 'second'")
+
+    first_module = import_path(first_path, root=first_path.parent)
+
+    assert first_module.VALUE == "first"
+    with pytest.raises(ImportPathMismatchError) as exc_info:
+        import_path(second_path, root=second_path.parent)
+
+    message = str(exc_info.value)
+    assert module_name in message
+    assert str(first_path) in message
+    assert str(second_path) in message
+    assert "fresh process or notebook kernel" in message
 
 
 def test_no_meta_path_found(

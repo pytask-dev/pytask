@@ -14,6 +14,7 @@ from _pytask.collect import pytask_collect_node
 from _pytask.node_protocols import PPathNode
 from pytask import CollectionOutcome
 from pytask import ExitCode
+from pytask import ImportPathMismatchError
 from pytask import NodeInfo
 from pytask import PickleNode
 from pytask import Session
@@ -374,6 +375,42 @@ def test_collect_tasks_from_modules_with_the_same_name(tmp_path):
         assert node.function is not None  # type: ignore[union-attr]
         modules.add(node.function.__module__)  # type: ignore[union-attr]
     assert modules == {"a.task_module", "b.task_module"}
+
+
+def test_repeated_builds_report_import_path_mismatch(tmp_path):
+    first_root = tmp_path / "first"
+    second_root = tmp_path / "second"
+    first_root.mkdir()
+    second_root.mkdir()
+    module_name = "task_repeated_build_import_path"
+    first_path = first_root / f"{module_name}.py"
+    second_path = second_root / f"{module_name}.py"
+    first_path.write_text(
+        "from pathlib import Path\n"
+        "def task_example():\n"
+        "    Path(__file__).with_name('result.txt').write_text('first')\n"
+    )
+    second_path.write_text(
+        "from pathlib import Path\n"
+        "def task_example():\n"
+        "    Path(__file__).with_name('result.txt').write_text('second')\n"
+    )
+
+    first_session = build(paths=first_root)
+    second_session = build(paths=second_root)
+
+    assert first_session.exit_code == ExitCode.OK
+    assert first_root.joinpath("result.txt").read_text() == "first"
+    assert second_session.exit_code == ExitCode.COLLECTION_FAILED
+    assert not second_root.joinpath("result.txt").exists()
+    failed_reports = [
+        report
+        for report in second_session.collection_reports
+        if report.outcome == CollectionOutcome.FAIL
+    ]
+    assert len(failed_reports) == 1
+    assert failed_reports[0].exc_info is not None
+    assert isinstance(failed_reports[0].exc_info[1], ImportPathMismatchError)
 
 
 def test_collect_module_name(tmp_path):

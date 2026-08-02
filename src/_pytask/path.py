@@ -17,6 +17,7 @@ from upath import UPath
 
 from _pytask._hashlib import file_digest
 from _pytask.cache import Cache
+from _pytask.exceptions import ImportPathMismatchError
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
     from _pytask.typing import NodePath
 
 __all__ = [
+    "ImportPathMismatchError",
     "find_case_sensitive_path",
     "find_closest_ancestor",
     "find_common_ancestor",
@@ -182,21 +184,22 @@ def import_path(path: Path, root: Path) -> ModuleType:
     except CouldNotResolvePathError:
         pass
     else:
-        # If the given module name is already in sys.modules, do not import it again.
-        with contextlib.suppress(KeyError):
-            return sys.modules[module_name]
+        cached_module = _get_cached_module(module_name, path)
+        if cached_module is not None:
+            return cached_module
 
         mod = _import_module_using_spec(module_name, path, pkg_root)
         if mod is not None:
             return mod
 
     module_name = _module_name_from_path(path, root)
-    with contextlib.suppress(KeyError):
-        return sys.modules[module_name]
+    cached_module = _get_cached_module(module_name, path)
+    if cached_module is not None:
+        return cached_module
 
     spec = importlib.util.spec_from_file_location(module_name, str(path))
 
-    if spec is None:
+    if spec is None or spec.loader is None:
         msg = f"Can't find module {module_name!r} at location {path}."
         raise ImportError(msg)
 
@@ -205,6 +208,37 @@ def import_path(path: Path, root: Path) -> ModuleType:
     spec.loader.exec_module(mod)
     _insert_missing_modules(sys.modules, module_name)
     return mod
+
+
+def _get_cached_module(module_name: str, path: Path) -> ModuleType | None:
+    """Return a cached module only when it originates from the requested path."""
+    module = sys.modules.get(module_name)
+    if module is None:
+        return None
+
+    module_file = getattr(module, "__file__", None)
+    if module_file is not None and _normalize_import_path(module_file) == (
+        _normalize_import_path(path)
+    ):
+        return module
+
+    imported_path = "<unknown>" if module_file is None else str(module_file)
+    msg = (
+        f"Module {module_name!r} was already imported from:\n{imported_path}\n\n"
+        f"Pytask is trying to collect:\n{path}\n\n"
+        "Pytask will not reuse a module from a different path.\n\n"
+        "Use a unique package or module name, or start the build in a fresh process "
+        "or notebook kernel."
+    )
+    raise ImportPathMismatchError(msg)
+
+
+def _normalize_import_path(path: str | os.PathLike[str]) -> str:
+    """Normalize a module path for cache comparisons."""
+    raw_path = os.fspath(path)
+    if raw_path.endswith((".pyc", ".pyo")):
+        raw_path = raw_path[:-1]
+    return os.path.normcase(str(Path(raw_path).resolve()))
 
 
 def _resolve_package_path(path: Path) -> Path | None:
