@@ -35,6 +35,8 @@ if TYPE_CHECKING:
 
     from ty_extensions import Intersection
 
+    from _pytask.node_protocols import PTask
+
     TaskDecorated: TypeAlias = "Intersection[T, TaskFunction]"
 
 T = TypeVar("T", bound="Callable[..., Any]")
@@ -50,6 +52,7 @@ __all__ = [
     "parse_collected_tasks_with_task_marker",
     "parse_keyword_arguments_from_signature_defaults",
     "task",
+    "validate_unique_task_signatures",
 ]
 
 
@@ -61,6 +64,43 @@ where one iteration overwrites the previous task. To retrieve the tasks later, u
 dictionary mapping from paths of modules to a list of tasks per module.
 
 """
+
+
+def validate_unique_task_signatures(tasks: list[PTask]) -> None:
+    """Raise an error if multiple tasks have the same signature."""
+    signature_to_tasks: dict[str, list[PTask]] = defaultdict(list)
+    for task_ in tasks:
+        signature_to_tasks[task_.signature].append(task_)
+
+    collisions = {
+        signature: tasks_
+        for signature, tasks_ in signature_to_tasks.items()
+        if len(tasks_) > 1
+    }
+    if not collisions:
+        return
+
+    lines = ["Task signatures must be unique, but pytask collected conflicting tasks."]
+    for signature, conflicting_tasks in sorted(collisions.items()):
+        lines.extend(("", f"Signature {signature!r} is used by:"))
+        lines.extend(f"- {_describe_task(task_)}" for task_ in conflicting_tasks)
+
+    raise ValueError("\n".join(lines))
+
+
+def _describe_task(task_: PTask) -> str:
+    """Return a task description which distinguishes conflicting definitions."""
+    function_name = getattr(task_.function, "__qualname__", repr(task_.function))
+    path = getattr(task_, "path", None)
+    try:
+        line_number = inspect.getsourcelines(task_.function)[1]
+    except (OSError, TypeError):
+        line_number = None
+
+    location = str(path) if path is not None else "<unknown>"
+    if line_number is not None:
+        location = f"{location}:{line_number}"
+    return f"{task_.name!r} ({function_name}, {location})"
 
 
 @overload

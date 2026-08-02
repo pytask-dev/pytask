@@ -10,6 +10,7 @@ from _pytask.dag import _create_dag_from_tasks
 from pytask import ExitCode
 from pytask import PathNode
 from pytask import Task
+from pytask import TaskWithoutPath
 from pytask import build
 from pytask import cli
 from tests.conftest import noop
@@ -35,6 +36,16 @@ def test_create_dag():
         "638a01e495bb8e263036ef2b3009795bb118926cc7f20f005a64c351d820a669",
     ):
         assert signature in dag.nodes
+
+
+def test_create_dag_rejects_duplicate_task_signatures():
+    tasks = [
+        TaskWithoutPath(name="duplicate", function=noop),
+        TaskWithoutPath(name="duplicate", function=lambda: None),
+    ]
+
+    with pytest.raises(ValueError, match="Task signatures must be unique"):
+        _create_dag_from_tasks(tasks)
 
 
 def test_cycle_in_dag(tmp_path, runner, snapshot_cli):
