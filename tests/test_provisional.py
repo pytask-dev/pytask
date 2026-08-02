@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import textwrap
 
+from pytask import CollectionOutcome
 from pytask import ExitCode
 from pytask import TaskOutcome
 from pytask import build
@@ -191,6 +192,92 @@ def test_provisional_task_generation(runner, tmp_path):
     assert "4  Succeeded" in result.output
     assert tmp_path.joinpath("a-copy.txt").exists()
     assert tmp_path.joinpath("b-copy.txt").exists()
+
+
+def test_task_generator_executes_once(tmp_path):
+    source = """
+    from pathlib import Path
+    from pytask import task
+
+    @task(is_generator=True)
+    def task_generator(produces=Path(__file__).parent / "generator.txt"):
+        counter = Path(__file__).parent / "counter.txt"
+        count = int(counter.read_text()) if counter.exists() else 0
+        counter.write_text(str(count + 1))
+        produces.write_text("generator")
+
+        @task
+        def task_generated(produces=Path(__file__).parent / "generated.txt"):
+            produces.write_text("generated")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("counter.txt").read_text() == "1"
+    assert tmp_path.joinpath("generated.txt").read_text() == "generated"
+    assert len(session.tasks) == 2
+    assert len(session.execution_reports) == 2
+
+
+def test_failed_generated_task_collection_is_atomic(tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    @task(is_generator=True)
+    def task_generator(produces=Path(__file__).parent / "generator.txt"):
+        counter = Path(__file__).parent / "counter.txt"
+        count = int(counter.read_text()) if counter.exists() else 0
+        counter.write_text(str(count + 1))
+        produces.write_text("generator")
+
+        @task
+        def task_valid(produces=Path(__file__).parent / "valid.txt"):
+            produces.write_text("valid")
+
+        @task
+        def task_invalid() -> Annotated[int, 1]:
+            return 1
+
+    def task_descendant(
+        path=Path(__file__).parent / "generator.txt",
+        produces=Path(__file__).parent / "descendant.txt",
+    ):
+        produces.write_text("descendant")
+
+    def task_unrelated(produces=Path(__file__).parent / "unrelated.txt"):
+        produces.write_text("unrelated")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.FAILED
+    assert tmp_path.joinpath("counter.txt").read_text() == "1"
+    assert not tmp_path.joinpath("valid.txt").exists()
+    assert not tmp_path.joinpath("descendant.txt").exists()
+    assert tmp_path.joinpath("unrelated.txt").read_text() == "unrelated"
+    assert len(session.tasks) == 3
+    assert [report.outcome for report in session.execution_reports].count(
+        TaskOutcome.FAIL
+    ) == 1
+    assert TaskOutcome.SKIP_PREVIOUS_FAILED in {
+        report.outcome for report in session.execution_reports
+    }
+    generated_reports = [
+        report
+        for report in session.collection_reports
+        if report.node is not None
+        and report.node.name.endswith(("task_valid", "task_invalid"))
+    ]
+    assert len(generated_reports) == 2
+    assert {report.outcome for report in generated_reports} == {
+        CollectionOutcome.SUCCESS,
+        CollectionOutcome.FAIL,
+    }
 
 
 def test_gracefully_fail_when_task_generator_raises_error(runner, tmp_path):
