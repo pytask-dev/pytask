@@ -53,6 +53,7 @@ from _pytask.shared import unwrap_task_function
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import parse_collected_tasks_with_task_marker
 from _pytask.task_utils import task as task_decorator
+from _pytask.task_utils import validate_unique_task_signatures
 from _pytask.typing import TaskFunction
 from _pytask.typing import is_task_function
 
@@ -81,6 +82,7 @@ def pytask_collect(session: Session) -> bool:
 
     try:
         session.hook.pytask_collect_modify_tasks(session=session, tasks=session.tasks)
+        validate_unique_task_signatures(session.tasks)
     except Exception:  # noqa: BLE001  # pragma: no cover
         report = CollectionReport.from_exception(
             outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info()
@@ -605,6 +607,7 @@ def pytask_collect_modify_tasks(tasks: list[PTask]) -> None:
     for task in tasks:
         if task.name in id_to_short_id and isinstance(task, Task):
             task.name = id_to_short_id[task.name]
+    validate_unique_task_signatures(tasks)
 
 
 def _find_shortest_uniquely_identifiable_name_for_tasks(

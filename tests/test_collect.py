@@ -12,15 +12,63 @@ import upath
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
 from _pytask.node_protocols import PPathNode
+from _pytask.task_utils import validate_unique_task_signatures
 from pytask import CollectionOutcome
 from pytask import ExitCode
 from pytask import NodeInfo
 from pytask import PickleNode
 from pytask import Session
 from pytask import Task
+from pytask import TaskWithoutPath
 from pytask import build
 from pytask import cli
 from tests.conftest import noop
+
+
+def test_duplicate_programmatic_task_signatures_fail_collection(tmp_path):
+    calls = []
+
+    def first():
+        calls.append("first")
+
+    def second():
+        calls.append("second")
+
+    tasks = [
+        TaskWithoutPath(name="duplicate", function=first),
+        TaskWithoutPath(name="duplicate", function=second),
+    ]
+
+    session = build(tasks=tasks, paths=tmp_path, force=True)
+
+    assert session.exit_code == ExitCode.COLLECTION_FAILED
+    assert not session.execution_reports
+    assert not calls
+
+
+def test_duplicate_task_signature_message_contains_all_collision_groups():
+    def first():
+        pass
+
+    def second():
+        pass
+
+    tasks = [
+        TaskWithoutPath(name="duplicate-a", function=first),
+        TaskWithoutPath(name="duplicate-a", function=second),
+        TaskWithoutPath(name="duplicate-b", function=first),
+        TaskWithoutPath(name="duplicate-b", function=second),
+    ]
+
+    with pytest.raises(ValueError, match="Task signatures must be unique") as exc_info:
+        validate_unique_task_signatures(tasks)
+
+    message = str(exc_info.value)
+    assert "Task signatures must be unique" in message
+    assert "duplicate-a" in message
+    assert "duplicate-b" in message
+    assert "first" in message
+    assert "second" in message
 
 
 def _make_local_upath_uri(path: Path, protocol: str) -> str:

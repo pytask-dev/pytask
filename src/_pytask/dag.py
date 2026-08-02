@@ -28,6 +28,7 @@ from _pytask.node_protocols import PTask
 from _pytask.nodes import PythonNode
 from _pytask.reports import DagReport
 from _pytask.shared import reduce_names_of_multiple_nodes
+from _pytask.task_utils import validate_unique_task_signatures
 from _pytask.tree_util import tree_map
 
 if TYPE_CHECKING:
@@ -64,6 +65,7 @@ def create_dag_from_session(session: Session) -> DAG:
 
 def _create_dag_from_tasks(tasks: list[PTask]) -> DAG:
     """Create the DAG from tasks, dependencies and products."""
+    validate_unique_task_signatures(tasks)
 
     def _add_node_data(dag: DAG, node: PNode | PProvisionalNode) -> None:
         dag.add_node(node.signature, node)
