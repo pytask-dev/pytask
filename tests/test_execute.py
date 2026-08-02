@@ -965,6 +965,36 @@ def test_use_functional_interface_with_task(tmp_path):
     assert session.exit_code == ExitCode.OK
 
 
+def test_sourceless_task_without_path_always_executes(tmp_path):
+    namespace = {}
+    exec(  # noqa: S102
+        textwrap.dedent(
+            """
+            def function(path):
+                count = int(path.read_text()) if path.exists() else 0
+                path.write_text(str(count + 1))
+            """
+        ),
+        namespace,
+    )
+    task = TaskWithoutPath(
+        name="sourceless",
+        function=namespace["function"],
+        produces={"path": PathNode(path=tmp_path / "count.txt")},
+    )
+
+    assert task.state() is None
+
+    first_session = build(tasks=task, paths=tmp_path)
+    second_session = build(tasks=task, paths=tmp_path)
+
+    assert first_session.exit_code == ExitCode.OK
+    assert second_session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("count.txt").read_text() == "2"
+    assert first_session.execution_reports[0].outcome == TaskOutcome.SUCCESS
+    assert second_session.execution_reports[0].outcome == TaskOutcome.SUCCESS
+
+
 def test_collect_task(runner, tmp_path):
     source = """
     from pytask import Task, PathNode
