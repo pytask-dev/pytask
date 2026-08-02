@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
+from _pytask.exceptions import ImportPathMismatchError
 from _pytask.path import hash_path
 from _pytask.path import import_path
 
-__all__ = ["hash_path", "import_path"]
+__all__ = ["ImportPathMismatchError", "hash_path", "import_path"]
