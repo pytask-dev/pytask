@@ -3940,14 +3940,14 @@ wheels = [
 
 [[package]]
 name = "syrupy"
-version = "5.3.2"
+version = "5.5.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pytest" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/de/72/c793cd7c56b09f71be80ee2f4cc64c8e2b6a3dc8abf37fbfb09785aa00a7/syrupy-5.3.2.tar.gz", hash = "sha256:d4c9d4badb165a5694dcd869812717d899a8aa0b6f14f842437cb57c4ce09b3a", size = 85948, upload-time = "2026-06-09T14:46:32.721Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e7/39/17dde9f0c76cc5abcdeef1b2243791bb850d498f784147b8e460dd23abe8/syrupy-5.5.3.tar.gz", hash = "sha256:fa21e4ae77c89ec5abfca513338d8a7eb916da6618ca0f8db301476e0768e57a", size = 91614, upload-time = "2026-07-11T15:54:31.46Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d8/19/e45765fa26388f42e22af2fc27f06e78e1da56d4211f883f6f8ddaac7646/syrupy-5.3.2-py3-none-any.whl", hash = "sha256:a4cb08f07342655816c16b6b3aef5f6af8859ef5fbad6a57d0e2c20c0f8be54c", size = 52643, upload-time = "2026-06-09T14:46:31.168Z" },
+    { url = "https://files.pythonhosted.org/packages/ae/f9/617a194c1a4203279998e1859426cf2635042533a99a93d63d3ee1fb967e/syrupy-5.5.3-py3-none-any.whl", hash = "sha256:0b260a0c9dad55e1fb83818973dc36fbc1aea3fd5381592f442a986686c4171a", size = 54959, upload-time = "2026-07-11T15:54:29.836Z" },
 ]
 
 [[package]]
