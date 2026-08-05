@@ -13,7 +13,9 @@ import re
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 
 from _pytask.config_utils import find_project_root_and_config
 from _pytask.data_catalog_utils import DATA_CATALOG_NAME_FIELD
@@ -24,6 +26,9 @@ from _pytask.node_protocols import PProvisionalNode
 from _pytask.nodes import PickleNode
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 __all__ = ["DataCatalog"]
 
@@ -118,13 +123,17 @@ class DataCatalog:
 
         if node is None:
             filename = hashlib.sha256(name.encode()).hexdigest()
+            # Plugins can provide node classes with different keyword-only
+            # constructors. The path-node check below selects the supported call
+            # shape at runtime.
+            node_factory = cast("Callable[..., PNode]", self.default_node)
             if _is_path_node_type(self.default_node):
                 assert self.path is not None
-                self._entries[name] = self.default_node(
+                self._entries[name] = node_factory(
                     name=name, path=self.path / f"{filename}.pkl"
                 )
             else:
-                self._entries[name] = self.default_node(name=name)
+                self._entries[name] = node_factory(name=name)
             assert self.path is not None
             self.path.joinpath(f"{filename}-node.pkl").write_bytes(
                 pickle.dumps(self._entries[name])

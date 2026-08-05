@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
     from typing import TypeAlias
+    from uuid import UUID
 
     from ty_extensions import Intersection
 
@@ -229,7 +230,9 @@ def task(  # noqa: PLR0913
         # collection when the function definition is overwritten in a loop.
         COLLECTED_TASKS[path].append(unwrapped)
 
-        return unwrapped
+        # Runtime validation and metadata attachment establish both parts of the
+        # intersection, but the generic relationship cannot be narrowed automatically.
+        return cast("TaskDecorated[T]", unwrapped)
 
     # When decorator is used without parentheses, call wrapper directly.
     if _is_task_decorator_target(name) and kwargs is None:
@@ -255,7 +258,7 @@ def _parse_name(func: Callable[..., Any], name: str | None) -> str:
 
 def _parse_after(
     after: str | Callable[..., Any] | list[Callable[..., Any]] | None,
-) -> str | list[Callable[..., Any]]:
+) -> str | list[UUID]:
     if not after:
         return []
     if isinstance(after, str):
