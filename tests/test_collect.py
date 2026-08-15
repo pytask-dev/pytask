@@ -67,8 +67,7 @@ def test_duplicate_task_signature_message_contains_all_collision_groups():
     assert "Task signatures must be unique" in message
     assert "duplicate-a" in message
     assert "duplicate-b" in message
-    assert "first" in message
-    assert "second" in message
+    assert f"{Path(__file__).as_posix()}:" in message
 
 
 def _make_local_upath_uri(path: Path, protocol: str) -> str:

@@ -23,6 +23,7 @@ from typing import overload
 
 from _pytask.coiled_utils import Function
 from _pytask.coiled_utils import extract_coiled_function_kwargs
+from _pytask.console import format_task_name
 from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
@@ -101,17 +102,27 @@ def validate_unique_task_signatures(tasks: list[PTask]) -> None:
 
 def _describe_task(task_: PTask) -> str:
     """Return a task description which distinguishes conflicting definitions."""
-    function_name = getattr(task_.function, "__qualname__", repr(task_.function))
     path = getattr(task_, "path", None)
+    if path is None:
+        try:
+            path = get_file(task_.function)
+        except (OSError, TypeError):
+            path = None
     try:
         line_number = inspect.getsourcelines(task_.function)[1]
     except (OSError, TypeError):
         line_number = None
 
-    location = str(path) if path is not None else "<unknown>"
+    if path is None:
+        location = "<unknown>"
+    elif hasattr(path, "as_posix"):
+        location = path.as_posix()
+    else:
+        location = str(path)
     if line_number is not None:
         location = f"{location}:{line_number}"
-    return f"{task_.name!r} ({function_name}, {location})"
+    task_name = format_task_name(task_, editor_url_scheme="no_link").plain
+    return f"{task_name} ({location})"
 
 
 @overload
