@@ -40,6 +40,9 @@ if TYPE_CHECKING:
     from _pytask.reports import ExecutionReport
 
 
+_now = time.time
+
+
 class _ExportFormats(enum.Enum):
     NO = "no"
     JSON = "json"
@@ -65,9 +68,9 @@ def pytask_post_parse(config: dict[str, Any]) -> None:
 @hookimpl(wrapper=True)
 def pytask_execute_task(task: PTask) -> Generator[None, None, None]:
     """Attach the duration of the execution to the task."""
-    start = time.time()
+    start = _now()
     result = yield
-    end = time.time()
+    end = _now()
     task.attributes["duration"] = (start, end)
     return result
 
