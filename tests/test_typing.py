@@ -1,8 +1,22 @@
 from __future__ import annotations
 
 import functools
+from typing import TYPE_CHECKING
 
 from pytask import is_task_function
+
+if TYPE_CHECKING:
+    from typing_extensions import assert_type
+
+    from pytask import CollectionMetadata
+    from pytask import task
+
+    @task
+    def _typed_task(value: int) -> str:
+        return str(value)
+
+    assert_type(_typed_task(1), str)
+    assert_type(_typed_task.pytask_meta, CollectionMetadata)
 
 
 def test_is_task_function():

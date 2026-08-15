@@ -12,6 +12,7 @@ from typing import Annotated
 import pytest
 
 import pytask
+from _pytask.mark import MARK_GEN
 from _pytask.path import HashPathCache
 from pytask import CaptureMethod
 from pytask import ExitCode
@@ -123,6 +124,45 @@ def test_node_not_found_in_task_setup(tmp_path):
     exc_info = report.exc_info
     assert exc_info is not None
     assert isinstance(exc_info[1], NodeNotFoundError)
+
+
+@pytest.mark.parametrize("exit_code", [0, 7])
+def test_system_exit_is_a_normal_task_failure(tmp_path, exit_code):
+    source = f"""
+    from pathlib import Path
+
+    def task_exits(produces=Path("upstream.txt")):
+        raise SystemExit({exit_code})
+
+    def task_descendant(
+        path=Path("upstream.txt"), produces=Path("descendant.txt")
+    ):
+        produces.write_text(path.read_text())
+
+    def task_unrelated(produces=Path("unrelated.txt")):
+        produces.write_text("unrelated")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.FAILED
+    assert tmp_path.joinpath("unrelated.txt").read_text() == "unrelated"
+    assert not tmp_path.joinpath("descendant.txt").exists()
+    assert {report.outcome for report in session.execution_reports} == {
+        TaskOutcome.FAIL,
+        TaskOutcome.SKIP_PREVIOUS_FAILED,
+        TaskOutcome.SUCCESS,
+    }
+    failed_report = next(
+        report
+        for report in session.execution_reports
+        if report.outcome == TaskOutcome.FAIL
+    )
+    assert failed_report.exc_info is not None
+    assert isinstance(failed_report.exc_info[1], SystemExit)
+    assert failed_report.exc_info[1].code == exit_code
+    assert MARK_GEN.config is None
 
 
 def test_depends_on_and_produces_can_be_used_in_task(tmp_path):

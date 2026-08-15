@@ -219,7 +219,7 @@ class DontReadFromInput(TextIO):
         msg = "Cannot truncate stdin."
         raise UnsupportedOperation(msg)
 
-    def write(self, data: str) -> int:  # noqa: ARG002  # ty: ignore[invalid-method-override]
+    def write(self, data: str) -> int:  # noqa: ARG002
         msg = "Cannot write to stdin."
         raise UnsupportedOperation(msg)
 
