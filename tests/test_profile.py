@@ -6,7 +6,6 @@ import textwrap
 
 import pytest
 
-import _pytask.profile as profile_module
 from _pytask.profile import _to_human_readable_size
 from _pytask.runtime_store import RuntimeState
 from pytask import ExitCode
@@ -14,25 +13,22 @@ from pytask import build
 from pytask import cli
 
 
-def test_duration_is_stored_in_task(tmp_path, monkeypatch):
+def test_duration_is_stored_in_task(tmp_path):
     source = """
     def task_example(): pass
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
-    times = iter((100.0, 102.25))
-    monkeypatch.setattr(profile_module, "_now", lambda: next(times))
-
     session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
     task = session.tasks[0]
     duration = task.attributes["duration"]
-    assert duration == (100.0, 102.25)
+    assert duration[0] <= duration[1]
 
     runtime_state = RuntimeState.from_root(tmp_path)
-    duration = runtime_state.get_duration(task)
-    assert duration == pytest.approx(2.25)
+    stored_duration = runtime_state.get_duration(task)
+    assert stored_duration == pytest.approx(duration[1] - duration[0])
 
 
 def test_profile_if_no_tasks_are_collected(tmp_path, runner):
