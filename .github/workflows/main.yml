@@ -74,15 +74,20 @@ jobs:
           sudo apt-get install graphviz graphviz-dev
 
       - name: Run tests, doctests, and notebook tests
-        if: matrix.os != 'windows-latest' || matrix.python-version != '3.14'
+        if: matrix.os != 'windows-latest'
         shell: bash -l {0}
         run: just test-cov
+
+      - name: Run tests on Windows
+        if: matrix.os == 'windows-latest' && matrix.python-version != '3.14'
+        shell: bash -l {0}
+        run: just test-cov --snapshot-warn-unused
 
       # pywin32 has no wheels for Python 3.14 yet, so skip notebook tests
       - name: Run tests without notebook tests (Windows + Python 3.14)
         if: matrix.os == 'windows-latest' && matrix.python-version == '3.14'
         shell: bash -l {0}
-        run: uv run --group test pytest --cov=src --cov=tests --cov-report=xml -n auto
+        run: uv run --group test pytest --cov=src --cov=tests --cov-report=xml -n auto --snapshot-warn-unused
 
       - name: Upload test coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
