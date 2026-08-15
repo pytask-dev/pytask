@@ -26,16 +26,16 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@f98e06938123ccabd21905ea5d0069192241f9f1 # v8.3.1
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: true
       - name: Install just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
         with:
-          just-version: "1.43.1"
+          just-version: "1.58.0"
       - name: Install graphviz
         run: |
           sudo apt-get update
@@ -56,17 +56,17 @@ jobs:
         python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@f98e06938123ccabd21905ea5d0069192241f9f1 # v8.3.1
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: true
           python-version: ${{ matrix.python-version }}
       - name: Install just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
         with:
-          just-version: "1.43.1"
+          just-version: "1.58.0"
 
       - if: matrix.os == 'ubuntu-latest'
         run: |
@@ -74,15 +74,20 @@ jobs:
           sudo apt-get install graphviz graphviz-dev
 
       - name: Run tests, doctests, and notebook tests
-        if: matrix.os != 'windows-latest' || matrix.python-version != '3.14'
+        if: matrix.os != 'windows-latest'
         shell: bash -l {0}
         run: just test-cov
+
+      - name: Run tests on Windows
+        if: matrix.os == 'windows-latest' && matrix.python-version != '3.14'
+        shell: bash -l {0}
+        run: just test-cov --snapshot-warn-unused
 
       # pywin32 has no wheels for Python 3.14 yet, so skip notebook tests
       - name: Run tests without notebook tests (Windows + Python 3.14)
         if: matrix.os == 'windows-latest' && matrix.python-version == '3.14'
         shell: bash -l {0}
-        run: uv run --group test pytest --cov=src --cov=tests --cov-report=xml -n auto
+        run: uv run --group test pytest --cov=src --cov=tests --cov-report=xml -n auto --snapshot-warn-unused
 
       - name: Upload test coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
