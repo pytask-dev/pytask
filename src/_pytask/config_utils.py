@@ -42,7 +42,9 @@ def set_defaults_from_config(
     # to this command. They might expect the defaults coming from their related
     # command-line options during parsing. Here, we add their defaults to the
     # configuration.
-    command_option_names = [option.name for option in context.command.params]
+    command_option_names = {
+        option.name for option in context.command.params if option.name is not None
+    }
     assert context.parent is not None
     assert isinstance(context.parent.command, click.Group)
     commands = context.parent.command.commands

@@ -13,8 +13,8 @@ import re
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
-from typing import TYPE_CHECKING
 from typing import Any
+from typing import Protocol
 from typing import cast
 
 from _pytask.config_utils import find_project_root_and_config
@@ -27,8 +27,24 @@ from _pytask.nodes import PickleNode
 from _pytask.pluginmanager import storage
 from _pytask.session import Session
 
-if TYPE_CHECKING:
-    from collections.abc import Callable
+
+class _NodeFactory(Protocol):
+    """Construct a node which does not require a path."""
+
+    @property
+    def __mro__(self) -> tuple[type[Any], ...]: ...
+
+    def __call__(self, *, name: str) -> PNode: ...
+
+
+class _PathNodeFactory(Protocol):
+    """Construct a node which requires a path."""
+
+    @property
+    def __mro__(self) -> tuple[type[Any], ...]: ...
+
+    def __call__(self, *, name: str, path: Path) -> PNode: ...
+
 
 __all__ = ["DataCatalog"]
 
@@ -42,7 +58,9 @@ def _get_parent_path_of_data_catalog_module(stacklevel: int = 2) -> Path:
     return Path.cwd()
 
 
-def _is_path_node_type(node_type: type[Any]) -> bool:
+def _is_path_node_type(
+    node_type: _NodeFactory | _PathNodeFactory,
+) -> bool:
     """Return True if the class looks like a path-based node."""
     for cls in node_type.__mro__:
         if "path" in getattr(cls, "__annotations__", {}):
@@ -70,7 +88,7 @@ class DataCatalog:
 
     """
 
-    default_node: type[PNode] = PickleNode
+    default_node: _NodeFactory | _PathNodeFactory = PickleNode
     name: str = "default"
     path: Path | None = None
     _entries: dict[str, PNode | PProvisionalNode] = field(default_factory=dict)
@@ -123,17 +141,19 @@ class DataCatalog:
 
         if node is None:
             filename = hashlib.sha256(name.encode()).hexdigest()
-            # Plugins can provide node classes with different keyword-only
-            # constructors. The path-node check below selects the supported call
-            # shape at runtime.
-            node_factory = cast("Callable[..., PNode]", self.default_node)
             if _is_path_node_type(self.default_node):
                 assert self.path is not None
-                self._entries[name] = node_factory(
+                node_factory = cast("_PathNodeFactory", self.default_node)
+                created_node = node_factory(
                     name=name, path=self.path / f"{filename}.pkl"
                 )
             else:
-                self._entries[name] = node_factory(name=name)
+                node_factory = cast("_NodeFactory", self.default_node)
+                created_node = node_factory(name=name)
+            if not isinstance(created_node, PNode):
+                msg = "The default node factory must return an object matching PNode."
+                raise TypeError(msg)
+            self._entries[name] = created_node
             assert self.path is not None
             self.path.joinpath(f"{filename}-node.pkl").write_bytes(
                 pickle.dumps(self._entries[name])
