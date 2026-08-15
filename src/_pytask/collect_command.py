@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 from collections import defaultdict
+from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 
@@ -39,8 +40,18 @@ from _pytask.session import Session
 from _pytask.tree_util import tree_leaves
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from typing import NoReturn
+
+    from _pytask.typing import NodePath
+
+
+def _normalize_local_node_path(path: NodePath) -> Path:
+    """Normalize a local node path and preserve that guarantee in its type."""
+    normalized = normalize_local_upath(path)
+    if not isinstance(normalized, Path):
+        msg = f"Expected a local path, got {path!r}."
+        raise TypeError(msg)
+    return normalized
 
 
 @hookimpl(tryfirst=True)
@@ -127,12 +138,12 @@ def _find_common_ancestor_of_all_nodes(
         all_paths.append(task.path)
         if show_nodes:
             all_paths.extend(
-                normalize_local_upath(x.path)
+                _normalize_local_node_path(x.path)
                 for x in tree_leaves(task.depends_on)
                 if isinstance(x, PPathNode) and not is_non_local_path(x.path)
             )
             all_paths.extend(
-                normalize_local_upath(x.path)
+                _normalize_local_node_path(x.path)
                 for x in tree_leaves(task.produces)
                 if isinstance(x, PPathNode) and not is_non_local_path(x.path)
             )

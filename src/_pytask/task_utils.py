@@ -7,11 +7,15 @@ import functools
 import inspect
 import sys
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import asdict
 from dataclasses import is_dataclass
 from types import BuiltinFunctionType
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import ParamSpec
+from typing import Protocol
+from typing import TypeAlias
 from typing import TypeGuard
 from typing import TypeVar
 from typing import cast
@@ -22,6 +26,7 @@ from _pytask.coiled_utils import extract_coiled_function_kwargs
 from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
+from _pytask.models import ParsedAfter
 from _pytask.shared import find_duplicates
 from _pytask.shared import unwrap_task_function
 from _pytask.typing import TaskFunction
@@ -29,17 +34,23 @@ from _pytask.typing import attach_task_metadata
 from _pytask.typing import is_task_decorator_target as is_task_decorator_target_runtime
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
     from pathlib import Path
-    from typing import TypeAlias
-
-    from ty_extensions import Intersection
+    from uuid import UUID
 
     from _pytask.node_protocols import PTask
 
-    TaskDecorated: TypeAlias = "Intersection[T, TaskFunction]"
+P = ParamSpec("P")
+R_co = TypeVar("R_co", covariant=True)
 
-T = TypeVar("T", bound="Callable[..., Any]")
+AfterInput: TypeAlias = str | Callable[..., Any] | list[Callable[..., Any]] | None
+
+
+class TaskDecorated(Protocol[P, R_co]):
+    """A callable task with collection metadata attached."""
+
+    pytask_meta: CollectionMetadata
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> R_co: ...
 
 
 def _is_task_decorator_target(obj: object) -> TypeGuard[Callable[..., Any]]:
@@ -105,32 +116,32 @@ def _describe_task(task_: PTask) -> str:
 
 @overload
 def task(
-    name: T,
+    name: Callable[P, R_co],
     /,
-) -> TaskDecorated[T]: ...
+) -> TaskDecorated[P, R_co]: ...
 
 
 @overload
 def task(
     name: str | None = None,
     *,
-    after: str | Callable[..., Any] | list[Callable[..., Any]] | None = None,
+    after: AfterInput = None,
     is_generator: bool = False,
     id: str | None = None,
     kwargs: dict[Any, Any] | None = None,
     produces: Any | None = None,
-) -> Callable[[T], TaskDecorated[T]]: ...
+) -> Callable[[Callable[P, R_co]], TaskDecorated[P, R_co]]: ...
 
 
 def task(  # noqa: PLR0913
-    name: str | T | None = None,
+    name: str | Callable[P, R_co] | None = None,
     *,
-    after: str | Callable[..., Any] | list[Callable[..., Any]] | None = None,
+    after: AfterInput = None,
     is_generator: bool = False,
     id: str | None = None,  # noqa: A002
     kwargs: dict[Any, Any] | None = None,
     produces: Any | None = None,
-) -> TaskDecorated[T] | Callable[[T], TaskDecorated[T]]:
+) -> TaskDecorated[P, R_co] | Callable[[Callable[P, R_co]], TaskDecorated[P, R_co]]:
     """Decorate a task function.
 
     This decorator declares every callable as a pytask task.
@@ -197,7 +208,7 @@ def task(  # noqa: PLR0913
     )
     caller_locals = None if has_future_annotations else caller_frame.f_locals.copy()
 
-    def wrapper(func: T) -> TaskDecorated[T]:
+    def wrapper(func: Callable[P, R_co]) -> TaskDecorated[P, R_co]:
         # Omits frame when a builtin function is wrapped.
         _rich_traceback_omit = True
 
@@ -269,11 +280,13 @@ def task(  # noqa: PLR0913
         # collection when the function definition is overwritten in a loop.
         COLLECTED_TASKS[path].append(unwrapped)
 
-        return unwrapped
+        # Runtime validation and metadata attachment establish the protocol, but the
+        # relationship to the input signature cannot be narrowed automatically.
+        return cast("TaskDecorated[P, R_co]", unwrapped)
 
     # When decorator is used without parentheses, call wrapper directly.
     if _is_task_decorator_target(name) and kwargs is None:
-        func = cast("T", name)
+        func = cast("Callable[P, R_co]", name)
         return wrapper(func)
     return wrapper
 
@@ -294,8 +307,8 @@ def _parse_name(func: Callable[..., Any], name: str | None) -> str:
 
 
 def _parse_after(
-    after: str | Callable[..., Any] | list[Callable[..., Any]] | None,
-) -> str | list[Callable[..., Any]]:
+    after: AfterInput,
+) -> ParsedAfter:
     if not after:
         return []
     if isinstance(after, str):
@@ -303,7 +316,7 @@ def _parse_after(
     if callable(after):
         after = [after]
     if isinstance(after, list):
-        new_after = []
+        new_after: list[UUID] = []
         for func in after:
             if not isinstance(func, TaskFunction):
                 func = task()(func)  # noqa: PLW2901
