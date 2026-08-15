@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import csv
+import json
 import textwrap
 
 import pytest
@@ -13,23 +15,20 @@ from pytask import cli
 
 def test_duration_is_stored_in_task(tmp_path):
     source = """
-    import time
-    def task_example(): time.sleep(2)
+    def task_example(): pass
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
-
     session = build(paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert len(session.tasks) == 1
     task = session.tasks[0]
     duration = task.attributes["duration"]
-    assert duration[1] - duration[0] > 2
+    assert duration[0] <= duration[1]
 
     runtime_state = RuntimeState.from_root(tmp_path)
-    duration = runtime_state.get_duration(task)
-    assert duration is not None
-    assert duration > 2
+    stored_duration = runtime_state.get_duration(task)
+    assert stored_duration == pytest.approx(duration[1] - duration[0])
 
 
 def test_profile_if_no_tasks_are_collected(tmp_path, runner):
@@ -40,8 +39,7 @@ def test_profile_if_no_tasks_are_collected(tmp_path, runner):
 
 def test_profile_if_there_is_no_information_on_collected_tasks(tmp_path, runner):
     source = """
-    import time
-    def task_example(): time.sleep(2)
+    def task_example(): pass
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
@@ -54,11 +52,9 @@ def test_profile_if_there_is_no_information_on_collected_tasks(tmp_path, runner)
 
 def test_profile_if_there_is_information_on_collected_tasks(tmp_path, runner):
     source = """
-    import time
     from pathlib import Path
 
     def task_example(produces=Path("out.txt")):
-        time.sleep(2)
         produces.write_text("There are nine billion bicycles in Beijing.")
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
@@ -72,8 +68,7 @@ def test_profile_if_there_is_information_on_collected_tasks(tmp_path, runner):
 @pytest.mark.parametrize("export", ["csv", "json"])
 def test_export_of_profile(tmp_path, runner, export):
     source = """
-    import time
-    def task_example(): time.sleep(2)
+    def task_example(): pass
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
@@ -81,7 +76,19 @@ def test_export_of_profile(tmp_path, runner, export):
     result = runner.invoke(cli, ["profile", tmp_path.as_posix(), "--export", export])
 
     assert result.exit_code == ExitCode.OK
-    assert tmp_path.joinpath(f"profile.{export}").exists()
+    export_path = tmp_path.joinpath(f"profile.{export}")
+    if export == "csv":
+        with export_path.open(newline="") as file:
+            rows = list(csv.DictReader(file))
+        assert len(rows) == 1
+        assert rows[0]["Task"].endswith("task_example")
+        assert float(rows[0]["Duration (in s)"]) >= 0
+    else:
+        profile = json.loads(export_path.read_text())
+        assert len(profile) == 1
+        task_name, task_profile = next(iter(profile.items()))
+        assert task_name.endswith("task_example")
+        assert task_profile["Duration (in s)"] >= 0
 
 
 @pytest.mark.parametrize(
