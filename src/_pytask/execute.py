@@ -122,7 +122,7 @@ def pytask_execute_task_protocol(session: Session, task: PTask) -> ExecutionRepo
         short_exc_info = remove_traceback_from_exc_info(sys.exc_info())
         report = ExecutionReport.from_task_and_exception(task, short_exc_info)
         session.should_stop = True
-    except Exception:  # noqa: BLE001
+    except BaseException:  # noqa: BLE001
         report = ExecutionReport.from_task_and_exception(task, sys.exc_info())
     else:
         report = ExecutionReport.from_task(task)
