@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-import subprocess
-import sys
 import textwrap
+from typing import Annotated
 
 import pytest
 
 from pytask import ExitCode
 from pytask import build
 from pytask import cli
+from pytask import task
 
 
 @pytest.mark.parametrize("func_name", ["task_example", "func"])
@@ -642,40 +642,27 @@ def test_task_will_be_executed_after_another_one_with_function(
 
 
 @pytest.mark.parametrize("decorator", ["", "@task"])
-@pytest.mark.xfail(
-    reason="Wrong python interpreter picked up in CI?",
-    condition=sys.platform == "win32",
-    strict=True,
-)
 def test_task_will_be_executed_after_another_one_with_function_session(
     tmp_path, decorator
 ):
-    source = f"""
-    from pytask import task, ExitCode, build
-    from pathlib import Path
-    from typing import Annotated
+    output_path = tmp_path / "out.txt"
 
-    {decorator}
-    def task_first() -> Annotated[str, Path("out.txt")]:
+    def task_first():
         return "Hello, World!"
 
-    @task(after=task_first)
     def task_second():
-        assert Path(__file__).parent.joinpath("out.txt").exists()
+        assert output_path.exists()
 
-    session = build(tasks=[task_first, task_second])
+    task_first.__annotations__ = {"return": Annotated[str, output_path]}
+    if decorator:
+        task_first = task(task_first)
+    task_second = task(after=task_first)(task_second)
+
+    session = build(tasks=[task_first, task_second], paths=tmp_path)
+
     assert session.exit_code == ExitCode.OK
-    """
-    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
-
-    result = subprocess.run(
-        (sys.executable, "task_example.py"),
-        cwd=tmp_path,
-        capture_output=True,
-        check=False,
-    )
-    assert "2  Succeeded" in result.stdout.decode()
-    assert result.returncode == ExitCode.OK
+    assert len(session.execution_reports) == 2
+    assert output_path.read_text() == "Hello, World!"
 
 
 def test_raise_error_for_wrong_after_expression(runner, tmp_path):

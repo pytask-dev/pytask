@@ -21,6 +21,7 @@ from _pytask.capture import MultiCapture
 from _pytask.capture import _get_multicapture
 from pytask import CaptureMethod
 from pytask import ExitCode
+from pytask import build
 from pytask import cli
 from tests.conftest import enter_directory
 from tests.conftest import run_in_subprocess
@@ -139,27 +140,14 @@ def test_show_capture_with_build(tmp_path, show_capture):
         raise NotImplementedError
 
 
-@pytest.mark.xfail(
-    sys.platform == "win32",
-    reason="from pytask ... cannot be found",
-    raises=AssertionError,
-)
-def test_wrong_capture_method(tmp_path):
-    source = """
-    from pytask import build
-    import sys
+def test_wrong_capture_method(tmp_path, capsys):
+    session = build(paths=tmp_path, show_capture="a")  # type: ignore[arg-type]
 
-    if __name__ == "__main__":
-        session = build(tasks=[], show_capture="a")
-        sys.exit(session.exit_code)
-    """
-    tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
-
-    result = run_in_subprocess((sys.executable, "workflow.py"), cwd=tmp_path)
-    assert result.exit_code == ExitCode.CONFIGURATION_FAILED
-    assert "Value 'a' is not a valid" in result.stdout
-    assert "Traceback" not in result.stdout
-    assert not result.stderr
+    captured = capsys.readouterr()
+    assert session.exit_code == ExitCode.CONFIGURATION_FAILED
+    assert "Value 'a' is not a valid" in captured.out
+    assert "Traceback" not in captured.out
+    assert not captured.err
 
 
 # Following tests are copied from pytest.

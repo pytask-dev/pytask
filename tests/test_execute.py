@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import json
-import os
 import pickle
 import re
 import subprocess
 import sys
 import textwrap
+from pathlib import Path
+from typing import Annotated
 
 import pytest
 
 import pytask
+from _pytask.path import HashPathCache
 from pytask import CaptureMethod
 from pytask import ExitCode
 from pytask import NodeNotFoundError
@@ -580,67 +582,45 @@ def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
 
 
-@pytest.mark.xfail(sys.platform == "win32", reason="Decoding issues in Gitlab Actions.")
 def test_execute_tasks_via_functional_api(tmp_path):
-    source = """
-    import sys
-    from pathlib import Path
-    from typing import Annotated
-    from pytask import PathNode, PythonNode, build
+    node_text = pytask.PythonNode()
+    output_path = tmp_path / "file.txt"
 
-    node_text = PythonNode()
-
-    def create_text() -> Annotated[int, node_text]:
+    def create_text():
         return "This is the text."
 
-    def create_file(
-        content: Annotated[str, node_text]
-    ) -> Annotated[str, Path("file.txt")]:
+    def create_file(content):
         return content
 
-    if __name__ == "__main__":
-        session = build(tasks=[create_file, create_text])
-        assert len(session.tasks) == 2
-        assert len(session.dag.nodes) == 5
-        sys.exit(session.exit_code)
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    result = subprocess.run(
-        (sys.executable, tmp_path.joinpath("task_module.py").as_posix()),
-        check=False,
-        cwd=tmp_path,
-    )
-    assert result.returncode == ExitCode.OK
-    assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
+    create_text.__annotations__ = {"return": Annotated[int, node_text]}
+    create_file.__annotations__ = {
+        "content": Annotated[str, node_text],
+        "return": Annotated[str, output_path],
+    }
+
+    session = build(tasks=[create_file, create_text], paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 2
+    assert len(session.dag.nodes) == 5
+    assert output_path.read_text() == "This is the text."
 
 
-@pytest.mark.skipif(
-    sys.platform == "win32" and os.environ.get("CI") == "true",
-    reason="Windows does not pick up the right Python interpreter.",
-)
 def test_execute_tasks_multiple_times_via_api(tmp_path):
     """See #625."""
-    source = """
-    import pathlib
-    from typing import Annotated
-    from pytask import build, task
-    import sys
 
-    @task
-    def task1() -> None: pass
-    def task2() -> None: pass
+    @pytask.task
+    def task1() -> None:
+        pass
 
-    if __name__ == "__main__":
-        session1 = build(tasks=[task1, task2])
-        session2 = build(tasks=[task1, task2])
-        sys.exit(session2.exit_code)
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    result = run_in_subprocess(
-        (sys.executable, tmp_path.joinpath("task_module.py").as_posix()),
-        cwd=tmp_path,
-    )
-    assert result.exit_code == ExitCode.OK
+    def task2() -> None:
+        pass
+
+    session1 = build(tasks=[task1, task2], paths=tmp_path)
+    session2 = build(tasks=[task1, task2], paths=tmp_path)
+
+    assert session1.exit_code == ExitCode.OK
+    assert session2.exit_code == ExitCode.OK
 
 
 @pytest.mark.xfail(
@@ -668,10 +648,6 @@ def test_pass_non_task_to_functional_api_that_are_ignored():
     assert len(session.tasks) == 0
 
 
-@pytest.mark.skipif(
-    sys.platform == "win32" and os.environ.get("CI") == "true",
-    reason="Windows does not pick up the right Python interpreter.",
-)
 def test_repeated_tasks_via_functional_interface(tmp_path):
     """Test that repeated tasks with the same function name work correctly.
 
@@ -679,51 +655,31 @@ def test_repeated_tasks_via_functional_interface(tmp_path):
     to pytask.build(), they all get unique IDs and execute correctly, similar to how
     file-based collection handles repeated tasks.
     """
-    source = """
-    from pathlib import Path
-    from typing import Annotated
-    from pytask import Product, task, build, ExitCode
-    import sys
-
-    # Create repeated tasks with the same function name
     tasks = []
     for i in range(3):
+
         def create_data(
             value: int = i * 10,
-            produces: Annotated[Path, Product] = Path(f"output_{i}.txt")
+            produces=tmp_path / f"output_{i}.txt",
         ) -> None:
-            '''Generate data based on a value.'''
+            """Generate data based on a value."""
             produces.write_text(str(value))
 
+        create_data.__annotations__["produces"] = Annotated[Path, pytask.Product]
         tasks.append(create_data)
 
-    if __name__ == "__main__":
-        session = build(tasks=tasks)
+    session = build(tasks=tasks, paths=tmp_path)
 
-        # Verify all tasks were collected and executed
-        assert session.exit_code == ExitCode.OK, f"Exit code: {session.exit_code}"
-        assert len(session.tasks) == 3, f"Expected 3 tasks, got {len(session.tasks)}"
-        assert len(session.execution_reports) == 3
+    assert session.exit_code == ExitCode.OK, f"Exit code: {session.exit_code}"
+    assert len(session.tasks) == 3, f"Expected 3 tasks, got {len(session.tasks)}"
+    assert len(session.execution_reports) == 3
+    assert tmp_path.joinpath("output_0.txt").read_text() == "0"
+    assert tmp_path.joinpath("output_1.txt").read_text() == "10"
+    assert tmp_path.joinpath("output_2.txt").read_text() == "20"
 
-        # Verify each task executed and produced the correct output
-        assert Path("output_0.txt").read_text() == "0"
-        assert Path("output_1.txt").read_text() == "10"
-        assert Path("output_2.txt").read_text() == "20"
-
-        # Verify tasks have unique names with repeated task IDs
-        task_names = [task.name for task in session.tasks]
-        assert len(task_names) == len(set(task_names)), "Task names should be unique"
-        assert all("create_data[" in name for name in task_names), \\
-            f"Task names should contain repeated task IDs: {task_names}"
-
-        sys.exit(session.exit_code)
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-    result = run_in_subprocess(
-        (sys.executable, tmp_path.joinpath("task_module.py").as_posix()),
-        cwd=tmp_path,
-    )
-    assert result.exit_code == ExitCode.OK
+    task_names = [task.name for task in session.tasks]
+    assert len(task_names) == len(set(task_names)), "Task names should be unique"
+    assert all("create_data[" in name for name in task_names)
 
 
 def test_multiple_product_annotations(runner, tmp_path):
@@ -792,8 +748,8 @@ def test_errors_during_loading_nodes_have_info(runner, tmp_path):
     assert "_pytask/execute.py" not in result.output
 
 
-def test_hashing_works(tmp_path):
-    """Use subprocess or otherwise the cache is filled from other tests."""
+def test_hashing_works(tmp_path, monkeypatch, runner):
+    monkeypatch.setattr(HashPathCache, "_cache", {})
     source = """
     from pathlib import Path
     from typing import Annotated
@@ -803,13 +759,13 @@ def test_hashing_works(tmp_path):
     """
     tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
 
-    result = run_in_subprocess(("pytask",), cwd=tmp_path)
+    result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
 
     hashes = json.loads(tmp_path.joinpath(".pytask", "file_hashes.json").read_text())
     assert len(hashes) == 2
 
-    result = run_in_subprocess(("pytask",), cwd=tmp_path)
+    result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.OK
 
     hashes_ = json.loads(tmp_path.joinpath(".pytask", "file_hashes.json").read_text())
