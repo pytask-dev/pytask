@@ -622,7 +622,7 @@ def test_execute_tasks_and_pass_values_only_by_python_nodes(runner, tmp_path):
     assert tmp_path.joinpath("file.txt").read_text() == "This is the text."
 
 
-def test_execute_tasks_via_functional_api(tmp_path):
+def test_execute_tasks_via_functional_api(monkeypatch, tmp_path):
     node_text = pytask.PythonNode()
     output_path = tmp_path / "file.txt"
 
@@ -632,10 +632,16 @@ def test_execute_tasks_via_functional_api(tmp_path):
     def create_file(content):
         return content
 
-    create_text.__annotations__ = {"return": Annotated[int, node_text]}
+    monkeypatch.setitem(create_text.__globals__, "_functional_api_node", node_text)
+    monkeypatch.setitem(
+        create_text.__globals__,
+        "_functional_api_output",
+        Annotated[str, output_path],
+    )
+    create_text.__annotations__ = {"return": "Annotated[int, _functional_api_node]"}
     create_file.__annotations__ = {
-        "content": Annotated[str, node_text],
-        "return": Annotated[str, output_path],
+        "content": "Annotated[str, _functional_api_node]",
+        "return": "_functional_api_output",
     }
 
     session = build(tasks=[create_file, create_text], paths=tmp_path)

@@ -643,7 +643,7 @@ def test_task_will_be_executed_after_another_one_with_function(
 
 @pytest.mark.parametrize("decorator", ["", "@task"])
 def test_task_will_be_executed_after_another_one_with_function_session(
-    tmp_path, decorator
+    monkeypatch, tmp_path, decorator
 ):
     output_path = tmp_path / "out.txt"
 
@@ -653,12 +653,14 @@ def test_task_will_be_executed_after_another_one_with_function_session(
     def task_second():
         assert output_path.exists()
 
-    task_first.__annotations__ = {"return": Annotated[str, output_path]}
-    if decorator:
-        task_first = task(task_first)
-    task_second = task(after=task_first)(task_second)
+    monkeypatch.setitem(
+        task_first.__globals__, "_task_output_annotation", Annotated[str, output_path]
+    )
+    task_first.__annotations__ = {"return": "_task_output_annotation"}
+    first_task = task(task_first) if decorator else task_first
+    second_task = task(after=first_task)(task_second)
 
-    session = build(tasks=[task_first, task_second], paths=tmp_path)
+    session = build(tasks=[first_task, second_task], paths=tmp_path)
 
     assert session.exit_code == ExitCode.OK
     assert len(session.execution_reports) == 2
