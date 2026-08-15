@@ -17,20 +17,13 @@ repos:
         args: [--branch, main]
     -   id: trailing-whitespace
         exclude: (__snapshots__)
--   repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.10.0
-    hooks:
-    -   id: python-check-blanket-noqa
-    -   id: python-check-mock-methods
-    -   id: python-no-log-warn
-    -   id: text-unicode-replacement-char
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.13
+    rev: v0.16.3
     hooks:
       - id: ruff-format
       - id: ruff-check
 -   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.14
+    rev: 0.12.5
     hooks:
       - id: uv-lock
 -   repo: local
@@ -67,7 +60,7 @@ repos:
     -   id: nbstripout
         exclude: (docs)
 -   repo: https://github.com/crate-ci/typos
-    rev: v1.46.1
+    rev: v1.49.0
     hooks:
     -   id: typos
         exclude: (\.ipynb)

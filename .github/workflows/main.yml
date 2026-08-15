@@ -26,16 +26,16 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: true
       - name: Install just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
         with:
-          just-version: "1.43.1"
+          just-version: "1.58.0"
       - name: Install graphviz
         run: |
           sudo apt-get update
@@ -56,17 +56,17 @@ jobs:
         python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: true
           python-version: ${{ matrix.python-version }}
       - name: Install just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
         with:
-          just-version: "1.43.1"
+          just-version: "1.58.0"
 
       - if: matrix.os == 'ubuntu-latest'
         run: |
@@ -85,7 +85,7 @@ jobs:
         run: uv run --group test pytest --cov=src --cov=tests --cov-report=xml -n auto
 
       - name: Upload test coverage reports to Codecov with GitHub Action
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
 
       - name: Run tests with lowest resolution
         if: matrix.python-version == '3.10' && matrix.os == 'ubuntu-latest'

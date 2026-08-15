@@ -191,8 +191,10 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
     [
         (
             "foo or",
-            "at column 7: expected not OR left parenthesis OR identifier; got end of "
-            "input",
+            (
+                "at column 7: expected not OR left parenthesis OR "
+                "identifier; got end of input"
+            ),
         ),
         (
             "foo or or",
