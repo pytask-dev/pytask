@@ -187,6 +187,28 @@ def TeeStdCapture(  # noqa: N802
 
 
 class TestCaptureManager:
+    def test_stop_capturing_does_not_replay_tee_output(self, capsys):
+        capman = CaptureManager(CaptureMethod.TEE_SYS)
+        capman.start_capturing()
+        print("stdout")
+        print("stderr", file=sys.stderr)
+
+        capman.stop_capturing()
+
+        captured = capsys.readouterr()
+        assert captured == ("stdout\n", "stderr\n")
+
+    def test_stop_capturing_replays_non_tee_output(self, capsys):
+        capman = CaptureManager(CaptureMethod.SYS)
+        capman.start_capturing()
+        print("stdout")
+        print("stderr", file=sys.stderr)
+
+        capman.stop_capturing()
+
+        captured = capsys.readouterr()
+        assert captured == ("stdout\n", "stderr\n")
+
     @pytest.mark.parametrize(
         "method", [CaptureMethod.NO, CaptureMethod.SYS, CaptureMethod.FD]
     )
