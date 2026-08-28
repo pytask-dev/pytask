@@ -20,6 +20,9 @@ The semantics are:
 - ident evaluates to True of False according to a provided matcher function.
 - or/and/not evaluate according to the usual boolean semantics.
 
+This module is adapted from pytest's ``_pytest.mark.expression`` module:
+https://github.com/pytest-dev/pytest/blob/main/src/_pytest/mark/expression.py
+
 """
 
 from __future__ import annotations
