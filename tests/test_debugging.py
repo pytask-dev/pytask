@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import os
+import pdb  # noqa: T100
 import re
 import sys
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
+from types import SimpleNamespace
 
 import click
 import pytest
 
+from _pytask.debugging import PytaskPDB
 from _pytask.debugging import _pdbcls_callback
 from pytask import ExitCode
 from pytask import cli
@@ -44,6 +47,24 @@ def test_capture_callback(value, expected, expectation):
         assert result == expected
 
 
+def test_pdb_wrapped_commands_keep_docstrings():
+    class CustomPdb(pdb.Pdb):
+        def do_debug(self, arg):
+            """Custom help for debug."""
+
+        def do_continue(self, arg):
+            """Custom help for continue."""
+
+        def do_quit(self, arg):
+            """Custom help for quit."""
+
+    wrapped = PytaskPDB._get_pdb_wrapper_class(CustomPdb, None, None)  # type: ignore[arg-type]
+
+    assert wrapped.do_debug.__doc__ == CustomPdb.do_debug.__doc__
+    assert wrapped.do_continue.__doc__ == CustomPdb.do_continue.__doc__
+    assert wrapped.do_quit.__doc__ == CustomPdb.do_quit.__doc__
+
+
 def _flush(child):
     if child.isalive():
         child.read()
@@ -68,6 +89,29 @@ def test_post_mortem_on_error(tmp_path):
     rest = child.read().decode("utf-8")
     assert "'I am in the debugger. For real!'" in rest
     _flush(child)
+
+
+def test_import_pdb_cls_uses_import_module(monkeypatch):
+    class CustomPdb(pdb.Pdb):
+        pass
+
+    module = SimpleNamespace(CustomPdb=CustomPdb)
+    imported = []
+
+    def import_module(name):
+        imported.append(name)
+        return module
+
+    monkeypatch.setattr("importlib.import_module", import_module)
+    monkeypatch.setattr(
+        PytaskPDB, "_config", {"pdbcls": ("package.debuggers", "CustomPdb")}
+    )
+    monkeypatch.setattr(PytaskPDB, "_wrapped_pdb_cls", None)
+
+    wrapped = PytaskPDB._import_pdb_cls(None, None)  # type: ignore[arg-type]
+
+    assert imported == ["package.debuggers"]
+    assert issubclass(wrapped, CustomPdb)
 
 
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")

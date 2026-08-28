@@ -7,6 +7,7 @@ https://github.com/pytest-dev/pytest/blob/main/src/_pytest/debugging.py
 from __future__ import annotations
 
 import functools
+import importlib
 import pdb  # noqa: T100
 import sys
 from typing import TYPE_CHECKING
@@ -173,8 +174,7 @@ class PytaskPDB:
             modname, classname = usepdb_cls
 
             try:
-                __import__(modname)
-                mod = sys.modules[modname]
+                mod = importlib.import_module(modname)
 
                 # Handle --pdbcls=pdb:pdb.Pdb (useful e.g. with pdbpp or pdbp).
                 parts = classname.split(".")
@@ -213,6 +213,9 @@ class PytaskPDB:
                 cls._recursive_debug -= 1
                 return ret
 
+            if hasattr(pdb_cls, "do_debug"):
+                do_debug.__doc__ = pdb_cls.do_debug.__doc__
+
             def do_continue(self, arg: Any) -> int:
                 ret = super().do_continue(arg)
                 if cls._recursive_debug == 0:
@@ -239,16 +242,17 @@ class PytaskPDB:
                 self._continued = True
                 return ret
 
+            if hasattr(pdb_cls, "do_continue"):
+                do_continue.__doc__ = pdb_cls.do_continue.__doc__
+
             do_c = do_cont = do_continue
 
             def do_quit(self, arg: Any) -> int:
-                """Raise Exit outcome when quit command is used in pdb.
-
-                This is a bit of a hack - it would be better if BdbQuit could be
-                handled, but this would require to wrap the whole pytest run, and adjust
-                the report etc.
-
-                """
+                # Raise Exit outcome when quit command is used in pdb.
+                #
+                # This is a bit of a hack - it would be better if BdbQuit could be
+                # handled, but this would require to wrap the whole pytest run, and
+                # adjust the report etc.
                 ret = super().do_quit(arg)
 
                 if cls._recursive_debug == 0:
@@ -256,6 +260,9 @@ class PytaskPDB:
                     raise Exit(msg)
 
                 return ret
+
+            if hasattr(pdb_cls, "do_quit"):
+                do_quit.__doc__ = pdb_cls.do_quit.__doc__
 
             do_q = do_quit
             do_exit = do_quit

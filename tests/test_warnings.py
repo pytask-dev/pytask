@@ -2,13 +2,34 @@ from __future__ import annotations
 
 import sys
 import textwrap
+from types import SimpleNamespace
 
 import pytest
 
+from _pytask.warnings_utils import _resolve_warning_category
 from pytask import ExitCode
 from pytask import build
 from pytask import cli
 from tests.conftest import run_in_subprocess
+
+
+def test_resolve_warning_category_uses_import_module(monkeypatch):
+    class CustomWarning(Warning):
+        pass
+
+    module = SimpleNamespace(CustomWarning=CustomWarning)
+    imported = []
+
+    def import_module(name):
+        imported.append(name)
+        return module
+
+    monkeypatch.setattr("importlib.import_module", import_module)
+
+    result = _resolve_warning_category("package.warnings.CustomWarning")
+
+    assert imported == ["package.warnings"]
+    assert result is CustomWarning
 
 
 @pytest.mark.parametrize(

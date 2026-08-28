@@ -9,9 +9,14 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 - [#969](https://github.com/pytask-dev/pytask/pull/969) initializes readline before
   output capture so libedit-backed interactive prompts and debuggers remain responsive.
+- [#971](https://github.com/pytask-dev/pytask/pull/971) restores help text for
+  PDB commands wrapped by pytask.
 - [#970](https://github.com/pytask-dev/pytask/pull/970) prevents tee-sys capture from
   replaying output that was already displayed when capture stops before its buffer is
   read.
+- [#972](https://github.com/pytask-dev/pytask/pull/972) uses
+  `importlib.import_module` for dynamic imports of custom PDB classes and warning
+  categories.
 - [#968](https://github.com/pytask-dev/pytask/pull/968) improves the performance of file
   descriptor capture for tasks that produce no output.
 - Documents the pytest provenance of the adapted debugging, marker, and warning
