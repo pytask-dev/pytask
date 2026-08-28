@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import pdb  # noqa: T100
 import re
 import sys
 import textwrap
@@ -9,6 +10,7 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 import click
 import pytest
 
+from _pytask.debugging import PytaskPDB
 from _pytask.debugging import _pdbcls_callback
 from pytask import ExitCode
 from pytask import cli
@@ -42,6 +44,24 @@ def test_capture_callback(value, expected, expectation):
     with expectation:
         result = _pdbcls_callback(None, None, value)  # type: ignore[arg-type]
         assert result == expected
+
+
+def test_pdb_wrapped_commands_keep_docstrings():
+    class CustomPdb(pdb.Pdb):
+        def do_debug(self, arg):
+            """Custom help for debug."""
+
+        def do_continue(self, arg):
+            """Custom help for continue."""
+
+        def do_quit(self, arg):
+            """Custom help for quit."""
+
+    wrapped = PytaskPDB._get_pdb_wrapper_class(CustomPdb, None, None)  # type: ignore[arg-type]
+
+    assert wrapped.do_debug.__doc__ == CustomPdb.do_debug.__doc__
+    assert wrapped.do_continue.__doc__ == CustomPdb.do_continue.__doc__
+    assert wrapped.do_quit.__doc__ == CustomPdb.do_quit.__doc__
 
 
 def _flush(child):
