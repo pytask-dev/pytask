@@ -99,9 +99,21 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
     config["show_capture"] = convert_to_enum(config["show_capture"], ShowCapture)
 
 
+def _readline_workaround() -> None:
+    """Import readline before it can attach to redirected standard streams.
+
+    GNU readline is not affected, but libedit can retain the file descriptors that are
+    active when it is first imported. Importing it before capture starts keeps
+    interactive input and debugging responsive on affected Python installations.
+    """
+    with contextlib.suppress(ImportError):
+        import readline  # noqa: F401, PLC0415
+
+
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Initialize the CaptureManager."""
+    _readline_workaround()
     pluginmanager = config["pm"]
     capman = CaptureManager(config["capture"])
     pluginmanager.register(capman, "capturemanager")

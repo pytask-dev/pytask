@@ -6,6 +6,7 @@ import re
 import sys
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
+from types import SimpleNamespace
 
 import click
 import pytest
@@ -102,6 +103,50 @@ def test_post_mortem_on_error(tmp_path):
     rest = child.read().decode("utf-8")
     assert "'I am in the debugger. For real!'" in rest
     _flush(child)
+
+
+def test_import_pdb_cls_uses_import_module(monkeypatch):
+    class CustomPdb(pdb.Pdb):
+        pass
+
+    module = SimpleNamespace(CustomPdb=CustomPdb)
+    imported = []
+
+    def import_module(name):
+        imported.append(name)
+        return module
+
+    monkeypatch.setattr("importlib.import_module", import_module)
+    monkeypatch.setattr(
+        PytaskPDB, "_config", {"pdbcls": ("package.debuggers", "CustomPdb")}
+    )
+    monkeypatch.setattr(PytaskPDB, "_wrapped_pdb_cls", None)
+
+    wrapped = PytaskPDB._import_pdb_cls(None, None)  # type: ignore[arg-type]
+
+    assert imported == ["package.debuggers"]
+    assert issubclass(wrapped, CustomPdb)
+
+
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
+def test_pdb_after_readline_is_imported_during_capture(tmp_path):
+    source = """
+    from pathlib import Path
+
+    def task_example():
+        import readline
+
+        breakpoint()
+        Path(__file__).with_name("continued.txt").touch()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
+    child.expect("Pdb")
+    child.sendline("continue")
+    _flush(child)
+    assert tmp_path.joinpath("continued.txt").exists()
 
 
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")

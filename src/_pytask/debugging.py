@@ -7,6 +7,7 @@ https://github.com/pytest-dev/pytest/blob/main/src/_pytest/debugging.py
 from __future__ import annotations
 
 import functools
+import importlib
 import pdb  # noqa: T100
 import sys
 from typing import TYPE_CHECKING
@@ -173,8 +174,7 @@ class PytaskPDB:
             modname, classname = usepdb_cls
 
             try:
-                __import__(modname)
-                mod = sys.modules[modname]
+                mod = importlib.import_module(modname)
 
                 # Handle --pdbcls=pdb:pdb.Pdb (useful e.g. with pdbpp or pdbp).
                 parts = classname.split(".")
