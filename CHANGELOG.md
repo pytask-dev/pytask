@@ -7,8 +7,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
-- Initializes readline before output capture so libedit-backed interactive prompts and
-  debuggers remain responsive.
+- [#969](https://github.com/pytask-dev/pytask/pull/969) initializes readline before
+  output capture so libedit-backed interactive prompts and debuggers remain responsive.
 - Documents the pytest provenance of the adapted debugging, marker, and warning
   modules.
 - [#889](https://github.com/pytask-dev/pytask/pull/889) improves typing for tree
