@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import os
+import pdb  # noqa: T100
 import re
 import sys
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
+from types import SimpleNamespace
 
 import click
 import pytest
 
+from _pytask.debugging import PytaskPDB
 from _pytask.debugging import _pdbcls_callback
 from pytask import ExitCode
 from pytask import cli
@@ -42,6 +45,29 @@ def test_capture_callback(value, expected, expectation):
     with expectation:
         result = _pdbcls_callback(None, None, value)  # type: ignore[arg-type]
         assert result == expected
+
+
+def test_import_pdb_cls_uses_import_module(monkeypatch):
+    class CustomPdb(pdb.Pdb):
+        pass
+
+    module = SimpleNamespace(CustomPdb=CustomPdb)
+    imported = []
+
+    def import_module(name):
+        imported.append(name)
+        return module
+
+    monkeypatch.setattr("importlib.import_module", import_module)
+    monkeypatch.setattr(
+        PytaskPDB, "_config", {"pdbcls": ("package.debuggers", "CustomPdb")}
+    )
+    monkeypatch.setattr(PytaskPDB, "_wrapped_pdb_cls", None)
+
+    wrapped = PytaskPDB._import_pdb_cls(None, None)  # type: ignore[arg-type]
+
+    assert imported == ["package.debuggers"]
+    assert issubclass(wrapped, CustomPdb)
 
 
 def _flush(child):

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import functools
+import importlib
 import re
 import textwrap
 import warnings
@@ -124,7 +125,7 @@ def _resolve_warning_category(category: str) -> type[Warning]:
         klass = category
     else:
         module, _, klass = category.rpartition(".")
-        m = __import__(module, None, None, [klass])
+        m = importlib.import_module(module)
     cat = getattr(m, klass)
     if not issubclass(cat, Warning):
         msg = f"{cat} is not a Warning subclass"
