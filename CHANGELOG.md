@@ -7,6 +7,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- Enables navigating chained exceptions in post-mortem PDB sessions on Python 3.13
+  and newer.
 - [#971](https://github.com/pytask-dev/pytask/pull/971) restores help text for
   PDB commands wrapped by pytask.
 - [#970](https://github.com/pytask-dev/pytask/pull/970) prevents tee-sys capture from

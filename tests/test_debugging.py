@@ -12,6 +12,7 @@ import pytest
 
 from _pytask.debugging import PytaskPDB
 from _pytask.debugging import _pdbcls_callback
+from _pytask.debugging import _postmortem_exc_or_tb
 from pytask import ExitCode
 from pytask import cli
 
@@ -64,6 +65,19 @@ def test_pdb_wrapped_commands_keep_docstrings():
     assert wrapped.do_quit.__doc__ == CustomPdb.do_quit.__doc__
 
 
+def test_postmortem_exc_or_tb():
+    with pytest.raises(RuntimeError) as exc_info:
+        raise RuntimeError
+
+    exc = exc_info.value
+    result = _postmortem_exc_or_tb(exc)
+
+    if sys.version_info >= (3, 13):
+        assert result is exc
+    else:
+        assert result is exc.__traceback__
+
+
 def _flush(child):
     if child.isalive():
         child.read()
@@ -87,6 +101,41 @@ def test_post_mortem_on_error(tmp_path):
     child.sendline("p a + b;; continue")
     rest = child.read().decode("utf-8")
     assert "'I am in the debugger. For real!'" in rest
+    _flush(child)
+
+
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
+@pytest.mark.skipif(
+    sys.version_info < (3, 13),
+    reason="Navigating exception chains was introduced in Python 3.13.",
+)
+def test_pdb_exception_chain_navigation(tmp_path):
+    source = """
+    def inner_raise():
+        is_inner = True
+        raise RuntimeError("inner")
+
+    def outer_raise():
+        is_inner = False
+        try:
+            inner_raise()
+        except RuntimeError:
+            raise RuntimeError("outer")
+
+    def task_example():
+        outer_raise()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    child = pexpect.spawn(f"pytask --pdb {tmp_path.as_posix()}")
+    child.expect("Pdb")
+    child.sendline("is_inner")
+    child.expect_exact("False")
+    child.sendline("exceptions 0")
+    child.sendline("is_inner")
+    child.expect_exact("True")
+    child.sendeof()
     _flush(child)
 
 
