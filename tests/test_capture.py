@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import BinaryIO
 from typing import cast
+from unittest.mock import Mock
 
 import pytest
 
@@ -491,6 +492,25 @@ def lsof_check():
 
 
 class TestFDCapture:
+    @pytest.mark.parametrize(
+        ("capture_class", "empty_buffer"),
+        [(capture.FDCapture, ""), (capture.FDCaptureBinary, b"")],
+    )
+    def test_snap_empty_file_avoids_file_io(
+        self, monkeypatch, capture_class, empty_buffer
+    ):
+        cap = object.__new__(capture_class)
+        cap._state = "started"
+        cap.tmpfile = Mock()
+        cap.tmpfile.fileno.return_value = 42
+        monkeypatch.setattr(capture.os, "fstat", lambda _fd: Mock(st_size=0))
+
+        assert cap.snap() == empty_buffer
+        cap.tmpfile.seek.assert_not_called()
+        cap.tmpfile.read.assert_not_called()
+        cap.tmpfile.buffer.read.assert_not_called()
+        cap.tmpfile.truncate.assert_not_called()
+
     def test_simple(self, tmpfile):
         fd = tmpfile.fileno()
         cap = capture.FDCapture(fd)

@@ -549,6 +549,9 @@ class FDCaptureBinary(FDCaptureBase[bytes]):
 
     def snap(self) -> bytes:
         self._assert_state("snap", ("started", "suspended"))
+        # Avoid seek/read/truncate in the common case of no output.
+        if os.fstat(self.tmpfile.fileno()).st_size == 0:
+            return self.EMPTY_BUFFER
         self.tmpfile.seek(0)
         res = self.tmpfile.buffer.read()
         self.tmpfile.seek(0)
@@ -572,6 +575,9 @@ class FDCapture(FDCaptureBase[str]):
 
     def snap(self) -> str:
         self._assert_state("snap", ("started", "suspended"))
+        # Avoid seek/read/truncate in the common case of no output.
+        if os.fstat(self.tmpfile.fileno()).st_size == 0:
+            return self.EMPTY_BUFFER
         self.tmpfile.seek(0)
         res = self.tmpfile.read()
         self.tmpfile.seek(0)
