@@ -7,6 +7,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#969](https://github.com/pytask-dev/pytask/pull/969) initializes readline before
+  output capture so libedit-backed interactive prompts and debuggers remain responsive.
 - [#971](https://github.com/pytask-dev/pytask/pull/971) restores help text for
   PDB commands wrapped by pytask.
 - [#970](https://github.com/pytask-dev/pytask/pull/970) prevents tee-sys capture from

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import builtins
 import contextlib
 import io
 import os
@@ -29,6 +30,37 @@ from tests.conftest import run_in_subprocess
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+
+
+def test_readline_workaround_ignores_missing_module(monkeypatch):
+    imported_modules = []
+    original_import = builtins.__import__
+
+    def import_or_raise(name, *args, **kwargs):
+        imported_modules.append(name)
+        if name == "readline":
+            raise ImportError
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", import_or_raise)
+
+    capture._readline_workaround()
+
+    assert imported_modules == ["readline"]
+
+
+def test_readline_workaround_runs_before_capture_starts(monkeypatch):
+    events = []
+    capman = Mock()
+    capman.start_capturing.side_effect = lambda: events.append("capture")
+    monkeypatch.setattr(
+        capture, "_readline_workaround", lambda: events.append("readline")
+    )
+    monkeypatch.setattr(capture, "CaptureManager", lambda _method: capman)
+
+    capture.pytask_post_parse({"pm": Mock(), "capture": CaptureMethod.FD})
+
+    assert events == ["readline", "capture"]
 
 
 @pytest.mark.parametrize("show_capture", ["s", "no", "stdout", "stderr", "log", "all"])
