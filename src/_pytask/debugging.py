@@ -370,7 +370,7 @@ def wrap_function_for_post_mortem_debugging(session: Session, task: PTask) -> No
         try:
             return task_function(*args, **kwargs)
 
-        except Exception:
+        except Exception as exc:
             # Order is important! Pausing the live object before the capturemanager
             # would flush the table to stdout and it will be visible in the captured
             # output.
@@ -395,8 +395,7 @@ def wrap_function_for_post_mortem_debugging(session: Session, task: PTask) -> No
             console.rule("Traceback", characters=">", style="default")
             console.print(Traceback(exc_info))
 
-            assert exc_info[2] is not None
-            post_mortem(exc_info[2])
+            post_mortem(_postmortem_exc_or_tb(exc))
 
             live_manager.resume()
             capman.resume()
@@ -460,11 +459,24 @@ def wrap_function_for_tracing(session: Session, task: PTask) -> None:
     task.function = wrapper
 
 
-def post_mortem(t: TracebackType) -> None:
+def _postmortem_exc_or_tb(
+    exc: BaseException,
+) -> TracebackType | BaseException:
+    """Return an exception for modern PDB and a traceback for older versions."""
+    if sys.version_info >= (3, 13):
+        return exc
+
+    assert exc.__traceback__ is not None
+    return exc.__traceback__
+
+
+def post_mortem(tb_or_exc: TracebackType | BaseException) -> None:
     """Start post-mortem debugging."""
     p = PytaskPDB._init_pdb("post_mortem")
     p.reset()
-    p.interaction(None, t)
+    # PDB accepts exceptions on Python 3.13+, but the typeshed signature only allows
+    # tracebacks.
+    p.interaction(None, tb_or_exc)  # ty: ignore[invalid-argument-type]
     if p.quitting:
         msg = "Quitting debugger"
         raise Exit(msg)

@@ -7,6 +7,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#973](https://github.com/pytask-dev/pytask/pull/973) enables navigating chained
+  exceptions in post-mortem PDB sessions on Python 3.13 and newer.
 - [#969](https://github.com/pytask-dev/pytask/pull/969) initializes readline before
   output capture so libedit-backed interactive prompts and debuggers remain responsive.
 - [#971](https://github.com/pytask-dev/pytask/pull/971) restores help text for
