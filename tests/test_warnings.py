@@ -1,16 +1,35 @@
 from __future__ import annotations
 
+import importlib
 import sys
 import textwrap
+import warnings
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
+from _pytask.pluginmanager import hookimpl
 from _pytask.warnings_utils import _resolve_warning_category
 from pytask import ExitCode
 from pytask import build
 from pytask import cli
 from tests.conftest import run_in_subprocess
+
+
+def _register_plugin_for_build(monkeypatch: pytest.MonkeyPatch, plugin: object) -> None:
+    """Add a plugin to the fresh plugin manager created by ``build``."""
+    build_module = importlib.import_module("_pytask.build")
+    get_plugin_manager = build_module.get_plugin_manager
+
+    def get_plugin_manager_with_plugin():
+        plugin_manager = get_plugin_manager()
+        plugin_manager.register(plugin)
+        return plugin_manager
+
+    monkeypatch.setattr(
+        build_module, "get_plugin_manager", get_plugin_manager_with_plugin
+    )
 
 
 def test_resolve_warning_category_uses_import_module(monkeypatch):
@@ -236,3 +255,52 @@ def test_wrong_value_in_config_in_filterwarnings(tmp_path, runner):
     result = runner.invoke(cli, [tmp_path.as_posix()])
     assert result.exit_code == ExitCode.CONFIGURATION_FAILED
     assert "'filterwarnings' must be a str, list[str] or None." in result.output
+
+
+@pytest.mark.parametrize("hook_name", ["pytask_parse_config", "pytask_post_parse"])
+@pytest.mark.parametrize("tryfirst", [True, False])
+def test_filterwarnings_apply_to_configuration_hooks(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+    hook_name: str,
+    tryfirst: bool,
+) -> None:
+    """Configured filters apply to early and regular configuration hooks."""
+
+    def emit_warning(config: dict[str, Any]) -> None:  # noqa: ARG001
+        warnings.warn("from configuration hook", UserWarning, stacklevel=1)
+
+    plugin = SimpleNamespace()
+    setattr(plugin, hook_name, hookimpl(tryfirst=tryfirst)(emit_warning))
+    _register_plugin_for_build(monkeypatch, plugin)
+
+    with warnings.catch_warnings(record=True) as records:
+        warnings.simplefilter("always")
+        session = build(
+            paths=tmp_path,
+            filterwarnings=["ignore::UserWarning"],
+        )
+
+    assert session.exit_code == ExitCode.OK
+    assert not any(
+        str(record.message) == "from configuration hook" for record in records
+    )
+
+
+def test_error_filter_applies_to_configuration_hooks(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    """An error filter turns configuration warnings into configuration failures."""
+
+    def emit_warning(config: dict[str, Any]) -> None:  # noqa: ARG001
+        warnings.warn("from configuration hook", UserWarning, stacklevel=1)
+
+    plugin = SimpleNamespace(pytask_post_parse=hookimpl(emit_warning))
+    _register_plugin_for_build(monkeypatch, plugin)
+
+    session = build(
+        paths=tmp_path,
+        filterwarnings=["error::UserWarning"],
+    )
+
+    assert session.exit_code == ExitCode.CONFIGURATION_FAILED
