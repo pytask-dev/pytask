@@ -7,8 +7,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
-- Improves the performance of file descriptor capture for tasks that produce no
-  output.
+- [#968](https://github.com/pytask-dev/pytask/pull/968) improves the performance of file
+  descriptor capture for tasks that produce no output.
 - Documents the pytest provenance of the adapted debugging, marker, and warning
   modules.
 - [#889](https://github.com/pytask-dev/pytask/pull/889) improves typing for tree
