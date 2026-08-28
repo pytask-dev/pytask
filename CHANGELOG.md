@@ -7,6 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#970](https://github.com/pytask-dev/pytask/pull/970) prevents tee-sys capture from
+  replaying output that was already displayed when capture stops before its buffer is
+  read.
 - [#968](https://github.com/pytask-dev/pytask/pull/968) improves the performance of file
   descriptor capture for tasks that produce no output.
 - Documents the pytest provenance of the adapted debugging, marker, and warning
