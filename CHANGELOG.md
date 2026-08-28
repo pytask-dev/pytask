@@ -7,8 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
-- Uses `importlib.import_module` for dynamic imports of custom PDB classes and
-  warning categories.
+- [#972](https://github.com/pytask-dev/pytask/pull/972) uses
+  `importlib.import_module` for dynamic imports of custom PDB classes and warning
+  categories.
 - [#970](https://github.com/pytask-dev/pytask/pull/970) prevents tee-sys capture from
   replaying output that was already displayed when capture stops before its buffer is
   read.
