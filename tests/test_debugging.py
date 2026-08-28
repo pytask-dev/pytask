@@ -72,6 +72,27 @@ def test_post_mortem_on_error(tmp_path):
 
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
 @pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
+def test_pdb_after_readline_is_imported_during_capture(tmp_path):
+    source = """
+    from pathlib import Path
+
+    def task_example():
+        import readline
+
+        breakpoint()
+        Path(__file__).with_name("continued.txt").touch()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
+    child.expect("Pdb")
+    child.sendline("continue")
+    _flush(child)
+    assert tmp_path.joinpath("continued.txt").exists()
+
+
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
 def test_post_mortem_on_error_w_kwargs(tmp_path):
     source = """
     from pathlib import Path
