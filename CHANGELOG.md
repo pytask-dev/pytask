@@ -7,6 +7,7 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- Configured warning filters now apply to warnings emitted by configuration hooks.
 - [#973](https://github.com/pytask-dev/pytask/pull/973) enables navigating chained
   exceptions in post-mortem PDB sessions on Python 3.13 and newer.
 - [#969](https://github.com/pytask-dev/pytask/pull/969) initializes readline before
