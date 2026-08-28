@@ -47,29 +47,6 @@ def test_capture_callback(value, expected, expectation):
         assert result == expected
 
 
-def test_import_pdb_cls_uses_import_module(monkeypatch):
-    class CustomPdb(pdb.Pdb):
-        pass
-
-    module = SimpleNamespace(CustomPdb=CustomPdb)
-    imported = []
-
-    def import_module(name):
-        imported.append(name)
-        return module
-
-    monkeypatch.setattr("importlib.import_module", import_module)
-    monkeypatch.setattr(
-        PytaskPDB, "_config", {"pdbcls": ("package.debuggers", "CustomPdb")}
-    )
-    monkeypatch.setattr(PytaskPDB, "_wrapped_pdb_cls", None)
-
-    wrapped = PytaskPDB._import_pdb_cls(None, None)  # type: ignore[arg-type]
-
-    assert imported == ["package.debuggers"]
-    assert issubclass(wrapped, CustomPdb)
-
-
 def _flush(child):
     if child.isalive():
         child.read()
@@ -94,6 +71,29 @@ def test_post_mortem_on_error(tmp_path):
     rest = child.read().decode("utf-8")
     assert "'I am in the debugger. For real!'" in rest
     _flush(child)
+
+
+def test_import_pdb_cls_uses_import_module(monkeypatch):
+    class CustomPdb(pdb.Pdb):
+        pass
+
+    module = SimpleNamespace(CustomPdb=CustomPdb)
+    imported = []
+
+    def import_module(name):
+        imported.append(name)
+        return module
+
+    monkeypatch.setattr("importlib.import_module", import_module)
+    monkeypatch.setattr(
+        PytaskPDB, "_config", {"pdbcls": ("package.debuggers", "CustomPdb")}
+    )
+    monkeypatch.setattr(PytaskPDB, "_wrapped_pdb_cls", None)
+
+    wrapped = PytaskPDB._import_pdb_cls(None, None)  # type: ignore[arg-type]
+
+    assert imported == ["package.debuggers"]
+    assert issubclass(wrapped, CustomPdb)
 
 
 @pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
