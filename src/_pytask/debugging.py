@@ -1,4 +1,8 @@
-"""Contains everything related to debugging."""
+"""Contains everything related to debugging.
+
+The PDB integration is adapted from pytest's ``_pytest.debugging`` module:
+https://github.com/pytest-dev/pytest/blob/main/src/_pytest/debugging.py
+"""
 
 from __future__ import annotations
 

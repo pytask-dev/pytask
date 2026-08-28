@@ -7,6 +7,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- Documents the pytest provenance of the adapted debugging, marker, and warning
+  modules.
 - [#889](https://github.com/pytask-dev/pytask/pull/889) improves typing for tree
   operations by wrapping optree's pytree utilities with pytask-specific signatures
   and requiring optree 0.16.0 or newer.
