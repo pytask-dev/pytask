@@ -7,7 +7,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
-- Restores help text for PDB commands wrapped by pytask.
+- [#971](https://github.com/pytask-dev/pytask/pull/971) restores help text for
+  PDB commands wrapped by pytask.
 - [#968](https://github.com/pytask-dev/pytask/pull/968) improves the performance of file
   descriptor capture for tasks that produce no output.
 - Documents the pytest provenance of the adapted debugging, marker, and warning
