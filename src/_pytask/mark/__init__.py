@@ -227,6 +227,16 @@ def select_by_mark(session: Session, dag: DAG) -> set[str] | None:
         msg = f"Wrong expression passed to '-m': {matchexpr}: {e}"
         raise ValueError(msg) from None
 
+    if session.config["strict_markers"]:
+        unknown_markers = expression.idents() - session.config["markers"].keys()
+        if unknown_markers:
+            unknown = ", ".join(sorted(unknown_markers))
+            msg = (
+                f"Unknown marker(s) in '-m' expression: {unknown}. "
+                "Use 'pytask markers' to see available markers."
+            )
+            raise ValueError(msg)
+
     remaining: set[str] = set()
     for task in session.tasks:
         if expression.evaluate(MarkMatcher.from_task(task)):

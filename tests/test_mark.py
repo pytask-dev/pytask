@@ -357,6 +357,45 @@ def test_error_with_unknown_marker_and_strict(runner, tmp_path):
     assert "Unknown pytask.mark.unknown" in result.output
 
 
+@pytest.mark.parametrize(
+    ("marker_expression", "strict_markers", "expected_exit_code"),
+    [
+        ("registered", True, ExitCode.OK),
+        ("unknown", False, ExitCode.OK),
+        ("unknown", True, ExitCode.DAG_FAILED),
+    ],
+)
+def test_strict_markers_validate_marker_expression(
+    runner,
+    tmp_path,
+    marker_expression: str,
+    strict_markers: bool,
+    expected_exit_code: ExitCode,
+) -> None:
+    tmp_path.joinpath("pyproject.toml").write_text(
+        "[tool.pytask.ini_options]\nmarkers = {'registered' = 'A registered marker.'}"
+    )
+    tmp_path.joinpath("task_module.py").write_text(
+        textwrap.dedent(
+            """
+            import pytask
+
+            @pytask.mark.registered
+            def task_example(): ...
+            """
+        )
+    )
+    args = [tmp_path.as_posix(), "-m", marker_expression]
+    if strict_markers:
+        args.append("--strict-markers")
+
+    result = runner.invoke(cli, args)
+
+    assert result.exit_code == expected_exit_code
+    if strict_markers and marker_expression == "unknown":
+        assert "Unknown marker(s) in '-m' expression: unknown" in result.output
+
+
 @pytest.mark.filterwarnings("ignore:Unknown pytask\\.mark\\.foo")
 def test_strict_markers_do_not_leak_after_unconfigure(runner, tmp_path):
     source = """

@@ -25,6 +25,18 @@ def test_empty_is_false() -> None:
 @pytest.mark.parametrize(
     ("expr", "expected"),
     [
+        ("", frozenset()),
+        ("first", frozenset({"first"})),
+        ("first and (second or first)", frozenset({"first", "second"})),
+    ],
+)
+def test_expression_exposes_identifiers(expr: str, expected: frozenset[str]) -> None:
+    assert Expression.compile_(expr).idents() == expected
+
+
+@pytest.mark.parametrize(
+    ("expr", "expected"),
+    [
         ("true", True),
         ("false", False),
         ("not true", False),

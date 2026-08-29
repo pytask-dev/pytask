@@ -83,9 +83,10 @@ class ParseError(Exception):
 
 
 class Scanner:
-    __slots__ = ("current", "tokens")
+    __slots__ = ("current", "idents", "tokens")
 
     def __init__(self, input_: str) -> None:
+        self.idents: set[str] = set()
         self.tokens = self.lex(input_)
         self.current = next(self.tokens)
 
@@ -146,13 +147,13 @@ class Scanner:
 IDENT_PREFIX = "$"
 
 
-def expression(s: Scanner) -> ast.Expression:
+def expression(s: Scanner) -> tuple[ast.Expression, frozenset[str]]:
     if s.accept(TokenType.EOF):
         ret: ast.expr = ast.Constant(False)
     else:
         ret = expr(s)
         s.accept(TokenType.EOF, reject=True)
-    return ast.fix_missing_locations(ast.Expression(ret))
+    return ast.fix_missing_locations(ast.Expression(ret)), frozenset(s.idents)
 
 
 def expr(s: Scanner) -> ast.expr:
@@ -180,6 +181,7 @@ def not_expr(s: Scanner) -> ast.expr:
         return ret
     ident = s.accept(TokenType.IDENT)
     if ident:
+        s.idents.add(ident.value)
         return ast.Name(IDENT_PREFIX + ident.value, ast.Load())
     s.reject((TokenType.NOT, TokenType.LPAREN, TokenType.IDENT))
     return None  # ty: ignore[invalid-return-type]  # Unreachable: reject() raises
@@ -208,10 +210,11 @@ class Expression:
 
     """
 
-    __slots__ = ("code",)
+    __slots__ = ("_idents", "code")
 
-    def __init__(self, code: types.CodeType) -> None:
+    def __init__(self, code: types.CodeType, idents: frozenset[str]) -> None:
         self.code = code
+        self._idents = idents
 
     @classmethod
     def compile_(cls, input_: str) -> Expression:
@@ -223,13 +226,17 @@ class Expression:
             The input expression - one line.
 
         """
-        astexpr = expression(Scanner(input_))
+        astexpr, idents = expression(Scanner(input_))
         code: types.CodeType = compile(
             astexpr,
             filename="<pytask match expression>",
             mode="eval",
         )
-        return cls(code)
+        return cls(code, idents)
+
+    def idents(self) -> frozenset[str]:
+        """Return all identifiers which appear in the expression."""
+        return self._idents
 
     def evaluate(self, matcher: Callable[[str], bool]) -> bool:
         """Evaluate the match expression.
