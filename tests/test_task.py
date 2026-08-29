@@ -684,6 +684,23 @@ def test_raise_error_for_wrong_after_expression(runner, tmp_path):
     assert "Wrong expression passed to 'after'" in result.output
 
 
+def test_after_expression_rejects_call_parameters(runner, tmp_path):
+    source = """
+    from pytask import task
+
+    def task_first(): ...
+
+    @task(after="task_first(value=1)")
+    def task_second(): ...
+    """
+    tmp_path.joinpath("task_example.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.DAG_FAILED
+    assert "Keyword expressions do not support call parameters." in result.output
+
+
 def test_raise_error_with_builtin_function_as_task(runner, tmp_path):
     source = """
     from pytask import task

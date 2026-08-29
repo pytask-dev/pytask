@@ -55,7 +55,7 @@ def _write_marked_chain_project(tmp_path):
             import pytask
 
 
-            @pytask.mark.try_first
+            @pytask.mark.try_first(priority=1)
             def task_downstream(depends_on=Path("up.txt"), produces=Path("down.txt")):
                 produces.write_text(depends_on.read_text() + "down")
             """
@@ -271,7 +271,7 @@ def test_lock_accept_uses_intersection_of_keyword_and_marker_selection(
             "-k",
             "downstream",
             "-m",
-            "try_first",
+            "try_first(priority=1)",
             "--yes",
             tmp_path.as_posix(),
         ],
@@ -286,6 +286,25 @@ def test_lock_accept_uses_intersection_of_keyword_and_marker_selection(
         _task_state_by_suffix(tmp_path, "task_downstream.py::task_downstream")
         != before_downstream
     )
+
+
+def test_lock_keyword_selection_rejects_call_parameters(runner, tmp_path):
+    _write_chain_project(tmp_path)
+
+    result = runner.invoke(
+        cli,
+        [
+            "lock",
+            "accept",
+            "-k",
+            "downstream(value=1)",
+            "--yes",
+            tmp_path.as_posix(),
+        ],
+    )
+
+    assert result.exit_code == ExitCode.DAG_FAILED
+    assert "Keyword expressions do not support call parameters." in result.output
 
 
 def test_lock_accept_no_matching_selection_is_a_no_op(runner, tmp_path):

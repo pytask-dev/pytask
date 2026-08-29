@@ -151,11 +151,11 @@ class KeywordMatcher:
 
         return cls(mapped_names)
 
-    def __call__(self, subname: str) -> bool:
+    def __call__(self, subname: str, /, **kwargs: str | int | bool | None) -> bool:
         subname = subname.lower()
         names = (name.lower() for name in self._names)
 
-        return any(subname in name for name in names)
+        return not kwargs and any(subname in name for name in names)
 
 
 def select_by_keyword(session: Session, dag: DAG) -> set[str] | None:
@@ -171,6 +171,9 @@ def select_by_keyword(session: Session, dag: DAG) -> set[str] | None:
             f"Wrong expression passed to '-k': {e.text}: at column {e.offset}: {e.msg}"
         )
         raise ValueError(msg) from None
+    if expression.has_keyword_arguments():
+        msg = "Keyword expressions do not support call parameters."
+        raise ValueError(msg)
 
     remaining: set[str] = set()
     for task in session.tasks:
@@ -190,6 +193,9 @@ def select_by_after_keyword(session: Session, after: str) -> set[str]:
             f"at column {e.offset}: {e.msg}"
         )
         raise ValueError(msg) from None
+    if expression.has_keyword_arguments():
+        msg = "Keyword expressions do not support call parameters."
+        raise ValueError(msg)
 
     ancestors: set[str] = set()
     for task in session.tasks:
@@ -197,6 +203,9 @@ def select_by_after_keyword(session: Session, after: str) -> set[str]:
             ancestors.add(task.signature)
 
     return ancestors
+
+
+_NOT_SET = object()
 
 
 @dataclass(slots=True)
@@ -207,15 +216,22 @@ class MarkMatcher:
 
     """
 
-    own_mark_names: set[str]
+    own_mark_name_mapping: dict[str, list[Mark]]
 
     @classmethod
     def from_task(cls, task: PTask) -> MarkMatcher:
-        mark_names = {mark.name for mark in task.markers}
-        return cls(mark_names)
+        mark_name_mapping: dict[str, list[Mark]] = {}
+        for mark in task.markers:
+            mark_name_mapping.setdefault(mark.name, []).append(mark)
+        return cls(mark_name_mapping)
 
-    def __call__(self, name: str) -> bool:
-        return name in self.own_mark_names
+    def __call__(self, name: str, /, **kwargs: str | int | bool | None) -> bool:
+        for mark in self.own_mark_name_mapping.get(name, []):
+            if all(
+                mark.kwargs.get(key, _NOT_SET) == value for key, value in kwargs.items()
+            ):
+                return True
+        return False
 
 
 def select_by_mark(session: Session, dag: DAG) -> set[str] | None:
