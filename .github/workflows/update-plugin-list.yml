@@ -39,6 +39,5 @@ jobs:
           author: 'Tobias Raabe <tobiasraabe@users.noreply.github.com>'
           branch: update-plugin-list/patch
           delete-branch: true
-          branch-suffix: short-commit-hash
           title: '[automated] Update plugin list'
           body: '[automated] Update plugin list'
