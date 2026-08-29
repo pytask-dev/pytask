@@ -27,7 +27,6 @@ from _pytask.lockfile import build_portable_task_id
 from _pytask.mark import Expression
 from _pytask.mark import KeywordMatcher
 from _pytask.mark import MarkMatcher
-from _pytask.mark import ParseError
 from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
@@ -75,8 +74,11 @@ def _expression_filter(
 ) -> set[str]:
     try:
         compiled = Expression.compile_(expression)
-    except ParseError as e:
-        msg = f"Wrong expression passed to {option!r}: {expression}: {e}"
+    except SyntaxError as e:
+        msg = (
+            f"Wrong expression passed to {option!r}: {e.text}: "
+            f"at column {e.offset}: {e.msg}"
+        )
         raise ValueError(msg) from None
 
     return {

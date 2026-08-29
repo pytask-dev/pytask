@@ -7,8 +7,13 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
-- Marker names in `-m` expressions are validated when `--strict-markers` is enabled.
-- Configured warning filters now apply to warnings emitted by configuration hooks.
+- [#976](https://github.com/pytask-dev/pytask/pull/976) makes invalid marker and
+  keyword expressions raise the standard `SyntaxError` instead of a custom parser
+  exception.
+- [#975](https://github.com/pytask-dev/pytask/pull/975) validates marker names in `-m`
+  expressions when `--strict-markers` is enabled.
+- [#974](https://github.com/pytask-dev/pytask/pull/974) applies configured warning
+  filters to warnings emitted by configuration hooks.
 - [#973](https://github.com/pytask-dev/pytask/pull/973) enables navigating chained
   exceptions in post-mortem PDB sessions on Python 3.13 and newer.
 - [#969](https://github.com/pytask-dev/pytask/pull/969) initializes readline before
@@ -23,8 +28,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   categories.
 - [#968](https://github.com/pytask-dev/pytask/pull/968) improves the performance of file
   descriptor capture for tasks that produce no output.
-- Documents the pytest provenance of the adapted debugging, marker, and warning
-  modules.
+- [#967](https://github.com/pytask-dev/pytask/pull/967) documents the pytest provenance
+  of the adapted debugging, marker, and warning modules.
 - [#889](https://github.com/pytask-dev/pytask/pull/889) improves typing for tree
   operations by wrapping optree's pytree utilities with pytask-specific signatures
   and requiring optree 0.16.0 or newer.
