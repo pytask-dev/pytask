@@ -7,6 +7,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#977](https://github.com/pytask-dev/pytask/pull/977) allows marker expressions
+  passed to `-m` to select tasks by marker keyword arguments.
 - [#976](https://github.com/pytask-dev/pytask/pull/976) makes invalid marker and
   keyword expressions raise the standard `SyntaxError` instead of a custom parser
   exception.

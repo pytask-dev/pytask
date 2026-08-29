@@ -80,6 +80,9 @@ def _expression_filter(
             f"at column {e.offset}: {e.msg}"
         )
         raise ValueError(msg) from None
+    if option == "-k" and compiled.has_keyword_arguments():
+        msg = "Keyword expressions do not support call parameters."
+        raise ValueError(msg)
 
     return {
         task.signature for task in tasks if compiled.evaluate(matcher_from_task(task))
