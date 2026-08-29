@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 import pytest
 
 from _pytask.mark.expression import Expression
-from _pytask.mark.expression import ParseError
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -132,10 +131,11 @@ def test_syntax_oddeties(expr: str, expected: bool) -> None:
     ],
 )
 def test_syntax_errors(expr: str, column: int, message: str) -> None:
-    with pytest.raises(ParseError) as excinfo:
+    with pytest.raises(SyntaxError) as excinfo:
         evaluate(expr, lambda ident: True)  # noqa: ARG005
-    assert excinfo.value.column == column
-    assert excinfo.value.message == message
+    assert excinfo.value.offset == column
+    assert excinfo.value.msg == message
+    assert excinfo.value.text == expr
 
 
 @pytest.mark.parametrize(
@@ -194,7 +194,7 @@ def test_valid_idents(ident: str) -> None:
     ],
 )
 def test_invalid_idents(ident: str) -> None:
-    with pytest.raises(ParseError):
+    with pytest.raises(SyntaxError):
         evaluate(ident, lambda ident: True)  # noqa: ARG005
 
 
@@ -211,5 +211,5 @@ def test_backslash_not_treated_specially() -> None:
 
     assert evaluate(r"\nfoo\n", matcher)
     assert not evaluate(r"foo", matcher)
-    with pytest.raises(ParseError):
+    with pytest.raises(SyntaxError):
         evaluate("\nfoo\n", matcher)

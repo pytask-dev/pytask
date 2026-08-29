@@ -16,7 +16,6 @@ from _pytask.console import console
 from _pytask.dag_utils import task_and_preceding_tasks
 from _pytask.exceptions import ConfigurationError
 from _pytask.mark.expression import Expression
-from _pytask.mark.expression import ParseError
 from _pytask.mark.structures import MARK_GEN
 from _pytask.mark.structures import Mark
 from _pytask.mark.structures import MarkDecorator
@@ -41,7 +40,6 @@ __all__ = [
     "Mark",
     "MarkDecorator",
     "MarkGenerator",
-    "ParseError",
     "select_by_after_keyword",
     "select_by_keyword",
     "select_by_mark",
@@ -168,8 +166,10 @@ def select_by_keyword(session: Session, dag: DAG) -> set[str] | None:
 
     try:
         expression = Expression.compile_(keywordexpr)
-    except ParseError as e:
-        msg = f"Wrong expression passed to '-k': {keywordexpr}: {e}"
+    except SyntaxError as e:
+        msg = (
+            f"Wrong expression passed to '-k': {e.text}: at column {e.offset}: {e.msg}"
+        )
         raise ValueError(msg) from None
 
     remaining: set[str] = set()
@@ -184,8 +184,11 @@ def select_by_after_keyword(session: Session, after: str) -> set[str]:
     """Select tasks defined by the after keyword."""
     try:
         expression = Expression.compile_(after)
-    except ParseError as e:
-        msg = f"Wrong expression passed to 'after': {after}: {e}"
+    except SyntaxError as e:
+        msg = (
+            f"Wrong expression passed to 'after': {e.text}: "
+            f"at column {e.offset}: {e.msg}"
+        )
         raise ValueError(msg) from None
 
     ancestors: set[str] = set()
@@ -223,8 +226,10 @@ def select_by_mark(session: Session, dag: DAG) -> set[str] | None:
 
     try:
         expression = Expression.compile_(matchexpr)
-    except ParseError as e:
-        msg = f"Wrong expression passed to '-m': {matchexpr}: {e}"
+    except SyntaxError as e:
+        msg = (
+            f"Wrong expression passed to '-m': {e.text}: at column {e.offset}: {e.msg}"
+        )
         raise ValueError(msg) from None
 
     if session.config["strict_markers"]:

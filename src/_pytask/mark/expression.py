@@ -42,7 +42,10 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
-__all__ = ["Expression", "ParseError"]
+__all__ = ["Expression"]
+
+
+FILE_NAME = "<pytask match expression>"
 
 
 class TokenType(enum.Enum):
@@ -62,31 +65,12 @@ class Token:
     pos: int
 
 
-class ParseError(Exception):
-    """The expression contains invalid syntax.
-
-    Attributes
-    ----------
-    column : int
-        The column in the line where the error occurred (1-based).
-    message : str
-        A description of the error.
-
-    """
-
-    def __init__(self, column: int, message: str) -> None:
-        self.column = column
-        self.message = message
-
-    def __str__(self) -> str:
-        return f"at column {self.column}: {self.message}"
-
-
 class Scanner:
-    __slots__ = ("current", "idents", "tokens")
+    __slots__ = ("current", "idents", "input", "tokens")
 
     def __init__(self, input_: str) -> None:
         self.idents: set[str] = set()
+        self.input = input_
         self.tokens = self.lex(input_)
         self.current = next(self.tokens)
 
@@ -115,9 +99,10 @@ class Scanner:
                         yield Token(TokenType.IDENT, value, pos)
                     pos += len(value)
                 else:
-                    raise ParseError(
-                        pos + 1,
-                        f'unexpected character "{input_[pos]}"',
+                    msg = f'unexpected character "{input_[pos]}"'
+                    raise SyntaxError(
+                        msg,
+                        (FILE_NAME, 1, pos + 1, input_),
                     )
         yield Token(TokenType.EOF, "", pos)
 
@@ -132,12 +117,13 @@ class Scanner:
         return None
 
     def reject(self, expected: Sequence[TokenType]) -> NoReturn:
-        raise ParseError(
-            self.current.pos + 1,
-            "expected {}; got {}".format(
-                " OR ".join(type_.value for type_ in expected),
-                self.current.type_.value,
-            ),
+        msg = "expected {}; got {}".format(
+            " OR ".join(type_.value for type_ in expected),
+            self.current.type_.value,
+        )
+        raise SyntaxError(
+            msg,
+            (FILE_NAME, 1, self.current.pos + 1, self.input),
         )
 
 
