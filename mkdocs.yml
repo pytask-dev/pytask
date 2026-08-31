@@ -46,6 +46,7 @@ nav:
       - Functional Interface: how_to_guides/functional_interface.md
       - Capture Warnings: how_to_guides/capture_warnings.md
       - Manage Logging: how_to_guides/logging.md
+      - Customizing When Tasks Run: how_to_guides/customizing_when_tasks_run.md
       - How To Influence Build Order: how_to_guides/how_to_influence_build_order.md
       - Hashing Inputs Of Tasks: how_to_guides/hashing_inputs_of_tasks.md
       - Using Task Returns: how_to_guides/using_task_returns.md
