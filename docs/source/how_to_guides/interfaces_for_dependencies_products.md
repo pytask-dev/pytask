@@ -29,7 +29,7 @@ a task. When we talk about products later, the same interfaces will be used.
 You can pass a value to a task as a default argument.
 
 ```py
---8<-- "docs_src/how_to_guides/interfaces/dependencies_default.py"
+--8 < --"docs_src/how_to_guides/interfaces/dependencies_default.py"
 ```
 
 <a id="annotation"></a>
@@ -47,7 +47,7 @@ method. For a
 [`pytask.PathNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PathNode)
 
 ```py
---8<-- "docs_src/how_to_guides/interfaces/dependencies_annotation.py"
+--8 < --"docs_src/how_to_guides/interfaces/dependencies_annotation.py"
 ```
 
 <a id="task-kwargs"></a>
@@ -58,7 +58,7 @@ You can use the `kwargs` argument of the `@task` decorator to pass a dictionary.
 applies to dependencies and products alike.
 
 ```py
---8<-- "docs_src/how_to_guides/interfaces/dependencies_task_kwargs.py"
+--8 < --"docs_src/how_to_guides/interfaces/dependencies_task_kwargs.py"
 ```
 
 ## Products
@@ -77,7 +77,7 @@ The syntax is the same as [default argument](#default-argument), but the
 annotation turns the argument into a task product.
 
 ```py
---8<-- "docs_src/how_to_guides/interfaces/products_annotation.py"
+--8 < --"docs_src/how_to_guides/interfaces/products_annotation.py"
 ```
 
 ### `Product` annotation with value
@@ -87,7 +87,7 @@ The syntax is the same as [annotation](#annotation), but the
 annotation turns the argument into a task product.
 
 ```py
---8<-- "docs_src/how_to_guides/interfaces/products_annotation_with_pnode.py"
+--8 < --"docs_src/how_to_guides/interfaces/products_annotation_with_pnode.py"
 ```
 
 ### `produces`
@@ -96,7 +96,7 @@ Without using any type annotation, you can use `produces` as a magical argument 
 treat every value passed to it as a task product.
 
 ```py
---8<-- "docs_src/how_to_guides/interfaces/products_produces.py"
+--8 < --"docs_src/how_to_guides/interfaces/products_produces.py"
 ```
 
 <a id="return-annotation"></a>
@@ -107,7 +107,7 @@ You can also add a node or a value that will be parsed to a node to the annotati
 the return type. It allows us to treat the returns of the task function as products.
 
 ```py
---8<-- "docs_src/how_to_guides/interfaces/products_return_annotation.py"
+--8 < --"docs_src/how_to_guides/interfaces/products_return_annotation.py"
 ```
 
 <a id="task-produces"></a>
@@ -122,5 +122,5 @@ the return, use the argument `produces` of the
 Pass the node or value you otherwise include in the type annotation to `produces`.
 
 ```py
---8<-- "docs_src/how_to_guides/interfaces/products_task_produces.py"
+--8 < --"docs_src/how_to_guides/interfaces/products_task_produces.py"
 ```

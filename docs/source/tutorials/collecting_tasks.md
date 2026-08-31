@@ -6,7 +6,7 @@ If you want to inspect your project and see a summary of all the tasks, you can 
 Let us take the following task.
 
 ```py
---8<-- "docs_src/tutorials/collecting_tasks.py"
+--8 < --"docs_src/tutorials/collecting_tasks.py"
 ```
 
 Now, running [`pytask collect`](../reference_guides/commands.md#pytask-collect) will
