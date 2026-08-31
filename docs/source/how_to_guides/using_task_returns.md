@@ -18,7 +18,7 @@ In the following example, the second value of `typing.Annotated` is a path that 
 where the return of the function, a string, should be stored.
 
 ```py
---8<-- "docs_src/how_to_guides/using_task_returns_example_1_py310.py"
+--8 < --"docs_src/how_to_guides/using_task_returns_example_1_py310.py"
 ```
 
 It works because internally the path is converted to a
@@ -37,7 +37,7 @@ example, because it is a lambda or a third-party function, you can use
 `@pytask.task(produces=...)`.
 
 ```py
---8<-- "docs_src/how_to_guides/using_task_returns_example_2_task.py"
+--8 < --"docs_src/how_to_guides/using_task_returns_example_2_task.py"
 ```
 
 ## Multiple returns
@@ -49,13 +49,13 @@ of the previous interfaces.
 === "Annotated"
 
     ```py
-    --8<-- "docs_src/how_to_guides/using_task_returns_example_3_py310.py"
+    --8 < --"docs_src/how_to_guides/using_task_returns_example_3_py310.py"
     ```
 
 === "@pytask.task"
 
     ```py
-    --8<-- "docs_src/how_to_guides/using_task_returns_example_3_task.py"
+    --8 < --"docs_src/how_to_guides/using_task_returns_example_3_task.py"
     ```
 
 Each return is mapped to its node by respecting its position in the tuple.
@@ -70,13 +70,13 @@ mapped to the defined nodes.
 === "Annotated"
 
     ```py
-    --8<-- "docs_src/how_to_guides/using_task_returns_example_4_py310.py"
+    --8 < --"docs_src/how_to_guides/using_task_returns_example_4_py310.py"
     ```
 
 === "@pytask.task"
 
     ```py
-    --8<-- "docs_src/how_to_guides/using_task_returns_example_4_task.py"
+    --8 < --"docs_src/how_to_guides/using_task_returns_example_4_task.py"
     ```
 
 The returns are mapped to the nodes as follows.

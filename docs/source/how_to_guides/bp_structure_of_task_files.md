@@ -80,7 +80,7 @@ are used to accomplish this and only this task.
 Here is an example of a task module which conforms to all advice.
 
 ```py
---8<-- "docs_src/how_to_guides/bp_structure_of_task_files.py"
+--8 < --"docs_src/how_to_guides/bp_structure_of_task_files.py"
 ```
 
 !!! note

@@ -14,7 +14,7 @@ For example, you can use the
 tasks during development that take too much time to compute right now.
 
 ```py
---8<-- "docs_src/tutorials/skipping_tasks_example_1.py"
+--8 < --"docs_src/tutorials/skipping_tasks_example_1.py"
 ```
 
 Not only will this task be skipped, but all tasks depending on
