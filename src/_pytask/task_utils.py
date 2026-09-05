@@ -27,6 +27,8 @@ from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.models import ParsedAfter
+from _pytask.nodes import Task
+from _pytask.nodes import TaskWithoutPath
 from _pytask.shared import find_duplicates
 from _pytask.shared import unwrap_task_function
 from _pytask.typing import TaskFunction
@@ -99,14 +101,37 @@ def validate_unique_task_signatures(tasks: list[PTask]) -> None:
     if not collisions:
         return
 
-    lines = ["Task signatures must be unique, but pytask collected conflicting tasks."]
-    for signature, conflicting_tasks in sorted(collisions.items()):
-        lines.extend(("", f"Signature {signature!r} is used by:"))
-        lines.extend(f"- {_describe_task(task_)}" for task_ in conflicting_tasks)
-
-    lines.extend(
-        ("", "Assign distinct task names or IDs, or remove the duplicate registration.")
+    lines = ["Conflicting task identities:"]
+    groups = sorted(
+        collisions.values(), key=lambda group: sorted(task_.name for task_ in group)
     )
+    for conflicting_tasks in groups:
+        names = ", ".join(
+            repr(name) for name in sorted({t.name for t in conflicting_tasks})
+        )
+        lines.extend(("", f"Tasks sharing an identity: {names}"))
+        lines.extend(f"- {_describe_task(task_)}" for task_ in conflicting_tasks)
+        if all(type(task_) is TaskWithoutPath for task_ in conflicting_tasks):
+            guidance = (
+                "These tasks have the same name. Choose distinct 'name' values "
+                "for TaskWithoutPath tasks."
+            )
+        elif all(type(task_) is Task for task_ in conflicting_tasks):
+            guidance = (
+                "Each Task must have a unique combination of 'path' and 'base_name'. "
+                "Choose distinct 'base_name' values for tasks in the same file; "
+                "changing the display name does not change task identity."
+            )
+        else:
+            guidance = (
+                "These tasks share a signature. For custom task types, ensure the "
+                "'signature' implementation returns a distinct, stable value for "
+                "each task identity."
+            )
+        lines.extend(
+            ("", guidance + " Alternatively, remove the duplicate registration.")
+        )
+
     raise ValueError("\n".join(lines))
 
 

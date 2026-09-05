@@ -63,13 +63,15 @@ def test_duplicate_task_signature_message_contains_all_collision_groups():
         TaskWithoutPath(name="duplicate-b", function=second),
     ]
 
-    with pytest.raises(ValueError, match="Task signatures must be unique") as exc_info:
+    with pytest.raises(ValueError, match="Conflicting task identities") as exc_info:
         validate_unique_task_signatures(tasks)
 
     message = str(exc_info.value)
-    assert "Task signatures must be unique" in message
+    assert "Conflicting task identities" in message
     assert "duplicate-a" in message
     assert "duplicate-b" in message
+    assert all(task.signature not in message for task in tasks)
+    assert "Choose distinct 'name' values" in message
     assert f"{Path(__file__).as_posix()}:" in message
 
 
@@ -818,8 +820,7 @@ def test_validate_task_signatures_after_hook_wrapper(
         assert session.exit_code == ExitCode.COLLECTION_FAILED
         assert not calls
         assert any(
-            report.exc_info
-            and "Task signatures must be unique" in str(report.exc_info[1])
+            report.exc_info and "Conflicting task identities" in str(report.exc_info[1])
             for report in session.collection_reports
         )
     else:
@@ -833,7 +834,7 @@ def test_duplicate_task_diagnostics_use_callable_source(tmp_path):
         Task(base_name="duplicate", path=tmp_path / "task_other.py", function=noop),
     ]
 
-    with pytest.raises(ValueError, match="Task signatures must be unique") as exc_info:
+    with pytest.raises(ValueError, match="Conflicting task identities") as exc_info:
         validate_unique_task_signatures(tasks)
 
     message = str(exc_info.value)
@@ -841,6 +842,8 @@ def test_duplicate_task_diagnostics_use_callable_source(tmp_path):
     assert f"{Path(__file__).with_name('conftest.py').as_posix()}:" in message
     assert f"({tmp_path.as_posix()}/task_other.py:" not in message
     assert "remove the duplicate registration" in message
+    assert "unique combination of 'path' and 'base_name'" in message
+    assert "changing the display name does not change task identity" in message
 
 
 def test_duplicate_task_diagnostics_without_source():
@@ -867,3 +870,22 @@ def test_unique_tasks_can_share_dependency(tmp_path):
 
     assert session.exit_code == ExitCode.OK
     assert calls == ["input", "input"]
+
+
+def test_custom_task_identity_conflict_guidance():
+    class CustomTask(TaskWithoutPath):
+        @property
+        def signature(self):
+            return "shared-custom-signature"
+
+    tasks = [CustomTask(name=name, function=noop) for name in ("first", "second")]
+
+    with pytest.raises(ValueError, match="Conflicting task identities") as exc_info:
+        validate_unique_task_signatures(tasks)
+
+    message = str(exc_info.value)
+    assert "Tasks sharing an identity: 'first', 'second'" in message
+    assert "shared-custom-signature" not in message
+    assert "'signature' implementation" in message
+    assert "distinct, stable value" in message
+    assert "These tasks have the same name" not in message

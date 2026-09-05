@@ -327,7 +327,7 @@ def test_generated_task_identity_conflict_stops_before_dag_rebuild(
     assert not tmp_path.joinpath("existing-ran").exists()
     assert not tmp_path.joinpath("generated-ran").exists()
     assert any(
-        report.exc_info and "Task signatures must be unique" in str(report.exc_info[1])
+        report.exc_info and "Conflicting task identities" in str(report.exc_info[1])
         for report in session.execution_reports
     )
     assert len(session.tasks) == 3
