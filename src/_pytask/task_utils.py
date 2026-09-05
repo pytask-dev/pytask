@@ -23,7 +23,6 @@ from typing import overload
 
 from _pytask.coiled_utils import Function
 from _pytask.coiled_utils import extract_coiled_function_kwargs
-from _pytask.console import format_task_name
 from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
@@ -39,6 +38,7 @@ if TYPE_CHECKING:
     from uuid import UUID
 
     from _pytask.node_protocols import PTask
+    from _pytask.session import Session
 
 P = ParamSpec("P")
 R_co = TypeVar("R_co", covariant=True)
@@ -61,6 +61,7 @@ def _is_task_decorator_target(obj: object) -> TypeGuard[Callable[..., Any]]:
 
 __all__ = [
     "COLLECTED_TASKS",
+    "modify_and_validate_tasks",
     "parse_collected_tasks_with_task_marker",
     "parse_keyword_arguments_from_signature_defaults",
     "task",
@@ -76,6 +77,12 @@ where one iteration overwrites the previous task. To retrieve the tasks later, u
 dictionary mapping from paths of modules to a list of tasks per module.
 
 """
+
+
+def modify_and_validate_tasks(session: Session) -> None:
+    """Validate final task identities after all modification hooks have completed."""
+    session.hook.pytask_collect_modify_tasks(session=session, tasks=session.tasks)
+    validate_unique_task_signatures(session.tasks)
 
 
 def validate_unique_task_signatures(tasks: list[PTask]) -> None:
@@ -97,32 +104,30 @@ def validate_unique_task_signatures(tasks: list[PTask]) -> None:
         lines.extend(("", f"Signature {signature!r} is used by:"))
         lines.extend(f"- {_describe_task(task_)}" for task_ in conflicting_tasks)
 
+    lines.extend(
+        ("", "Assign distinct task names or IDs, or remove the duplicate registration.")
+    )
     raise ValueError("\n".join(lines))
 
 
 def _describe_task(task_: PTask) -> str:
     """Return a task description which distinguishes conflicting definitions."""
-    path = getattr(task_, "path", None)
-    if path is None:
-        try:
-            path = get_file(task_.function)
-        except (OSError, TypeError):
-            path = None
-    try:
-        line_number = inspect.getsourcelines(task_.function)[1]
-    except (OSError, TypeError):
-        line_number = None
+    function = unwrap_task_function(task_.function)
+    while isinstance(function, functools.partial):
+        function = unwrap_task_function(function.func)
+    callable_name = getattr(function, "__qualname__", type(function).__qualname__)
+    module = getattr(function, "__module__", None)
+    if module:
+        callable_name = f"{module}.{callable_name}"
 
-    if path is None:
+    try:
+        path = get_file(function)
+        line_number = inspect.getsourcelines(function)[1]
+    except (OSError, TypeError):
         location = "<unknown>"
-    elif hasattr(path, "as_posix"):
-        location = path.as_posix()
     else:
-        location = str(path)
-    if line_number is not None:
-        location = f"{location}:{line_number}"
-    task_name = format_task_name(task_, editor_url_scheme="no_link").plain
-    return f"{task_name} ({location})"
+        location = f"{path.as_posix()}:{line_number}" if path else "<unknown>"
+    return f"{task_.name!r}: {callable_name} ({location})"
 
 
 @overload

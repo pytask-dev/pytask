@@ -19,6 +19,7 @@ from _pytask.provisional_utils import collect_provisional_nodes
 from _pytask.provisional_utils import recreate_dag
 from _pytask.reports import ExecutionReport
 from _pytask.task_utils import COLLECTED_TASKS
+from _pytask.task_utils import modify_and_validate_tasks
 from _pytask.task_utils import parse_collected_tasks_with_task_marker
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
@@ -100,9 +101,7 @@ def pytask_execute_task(session: Session, task: PTask) -> None:
         )
 
         try:
-            session.hook.pytask_collect_modify_tasks(
-                session=session, tasks=session.tasks
-            )
+            modify_and_validate_tasks(session)
             # Append the last collection report after successful modification
             if report:
                 session.collection_reports.append(report)
@@ -111,6 +110,8 @@ def pytask_execute_task(session: Session, task: PTask) -> None:
                 task=task, exc_info=sys.exc_info()
             )
             session.execution_reports.append(exec_report)
+            session.should_stop = True
+            return
 
         recreate_dag(session, task)
 
