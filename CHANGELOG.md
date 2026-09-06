@@ -10,6 +10,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 - [#889](https://github.com/pytask-dev/pytask/pull/889) improves typing for tree
   operations by wrapping optree's pytree utilities with pytask-specific signatures
   and requiring optree 0.16.0 or newer.
+- [#932](https://github.com/pytask-dev/pytask/pull/932) validates unique task signatures
+  during collection.
 
 ## 0.6.0 - 2026-05-01
 
