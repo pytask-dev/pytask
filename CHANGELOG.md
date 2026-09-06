@@ -7,9 +7,36 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#977](https://github.com/pytask-dev/pytask/pull/977) allows marker expressions
+  passed to `-m` to select tasks by marker keyword arguments.
+- [#976](https://github.com/pytask-dev/pytask/pull/976) makes invalid marker and
+  keyword expressions raise the standard `SyntaxError` instead of a custom parser
+  exception.
+- [#975](https://github.com/pytask-dev/pytask/pull/975) validates marker names in `-m`
+  expressions when `--strict-markers` is enabled.
+- [#974](https://github.com/pytask-dev/pytask/pull/974) applies configured warning
+  filters to warnings emitted by configuration hooks.
+- [#973](https://github.com/pytask-dev/pytask/pull/973) enables navigating chained
+  exceptions in post-mortem PDB sessions on Python 3.13 and newer.
+- [#969](https://github.com/pytask-dev/pytask/pull/969) initializes readline before
+  output capture so libedit-backed interactive prompts and debuggers remain responsive.
+- [#971](https://github.com/pytask-dev/pytask/pull/971) restores help text for
+  PDB commands wrapped by pytask.
+- [#970](https://github.com/pytask-dev/pytask/pull/970) prevents tee-sys capture from
+  replaying output that was already displayed when capture stops before its buffer is
+  read.
+- [#972](https://github.com/pytask-dev/pytask/pull/972) uses
+  `importlib.import_module` for dynamic imports of custom PDB classes and warning
+  categories.
+- [#968](https://github.com/pytask-dev/pytask/pull/968) improves the performance of file
+  descriptor capture for tasks that produce no output.
+- [#967](https://github.com/pytask-dev/pytask/pull/967) documents the pytest provenance
+  of the adapted debugging, marker, and warning modules.
 - [#889](https://github.com/pytask-dev/pytask/pull/889) improves typing for tree
   operations by wrapping optree's pytree utilities with pytask-specific signatures
   and requiring optree 0.16.0 or newer.
+- [#932](https://github.com/pytask-dev/pytask/pull/932) validates unique task signatures
+  during collection.
 
 ## 0.6.0 - 2026-05-01
 

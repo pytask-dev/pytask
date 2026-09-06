@@ -45,6 +45,17 @@ def test_change_default_node():
     assert isinstance(default_node, PythonNode)
 
 
+def test_default_node_factory_must_return_node():
+    class InvalidNode:
+        def __init__(self, *, name):
+            self.name = name
+
+    data_catalog = DataCatalog(default_node=InvalidNode)
+
+    with pytest.raises(TypeError, match="factory must return"):
+        data_catalog["invalid"]
+
+
 def test_use_data_catalog_in_workflow(runner, tmp_path):
     source = """
     from pathlib import Path

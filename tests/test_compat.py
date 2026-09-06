@@ -70,7 +70,7 @@ from pytask import import_optional_dependency
         ),
     ],
 )
-def test_check_for_optional_program(  # noqa: PLR0913
+def test_check_for_optional_program(  # noqa: PLR0913, PLR0917
     name, extra, errors, caller, expectation, expected
 ):
     with expectation:

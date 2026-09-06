@@ -1,4 +1,8 @@
-"""Contains code for capturing warnings."""
+"""Contains code for capturing warnings.
+
+The warning-capture plugin is adapted from pytest's ``_pytest.warnings`` module:
+https://github.com/pytest-dev/pytest/blob/main/src/_pytest/warnings.py
+"""
 
 from __future__ import annotations
 

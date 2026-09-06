@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 from typing import NamedTuple
+from uuid import UUID
 
 import pytest
 
@@ -76,6 +77,20 @@ def test_default_values_of_pytask_meta():
     assert task_example.pytask_meta.produces is None
 
     # Remove collected task.
+    COLLECTED_TASKS.pop(Path(__file__))
+
+
+def test_after_functions_are_stored_as_temporary_ids():
+    @task
+    def task_before(): ...
+
+    @task(after=task_before)
+    def task_after(): ...
+
+    assert task_after.pytask_meta.after == [task_before.pytask_meta._id]
+    assert all(isinstance(value, UUID) for value in task_after.pytask_meta.after)
+
+    # Remove collected tasks.
     COLLECTED_TASKS.pop(Path(__file__))
 
 

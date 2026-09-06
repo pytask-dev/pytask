@@ -112,6 +112,67 @@ def test_mark_option(tmp_path, expr: str, expected_passed: str) -> None:
     assert set(tasks_that_run) == set(expected_passed)
 
 
+@pytest.mark.filterwarnings("ignore:Unknown pytask.mark.backend")
+@pytest.mark.parametrize(
+    ("expr", "expected_passed"),
+    [
+        ("backend", ["task_one", "task_two", "task_three"]),
+        ('backend(name="duckdb")', ["task_one", "task_three"]),
+        ('backend(name="duckdb", version=2)', ["task_one"]),
+        ("backend(active=False)", ["task_two"]),
+        ("backend(optional=None)", ["task_one"]),
+        ("backend(version=-1)", ["task_two"]),
+        ('backend(name="missing")', []),
+        (
+            'backend(name="duckdb") and not backend(version=1)',
+            ["task_one"],
+        ),
+    ],
+)
+def test_mark_option_with_keyword_arguments(
+    tmp_path, expr: str, expected_passed: list[str]
+) -> None:
+    tmp_path.joinpath("task_module.py").write_text(
+        textwrap.dedent(
+            """
+            import pytask
+
+            @pytask.mark.backend(
+                name="duckdb", version=2, active=True, optional=None
+            )
+            def task_one(): ...
+
+            @pytask.mark.backend(name="pandas", version=-1, active=False)
+            def task_two(): ...
+
+            @pytask.mark.backend(name="sqlite", version=1)
+            @pytask.mark.backend(name="duckdb", version=1)
+            def task_three(): ...
+            """
+        )
+    )
+
+    session = build(paths=tmp_path, marker_expression=expr)
+
+    tasks_that_run = [
+        report.task.name.rsplit("::")[1]
+        for report in session.execution_reports
+        if not report.exc_info
+    ]
+    assert set(tasks_that_run) == set(expected_passed)
+
+
+def test_keyword_option_rejects_call_parameters(tmp_path, capsys) -> None:
+    tmp_path.joinpath("task_module.py").write_text("def task_example(): ...")
+
+    session = build(paths=tmp_path, expression="task_example(value=1)")
+
+    assert session.exit_code == ExitCode.DAG_FAILED
+    assert (
+        "Keyword expressions do not support call parameters." in capsys.readouterr().out
+    )
+
+
 @pytest.mark.parametrize(
     ("expr", "expected_passed"),
     [
@@ -192,8 +253,8 @@ def test_keyword_option_parametrize(tmp_path, expr: str, expected_passed: str) -
         (
             "foo or",
             (
-                "at column 7: expected not OR left parenthesis OR identifier; got end of "
-                "input"
+                "at column 7: expected not OR left parenthesis OR "
+                "identifier; got end of input"
             ),
         ),
         (
@@ -355,6 +416,46 @@ def test_error_with_unknown_marker_and_strict(runner, tmp_path):
     result = runner.invoke(cli, [tmp_path.as_posix(), "--strict-markers"])
     assert result.exit_code == ExitCode.COLLECTION_FAILED
     assert "Unknown pytask.mark.unknown" in result.output
+
+
+@pytest.mark.parametrize(
+    ("marker_expression", "strict_markers", "expected_exit_code"),
+    [
+        ("registered", True, ExitCode.OK),
+        ("unknown", False, ExitCode.OK),
+        ("unknown", True, ExitCode.DAG_FAILED),
+        ("unknown(value=1)", True, ExitCode.DAG_FAILED),
+    ],
+)
+def test_strict_markers_validate_marker_expression(
+    runner,
+    tmp_path,
+    marker_expression: str,
+    strict_markers: bool,
+    expected_exit_code: ExitCode,
+) -> None:
+    tmp_path.joinpath("pyproject.toml").write_text(
+        "[tool.pytask.ini_options]\nmarkers = {'registered' = 'A registered marker.'}"
+    )
+    tmp_path.joinpath("task_module.py").write_text(
+        textwrap.dedent(
+            """
+            import pytask
+
+            @pytask.mark.registered
+            def task_example(): ...
+            """
+        )
+    )
+    args = [tmp_path.as_posix(), "-m", marker_expression]
+    if strict_markers:
+        args.append("--strict-markers")
+
+    result = runner.invoke(cli, args)
+
+    assert result.exit_code == expected_exit_code
+    if strict_markers and marker_expression.startswith("unknown"):
+        assert "Unknown marker(s) in '-m' expression: unknown" in result.output
 
 
 @pytest.mark.filterwarnings("ignore:Unknown pytask\\.mark\\.foo")

@@ -100,7 +100,7 @@ def _remove_internal_traceback_frames_from_exc_info(
     occurrence downwards.
 
     """
-    if isinstance(exc_info[1], Exception):
+    if isinstance(exc_info[1], Exception) and exc_info[1].__cause__ is not None:
         exc_info[1].__cause__ = _remove_internal_traceback_frames_from_exception(
             exc_info[1].__cause__
         )

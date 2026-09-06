@@ -1,3 +1,10 @@
+"""Contains the data structures for marks.
+
+The mark decorator and generator implementation originated in pytest's
+``_pytest.mark.structures`` module and has been adapted to pytask's task model:
+https://github.com/pytest-dev/pytest/blob/main/src/_pytest/mark/structures.py
+"""
+
 from __future__ import annotations
 
 import warnings

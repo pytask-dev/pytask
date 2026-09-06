@@ -7,15 +7,19 @@ from dataclasses import field
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import NamedTuple
+from typing import TypeAlias
 from uuid import UUID
 from uuid import uuid4
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
     from pathlib import Path
 
     from _pytask.mark import Mark
     from _pytask.tree_util import PyTree
+
+
+ParsedAfter: TypeAlias = str | list[UUID]
+"""A parsed ``after`` expression or temporary IDs of preceding tasks."""
 
 
 @dataclass
@@ -25,8 +29,8 @@ class CollectionMetadata:
     Attributes
     ----------
     after
-        An expression or a task function or a list of task functions that need to be
-        executed before this task can.
+        An expression or a list of temporary task IDs that identify tasks which need
+        to be executed before this task can.
     id_
         An id for the task if it is part of a parametrization. Otherwise, an automatic
         id will be generated. See
@@ -51,7 +55,7 @@ class CollectionMetadata:
         information.
     """
 
-    after: str | list[Callable[..., Any]] = field(default_factory=list)
+    after: ParsedAfter = field(default_factory=list)
     attributes: dict[str, Any] = field(default_factory=dict)
     annotation_locals: dict[str, Any] | None = None
     is_generator: bool = False

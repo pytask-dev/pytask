@@ -1,8 +1,13 @@
-"""Contains everything related to debugging."""
+"""Contains everything related to debugging.
+
+The PDB integration is adapted from pytest's ``_pytest.debugging`` module:
+https://github.com/pytest-dev/pytest/blob/main/src/_pytest/debugging.py
+"""
 
 from __future__ import annotations
 
 import functools
+import importlib
 import pdb  # noqa: T100
 import sys
 from typing import TYPE_CHECKING
@@ -169,8 +174,7 @@ class PytaskPDB:
             modname, classname = usepdb_cls
 
             try:
-                __import__(modname)
-                mod = sys.modules[modname]
+                mod = importlib.import_module(modname)
 
                 # Handle --pdbcls=pdb:pdb.Pdb (useful e.g. with pdbpp or pdbp).
                 parts = classname.split(".")
@@ -209,6 +213,9 @@ class PytaskPDB:
                 cls._recursive_debug -= 1
                 return ret
 
+            if hasattr(pdb_cls, "do_debug"):
+                do_debug.__doc__ = pdb_cls.do_debug.__doc__
+
             def do_continue(self, arg: Any) -> int:
                 ret = super().do_continue(arg)
                 if cls._recursive_debug == 0:
@@ -235,16 +242,17 @@ class PytaskPDB:
                 self._continued = True
                 return ret
 
+            if hasattr(pdb_cls, "do_continue"):
+                do_continue.__doc__ = pdb_cls.do_continue.__doc__
+
             do_c = do_cont = do_continue
 
             def do_quit(self, arg: Any) -> int:
-                """Raise Exit outcome when quit command is used in pdb.
-
-                This is a bit of a hack - it would be better if BdbQuit could be
-                handled, but this would require to wrap the whole pytest run, and adjust
-                the report etc.
-
-                """
+                # Raise Exit outcome when quit command is used in pdb.
+                #
+                # This is a bit of a hack - it would be better if BdbQuit could be
+                # handled, but this would require to wrap the whole pytest run, and
+                # adjust the report etc.
                 ret = super().do_quit(arg)
 
                 if cls._recursive_debug == 0:
@@ -252,6 +260,9 @@ class PytaskPDB:
                     raise Exit(msg)
 
                 return ret
+
+            if hasattr(pdb_cls, "do_quit"):
+                do_quit.__doc__ = pdb_cls.do_quit.__doc__
 
             do_q = do_quit
             do_exit = do_quit
@@ -359,7 +370,7 @@ def wrap_function_for_post_mortem_debugging(session: Session, task: PTask) -> No
         try:
             return task_function(*args, **kwargs)
 
-        except Exception:
+        except Exception as exc:
             # Order is important! Pausing the live object before the capturemanager
             # would flush the table to stdout and it will be visible in the captured
             # output.
@@ -384,8 +395,7 @@ def wrap_function_for_post_mortem_debugging(session: Session, task: PTask) -> No
             console.rule("Traceback", characters=">", style="default")
             console.print(Traceback(exc_info))
 
-            assert exc_info[2] is not None
-            post_mortem(exc_info[2])
+            post_mortem(_postmortem_exc_or_tb(exc))
 
             live_manager.resume()
             capman.resume()
@@ -449,11 +459,24 @@ def wrap_function_for_tracing(session: Session, task: PTask) -> None:
     task.function = wrapper
 
 
-def post_mortem(t: TracebackType) -> None:
+def _postmortem_exc_or_tb(
+    exc: BaseException,
+) -> TracebackType | BaseException:
+    """Return an exception for modern PDB and a traceback for older versions."""
+    if sys.version_info >= (3, 13):
+        return exc
+
+    assert exc.__traceback__ is not None
+    return exc.__traceback__
+
+
+def post_mortem(tb_or_exc: TracebackType | BaseException) -> None:
     """Start post-mortem debugging."""
     p = PytaskPDB._init_pdb("post_mortem")
     p.reset()
-    p.interaction(None, t)
+    # PDB accepts exceptions on Python 3.13+, but the typeshed signature only allows
+    # tracebacks.
+    p.interaction(None, tb_or_exc)  # ty: ignore[invalid-argument-type]
     if p.quitting:
         msg = "Quitting debugger"
         raise Exit(msg)

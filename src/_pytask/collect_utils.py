@@ -246,7 +246,7 @@ def parse_products_from_task_function(
     return out
 
 
-def _collect_nodes_and_provisional_nodes(  # noqa: PLR0913
+def _collect_nodes_and_provisional_nodes(  # noqa: PLR0913, PLR0917
     collection_func: Callable[..., Any],
     session: Session,
     node_path: Path,

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import builtins
 import contextlib
 import io
 import os
@@ -11,6 +12,7 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import BinaryIO
 from typing import cast
+from unittest.mock import Mock
 
 import pytest
 
@@ -21,12 +23,44 @@ from _pytask.capture import MultiCapture
 from _pytask.capture import _get_multicapture
 from pytask import CaptureMethod
 from pytask import ExitCode
+from pytask import build
 from pytask import cli
 from tests.conftest import enter_directory
 from tests.conftest import run_in_subprocess
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+
+
+def test_readline_workaround_ignores_missing_module(monkeypatch):
+    imported_modules = []
+    original_import = builtins.__import__
+
+    def import_or_raise(name, *args, **kwargs):
+        imported_modules.append(name)
+        if name == "readline":
+            raise ImportError
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", import_or_raise)
+
+    capture._readline_workaround()
+
+    assert imported_modules == ["readline"]
+
+
+def test_readline_workaround_runs_before_capture_starts(monkeypatch):
+    events = []
+    capman = Mock()
+    capman.start_capturing.side_effect = lambda: events.append("capture")
+    monkeypatch.setattr(
+        capture, "_readline_workaround", lambda: events.append("readline")
+    )
+    monkeypatch.setattr(capture, "CaptureManager", lambda _method: capman)
+
+    capture.pytask_post_parse({"pm": Mock(), "capture": CaptureMethod.FD})
+
+    assert events == ["readline", "capture"]
 
 
 @pytest.mark.parametrize("show_capture", ["s", "no", "stdout", "stderr", "log", "all"])
@@ -139,27 +173,14 @@ def test_show_capture_with_build(tmp_path, show_capture):
         raise NotImplementedError
 
 
-@pytest.mark.xfail(
-    sys.platform == "win32",
-    reason="from pytask ... cannot be found",
-    raises=AssertionError,
-)
-def test_wrong_capture_method(tmp_path):
-    source = """
-    from pytask import build
-    import sys
+def test_wrong_capture_method(tmp_path, capsys):
+    session = build(paths=tmp_path, show_capture="a")  # type: ignore[arg-type]
 
-    if __name__ == "__main__":
-        session = build(tasks=[], show_capture="a")
-        sys.exit(session.exit_code)
-    """
-    tmp_path.joinpath("workflow.py").write_text(textwrap.dedent(source))
-
-    result = run_in_subprocess((sys.executable, "workflow.py"), cwd=tmp_path)
-    assert result.exit_code == ExitCode.CONFIGURATION_FAILED
-    assert "Value 'a' is not a valid" in result.stdout
-    assert "Traceback" not in result.stdout
-    assert not result.stderr
+    captured = capsys.readouterr()
+    assert session.exit_code == ExitCode.CONFIGURATION_FAILED
+    assert "Value 'a' is not a valid" in captured.out
+    assert "Traceback" not in captured.out
+    assert not captured.err
 
 
 # Following tests are copied from pytest.
@@ -198,6 +219,28 @@ def TeeStdCapture(  # noqa: N802
 
 
 class TestCaptureManager:
+    def test_stop_capturing_does_not_replay_tee_output(self, capsys):
+        capman = CaptureManager(CaptureMethod.TEE_SYS)
+        capman.start_capturing()
+        print("stdout")
+        print("stderr", file=sys.stderr)
+
+        capman.stop_capturing()
+
+        captured = capsys.readouterr()
+        assert captured == ("stdout\n", "stderr\n")
+
+    def test_stop_capturing_replays_non_tee_output(self, capsys):
+        capman = CaptureManager(CaptureMethod.SYS)
+        capman.start_capturing()
+        print("stdout")
+        print("stderr", file=sys.stderr)
+
+        capman.stop_capturing()
+
+        captured = capsys.readouterr()
+        assert captured == ("stdout\n", "stderr\n")
+
     @pytest.mark.parametrize(
         "method", [CaptureMethod.NO, CaptureMethod.SYS, CaptureMethod.FD]
     )
@@ -503,6 +546,25 @@ def lsof_check():
 
 
 class TestFDCapture:
+    @pytest.mark.parametrize(
+        ("capture_class", "empty_buffer"),
+        [(capture.FDCapture, ""), (capture.FDCaptureBinary, b"")],
+    )
+    def test_snap_empty_file_avoids_file_io(
+        self, monkeypatch, capture_class, empty_buffer
+    ):
+        cap = object.__new__(capture_class)
+        cap._state = "started"
+        cap.tmpfile = Mock()
+        cap.tmpfile.fileno.return_value = 42
+        monkeypatch.setattr(capture.os, "fstat", lambda _fd: Mock(st_size=0))
+
+        assert cap.snap() == empty_buffer
+        cap.tmpfile.seek.assert_not_called()
+        cap.tmpfile.read.assert_not_called()
+        cap.tmpfile.buffer.read.assert_not_called()
+        cap.tmpfile.truncate.assert_not_called()
+
     def test_simple(self, tmpfile):
         fd = tmpfile.fileno()
         cap = capture.FDCapture(fd)

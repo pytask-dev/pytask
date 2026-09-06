@@ -20,6 +20,7 @@ from _pytask.provisional_utils import collect_provisional_nodes
 from _pytask.provisional_utils import recreate_dag
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import parse_collected_tasks_with_task_marker
+from _pytask.task_utils import validate_unique_task_signatures
 from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
 from _pytask.typing import is_task_generator
@@ -137,12 +138,15 @@ def _commit_generated_tasks(session: Session, generated_tasks: list[PTask]) -> N
     session.tasks = [*previous_tasks, *generated_tasks]
     try:
         session.hook.pytask_collect_modify_tasks(session=session, tasks=session.tasks)
+        validate_unique_task_signatures(session.tasks)
         dag = create_dag_from_session(session)
         scheduler = (
             session.scheduler.rebuild(dag) if session.scheduler is not None else None
         )
     except BaseException:
-        session.tasks = previous_tasks
+        # Keep the collected tasks available for diagnostics, but do not replace the
+        # existing DAG or scheduler after a failed validation or collection hook.
+        session.should_stop = True
         raise
 
     previous_tasks[:] = session.tasks

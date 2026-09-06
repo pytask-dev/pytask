@@ -24,7 +24,7 @@ files are downloaded to a folder called `downloads`. `downloads` is in the same 
 as the task module because it is a relative path.
 
 ```py
---8<-- "docs_src/how_to_guides/provisional_products.py"
+--8 < --"docs_src/how_to_guides/provisional_products.py"
 ```
 
 Since the names of the files are not known when pytask is started, we need to use a
@@ -60,7 +60,7 @@ The difficulty here is how can we reference the downloaded files before they hav
 downloaded.
 
 ```py
---8<-- "docs_src/how_to_guides/provisional_task.py"
+--8 < --"docs_src/how_to_guides/provisional_task.py"
 ```
 
 To reference the files that will be downloaded, we use
@@ -89,7 +89,7 @@ The code snippet shows each task takes one of the downloaded files and copies it
 content to a `.txt` file.
 
 ```py
---8<-- "docs_src/how_to_guides/provisional_task_generator.py"
+--8 < --"docs_src/how_to_guides/provisional_task_generator.py"
 ```
 
 !!! important

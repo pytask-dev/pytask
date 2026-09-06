@@ -47,14 +47,12 @@ def test_task_with_complex_product_did_not_produce_node(tmp_path, arg_name):
 
 def test_profile_with_pytree(tmp_path, runner):
     source = """
-    import time
     from pytask.tree_util import tree_leaves
     from pathlib import Path
 
     def task_example(
         produces=[{"out_1": Path("out_1.txt")}, {"out_2": Path("out_2.txt")}]
     ):
-        time.sleep(2)
         for p in tree_leaves(produces):
             p.write_text("There are nine billion bicycles in Beijing.")
     """
