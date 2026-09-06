@@ -13,7 +13,7 @@ In the following example, the argument `text` will be parsed as a
 [`pytask.PythonNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PythonNode).
 
 ```py
---8<-- "docs_src/how_to_guides/hashing_inputs_of_tasks_example_1_py310.py"
+--8 < --"docs_src/how_to_guides/hashing_inputs_of_tasks_example_1_py310.py"
 ```
 
 By default, pytask does not detect changes in
@@ -27,7 +27,7 @@ when the input changed. For that, we need to use the
 `hash = True`.
 
 ```py
---8<-- "docs_src/how_to_guides/hashing_inputs_of_tasks_example_2_py310.py"
+--8 < --"docs_src/how_to_guides/hashing_inputs_of_tasks_example_2_py310.py"
 ```
 
 When `hash=True`, pytask will call the builtin `hash` on the input that will call the
@@ -68,5 +68,5 @@ Then, create the hash function and pass it to the node. Make sure it returns eit
 integer or a string.
 
 ```py
---8<-- "docs_src/how_to_guides/hashing_inputs_of_tasks_example_3_py310.py"
+--8 < --"docs_src/how_to_guides/hashing_inputs_of_tasks_example_3_py310.py"
 ```

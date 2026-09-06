@@ -17,7 +17,7 @@ paths to point to inputs and outputs and call [`pandas.read_pickle`][] and
 [`pandas.DataFrame.to_pickle`][].
 
 ```py
---8<-- "docs_src/how_to_guides/writing_custom_nodes_example_1.py"
+--8 < --"docs_src/how_to_guides/writing_custom_nodes_example_1.py"
 ```
 
 To remove IO operations from the task and delegate them to pytask, we will replicate the
@@ -32,13 +32,13 @@ The result will be the following task.
 === "Annotated"
 
     ```py
-    --8<-- "docs_src/how_to_guides/writing_custom_nodes_example_2_py310.py"
+    --8 < --"docs_src/how_to_guides/writing_custom_nodes_example_2_py310.py"
     ```
 
 === "Annotated & Return"
 
     ```py
-    --8<-- "docs_src/how_to_guides/writing_custom_nodes_example_2_py310_return.py"
+    --8 < --"docs_src/how_to_guides/writing_custom_nodes_example_2_py310_return.py"
     ```
 
 ## Nodes
@@ -61,7 +61,7 @@ vary slightly from [`pytask.PathNode`](../reference_guides/api/nodes_and_tasks.m
 it as a template, and with some minor modifications, we arrive at the following class.
 
 ```py
---8<-- "docs_src/how_to_guides/writing_custom_nodes_example_3_py310.py"
+--8 < --"docs_src/how_to_guides/writing_custom_nodes_example_3_py310.py"
 ```
 
 Here are some explanations.

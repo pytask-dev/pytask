@@ -32,7 +32,7 @@ Here, is an example for a
 uses cloudpickle instead of the normal `pickle` module.
 
 ```py
---8<-- "docs_src/how_to_guides/the_data_catalog.py"
+--8 < --"docs_src/how_to_guides/the_data_catalog.py"
 ```
 
 ## Changing the name and the default path

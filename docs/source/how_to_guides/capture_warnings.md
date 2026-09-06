@@ -5,7 +5,7 @@ pytask captures warnings during the execution.
 Here is an example with the most infamous warning in the world of scientific Python.
 
 ```py title="task_example.py"
---8<-- "docs_src/how_to_guides/capturing_warnings_1.py"
+--8 < --"docs_src/how_to_guides/capturing_warnings_1.py"
 ```
 
 Running pytask produces
@@ -53,7 +53,7 @@ to add warning filters to specific test items, allowing you to have finer contro
 which warnings should be captured at the test, class or even module level:
 
 ```py title="task_example.py"
---8<-- "docs_src/how_to_guides/capturing_warnings_2.py"
+--8 < --"docs_src/how_to_guides/capturing_warnings_2.py"
 ```
 
 Filters applied using a mark take precedence over filters passed on the command line or
