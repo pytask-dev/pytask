@@ -40,7 +40,6 @@ if TYPE_CHECKING:
     from uuid import UUID
 
     from _pytask.node_protocols import PTask
-    from _pytask.session import Session
 
 P = ParamSpec("P")
 R_co = TypeVar("R_co", covariant=True)
@@ -63,7 +62,6 @@ def _is_task_decorator_target(obj: object) -> TypeGuard[Callable[..., Any]]:
 
 __all__ = [
     "COLLECTED_TASKS",
-    "modify_and_validate_tasks",
     "parse_collected_tasks_with_task_marker",
     "parse_keyword_arguments_from_signature_defaults",
     "task",
@@ -79,12 +77,6 @@ where one iteration overwrites the previous task. To retrieve the tasks later, u
 dictionary mapping from paths of modules to a list of tasks per module.
 
 """
-
-
-def modify_and_validate_tasks(session: Session) -> None:
-    """Validate final task identities after all modification hooks have completed."""
-    session.hook.pytask_collect_modify_tasks(session=session, tasks=session.tasks)
-    validate_unique_task_signatures(session.tasks)
 
 
 def validate_unique_task_signatures(tasks: list[PTask]) -> None:
