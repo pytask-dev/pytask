@@ -27,6 +27,8 @@ from _pytask.console import get_file
 from _pytask.mark import Mark
 from _pytask.models import CollectionMetadata
 from _pytask.models import ParsedAfter
+from _pytask.nodes import Task
+from _pytask.nodes import TaskWithoutPath
 from _pytask.shared import find_duplicates
 from _pytask.shared import unwrap_task_function
 from _pytask.typing import TaskFunction
@@ -36,6 +38,8 @@ from _pytask.typing import is_task_decorator_target as is_task_decorator_target_
 if TYPE_CHECKING:
     from pathlib import Path
     from uuid import UUID
+
+    from _pytask.node_protocols import PTask
 
 P = ParamSpec("P")
 R_co = TypeVar("R_co", covariant=True)
@@ -61,6 +65,7 @@ __all__ = [
     "parse_collected_tasks_with_task_marker",
     "parse_keyword_arguments_from_signature_defaults",
     "task",
+    "validate_unique_task_signatures",
 ]
 
 
@@ -72,6 +77,74 @@ where one iteration overwrites the previous task. To retrieve the tasks later, u
 dictionary mapping from paths of modules to a list of tasks per module.
 
 """
+
+
+def validate_unique_task_signatures(tasks: list[PTask]) -> None:
+    """Raise an error if multiple tasks have the same signature."""
+    signature_to_tasks: dict[str, list[PTask]] = defaultdict(list)
+    for task_ in tasks:
+        signature_to_tasks[task_.signature].append(task_)
+
+    collisions = {
+        signature: tasks_
+        for signature, tasks_ in signature_to_tasks.items()
+        if len(tasks_) > 1
+    }
+    if not collisions:
+        return
+
+    lines = ["Conflicting task identities:"]
+    groups = sorted(
+        collisions.values(), key=lambda group: sorted(task_.name for task_ in group)
+    )
+    for conflicting_tasks in groups:
+        names = ", ".join(
+            repr(name) for name in sorted({t.name for t in conflicting_tasks})
+        )
+        lines.extend(("", f"Tasks sharing an identity: {names}"))
+        lines.extend(f"- {_describe_task(task_)}" for task_ in conflicting_tasks)
+        if all(type(task_) is TaskWithoutPath for task_ in conflicting_tasks):
+            guidance = (
+                "These tasks have the same name. Choose distinct 'name' values "
+                "for TaskWithoutPath tasks."
+            )
+        elif all(type(task_) is Task for task_ in conflicting_tasks):
+            guidance = (
+                "Each Task must have a unique combination of 'path' and 'base_name'. "
+                "Choose distinct 'base_name' values for tasks in the same file; "
+                "changing the display name does not change task identity."
+            )
+        else:
+            guidance = (
+                "These tasks share a signature. For custom task types, ensure the "
+                "'signature' implementation returns a distinct, stable value for "
+                "each task identity."
+            )
+        lines.extend(
+            ("", guidance + " Alternatively, remove the duplicate registration.")
+        )
+
+    raise ValueError("\n".join(lines))
+
+
+def _describe_task(task_: PTask) -> str:
+    """Return a task description which distinguishes conflicting definitions."""
+    function = unwrap_task_function(task_.function)
+    while isinstance(function, functools.partial):
+        function = unwrap_task_function(function.func)
+    callable_name = getattr(function, "__qualname__", type(function).__qualname__)
+    module = getattr(function, "__module__", None)
+    if module:
+        callable_name = f"{module}.{callable_name}"
+
+    try:
+        path = get_file(function)
+        line_number = inspect.getsourcelines(function)[1]
+    except (OSError, TypeError):
+        location = "<unknown>"
+    else:
+        location = f"{path.as_posix()}:{line_number}" if path else "<unknown>"
+    return f"{task_.name!r}: {callable_name} ({location})"
 
 
 @overload

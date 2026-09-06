@@ -12,15 +12,67 @@ import upath
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
 from _pytask.node_protocols import PPathNode
+from _pytask.pluginmanager import get_plugin_manager
+from _pytask.task_utils import validate_unique_task_signatures
 from pytask import CollectionOutcome
 from pytask import ExitCode
 from pytask import NodeInfo
+from pytask import PathNode
 from pytask import PickleNode
 from pytask import Session
 from pytask import Task
+from pytask import TaskWithoutPath
 from pytask import build
 from pytask import cli
+from pytask import hookimpl
 from tests.conftest import noop
+
+
+def test_duplicate_programmatic_task_signatures_fail_collection(tmp_path):
+    calls = []
+
+    def first():
+        calls.append("first")
+
+    def second():
+        calls.append("second")
+
+    tasks = [
+        TaskWithoutPath(name="duplicate", function=first),
+        TaskWithoutPath(name="duplicate", function=second),
+    ]
+
+    session = build(tasks=tasks, paths=tmp_path, force=True)
+
+    assert session.exit_code == ExitCode.COLLECTION_FAILED
+    assert not session.execution_reports
+    assert not calls
+
+
+def test_duplicate_task_signature_message_contains_all_collision_groups():
+    def first():
+        pass
+
+    def second():
+        pass
+
+    tasks = [
+        TaskWithoutPath(name="duplicate-a", function=first),
+        TaskWithoutPath(name="duplicate-a", function=second),
+        TaskWithoutPath(name="duplicate-b", function=first),
+        TaskWithoutPath(name="duplicate-b", function=second),
+    ]
+
+    with pytest.raises(ValueError, match="Conflicting task identities") as exc_info:
+        validate_unique_task_signatures(tasks)
+
+    message = str(exc_info.value)
+    assert "Conflicting task identities" in message
+    assert "duplicate-a" in message
+    assert "duplicate-b" in message
+    assert all(task.signature not in message for task in tasks)
+    assert "Choose distinct 'name' values" in message
+    assert f"{Path(__file__).as_posix()}:" in message
 
 
 def _make_local_upath_uri(path: Path, protocol: str) -> str:
@@ -737,3 +789,103 @@ def test_print_warning_if_non_matching_path_is_passed(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
     assert "Collected 0 tasks" in result.output
     assert "Warning: The path" in result.output
+
+
+@pytest.mark.parametrize("introduce_collision", [True, False])
+def test_validate_task_signatures_after_hook_wrapper(
+    tmp_path, monkeypatch, introduce_collision
+):
+    class Plugin:
+        @hookimpl(wrapper=True)
+        def pytask_collect_modify_tasks(self, tasks):
+            result = yield
+            tasks[1].name = "first" if introduce_collision else "second"
+            return result
+
+    pm = get_plugin_manager()
+    pm.register(Plugin())
+    monkeypatch.setattr("_pytask.build.get_plugin_manager", lambda: pm)
+    calls = []
+    tasks = [
+        TaskWithoutPath(name="first", function=lambda: calls.append("first")),
+        TaskWithoutPath(
+            name="second" if introduce_collision else "first",
+            function=lambda: calls.append("second"),
+        ),
+    ]
+
+    session = build(tasks=tasks, paths=tmp_path, force=True)
+
+    if introduce_collision:
+        assert session.exit_code == ExitCode.COLLECTION_FAILED
+        assert not calls
+        assert any(
+            report.exc_info and "Conflicting task identities" in str(report.exc_info[1])
+            for report in session.collection_reports
+        )
+    else:
+        assert session.exit_code == ExitCode.OK
+        assert sorted(calls) == ["first", "second"]
+
+
+def test_duplicate_task_diagnostics_use_callable_source(tmp_path):
+    tasks = [
+        Task(base_name="duplicate", path=tmp_path / "task_other.py", function=noop),
+        Task(base_name="duplicate", path=tmp_path / "task_other.py", function=noop),
+    ]
+
+    with pytest.raises(ValueError, match="Conflicting task identities") as exc_info:
+        validate_unique_task_signatures(tasks)
+
+    message = str(exc_info.value)
+    assert "tests.conftest.noop" in message
+    assert f"{Path(__file__).with_name('conftest.py').as_posix()}:" in message
+    assert f"({tmp_path.as_posix()}/task_other.py:" not in message
+    assert "remove the duplicate registration" in message
+    assert "unique combination of 'path' and 'base_name'" in message
+    assert "changing the display name does not change task identity" in message
+
+
+def test_duplicate_task_diagnostics_without_source():
+    tasks = [TaskWithoutPath(name="duplicate", function=len) for _ in range(2)]
+
+    with pytest.raises(ValueError, match=r"builtins.len \(<unknown>\)"):
+        validate_unique_task_signatures(tasks)
+
+
+def test_unique_tasks_can_share_dependency(tmp_path):
+    dependency = tmp_path / "input.txt"
+    dependency.write_text("input")
+    calls = []
+    tasks = [
+        TaskWithoutPath(
+            name=name,
+            function=lambda path: calls.append(path.read_text()),
+            depends_on={"path": PathNode(path=dependency)},
+        )
+        for name in ("first", "second")
+    ]
+
+    session = build(tasks=tasks, paths=tmp_path, force=True)
+
+    assert session.exit_code == ExitCode.OK
+    assert calls == ["input", "input"]
+
+
+def test_custom_task_identity_conflict_guidance():
+    class CustomTask(TaskWithoutPath):
+        @property
+        def signature(self):
+            return "shared-custom-signature"
+
+    tasks = [CustomTask(name=name, function=noop) for name in ("first", "second")]
+
+    with pytest.raises(ValueError, match="Conflicting task identities") as exc_info:
+        validate_unique_task_signatures(tasks)
+
+    message = str(exc_info.value)
+    assert "Tasks sharing an identity: 'first', 'second'" in message
+    assert "shared-custom-signature" not in message
+    assert "'signature' implementation" in message
+    assert "distinct, stable value" in message
+    assert "These tasks have the same name" not in message

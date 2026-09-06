@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import textwrap
 
+import pytest
+
+from _pytask.pluginmanager import get_plugin_manager
 from pytask import ExitCode
 from pytask import TaskOutcome
 from pytask import build
 from pytask import cli
+from pytask import hookimpl
 
 
 def test_task_that_produces_provisional_path_node(tmp_path):
@@ -280,3 +284,51 @@ def test_root_dir_is_created(runner, tmp_path):
     assert result.exit_code == ExitCode.OK
     assert tmp_path.joinpath("subfolder", "a.txt").exists()
     assert tmp_path.joinpath("subfolder", "b.txt").exists()
+
+
+@pytest.mark.parametrize("collision_in_wrapper", [False, True])
+def test_generated_task_identity_conflict_stops_before_dag_rebuild(
+    tmp_path, monkeypatch, collision_in_wrapper
+):
+    source = """
+    from pathlib import Path
+    from pytask import task, mark
+
+    def task_existing():
+        Path(__file__).with_name("existing-ran").touch()
+
+    @mark.try_first
+    @task(is_generator=True)
+    def task_generator():
+        @task(name=GENERATED_NAME)
+        def generated():
+            Path(__file__).with_name("generated-ran").touch()
+    """
+    generated_name = "task_generated" if collision_in_wrapper else "task_existing"
+    source = source.replace("GENERATED_NAME", repr(generated_name))
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    class Plugin:
+        @hookimpl(wrapper=True)
+        def pytask_collect_modify_tasks(self, tasks):
+            result = yield
+            for task in tasks:
+                if task.base_name == "task_generated":
+                    task.base_name = "task_existing"
+            return result
+
+    pm = get_plugin_manager()
+    pm.register(Plugin())
+    monkeypatch.setattr("_pytask.build.get_plugin_manager", lambda: pm)
+    session = build(paths=tmp_path, force=True)
+
+    assert session.exit_code == ExitCode.FAILED
+    assert session.should_stop
+    assert not tmp_path.joinpath("existing-ran").exists()
+    assert not tmp_path.joinpath("generated-ran").exists()
+    assert any(
+        report.exc_info and "Conflicting task identities" in str(report.exc_info[1])
+        for report in session.execution_reports
+    )
+    assert len(session.tasks) == 3
+    assert len(session.dag.nodes) == 2
