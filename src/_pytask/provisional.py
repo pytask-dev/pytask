@@ -2,26 +2,24 @@
 
 from __future__ import annotations
 
-import inspect
 from typing import TYPE_CHECKING
 from typing import Any
 
 from _pytask.config import hookimpl
 from _pytask.dag import create_dag_from_session
 from _pytask.exceptions import CollectionError
-from _pytask.exceptions import NodeLoadError
-from _pytask.node_protocols import PNode
-from _pytask.node_protocols import PProvisionalNode
+from _pytask.execute_utils import execute_task
+from _pytask.execute_utils import save_return_products
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.outcomes import CollectionOutcome
+from _pytask.outcomes import WouldBeExecuted
 from _pytask.provisional_utils import TASKS_WITH_PROVISIONAL_NODES
 from _pytask.provisional_utils import collect_provisional_nodes
 from _pytask.provisional_utils import recreate_dag
 from _pytask.task_utils import COLLECTED_TASKS
 from _pytask.task_utils import parse_collected_tasks_with_task_marker
 from _pytask.task_utils import validate_unique_task_signatures
-from _pytask.tree_util import tree_map
 from _pytask.tree_util import tree_map_with_path
 from _pytask.typing import is_task_generator
 from pytask import TaskOutcome
@@ -50,30 +48,13 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:
         recreate_dag(session, task)
 
 
-def _safe_load(node: PNode | PProvisionalNode, task: PTask, is_product: bool) -> Any:
-    try:
-        return node.load(is_product=is_product)
-    except Exception as e:
-        msg = f"Exception while loading node {node.name!r} of task {task.name!r}"
-        raise NodeLoadError(msg) from e
-
-
 @hookimpl
 def pytask_execute_task(session: Session, task: PTask) -> bool | None:
     """Execute task generators and collect the tasks."""
     if not is_task_generator(task):
         return None
 
-    kwargs = {}
-    for name, value in task.depends_on.items():
-        kwargs[name] = tree_map(lambda x: _safe_load(x, task, False), value)
-
-    parameters = inspect.signature(task.function).parameters
-    for name, value in task.produces.items():
-        if name in parameters:
-            kwargs[name] = tree_map(lambda x: _safe_load(x, task, True), value)
-
-    task.execute(**kwargs)
+    out = execute_task(task)
 
     name_to_function: Mapping[str, Callable[..., Any] | PTask]
     if isinstance(task, PTaskWithPath) and task.path in COLLECTED_TASKS:
@@ -112,6 +93,10 @@ def pytask_execute_task(session: Session, task: PTask) -> bool | None:
         and isinstance(report.node, PTask)
     ]
     _commit_generated_tasks(session, generated_tasks)
+    # Generators must run to discover tasks even in simulation modes.
+    if session.config["dry_run"] or session.config["explain"]:
+        raise WouldBeExecuted
+    save_return_products(task, out)
     return True
 
 
@@ -144,8 +129,9 @@ def _commit_generated_tasks(session: Session, generated_tasks: list[PTask]) -> N
             session.scheduler.rebuild(dag) if session.scheduler is not None else None
         )
     except BaseException:
-        # Keep the collected tasks available for diagnostics, but do not replace the
-        # existing DAG or scheduler after a failed validation or collection hook.
+        # Rejected children remain available in collection_reports for diagnostics.
+        # This restores list membership, not arbitrary plugin mutations to tasks.
+        session.tasks = previous_tasks
         session.should_stop = True
         raise
 

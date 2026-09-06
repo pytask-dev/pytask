@@ -417,5 +417,120 @@ def test_generated_task_identity_conflict_stops_before_dag_rebuild(
         report.exc_info and "Conflicting task identities" in str(report.exc_info[1])
         for report in session.execution_reports
     )
-    assert len(session.tasks) == 3
+    assert len(session.tasks) == 2
+    assert len(session.collection_reports) == 3
     assert len(session.dag.nodes) == 2
+
+
+@pytest.mark.parametrize("mode", ["build", "dry_run", "explain"])
+def test_generator_return_products(tmp_path, mode):
+    source = """
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    @task(is_generator=True)
+    def task_generator() -> Annotated[str, Path(__file__).with_name("returned.txt")]:
+        counter = Path(__file__).with_name("counter.txt")
+        count = int(counter.read_text()) if counter.exists() else 0
+        counter.write_text(str(count + 1))
+
+        @task
+        def task_child():
+            pass
+
+        return "value"
+
+    def task_consumer(
+        path=Path(__file__).with_name("returned.txt"),
+        produces=Path(__file__).with_name("copied.txt"),
+    ):
+        produces.write_text(path.read_text())
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path, **({mode: True} if mode != "build" else {}))
+
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("counter.txt").read_text() == "1"
+    assert len(session.execution_reports) == 3
+    if mode == "build":
+        assert tmp_path.joinpath("returned.txt").read_text() == "value"
+        assert tmp_path.joinpath("copied.txt").read_text() == "value"
+        assert all(r.outcome == TaskOutcome.SUCCESS for r in session.execution_reports)
+    else:
+        assert not tmp_path.joinpath("returned.txt").exists()
+        assert not tmp_path.joinpath("copied.txt").exists()
+        assert all(
+            r.outcome == TaskOutcome.WOULD_BE_EXECUTED
+            for r in session.execution_reports
+        )
+
+
+def test_generator_invalid_return_structure(tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    @task(is_generator=True)
+    def task_generator() -> Annotated[
+        tuple[str, str], (Path("a.txt"), Path("b.txt"))
+    ]:
+        @task
+        def task_child():
+            pass
+
+        return "invalid"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.FAILED
+    failures = [r for r in session.execution_reports if r.outcome == TaskOutcome.FAIL]
+    assert len(failures) == 1
+    assert failures[0].exc_info is not None
+    assert "structure of the return annotation" in str(failures[0].exc_info[1])
+    assert not tmp_path.joinpath("a.txt").exists()
+    assert not tmp_path.joinpath("b.txt").exists()
+
+
+def test_generator_failed_dag_rebuild_restores_execution_state(tmp_path, monkeypatch):
+    source = """
+    from pathlib import Path
+    from pytask import task
+
+    @task(is_generator=True)
+    def task_generator(produces=Path(__file__).with_name("same.txt")):
+        @task
+        def task_child(produces=Path(__file__).with_name("same.txt")):
+            produces.write_text("child")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    previous = {}
+
+    class Plugin:
+        @hookimpl
+        def pytask_execute_task(self, session):
+            previous.update(
+                tasks=session.tasks, dag=session.dag, scheduler=session.scheduler
+            )
+
+    pm = get_plugin_manager()
+    pm.register(Plugin())
+    monkeypatch.setattr("_pytask.build.get_plugin_manager", lambda: pm)
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.FAILED
+    assert session.should_stop
+    assert session.tasks is previous["tasks"]
+    assert session.dag is previous["dag"]
+    assert session.scheduler is previous["scheduler"]
+    assert len(session.tasks) == 1
+    assert len(session.collection_reports) == 2
+    assert any(
+        r.exc_info and "same output" in str(r.exc_info[1])
+        for r in session.execution_reports
+    )
