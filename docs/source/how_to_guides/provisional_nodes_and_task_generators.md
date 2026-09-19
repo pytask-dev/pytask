@@ -98,4 +98,3 @@ content to a `.txt` file.
 
 Task generators are only used to define other tasks. Their return values are ignored
 and cannot be used to define products. Define products on the generated tasks instead.
-A `return` statement without a value can still be used for ordinary control flow.
