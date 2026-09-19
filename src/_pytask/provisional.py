@@ -9,7 +9,6 @@ from _pytask.config import hookimpl
 from _pytask.dag import create_dag_from_session
 from _pytask.exceptions import CollectionError
 from _pytask.execute_utils import execute_task
-from _pytask.execute_utils import save_return_products
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
 from _pytask.outcomes import CollectionOutcome
@@ -54,7 +53,7 @@ def pytask_execute_task(session: Session, task: PTask) -> bool | None:
     if not is_task_generator(task):
         return None
 
-    out = execute_task(task)
+    execute_task(task)
 
     name_to_function: Mapping[str, Callable[..., Any] | PTask]
     if isinstance(task, PTaskWithPath) and task.path in COLLECTED_TASKS:
@@ -96,7 +95,6 @@ def pytask_execute_task(session: Session, task: PTask) -> bool | None:
     # Generators must run to discover tasks even in simulation modes.
     if session.config["dry_run"] or session.config["explain"]:
         raise WouldBeExecuted
-    save_return_products(task, out)
     return True
 
 

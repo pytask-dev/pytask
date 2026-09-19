@@ -225,7 +225,7 @@ def test_task_generator_executes_once(tmp_path):
     assert len(session.execution_reports) == 2
 
 
-def test_task_generator_return_value_is_ignored(runner, tmp_path):
+def test_task_generator_return_value_is_ignored(tmp_path):
     source = """
     from pathlib import Path
     from typing import Annotated
@@ -243,11 +243,15 @@ def test_task_generator_return_value_is_ignored(runner, tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    result = runner.invoke(cli, [tmp_path.as_posix()])
+    session = build(paths=tmp_path)
+    generator = next(
+        task for task in session.tasks if task.name.endswith("task_generator")
+    )
 
-    assert result.exit_code == ExitCode.OK
+    assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("child.txt").read_text() == "child"
     assert not tmp_path.joinpath("returned.txt").exists()
+    assert "return" not in generator.produces
 
 
 def test_failed_generated_task_collection_is_atomic(tmp_path):
@@ -448,7 +452,7 @@ def test_generated_task_identity_conflict_stops_before_dag_rebuild(
 
 
 @pytest.mark.parametrize("mode", ["build", "dry_run", "explain"])
-def test_generator_return_products(tmp_path, mode):
+def test_generator_return_annotation_is_ignored(tmp_path, mode):
     source = """
     from pathlib import Path
     from typing import Annotated
@@ -461,38 +465,62 @@ def test_generator_return_products(tmp_path, mode):
         counter.write_text(str(count + 1))
 
         @task
-        def task_child():
-            pass
+        def task_child(produces=Path(__file__).with_name("child.txt")):
+            produces.write_text("child")
 
         return "value"
-
-    def task_consumer(
-        path=Path(__file__).with_name("returned.txt"),
-        produces=Path(__file__).with_name("copied.txt"),
-    ):
-        produces.write_text(path.read_text())
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
     session = build(paths=tmp_path, **({mode: True} if mode != "build" else {}))
+    generator = next(
+        task for task in session.tasks if task.name.endswith("task_generator")
+    )
 
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("counter.txt").read_text() == "1"
-    assert len(session.execution_reports) == 3
+    assert len(session.execution_reports) == 2
+    assert "return" not in generator.produces
     if mode == "build":
-        assert tmp_path.joinpath("returned.txt").read_text() == "value"
-        assert tmp_path.joinpath("copied.txt").read_text() == "value"
+        assert tmp_path.joinpath("child.txt").read_text() == "child"
+        assert not tmp_path.joinpath("returned.txt").exists()
         assert all(r.outcome == TaskOutcome.SUCCESS for r in session.execution_reports)
     else:
         assert not tmp_path.joinpath("returned.txt").exists()
-        assert not tmp_path.joinpath("copied.txt").exists()
+        assert not tmp_path.joinpath("child.txt").exists()
         assert all(
             r.outcome == TaskOutcome.WOULD_BE_EXECUTED
             for r in session.execution_reports
         )
 
 
-def test_generator_invalid_return_structure(tmp_path):
+def test_generator_task_decorator_return_product_is_ignored(tmp_path):
+    source = """
+    from pathlib import Path
+    from pytask import task
+
+    @task(is_generator=True, produces=Path("returned.txt"))
+    def task_generator():
+        @task
+        def task_child(produces=Path("child.txt")):
+            produces.write_text("child")
+
+        return "ignored"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+    generator = next(
+        task for task in session.tasks if task.name.endswith("task_generator")
+    )
+
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("child.txt").read_text() == "child"
+    assert not tmp_path.joinpath("returned.txt").exists()
+    assert "return" not in generator.produces
+
+
+def test_generator_invalid_return_structure_is_ignored(tmp_path):
     source = """
     from pathlib import Path
     from typing import Annotated
@@ -503,8 +531,8 @@ def test_generator_invalid_return_structure(tmp_path):
         tuple[str, str], (Path("a.txt"), Path("b.txt"))
     ]:
         @task
-        def task_child():
-            pass
+        def task_child(produces=Path("child.txt")):
+            produces.write_text("child")
 
         return "invalid"
     """
@@ -512,11 +540,8 @@ def test_generator_invalid_return_structure(tmp_path):
 
     session = build(paths=tmp_path)
 
-    assert session.exit_code == ExitCode.FAILED
-    failures = [r for r in session.execution_reports if r.outcome == TaskOutcome.FAIL]
-    assert len(failures) == 1
-    assert failures[0].exc_info is not None
-    assert "structure of the return annotation" in str(failures[0].exc_info[1])
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("child.txt").read_text() == "child"
     assert not tmp_path.joinpath("a.txt").exists()
     assert not tmp_path.joinpath("b.txt").exists()
 
