@@ -58,7 +58,7 @@ class Traceback:
     def __rich_console__(
         self, console: Console, console_options: ConsoleOptions
     ) -> RenderResult:
-        if self.exc_info and isinstance(self.exc_info[1], Exit):
+        if isinstance(self.exc_info[1], Exit):
             self.exc_info = remove_traceback_from_exc_info(self.exc_info)
 
         filtered_exc_info = _remove_internal_traceback_frames_from_exc_info(
