@@ -197,6 +197,31 @@ def test_provisional_task_generation(runner, tmp_path):
     assert tmp_path.joinpath("b-copy.txt").exists()
 
 
+def test_task_generator_return_value_is_ignored(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    @task(is_generator=True)
+    def task_generator() -> Annotated[
+        str, Path("returned.txt")
+    ]:
+        @task
+        def task_child(produces=Path("child.txt")):
+            produces.write_text("child")
+
+        return "ignored"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("child.txt").read_text() == "child"
+    assert not tmp_path.joinpath("returned.txt").exists()
+
+
 def test_gracefully_fail_when_task_generator_raises_error(runner, tmp_path):
     source = """
     from typing import Annotated
