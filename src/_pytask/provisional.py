@@ -57,7 +57,7 @@ def _safe_load(node: PNode | PProvisionalNode, task: PTask, is_product: bool) ->
 
 
 @hookimpl
-def pytask_execute_task(session: Session, task: PTask) -> None:
+def pytask_execute_task(session: Session, task: PTask) -> bool | None:
     """Execute task generators and collect the tasks."""
     if is_task_generator(task):
         kwargs = {}
@@ -114,9 +114,12 @@ def pytask_execute_task(session: Session, task: PTask) -> None:
             )
             session.execution_reports.append(exec_report)
             session.should_stop = True
-            return
+            return None
 
         recreate_dag(session, task)
+        return True
+
+    return None
 
 
 @hookimpl
