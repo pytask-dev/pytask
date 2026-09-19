@@ -95,3 +95,6 @@ content to a `.txt` file.
 !!! important
 
     The generated tasks need to be decorated with `@task` to be collected.
+
+Task generators are only used to define other tasks. Their return values are ignored
+and cannot be used to define products. Define products on the generated tasks instead.

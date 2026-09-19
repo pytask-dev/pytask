@@ -7,6 +7,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#995](https://github.com/pytask-dev/pytask/pull/995) documents that return values
+  from task generators are ignored and adds a regression test for this behavior.
 - [#977](https://github.com/pytask-dev/pytask/pull/977) allows marker expressions
   passed to `-m` to select tasks by marker keyword arguments.
 - [#976](https://github.com/pytask-dev/pytask/pull/976) makes invalid marker and
