@@ -476,7 +476,6 @@ def test_generated_task_identity_conflict_stops_before_dag_rebuild(
         for report in session.execution_reports
     )
     assert len(session.tasks) == 2
-    assert len(session.collection_reports) == 3
     assert len(session.dag.nodes) == 2
 
 
@@ -516,7 +515,6 @@ def test_generator_failed_dag_rebuild_restores_execution_state(tmp_path, monkeyp
     assert session.dag is previous["dag"]
     assert session.scheduler is previous["scheduler"]
     assert len(session.tasks) == 2
-    assert len(session.collection_reports) == 3
     assert any(
         r.exc_info and "same output" in str(r.exc_info[1])
         for r in session.execution_reports

@@ -22,7 +22,6 @@ from _pytask.dag_utils import node_and_neighbors
 from _pytask.exceptions import ExecutionError
 from _pytask.exceptions import NodeNotFoundError
 from _pytask.execute_utils import execute_task
-from _pytask.execute_utils import save_return_products
 from _pytask.explain import ChangeReason
 from _pytask.explain import NodeType
 from _pytask.explain import ReasonType
@@ -49,6 +48,7 @@ from _pytask.state import has_node_changed
 from _pytask.state import update_states
 from _pytask.traceback import remove_traceback_from_exc_info
 from _pytask.tree_util import tree_leaves
+from _pytask.tree_util import tree_structure
 from _pytask.typing import is_task_generator
 
 if TYPE_CHECKING:
@@ -266,7 +266,26 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
         raise WouldBeExecuted
 
     out = execute_task(task)
-    save_return_products(task, out)
+
+    if "return" in task.produces:
+        structure_out = tree_structure(out)
+        structure_return = tree_structure(task.produces["return"])
+
+        # strict must be false when none is leaf.
+        if not structure_return.is_prefix(structure_out, strict=False):
+            msg = (
+                f"The structure of the return annotation is not a subtree of the "
+                f"structure of the function return.\n\nFunction return: {structure_out}"
+                f"\n\nReturn annotation: {structure_return}"
+            )
+            raise ValueError(msg)
+
+        nodes = tree_leaves(task.produces["return"])
+        values = structure_return.flatten_up_to(out)
+        for node, value in zip(nodes, values, strict=False):
+            if not isinstance(node, PProvisionalNode):
+                node.save(value)
+
     return True
 
 
