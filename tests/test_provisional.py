@@ -204,11 +204,10 @@ def test_task_generator_executes_once(tmp_path):
     from pytask import task
 
     @task(is_generator=True)
-    def task_generator(produces=Path(__file__).parent / "generator.txt"):
+    def task_generator():
         counter = Path(__file__).parent / "counter.txt"
         count = int(counter.read_text()) if counter.exists() else 0
         counter.write_text(str(count + 1))
-        produces.write_text("generator")
 
         @task
         def task_generated(produces=Path(__file__).parent / "generated.txt"):
@@ -225,7 +224,7 @@ def test_task_generator_executes_once(tmp_path):
     assert len(session.execution_reports) == 2
 
 
-def test_task_generator_return_value_is_ignored(tmp_path):
+def test_task_generator_return_annotation_is_rejected(runner, tmp_path):
     source = """
     from pathlib import Path
     from typing import Annotated
@@ -235,6 +234,28 @@ def test_task_generator_return_value_is_ignored(tmp_path):
     def task_generator() -> Annotated[
         str, Path("returned.txt")
     ]:
+        @task
+        def task_child(produces=Path("child.txt")):
+            produces.write_text("child")
+
+        return "ignored"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "cannot define products" in result.output
+    assert "return annotation" in result.output
+
+
+def test_task_generator_decorator_return_product_is_ignored(tmp_path):
+    source = """
+    from pathlib import Path
+    from pytask import task
+
+    @task(is_generator=True, produces=Path("returned.txt"))
+    def task_generator():
         @task
         def task_child(produces=Path("child.txt")):
             produces.write_text("child")
@@ -261,11 +282,10 @@ def test_failed_generated_task_collection_is_atomic(tmp_path):
     from pytask import task
 
     @task(is_generator=True)
-    def task_generator(produces=Path(__file__).parent / "generator.txt"):
+    def task_generator():
         counter = Path(__file__).parent / "counter.txt"
         count = int(counter.read_text()) if counter.exists() else 0
         counter.write_text(str(count + 1))
-        produces.write_text("generator")
 
         @task
         def task_valid(produces=Path(__file__).parent / "valid.txt"):
@@ -274,12 +294,6 @@ def test_failed_generated_task_collection_is_atomic(tmp_path):
         @task
         def task_invalid() -> Annotated[int, 1]:
             return 1
-
-    def task_descendant(
-        path=Path(__file__).parent / "generator.txt",
-        produces=Path(__file__).parent / "descendant.txt",
-    ):
-        produces.write_text("descendant")
 
     def task_unrelated(produces=Path(__file__).parent / "unrelated.txt"):
         produces.write_text("unrelated")
@@ -291,15 +305,11 @@ def test_failed_generated_task_collection_is_atomic(tmp_path):
     assert session.exit_code == ExitCode.FAILED
     assert tmp_path.joinpath("counter.txt").read_text() == "1"
     assert not tmp_path.joinpath("valid.txt").exists()
-    assert not tmp_path.joinpath("descendant.txt").exists()
     assert tmp_path.joinpath("unrelated.txt").read_text() == "unrelated"
-    assert len(session.tasks) == 3
+    assert len(session.tasks) == 2
     assert [report.outcome for report in session.execution_reports].count(
         TaskOutcome.FAIL
     ) == 1
-    assert TaskOutcome.SKIP_PREVIOUS_FAILED in {
-        report.outcome for report in session.execution_reports
-    }
     generated_reports = [
         report
         for report in session.collection_reports
@@ -311,6 +321,25 @@ def test_failed_generated_task_collection_is_atomic(tmp_path):
         CollectionOutcome.SUCCESS,
         CollectionOutcome.FAIL,
     }
+
+
+def test_task_generator_cannot_define_products_with_argument(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from pytask import task
+
+    @task(is_generator=True)
+    def task_generator(produces=Path("generator.txt")):
+        @task
+        def task_child():
+            pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "cannot define products" in result.output
 
 
 def test_gracefully_fail_when_task_generator_raises_error(runner, tmp_path):
@@ -451,49 +480,6 @@ def test_generated_task_identity_conflict_stops_before_dag_rebuild(
     assert len(session.dag.nodes) == 2
 
 
-@pytest.mark.parametrize("mode", ["build", "dry_run", "explain"])
-def test_generator_return_annotation_is_ignored(tmp_path, mode):
-    source = """
-    from pathlib import Path
-    from typing import Annotated
-    from pytask import task
-
-    @task(is_generator=True)
-    def task_generator() -> Annotated[str, Path(__file__).with_name("returned.txt")]:
-        counter = Path(__file__).with_name("counter.txt")
-        count = int(counter.read_text()) if counter.exists() else 0
-        counter.write_text(str(count + 1))
-
-        @task
-        def task_child(produces=Path(__file__).with_name("child.txt")):
-            produces.write_text("child")
-
-        return "value"
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    session = build(paths=tmp_path, **({mode: True} if mode != "build" else {}))
-    generator = next(
-        task for task in session.tasks if task.name.endswith("task_generator")
-    )
-
-    assert session.exit_code == ExitCode.OK
-    assert tmp_path.joinpath("counter.txt").read_text() == "1"
-    assert len(session.execution_reports) == 2
-    assert "return" not in generator.produces
-    if mode == "build":
-        assert tmp_path.joinpath("child.txt").read_text() == "child"
-        assert not tmp_path.joinpath("returned.txt").exists()
-        assert all(r.outcome == TaskOutcome.SUCCESS for r in session.execution_reports)
-    else:
-        assert not tmp_path.joinpath("returned.txt").exists()
-        assert not tmp_path.joinpath("child.txt").exists()
-        assert all(
-            r.outcome == TaskOutcome.WOULD_BE_EXECUTED
-            for r in session.execution_reports
-        )
-
-
 def test_generator_task_decorator_return_product_is_ignored(tmp_path):
     source = """
     from pathlib import Path
@@ -520,39 +506,16 @@ def test_generator_task_decorator_return_product_is_ignored(tmp_path):
     assert "return" not in generator.produces
 
 
-def test_generator_invalid_return_structure_is_ignored(tmp_path):
-    source = """
-    from pathlib import Path
-    from typing import Annotated
-    from pytask import task
-
-    @task(is_generator=True)
-    def task_generator() -> Annotated[
-        tuple[str, str], (Path("a.txt"), Path("b.txt"))
-    ]:
-        @task
-        def task_child(produces=Path("child.txt")):
-            produces.write_text("child")
-
-        return "invalid"
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    session = build(paths=tmp_path)
-
-    assert session.exit_code == ExitCode.OK
-    assert tmp_path.joinpath("child.txt").read_text() == "child"
-    assert not tmp_path.joinpath("a.txt").exists()
-    assert not tmp_path.joinpath("b.txt").exists()
-
-
 def test_generator_failed_dag_rebuild_restores_execution_state(tmp_path, monkeypatch):
     source = """
     from pathlib import Path
     from pytask import task
 
+    def task_existing(produces=Path(__file__).with_name("same.txt")):
+        produces.write_text("existing")
+
     @task(is_generator=True)
-    def task_generator(produces=Path(__file__).with_name("same.txt")):
+    def task_generator():
         @task
         def task_child(produces=Path(__file__).with_name("same.txt")):
             produces.write_text("child")
@@ -578,8 +541,8 @@ def test_generator_failed_dag_rebuild_restores_execution_state(tmp_path, monkeyp
     assert session.tasks is previous["tasks"]
     assert session.dag is previous["dag"]
     assert session.scheduler is previous["scheduler"]
-    assert len(session.tasks) == 1
-    assert len(session.collection_reports) == 2
+    assert len(session.tasks) == 2
+    assert len(session.collection_reports) == 3
     assert any(
         r.exc_info and "same output" in str(r.exc_info[1])
         for r in session.execution_reports

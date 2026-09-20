@@ -156,8 +156,16 @@ def task_example() -> str:
 Read more about products in the documentation: http://tinyurl.com/pytask-return.
 """
 
+_ERROR_TASK_GENERATOR_PRODUCTS = """Task generators cannot define products with a
+'produces' function argument.
+"""
 
-def parse_products_from_task_function(
+_ERROR_TASK_GENERATOR_RETURN_ANNOTATION = """Task generators cannot define products
+with a return annotation.
+"""
+
+
+def parse_products_from_task_function(  # noqa: C901
     session: Session, task_path: Path | None, task_name: str, node_path: Path, obj: Any
 ) -> dict[str, Any]:
     """Parse products from task function.
@@ -183,7 +191,13 @@ def parse_products_from_task_function(
     parameters_with_product_annot = _find_args_with_product_annotation(obj)
     parameters_with_node_annot = _find_args_with_node_annotation(obj)
 
+    if is_generator and "produces" in parameters:
+        raise NodeNotCollectedError(_ERROR_TASK_GENERATOR_PRODUCTS)
+
     if is_generator:
+        if "return" in parameters_with_node_annot:
+            raise NodeNotCollectedError(_ERROR_TASK_GENERATOR_RETURN_ANNOTATION)
+
         parameters_with_product_annot = [
             name for name in parameters_with_product_annot if name != "return"
         ]
