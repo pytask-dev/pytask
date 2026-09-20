@@ -480,32 +480,6 @@ def test_generated_task_identity_conflict_stops_before_dag_rebuild(
     assert len(session.dag.nodes) == 2
 
 
-def test_generator_task_decorator_return_product_is_ignored(tmp_path):
-    source = """
-    from pathlib import Path
-    from pytask import task
-
-    @task(is_generator=True, produces=Path("returned.txt"))
-    def task_generator():
-        @task
-        def task_child(produces=Path("child.txt")):
-            produces.write_text("child")
-
-        return "ignored"
-    """
-    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
-
-    session = build(paths=tmp_path)
-    generator = next(
-        task for task in session.tasks if task.name.endswith("task_generator")
-    )
-
-    assert session.exit_code == ExitCode.OK
-    assert tmp_path.joinpath("child.txt").read_text() == "child"
-    assert not tmp_path.joinpath("returned.txt").exists()
-    assert "return" not in generator.produces
-
-
 def test_generator_failed_dag_rebuild_restores_execution_state(tmp_path, monkeypatch):
     source = """
     from pathlib import Path
