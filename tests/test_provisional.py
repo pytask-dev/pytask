@@ -5,6 +5,7 @@ import textwrap
 import pytest
 
 from _pytask.pluginmanager import get_plugin_manager
+from pytask import CollectionOutcome
 from pytask import ExitCode
 from pytask import TaskOutcome
 from pytask import build
@@ -197,6 +198,32 @@ def test_provisional_task_generation(runner, tmp_path):
     assert tmp_path.joinpath("b-copy.txt").exists()
 
 
+def test_task_generator_executes_once(tmp_path):
+    source = """
+    from pathlib import Path
+    from pytask import task
+
+    @task(is_generator=True)
+    def task_generator():
+        counter = Path(__file__).parent / "counter.txt"
+        count = int(counter.read_text()) if counter.exists() else 0
+        counter.write_text(str(count + 1))
+
+        @task
+        def task_generated(produces=Path(__file__).parent / "generated.txt"):
+            produces.write_text("generated")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("counter.txt").read_text() == "1"
+    assert tmp_path.joinpath("generated.txt").read_text() == "generated"
+    assert len(session.tasks) == 2
+    assert len(session.execution_reports) == 2
+
+
 def test_task_generator_return_annotation_is_rejected(runner, tmp_path):
     source = """
     from pathlib import Path
@@ -276,11 +303,59 @@ def test_task_generator_in_simulation_mode(tmp_path, mode):
     }
     assert session.exit_code == ExitCode.OK
     assert outcomes == {
-        "task_generator": TaskOutcome.SUCCESS,
+        "task_generator": TaskOutcome.WOULD_BE_EXECUTED,
         "task_generated": TaskOutcome.WOULD_BE_EXECUTED,
     }
     assert tmp_path.joinpath("counter.txt").read_text() == "1"
     assert not tmp_path.joinpath("generated.txt").exists()
+
+
+def test_failed_generated_task_collection_is_atomic(tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    @task(is_generator=True)
+    def task_generator():
+        counter = Path(__file__).parent / "counter.txt"
+        count = int(counter.read_text()) if counter.exists() else 0
+        counter.write_text(str(count + 1))
+
+        @task
+        def task_valid(produces=Path(__file__).parent / "valid.txt"):
+            produces.write_text("valid")
+
+        @task
+        def task_invalid() -> Annotated[int, 1]:
+            return 1
+
+    def task_unrelated(produces=Path(__file__).parent / "unrelated.txt"):
+        produces.write_text("unrelated")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.FAILED
+    assert tmp_path.joinpath("counter.txt").read_text() == "1"
+    assert not tmp_path.joinpath("valid.txt").exists()
+    assert tmp_path.joinpath("unrelated.txt").read_text() == "unrelated"
+    assert len(session.tasks) == 2
+    assert [report.outcome for report in session.execution_reports].count(
+        TaskOutcome.FAIL
+    ) == 1
+    generated_reports = [
+        report
+        for report in session.collection_reports
+        if report.node is not None
+        and report.node.name.endswith(("task_valid", "task_invalid"))
+    ]
+    assert len(generated_reports) == 2
+    assert {report.outcome for report in generated_reports} == {
+        CollectionOutcome.SUCCESS,
+        CollectionOutcome.FAIL,
+    }
 
 
 def test_task_generator_cannot_define_products_with_argument(runner, tmp_path):
@@ -435,5 +510,47 @@ def test_generated_task_identity_conflict_stops_before_dag_rebuild(
         report.exc_info and "Conflicting task identities" in str(report.exc_info[1])
         for report in session.execution_reports
     )
-    assert len(session.tasks) == 3
+    assert len(session.tasks) == 2
     assert len(session.dag.nodes) == 2
+
+
+def test_generator_failed_dag_rebuild_restores_execution_state(tmp_path, monkeypatch):
+    source = """
+    from pathlib import Path
+    from pytask import task
+
+    def task_existing(produces=Path(__file__).with_name("same.txt")):
+        produces.write_text("existing")
+
+    @task(is_generator=True)
+    def task_generator():
+        @task
+        def task_child(produces=Path(__file__).with_name("same.txt")):
+            produces.write_text("child")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    previous = {}
+
+    class Plugin:
+        @hookimpl
+        def pytask_execute_task(self, session):
+            previous.update(
+                tasks=session.tasks, dag=session.dag, scheduler=session.scheduler
+            )
+
+    pm = get_plugin_manager()
+    pm.register(Plugin())
+    monkeypatch.setattr("_pytask.build.get_plugin_manager", lambda: pm)
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.FAILED
+    assert session.should_stop
+    assert session.tasks is previous["tasks"]
+    assert session.dag is previous["dag"]
+    assert session.scheduler is previous["scheduler"]
+    assert len(session.tasks) == 2
+    assert any(
+        r.exc_info and "same output" in str(r.exc_info[1])
+        for r in session.execution_reports
+    )
