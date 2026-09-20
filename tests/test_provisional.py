@@ -197,7 +197,7 @@ def test_provisional_task_generation(runner, tmp_path):
     assert tmp_path.joinpath("b-copy.txt").exists()
 
 
-def test_task_generator_return_value_is_ignored(tmp_path):
+def test_task_generator_return_annotation_is_rejected(runner, tmp_path):
     source = """
     from pathlib import Path
     from typing import Annotated
@@ -215,15 +215,11 @@ def test_task_generator_return_value_is_ignored(tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    session = build(paths=tmp_path)
-    generator = next(
-        task for task in session.tasks if task.name.endswith("task_generator")
-    )
+    result = runner.invoke(cli, [tmp_path.as_posix()])
 
-    assert session.exit_code == ExitCode.OK
-    assert tmp_path.joinpath("child.txt").read_text() == "child"
-    assert not tmp_path.joinpath("returned.txt").exists()
-    assert "return" not in generator.produces
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "cannot define products" in result.output
+    assert "return annotation" in result.output
 
 
 def test_task_generator_decorator_return_product_is_ignored(tmp_path):
