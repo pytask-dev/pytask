@@ -275,6 +275,41 @@ def test_task_generator_decorator_return_product_is_ignored(tmp_path):
     assert "return" not in generator.produces
 
 
+@pytest.mark.parametrize("mode", ["dry_run", "explain"])
+def test_task_generator_in_simulation_mode(tmp_path, mode):
+    source = """
+    from pathlib import Path
+    from pytask import task
+
+    @task(is_generator=True)
+    def task_generator():
+        counter = Path(__file__).parent / "counter.txt"
+        count = int(counter.read_text()) if counter.exists() else 0
+        counter.write_text(str(count + 1))
+
+        @task
+        def task_generated(produces=Path(__file__).parent / "generated.txt"):
+            produces.write_text("generated")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(
+        paths=tmp_path, dry_run=mode == "dry_run", explain=mode == "explain"
+    )
+
+    outcomes = {
+        report.task.name.rsplit("::", maxsplit=1)[-1]: report.outcome
+        for report in session.execution_reports
+    }
+    assert session.exit_code == ExitCode.OK
+    assert outcomes == {
+        "task_generator": TaskOutcome.WOULD_BE_EXECUTED,
+        "task_generated": TaskOutcome.WOULD_BE_EXECUTED,
+    }
+    assert tmp_path.joinpath("counter.txt").read_text() == "1"
+    assert not tmp_path.joinpath("generated.txt").exists()
+
+
 def test_failed_generated_task_collection_is_atomic(tmp_path):
     source = """
     from pathlib import Path

@@ -7,6 +7,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#997](https://github.com/pytask-dev/pytask/pull/997) documents how task generators
+  behave in dry-run and explain modes and adds regression tests for both modes.
 - [#995](https://github.com/pytask-dev/pytask/pull/995) documents that return values
   from task generators are ignored and adds a regression test for this behavior.
 - [#996](https://github.com/pytask-dev/pytask/pull/996) raises collection errors when
