@@ -59,3 +59,28 @@ def test_passing_show_locals():
     assert traceback.show_locals is True
     # Also tests that the class variable has been reset.
     assert traceback._show_locals is False
+
+
+def test_render_traceback_preserves_implicit_exception_context():
+    def raise_inner():
+        msg = "inner"
+        raise ValueError(msg)
+
+    def raise_with_context():
+        try:
+            raise_inner()
+        except ValueError:
+            msg = "outer"
+            raise RuntimeError(msg)  # noqa: B904
+
+    with pytest.raises(RuntimeError) as exc_info:
+        raise_with_context()
+
+    exc = exc_info.value
+    assert exc.__context__ is not None
+    assert not exc.__suppress_context__
+
+    render_to_string(Traceback((type(exc), exc, exc.__traceback__)), console)
+
+    assert exc.__context__ is not None
+    assert not exc.__suppress_context__

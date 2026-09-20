@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import functools
+import importlib
 import re
 import textwrap
 import warnings
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
+from typing import Any
 from typing import NamedTuple
 from typing import cast
 
@@ -16,6 +18,7 @@ from _pytask.outcomes import Exit
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+    from collections.abc import Mapping
 
     from _pytask.node_protocols import PTask
     from _pytask.session import Session
@@ -23,6 +26,7 @@ if TYPE_CHECKING:
 
 __all__ = [
     "WarningReport",
+    "catch_configured_warnings",
     "catch_warnings_for_item",
     "parse_filterwarnings",
     "parse_warning_filter",
@@ -124,7 +128,7 @@ def _resolve_warning_category(category: str) -> type[Warning]:
         klass = category
     else:
         module, _, klass = category.rpartition(".")
-        m = __import__(module, None, None, [klass])
+        m = importlib.import_module(module)
     cat = getattr(m, klass)
     if not issubclass(cat, Warning):
         msg = f"{cat} is not a Warning subclass"
@@ -154,6 +158,18 @@ def parse_filterwarnings(x: str | list[str] | None) -> list[str]:
 
 
 @contextmanager
+def catch_configured_warnings(
+    config: Mapping[str, Any], *, record: bool
+) -> Generator[list[warnings.WarningMessage] | None, None, None]:
+    """Apply configured warning filters in a warnings-catching context."""
+    with warnings.catch_warnings(record=record) as log:
+        for arg in parse_filterwarnings(config.get("filterwarnings")):
+            warnings.filterwarnings(*parse_warning_filter(arg, escape=False))
+
+        yield log
+
+
+@contextmanager
 def catch_warnings_for_item(
     session: Session,
     task: PTask | None = None,
@@ -164,12 +180,8 @@ def catch_warnings_for_item(
     ``item`` can be None if we are not in the context of an item execution.
 
     """
-    with warnings.catch_warnings(record=True) as log:
-        # mypy can't infer that record=True means log is not None; help it.
+    with catch_configured_warnings(session.config, record=True) as log:
         assert log is not None
-
-        for arg in session.config["filterwarnings"]:
-            warnings.filterwarnings(*parse_warning_filter(arg, escape=False))
 
         # apply filters from "filterwarnings" marks
         if task is not None:

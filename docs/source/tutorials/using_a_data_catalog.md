@@ -46,7 +46,7 @@ my_project
 At first, we define the data catalog in `config.py`.
 
 ```py title="config.py"
---8<-- "docs_src/tutorials/using_a_data_catalog_1.py"
+--8 < --"docs_src/tutorials/using_a_data_catalog_1.py"
 ```
 
 ## `task_create_random_data`
@@ -62,13 +62,13 @@ products of our tasks. Here we see again the signature of the task function.
 === "Annotated"
 
     ```py hl_lines="12" title="task_data_preparation.py"
-    --8<-- "docs_src/tutorials/defining_dependencies_products_products_py310.py"
+    --8 < --"docs_src/tutorials/defining_dependencies_products_products_py310.py"
     ```
 
 === "produces"
 
     ```py hl_lines="8" title="task_data_preparation.py"
-    --8<-- "docs_src/tutorials/defining_dependencies_products_products_produces.py"
+    --8 < --"docs_src/tutorials/defining_dependencies_products_products_produces.py"
     ```
 
 When we want to use the data catalog, we replace `BLD / "data.pkl"` with an entry of the
@@ -92,7 +92,7 @@ The following tabs show you how to use the data catalog given the interface you 
     [`pytask.PNode.save`](../reference_guides/api/nodes_and_tasks.md#pytask.PNode.save).
 
     ```py hl_lines="11 22" title="task_data_preparation.py"
-    --8<-- "docs_src/tutorials/using_a_data_catalog_2_py310.py"
+    --8 < --"docs_src/tutorials/using_a_data_catalog_2_py310.py"
     ```
 
 === "produces"
@@ -103,7 +103,7 @@ The following tabs show you how to use the data catalog given the interface you 
     [`pytask.PNode.save`](../reference_guides/api/nodes_and_tasks.md#pytask.PNode.save).
 
     ```py hl_lines="7 17" title="task_data_preparation.py"
-    --8<-- "docs_src/tutorials/using_a_data_catalog_2_produces.py"
+    --8 < --"docs_src/tutorials/using_a_data_catalog_2_produces.py"
     ```
 
 === "Annotated & Return"
@@ -117,7 +117,7 @@ The following tabs show you how to use the data catalog given the interface you 
     [Using task returns](../how_to_guides/using_task_returns.md).
 
     ```py hl_lines="8 17" title="task_data_preparation.py"
-    --8<-- "docs_src/tutorials/using_a_data_catalog_2_py310_return.py"
+    --8 < --"docs_src/tutorials/using_a_data_catalog_2_py310_return.py"
     ```
 
 ## `task_plot_data`
@@ -128,7 +128,7 @@ Following one of the interfaces gives you immediate access to the
 it.
 
 ```py hl_lines="13" title="task_plot_data.py"
---8<-- "docs_src/tutorials/using_a_data_catalog_3_py310.py"
+--8 < --"docs_src/tutorials/using_a_data_catalog_3_py310.py"
 ```
 
 Finally, let's execute the two tasks.
@@ -171,7 +171,7 @@ We can use a relative or an absolute path to define the location of the file. A 
 path means the location is relative to the module of the data catalog.
 
 ```py title="config.py"
---8<-- "docs_src/tutorials/using_a_data_catalog_4.py"
+--8 < --"docs_src/tutorials/using_a_data_catalog_4.py"
 ```
 
 You can now use the data catalog as in the previous example and use the
@@ -191,13 +191,13 @@ You can now use the data catalog as in the previous example and use the
 === "Annotated"
 
     ```py hl_lines="12 13" title="task_data_preparation.py"
-    --8<-- "docs_src/tutorials/using_a_data_catalog_5_py310.py"
+    --8 < --"docs_src/tutorials/using_a_data_catalog_5_py310.py"
     ```
 
 === "Annotated & Return"
 
     ```py hl_lines="9 10" title="task_data_preparation.py"
-    --8<-- "docs_src/tutorials/using_a_data_catalog_5_py310_return.py"
+    --8 < --"docs_src/tutorials/using_a_data_catalog_5_py310_return.py"
     ```
 
 ## Developing with the `DataCatalog`

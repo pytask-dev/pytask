@@ -200,6 +200,10 @@ def import_path(path: Path, root: Path) -> ModuleType:
         msg = f"Can't find module {module_name!r} at location {path}."
         raise ImportError(msg)
 
+    if spec.loader is None:
+        msg = f"Can't load module {module_name!r} at location {path}."
+        raise ImportError(msg)
+
     mod = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = mod
     spec.loader.exec_module(mod)

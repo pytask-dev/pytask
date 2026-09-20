@@ -17,7 +17,7 @@ specifications to analyze the datasets like in the following example. The task a
 are derived from the dimensions.
 
 ```py
---8<-- "docs_src/how_to_guides/bp_complex_task_repetitions/example.py"
+--8 < --"docs_src/how_to_guides/bp_complex_task_repetitions/example.py"
 ```
 
 There is nothing wrong with using nested loops for simpler projects. But, often projects
@@ -47,7 +47,7 @@ to not be bothered with defining paths.
     [how-to guide](the_data_catalog.md).
 
 ```py
---8<-- "docs_src/how_to_guides/bp_complex_task_repetitions/config.py"
+--8 < --"docs_src/how_to_guides/bp_complex_task_repetitions/config.py"
 ```
 
 There are some things to be said.
@@ -62,7 +62,7 @@ Next, we will use these newly defined data structures and see how our tasks chan
 we use them.
 
 ```py
---8<-- "docs_src/how_to_guides/bp_complex_task_repetitions/example_improved.py"
+--8 < --"docs_src/how_to_guides/bp_complex_task_repetitions/example_improved.py"
 ```
 
 As you see, we lost a level of indentation and we moved all the generations of names and

@@ -99,9 +99,21 @@ def pytask_parse_config(config: dict[str, Any]) -> None:
     config["show_capture"] = convert_to_enum(config["show_capture"], ShowCapture)
 
 
+def _readline_workaround() -> None:
+    """Import readline before it can attach to redirected standard streams.
+
+    GNU readline is not affected, but libedit can retain the file descriptors that are
+    active when it is first imported. Importing it before capture starts keeps
+    interactive input and debugging responsive on affected Python installations.
+    """
+    with contextlib.suppress(ImportError):
+        import readline  # noqa: F401, PLC0415
+
+
 @hookimpl
 def pytask_post_parse(config: dict[str, Any]) -> None:
     """Initialize the CaptureManager."""
+    _readline_workaround()
     pluginmanager = config["pm"]
     capman = CaptureManager(config["capture"])
     pluginmanager.register(capman, "capturemanager")
@@ -219,7 +231,7 @@ class DontReadFromInput(TextIO):
         msg = "Cannot truncate stdin."
         raise UnsupportedOperation(msg)
 
-    def write(self, data: str) -> int:  # noqa: ARG002  # ty: ignore[invalid-method-override]
+    def write(self, data: str) -> int:  # noqa: ARG002
         msg = "Cannot write to stdin."
         raise UnsupportedOperation(msg)
 
@@ -549,6 +561,9 @@ class FDCaptureBinary(FDCaptureBase[bytes]):
 
     def snap(self) -> bytes:
         self._assert_state("snap", ("started", "suspended"))
+        # Avoid seek/read/truncate in the common case of no output.
+        if os.fstat(self.tmpfile.fileno()).st_size == 0:
+            return self.EMPTY_BUFFER
         self.tmpfile.seek(0)
         res = self.tmpfile.buffer.read()
         self.tmpfile.seek(0)
@@ -572,6 +587,9 @@ class FDCapture(FDCaptureBase[str]):
 
     def snap(self) -> str:
         self._assert_state("snap", ("started", "suspended"))
+        # Avoid seek/read/truncate in the common case of no output.
+        if os.fstat(self.tmpfile.fileno()).st_size == 0:
+            return self.EMPTY_BUFFER
         self.tmpfile.seek(0)
         res = self.tmpfile.read()
         self.tmpfile.seek(0)
@@ -763,7 +781,11 @@ class CaptureManager:
 
     def stop_capturing(self) -> None:
         if self._capturing is not None:
-            self._capturing.pop_outerr_to_orig()
+            if self._method == CaptureMethod.TEE_SYS:
+                # TeeCaptureIO already forwarded the output to the original streams.
+                self._capturing.readouterr()
+            else:
+                self._capturing.pop_outerr_to_orig()
             self._capturing.stop_capturing()
             self._capturing = None
 

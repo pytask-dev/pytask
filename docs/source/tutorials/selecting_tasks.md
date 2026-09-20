@@ -31,6 +31,26 @@ analysis.
 $ pytask -m "(data_management and not plots) or (analysis and plots)"
 ```
 
+Markers can also store metadata in keyword arguments. For example, the following marker
+records the data and model used by a prediction task.
+
+```python
+@pytask.mark.prediction(data="customer_churn", model="random_forest")
+def task_create_predictions():
+    pass
+```
+
+Pass keyword arguments in a marker expression to select tasks by this metadata.
+
+```console
+$ pytask -m 'prediction(data="customer_churn", model="random_forest")'
+```
+
+A task matches if one marker with the requested name contains all keyword arguments in
+the expression. The marker can contain additional keyword arguments. Marker expressions
+support unescaped strings, positive and negative integers, `True`, `False`, and `None`.
+Keyword arguments are only supported in marker expressions passed to `-m`.
+
 If you create your markers, use the
 [`pytask markers`](../reference_guides/commands.md#pytask-markers) command to register
 and document them.

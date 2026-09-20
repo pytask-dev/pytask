@@ -1,3 +1,6 @@
+[windows]
+set shell := ["powershell.exe", "-Command"]
+
 # Install all dependencies
 install:
     uv sync --all-groups

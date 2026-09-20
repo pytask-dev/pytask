@@ -120,6 +120,7 @@ select = ["ALL"]
 ignore = [
     "ANN401", # flake8-annotate typing.Any
     "COM812", # Comply with ruff-format.
+    "CPY001", # Missing copyright notice at top of file.
     "ISC001", # Comply with ruff-format.
     "FBT",
     "S101",   # raise errors for asserts.

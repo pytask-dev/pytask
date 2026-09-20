@@ -12,6 +12,7 @@ from _pytask.pluginmanager import hookimpl
 from _pytask.shared import parse_markers
 from _pytask.shared import parse_paths
 from _pytask.shared import to_list
+from _pytask.warnings_utils import catch_configured_warnings
 
 if TYPE_CHECKING:
     from pluggy import PluginManager
@@ -73,8 +74,13 @@ def pytask_configure(pm: PluginManager, raw_config: dict[str, Any]) -> dict[str,
     config = {"pm": pm, "markers": {}} | raw_config
     config["markers"] = parse_markers(markers)
 
-    pm.hook.pytask_parse_config(config=config)
-    pm.hook.pytask_post_parse(config=config)
+    with catch_configured_warnings(config, record=False):
+        pm.hook.pytask_parse_config(config=config)
+
+    # Start a new context so filters normalized during parsing apply to post-parse
+    # hooks.
+    with catch_configured_warnings(config, record=False):
+        pm.hook.pytask_post_parse(config=config)
 
     return config
 

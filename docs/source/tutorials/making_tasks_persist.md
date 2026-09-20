@@ -32,7 +32,7 @@ To create a persisting task, apply the correct decorator, and, et voilà, it is 
 First, we create a task and its dependency.
 
 ```py
---8<-- "docs_src/tutorials/making_tasks_persist.py"
+--8 < --"docs_src/tutorials/making_tasks_persist.py"
 ```
 
 ```md title="input.md"
