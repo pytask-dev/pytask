@@ -197,7 +197,7 @@ def test_provisional_task_generation(runner, tmp_path):
     assert tmp_path.joinpath("b-copy.txt").exists()
 
 
-def test_task_generator_return_value_is_ignored(runner, tmp_path):
+def test_task_generator_return_value_is_ignored(tmp_path):
     source = """
     from pathlib import Path
     from typing import Annotated
@@ -215,11 +215,60 @@ def test_task_generator_return_value_is_ignored(runner, tmp_path):
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 
-    result = runner.invoke(cli, [tmp_path.as_posix()])
+    session = build(paths=tmp_path)
+    generator = next(
+        task for task in session.tasks if task.name.endswith("task_generator")
+    )
 
-    assert result.exit_code == ExitCode.OK
+    assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("child.txt").read_text() == "child"
     assert not tmp_path.joinpath("returned.txt").exists()
+    assert "return" not in generator.produces
+
+
+def test_task_generator_decorator_return_product_is_ignored(tmp_path):
+    source = """
+    from pathlib import Path
+    from pytask import task
+
+    @task(is_generator=True, produces=Path("returned.txt"))
+    def task_generator():
+        @task
+        def task_child(produces=Path("child.txt")):
+            produces.write_text("child")
+
+        return "ignored"
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+    generator = next(
+        task for task in session.tasks if task.name.endswith("task_generator")
+    )
+
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("child.txt").read_text() == "child"
+    assert not tmp_path.joinpath("returned.txt").exists()
+    assert "return" not in generator.produces
+
+
+def test_task_generator_cannot_define_products_with_argument(runner, tmp_path):
+    source = """
+    from pathlib import Path
+    from pytask import task
+
+    @task(is_generator=True)
+    def task_generator(produces=Path("generator.txt")):
+        @task
+        def task_child():
+            pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    result = runner.invoke(cli, [tmp_path.as_posix()])
+
+    assert result.exit_code == ExitCode.COLLECTION_FAILED
+    assert "cannot define products" in result.output
 
 
 def test_gracefully_fail_when_task_generator_raises_error(runner, tmp_path):
