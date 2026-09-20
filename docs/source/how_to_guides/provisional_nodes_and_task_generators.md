@@ -96,6 +96,6 @@ content to a `.txt` file.
 
     The generated tasks need to be decorated with `@task` to be collected.
 
-Task generators are only used to define other tasks. Their return values are ignored.
-Task generators cannot define products with a `produces` function argument or a return
-annotation.
+Task generators are only used to define other tasks. Their ordinary return values are
+ignored. Task generators cannot define products with a `produces` function argument or
+a return annotation.
