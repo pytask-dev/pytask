@@ -21,5 +21,5 @@ This list contains 6 plugins.
 | [pytask-latex](https://pypi.org/project/pytask-latex/)       | Compile LaTeX documents with pytask.            | Jun 01, 2025 | 4 - Beta  | pytask>=0.4.0  |
 | [pytask-parallel](https://pypi.org/project/pytask-parallel/) | Parallelize the execution of tasks with pytask. | Aug 23, 2026 | 4 - Beta  | pytask>=0.5.2  |
 | [pytask-r](https://pypi.org/project/pytask-r/)               | Run R scripts with pytask.                      | Apr 20, 2024 | 4 - Beta  | pytask>=0.4.5  |
-| [pytask-stata](https://pypi.org/project/pytask-stata/)       | Execute do-files with Stata and pytask.         | Jun 14, 2026 | 4 - Beta  | pytask>=0.5.2  |
+| [pytask-stata](https://pypi.org/project/pytask-stata/)       | Execute do-files with Stata and pytask.         | Sep 19, 2026 | 4 - Beta  | pytask>=0.5.2  |
 | [pytask-vscode](https://pypi.org/project/pytask-vscode/)     | Additional Logging for VS Code integration      | Nov 21, 2023 | 3 - Alpha | pytask >=0.4.2 |
