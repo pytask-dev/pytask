@@ -193,6 +193,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
 
             node_state = node.state()
 
+            # Dependencies and source files must exist; sourceless tasks may lack state.
             is_required = node_signature in predecessors or (
                 node_signature == task.signature and isinstance(task, PTaskWithPath)
             )
