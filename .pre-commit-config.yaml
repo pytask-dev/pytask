@@ -18,12 +18,12 @@ repos:
     -   id: trailing-whitespace
         exclude: (__snapshots__)
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.7
+    rev: v0.16.8
     hooks:
       - id: ruff-format
       - id: ruff-check
 -   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.13
+    rev: 0.12.17
     hooks:
       - id: uv-lock
 -   repo: local
@@ -60,7 +60,7 @@ repos:
     -   id: nbstripout
         exclude: (docs)
 -   repo: https://github.com/crate-ci/typos
-    rev: v1
+    rev: v1.50.2
     hooks:
     -   id: typos
         exclude: (\.ipynb)
