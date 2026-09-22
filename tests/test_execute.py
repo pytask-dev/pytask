@@ -18,6 +18,7 @@ from pytask import CaptureMethod
 from pytask import ExitCode
 from pytask import NodeNotFoundError
 from pytask import PathNode
+from pytask import Task
 from pytask import TaskOutcome
 from pytask import TaskWithoutPath
 from pytask import build
@@ -995,6 +996,26 @@ def test_sourceless_task_without_path_always_executes(tmp_path):
     assert tmp_path.joinpath("count.txt").read_text() == "2"
     assert first_session.execution_reports[0].outcome == TaskOutcome.SUCCESS
     assert second_session.execution_reports[0].outcome == TaskOutcome.SUCCESS
+
+
+def test_task_with_missing_source_fails(tmp_path):
+    output_path = tmp_path / "out.txt"
+    task = Task(
+        base_name="task",
+        path=tmp_path / "missing.py",
+        function=lambda path: path.touch(),
+        produces={"path": PathNode(path=output_path)},
+    )
+
+    session = build(tasks=task, paths=tmp_path)
+
+    assert session.exit_code == ExitCode.FAILED
+    assert not output_path.exists()
+    report = session.execution_reports[0]
+    assert report.outcome == TaskOutcome.FAIL
+    exc_info = report.exc_info
+    assert exc_info is not None
+    assert isinstance(exc_info[1], NodeNotFoundError)
 
 
 def test_collect_task(runner, tmp_path):
