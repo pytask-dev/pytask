@@ -240,7 +240,12 @@ def _get_cached_module(module_name: str, path: Path) -> ModuleType | None:
 def _normalize_import_path(path: str | os.PathLike[str]) -> str:
     """Normalize a module path for cache comparisons."""
     raw_path = os.fspath(path)
-    if raw_path.endswith((".pyc", ".pyo")):
+    if raw_path.endswith(".pyc"):
+        try:
+            raw_path = importlib.util.source_from_cache(raw_path)
+        except ValueError:
+            raw_path = raw_path[:-1]
+    elif raw_path.endswith(".pyo"):
         raw_path = raw_path[:-1]
     return os.path.normcase(str(Path(raw_path).resolve()))
 
