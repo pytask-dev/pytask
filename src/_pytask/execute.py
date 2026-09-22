@@ -33,6 +33,7 @@ from _pytask.node_protocols import PNode
 from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
+from _pytask.node_protocols import PTaskWithPath
 from _pytask.nodes import DirectoryNode
 from _pytask.outcomes import Exit
 from _pytask.outcomes import SkippedUnchanged
@@ -172,7 +173,7 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
         )
 
     if not needs_to_be_executed:
-        predecessors = set(dag.predecessors(task.signature)) | {task.signature}
+        predecessors = set(dag.predecessors(task.signature))
         for node_signature in node_and_neighbors(dag, task.signature):
             node = dag.nodes[node_signature]
 
@@ -192,7 +193,11 @@ def pytask_execute_task_setup(session: Session, task: PTask) -> None:  # noqa: C
 
             node_state = node.state()
 
-            if node_signature in predecessors and not node_state:
+            # Dependencies and source files must exist; sourceless tasks may lack state.
+            is_required = node_signature in predecessors or (
+                node_signature == task.signature and isinstance(task, PTaskWithPath)
+            )
+            if is_required and not node_state:
                 msg = f"{task.name!r} requires missing node {node.name!r}."
                 if IS_FILE_SYSTEM_CASE_SENSITIVE:
                     msg += (
