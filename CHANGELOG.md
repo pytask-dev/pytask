@@ -7,6 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#936](https://github.com/pytask-dev/pytask/pull/936) runs tasks without paths when
+  their source cannot be inspected, while still rejecting path-backed tasks with
+  missing source files.
 - [#997](https://github.com/pytask-dev/pytask/pull/997) documents how task generators
   behave in dry-run and explain modes and adds regression tests for both modes.
 - [#995](https://github.com/pytask-dev/pytask/pull/995) documents that return values
