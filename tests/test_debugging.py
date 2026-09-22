@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 import os
+import pdb  # noqa: T100
 import re
 import sys
 import textwrap
 from contextlib import ExitStack as does_not_raise  # noqa: N813
+from types import SimpleNamespace
 
 import click
 import pytest
 
+from _pytask.debugging import PytaskPDB
 from _pytask.debugging import _pdbcls_callback
+from _pytask.debugging import _postmortem_exc_or_tb
 from pytask import ExitCode
 from pytask import cli
 
@@ -44,6 +48,37 @@ def test_capture_callback(value, expected, expectation):
         assert result == expected
 
 
+def test_pdb_wrapped_commands_keep_docstrings():
+    class CustomPdb(pdb.Pdb):
+        def do_debug(self, arg):
+            """Custom help for debug."""
+
+        def do_continue(self, arg):
+            """Custom help for continue."""
+
+        def do_quit(self, arg):
+            """Custom help for quit."""
+
+    wrapped = PytaskPDB._get_pdb_wrapper_class(CustomPdb, None, None)  # type: ignore[arg-type]
+
+    assert wrapped.do_debug.__doc__ == CustomPdb.do_debug.__doc__
+    assert wrapped.do_continue.__doc__ == CustomPdb.do_continue.__doc__
+    assert wrapped.do_quit.__doc__ == CustomPdb.do_quit.__doc__
+
+
+def test_postmortem_exc_or_tb():
+    with pytest.raises(RuntimeError) as exc_info:
+        raise RuntimeError
+
+    exc = exc_info.value
+    result = _postmortem_exc_or_tb(exc)
+
+    if sys.version_info >= (3, 13):
+        assert result is exc
+    else:
+        assert result is exc.__traceback__
+
+
 def _flush(child):
     if child.isalive():
         child.read()
@@ -67,6 +102,88 @@ def test_post_mortem_on_error(tmp_path):
     child.sendline("p a + b;; continue")
     rest = child.read().decode("utf-8")
     assert "'I am in the debugger. For real!'" in rest
+    _flush(child)
+
+
+def test_import_pdb_cls_uses_import_module(monkeypatch):
+    class CustomPdb(pdb.Pdb):
+        pass
+
+    module = SimpleNamespace(CustomPdb=CustomPdb)
+    imported = []
+
+    def import_module(name):
+        imported.append(name)
+        return module
+
+    monkeypatch.setattr("importlib.import_module", import_module)
+    monkeypatch.setattr(
+        PytaskPDB, "_config", {"pdbcls": ("package.debuggers", "CustomPdb")}
+    )
+    monkeypatch.setattr(PytaskPDB, "_wrapped_pdb_cls", None)
+
+    wrapped = PytaskPDB._import_pdb_cls(None, None)  # type: ignore[arg-type]
+
+    assert imported == ["package.debuggers"]
+    assert issubclass(wrapped, CustomPdb)
+
+
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
+def test_pdb_after_readline_is_imported_during_capture(tmp_path):
+    source = """
+    from pathlib import Path
+
+    def task_example():
+        import readline
+
+        breakpoint()
+        Path(__file__).with_name("continued.txt").touch()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    child = pexpect.spawn(f"pytask {tmp_path.as_posix()}")
+    child.expect("Pdb")
+    child.sendline("continue")
+    _flush(child)
+    assert tmp_path.joinpath("continued.txt").exists()
+
+
+@pytest.mark.skipif(not IS_PEXPECT_INSTALLED, reason="pexpect is not installed.")
+@pytest.mark.skipif(sys.platform == "win32", reason="pexpect cannot spawn on Windows.")
+@pytest.mark.skipif(
+    sys.version_info < (3, 13),
+    reason="Navigating exception chains was introduced in Python 3.13.",
+)
+def test_pdb_exception_chain_navigation(tmp_path):
+    source = """
+    def inner_raise():
+        is_inner = True
+        raise RuntimeError("inner")
+
+    def outer_raise():
+        is_inner = False
+        try:
+            inner_raise()
+        except RuntimeError:
+            raise RuntimeError("outer")
+
+    def task_example():
+        outer_raise()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    child = pexpect.spawn(f"pytask --pdb {tmp_path.as_posix()}")
+    child.expect(r"\(Pdb\)")
+    child.sendline("is_inner")
+    child.expect_exact("False")
+    child.expect(r"\(Pdb\)")
+    child.sendline("exceptions 0")
+    child.expect("inner_raise")
+    child.expect(r"\(Pdb\)")
+    child.sendline("is_inner")
+    child.expect_exact("True")
+    child.sendeof()
     _flush(child)
 
 

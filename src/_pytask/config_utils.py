@@ -42,7 +42,9 @@ def set_defaults_from_config(
     # to this command. They might expect the defaults coming from their related
     # command-line options during parsing. Here, we add their defaults to the
     # configuration.
-    command_option_names = [option.name for option in context.command.params]
+    command_option_names = {
+        option.name for option in context.command.params if option.name is not None
+    }
     assert context.parent is not None
     assert isinstance(context.parent.command, click.Group)
     commands = context.parent.command.commands
@@ -50,7 +52,9 @@ def set_defaults_from_config(
         option.name: option.default
         for name, command in commands.items()
         for option in command.params
-        if name != context.info_name and option.name not in command_option_names
+        if name != context.info_name
+        and option.name is not None
+        and option.name not in command_option_names
     }
     context.params.update(all_defaults_from_cli)
 

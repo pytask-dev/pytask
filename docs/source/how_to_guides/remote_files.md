@@ -18,7 +18,7 @@ As an example for dealing with an HTTP(S)-based filesystem, we will download the
 data set and save it as a CSV file.
 
 ```py
---8<-- "docs_src/how_to_guides/remote_files/https.py"
+--8 < --"docs_src/how_to_guides/remote_files/https.py"
 ```
 
 ## Other filesystems

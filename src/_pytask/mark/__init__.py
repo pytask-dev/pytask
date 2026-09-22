@@ -16,7 +16,6 @@ from _pytask.console import console
 from _pytask.dag_utils import task_and_preceding_tasks
 from _pytask.exceptions import ConfigurationError
 from _pytask.mark.expression import Expression
-from _pytask.mark.expression import ParseError
 from _pytask.mark.structures import MARK_GEN
 from _pytask.mark.structures import Mark
 from _pytask.mark.structures import MarkDecorator
@@ -41,7 +40,6 @@ __all__ = [
     "Mark",
     "MarkDecorator",
     "MarkGenerator",
-    "ParseError",
     "select_by_after_keyword",
     "select_by_keyword",
     "select_by_mark",
@@ -153,11 +151,11 @@ class KeywordMatcher:
 
         return cls(mapped_names)
 
-    def __call__(self, subname: str) -> bool:
+    def __call__(self, subname: str, /, **kwargs: str | int | bool | None) -> bool:
         subname = subname.lower()
         names = (name.lower() for name in self._names)
 
-        return any(subname in name for name in names)
+        return not kwargs and any(subname in name for name in names)
 
 
 def select_by_keyword(session: Session, dag: DAG) -> set[str] | None:
@@ -168,9 +166,14 @@ def select_by_keyword(session: Session, dag: DAG) -> set[str] | None:
 
     try:
         expression = Expression.compile_(keywordexpr)
-    except ParseError as e:
-        msg = f"Wrong expression passed to '-k': {keywordexpr}: {e}"
+    except SyntaxError as e:
+        msg = (
+            f"Wrong expression passed to '-k': {e.text}: at column {e.offset}: {e.msg}"
+        )
         raise ValueError(msg) from None
+    if expression.has_keyword_arguments():
+        msg = "Keyword expressions do not support call parameters."
+        raise ValueError(msg)
 
     remaining: set[str] = set()
     for task in session.tasks:
@@ -184,9 +187,15 @@ def select_by_after_keyword(session: Session, after: str) -> set[str]:
     """Select tasks defined by the after keyword."""
     try:
         expression = Expression.compile_(after)
-    except ParseError as e:
-        msg = f"Wrong expression passed to 'after': {after}: {e}"
+    except SyntaxError as e:
+        msg = (
+            f"Wrong expression passed to 'after': {e.text}: "
+            f"at column {e.offset}: {e.msg}"
+        )
         raise ValueError(msg) from None
+    if expression.has_keyword_arguments():
+        msg = "Keyword expressions do not support call parameters."
+        raise ValueError(msg)
 
     ancestors: set[str] = set()
     for task in session.tasks:
@@ -194,6 +203,9 @@ def select_by_after_keyword(session: Session, after: str) -> set[str]:
             ancestors.add(task.signature)
 
     return ancestors
+
+
+_NOT_SET = object()
 
 
 @dataclass(slots=True)
@@ -204,15 +216,22 @@ class MarkMatcher:
 
     """
 
-    own_mark_names: set[str]
+    own_mark_name_mapping: dict[str, list[Mark]]
 
     @classmethod
     def from_task(cls, task: PTask) -> MarkMatcher:
-        mark_names = {mark.name for mark in task.markers}
-        return cls(mark_names)
+        mark_name_mapping: dict[str, list[Mark]] = {}
+        for mark in task.markers:
+            mark_name_mapping.setdefault(mark.name, []).append(mark)
+        return cls(mark_name_mapping)
 
-    def __call__(self, name: str) -> bool:
-        return name in self.own_mark_names
+    def __call__(self, name: str, /, **kwargs: str | int | bool | None) -> bool:
+        for mark in self.own_mark_name_mapping.get(name, []):
+            if all(
+                mark.kwargs.get(key, _NOT_SET) == value for key, value in kwargs.items()
+            ):
+                return True
+        return False
 
 
 def select_by_mark(session: Session, dag: DAG) -> set[str] | None:
@@ -223,9 +242,21 @@ def select_by_mark(session: Session, dag: DAG) -> set[str] | None:
 
     try:
         expression = Expression.compile_(matchexpr)
-    except ParseError as e:
-        msg = f"Wrong expression passed to '-m': {matchexpr}: {e}"
+    except SyntaxError as e:
+        msg = (
+            f"Wrong expression passed to '-m': {e.text}: at column {e.offset}: {e.msg}"
+        )
         raise ValueError(msg) from None
+
+    if session.config["strict_markers"]:
+        unknown_markers = expression.idents() - session.config["markers"].keys()
+        if unknown_markers:
+            unknown = ", ".join(sorted(unknown_markers))
+            msg = (
+                f"Unknown marker(s) in '-m' expression: {unknown}. "
+                "Use 'pytask markers' to see available markers."
+            )
+            raise ValueError(msg)
 
     remaining: set[str] = set()
     for task in session.tasks:

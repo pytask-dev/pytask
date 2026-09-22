@@ -15,13 +15,13 @@ of the function.
 === "Annotated"
 
     ```py
-    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs1_py310.py"
+    --8 < --"docs_src/tutorials/repeating_tasks_with_different_inputs1_py310.py"
     ```
 
 === "produces"
 
     ```py
-    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs1_produces.py"
+    --8 < --"docs_src/tutorials/repeating_tasks_with_different_inputs1_produces.py"
     ```
 
 Executing pytask gives you this:
@@ -35,13 +35,13 @@ You can also add dependencies to repeated tasks just like with any other task.
 === "Annotated"
 
     ```py
-    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs2_py310.py"
+    --8 < --"docs_src/tutorials/repeating_tasks_with_different_inputs2_py310.py"
     ```
 
 === "produces"
 
     ```py
-    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs2_produces.py"
+    --8 < --"docs_src/tutorials/repeating_tasks_with_different_inputs2_produces.py"
     ```
 
 <a id="how-to-repeat-a-task-with-different-inputs-the-id"></a>
@@ -80,13 +80,13 @@ For example, the following function is parametrized with tuples.
 === "Annotated"
 
     ```py
-    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs3_py310.py"
+    --8 < --"docs_src/tutorials/repeating_tasks_with_different_inputs3_py310.py"
     ```
 
 === "produces"
 
     ```py
-    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs3_produces.py"
+    --8 < --"docs_src/tutorials/repeating_tasks_with_different_inputs3_produces.py"
     ```
 
 Since the tuples are not converted to strings, the ids of the two tasks are
@@ -106,13 +106,13 @@ The [`@task`](../reference_guides/api/nodes_and_tasks.md#pytask.task) decorator 
 === "Annotated"
 
     ```py
-    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs4_py310.py"
+    --8 < --"docs_src/tutorials/repeating_tasks_with_different_inputs4_py310.py"
     ```
 
 === "produces"
 
     ```py
-    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs4_produces.py"
+    --8 < --"docs_src/tutorials/repeating_tasks_with_different_inputs4_produces.py"
     ```
 
 produces these ids
@@ -163,13 +163,13 @@ Following these three tips, the parametrization becomes
 === "Annotated"
 
     ```py
-    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs5_py310.py"
+    --8 < --"docs_src/tutorials/repeating_tasks_with_different_inputs5_py310.py"
     ```
 
 === "produces"
 
     ```py
-    --8<-- "docs_src/tutorials/repeating_tasks_with_different_inputs5_produces.py"
+    --8 < --"docs_src/tutorials/repeating_tasks_with_different_inputs5_produces.py"
     ```
 
 Unpacking all the arguments can become tedious. Instead, use the `kwargs` argument of

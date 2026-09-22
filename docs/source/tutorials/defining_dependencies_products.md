@@ -49,7 +49,7 @@ Let's revisit the task from the [previous tutorial](write_a_task.md) that we def
 === "Annotated"
 
     ```py hl_lines="8 12"
-    --8<-- "docs_src/tutorials/defining_dependencies_products_products_py310.py"
+    --8 < --"docs_src/tutorials/defining_dependencies_products_products_py310.py"
     ```
 
     [`pytask.Product`](../reference_guides/api/utilities_and_typing.md#pytask.Product) allows marking an
@@ -59,7 +59,7 @@ Let's revisit the task from the [previous tutorial](write_a_task.md) that we def
 === "produces"
 
     ```py hl_lines="8"
-    --8<-- "docs_src/tutorials/defining_dependencies_products_products_produces.py"
+    --8 < --"docs_src/tutorials/defining_dependencies_products_products_produces.py"
     ```
 
     Tasks can use `produces` as a "magic" argument name. Every value, or in this case path,
@@ -90,7 +90,7 @@ we will define it in `task_plot_data.py`.
     dependencies of the task.
 
     ```py hl_lines="12"
-    --8<-- "docs_src/tutorials/defining_dependencies_products_dependencies_py310.py"
+    --8 < --"docs_src/tutorials/defining_dependencies_products_dependencies_py310.py"
     ```
 
 === "produces"
@@ -102,7 +102,7 @@ we will define it in `task_plot_data.py`.
     `produces` are dependencies of the task.
 
     ```py hl_lines="9"
-    --8<-- "docs_src/tutorials/defining_dependencies_products_dependencies_produces.py"
+    --8 < --"docs_src/tutorials/defining_dependencies_products_dependencies_produces.py"
     ```
 
 Now, let us execute the two paths.
@@ -121,13 +121,13 @@ are assumed to point to a location relative to the task module.
 === "Annotated"
 
     ```py hl_lines="8"
-    --8<-- "docs_src/tutorials/defining_dependencies_products_relative_py310.py"
+    --8 < --"docs_src/tutorials/defining_dependencies_products_relative_py310.py"
     ```
 
 === "produces"
 
     ```py hl_lines="4"
-    --8<-- "docs_src/tutorials/defining_dependencies_products_relative_produces.py"
+    --8 < --"docs_src/tutorials/defining_dependencies_products_relative_produces.py"
     ```
 
 ## Multiple dependencies and products
@@ -137,7 +137,7 @@ Of course, tasks can have multiple dependencies and products.
 === "Annotated"
 
     ```py
-    --8<-- "docs_src/tutorials/defining_dependencies_products_multiple1_py310.py"
+    --8 < --"docs_src/tutorials/defining_dependencies_products_multiple1_py310.py"
     ```
 
     You can group your dependencies and product if you prefer not to have a function
@@ -145,7 +145,7 @@ Of course, tasks can have multiple dependencies and products.
     structures if needed.
 
     ```py
-    --8<-- "docs_src/tutorials/defining_dependencies_products_multiple2_py310.py"
+    --8 < --"docs_src/tutorials/defining_dependencies_products_multiple2_py310.py"
     ```
 
 === "produces"
@@ -154,13 +154,13 @@ Of course, tasks can have multiple dependencies and products.
     (recommended), tuples, lists, or more nested structures.
 
     ```py
-    --8<-- "docs_src/tutorials/defining_dependencies_products_multiple1_produces.py"
+    --8 < --"docs_src/tutorials/defining_dependencies_products_multiple1_produces.py"
     ```
 
     You can do the same with dependencies.
 
     ```py
-    --8<-- "docs_src/tutorials/defining_dependencies_products_multiple2_produces.py"
+    --8 < --"docs_src/tutorials/defining_dependencies_products_multiple2_produces.py"
     ```
 
 <a id="after"></a>

@@ -36,20 +36,20 @@ We must rewrite your scripts and move the executable part to a task function. Yo
 contain the code in the main namespace of your script, like in this example.
 
 ```py
---8<-- "docs_src/how_to_guides/migrating_from_scripts_to_pytask_1.py"
+--8 < --"docs_src/how_to_guides/migrating_from_scripts_to_pytask_1.py"
 ```
 
 Or, you might use an `if __name__ == "__main__"` block like this example.
 
 ```py
---8<-- "docs_src/how_to_guides/migrating_from_scripts_to_pytask_2.py"
+--8 < --"docs_src/how_to_guides/migrating_from_scripts_to_pytask_2.py"
 ```
 
 For pytask, you need to move the code into a task that is a function whose name starts
 with `task_` in a module with the same prefix like `task_data_management.py`.
 
 ```py
---8<-- "docs_src/how_to_guides/migrating_from_scripts_to_pytask_3.py"
+--8 < --"docs_src/how_to_guides/migrating_from_scripts_to_pytask_3.py"
 ```
 
 An `if __name__ == "__main__"` block must be deleted.
@@ -63,13 +63,13 @@ function with default values. Do the same for products, but also add the special
 annotation with `Annotated[Path, Product]`. For example:
 
 ```py
---8<-- "docs_src/how_to_guides/migrating_from_scripts_to_pytask_4.py"
+--8 < --"docs_src/how_to_guides/migrating_from_scripts_to_pytask_4.py"
 ```
 
 You can also use a dictionary to group multiple dependencies or products.
 
 ```py
---8<-- "docs_src/how_to_guides/migrating_from_scripts_to_pytask_5.py"
+--8 < --"docs_src/how_to_guides/migrating_from_scripts_to_pytask_5.py"
 ```
 
 !!! note
@@ -135,7 +135,7 @@ Next, we create a task function to point pytask to the script and the dependenci
 products.
 
 ```py
---8<-- "docs_src/how_to_guides/migrating_from_scripts_to_pytask_6.py"
+--8 < --"docs_src/how_to_guides/migrating_from_scripts_to_pytask_6.py"
 ```
 
 pytask automatically makes the paths to the dependencies and products available to the R

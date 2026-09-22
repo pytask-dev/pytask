@@ -32,13 +32,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import annotations
 
 import datetime
+import html.parser
 import pathlib
 import re
 from typing import TYPE_CHECKING
+from urllib.parse import unquote
+from urllib.parse import urlparse
 
 import httpx
 import packaging.version
 import wcwidth
+from packaging.utils import canonicalize_name
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -122,27 +126,61 @@ def _create_table(entries: list[dict[str, str]]) -> str:
     return "\n".join([header, separator, *rows])
 
 
+class _SimpleIndexParser(html.parser.HTMLParser):
+    """Extract normalized project names from the PyPI simple index."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.project_names: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag != "a":
+            return
+
+        href = dict(attrs).get("href")
+        if href is None:
+            return
+
+        path = urlparse(href).path.rstrip("/")
+        if not path.startswith("/simple/"):
+            return
+
+        project_name = unquote(path.removeprefix("/simple/"))
+        if "/" not in project_name and project_name:
+            self.project_names.append(canonicalize_name(project_name))
+
+
+def _iter_project_names(simple_index: str) -> list[str]:
+    """Return normalized project names from a PyPI simple index response."""
+    parser = _SimpleIndexParser()
+    parser.feed(simple_index)
+    parser.close()
+    return parser.project_names
+
+
 def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
     """Iterate over all plugins and format entries."""
-    regex = r">([\d\w-]*)</a>"
     response = httpx.get("https://pypi.org/simple/", timeout=20)
+    response.raise_for_status()
 
-    matches = [
-        match
-        for match in re.finditer(regex, response.text)
-        if match.groups()[0].startswith("pytask-")
-        and match.groups()[0] not in _EXCLUDED_PACKAGES
+    project_names = [
+        project_name
+        for project_name in _iter_project_names(response.text)
+        if project_name.startswith("pytask-") and project_name not in _EXCLUDED_PACKAGES
     ]
 
-    for match in matches:
-        name = match.groups()[0]
-        response = httpx.get(f"https://pypi.org/pypi/{name}/json", timeout=20)
-        if response.status_code == 404:  # noqa: PLR2004
+    for project_name in project_names:
+        package_response = httpx.get(
+            f"https://pypi.org/pypi/{project_name}/json",
+            timeout=20,
+        )
+        if package_response.status_code == 404:  # noqa: PLR2004
             # Some packages might return a 404.
             continue
 
-        response.raise_for_status()
-        info = response.json()["info"]
+        package_response.raise_for_status()
+        package = package_response.json()
+        info = package["info"]
 
         if "Development Status :: 7 - Inactive" in info["classifiers"]:
             continue
@@ -171,7 +209,7 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
                 # Use a hard-coded pre-release version.
                 return packaging.version.Version("0.0.0alpha")
 
-        releases = response.json()["releases"]
+        releases = package["releases"]
 
         for release in sorted(releases, key=_version_sort_key, reverse=True):
             if releases[release]:
@@ -181,7 +219,9 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
                 last_release = release_date.strftime("%b %d, %Y")
                 break
 
-        name = f"[{info['name']}](https://pypi.org/project/{info['name']}/)"
+        # Use the canonical name from the simple-index link. Some projects have
+        # temporarily published metadata with a different name, e.g. pytask_stata.
+        name = f"[{project_name}](https://pypi.org/project/{project_name}/)"
         summary = ""
         if info["summary"]:
             summary = _escape_markdown(info["summary"].replace("\n", ""))
