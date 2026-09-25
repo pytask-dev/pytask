@@ -7,6 +7,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#935](https://github.com/pytask-dev/pytask/pull/935) detects when a cached task
+  module comes from a different path and raises
+  `ImportPathMismatchError`, while recognizing cached bytecode modules by their source
+  path.
 - [#936](https://github.com/pytask-dev/pytask/pull/936) runs tasks without paths when
   their source cannot be inspected, while still rejecting path-backed tasks with
   missing source files.

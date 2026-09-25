@@ -33,3 +33,7 @@ class ResolvingDependenciesError(PytaskError):
 
 class ExecutionError(PytaskError):
     """Exception during execution."""
+
+
+class ImportPathMismatchError(ImportError):
+    """Exception for a cached module imported from a different path."""

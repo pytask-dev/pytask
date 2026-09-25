@@ -27,6 +27,7 @@ from _pytask.database_utils import create_database
 from _pytask.exceptions import CollectionError
 from _pytask.exceptions import ConfigurationError
 from _pytask.exceptions import ExecutionError
+from _pytask.exceptions import ImportPathMismatchError
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.exceptions import NodeLoadError
 from _pytask.exceptions import NodeNotFoundError
@@ -103,6 +104,7 @@ __all__ = [
     "ExecutionReport",
     "Exit",
     "ExitCode",
+    "ImportPathMismatchError",
     "Mark",
     "MarkDecorator",
     "MarkGenerator",
