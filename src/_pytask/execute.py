@@ -34,6 +34,7 @@ from _pytask.node_protocols import PPathNode
 from _pytask.node_protocols import PProvisionalNode
 from _pytask.node_protocols import PTask
 from _pytask.node_protocols import PTaskWithPath
+from _pytask.node_protocols import TaskNode
 from _pytask.nodes import DirectoryNode
 from _pytask.outcomes import Exit
 from _pytask.outcomes import SkippedUnchanged
@@ -285,7 +286,7 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
             )
             raise ValueError(msg)
 
-        nodes = tree_leaves(task.produces["return"])
+        nodes = cast("list[TaskNode]", tree_leaves(task.produces["return"]))
         values = structure_return.flatten_up_to(out)
         for node, value in zip(nodes, values, strict=False):
             if not isinstance(node, PProvisionalNode):
@@ -301,9 +302,9 @@ def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
         return
 
     collect_provisional_products(session, task)
-    missing_nodes: list[Any] = [
-        node for node in tree_leaves(task.produces) if not node.state()
-    ]
+    # collect_provisional_products replaces provisional leaves with concrete nodes.
+    product_nodes = cast("list[PNode]", tree_leaves(task.produces))
+    missing_nodes = [node for node in product_nodes if not node.state()]
     if missing_nodes:
         paths = session.config["paths"]
         files = [format_node_name(i, paths).plain for i in missing_nodes]
