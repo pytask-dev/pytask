@@ -28,8 +28,11 @@ __all__ = [
 _T = TypeVar("_T")
 _U = TypeVar("_U")
 _K = TypeVar("_K")
+_NodeT = TypeVar("_NodeT", bound="TaskNode")
 
 if TYPE_CHECKING:
+    from _pytask.node_protocols import TaskNode
+
     # Use our own recursive type alias for static type checking.
     # optree's PyTree uses __class_getitem__ to generate Union types at runtime,
     # but type checkers like ty cannot evaluate these dynamic types properly.
@@ -44,6 +47,48 @@ assert optree.__file__ is not None
 TREE_UTIL_LIB_DIRECTORY = Path(optree.__file__).parent
 
 _pytree = optree.pytree.reexport(namespace="pytask")
+
+
+# Custom leaf predicates can make containers into leaves, so the node overloads
+# apply only when the default traversal is used.
+@overload
+def tree_leaves(
+    tree: _NodeT,
+    /,
+    is_leaf: None = None,
+) -> list[_NodeT]: ...
+
+
+@overload
+def tree_leaves(
+    tree: list[_NodeT],
+    /,
+    is_leaf: None = None,
+) -> list[_NodeT]: ...
+
+
+@overload
+def tree_leaves(
+    tree: tuple[_NodeT, ...],
+    /,
+    is_leaf: None = None,
+) -> list[_NodeT]: ...
+
+
+@overload
+def tree_leaves(
+    tree: dict[_K, _NodeT],
+    /,
+    is_leaf: None = None,
+) -> list[_NodeT]: ...
+
+
+@overload
+def tree_leaves(
+    tree: PyTree[_T],
+    /,
+    is_leaf: Callable[[Any], bool] | None = None,
+) -> list[_T]: ...
 
 
 def tree_leaves(
