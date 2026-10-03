@@ -49,6 +49,10 @@ Related issues:
 - [ty #3415](https://github.com/astral-sh/ty/issues/3415)
 - [mypy #22063](https://github.com/python/mypy/issues/22063)
 
+Intended types:
+
+- `reveal_type(list(mapped))`: `list[str]`.
+
 ```python
 from typing import Any, NamedTuple
 from typing_extensions import reveal_type
@@ -74,9 +78,11 @@ def carry_product(
 def carry_products(task: PTask) -> dict[str, PyTree[CarryOverPath | PythonNode | None]]:
     # mypy-error: [misc] Cannot infer value of type parameter
     mapped = tree_map_with_path(carry_product, task.produces)
-    reveal_type(list(mapped))  # revealed: list[str]
+    # revealed: list[str]
+    reveal_type(list(mapped))
     return mapped
 ```
+
 
 ## Update products from a corresponding carry-over tree
 
@@ -88,6 +94,10 @@ Related issues:
 
 - [ty #3415](https://github.com/astral-sh/ty/issues/3415)
 - [mypy #22063](https://github.com/python/mypy/issues/22063)
+
+Intended types:
+
+- `reveal_type(list(mapped))`: `list[str]`.
 
 ```python
 from typing import NamedTuple
@@ -112,9 +122,11 @@ def update_products(
 ) -> None:
     # mypy-error: [misc] Cannot infer value of type parameter
     mapped = tree_map(update_node, task.produces, carried)
-    reveal_type(list(mapped))  # revealed: list[str]
+    # revealed: list[str]
+    reveal_type(list(mapped))
     task.produces = mapped
 ```
+
 
 ## Resolve remote nodes in task keyword arguments
 
@@ -127,7 +139,13 @@ Related issues:
 - [Pyrefly #4910](https://github.com/facebook/pyrefly/issues/4910)
 - [mypy #15750](https://github.com/python/mypy/issues/15750)
 
-```python
+Intended types:
+
+- `reveal_type(list(mapped))`: `list[str]`.
+
+Current reveals (ty, pyright):
+
+```python only=ty,pyright
 from pathlib import Path
 from typing import Any
 from typing_extensions import reveal_type
@@ -146,9 +164,63 @@ def resolve_remote_values(kwargs: dict[str, PyTree[Any]]) -> dict[str, PyTree[An
         lambda value: value.load() if isinstance(value, RemotePathNode) else value,
         kwargs,
     )
-    reveal_type(list(mapped))  # revealed: list[str]
+    # revealed: list[str]
+    reveal_type(list(mapped))
     return mapped
 ```
+
+Current reveals (pyrefly):
+
+```python only=pyrefly
+from pathlib import Path
+from typing import Any
+from typing_extensions import reveal_type
+
+from pytask import PNode
+from pytask.tree_util import PyTree, tree_map
+
+
+class RemotePathNode(PNode):
+    def load(self, is_product: bool = False) -> Path:
+        raise NotImplementedError
+
+
+def resolve_remote_values(kwargs: dict[str, PyTree[Any]]) -> dict[str, PyTree[Any]]:
+    mapped = tree_map(
+        lambda value: value.load() if isinstance(value, RemotePathNode) else value,
+        kwargs,
+    )
+    # revealed: list[Unknown]
+    reveal_type(list(mapped))
+    return mapped
+```
+
+Current reveals (mypy):
+
+```python only=mypy
+from pathlib import Path
+from typing import Any
+from typing_extensions import reveal_type
+
+from pytask import PNode
+from pytask.tree_util import PyTree, tree_map
+
+
+class RemotePathNode(PNode):
+    def load(self, is_product: bool = False) -> Path:
+        raise NotImplementedError
+
+
+def resolve_remote_values(kwargs: dict[str, PyTree[Any]]) -> dict[str, PyTree[Any]]:
+    mapped = tree_map(
+        lambda value: value.load() if isinstance(value, RemotePathNode) else value,
+        kwargs,
+    )
+    # revealed: list[Any]
+    reveal_type(list(mapped))
+    return mapped
+```
+
 
 ## Unpack mapped dependencies and products as keyword arguments
 
@@ -161,7 +233,13 @@ Related issues:
 - [ty #3415](https://github.com/astral-sh/ty/issues/3415)
 - [mypy #15750](https://github.com/python/mypy/issues/15750)
 
-```python
+Intended types:
+
+- `reveal_type(list(kwargs))`: `list[str]`.
+
+Current reveals (ty):
+
+```python only=ty
 from typing import Any
 from typing_extensions import reveal_type
 
@@ -184,6 +262,37 @@ def collect_kwargs(task: PTask) -> dict[str, Any]:
             task.produces,
         ),
     }
-    reveal_type(list(kwargs))  # revealed: list[str]
+    # revealed: list[Divergent | str | Unknown]
+    reveal_type(list(kwargs))
+    return kwargs
+```
+
+Current reveals (pyright, pyrefly, mypy):
+
+```python only=pyright,pyrefly,mypy
+from typing import Any
+from typing_extensions import reveal_type
+
+from pytask import PPathNode, PTask
+from pytask.tree_util import tree_map
+
+
+def collect_kwargs(task: PTask) -> dict[str, Any]:
+    kwargs = {
+        **tree_map(
+            lambda node: (
+                node.path.as_posix() if isinstance(node, PPathNode) else node.value
+            ),
+            task.depends_on,
+        ),
+        **tree_map(
+            lambda node: (
+                node.path.as_posix() if isinstance(node, PPathNode) else node.value
+            ),
+            task.produces,
+        ),
+    }
+    # revealed: list[str]
+    reveal_type(list(kwargs))
     return kwargs
 ```
