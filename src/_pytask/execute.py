@@ -47,8 +47,9 @@ from _pytask.scheduler import SimpleScheduler
 from _pytask.state import get_node_change_info
 from _pytask.state import has_node_changed
 from _pytask.state import update_states
+from _pytask.task_io import concrete_product_nodes
+from _pytask.task_io import task_node_leaves
 from _pytask.traceback import remove_traceback_from_exc_info
-from _pytask.tree_util import tree_leaves
 from _pytask.tree_util import tree_structure
 from _pytask.typing import is_task_generator
 
@@ -285,7 +286,7 @@ def pytask_execute_task(session: Session, task: PTask) -> bool:
             )
             raise ValueError(msg)
 
-        nodes = tree_leaves(task.produces["return"])
+        nodes = task_node_leaves(task.produces["return"])
         values = structure_return.flatten_up_to(out)
         for node, value in zip(nodes, values, strict=False):
             if not isinstance(node, PProvisionalNode):
@@ -301,9 +302,9 @@ def pytask_execute_task_teardown(session: Session, task: PTask) -> None:
         return
 
     collect_provisional_products(session, task)
-    missing_nodes: list[Any] = [
-        node for node in tree_leaves(task.produces) if not node.state()
-    ]
+    # Collecting provisional products must leave only concrete nodes.
+    product_nodes = concrete_product_nodes(task.produces)
+    missing_nodes = [node for node in product_nodes if not node.state()]
     if missing_nodes:
         paths = session.config["paths"]
         files = [format_node_name(i, paths).plain for i in missing_nodes]
