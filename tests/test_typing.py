@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from pytask import is_task_function
 
 if TYPE_CHECKING:
-    from typing_extensions import assert_type
+    from typing import assert_type
 
     from pytask import CollectionMetadata
     from pytask import task
