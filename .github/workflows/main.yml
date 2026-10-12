@@ -46,6 +46,9 @@ jobs:
 
     name: Run tests for ${{ matrix.os }} on ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
+    # Track Python 3.15 blockers without blocking supported Python versions.
+    # See .github/PYTHON315.md for blockers and promotion criteria.
+    continue-on-error: ${{ matrix.python-version == '3.15' }}
     permissions:
       contents: read
 
@@ -53,7 +56,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
-        python-version: ['3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.11', '3.12', '3.13', '3.14', '3.15']
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -79,13 +82,13 @@ jobs:
         run: just test-cov
 
       - name: Run tests on Windows
-        if: matrix.os == 'windows-latest' && matrix.python-version != '3.14'
+        if: matrix.os == 'windows-latest' && !contains(fromJSON('["3.14", "3.15"]'), matrix.python-version)
         shell: bash -l {0}
         run: just test-cov --snapshot-warn-unused
 
-      # pywin32 has no wheels for Python 3.14 yet, so skip notebook tests
-      - name: Run tests without notebook tests (Windows + Python 3.14)
-        if: matrix.os == 'windows-latest' && matrix.python-version == '3.14'
+      # The locked pywin32 version has no wheels for Python 3.14 or 3.15.
+      - name: Run tests without notebook tests (Windows + Python 3.14 or 3.15)
+        if: matrix.os == 'windows-latest' && contains(fromJSON('["3.14", "3.15"]'), matrix.python-version)
         shell: bash -l {0}
         run: uv run --group test pytest --cov=src --cov=tests --cov-report=xml -n auto --snapshot-warn-unused
 

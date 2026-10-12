@@ -7,6 +7,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#1023](https://github.com/pytask-dev/pytask/pull/1023) adds experimental Python
+  3.15 tests on Linux, macOS, and Windows and documents compatibility blockers.
 - [#1022](https://github.com/pytask-dev/pytask/pull/1022) raises the minimum supported
   Python version to 3.11.
 - [#935](https://github.com/pytask-dev/pytask/pull/935) detects when a cached task
