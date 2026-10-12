@@ -158,6 +158,8 @@ def pytest_collection_modifyitems(session, config, items) -> None:  # noqa: ARG0
         return
     for item in items:
         if isinstance(item, NotebookItem):
+            if item.path.name == "test_task_generator.ipynb":
+                continue
             item.add_marker(pytest.mark.xfail(reason="The tests are flaky."))
 
 

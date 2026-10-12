@@ -233,14 +233,18 @@ def task(  # noqa: PLR0913
     ```
 
     """
-    # Capture the caller's frame locals for deferred annotation evaluation in Python
-    # 3.14+. If ``from __future__ import annotations`` is active, keep the pre-3.14
-    # behavior by evaluating annotations against current globals instead of snapshots.
+    # Snapshot definition-local bindings, including stringified annotations. Like
+    # Pydantic, keep future annotations at module scope tied to current globals.
+    # Retain snapshots for native lazy annotations in module-level task loops.
     caller_frame = sys._getframe(1)
     has_future_annotations = bool(
         caller_frame.f_code.co_flags & __future__.annotations.compiler_flag
     )
-    caller_locals = None if has_future_annotations else caller_frame.f_locals.copy()
+    caller_locals = (
+        None
+        if has_future_annotations and caller_frame.f_code.co_name == "<module>"
+        else caller_frame.f_locals.copy()
+    )
 
     def wrapper(func: Callable[P, R_co]) -> TaskDecorated[P, R_co]:
         # Omits frame when a builtin function is wrapped.

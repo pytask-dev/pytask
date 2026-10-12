@@ -553,8 +553,13 @@ def test_annotation_module_globals_take_precedence_over_parameter_defaults(tmp_p
     assert tmp_path.joinpath("in.txt").read_text() == "Hello"
 
 
-def test_lazy_annotations_survive_deleted_definition_local(tmp_path):
-    source = """
+@pytest.mark.parametrize("future_annotations", [False, True])
+def test_lazy_annotations_survive_deleted_definition_local(
+    tmp_path, future_annotations
+):
+    future_import = "from __future__ import annotations" if future_annotations else ""
+    source = f"""
+    {future_import}
     from pathlib import Path
     from typing import Annotated
     from pytask import task
@@ -578,6 +583,33 @@ def test_lazy_annotations_survive_deleted_definition_local(tmp_path):
     assert tmp_path.joinpath("out.txt").read_text() == "Hello"
 
 
+@pytest.mark.parametrize("decorator", ["@task", "@task()"])
+def test_nested_future_annotations_use_current_globals(tmp_path, decorator):
+    source = f"""
+    from __future__ import annotations
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    OUTPUT = Path("first.txt")
+
+    def create_task():
+        {decorator}
+        def task_example() -> Annotated[str, OUTPUT]:
+            return "Hello"
+
+    create_task()
+    OUTPUT = Path("second.txt")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("second.txt").read_text() == "Hello"
+    assert not tmp_path.joinpath("first.txt").exists()
+
+
 def test_string_literal_annotations_are_resolved(tmp_path):
     source = """
     from __future__ import annotations
@@ -597,18 +629,26 @@ def test_string_literal_annotations_are_resolved(tmp_path):
     assert tmp_path.joinpath("out.txt").exists()
 
 
-def test_annotation_locals_are_cleared_after_collection_to_allow_pickling(tmp_path):
-    source = """
+@pytest.mark.parametrize("future_annotations", [False, True])
+def test_annotation_locals_are_cleared_after_collection_to_allow_pickling(
+    tmp_path, future_annotations
+):
+    future_import = "from __future__ import annotations" if future_annotations else ""
+    source = f"""
+    {future_import}
     import threading
 
     from pytask import task
 
-    lock = threading.RLock()
+    def create_tasks():
+        lock = threading.RLock()
 
-    for i in range(2):
-        @task
-        def task_example():
-            return None
+        for i in range(2):
+            @task
+            def task_example():
+                return None
+
+    create_tasks()
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 

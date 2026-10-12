@@ -326,6 +326,13 @@ def pytask_collect_task_protocol(
     else:
         return None
 
+    finally:
+        # Generated tasks use this protocol without the outer collection hook.
+        # Release snapshots after both dependencies and products are parsed, even
+        # when collection fails and the function is retained in an error report.
+        if isinstance(obj, TaskFunction):
+            obj.pytask_meta.annotation_locals = None
+
 
 @hookimpl(trylast=True)
 def pytask_collect_task(
