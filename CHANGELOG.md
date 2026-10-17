@@ -7,6 +7,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#1025](https://github.com/pytask-dev/pytask/pull/1025) fixes postponed annotation
+  evaluation across Python versions and avoids eager evaluation during task signature
+  inspection. Parameter defaults no longer override module globals or builtins when
+  resolving annotations.
 - [#1022](https://github.com/pytask-dev/pytask/pull/1022) raises the minimum supported
   Python version to 3.11.
 - [#935](https://github.com/pytask-dev/pytask/pull/935) detects when a cached task

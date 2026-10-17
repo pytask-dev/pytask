@@ -507,15 +507,18 @@ def test_lazy_annotations_capture_loop_locals(tmp_path):
     assert tmp_path.joinpath("out-1.txt").exists()
 
 
-def test_lazy_annotations_use_current_globals(tmp_path):
-    source = """
+@pytest.mark.parametrize("decorator", ["", "@task", "@task()"])
+def test_lazy_annotations_use_current_globals(tmp_path, decorator):
+    source = f"""
     from __future__ import annotations
 
     from pathlib import Path
     from typing import Annotated
+    from pytask import task
 
     OUTPUT = Path("first.txt")
 
+    {decorator}
     def task_example() -> Annotated[str, OUTPUT]:
         return "Hello"
 
@@ -527,6 +530,52 @@ def test_lazy_annotations_use_current_globals(tmp_path):
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("second.txt").exists()
     assert not tmp_path.joinpath("first.txt").exists()
+
+
+def test_annotation_module_globals_take_precedence_over_parameter_defaults(tmp_path):
+    source = """
+    from __future__ import annotations
+    from pathlib import Path
+    from typing import Annotated
+
+    output = Path("out.txt")
+
+    def task_example(output: Path = Path("in.txt")) -> Annotated[str, output]:
+        return output.read_text()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    tmp_path.joinpath("in.txt").write_text("Hello")
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").read_text() == "Hello"
+    assert tmp_path.joinpath("in.txt").read_text() == "Hello"
+
+
+def test_lazy_annotations_survive_deleted_definition_local(tmp_path):
+    source = """
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    def create_task():
+        output = Path("out.txt")
+
+        @task
+        def task_example() -> Annotated[str, output]:
+            return "Hello"
+
+        del output
+
+    create_task()
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("out.txt").read_text() == "Hello"
 
 
 def test_string_literal_annotations_are_resolved(tmp_path):

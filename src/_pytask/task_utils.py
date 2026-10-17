@@ -21,6 +21,7 @@ from typing import TypeVar
 from typing import cast
 from typing import overload
 
+from _pytask._inspect import get_signature
 from _pytask.coiled_utils import Function
 from _pytask.coiled_utils import extract_coiled_function_kwargs
 from _pytask.console import get_file
@@ -439,7 +440,7 @@ def parse_keyword_arguments_from_signature_defaults(
     task: Callable[..., Any],
 ) -> dict[str, Any]:
     """Parse keyword arguments from signature defaults."""
-    parameters = inspect.signature(task).parameters
+    parameters = get_signature(task).parameters
     kwargs = {}
     for parameter in parameters.values():
         if parameter.default is not parameter.empty:
@@ -451,7 +452,7 @@ def _generate_ids_for_tasks(
     tasks: list[tuple[str, TaskFunction]],
 ) -> dict[str, TaskFunction]:
     """Generate unique ids for parametrized tasks."""
-    parameters = inspect.signature(tasks[0][1]).parameters
+    parameters = get_signature(tasks[0][1]).parameters
 
     out: dict[str, TaskFunction] = {}
     for i, (name, task) in enumerate(tasks):
