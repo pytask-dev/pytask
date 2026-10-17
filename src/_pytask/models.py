@@ -42,8 +42,9 @@ class CollectionMetadata:
         A dictionary containing keyword arguments which are passed to the task when it
         is executed.
     annotation_locals
-        A snapshot of local variables captured during decoration which helps evaluate
-        deferred annotations later on.
+        A shallow snapshot of definition-local bindings captured during decoration
+        which helps evaluate deferred annotations later on. Values are shared, and
+        the snapshot is released after task collection.
     markers
         A list of markers that are attached to the task.
     name

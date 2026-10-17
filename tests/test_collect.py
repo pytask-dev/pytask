@@ -4,14 +4,17 @@ import sys
 import textwrap
 import warnings
 from pathlib import Path
+from typing import Annotated
 
 import cloudpickle
 import pytest
 import upath
 
+from _pytask._inspect import get_annotations
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
 from _pytask.node_protocols import PPathNode
+from _pytask.path import import_path
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.task_utils import validate_unique_task_signatures
 from pytask import CollectionOutcome
@@ -532,6 +535,136 @@ def test_lazy_annotations_use_current_globals(tmp_path, decorator):
     assert not tmp_path.joinpath("first.txt").exists()
 
 
+@pytest.mark.parametrize("future_annotations", [False, True])
+@pytest.mark.parametrize("annotation_name", ["after", "func", "new_after"])
+def test_after_auto_decoration_does_not_capture_internal_locals(
+    tmp_path, future_annotations, annotation_name
+):
+    future_import = "from __future__ import annotations" if future_annotations else ""
+    source = f"""
+    {future_import}
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    {annotation_name} = Path("out.txt")
+
+    def task_before() -> Annotated[str, {annotation_name}]:
+        return "Hello"
+
+    @task(after=task_before)
+    def task_after():
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 2
+    assert tmp_path.joinpath("out.txt").read_text() == "Hello"
+
+
+def test_programmatic_annotation_globals_do_not_capture_collection_locals(tmp_path):
+    # The fixture's `path` intentionally matches the local in _collect_from_tasks.
+    # Keep both names in sync to preserve the historical overwrite regression.
+    source = textwrap.dedent(
+        """
+        from __future__ import annotations
+        from pathlib import Path
+        from typing import Annotated
+
+        path = Path("out.txt")
+
+        def task_first():
+            pass
+
+        def task_second() -> Annotated[str, path]:
+            return "Hello"
+        """
+    )
+    module_path = tmp_path / "functions.py"
+    module_path.write_text(source)
+    module = import_path(module_path, tmp_path)
+
+    session = build(
+        paths=tmp_path,
+        tasks=[module.task_first, module.task_second],
+        force=True,
+    )
+
+    assert session.exit_code == ExitCode.OK
+    assert module_path.read_text() == source
+    assert tmp_path.joinpath("out.txt").read_text() == "Hello"
+
+
+def test_programmatic_auto_decoration_does_not_capture_locals(tmp_path, monkeypatch):
+    module_path = tmp_path / "functions.py"
+    module_path.write_text("def task_example(): pass")
+    module = import_path(module_path, tmp_path)
+    snapshots = []
+
+    class Plugin:
+        @hookimpl
+        def pytask_collect_task_setup(self, obj):
+            snapshots.append(obj.pytask_meta.annotation_locals)
+
+    pm = get_plugin_manager()
+    pm.register(Plugin())
+    monkeypatch.setattr("_pytask.build.get_plugin_manager", lambda: pm)
+
+    session = build(paths=tmp_path, tasks=[module.task_example])
+
+    assert session.exit_code == ExitCode.OK
+    assert snapshots == [None]
+
+
+@pytest.mark.parametrize("decorator", ["@task", "@task()"])
+def test_programmatic_collection_preserves_user_annotation_locals(
+    tmp_path, monkeypatch, decorator
+):
+    source = f"""
+    from __future__ import annotations
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    def create_task():
+        output = Path("out.txt")
+
+        {decorator}
+        def task_example() -> Annotated[str, output]:
+            return "Hello"
+
+        return task_example
+
+    task_example = create_task()
+    """
+    module_path = tmp_path / "functions.py"
+    module_path.write_text(textwrap.dedent(source))
+    module = import_path(module_path, tmp_path)
+    definition_locals = module.task_example.pytask_meta.annotation_locals
+    assert definition_locals is not None
+    assert definition_locals["output"] == Path("out.txt")
+    snapshots = []
+
+    class Plugin:
+        @hookimpl
+        def pytask_collect_task_setup(self, obj):
+            snapshots.append(obj.pytask_meta.annotation_locals)
+
+    pm = get_plugin_manager()
+    pm.register(Plugin())
+    monkeypatch.setattr("_pytask.build.get_plugin_manager", lambda: pm)
+
+    session = build(paths=tmp_path, tasks=[module.task_example])
+
+    assert session.exit_code == ExitCode.OK
+    assert len(snapshots) == 1
+    assert snapshots[0] is definition_locals
+    assert tmp_path.joinpath("out.txt").read_text() == "Hello"
+
+
 def test_annotation_module_globals_take_precedence_over_parameter_defaults(tmp_path):
     source = """
     from __future__ import annotations
@@ -553,8 +686,117 @@ def test_annotation_module_globals_take_precedence_over_parameter_defaults(tmp_p
     assert tmp_path.joinpath("in.txt").read_text() == "Hello"
 
 
-def test_lazy_annotations_survive_deleted_definition_local(tmp_path):
-    source = """
+@pytest.mark.parametrize("future_annotations", [False, True])
+@pytest.mark.parametrize("is_generator", [False, True])
+def test_annotation_locals_remain_available_to_modify_tasks_hook(
+    tmp_path, monkeypatch, future_annotations, is_generator
+):
+    future_import = "from __future__ import annotations" if future_annotations else ""
+    decorator = "@task(is_generator=True)" if is_generator else ""
+    create_tasks = "" if is_generator else "create_tasks()"
+    source = f"""
+    {future_import}
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    {decorator}
+    def create_tasks():
+        output = Path("out.txt")
+
+        @task
+        def task_example() -> Annotated[str, output]:
+            return "Hello"
+
+        del output
+
+    {create_tasks}
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    annotations = []
+
+    class Plugin:
+        @hookimpl
+        def pytask_collect_modify_tasks(self, tasks):
+            annotations.extend(
+                get_annotations(task.function, eval_str=True)["return"]
+                for task in tasks
+                if task.base_name == "task_example"
+            )
+
+    pm = get_plugin_manager()
+    pm.register(Plugin())
+    monkeypatch.setattr("_pytask.build.get_plugin_manager", lambda: pm)
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert annotations == [Annotated[str, Path("out.txt")]]
+    assert tmp_path.joinpath("out.txt").read_text() == "Hello"
+    assert all(
+        task.function.pytask_meta.annotation_locals is None for task in session.tasks
+    )
+
+
+@pytest.mark.parametrize("is_generator", [False, True])
+def test_annotation_locals_are_released_when_modify_tasks_hook_fails(
+    tmp_path, monkeypatch, is_generator
+):
+    decorator = "@task(is_generator=True)" if is_generator else ""
+    create_tasks = "" if is_generator else "create_tasks()"
+    source = f"""
+    from __future__ import annotations
+    import threading
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    {decorator}
+    def create_tasks():
+        lock = threading.RLock()
+        output = Path("out.txt")
+
+        @task
+        def task_example() -> Annotated[str, output]:
+            return "Hello"
+
+    {create_tasks}
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    functions = []
+
+    class Plugin:
+        @hookimpl
+        def pytask_collect_modify_tasks(self, tasks):
+            functions.extend(
+                task.function for task in tasks if task.base_name == "task_example"
+            )
+            if functions:
+                msg = "Collection hook failed."
+                raise RuntimeError(msg)
+
+    pm = get_plugin_manager()
+    pm.register(Plugin())
+    monkeypatch.setattr("_pytask.build.get_plugin_manager", lambda: pm)
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == (
+        ExitCode.FAILED if is_generator else ExitCode.COLLECTION_FAILED
+    )
+    assert len(functions) == 1
+    assert functions[0].pytask_meta.annotation_locals is None
+    cloudpickle.dumps(functions[0])
+    assert not tmp_path.joinpath("out.txt").exists()
+
+
+@pytest.mark.parametrize("future_annotations", [False, True])
+def test_lazy_annotations_survive_deleted_definition_local(
+    tmp_path, future_annotations
+):
+    future_import = "from __future__ import annotations" if future_annotations else ""
+    source = f"""
+    {future_import}
     from pathlib import Path
     from typing import Annotated
     from pytask import task
@@ -578,6 +820,33 @@ def test_lazy_annotations_survive_deleted_definition_local(tmp_path):
     assert tmp_path.joinpath("out.txt").read_text() == "Hello"
 
 
+@pytest.mark.parametrize("decorator", ["@task", "@task()"])
+def test_nested_future_annotations_use_current_globals(tmp_path, decorator):
+    source = f"""
+    from __future__ import annotations
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    OUTPUT = Path("first.txt")
+
+    def create_task():
+        {decorator}
+        def task_example() -> Annotated[str, OUTPUT]:
+            return "Hello"
+
+    create_task()
+    OUTPUT = Path("second.txt")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert tmp_path.joinpath("second.txt").read_text() == "Hello"
+    assert not tmp_path.joinpath("first.txt").exists()
+
+
 def test_string_literal_annotations_are_resolved(tmp_path):
     source = """
     from __future__ import annotations
@@ -597,18 +866,26 @@ def test_string_literal_annotations_are_resolved(tmp_path):
     assert tmp_path.joinpath("out.txt").exists()
 
 
-def test_annotation_locals_are_cleared_after_collection_to_allow_pickling(tmp_path):
-    source = """
+@pytest.mark.parametrize("future_annotations", [False, True])
+def test_annotation_locals_are_cleared_after_collection_to_allow_pickling(
+    tmp_path, future_annotations
+):
+    future_import = "from __future__ import annotations" if future_annotations else ""
+    source = f"""
+    {future_import}
     import threading
 
     from pytask import task
 
-    lock = threading.RLock()
+    def create_tasks():
+        lock = threading.RLock()
 
-    for i in range(2):
-        @task
-        def task_example():
-            return None
+        for i in range(2):
+            @task
+            def task_example():
+                return None
+
+    create_tasks()
     """
     tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
 

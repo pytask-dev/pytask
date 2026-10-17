@@ -11,7 +11,7 @@ on:
     - main
   pull_request:
     branches:
-    - '*'
+    - '**'
   merge_group:
 
 permissions: {}

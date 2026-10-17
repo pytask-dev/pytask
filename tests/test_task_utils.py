@@ -4,6 +4,7 @@ from contextlib import ExitStack as does_not_raise  # noqa: N813
 from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
+from typing import Annotated
 from typing import NamedTuple
 from uuid import UUID
 
@@ -77,6 +78,30 @@ def test_default_values_of_pytask_meta():
     assert task_example.pytask_meta.produces is None
 
     # Remove collected task.
+    COLLECTED_TASKS.pop(Path(__file__))
+
+
+def test_annotation_snapshots_are_shallow_and_preserve_each_loop_binding():
+    shared = object()
+    outputs = [Path("a.txt"), Path("b.txt")]
+    functions = []
+    for output in outputs:
+
+        @task
+        def task_example() -> Annotated[str, output]:
+            return "Hello"
+
+        functions.append(task_example)
+
+    first, second = [function.pytask_meta.annotation_locals for function in functions]
+    assert first is not None
+    assert second is not None
+    assert first is not second
+    assert first["output"] is outputs[0]
+    assert second["output"] is outputs[1]
+    assert first["shared"] is shared
+    assert second["shared"] is shared
+
     COLLECTED_TASKS.pop(Path(__file__))
 
 
