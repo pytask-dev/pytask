@@ -535,6 +535,36 @@ def test_lazy_annotations_use_current_globals(tmp_path, decorator):
     assert not tmp_path.joinpath("first.txt").exists()
 
 
+@pytest.mark.parametrize("future_annotations", [False, True])
+@pytest.mark.parametrize("annotation_name", ["after", "func", "new_after"])
+def test_after_auto_decoration_does_not_capture_internal_locals(
+    tmp_path, future_annotations, annotation_name
+):
+    future_import = "from __future__ import annotations" if future_annotations else ""
+    source = f"""
+    {future_import}
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    {annotation_name} = Path("out.txt")
+
+    def task_before() -> Annotated[str, {annotation_name}]:
+        return "Hello"
+
+    @task(after=task_before)
+    def task_after():
+        pass
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert len(session.tasks) == 2
+    assert tmp_path.joinpath("out.txt").read_text() == "Hello"
+
+
 def test_programmatic_annotation_globals_do_not_capture_collection_locals(tmp_path):
     # The fixture's `path` intentionally matches the local in _collect_from_tasks.
     # Keep both names in sync to preserve the historical overwrite regression.

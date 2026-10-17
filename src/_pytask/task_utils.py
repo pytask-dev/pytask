@@ -358,6 +358,8 @@ def _parse_after(
         for func in after:
             if not isinstance(func, TaskFunction):
                 func = task()(func)  # noqa: PLW2901
+                # This registration frame is not the callable's definition scope.
+                func.pytask_meta.annotation_locals = None
             new_after.append(func.pytask_meta._id)
         return new_after
     msg = (
