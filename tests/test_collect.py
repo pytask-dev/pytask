@@ -12,6 +12,7 @@ import upath
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
 from _pytask.node_protocols import PPathNode
+from _pytask.path import import_path
 from _pytask.pluginmanager import get_plugin_manager
 from _pytask.task_utils import validate_unique_task_signatures
 from pytask import CollectionOutcome
@@ -530,6 +531,37 @@ def test_lazy_annotations_use_current_globals(tmp_path, decorator):
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("second.txt").exists()
     assert not tmp_path.joinpath("first.txt").exists()
+
+
+def test_programmatic_annotation_globals_do_not_capture_collection_locals(tmp_path):
+    source = textwrap.dedent(
+        """
+        from __future__ import annotations
+        from pathlib import Path
+        from typing import Annotated
+
+        path = Path("out.txt")
+
+        def task_first():
+            pass
+
+        def task_second() -> Annotated[str, path]:
+            return "Hello"
+        """
+    )
+    module_path = tmp_path / "functions.py"
+    module_path.write_text(source)
+    module = import_path(module_path, tmp_path)
+
+    session = build(
+        paths=tmp_path,
+        tasks=[module.task_first, module.task_second],
+        force=True,
+    )
+
+    assert session.exit_code == ExitCode.OK
+    assert module_path.read_text() == source
+    assert tmp_path.joinpath("out.txt").read_text() == "Hello"
 
 
 def test_annotation_module_globals_take_precedence_over_parameter_defaults(tmp_path):

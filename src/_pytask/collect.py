@@ -135,6 +135,8 @@ def _collect_from_tasks(session: Session) -> None:
         if is_task_function(raw_task):
             if not isinstance(raw_task, TaskFunction):
                 raw_task = task_decorator()(raw_task)  # noqa: PLW2901
+                # This registration frame is not the callable's definition scope.
+                raw_task.pytask_meta.annotation_locals = None
 
             path = get_file(raw_task)
             name = raw_task.pytask_meta.name
