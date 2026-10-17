@@ -148,6 +148,8 @@ def _collect_from_tasks(session: Session) -> None:
                 # This registration frame is not the callable's definition scope.
                 raw_task.pytask_meta.annotation_locals = None
 
+            # Keep `path` in sync with the collision fixture in
+            # test_programmatic_annotation_globals_do_not_capture_collection_locals.
             path = get_file(raw_task)
             name = raw_task.pytask_meta.name
 

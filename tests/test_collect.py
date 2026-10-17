@@ -536,6 +536,8 @@ def test_lazy_annotations_use_current_globals(tmp_path, decorator):
 
 
 def test_programmatic_annotation_globals_do_not_capture_collection_locals(tmp_path):
+    # The fixture's `path` intentionally matches the local in _collect_from_tasks.
+    # Keep both names in sync to preserve the historical overwrite regression.
     source = textwrap.dedent(
         """
         from __future__ import annotations
@@ -563,6 +565,73 @@ def test_programmatic_annotation_globals_do_not_capture_collection_locals(tmp_pa
 
     assert session.exit_code == ExitCode.OK
     assert module_path.read_text() == source
+    assert tmp_path.joinpath("out.txt").read_text() == "Hello"
+
+
+def test_programmatic_auto_decoration_does_not_capture_locals(tmp_path, monkeypatch):
+    module_path = tmp_path / "functions.py"
+    module_path.write_text("def task_example(): pass")
+    module = import_path(module_path, tmp_path)
+    snapshots = []
+
+    class Plugin:
+        @hookimpl
+        def pytask_collect_task_setup(self, obj):
+            snapshots.append(obj.pytask_meta.annotation_locals)
+
+    pm = get_plugin_manager()
+    pm.register(Plugin())
+    monkeypatch.setattr("_pytask.build.get_plugin_manager", lambda: pm)
+
+    session = build(paths=tmp_path, tasks=[module.task_example])
+
+    assert session.exit_code == ExitCode.OK
+    assert snapshots == [None]
+
+
+@pytest.mark.parametrize("decorator", ["@task", "@task()"])
+def test_programmatic_collection_preserves_user_annotation_locals(
+    tmp_path, monkeypatch, decorator
+):
+    source = f"""
+    from __future__ import annotations
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    def create_task():
+        output = Path("out.txt")
+
+        {decorator}
+        def task_example() -> Annotated[str, output]:
+            return "Hello"
+
+        return task_example
+
+    task_example = create_task()
+    """
+    module_path = tmp_path / "functions.py"
+    module_path.write_text(textwrap.dedent(source))
+    module = import_path(module_path, tmp_path)
+    definition_locals = module.task_example.pytask_meta.annotation_locals
+    assert definition_locals is not None
+    assert definition_locals["output"] == Path("out.txt")
+    snapshots = []
+
+    class Plugin:
+        @hookimpl
+        def pytask_collect_task_setup(self, obj):
+            snapshots.append(obj.pytask_meta.annotation_locals)
+
+    pm = get_plugin_manager()
+    pm.register(Plugin())
+    monkeypatch.setattr("_pytask.build.get_plugin_manager", lambda: pm)
+
+    session = build(paths=tmp_path, tasks=[module.task_example])
+
+    assert session.exit_code == ExitCode.OK
+    assert len(snapshots) == 1
+    assert snapshots[0] is definition_locals
     assert tmp_path.joinpath("out.txt").read_text() == "Hello"
 
 
