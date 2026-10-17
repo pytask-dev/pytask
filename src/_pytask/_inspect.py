@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import ast
+import builtins
 import inspect
 import sys
 from inspect import get_annotations as _get_annotations_from_inspect
+from types import ModuleType
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import cast
@@ -71,7 +73,7 @@ def get_annotations(
     evaluation_globals = cast(
         "dict[str, Any]", obj.__globals__ if globals is None else globals
     )
-    evaluation_locals = _build_evaluation_locals(obj, locals)
+    evaluation_locals = _build_evaluation_locals(obj, locals, evaluation_globals)
 
     evaluated_annotations = {}
     for name, expression in raw_annotations.items():
@@ -97,13 +99,20 @@ def get_signature(obj: Callable[..., Any]) -> inspect.Signature:
 
 
 def _build_evaluation_locals(
-    obj: Callable[..., Any], provided_locals: dict[str, Any] | None
+    obj: Callable[..., Any],
+    provided_locals: dict[str, Any] | None,
+    evaluation_globals: dict[str, Any],
 ) -> dict[str, Any]:
-    # Order matters: later updates override earlier ones.
-    # Default arguments are lowest priority (fallbacks), then provided_locals,
-    # then snapshot_locals (captured loop variables) have highest priority.
-    evaluation_locals: dict[str, Any] = {}
-    evaluation_locals.update(_get_default_argument_locals(obj))
+    evaluation_builtins = evaluation_globals.get("__builtins__", builtins)
+    if isinstance(evaluation_builtins, ModuleType):
+        evaluation_builtins = vars(evaluation_builtins)
+
+    # Recover missing names from defaults without shadowing globals or builtins.
+    evaluation_locals = {
+        name: value
+        for name, value in _get_default_argument_locals(obj).items()
+        if name not in evaluation_globals and name not in evaluation_builtins
+    }
     if provided_locals:
         evaluation_locals.update(provided_locals)
     evaluation_locals.update(_get_snapshot_locals(obj))

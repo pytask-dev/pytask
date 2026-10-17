@@ -29,3 +29,12 @@ def test_explicit_annotation_namespaces_override_function_globals():
     )
 
     assert annotations == {"value": str, "return": str}
+
+
+def test_parameter_defaults_do_not_override_builtins():
+    def example(str: str = "value") -> str:  # noqa: A002
+        return str
+
+    annotations = get_annotations(example, eval_str=True)
+
+    assert annotations == {"str": str, "return": str}
