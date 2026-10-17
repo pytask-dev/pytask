@@ -288,6 +288,50 @@ def test_generated_annotation_snapshots_are_released_after_collection(
         assert references[0]() is None
 
 
+@pytest.mark.parametrize("future_annotations", [False, True])
+@pytest.mark.parametrize(
+    "exception", ["RuntimeError('generator failed')", "SystemExit(7)"]
+)
+def test_failed_generator_releases_child_annotation_snapshots(
+    tmp_path, future_annotations, exception
+):
+    future_import = "from __future__ import annotations" if future_annotations else ""
+    source = f"""
+    {future_import}
+    import threading
+    from pytask import task
+
+    children = []
+    error = {exception}
+
+    @task(is_generator=True)
+    def task_generator():
+        lock = threading.RLock()
+        for i in range(2):
+            @task
+            def task_child():
+                raise AssertionError("Child must not execute")
+            children.append(task_child)
+        raise error
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.FAILED
+    assert len(session.tasks) == 1
+    assert len(session.execution_reports) == 1
+    report = session.execution_reports[0]
+    assert report.outcome == TaskOutcome.FAIL
+    assert report.exc_info is not None
+    namespace = report.task.function.__globals__
+    assert report.exc_info[1] is namespace["error"]
+    assert len(namespace["children"]) == 2
+    for child in namespace["children"]:
+        assert child.pytask_meta.annotation_locals is None
+        cloudpickle.dumps(child)
+
+
 def test_task_generator_executes_once(tmp_path):
     source = """
     from pathlib import Path

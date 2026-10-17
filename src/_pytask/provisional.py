@@ -55,7 +55,21 @@ def pytask_execute_task(session: Session, task: PTask) -> bool | None:
     if not is_task_generator(task):
         return None
 
-    execute_task(task)
+    registered_functions = {
+        id(function) for functions in COLLECTED_TASKS.values() for function in functions
+    }
+    try:
+        execute_task(task)
+    except BaseException:
+        # Children can be registered before the generator raises, without reaching
+        # collection below. Release only their snapshots and preserve the exception.
+        _clear_annotation_locals(
+            function
+            for functions in COLLECTED_TASKS.values()
+            for function in functions
+            if id(function) not in registered_functions
+        )
+        raise
 
     tasks: list[TaskFunction] = []
     try:
