@@ -7,6 +7,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#1026](https://github.com/pytask-dev/pytask/pull/1026) preserves definition-local
+  bindings for generated tasks with postponed annotations and releases temporary
+  snapshots after collection or generator failures. Internal task registration no
+  longer shadows annotation globals with pytask's own locals.
 - [#1025](https://github.com/pytask-dev/pytask/pull/1025) fixes postponed annotation
   evaluation across Python versions and avoids eager evaluation during task signature
   inspection. Parameter defaults no longer override module globals or builtins when
