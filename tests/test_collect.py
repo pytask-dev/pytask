@@ -4,11 +4,13 @@ import sys
 import textwrap
 import warnings
 from pathlib import Path
+from typing import Annotated
 
 import cloudpickle
 import pytest
 import upath
 
+from _pytask._inspect import get_annotations
 from _pytask.collect import _find_shortest_uniquely_identifiable_name_for_tasks
 from _pytask.collect import pytask_collect_node
 from _pytask.node_protocols import PPathNode
@@ -583,6 +585,110 @@ def test_annotation_module_globals_take_precedence_over_parameter_defaults(tmp_p
     assert session.exit_code == ExitCode.OK
     assert tmp_path.joinpath("out.txt").read_text() == "Hello"
     assert tmp_path.joinpath("in.txt").read_text() == "Hello"
+
+
+@pytest.mark.parametrize("future_annotations", [False, True])
+@pytest.mark.parametrize("is_generator", [False, True])
+def test_annotation_locals_remain_available_to_modify_tasks_hook(
+    tmp_path, monkeypatch, future_annotations, is_generator
+):
+    future_import = "from __future__ import annotations" if future_annotations else ""
+    decorator = "@task(is_generator=True)" if is_generator else ""
+    create_tasks = "" if is_generator else "create_tasks()"
+    source = f"""
+    {future_import}
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    {decorator}
+    def create_tasks():
+        output = Path("out.txt")
+
+        @task
+        def task_example() -> Annotated[str, output]:
+            return "Hello"
+
+        del output
+
+    {create_tasks}
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    annotations = []
+
+    class Plugin:
+        @hookimpl
+        def pytask_collect_modify_tasks(self, tasks):
+            annotations.extend(
+                get_annotations(task.function, eval_str=True)["return"]
+                for task in tasks
+                if task.base_name == "task_example"
+            )
+
+    pm = get_plugin_manager()
+    pm.register(Plugin())
+    monkeypatch.setattr("_pytask.build.get_plugin_manager", lambda: pm)
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == ExitCode.OK
+    assert annotations == [Annotated[str, Path("out.txt")]]
+    assert tmp_path.joinpath("out.txt").read_text() == "Hello"
+    assert all(
+        task.function.pytask_meta.annotation_locals is None for task in session.tasks
+    )
+
+
+@pytest.mark.parametrize("is_generator", [False, True])
+def test_annotation_locals_are_released_when_modify_tasks_hook_fails(
+    tmp_path, monkeypatch, is_generator
+):
+    decorator = "@task(is_generator=True)" if is_generator else ""
+    create_tasks = "" if is_generator else "create_tasks()"
+    source = f"""
+    from __future__ import annotations
+    import threading
+    from pathlib import Path
+    from typing import Annotated
+    from pytask import task
+
+    {decorator}
+    def create_tasks():
+        lock = threading.RLock()
+        output = Path("out.txt")
+
+        @task
+        def task_example() -> Annotated[str, output]:
+            return "Hello"
+
+    {create_tasks}
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+    functions = []
+
+    class Plugin:
+        @hookimpl
+        def pytask_collect_modify_tasks(self, tasks):
+            functions.extend(
+                task.function for task in tasks if task.base_name == "task_example"
+            )
+            if functions:
+                msg = "Collection hook failed."
+                raise RuntimeError(msg)
+
+    pm = get_plugin_manager()
+    pm.register(Plugin())
+    monkeypatch.setattr("_pytask.build.get_plugin_manager", lambda: pm)
+
+    session = build(paths=tmp_path)
+
+    assert session.exit_code == (
+        ExitCode.FAILED if is_generator else ExitCode.COLLECTION_FAILED
+    )
+    assert len(functions) == 1
+    assert functions[0].pytask_meta.annotation_locals is None
+    cloudpickle.dumps(functions[0])
+    assert not tmp_path.joinpath("out.txt").exists()
 
 
 @pytest.mark.parametrize("future_annotations", [False, True])

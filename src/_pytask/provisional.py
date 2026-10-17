@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from typing import Any
 
+from _pytask.collect import _clear_annotation_locals
 from _pytask.config import hookimpl
 from _pytask.dag import create_dag_from_session
 from _pytask.exceptions import CollectionError
@@ -30,6 +31,7 @@ if TYPE_CHECKING:
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
     from _pytask.session import Session
+    from _pytask.typing import TaskFunction
 
 
 @hookimpl(tryfirst=True)
@@ -55,47 +57,51 @@ def pytask_execute_task(session: Session, task: PTask) -> bool | None:
 
     execute_task(task)
 
-    name_to_function: Mapping[str, Callable[..., Any] | PTask]
-    if isinstance(task, PTaskWithPath) and task.path in COLLECTED_TASKS:
-        tasks = COLLECTED_TASKS.pop(task.path)
+    tasks: list[TaskFunction] = []
+    try:
+        if isinstance(task, PTaskWithPath) and task.path in COLLECTED_TASKS:
+            tasks = COLLECTED_TASKS.pop(task.path)
+        elif None in COLLECTED_TASKS:
+            tasks = COLLECTED_TASKS.pop(None)
+        else:
+            msg = f"The task generator {task.name!r} did not create any tasks."
+            raise RuntimeError(msg)
+
+        name_to_function: Mapping[str, Callable[..., Any] | PTask]
         name_to_function = parse_collected_tasks_with_task_marker(tasks)
-    elif None in COLLECTED_TASKS:
-        tasks = COLLECTED_TASKS.pop(None)
-        name_to_function = parse_collected_tasks_with_task_marker(tasks)
-    else:
-        msg = f"The task generator {task.name!r} did not create any tasks."
-        raise RuntimeError(msg)
 
-    new_reports: list[CollectionReport] = []
-    for name, function in name_to_function.items():
-        report = session.hook.pytask_collect_task_protocol(
-            session=session,
-            reports=new_reports,
-            path=task.path if isinstance(task, PTaskWithPath) else None,
-            name=name,
-            obj=function,
-        )
-        if report is not None:
-            new_reports.append(report)
+        new_reports: list[CollectionReport] = []
+        for name, function in name_to_function.items():
+            report = session.hook.pytask_collect_task_protocol(
+                session=session,
+                reports=new_reports,
+                path=task.path if isinstance(task, PTaskWithPath) else None,
+                name=name,
+                obj=function,
+            )
+            if report is not None:
+                new_reports.append(report)
 
-    session.collection_reports.extend(new_reports)
-    failed_reports = [
-        report for report in new_reports if report.outcome == CollectionOutcome.FAIL
-    ]
-    if failed_reports:
-        _raise_error_for_failed_generated_tasks(task, failed_reports)
+        session.collection_reports.extend(new_reports)
+        failed_reports = [
+            report for report in new_reports if report.outcome == CollectionOutcome.FAIL
+        ]
+        if failed_reports:
+            _raise_error_for_failed_generated_tasks(task, failed_reports)
 
-    generated_tasks = [
-        report.node
-        for report in new_reports
-        if report.outcome == CollectionOutcome.SUCCESS
-        and isinstance(report.node, PTask)
-    ]
-    _commit_generated_tasks(session, generated_tasks)
-    # Generators must run to discover tasks even in simulation modes.
-    if session.config["dry_run"] or session.config["explain"]:
-        raise WouldBeExecuted
-    return True
+        generated_tasks = [
+            report.node
+            for report in new_reports
+            if report.outcome == CollectionOutcome.SUCCESS
+            and isinstance(report.node, PTask)
+        ]
+        _commit_generated_tasks(session, generated_tasks)
+        # Generators must run to discover tasks even in simulation modes.
+        if session.config["dry_run"] or session.config["explain"]:
+            raise WouldBeExecuted
+        return True
+    finally:
+        _clear_annotation_locals(tasks)
 
 
 def _raise_error_for_failed_generated_tasks(
