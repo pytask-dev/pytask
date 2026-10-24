@@ -2944,7 +2944,7 @@ test = [
     { name = "networkx", specifier = ">=2.4.0" },
     { name = "pexpect", specifier = ">=4.9.0" },
     { name = "pygments", specifier = ">=2.18.0" },
-    { name = "pygraphviz", marker = "sys_platform == 'linux'", specifier = ">=1.12" },
+    { name = "pygraphviz", marker = "sys_platform == 'linux'", specifier = ">=2.0" },
     { name = "pytest", specifier = ">=8.4.0" },
     { name = "pytest-cov", specifier = ">=5.0.0" },
     { name = "pytest-xdist", specifier = ">=3.6.1" },
