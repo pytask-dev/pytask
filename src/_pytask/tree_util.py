@@ -52,13 +52,10 @@ def tree_leaves(
     is_leaf: Callable[[Any], bool] | None = None,
 ) -> list[_T]:
     """Return the leaves of a pytask tree."""
-    return cast(
-        "list[_T]",
-        _pytree.leaves(
-            cast("Any", tree),
-            is_leaf,
-            none_is_leaf=True,
-        ),
+    return _pytree.leaves(
+        cast("Any", tree),
+        is_leaf,
+        none_is_leaf=True,
     )
 
 
@@ -251,11 +248,8 @@ def tree_flatten_with_path(
     is_leaf: Callable[[Any], bool] | None = None,
 ) -> tuple[list[tuple[Any, ...]], list[_T], PyTreeSpec]:
     """Flatten a pytask tree into paths, leaves, and structure."""
-    return cast(
-        "tuple[list[tuple[Any, ...]], list[_T], PyTreeSpec]",
-        _pytree.flatten_with_path(
-            cast("Any", tree),
-            is_leaf,
-            none_is_leaf=True,
-        ),
+    return _pytree.flatten_with_path(
+        cast("Any", tree),
+        is_leaf,
+        none_is_leaf=True,
     )
