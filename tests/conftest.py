@@ -135,17 +135,16 @@ class Result(NamedTuple):
 
 def run_in_subprocess(cmd: tuple[str, ...], cwd: Path | None = None) -> Result:
     """Run a command in a subprocess and return the output."""
-    kwargs = (
-        {
-            "env": os.environ | {"PYTHONIOENCODING": "utf-8", "TERM": "unknown"},
-            "encoding": "utf-8",
-        }
-        if sys.platform == "win32"
-        else {}
-    )
-
     result = subprocess.run(
-        cmd, cwd=cwd, check=False, capture_output=True, text=True, **kwargs
+        cmd,
+        cwd=cwd,
+        check=False,
+        capture_output=True,
+        text=True,
+        env=os.environ | {"PYTHONIOENCODING": "utf-8", "TERM": "unknown"}
+        if sys.platform == "win32"
+        else None,
+        encoding="utf-8" if sys.platform == "win32" else None,
     )
     return Result(
         exit_code=result.returncode, stdout=result.stdout, stderr=result.stderr
