@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import html.parser
 import pathlib
 import re
@@ -213,7 +213,7 @@ def _iter_plugins() -> Generator[dict[str, str], None, None]:  # noqa: C901
 
         for release in sorted(releases, key=_version_sort_key, reverse=True):
             if releases[release]:
-                release_date = datetime.date.fromisoformat(
+                release_date = dt.date.fromisoformat(
                     releases[release][-1]["upload_time_iso_8601"].split("T")[0]
                 )
                 last_release = release_date.strftime("%b %d, %Y")
