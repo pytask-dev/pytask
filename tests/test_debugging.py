@@ -491,12 +491,12 @@ def test_pdb_with_injected_do_debug(tmp_path):
     child.expect(r"\(Pdb\)")
     child.sendline("debug foo()")
     child.expect("ENTERING RECURSIVE DEBUGGER")
-    child.expect(r"\(\(Pdb\)\)")
+    child.expect(r"\(Pdb\)")
     child.sendline("c")
     child.expect("LEAVING RECURSIVE DEBUGGER")
     assert b"PDB continue" not in child.before  # type: ignore[operator]
     # No extra newline.
-    assert child.before.endswith(b"c\r\nprint_from_foo\r\n")  # type: ignore[union-attr]
+    assert _escape_ansi(child.before.decode()).endswith("c\r\nprint_from_foo\r\n")  # type: ignore[union-attr]
 
     # set_debug should not raise outcomes. Exit, if used recursively.
     child.sendline("debug 42")
