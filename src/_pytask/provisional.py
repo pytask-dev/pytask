@@ -27,6 +27,7 @@ from pytask import TaskOutcome
 if TYPE_CHECKING:
     from collections.abc import Callable
     from collections.abc import Mapping
+    from pathlib import Path
 
     from _pytask.reports import CollectionReport
     from _pytask.reports import ExecutionReport
@@ -55,20 +56,13 @@ def pytask_execute_task(session: Session, task: PTask) -> bool | None:
     if not is_task_generator(task):
         return None
 
-    registered_functions = {
-        id(function) for functions in COLLECTED_TASKS.values() for function in functions
+    registered_task_counts = {
+        path: len(functions) for path, functions in COLLECTED_TASKS.items()
     }
     try:
         execute_task(task)
     except BaseException:
-        # Children can be registered before the generator raises, without reaching
-        # collection below. Release only their snapshots and preserve the exception.
-        _clear_annotation_locals(
-            function
-            for functions in COLLECTED_TASKS.values()
-            for function in functions
-            if id(function) not in registered_functions
-        )
+        _discard_generator_registrations(registered_task_counts)
         raise
 
     tasks: list[TaskFunction] = []
@@ -116,6 +110,28 @@ def pytask_execute_task(session: Session, task: PTask) -> bool | None:
         return True
     finally:
         _clear_annotation_locals(tasks)
+
+
+def _discard_generator_registrations(
+    registered_task_counts: Mapping[Path | None, int],
+) -> None:
+    """Remove registrations appended during a failed generator invocation."""
+    discarded: list[TaskFunction] = []
+    for path, functions in list(COLLECTED_TASKS.items()):
+        registered_count = registered_task_counts.get(path)
+        if registered_count is None:
+            discarded.extend(COLLECTED_TASKS.pop(path))
+        else:
+            discarded.extend(functions[registered_count:])
+            del functions[registered_count:]
+
+    # A callable that was registered again may still have a pending entry.
+    pending = {
+        id(function) for functions in COLLECTED_TASKS.values() for function in functions
+    }
+    _clear_annotation_locals(
+        function for function in discarded if id(function) not in pending
+    )
 
 
 def _raise_error_for_failed_generated_tasks(

@@ -332,6 +332,35 @@ def test_failed_generator_releases_child_annotation_snapshots(
         cloudpickle.dumps(child)
 
 
+def test_failed_generator_does_not_leak_children_to_later_generator(tmp_path):
+    source = """
+    from pathlib import Path
+    from pytask import mark, task
+
+    @mark.try_first
+    @task(is_generator=True)
+    def task_failing_generator():
+        @task
+        def task_rejected(produces=Path(__file__).with_name("rejected.txt")):
+            produces.write_text("rejected")
+
+        raise RuntimeError("generator failed")
+
+    @task(is_generator=True)
+    def task_successful_generator():
+        @task
+        def task_accepted(produces=Path(__file__).with_name("accepted.txt")):
+            produces.write_text("accepted")
+    """
+    tmp_path.joinpath("task_module.py").write_text(textwrap.dedent(source))
+
+    session = build(paths=tmp_path, max_failures=2)
+
+    assert session.exit_code == ExitCode.FAILED
+    assert tmp_path.joinpath("accepted.txt").read_text() == "accepted"
+    assert not tmp_path.joinpath("rejected.txt").exists()
+
+
 def test_task_generator_executes_once(tmp_path):
     source = """
     from pathlib import Path
