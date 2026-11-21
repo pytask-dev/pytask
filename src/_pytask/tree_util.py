@@ -50,12 +50,16 @@ def tree_leaves(
     tree: PyTree[_T],
     /,
     is_leaf: Callable[[Any], bool] | None = None,
+    *,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> list[_T]:
     """Return the leaves of a pytask tree."""
     return _pytree.leaves(
         cast("Any", tree),
         is_leaf,
-        none_is_leaf=True,
+        none_is_leaf=none_is_leaf,
+        namespace=namespace,
     )
 
 
@@ -66,6 +70,8 @@ def tree_map(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> dict[_K, PyTree[_T]]: ...
 
 
@@ -76,6 +82,8 @@ def tree_map(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> dict[_K, PyTree[_U]]: ...
 
 
@@ -86,6 +94,8 @@ def tree_map(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> list[PyTree[_T]]: ...
 
 
@@ -96,6 +106,8 @@ def tree_map(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> list[PyTree[_U]]: ...
 
 
@@ -106,6 +118,8 @@ def tree_map(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> tuple[PyTree[_T], ...]: ...
 
 
@@ -116,6 +130,8 @@ def tree_map(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> tuple[PyTree[_U], ...]: ...
 
 
@@ -126,6 +142,8 @@ def tree_map(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> PyTree[_U]: ...
 
 
@@ -135,6 +153,8 @@ def tree_map(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> Any:
     """Apply a function to each leaf of a pytask tree."""
     return _pytree.map(
@@ -142,7 +162,8 @@ def tree_map(
         cast("Any", tree),
         *cast("tuple[Any, ...]", rests),
         is_leaf=is_leaf,
-        none_is_leaf=True,
+        none_is_leaf=none_is_leaf,
+        namespace=namespace,
     )
 
 
@@ -153,6 +174,8 @@ def tree_map_with_path(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> dict[_K, PyTree[_T]]: ...
 
 
@@ -163,6 +186,8 @@ def tree_map_with_path(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> dict[_K, PyTree[_U]]: ...
 
 
@@ -173,6 +198,8 @@ def tree_map_with_path(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> list[PyTree[_T]]: ...
 
 
@@ -183,6 +210,8 @@ def tree_map_with_path(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> list[PyTree[_U]]: ...
 
 
@@ -193,6 +222,8 @@ def tree_map_with_path(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> tuple[PyTree[_T], ...]: ...
 
 
@@ -203,6 +234,8 @@ def tree_map_with_path(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> tuple[PyTree[_U], ...]: ...
 
 
@@ -213,6 +246,8 @@ def tree_map_with_path(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> PyTree[_U]: ...
 
 
@@ -222,6 +257,8 @@ def tree_map_with_path(
     /,
     *rests: PyTree[Any],
     is_leaf: Callable[[Any], bool] | None = None,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> Any:
     """Apply a function to each leaf and pass the leaf path."""
     return _pytree.map_with_path(
@@ -229,7 +266,8 @@ def tree_map_with_path(
         cast("Any", tree),
         *cast("tuple[Any, ...]", rests),
         is_leaf=is_leaf,
-        none_is_leaf=True,
+        none_is_leaf=none_is_leaf,
+        namespace=namespace,
     )
 
 
@@ -237,19 +275,31 @@ def tree_structure(
     tree: PyTree[Any],
     /,
     is_leaf: Callable[[Any], bool] | None = None,
+    *,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> PyTreeSpec:
     """Return the tree structure of a pytask tree."""
-    return _pytree.structure(cast("Any", tree), is_leaf, none_is_leaf=True)
+    return _pytree.structure(
+        cast("Any", tree),
+        is_leaf,
+        none_is_leaf=none_is_leaf,
+        namespace=namespace,
+    )
 
 
 def tree_flatten_with_path(
     tree: PyTree[_T],
     /,
     is_leaf: Callable[[Any], bool] | None = None,
+    *,
+    none_is_leaf: bool = True,
+    namespace: str = "pytask",
 ) -> tuple[list[tuple[Any, ...]], list[_T], PyTreeSpec]:
     """Flatten a pytask tree into paths, leaves, and structure."""
     return _pytree.flatten_with_path(
         cast("Any", tree),
         is_leaf,
-        none_is_leaf=True,
+        none_is_leaf=none_is_leaf,
+        namespace=namespace,
     )
