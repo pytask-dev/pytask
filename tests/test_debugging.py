@@ -488,10 +488,10 @@ def test_pdb_with_injected_do_debug(tmp_path):
     )
 
     child.expect(["PDB", "set_trace", r"\(IO-capturing", "turned", r"off\)"])
-    child.expect(r"\n\(Pdb")
+    child.expect(r"\(Pdb\)")
     child.sendline("debug foo()")
     child.expect("ENTERING RECURSIVE DEBUGGER")
-    child.expect(r"\n\(\(Pdb")
+    child.expect(r"\(\(Pdb\)\)")
     child.sendline("c")
     child.expect("LEAVING RECURSIVE DEBUGGER")
     assert b"PDB continue" not in child.before  # type: ignore[operator]
