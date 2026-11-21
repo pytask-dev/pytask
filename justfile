@@ -42,7 +42,7 @@ docs-serve *FLAGS:
 
 # Run tests with lowest dependency resolution (like CI)
 test-lowest:
-    uv run --python 3.10 --group test --resolution lowest-direct pytest --nbmake
+    uv run --python 3.11 --group test --resolution lowest-direct pytest --nbmake
 
 # Run tests with highest dependency resolution (like CI)
 test-highest:

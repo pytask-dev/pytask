@@ -87,7 +87,7 @@ to manage dependencies and project metadata.
     [project]
     name = "my_project"
     version = "0.1.0"
-    requires-python = ">=3.10"
+    requires-python = ">=3.11"
     dependencies = ["pytask"]
 
     [build-system]
@@ -109,7 +109,7 @@ to manage dependencies and project metadata.
     [project]
     name = "my_project"
     version = "0.1.0"
-    requires-python = ">=3.10"
+    requires-python = ">=3.11"
     channels = ["conda-forge"] # (1)!
     platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 
@@ -119,7 +119,7 @@ to manage dependencies and project metadata.
 
     [dependencies]
     pytask = "*"
-    python = ">=3.10"
+    python = ">=3.11"
 
     [tool.pytask.ini_options]
     paths = ["src/my_project"] # (2)!

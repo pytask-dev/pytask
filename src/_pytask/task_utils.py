@@ -21,6 +21,7 @@ from typing import TypeVar
 from typing import cast
 from typing import overload
 
+from _pytask._inspect import get_signature
 from _pytask.coiled_utils import Function
 from _pytask.coiled_utils import extract_coiled_function_kwargs
 from _pytask.console import get_file
@@ -232,14 +233,18 @@ def task(  # noqa: PLR0913
     ```
 
     """
-    # Capture the caller's frame locals for deferred annotation evaluation in Python
-    # 3.14+. If ``from __future__ import annotations`` is active, keep the pre-3.14
-    # behavior by evaluating annotations against current globals instead of snapshots.
+    # Snapshot definition-local bindings, including stringified annotations. Like
+    # Pydantic, keep future annotations at module scope tied to current globals.
+    # Retain snapshots for native lazy annotations in module-level task loops.
     caller_frame = sys._getframe(1)
     has_future_annotations = bool(
         caller_frame.f_code.co_flags & __future__.annotations.compiler_flag
     )
-    caller_locals = None if has_future_annotations else caller_frame.f_locals.copy()
+    caller_locals = (
+        None
+        if has_future_annotations and caller_frame.f_code.co_name == "<module>"
+        else caller_frame.f_locals.copy()
+    )
 
     def wrapper(func: Callable[P, R_co]) -> TaskDecorated[P, R_co]:
         # Omits frame when a builtin function is wrapped.
@@ -353,6 +358,8 @@ def _parse_after(
         for func in after:
             if not isinstance(func, TaskFunction):
                 func = task()(func)  # noqa: PLW2901
+                # This registration frame is not the callable's definition scope.
+                func.pytask_meta.annotation_locals = None
             new_after.append(func.pytask_meta._id)
         return new_after
     msg = (
@@ -439,7 +446,7 @@ def parse_keyword_arguments_from_signature_defaults(
     task: Callable[..., Any],
 ) -> dict[str, Any]:
     """Parse keyword arguments from signature defaults."""
-    parameters = inspect.signature(task).parameters
+    parameters = get_signature(task).parameters
     kwargs = {}
     for parameter in parameters.values():
         if parameter.default is not parameter.empty:
@@ -451,7 +458,7 @@ def _generate_ids_for_tasks(
     tasks: list[tuple[str, TaskFunction]],
 ) -> dict[str, TaskFunction]:
     """Generate unique ids for parametrized tasks."""
-    parameters = inspect.signature(tasks[0][1]).parameters
+    parameters = get_signature(tasks[0][1]).parameters
 
     out: dict[str, TaskFunction] = {}
     for i, (name, task) in enumerate(tasks):

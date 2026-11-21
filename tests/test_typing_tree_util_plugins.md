@@ -237,39 +237,9 @@ Intended types:
 
 - `reveal_type(list(kwargs))`: `list[str]`.
 
-Current reveals (ty):
+Current reveals (all checkers):
 
-```python only=ty
-from typing import Any
-from typing_extensions import reveal_type
-
-from pytask import PPathNode, PTask
-from pytask.tree_util import tree_map
-
-
-def collect_kwargs(task: PTask) -> dict[str, Any]:
-    kwargs = {
-        **tree_map(
-            lambda node: (
-                node.path.as_posix() if isinstance(node, PPathNode) else node.value
-            ),
-            task.depends_on,
-        ),
-        **tree_map(
-            lambda node: (
-                node.path.as_posix() if isinstance(node, PPathNode) else node.value
-            ),
-            task.produces,
-        ),
-    }
-    # revealed: list[Divergent | str | Unknown]
-    reveal_type(list(kwargs))
-    return kwargs
-```
-
-Current reveals (pyright, pyrefly, mypy):
-
-```python only=pyright,pyrefly,mypy
+```python
 from typing import Any
 from typing_extensions import reveal_type
 

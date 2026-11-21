@@ -308,6 +308,9 @@ Intended types:
 
 Current reveals (ty):
 
+Ty reports these attribute errors as `unresolved-attribute` in 0.0.91 and
+`missing-union-attribute` in 0.0.107.
+
 ```python only=ty
 from typing_extensions import reveal_type
 
@@ -320,14 +323,11 @@ def check_node_tree(tree: PyTree[PNode]) -> None:
     # revealed: list[PNode | tuple[PyTree[PNode], ...] | list[PyTree[PNode]] | dict[Any, PyTree[PNode]]]
     reveal_type(leaves)
     for node in leaves:
-        # ty-error: [unresolved-attribute]
         # revealed: str
-        reveal_type(node.signature)
-        # ty-error: [unresolved-attribute]
+        reveal_type(node.signature)  # type: ignore
         # revealed: str | None
-        reveal_type(node.state())
-        # ty-error: [unresolved-attribute]
-        node.load()
+        reveal_type(node.state())  # type: ignore
+        node.load()  # type: ignore
 ```
 
 Current reveals (pyright, pyrefly):

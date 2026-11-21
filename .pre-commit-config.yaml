@@ -1,3 +1,6 @@
+ci:
+    autoupdate_schedule: monthly
+
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -18,12 +21,12 @@ repos:
     -   id: trailing-whitespace
         exclude: (__snapshots__)
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.9
+    rev: v0.17.3
     hooks:
       - id: ruff-format
       - id: ruff-check
 -   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.19
+    rev: 0.13.6
     hooks:
       - id: uv-lock
 -   repo: local
@@ -60,7 +63,7 @@ repos:
     -   id: nbstripout
         exclude: (docs)
 -   repo: https://github.com/crate-ci/typos
-    rev: v1.50.3
+    rev: v1.51.1
     hooks:
     -   id: typos
         exclude: (\.ipynb)

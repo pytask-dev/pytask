@@ -38,12 +38,12 @@ from typing import AnyStr
 from typing import BinaryIO
 from typing import Generic
 from typing import NamedTuple
+from typing import Self
 from typing import TextIO
 from typing import cast
 from typing import final
 
 import click
-from typing_extensions import Self
 
 from _pytask.capture_utils import CaptureMethod
 from _pytask.capture_utils import ShowCapture
@@ -606,26 +606,12 @@ class FDCapture(FDCaptureBase[str]):
 # MultiCapture
 
 
-# Generic NamedTuple only supported since Python 3.11.
-if sys.version_info >= (3, 11) or TYPE_CHECKING:
+@final
+class CaptureResult(NamedTuple, Generic[AnyStr]):
+    """A class for capture results."""
 
-    @final
-    class CaptureResult(NamedTuple, Generic[AnyStr]):
-        """A class for capture results."""
-
-        out: AnyStr
-        err: AnyStr
-
-else:
-    import collections
-
-    class CaptureResult(
-        collections.namedtuple("CaptureResult", ["out", "err"]),  # noqa: PYI024
-        Generic[AnyStr],
-    ):
-        """A class for capture results."""
-
-        __slots__ = ()
+    out: AnyStr
+    err: AnyStr
 
 
 class MultiCapture(Generic[AnyStr]):
