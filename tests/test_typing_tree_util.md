@@ -240,10 +240,8 @@ from pytask.tree_util import tree_leaves
 
 
 def check_task_nodes(task: PTask) -> None:
-    # mypy-error: [type-var]
     # revealed: list[dict[str, PNode | PProvisionalNode | tuple[PyTree[PNode | PProvisionalNode], ...] | list[PyTree[PNode | PProvisionalNode]] | dict[Any, PyTree[PNode | PProvisionalNode]]] | PNode | PProvisionalNode | tuple[PyTree[PNode | PProvisionalNode], ...] | list[PyTree[PNode | PProvisionalNode]] | dict[Any, PyTree[PNode | PProvisionalNode]]]
     reveal_type(tree_leaves(task.depends_on))
-    # mypy-error: [type-var]
     # revealed: list[dict[str, PNode | PProvisionalNode | tuple[PyTree[PNode | PProvisionalNode], ...] | list[PyTree[PNode | PProvisionalNode]] | dict[Any, PyTree[PNode | PProvisionalNode]]] | PNode | PProvisionalNode | tuple[PyTree[PNode | PProvisionalNode], ...] | list[PyTree[PNode | PProvisionalNode]] | dict[Any, PyTree[PNode | PProvisionalNode]]]
     reveal_type(tree_leaves(task.produces))
 ```
@@ -258,10 +256,8 @@ from pytask.tree_util import tree_leaves
 
 
 def check_task_nodes(task: PTask) -> None:
-    # mypy-error: [type-var]
     # revealed: list[PNode | PProvisionalNode]
     reveal_type(tree_leaves(task.depends_on))
-    # mypy-error: [type-var]
     # revealed: list[PNode | PProvisionalNode]
     reveal_type(tree_leaves(task.produces))
 ```
@@ -276,11 +272,11 @@ from pytask.tree_util import tree_leaves
 
 
 def check_task_nodes(task: PTask) -> None:
-    # mypy-error: [type-var]
-    # revealed: list[_pytask.node_protocols.PNode | _pytask.node_protocols.PProvisionalNode | tuple[_pytask.node_protocols.PNode | _pytask.node_protocols.PProvisionalNode | tuple[..., ...] | list[...] | dict[Any, ...], ...] | list[_pytask.node_protocols.PNode | _pytask.node_protocols.PProvisionalNode | tuple[..., ...] | list[...] | dict[Any, ...]] | dict[Any, _pytask.node_protocols.PNode | _pytask.node_protocols.PProvisionalNode | tuple[..., ...] | list[...] | dict[Any, ...]]]
+    # mypy-error: [misc] Cannot infer value of type parameter
+    # revealed: list[Any]
     reveal_type(tree_leaves(task.depends_on))
-    # mypy-error: [type-var]
-    # revealed: list[_pytask.node_protocols.PNode | _pytask.node_protocols.PProvisionalNode | tuple[_pytask.node_protocols.PNode | _pytask.node_protocols.PProvisionalNode | tuple[..., ...] | list[...] | dict[Any, ...], ...] | list[_pytask.node_protocols.PNode | _pytask.node_protocols.PProvisionalNode | tuple[..., ...] | list[...] | dict[Any, ...]] | dict[Any, _pytask.node_protocols.PNode | _pytask.node_protocols.PProvisionalNode | tuple[..., ...] | list[...] | dict[Any, ...]]]
+    # mypy-error: [misc] Cannot infer value of type parameter
+    # revealed: list[Any]
     reveal_type(tree_leaves(task.produces))
 ```
 
@@ -308,12 +304,12 @@ from pytask.tree_util import tree_leaves
 
 def check_task_paths(task: PTask) -> set[str]:
     paths: set[str] = set()
-    # mypy-error: [type-var]
+    # mypy-error: [misc] Cannot infer value of type parameter
     for node in tree_leaves(task.depends_on):
         if isinstance(node, PPathNode):
             assert_type(node.path.as_posix(), str)
             paths.add(node.path.as_posix())
-    # mypy-error: [type-var]
+    # mypy-error: [misc] Cannot infer value of type parameter
     for node in tree_leaves(task.produces):
         if isinstance(node, PPathNode):
             paths.add(node.path.as_posix())
