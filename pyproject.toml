@@ -73,7 +73,7 @@ test = [
     "aiohttp>=3.11.0",                                                        # For HTTPPath tests.
     "coiled>=1.42.0; python_version < '3.14'",
     "networkx>=2.4.0",
-    "pygraphviz>=1.12;platform_system=='Linux'",
+    "pygraphviz>=2.0;platform_system=='Linux'",
 ]
 typing = ["ty>=0.0.8"]
 

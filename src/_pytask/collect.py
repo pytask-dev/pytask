@@ -70,44 +70,54 @@ def pytask_collect(session: Session) -> bool:
     """Collect tasks."""
     session.collection_start = time.time()
 
-    _collect_from_paths(session)
-    _collect_from_tasks(session)
-    _collect_not_collected_tasks(session)
-
-    session.tasks.extend(
-        i.node
-        for i in session.collection_reports
-        if i.outcome == CollectionOutcome.SUCCESS and isinstance(i.node, PTask)
-    )
-
     try:
-        session.hook.pytask_collect_modify_tasks(session=session, tasks=session.tasks)
-        validate_unique_task_signatures(session.tasks)
-    except Exception:  # noqa: BLE001  # pragma: no cover
-        report = CollectionReport.from_exception(
-            outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info()
+        _collect_from_paths(session)
+        _collect_from_tasks(session)
+        _collect_not_collected_tasks(session)
+
+        session.tasks.extend(
+            i.node
+            for i in session.collection_reports
+            if i.outcome == CollectionOutcome.SUCCESS and isinstance(i.node, PTask)
         )
-        session.collection_reports.append(report)
 
-    session.hook.pytask_collect_log(
-        session=session, reports=session.collection_reports, tasks=session.tasks
-    )
+        try:
+            session.hook.pytask_collect_modify_tasks(
+                session=session, tasks=session.tasks
+            )
+            validate_unique_task_signatures(session.tasks)
+        except Exception:  # noqa: BLE001  # pragma: no cover
+            report = CollectionReport.from_exception(
+                outcome=CollectionOutcome.FAIL, exc_info=sys.exc_info()
+            )
+            session.collection_reports.append(report)
 
-    _clear_annotation_locals(session.tasks)
+        session.hook.pytask_collect_log(
+            session=session, reports=session.collection_reports, tasks=session.tasks
+        )
 
-    return True
+        return True
+    finally:
+        _clear_annotation_locals(session.tasks)
+        _clear_annotation_locals(
+            report.node
+            for report in session.collection_reports
+            if isinstance(report.node, PTask)
+        )
 
 
-def _clear_annotation_locals(tasks: list[PTask]) -> None:
+def _clear_annotation_locals(tasks: Iterable[PTask | TaskFunction]) -> None:
     """Drop decoration-time locals snapshots once collection finishes.
 
     The snapshot is only needed to evaluate deferred annotations while collecting
-    dependencies/products. Keeping it afterwards can retain non-picklable objects (for
-    example locks) and break parallel backends that cloudpickle task functions.
+    dependencies/products and running collection hooks. Keeping it afterwards can
+    retain non-picklable objects (for example locks) and break parallel backends that
+    cloudpickle task functions.
     """
     for task in tasks:
-        if isinstance(task.function, TaskFunction):
-            task.function.pytask_meta.annotation_locals = None
+        function = task.function if isinstance(task, PTask) else task
+        if isinstance(function, TaskFunction):
+            function.pytask_meta.annotation_locals = None
 
 
 def _collect_from_paths(session: Session) -> None:
@@ -135,7 +145,11 @@ def _collect_from_tasks(session: Session) -> None:
         if is_task_function(raw_task):
             if not isinstance(raw_task, TaskFunction):
                 raw_task = task_decorator()(raw_task)  # noqa: PLW2901
+                # This registration frame is not the callable's definition scope.
+                raw_task.pytask_meta.annotation_locals = None
 
+            # Keep `path` in sync with the collision fixture in
+            # test_programmatic_annotation_globals_do_not_capture_collection_locals.
             path = get_file(raw_task)
             name = raw_task.pytask_meta.name
 

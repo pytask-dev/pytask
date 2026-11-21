@@ -25,6 +25,13 @@ It works because internally the path is converted to a
 [`pytask.PathNode`](../reference_guides/api/nodes_and_tasks.md#pytask.PathNode) that is
 able to store objects of type `str` and `bytes`.
 
+When `@pytask.task` decorates a function inside another function, such as a task
+generator, pytask takes a shallow snapshot of the enclosing function's local bindings to
+evaluate annotations during collection. This also works with
+`from __future__ import annotations`, so each generated task can refer to its own loop
+values. The referenced objects are shared, and the snapshot is released after task
+collection. Module-level future annotations continue to use current module globals.
+
 !!! note
 
     Read the explanation on [nodes](../how_to_guides/writing_custom_nodes.md) to learn more

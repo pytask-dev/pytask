@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import inspect
 from typing import TYPE_CHECKING
 from typing import Any
 
+from _pytask._inspect import get_signature
 from _pytask.exceptions import NodeLoadError
 from _pytask.tree_util import tree_map
 
@@ -25,7 +25,7 @@ def _safe_load(node: PNode | PProvisionalNode, task: PTask, *, is_product: bool)
 
 def execute_task(task: PTask) -> Any:
     """Load task arguments and invoke its body once."""
-    parameters = inspect.signature(task.function).parameters
+    parameters = get_signature(task.function).parameters
 
     kwargs = {}
     for name, value in task.depends_on.items():

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import inspect
 from dataclasses import replace
 from typing import TYPE_CHECKING
 from typing import Annotated
@@ -10,6 +9,7 @@ from typing import Any
 from typing import get_origin
 
 from _pytask._inspect import get_annotations
+from _pytask._inspect import get_signature
 from _pytask.exceptions import NodeNotCollectedError
 from _pytask.models import NodeInfo
 from _pytask.node_protocols import NodeTree
@@ -187,7 +187,7 @@ def parse_products_from_task_function(  # noqa: C901
     signature_defaults = parse_keyword_arguments_from_signature_defaults(obj)
     kwargs = {**signature_defaults, **task_kwargs}
 
-    parameters = list(inspect.signature(obj).parameters)
+    parameters = list(get_signature(obj).parameters)
     parameters_with_product_annot = _find_args_with_product_annotation(obj)
     parameters_with_node_annot = _find_args_with_node_annotation(obj)
 
