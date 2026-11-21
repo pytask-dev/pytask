@@ -60,6 +60,7 @@ docs = [
 docs-live = ["sphinx-autobuild>=2024.10.3"]
 plugin-list = ["httpx>=0.27.0", "tabulate[widechars]>=0.9.0"]
 test = [
+    { include-group = "typing" },
     "cloudpickle>=3.0.0",
     "deepdiff>=7.0.0",
     "nbmake>=1.5.5",
@@ -73,8 +74,9 @@ test = [
     "coiled>=1.42.0; python_version < '3.14'",
     "networkx>=2.4.0",
     "pygraphviz>=2.0;platform_system=='Linux'",
+    "pytest-typing>=26.3.0",
 ]
-typing = ["ty>=0.0.8"]
+typing = ["ty>=0.0.91"]
 
 [project.urls]
 Changelog = "https://pytask-dev.readthedocs.io/en/stable/changes.html"
@@ -156,6 +158,7 @@ force-single-line = true
 convention = "numpy"
 
 [tool.pytest.ini_options]
+typing_checkers = ["ty"]
 testpaths = ["src", "tests"]
 filterwarnings = [
     "ignore:'@pytask.mark.*. is deprecated:FutureWarning",

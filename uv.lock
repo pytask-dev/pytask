@@ -3063,8 +3063,10 @@ test = [
     { name = "pygraphviz", marker = "sys_platform == 'linux'" },
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "pytest-typing" },
     { name = "pytest-xdist" },
     { name = "syrupy" },
+    { name = "ty" },
 ]
 typing = [
     { name = "ty" },
@@ -3114,10 +3116,12 @@ test = [
     { name = "pygraphviz", marker = "sys_platform == 'linux'", specifier = ">=2.0" },
     { name = "pytest", specifier = ">=8.4.0" },
     { name = "pytest-cov", specifier = ">=5.0.0" },
+    { name = "pytest-typing", specifier = ">=26.3.0" },
     { name = "pytest-xdist", specifier = ">=3.6.1" },
     { name = "syrupy", specifier = ">=4.5.0" },
+    { name = "ty", specifier = ">=0.0.91" },
 ]
-typing = [{ name = "ty", specifier = ">=0.0.8" }]
+typing = [{ name = "ty", specifier = ">=0.0.91" }]
 
 [[package]]
 name = "pytest"
@@ -3147,6 +3151,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/b1/51/a849f96e117386044471c8ec2bd6cfebacda285da9525c9106aeb28da671/pytest_cov-7.1.0.tar.gz", hash = "sha256:30674f2b5f6351aa09702a9c8c364f6a01c27aae0c1366ae8016160d1efc56b2", size = 55592, upload-time = "2026-03-21T20:11:16.284Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/9d/7a/d968e294073affff457b041c2be9868a40c1c71f4a35fcc1e45e5493067b/pytest_cov-7.1.0-py3-none-any.whl", hash = "sha256:a0461110b7865f9a271aa1b51e516c9a95de9d696734a2f71e3e78f46e1d4678", size = 22876, upload-time = "2026-03-21T20:11:14.438Z" },
+]
+
+[[package]]
+name = "pytest-typing"
+version = "26.5.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ce/40/88fdd6dd1c4c2dd632b6b6b278160d411a396c720f4c9e4e7d17d93f7633/pytest_typing-26.5.0.tar.gz", hash = "sha256:102858c2a93b9d077996e259f399eebb3458fd019c474f936847517f0e0b2523", size = 66470, upload-time = "2026-10-13T22:03:54.301Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6b/19/26b8f3a4f0c67dc95041fb1475e761f47974e88c800d410fa21bec6bf5bd/pytest_typing-26.5.0-py3-none-any.whl", hash = "sha256:96ad768a7aa7ee71a8ec6c85c3c330101f6be4bc091f400e54c98d9a6b46364f", size = 18043, upload-time = "2026-10-13T22:03:53.145Z" },
 ]
 
 [[package]]
