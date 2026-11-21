@@ -5,7 +5,7 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## 0.7.0
+## 0.7.0 - 2026-11-22
 
 - [#1011](https://github.com/pytask-dev/pytask/pull/1011) adds typing regression
   tests for tree utilities and documents inference gaps in pytask plugin use cases.
