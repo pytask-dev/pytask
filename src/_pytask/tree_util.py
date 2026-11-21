@@ -89,18 +89,6 @@ def tree_map(
 
 @overload
 def tree_map(
-    func: Callable[..., PyTree[_T]],
-    tree: list[PyTree[_T]],
-    /,
-    *rests: PyTree[Any],
-    is_leaf: Callable[[Any], bool] | None = None,
-    none_is_leaf: bool = True,
-    namespace: str = "pytask",
-) -> list[PyTree[_T]]: ...
-
-
-@overload
-def tree_map(
     func: Callable[..., _U],
     tree: list[PyTree[_T]],
     /,
@@ -109,18 +97,6 @@ def tree_map(
     none_is_leaf: bool = True,
     namespace: str = "pytask",
 ) -> list[PyTree[_U]]: ...
-
-
-@overload
-def tree_map(
-    func: Callable[..., PyTree[_T]],
-    tree: tuple[PyTree[_T], ...],
-    /,
-    *rests: PyTree[Any],
-    is_leaf: Callable[[Any], bool] | None = None,
-    none_is_leaf: bool = True,
-    namespace: str = "pytask",
-) -> tuple[PyTree[_T], ...]: ...
 
 
 @overload
@@ -193,18 +169,6 @@ def tree_map_with_path(
 
 @overload
 def tree_map_with_path(
-    func: Callable[..., PyTree[_T]],
-    tree: list[PyTree[_T]],
-    /,
-    *rests: PyTree[Any],
-    is_leaf: Callable[[Any], bool] | None = None,
-    none_is_leaf: bool = True,
-    namespace: str = "pytask",
-) -> list[PyTree[_T]]: ...
-
-
-@overload
-def tree_map_with_path(
     func: Callable[..., _U],
     tree: list[PyTree[_T]],
     /,
@@ -213,18 +177,6 @@ def tree_map_with_path(
     none_is_leaf: bool = True,
     namespace: str = "pytask",
 ) -> list[PyTree[_U]]: ...
-
-
-@overload
-def tree_map_with_path(
-    func: Callable[..., PyTree[_T]],
-    tree: tuple[PyTree[_T], ...],
-    /,
-    *rests: PyTree[Any],
-    is_leaf: Callable[[Any], bool] | None = None,
-    none_is_leaf: bool = True,
-    namespace: str = "pytask",
-) -> tuple[PyTree[_T], ...]: ...
 
 
 @overload
