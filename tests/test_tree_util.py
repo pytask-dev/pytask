@@ -3,14 +3,64 @@
 from __future__ import annotations
 
 import textwrap
+from dataclasses import dataclass
 
+import optree
 import pytest
 
 from pytask import ExitCode
 from pytask import build
 from pytask import cli
+from pytask.tree_util import tree_flatten_with_path
+from pytask.tree_util import tree_leaves
 from pytask.tree_util import tree_map
+from pytask.tree_util import tree_map_with_path
 from pytask.tree_util import tree_structure
+
+
+@dataclass(frozen=True)
+class _Box:
+    value: object
+
+
+@pytest.mark.parametrize(
+    ("helper", "reference", "args"),
+    [
+        (tree_flatten_with_path, optree.tree_flatten_with_path, ()),
+        (tree_leaves, optree.tree_leaves, ()),
+        (tree_map, optree.tree_map, (str,)),
+        (
+            tree_map_with_path,
+            optree.tree_map_with_path,
+            (lambda path, value: (path, value),),
+        ),
+        (tree_structure, optree.tree_structure, ()),
+    ],
+)
+@pytest.mark.parametrize("namespace", ["pytask", "pytask-test-custom"])
+@pytest.mark.parametrize("none_is_leaf", [True, False])
+def test_tree_helper_traversal_keywords(
+    helper, reference, args, namespace, none_is_leaf
+):
+    optree.register_pytree_node(
+        _Box,
+        lambda box: ((box.value,), None),
+        lambda _metadata, children: _Box(children[0]),
+        namespace=namespace,
+    )
+    try:
+        tree = [_Box(1), None]
+        options = {}
+        if namespace != "pytask":
+            options["namespace"] = namespace
+        if not none_is_leaf:
+            options["none_is_leaf"] = False
+        expected = reference(
+            *args, tree, none_is_leaf=none_is_leaf, namespace=namespace
+        )
+        assert helper(*args, tree, **options) == expected
+    finally:
+        optree.unregister_pytree_node(_Box, namespace=namespace)
 
 
 @pytest.mark.parametrize("arg_name", ["depends_on", "produces"])
