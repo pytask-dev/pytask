@@ -34,6 +34,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   from task generators are ignored and adds a regression test for this behavior.
 - [#996](https://github.com/pytask-dev/pytask/pull/996) raises collection errors when
   task generators define products with return annotations or a `produces` argument.
+- [#1050](https://github.com/pytask-dev/pytask/pull/1050) discards child task
+  registrations when a generator raises, preventing a later generator from running
+  those children.
 - [#977](https://github.com/pytask-dev/pytask/pull/977) allows marker expressions
   passed to `-m` to select tasks by marker keyword arguments.
 - [#976](https://github.com/pytask-dev/pytask/pull/976) makes invalid marker and
