@@ -7,8 +7,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
-- [#1023](https://github.com/pytask-dev/pytask/pull/1023) adds experimental Python
-  3.15 tests on Linux, macOS, and Windows and documents compatibility blockers.
+- [#1023](https://github.com/pytask-dev/pytask/pull/1023) adds Python 3.15 tests on
+  Linux, macOS, and Windows.
 - [#1026](https://github.com/pytask-dev/pytask/pull/1026) preserves definition-local
   bindings for generated tasks with postponed annotations and releases temporary
   snapshots after collection or generator failures. Internal task registration no
