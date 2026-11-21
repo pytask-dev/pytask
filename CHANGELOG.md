@@ -67,8 +67,8 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   and requiring optree 0.16.0 or newer.
 - [#1051](https://github.com/pytask-dev/pytask/pull/1051) restores the `none_is_leaf`
   and `namespace` keyword arguments on public tree utilities.
-- Improves callback result inference for list and tuple trees passed to `tree_map`
-  and `tree_map_with_path`.
+- [#1052](https://github.com/pytask-dev/pytask/pull/1052) improves callback result
+  inference for list and tuple trees passed to `tree_map` and `tree_map_with_path`.
 - [#932](https://github.com/pytask-dev/pytask/pull/932) validates unique task signatures
   during collection.
 
