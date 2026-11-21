@@ -26,12 +26,12 @@ carry-over product updates. The comparison must work without casting either tree
 
 Intended types:
 
-- `reveal_type(declared.is_prefix(output, strict=False))`: `bool`.
-- `reveal_type(products.is_prefix(worker_products, strict=False))`: `bool`.
+- `declared.is_prefix(output, strict=False)`: `bool`.
+- `products.is_prefix(worker_products, strict=False)`: `bool`.
 
 ```python
 from typing import Any
-from typing_extensions import reveal_type
+from typing_extensions import assert_type
 
 from optree import PyTreeSpec
 from pytask import PTask
@@ -41,12 +41,10 @@ from pytask.tree_util import PyTree, tree_structure
 def check_task_structures(task: PTask, out: Any, carried: PyTree[Any]) -> None:
     output: PyTreeSpec = tree_structure(out)
     declared: PyTreeSpec = tree_structure(task.produces["return"])
-    # revealed: bool
-    reveal_type(declared.is_prefix(output, strict=False))
+    assert_type(declared.is_prefix(output, strict=False), bool)
     products: PyTreeSpec = tree_structure(task.produces)
     worker_products: PyTreeSpec = tree_structure(carried)
-    # revealed: bool
-    reveal_type(products.is_prefix(worker_products, strict=False))
+    assert_type(products.is_prefix(worker_products, strict=False), bool)
     dependencies: PyTreeSpec = tree_structure(task.depends_on)
 ```
 

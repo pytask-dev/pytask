@@ -51,11 +51,11 @@ Related issues:
 
 Intended types:
 
-- `reveal_type(list(mapped))`: `list[str]`.
+- `list(mapped)`: `list[str]`.
 
 ```python
 from typing import Any, NamedTuple
-from typing_extensions import reveal_type
+from typing_extensions import assert_type
 
 from pytask import PNode, PPathNode, PTask, PythonNode
 from pytask.tree_util import PyTree, tree_map_with_path
@@ -78,8 +78,7 @@ def carry_product(
 def carry_products(task: PTask) -> dict[str, PyTree[CarryOverPath | PythonNode | None]]:
     # mypy-error: [misc] Cannot infer value of type parameter
     mapped = tree_map_with_path(carry_product, task.produces)
-    # revealed: list[str]
-    reveal_type(list(mapped))
+    assert_type(list(mapped), list[str])
     return mapped
 ```
 
@@ -97,11 +96,11 @@ Related issues:
 
 Intended types:
 
-- `reveal_type(list(mapped))`: `list[str]`.
+- `list(mapped)`: `list[str]`.
 
 ```python
 from typing import NamedTuple
-from typing_extensions import reveal_type
+from typing_extensions import assert_type
 
 from pytask import PNode, PTask, PythonNode
 from pytask.tree_util import PyTree, tree_map
@@ -122,8 +121,7 @@ def update_products(
 ) -> None:
     # mypy-error: [misc] Cannot infer value of type parameter
     mapped = tree_map(update_node, task.produces, carried)
-    # revealed: list[str]
-    reveal_type(list(mapped))
+    assert_type(list(mapped), list[str])
     task.produces = mapped
 ```
 
@@ -235,13 +233,11 @@ Related issues:
 
 Intended types:
 
-- `reveal_type(list(kwargs))`: `list[str]`.
-
-Current reveals (all checkers):
+- `list(kwargs)`: `list[str]`.
 
 ```python
 from typing import Any
-from typing_extensions import reveal_type
+from typing_extensions import assert_type
 
 from pytask import PPathNode, PTask
 from pytask.tree_util import tree_map
@@ -262,7 +258,6 @@ def collect_kwargs(task: PTask) -> dict[str, Any]:
             task.produces,
         ),
     }
-    # revealed: list[str]
-    reveal_type(list(kwargs))
+    assert_type(list(kwargs), list[str])
     return kwargs
 ```
