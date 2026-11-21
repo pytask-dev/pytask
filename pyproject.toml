@@ -62,8 +62,7 @@ plugin-list = ["httpx>=0.27.0", "tabulate[widechars]>=0.9.0"]
 test = [
     "cloudpickle>=3.0.0",
     "deepdiff>=7.0.0",
-    # nbmake requires pywin32 on Windows, which has no wheels for Python 3.14 yet
-    "nbmake>=1.5.5; platform_system != 'Windows' or python_version < '3.14'",
+    "nbmake>=1.5.5",
     "pygments>=2.18.0",
     "pexpect>=4.9.0",
     "pytest>=8.4.0",
