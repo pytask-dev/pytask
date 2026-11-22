@@ -3,6 +3,7 @@ from __future__ import annotations
 import textwrap
 
 import pytest
+from rich.traceback import Traceback as RichTraceback
 
 from _pytask.console import render_to_string
 from pytask import ExitCode
@@ -46,14 +47,27 @@ def test_hide_traceback_from_error_report(
 
 
 def test_render_traceback_with_string_traceback():
-    traceback = Traceback((Exception, Exception("Help"), "String traceback."))  # type: ignore[arg-type]
-    rendered = render_to_string(traceback, console)  # type: ignore[arg-type]
+    traceback = Traceback((Exception, Exception("Help"), "String traceback."))
+    rendered = render_to_string(traceback, console)
     assert "String traceback." in rendered
+
+
+def test_render_extracted_rich_trace():
+    try:
+        msg = "worker failure"
+        raise ValueError(msg)  # noqa: TRY301
+    except ValueError as exc:
+        trace = RichTraceback.extract(type(exc), exc, exc.__traceback__)
+        traceback = Traceback((type(exc), exc, trace))
+
+    rendered = render_to_string(traceback, console)
+    assert "ValueError: worker failure" in rendered
+    assert "test_render_extracted_rich_trace" in rendered
 
 
 def test_passing_show_locals():
     traceback = Traceback(
-        (Exception, Exception("Help"), "String traceback."),  # type: ignore[arg-type]
+        (Exception, Exception("Help"), "String traceback."),
         show_locals=True,
     )
     assert traceback.show_locals is True

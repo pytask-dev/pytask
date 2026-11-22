@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from typing import ClassVar
 
 import pluggy
+from rich.traceback import Trace
 from rich.traceback import Traceback as RichTraceback
 
 import _pytask
@@ -40,7 +41,10 @@ _PYTASK_DIRECTORY = Path(_pytask.__file__).parent
 ExceptionInfo: TypeAlias = tuple[
     type[BaseException], BaseException, TracebackType | None
 ]
-OptionalExceptionInfo: TypeAlias = ExceptionInfo | tuple[None, None, None]
+OptionalExceptionInfo: TypeAlias = (
+    tuple[type[BaseException], BaseException, TracebackType | Trace | str | None]
+    | tuple[None, None, None]
+)
 
 
 @dataclass
@@ -65,9 +69,12 @@ class Traceback:
             self.exc_info, suppress=self.suppress
         )
 
-        # The tracebacks returned by pytask-parallel are strings.
         if isinstance(filtered_exc_info[2], str):
             yield filtered_exc_info[2]
+        elif isinstance(filtered_exc_info[2], Trace):
+            yield RichTraceback(
+                trace=filtered_exc_info[2], show_locals=self.show_locals
+            )
         elif filtered_exc_info[0] is not None and filtered_exc_info[1] is not None:
             yield RichTraceback.from_exception(
                 filtered_exc_info[0],
@@ -132,6 +139,7 @@ def _remove_internal_traceback_frames_from_exception(
     _, _, tb = _remove_internal_traceback_frames_from_exc_info(
         (type(exc), exc, exc.__traceback__)
     )
+    assert tb is None or isinstance(tb, TracebackType)
     exc.__traceback__ = tb
     return exc
 

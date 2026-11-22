@@ -2,6 +2,10 @@
 
 Guidance for coding agents working in this repository.
 
+## Git and Pull Requests
+
+- Use Conventional Commits for commit messages and pull request titles.
+
 ## Tooling
 
 - Use `uv` for Python environments, dependencies, and running commands.
