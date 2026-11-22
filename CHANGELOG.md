@@ -5,7 +5,7 @@ chronological order. Releases follow [semantic versioning](https://semver.org/) 
 releases are available on [PyPI](https://pypi.org/project/pytask) and
 [Anaconda.org](https://anaconda.org/conda-forge/pytask).
 
-## Unreleased
+## 0.7.0 - 2026-11-22
 
 - [#1053](https://github.com/pytask-dev/pytask/pull/1053) supports rendering extracted
   Rich `Trace` objects in exception reports.
@@ -35,6 +35,11 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   behave in dry-run and explain modes and adds regression tests for both modes.
 - [#995](https://github.com/pytask-dev/pytask/pull/995) documents that return values
   from task generators are ignored and adds a regression test for this behavior.
+- [#933](https://github.com/pytask-dev/pytask/pull/933) runs task generators once,
+  reports every generated child collection failure, and admits generated tasks
+  together after collection and DAG validation succeed.
+- [#934](https://github.com/pytask-dev/pytask/pull/934) reports a task-raised
+  `SystemExit` as a task failure.
 - [#996](https://github.com/pytask-dev/pytask/pull/996) raises collection errors when
   task generators define products with return annotations or a `produces` argument.
 - [#1050](https://github.com/pytask-dev/pytask/pull/1050) discards child task
@@ -74,6 +79,10 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
   inference for list and tuple trees passed to `tree_map` and `tree_map_with_path`.
 - [#932](https://github.com/pytask-dev/pytask/pull/932) validates unique task signatures
   during collection.
+- [#978](https://github.com/pytask-dev/pytask/pull/978) fixes automatic plugin
+  discovery and keeps the published plugin list up to date.
+- [#908](https://github.com/pytask-dev/pytask/pull/908) clarifies the help text
+  for `--verbose`.
 
 ## 0.6.0 - 2026-05-01
 
