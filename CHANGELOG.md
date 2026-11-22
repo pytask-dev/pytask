@@ -7,6 +7,9 @@ releases are available on [PyPI](https://pypi.org/project/pytask) and
 
 ## Unreleased
 
+- [#1053](https://github.com/pytask-dev/pytask/pull/1053) supports rendering extracted
+  Rich `Trace` objects in exception reports.
+
 - [#1011](https://github.com/pytask-dev/pytask/pull/1011) adds typing regression
   tests for tree utilities and documents inference gaps in pytask plugin use cases.
 - [#1023](https://github.com/pytask-dev/pytask/pull/1023) adds Python 3.15 tests on
