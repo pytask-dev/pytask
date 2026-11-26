@@ -59,29 +59,40 @@ class Traceback:
         TREE_UTIL_LIB_DIRECTORY,
     )
 
+    def extract(self) -> Trace | None:
+        """Extract a Rich trace using pytask's frame filtering and locals setting.
+
+        Return an existing Rich trace as is, or return None for a preformatted
+        string or missing exception information.
+        """
+        exc_info = self.exc_info
+        if isinstance(exc_info[1], Exit):
+            exc_info = remove_traceback_from_exc_info(exc_info)
+
+        exc_type, exc_value, traceback = exc_info
+        if isinstance(traceback, Trace):
+            return traceback
+        if isinstance(traceback, str) or exc_type is None or exc_value is None:
+            return None
+
+        _, _, filtered_traceback = _remove_internal_traceback_frames_from_exc_info(
+            exc_info, suppress=self.suppress
+        )
+        assert filtered_traceback is None or isinstance(
+            filtered_traceback, TracebackType
+        )
+        return RichTraceback.extract(
+            exc_type, exc_value, filtered_traceback, show_locals=self.show_locals
+        )
+
     def __rich_console__(
         self, console: Console, console_options: ConsoleOptions
     ) -> RenderResult:
-        if isinstance(self.exc_info[1], Exit):
-            self.exc_info = remove_traceback_from_exc_info(self.exc_info)
-
-        filtered_exc_info = _remove_internal_traceback_frames_from_exc_info(
-            self.exc_info, suppress=self.suppress
-        )
-
-        if isinstance(filtered_exc_info[2], str):
-            yield filtered_exc_info[2]
-        elif isinstance(filtered_exc_info[2], Trace):
-            yield RichTraceback(
-                trace=filtered_exc_info[2], show_locals=self.show_locals
-            )
-        elif filtered_exc_info[0] is not None and filtered_exc_info[1] is not None:
-            yield RichTraceback.from_exception(
-                filtered_exc_info[0],
-                filtered_exc_info[1],
-                filtered_exc_info[2],
-                show_locals=self.show_locals,
-            )
+        _, exc_value, traceback = self.exc_info
+        if isinstance(traceback, str) and not isinstance(exc_value, Exit):
+            yield traceback
+        elif (trace := self.extract()) is not None:
+            yield RichTraceback(trace=trace, show_locals=self.show_locals)
 
 
 def remove_traceback_from_exc_info(

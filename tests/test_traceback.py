@@ -65,6 +65,29 @@ def test_render_extracted_rich_trace():
     assert "test_render_extracted_rich_trace" in rendered
 
 
+@pytest.mark.parametrize("show_locals", [False, True])
+def test_extract_filters_hidden_frames_and_respects_show_locals(show_locals):
+    def fail():
+        local_marker = "worker failure"
+        raise ValueError(local_marker)
+
+    def hidden():
+        __tracebackhide__ = True
+        try:
+            fail()
+        except ValueError as exc:
+            return Traceback(
+                (type(exc), exc, exc.__traceback__), show_locals=show_locals
+            ).extract()
+
+    trace = hidden()
+
+    assert trace is not None
+    frames = trace.stacks[0].frames
+    assert [frame.name for frame in frames] == ["fail"]
+    assert (frames[0].locals is not None) is show_locals
+
+
 def test_passing_show_locals():
     traceback = Traceback(
         (Exception, Exception("Help"), "String traceback."),
